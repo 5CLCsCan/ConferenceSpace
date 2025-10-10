@@ -7,31 +7,26 @@ import (
 
 	"github.com/dcao/conferencespace/internal/dto/user"
 	userEntity "github.com/dcao/conferencespace/internal/entity/user"
+	"github.com/dcao/conferencespace/internal/storage"
+	userStorage "github.com/dcao/conferencespace/internal/storage/user"
 	"github.com/dcao/conferencespace/pkg/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
 
-// StorageInterface defines the interface for user storage
-type StorageInterface interface {
-	Create(ctx context.Context, email, firstName, lastName, hashedPassword string, domain []string) (*userEntity.User, error)
-	GetByID(ctx context.Context, id int64) (*userEntity.User, error)
-	GetByEmail(ctx context.Context, email string) (*userEntity.User, error)
-	List(ctx context.Context) ([]*userEntity.User, error)
-	Update(ctx context.Context, id int64, email, firstName, lastName *string, domain []string) (*userEntity.User, error)
-	Delete(ctx context.Context, id int64) error
+type ServiceInterface interface {
+	Register(ctx context.Context, req *user.CreateRequest) (*user.Response, error)
+	Login(ctx context.Context, req *user.LoginRequest) (*user.LoginResponse, error)
 }
 
-// Service handles business logic for users
 type Service struct {
-	storage   StorageInterface
+	storage   userStorage.StorageInterface
 	jwtSecret string
 	jwtExpiry time.Duration
 }
 
-// New creates a new user service
-func New(storage StorageInterface, jwtSecret string, jwtExpiryHours int) *Service {
+func New(store *storage.Storage, jwtSecret string, jwtExpiryHours int) *Service {
 	return &Service{
-		storage:   storage,
+		storage:   store.User,
 		jwtSecret: jwtSecret,
 		jwtExpiry: time.Duration(jwtExpiryHours) * time.Hour,
 	}

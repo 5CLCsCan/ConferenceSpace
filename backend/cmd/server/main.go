@@ -11,6 +11,7 @@ import (
 
 	"github.com/dcao/conferencespace/internal/config"
 	"github.com/dcao/conferencespace/internal/controller"
+	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/middleware"
 	"github.com/dcao/conferencespace/internal/service"
 	"github.com/dcao/conferencespace/internal/storage"
@@ -78,14 +79,9 @@ func initializeApp(cfg *config.Config) (*controller.Controller, func(), error) {
 		return nil, nil, err
 	}
 
-	// Initialize storage layer
 	store := storage.NewStorage(db)
-
-	// Initialize service layer
-	svc := service.NewService(store.User, cfg.JWT.Secret, cfg.JWT.Expiry)
-
-	// Initialize controller layer
-	ctrl := controller.NewController(svc.User)
+	svc := service.NewService(store, cfg.JWT.Secret, cfg.JWT.Expiry)
+	ctrl := controller.NewController(svc, store)
 
 	cleanup := func() {
 		if err := db.Close(); err != nil {
@@ -118,19 +114,19 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 		// Public auth routes (no authentication required)
 		auth := v1.Group("/auth")
 		{
-			auth.POST("/register", ctrl.Auth.Register)
-			auth.POST("/login", ctrl.Auth.Login)
+			auth.POST("/register", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Auth.Register))
+			auth.POST("/login", handler.HandleRequest(ctrl.Auth.Login))
 		}
 
 		// Protected user routes (authentication required)
 		users := v1.Group("/users")
 		users.Use(middleware.AuthMiddleware(cfg.JWT.Secret))
 		{
-			users.GET("/me", ctrl.User.GetMe)
-			users.GET("", ctrl.User.List)
-			users.GET("/:id", ctrl.User.Get)
-			users.PUT("/:id", ctrl.User.Update)
-			users.DELETE("/:id", ctrl.User.Delete)
+			users.GET("/me", handler.HandleNoRequest(ctrl.User.GetMe))
+			users.GET("", handler.HandleNoRequestList(ctrl.User.List))
+			users.GET("/:id", handler.HandleNoRequest(ctrl.User.Get))
+			users.PUT("/:id", handler.HandleRequest(ctrl.User.Update))
+			users.DELETE("/:id", handler.HandleNoRequestWithMessage("user deleted successfully", ctrl.User.Delete))
 		}
 	}
 

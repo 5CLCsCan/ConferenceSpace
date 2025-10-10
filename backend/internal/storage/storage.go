@@ -9,13 +9,10 @@ import (
 	"github.com/dcao/conferencespace/internal/storage/user"
 )
 
-// Storage holds all storage dependencies
 type Storage struct {
-	User *user.Storage
-	// Add more storages here as needed
+	User user.StorageInterface
 }
 
-// NewStorage creates a new storage instance with all dependencies
 func NewStorage(db *sql.DB) *Storage {
 	return &Storage{
 		User: user.New(db),

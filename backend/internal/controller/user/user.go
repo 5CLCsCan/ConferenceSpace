@@ -1,128 +1,122 @@
 package user
 
 import (
-	"context"
 	"net/http"
 	"strconv"
 
-	"github.com/dcao/conferencespace/internal/dto/user"
+	userDto "github.com/dcao/conferencespace/internal/dto/user"
+	userEntity "github.com/dcao/conferencespace/internal/entity/user"
+	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/middleware"
+	"github.com/dcao/conferencespace/internal/storage"
+	userStorage "github.com/dcao/conferencespace/internal/storage/user"
 	"github.com/gin-gonic/gin"
 )
 
-// ServiceInterface defines the interface for user service
-type ServiceInterface interface {
-	GetByID(ctx context.Context, id int64) (*user.Response, error)
-	List(ctx context.Context) ([]*user.Response, error)
-	Update(ctx context.Context, id int64, req *user.UpdateRequest) (*user.Response, error)
-	Delete(ctx context.Context, id int64) error
-}
-
-// Controller handles HTTP requests for users
 type Controller struct {
-	service ServiceInterface
+	storage userStorage.StorageInterface
 }
 
-// New creates a new user controller
-func New(service ServiceInterface) *Controller {
-	return &Controller{service: service}
+func New(store *storage.Storage) *Controller {
+	return &Controller{
+		storage: store.User,
+	}
 }
 
-// List handles GET /users
-func (c *Controller) List(ctx *gin.Context) {
-	users, err := c.service.List(ctx.Request.Context())
+func (c *Controller) List(ctx *gin.Context) ([]*userDto.Response, error) {
+	users, err := c.storage.List(ctx.Request.Context())
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": users})
+	responses := make([]*userDto.Response, len(users))
+	for i, u := range users {
+		responses[i] = c.entityToResponse(u)
+	}
+
+	return responses, nil
 }
 
-// Get handles GET /users/:id
-func (c *Controller) Get(ctx *gin.Context) {
+func (c *Controller) Get(ctx *gin.Context) (*userDto.Response, error) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid user ID"})
-		return
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid user ID")
 	}
 
-	user, err := c.service.GetByID(ctx.Request.Context(), id)
+	user, err := c.storage.GetByID(ctx.Request.Context(), id)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "user not found")
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": user})
+	return c.entityToResponse(user), nil
 }
 
-// GetMe handles GET /users/me (get current authenticated user)
-func (c *Controller) GetMe(ctx *gin.Context) {
+func (c *Controller) GetMe(ctx *gin.Context) (*userDto.Response, error) {
 	userID, exists := middleware.GetUserID(ctx)
 	if !exists {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "user not authenticated"})
-		return
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
 	}
 
-	user, err := c.service.GetByID(ctx.Request.Context(), userID)
+	user, err := c.storage.GetByID(ctx.Request.Context(), userID)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "user not found")
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": user})
+	return c.entityToResponse(user), nil
 }
 
-// Update handles PUT /users/:id
-func (c *Controller) Update(ctx *gin.Context) {
+func (c *Controller) Update(ctx *gin.Context, req *userDto.UpdateRequest) (*userDto.Response, error) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid user ID"})
-		return
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid user ID")
 	}
 
-	// Check if user is updating their own profile
 	userID, exists := middleware.GetUserID(ctx)
 	if !exists || userID != id {
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "you can only update your own profile"})
-		return
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "you can only update your own profile")
 	}
 
-	var req user.UpdateRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	updatedUser, err := c.service.Update(ctx.Request.Context(), id, &req)
+	updatedUser, err := c.storage.Update(
+		ctx.Request.Context(),
+		id,
+		req.Email,
+		req.FirstName,
+		req.LastName,
+		req.Domain,
+	)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": updatedUser})
+	return c.entityToResponse(updatedUser), nil
 }
 
-// Delete handles DELETE /users/:id
-func (c *Controller) Delete(ctx *gin.Context) {
+func (c *Controller) Delete(ctx *gin.Context) error {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid user ID"})
-		return
+		return handler.NewErrorResponse(http.StatusBadRequest, "invalid user ID")
 	}
 
-	// Check if user is deleting their own account
 	userID, exists := middleware.GetUserID(ctx)
 	if !exists || userID != id {
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "you can only delete your own account"})
-		return
+		return handler.NewErrorResponse(http.StatusForbidden, "you can only delete your own account")
 	}
 
-	if err := c.service.Delete(ctx.Request.Context(), id); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+	if err := c.storage.Delete(ctx.Request.Context(), id); err != nil {
+		return handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "user deleted successfully"})
+	return nil
 }
 
+func (c *Controller) entityToResponse(user *userEntity.User) *userDto.Response {
+	return &userDto.Response{
+		UserID:    user.UserID,
+		Email:     user.Email,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Domain:    user.Domain,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+}

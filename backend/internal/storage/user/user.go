@@ -11,6 +11,16 @@ import (
 	"github.com/lib/pq"
 )
 
+// StorageInterface defines the interface for user storage operations
+type StorageInterface interface {
+	Create(ctx context.Context, email, firstName, lastName, hashedPassword string, domain []string) (*user.User, error)
+	GetByID(ctx context.Context, id int64) (*user.User, error)
+	GetByEmail(ctx context.Context, email string) (*user.User, error)
+	List(ctx context.Context) ([]*user.User, error)
+	Update(ctx context.Context, id int64, email, firstName, lastName *string, domain []string) (*user.User, error)
+	Delete(ctx context.Context, id int64) error
+}
+
 // Storage handles user data persistence
 type Storage struct {
 	db *sql.DB
@@ -28,14 +38,14 @@ func New(db *sql.DB) *Storage {
 // Create creates a new user
 func (s *Storage) Create(ctx context.Context, email, firstName, lastName, hashedPassword string, domain []string) (*user.User, error) {
 	now := time.Now()
-	
+
 	query, args, err := s.qb.
 		Insert("users").
 		Columns("email", "first_name", "last_name", "hashed_password", "domain", "created_at", "updated_at").
 		Values(email, firstName, lastName, hashedPassword, pq.Array(domain), now, now).
 		Suffix("RETURNING user_id, email, first_name, last_name, domain, created_at, updated_at").
 		ToSql()
-	
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to build insert query: %w", err)
 	}
@@ -65,7 +75,7 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*user.User, error) {
 		From("users").
 		Where(sq.Eq{"user_id": id}).
 		ToSql()
-	
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to build select query: %w", err)
 	}
@@ -99,7 +109,7 @@ func (s *Storage) GetByEmail(ctx context.Context, email string) (*user.User, err
 		From("users").
 		Where(sq.Eq{"email": email}).
 		ToSql()
-	
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to build select query: %w", err)
 	}
@@ -133,7 +143,7 @@ func (s *Storage) List(ctx context.Context) ([]*user.User, error) {
 		From("users").
 		OrderBy("created_at DESC").
 		ToSql()
-	
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to build select query: %w", err)
 	}
@@ -194,7 +204,7 @@ func (s *Storage) Update(ctx context.Context, id int64, email, firstName, lastNa
 		Where(sq.Eq{"user_id": id}).
 		Suffix("RETURNING user_id, email, first_name, last_name, domain, created_at, updated_at").
 		ToSql()
-	
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to build update query: %w", err)
 	}
@@ -226,7 +236,7 @@ func (s *Storage) Delete(ctx context.Context, id int64) error {
 		Delete("users").
 		Where(sq.Eq{"user_id": id}).
 		ToSql()
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to build delete query: %w", err)
 	}

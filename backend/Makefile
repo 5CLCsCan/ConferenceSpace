@@ -1,5 +1,9 @@
 .PHONY: help dev db-up db-down db-reset server build run test clean docker-build docker-up docker-down migrate-up migrate-down
 
+# Go binary path
+GOBIN := $(shell go env GOPATH)/bin
+MIGRATE := $(GOBIN)/migrate
+
 help: ## Show this help message
 	@echo 'Usage: make [target]'
 	@echo ''
@@ -84,12 +88,12 @@ docker-restart: docker-down docker-up ## Restart all Docker services
 migrate-up: ## Run database migrations
 	@echo "Running migrations..."
 	@docker-compose exec -T postgres psql -U postgres -d conferencespace -c "SELECT 1" > /dev/null 2>&1 || (echo "Database not ready. Run 'make db-up' first." && exit 1)
-	migrate -path migrations -database "postgresql://postgres:postgres@localhost:5432/conferencespace?sslmode=disable" up
+	$(MIGRATE) -path migrations -database "postgresql://postgres:postgres@localhost:5432/conferencespace?sslmode=disable" up
 	@echo "Migrations completed!"
 
 migrate-version: ## Check current migration version
 	@echo "Current migration version:"
-	@migrate -path migrations -database "postgresql://postgres:postgres@localhost:5432/conferencespace?sslmode=disable" version 2>/dev/null || echo "No migrations applied yet"
+	@$(MIGRATE) -path migrations -database "postgresql://postgres:postgres@localhost:5432/conferencespace?sslmode=disable" version 2>/dev/null || echo "No migrations applied yet"
 	@echo ""
 	@echo "Available migrations:"
 	@ls -1 migrations/*.up.sql 2>/dev/null | wc -l | xargs echo "Total:"
@@ -100,7 +104,7 @@ migrate-create: ## Create new migration (usage: make migrate-create NAME=add_ema
 		echo "Example: make migrate-create NAME=add_email_to_conferences"; \
 		exit 1; \
 	fi
-	@migrate create -ext sql -dir migrations -seq $(NAME)
+	@$(MIGRATE) create -ext sql -dir migrations -seq $(NAME)
 	@echo "✅ Created migration files!"
 	@echo "Edit them in: migrations/"
 
@@ -152,8 +156,8 @@ test-unit: ## Run unit tests only
 # ============================================================================
 
 lint: ## Run linter (requires golangci-lint)
-	@command -v golangci-lint >/dev/null 2>&1 || { echo "golangci-lint not installed. Install: https://golangci-lint.run/usage/install/"; exit 1; }
-	golangci-lint run
+	@test -f $(GOBIN)/golangci-lint || { echo "golangci-lint not installed. Run: make install-tools"; exit 1; }
+	$(GOBIN)/golangci-lint run
 
 format: ## Format Go code
 	@echo "Formatting code..."
@@ -193,7 +197,12 @@ install-tools: ## Install required development tools
 	go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 	@echo "Installing golangci-lint..."
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-	@echo "Tools installed!"
+	@echo "✅ Tools installed to $(GOBIN)"
+	@echo ""
+	@echo "💡 Tip: Add Go binaries to your PATH by adding this to your ~/.zshrc:"
+	@echo "   export PATH=\$$PATH:$(GOBIN)"
+	@echo ""
+	@echo "The Makefile will automatically use the correct path for migrate."
 
 # ============================================================================
 # Quick Status Check
