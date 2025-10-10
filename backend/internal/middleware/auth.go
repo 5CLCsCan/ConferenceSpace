@@ -39,7 +39,7 @@ func AuthMiddleware(jwtSecret string) gin.HandlerFunc {
 
 		// Store user info in context
 		c.Set("user_id", claims.UserID)
-		c.Set("email", claims.Email)
+		c.Set("user_email", claims.Email)
 
 		c.Next()
 	}
@@ -56,10 +56,9 @@ func GetUserID(c *gin.Context) (int64, bool) {
 
 // GetEmail gets the authenticated user email from context
 func GetEmail(c *gin.Context) (string, bool) {
-	email, exists := c.Get("email")
+	email, exists := c.Get("user_email")
 	if !exists {
 		return "", false
 	}
 	return email.(string), true
 }
-

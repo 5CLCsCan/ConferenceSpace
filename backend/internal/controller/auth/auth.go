@@ -2,25 +2,27 @@ package auth
 
 import (
 	"github.com/dcao/conferencespace/internal/dto/user"
-	"github.com/dcao/conferencespace/internal/service"
-	userService "github.com/dcao/conferencespace/internal/service/user"
+	"github.com/dcao/conferencespace/internal/orchestrator"
+	userOrchestrator "github.com/dcao/conferencespace/internal/orchestrator/user"
 	"github.com/gin-gonic/gin"
 )
 
 type Controller struct {
-	service userService.ServiceInterface
+	orchestrator userOrchestrator.OrchestratorInterface
 }
 
-func New(svc *service.Service) *Controller {
+func New(orch *orchestrator.Orchestrator) *Controller {
 	return &Controller{
-		service: svc.User,
+		orchestrator: orch.User,
 	}
 }
 
-func (c *Controller) Register(ctx *gin.Context, req *user.CreateRequest) (*user.Response, error) {
-	return c.service.Register(ctx.Request.Context(), req)
+func (c *Controller) Register(ginCtx *gin.Context, req *user.CreateRequest) (*user.Response, error) {
+	ctx := ginCtx.Request.Context()
+	return c.orchestrator.Register(ctx, req)
 }
 
-func (c *Controller) Login(ctx *gin.Context, req *user.LoginRequest) (*user.LoginResponse, error) {
-	return c.service.Login(ctx.Request.Context(), req)
+func (c *Controller) Login(ginCtx *gin.Context, req *user.LoginRequest) (*user.LoginResponse, error) {
+	ctx := ginCtx.Request.Context()
+	return c.orchestrator.Login(ctx, req)
 }

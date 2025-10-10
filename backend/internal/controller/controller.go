@@ -3,7 +3,7 @@ package controller
 import (
 	"github.com/dcao/conferencespace/internal/controller/auth"
 	"github.com/dcao/conferencespace/internal/controller/user"
-	"github.com/dcao/conferencespace/internal/service"
+	"github.com/dcao/conferencespace/internal/orchestrator"
 	"github.com/dcao/conferencespace/internal/storage"
 )
 
@@ -12,9 +12,9 @@ type Controller struct {
 	User *user.Controller
 }
 
-func NewController(svc *service.Service, store *storage.Storage) *Controller {
+func NewController(orch *orchestrator.Orchestrator, store *storage.Storage) *Controller {
 	return &Controller{
-		Auth: auth.New(svc),
+		Auth: auth.New(orch),
 		User: user.New(store),
 	}
 }

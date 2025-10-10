@@ -13,7 +13,7 @@ import (
 	"github.com/dcao/conferencespace/internal/controller"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/middleware"
-	"github.com/dcao/conferencespace/internal/service"
+	"github.com/dcao/conferencespace/internal/orchestrator"
 	"github.com/dcao/conferencespace/internal/storage"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -80,8 +80,8 @@ func initializeApp(cfg *config.Config) (*controller.Controller, func(), error) {
 	}
 
 	store := storage.NewStorage(db)
-	svc := service.NewService(store, cfg.JWT.Secret, cfg.JWT.Expiry)
-	ctrl := controller.NewController(svc, store)
+	orch := orchestrator.NewOrchestrator(store, cfg.JWT.Secret, cfg.JWT.Expiry)
+	ctrl := controller.NewController(orch, store)
 
 	cleanup := func() {
 		if err := db.Close(); err != nil {
@@ -99,6 +99,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
+	router.Use(middleware.ContextMiddleware())
 
 	// Health check endpoint
 	router.GET("/health", func(c *gin.Context) {
@@ -123,7 +124,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 		users.Use(middleware.AuthMiddleware(cfg.JWT.Secret))
 		{
 			users.GET("/me", handler.HandleNoRequest(ctrl.User.GetMe))
-			users.GET("", handler.HandleNoRequestList(ctrl.User.List))
+			users.GET("", handler.HandleRequestWithQuery(ctrl.User.List))
 			users.GET("/:id", handler.HandleNoRequest(ctrl.User.Get))
 			users.PUT("/:id", handler.HandleRequest(ctrl.User.Update))
 			users.DELETE("/:id", handler.HandleNoRequestWithMessage("user deleted successfully", ctrl.User.Delete))

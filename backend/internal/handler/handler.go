@@ -72,6 +72,60 @@ func HandleRequestWithStatus[Req any, Res any](statusCode int, handler func(ctx 
 	}
 }
 
+// HandleRequestWithQuery binds both body and query params (query params take priority)
+func HandleRequestWithQuery[Req any, Res any](handler func(ctx *gin.Context, req *Req) (*Res, error)) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req Req
+
+		if ctx.Request.ContentLength > 0 {
+			if err := ctx.ShouldBindJSON(&req); err != nil {
+				ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+				return
+			}
+		}
+
+		if err := ctx.ShouldBindQuery(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+			return
+		}
+
+		response, err := handler(ctx, &req)
+		if err != nil {
+			handleError(ctx, err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, Response{Data: response})
+	}
+}
+
+// HandleRequestWithQueryAndStatus binds both body and query params with custom status code
+func HandleRequestWithQueryAndStatus[Req any, Res any](statusCode int, handler func(ctx *gin.Context, req *Req) (*Res, error)) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req Req
+
+		if ctx.Request.ContentLength > 0 {
+			if err := ctx.ShouldBindJSON(&req); err != nil {
+				ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+				return
+			}
+		}
+
+		if err := ctx.ShouldBindQuery(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+			return
+		}
+
+		response, err := handler(ctx, &req)
+		if err != nil {
+			handleError(ctx, err)
+			return
+		}
+
+		ctx.JSON(statusCode, Response{Data: response})
+	}
+}
+
 // HandleNoRequest handles endpoints with no request body (GET, DELETE)
 func HandleNoRequest[Res any](handler func(ctx *gin.Context) (*Res, error)) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
