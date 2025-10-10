@@ -95,15 +95,8 @@ make docker-build     # Build Docker image
 ### 🗄️ Database Migrations
 
 ```bash
-make migrate-up              # Run all pending migrations
-make migrate-down            # Rollback last migration
-make migrate-down-all        # Rollback all migrations
-make migrate-create NAME=... # Create new migration
-```
-
-Example:
-```bash
-make migrate-create NAME=create_users_table
+make migrate-up       # Run migrations
+make migrate-version  # Check current version
 ```
 
 ### 🛢️ Database Management

@@ -11,12 +11,19 @@ import (
 type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
+	JWT      JWTConfig
 }
 
 // ServerConfig holds server-related configuration
 type ServerConfig struct {
 	Port string
 	Env  string
+}
+
+// JWTConfig holds JWT-related configuration
+type JWTConfig struct {
+	Secret string
+	Expiry int // in hours
 }
 
 // DatabaseConfig holds database-related configuration
@@ -47,6 +54,10 @@ func Load() (*Config, error) {
 			DBName:   getEnv("DB_NAME", "conferencespace"),
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		},
+		JWT: JWTConfig{
+			Secret: getEnv("JWT_SECRET", "your-secret-key-change-this-in-production"),
+			Expiry: getEnvAsInt("JWT_EXPIRY_HOURS", 24),
+		},
 	}
 
 	return cfg, nil
@@ -66,5 +77,21 @@ func getEnv(key, defaultValue string) string {
 		return value
 	}
 	return defaultValue
+}
+
+// getEnvAsInt gets an environment variable as int or returns a default value
+func getEnvAsInt(key string, defaultValue int) int {
+	if value := os.Getenv(key); value != "" {
+		if intVal, err := parseInt(value); err == nil {
+			return intVal
+		}
+	}
+	return defaultValue
+}
+
+func parseInt(s string) (int, error) {
+	var result int
+	_, err := fmt.Sscanf(s, "%d", &result)
+	return result, err
 }
 

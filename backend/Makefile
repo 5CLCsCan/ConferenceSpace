@@ -81,36 +81,28 @@ docker-restart: docker-down docker-up ## Restart all Docker services
 # Database Migrations
 # ============================================================================
 
-migrate-up: ## Run database migrations (up)
+migrate-up: ## Run database migrations
 	@echo "Running migrations..."
 	@docker-compose exec -T postgres psql -U postgres -d conferencespace -c "SELECT 1" > /dev/null 2>&1 || (echo "Database not ready. Run 'make db-up' first." && exit 1)
 	migrate -path migrations -database "postgresql://postgres:postgres@localhost:5432/conferencespace?sslmode=disable" up
 	@echo "Migrations completed!"
 
-migrate-down: ## Rollback last migration
-	@echo "Rolling back last migration..."
-	migrate -path migrations -database "postgresql://postgres:postgres@localhost:5432/conferencespace?sslmode=disable" down 1
-	@echo "Rollback completed!"
+migrate-version: ## Check current migration version
+	@echo "Current migration version:"
+	@migrate -path migrations -database "postgresql://postgres:postgres@localhost:5432/conferencespace?sslmode=disable" version 2>/dev/null || echo "No migrations applied yet"
+	@echo ""
+	@echo "Available migrations:"
+	@ls -1 migrations/*.up.sql 2>/dev/null | wc -l | xargs echo "Total:"
 
-migrate-down-all: ## Rollback all migrations
-	@echo "Rolling back all migrations..."
-	migrate -path migrations -database "postgresql://postgres:postgres@localhost:5432/conferencespace?sslmode=disable" down -all
-	@echo "All migrations rolled back!"
-
-migrate-create: ## Create a new migration file (usage: make migrate-create NAME=create_users_table)
+migrate-create: ## Create new migration (usage: make migrate-create NAME=add_email_field)
 	@if [ -z "$(NAME)" ]; then \
-		echo "Error: NAME is required. Usage: make migrate-create NAME=create_users_table"; \
+		echo "Usage: make migrate-create NAME=your_migration_name"; \
+		echo "Example: make migrate-create NAME=add_email_to_conferences"; \
 		exit 1; \
 	fi
-	migrate create -ext sql -dir migrations -seq $(NAME)
-	@echo "Migration files created!"
-
-migrate-force: ## Force migration version (usage: make migrate-force VERSION=1)
-	@if [ -z "$(VERSION)" ]; then \
-		echo "Error: VERSION is required. Usage: make migrate-force VERSION=1"; \
-		exit 1; \
-	fi
-	migrate -path migrations -database "postgresql://postgres:postgres@localhost:5432/conferencespace?sslmode=disable" force $(VERSION)
+	@migrate create -ext sql -dir migrations -seq $(NAME)
+	@echo "✅ Created migration files!"
+	@echo "Edit them in: migrations/"
 
 # ============================================================================
 # Database Management
@@ -118,6 +110,13 @@ migrate-force: ## Force migration version (usage: make migrate-force VERSION=1)
 
 db-shell: ## Open PostgreSQL shell
 	docker-compose exec postgres psql -U postgres -d conferencespace
+
+db-schema: ## Show current database schema
+	@echo "=== Database Tables ==="
+	@docker-compose exec -T postgres psql -U postgres -d conferencespace -c "\dt"
+	@echo ""
+	@echo "=== Conferences Table Schema ==="
+	@docker-compose exec -T postgres psql -U postgres -d conferencespace -c "\d conferences"
 
 db-create: ## Create database (if not exists)
 	docker-compose exec postgres psql -U postgres -c "CREATE DATABASE conferencespace;" || echo "Database already exists"

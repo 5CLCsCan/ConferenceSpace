@@ -11,6 +11,7 @@ import (
 
 	"github.com/dcao/conferencespace/internal/config"
 	"github.com/dcao/conferencespace/internal/controller"
+	"github.com/dcao/conferencespace/internal/middleware"
 	"github.com/dcao/conferencespace/internal/service"
 	"github.com/dcao/conferencespace/internal/storage"
 	"github.com/gin-gonic/gin"
@@ -32,7 +33,7 @@ func main() {
 	defer cleanup()
 
 	// Setup Gin router
-	router := setupRouter(ctrl)
+	router := setupRouter(ctrl, cfg)
 
 	// Create HTTP server
 	srv := &http.Server{
@@ -81,10 +82,10 @@ func initializeApp(cfg *config.Config) (*controller.Controller, func(), error) {
 	store := storage.NewStorage(db)
 
 	// Initialize service layer
-	svc := service.NewService(store.Conference)
+	svc := service.NewService(store.User, cfg.JWT.Secret, cfg.JWT.Expiry)
 
 	// Initialize controller layer
-	ctrl := controller.NewController(svc.Conference)
+	ctrl := controller.NewController(svc.User)
 
 	cleanup := func() {
 		if err := db.Close(); err != nil {
@@ -96,7 +97,7 @@ func initializeApp(cfg *config.Config) (*controller.Controller, func(), error) {
 }
 
 // setupRouter configures all routes
-func setupRouter(ctrl *controller.Controller) *gin.Engine {
+func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
@@ -114,14 +115,22 @@ func setupRouter(ctrl *controller.Controller) *gin.Engine {
 	// API v1 routes
 	v1 := router.Group("/api/v1")
 	{
-		// Conference routes
-		conferences := v1.Group("/conferences")
+		// Public auth routes (no authentication required)
+		auth := v1.Group("/auth")
 		{
-			conferences.GET("", ctrl.Conference.List)
-			conferences.GET("/:id", ctrl.Conference.Get)
-			conferences.POST("", ctrl.Conference.Create)
-			conferences.PUT("/:id", ctrl.Conference.Update)
-			conferences.DELETE("/:id", ctrl.Conference.Delete)
+			auth.POST("/register", ctrl.Auth.Register)
+			auth.POST("/login", ctrl.Auth.Login)
+		}
+
+		// Protected user routes (authentication required)
+		users := v1.Group("/users")
+		users.Use(middleware.AuthMiddleware(cfg.JWT.Secret))
+		{
+			users.GET("/me", ctrl.User.GetMe)
+			users.GET("", ctrl.User.List)
+			users.GET("/:id", ctrl.User.Get)
+			users.PUT("/:id", ctrl.User.Update)
+			users.DELETE("/:id", ctrl.User.Delete)
 		}
 	}
 

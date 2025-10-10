@@ -1,19 +1,19 @@
 package service
 
 import (
-	"github.com/dcao/conferencespace/internal/service/conference"
-	storageConference "github.com/dcao/conferencespace/internal/storage/conference"
+	"github.com/dcao/conferencespace/internal/service/user"
+	userStorage "github.com/dcao/conferencespace/internal/storage/user"
 )
 
 // Service holds all service dependencies
 type Service struct {
-	Conference *conference.Conference
+	User *user.Service
 	// Add more services here as needed
 }
 
 // NewService creates a new service instance with all dependencies
-func NewService(conferenceStorage *storageConference.Conference) *Service {
+func NewService(userStore *userStorage.Storage, jwtSecret string, jwtExpiryHours int) *Service {
 	return &Service{
-		Conference: conference.New(conferenceStorage),
+		User: user.New(userStore, jwtSecret, jwtExpiryHours),
 	}
 }
