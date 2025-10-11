@@ -197,12 +197,22 @@ install-tools: ## Install required development tools
 	go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 	@echo "Installing golangci-lint..."
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	@echo "Installing swag..."
+	go install github.com/swaggo/swag/cmd/swag@latest
 	@echo "✅ Tools installed to $(GOBIN)"
 	@echo ""
 	@echo "💡 Tip: Add Go binaries to your PATH by adding this to your ~/.zshrc:"
 	@echo "   export PATH=\$$PATH:$(GOBIN)"
 	@echo ""
 	@echo "The Makefile will automatically use the correct path for migrate."
+
+swagger: ## Generate swagger documentation
+	@echo "Generating swagger documentation..."
+	$(GOBIN)/swag init -g cmd/server/main.go -o ./docs
+	@echo "✅ Swagger docs generated in ./docs"
+
+swagger-serve: swagger ## Generate and serve swagger UI
+	@echo "Swagger UI available at: http://localhost:8080/swagger/index.html"
 
 # ============================================================================
 # Quick Status Check

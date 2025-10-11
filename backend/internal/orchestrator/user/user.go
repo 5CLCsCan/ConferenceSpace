@@ -18,14 +18,14 @@ type OrchestratorInterface interface {
 }
 
 type Orchestrator struct {
-	storage   userStorage.StorageInterface
+	userStorage   userStorage.StorageInterface
 	jwtSecret string
 	jwtExpiry time.Duration
 }
 
 func New(store *storage.Storage, jwtSecret string, jwtExpiryHours int) *Orchestrator {
 	return &Orchestrator{
-		storage:   store.User,
+		userStorage:   store.User,
 		jwtSecret: jwtSecret,
 		jwtExpiry: time.Duration(jwtExpiryHours) * time.Hour,
 	}
@@ -41,11 +41,11 @@ func (o *Orchestrator) Register(ctx context.Context, req *user.CreateRequest) (*
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	return o.storage.Create(ctx, req.User, string(hashedPassword))
+	return o.userStorage.Create(ctx, req.User, string(hashedPassword))
 }
 
 func (o *Orchestrator) Login(ctx context.Context, req *user.LoginRequest) (*user.LoginResponse, error) {
-	userResp, hashedPassword, err := o.storage.GetByEmailWithPassword(ctx, req.Email)
+	userResp, hashedPassword, err := o.userStorage.GetByEmailWithPassword(ctx, req.Email)
 	if err != nil {
 		return nil, fmt.Errorf("invalid credentials")
 	}
