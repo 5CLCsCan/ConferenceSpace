@@ -1,379 +1,329 @@
-"use client"
+import { PlatformHeader } from "@/components/chair/chair-header";
+import { PlatformMetricCard } from "@/components/chair/chair-metric-card";
+import {
+  ConferenceTableRow,
+  ConferenceCard,
+} from "@/components/chair/conference-table-row";
+import { TopReviewerRow } from "@/components/chair/top-reviewer-row";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Calendar,
+  Users,
+  FileText,
+  AlertCircle,
+  Search,
+  Filter,
+} from "lucide-react";
+import Link from "next/link";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { FileText, Users, TrendingUp, Clock, BarChart3, Sparkles } from "lucide-react"
-import { mockConferenceStats, mockPapers } from "@/lib/mock-data"
-import { Bar, BarChart, Line, LineChart, Pie, PieChart, Cell, ResponsiveContainer, XAxis, YAxis } from "recharts"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import Link from "next/link"
+const conferences = [
+  {
+    name: "International Conference on Computer Science",
+    acronym: "ICCS 2025",
+    dates: "June 15-18, 2025",
+    status: "active" as const,
+    submissions: 247,
+  },
+  {
+    name: "AI Ethics and Society Symposium",
+    acronym: "AI Ethics 2026",
+    dates: "March 10-12, 2026",
+    status: "upcoming" as const,
+    submissions: 89,
+  },
+  {
+    name: "Robotics and Automation Conference",
+    acronym: "RoboConf 2025",
+    dates: "September 5-8, 2025",
+    status: "upcoming" as const,
+    submissions: 156,
+  },
+  {
+    name: "Data Science Summit",
+    acronym: "DSS 2025",
+    dates: "November 20-22, 2025",
+    status: "active" as const,
+    submissions: 312,
+  },
+  {
+    name: "Cybersecurity Workshop",
+    acronym: "CyberSec 2024",
+    dates: "December 1-3, 2024",
+    status: "archived" as const,
+    submissions: 178,
+  },
+];
 
-export function ChairDashboard() {
-  const stats = mockConferenceStats
-
-  // Prepare chart data
-  const submissionTrendData = stats.submissions_over_time.map((item) => ({
-    date: new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-    submissions: item.count,
-  }))
-
-  const trackDistributionData = stats.submissions_by_track.map((item) => ({
-    name: item.track,
-    value: item.count,
-  }))
-
-  const reviewProgressData = [
-    { name: "Completed", value: stats.review_progress.completed, color: "hsl(var(--chart-1))" },
-    { name: "In Progress", value: stats.review_progress.in_progress, color: "hsl(var(--chart-2))" },
-    { name: "Pending", value: stats.review_progress.pending, color: "hsl(var(--chart-3))" },
-  ]
-
-  const keywordData = stats.top_keywords.slice(0, 5)
-
+export default function ChairDashboard() {
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Conference Overview</h1>
-        <p className="text-muted-foreground">Monitor submissions, reviews, and make data-driven decisions</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <PlatformHeader />
 
-      {/* Key Metrics */}
-      <div className="grid md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Submissions</CardTitle>
-            <FileText className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.total_submissions}</div>
-            <p className="text-xs text-muted-foreground mt-1">Across all tracks</p>
-          </CardContent>
-        </Card>
+      <main className="container mx-auto px-4 py-8">
+        {/* Hero Section */}
+        <section className="mb-12">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Welcome, Administrator.
+          </h1>
+          <p className="text-base text-muted-foreground mb-6">
+            Your central hub for managing all academic conferences.
+          </p>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Reviews</CardTitle>
-            <Users className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.total_reviews}</div>
-            <p className="text-xs text-muted-foreground mt-1">Avg {stats.avg_reviews_per_paper.toFixed(1)} per paper</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Acceptance Rate</CardTitle>
-            <TrendingUp className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.acceptance_rate}%</div>
-            <p className="text-xs text-muted-foreground mt-1">Target: 25-30%</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Review Progress</CardTitle>
-            <Clock className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">
-              {Math.round(
-                (stats.review_progress.completed /
-                  (stats.review_progress.completed +
-                    stats.review_progress.in_progress +
-                    stats.review_progress.pending)) *
-                  100,
-              )}
-              %
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">{stats.review_progress.completed} completed</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Charts */}
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Submission Trend */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Submission Trend</CardTitle>
-            <CardDescription>Papers submitted over time</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer
-              config={{
-                submissions: {
-                  label: "Submissions",
-                  color: "hsl(var(--chart-1))",
-                },
-              }}
-              className="h-[300px]"
-            >
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={submissionTrendData}>
-                  <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Line
-                    type="monotone"
-                    dataKey="submissions"
-                    stroke="hsl(var(--chart-1))"
-                    strokeWidth={2}
-                    dot={{ fill: "hsl(var(--chart-1))" }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-
-        {/* Review Progress */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Review Progress</CardTitle>
-            <CardDescription>Current status of all reviews</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer
-              config={{
-                completed: {
-                  label: "Completed",
-                  color: "hsl(var(--chart-1))",
-                },
-                in_progress: {
-                  label: "In Progress",
-                  color: "hsl(var(--chart-2))",
-                },
-                pending: {
-                  label: "Pending",
-                  color: "hsl(var(--chart-3))",
-                },
-              }}
-              className="h-[300px]"
-            >
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={reviewProgressData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {reviewProgressData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                </PieChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-
-        {/* Track Distribution */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Submissions by Track</CardTitle>
-            <CardDescription>Distribution across conference tracks</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer
-              config={{
-                value: {
-                  label: "Submissions",
-                  color: "hsl(var(--chart-2))",
-                },
-              }}
-              className="h-[300px]"
-            >
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={trackDistributionData}>
-                  <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="value" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-
-        {/* Top Keywords */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Trending Keywords</CardTitle>
-            <CardDescription>Most common research topics</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer
-              config={{
-                count: {
-                  label: "Papers",
-                  color: "hsl(var(--chart-3))",
-                },
-              }}
-              className="h-[300px]"
-            >
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={keywordData} layout="vertical">
-                  <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                  <YAxis dataKey="keyword" type="category" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="count" fill="hsl(var(--chart-3))" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Common management tasks</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-auto py-4 flex flex-col items-start gap-2 bg-transparent" asChild>
-              <Link href="/chair/papers">
-                <FileText className="size-5" />
-                <div className="text-left">
-                  <div className="font-semibold">Manage Papers</div>
-                  <div className="text-xs text-muted-foreground">View and organize submissions</div>
-                </div>
-              </Link>
-            </Button>
-
-            <Button variant="outline" className="h-auto py-4 flex flex-col items-start gap-2 bg-transparent" asChild>
-              <Link href="/chair/reviewers">
-                <Users className="size-5" />
-                <div className="text-left">
-                  <div className="font-semibold">Assign Reviewers</div>
-                  <div className="text-xs text-muted-foreground">AI-powered matching</div>
-                </div>
-              </Link>
-            </Button>
-
-            <Button variant="outline" className="h-auto py-4 flex flex-col items-start gap-2 bg-transparent" asChild>
-              <Link href="/chair/analytics">
-                <BarChart3 className="size-5" />
-                <div className="text-left">
-                  <div className="font-semibold">Advanced Analytics</div>
-                  <div className="text-xs text-muted-foreground">Deep insights and reports</div>
-                </div>
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Recent Activity */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Papers</CardTitle>
-          <CardDescription>Latest submissions requiring attention</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="pending">
-            <TabsList>
-              <TabsTrigger value="pending">Pending Review</TabsTrigger>
-              <TabsTrigger value="completed">Review Complete</TabsTrigger>
-              <TabsTrigger value="decisions">Needs Decision</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="pending" className="space-y-4 mt-6">
-              {mockPapers
-                .filter((p) => p.status === "submitted" || p.status === "under_review")
-                .slice(0, 3)
-                .map((paper) => (
-                  <PaperStatusCard key={paper.id} paper={paper} />
-                ))}
-            </TabsContent>
-
-            <TabsContent value="completed" className="space-y-4 mt-6">
-              {mockPapers
-                .filter((p) => p.reviews.length > 0)
-                .slice(0, 3)
-                .map((paper) => (
-                  <PaperStatusCard key={paper.id} paper={paper} />
-                ))}
-            </TabsContent>
-
-            <TabsContent value="decisions" className="space-y-4 mt-6">
-              {mockPapers
-                .filter((p) => p.reviews.length >= 2)
-                .slice(0, 3)
-                .map((paper) => (
-                  <PaperStatusCard key={paper.id} paper={paper} showDecisionButton />
-                ))}
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
-
-function PaperStatusCard({ paper, showDecisionButton }: { paper: any; showDecisionButton?: boolean }) {
-  const reviewCount = paper.reviews.length
-  const avgScore =
-    reviewCount > 0 ? paper.reviews.reduce((acc: number, r: any) => acc + r.overall_score, 0) / reviewCount : 0
-
-  return (
-    <Card className="hover:border-primary/50 transition-colors">
-      <CardContent className="pt-6">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 space-y-3">
-            <div>
-              <Link href={`/chair/papers/${paper.id}`} className="hover:underline">
-                <h3 className="font-semibold text-lg mb-2">{paper.title}</h3>
-              </Link>
-              <p className="text-sm text-muted-foreground line-clamp-2">{paper.abstract}</p>
-            </div>
-
-            <div className="flex items-center gap-4 text-sm">
-              <Badge variant="outline">{paper.status.replace("_", " ")}</Badge>
-              <span className="text-muted-foreground">{reviewCount} reviews</span>
-              {avgScore > 0 && (
-                <>
-                  <span className="text-muted-foreground">•</span>
-                  <span className="text-muted-foreground">Avg score: {avgScore.toFixed(1)}/5</span>
-                </>
-              )}
-              {paper.ai_suggestions && (
-                <>
-                  <span className="text-muted-foreground">•</span>
-                  <Badge variant="secondary" className="gap-1">
-                    <Sparkles className="size-3" />
-                    AI Insights
-                  </Badge>
-                </>
-              )}
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" asChild>
-              <Link href={`/chair/papers/${paper.id}`}>View Details</Link>
-            </Button>
-            {showDecisionButton && (
-              <Button size="sm" asChild>
-                <Link href={`/chair/papers/${paper.id}/decision`}>Make Decision</Link>
+          <div className="flex flex-wrap gap-4">
+            <Link href="/chair/create-conference">
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                + Create New Conference
               </Button>
-            )}
+            </Link>
+            <Button variant="outline">Manage Users</Button>
+            <Button variant="outline">View System Logs</Button>
+          </div>
+        </section>
+
+        {/* Platform-Wide Metrics */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold text-foreground mb-4">
+            Platform Overview
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <PlatformMetricCard
+              title="Active Conferences"
+              value={12}
+              icon={Calendar}
+            />
+            <PlatformMetricCard
+              title="Total Users"
+              value={3847}
+              icon={Users}
+              trend="+127 this month"
+            />
+            <PlatformMetricCard
+              title="Submissions this Month"
+              value={542}
+              icon={FileText}
+              trend="+18% vs last month"
+            />
+            <PlatformMetricCard
+              title="Action Items"
+              value={7}
+              icon={AlertCircle}
+            />
+          </div>
+        </section>
+
+        {/* Conference Management List */}
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-semibold text-foreground">
+              Your Conferences
+            </h2>
+          </div>
+
+          {/* Search and Filter Controls */}
+          <div className="flex flex-col sm:flex-row gap-3 mb-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input placeholder="Search conferences..." className="pl-10" />
+            </div>
+            <Button variant="outline" className="sm:w-auto bg-transparent">
+              <Filter className="h-4 w-4 mr-2" />
+              Filter by Status
+            </Button>
+          </div>
+
+          {/* Desktop Table */}
+          <Card className="shadow-sm overflow-hidden hidden md:block">
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr className="border-b border-border">
+                  <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
+                    Conference Name
+                  </th>
+                  <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
+                    Dates
+                  </th>
+                  <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
+                    Status
+                  </th>
+                  <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
+                    Submissions
+                  </th>
+                  <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {conferences.map((conference, index) => (
+                  <ConferenceTableRow key={index} {...conference} />
+                ))}
+              </tbody>
+            </table>
+          </Card>
+
+          {/* Mobile Cards */}
+          <div className="md:hidden">
+            {conferences.map((conference, index) => (
+              <ConferenceCard key={index} {...conference} />
+            ))}
+          </div>
+        </section>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          {/* Announcements & Activity Feed */}
+          <section>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">
+              Platform Updates
+            </h2>
+            <Card className="p-6 shadow-sm">
+              <div className="flex items-center gap-4 mb-4 border-b border-border pb-4">
+                <button className="text-sm font-semibold text-primary pb-2 border-b-2 border-primary">
+                  Announcements
+                </button>
+                <button className="text-sm font-medium text-muted-foreground hover:text-foreground">
+                  Recent Activity
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="pb-4 border-b border-border">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold text-foreground text-sm">
+                      System Maintenance Scheduled
+                    </h3>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto p-0 text-xs text-primary hover:bg-transparent"
+                    >
+                      Edit
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Platform maintenance will occur on Sunday, 2 AM - 4 AM EST.
+                    All conferences will be temporarily unavailable.
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Posted 1 day ago
+                  </p>
+                </div>
+
+                <div className="pb-4 border-b border-border">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold text-foreground text-sm">
+                      New Feature: Bulk Email Tool
+                    </h3>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto p-0 text-xs text-primary hover:bg-transparent"
+                    >
+                      Edit
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Conference chairs can now send bulk emails to all
+                    participants from the Communications panel.
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Posted 3 days ago
+                  </p>
+                </div>
+
+                <div>
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold text-foreground text-sm">
+                      Updated Privacy Policy
+                    </h3>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto p-0 text-xs text-primary hover:bg-transparent"
+                    >
+                      Edit
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Our privacy policy has been updated to comply with new data
+                    protection regulations.
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Posted 1 week ago
+                  </p>
+                </div>
+              </div>
+
+              <Button variant="outline" className="w-full mt-4 bg-transparent">
+                Create Announcement
+              </Button>
+            </Card>
+          </section>
+
+          {/* Top Reviewers Leaderboard */}
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-semibold text-foreground">
+                Platform Top Reviewers
+              </h2>
+            </div>
+            <Card className="p-6 shadow-sm">
+              <TopReviewerRow
+                name="Dr. Sarah Johnson"
+                affiliation="MIT Computer Science"
+                completedReviews={127}
+              />
+              <TopReviewerRow
+                name="Prof. Michael Chen"
+                affiliation="Stanford AI Lab"
+                completedReviews={114}
+              />
+              <TopReviewerRow
+                name="Dr. Emily Rodriguez"
+                affiliation="UC Berkeley EECS"
+                completedReviews={98}
+              />
+              <TopReviewerRow
+                name="Prof. David Kim"
+                affiliation="Carnegie Mellon University"
+                completedReviews={87}
+              />
+              <TopReviewerRow
+                name="Dr. Lisa Wang"
+                affiliation="Oxford Computer Science"
+                completedReviews={76}
+                isLast
+              />
+
+              <Button variant="outline" className="w-full mt-4 bg-transparent">
+                Manage All Users
+              </Button>
+            </Card>
+          </section>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-border bg-muted py-6 mt-16">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-muted-foreground">
+            <span>© 2025 ConferenceHub</span>
+            <span className="hidden sm:inline">•</span>
+            <a href="#" className="hover:text-primary transition-colors">
+              Help
+            </a>
+            <span className="hidden sm:inline">•</span>
+            <a href="#" className="hover:text-primary transition-colors">
+              Privacy
+            </a>
+            <span className="hidden sm:inline">•</span>
+            <a href="#" className="hover:text-primary transition-colors">
+              Contact Support
+            </a>
           </div>
         </div>
-      </CardContent>
-    </Card>
-  )
+      </footer>
+    </div>
+  );
 }
