@@ -2,33 +2,64 @@ package submission
 
 import "time"
 
-// Response represents the submission API response
+const (
+	StatusDraft     = "draft"
+	StatusPublished = "published"
+)
+
+type Information struct {
+	CoAuthors       []string               `json:"co_authors,omitempty"`
+	Keywords        []string               `json:"keywords,omitempty"`
+	PaperType       string                 `json:"paper_type,omitempty"`
+	TrackName       string                 `json:"track_name,omitempty"`
+	AdditionalNotes string                 `json:"additional_notes,omitempty"`
+	Metadata        map[string]interface{} `json:"metadata,omitempty"`
+}
+
+type Submission struct {
+	ID           int64        `json:"id"`
+	ConferenceID int64        `json:"conference_id" binding:"required"`
+	Author       string       `json:"author" binding:"required,email"`
+	Title        string       `json:"title" binding:"required"`
+	Abstract     string       `json:"abstract" binding:"required"`
+	Link         string       `json:"link"`
+	Domain       []string     `json:"domain"`
+	Status       string       `json:"status" binding:"required,oneof=draft published"`
+	Information  *Information `json:"information"`
+}
+
 type Response struct {
-	SubmissionID int64                  `json:"submission_id"`
-	Author       string                 `json:"author"`
-	Domain       []string               `json:"domain"`
-	Status       string                 `json:"status"`
-	Link         string                 `json:"link"`
-	Information  map[string]interface{} `json:"information"`
-	CreatedAt    time.Time              `json:"created_at"`
-	UpdatedAt    time.Time              `json:"updated_at"`
+	ID           int64        `json:"id"`
+	ConferenceID int64        `json:"conference_id"`
+	Author       string       `json:"author"`
+	Title        string       `json:"title"`
+	Abstract     string       `json:"abstract"`
+	Link         string       `json:"link"`
+	Domain       []string     `json:"domain"`
+	Status       string       `json:"status"`
+	Information  *Information `json:"information"`
+	CreatedAt    time.Time    `json:"created_at"`
+	UpdatedAt    time.Time    `json:"updated_at"`
 }
 
-// CreateRequest represents the request to create a submission
 type CreateRequest struct {
-	Author      string                 `json:"author" binding:"required"`
-	Domain      []string               `json:"domain"`
-	Status      string                 `json:"status"`
-	Link        string                 `json:"link"`
-	Information map[string]interface{} `json:"information"`
+	Submission *Submission `json:"submission" binding:"required"`
 }
 
-// UpdateRequest represents the request to update a submission
 type UpdateRequest struct {
-	Author      *string                `json:"author"`
-	Domain      []string               `json:"domain"`
-	Status      *string                `json:"status"`
-	Link        *string                `json:"link"`
-	Information map[string]interface{} `json:"information"`
+	Submission *Submission `json:"submission" binding:"required"`
 }
 
+type ListRequest struct {
+	Limit        int    `form:"limit" json:"limit"`
+	Offset       int    `form:"offset" json:"offset"`
+	ConferenceID int64  `form:"conference_id" json:"conference_id"`
+	Author       string `form:"author" json:"author"`
+	Status       string `form:"status" json:"status"`
+	Title        string `form:"title" json:"title"`
+}
+
+type ListResponse struct {
+	Submissions []*Response `json:"submissions"`
+	Total       int64       `json:"total"`
+}
