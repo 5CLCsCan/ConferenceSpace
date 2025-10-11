@@ -6,9 +6,9 @@ import (
 
 	userDto "github.com/dcao/conferencespace/internal/dto/user"
 	"github.com/dcao/conferencespace/internal/handler"
-	"github.com/dcao/conferencespace/internal/middleware"
 	"github.com/dcao/conferencespace/internal/storage"
 	userStorage "github.com/dcao/conferencespace/internal/storage/user"
+	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -103,7 +103,7 @@ func (c *Controller) Get(ginCtx *gin.Context) (*userDto.Response, error) {
 func (c *Controller) GetMe(ginCtx *gin.Context) (*userDto.Response, error) {
 	ctx := ginCtx.Request.Context()
 
-	userID, exists := middleware.GetUserIDFromContext(ctx)
+	userID, exists := utils.GetUserID(ginCtx)
 	if !exists {
 		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
 	}
@@ -138,7 +138,7 @@ func (c *Controller) Update(ginCtx *gin.Context, req *userDto.UpdateRequest) (*u
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid user ID")
 	}
 
-	userID, exists := middleware.GetUserIDFromContext(ctx)
+	userID, exists := utils.GetUserID(ginCtx)
 	if !exists || userID != id {
 		return nil, handler.NewErrorResponse(http.StatusForbidden, "you can only update your own profile")
 	}
@@ -171,7 +171,7 @@ func (c *Controller) Delete(ginCtx *gin.Context) error {
 		return handler.NewErrorResponse(http.StatusBadRequest, "invalid user ID")
 	}
 
-	userID, exists := middleware.GetUserIDFromContext(ctx)
+	userID, exists := utils.GetUserID(ginCtx)
 	if !exists || userID != id {
 		return handler.NewErrorResponse(http.StatusForbidden, "you can only delete your own account")
 	}

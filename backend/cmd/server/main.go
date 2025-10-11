@@ -123,7 +123,6 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
-	router.Use(middleware.ContextMiddleware())
 
 	// Swagger documentation
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -155,6 +154,17 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 			users.GET("/:id", handler.HandleNoRequest(ctrl.User.Get))
 			users.PUT("/:id", handler.HandleRequest(ctrl.User.Update))
 			users.DELETE("/:id", handler.HandleNoRequestWithMessage("user deleted successfully", ctrl.User.Delete))
+		}
+
+		// Conference routes (all protected - authentication required)
+		conferences := v1.Group("/conferences")
+		conferences.Use(middleware.AuthMiddleware(cfg.JWT.Secret))
+		{
+			conferences.GET("", handler.HandleRequestWithQuery(ctrl.Conference.List))
+			conferences.GET("/:id", handler.HandleNoRequest(ctrl.Conference.Get))
+			conferences.POST("", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Conference.Create))
+			conferences.PUT("/:id", handler.HandleRequest(ctrl.Conference.Update))
+			conferences.DELETE("/:id", handler.HandleNoRequestWithMessage("conference deleted successfully", ctrl.Conference.Delete))
 		}
 	}
 

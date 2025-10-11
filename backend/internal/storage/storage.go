@@ -6,16 +6,19 @@ import (
 	"time"
 
 	"github.com/dcao/conferencespace/internal/config"
+	"github.com/dcao/conferencespace/internal/storage/conference"
 	"github.com/dcao/conferencespace/internal/storage/user"
 )
 
 type Storage struct {
-	User user.StorageInterface
+	User       user.StorageInterface
+	Conference conference.StorageInterface
 }
 
 func NewStorage(db *sql.DB) *Storage {
 	return &Storage{
-		User: user.New(db),
+		User:       user.New(db),
+		Conference: conference.New(db),
 	}
 }
 
