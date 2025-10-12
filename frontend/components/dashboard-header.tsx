@@ -17,7 +17,7 @@ import { mockNotifications } from "@/lib/mock-data"
 import { useAuth } from "@/lib/auth-context"
 
 interface DashboardHeaderProps {
-  role: "author" | "reviewer" | "chair"
+  role: "author" | "reviewer" | "chair" | "pc_member"
 }
 
 export function DashboardHeader({ role }: DashboardHeaderProps) {
@@ -25,7 +25,7 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
   const router = useRouter()
   const unreadNotifications = mockNotifications.filter((n) => !n.read).length
 
-  const roleLinks = {
+  const roleLinks: Record<DashboardHeaderProps["role"], { href: string; label: string }[]> = {
     author: [
       { href: "/author", label: "Bài báo của tôi" },
       { href: "/author/submit", label: "Nộp bài mới" },
@@ -38,6 +38,10 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
       { href: "/chair", label: "Tổng quan" },
       { href: "/chair/papers", label: "Tất cả bài báo" },
       { href: "/chair/reviewers", label: "Reviewers" },
+    ],
+    pc_member: [
+      { href: "/pc", label: "Bảng điều khiển PC" },
+      { href: "/pc/assignments", label: "Phân công đánh giá" },
     ],
   }
 

@@ -1,4 +1,4 @@
-import { PlatformHeader } from "@/components/chair/chair-header";
+// import { PlatformHeader } from "@/components/chair/chair-header";
 import { PlatformMetricCard } from "@/components/chair/chair-metric-card";
 import {
   ConferenceTableRow,
@@ -8,6 +8,7 @@ import { TopReviewerRow } from "@/components/chair/top-reviewer-row";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {useRouter} from "next/navigation";
 import {
   Calendar,
   Users,
@@ -16,10 +17,10 @@ import {
   Search,
   Filter,
 } from "lucide-react";
-import Link from "next/link";
 
 const conferences = [
   {
+    id: "conf-001",
     name: "International Conference on Computer Science",
     acronym: "ICCS 2025",
     dates: "June 15-18, 2025",
@@ -27,6 +28,7 @@ const conferences = [
     submissions: 247,
   },
   {
+    id: "conf-002",
     name: "AI Ethics and Society Symposium",
     acronym: "AI Ethics 2026",
     dates: "March 10-12, 2026",
@@ -34,6 +36,7 @@ const conferences = [
     submissions: 89,
   },
   {
+    id: "conf-003",
     name: "Robotics and Automation Conference",
     acronym: "RoboConf 2025",
     dates: "September 5-8, 2025",
@@ -41,6 +44,7 @@ const conferences = [
     submissions: 156,
   },
   {
+    id: "conf-004",
     name: "Data Science Summit",
     acronym: "DSS 2025",
     dates: "November 20-22, 2025",
@@ -48,6 +52,7 @@ const conferences = [
     submissions: 312,
   },
   {
+    id: "conf-005",
     name: "Cybersecurity Workshop",
     acronym: "CyberSec 2024",
     dates: "December 1-3, 2024",
@@ -57,10 +62,9 @@ const conferences = [
 ];
 
 export default function ChairDashboard() {
+  const router = useRouter();
   return (
     <div className="min-h-screen bg-background">
-      <PlatformHeader />
-
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <section className="mb-12">
@@ -72,13 +76,15 @@ export default function ChairDashboard() {
           </p>
 
           <div className="flex flex-wrap gap-4">
-            <Link href="/chair/create-conference">
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                + Create New Conference
-              </Button>
-            </Link>
-            <Button variant="outline">Manage Users</Button>
-            <Button variant="outline">View System Logs</Button>
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => router.push(`/dashboard/chair/create-conference`)}>
+              + Create New Conference
+            </Button>
+            <Button variant="outline" onClick={() => router.push('/dashboard/chair/manage-users')}>
+              Manage Users
+            </Button>
+            <Button variant="outline" onClick={() => router.push('/dashboard/chair/system-logs')}>
+              View System Logs
+            </Button>
           </div>
         </section>
 

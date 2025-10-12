@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { PlatformHeader } from "@/components/chair/chair-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -127,7 +126,6 @@ export default function CreateConferencePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <PlatformHeader />
 
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Page Header */}

@@ -22,7 +22,7 @@ const roleConfig = {
     description: "Đánh giá và phản biện bài báo",
     icon: Users,
     color: "bg-green-500",
-    path: "/reviewer",
+    path: "/dashboard/reviewer",
     features: ["Xem bài được phân công", "Viết review chi tiết", "AI hỗ trợ review", "Theo dõi deadline"],
   },
   chair: {
@@ -30,7 +30,7 @@ const roleConfig = {
     description: "Quản lý và tổ chức hội nghị",
     icon: BarChart3,
     color: "bg-purple-500",
-    path: "/chair",
+    path: "/dashboard/chair",
     features: ["Phân công reviewer", "Xem thống kê hội nghị", "Quản lý submissions", "AI matching system"],
   },
   pc_member: {
@@ -38,7 +38,7 @@ const roleConfig = {
     description: "Tham gia ban chương trình",
     icon: BarChart3,
     color: "bg-purple-500",
-    path: "/chair",
+    path: "/dashboard/chair",
     features: ["Phân công reviewer", "Xem thống kê hội nghị", "Quản lý submissions", "AI matching system"],
   },
   admin: {
@@ -46,7 +46,7 @@ const roleConfig = {
     description: "Quản trị hệ thống",
     icon: BarChart3,
     color: "bg-red-500",
-    path: "/chair",
+    path: "/dashboard/admin",
     features: ["Quản lý người dùng", "Cấu hình hệ thống", "Xem logs", "Quản lý quyền"],
   },
 }
