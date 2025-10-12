@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button"
 import { Settings, Eye, Archive } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 interface ConferenceTableRowProps {
+  id: string
   name: string
   acronym: string
   dates: string
@@ -9,7 +11,8 @@ interface ConferenceTableRowProps {
   submissions: number
 }
 
-export function ConferenceTableRow({ name, acronym, dates, status, submissions }: ConferenceTableRowProps) {
+export function ConferenceTableRow({ id, name, acronym, dates, status, submissions }: ConferenceTableRowProps) {
+  const router = useRouter()
   const statusStyles = {
     active: "bg-success/10 text-success",
     upcoming: "bg-primary/10 text-primary",
@@ -39,7 +42,12 @@ export function ConferenceTableRow({ name, acronym, dates, status, submissions }
       <td className="py-4 px-4 text-sm text-foreground">{submissions}</td>
       <td className="py-4 px-4">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-8 w-8"
+            onClick={() => router.push(`/dashboard/conference/${id}`)}
+          >
             <Eye className="h-4 w-4" />
           </Button>
           <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -54,7 +62,8 @@ export function ConferenceTableRow({ name, acronym, dates, status, submissions }
   )
 }
 
-export function ConferenceCard({ name, acronym, dates, status, submissions }: ConferenceTableRowProps) {
+export function ConferenceCard({ id, name, acronym, dates, status, submissions }: ConferenceTableRowProps) {
+  const router = useRouter()
   const statusStyles = {
     active: "bg-success/10 text-success",
     upcoming: "bg-primary/10 text-primary",
@@ -89,7 +98,12 @@ export function ConferenceCard({ name, acronym, dates, status, submissions }: Co
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" className="flex-1 bg-transparent">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="flex-1 bg-transparent"
+          onClick={() => router.push(`/dashboard/conference/${id}`)}
+        >
           <Eye className="h-4 w-4 mr-2" />
           Manage
         </Button>
