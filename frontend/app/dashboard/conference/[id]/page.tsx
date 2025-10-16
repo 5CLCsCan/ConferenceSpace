@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import type { Conference } from "@/lib/types"
 import { getConferenceById } from "@/lib/api/conferences"
 import { ConferenceOverview } from "@/components/conference/conference-overview"
@@ -9,10 +9,9 @@ import { ConferenceCallForPapers } from "@/components/conference/conference-call
 import { ConferenceImportantDates } from "@/components/conference/conference-important-dates"
 import { ConferenceCommittee } from "@/components/conference/conference-committee"
 import { ConferenceSubmissions } from "@/components/conference/conference-submissions"
-import { ConferenceProgram } from "@/components/conference/conference-program"
 import { useAuth } from "@/lib/auth-context"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { Loader2 } from "lucide-react"
+import { Loader2, Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
@@ -22,6 +21,7 @@ export default function ConferencePage() {
   const params = useParams()
   const conferenceId = params.id as string
   const { user, currentRole, switchRole } = useAuth()
+  const router = useRouter()
 
   const [conference, setConference] = useState<Conference | null>(null)
   const [loading, setLoading] = useState(true)
@@ -74,6 +74,7 @@ export default function ConferencePage() {
     pc_member: { label: "PC Member", color: "bg-yellow-100 text-yellow-700" },
     admin: { label: "Admin", color: "bg-red-100 text-red-700" },
   }
+
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {currentRole && ["author", "reviewer", "chair", "pc_member"].includes(currentRole) && (
@@ -153,8 +154,17 @@ export default function ConferencePage() {
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto relative">
           <div className="mx-auto max-w-7xl p-8">
+            {/* Submit Button in Top-Right Corner */}
+            {currentRole === "author" && (
+              <Button
+                onClick={() => router.push(`/dashboard/author/submit?conference=${conference.id}`)}
+                className="absolute top-4 right-4 bg-primary text-white px-4 py-2 rounded-md shadow-md hover:bg-primary/90 flex items-center gap-2 text-sm font-medium"
+              >
+                Join Now
+              </Button>
+            )}
             {activeTab === "overview" && <ConferenceOverview conference={conference} />}
             {activeTab === "call-for-papers" && <ConferenceCallForPapers conference={conference} />}
             {activeTab === "dates" && <ConferenceImportantDates conferenceId={conference.id} />}

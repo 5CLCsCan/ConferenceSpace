@@ -136,23 +136,140 @@ export const mockTracks: Track[] = [
   },
 ]
 
-// Mock Conference
-export const mockConference: Conference = {
-  id: "conf-2025",
-  name: "International Conference on Advanced Computing",
-  acronym: "ICAC 2025",
-  year: 2025,
-  description: "Premier conference for cutting-edge research in computer science and artificial intelligence",
-  submission_deadline: "2025-03-15T23:59:59Z",
-  review_deadline: "2025-04-30T23:59:59Z",
-  camera_ready_deadline: "2025-06-15T23:59:59Z",
-  notification_date: "2025-05-20T00:00:00Z",
-  conference_date: "2025-08-10T00:00:00Z",
-  location: "San Francisco, CA, USA",
-  website: "https://icac2025.org",
-  status: "active",
-  tracks: mockTracks,
-}
+// Mock Conferences
+export const mockConferences: Conference[] = [
+  {
+    id: "conf-2025",
+    name: "International Conference on Advanced Computing",
+    acronym: "ICAC 2025",
+    year: 2025,
+    description: "Premier conference for cutting-edge research in computer science and artificial intelligence",
+    submission_deadline: "2025-03-15T23:59:59Z",
+    review_deadline: "2025-04-30T23:59:59Z",
+    camera_ready_deadline: "2025-06-15T23:59:59Z",
+    notification_date: "2025-05-20T00:00:00Z",
+    conference_date: "2025-08-10T00:00:00Z",
+    location: "San Francisco, CA, USA",
+    website: "https://icac2025.org",
+    status: "open",
+    tracks: mockTracks
+  },
+  {
+    id: "conf-2025-2",
+    name: "International Conference on Machine Learning",
+    acronym: "ICML 2025",
+    year: 2025,
+    description: "Leading conference in machine learning research, covering theory, algorithms, and applications",
+    submission_deadline: "2025-02-01T23:59:59Z",
+    review_deadline: "2025-03-15T23:59:59Z",
+    camera_ready_deadline: "2025-05-01T23:59:59Z",
+    notification_date: "2025-04-10T00:00:00Z",
+    conference_date: "2025-07-20T00:00:00Z",
+    location: "Vienna, Austria",
+    website: "https://icml.cc/2025",
+    status: "open",
+    tracks: mockTracks
+  },
+  {
+    id: "conf-2025-3",
+    name: "Conference on Computer Vision and Pattern Recognition",
+    acronym: "CVPR 2025",
+    year: 2025,
+    description: "Premier annual computer vision event with cutting-edge research in image and video understanding",
+    submission_deadline: "2024-11-15T23:59:59Z",
+    review_deadline: "2025-01-10T23:59:59Z",
+    camera_ready_deadline: "2025-03-15T23:59:59Z",
+    notification_date: "2025-02-28T00:00:00Z",
+    conference_date: "2025-06-18T00:00:00Z",
+    location: "Seattle, WA, USA",
+    website: "https://cvpr2025.thecvf.com",
+    status: "closed",
+    tracks: mockTracks
+  },
+  {
+    id: "conf-2025-4",
+    name: "ACM Conference on Human Factors in Computing Systems",
+    acronym: "CHI 2025",
+    year: 2025,
+    description: "Premier international conference on human-computer interaction",
+    submission_deadline: "2024-09-12T23:59:59Z",
+    review_deadline: "2024-11-20T23:59:59Z",
+    camera_ready_deadline: "2025-02-10T23:59:59Z",
+    notification_date: "2025-01-15T00:00:00Z",
+    conference_date: "2025-04-26T00:00:00Z",
+    location: "Yokohama, Japan",
+    website: "https://chi2025.acm.org",
+    status: "closed",
+    tracks: mockTracks
+  },
+  {
+    id: "conf-2025-5",
+    name: "International Conference on Software Engineering",
+    acronym: "ICSE 2025",
+    year: 2025,
+    description: "Premier software engineering conference covering all aspects of software development",
+    submission_deadline: "2024-08-25T23:59:59Z",
+    review_deadline: "2024-10-30T23:59:59Z",
+    camera_ready_deadline: "2025-01-20T23:59:59Z",
+    notification_date: "2024-12-15T00:00:00Z",
+    conference_date: "2025-05-23T00:00:00Z",
+    location: "Ottawa, Canada",
+    website: "https://conf.researchr.org/home/icse-2025",
+    status: "closed",
+    tracks: mockTracks
+  },
+  {
+    id: "conf-2025-6",
+    name: "Neural Information Processing Systems",
+    acronym: "NeurIPS 2025",
+    year: 2025,
+    description: "One of the top machine learning and computational neuroscience conferences",
+    submission_deadline: "2025-05-17T23:59:59Z",
+    review_deadline: "2025-07-15T23:59:59Z",
+    camera_ready_deadline: "2025-10-01T23:59:59Z",
+    notification_date: "2025-09-20T00:00:00Z",
+    conference_date: "2025-12-08T00:00:00Z",
+    location: "New Orleans, LA, USA",
+    website: "https://neurips.cc/2025",
+    status: "upcoming",
+    tracks: mockTracks
+  },
+  {
+    id: "conf-2025-7",
+    name: "ACM SIGMOD International Conference on Management of Data",
+    acronym: "SIGMOD 2025",
+    year: 2025,
+    description: "Premier database systems and data management research conference",
+    submission_deadline: "2024-07-15T23:59:59Z",
+    review_deadline: "2024-09-30T23:59:59Z",
+    camera_ready_deadline: "2025-02-28T23:59:59Z",
+    notification_date: "2024-12-10T00:00:00Z",
+    conference_date: "2025-06-22T00:00:00Z",
+    location: "Berlin, Germany",
+    website: "https://2025.sigmod.org",
+    status: "closed",
+    tracks: mockTracks
+  },
+  {
+    id: "conf-2025-8",
+    name: "International Conference on Robotics and Automation",
+    acronym: "ICRA 2025",
+    year: 2025,
+    description: "Leading conference in robotics research and automation technology",
+    submission_deadline: "2024-09-15T23:59:59Z",
+    review_deadline: "2024-12-01T23:59:59Z",
+    camera_ready_deadline: "2025-03-15T23:59:59Z",
+    notification_date: "2025-01-31T00:00:00Z",
+    conference_date: "2025-05-19T00:00:00Z",
+    location: "Atlanta, GA, USA",
+    website: "https://2025.ieee-icra.org",
+    status: "closed",
+    tracks: mockTracks
+  },
+]
+
+// Keep the original mockConference for backward compatibility
+export const mockConference = mockConferences[0]
 
 // Mock Papers
 export const mockPapers: Paper[] = [
@@ -384,6 +501,14 @@ export const mockReviewAssignments: ReviewAssignment[] = [
     ai_match_score: 88,
   },
 ]
+
+// Mock Reviews - extracted from papers for easier access
+export const mockReviews: Review[] = mockPapers.flatMap((paper) =>
+  paper.reviews.map((review) => ({
+    ...review,
+    paper_title: paper.title,
+  })),
+)
 
 // Mock Conference Statistics
 export const mockConferenceStats: ConferenceStats = {

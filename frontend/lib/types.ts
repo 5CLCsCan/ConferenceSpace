@@ -45,7 +45,7 @@ export interface Conference {
   conference_date: string
   location: string
   website?: string
-  status: "upcoming" | "active" | "completed"
+  status: "upcoming" | "active" | "completed" | "open" | "closed"
   tracks: Track[]
 }
 
