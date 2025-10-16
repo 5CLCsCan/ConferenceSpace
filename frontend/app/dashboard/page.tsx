@@ -14,7 +14,7 @@ const roleConfig = {
     description: "Nộp và quản lý bài báo của bạn",
     icon: FileText,
     color: "bg-blue-500",
-    path: "/author",
+    path: "/dashboard/author",
     features: ["Nộp bài mới", "Theo dõi trạng thái review", "Xem phản hồi từ reviewer", "Cập nhật camera-ready"],
   },
   reviewer: {
