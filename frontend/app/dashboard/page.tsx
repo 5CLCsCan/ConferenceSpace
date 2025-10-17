@@ -1,12 +1,25 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { useAuth } from "@/lib/auth-context"
-import { FileText, Users, BarChart3, GraduationCap, LogOut, Sparkles } from "lucide-react"
-import type { UserRole } from "@/lib/types"
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth-context";
+import {
+  FileText,
+  Users,
+  BarChart3,
+  GraduationCap,
+  LogOut,
+  Sparkles,
+} from "lucide-react";
+import type { UserRole } from "@/lib/types";
 
 const roleConfig = {
   author: {
@@ -15,7 +28,12 @@ const roleConfig = {
     icon: FileText,
     color: "bg-blue-500",
     path: "/dashboard/author",
-    features: ["Nộp bài mới", "Theo dõi trạng thái review", "Xem phản hồi từ reviewer", "Cập nhật camera-ready"],
+    features: [
+      "Nộp bài mới",
+      "Theo dõi trạng thái review",
+      "Xem phản hồi từ reviewer",
+      "Cập nhật camera-ready",
+    ],
   },
   reviewer: {
     title: "Reviewer",
@@ -23,7 +41,12 @@ const roleConfig = {
     icon: Users,
     color: "bg-green-500",
     path: "/dashboard/reviewer",
-    features: ["Xem bài được phân công", "Viết review chi tiết", "AI hỗ trợ review", "Theo dõi deadline"],
+    features: [
+      "Xem bài được phân công",
+      "Viết review chi tiết",
+      "AI hỗ trợ review",
+      "Theo dõi deadline",
+    ],
   },
   chair: {
     title: "Chair",
@@ -31,7 +54,12 @@ const roleConfig = {
     icon: BarChart3,
     color: "bg-purple-500",
     path: "/dashboard/chair",
-    features: ["Phân công reviewer", "Xem thống kê hội nghị", "Quản lý submissions", "AI matching system"],
+    features: [
+      "Phân công reviewer",
+      "Xem thống kê hội nghị",
+      "Quản lý submissions",
+      "AI matching system",
+    ],
   },
   pc_member: {
     title: "PC Member",
@@ -39,7 +67,12 @@ const roleConfig = {
     icon: BarChart3,
     color: "bg-purple-500",
     path: "/dashboard/chair",
-    features: ["Phân công reviewer", "Xem thống kê hội nghị", "Quản lý submissions", "AI matching system"],
+    features: [
+      "Phân công reviewer",
+      "Xem thống kê hội nghị",
+      "Quản lý submissions",
+      "AI matching system",
+    ],
   },
   admin: {
     title: "Admin",
@@ -47,37 +80,42 @@ const roleConfig = {
     icon: BarChart3,
     color: "bg-red-500",
     path: "/dashboard/admin",
-    features: ["Quản lý người dùng", "Cấu hình hệ thống", "Xem logs", "Quản lý quyền"],
+    features: [
+      "Quản lý người dùng",
+      "Cấu hình hệ thống",
+      "Xem logs",
+      "Quản lý quyền",
+    ],
   },
-}
+};
 
 export default function DashboardPage() {
-  const { user, isAuthenticated, logout, switchRole } = useAuth()
-  const router = useRouter()
+  const { user, isAuthenticated, logout, switchRole } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push("/login")
+      router.push("/login");
     }
-  }, [isAuthenticated, router])
+  }, [isAuthenticated, router]);
 
   if (!user) {
-    return null
+    return null;
   }
 
   const handleRoleSelect = (role: UserRole) => {
-    switchRole(role)
-    const config = roleConfig[role]
-    router.push(config.path)
-  }
+    switchRole(role);
+    const config = roleConfig[role];
+    router.push(config.path);
+  };
 
   const handleLogout = () => {
-    logout()
-    router.push("/")
-  }
+    logout();
+    router.push("/");
+  };
 
   // Get unique roles (pc_member and chair both go to chair dashboard)
-  const availableRoles = user.roles.filter((role) => role !== "admin")
+  const availableRoles = user.roles.filter((role) => role !== "admin");
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -88,11 +126,19 @@ export default function DashboardPage() {
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-bold text-neutral-900">ConferenceAI</span>
-              <span className="text-xs text-neutral-600">Chọn vai trò của bạn</span>
+              <span className="text-xl font-bold text-neutral-900">
+                ConferenceAI
+              </span>
+              <span className="text-xs text-neutral-600">
+                Chọn vai trò của bạn
+              </span>
             </div>
           </div>
-          <Button variant="outline" onClick={handleLogout} className="gap-2 bg-transparent">
+          <Button
+            variant="outline"
+            onClick={handleLogout}
+            className="gap-2 bg-transparent"
+          >
             <LogOut className="w-4 h-4" />
             Đăng xuất
           </Button>
@@ -105,12 +151,14 @@ export default function DashboardPage() {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
               <Sparkles className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="text-3xl font-bold text-neutral-900 mb-2">Chào mừng, {user.name}!</h1>
+            <h1 className="text-3xl font-bold text-neutral-900 mb-2">
+              Chào mừng, {user.name}!
+            </h1>
             <p className="text-neutral-600 mb-1">{user.affiliation}</p>
             <p className="text-sm text-neutral-500">{user.email}</p>
           </div>
 
-          <div className="bg-white border border-neutral-200 rounded-lg p-6 mb-8">
+          {/* <div className="bg-white border border-neutral-200 rounded-lg p-6 mb-8">
             <h2 className="text-lg font-semibold text-neutral-900 mb-4">Thông tin tài khoản</h2>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="text-center p-4 bg-neutral-50 rounded-lg">
@@ -136,17 +184,21 @@ export default function DashboardPage() {
                 ))}
               </div>
             </div>
-          </div>
+          </div> */}
 
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-neutral-900 mb-2">Chọn vai trò để tiếp tục</h2>
-            <p className="text-neutral-600">Bạn có thể truy cập các chức năng sau dựa trên vai trò của mình</p>
+            <h2 className="text-2xl font-bold text-neutral-900 mb-2">
+              Chọn vai trò để tiếp tục
+            </h2>
+            <p className="text-neutral-600">
+              Bạn có thể truy cập các chức năng sau dựa trên vai trò của mình
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-3 gap-6">
             {availableRoles.map((role) => {
-              const config = roleConfig[role]
-              const Icon = config.icon
+              const config = roleConfig[role];
+              const Icon = config.icon;
 
               return (
                 <Card
@@ -156,7 +208,9 @@ export default function DashboardPage() {
                 >
                   <CardHeader>
                     <div className="flex items-start justify-between mb-4">
-                      <div className={`w-12 h-12 rounded-lg ${config.color} flex items-center justify-center`}>
+                      <div
+                        className={`w-12 h-12 rounded-lg ${config.color} flex items-center justify-center`}
+                      >
                         <Icon className="w-6 h-6 text-white" />
                       </div>
                       <Button
@@ -167,13 +221,20 @@ export default function DashboardPage() {
                         Chọn
                       </Button>
                     </div>
-                    <CardTitle className="text-xl text-neutral-900">{config.title}</CardTitle>
-                    <CardDescription className="text-neutral-600">{config.description}</CardDescription>
+                    <CardTitle className="text-xl text-neutral-900">
+                      {config.title}
+                    </CardTitle>
+                    <CardDescription className="text-neutral-600">
+                      {config.description}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
                       {config.features.map((feature, index) => (
-                        <li key={index} className="flex items-center gap-2 text-sm text-neutral-700">
+                        <li
+                          key={index}
+                          className="flex items-center gap-2 text-sm text-neutral-700"
+                        >
                           <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                           {feature}
                         </li>
@@ -181,20 +242,24 @@ export default function DashboardPage() {
                     </ul>
                   </CardContent>
                 </Card>
-              )
+              );
             })}
           </div>
 
           {availableRoles.length === 0 && (
             <Card className="bg-white border border-neutral-200">
               <CardContent className="py-12 text-center">
-                <p className="text-neutral-600">Tài khoản của bạn chưa được gán vai trò nào.</p>
-                <p className="text-sm text-neutral-500 mt-2">Vui lòng liên hệ quản trị viên để được hỗ trợ.</p>
+                <p className="text-neutral-600">
+                  Tài khoản của bạn chưa được gán vai trò nào.
+                </p>
+                <p className="text-sm text-neutral-500 mt-2">
+                  Vui lòng liên hệ quản trị viên để được hỗ trợ.
+                </p>
               </CardContent>
             </Card>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }
