@@ -8,7 +8,7 @@ import { TopReviewerRow } from "@/components/chair/top-reviewer-row";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   Calendar,
   Users,
@@ -68,21 +68,30 @@ export default function ChairDashboard() {
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <section className="mb-12">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+          {/* <h1 className="text-3xl font-bold text-foreground mb-2">
             Welcome, Administrator.
           </h1>
           <p className="text-base text-muted-foreground mb-6">
             Your central hub for managing all academic conferences.
-          </p>
+          </p> */}
 
           <div className="flex flex-wrap gap-4">
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => router.push(`/dashboard/chair/create-conference`)}>
+            <Button
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={() => router.push(`/dashboard/chair/create-conference`)}
+            >
               + Create New Conference
             </Button>
-            <Button variant="outline" onClick={() => router.push('/dashboard/chair/manage-users')}>
+            <Button
+              variant="outline"
+              onClick={() => router.push("/dashboard/chair/manage-users")}
+            >
               Manage Users
             </Button>
-            <Button variant="outline" onClick={() => router.push('/dashboard/chair/system-logs')}>
+            <Button
+              variant="outline"
+              onClick={() => router.push("/dashboard/chair/system-logs")}
+            >
               View System Logs
             </Button>
           </div>
