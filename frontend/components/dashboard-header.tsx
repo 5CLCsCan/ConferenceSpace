@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { mockNotifications } from "@/lib/mock-data"
 import { useAuth } from "@/lib/auth-context"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 interface DashboardHeaderProps {
   role: "author" | "reviewer" | "chair" | "pc_member"
@@ -22,26 +24,27 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ role }: DashboardHeaderProps) {
   const { user, logout } = useAuth()
+  const { t } = useTranslation()
   const router = useRouter()
   const unreadNotifications = mockNotifications.filter((n) => !n.read).length
 
   const roleLinks: Record<DashboardHeaderProps["role"], { href: string; label: string }[]> = {
     author: [
-      { href: "/author", label: "Bài báo của tôi" },
-      { href: "/author/submit", label: "Nộp bài mới" },
+      { href: "/author", label: t("dashboard.header.links.author.myPapers") },
+      { href: "/author/submit", label: t("dashboard.header.links.author.newSubmission") },
     ],
     reviewer: [
-      { href: "/reviewer", label: "Bài được phân công" },
-      { href: "/reviewer/completed", label: "Reviews đã hoàn thành" },
+      { href: "/reviewer", label: t("dashboard.header.links.reviewer.assignments") },
+      { href: "/reviewer/completed", label: t("dashboard.header.links.reviewer.completed") },
     ],
     chair: [
-      { href: "/chair", label: "Tổng quan" },
-      { href: "/chair/papers", label: "Tất cả bài báo" },
-      { href: "/chair/reviewers", label: "Reviewers" },
+      { href: "/chair", label: t("dashboard.header.links.chair.overview") },
+      { href: "/chair/papers", label: t("dashboard.header.links.chair.papers") },
+      { href: "/chair/reviewers", label: t("dashboard.header.links.chair.reviewers") },
     ],
     pc_member: [
-      { href: "/pc", label: "Bảng điều khiển PC" },
-      { href: "/pc/assignments", label: "Phân công đánh giá" },
+      { href: "/pc", label: t("dashboard.header.links.pc_member.dashboard") },
+      { href: "/pc/assignments", label: t("dashboard.header.links.pc_member.assignments") },
     ],
   }
 
@@ -61,11 +64,11 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link href="/dashboard" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
               <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
-              <span className="text-lg font-bold text-neutral-900">ConferenceAI</span>
+              <span className="text-lg font-bold text-neutral-900">{t("app.name")}</span>
             </Link>
             <nav className="flex items-center gap-6">
               {roleLinks[role].map((link) => (
@@ -81,9 +84,14 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
           </div>
 
           <div className="flex items-center gap-3">
+            <LanguageSwitcher />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative hover:bg-neutral-100 bg-transparent">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative hover:bg-neutral-100 bg-transparent"
+                >
                   <Bell className="w-5 h-5 text-neutral-700" />
                   {unreadNotifications > 0 && (
                     <Badge className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 text-xs bg-error text-white">
@@ -93,7 +101,9 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80 bg-white border-neutral-200">
-                <DropdownMenuLabel className="font-semibold text-neutral-900">Thông báo</DropdownMenuLabel>
+                <DropdownMenuLabel className="font-semibold text-neutral-900">
+                  {t("dashboard.header.notifications.title")}
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {mockNotifications.slice(0, 3).map((notification) => (
                   <DropdownMenuItem
@@ -101,12 +111,14 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
                     className="flex flex-col items-start gap-1 p-3 cursor-pointer"
                   >
                     <div className="font-medium text-sm text-neutral-900">{notification.title}</div>
-                    <div className="text-xs text-neutral-600 leading-relaxed">{notification.message}</div>
+                    <div className="text-xs text-neutral-600 leading-relaxed">
+                      {notification.message}
+                    </div>
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="text-center text-sm text-primary font-medium cursor-pointer">
-                  Xem tất cả thông báo
+                  {t("dashboard.header.notifications.seeAll")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -127,16 +139,16 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="cursor-pointer" onClick={handleBackToDashboard}>
                   <Home className="w-4 h-4 mr-2" />
-                  Chọn vai trò khác
+                  {t("dashboard.header.profile.switchRole")}
                 </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer">
                   <User className="w-4 h-4 mr-2" />
-                  Hồ sơ cá nhân
+                  {t("dashboard.header.profile.profile")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="cursor-pointer text-error" onClick={handleLogout}>
                   <LogOut className="w-4 h-4 mr-2" />
-                  Đăng xuất
+                  {t("dashboard.header.profile.logout")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

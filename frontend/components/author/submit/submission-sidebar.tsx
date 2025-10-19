@@ -31,7 +31,10 @@ export function SubmissionSidebar({ checklist }: SubmissionSidebarProps) {
             <ChecklistItem checked={checklist.keywords} label="At least 3 keywords added" />
             <ChecklistItem checked={checklist.pdfUploaded} label="PDF uploaded & validated" />
             <ChecklistItem checked={checklist.coAuthorsListed} label="All co-authors listed" />
-            <ChecklistItem checked={checklist.coiDeclared} label="COI people/orgs/domains declared" />
+            <ChecklistItem
+              checked={checklist.coiDeclared}
+              label="COI people/orgs/domains declared"
+            />
           </div>
         </CardContent>
       </Card>

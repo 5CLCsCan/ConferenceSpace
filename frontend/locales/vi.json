@@ -1,0 +1,227 @@
+{
+  "app": {
+    "name": "ConferenceAI",
+    "tagline": "Nền tảng quản lý hội nghị học thuật toàn diện",
+    "footer": "© 2025 ConferenceAI. Mọi quyền được bảo lưu."
+  },
+  "common": {
+    "actions": {
+      "signIn": "Đăng nhập",
+      "signUp": "Đăng ký",
+      "logout": "Đăng xuất",
+      "startNow": "Bắt đầu ngay",
+      "choose": "Chọn",
+      "continue": "Tiếp tục"
+    },
+    "labels": {
+      "email": "Email",
+      "password": "Mật khẩu",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "firstName": "Họ",
+      "lastName": "Tên",
+      "domains": "Lĩnh vực chuyên môn"
+    },
+    "messages": {
+      "languages": {
+        "english": "Tiếng Anh",
+        "vietnamese": "Tiếng Việt"
+      }
+    }
+  },
+  "home": {
+    "nav": {
+      "features": "Tính năng",
+      "about": "Giới thiệu"
+    },
+    "hero": {
+      "badge": "Số hoá toàn bộ quy trình hội nghị",
+      "title": "Tổ chức hội nghị học thuật hiệu quả với sự hỗ trợ của AI",
+      "subtitle": "ConferenceAI giúp ban tổ chức, tác giả và phản biện phối hợp trên cùng một nền tảng. Tự động hoá quy trình, theo dõi tiến độ và ra quyết định dựa trên dữ liệu theo thời gian thực."
+    },
+    "metrics": {
+      "accessibility": "Tuân thủ chuẩn WCAG 2.1",
+      "adoption": "Được tin dùng bởi hơn 50 hội nghị",
+      "precision": "Độ chính xác gợi ý của AI đạt 95%"
+    },
+    "features": {
+      "title": "Bộ công cụ hoàn chỉnh cho mọi vai trò",
+      "subtitle": "Từ gửi bài, phản biện, điều phối chương trình đến phân tích sau sự kiện — mọi quy trình đều minh bạch, tuỳ chỉnh và có sự hỗ trợ của AI.",
+      "cards": {
+        "submission": {
+          "title": "Tiếp nhận bài thông minh",
+          "description": "Theo dõi từng bài nộp, tự động kiểm tra định dạng, gợi ý chủ đề phù hợp và thông báo cho tác giả trong vài giây."
+        },
+        "review": {
+          "title": "Phân công phản biện chính xác",
+          "description": "Đề xuất phản biện dựa trên chuyên môn, lịch sử và xung đột lợi ích. Hệ thống nhắc tự động giúp đảm bảo tiến độ phản biện."
+        },
+        "analytics": {
+          "title": "Phân tích thời gian thực",
+          "description": "Bảng điều khiển trực quan hiển thị tiến độ phản biện, tỉ lệ chấp nhận, thống kê phiên và mức độ tương tác giúp ban tổ chức nắm bắt tình hình nhanh chóng."
+        }
+      }
+    },
+    "stats": {
+      "papers": "Bài đang xử lý",
+      "reviews": "Phản biện đã hoàn thành",
+      "acceptance": "Tỉ lệ chấp nhận trung bình",
+      "accuracy": "Độ chính xác gợi ý AI"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Đăng nhập",
+      "subtitle": "Sử dụng email và mật khẩu để truy cập không gian làm việc của bạn",
+      "noAccount": "Chưa có tài khoản?",
+      "registrationComplete": "Đăng ký thành công",
+      "registrationDetails": "Bạn có thể đăng nhập bằng thông tin vừa tạo.",
+      "errors": {
+        "failed": "Đăng nhập thất bại"
+      },
+      "cta": "Đăng nhập để tiếp tục"
+    },
+    "register": {
+      "title": "Tạo tài khoản mới",
+      "subtitle": "Nhập thông tin của bạn để đăng ký tài khoản",
+      "haveAccount": "Đã có tài khoản?",
+      "suggestions": {
+        "title": "Chủ đề phổ biến trong lĩnh vực công nghệ",
+        "subtitle": "Chọn những chủ đề phù hợp với chuyên môn của bạn",
+        "empty": "Không tìm thấy chủ đề phù hợp. Hãy thử từ khóa khác."
+      },
+      "errors": {
+        "passwordMismatch": "Mật khẩu xác nhận không khớp",
+        "passwordStrength": "Vui lòng đáp ứng đầy đủ yêu cầu về mật khẩu",
+        "domainsRequired": "Vui lòng chọn ít nhất một lĩnh vực chuyên môn",
+        "failed": "Đăng ký thất bại"
+      },
+      "passwordHints": {
+        "title": "Mật khẩu cần bao gồm",
+        "show": "Hiện mật khẩu",
+        "hide": "Ẩn mật khẩu",
+        "rules": {
+          "length": "Tối thiểu 8 ký tự",
+          "lower": "Chữ thường",
+          "upper": "Chữ hoa",
+          "number": "Chữ số",
+          "special": "Ký tự đặc biệt"
+        }
+      }
+    },
+    "messages": {
+      "invalidLogin": "Phản hồi đăng nhập không hợp lệ từ máy chủ",
+      "genericLogin": "Không thể đăng nhập",
+      "fallbackLogin": "Đã xảy ra lỗi bất ngờ khi đăng nhập",
+      "genericRegister": "Không thể đăng ký",
+      "fallbackRegister": "Đã xảy ra lỗi bất ngờ khi đăng ký"
+    }
+  },
+  "dashboard": {
+    "greeting": "Chào mừng, {name}!",
+    "selectRole": "Chọn vai trò để tiếp tục",
+    "selectRoleDescription": "Truy cập các chức năng tương ứng với quyền hạn trong hồ sơ của bạn.",
+    "noRoles": {
+      "title": "Tài khoản của bạn chưa được gán vai trò nào.",
+      "description": "Vui lòng liên hệ quản trị viên hệ thống để được hỗ trợ."
+    },
+    "conference": {
+      "details": {
+        "notFoundTitle": "Không tìm thấy hội nghị",
+        "notFound": "Hội nghị bạn đang tìm kiếm không tồn tại.",
+        "tabs": {
+          "overview": "Tổng quan",
+          "callForPapers": "Lời mời gửi bài",
+          "dates": "Các mốc thời gian",
+          "committee": "Ban tổ chức",
+          "submissions": "Bài gửi"
+        },
+        "joinNow": "Gửi bài ngay",
+        "currentRole": "Vai trò hiện tại",
+        "switchRole": "Chuyển vai trò (chế độ Dev)",
+        "loggedInAs": "Đăng nhập với tư cách"
+      }
+    },
+    "header": {
+      "links": {
+        "author": {
+          "myPapers": "Bài của tôi",
+          "newSubmission": "Gửi bài mới"
+        },
+        "reviewer": {
+          "assignments": "Bài được giao",
+          "completed": "Phản biện đã hoàn thành"
+        },
+        "chair": {
+          "overview": "Tổng quan",
+          "papers": "Tất cả bài gửi",
+          "reviewers": "Phản biện"
+        },
+        "pc_member": {
+          "dashboard": "Bảng điều khiển PC",
+          "assignments": "Phân công"
+        }
+      },
+      "notifications": {
+        "title": "Thông báo",
+        "seeAll": "Xem tất cả thông báo"
+      },
+      "profile": {
+        "switchRole": "Chuyển vai trò",
+        "profile": "Hồ sơ cá nhân",
+        "logout": "Đăng xuất"
+      }
+    },
+    "roles": {
+      "author": {
+        "name": "Tác giả",
+        "description": "Gửi và theo dõi tiến độ bài của bạn",
+        "features": [
+          "Tạo bài gửi mới",
+          "Theo dõi tiến độ phản biện theo thời gian thực",
+          "Xem phản hồi từ phản biện",
+          "Tải lên bản hoàn chỉnh (camera-ready)"
+        ]
+      },
+      "reviewer": {
+        "name": "Phản biện",
+        "description": "Đánh giá và bình luận các bài được giao",
+        "features": [
+          "Xem danh sách bài được giao",
+          "Viết phản biện chi tiết",
+          "Sử dụng công cụ AI hỗ trợ chấm điểm",
+          "Theo dõi hạn nộp phản biện"
+        ]
+      },
+      "chair": {
+        "name": "Chủ tịch hội nghị",
+        "description": "Điều phối toàn bộ quy trình hội nghị",
+        "features": [
+          "Tự động phân công phản biện",
+          "Theo dõi phân tích và thống kê hội nghị",
+          "Quản lý bài gửi và quyết định chấp nhận",
+          "Tận dụng gợi ý từ AI để tối ưu quy trình"
+        ]
+      },
+      "pc_member": {
+        "name": "Thành viên ban chương trình",
+        "description": "Phối hợp cùng ban chương trình trong quá trình đánh giá",
+        "features": [
+          "Xem các bài được ủy quyền",
+          "Đề xuất phản biện phù hợp",
+          "Thảo luận nội bộ trong ban chương trình",
+          "Theo dõi tiến độ chung của hội nghị"
+        ]
+      },
+      "admin": {
+        "name": "Quản trị viên",
+        "description": "Quản lý cấu hình hệ thống",
+        "features": [
+          "Quản lý người dùng",
+          "Điều chỉnh cài đặt hệ thống",
+          "Xem nhật ký hoạt động",
+          "Cấu hình vai trò và quyền hạn"
+        ]
+      }
+    }
+  }
+}

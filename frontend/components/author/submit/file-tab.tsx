@@ -32,17 +32,27 @@ export function FileTab({
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-gray-900 mb-1">Manuscript File</h2>
-        <p className="text-sm text-gray-600">Upload anonymized PDF following the conference template</p>
+        <p className="text-sm text-gray-600">
+          Upload anonymized PDF following the conference template
+        </p>
       </div>
       <div className="space-y-4">
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-primary/50 transition-colors">
-          <input type="file" id="file" accept=".pdf" onChange={handleFileUpload} className="hidden" />
+          <input
+            type="file"
+            id="file"
+            accept=".pdf"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
           <label htmlFor="file" className="cursor-pointer">
             <Upload className="size-12 mx-auto mb-4 text-gray-400" />
             {uploadedFile ? (
               <div>
                 <p className="text-base text-gray-900 font-medium mb-1">{uploadedFile.name}</p>
-                <p className="text-sm text-gray-500">{(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                <p className="text-sm text-gray-500">
+                  {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                </p>
               </div>
             ) : (
               <>

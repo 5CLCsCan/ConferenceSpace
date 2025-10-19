@@ -5,7 +5,13 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Plus, X } from "lucide-react"
 import { mockTracks } from "@/lib/mock-data"
 
@@ -51,7 +57,9 @@ export function PaperTab({
           onChange={(e) => setTitle(e.target.value)}
           className="text-base"
         />
-        <p className="text-xs text-gray-500">Put key terms near the beginning; avoid abbreviations.</p>
+        <p className="text-xs text-gray-500">
+          Put key terms near the beginning; avoid abbreviations.
+        </p>
       </div>
       <div className="space-y-2">
         <Label htmlFor="abstract">Abstract * (150-250 words)</Label>
@@ -79,7 +87,9 @@ export function PaperTab({
             ))}
           </SelectContent>
         </Select>
-        <p className="text-xs text-gray-500">Choose the track topics most relevant to your paper.</p>
+        <p className="text-xs text-gray-500">
+          Choose the track topics most relevant to your paper.
+        </p>
       </div>
       <div className="space-y-2">
         <div className="flex items-center justify-between">

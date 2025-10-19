@@ -1,147 +1,119 @@
-"use client";
+"use client"
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/lib/auth-context";
-import {
-  FileText,
-  Users,
-  BarChart3,
-  GraduationCap,
-  LogOut,
-  Sparkles,
-} from "lucide-react";
-import type { UserRole } from "@/lib/types";
+import { useEffect, useMemo } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { useAuth } from "@/lib/auth-context"
+import { FileText, Users, BarChart3, GraduationCap, LogOut, Sparkles } from "lucide-react"
+import type { UserRole } from "@/lib/types"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
-const roleConfig = {
-  author: {
-    title: "Tác giả",
-    description: "Nộp và quản lý bài báo của bạn",
-    icon: FileText,
-    color: "bg-blue-500",
-    path: "/dashboard/author",
-    features: [
-      "Nộp bài mới",
-      "Theo dõi trạng thái review",
-      "Xem phản hồi từ reviewer",
-      "Cập nhật camera-ready",
-    ],
-  },
-  reviewer: {
-    title: "Reviewer",
-    description: "Đánh giá và phản biện bài báo",
-    icon: Users,
-    color: "bg-green-500",
-    path: "/dashboard/reviewer",
-    features: [
-      "Xem bài được phân công",
-      "Viết review chi tiết",
-      "AI hỗ trợ review",
-      "Theo dõi deadline",
-    ],
-  },
-  chair: {
-    title: "Chair",
-    description: "Quản lý và tổ chức hội nghị",
-    icon: BarChart3,
-    color: "bg-purple-500",
-    path: "/dashboard/chair",
-    features: [
-      "Phân công reviewer",
-      "Xem thống kê hội nghị",
-      "Quản lý submissions",
-      "AI matching system",
-    ],
-  },
-  pc_member: {
-    title: "PC Member",
-    description: "Tham gia ban chương trình",
-    icon: BarChart3,
-    color: "bg-purple-500",
-    path: "/dashboard/chair",
-    features: [
-      "Phân công reviewer",
-      "Xem thống kê hội nghị",
-      "Quản lý submissions",
-      "AI matching system",
-    ],
-  },
-  admin: {
-    title: "Admin",
-    description: "Quản trị hệ thống",
-    icon: BarChart3,
-    color: "bg-red-500",
-    path: "/dashboard/admin",
-    features: [
-      "Quản lý người dùng",
-      "Cấu hình hệ thống",
-      "Xem logs",
-      "Quản lý quyền",
-    ],
-  },
-};
+type RoleConfig = {
+  title: string
+  description: string
+  icon: typeof FileText
+  color: string
+  path: string
+  features: string[]
+}
 
 export default function DashboardPage() {
-  const { user, isAuthenticated, logout, switchRole } = useAuth();
-  const router = useRouter();
+  const { user, isAuthenticated, logout, switchRole } = useAuth()
+  const { t, tList } = useTranslation()
+  const router = useRouter()
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push("/login");
+      router.push("/login")
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router])
+
+  const roleConfig = useMemo<Record<UserRole, RoleConfig>>(
+    () => ({
+      author: {
+        title: t("dashboard.roles.author.name"),
+        description: t("dashboard.roles.author.description"),
+        icon: FileText,
+        color: "bg-blue-500",
+        path: "/dashboard/author",
+        features: tList("dashboard.roles.author.features"),
+      },
+      reviewer: {
+        title: t("dashboard.roles.reviewer.name"),
+        description: t("dashboard.roles.reviewer.description"),
+        icon: Users,
+        color: "bg-green-500",
+        path: "/dashboard/reviewer",
+        features: tList("dashboard.roles.reviewer.features"),
+      },
+      chair: {
+        title: t("dashboard.roles.chair.name"),
+        description: t("dashboard.roles.chair.description"),
+        icon: BarChart3,
+        color: "bg-purple-500",
+        path: "/dashboard/chair",
+        features: tList("dashboard.roles.chair.features"),
+      },
+      pc_member: {
+        title: t("dashboard.roles.pc_member.name"),
+        description: t("dashboard.roles.pc_member.description"),
+        icon: BarChart3,
+        color: "bg-purple-500",
+        path: "/dashboard/chair",
+        features: tList("dashboard.roles.pc_member.features"),
+      },
+      admin: {
+        title: t("dashboard.roles.admin.name"),
+        description: t("dashboard.roles.admin.description"),
+        icon: BarChart3,
+        color: "bg-red-500",
+        path: "/dashboard/admin",
+        features: tList("dashboard.roles.admin.features"),
+      },
+    }),
+    [t, tList],
+  )
 
   if (!user) {
-    return null;
+    return null
   }
 
   const handleRoleSelect = (role: UserRole) => {
-    switchRole(role);
-    const config = roleConfig[role];
-    router.push(config.path);
-  };
+    switchRole(role)
+    const config = roleConfig[role]
+    router.push(config.path)
+  }
 
   const handleLogout = () => {
-    logout();
-    router.push("/");
-  };
+    logout()
+    router.push("/")
+  }
 
-  // Get unique roles (pc_member and chair both go to chair dashboard)
-  const availableRoles = user.roles.filter((role) => role !== "admin");
+  const availableRoles = user.roles.filter((role) => role !== "admin")
 
   return (
     <div className="min-h-screen bg-neutral-50">
       <header className="border-b border-neutral-200 bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-bold text-neutral-900">
-                ConferenceAI
-              </span>
-              <span className="text-xs text-neutral-600">
-                Chọn vai trò của bạn
-              </span>
+              <span className="text-lg font-bold text-neutral-900">{t("app.name")}</span>
+              <span className="text-xs text-neutral-600">{t("app.tagline")}</span>
             </div>
+          </Link>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <Button variant="outline" onClick={handleLogout} className="gap-2 bg-transparent">
+              <LogOut className="w-4 h-4" />
+              {t("common.actions.logout")}
+            </Button>
           </div>
-          <Button
-            variant="outline"
-            onClick={handleLogout}
-            className="gap-2 bg-transparent"
-          >
-            <LogOut className="w-4 h-4" />
-            Đăng xuất
-          </Button>
         </div>
       </header>
 
@@ -152,53 +124,23 @@ export default function DashboardPage() {
               <Sparkles className="w-8 h-8 text-primary" />
             </div>
             <h1 className="text-3xl font-bold text-neutral-900 mb-2">
-              Chào mừng, {user.name}!
+              {t("dashboard.greeting", { name: user.name })}
             </h1>
-            <p className="text-neutral-600 mb-1">{user.affiliation}</p>
+            {user.affiliation ? <p className="text-neutral-600 mb-1">{user.affiliation}</p> : null}
             <p className="text-sm text-neutral-500">{user.email}</p>
           </div>
 
-          {/* <div className="bg-white border border-neutral-200 rounded-lg p-6 mb-8">
-            <h2 className="text-lg font-semibold text-neutral-900 mb-4">Thông tin tài khoản</h2>
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-neutral-50 rounded-lg">
-                <div className="text-2xl font-bold text-primary">{user.h_index || 0}</div>
-                <div className="text-sm text-neutral-600">H-Index</div>
-              </div>
-              <div className="text-center p-4 bg-neutral-50 rounded-lg">
-                <div className="text-2xl font-bold text-primary">{user.total_papers || 0}</div>
-                <div className="text-sm text-neutral-600">Tổng số bài</div>
-              </div>
-              <div className="text-center p-4 bg-neutral-50 rounded-lg">
-                <div className="text-2xl font-bold text-primary">{user.total_reviews || 0}</div>
-                <div className="text-sm text-neutral-600">Tổng số reviews</div>
-              </div>
-            </div>
-            <div className="mt-4">
-              <div className="text-sm font-medium text-neutral-700 mb-2">Lĩnh vực chuyên môn:</div>
-              <div className="flex flex-wrap gap-2">
-                {user.expertise.map((exp) => (
-                  <span key={exp} className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">
-                    {exp}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div> */}
-
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-neutral-900 mb-2">
-              Chọn vai trò để tiếp tục
+              {t("dashboard.selectRole")}
             </h2>
-            <p className="text-neutral-600">
-              Bạn có thể truy cập các chức năng sau dựa trên vai trò của mình
-            </p>
+            <p className="text-neutral-600">{t("dashboard.selectRoleDescription")}</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
             {availableRoles.map((role) => {
-              const config = roleConfig[role];
-              const Icon = config.icon;
+              const config = roleConfig[role]
+              const Icon = config.icon
 
               return (
                 <Card
@@ -218,12 +160,10 @@ export default function DashboardPage() {
                         size="sm"
                         className="group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-colors bg-transparent"
                       >
-                        Chọn
+                        {t("common.actions.choose")}
                       </Button>
                     </div>
-                    <CardTitle className="text-xl text-neutral-900">
-                      {config.title}
-                    </CardTitle>
+                    <CardTitle className="text-xl text-neutral-900">{config.title}</CardTitle>
                     <CardDescription className="text-neutral-600">
                       {config.description}
                     </CardDescription>
@@ -242,18 +182,16 @@ export default function DashboardPage() {
                     </ul>
                   </CardContent>
                 </Card>
-              );
+              )
             })}
           </div>
 
           {availableRoles.length === 0 && (
-            <Card className="bg-white border border-neutral-200">
+            <Card className="bg-white border border-neutral-200 mt-8">
               <CardContent className="py-12 text-center">
-                <p className="text-neutral-600">
-                  Tài khoản của bạn chưa được gán vai trò nào.
-                </p>
+                <p className="text-neutral-600">{t("dashboard.noRoles.title")}</p>
                 <p className="text-sm text-neutral-500 mt-2">
-                  Vui lòng liên hệ quản trị viên để được hỗ trợ.
+                  {t("dashboard.noRoles.description")}
                 </p>
               </CardContent>
             </Card>
@@ -261,5 +199,5 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

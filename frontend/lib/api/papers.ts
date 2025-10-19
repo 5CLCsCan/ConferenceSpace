@@ -18,7 +18,9 @@ import type { Paper } from "@/lib/types"
  * Tables: papers, paper_authors
  * Fields: All paper fields + author information
  */
-export async function submitPaper(data: any): Promise<{ data: Paper | null; error: string | null }> {
+export async function submitPaper(
+  data: any,
+): Promise<{ data: Paper | null; error: string | null }> {
   try {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -66,7 +68,9 @@ export async function submitPaper(data: any): Promise<{ data: Paper | null; erro
  *
  * Tables: papers, paper_authors
  */
-export async function getPaperById(paperId: string): Promise<{ data: Paper | null; error: string | null }> {
+export async function getPaperById(
+  paperId: string,
+): Promise<{ data: Paper | null; error: string | null }> {
   try {
     await new Promise((resolve) => setTimeout(resolve, 300))
 
@@ -98,7 +102,10 @@ export async function getPaperById(paperId: string): Promise<{ data: Paper | nul
  *
  * Tables: papers, paper_files
  */
-export async function submitCameraReady(paperId: string, file: File): Promise<{ data: boolean; error: string | null }> {
+export async function submitCameraReady(
+  paperId: string,
+  file: File,
+): Promise<{ data: boolean; error: string | null }> {
   try {
     await new Promise((resolve) => setTimeout(resolve, 1000))
 

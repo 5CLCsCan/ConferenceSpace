@@ -56,8 +56,12 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold text-foreground mb-1">Step 2: Topics & Submission Settings</h2>
-        <p className="text-sm text-muted-foreground">Configure submission deadlines and academic structure</p>
+        <h2 className="text-2xl font-semibold text-foreground mb-1">
+          Step 2: Topics & Submission Settings
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Configure submission deadlines and academic structure
+        </p>
       </div>
 
       <div className="space-y-6">
@@ -79,7 +83,11 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {data.submissionsOpen ? format(data.submissionsOpen, "PPP") : <span>Pick a date</span>}
+                    {data.submissionsOpen ? (
+                      format(data.submissionsOpen, "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
@@ -108,7 +116,11 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {data.submissionDeadline ? format(data.submissionDeadline, "PPP") : <span>Pick a date</span>}
+                    {data.submissionDeadline ? (
+                      format(data.submissionDeadline, "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
@@ -135,7 +147,11 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {data.reviewDeadline ? format(data.reviewDeadline, "PPP") : <span>Pick a date</span>}
+                    {data.reviewDeadline ? (
+                      format(data.reviewDeadline, "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
@@ -162,7 +178,11 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {data.authorNotification ? format(data.authorNotification, "PPP") : <span>Pick a date</span>}
+                    {data.authorNotification ? (
+                      format(data.authorNotification, "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
@@ -189,7 +209,11 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {data.cameraReadyDeadline ? format(data.cameraReadyDeadline, "PPP") : <span>Pick a date</span>}
+                    {data.cameraReadyDeadline ? (
+                      format(data.cameraReadyDeadline, "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
@@ -220,7 +244,9 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
               Add
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground">Press Enter or click Add to create a topic tag</p>
+          <p className="text-xs text-muted-foreground">
+            Press Enter or click Add to create a topic tag
+          </p>
           {data.topics.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2">
               {data.topics.map((topic) => (
@@ -246,7 +272,9 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
           </Label>
           <RadioGroup
             value={data.anonymity}
-            onValueChange={(value: "single-blind" | "double-blind") => updateData({ anonymity: value })}
+            onValueChange={(value: "single-blind" | "double-blind") =>
+              updateData({ anonymity: value })
+            }
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="single-blind" id="single-blind" />

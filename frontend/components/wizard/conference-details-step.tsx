@@ -21,8 +21,12 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold text-foreground mb-1">Step 1: Core Conference Details</h2>
-        <p className="text-sm text-muted-foreground">Provide the essential information about your conference</p>
+        <h2 className="text-2xl font-semibold text-foreground mb-1">
+          Step 1: Core Conference Details
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Provide the essential information about your conference
+        </p>
       </div>
 
       <div className="space-y-4">
@@ -50,7 +54,9 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
             value={data.acronym}
             onChange={(e) => updateData({ acronym: e.target.value })}
           />
-          <p className="text-xs text-muted-foreground">A short, unique identifier for your conference</p>
+          <p className="text-xs text-muted-foreground">
+            A short, unique identifier for your conference
+          </p>
         </div>
 
         {/* Description */}
@@ -95,7 +101,11 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {data.dateRange.from ? format(data.dateRange.from, "PPP") : <span>Start date</span>}
+                  {data.dateRange.from ? (
+                    format(data.dateRange.from, "PPP")
+                  ) : (
+                    <span>Start date</span>
+                  )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -148,7 +158,9 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
           </Label>
           <RadioGroup
             value={data.locationType}
-            onValueChange={(value: "in-person" | "virtual" | "hybrid") => updateData({ locationType: value })}
+            onValueChange={(value: "in-person" | "virtual" | "hybrid") =>
+              updateData({ locationType: value })
+            }
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="in-person" id="in-person" />

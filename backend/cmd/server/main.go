@@ -15,6 +15,7 @@ import (
 	"github.com/dcao/conferencespace/internal/middleware"
 	"github.com/dcao/conferencespace/internal/orchestrator"
 	"github.com/dcao/conferencespace/internal/storage"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 
@@ -123,6 +124,14 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Authorization", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	// Swagger documentation
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -161,10 +170,10 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 		conferences.Use(middleware.AuthMiddleware(cfg.JWT.Secret))
 		{
 			conferences.GET("", handler.HandleRequestWithQuery(ctrl.Conference.List))
-			conferences.GET("/:id", handler.HandleNoRequest(ctrl.Conference.Get))
+			conferences.GET("/:conference_id", handler.HandleNoRequest(ctrl.Conference.Get))
 			conferences.POST("", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Conference.Create))
-			conferences.PUT("/:id", handler.HandleRequest(ctrl.Conference.Update))
-			conferences.DELETE("/:id", handler.HandleNoRequestWithMessage("conference deleted successfully", ctrl.Conference.Delete))
+			conferences.PUT("/:conference_id", handler.HandleRequest(ctrl.Conference.Update))
+			conferences.DELETE("/:conference_id", handler.HandleNoRequestWithMessage("conference deleted successfully", ctrl.Conference.Delete))
 
 			// Submission routes nested under conferences (all protected - authentication required)
 			submissions := conferences.Group("/:conference_id/submissions")

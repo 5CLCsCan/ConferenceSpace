@@ -72,7 +72,12 @@ export function AuthorsTab({
           </div>
         ))}
       </div>
-      <Button type="button" variant="outline" onClick={handleAddAuthor} className="w-full bg-transparent">
+      <Button
+        type="button"
+        variant="outline"
+        onClick={handleAddAuthor}
+        className="w-full bg-transparent"
+      >
         <Plus className="size-4 mr-2" />
         Add Co-Author
       </Button>
