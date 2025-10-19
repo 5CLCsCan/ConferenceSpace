@@ -4,7 +4,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { Clock, CheckCircle2, AlertCircle, FileText, TrendingUp, Sparkles, Calendar } from "lucide-react"
+import {
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  FileText,
+  TrendingUp,
+  Sparkles,
+  Calendar,
+} from "lucide-react"
 import { mockReviewAssignments, mockPapers, mockConference } from "@/lib/mock-data"
 import { formatDate, daysUntilDeadline } from "@/lib/utils"
 import Link from "next/link"
@@ -53,7 +61,9 @@ export function ReviewerDashboard() {
       <div className="grid md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Assigned</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Assigned
+            </CardTitle>
             <FileText className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -83,7 +93,9 @@ export function ReviewerDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Completion Rate</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Completion Rate
+            </CardTitle>
             <TrendingUp className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -228,7 +240,11 @@ function AssignedPaperCard({ assignment, paper }: { assignment: ReviewAssignment
             </div>
           </div>
 
-          <Button variant={assignment.status === "completed" ? "outline" : "default"} size="sm" asChild>
+          <Button
+            variant={assignment.status === "completed" ? "outline" : "default"}
+            size="sm"
+            asChild
+          >
             <Link href={`/reviewer/papers/${paper.id}`}>
               {assignment.status === "completed" ? "View Review" : "Start Review"}
             </Link>

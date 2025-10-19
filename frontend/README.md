@@ -5,6 +5,7 @@ A comprehensive conference management platform with intelligent AI recommendatio
 ## Features
 
 ### For Authors
+
 - **Smart Paper Submission**: Submit papers with AI-powered quality assessment
 - **Real-time Feedback**: Get instant suggestions on title, abstract, and keywords
 - **Track Recommendations**: AI suggests the best conference track for your paper
@@ -14,6 +15,7 @@ A comprehensive conference management platform with intelligent AI recommendatio
 - **AI Review Analysis**: Understand reviewer feedback with AI-generated insights
 
 ### For Reviewers
+
 - **Intelligent Assignment**: Get papers matched to your expertise
 - **AI Review Assistant**: Receive suggestions for strengths, weaknesses, and questions
 - **Consistency Checking**: AI validates that your scores align with your comments
@@ -21,6 +23,7 @@ A comprehensive conference management platform with intelligent AI recommendatio
 - **Quality Metrics**: Track your review performance over time
 
 ### For Chairs/PC Members
+
 - **Comprehensive Dashboard**: Real-time conference statistics and visualizations
 - **AI Reviewer Matching**: Automatically match papers with optimal reviewers
 - **Conflict Detection**: AI identifies potential conflicts of interest
@@ -32,12 +35,14 @@ A comprehensive conference management platform with intelligent AI recommendatio
 ## AI Features
 
 ### 1. Paper Submission Intelligence
+
 - Quality assessment for title, abstract, and keywords
 - Track recommendation with confidence scores
 - Keyword suggestions based on content analysis
 - Similar paper discovery for literature review
 
 ### 2. Reviewer Recommendation System
+
 - Expertise matching using semantic analysis
 - Availability and workload consideration
 - Past performance metrics
@@ -45,6 +50,7 @@ A comprehensive conference management platform with intelligent AI recommendatio
 - Match confidence scoring (0-100%)
 
 ### 3. Review Quality Analysis
+
 - Sentiment analysis of review comments
 - Consistency checking between scores and text
 - Key strengths and weaknesses extraction
@@ -52,6 +58,7 @@ A comprehensive conference management platform with intelligent AI recommendatio
 - Bias detection in reviews
 
 ### 4. Conference Analytics
+
 - Submission trend prediction
 - Acceptance rate optimization
 - Keyword trend analysis
@@ -70,6 +77,7 @@ A comprehensive conference management platform with intelligent AI recommendatio
 ## Data Structure
 
 ### Core Entities
+
 - **Users**: Authors, reviewers, PC members, chairs
 - **Papers**: Submissions with metadata and status tracking
 - **Reviews**: Detailed evaluations with scores and comments
@@ -78,6 +86,7 @@ A comprehensive conference management platform with intelligent AI recommendatio
 - **Assignments**: Reviewer-paper mappings
 
 ### AI Data Models
+
 - **AISuggestion**: Paper submission recommendations
 - **ReviewAIAnalysis**: Review quality insights
 - **RecommendedReviewer**: Matched reviewers with scores
@@ -86,15 +95,18 @@ A comprehensive conference management platform with intelligent AI recommendatio
 ## Key Pages
 
 ### Author Interface
+
 - `/author` - Dashboard with paper overview
 - `/author/submit` - Paper submission form with AI assistance
 - `/author/papers/[id]` - Detailed paper view with reviews and AI insights
 
 ### Reviewer Interface
+
 - `/reviewer` - Dashboard with assigned papers
 - `/reviewer/papers/[id]` - Review form with AI suggestions
 
 ### Chair Interface
+
 - `/chair` - Conference overview with analytics
 - `/chair/papers` - All submissions management
 - `/chair/reviewers` - AI-powered reviewer assignment
@@ -102,6 +114,7 @@ A comprehensive conference management platform with intelligent AI recommendatio
 ## Design System
 
 ### Color Palette
+
 - **Background**: Dark theme (oklch(0.145 0 0))
 - **Foreground**: Light text (oklch(0.985 0 0))
 - **Primary**: White for emphasis
@@ -109,11 +122,13 @@ A comprehensive conference management platform with intelligent AI recommendatio
 - **Semantic**: Success, warning, destructive states
 
 ### Typography
+
 - Clean, professional sans-serif font
 - Hierarchical sizing for readability
 - Optimal line-height for academic content
 
 ### Components
+
 - Consistent card-based layouts
 - Interactive data visualizations
 - Real-time progress indicators
@@ -123,6 +138,7 @@ A comprehensive conference management platform with intelligent AI recommendatio
 ## Scalability & Maintainability
 
 ### Code Organization
+
 - Modular component structure
 - Reusable UI components
 - Type-safe data models
@@ -130,12 +146,14 @@ A comprehensive conference management platform with intelligent AI recommendatio
 - Consistent naming conventions
 
 ### Data Management
+
 - Normalized data structures
 - Helper functions for data access
 - Mock data for development
 - Ready for backend integration
 
 ### Performance
+
 - Server-side rendering where appropriate
 - Client-side interactivity for forms
 - Optimized chart rendering
@@ -155,20 +173,31 @@ A comprehensive conference management platform with intelligent AI recommendatio
 ## Getting Started
 
 1. Install dependencies:
-   \`\`\`bash
+
+   ```bash
    npm install
-   \`\`\`
+   ```
 
-2. Run development server:
-   \`\`\`bash
+2. Copy the environment template and adjust values:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+   Update `.env.local` so the backend URLs match your setup (see [Environment Variables](#environment-variables)).
+
+3. Run development server:
+
+   ```bash
    npm run dev
-   \`\`\`
+   ```
 
-3. Open [http://localhost:3000](http://localhost:3000)
+4. Open [http://localhost:3000](http://localhost:3000)
 
 ## Usage Guide
 
 ### For Authors
+
 1. Navigate to `/author` to see your dashboard
 2. Click "Submit New Paper" to start a submission
 3. Fill in paper details and get real-time AI feedback
@@ -176,6 +205,7 @@ A comprehensive conference management platform with intelligent AI recommendatio
 5. Submit your paper and track its progress
 
 ### For Reviewers
+
 1. Go to `/reviewer` to see assigned papers
 2. Click on a paper to start reviewing
 3. Use "Get AI-Powered Review Assistance" for suggestions
@@ -183,6 +213,7 @@ A comprehensive conference management platform with intelligent AI recommendatio
 5. Submit your review
 
 ### For Chairs
+
 1. Access `/chair` for conference overview
 2. View analytics and statistics
 3. Go to `/chair/reviewers` for AI-powered assignment
@@ -192,3 +223,22 @@ A comprehensive conference management platform with intelligent AI recommendatio
 ## License
 
 MIT License - feel free to use for academic conferences
+
+## Environment Variables
+
+The app expects the following keys (populate `.env.local` based on `.env.example`):
+
+| Key                        | Description                                                                         | Default                 |
+| -------------------------- | ----------------------------------------------------------------------------------- | ----------------------- |
+| `NEXT_PUBLIC_API_BASE_URL` | Public base URL used when the client bypasses the proxy                             | `http://localhost:8080` |
+| `BACKEND_API_BASE_URL`     | Internal base URL used by Next.js API routes when forwarding authenticated requests | `http://localhost:8080` |
+| `JWT_EXPIRY_SECONDS`       | JWT lifetime in seconds; used as the HTTP-only cookie max-age                       | `86400`                 |
+| `NODE_ENV`                 | Environment flag (`development`, `production`, etc.). Usually set automatically.    | `development`           |
+
+Create your environment file:
+
+```bash
+cp .env.example .env.local
+```
+
+Then edit `.env.local` before running the dev server.

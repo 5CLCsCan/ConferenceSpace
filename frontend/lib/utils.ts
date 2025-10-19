@@ -54,7 +54,9 @@ export function getStatusColor(status: string): string {
 }
 
 // Get status badge variant
-export function getStatusBadgeVariant(status: string): "default" | "secondary" | "destructive" | "outline" {
+export function getStatusBadgeVariant(
+  status: string,
+): "default" | "secondary" | "destructive" | "outline" {
   const statusVariants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
     draft: "outline",
     submitted: "secondary",

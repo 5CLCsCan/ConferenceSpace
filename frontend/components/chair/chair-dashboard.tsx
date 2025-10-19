@@ -1,22 +1,12 @@
 // import { PlatformHeader } from "@/components/chair/chair-header";
-import { PlatformMetricCard } from "@/components/chair/chair-metric-card";
-import {
-  ConferenceTableRow,
-  ConferenceCard,
-} from "@/components/chair/conference-table-row";
-import { TopReviewerRow } from "@/components/chair/top-reviewer-row";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
-import {
-  Calendar,
-  Users,
-  FileText,
-  AlertCircle,
-  Search,
-  Filter,
-} from "lucide-react";
+import { PlatformMetricCard } from "@/components/chair/chair-metric-card"
+import { ConferenceTableRow, ConferenceCard } from "@/components/chair/conference-table-row"
+import { TopReviewerRow } from "@/components/chair/top-reviewer-row"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { useRouter } from "next/navigation"
+import { Calendar, Users, FileText, AlertCircle, Search, Filter } from "lucide-react"
 
 const conferences = [
   {
@@ -59,10 +49,10 @@ const conferences = [
     status: "archived" as const,
     submissions: 178,
   },
-];
+]
 
 export default function ChairDashboard() {
-  const router = useRouter();
+  const router = useRouter()
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-8">
@@ -82,16 +72,10 @@ export default function ChairDashboard() {
             >
               + Create New Conference
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => router.push("/dashboard/chair/manage-users")}
-            >
+            <Button variant="outline" onClick={() => router.push("/dashboard/chair/manage-users")}>
               Manage Users
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => router.push("/dashboard/chair/system-logs")}
-            >
+            <Button variant="outline" onClick={() => router.push("/dashboard/chair/system-logs")}>
               View System Logs
             </Button>
           </div>
@@ -99,15 +83,9 @@ export default function ChairDashboard() {
 
         {/* Platform-Wide Metrics */}
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold text-foreground mb-4">
-            Platform Overview
-          </h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-4">Platform Overview</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <PlatformMetricCard
-              title="Active Conferences"
-              value={12}
-              icon={Calendar}
-            />
+            <PlatformMetricCard title="Active Conferences" value={12} icon={Calendar} />
             <PlatformMetricCard
               title="Total Users"
               value={3847}
@@ -120,20 +98,14 @@ export default function ChairDashboard() {
               icon={FileText}
               trend="+18% vs last month"
             />
-            <PlatformMetricCard
-              title="Action Items"
-              value={7}
-              icon={AlertCircle}
-            />
+            <PlatformMetricCard title="Action Items" value={7} icon={AlertCircle} />
           </div>
         </section>
 
         {/* Conference Management List */}
         <section className="mb-12">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold text-foreground">
-              Your Conferences
-            </h2>
+            <h2 className="text-2xl font-semibold text-foreground">Your Conferences</h2>
           </div>
 
           {/* Search and Filter Controls */}
@@ -189,9 +161,7 @@ export default function ChairDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {/* Announcements & Activity Feed */}
           <section>
-            <h2 className="text-2xl font-semibold text-foreground mb-4">
-              Platform Updates
-            </h2>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">Platform Updates</h2>
             <Card className="p-6 shadow-sm">
               <div className="flex items-center gap-4 mb-4 border-b border-border pb-4">
                 <button className="text-sm font-semibold text-primary pb-2 border-b-2 border-primary">
@@ -217,12 +187,10 @@ export default function ChairDashboard() {
                     </Button>
                   </div>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Platform maintenance will occur on Sunday, 2 AM - 4 AM EST.
-                    All conferences will be temporarily unavailable.
+                    Platform maintenance will occur on Sunday, 2 AM - 4 AM EST. All conferences will
+                    be temporarily unavailable.
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    Posted 1 day ago
-                  </p>
+                  <p className="text-xs text-muted-foreground">Posted 1 day ago</p>
                 </div>
 
                 <div className="pb-4 border-b border-border">
@@ -239,12 +207,10 @@ export default function ChairDashboard() {
                     </Button>
                   </div>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Conference chairs can now send bulk emails to all
-                    participants from the Communications panel.
+                    Conference chairs can now send bulk emails to all participants from the
+                    Communications panel.
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    Posted 3 days ago
-                  </p>
+                  <p className="text-xs text-muted-foreground">Posted 3 days ago</p>
                 </div>
 
                 <div>
@@ -261,12 +227,10 @@ export default function ChairDashboard() {
                     </Button>
                   </div>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Our privacy policy has been updated to comply with new data
-                    protection regulations.
+                    Our privacy policy has been updated to comply with new data protection
+                    regulations.
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    Posted 1 week ago
-                  </p>
+                  <p className="text-xs text-muted-foreground">Posted 1 week ago</p>
                 </div>
               </div>
 
@@ -279,9 +243,7 @@ export default function ChairDashboard() {
           {/* Top Reviewers Leaderboard */}
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-semibold text-foreground">
-                Platform Top Reviewers
-              </h2>
+              <h2 className="text-2xl font-semibold text-foreground">Platform Top Reviewers</h2>
             </div>
             <Card className="p-6 shadow-sm">
               <TopReviewerRow
@@ -340,5 +302,5 @@ export default function ChairDashboard() {
         </div>
       </footer>
     </div>
-  );
+  )
 }

@@ -4,7 +4,13 @@ import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { X, Search, UserPlus } from "lucide-react"
 import type { ConferenceFormData } from "@/app/conferences/new/page"
 
@@ -21,7 +27,13 @@ const MOCK_USERS = [
   { id: "5", name: "Prof. David Kim", email: "dkim@academic.edu" },
 ]
 
-const ROLES = ["General Chair", "Program Chair", "Submissions Chair", "Publicity Chair", "Local Arrangements Chair"]
+const ROLES = [
+  "General Chair",
+  "Program Chair",
+  "Submissions Chair",
+  "Publicity Chair",
+  "Local Arrangements Chair",
+]
 
 export function OrganizersStep({ data, updateData }: Props) {
   const [searchQuery, setSearchQuery] = useState("")
@@ -59,7 +71,9 @@ export function OrganizersStep({ data, updateData }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold text-foreground mb-1">Step 3: Assign Conference Chairs</h2>
+        <h2 className="text-2xl font-semibold text-foreground mb-1">
+          Step 3: Assign Conference Chairs
+        </h2>
         <p className="text-sm text-muted-foreground">Add team members and assign their roles</p>
       </div>
 
@@ -149,7 +163,8 @@ export function OrganizersStep({ data, updateData }: Props) {
           </div>
           {data.organizers.length === 1 && (
             <p className="text-xs text-muted-foreground">
-              You are automatically added as the General Chair. Search above to add more team members.
+              You are automatically added as the General Chair. Search above to add more team
+              members.
             </p>
           )}
         </div>

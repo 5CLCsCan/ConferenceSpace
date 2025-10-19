@@ -98,16 +98,16 @@ func (c *Controller) List(ginCtx *gin.Context, req *conferenceDto.ListRequest) (
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        id path int true "Conference ID"
+// @Param        conference_id path int true "Conference ID"
 // @Success      200 {object} conference.Response
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      404 {object} handler.Response
-// @Router       /conferences/{id} [get]
+// @Router       /conferences/{conference_id} [get]
 func (c *Controller) Get(ginCtx *gin.Context) (*conferenceDto.Response, error) {
 	ctx := ginCtx.Request.Context()
 
-	id, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
+	id, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
 	}
@@ -126,18 +126,18 @@ func (c *Controller) Get(ginCtx *gin.Context) (*conferenceDto.Response, error) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        id path int true "Conference ID"
+// @Param        conference_id path int true "Conference ID"
 // @Param        request body conference.UpdateRequest true "Updated conference data"
 // @Success      200 {object} conference.Response
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      403 {object} handler.Response
 // @Failure      404 {object} handler.Response
-// @Router       /conferences/{id} [put]
+// @Router       /conferences/{conference_id} [put]
 func (c *Controller) Update(ginCtx *gin.Context, req *conferenceDto.UpdateRequest) (*conferenceDto.Response, error) {
 	ctx := ginCtx.Request.Context()
 
-	id, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
+	id, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
 	}
@@ -172,17 +172,17 @@ func (c *Controller) Update(ginCtx *gin.Context, req *conferenceDto.UpdateReques
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        id path int true "Conference ID"
+// @Param        conference_id path int true "Conference ID"
 // @Success      200 {object} map[string]string
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      403 {object} handler.Response
 // @Failure      404 {object} handler.Response
-// @Router       /conferences/{id} [delete]
+// @Router       /conferences/{conference_id} [delete]
 func (c *Controller) Delete(ginCtx *gin.Context) error {
 	ctx := ginCtx.Request.Context()
 
-	id, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
+	id, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
 	if err != nil {
 		return handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
 	}

@@ -20,7 +20,7 @@ db-up: ## Start PostgreSQL database only
 	@echo "Starting PostgreSQL database..."
 	docker-compose up -d postgres
 	@echo "Waiting for database to be ready..."
-	@sleep 3
+	@docker-compose exec -T postgres bash -lc 'until pg_isready -U postgres -d conferencespace -q; do echo "…"; sleep 1; done'
 	@echo "Database is ready!"
 
 db-down: ## Stop PostgreSQL database
@@ -87,7 +87,7 @@ docker-restart: docker-down docker-up ## Restart all Docker services
 
 migrate-up: ## Run database migrations
 	@echo "Running migrations..."
-	@docker-compose exec -T postgres psql -U postgres -d conferencespace -c "SELECT 1" > /dev/null 2>&1 || (echo "Database not ready. Run 'make db-up' first." && exit 1)
+	@docker-compose exec -T postgres bash -lc 'until pg_isready -U postgres -d conferencespace -q; do sleep 1; done'
 	$(MIGRATE) -path migrations -database "postgresql://postgres:postgres@localhost:5432/conferencespace?sslmode=disable" up
 	@echo "Migrations completed!"
 

@@ -10,7 +10,13 @@ import { Slider } from "@/components/ui/slider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Sparkles, Download, AlertCircle, TrendingUp, TrendingDown, Lightbulb } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import type { Paper } from "@/lib/types"
 import { formatDate } from "@/lib/utils"
 
@@ -53,7 +59,8 @@ export function ReviewForm({ paper }: ReviewFormProps) {
     ],
     consistencyCheck: {
       score: 0.85,
-      message: "Your scores are generally consistent with typical reviews for papers of this quality.",
+      message:
+        "Your scores are generally consistent with typical reviews for papers of this quality.",
     },
   }
 
@@ -89,7 +96,12 @@ export function ReviewForm({ paper }: ReviewFormProps) {
 
       {/* AI Analysis */}
       {!showAIAnalysis && (
-        <Button onClick={handleGetAIAnalysis} variant="outline" className="w-full bg-transparent" size="lg">
+        <Button
+          onClick={handleGetAIAnalysis}
+          variant="outline"
+          className="w-full bg-transparent"
+          size="lg"
+        >
           <Sparkles className="size-4 mr-2" />
           Get AI-Powered Review Assistance
         </Button>
@@ -103,7 +115,9 @@ export function ReviewForm({ paper }: ReviewFormProps) {
                 <Sparkles className="size-5 text-primary" />
                 <CardTitle className="text-lg">AI Analysis & Suggestions</CardTitle>
               </div>
-              <CardDescription>AI-generated insights to help you write a comprehensive review</CardDescription>
+              <CardDescription>
+                AI-generated insights to help you write a comprehensive review
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
@@ -159,7 +173,9 @@ export function ReviewForm({ paper }: ReviewFormProps) {
       <Card>
         <CardHeader>
           <CardTitle>Review Scores</CardTitle>
-          <CardDescription>Rate the paper on various criteria (1 = Poor, 5 = Excellent)</CardDescription>
+          <CardDescription>
+            Rate the paper on various criteria (1 = Poor, 5 = Excellent)
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-8">
           <div className="space-y-4">
@@ -168,7 +184,13 @@ export function ReviewForm({ paper }: ReviewFormProps) {
                 <Label>Overall Score</Label>
                 <Badge variant="secondary">{overallScore[0]}/5</Badge>
               </div>
-              <Slider value={overallScore} onValueChange={setOverallScore} min={1} max={5} step={1} />
+              <Slider
+                value={overallScore}
+                onValueChange={setOverallScore}
+                min={1}
+                max={5}
+                step={1}
+              />
             </div>
 
             <div className="space-y-3">
@@ -192,7 +214,13 @@ export function ReviewForm({ paper }: ReviewFormProps) {
                 <Label>Technical Quality</Label>
                 <Badge variant="secondary">{technicalQuality[0]}/5</Badge>
               </div>
-              <Slider value={technicalQuality} onValueChange={setTechnicalQuality} min={1} max={5} step={1} />
+              <Slider
+                value={technicalQuality}
+                onValueChange={setTechnicalQuality}
+                min={1}
+                max={5}
+                step={1}
+              />
             </div>
 
             <div className="space-y-3">
@@ -217,7 +245,10 @@ export function ReviewForm({ paper }: ReviewFormProps) {
               <AlertCircle className="size-4" />
               <AlertTitle>Consistency Check</AlertTitle>
               <AlertDescription>
-                Your scores are {aiAnalysis.consistencyCheck.score >= 0.8 ? "well-aligned" : "somewhat inconsistent"}{" "}
+                Your scores are{" "}
+                {aiAnalysis.consistencyCheck.score >= 0.8
+                  ? "well-aligned"
+                  : "somewhat inconsistent"}{" "}
                 with typical reviews. Consider if your ratings match your written feedback.
               </AlertDescription>
             </Alert>
@@ -229,7 +260,9 @@ export function ReviewForm({ paper }: ReviewFormProps) {
       <Card>
         <CardHeader>
           <CardTitle>Review Comments</CardTitle>
-          <CardDescription>Provide detailed feedback for the authors and program committee</CardDescription>
+          <CardDescription>
+            Provide detailed feedback for the authors and program committee
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="authors">
@@ -264,7 +297,9 @@ export function ReviewForm({ paper }: ReviewFormProps) {
                   value={commentsToPC}
                   onChange={(e) => setCommentsToPC(e.target.value)}
                 />
-                <p className="text-xs text-muted-foreground">{commentsToPC.split(" ").filter(Boolean).length} words</p>
+                <p className="text-xs text-muted-foreground">
+                  {commentsToPC.split(" ").filter(Boolean).length} words
+                </p>
               </div>
             </TabsContent>
           </Tabs>

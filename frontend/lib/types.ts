@@ -22,13 +22,18 @@ export interface User {
   id: string
   name: string
   email: string
-  affiliation: string
+  affiliation?: string
   roles: UserRole[]
   avatar?: string
   expertise: string[]
   h_index?: number
   total_papers?: number
   total_reviews?: number
+  first_name?: string
+  last_name?: string
+  domain?: string[]
+  created_at?: string
+  updated_at?: string
 }
 
 // Conference interface

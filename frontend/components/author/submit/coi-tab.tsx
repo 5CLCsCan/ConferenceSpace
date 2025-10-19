@@ -59,7 +59,9 @@ export function COITab({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-1">COI Declaration (Conflicts of Interest)</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-1">
+          COI Declaration (Conflicts of Interest)
+        </h2>
         <p className="text-sm text-gray-600">
           List people, organizations, and domains that must not review this paper
         </p>
@@ -176,8 +178,8 @@ export function COITab({
           <div className="flex items-start gap-2">
             <AlertCircle className="size-5 text-yellow-600 flex-shrink-0 mt-0.5" />
             <p className="text-sm text-gray-700">
-              By submitting, you confirm your COI list is accurate. Missing conflicts may lead to desk
-              rejection.
+              By submitting, you confirm your COI list is accurate. Missing conflicts may lead to
+              desk rejection.
             </p>
           </div>
         </div>
