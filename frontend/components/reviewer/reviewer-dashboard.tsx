@@ -1,240 +1,309 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Clock, CheckCircle2, AlertCircle, FileText, TrendingUp, Sparkles, Calendar } from "lucide-react"
-import { mockReviewAssignments, mockPapers, mockConference } from "@/lib/mock-data"
-import { formatDate, daysUntilDeadline } from "@/lib/utils"
-import Link from "next/link"
-import type { ReviewAssignment, Paper } from "@/lib/types"
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import {
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  BookOpen,
+  Mail,
+  LayoutDashboard,
+} from "lucide-react";
+import {
+  mockReviewAssignments,
+  mockPapers,
+  mockConferences,
+} from "@/lib/mock-data";
+import { formatDate, daysUntilDeadline } from "@/lib/utils";
+import Link from "next/link";
+import type { ReviewAssignment, Paper } from "@/lib/types";
 
 export function ReviewerDashboard() {
-  const currentReviewerId = "user-2"
-  const assignments = mockReviewAssignments.filter((a) => a.reviewer_id === currentReviewerId)
+  const [activeNav, setActiveNav] = useState("overview");
+  const currentReviewerId = "user-2";
+  const assignments = mockReviewAssignments.filter(
+    (a) => a.reviewer_id === currentReviewerId
+  );
 
   const stats = {
     total: assignments.length,
     pending: assignments.filter((a) => a.status === "pending").length,
     inProgress: assignments.filter((a) => a.status === "in_progress").length,
     completed: assignments.filter((a) => a.status === "completed").length,
-  }
+  };
 
-  const completionRate = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0
+  // Lọc các hội nghị có paper cần review
+  const myConferences = mockConferences.filter((conf) =>
+    assignments.some(
+      (assignment) =>
+        mockPapers.find((p) => p.id === assignment.paper_id)?.conference_id ===
+        conf.id
+    )
+  );
+
+  // Mock data cho lời mời phản biện
+  const invitations = [
+    {
+      id: "inv-1",
+      conferenceName: "International Conference on Advanced Computing 2025",
+      inviterName: "Dr. Sarah Chen",
+      paperTitle: "Novel Approaches in Quantum Computing",
+      dueDate: "2025-05-15T23:59:59Z",
+    },
+    {
+      id: "inv-2",
+      conferenceName: "Neural Information Processing Systems 2025",
+      inviterName: "Prof. Michael Rodriguez",
+      paperTitle: "Deep Learning for Climate Change Prediction",
+      dueDate: "2025-07-20T23:59:59Z",
+    },
+  ];
 
   return (
-    <div className="space-y-8">
-      {/* Deadline Banner */}
-      <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold mb-2">Review Deadline Approaching</h2>
-              <p className="text-muted-foreground mb-4">
-                Complete your reviews before {formatDate(mockConference.review_deadline)}
-              </p>
-              <Badge variant="outline" className="gap-1">
-                <Calendar className="size-3" />
-                {daysUntilDeadline(mockConference.review_deadline)} days remaining
-              </Badge>
-            </div>
-            <div className="text-right">
-              <div className="text-4xl font-bold mb-2">
-                {stats.completed}/{stats.total}
-              </div>
-              <p className="text-sm text-muted-foreground">Reviews Completed</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Stats */}
-      <div className="grid md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Assigned</CardTitle>
-            <FileText className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.total}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Pending</CardTitle>
-            <AlertCircle className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.pending}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">In Progress</CardTitle>
-            <Clock className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.inProgress}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Completion Rate</CardTitle>
-            <TrendingUp className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{completionRate}%</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Review Progress */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Overall Progress</CardTitle>
-          <CardDescription>Track your review completion status</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span>Completed Reviews</span>
-              <span className="font-medium">{completionRate}%</span>
-            </div>
-            <Progress value={completionRate} className="h-3" />
-          </div>
-          <div className="grid md:grid-cols-3 gap-4 pt-4">
-            <div className="flex items-center gap-3">
-              <div className="size-3 rounded-full bg-destructive" />
-              <div className="text-sm">
-                <div className="font-medium">{stats.pending}</div>
-                <div className="text-muted-foreground">Pending</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="size-3 rounded-full bg-warning" />
-              <div className="text-sm">
-                <div className="font-medium">{stats.inProgress}</div>
-                <div className="text-muted-foreground">In Progress</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="size-3 rounded-full bg-success" />
-              <div className="text-sm">
-                <div className="font-medium">{stats.completed}</div>
-                <div className="text-muted-foreground">Completed</div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Assigned Papers */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Assigned Papers</CardTitle>
-          <CardDescription>Papers waiting for your review</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {assignments.map((assignment) => {
-            const paper = mockPapers.find((p) => p.id === assignment.paper_id)
-            if (!paper) return null
-            return <AssignedPaperCard key={assignment.id} assignment={assignment} paper={paper} />
-          })}
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
-
-function AssignedPaperCard({ assignment, paper }: { assignment: ReviewAssignment; paper: Paper }) {
-  const daysLeft = daysUntilDeadline(assignment.due_date)
-  const isUrgent = daysLeft <= 7
-
-  const statusConfig = {
-    pending: {
-      icon: AlertCircle,
-      color: "text-destructive",
-      bgColor: "bg-destructive/10",
-      label: "Not Started",
-    },
-    in_progress: {
-      icon: Clock,
-      color: "text-warning",
-      bgColor: "bg-warning/10",
-      label: "In Progress",
-    },
-    completed: {
-      icon: CheckCircle2,
-      color: "text-success",
-      bgColor: "bg-success/10",
-      label: "Completed",
-    },
-  }
-
-  const config = statusConfig[assignment.status]
-  const StatusIcon = config.icon
-
-  return (
-    <Card className="hover:border-primary/50 transition-colors">
-      <CardContent className="pt-6">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 space-y-3">
-            <div className="flex items-start gap-3">
-              <div className={`p-2 rounded-lg ${config.bgColor}`}>
-                <StatusIcon className={`size-5 ${config.color}`} />
-              </div>
-              <div className="flex-1">
-                <Link href={`/reviewer/papers/${paper.id}`} className="hover:underline">
-                  <h3 className="font-semibold text-lg mb-2">{paper.title}</h3>
-                </Link>
-                <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{paper.abstract}</p>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span>Due {formatDate(assignment.due_date)}</span>
-                  {isUrgent && (
-                    <>
-                      <span>•</span>
-                      <Badge variant="destructive" className="gap-1">
-                        <AlertCircle className="size-3" />
-                        {daysLeft} days left
-                      </Badge>
-                    </>
-                  )}
-                  {assignment.ai_match_score && (
-                    <>
-                      <span>•</span>
-                      <Badge variant="secondary" className="gap-1">
-                        <Sparkles className="size-3" />
-                        {assignment.ai_match_score}% match
-                      </Badge>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="outline" className={config.color}>
-                {config.label}
-              </Badge>
-              {paper.keywords.slice(0, 3).map((keyword) => (
-                <Badge key={keyword} variant="outline">
-                  {keyword}
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          <Button variant={assignment.status === "completed" ? "outline" : "default"} size="sm" asChild>
-            <Link href={`/reviewer/papers/${paper.id}`}>
-              {assignment.status === "completed" ? "View Review" : "Start Review"}
-            </Link>
+    <div className="flex min-h-screen bg-background">
+      {/* Sidebar cố định */}
+      <div className="w-64 border-r bg-card">
+        <div className="flex flex-col p-4 space-y-2">
+          <Button
+            variant={activeNav === "overview" ? "secondary" : "ghost"}
+            className="justify-start"
+            onClick={() => setActiveNav("overview")}
+          >
+            <LayoutDashboard className="mr-2 size-4" />
+            Tổng quan
+          </Button>
+          <Button
+            variant={activeNav === "conferences" ? "secondary" : "ghost"}
+            className="justify-start"
+            onClick={() => setActiveNav("conferences")}
+          >
+            <BookOpen className="mr-2 size-4" />
+            Hội nghị của tôi
+          </Button>
+          <Button
+            variant={activeNav === "invitations" ? "secondary" : "ghost"}
+            className="justify-start"
+            onClick={() => setActiveNav("invitations")}
+          >
+            <Mail className="mr-2 size-4" />
+            Lời mời
           </Button>
         </div>
-      </CardContent>
-    </Card>
-  )
+      </div>
+
+      {/* Nội dung chính */}
+      <div className="flex-1 p-8 space-y-8">
+        {activeNav === "overview" && (
+          <>
+            {/* Thống kê */}
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Tổng số hội nghị
+                  </CardTitle>
+                  <BookOpen className="size-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {myConferences.length}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Đang tham gia phản biện
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Đã phản biện
+                  </CardTitle>
+                  <CheckCircle2 className="size-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats.completed}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Bài báo đã hoàn thành
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Chờ phản biện
+                  </CardTitle>
+                  <Clock className="size-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats.pending}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Bài báo cần xử lý
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Các tác vụ cần làm */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Các tác vụ cần làm</CardTitle>
+                <CardDescription>
+                  Những việc cần được ưu tiên xử lý
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {assignments
+                  .filter((a) => a.status !== "completed")
+                  .map((assignment) => {
+                    const paper = mockPapers.find(
+                      (p) => p.id === assignment.paper_id
+                    );
+                    if (!paper) return null;
+                    const daysLeft = daysUntilDeadline(assignment.due_date);
+                    return (
+                      <div
+                        key={assignment.id}
+                        className="flex items-center justify-between p-4 border rounded-lg"
+                      >
+                        <div>
+                          <h4 className="font-medium">{paper.title}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Hạn: {formatDate(assignment.due_date)} ({daysLeft}{" "}
+                            ngày)
+                          </p>
+                        </div>
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={`/reviewer/papers/${paper.id}`}>
+                            Bắt đầu
+                          </Link>
+                        </Button>
+                      </div>
+                    );
+                  })}
+              </CardContent>
+            </Card>
+          </>
+        )}
+
+        {activeNav === "conferences" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Hội nghị tham gia phản biện</CardTitle>
+              <CardDescription>
+                Danh sách các hội nghị bạn đang phản biện
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="border rounded-lg">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="text-left p-4 font-medium">
+                        Tên hội nghị
+                      </th>
+                      <th className="text-left p-4 font-medium">Vai trò</th>
+                      <th className="text-left p-4 font-medium">Tiến độ</th>
+                      <th className="text-left p-4 font-medium">Hạn chót</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {myConferences.map((conference) => {
+                      const conferenceAssignments = assignments.filter(
+                        (a) =>
+                          mockPapers.find((p) => p.id === a.paper_id)
+                            ?.conference_id === conference.id
+                      );
+                      const completed = conferenceAssignments.filter(
+                        (a) => a.status === "completed"
+                      ).length;
+                      const total = conferenceAssignments.length;
+
+                      return (
+                        <tr
+                          key={conference.id}
+                          className="border-b last:border-0"
+                        >
+                          <td className="p-4">
+                            <a
+                              href="#"
+                              className="text-primary hover:underline font-medium"
+                            >
+                              {conference.name}
+                            </a>
+                          </td>
+                          <td className="p-4">Reviewer</td>
+                          <td className="p-4">
+                            <div className="flex items-center gap-2">
+                              <Progress
+                                value={(completed / total) * 100}
+                                className="w-24"
+                              />
+                              <span className="text-sm text-muted-foreground">
+                                {completed}/{total}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="p-4 text-sm">
+                            {formatDate(conference.review_deadline)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {activeNav === "invitations" && (
+          <div className="grid gap-6">
+            {invitations.map((invitation) => (
+              <Card key={invitation.id}>
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2">
+                      <h3 className="font-semibold text-lg">
+                        {invitation.conferenceName}
+                      </h3>
+                      <p className="text-muted-foreground">
+                        {invitation.paperTitle}
+                      </p>
+                      <p className="text-sm">
+                        Người mời:{" "}
+                        <span className="font-medium">
+                          {invitation.inviterName}
+                        </span>
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Hạn phản hồi: {formatDate(invitation.dueDate)}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm">
+                        Từ chối
+                      </Button>
+                      <Button size="sm">Chấp nhận</Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
