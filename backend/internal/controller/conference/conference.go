@@ -47,14 +47,21 @@ func (c *Controller) Create(ginCtx *gin.Context, req *conferenceDto.CreateReques
 		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
 	}
 
+	userID, exists := utils.GetUserID(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
 	req.Conference.Chair = userEmail
+	req.Conference.PrimaryContact = userID
+	req.Conference.AreaChair = userID
 
 	return c.conferenceStorage.Create(ctx, req.Conference)
 }
 
 // List godoc
 // @Summary      List conferences
-// @Description  Get list of conferences with pagination and filters
+// @Description  Get list of conferences with pagination and filters and user role information
 // @Tags         conferences
 // @Accept       json
 // @Produce      json
@@ -64,12 +71,12 @@ func (c *Controller) Create(ginCtx *gin.Context, req *conferenceDto.CreateReques
 // @Param        title query string false "Filter by title"
 // @Param        acronym query string false "Filter by acronym"
 // @Param        chair query string false "Filter by chair"
-// @Success      200 {object} conference.ListResponse
+// @Success      200 {object} conference.UserListResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      500 {object} handler.Response
 // @Router       /conferences [get]
-func (c *Controller) List(ginCtx *gin.Context, req *conferenceDto.ListRequest) (*conferenceDto.ListResponse, error) {
+func (c *Controller) List(ginCtx *gin.Context, req *conferenceDto.ListRequest) (*conferenceDto.UserListResponse, error) {
 	ctx := ginCtx.Request.Context()
 
 	params := &conferenceStorage.QueryParams{
@@ -85,8 +92,33 @@ func (c *Controller) List(ginCtx *gin.Context, req *conferenceDto.ListRequest) (
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
-	return &conferenceDto.ListResponse{
-		Conferences: conferences,
+	// Get current user for role determination
+	userID, exists := utils.GetUserID(ginCtx)
+	userEmail, _ := utils.GetEmail(ginCtx)
+
+	// Convert to user-specific response with role information
+	userConferences := make([]*conferenceDto.UserConferenceResponse, len(conferences))
+	for i, conf := range conferences {
+		userConf := &conferenceDto.UserConferenceResponse{
+			Response: *conf,
+			UserRole: "", // Default: no role
+		}
+
+		// Determine user role if user context is available
+		if exists {
+			// Check if user is chair
+			if userEmail == conf.Chair || (userID > 0 && (userID == conf.PrimaryContact || userID == conf.AreaChair)) {
+				userConf.UserRole = "chair"
+			}
+			// TODO: Check if user is author (has submissions to this conference)
+			// TODO: Check if user is reviewer (assigned to review this conference)
+		}
+
+		userConferences[i] = userConf
+	}
+
+	return &conferenceDto.UserListResponse{
+		Conferences: userConferences,
 		Total:       total,
 	}, nil
 }

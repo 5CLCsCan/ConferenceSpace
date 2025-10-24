@@ -72,7 +72,7 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
     abstractLength:
       abstract.split(" ").filter(Boolean).length >= 150 &&
       abstract.split(" ").filter(Boolean).length <= 250,
-    subjectAreas: subjectAreas.length >= 2 && subjectAreas.length <= 3,
+    subjectAreas: subjectAreas.length >= 1,
     keywords: keywords.length >= 3,
     pdfUploaded: uploadedFile !== null,
     coAuthorsListed: authors.some((a) => a.name.trim().length > 0),
@@ -94,28 +94,44 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
   }
 
   const handleSubmit = async () => {
-    if (!user) return
+    if (!user || !conference) return
+
     setSubmitting(true)
-    const submissionData = {
-      title,
-      abstract,
-      keywords,
-      conference_id: conference?.id || "",
-      track_id: subjectAreas[0] || "",
-      authors: authors
-        .filter((a) => a.name.trim())
-        .map((author, index) => ({
-          user_id: index === 0 ? user.id : `temp-${index}`,
-          ...author,
-          is_corresponding: index === 0 && isCorresponding,
-          order: index + 1,
-        })),
-      file: uploadedFile,
-    }
-    const response = await submitPaper(submissionData)
-    setSubmitting(false)
-    if (response.data) {
-      router.push(`/dashboard/author/papers/${response.data.id}`)
+    try {
+      const submissionData = {
+        conference_id: conference.id,
+        title,
+        abstract,
+        link: "", // TODO: Add file upload URL when implemented
+        domain: subjectAreas,
+        file: uploadedFile || undefined, // Include uploaded file
+        information: {
+          keywords,
+          co_authors: authors
+            .filter((a, index) => index > 0 && a.name.trim()) // Skip first author (current user)
+            .map((a) => a.email),
+          paper_type: "research", // Default
+          track_name: subjectAreas[0] || "",
+          additional_notes: "", // TODO: Add notes field
+          metadata: {
+            language: "en", // Default
+            page_count: 0, // TODO: Extract from uploaded file
+          },
+        },
+      }
+
+      const response = await submitPaper(submissionData)
+
+      if (response.error) {
+        alert(`Submission failed: ${response.error}`)
+      } else {
+        alert("Paper submitted successfully!")
+        router.push("/dashboard/author")
+      }
+    } catch (error) {
+      alert("Submission failed. Please try again.")
+    } finally {
+      setSubmitting(false)
     }
   }
 

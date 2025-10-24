@@ -1,118 +1,209 @@
-import { mockPapers } from "@/lib/mock-data"
+import { apiFetch } from "@/lib/api/client"
 import type { Paper } from "@/lib/types"
 
 /**
- * API: POST /api/papers
- *
  * Submit a new paper to a conference
- *
- * Database Query (Golang):
- * INSERT INTO papers (title, abstract, keywords, conference_id, track_id, status, submitted_at, version)
- * VALUES (?, ?, ?, ?, ?, 'submitted', NOW(), 1)
- * RETURNING id
- *
- * Then insert authors:
- * INSERT INTO paper_authors (paper_id, user_id, name, email, affiliation, is_corresponding, order)
- * VALUES (?, ?, ?, ?, ?, ?, ?)
- *
- * Tables: papers, paper_authors
- * Fields: All paper fields + author information
+ * Backend endpoint: POST /api/v1/conferences/:conference_id/submissions
  */
-export async function submitPaper(
-  data: any,
-): Promise<{ data: Paper | null; error: string | null }> {
+export async function submitPaper(data: {
+  conference_id: string
+  title: string
+  abstract: string
+  link?: string
+  domain: string[]
+  file?: File
+  information?: {
+    co_authors?: string[]
+    keywords?: string[]
+    paper_type?: string
+    track_name?: string
+    additional_notes?: string
+    metadata?: {
+      language?: string
+      page_count?: number
+    }
+  }
+}): Promise<{ data: Paper | null; error: string | null }> {
   try {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    // Create FormData for multipart upload
+    const formData = new FormData()
 
-    // Mock implementation - in real app, this would POST to backend
-    // const response = await fetch('/api/papers', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(data)
-    // })
-    // const result = await response.json()
+    // Add submission data as JSON string in form field
+    // Wrap in { submission: ... } to match backend DTO structure
+    const submissionData = {
+      submission: {
+        title: data.title,
+        abstract: data.abstract,
+        link: data.link || "",
+        domain: data.domain,
+        status: "draft",
+        information: data.information || {},
+      },
+    }
+    formData.append("submission", JSON.stringify(submissionData))
 
-    const newPaper: Paper = {
-      id: `paper-${Date.now()}`,
-      title: data.title,
-      abstract: data.abstract,
-      keywords: data.keywords,
-      authors: data.authors,
+    // Add file if provided
+    if (data.file) {
+      formData.append("file", data.file)
+    }
+
+    const { data: responseData, response } = await apiFetch<{ data: any }>(
+      `/api/v1/conferences/${data.conference_id}/submissions`,
+      {
+        method: "POST",
+        body: formData,
+        // Let apiFetch handle Content-Type and Authorization headers
+      },
+    )
+
+    // Transform backend response to frontend Paper format
+    const paper: Paper = {
+      id: responseData.data.id.toString(),
+      title: responseData.data.title,
+      abstract: responseData.data.abstract,
+      keywords: [], // TODO: Map from information.keywords if available
+      authors: [], // TODO: Map from submission author/co_authors
       conference_id: data.conference_id,
-      track_id: data.track_id,
-      status: "submitted",
-      submitted_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      track_id: "", // TODO: Map from track_name if available
+      status: responseData.data.status as any,
+      submitted_at: responseData.data.created_at,
+      updated_at: responseData.data.updated_at,
       version: 1,
       reviews: [],
     }
 
-    return { data: newPaper, error: null }
+    return { data: paper, error: null }
   } catch (error) {
-    return { data: null, error: "Failed to submit paper" }
+    return { data: null, error: error instanceof Error ? error.message : "Failed to submit paper" }
   }
 }
 
 /**
- * API: GET /api/papers/:id
- *
- * Get paper details by ID
- *
- * Database Query (Golang):
- * SELECT p.*, GROUP_CONCAT(pa.user_id) as author_ids
- * FROM papers p
- * LEFT JOIN paper_authors pa ON p.id = pa.paper_id
- * WHERE p.id = ?
- * GROUP BY p.id
- *
- * Tables: papers, paper_authors
+ * Get submission details by ID
+ * Backend endpoint: GET /api/v1/conferences/:conference_id/submissions/:id
  */
 export async function getPaperById(
   paperId: string,
+  conferenceId?: string,
 ): Promise<{ data: Paper | null; error: string | null }> {
   try {
-    await new Promise((resolve) => setTimeout(resolve, 300))
-
-    const paper = mockPapers.find((p) => p.id === paperId)
-
-    if (paper) {
-      return { data: paper, error: null }
+    if (!conferenceId) {
+      return { data: null, error: "Conference ID is required" }
     }
 
-    return { data: null, error: "Paper not found" }
+    const { data, response } = await apiFetch<{ data: any }>(
+      `/api/v1/conferences/${conferenceId}/submissions/${paperId}`,
+    )
+
+    // Transform backend response to frontend Paper format
+    const paper: Paper = {
+      id: data.data.id.toString(),
+      title: data.data.title,
+      abstract: data.data.abstract,
+      keywords: data.data.information?.keywords || [],
+      authors: [], // TODO: Map from submission author/co_authors
+      conference_id: conferenceId,
+      track_id: data.data.information?.track_name || "",
+      status: data.data.status as any,
+      submitted_at: data.data.created_at,
+      updated_at: data.data.updated_at,
+      version: 1,
+      reviews: [],
+    }
+
+    return { data: paper, error: null }
   } catch (error) {
-    return { data: null, error: "Failed to fetch paper" }
+    return { data: null, error: error instanceof Error ? error.message : "Failed to fetch paper" }
   }
 }
 
 /**
- * API: POST /api/papers/:id/camera-ready
- *
+ * Update a submission
+ * Backend endpoint: PUT /api/v1/conferences/:conference_id/submissions/:id
+ */
+export async function updatePaper(
+  paperId: string,
+  conferenceId: string,
+  updates: {
+    title?: string
+    abstract?: string
+    domain?: string[]
+    information?: {
+      keywords?: string[]
+      additional_notes?: string
+    }
+  },
+): Promise<{ data: Paper | null; error: string | null }> {
+  try {
+    const payload = {
+      submission: updates,
+    }
+
+    const { data, response } = await apiFetch<{ data: any }>(
+      `/api/v1/conferences/${conferenceId}/submissions/${paperId}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      },
+    )
+
+    // Transform backend response to frontend Paper format
+    const paper: Paper = {
+      id: data.data.id.toString(),
+      title: data.data.title,
+      abstract: data.data.abstract,
+      keywords: data.data.information?.keywords || [],
+      authors: [], // TODO: Map from submission author/co_authors
+      conference_id: conferenceId,
+      track_id: data.data.information?.track_name || "",
+      status: data.data.status as any,
+      submitted_at: data.data.created_at,
+      updated_at: data.data.updated_at,
+      version: 1,
+      reviews: [],
+    }
+
+    return { data: paper, error: null }
+  } catch (error) {
+    return { data: null, error: error instanceof Error ? error.message : "Failed to update paper" }
+  }
+}
+
+/**
+ * Delete a submission
+ * Backend endpoint: DELETE /api/v1/conferences/:conference_id/submissions/:id
+ */
+export async function deletePaper(
+  paperId: string,
+  conferenceId: string,
+): Promise<{ data: boolean; error: string | null }> {
+  try {
+    const { response } = await apiFetch(
+      `/api/v1/conferences/${conferenceId}/submissions/${paperId}`,
+      {
+        method: "DELETE",
+      },
+    )
+
+    return { data: true, error: null }
+  } catch (error) {
+    return { data: false, error: error instanceof Error ? error.message : "Failed to delete paper" }
+  }
+}
+
+/**
  * Submit camera ready version of accepted paper
- *
- * Database Query (Golang):
- * UPDATE papers
- * SET status = 'camera_ready', version = version + 1, updated_at = NOW()
- * WHERE id = ? AND status = 'accepted'
- *
- * Then insert file record:
- * INSERT INTO paper_files (paper_id, file_type, file_path, uploaded_at)
- * VALUES (?, 'camera_ready', ?, NOW())
- *
- * Tables: papers, paper_files
+ * TODO: Backend endpoint not yet implemented - placeholder for future use
  */
 export async function submitCameraReady(
   paperId: string,
   file: File,
 ): Promise<{ data: boolean; error: string | null }> {
   try {
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Mock implementation
+    // TODO: Implement when backend supports file uploads
     // const formData = new FormData()
     // formData.append('file', file)
-    // const response = await fetch(`/api/papers/${paperId}/camera-ready`, {
+    // const { response } = await apiFetch(`/api/v1/conferences/${conferenceId}/submissions/${paperId}/camera-ready`, {
     //   method: 'POST',
     //   body: formData
     // })

@@ -7,52 +7,55 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 import { Calendar, Users, FileText, AlertCircle, Search, Filter } from "lucide-react"
-
-const conferences = [
-  {
-    id: "conf-001",
-    name: "International Conference on Computer Science",
-    acronym: "ICCS 2025",
-    dates: "June 15-18, 2025",
-    status: "active" as const,
-    submissions: 247,
-  },
-  {
-    id: "conf-002",
-    name: "AI Ethics and Society Symposium",
-    acronym: "AI Ethics 2026",
-    dates: "March 10-12, 2026",
-    status: "upcoming" as const,
-    submissions: 89,
-  },
-  {
-    id: "conf-003",
-    name: "Robotics and Automation Conference",
-    acronym: "RoboConf 2025",
-    dates: "September 5-8, 2025",
-    status: "upcoming" as const,
-    submissions: 156,
-  },
-  {
-    id: "conf-004",
-    name: "Data Science Summit",
-    acronym: "DSS 2025",
-    dates: "November 20-22, 2025",
-    status: "active" as const,
-    submissions: 312,
-  },
-  {
-    id: "conf-005",
-    name: "Cybersecurity Workshop",
-    acronym: "CyberSec 2024",
-    dates: "December 1-3, 2024",
-    status: "archived" as const,
-    submissions: 178,
-  },
-]
+import { useEffect, useState } from "react"
+import { listConferences, type Conference } from "@/lib/api/conferences"
 
 export default function ChairDashboard() {
   const router = useRouter()
+  const [conferences, setConferences] = useState<
+    Array<{
+      id: string
+      name: string
+      acronym: string
+      dates: string
+      status: "active" | "upcoming" | "archived"
+      submissions: number
+    }>
+  >([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchConferences = async () => {
+      try {
+        setLoading(true)
+        const response = await listConferences({ limit: 50 })
+
+        if (response.error) {
+          setError(response.error)
+        } else if (response.data) {
+          // Transform API data to component format
+          const transformedConferences = response.data.conferences.map((conf) => ({
+            id: conf.id,
+            name: conf.name,
+            acronym: conf.acronym,
+            dates: conf.conference_date
+              ? new Date(conf.conference_date).toLocaleDateString()
+              : "TBD",
+            status: conf.status as "active" | "upcoming" | "archived",
+            submissions: 0, // TODO: Get actual submission count
+          }))
+          setConferences(transformedConferences)
+        }
+      } catch (err) {
+        setError("Failed to load conferences")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchConferences()
+  }, [])
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-8">
@@ -122,39 +125,71 @@ export default function ChairDashboard() {
 
           {/* Desktop Table */}
           <Card className="shadow-sm overflow-hidden hidden md:block">
-            <table className="w-full">
-              <thead className="bg-muted/50">
-                <tr className="border-b border-border">
-                  <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
-                    Conference Name
-                  </th>
-                  <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
-                    Dates
-                  </th>
-                  <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
-                    Status
-                  </th>
-                  <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
-                    Submissions
-                  </th>
-                  <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {conferences.map((conference, index) => (
-                  <ConferenceTableRow key={index} {...conference} />
-                ))}
-              </tbody>
-            </table>
+            {loading ? (
+              <div className="p-8 text-center">
+                <div className="text-muted-foreground">Loading conferences...</div>
+              </div>
+            ) : error ? (
+              <div className="p-8 text-center">
+                <div className="text-destructive">Error: {error}</div>
+              </div>
+            ) : conferences.length === 0 ? (
+              <div className="p-8 text-center">
+                <div className="text-muted-foreground">
+                  No conferences found. Create your first conference!
+                </div>
+              </div>
+            ) : (
+              <table className="w-full">
+                <thead className="bg-muted/50">
+                  <tr className="border-b border-border">
+                    <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
+                      Conference Name
+                    </th>
+                    <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
+                      Dates
+                    </th>
+                    <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
+                      Status
+                    </th>
+                    <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
+                      Submissions
+                    </th>
+                    <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {conferences.map((conference, index) => (
+                    <ConferenceTableRow key={conference.id} {...conference} />
+                  ))}
+                </tbody>
+              </table>
+            )}
           </Card>
 
           {/* Mobile Cards */}
           <div className="md:hidden">
-            {conferences.map((conference, index) => (
-              <ConferenceCard key={index} {...conference} />
-            ))}
+            {loading ? (
+              <div className="p-8 text-center">
+                <div className="text-muted-foreground">Loading conferences...</div>
+              </div>
+            ) : error ? (
+              <div className="p-8 text-center">
+                <div className="text-destructive">Error: {error}</div>
+              </div>
+            ) : conferences.length === 0 ? (
+              <div className="p-8 text-center">
+                <div className="text-muted-foreground">
+                  No conferences found. Create your first conference!
+                </div>
+              </div>
+            ) : (
+              conferences.map((conference) => (
+                <ConferenceCard key={conference.id} {...conference} />
+              ))
+            )}
           </div>
         </section>
 

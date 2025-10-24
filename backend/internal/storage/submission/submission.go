@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
@@ -49,64 +50,31 @@ func (s *Storage) Create(ctx context.Context, sub *submissionDto.Submission) (*s
 		return nil, fmt.Errorf("failed to serialize information: %w", err)
 	}
 
-	query, args, err := s.qb.
-		Insert(submissionModel.TableName).
-		Columns(
-			submissionModel.ColConferenceID,
-			submissionModel.ColAuthor,
-			submissionModel.ColTitle,
-			submissionModel.ColAbstract,
-			submissionModel.ColLink,
-			submissionModel.ColDomain,
-			submissionModel.ColStatus,
-			submissionModel.ColInformation,
-			submissionModel.ColCreatedAt,
-			submissionModel.ColUpdatedAt,
-		).
-		Values(
-			sub.ConferenceID,
-			sub.Author,
-			sub.Title,
-			sub.Abstract,
-			sub.Link,
-			pq.Array(sub.Domain),
-			sub.Status,
-			infoBytes,
-			now,
-			now,
-		).
-		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
-			submissionModel.ColSubmissionID,
-			submissionModel.ColConferenceID,
-			submissionModel.ColAuthor,
-			submissionModel.ColTitle,
-			submissionModel.ColAbstract,
-			submissionModel.ColLink,
-			submissionModel.ColDomain,
-			submissionModel.ColStatus,
-			submissionModel.ColInformation,
-			submissionModel.ColCreatedAt,
-			submissionModel.ColUpdatedAt,
-		)).
-		ToSql()
+	// Use manual INSERT approach for reliability
+	domainArray := "{" + strings.Join(sub.Domain, ",") + "}"
 
-	if err != nil {
-		return nil, fmt.Errorf("failed to build insert query: %w", err)
+	// Build the INSERT query
+	insertQuery := `INSERT INTO conference_submissions (conference_id, author, title, abstract, link, domain, status, information, created_at, updated_at`
+	valuesQuery := `) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10`
+	returningQuery := `) RETURNING submission_id, author, domain, status, link, information, created_at, updated_at, conference_id, title, abstract, file_path, file_original_name, file_size, file_mime_type, file_uploaded_at`
+
+	queryArgs := []interface{}{sub.ConferenceID, sub.Author, sub.Title, sub.Abstract, sub.Link, domainArray, sub.Status, infoBytes, now, now}
+
+	// Add file fields if present
+	if sub.File != nil {
+		insertQuery += `, file_path, file_original_name, file_size, file_mime_type, file_uploaded_at`
+		valuesQuery += `, $11, $12, $13, $14, $15`
+		queryArgs = append(queryArgs, sub.File.Path, sub.File.OriginalName, sub.File.Size, sub.File.MimeType, now)
 	}
 
+	fullQuery := insertQuery + valuesQuery + returningQuery
+
 	entity := &submissionModel.Submission{}
-	err = s.db.QueryRowContext(ctx, query, args...).Scan(
-		&entity.SubmissionID,
-		&entity.ConferenceID,
-		&entity.Author,
-		&entity.Title,
-		&entity.Abstract,
-		&entity.Link,
-		&entity.Domain,
-		&entity.Status,
-		&entity.Information,
-		&entity.CreatedAt,
-		&entity.UpdatedAt,
+	err = s.db.QueryRowContext(ctx, fullQuery, queryArgs...).Scan(
+		&entity.SubmissionID, &entity.Author, &entity.Domain, &entity.Status,
+		&entity.Link, &entity.Information, &entity.CreatedAt, &entity.UpdatedAt,
+		&entity.ConferenceID, &entity.Title, &entity.Abstract,
+		&entity.FilePath, &entity.FileOriginalName, &entity.FileSize, &entity.FileMimeType, &entity.FileUploadedAt,
 	)
 
 	if err != nil {
@@ -128,6 +96,11 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*submissionDto.Respons
 			submissionModel.ColDomain,
 			submissionModel.ColStatus,
 			submissionModel.ColInformation,
+			submissionModel.ColFilePath,
+			submissionModel.ColFileOriginalName,
+			submissionModel.ColFileSize,
+			submissionModel.ColFileMimeType,
+			submissionModel.ColFileUploadedAt,
 			submissionModel.ColCreatedAt,
 			submissionModel.ColUpdatedAt,
 		).
@@ -150,6 +123,11 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*submissionDto.Respons
 		&entity.Domain,
 		&entity.Status,
 		&entity.Information,
+		&entity.FilePath,
+		&entity.FileOriginalName,
+		&entity.FileSize,
+		&entity.FileMimeType,
+		&entity.FileUploadedAt,
 		&entity.CreatedAt,
 		&entity.UpdatedAt,
 	)
@@ -175,6 +153,11 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*submissionD
 		submissionModel.ColDomain,
 		submissionModel.ColStatus,
 		submissionModel.ColInformation,
+		submissionModel.ColFilePath,
+		submissionModel.ColFileOriginalName,
+		submissionModel.ColFileSize,
+		submissionModel.ColFileMimeType,
+		submissionModel.ColFileUploadedAt,
 		submissionModel.ColCreatedAt,
 		submissionModel.ColUpdatedAt,
 	).From(submissionModel.TableName)
@@ -240,6 +223,11 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*submissionD
 			&entity.Domain,
 			&entity.Status,
 			&entity.Information,
+			&entity.FilePath,
+			&entity.FileOriginalName,
+			&entity.FileSize,
+			&entity.FileMimeType,
+			&entity.FileUploadedAt,
 			&entity.CreatedAt,
 			&entity.UpdatedAt,
 		)
@@ -261,28 +249,60 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*submissionD
 }
 
 func (s *Storage) Update(ctx context.Context, id int64, sub *submissionDto.Submission) (*submissionDto.Response, error) {
-	infoBytes, err := submissionModel.SerializeInformation(sub.Information)
-	if err != nil {
-		return nil, fmt.Errorf("failed to serialize information: %w", err)
+	updateMap := map[string]interface{}{}
+
+	if sub.ConferenceID != 0 {
+		updateMap[submissionModel.ColConferenceID] = sub.ConferenceID
 	}
 
-	updateMap := map[string]interface{}{
-		submissionModel.ColConferenceID: sub.ConferenceID,
-		submissionModel.ColAuthor:       sub.Author,
-		submissionModel.ColTitle:        sub.Title,
-		submissionModel.ColAbstract:     sub.Abstract,
-		submissionModel.ColLink:         sub.Link,
-		submissionModel.ColDomain:       pq.Array(sub.Domain),
-		submissionModel.ColStatus:       sub.Status,
-		submissionModel.ColInformation:  infoBytes,
-		submissionModel.ColUpdatedAt:    time.Now(),
+	if sub.Author != "" {
+		updateMap[submissionModel.ColAuthor] = sub.Author
 	}
+
+	if sub.Title != "" {
+		updateMap[submissionModel.ColTitle] = sub.Title
+	}
+
+	if sub.Abstract != "" {
+		updateMap[submissionModel.ColAbstract] = sub.Abstract
+	}
+
+	if sub.Link != "" {
+		updateMap[submissionModel.ColLink] = sub.Link
+	}
+
+	if sub.Domain != nil {
+		updateMap[submissionModel.ColDomain] = pq.Array(sub.Domain)
+	}
+
+	if sub.Status != "" {
+		updateMap[submissionModel.ColStatus] = sub.Status
+	}
+
+	if sub.Information != nil {
+		infoBytes, err := submissionModel.SerializeInformation(sub.Information)
+		if err != nil {
+			return nil, fmt.Errorf("failed to serialize information: %w", err)
+		}
+		updateMap[submissionModel.ColInformation] = infoBytes
+	}
+
+	// Add file metadata if provided
+	if sub.File != nil {
+		updateMap[submissionModel.ColFilePath] = sub.File.Path
+		updateMap[submissionModel.ColFileOriginalName] = sub.File.OriginalName
+		updateMap[submissionModel.ColFileSize] = sub.File.Size
+		updateMap[submissionModel.ColFileMimeType] = sub.File.MimeType
+		updateMap[submissionModel.ColFileUploadedAt] = time.Now()
+	}
+
+	updateMap[submissionModel.ColUpdatedAt] = time.Now()
 
 	query, args, err := s.qb.
 		Update(submissionModel.TableName).
 		SetMap(updateMap).
 		Where(sq.Eq{submissionModel.ColSubmissionID: id}).
-		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
+		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
 			submissionModel.ColSubmissionID,
 			submissionModel.ColConferenceID,
 			submissionModel.ColAuthor,
@@ -292,6 +312,11 @@ func (s *Storage) Update(ctx context.Context, id int64, sub *submissionDto.Submi
 			submissionModel.ColDomain,
 			submissionModel.ColStatus,
 			submissionModel.ColInformation,
+			submissionModel.ColFilePath,
+			submissionModel.ColFileOriginalName,
+			submissionModel.ColFileSize,
+			submissionModel.ColFileMimeType,
+			submissionModel.ColFileUploadedAt,
 			submissionModel.ColCreatedAt,
 			submissionModel.ColUpdatedAt,
 		)).
@@ -312,6 +337,11 @@ func (s *Storage) Update(ctx context.Context, id int64, sub *submissionDto.Submi
 		&entity.Domain,
 		&entity.Status,
 		&entity.Information,
+		&entity.FilePath,
+		&entity.FileOriginalName,
+		&entity.FileSize,
+		&entity.FileMimeType,
+		&entity.FileUploadedAt,
 		&entity.CreatedAt,
 		&entity.UpdatedAt,
 	)
