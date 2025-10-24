@@ -3,7 +3,13 @@
 // Currently uses mock data, but structured for easy backend integration
 
 import type { Conference, ConferenceStats, Paper, User, Track } from "@/lib/types"
-import { mockConference, mockConferenceStats, mockPapers, mockUsers, mockTracks } from "@/lib/mock-data"
+import {
+  mockConference,
+  mockConferenceStats,
+  mockPapers,
+  mockUsers,
+  mockTracks,
+} from "@/lib/mock-data"
 
 // API Response wrapper for type safety
 export interface ApiResponse<T> {
@@ -29,11 +35,11 @@ export async function getConferenceById(conferenceId: string): Promise<ApiRespon
     // const data = await response.json()
 
     // if (conferenceId === mockConference.id) {
-      return {
-        data: mockConference,
-        error: null,
-        status: 200,
-      }
+    return {
+      data: mockConference,
+      error: null,
+      status: 200,
+    }
     // }
 
     // return {
@@ -57,7 +63,9 @@ export async function getConferenceById(conferenceId: string): Promise<ApiRespon
  * Fields: total_submissions, total_reviews, avg_reviews_per_paper, acceptance_rate,
  *         submissions_by_track, submissions_over_time, review_progress, top_keywords
  */
-export async function getConferenceStats(conferenceId: string): Promise<ApiResponse<ConferenceStats>> {
+export async function getConferenceStats(
+  conferenceId: string,
+): Promise<ApiResponse<ConferenceStats>> {
   try {
     await new Promise((resolve) => setTimeout(resolve, 300))
 
@@ -190,7 +198,9 @@ export interface ImportantDate {
   isPast: boolean
 }
 
-export async function getConferenceDates(conferenceId: string): Promise<ApiResponse<ImportantDate[]>> {
+export async function getConferenceDates(
+  conferenceId: string,
+): Promise<ApiResponse<ImportantDate[]>> {
   try {
     await new Promise((resolve) => setTimeout(resolve, 300))
 

@@ -1,120 +1,236 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react"
 import type { User, UserRole } from "./types"
-import { mockUsers } from "./mock-data"
+import { apiFetch, ApiError, UnauthorizedError } from "./api/client"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { ROLE_STORAGE_KEY, USER_STORAGE_KEY } from "./config"
 
 interface AuthContextType {
   user: User | null
   isAuthenticated: boolean
+  currentRole: UserRole | null
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>
   logout: () => void
   switchRole: (role: UserRole) => void
-  currentRole: UserRole | null
+  refreshUser: () => Promise<void>
 }
 
 interface RegisterData {
-  name: string
+  first_name: string
+  last_name: string
   email: string
   password: string
-  affiliation: string
-  expertise: string[]
+  domain: string[]
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+function normalizeUser(apiUser: any): User {
+  const firstName = apiUser?.first_name ?? ""
+  const lastName = apiUser?.last_name ?? ""
+  const fullName = `${firstName} ${lastName}`.trim() || apiUser?.name || apiUser?.email || "User"
+
+  const roles: UserRole[] =
+    Array.isArray(apiUser?.roles) && apiUser.roles.length > 0 ? apiUser.roles : ["author"]
+
+  const expertise: string[] =
+    Array.isArray(apiUser?.domain) && apiUser.domain.length > 0
+      ? apiUser.domain
+      : (apiUser?.expertise ?? [])
+
+  return {
+    id: String(apiUser?.id ?? ""),
+    name: fullName,
+    email: apiUser?.email ?? "",
+    affiliation: apiUser?.affiliation ?? "",
+    roles,
+    expertise,
+    first_name: firstName || undefined,
+    last_name: lastName || undefined,
+    domain: Array.isArray(apiUser?.domain) ? apiUser.domain : undefined,
+    created_at: apiUser?.created_at,
+    updated_at: apiUser?.updated_at,
+  }
+}
+
+function readStoredUser(): User | null {
+  try {
+    const stored = localStorage.getItem(USER_STORAGE_KEY)
+    return stored ? (JSON.parse(stored) as User) : null
+  } catch {
+    return null
+  }
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [currentRole, setCurrentRole] = useState<UserRole | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const { t } = useTranslation()
 
-  // Load user from localStorage on mount
-  useEffect(() => {
-    const storedUser = localStorage.getItem("conference_user")
-    const storedRole = localStorage.getItem("conference_role")
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
-      setIsAuthenticated(true)
-      if (storedRole) {
-        setCurrentRole(storedRole as UserRole)
-      }
+  const persistSession = useCallback((nextUser: User) => {
+    setUser(nextUser)
+    setIsAuthenticated(true)
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser))
+
+    const preferredRole = localStorage.getItem(ROLE_STORAGE_KEY) as UserRole | null
+    const resolvedRole =
+      preferredRole && nextUser.roles.includes(preferredRole)
+        ? preferredRole
+        : (nextUser.roles[0] ?? null)
+
+    if (resolvedRole) {
+      setCurrentRole(resolvedRole)
+      localStorage.setItem(ROLE_STORAGE_KEY, resolvedRole)
+    } else {
+      setCurrentRole(null)
+      localStorage.removeItem(ROLE_STORAGE_KEY)
     }
   }, [])
 
-  const login = async (email: string, password: string) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
-    // Find user by email (in real app, this would be API call)
-    const foundUser = mockUsers.find((u) => u.email === email)
-
-    if (!foundUser) {
-      return { success: false, error: "Email không tồn tại trong hệ thống" }
-    }
-
-    // In real app, verify password hash
-    // For demo, accept any password
-    setUser(foundUser)
-    setIsAuthenticated(true)
-    localStorage.setItem("conference_user", JSON.stringify(foundUser))
-
-    return { success: true }
-  }
-
-  const register = async (data: RegisterData) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 800))
-
-    // Check if email already exists
-    const existingUser = mockUsers.find((u) => u.email === data.email)
-    if (existingUser) {
-      return { success: false, error: "Email đã được sử dụng" }
-    }
-
-    // Create new user (in real app, this would be API call)
-    const newUser: User = {
-      id: `user-${Date.now()}`,
-      name: data.name,
-      email: data.email,
-      affiliation: data.affiliation,
-      roles: ["author"], // Default role for new users
-      expertise: data.expertise,
-      h_index: 0,
-      total_papers: 0,
-      total_reviews: 0,
-    }
-
-    // Add to mock users (in real app, this would be saved to database)
-    mockUsers.push(newUser)
-
-    setUser(newUser)
-    setIsAuthenticated(true)
-    localStorage.setItem("conference_user", JSON.stringify(newUser))
-
-    return { success: true }
-  }
-
-  const logout = () => {
+  const clearSession = useCallback(() => {
     setUser(null)
     setCurrentRole(null)
     setIsAuthenticated(false)
-    localStorage.removeItem("conference_user")
-    localStorage.removeItem("conference_role")
-  }
+    localStorage.removeItem(USER_STORAGE_KEY)
+    localStorage.removeItem(ROLE_STORAGE_KEY)
+  }, [])
 
-  const switchRole = (role: UserRole) => {
-    if (user && user.roles.includes(role)) {
-      setCurrentRole(role)
-      localStorage.setItem("conference_role", role)
+  const refreshSession = useCallback(async () => {
+    try {
+      const { data } = await apiFetch("/api/v1/users/me", {
+        method: "GET",
+      })
+
+      const normalizedUser = normalizeUser(data)
+      persistSession(normalizedUser)
+    } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        clearSession()
+        return
+      }
+      console.error("Failed to refresh user session", error)
     }
+  }, [clearSession, persistSession])
+
+  useEffect(() => {
+    const storedUser = readStoredUser()
+    const storedRole = localStorage.getItem(ROLE_STORAGE_KEY) as UserRole | null
+
+    if (storedUser) {
+      setUser(storedUser)
+      setIsAuthenticated(true)
+    }
+
+    if (storedRole) {
+      setCurrentRole(storedRole)
+    }
+
+    void refreshSession()
+  }, [refreshSession])
+
+  const login = useCallback(
+    async (email: string, password: string) => {
+      try {
+        const response = await fetch("/api/v1/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          return {
+            success: false,
+            error: data?.error || t("auth.messages.genericLogin"),
+          }
+        }
+
+        const apiUser = data?.user
+        if (!apiUser) {
+          return { success: false, error: t("auth.messages.invalidLogin") }
+        }
+
+        const normalizedUser = normalizeUser(apiUser)
+        persistSession(normalizedUser)
+
+        return { success: true }
+      } catch (error) {
+        if (error instanceof ApiError) {
+          return { success: false, error: error.message || t("auth.messages.genericLogin") }
+        }
+        const message = error instanceof Error ? error.message : t("auth.messages.fallbackLogin")
+        return { success: false, error: message }
+      }
+    },
+    [persistSession, t],
+  )
+
+  const register = useCallback(
+    async (data: RegisterData) => {
+      try {
+        await apiFetch("/api/v1/auth/register", {
+          method: "POST",
+          skipAuth: true,
+          body: JSON.stringify({
+            user: {
+              email: data.email,
+              first_name: data.first_name,
+              last_name: data.last_name,
+              domain: data.domain,
+            },
+            password: data.password,
+          }),
+        })
+
+        return { success: true }
+      } catch (error) {
+        if (error instanceof ApiError) {
+          return { success: false, error: error.message || t("auth.messages.genericRegister") }
+        }
+        const message = error instanceof Error ? error.message : t("auth.messages.fallbackRegister")
+        return { success: false, error: message }
+      }
+    },
+    [t],
+  )
+
+  const logout = useCallback(() => {
+    clearSession()
+    void fetch("/api/v1/auth/logout", { method: "POST" }).catch(() => undefined)
+  }, [clearSession])
+
+  const switchRole = useCallback(
+    (role: UserRole) => {
+      if (user && user.roles.includes(role)) {
+        setCurrentRole(role)
+        localStorage.setItem(ROLE_STORAGE_KEY, role)
+      }
+    },
+    [user],
+  )
+
+  const refreshUser = useCallback(async () => {
+    await refreshSession()
+  }, [refreshSession])
+
+  const value: AuthContextType = {
+    user,
+    isAuthenticated,
+    currentRole,
+    login,
+    register,
+    logout,
+    switchRole,
+    refreshUser,
   }
 
-  return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, register, logout, switchRole, currentRole }}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

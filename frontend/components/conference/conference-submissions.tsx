@@ -20,7 +20,13 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { FileText, Search, Filter, Calendar, Users } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 
@@ -45,7 +51,9 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
 
         if (currentRole === "author") {
           // Authors only see their own papers
-          visiblePapers = response.data.filter((paper) => paper.authors.some((author) => author.user_id === user?.id))
+          visiblePapers = response.data.filter((paper) =>
+            paper.authors.some((author) => author.user_id === user?.id),
+          )
         } else if (currentRole === "reviewer") {
           // Reviewers only see papers assigned to them
           // In a real app, this would check review_assignments table
@@ -201,7 +209,8 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
         <div className="mt-4 flex items-center gap-4 text-sm text-gray-600">
           <Filter className="h-4 w-4" />
           <span>
-            Hiển thị <span className="font-semibold">{filteredPapers.length}</span> / {papers.length} bài
+            Hiển thị <span className="font-semibold">{filteredPapers.length}</span> /{" "}
+            {papers.length} bài
           </span>
         </div>
       </Card>
@@ -216,7 +225,9 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
                   <FileText className="mt-1 h-5 w-5 flex-shrink-0 text-primary" />
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900">{paper.title}</h3>
-                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-600">{paper.abstract}</p>
+                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-600">
+                      {paper.abstract}
+                    </p>
 
                     <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-gray-600">
                       <div className="flex items-center gap-2">
@@ -241,7 +252,9 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
               </div>
 
               <div className="ml-4 flex flex-col items-end gap-3">
-                <Badge className={getStatusColor(paper.status)}>{getStatusLabel(paper.status)}</Badge>
+                <Badge className={getStatusColor(paper.status)}>
+                  {getStatusLabel(paper.status)}
+                </Badge>
                 {paper.reviews.length > 0 && (
                   <span className="text-xs text-gray-500">{paper.reviews.length} reviews</span>
                 )}

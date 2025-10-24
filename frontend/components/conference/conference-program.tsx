@@ -88,7 +88,9 @@ export function ConferenceProgram({ conferenceId }: ConferenceProgramProps) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-500">Số Tracks</p>
-              <p className="mt-2 text-3xl font-bold text-gray-900">{Object.keys(papersByTrack).length}</p>
+              <p className="mt-2 text-3xl font-bold text-gray-900">
+                {Object.keys(papersByTrack).length}
+              </p>
             </div>
             <div className="rounded-lg bg-primary/10 p-3">
               <FileText className="h-8 w-8 text-primary" />
@@ -128,7 +130,9 @@ export function ConferenceProgram({ conferenceId }: ConferenceProgramProps) {
                   </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900">{paper.title}</h3>
-                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-600">{paper.abstract}</p>
+                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-600">
+                      {paper.abstract}
+                    </p>
 
                     <div className="mt-3 flex items-center gap-2 text-sm text-gray-600">
                       <Users className="h-4 w-4" />
@@ -156,7 +160,9 @@ export function ConferenceProgram({ conferenceId }: ConferenceProgramProps) {
         <Card className="p-12 text-center">
           <Calendar className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-4 text-lg font-semibold text-gray-900">Chương Trình Chưa Công Bố</h3>
-          <p className="mt-2 text-gray-600">Danh sách bài báo được chấp nhận sẽ được công bố sau khi kết thúc review</p>
+          <p className="mt-2 text-gray-600">
+            Danh sách bài báo được chấp nhận sẽ được công bố sau khi kết thúc review
+          </p>
         </Card>
       )}
     </div>

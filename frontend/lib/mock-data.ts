@@ -1,4 +1,13 @@
-import type { User, Conference, Paper, Review, ConferenceStats, Notification, Track, ReviewAssignment } from "./types"
+import type {
+  User,
+  Conference,
+  Paper,
+  Review,
+  ConferenceStats,
+  Notification,
+  Track,
+  ReviewAssignment,
+} from "./types"
 
 // Mock Users
 export const mockUsers: User[] = [
@@ -119,7 +128,8 @@ export const mockTracks: Track[] = [
   {
     id: "track-1",
     name: "Machine Learning & AI",
-    description: "Papers on machine learning algorithms, deep learning, and artificial intelligence",
+    description:
+      "Papers on machine learning algorithms, deep learning, and artificial intelligence",
     chairs: ["user-2"],
   },
   {
@@ -143,7 +153,8 @@ export const mockConferences: Conference[] = [
     name: "International Conference on Advanced Computing",
     acronym: "ICAC 2025",
     year: 2025,
-    description: "Premier conference for cutting-edge research in computer science and artificial intelligence",
+    description:
+      "Premier conference for cutting-edge research in computer science and artificial intelligence",
     submission_deadline: "2025-03-15T23:59:59Z",
     review_deadline: "2025-04-30T23:59:59Z",
     camera_ready_deadline: "2025-06-15T23:59:59Z",
@@ -152,14 +163,15 @@ export const mockConferences: Conference[] = [
     location: "San Francisco, CA, USA",
     website: "https://icac2025.org",
     status: "open",
-    tracks: mockTracks
+    tracks: mockTracks,
   },
   {
     id: "conf-2025-2",
     name: "International Conference on Machine Learning",
     acronym: "ICML 2025",
     year: 2025,
-    description: "Leading conference in machine learning research, covering theory, algorithms, and applications",
+    description:
+      "Leading conference in machine learning research, covering theory, algorithms, and applications",
     submission_deadline: "2025-02-01T23:59:59Z",
     review_deadline: "2025-03-15T23:59:59Z",
     camera_ready_deadline: "2025-05-01T23:59:59Z",
@@ -168,14 +180,15 @@ export const mockConferences: Conference[] = [
     location: "Vienna, Austria",
     website: "https://icml.cc/2025",
     status: "open",
-    tracks: mockTracks
+    tracks: mockTracks,
   },
   {
     id: "conf-2025-3",
     name: "Conference on Computer Vision and Pattern Recognition",
     acronym: "CVPR 2025",
     year: 2025,
-    description: "Premier annual computer vision event with cutting-edge research in image and video understanding",
+    description:
+      "Premier annual computer vision event with cutting-edge research in image and video understanding",
     submission_deadline: "2024-11-15T23:59:59Z",
     review_deadline: "2025-01-10T23:59:59Z",
     camera_ready_deadline: "2025-03-15T23:59:59Z",
@@ -184,7 +197,7 @@ export const mockConferences: Conference[] = [
     location: "Seattle, WA, USA",
     website: "https://cvpr2025.thecvf.com",
     status: "closed",
-    tracks: mockTracks
+    tracks: mockTracks,
   },
   {
     id: "conf-2025-4",
@@ -200,14 +213,15 @@ export const mockConferences: Conference[] = [
     location: "Yokohama, Japan",
     website: "https://chi2025.acm.org",
     status: "closed",
-    tracks: mockTracks
+    tracks: mockTracks,
   },
   {
     id: "conf-2025-5",
     name: "International Conference on Software Engineering",
     acronym: "ICSE 2025",
     year: 2025,
-    description: "Premier software engineering conference covering all aspects of software development",
+    description:
+      "Premier software engineering conference covering all aspects of software development",
     submission_deadline: "2024-08-25T23:59:59Z",
     review_deadline: "2024-10-30T23:59:59Z",
     camera_ready_deadline: "2025-01-20T23:59:59Z",
@@ -216,7 +230,7 @@ export const mockConferences: Conference[] = [
     location: "Ottawa, Canada",
     website: "https://conf.researchr.org/home/icse-2025",
     status: "closed",
-    tracks: mockTracks
+    tracks: mockTracks,
   },
   {
     id: "conf-2025-6",
@@ -232,7 +246,7 @@ export const mockConferences: Conference[] = [
     location: "New Orleans, LA, USA",
     website: "https://neurips.cc/2025",
     status: "upcoming",
-    tracks: mockTracks
+    tracks: mockTracks,
   },
   {
     id: "conf-2025-7",
@@ -248,7 +262,7 @@ export const mockConferences: Conference[] = [
     location: "Berlin, Germany",
     website: "https://2025.sigmod.org",
     status: "closed",
-    tracks: mockTracks
+    tracks: mockTracks,
   },
   {
     id: "conf-2025-8",
@@ -264,7 +278,7 @@ export const mockConferences: Conference[] = [
     location: "Atlanta, GA, USA",
     website: "https://2025.ieee-icra.org",
     status: "closed",
-    tracks: mockTracks
+    tracks: mockTracks,
   },
 ]
 
@@ -394,7 +408,8 @@ export const mockPapers: Paper[] = [
         relevance: 5,
         comments_to_authors:
           "This is a well-written paper that addresses an important problem in healthcare AI. The differential privacy mechanisms are well-designed and the experimental results are convincing. I recommend acceptance with minor revisions to address the scalability concerns mentioned below.",
-        comments_to_pc: "Strong paper with practical applications. The authors have done a thorough job.",
+        comments_to_pc:
+          "Strong paper with practical applications. The authors have done a thorough job.",
         recommendation: "minor_revision",
         submitted_at: "2025-03-25T16:45:00Z",
         ai_analysis: {

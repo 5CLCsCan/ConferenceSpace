@@ -1,0 +1,227 @@
+{
+  "app": {
+    "name": "ConferenceAI",
+    "tagline": "Academic conference management platform",
+    "footer": "© 2025 ConferenceAI. All rights reserved."
+  },
+  "common": {
+    "actions": {
+      "signIn": "Sign in",
+      "signUp": "Register",
+      "logout": "Log out",
+      "startNow": "Get started",
+      "choose": "Select",
+      "continue": "Continue"
+    },
+    "labels": {
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "domains": "Domains of expertise"
+    },
+    "messages": {
+      "languages": {
+        "english": "English",
+        "vietnamese": "Vietnamese"
+      }
+    }
+  },
+  "home": {
+    "nav": {
+      "features": "Features",
+      "about": "About"
+    },
+    "hero": {
+      "badge": "Digitalises the entire conference workflow",
+      "title": "Coordinate academic conferences efficiently with AI",
+      "subtitle": "ConferenceAI helps organisers, authors, and reviewers collaborate on a single platform. Automate routine tasks, track progress, and make data-driven decisions in real time."
+    },
+    "metrics": {
+      "accessibility": "WCAG 2.1 compliant",
+      "adoption": "Trusted by 50+ conferences",
+      "precision": "95% AI recommendation accuracy"
+    },
+    "features": {
+      "title": "Complete toolkit for every role",
+      "subtitle": "From submissions and reviews to programme coordination and post-event analytics—every workflow is transparent, customisable, and AI-assisted.",
+      "cards": {
+        "submission": {
+          "title": "Smart paper intake",
+          "description": "Track each submission, auto-validate formatting, suggest relevant topics, and notify authors in seconds."
+        },
+        "review": {
+          "title": "Accurate reviewer assignment",
+          "description": "Recommend reviewers based on expertise, history, and conflicts of interest. Automated reminders keep timelines on track."
+        },
+        "analytics": {
+          "title": "Real-time insights",
+          "description": "Visual dashboards covering review progress, acceptance rates, session metrics, and engagement help organisers act quickly."
+        }
+      }
+    },
+    "stats": {
+      "papers": "Papers in progress",
+      "reviews": "Completed reviews",
+      "acceptance": "Average acceptance rate",
+      "accuracy": "AI suggestion accuracy"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Use your email and password to access your workspace",
+      "noAccount": "Need an account?",
+      "registrationComplete": "Registration complete",
+      "registrationDetails": "You can now sign in with the credentials you just created.",
+      "errors": {
+        "failed": "Sign-in failed"
+      },
+      "cta": "Sign in to continue"
+    },
+    "register": {
+      "title": "Create a new account",
+      "subtitle": "Provide your details to set up an account",
+      "haveAccount": "Already have an account?",
+      "suggestions": {
+        "title": "Popular topics in computer science",
+        "subtitle": "Pick any that represent your expertise",
+        "empty": "No matching topics. Try a different keyword."
+      },
+      "errors": {
+        "passwordMismatch": "Passwords do not match",
+        "passwordStrength": "Please satisfy all password requirements",
+        "domainsRequired": "Please add at least one domain of expertise",
+        "failed": "Registration failed"
+      },
+      "passwordHints": {
+        "title": "Password must include",
+        "show": "Show password",
+        "hide": "Hide password",
+        "rules": {
+          "length": "At least 8 characters",
+          "lower": "A lowercase letter",
+          "upper": "An uppercase letter",
+          "number": "A number",
+          "special": "A special character"
+        }
+      }
+    },
+    "messages": {
+      "invalidLogin": "Invalid login response from server",
+      "genericLogin": "Unable to log in",
+      "fallbackLogin": "An unexpected error occurred while signing in",
+      "genericRegister": "Unable to register",
+      "fallbackRegister": "An unexpected error occurred while registering"
+    }
+  },
+  "dashboard": {
+    "greeting": "Welcome, {name}!",
+    "selectRole": "Choose a role to continue",
+    "selectRoleDescription": "Access the following features based on the permissions associated with your profile.",
+    "noRoles": {
+      "title": "Your account has not been assigned any roles yet.",
+      "description": "Please contact the system administrator for assistance."
+    },
+    "conference": {
+      "details": {
+        "notFoundTitle": "Conference Not Found",
+        "notFound": "The conference you are looking for does not exist.",
+        "tabs": {
+          "overview": "Overview",
+          "callForPapers": "Call for Papers",
+          "dates": "Key Dates",
+          "committee": "Organising Committee",
+          "submissions": "Submissions"
+        },
+        "joinNow": "Submit now",
+        "currentRole": "Current role",
+        "switchRole": "Switch role (Dev mode)",
+        "loggedInAs": "Signed in as"
+      }
+    },
+    "header": {
+      "links": {
+        "author": {
+          "myPapers": "My submissions",
+          "newSubmission": "Submit a paper"
+        },
+        "reviewer": {
+          "assignments": "Assigned papers",
+          "completed": "Completed reviews"
+        },
+        "chair": {
+          "overview": "Overview",
+          "papers": "All papers",
+          "reviewers": "Reviewers"
+        },
+        "pc_member": {
+          "dashboard": "PC dashboard",
+          "assignments": "Assignments"
+        }
+      },
+      "notifications": {
+        "title": "Notifications",
+        "seeAll": "View all notifications"
+      },
+      "profile": {
+        "switchRole": "Switch role",
+        "profile": "Profile",
+        "logout": "Log out"
+      }
+    },
+    "roles": {
+      "author": {
+        "name": "Author",
+        "description": "Submit and monitor your papers",
+        "features": [
+          "Create new submissions",
+          "Track review progress in real time",
+          "Read reviewer feedback",
+          "Upload camera-ready versions"
+        ]
+      },
+      "reviewer": {
+        "name": "Reviewer",
+        "description": "Evaluate and comment on assigned papers",
+        "features": [
+          "See assigned submissions",
+          "Write detailed reviews",
+          "Use AI-assisted scoring",
+          "Stay on top of deadlines"
+        ]
+      },
+      "chair": {
+        "name": "Conference Chair",
+        "description": "Coordinate the entire conference workflow",
+        "features": [
+          "Assign reviewers automatically",
+          "Monitor conference analytics",
+          "Manage submissions and decisions",
+          "Leverage AI recommendations"
+        ]
+      },
+      "pc_member": {
+        "name": "Programme Committee",
+        "description": "Collaborate with the programme board",
+        "features": [
+          "View delegated submissions",
+          "Recommend suitable reviewers",
+          "Discuss privately within the committee",
+          "Track conference-wide progress"
+        ]
+      },
+      "admin": {
+        "name": "Administrator",
+        "description": "Manage system configuration",
+        "features": [
+          "Manage users",
+          "Adjust system settings",
+          "Review activity logs",
+          "Configure roles and permissions"
+        ]
+      }
+    }
+  }
+}

@@ -56,7 +56,9 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
   const [isCorresponding, setIsCorresponding] = useState(false)
   // File tab state
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
-  const [validationStatus, setValidationStatus] = useState<"pending" | "validating" | "success" | "error">("pending")
+  const [validationStatus, setValidationStatus] = useState<
+    "pending" | "validating" | "success" | "error"
+  >("pending")
   // COI tab state
   const [coiPeople, setCoiPeople] = useState<string[]>([])
   const [coiOrgs, setCoiOrgs] = useState<string[]>([])
@@ -68,7 +70,8 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
   const checklist: Checklist = {
     titleProvided: title.trim().length > 0,
     abstractLength:
-      abstract.split(" ").filter(Boolean).length >= 150 && abstract.split(" ").filter(Boolean).length <= 250,
+      abstract.split(" ").filter(Boolean).length >= 150 &&
+      abstract.split(" ").filter(Boolean).length <= 250,
     subjectAreas: subjectAreas.length >= 2 && subjectAreas.length <= 3,
     keywords: keywords.length >= 3,
     pdfUploaded: uploadedFile !== null,
@@ -135,7 +138,8 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
           <div>
             <h1 className="text-3xl font-bold text-[#212529] font-arial">Submit Paper</h1>
             <p className="text-[#6C757D] mt-1 text-base font-arial">
-              Enter details, add co-authors, upload your PDF, and declare conflicts (COI). Save as draft anytime.
+              Enter details, add co-authors, upload your PDF, and declare conflicts (COI). Save as
+              draft anytime.
             </p>
           </div>
         </div>
@@ -165,7 +169,9 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex-1 px-6 py-3 rounded-[4px] text-sm font-medium font-arial transition-colors ${
-                  activeTab === tab.id ? "bg-white text-[#212529] shadow-sm" : "text-[#6C757D] hover:text-[#212529]"
+                  activeTab === tab.id
+                    ? "bg-white text-[#212529] shadow-sm"
+                    : "text-[#6C757D] hover:text-[#212529]"
                 }`}
               >
                 {tab.label}

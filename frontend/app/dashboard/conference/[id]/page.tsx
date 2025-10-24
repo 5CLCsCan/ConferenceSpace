@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import type { Conference } from "@/lib/types"
 import { getConferenceById } from "@/lib/api/conferences"
@@ -11,9 +11,10 @@ import { ConferenceCommittee } from "@/components/conference/conference-committe
 import { ConferenceSubmissions } from "@/components/conference/conference-submissions"
 import { useAuth } from "@/lib/auth-context"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { Loader2, Upload } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 type TabType = "overview" | "call-for-papers" | "dates" | "committee" | "submissions"
 
@@ -22,6 +23,7 @@ export default function ConferencePage() {
   const conferenceId = params.id as string
   const { user, currentRole, switchRole } = useAuth()
   const router = useRouter()
+  const { t } = useTranslation()
 
   const [conference, setConference] = useState<Conference | null>(null)
   const [loading, setLoading] = useState(true)
@@ -40,6 +42,31 @@ export default function ConferencePage() {
     loadConference()
   }, [conferenceId])
 
+  const tabs = useMemo(
+    () => [
+      { id: "overview" as TabType, label: t("conference.details.tabs.overview") },
+      { id: "call-for-papers" as TabType, label: t("conference.details.tabs.callForPapers") },
+      { id: "dates" as TabType, label: t("conference.details.tabs.dates") },
+      { id: "committee" as TabType, label: t("conference.details.tabs.committee") },
+      { id: "submissions" as TabType, label: t("conference.details.tabs.submissions") },
+    ],
+    [t],
+  )
+
+  const roleConfig = useMemo(
+    () => ({
+      author: { label: t("dashboard.roles.author.name"), color: "bg-blue-100 text-blue-700" },
+      reviewer: { label: t("dashboard.roles.reviewer.name"), color: "bg-green-100 text-green-700" },
+      chair: { label: t("dashboard.roles.chair.name"), color: "bg-purple-100 text-purple-700" },
+      pc_member: {
+        label: t("dashboard.roles.pc_member.name"),
+        color: "bg-yellow-100 text-yellow-700",
+      },
+      admin: { label: t("dashboard.roles.admin.name"), color: "bg-red-100 text-red-700" },
+    }),
+    [t],
+  )
+
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -52,27 +79,13 @@ export default function ConferencePage() {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Conference Not Found</h1>
-          <p className="mt-2 text-gray-600">The conference you're looking for doesn't exist.</p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {t("conference.details.notFoundTitle")}
+          </h1>
+          <p className="mt-2 text-gray-600">{t("conference.details.notFound")}</p>
         </div>
       </div>
     )
-  }
-
-  const tabs = [
-    { id: "overview" as TabType, label: "Tổng Quan" },
-    { id: "call-for-papers" as TabType, label: "Call for Papers" },
-    { id: "dates" as TabType, label: "Thời Gian Quan Trọng" },
-    { id: "committee" as TabType, label: "Ban Tổ Chức" },
-    { id: "submissions" as TabType, label: "Bài Nộp" },
-  ]
-
-  const roleConfig = {
-    author: { label: "Tác giả", color: "bg-blue-100 text-blue-700" },
-    reviewer: { label: "Reviewer", color: "bg-green-100 text-green-700" },
-    chair: { label: "Chair", color: "bg-purple-100 text-purple-700" },
-    pc_member: { label: "PC Member", color: "bg-yellow-100 text-yellow-700" },
-    admin: { label: "Admin", color: "bg-red-100 text-red-700" },
   }
 
   return (
@@ -82,16 +95,13 @@ export default function ConferencePage() {
       )}
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Left Sidebar Navigation */}
         <aside className="w-64 border-r border-gray-200 bg-white overflow-y-auto">
           <div className="sticky top-0">
-            {/* Conference Header */}
             <div className="border-b border-gray-200 p-6">
               <h2 className="text-lg font-bold text-gray-900">{conference.acronym}</h2>
               <p className="mt-1 text-sm text-gray-600">{conference.year}</p>
             </div>
 
-            {/* Navigation Tabs */}
             <nav className="p-4">
               <ul className="space-y-1">
                 {tabs.map((tab) => (
@@ -114,7 +124,9 @@ export default function ConferencePage() {
             {user && (
               <div className="border-t border-gray-200 p-4">
                 <div className="mb-3">
-                  <p className="text-xs font-medium text-gray-500 mb-2">Vai trò hiện tại</p>
+                  <p className="text-xs font-medium text-gray-500 mb-2">
+                    {t("conference.details.currentRole")}
+                  </p>
                   {currentRole && (
                     <Badge className={`${roleConfig[currentRole].color} border-0`}>
                       {roleConfig[currentRole].label}
@@ -122,7 +134,9 @@ export default function ConferencePage() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <p className="text-xs font-medium text-gray-500">Chuyển vai trò (Dev Mode)</p>
+                  <p className="text-xs font-medium text-gray-500">
+                    {t("conference.details.switchRole")}
+                  </p>
                   <div className="flex flex-col gap-2">
                     {user.roles.map((role) => (
                       <Button
@@ -140,11 +154,12 @@ export default function ConferencePage() {
               </div>
             )}
 
-            {/* User Info */}
             {user && (
               <div className="border-t border-gray-200 p-4">
                 <div className="rounded-lg bg-gray-50 p-3">
-                  <p className="text-xs font-medium text-gray-500">Đăng nhập với</p>
+                  <p className="text-xs font-medium text-gray-500">
+                    {t("conference.details.loggedInAs")}
+                  </p>
                   <p className="mt-1 text-sm font-semibold text-gray-900">{user.name}</p>
                   <p className="text-xs text-gray-600">{user.email}</p>
                 </div>
@@ -153,16 +168,14 @@ export default function ConferencePage() {
           </div>
         </aside>
 
-        {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto relative">
           <div className="mx-auto max-w-7xl p-8">
-            {/* Submit Button in Top-Right Corner */}
             {currentRole === "author" && (
               <Button
                 onClick={() => router.push(`/dashboard/author/submit?conference=${conference.id}`)}
                 className="absolute top-4 right-4 bg-primary text-white px-4 py-2 rounded-md shadow-md hover:bg-primary/90 flex items-center gap-2 text-sm font-medium"
               >
-                Join Now
+                {t("conference.details.joinNow")}
               </Button>
             )}
             {activeTab === "overview" && <ConferenceOverview conference={conference} />}

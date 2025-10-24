@@ -30,7 +30,9 @@ interface PaperDetailViewProps {
 
 export function PaperDetailView({ paper }: PaperDetailViewProps) {
   const hasReviews = paper.reviews.length > 0
-  const avgScore = hasReviews ? paper.reviews.reduce((acc, r) => acc + r.overall_score, 0) / paper.reviews.length : 0
+  const avgScore = hasReviews
+    ? paper.reviews.reduce((acc, r) => acc + r.overall_score, 0) / paper.reviews.length
+    : 0
 
   // Prepare review scores data for visualization
   const reviewScoresData = hasReviews
@@ -42,7 +44,8 @@ export function PaperDetailView({ paper }: PaperDetailViewProps) {
         },
         {
           category: "Technical",
-          score: paper.reviews.reduce((acc, r) => acc + r.technical_quality, 0) / paper.reviews.length,
+          score:
+            paper.reviews.reduce((acc, r) => acc + r.technical_quality, 0) / paper.reviews.length,
         },
         {
           category: "Clarity",
@@ -63,7 +66,9 @@ export function PaperDetailView({ paper }: PaperDetailViewProps) {
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-3">
-                <Badge variant={getStatusBadgeVariant(paper.status)}>{paper.status.replace("_", " ")}</Badge>
+                <Badge variant={getStatusBadgeVariant(paper.status)}>
+                  {paper.status.replace("_", " ")}
+                </Badge>
                 <Badge variant="outline">Version {paper.version}</Badge>
               </div>
               <h1 className="text-3xl font-bold mb-4">{paper.title}</h1>
@@ -119,7 +124,9 @@ export function PaperDetailView({ paper }: PaperDetailViewProps) {
               icon={AlertCircle}
               title="Decision Notification"
               date="Pending"
-              status={paper.status === "accepted" || paper.status === "rejected" ? "completed" : "pending"}
+              status={
+                paper.status === "accepted" || paper.status === "rejected" ? "completed" : "pending"
+              }
             />
             <TimelineItem
               icon={FileText}
@@ -169,8 +176,16 @@ export function PaperDetailView({ paper }: PaperDetailViewProps) {
                     >
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={reviewScoresData}>
-                          <XAxis dataKey="category" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                          <YAxis domain={[0, 5]} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                          <XAxis
+                            dataKey="category"
+                            stroke="hsl(var(--muted-foreground))"
+                            fontSize={12}
+                          />
+                          <YAxis
+                            domain={[0, 5]}
+                            stroke="hsl(var(--muted-foreground))"
+                            fontSize={12}
+                          />
                           <ChartTooltip content={<ChartTooltipContent />} />
                           <Bar dataKey="score" radius={[4, 4, 0, 0]}>
                             {reviewScoresData.map((entry, index) => (
@@ -279,13 +294,17 @@ export function PaperDetailView({ paper }: PaperDetailViewProps) {
                           Reviewer Comments
                         </h4>
                         <div className="p-4 bg-muted/50 rounded-lg">
-                          <p className="text-sm whitespace-pre-wrap">{review.comments_to_authors}</p>
+                          <p className="text-sm whitespace-pre-wrap">
+                            {review.comments_to_authors}
+                          </p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-4 text-sm">
                         <Badge variant="outline">Confidence: {review.confidence}/5</Badge>
-                        <Badge variant="outline">Recommendation: {review.recommendation.replace("_", " ")}</Badge>
+                        <Badge variant="outline">
+                          Recommendation: {review.recommendation.replace("_", " ")}
+                        </Badge>
                       </div>
                     </div>
                   </CardContent>
@@ -327,7 +346,9 @@ export function PaperDetailView({ paper }: PaperDetailViewProps) {
                           {paper.ai_suggestions.quality_assessment.abstract_clarity}/5
                         </span>
                       </div>
-                      <Progress value={(paper.ai_suggestions.quality_assessment.abstract_clarity / 5) * 100} />
+                      <Progress
+                        value={(paper.ai_suggestions.quality_assessment.abstract_clarity / 5) * 100}
+                      />
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-sm">
@@ -336,7 +357,11 @@ export function PaperDetailView({ paper }: PaperDetailViewProps) {
                           {paper.ai_suggestions.quality_assessment.keyword_relevance}/5
                         </span>
                       </div>
-                      <Progress value={(paper.ai_suggestions.quality_assessment.keyword_relevance / 5) * 100} />
+                      <Progress
+                        value={
+                          (paper.ai_suggestions.quality_assessment.keyword_relevance / 5) * 100
+                        }
+                      />
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-sm">
@@ -345,7 +370,11 @@ export function PaperDetailView({ paper }: PaperDetailViewProps) {
                           {paper.ai_suggestions.quality_assessment.title_effectiveness}/5
                         </span>
                       </div>
-                      <Progress value={(paper.ai_suggestions.quality_assessment.title_effectiveness / 5) * 100} />
+                      <Progress
+                        value={
+                          (paper.ai_suggestions.quality_assessment.title_effectiveness / 5) * 100
+                        }
+                      />
                     </div>
                   </div>
 
@@ -377,9 +406,12 @@ export function PaperDetailView({ paper }: PaperDetailViewProps) {
                     <AlertCircle className="size-4" />
                     <AlertTitle>
                       {paper.ai_suggestions.track_recommendation.track_name} (
-                      {Math.round(paper.ai_suggestions.track_recommendation.confidence * 100)}% confidence)
+                      {Math.round(paper.ai_suggestions.track_recommendation.confidence * 100)}%
+                      confidence)
                     </AlertTitle>
-                    <AlertDescription>{paper.ai_suggestions.track_recommendation.reasoning}</AlertDescription>
+                    <AlertDescription>
+                      {paper.ai_suggestions.track_recommendation.reasoning}
+                    </AlertDescription>
                   </Alert>
                 </CardContent>
               </Card>
@@ -401,7 +433,9 @@ export function PaperDetailView({ paper }: PaperDetailViewProps) {
                         {similar.authors.join(", ")} • {similar.venue} {similar.year}
                       </div>
                       <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="secondary">{Math.round(similar.similarity_score * 100)}% similar</Badge>
+                        <Badge variant="secondary">
+                          {Math.round(similar.similarity_score * 100)}% similar
+                        </Badge>
                       </div>
                       <p className="text-xs text-muted-foreground">{similar.relevance}</p>
                     </div>
@@ -424,7 +458,9 @@ export function PaperDetailView({ paper }: PaperDetailViewProps) {
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <div className="font-medium">{reviewer.name}</div>
-                          <div className="text-sm text-muted-foreground">{reviewer.affiliation}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {reviewer.affiliation}
+                          </div>
                         </div>
                         <Badge variant="secondary">{reviewer.expertise_match}% match</Badge>
                       </div>
