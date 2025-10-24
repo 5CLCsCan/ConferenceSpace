@@ -16,30 +16,40 @@ type Information struct {
 	Metadata        map[string]interface{} `json:"metadata,omitempty"`
 }
 
+type FileMetadata struct {
+	Filename      string `json:"filename"`
+	OriginalName  string `json:"original_name"`
+	Size          int64  `json:"size"`
+	MimeType      string `json:"mime_type"`
+	Path          string `json:"path"`
+}
+
 type Submission struct {
-	ID           int64        `json:"id"`
-	ConferenceID int64        `json:"conference_id" binding:"required"`
-	Author       string       `json:"author" binding:"required,email"`
-	Title        string       `json:"title" binding:"required"`
-	Abstract     string       `json:"abstract" binding:"required"`
-	Link         string       `json:"link"`
-	Domain       []string     `json:"domain"`
-	Status       string       `json:"status" binding:"required,oneof=draft published"`
-	Information  *Information `json:"information"`
+	ID           int64         `json:"id"`
+	ConferenceID int64         `json:"conference_id" binding:"required"`
+	Author       string        `json:"author" binding:"required,email"`
+	Title        string        `json:"title" binding:"required"`
+	Abstract     string        `json:"abstract" binding:"required"`
+	Link         string        `json:"link"`
+	Domain       []string      `json:"domain"`
+	Status       string        `json:"status" binding:"required,oneof=draft published"`
+	Information  *Information  `json:"information"`
+	File         *FileMetadata `json:"file,omitempty"`
 }
 
 type Response struct {
-	ID           int64        `json:"id"`
-	ConferenceID int64        `json:"conference_id"`
-	Author       string       `json:"author"`
-	Title        string       `json:"title"`
-	Abstract     string       `json:"abstract"`
-	Link         string       `json:"link"`
-	Domain       []string     `json:"domain"`
-	Status       string       `json:"status"`
-	Information  *Information `json:"information"`
-	CreatedAt    time.Time    `json:"created_at"`
-	UpdatedAt    time.Time    `json:"updated_at"`
+	ID           int64         `json:"id"`
+	ConferenceID int64         `json:"conference_id"`
+	Author       string        `json:"author"`
+	Title        string        `json:"title"`
+	Abstract     string        `json:"abstract"`
+	Link         string        `json:"link"`
+	Domain       []string      `json:"domain"`
+	Status       string        `json:"status"`
+	Information  *Information  `json:"information"`
+	File         *FileMetadata `json:"file,omitempty"`
+	CreatedAt    time.Time     `json:"created_at"`
+	UpdatedAt    time.Time     `json:"updated_at"`
 }
 
 type CreateRequest struct {

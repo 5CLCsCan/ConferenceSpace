@@ -23,9 +23,9 @@ type Conference struct {
 	Title          string         `json:"title" binding:"required"`
 	Acronym        string         `json:"acronym" binding:"required"`
 	Description    string         `json:"description"`
-	Chair          string         `json:"chair" binding:"required"`
-	PrimaryContact int64          `json:"primary_contact" binding:"required"`
-	AreaChair      int64          `json:"area_chair" binding:"required"`
+	Chair          string         `json:"chair"`
+	PrimaryContact int64          `json:"primary_contact"`
+	AreaChair      int64          `json:"area_chair"`
 	Domain         []string       `json:"domain"`
 	Configurations *Configuration `json:"configurations"`
 }
@@ -60,7 +60,17 @@ type ListRequest struct {
 	Chair   string `form:"chair" json:"chair"`
 }
 
+type UserConferenceResponse struct {
+	Response
+	UserRole string `json:"user_role,omitempty"` // "chair", "author", "reviewer", or empty
+}
+
 type ListResponse struct {
 	Conferences []*Response `json:"conferences"`
 	Total       int64       `json:"total"`
+}
+
+type UserListResponse struct {
+	Conferences []*UserConferenceResponse `json:"conferences"`
+	Total       int64                     `json:"total"`
 }

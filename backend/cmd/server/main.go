@@ -11,6 +11,7 @@ import (
 
 	"github.com/dcao/conferencespace/internal/config"
 	"github.com/dcao/conferencespace/internal/controller"
+	fileStorage "github.com/dcao/conferencespace/internal/storage/file"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/middleware"
 	"github.com/dcao/conferencespace/internal/orchestrator"
@@ -105,8 +106,12 @@ func initializeApp(cfg *config.Config) (*controller.Controller, func(), error) {
 	}
 
 	store := storage.NewStorage(db)
+
+	// Initialize file storage service
+	fileStore := fileStorage.NewLocalFileStorage("./uploads/submissions")
+
 	orch := orchestrator.NewOrchestrator(store, cfg.JWT.Secret, cfg.JWT.Expiry)
-	ctrl := controller.NewController(orch, store)
+	ctrl := controller.NewController(orch, store, fileStore)
 
 	cleanup := func() {
 		if err := db.Close(); err != nil {
@@ -180,7 +185,18 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 			{
 				submissions.GET("", handler.HandleRequestWithQuery(ctrl.Submission.List))
 				submissions.GET("/:id", handler.HandleNoRequest(ctrl.Submission.Get))
-				submissions.POST("", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Submission.Create))
+				submissions.POST("", func(c *gin.Context) {
+					result, err := ctrl.Submission.Create(c)
+					if err != nil {
+						if errResp, ok := err.(*handler.ErrorResponse); ok {
+							c.JSON(errResp.StatusCode, gin.H{"error": errResp.Message})
+						} else {
+							c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+						}
+						return
+					}
+					c.JSON(http.StatusCreated, gin.H{"data": result})
+				})
 				submissions.PUT("/:id", handler.HandleRequest(ctrl.Submission.Update))
 				submissions.DELETE("/:id", handler.HandleNoRequestWithMessage("submission deleted successfully", ctrl.Submission.Delete))
 			}

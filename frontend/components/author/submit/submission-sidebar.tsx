@@ -27,7 +27,7 @@ export function SubmissionSidebar({ checklist }: SubmissionSidebarProps) {
           <div className="space-y-3">
             <ChecklistItem checked={checklist.titleProvided} label="Title provided" />
             <ChecklistItem checked={checklist.abstractLength} label="Abstract 150-250 words" />
-            <ChecklistItem checked={checklist.subjectAreas} label="2-3 subject areas selected" />
+            <ChecklistItem checked={checklist.subjectAreas} label="Track topic selected" />
             <ChecklistItem checked={checklist.keywords} label="At least 3 keywords added" />
             <ChecklistItem checked={checklist.pdfUploaded} label="PDF uploaded & validated" />
             <ChecklistItem checked={checklist.coAuthorsListed} label="All co-authors listed" />

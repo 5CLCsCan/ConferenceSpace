@@ -33,7 +33,9 @@ function normalizeUser(apiUser: any): User {
   const fullName = `${firstName} ${lastName}`.trim() || apiUser?.name || apiUser?.email || "User"
 
   const roles: UserRole[] =
-    Array.isArray(apiUser?.roles) && apiUser.roles.length > 0 ? apiUser.roles : ["author"]
+    Array.isArray(apiUser?.roles) && apiUser.roles.length > 0
+      ? apiUser.roles
+      : ["author", "chair", "reviewer", "pc_member"]
 
   const expertise: string[] =
     Array.isArray(apiUser?.domain) && apiUser.domain.length > 0

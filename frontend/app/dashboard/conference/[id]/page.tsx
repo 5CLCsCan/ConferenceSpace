@@ -44,11 +44,14 @@ export default function ConferencePage() {
 
   const tabs = useMemo(
     () => [
-      { id: "overview" as TabType, label: t("conference.details.tabs.overview") },
-      { id: "call-for-papers" as TabType, label: t("conference.details.tabs.callForPapers") },
-      { id: "dates" as TabType, label: t("conference.details.tabs.dates") },
-      { id: "committee" as TabType, label: t("conference.details.tabs.committee") },
-      { id: "submissions" as TabType, label: t("conference.details.tabs.submissions") },
+      { id: "overview" as TabType, label: t("dashboard.conference.details.tabs.overview") },
+      {
+        id: "call-for-papers" as TabType,
+        label: t("dashboard.conference.details.tabs.callForPapers"),
+      },
+      { id: "dates" as TabType, label: t("dashboard.conference.details.tabs.dates") },
+      { id: "committee" as TabType, label: t("dashboard.conference.details.tabs.committee") },
+      { id: "submissions" as TabType, label: t("dashboard.conference.details.tabs.submissions") },
     ],
     [t],
   )
@@ -80,9 +83,9 @@ export default function ConferencePage() {
       <div className="flex h-screen items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900">
-            {t("conference.details.notFoundTitle")}
+            {t("dashboard.conference.details.notFoundTitle")}
           </h1>
-          <p className="mt-2 text-gray-600">{t("conference.details.notFound")}</p>
+          <p className="mt-2 text-gray-600">{t("dashboard.conference.details.notFound")}</p>
         </div>
       </div>
     )
@@ -125,7 +128,7 @@ export default function ConferencePage() {
               <div className="border-t border-gray-200 p-4">
                 <div className="mb-3">
                   <p className="text-xs font-medium text-gray-500 mb-2">
-                    {t("conference.details.currentRole")}
+                    {t("dashboard.conference.details.currentRole")}
                   </p>
                   {currentRole && (
                     <Badge className={`${roleConfig[currentRole].color} border-0`}>
@@ -135,7 +138,7 @@ export default function ConferencePage() {
                 </div>
                 <div className="space-y-2">
                   <p className="text-xs font-medium text-gray-500">
-                    {t("conference.details.switchRole")}
+                    {t("dashboard.conference.details.switchRole")}
                   </p>
                   <div className="flex flex-col gap-2">
                     {user.roles.map((role) => (
@@ -158,7 +161,7 @@ export default function ConferencePage() {
               <div className="border-t border-gray-200 p-4">
                 <div className="rounded-lg bg-gray-50 p-3">
                   <p className="text-xs font-medium text-gray-500">
-                    {t("conference.details.loggedInAs")}
+                    {t("dashboard.conference.details.loggedInAs")}
                   </p>
                   <p className="mt-1 text-sm font-semibold text-gray-900">{user.name}</p>
                   <p className="text-xs text-gray-600">{user.email}</p>
@@ -175,7 +178,7 @@ export default function ConferencePage() {
                 onClick={() => router.push(`/dashboard/author/submit?conference=${conference.id}`)}
                 className="absolute top-4 right-4 bg-primary text-white px-4 py-2 rounded-md shadow-md hover:bg-primary/90 flex items-center gap-2 text-sm font-medium"
               >
-                {t("conference.details.joinNow")}
+                {t("dashboard.conference.details.joinNow")}
               </Button>
             )}
             {activeTab === "overview" && <ConferenceOverview conference={conference} />}

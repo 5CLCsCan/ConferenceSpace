@@ -309,14 +309,18 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {conference.tracks.map((track) => (
+            {(conference.tracks || []).map((track) => (
               <Card key={track.id} className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900">{track.name}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-gray-600">{track.description}</p>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {track.name || "Unnamed Track"}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-gray-600">
+                  {track.description || "No description available"}
+                </p>
                 <div className="mt-4">
                   <p className="text-xs font-medium text-gray-500">Track Chairs</p>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {track.chairs.map((chairId) => (
+                    {(track.chairs || []).map((chairId) => (
                       <Badge key={chairId} variant="outline">
                         Chair {chairId}
                       </Badge>

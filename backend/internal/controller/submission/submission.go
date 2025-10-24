@@ -1,12 +1,14 @@
 package submission
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
 	submissionDto "github.com/dcao/conferencespace/internal/dto/submission"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/storage"
+	fileStorage "github.com/dcao/conferencespace/internal/storage/file"
 	submissionStorage "github.com/dcao/conferencespace/internal/storage/submission"
 	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
@@ -14,34 +16,55 @@ import (
 
 type Controller struct {
 	submissionStorage submissionStorage.StorageInterface
+	fileStorage       fileStorage.StorageInterface
 }
 
-func New(store *storage.Storage) *Controller {
+func New(store *storage.Storage, fileStore fileStorage.StorageInterface) *Controller {
 	return &Controller{
 		submissionStorage: store.Submission,
+		fileStorage:       fileStore,
 	}
 }
 
 // Create godoc
 // @Summary      Create a new submission
-// @Description  Create a new conference submission
+// @Description  Create a new conference submission with optional file upload
 // @Tags         submissions
-// @Accept       json
+// @Accept       multipart/form-data
 // @Produce      json
 // @Security     BearerAuth
 // @Param        conference_id path int true "Conference ID"
-// @Param        request body submission.CreateRequest true "Submission data"
+// @Param        submission formData string true "Submission data as JSON string"
+// @Param        file formData file false "PDF file to upload"
 // @Success      201 {object} submission.Response
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      500 {object} handler.Response
 // @Router       /conferences/{conference_id}/submissions [post]
-func (c *Controller) Create(ginCtx *gin.Context, req *submissionDto.CreateRequest) (*submissionDto.Response, error) {
+func (c *Controller) Create(ginCtx *gin.Context) (*submissionDto.Response, error) {
 	ctx := ginCtx.Request.Context()
 
 	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
+	}
+
+	// Parse multipart form
+	form, err := ginCtx.MultipartForm()
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "failed to parse form data")
+	}
+
+	// Get submission data from form
+	submissionData := ginCtx.PostForm("submission")
+	if submissionData == "" {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "submission data is required")
+	}
+
+	var req submissionDto.CreateRequest
+	// For multipart/form-data, parse the submission data from the form field
+	if err := json.Unmarshal([]byte(submissionData), &req); err != nil {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid submission data format")
 	}
 
 	if req.Submission == nil {
@@ -60,7 +83,46 @@ func (c *Controller) Create(ginCtx *gin.Context, req *submissionDto.CreateReques
 		req.Submission.Status = submissionDto.StatusDraft
 	}
 
-	return c.submissionStorage.Create(ctx, req.Submission)
+	// Create the submission first
+	submission, err := c.submissionStorage.Create(ctx, req.Submission)
+	if err != nil {
+		return nil, err
+	}
+
+	// Handle file upload if present
+	files := form.File["file"]
+	if len(files) > 0 {
+		file := files[0]
+
+		// Open the uploaded file
+		src, err := file.Open()
+		if err != nil {
+			return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to open uploaded file")
+		}
+		defer src.Close()
+
+		// Save file using file storage service with correct submission ID
+		fileMetadata, err := c.fileStorage.SaveFile(src, file, conferenceID, submission.ID)
+		if err != nil {
+			return nil, handler.NewErrorResponse(http.StatusBadRequest, err.Error())
+		}
+
+		// Update submission with file metadata
+		updateData := &submissionDto.Submission{
+			File: fileMetadata,
+		}
+		_, err = c.submissionStorage.Update(ctx, submission.ID, updateData)
+		if err != nil {
+			// Clean up file if update fails
+			c.fileStorage.DeleteFile(conferenceID, submission.ID, fileMetadata.Filename)
+			return nil, err
+		}
+
+		// Update the returned submission with file info
+		submission.File = fileMetadata
+	}
+
+	return submission, nil
 }
 
 // List godoc
