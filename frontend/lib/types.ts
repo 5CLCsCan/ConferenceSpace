@@ -227,3 +227,18 @@ export interface Notification {
   created_at: string
   action_url?: string
 }
+
+export interface ReviewRequest {
+  id: string
+  conference_id: string
+  conference_name: string
+  conference_acronym: string
+  requested_by: String
+  requested_by_name: string
+  requested_at: string
+  status: "pending" | "accepted" | "declined"
+  expertise_match: number
+  papers_count: number
+  estimated_hours: number
+  conflict_of_interest: boolean
+}
