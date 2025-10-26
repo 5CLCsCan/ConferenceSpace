@@ -7,6 +7,7 @@ import (
 	submissionDto "github.com/dcao/conferencespace/internal/dto/submission"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/storage"
+	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
 	submissionStorage "github.com/dcao/conferencespace/internal/storage/submission"
 	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
@@ -14,11 +15,13 @@ import (
 
 type Controller struct {
 	submissionStorage submissionStorage.StorageInterface
+	conferenceStorage conferenceStorage.StorageInterface
 }
 
 func New(store *storage.Storage) *Controller {
 	return &Controller{
 		submissionStorage: store.Submission,
+		conferenceStorage:  store.Conference,
 	}
 }
 

@@ -167,13 +167,14 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 			conferences.DELETE("/:id", handler.HandleNoRequestWithMessage("conference deleted successfully", ctrl.Conference.Delete))
 
 			// Submission routes nested under conferences (all protected - authentication required)
-			submissions := conferences.Group("/:conference_id/submissions")
+			submissions := conferences.Group("/:id/submissions")
 			{
 				submissions.GET("", handler.HandleRequestWithQuery(ctrl.Submission.List))
-				submissions.GET("/:id", handler.HandleNoRequest(ctrl.Submission.Get))
+				submissions.POST("/precheck", handler.HandleNoRequest(ctrl.Submission.PreCheck))
+				submissions.GET("/:submission_id", handler.HandleNoRequest(ctrl.Submission.Get))
 				submissions.POST("", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Submission.Create))
-				submissions.PUT("/:id", handler.HandleRequest(ctrl.Submission.Update))
-				submissions.DELETE("/:id", handler.HandleNoRequestWithMessage("submission deleted successfully", ctrl.Submission.Delete))
+				submissions.PUT("/:submission_id", handler.HandleRequest(ctrl.Submission.Update))
+				submissions.DELETE("/:submission_id", handler.HandleNoRequestWithMessage("submission deleted successfully", ctrl.Submission.Delete))
 			}
 		}
 	}

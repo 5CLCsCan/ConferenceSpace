@@ -1,22 +1,45 @@
 package conference
 
-import "time"
+import (
+	"time"
+
+	"github.com/dcao/conferencespace/internal/deskrejection/config"
+	"github.com/dcao/conferencespace/internal/deskrejection/models"
+)
 
 type Configuration struct {
-	StartDate                    *time.Time `json:"start_date,omitempty"`
-	EndDate                      *time.Time `json:"end_date,omitempty"`
-	AbstractSubmissionDeadline   *time.Time `json:"abstract_submission_deadline,omitempty"`
-	FullPaperSubmissionDeadline  *time.Time `json:"full_paper_submission_deadline,omitempty"`
-	CameraReadyDeadline          *time.Time `json:"camera_ready_deadline,omitempty"`
-	Format                       *string    `json:"format,omitempty"`
-	EstimatedNumberOfSubmission  *int       `json:"estimated_number_of_submission,omitempty"`
-	ReviewType                   *string    `json:"review_type,omitempty"`
-	SubmissionType               *string    `json:"submission_type,omitempty"`
-	HaveCOI                      *bool      `json:"have_coi,omitempty"`
-	MaximumPages                 *int       `json:"maximum_pages,omitempty"`
-	SubmissionFormat             *string    `json:"submission_format,omitempty"`
-	RequireCompleteAuthorProfile *bool      `json:"require_complete_author_profile,omitempty"`
-	AllowPaperWithDrawls         *bool      `json:"allow_paper_withdrawls,omitempty"`
+	StartDate                    *time.Time                   `json:"start_date,omitempty"`
+	EndDate                      *time.Time                   `json:"end_date,omitempty"`
+	AbstractSubmissionDeadline   *time.Time                   `json:"abstract_submission_deadline,omitempty"`
+	FullPaperSubmissionDeadline  *time.Time                   `json:"full_paper_submission_deadline,omitempty"`
+	CameraReadyDeadline          *time.Time                   `json:"camera_ready_deadline,omitempty"`
+	Format                       *string                      `json:"format,omitempty"`
+	EstimatedNumberOfSubmission  *int                         `json:"estimated_number_of_submission,omitempty"`
+	ReviewType                   *string                      `json:"review_type,omitempty"`
+	SubmissionType               *string                      `json:"submission_type,omitempty"`
+	HaveCOI                      *bool                        `json:"have_coi,omitempty"`
+	SubmissionFormat             *string                      `json:"submission_format,omitempty"`
+	RequireCompleteAuthorProfile *bool                        `json:"require_complete_author_profile,omitempty"`
+	AllowPaperWithDrawls         *bool                        `json:"allow_paper_withdrawls,omitempty"`
+	PaperSettings                *models.PaperSettings        `json:"paper_settings,omitempty"`
+}
+
+func (c *Configuration) GetPaperRuleConfig() *models.PaperRuleConfig {
+	// Single source of truth: paper_settings
+	return config.Merge(c.PaperSettings, 8) // 8 is the default max pages
+}
+
+// UpdatePaperSetting updates a single paper setting field
+func (c *Configuration) UpdatePaperSetting(field string, value interface{}) error {
+	if c.PaperSettings == nil {
+		c.PaperSettings = &models.PaperSettings{}
+	}
+	
+	manager := config.NewManager()
+	manager.ApplyCustomSettings(c.PaperSettings)
+	manager.baseConfig.MaxPages = 8 // Default
+	
+	return manager.Set(field, value)
 }
 
 type Conference struct {
