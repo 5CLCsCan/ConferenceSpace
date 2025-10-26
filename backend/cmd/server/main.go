@@ -181,7 +181,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 			conferences.DELETE("/:conference_id", handler.HandleNoRequestWithMessage("conference deleted successfully", ctrl.Conference.Delete))
 
 			// Reviewer routes nested under conferences (all protected - authentication required)
-			reviewers := conferences.Group("/:id/reviewers")
+			reviewers := conferences.Group("/:conference_id/reviewers")
 			{
 				reviewers.GET("", handler.HandleRequestWithQuery(ctrl.Reviewer.List))
 				reviewers.GET("/:reviewer_id", handler.HandleNoRequest(ctrl.Reviewer.Get))

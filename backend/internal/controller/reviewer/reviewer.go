@@ -28,17 +28,17 @@ func New(store *storage.Storage) *Controller {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        id path int true "Conference ID"
+// @Param        conference_id path int true "Conference ID"
 // @Param        request body dto.ReviewerBatchInviteRequest true "List of reviewers to invite"
 // @Success      201 {object} dto.ReviewerBatchInviteResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      500 {object} handler.Response
-// @Router       /conferences/{id}/reviewers [post]
+// @Router       /conferences/{conference_id}/reviewers [post]
 func (c *Controller) BatchInvite(ginCtx *gin.Context, req *dto.ReviewerBatchInviteRequest) (*dto.ReviewerBatchInviteResponse, error) {
 	ctx := ginCtx.Request.Context()
 
-	conferenceID, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
+	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
 	}
@@ -62,7 +62,7 @@ func (c *Controller) BatchInvite(ginCtx *gin.Context, req *dto.ReviewerBatchInvi
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        id path int true "Conference ID"
+// @Param        conference_id path int true "Conference ID"
 // @Param        limit query int false "Limit results (default: 20)"
 // @Param        offset query int false "Offset for pagination"
 // @Param        status query string false "Filter by status (pending, accepted, rejected)"
@@ -70,11 +70,11 @@ func (c *Controller) BatchInvite(ginCtx *gin.Context, req *dto.ReviewerBatchInvi
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      500 {object} handler.Response
-// @Router       /conferences/{id}/reviewers [get]
+// @Router       /conferences/{conference_id}/reviewers [get]
 func (c *Controller) List(ginCtx *gin.Context, req *dto.ReviewerListRequest) (*dto.ReviewerListResponse, error) {
 	ctx := ginCtx.Request.Context()
 
-	conferenceID, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
+	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
 	}
@@ -110,17 +110,17 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.ReviewerListRequest) (*d
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        id path int true "Conference ID"
+// @Param        conference_id path int true "Conference ID"
 // @Param        reviewer_id path int true "Reviewer ID"
 // @Success      200 {object} dto.Reviewer
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      404 {object} handler.Response
-// @Router       /conferences/{id}/reviewers/{reviewer_id} [get]
+// @Router       /conferences/{conference_id}/reviewers/{reviewer_id} [get]
 func (c *Controller) Get(ginCtx *gin.Context) (*dto.Reviewer, error) {
 	ctx := ginCtx.Request.Context()
 
-	conferenceID, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
+	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
 	}
@@ -150,18 +150,18 @@ func (c *Controller) Get(ginCtx *gin.Context) (*dto.Reviewer, error) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        id path int true "Conference ID"
+// @Param        conference_id path int true "Conference ID"
 // @Param        reviewer_id path int true "Reviewer ID"
 // @Param        request body dto.ReviewerUpdateStatusRequest true "New status"
 // @Success      200 {object} dto.Reviewer
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      404 {object} handler.Response
-// @Router       /conferences/{id}/reviewers/{reviewer_id}/status [put]
+// @Router       /conferences/{conference_id}/reviewers/{reviewer_id}/status [put]
 func (c *Controller) UpdateStatus(ginCtx *gin.Context, req *dto.ReviewerUpdateStatusRequest) (*dto.Reviewer, error) {
 	ctx := ginCtx.Request.Context()
 
-	conferenceID, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
+	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
 	}
@@ -196,17 +196,17 @@ func (c *Controller) UpdateStatus(ginCtx *gin.Context, req *dto.ReviewerUpdateSt
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        id path int true "Conference ID"
+// @Param        conference_id path int true "Conference ID"
 // @Param        reviewer_id path int true "Reviewer ID"
 // @Success      200 {object} map[string]string
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      404 {object} handler.Response
-// @Router       /conferences/{id}/reviewers/{reviewer_id} [delete]
+// @Router       /conferences/{conference_id}/reviewers/{reviewer_id} [delete]
 func (c *Controller) Delete(ginCtx *gin.Context) error {
 	ctx := ginCtx.Request.Context()
 
-	conferenceID, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
+	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
 	if err != nil {
 		return handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
 	}
