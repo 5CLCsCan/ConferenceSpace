@@ -39,6 +39,28 @@ func New(db *sql.DB) *Storage {
 	}
 }
 
+// Helper method to build SELECT with JOIN to users table
+func (s *Storage) selectWithUserJoin() sq.SelectBuilder {
+	return s.qb.
+		Select(
+			fmt.Sprintf("%s.%s", model.ReviewerTableName, model.ColID),
+			fmt.Sprintf("%s.%s", model.ReviewerTableName, model.ColUserID),
+			fmt.Sprintf("%s.%s", model.ReviewerTableName, model.ColConferenceID),
+			fmt.Sprintf("%s.%s", model.ReviewerTableName, model.ColStatus),
+			fmt.Sprintf("%s.%s", model.ReviewerTableName, model.ColDomain),
+			fmt.Sprintf("%s.%s", model.ReviewerTableName, model.ColCreatedAt),
+			fmt.Sprintf("%s.%s", model.ReviewerTableName, model.ColUpdatedAt),
+			fmt.Sprintf("%s.%s", model.UserTableName, model.UserColEmail),
+		).
+		From(model.ReviewerTableName).
+		LeftJoin(fmt.Sprintf("%s ON %s.%s = %s.%s",
+			model.UserTableName,
+			model.ReviewerTableName,
+			model.ColUserID,
+			model.UserTableName,
+			model.UserColUserID))
+}
+
 // Create creates a single reviewer invitation
 func (s *Storage) Create(ctx context.Context, conferenceID int64, invite *dto.Reviewer) (*dto.Reviewer, error) {
 	status := invite.Status
@@ -47,26 +69,18 @@ func (s *Storage) Create(ctx context.Context, conferenceID int64, invite *dto.Re
 	}
 
 	query, args, err := s.qb.
-		Insert("conference_reviewers").
-		Columns("user_id", "conference_id", "status", "domain", "created_at", "updated_at").
+		Insert(model.ReviewerTableName).
+		Columns(model.ColUserID, model.ColConferenceID, model.ColStatus, model.ColDomain, model.ColCreatedAt, model.ColUpdatedAt).
 		Values(invite.UserID, conferenceID, status, pq.Array(invite.Domain), sq.Expr("NOW()"), sq.Expr("NOW()")).
-		Suffix("RETURNING id, user_id, conference_id, status, domain, created_at, updated_at").
+		Suffix(fmt.Sprintf("RETURNING %s", model.ColID)).
 		ToSql()
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to build insert query: %w", err)
 	}
 
-	var result model.Reviewer
-	err = s.db.QueryRowContext(ctx, query, args...).Scan(
-		&result.ID,
-		&result.UserID,
-		&result.ConferenceID,
-		&result.Status,
-		&result.Domain,
-		&result.CreatedAt,
-		&result.UpdatedAt,
-	)
+	var reviewerID int64
+	err = s.db.QueryRowContext(ctx, query, args...).Scan(&reviewerID)
 
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
@@ -75,7 +89,8 @@ func (s *Storage) Create(ctx context.Context, conferenceID int64, invite *dto.Re
 		return nil, fmt.Errorf("failed to create reviewer: %w", err)
 	}
 
-	return toDTO(&result), nil
+	// Fetch the created reviewer with email from users table
+	return s.GetByID(ctx, reviewerID)
 }
 
 // BatchCreate creates multiple reviewer invitations in a single transaction
@@ -101,10 +116,11 @@ func (s *Storage) BatchCreate(ctx context.Context, conferenceID int64, invites [
 		}
 
 		query, args, err := s.qb.
-			Insert("conference_reviewers").
-			Columns("user_id", "conference_id", "status", "domain", "created_at", "updated_at").
+			Insert(model.ReviewerTableName).
+			Columns(model.ColUserID, model.ColConferenceID, model.ColStatus, model.ColDomain, model.ColCreatedAt, model.ColUpdatedAt).
 			Values(invite.UserID, conferenceID, status, pq.Array(invite.Domain), sq.Expr("NOW()"), sq.Expr("NOW()")).
-			Suffix("RETURNING id, user_id, conference_id, status, domain, created_at, updated_at").
+			Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s",
+				model.ColID, model.ColUserID, model.ColConferenceID, model.ColStatus, model.ColDomain, model.ColCreatedAt, model.ColUpdatedAt)).
 			ToSql()
 
 		if err != nil {
@@ -144,7 +160,7 @@ func (s *Storage) BatchCreate(ctx context.Context, conferenceID int64, invites [
 			continue
 		}
 
-		response.Success = append(response.Success, *toDTO(&result))
+		response.Success = append(response.Success, *result.ToDTO())
 	}
 
 	if err := tx.Commit(); err != nil {
@@ -154,12 +170,10 @@ func (s *Storage) BatchCreate(ctx context.Context, conferenceID int64, invites [
 	return response, nil
 }
 
-// GetByID retrieves a reviewer by ID
+// GetByID retrieves a reviewer by ID with email from users table
 func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Reviewer, error) {
-	query, args, err := s.qb.
-		Select("id", "user_id", "conference_id", "status", "domain", "created_at", "updated_at").
-		From("conference_reviewers").
-		Where(sq.Eq{"id": id}).
+	query, args, err := s.selectWithUserJoin().
+		Where(sq.Eq{fmt.Sprintf("%s.%s", model.ReviewerTableName, model.ColID): id}).
 		ToSql()
 
 	if err != nil {
@@ -175,6 +189,7 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Reviewer, error) 
 		&result.Domain,
 		&result.CreatedAt,
 		&result.UpdatedAt,
+		&result.UserEmail, // From JOIN with users table
 	)
 
 	if err == sql.ErrNoRows {
@@ -184,15 +199,16 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Reviewer, error) 
 		return nil, fmt.Errorf("failed to get reviewer: %w", err)
 	}
 
-	return toDTO(&result), nil
+	return result.ToDTO(), nil
 }
 
-// GetByUserAndConference retrieves a reviewer by user ID and conference ID
+// GetByUserAndConference retrieves a reviewer by user ID and conference ID with email from users table
 func (s *Storage) GetByUserAndConference(ctx context.Context, userID, conferenceID int64) (*dto.Reviewer, error) {
-	query, args, err := s.qb.
-		Select("id", "user_id", "conference_id", "status", "domain", "created_at", "updated_at").
-		From("conference_reviewers").
-		Where(sq.Eq{"user_id": userID, "conference_id": conferenceID}).
+	query, args, err := s.selectWithUserJoin().
+		Where(sq.Eq{
+			fmt.Sprintf("%s.user_id", model.ReviewerTableName):       userID,
+			fmt.Sprintf("%s.conference_id", model.ReviewerTableName): conferenceID,
+		}).
 		ToSql()
 
 	if err != nil {
@@ -208,6 +224,7 @@ func (s *Storage) GetByUserAndConference(ctx context.Context, userID, conference
 		&result.Domain,
 		&result.CreatedAt,
 		&result.UpdatedAt,
+		&result.UserEmail, // From JOIN with users table
 	)
 
 	if err == sql.ErrNoRows {
@@ -217,24 +234,22 @@ func (s *Storage) GetByUserAndConference(ctx context.Context, userID, conference
 		return nil, fmt.Errorf("failed to get reviewer: %w", err)
 	}
 
-	return toDTO(&result), nil
+	return result.ToDTO(), nil
 }
 
-// List retrieves all reviewers for a conference with pagination
+// List retrieves all reviewers for a conference with pagination and email from users table
 func (s *Storage) List(ctx context.Context, conferenceID int64, params *ListParams) ([]*dto.Reviewer, int64, error) {
-	baseQuery := s.qb.
-		Select("id", "user_id", "conference_id", "status", "domain", "created_at", "updated_at").
-		From("conference_reviewers").
-		Where(sq.Eq{"conference_id": conferenceID})
+	baseQuery := s.selectWithUserJoin().
+		Where(sq.Eq{fmt.Sprintf("%s.conference_id", model.ReviewerTableName): conferenceID})
 
 	countQuery := s.qb.
 		Select("COUNT(*)").
-		From("conference_reviewers").
-		Where(sq.Eq{"conference_id": conferenceID})
+		From(model.ReviewerTableName).
+		Where(sq.Eq{fmt.Sprintf("%s.conference_id", model.ReviewerTableName): conferenceID})
 
 	if params.Status != "" {
-		baseQuery = baseQuery.Where(sq.Eq{"status": params.Status})
-		countQuery = countQuery.Where(sq.Eq{"status": params.Status})
+		baseQuery = baseQuery.Where(sq.Eq{fmt.Sprintf("%s.status", model.ReviewerTableName): params.Status})
+		countQuery = countQuery.Where(sq.Eq{fmt.Sprintf("%s.status", model.ReviewerTableName): params.Status})
 	}
 
 	// Get total count
@@ -257,7 +272,7 @@ func (s *Storage) List(ctx context.Context, conferenceID int64, params *ListPara
 		baseQuery = baseQuery.Offset(uint64(params.Offset))
 	}
 
-	query, args, err := baseQuery.OrderBy("created_at DESC").ToSql()
+	query, args, err := baseQuery.OrderBy(fmt.Sprintf("%s.created_at DESC", model.ReviewerTableName)).ToSql()
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to build select query: %w", err)
 	}
@@ -279,6 +294,7 @@ func (s *Storage) List(ctx context.Context, conferenceID int64, params *ListPara
 			&result.Domain,
 			&result.CreatedAt,
 			&result.UpdatedAt,
+			&result.UserEmail, // From JOIN with users table
 		)
 		if err != nil {
 			return nil, 0, fmt.Errorf("failed to scan reviewer: %w", err)
@@ -292,7 +308,7 @@ func (s *Storage) List(ctx context.Context, conferenceID int64, params *ListPara
 
 	dtos := make([]*dto.Reviewer, len(results))
 	for i, r := range results {
-		dtos[i] = toDTO(r)
+		dtos[i] = r.ToDTO()
 	}
 
 	return dtos, total, nil
@@ -301,27 +317,19 @@ func (s *Storage) List(ctx context.Context, conferenceID int64, params *ListPara
 // UpdateStatus updates the status of a reviewer invitation
 func (s *Storage) UpdateStatus(ctx context.Context, id int64, status string) (*dto.Reviewer, error) {
 	query, args, err := s.qb.
-		Update("conference_reviewers").
+		Update(model.ReviewerTableName).
 		Set("status", status).
 		Set("updated_at", sq.Expr("NOW()")).
 		Where(sq.Eq{"id": id}).
-		Suffix("RETURNING id, user_id, conference_id, status, domain, created_at, updated_at").
+		Suffix("RETURNING id").
 		ToSql()
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to build update query: %w", err)
 	}
 
-	var result model.Reviewer
-	err = s.db.QueryRowContext(ctx, query, args...).Scan(
-		&result.ID,
-		&result.UserID,
-		&result.ConferenceID,
-		&result.Status,
-		&result.Domain,
-		&result.CreatedAt,
-		&result.UpdatedAt,
-	)
+	var reviewerID int64
+	err = s.db.QueryRowContext(ctx, query, args...).Scan(&reviewerID)
 
 	if err == sql.ErrNoRows {
 		return nil, fmt.Errorf("reviewer not found")
@@ -330,13 +338,14 @@ func (s *Storage) UpdateStatus(ctx context.Context, id int64, status string) (*d
 		return nil, fmt.Errorf("failed to update reviewer status: %w", err)
 	}
 
-	return toDTO(&result), nil
+	// Fetch the updated reviewer with email from users table
+	return s.GetByID(ctx, reviewerID)
 }
 
 // Delete removes a reviewer
 func (s *Storage) Delete(ctx context.Context, id int64) error {
 	query, args, err := s.qb.
-		Delete("conference_reviewers").
+		Delete(model.ReviewerTableName).
 		Where(sq.Eq{"id": id}).
 		ToSql()
 
@@ -359,17 +368,4 @@ func (s *Storage) Delete(ctx context.Context, id int64) error {
 	}
 
 	return nil
-}
-
-// toDTO converts a model to DTO
-func toDTO(model *model.Reviewer) *dto.Reviewer {
-	return &dto.Reviewer{
-		ID:           model.ID,
-		UserID:       model.UserID,
-		ConferenceID: model.ConferenceID,
-		Status:       model.Status,
-		Domain:       model.Domain,
-		CreatedAt:    model.CreatedAt,
-		UpdatedAt:    model.UpdatedAt,
-	}
 }
