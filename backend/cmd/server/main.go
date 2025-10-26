@@ -11,11 +11,11 @@ import (
 
 	"github.com/dcao/conferencespace/internal/config"
 	"github.com/dcao/conferencespace/internal/controller"
-	fileStorage "github.com/dcao/conferencespace/internal/storage/file"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/middleware"
 	"github.com/dcao/conferencespace/internal/orchestrator"
 	"github.com/dcao/conferencespace/internal/storage"
+	fileStorage "github.com/dcao/conferencespace/internal/storage/file"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -180,23 +180,22 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 			conferences.PUT("/:conference_id", handler.HandleRequest(ctrl.Conference.Update))
 			conferences.DELETE("/:conference_id", handler.HandleNoRequestWithMessage("conference deleted successfully", ctrl.Conference.Delete))
 
+			// Reviewer routes nested under conferences (all protected - authentication required)
+			reviewers := conferences.Group("/:id/reviewers")
+			{
+				reviewers.GET("", handler.HandleRequestWithQuery(ctrl.Reviewer.List))
+				reviewers.GET("/:reviewer_id", handler.HandleNoRequest(ctrl.Reviewer.Get))
+				reviewers.POST("", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Reviewer.BatchInvite))
+				reviewers.PUT("/:reviewer_id/status", handler.HandleRequest(ctrl.Reviewer.UpdateStatus))
+				reviewers.DELETE("/:reviewer_id", handler.HandleNoRequestWithMessage("reviewer removed successfully", ctrl.Reviewer.Delete))
+			}
+
 			// Submission routes nested under conferences (all protected - authentication required)
 			submissions := conferences.Group("/:conference_id/submissions")
 			{
 				submissions.GET("", handler.HandleRequestWithQuery(ctrl.Submission.List))
 				submissions.GET("/:id", handler.HandleNoRequest(ctrl.Submission.Get))
-				submissions.POST("", func(c *gin.Context) {
-					result, err := ctrl.Submission.Create(c)
-					if err != nil {
-						if errResp, ok := err.(*handler.ErrorResponse); ok {
-							c.JSON(errResp.StatusCode, gin.H{"error": errResp.Message})
-						} else {
-							c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-						}
-						return
-					}
-					c.JSON(http.StatusCreated, gin.H{"data": result})
-				})
+				submissions.POST("", handler.HandleNoRequestWithStatus(http.StatusCreated, ctrl.Submission.Create))
 				submissions.PUT("/:id", handler.HandleRequest(ctrl.Submission.Update))
 				submissions.DELETE("/:id", handler.HandleNoRequestWithMessage("submission deleted successfully", ctrl.Submission.Delete))
 			}

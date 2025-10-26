@@ -7,6 +7,7 @@ import (
 
 	"github.com/dcao/conferencespace/internal/config"
 	"github.com/dcao/conferencespace/internal/storage/conference"
+	"github.com/dcao/conferencespace/internal/storage/reviewer"
 	"github.com/dcao/conferencespace/internal/storage/submission"
 	"github.com/dcao/conferencespace/internal/storage/user"
 )
@@ -15,6 +16,7 @@ type Storage struct {
 	User       user.StorageInterface
 	Conference conference.StorageInterface
 	Submission submission.StorageInterface
+	Reviewer   reviewer.StorageInterface
 }
 
 func NewStorage(db *sql.DB) *Storage {
@@ -22,6 +24,7 @@ func NewStorage(db *sql.DB) *Storage {
 		User:       user.New(db),
 		Conference: conference.New(db),
 		Submission: submission.New(db),
+		Reviewer:   reviewer.New(db),
 	}
 }
 

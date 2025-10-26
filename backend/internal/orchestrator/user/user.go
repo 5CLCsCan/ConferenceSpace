@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dcao/conferencespace/internal/dto/user"
+	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/storage"
 	userStorage "github.com/dcao/conferencespace/internal/storage/user"
 	"github.com/dcao/conferencespace/pkg/jwt"
@@ -13,25 +13,25 @@ import (
 )
 
 type OrchestratorInterface interface {
-	Register(ctx context.Context, req *user.CreateRequest) (*user.Response, error)
-	Login(ctx context.Context, req *user.LoginRequest) (*user.LoginResponse, error)
+	Register(ctx context.Context, req *dto.UserCreateRequest) (*dto.UserResponse, error)
+	Login(ctx context.Context, req *dto.LoginRequest) (*dto.LoginResponse, error)
 }
 
 type Orchestrator struct {
-	userStorage   userStorage.StorageInterface
-	jwtSecret string
-	jwtExpiry time.Duration
+	userStorage userStorage.StorageInterface
+	jwtSecret   string
+	jwtExpiry   time.Duration
 }
 
 func New(store *storage.Storage, jwtSecret string, jwtExpiryHours int) *Orchestrator {
 	return &Orchestrator{
-		userStorage:   store.User,
-		jwtSecret: jwtSecret,
-		jwtExpiry: time.Duration(jwtExpiryHours) * time.Hour,
+		userStorage: store.User,
+		jwtSecret:   jwtSecret,
+		jwtExpiry:   time.Duration(jwtExpiryHours) * time.Hour,
 	}
 }
 
-func (o *Orchestrator) Register(ctx context.Context, req *user.CreateRequest) (*user.Response, error) {
+func (o *Orchestrator) Register(ctx context.Context, req *dto.UserCreateRequest) (*dto.UserResponse, error) {
 	if req.User == nil {
 		return nil, fmt.Errorf("user data is required")
 	}
@@ -44,7 +44,7 @@ func (o *Orchestrator) Register(ctx context.Context, req *user.CreateRequest) (*
 	return o.userStorage.Create(ctx, req.User, string(hashedPassword))
 }
 
-func (o *Orchestrator) Login(ctx context.Context, req *user.LoginRequest) (*user.LoginResponse, error) {
+func (o *Orchestrator) Login(ctx context.Context, req *dto.LoginRequest) (*dto.LoginResponse, error) {
 	userResp, hashedPassword, err := o.userStorage.GetByEmailWithPassword(ctx, req.Email)
 	if err != nil {
 		return nil, fmt.Errorf("invalid credentials")
@@ -60,7 +60,7 @@ func (o *Orchestrator) Login(ctx context.Context, req *user.LoginRequest) (*user
 		return nil, fmt.Errorf("failed to generate token: %w", err)
 	}
 
-	return &user.LoginResponse{
+	return &dto.LoginResponse{
 		Token: token,
 		User:  userResp,
 	}, nil

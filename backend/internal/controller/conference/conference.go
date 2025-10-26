@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	conferenceDto "github.com/dcao/conferencespace/internal/dto/conference"
+	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/storage"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
@@ -35,7 +35,7 @@ func New(store *storage.Storage) *Controller {
 // @Failure      401 {object} handler.Response
 // @Failure      500 {object} handler.Response
 // @Router       /conferences [post]
-func (c *Controller) Create(ginCtx *gin.Context, req *conferenceDto.CreateRequest) (*conferenceDto.Response, error) {
+func (c *Controller) Create(ginCtx *gin.Context, req *dto.ConferenceCreateRequest) (*dto.ConferenceResponse, error) {
 	ctx := ginCtx.Request.Context()
 
 	if req.Conference == nil {
@@ -76,7 +76,7 @@ func (c *Controller) Create(ginCtx *gin.Context, req *conferenceDto.CreateReques
 // @Failure      401 {object} handler.Response
 // @Failure      500 {object} handler.Response
 // @Router       /conferences [get]
-func (c *Controller) List(ginCtx *gin.Context, req *conferenceDto.ListRequest) (*conferenceDto.UserListResponse, error) {
+func (c *Controller) List(ginCtx *gin.Context, req *dto.ConferenceListRequest) (*dto.UserConferenceListResponse, error) {
 	ctx := ginCtx.Request.Context()
 
 	params := &conferenceStorage.QueryParams{
@@ -97,11 +97,11 @@ func (c *Controller) List(ginCtx *gin.Context, req *conferenceDto.ListRequest) (
 	userEmail, _ := utils.GetEmail(ginCtx)
 
 	// Convert to user-specific response with role information
-	userConferences := make([]*conferenceDto.UserConferenceResponse, len(conferences))
+	userConferences := make([]*dto.UserConferenceResponse, len(conferences))
 	for i, conf := range conferences {
-		userConf := &conferenceDto.UserConferenceResponse{
-			Response: *conf,
-			UserRole: "", // Default: no role
+		userConf := &dto.UserConferenceResponse{
+			ConferenceResponse: *conf,
+			UserRole:           "", // Default: no role
 		}
 
 		// Determine user role if user context is available
@@ -117,7 +117,7 @@ func (c *Controller) List(ginCtx *gin.Context, req *conferenceDto.ListRequest) (
 		userConferences[i] = userConf
 	}
 
-	return &conferenceDto.UserListResponse{
+	return &dto.UserConferenceListResponse{
 		Conferences: userConferences,
 		Total:       total,
 	}, nil
@@ -136,7 +136,7 @@ func (c *Controller) List(ginCtx *gin.Context, req *conferenceDto.ListRequest) (
 // @Failure      401 {object} handler.Response
 // @Failure      404 {object} handler.Response
 // @Router       /conferences/{conference_id} [get]
-func (c *Controller) Get(ginCtx *gin.Context) (*conferenceDto.Response, error) {
+func (c *Controller) Get(ginCtx *gin.Context) (*dto.ConferenceResponse, error) {
 	ctx := ginCtx.Request.Context()
 
 	id, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
@@ -166,7 +166,7 @@ func (c *Controller) Get(ginCtx *gin.Context) (*conferenceDto.Response, error) {
 // @Failure      403 {object} handler.Response
 // @Failure      404 {object} handler.Response
 // @Router       /conferences/{conference_id} [put]
-func (c *Controller) Update(ginCtx *gin.Context, req *conferenceDto.UpdateRequest) (*conferenceDto.Response, error) {
+func (c *Controller) Update(ginCtx *gin.Context, req *dto.ConferenceUpdateRequest) (*dto.ConferenceResponse, error) {
 	ctx := ginCtx.Request.Context()
 
 	id, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)

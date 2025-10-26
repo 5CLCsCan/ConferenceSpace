@@ -1,4 +1,4 @@
-package user
+package dto
 
 import "time"
 
@@ -10,18 +10,18 @@ type User struct {
 	Domain    []string `json:"domain"`
 }
 
-type Response struct {
+type UserResponse struct {
 	*User
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type CreateRequest struct {
+type UserCreateRequest struct {
 	User     *User  `json:"user" binding:"required"`
 	Password string `json:"password" binding:"required,min=6"`
 }
 
-type UpdateRequest struct {
+type UserUpdateRequest struct {
 	User *User `json:"user" binding:"required"`
 }
 
@@ -31,11 +31,11 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Token string    `json:"token"`
-	User  *Response `json:"user"`
+	Token string        `json:"token"`
+	User  *UserResponse `json:"user"`
 }
 
-type ListRequest struct {
+type UserListRequest struct {
 	Limit     int    `form:"limit" json:"limit"`
 	Offset    int    `form:"offset" json:"offset"`
 	Email     string `form:"email" json:"email"`
@@ -43,7 +43,7 @@ type ListRequest struct {
 	LastName  string `form:"last_name" json:"last_name"`
 }
 
-type ListResponse struct {
-	Users []*Response `json:"users"`
-	Total int64       `json:"total"`
+type UserListResponse struct {
+	Users []*UserResponse `json:"users"`
+	Total int64           `json:"total"`
 }

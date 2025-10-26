@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"github.com/dcao/conferencespace/internal/dto/user"
+	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/orchestrator"
 	userOrchestrator "github.com/dcao/conferencespace/internal/orchestrator/user"
 	"github.com/gin-gonic/gin"
@@ -28,7 +28,7 @@ func New(orch *orchestrator.Orchestrator) *Controller {
 // @Failure      400 {object} handler.Response
 // @Failure      500 {object} handler.Response
 // @Router       /auth/register [post]
-func (c *Controller) Register(ginCtx *gin.Context, req *user.CreateRequest) (*user.Response, error) {
+func (c *Controller) Register(ginCtx *gin.Context, req *dto.UserCreateRequest) (*dto.UserResponse, error) {
 	ctx := ginCtx.Request.Context()
 	return c.orchestrator.Register(ctx, req)
 }
@@ -44,7 +44,7 @@ func (c *Controller) Register(ginCtx *gin.Context, req *user.CreateRequest) (*us
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Router       /auth/login [post]
-func (c *Controller) Login(ginCtx *gin.Context, req *user.LoginRequest) (*user.LoginResponse, error) {
+func (c *Controller) Login(ginCtx *gin.Context, req *dto.LoginRequest) (*dto.LoginResponse, error) {
 	ctx := ginCtx.Request.Context()
 	return c.orchestrator.Login(ctx, req)
 }

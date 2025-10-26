@@ -1,27 +1,27 @@
-package conference
+package model
 
 import (
 	"encoding/json"
 	"time"
 
-	conferenceDto "github.com/dcao/conferencespace/internal/dto/conference"
+	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/lib/pq"
 )
 
 const (
-	TableName = "conferences"
+	ConferenceTableName = "conferences"
 
-	ColConferenceID   = "conference_id"
-	ColTitle          = "title"
-	ColAcronym        = "acronym"
-	ColDescription    = "description"
-	ColChair          = "chair"
-	ColPrimaryContact = "primary_contact"
-	ColAreaChair      = "area_chair"
-	ColDomain         = "domain"
-	ColConfigurations = "configurations"
-	ColCreatedAt      = "created_at"
-	ColUpdatedAt      = "updated_at"
+	ConferenceColConferenceID   = "conference_id"
+	ConferenceColTitle          = "title"
+	ConferenceColAcronym        = "acronym"
+	ConferenceColDescription    = "description"
+	ConferenceColChair          = "chair"
+	ConferenceColPrimaryContact = "primary_contact"
+	ConferenceColAreaChair      = "area_chair"
+	ConferenceColDomain         = "domain"
+	ConferenceColConfigurations = "configurations"
+	ConferenceColCreatedAt      = "created_at"
+	ConferenceColUpdatedAt      = "updated_at"
 )
 
 type Conference struct {
@@ -38,21 +38,21 @@ type Conference struct {
 	UpdatedAt      time.Time      `db:"updated_at"`
 }
 
-func (c *Conference) ToDTO() *conferenceDto.Response {
+func (c *Conference) ToDTO() *dto.ConferenceResponse {
 	domain := []string(c.Domain)
 	if domain == nil {
 		domain = []string{}
 	}
 
-	var config *conferenceDto.Configuration
+	var config *dto.ConferenceConfiguration
 	if len(c.Configurations) > 0 {
-		config = &conferenceDto.Configuration{}
+		config = &dto.ConferenceConfiguration{}
 		if err := json.Unmarshal(c.Configurations, config); err != nil {
 			config = nil
 		}
 	}
 
-	return &conferenceDto.Response{
+	return &dto.ConferenceResponse{
 		ID:             c.ConferenceID,
 		Title:          c.Title,
 		Acronym:        c.Acronym,
@@ -67,7 +67,7 @@ func (c *Conference) ToDTO() *conferenceDto.Response {
 	}
 }
 
-func SerializeConfiguration(config *conferenceDto.Configuration) ([]byte, error) {
+func SerializeConferenceConfiguration(config *dto.ConferenceConfiguration) ([]byte, error) {
 	if config == nil {
 		return []byte("{}"), nil
 	}

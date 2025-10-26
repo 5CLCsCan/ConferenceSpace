@@ -1,23 +1,23 @@
-package user
+package model
 
 import (
 	"time"
 
-	userDto "github.com/dcao/conferencespace/internal/dto/user"
+	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/lib/pq"
 )
 
 const (
-	TableName = "users"
+	UserTableName = "users"
 
-	ColUserID    = "user_id"
-	ColEmail     = "email"
-	ColFirstName = "first_name"
-	ColLastName  = "last_name"
-	ColPassword  = "hashed_password"
-	ColDomain    = "domain"
-	ColCreatedAt = "created_at"
-	ColUpdatedAt = "updated_at"
+	UserColUserID    = "user_id"
+	UserColEmail     = "email"
+	UserColFirstName = "first_name"
+	UserColLastName  = "last_name"
+	UserColPassword  = "hashed_password"
+	UserColDomain    = "domain"
+	UserColCreatedAt = "created_at"
+	UserColUpdatedAt = "updated_at"
 )
 
 type User struct {
@@ -31,14 +31,14 @@ type User struct {
 	UpdatedAt      time.Time      `db:"updated_at"`
 }
 
-func (u *User) ToDTO() *userDto.Response {
+func (u *User) ToDTO() *dto.UserResponse {
 	domain := []string(u.Domain)
 	if domain == nil {
 		domain = []string{}
 	}
 
-	return &userDto.Response{
-		User: &userDto.User{
+	return &dto.UserResponse{
+		User: &dto.User{
 			ID:        u.UserID,
 			Email:     u.Email,
 			FirstName: u.FirstName,

@@ -139,6 +139,19 @@ func HandleNoRequest[Res any](handler func(ctx *gin.Context) (*Res, error)) gin.
 	}
 }
 
+// HandleNoRequestWithStatus handles endpoints with no request body but custom status code
+func HandleNoRequestWithStatus[Res any](statusCode int, handler func(ctx *gin.Context) (*Res, error)) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		response, err := handler(ctx)
+		if err != nil {
+			handleError(ctx, err)
+			return
+		}
+
+		ctx.JSON(statusCode, Response{Data: response})
+	}
+}
+
 // HandleNoRequestList handles list endpoints with no request body (GET)
 func HandleNoRequestList[Res any](handler func(ctx *gin.Context) ([]*Res, error)) gin.HandlerFunc {
 	return func(ctx *gin.Context) {

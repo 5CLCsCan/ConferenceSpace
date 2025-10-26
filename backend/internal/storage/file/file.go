@@ -9,11 +9,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dcao/conferencespace/internal/dto/submission"
+	"github.com/dcao/conferencespace/internal/dto"
 )
 
 type StorageInterface interface {
-	SaveFile(file multipart.File, header *multipart.FileHeader, conferenceID, submissionID int64) (*submission.FileMetadata, error)
+	SaveFile(file multipart.File, header *multipart.FileHeader, conferenceID, submissionID int64) (*dto.SubmissionFileMetadata, error)
 	GetFilePath(conferenceID, submissionID int64, filename string) string
 	DeleteFile(conferenceID, submissionID int64, filename string) error
 }
@@ -28,7 +28,7 @@ func NewLocalFileStorage(basePath string) *LocalFileStorage {
 	}
 }
 
-func (s *LocalFileStorage) SaveFile(file multipart.File, header *multipart.FileHeader, conferenceID, submissionID int64) (*submission.FileMetadata, error) {
+func (s *LocalFileStorage) SaveFile(file multipart.File, header *multipart.FileHeader, conferenceID, submissionID int64) (*dto.SubmissionFileMetadata, error) {
 	// Validate file type
 	if !s.isValidPDF(header) {
 		return nil, fmt.Errorf("only PDF files are allowed")
@@ -72,7 +72,7 @@ func (s *LocalFileStorage) SaveFile(file multipart.File, header *multipart.FileH
 		return nil, err
 	}
 
-	metadata := &submission.FileMetadata{
+	metadata := &dto.SubmissionFileMetadata{
 		Filename:     filename,
 		OriginalName: header.Filename,
 		Size:         header.Size,
