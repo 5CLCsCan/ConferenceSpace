@@ -1,114 +1,123 @@
 # Desk Rejection System
 
-This package implements an automated academic paper desk rejection system for conference submissions.
+Automated academic paper validation system for conference submissions.
 
 ## Overview
 
-The desk rejection system evaluates submitted papers against conference requirements using a flexible, extensible architecture:
+The desk rejection system validates papers against conference requirements using a modular architecture:
 
-- **Extractor**: Extracts text, statistics, and sections from PDF documents
-- **Checkers**: Pluggable validation checks (built-in and custom)
-- **Aggregator**: Combines results into compliance reports
-- **Pipeline**: Coordinates the entire process
+- **Extractor**: PDF text extraction and document analysis
+- **Checkers**: Validation rules (built-in + custom)
+- **Aggregator**: Score calculation and report generation
+- **Pipeline**: Processing orchestration
+- **Config**: High-level configuration management
 
 ## Structure
 
 ```
 internal/deskrejection/
-├── models/          # Data structures (config, documents, results, reports)
-├── extractor/       # PDF text extraction and analysis
-├── checkers/        # Validation rules (built-in, custom, registry)
-├── aggregator/      # Report generation and scoring
-└── pipeline/        # Processing orchestration
+├── models/     # Data structures and types
+├── extractor/  # PDF extraction
+├── checkers/   # Validation rules (registry, built-in, custom)
+├── aggregator/ # Scoring and reporting
+├── pipeline/   # Processing flow
+└── config/     # Configuration management
 ```
 
-## Usage
+## API Endpoint
 
-### Basic Example
-
-```go
-package main
-
-import (
-    "context"
-    "encoding/json"
-    "fmt"
-    
-    "github.com/dcao/conferencespace/internal/deskrejection/models"
-    "github.com/dcao/conferencespace/internal/deskrejection/pipeline"
-)
-
-func main() {
-    // Option 1: Use default configuration
-    config := models.NewPaperRuleConfig()
-    
-    // Option 2: Customize configuration
-    config := &models.PaperRuleConfig{
-        MaxPages:         8,
-        MinReferences:    20,
-        RequiredSections: []string{"Abstract", "Introduction", "Methods", "Results"},
-        Thresholds: models.Thresholds{
-            DeskRejectScore: 0.3,
-            AcceptScore:     0.7,
-        },
-        Weights: map[string]float64{
-            "title_abstract":   0.2,
-            "writing_quality":  0.3,
-            "experiments":      0.5,
-        },
-    }
-    
-    // Process paper
-    ctx := context.WithValue(context.Background(), "config", config)
-    
-    report, err := pipeline.Run(ctx, "paper.pdf", config)
-    if err != nil {
-        panic(err)
-    }
-    
-    // Print results
-    reportJSON, _ := json.MarshalIndent(report, "", "  ")
-    fmt.Println(string(reportJSON))
-}
+```
+POST /api/v1/conferences/{id}/submissions/precheck
 ```
 
-## Integration with ConferenceSpace
-
-To integrate this into your existing conference system:
-
-1. **Update submission model** to store desk rejection reports
-2. **Add API endpoint** for validation requests
-3. **Store reports** in the database alongside submissions
-
-Example integration point:
-
-```go
-// In controller/submission/submission.go
-import (
-    confDto "github.com/dcao/conferencespace/internal/dto/conference"
-    "github.com/dcao/conferencespace/internal/deskrejection/models"
-    "github.com/dcao/conferencespace/internal/deskrejection/pipeline"
-)
-
-func ValidateSubmission(submissionID int64, paperPath string, conf *confDto.Configuration) (*models.ComplianceReport, error) {
-    // Get paper rule config from conference configuration
-    paperConfig := conf.GetPaperRuleConfig()
-    
-    ctx := context.WithValue(context.Background(), "config", paperConfig)
-    
-    report, err := pipeline.Run(ctx, paperPath, paperConfig)
-    if err != nil {
-        return nil, err
-    }
-    
-    // Store report in database
-    // Update submission status based on report.Decision
-    
-    return &report, nil
-}
-```
+Validates a paper PDF before submission without storing results in the database.
 
 ## Configuration
+
+### Single Source of Truth: `paper_settings`
+
+Store only what differs from defaults. Everything else uses code defaults.
+
+### Default Rules
+
+```go
+MaxPages:         8 pages
+MinReferences:    20 references
+TitleMaxWords:    15 words
+MaxSentenceWords: 25 words
+RequiredSections: ["Abstract", "Introduction", "Methods", "Results", "Conclusions"]
+Thresholds:       desk_reject: 0.3, accept: 0.7
+Weights:          title_abstract: 0.2, writing_quality: 0.3, experiments: 0.5
+```
+
+### Customizable Settings
+
+All defaults can be overridden via `paper_settings`:
+
+```json
+{
+  "paper_settings": {
+    "max_pages": 10,
+    "title_max_words": 16,
+    "max_sentence_words": 30,
+    "min_references": 30,
+    "required_sections": [...],
+    "thresholds": {...},
+    "weights": {...},
+    "custom_rules": {
+      "min_datasets": 5,
+      "banned_phrases": ["very novel"]
+    }
+  }
+}
+```
+
+### Built-in Checkers
+
+- **1.1**: Title word limit (default: ≤ 15)
+- **11.4**: Page limit compliance
+- **6.2**: Sentence length check (default: ≤ 25)
+- **0.1**: Scope matching (placeholder)
+
+## Extending
+
+### Add Built-in Checker
+
+```go
+// In checkers/built_in.go init()
+Register("category", "check_id", &baseChecker{
+    id:          "check_id",
+    category:    "category",
+    description: "Description",
+    checkFn: func(doc models.Document, config models.PaperRuleConfig) (string, string, float64) {
+        // Return: status, details, confidence
+        return "pass", "details", 1.0
+    },
+})
+```
+
+### Add Custom Rule
+
+Define in `paper_settings.custom_rules` - handlers in `checkers/custom.go` will auto-register.
+
+### Add Pipeline Stage
+
+```go
+var DefaultPipeline = []Stage{
+    extractStage,
+    checkStage,
+    yourStage,      // Add here
+    aggregateStage,
+}
+```
+
+## Dependencies
+
+- `github.com/unidoc/unipdf/v3`: PDF parsing (**requires license**)
+- `github.com/google/uuid`: File naming
+
+**Note**: UniPDF needs a commercial license for production.
+
 _This checklist is a practical, opinionated guide for sanity-checking the writing quality, structure, and presentation of CS papers—especially for conference (and journal) submissions. While some items are subjective, the goal is to provide concrete reminders and highlight common pitfalls. It is a living document and will continue to be updated based on feedback._
 
 ---
@@ -268,100 +277,3 @@ _This checklist is a practical, opinionated guide for sanity-checking the writin
 _This checklist is part of the [`cs-paper-checklist`](https://github.com/yzhao062/cs-paper-checklist) project. Contributions welcome via PR._
 
 ---
-
-### Stored Settings (Database)
-
-Only custom settings are stored in `paper_settings`:
-- `min_references`: Override default min references
-- `required_sections`: Override default required sections
-- `thresholds`: Override desk reject/accept scores
-- `weights`: Override category weights
-- `custom_rules`: Custom validation rules
-
-### Default Values
-
-When `paper_settings` is not provided or a field is omitted, defaults are used:
-- Page limit: `maximum_pages` from conference config
-- Min references: 20
-- Required sections: ["Abstract", "Introduction", "Methods", "Results", "Conclusions"]
-- Thresholds: desk reject 0.3, accept 0.7
-- Weights: title_abstract 0.2, writing_quality 0.3, experiments 0.5
-
-### Example
-
-```json
-{
-  "maximum_pages": 10,
-  "paper_settings": {
-    "min_references": 30,
-    "custom_rules": {
-      "min_datasets": 5
-    }
-  }
-}
-```
-
-Result: 10 pages limit, 30 references required, 5 datasets custom check
-
-## Extending the System
-
-### Adding New Checkers
-
-```go
-// In internal/deskrejection/checkers/built_in.go
-init() {
-    Register("category", "check_id", &baseChecker{
-        id:          "check_id",
-        category:    "category",
-        description: "Check description",
-        checkFn: func(doc models.Document, config models.ConferenceConfig) (string, string, float64) {
-            // Your validation logic
-            // Return: status, details, confidence
-        },
-    })
-}
-```
-
-### Adding Pipeline Stages
-
-```go
-// In internal/deskrejection/pipeline/pipeline.go
-var DefaultPipeline = []Stage{
-    extractStage,
-    checkStage,
-    customLLMStage,  // Your custom stage
-    aggregateStage,
-}
-
-func customLLMStage(ctx context.Context, input any) (any, error) {
-    // LLM-powered analysis
-    return input, nil
-}
-```
-
-## Dependencies
-
-Key dependencies added to `go.mod`:
-
-- `github.com/unidoc/unipdf/v3`: PDF parsing (requires license)
-- `github.com/rs/zerolog`: Structured logging
-- `github.com/spf13/viper`: Configuration management
-
-**Note**: UniPDF requires a commercial license for production use. For development, you can use the trial version.
-
-## Next Steps
-
-1. Run `go mod tidy` to fetch dependencies
-2. Implement API endpoints for submission validation
-3. Add database schema for storing reports
-4. Integrate with existing submission workflow
-5. Add more built-in checkers as needed
-
-## Building
-
-```bash
-cd backend
-go mod tidy
-go build ./internal/deskrejection/...
-```
-
