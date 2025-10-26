@@ -7,13 +7,19 @@ const (
 	StatusPublished = "published"
 )
 
+type ConflictDeclaration struct {
+	Email  string `json:"email" binding:"required,email"`
+	Reason string `json:"reason" binding:"required"`
+}
+
 type SubmissionInformation struct {
-	CoAuthors       []string               `json:"co_authors,omitempty"`
-	Keywords        []string               `json:"keywords,omitempty"`
-	PaperType       string                 `json:"paper_type,omitempty"`
-	TrackName       string                 `json:"track_name,omitempty"`
-	AdditionalNotes string                 `json:"additional_notes,omitempty"`
-	Metadata        map[string]interface{} `json:"metadata,omitempty"`
+	CoAuthors         []string               `json:"co_authors,omitempty"`
+	DeclaredConflicts []ConflictDeclaration  `json:"declared_conflicts,omitempty"`
+	Keywords          []string               `json:"keywords,omitempty"`
+	PaperType         string                 `json:"paper_type,omitempty"`
+	TrackName         string                 `json:"track_name,omitempty"`
+	AdditionalNotes   string                 `json:"additional_notes,omitempty"`
+	Metadata          map[string]interface{} `json:"metadata,omitempty"`
 }
 
 type SubmissionFileMetadata struct {
