@@ -3,13 +3,17 @@ package model
 import (
 	"time"
 
+	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/lib/pq"
 )
 
 const (
 	ReviewerTableName = "conference_reviewers"
 
-	ColID = "id"
+	// Common column names (reusable across models)
+	ColID     = "id"
+	ColUserID = "user_id"
+	ColStatus = "status"
 )
 
 // Reviewer represents the conference_reviewers database entity
@@ -21,6 +25,9 @@ type Reviewer struct {
 	Domain       pq.StringArray `db:"domain"`
 	CreatedAt    time.Time      `db:"created_at"`
 	UpdatedAt    time.Time      `db:"updated_at"`
+
+	// View fields
+	UserEmail string `db:"email"`
 }
 
 // Reviewer status constants
@@ -29,3 +36,16 @@ const (
 	ReviewerStatusAccepted = "accepted"
 	ReviewerStatusRejected = "rejected"
 )
+
+func (r *Reviewer) ToDTO() *dto.Reviewer {
+	return &dto.Reviewer{
+		ID:           r.ID,
+		UserID:       r.UserID,
+		ConferenceID: r.ConferenceID,
+		Email:        r.UserEmail,
+		Status:       r.Status,
+		Domain:       r.Domain,
+		CreatedAt:    r.CreatedAt,
+		UpdatedAt:    r.UpdatedAt,
+	}
+}

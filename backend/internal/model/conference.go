@@ -11,17 +11,14 @@ import (
 const (
 	ConferenceTableName = "conferences"
 
-	ConferenceColConferenceID   = "conference_id"
-	ConferenceColTitle          = "title"
-	ConferenceColAcronym        = "acronym"
-	ConferenceColDescription    = "description"
-	ConferenceColChair          = "chair"
-	ConferenceColPrimaryContact = "primary_contact"
-	ConferenceColAreaChair      = "area_chair"
-	ConferenceColDomain         = "domain"
-	ConferenceColConfigurations = "configurations"
-	ConferenceColCreatedAt      = "created_at"
-	ConferenceColUpdatedAt      = "updated_at"
+	ColConferenceID   = "conference_id"
+	ColTitle          = "title"
+	ColAcronym        = "acronym"
+	ColDescription    = "description"
+	ColChair          = "chair"
+	ColPrimaryContact = "primary_contact"
+	ColAreaChair      = "area_chair"
+	ColConfigurations = "configurations"
 )
 
 type Conference struct {

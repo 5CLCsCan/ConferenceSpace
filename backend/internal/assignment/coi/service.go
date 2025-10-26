@@ -71,15 +71,12 @@ func (s *Service) BuildConflictMap(
 	}
 
 	// Convert reviewers to internal format
-	// NOTE: This is a simplified version. In a real implementation,
-	// we would join with the users table to get actual email addresses.
-	// For now, reviewers must be enriched with user emails before calling this method.
 	coiReviewers := make([]commons.Reviewer, len(reviewers))
 	for i, rev := range reviewers {
 		coiReviewers[i] = commons.Reviewer{
 			ID:        rev.ID,
 			UserID:    rev.UserID,
-			UserEmail: "", // TODO: Join with users table to get email
+			UserEmail: rev.Email,
 		}
 	}
 

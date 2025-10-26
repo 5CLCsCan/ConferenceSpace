@@ -55,7 +55,7 @@ func (s *Storage) Create(ctx context.Context, conferenceID int64, assignment *dt
 
 	query, args, err := s.qb.
 		Insert(model.AssignmentTableName).
-		Columns(model.AssignmentColConferenceID, model.AssignmentColSubmissionID, model.AssignmentColReviewerID, model.AssignmentColScore, model.AssignmentColStatus, model.AssignmentColAssignedAt, model.AssignmentColCreatedAt, model.AssignmentColUpdatedAt).
+		Columns(model.ColConferenceID, model.ColSubmissionID, model.ColReviewerID, model.ColScore, model.ColStatus, model.ColAssignedAt, model.ColCreatedAt, model.ColUpdatedAt).
 		Values(conferenceID, assignment.SubmissionID, assignment.ReviewerID, score, status, sq.Expr("NOW()"), sq.Expr("NOW()"), sq.Expr("NOW()")).
 		Suffix("RETURNING id, conference_id, submission_id, reviewer_id, score, status, assigned_at, completed_at, created_at, updated_at").
 		ToSql()
@@ -112,7 +112,7 @@ func (s *Storage) BatchCreate(ctx context.Context, conferenceID int64, assignmen
 
 		query, args, err := s.qb.
 			Insert(model.AssignmentTableName).
-			Columns(model.AssignmentColConferenceID, model.AssignmentColSubmissionID, model.AssignmentColReviewerID, model.AssignmentColScore, model.AssignmentColStatus, model.AssignmentColAssignedAt, model.AssignmentColCreatedAt, model.AssignmentColUpdatedAt).
+			Columns(model.ColConferenceID, model.ColSubmissionID, model.ColReviewerID, model.ColScore, model.ColStatus, model.ColAssignedAt, model.ColCreatedAt, model.ColUpdatedAt).
 			Values(conferenceID, assignment.SubmissionID, assignment.ReviewerID, score, status, sq.Expr("NOW()"), sq.Expr("NOW()"), sq.Expr("NOW()")).
 			Suffix("RETURNING id, conference_id, submission_id, reviewer_id, score, status, assigned_at, completed_at, created_at, updated_at").
 			ToSql()
@@ -190,25 +190,25 @@ func (s *Storage) List(ctx context.Context, conferenceID int64, params *ListPara
 	baseQuery := s.qb.
 		Select("id", "conference_id", "submission_id", "reviewer_id", "score", "status", "assigned_at", "completed_at", "created_at", "updated_at").
 		From(model.AssignmentTableName).
-		Where(sq.Eq{model.AssignmentColConferenceID: conferenceID})
+		Where(sq.Eq{model.ColConferenceID: conferenceID})
 
 	countQuery := s.qb.
 		Select("COUNT(*)").
 		From(model.AssignmentTableName).
-		Where(sq.Eq{model.AssignmentColConferenceID: conferenceID})
+		Where(sq.Eq{model.ColConferenceID: conferenceID})
 
 	// Apply filters
 	if params.SubmissionID > 0 {
-		baseQuery = baseQuery.Where(sq.Eq{model.AssignmentColSubmissionID: params.SubmissionID})
-		countQuery = countQuery.Where(sq.Eq{model.AssignmentColSubmissionID: params.SubmissionID})
+		baseQuery = baseQuery.Where(sq.Eq{model.ColSubmissionID: params.SubmissionID})
+		countQuery = countQuery.Where(sq.Eq{model.ColSubmissionID: params.SubmissionID})
 	}
 	if params.ReviewerID > 0 {
-		baseQuery = baseQuery.Where(sq.Eq{model.AssignmentColReviewerID: params.ReviewerID})
-		countQuery = countQuery.Where(sq.Eq{model.AssignmentColReviewerID: params.ReviewerID})
+		baseQuery = baseQuery.Where(sq.Eq{model.ColReviewerID: params.ReviewerID})
+		countQuery = countQuery.Where(sq.Eq{model.ColReviewerID: params.ReviewerID})
 	}
 	if params.Status != "" {
-		baseQuery = baseQuery.Where(sq.Eq{model.AssignmentColStatus: params.Status})
-		countQuery = countQuery.Where(sq.Eq{model.AssignmentColStatus: params.Status})
+		baseQuery = baseQuery.Where(sq.Eq{model.ColStatus: params.Status})
+		countQuery = countQuery.Where(sq.Eq{model.ColStatus: params.Status})
 	}
 
 	// Get total count
@@ -231,7 +231,7 @@ func (s *Storage) List(ctx context.Context, conferenceID int64, params *ListPara
 		baseQuery = baseQuery.Offset(uint64(params.Offset))
 	}
 
-	query, args, err := baseQuery.OrderBy(model.AssignmentColCreatedAt + " DESC").ToSql()
+	query, args, err := baseQuery.OrderBy(model.ColCreatedAt + " DESC").ToSql()
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to build select query: %w", err)
 	}
@@ -279,8 +279,8 @@ func (s *Storage) List(ctx context.Context, conferenceID int64, params *ListPara
 func (s *Storage) UpdateStatus(ctx context.Context, id int64, status string) (*dto.Assignment, error) {
 	query, args, err := s.qb.
 		Update(model.AssignmentTableName).
-		Set(model.AssignmentColStatus, status).
-		Set(model.AssignmentColUpdatedAt, sq.Expr("NOW()")).
+		Set(model.ColStatus, status).
+		Set(model.ColUpdatedAt, sq.Expr("NOW()")).
 		Where(sq.Eq{"id": id}).
 		Suffix("RETURNING id, conference_id, submission_id, reviewer_id, score, status, assigned_at, completed_at, created_at, updated_at").
 		ToSql()
@@ -345,7 +345,7 @@ func (s *Storage) Delete(ctx context.Context, id int64) error {
 func (s *Storage) DeleteBySubmission(ctx context.Context, submissionID int64) error {
 	query, args, err := s.qb.
 		Delete(model.AssignmentTableName).
-		Where(sq.Eq{model.AssignmentColSubmissionID: submissionID}).
+		Where(sq.Eq{model.ColSubmissionID: submissionID}).
 		ToSql()
 
 	if err != nil {
@@ -364,7 +364,7 @@ func (s *Storage) DeleteBySubmission(ctx context.Context, submissionID int64) er
 func (s *Storage) DeleteByReviewer(ctx context.Context, reviewerID int64) error {
 	query, args, err := s.qb.
 		Delete(model.AssignmentTableName).
-		Where(sq.Eq{model.AssignmentColReviewerID: reviewerID}).
+		Where(sq.Eq{model.ColReviewerID: reviewerID}).
 		ToSql()
 
 	if err != nil {

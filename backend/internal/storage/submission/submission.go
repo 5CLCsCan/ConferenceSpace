@@ -87,25 +87,25 @@ func (s *Storage) Create(ctx context.Context, sub *dto.Submission) (*dto.Submiss
 func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Submission, error) {
 	query, args, err := s.qb.
 		Select(
-			model.SubmissionColSubmissionID,
-			model.SubmissionColConferenceID,
-			model.SubmissionColAuthor,
-			model.SubmissionColTitle,
-			model.SubmissionColAbstract,
-			model.SubmissionColLink,
-			model.SubmissionColDomain,
-			model.SubmissionColStatus,
-			model.SubmissionColInformation,
-			model.SubmissionColFilePath,
-			model.SubmissionColFileOriginalName,
-			model.SubmissionColFileSize,
-			model.SubmissionColFileMimeType,
-			model.SubmissionColFileUploadedAt,
-			model.SubmissionColCreatedAt,
-			model.SubmissionColUpdatedAt,
+			model.ColSubmissionID,
+			model.ColConferenceID,
+			model.ColAuthor,
+			model.ColTitle,
+			model.ColAbstract,
+			model.ColLink,
+			model.ColDomain,
+			model.ColStatus,
+			model.ColInformation,
+			model.ColFilePath,
+			model.ColFileOriginalName,
+			model.ColFileSize,
+			model.ColFileMimeType,
+			model.ColFileUploadedAt,
+			model.ColCreatedAt,
+			model.ColUpdatedAt,
 		).
 		From(model.SubmissionTableName).
-		Where(sq.Eq{model.SubmissionColSubmissionID: id}).
+		Where(sq.Eq{model.ColSubmissionID: id}).
 		ToSql()
 
 	if err != nil {
@@ -144,41 +144,41 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Submission, error
 
 func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Submission, int64, error) {
 	baseQuery := s.qb.Select(
-		model.SubmissionColSubmissionID,
-		model.SubmissionColConferenceID,
-		model.SubmissionColAuthor,
-		model.SubmissionColTitle,
-		model.SubmissionColAbstract,
-		model.SubmissionColLink,
-		model.SubmissionColDomain,
-		model.SubmissionColStatus,
-		model.SubmissionColInformation,
-		model.SubmissionColFilePath,
-		model.SubmissionColFileOriginalName,
-		model.SubmissionColFileSize,
-		model.SubmissionColFileMimeType,
-		model.SubmissionColFileUploadedAt,
-		model.SubmissionColCreatedAt,
-		model.SubmissionColUpdatedAt,
+		model.ColSubmissionID,
+		model.ColConferenceID,
+		model.ColAuthor,
+		model.ColTitle,
+		model.ColAbstract,
+		model.ColLink,
+		model.ColDomain,
+		model.ColStatus,
+		model.ColInformation,
+		model.ColFilePath,
+		model.ColFileOriginalName,
+		model.ColFileSize,
+		model.ColFileMimeType,
+		model.ColFileUploadedAt,
+		model.ColCreatedAt,
+		model.ColUpdatedAt,
 	).From(model.SubmissionTableName)
 
 	countQuery := s.qb.Select("COUNT(*)").From(model.SubmissionTableName)
 
 	if params.ConferenceID > 0 {
-		baseQuery = baseQuery.Where(sq.Eq{model.SubmissionColConferenceID: params.ConferenceID})
-		countQuery = countQuery.Where(sq.Eq{model.SubmissionColConferenceID: params.ConferenceID})
+		baseQuery = baseQuery.Where(sq.Eq{model.ColConferenceID: params.ConferenceID})
+		countQuery = countQuery.Where(sq.Eq{model.ColConferenceID: params.ConferenceID})
 	}
 	if params.Author != "" {
-		baseQuery = baseQuery.Where(sq.Like{model.SubmissionColAuthor: "%" + params.Author + "%"})
-		countQuery = countQuery.Where(sq.Like{model.SubmissionColAuthor: "%" + params.Author + "%"})
+		baseQuery = baseQuery.Where(sq.Like{model.ColAuthor: "%" + params.Author + "%"})
+		countQuery = countQuery.Where(sq.Like{model.ColAuthor: "%" + params.Author + "%"})
 	}
 	if params.Status != "" {
-		baseQuery = baseQuery.Where(sq.Eq{model.SubmissionColStatus: params.Status})
-		countQuery = countQuery.Where(sq.Eq{model.SubmissionColStatus: params.Status})
+		baseQuery = baseQuery.Where(sq.Eq{model.ColStatus: params.Status})
+		countQuery = countQuery.Where(sq.Eq{model.ColStatus: params.Status})
 	}
 	if params.Title != "" {
-		baseQuery = baseQuery.Where(sq.Like{model.SubmissionColTitle: "%" + params.Title + "%"})
-		countQuery = countQuery.Where(sq.Like{model.SubmissionColTitle: "%" + params.Title + "%"})
+		baseQuery = baseQuery.Where(sq.Like{model.ColTitle: "%" + params.Title + "%"})
+		countQuery = countQuery.Where(sq.Like{model.ColTitle: "%" + params.Title + "%"})
 	}
 
 	countQueryStr, countArgs, err := countQuery.ToSql()
@@ -199,7 +199,7 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Submiss
 		baseQuery = baseQuery.Offset(uint64(params.Offset))
 	}
 
-	query, args, err := baseQuery.OrderBy(model.SubmissionColCreatedAt + " DESC").ToSql()
+	query, args, err := baseQuery.OrderBy(model.ColCreatedAt + " DESC").ToSql()
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to build select query: %w", err)
 	}
@@ -252,31 +252,31 @@ func (s *Storage) Update(ctx context.Context, id int64, sub *dto.Submission) (*d
 	updateMap := map[string]interface{}{}
 
 	if sub.ConferenceID != 0 {
-		updateMap[model.SubmissionColConferenceID] = sub.ConferenceID
+		updateMap[model.ColConferenceID] = sub.ConferenceID
 	}
 
 	if sub.Author != "" {
-		updateMap[model.SubmissionColAuthor] = sub.Author
+		updateMap[model.ColAuthor] = sub.Author
 	}
 
 	if sub.Title != "" {
-		updateMap[model.SubmissionColTitle] = sub.Title
+		updateMap[model.ColTitle] = sub.Title
 	}
 
 	if sub.Abstract != "" {
-		updateMap[model.SubmissionColAbstract] = sub.Abstract
+		updateMap[model.ColAbstract] = sub.Abstract
 	}
 
 	if sub.Link != "" {
-		updateMap[model.SubmissionColLink] = sub.Link
+		updateMap[model.ColLink] = sub.Link
 	}
 
 	if sub.Domain != nil {
-		updateMap[model.SubmissionColDomain] = pq.Array(sub.Domain)
+		updateMap[model.ColDomain] = pq.Array(sub.Domain)
 	}
 
 	if sub.Status != "" {
-		updateMap[model.SubmissionColStatus] = sub.Status
+		updateMap[model.ColStatus] = sub.Status
 	}
 
 	if sub.Information != nil {
@@ -284,41 +284,41 @@ func (s *Storage) Update(ctx context.Context, id int64, sub *dto.Submission) (*d
 		if err != nil {
 			return nil, fmt.Errorf("failed to serialize information: %w", err)
 		}
-		updateMap[model.SubmissionColInformation] = infoBytes
+		updateMap[model.ColInformation] = infoBytes
 	}
 
 	// Add file metadata if provided
 	if sub.File != nil {
-		updateMap[model.SubmissionColFilePath] = sub.File.Path
-		updateMap[model.SubmissionColFileOriginalName] = sub.File.OriginalName
-		updateMap[model.SubmissionColFileSize] = sub.File.Size
-		updateMap[model.SubmissionColFileMimeType] = sub.File.MimeType
-		updateMap[model.SubmissionColFileUploadedAt] = time.Now()
+		updateMap[model.ColFilePath] = sub.File.Path
+		updateMap[model.ColFileOriginalName] = sub.File.OriginalName
+		updateMap[model.ColFileSize] = sub.File.Size
+		updateMap[model.ColFileMimeType] = sub.File.MimeType
+		updateMap[model.ColFileUploadedAt] = time.Now()
 	}
 
-	updateMap[model.SubmissionColUpdatedAt] = time.Now()
+	updateMap[model.ColUpdatedAt] = time.Now()
 
 	query, args, err := s.qb.
 		Update(model.SubmissionTableName).
 		SetMap(updateMap).
-		Where(sq.Eq{model.SubmissionColSubmissionID: id}).
+		Where(sq.Eq{model.ColSubmissionID: id}).
 		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
-			model.SubmissionColSubmissionID,
-			model.SubmissionColConferenceID,
-			model.SubmissionColAuthor,
-			model.SubmissionColTitle,
-			model.SubmissionColAbstract,
-			model.SubmissionColLink,
-			model.SubmissionColDomain,
-			model.SubmissionColStatus,
-			model.SubmissionColInformation,
-			model.SubmissionColFilePath,
-			model.SubmissionColFileOriginalName,
-			model.SubmissionColFileSize,
-			model.SubmissionColFileMimeType,
-			model.SubmissionColFileUploadedAt,
-			model.SubmissionColCreatedAt,
-			model.SubmissionColUpdatedAt,
+			model.ColSubmissionID,
+			model.ColConferenceID,
+			model.ColAuthor,
+			model.ColTitle,
+			model.ColAbstract,
+			model.ColLink,
+			model.ColDomain,
+			model.ColStatus,
+			model.ColInformation,
+			model.ColFilePath,
+			model.ColFileOriginalName,
+			model.ColFileSize,
+			model.ColFileMimeType,
+			model.ColFileUploadedAt,
+			model.ColCreatedAt,
+			model.ColUpdatedAt,
 		)).
 		ToSql()
 
@@ -359,7 +359,7 @@ func (s *Storage) Update(ctx context.Context, id int64, sub *dto.Submission) (*d
 func (s *Storage) Delete(ctx context.Context, id int64) error {
 	query, args, err := s.qb.
 		Delete(model.SubmissionTableName).
-		Where(sq.Eq{model.SubmissionColSubmissionID: id}).
+		Where(sq.Eq{model.ColSubmissionID: id}).
 		ToSql()
 
 	if err != nil {

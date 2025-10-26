@@ -52,16 +52,16 @@ func (s *Storage) Create(ctx context.Context, conf *dto.Conference) (*dto.Confer
 	query, args, err := s.qb.
 		Insert(model.ConferenceTableName).
 		Columns(
-			model.ConferenceColTitle,
-			model.ConferenceColAcronym,
-			model.ConferenceColDescription,
-			model.ConferenceColChair,
-			model.ConferenceColPrimaryContact,
-			model.ConferenceColAreaChair,
-			model.ConferenceColDomain,
-			model.ConferenceColConfigurations,
-			model.ConferenceColCreatedAt,
-			model.ConferenceColUpdatedAt,
+			model.ColTitle,
+			model.ColAcronym,
+			model.ColDescription,
+			model.ColChair,
+			model.ColPrimaryContact,
+			model.ColAreaChair,
+			model.ColDomain,
+			model.ColConfigurations,
+			model.ColCreatedAt,
+			model.ColUpdatedAt,
 		).
 		Values(
 			conf.Title,
@@ -76,17 +76,17 @@ func (s *Storage) Create(ctx context.Context, conf *dto.Conference) (*dto.Confer
 			now,
 		).
 		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
-			model.ConferenceColConferenceID,
-			model.ConferenceColTitle,
-			model.ConferenceColAcronym,
-			model.ConferenceColDescription,
-			model.ConferenceColChair,
-			model.ConferenceColPrimaryContact,
-			model.ConferenceColAreaChair,
-			model.ConferenceColDomain,
-			model.ConferenceColConfigurations,
-			model.ConferenceColCreatedAt,
-			model.ConferenceColUpdatedAt,
+			model.ColConferenceID,
+			model.ColTitle,
+			model.ColAcronym,
+			model.ColDescription,
+			model.ColChair,
+			model.ColPrimaryContact,
+			model.ColAreaChair,
+			model.ColDomain,
+			model.ColConfigurations,
+			model.ColCreatedAt,
+			model.ColUpdatedAt,
 		)).
 		ToSql()
 
@@ -119,20 +119,20 @@ func (s *Storage) Create(ctx context.Context, conf *dto.Conference) (*dto.Confer
 func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.ConferenceResponse, error) {
 	query, args, err := s.qb.
 		Select(
-			model.ConferenceColConferenceID,
-			model.ConferenceColTitle,
-			model.ConferenceColAcronym,
-			model.ConferenceColDescription,
-			model.ConferenceColChair,
-			model.ConferenceColPrimaryContact,
-			model.ConferenceColAreaChair,
-			model.ConferenceColDomain,
-			model.ConferenceColConfigurations,
-			model.ConferenceColCreatedAt,
-			model.ConferenceColUpdatedAt,
+			model.ColConferenceID,
+			model.ColTitle,
+			model.ColAcronym,
+			model.ColDescription,
+			model.ColChair,
+			model.ColPrimaryContact,
+			model.ColAreaChair,
+			model.ColDomain,
+			model.ColConfigurations,
+			model.ColCreatedAt,
+			model.ColUpdatedAt,
 		).
 		From(model.ConferenceTableName).
-		Where(sq.Eq{model.ConferenceColConferenceID: id}).
+		Where(sq.Eq{model.ColConferenceID: id}).
 		ToSql()
 
 	if err != nil {
@@ -167,20 +167,20 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.ConferenceRespons
 func (s *Storage) GetByAcronym(ctx context.Context, acronym string) (*dto.ConferenceResponse, error) {
 	query, args, err := s.qb.
 		Select(
-			model.ConferenceColConferenceID,
-			model.ConferenceColTitle,
-			model.ConferenceColAcronym,
-			model.ConferenceColDescription,
-			model.ConferenceColChair,
-			model.ConferenceColPrimaryContact,
-			model.ConferenceColAreaChair,
-			model.ConferenceColDomain,
-			model.ConferenceColConfigurations,
-			model.ConferenceColCreatedAt,
-			model.ConferenceColUpdatedAt,
+			model.ColConferenceID,
+			model.ColTitle,
+			model.ColAcronym,
+			model.ColDescription,
+			model.ColChair,
+			model.ColPrimaryContact,
+			model.ColAreaChair,
+			model.ColDomain,
+			model.ColConfigurations,
+			model.ColCreatedAt,
+			model.ColUpdatedAt,
 		).
 		From(model.ConferenceTableName).
-		Where(sq.Eq{model.ConferenceColAcronym: acronym}).
+		Where(sq.Eq{model.ColAcronym: acronym}).
 		ToSql()
 
 	if err != nil {
@@ -214,32 +214,32 @@ func (s *Storage) GetByAcronym(ctx context.Context, acronym string) (*dto.Confer
 
 func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.ConferenceResponse, int64, error) {
 	baseQuery := s.qb.Select(
-		model.ConferenceColConferenceID,
-		model.ConferenceColTitle,
-		model.ConferenceColAcronym,
-		model.ConferenceColDescription,
-		model.ConferenceColChair,
-		model.ConferenceColPrimaryContact,
-		model.ConferenceColAreaChair,
-		model.ConferenceColDomain,
-		model.ConferenceColConfigurations,
-		model.ConferenceColCreatedAt,
-		model.ConferenceColUpdatedAt,
+		model.ColConferenceID,
+		model.ColTitle,
+		model.ColAcronym,
+		model.ColDescription,
+		model.ColChair,
+		model.ColPrimaryContact,
+		model.ColAreaChair,
+		model.ColDomain,
+		model.ColConfigurations,
+		model.ColCreatedAt,
+		model.ColUpdatedAt,
 	).From(model.ConferenceTableName)
 
 	countQuery := s.qb.Select("COUNT(*)").From(model.ConferenceTableName)
 
 	if params.Title != "" {
-		baseQuery = baseQuery.Where(sq.Like{model.ConferenceColTitle: "%" + params.Title + "%"})
-		countQuery = countQuery.Where(sq.Like{model.ConferenceColTitle: "%" + params.Title + "%"})
+		baseQuery = baseQuery.Where(sq.Like{model.ColTitle: "%" + params.Title + "%"})
+		countQuery = countQuery.Where(sq.Like{model.ColTitle: "%" + params.Title + "%"})
 	}
 	if params.Acronym != "" {
-		baseQuery = baseQuery.Where(sq.Like{model.ConferenceColAcronym: "%" + params.Acronym + "%"})
-		countQuery = countQuery.Where(sq.Like{model.ConferenceColAcronym: "%" + params.Acronym + "%"})
+		baseQuery = baseQuery.Where(sq.Like{model.ColAcronym: "%" + params.Acronym + "%"})
+		countQuery = countQuery.Where(sq.Like{model.ColAcronym: "%" + params.Acronym + "%"})
 	}
 	if params.Chair != "" {
-		baseQuery = baseQuery.Where(sq.Like{model.ConferenceColChair: "%" + params.Chair + "%"})
-		countQuery = countQuery.Where(sq.Like{model.ConferenceColChair: "%" + params.Chair + "%"})
+		baseQuery = baseQuery.Where(sq.Like{model.ColChair: "%" + params.Chair + "%"})
+		countQuery = countQuery.Where(sq.Like{model.ColChair: "%" + params.Chair + "%"})
 	}
 
 	countQueryStr, countArgs, err := countQuery.ToSql()
@@ -260,7 +260,7 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Confere
 		baseQuery = baseQuery.Offset(uint64(params.Offset))
 	}
 
-	query, args, err := baseQuery.OrderBy(model.ConferenceColCreatedAt + " DESC").ToSql()
+	query, args, err := baseQuery.OrderBy(model.ColCreatedAt + " DESC").ToSql()
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to build select query: %w", err)
 	}
@@ -311,33 +311,33 @@ func (s *Storage) Update(ctx context.Context, id int64, conf *dto.Conference) (*
 	}
 
 	updateMap := map[string]interface{}{
-		model.ConferenceColTitle:          conf.Title,
-		model.ConferenceColAcronym:        conf.Acronym,
-		model.ConferenceColDescription:    conf.Description,
-		model.ConferenceColChair:          conf.Chair,
-		model.ConferenceColPrimaryContact: conf.PrimaryContact,
-		model.ConferenceColAreaChair:      conf.AreaChair,
-		model.ConferenceColDomain:         pq.Array(conf.Domain),
-		model.ConferenceColConfigurations: configBytes,
-		model.ConferenceColUpdatedAt:      time.Now(),
+		model.ColTitle:          conf.Title,
+		model.ColAcronym:        conf.Acronym,
+		model.ColDescription:    conf.Description,
+		model.ColChair:          conf.Chair,
+		model.ColPrimaryContact: conf.PrimaryContact,
+		model.ColAreaChair:      conf.AreaChair,
+		model.ColDomain:         pq.Array(conf.Domain),
+		model.ColConfigurations: configBytes,
+		model.ColUpdatedAt:      time.Now(),
 	}
 
 	query, args, err := s.qb.
 		Update(model.ConferenceTableName).
 		SetMap(updateMap).
-		Where(sq.Eq{model.ConferenceColConferenceID: id}).
+		Where(sq.Eq{model.ColConferenceID: id}).
 		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
-			model.ConferenceColConferenceID,
-			model.ConferenceColTitle,
-			model.ConferenceColAcronym,
-			model.ConferenceColDescription,
-			model.ConferenceColChair,
-			model.ConferenceColPrimaryContact,
-			model.ConferenceColAreaChair,
-			model.ConferenceColDomain,
-			model.ConferenceColConfigurations,
-			model.ConferenceColCreatedAt,
-			model.ConferenceColUpdatedAt,
+			model.ColConferenceID,
+			model.ColTitle,
+			model.ColAcronym,
+			model.ColDescription,
+			model.ColChair,
+			model.ColPrimaryContact,
+			model.ColAreaChair,
+			model.ColDomain,
+			model.ColConfigurations,
+			model.ColCreatedAt,
+			model.ColUpdatedAt,
 		)).
 		ToSql()
 
@@ -373,7 +373,7 @@ func (s *Storage) Update(ctx context.Context, id int64, conf *dto.Conference) (*
 func (s *Storage) Delete(ctx context.Context, id int64) error {
 	query, args, err := s.qb.
 		Delete(model.ConferenceTableName).
-		Where(sq.Eq{model.ConferenceColConferenceID: id}).
+		Where(sq.Eq{model.ColConferenceID: id}).
 		ToSql()
 
 	if err != nil {

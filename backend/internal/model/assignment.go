@@ -9,16 +9,10 @@ import (
 const (
 	AssignmentTableName = "paper_assignments"
 
-	AssignmentColID           = "id"
-	AssignmentColConferenceID = "conference_id"
-	AssignmentColSubmissionID = "submission_id"
-	AssignmentColReviewerID   = "reviewer_id"
-	AssignmentColScore        = "score"
-	AssignmentColStatus       = "status"
-	AssignmentColAssignedAt   = "assigned_at"
-	AssignmentColCompletedAt  = "completed_at"
-	AssignmentColCreatedAt    = "created_at"
-	AssignmentColUpdatedAt    = "updated_at"
+	ColReviewerID   = "reviewer_id"
+	ColScore        = "score"
+	ColAssignedAt   = "assigned_at"
+	ColCompletedAt  = "completed_at"
 )
 
 // Assignment represents the paper_assignments database entity
