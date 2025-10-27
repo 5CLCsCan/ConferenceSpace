@@ -33,13 +33,28 @@ import { formatDate } from "@/lib/utils"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
+import { toast } from "@/hooks/use-toast" 
+
+// Giả lập API
+interface ApiResponse {
+  success: boolean
+}
+
+async function saveDraftReview(paperId: string, reviewData: any): Promise<ApiResponse> {
+  return new Promise((resolve) => setTimeout(() => resolve({ success: true }), 1000))
+}
+
+async function submitReview(paperId: string, reviewData: any): Promise<ApiResponse> {
+  return new Promise((resolve) => setTimeout(() => resolve({ success: true }), 1000))
+}
 
 interface PaperReviewProps {
   paper: Paper
   onBack: () => void
+  onReviewSubmitted?: () => void // Callback để cập nhật dashboard
 }
 
-// Mock data for discussion and rebuttal
+// Mock data for discussion and rebuttal (giữ nguyên)
 const mockDiscussion = [
   {
     id: 1,
@@ -64,8 +79,9 @@ const mockRebuttal = {
     "Thank you for your valuable feedback. We'd like to address the concerns regarding novelty. Our work differs from prior art (e.g., NeurIPS 2024) in its unique application of cross-attention mechanisms, which results in a 15% efficiency gain on the benchmarked tasks. We have updated Section 3.2 to highlight this distinction more clearly and added a new ablation study in Appendix A.",
 }
 
-export function PaperReview({ paper, onBack }: PaperReviewProps) {
+export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewProps) {
   const { t } = useTranslation()
+  const [activeTab, setActiveTab] = useState<"review" | "discussion" | "rebuttal">("review")
   const [overallScore, setOverallScore] = useState([3])
   const [confidence, setConfidence] = useState([3])
   const [novelty, setNovelty] = useState([3])
@@ -77,9 +93,111 @@ export function PaperReview({ paper, onBack }: PaperReviewProps) {
   const [recommendation, setRecommendation] = useState("")
   const [showAIAnalysis, setShowAIAnalysis] = useState(false)
   const [discussionMessage, setDiscussionMessage] = useState("")
+  const [isSaving, setIsSaving] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleGetAIAnalysis = () => {
     setShowAIAnalysis(true)
+  }
+
+  const handleSaveDraft = async () => {
+    setIsSaving(true)
+    try {
+      const reviewData = {
+        overallScore: overallScore[0],
+        confidence: confidence[0],
+        novelty: novelty[0],
+        technicalQuality: technicalQuality[0],
+        clarity: clarity[0],
+        relevance: relevance[0],
+        commentsToAuthors,
+        commentsToPC,
+        recommendation,
+      }
+      const response = await saveDraftReview(paper.id, reviewData)
+      if (response.success) {
+        toast({
+          title: t("dashboard.roles.reviewer.review.saveDraftSuccess"),
+          description: t("dashboard.roles.reviewer.review.saveDraftDescription"),
+        })
+      } else {
+        toast({
+          title: t("dashboard.roles.reviewer.review.saveDraftFailed"),
+          description: t("dashboard.roles.reviewer.review.saveDraftFailedDescription"),
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: t("dashboard.roles.reviewer.review.saveDraftFailed"),
+        description: t("dashboard.roles.reviewer.review.saveDraftFailedDescription"),
+        variant: "destructive",
+      })
+    }
+    setIsSaving(false)
+  }
+
+  const handleSubmitReview = async () => {
+    if (!recommendation) {
+      toast({
+        title: t("dashboard.roles.reviewer.review.recommendationRequired"),
+        description: t("dashboard.roles.reviewer.review.recommendationRequiredDescription"),
+        variant: "destructive",
+      })
+      return
+    }
+    if (commentsToAuthors.trim().length < 50) {
+      toast({
+        title: t("dashboard.roles.reviewer.review.commentsTooShort"),
+        description: t("dashboard.roles.reviewer.review.commentsTooShortDescription"),
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      const reviewData = {
+        overallScore: overallScore[0],
+        confidence: confidence[0],
+        novelty: novelty[0],
+        technicalQuality: technicalQuality[0],
+        clarity: clarity[0],
+        relevance: relevance[0],
+        commentsToAuthors,
+        commentsToPC,
+        recommendation,
+      }
+      const response = await submitReview(paper.id, reviewData)
+      if (response.success) {
+        toast({
+          title: t("dashboard.roles.reviewer.review.submitSuccess"),
+          description: t("dashboard.roles.reviewer.review.submitSuccessDescription"),
+        })
+        onReviewSubmitted?.()
+      } else {
+        toast({
+          title: t("dashboard.roles.reviewer.review.submitFailed"),
+          description: t("dashboard.roles.reviewer.review.submitFailedDescription"),
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: t("dashboard.roles.reviewer.review.submitFailed"),
+        description: t("dashboard.roles.reviewer.review.submitFailedDescription"),
+        variant: "destructive",
+      })
+    }
+    setIsSubmitting(false)
+  }
+
+  const handleModifyReview = () => {
+    setActiveTab("review")
+    toast({
+      title: t("dashboard.roles.reviewer.review.rebuttal.modifyReviewStarted"),
+      description: t("dashboard.roles.reviewer.review.rebuttal.modifyReviewStartedDescription"),
+    })
   }
 
   const aiAnalysis = {
@@ -114,7 +232,7 @@ export function PaperReview({ paper, onBack }: PaperReviewProps) {
         </h1>
       </div>
 
-      <Tabs defaultValue="review">
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="review">
             <MessageSquare className="size-4 mr-2" />
@@ -427,11 +545,25 @@ export function PaperReview({ paper, onBack }: PaperReviewProps) {
           </Card>
 
           <div className="flex gap-4">
-            <Button variant="outline" className="flex-1 bg-transparent">
-              {t("dashboard.roles.reviewer.review.saveDraft")}
+            <Button
+              variant="outline"
+              className="flex-1 bg-transparent"
+              onClick={handleSaveDraft}
+              disabled={isSaving}
+            >
+              {isSaving
+                ? t("dashboard.roles.reviewer.review.saving")
+                : t("dashboard.roles.reviewer.review.saveDraft")}
             </Button>
-            <Button className="flex-1" size="lg">
-              {t("dashboard.roles.reviewer.review.submitReview")}
+            <Button
+              className="flex-1"
+              size="lg"
+              onClick={handleSubmitReview}
+              disabled={isSubmitting}
+            >
+              {isSubmitting
+                ? t("dashboard.roles.reviewer.review.submitting")
+                : t("dashboard.roles.reviewer.review.submitReview")}
             </Button>
           </div>
         </TabsContent>
@@ -515,12 +647,7 @@ export function PaperReview({ paper, onBack }: PaperReviewProps) {
                       {t("dashboard.roles.reviewer.review.rebuttal.actionDescription")}
                     </AlertDescription>
                   </Alert>
-                  <Button
-                    onClick={() => {
-                      /* Logic to re-open review form */
-                    }}
-                    className="w-full"
-                  >
+                  <Button onClick={handleModifyReview} className="w-full">
                     {t("dashboard.roles.reviewer.review.rebuttal.modifyReview")}
                   </Button>
                 </div>

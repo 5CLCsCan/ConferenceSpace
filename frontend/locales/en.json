@@ -269,6 +269,11 @@
           "submittedOn": "Submitted on {{date}}",
           "version": "Version {{version}}",
           "downloadPDF": "Download PDF",
+          "loading": "Loading...",
+          "errors": {
+            "loadFailed": "Error loading dashboard data",
+            "paperNotFound": "Paper not found"
+          },
           "tabs": {
             "review": "Review",
             "discussion": "Discussion",

@@ -269,6 +269,11 @@
           "submittedOn": "Gửi vào ngày {{date}}",
           "version": "Phiên bản {{version}}",
           "downloadPDF": "Tải PDF",
+          "loading": "Đang tải...",
+          "errors": {
+            "loadFailed": "Lỗi tải dữ liệu",
+            "paperNotFound": "Không tìm thấy bài báo"
+          },
           "tabs": {
             "review": "Phản biện",
             "discussion": "Thảo luận",
