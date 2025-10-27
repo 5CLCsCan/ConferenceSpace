@@ -13,7 +13,8 @@
       "choose": "Select",
       "continue": "Continue",
       "accept": "Accept",
-      "decline": "Decline"
+      "decline": "Decline",
+      "complete": "Complete"
     },
     "labels": {
       "email": "Email",

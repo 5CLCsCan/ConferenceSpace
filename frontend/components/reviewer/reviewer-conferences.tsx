@@ -55,7 +55,7 @@ export function ReviewerConferences({ conferences, onSelectConference }: Reviewe
                   </td>
                   <td className="p-4">
                     {/* Placeholder for progress */}
-                    <div className="text-sm">0/5 {t("common.completed")}</div>
+                    <div className="text-sm">0/5 {t("common.actions.complete")}</div>
                   </td>
                   <td className="p-4">
                     {new Date(conference.review_deadline).toLocaleDateString()}

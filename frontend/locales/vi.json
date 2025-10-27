@@ -13,7 +13,8 @@
       "choose": "Chọn",
       "continue": "Tiếp tục",
       "accept": "Chấp nhận",
-      "decline": "Từ chối"
+      "decline": "Từ chối",
+      "complete": "Hoàn thành"
     },
     "labels": {
       "email": "Email",
