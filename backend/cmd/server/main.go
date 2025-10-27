@@ -198,6 +198,9 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 				submissions.POST("", handler.HandleNoRequestWithStatus(http.StatusCreated, ctrl.Submission.Create))
 				submissions.PUT("/:id", handler.HandleRequest(ctrl.Submission.Update))
 				submissions.DELETE("/:id", handler.HandleNoRequestWithMessage("submission deleted successfully", ctrl.Submission.Delete))
+
+				// Auto-assignment endpoint
+				submissions.POST("/auto-assign", handler.HandleRequest(ctrl.Assignment.AutoAssign))
 			}
 		}
 	}
