@@ -70,8 +70,8 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.ConferenceCreateReques
 // @Param        title query string false "Filter by title"
 // @Param        acronym query string false "Filter by acronym"
 // @Param        chair query string false "Filter by chair"
-// @Param        myConferences query bool false "Filter conferences where user has a role"
-// @Param        role query string false "Filter by specific role: 'chair', 'author', 'reviewer'"
+// @Param        myConferences query bool false "Filter to show only conferences where user has a role"
+// @Param        role query string false "When used with myConferences=true, filter by specific role: 'chair', 'author', 'reviewer'"
 // @Success      200 {object} dto.UserConferenceListResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response

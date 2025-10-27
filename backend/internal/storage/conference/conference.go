@@ -246,9 +246,12 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Confere
 		countQuery = countQuery.Where(sq.Like{model.ColChair: "%" + params.Chair + "%"})
 	}
 
-	// Apply role-based filtering
-	if params.MyConferences || params.Role != "" {
+	// Apply role-based filtering - only filter when myConferences is true
+	if params.MyConferences {
 		var conditions []sq.Sqlizer
+
+		// If role is specified, only check that specific role
+		// If role is empty, check ALL roles (chair, author, reviewer)
 
 		// Check chair role
 		if params.Role == "" || params.Role == "chair" {

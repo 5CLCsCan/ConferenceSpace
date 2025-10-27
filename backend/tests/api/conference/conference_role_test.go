@@ -218,11 +218,11 @@ func TestConferenceListWithRoleFiltering(t *testing.T) {
 			description:   "Chair1 should only see conference 1 (where they are chair)",
 		},
 		{
-			name:          "chair1_role_chair",
+			name:          "chair1_myConferences_and_role_chair",
 			token:         chair1Token,
-			queryParams:   "role=chair",
+			queryParams:   "myConferences=true&role=chair",
 			expectedConfs: []int64{conference1ID},
-			description:   "Chair1 filtering by chair role should see conference 1",
+			description:   "Chair1 with myConferences=true&role=chair should see conference 1",
 		},
 		{
 			name:          "author_myConferences_true",
@@ -232,11 +232,11 @@ func TestConferenceListWithRoleFiltering(t *testing.T) {
 			description:   "Author should see conference 1 (where they submitted)",
 		},
 		{
-			name:          "author_role_author",
+			name:          "author_myConferences_and_role_author",
 			token:         authorToken,
-			queryParams:   "role=author",
+			queryParams:   "myConferences=true&role=author",
 			expectedConfs: []int64{conference1ID},
-			description:   "Author filtering by author role should see conference 1",
+			description:   "Author with myConferences=true&role=author should see conference 1",
 		},
 		{
 			name:          "reviewer_myConferences_true",
@@ -246,11 +246,11 @@ func TestConferenceListWithRoleFiltering(t *testing.T) {
 			description:   "Reviewer should see conference 1 (where they are reviewer)",
 		},
 		{
-			name:          "reviewer_role_reviewer",
+			name:          "reviewer_myConferences_and_role_reviewer",
 			token:         reviewerToken,
-			queryParams:   "role=reviewer",
+			queryParams:   "myConferences=true&role=reviewer",
 			expectedConfs: []int64{conference1ID},
-			description:   "Reviewer filtering by reviewer role should see conference 1",
+			description:   "Reviewer with myConferences=true&role=reviewer should see conference 1",
 		},
 		{
 			name:          "multirole_myConferences_true",
@@ -260,18 +260,18 @@ func TestConferenceListWithRoleFiltering(t *testing.T) {
 			description:   "MultiRole user should see conference 2 (both author and reviewer)",
 		},
 		{
-			name:          "multirole_role_author",
+			name:          "multirole_myConferences_and_role_author",
 			token:         multiRoleToken,
-			queryParams:   "role=author",
+			queryParams:   "myConferences=true&role=author",
 			expectedConfs: []int64{conference2ID},
-			description:   "MultiRole filtering by author role should see conference 2",
+			description:   "MultiRole with myConferences=true&role=author should see conference 2",
 		},
 		{
-			name:          "multirole_role_reviewer",
+			name:          "multirole_myConferences_and_role_reviewer",
 			token:         multiRoleToken,
-			queryParams:   "role=reviewer",
+			queryParams:   "myConferences=true&role=reviewer",
 			expectedConfs: []int64{conference2ID},
-			description:   "MultiRole filtering by reviewer role should see conference 2",
+			description:   "MultiRole with myConferences=true&role=reviewer should see conference 2",
 		},
 		{
 			name:          "norole_myConferences_true",
@@ -281,11 +281,18 @@ func TestConferenceListWithRoleFiltering(t *testing.T) {
 			description:   "User with no roles should see no conferences",
 		},
 		{
-			name:          "norole_role_chair",
+			name:          "norole_myConferences_and_role_chair",
 			token:         noRoleToken,
-			queryParams:   "role=chair",
+			queryParams:   "myConferences=true&role=chair",
 			expectedConfs: []int64{},
-			description:   "User with no chair role should see no conferences",
+			description:   "User with no chair role and myConferences=true&role=chair should see no conferences",
+		},
+		{
+			name:          "chair1_role_only_without_myConferences",
+			token:         chair1Token,
+			queryParams:   "role=chair",
+			expectedConfs: []int64{}, // role without myConferences is ignored, sees all conferences
+			description:   "Role parameter without myConferences is ignored (shows all conferences)",
 		},
 		{
 			name:          "chair1_no_filter",
@@ -324,8 +331,8 @@ func TestConferenceListWithRoleFiltering(t *testing.T) {
 				returnedIDs[conf.ID] = true
 			}
 
-			// Special case: no filter test - just verify test conferences are included
-			if tt.name == "chair1_no_filter" {
+			// Special cases: tests that should return all conferences (not filtered)
+			if tt.name == "chair1_no_filter" || tt.name == "chair1_role_only_without_myConferences" {
 				if len(returnedIDs) < 2 {
 					t.Errorf("%s: Expected at least 2 conferences, got %d", tt.description, len(returnedIDs))
 				}
