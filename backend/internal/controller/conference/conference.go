@@ -28,8 +28,8 @@ func New(store *storage.Storage) *Controller {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        request body conference.CreateRequest true "Conference data"
-// @Success      201 {object} conference.Response
+// @Param        request body dto.Conference true "Conference data"
+// @Success      201 {object} dto.ConferenceResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      500 {object} handler.Response
@@ -70,7 +70,7 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.ConferenceCreateReques
 // @Param        title query string false "Filter by title"
 // @Param        acronym query string false "Filter by acronym"
 // @Param        chair query string false "Filter by chair"
-// @Success      200 {object} conference.UserListResponse
+// @Success      200 {object} dto.UserConferenceListResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      500 {object} handler.Response
@@ -130,7 +130,7 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.ConferenceListRequest) (
 // @Produce      json
 // @Security     BearerAuth
 // @Param        conference_id path int true "Conference ID"
-// @Success      200 {object} conference.Response
+// @Success      200 {object} dto.ConferenceResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      404 {object} handler.Response
@@ -153,8 +153,8 @@ func (c *Controller) Get(ginCtx *gin.Context, req *dto.ConferenceGetRequest) (*d
 // @Produce      json
 // @Security     BearerAuth
 // @Param        conference_id path int true "Conference ID"
-// @Param        request body conference.UpdateRequest true "Updated conference data"
-// @Success      200 {object} conference.Response
+// @Param        request body dto.ConferenceUpdateRequest true "Updated conference data"
+// @Success      200 {object} dto.ConferenceResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      403 {object} handler.Response

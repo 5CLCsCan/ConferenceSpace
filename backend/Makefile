@@ -14,7 +14,7 @@ help: ## Show this help message
 # Development Workflow
 # ============================================================================
 
-dev: db-up migrate-up server ## Start DB, run migrations, and start server (recommended for development)
+dev: db-up migrate-up swagger server ## Start DB, run migrations, generate swagger docs, and start server (recommended for development)
 
 db-up: ## Start PostgreSQL database only
 	@echo "Starting PostgreSQL database..."
@@ -227,8 +227,13 @@ install-tools: ## Install required development tools
 
 swagger: ## Generate swagger documentation
 	@echo "Generating swagger documentation..."
-	$(GOBIN)/swag init -g cmd/server/main.go -o ./docs
+	@if ! command -v $(GOBIN)/swag >/dev/null 2>&1; then \
+		echo "⚠️  swag not found. Installing..."; \
+		go install github.com/swaggo/swag/cmd/swag@latest; \
+	fi
+	@$(GOBIN)/swag init -g cmd/server/main.go -o ./docs
 	@echo "✅ Swagger docs generated in ./docs"
+	@echo "📚 Access Swagger UI at: http://localhost:8080/swagger/index.html"
 
 swagger-serve: swagger ## Generate and serve swagger UI
 	@echo "Swagger UI available at: http://localhost:8080/swagger/index.html"

@@ -36,7 +36,7 @@ func New(store *storage.Storage, fileStore fileStorage.StorageInterface) *Contro
 // @Param        conference_id path int true "Conference ID"
 // @Param        submission formData string true "Submission data as JSON string"
 // @Param        file formData file false "PDF file to upload"
-// @Success      201 {object} dto.SubmissionResponse
+// @Success      201 {object} dto.Submission
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      500 {object} handler.Response
@@ -146,7 +146,7 @@ func (c *Controller) Create(ginCtx *gin.Context) (*dto.Submission, error) {
 // @Param        author query string false "Filter by author"
 // @Param        status query string false "Filter by status"
 // @Param        title query string false "Filter by title"
-// @Success      200 {object} submission.ListResponse
+// @Success      200 {object} dto.SubmissionListResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      500 {object} handler.Response
@@ -188,7 +188,7 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.SubmissionListRequest) (
 // @Security     BearerAuth
 // @Param        conference_id path int true "Conference ID"
 // @Param        id path int true "Submission ID"
-// @Success      200 {object} submission.Response
+// @Success      200 {object} dto.Submission
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      404 {object} handler.Response
@@ -227,8 +227,8 @@ func (c *Controller) Get(ginCtx *gin.Context) (*dto.Submission, error) {
 // @Security     BearerAuth
 // @Param        conference_id path int true "Conference ID"
 // @Param        id path int true "Submission ID"
-// @Param        request body submission.UpdateRequest true "Updated submission data"
-// @Success      200 {object} submission.Response
+// @Param        request body dto.SubmissionUpdateRequest true "Updated submission data"
+// @Success      200 {object} dto.Submission
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      403 {object} handler.Response

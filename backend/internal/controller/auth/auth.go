@@ -23,8 +23,8 @@ func New(orch *orchestrator.Orchestrator) *Controller {
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        request body user.CreateRequest true "User registration data"
-// @Success      200 {object} user.Response
+// @Param        request body dto.UserCreateRequest true "User registration data"
+// @Success      200 {object} dto.UserResponse
 // @Failure      400 {object} handler.Response
 // @Failure      500 {object} handler.Response
 // @Router       /auth/register [post]
@@ -39,8 +39,8 @@ func (c *Controller) Register(ginCtx *gin.Context, req *dto.UserCreateRequest) (
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        request body user.LoginRequest true "Login credentials"
-// @Success      200 {object} user.LoginResponse
+// @Param        request body dto.LoginRequest true "Login credentials"
+// @Success      200 {object} dto.LoginResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Router       /auth/login [post]
