@@ -175,19 +175,19 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 		conferences.Use(middleware.AuthMiddleware(cfg.JWT.Secret))
 		{
 			conferences.GET("", handler.HandleRequestWithQuery(ctrl.Conference.List))
-			conferences.GET("/:conference_id", handler.HandleNoRequest(ctrl.Conference.Get))
+			conferences.GET("/:conference_id", handler.HandleRequestWithURI(ctrl.Conference.Get))
 			conferences.POST("", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Conference.Create))
-			conferences.PUT("/:conference_id", handler.HandleRequest(ctrl.Conference.Update))
-			conferences.DELETE("/:conference_id", handler.HandleNoRequestWithMessage("conference deleted successfully", ctrl.Conference.Delete))
+			conferences.PUT("/:conference_id", handler.HandleRequestWithURIAndJSON(ctrl.Conference.Update))
+			conferences.DELETE("/:conference_id", handler.HandleNoRequestWithURIMessage("conference deleted successfully", ctrl.Conference.Delete))
 
 			// Reviewer routes nested under conferences (all protected - authentication required)
 			reviewers := conferences.Group("/:conference_id/reviewers")
 			{
-				reviewers.GET("", handler.HandleRequestWithQuery(ctrl.Reviewer.List))
-				reviewers.GET("/:reviewer_id", handler.HandleNoRequest(ctrl.Reviewer.Get))
-				reviewers.POST("", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Reviewer.BatchInvite))
-				reviewers.PUT("/:reviewer_id/status", handler.HandleRequest(ctrl.Reviewer.UpdateStatus))
-				reviewers.DELETE("/:reviewer_id", handler.HandleNoRequestWithMessage("reviewer removed successfully", ctrl.Reviewer.Delete))
+				reviewers.GET("", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.List))
+				reviewers.GET("/:reviewer_id", handler.HandleRequestWithURI(ctrl.Reviewer.Get))
+				reviewers.POST("", handler.HandleRequestWithURIAndJSONWithStatus(http.StatusCreated, ctrl.Reviewer.BatchInvite))
+				reviewers.PUT("/:reviewer_id/status", handler.HandleRequestWithURIAndJSON(ctrl.Reviewer.UpdateStatus))
+				reviewers.DELETE("/:reviewer_id", handler.HandleNoRequestWithURIMessage("reviewer removed successfully", ctrl.Reviewer.Delete))
 			}
 
 			// Submission routes nested under conferences (all protected - authentication required)

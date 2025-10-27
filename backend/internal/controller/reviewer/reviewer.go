@@ -2,7 +2,6 @@ package reviewer
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
@@ -38,16 +37,11 @@ func New(store *storage.Storage) *Controller {
 func (c *Controller) BatchInvite(ginCtx *gin.Context, req *dto.ReviewerBatchInviteRequest) (*dto.ReviewerBatchInviteResponse, error) {
 	ctx := ginCtx.Request.Context()
 
-	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
-	if err != nil {
-		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
-	}
-
 	if len(req.Reviewers) == 0 {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "at least one reviewer must be provided")
 	}
 
-	result, err := c.reviewerStorage.BatchCreate(ctx, conferenceID, req.Reviewers)
+	result, err := c.reviewerStorage.BatchCreate(ctx, req.ConferenceID, req.Reviewers)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
@@ -74,11 +68,6 @@ func (c *Controller) BatchInvite(ginCtx *gin.Context, req *dto.ReviewerBatchInvi
 func (c *Controller) List(ginCtx *gin.Context, req *dto.ReviewerListRequest) (*dto.ReviewerListResponse, error) {
 	ctx := ginCtx.Request.Context()
 
-	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
-	if err != nil {
-		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
-	}
-
 	// Set default limit if not specified
 	if req.Limit == 0 {
 		req.Limit = 20
@@ -90,7 +79,7 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.ReviewerListRequest) (*d
 		Status: req.Status,
 	}
 
-	reviewers, total, err := c.reviewerStorage.List(ctx, conferenceID, params)
+	reviewers, total, err := c.reviewerStorage.List(ctx, req.ConferenceID, params)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
@@ -117,26 +106,16 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.ReviewerListRequest) (*d
 // @Failure      401 {object} handler.Response
 // @Failure      404 {object} handler.Response
 // @Router       /conferences/{conference_id}/reviewers/{reviewer_id} [get]
-func (c *Controller) Get(ginCtx *gin.Context) (*dto.Reviewer, error) {
+func (c *Controller) Get(ginCtx *gin.Context, req *dto.ReviewerGetRequest) (*dto.Reviewer, error) {
 	ctx := ginCtx.Request.Context()
 
-	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
-	if err != nil {
-		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
-	}
-
-	reviewerID, err := strconv.ParseInt(ginCtx.Param("reviewer_id"), 10, 64)
-	if err != nil {
-		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid reviewer ID")
-	}
-
-	reviewer, err := c.reviewerStorage.GetByID(ctx, reviewerID)
+	reviewer, err := c.reviewerStorage.GetByID(ctx, req.ReviewerID)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "reviewer not found")
 	}
 
 	// Verify the reviewer belongs to the specified conference
-	if reviewer.ConferenceID != conferenceID {
+	if reviewer.ConferenceID != req.ConferenceID {
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "reviewer not found in this conference")
 	}
 
@@ -161,27 +140,17 @@ func (c *Controller) Get(ginCtx *gin.Context) (*dto.Reviewer, error) {
 func (c *Controller) UpdateStatus(ginCtx *gin.Context, req *dto.ReviewerUpdateStatusRequest) (*dto.Reviewer, error) {
 	ctx := ginCtx.Request.Context()
 
-	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
-	if err != nil {
-		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
-	}
-
-	reviewerID, err := strconv.ParseInt(ginCtx.Param("reviewer_id"), 10, 64)
-	if err != nil {
-		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid reviewer ID")
-	}
-
 	// Verify the reviewer exists and belongs to this conference
-	existing, err := c.reviewerStorage.GetByID(ctx, reviewerID)
+	existing, err := c.reviewerStorage.GetByID(ctx, req.ReviewerID)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "reviewer not found")
 	}
 
-	if existing.ConferenceID != conferenceID {
+	if existing.ConferenceID != req.ConferenceID {
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "reviewer not found in this conference")
 	}
 
-	result, err := c.reviewerStorage.UpdateStatus(ctx, reviewerID, req.Status)
+	result, err := c.reviewerStorage.UpdateStatus(ctx, req.ReviewerID, req.Status)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
@@ -203,30 +172,20 @@ func (c *Controller) UpdateStatus(ginCtx *gin.Context, req *dto.ReviewerUpdateSt
 // @Failure      401 {object} handler.Response
 // @Failure      404 {object} handler.Response
 // @Router       /conferences/{conference_id}/reviewers/{reviewer_id} [delete]
-func (c *Controller) Delete(ginCtx *gin.Context) error {
+func (c *Controller) Delete(ginCtx *gin.Context, req *dto.ReviewerDeleteRequest) error {
 	ctx := ginCtx.Request.Context()
 
-	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
-	if err != nil {
-		return handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
-	}
-
-	reviewerID, err := strconv.ParseInt(ginCtx.Param("reviewer_id"), 10, 64)
-	if err != nil {
-		return handler.NewErrorResponse(http.StatusBadRequest, "invalid reviewer ID")
-	}
-
 	// Verify the reviewer exists and belongs to this conference
-	existing, err := c.reviewerStorage.GetByID(ctx, reviewerID)
+	existing, err := c.reviewerStorage.GetByID(ctx, req.ReviewerID)
 	if err != nil {
 		return handler.NewErrorResponse(http.StatusNotFound, "reviewer not found")
 	}
 
-	if existing.ConferenceID != conferenceID {
+	if existing.ConferenceID != req.ConferenceID {
 		return handler.NewErrorResponse(http.StatusNotFound, "reviewer not found in this conference")
 	}
 
-	if err := c.reviewerStorage.Delete(ctx, reviewerID); err != nil {
+	if err := c.reviewerStorage.Delete(ctx, req.ReviewerID); err != nil {
 		return handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 

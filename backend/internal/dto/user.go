@@ -21,8 +21,17 @@ type UserCreateRequest struct {
 	Password string `json:"password" binding:"required,min=6"`
 }
 
+type UserGetRequest struct {
+	ID int64 `uri:"id" binding:"required"`
+}
+
 type UserUpdateRequest struct {
+	ID   int64 `uri:"id" binding:"required"`
 	User *User `json:"user" binding:"required"`
+}
+
+type UserDeleteRequest struct {
+	ID int64 `uri:"id" binding:"required"`
 }
 
 type LoginRequest struct {

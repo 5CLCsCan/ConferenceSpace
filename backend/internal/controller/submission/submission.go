@@ -71,6 +71,14 @@ func (c *Controller) Create(ginCtx *gin.Context) (*dto.Submission, error) {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "submission data is required")
 	}
 
+	// Validate required fields
+	if req.Submission.Title == "" {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "title is required")
+	}
+	if req.Submission.Abstract == "" {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "abstract is required")
+	}
+
 	userEmail, exists := utils.GetEmail(ginCtx)
 	if !exists {
 		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
