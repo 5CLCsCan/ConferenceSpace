@@ -13,11 +13,15 @@ import (
 )
 
 type QueryParams struct {
-	Limit   int
-	Offset  int
-	Title   string
-	Acronym string
-	Chair   string
+	Limit         int
+	Offset        int
+	Title         string
+	Acronym       string
+	Chair         string
+	MyConferences bool
+	Role          string
+	UserID        int64  // User ID for role-based filtering
+	UserEmail     string // User email for role-based filtering
 }
 
 type StorageInterface interface {
@@ -240,6 +244,58 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Confere
 	if params.Chair != "" {
 		baseQuery = baseQuery.Where(sq.Like{model.ColChair: "%" + params.Chair + "%"})
 		countQuery = countQuery.Where(sq.Like{model.ColChair: "%" + params.Chair + "%"})
+	}
+
+	// Apply role-based filtering
+	if params.MyConferences || params.Role != "" {
+		var conditions []sq.Sqlizer
+
+		// Check chair role
+		if params.Role == "" || params.Role == "chair" {
+			chairCond := sq.Or{
+				sq.Eq{model.ColChair: params.UserEmail},
+				sq.Eq{model.ColPrimaryContact: params.UserID},
+				sq.Eq{model.ColAreaChair: params.UserID},
+			}
+			conditions = append(conditions, chairCond)
+		}
+
+		// Check author role (has submissions)
+		if params.Role == "" || params.Role == "author" {
+			authorCond := sq.Expr(
+				fmt.Sprintf("EXISTS (SELECT 1 FROM %s s WHERE s.%s = %s.%s AND s.%s = ?)",
+					model.SubmissionTableName,
+					model.ColConferenceID,
+					model.ConferenceTableName,
+					model.ColConferenceID,
+					model.ColAuthor,
+				),
+				params.UserEmail,
+			)
+			conditions = append(conditions, authorCond)
+		}
+
+		// Check reviewer role (in conference_reviewers table)
+		if params.Role == "" || params.Role == "reviewer" {
+			reviewerCond := sq.Expr(
+				fmt.Sprintf("EXISTS (SELECT 1 FROM %s cr WHERE cr.%s = %s.%s AND cr.%s = ?)",
+					model.ReviewerTableName,
+					model.ColConferenceID,
+					model.ConferenceTableName,
+					model.ColConferenceID,
+					model.ColUserID,
+				),
+				params.UserID,
+			)
+			conditions = append(conditions, reviewerCond)
+		}
+
+		// Combine all conditions with OR
+		if len(conditions) > 0 {
+			roleFilter := sq.Or(conditions)
+			baseQuery = baseQuery.Where(roleFilter)
+			countQuery = countQuery.Where(roleFilter)
+		}
 	}
 
 	countQueryStr, countArgs, err := countQuery.ToSql()

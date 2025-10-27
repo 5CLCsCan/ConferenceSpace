@@ -62,11 +62,13 @@ type ConferenceDeleteRequest struct {
 }
 
 type ConferenceListRequest struct {
-	Limit   int    `form:"limit" json:"limit"`
-	Offset  int    `form:"offset" json:"offset"`
-	Title   string `form:"title" json:"title"`
-	Acronym string `form:"acronym" json:"acronym"`
-	Chair   string `form:"chair" json:"chair"`
+	Limit         int    `form:"limit" json:"limit"`
+	Offset        int    `form:"offset" json:"offset"`
+	Title         string `form:"title" json:"title"`
+	Acronym       string `form:"acronym" json:"acronym"`
+	Chair         string `form:"chair" json:"chair"`
+	MyConferences bool   `form:"myConferences" json:"myConferences"` // Filter conferences where user has a role
+	Role          string `form:"role" json:"role"`                   // Filter by specific role: "chair", "author", "reviewer"
 }
 
 type UserConferenceResponse struct {

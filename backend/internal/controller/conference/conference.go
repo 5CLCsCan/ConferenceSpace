@@ -70,6 +70,8 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.ConferenceCreateReques
 // @Param        title query string false "Filter by title"
 // @Param        acronym query string false "Filter by acronym"
 // @Param        chair query string false "Filter by chair"
+// @Param        myConferences query bool false "Filter conferences where user has a role"
+// @Param        role query string false "Filter by specific role: 'chair', 'author', 'reviewer'"
 // @Success      200 {object} dto.UserConferenceListResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
@@ -78,12 +80,20 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.ConferenceCreateReques
 func (c *Controller) List(ginCtx *gin.Context, req *dto.ConferenceListRequest) (*dto.UserConferenceListResponse, error) {
 	ctx := ginCtx.Request.Context()
 
+	// Get current user for role-based filtering
+	userID, _ := utils.GetUserID(ginCtx)
+	userEmail, _ := utils.GetEmail(ginCtx)
+
 	params := &conferenceStorage.QueryParams{
-		Limit:   req.Limit,
-		Offset:  req.Offset,
-		Title:   req.Title,
-		Acronym: req.Acronym,
-		Chair:   req.Chair,
+		Limit:         req.Limit,
+		Offset:        req.Offset,
+		Title:         req.Title,
+		Acronym:       req.Acronym,
+		Chair:         req.Chair,
+		MyConferences: req.MyConferences,
+		Role:          req.Role,
+		UserID:        userID,
+		UserEmail:     userEmail,
 	}
 
 	conferences, total, err := c.conferenceStorage.List(ctx, params)
@@ -93,7 +103,7 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.ConferenceListRequest) (
 
 	// Get current user for role determination
 	userID, exists := utils.GetUserID(ginCtx)
-	userEmail, _ := utils.GetEmail(ginCtx)
+	userEmail, _ = utils.GetEmail(ginCtx)
 
 	// Convert to user-specific response with role information
 	userConferences := make([]*dto.UserConferenceResponse, len(conferences))
