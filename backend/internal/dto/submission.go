@@ -46,11 +46,24 @@ type Submission struct {
 }
 
 type SubmissionCreateRequest struct {
-	Submission *Submission `json:"submission" binding:"required"`
+	ConferenceID int64       `uri:"conference_id" binding:"required"`
+	Submission   *Submission `json:"submission" binding:"required"`
+}
+
+type SubmissionGetRequest struct {
+	ConferenceID int64 `uri:"conference_id" binding:"required"`
+	ID           int64 `uri:"id" binding:"required"`
 }
 
 type SubmissionUpdateRequest struct {
-	Submission *Submission `json:"submission" binding:"required"`
+	ConferenceID int64       `uri:"conference_id" binding:"required"`
+	ID           int64       `uri:"id" binding:"required"`
+	Submission   *Submission `json:"submission" binding:"required"`
+}
+
+type SubmissionDeleteRequest struct {
+	ConferenceID int64 `uri:"conference_id" binding:"required"`
+	ID           int64 `uri:"id" binding:"required"`
 }
 
 type SubmissionListRequest struct {

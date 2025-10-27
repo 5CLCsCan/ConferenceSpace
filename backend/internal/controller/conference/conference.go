@@ -2,7 +2,6 @@ package conference
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
@@ -136,15 +135,10 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.ConferenceListRequest) (
 // @Failure      401 {object} handler.Response
 // @Failure      404 {object} handler.Response
 // @Router       /conferences/{conference_id} [get]
-func (c *Controller) Get(ginCtx *gin.Context) (*dto.ConferenceResponse, error) {
+func (c *Controller) Get(ginCtx *gin.Context, req *dto.ConferenceGetRequest) (*dto.ConferenceResponse, error) {
 	ctx := ginCtx.Request.Context()
 
-	id, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
-	if err != nil {
-		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
-	}
-
-	conference, err := c.conferenceStorage.GetByID(ctx, id)
+	conference, err := c.conferenceStorage.GetByID(ctx, req.ConferenceID)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
 	}
@@ -169,11 +163,6 @@ func (c *Controller) Get(ginCtx *gin.Context) (*dto.ConferenceResponse, error) {
 func (c *Controller) Update(ginCtx *gin.Context, req *dto.ConferenceUpdateRequest) (*dto.ConferenceResponse, error) {
 	ctx := ginCtx.Request.Context()
 
-	id, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
-	if err != nil {
-		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
-	}
-
 	if req.Conference == nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "conference data is required")
 	}
@@ -183,7 +172,7 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.ConferenceUpdateReques
 		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
 	}
 
-	existing, err := c.conferenceStorage.GetByID(ctx, id)
+	existing, err := c.conferenceStorage.GetByID(ctx, req.ConferenceID)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
 	}
@@ -194,7 +183,7 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.ConferenceUpdateReques
 
 	req.Conference.Chair = userEmail
 
-	return c.conferenceStorage.Update(ctx, id, req.Conference)
+	return c.conferenceStorage.Update(ctx, req.ConferenceID, req.Conference)
 }
 
 // Delete godoc
@@ -211,20 +200,15 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.ConferenceUpdateReques
 // @Failure      403 {object} handler.Response
 // @Failure      404 {object} handler.Response
 // @Router       /conferences/{conference_id} [delete]
-func (c *Controller) Delete(ginCtx *gin.Context) error {
+func (c *Controller) Delete(ginCtx *gin.Context, req *dto.ConferenceDeleteRequest) error {
 	ctx := ginCtx.Request.Context()
-
-	id, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
-	if err != nil {
-		return handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
-	}
 
 	userEmail, exists := utils.GetEmail(ginCtx)
 	if !exists {
 		return handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
 	}
 
-	existing, err := c.conferenceStorage.GetByID(ctx, id)
+	existing, err := c.conferenceStorage.GetByID(ctx, req.ConferenceID)
 	if err != nil {
 		return handler.NewErrorResponse(http.StatusNotFound, "conference not found")
 	}
@@ -233,5 +217,5 @@ func (c *Controller) Delete(ginCtx *gin.Context) error {
 		return handler.NewErrorResponse(http.StatusForbidden, "only the chair can delete this conference")
 	}
 
-	return c.conferenceStorage.Delete(ctx, id)
+	return c.conferenceStorage.Delete(ctx, req.ConferenceID)
 }

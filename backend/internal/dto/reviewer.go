@@ -16,7 +16,8 @@ type Reviewer struct {
 
 // ReviewerBatchInviteRequest represents the request to invite multiple reviewers
 type ReviewerBatchInviteRequest struct {
-	Reviewers []Reviewer `json:"reviewers" binding:"required,dive"`
+	ConferenceID int64      `uri:"conference_id" binding:"required"`
+	Reviewers    []Reviewer `json:"reviewers"`
 }
 
 // ReviewerBatchInviteResponse represents the response after inviting reviewers
@@ -28,16 +29,31 @@ type ReviewerBatchInviteResponse struct {
 	} `json:"failed,omitempty"`
 }
 
+// ReviewerGetRequest represents the request to get a specific reviewer
+type ReviewerGetRequest struct {
+	ConferenceID int64 `uri:"conference_id" binding:"required"`
+	ReviewerID   int64 `uri:"reviewer_id" binding:"required"`
+}
+
 // ReviewerUpdateStatusRequest represents the request to update a reviewer's status
 type ReviewerUpdateStatusRequest struct {
-	Status string `json:"status" binding:"required,oneof=pending accepted rejected"`
+	ConferenceID int64  `uri:"conference_id" binding:"required"`
+	ReviewerID   int64  `uri:"reviewer_id" binding:"required"`
+	Status       string `json:"status"`
+}
+
+// ReviewerDeleteRequest represents the request to delete a reviewer
+type ReviewerDeleteRequest struct {
+	ConferenceID int64 `uri:"conference_id" binding:"required"`
+	ReviewerID   int64 `uri:"reviewer_id" binding:"required"`
 }
 
 // ReviewerListRequest represents the request to list reviewers with pagination
 type ReviewerListRequest struct {
-	Limit  int    `form:"limit" json:"limit"`
-	Offset int    `form:"offset" json:"offset"`
-	Status string `form:"status" json:"status"` // Filter by status (pending, accepted, rejected)
+	ConferenceID int64  `uri:"conference_id" binding:"required"`
+	Limit        int    `form:"limit" json:"limit"`
+	Offset       int    `form:"offset" json:"offset"`
+	Status       string `form:"status" json:"status"` // Filter by status (pending, accepted, rejected)
 }
 
 // ReviewerListResponse represents the paginated list of reviewers

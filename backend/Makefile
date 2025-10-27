@@ -1,4 +1,4 @@
-.PHONY: help dev db-up db-down db-reset server build run test clean docker-build docker-up docker-down migrate-up migrate-down
+.PHONY: help dev db-up db-down db-reset server build run test clean docker-build docker-up docker-down migrate-up migrate-down test-api test-api-coverage
 
 # Go binary path
 GOBIN := $(shell go env GOPATH)/bin
@@ -150,6 +150,25 @@ test-coverage: ## Run tests with coverage report
 
 test-unit: ## Run unit tests only
 	go test -v -short ./...
+
+# ============================================================================
+# API Integration Tests
+# ============================================================================
+
+test-api: ## Run API tests (usage: make test-api [path=auth|user|conference|submission|e2e])
+	@if [ -n "$(path)" ]; then \
+		echo "Running tests for: $(path)"; \
+		cd tests/api && go test -v ./$(path); \
+	else \
+		echo "Running all API tests..."; \
+		cd tests/api && go test -v ./...; \
+	fi
+
+test-api-coverage: ## Run API tests with coverage
+	@echo "Running API tests with coverage..."
+	cd tests/api && go test -v -coverprofile=coverage.out ./...
+	cd tests/api && go tool cover -html=coverage.out -o coverage.html
+	@echo "API test coverage report generated: tests/api/coverage.html"
 
 # ============================================================================
 # Code Quality

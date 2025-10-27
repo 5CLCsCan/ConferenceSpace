@@ -48,8 +48,17 @@ type ConferenceCreateRequest struct {
 	Conference *Conference `json:"conference" binding:"required"`
 }
 
+type ConferenceGetRequest struct {
+	ConferenceID int64 `uri:"conference_id" binding:"required"`
+}
+
 type ConferenceUpdateRequest struct {
-	Conference *Conference `json:"conference" binding:"required"`
+	ConferenceID int64       `uri:"conference_id" binding:"required"`
+	Conference   *Conference `json:"conference"`
+}
+
+type ConferenceDeleteRequest struct {
+	ConferenceID int64 `uri:"conference_id" binding:"required"`
 }
 
 type ConferenceListRequest struct {

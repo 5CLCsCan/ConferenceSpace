@@ -99,6 +99,106 @@ func HandleRequestWithQuery[Req any, Res any](handler func(ctx *gin.Context, req
 	}
 }
 
+// HandleRequestWithURIAndQuery binds URI parameters and query params
+// Priority: URI > Query (URI parameters take precedence)
+func HandleRequestWithURIAndQuery[Req any, Res any](handler func(ctx *gin.Context, req *Req) (*Res, error)) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req Req
+
+		// Bind URI parameters first
+		if err := ctx.ShouldBindUri(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+			return
+		}
+
+		// Then bind query parameters
+		if err := ctx.ShouldBindQuery(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+			return
+		}
+
+		response, err := handler(ctx, &req)
+		if err != nil {
+			handleError(ctx, err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, Response{Data: response})
+	}
+}
+
+// HandleRequestWithAll binds URI, query, and body parameters
+// Priority: URI > Query > Body (URI parameters take highest precedence)
+func HandleRequestWithAll[Req any, Res any](handler func(ctx *gin.Context, req *Req) (*Res, error)) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req Req
+
+		// Bind body first (lowest priority)
+		if ctx.Request.ContentLength > 0 {
+			if err := ctx.ShouldBindJSON(&req); err != nil {
+				ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+				return
+			}
+		}
+
+		// Then bind query parameters (overrides body)
+		if err := ctx.ShouldBindQuery(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+			return
+		}
+
+		// Finally bind URI parameters (highest priority, overrides everything)
+		if err := ctx.ShouldBindUri(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+			return
+		}
+
+		response, err := handler(ctx, &req)
+		if err != nil {
+			handleError(ctx, err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, Response{Data: response})
+	}
+}
+
+// HandleRequestWithAllAndStatus binds URI, query, and body parameters with custom status
+// Priority: URI > Query > Body (URI parameters take highest precedence)
+func HandleRequestWithAllAndStatus[Req any, Res any](statusCode int, handler func(ctx *gin.Context, req *Req) (*Res, error)) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req Req
+
+		// Bind body first (lowest priority)
+		if ctx.Request.ContentLength > 0 {
+			if err := ctx.ShouldBindJSON(&req); err != nil {
+				ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+				return
+			}
+		}
+
+		// Then bind query parameters (overrides body)
+		if err := ctx.ShouldBindQuery(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+			return
+		}
+
+		// Finally bind URI parameters (highest priority, overrides everything)
+		if err := ctx.ShouldBindUri(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+			return
+		}
+
+		response, err := handler(ctx, &req)
+		if err != nil {
+			handleError(ctx, err)
+			return
+		}
+
+		ctx.JSON(statusCode, Response{Data: response})
+	}
+}
+
 // HandleRequestWithQueryAndStatus binds both body and query params with custom status code
 func HandleRequestWithQueryAndStatus[Req any, Res any](statusCode int, handler func(ctx *gin.Context, req *Req) (*Res, error)) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -123,6 +223,93 @@ func HandleRequestWithQueryAndStatus[Req any, Res any](statusCode int, handler f
 		}
 
 		ctx.JSON(statusCode, Response{Data: response})
+	}
+}
+
+// HandleRequestWithURI handles endpoints that only have URI parameters (path params)
+func HandleRequestWithURI[Req any, Res any](handler func(ctx *gin.Context, req *Req) (*Res, error)) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req Req
+		if err := ctx.ShouldBindUri(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+			return
+		}
+
+		response, err := handler(ctx, &req)
+		if err != nil {
+			handleError(ctx, err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, Response{Data: response})
+	}
+}
+
+// HandleRequestWithURIAndJSON handles endpoints that have both URI parameters and JSON body
+func HandleRequestWithURIAndJSON[Req any, Res any](handler func(ctx *gin.Context, req *Req) (*Res, error)) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req Req
+		// Bind URI parameters first (with validation)
+		if err := ctx.ShouldBindUri(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+			return
+		}
+		// Then bind JSON body using decoder (no automatic validation)
+		if err := ctx.ShouldBindJSON(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+			return
+		}
+
+		response, err := handler(ctx, &req)
+		if err != nil {
+			handleError(ctx, err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, Response{Data: response})
+	}
+}
+
+// HandleRequestWithURIAndJSONWithStatus handles endpoints that have both URI parameters and JSON body with custom status
+func HandleRequestWithURIAndJSONWithStatus[Req any, Res any](statusCode int, handler func(ctx *gin.Context, req *Req) (*Res, error)) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req Req
+		// Bind URI parameters first
+		if err := ctx.ShouldBindUri(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+			return
+		}
+		// Then bind JSON body
+		if err := ctx.ShouldBindJSON(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+			return
+		}
+
+		response, err := handler(ctx, &req)
+		if err != nil {
+			handleError(ctx, err)
+			return
+		}
+
+		ctx.JSON(statusCode, Response{Data: response})
+	}
+}
+
+// HandleNoRequestWithURIMessage handles DELETE endpoints with URI parameters and custom message
+func HandleNoRequestWithURIMessage[Req any](message string, handler func(ctx *gin.Context, req *Req) error) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req Req
+		if err := ctx.ShouldBindUri(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+			return
+		}
+
+		if err := handler(ctx, &req); err != nil {
+			handleError(ctx, err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{"message": message})
 	}
 }
 

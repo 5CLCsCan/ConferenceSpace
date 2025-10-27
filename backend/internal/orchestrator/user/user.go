@@ -3,9 +3,11 @@ package user
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/dcao/conferencespace/internal/dto"
+	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/storage"
 	userStorage "github.com/dcao/conferencespace/internal/storage/user"
 	"github.com/dcao/conferencespace/pkg/jwt"
@@ -47,12 +49,12 @@ func (o *Orchestrator) Register(ctx context.Context, req *dto.UserCreateRequest)
 func (o *Orchestrator) Login(ctx context.Context, req *dto.LoginRequest) (*dto.LoginResponse, error) {
 	userResp, hashedPassword, err := o.userStorage.GetByEmailWithPassword(ctx, req.Email)
 	if err != nil {
-		return nil, fmt.Errorf("invalid credentials")
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "invalid credentials")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(req.Password))
 	if err != nil {
-		return nil, fmt.Errorf("invalid credentials")
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "invalid credentials")
 	}
 
 	token, err := jwt.GenerateToken(userResp.ID, userResp.Email, o.jwtSecret, o.jwtExpiry)
