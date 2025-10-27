@@ -30,21 +30,27 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
 
   const roleLinks: Record<DashboardHeaderProps["role"], { href: string; label: string }[]> = {
     author: [
-      { href: "/author", label: t("dashboard.header.links.author.myPapers") },
-      { href: "/author/submit", label: t("dashboard.header.links.author.newSubmission") },
+      { href: "/dashboard/author", label: t("dashboard.header.links.author.myPapers") },
+      { href: "/dashboard/author/submit", label: t("dashboard.header.links.author.newSubmission") },
     ],
     reviewer: [
-      { href: "/reviewer", label: t("dashboard.header.links.reviewer.assignments") },
-      { href: "/reviewer/completed", label: t("dashboard.header.links.reviewer.completed") },
+      { href: "/dashboard/reviewer", label: t("dashboard.header.links.reviewer.assignments") },
+      {
+        href: "/dashboard/reviewer/completed",
+        label: t("dashboard.header.links.reviewer.completed"),
+      },
     ],
     chair: [
-      { href: "/chair", label: t("dashboard.header.links.chair.overview") },
-      { href: "/chair/papers", label: t("dashboard.header.links.chair.papers") },
-      { href: "/chair/reviewers", label: t("dashboard.header.links.chair.reviewers") },
+      { href: "/dashboard/chair", label: t("dashboard.header.links.chair.overview") },
+      { href: "/dashboard/chair/papers", label: t("dashboard.header.links.chair.papers") },
+      { href: "/dashboard/chair/reviewers", label: t("dashboard.header.links.chair.reviewers") },
     ],
     pc_member: [
-      { href: "/pc", label: t("dashboard.header.links.pc_member.dashboard") },
-      { href: "/pc/assignments", label: t("dashboard.header.links.pc_member.assignments") },
+      { href: "/dashboard/pc", label: t("dashboard.header.links.pc_member.dashboard") },
+      {
+        href: "/dashboard/pc/assignments",
+        label: t("dashboard.header.links.pc_member.assignments"),
+      },
     ],
   }
 

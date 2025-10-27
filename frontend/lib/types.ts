@@ -52,6 +52,10 @@ export interface Conference {
   website?: string
   status: "upcoming" | "active" | "completed" | "open" | "closed"
   tracks: Track[]
+  chair?: string
+  primary_contact?: number
+  area_chair?: number
+  userRole?: string // "chair", "author", "reviewer", or undefined
 }
 
 // Track interface

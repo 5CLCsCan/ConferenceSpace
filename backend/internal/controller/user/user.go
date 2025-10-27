@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	userDto "github.com/dcao/conferencespace/internal/dto/user"
+	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/storage"
 	userStorage "github.com/dcao/conferencespace/internal/storage/user"
@@ -34,12 +34,12 @@ func New(store *storage.Storage) *Controller {
 // @Param        email query string false "Filter by email"
 // @Param        first_name query string false "Filter by first name"
 // @Param        last_name query string false "Filter by last name"
-// @Success      200 {object} user.ListResponse
+// @Success      200 {object} dto.UserListResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      500 {object} handler.Response
 // @Router       /users [get]
-func (c *Controller) List(ginCtx *gin.Context, req *userDto.ListRequest) (*userDto.ListResponse, error) {
+func (c *Controller) List(ginCtx *gin.Context, req *dto.UserListRequest) (*dto.UserListResponse, error) {
 	ctx := ginCtx.Request.Context()
 
 	params := &userStorage.QueryParams{
@@ -55,7 +55,7 @@ func (c *Controller) List(ginCtx *gin.Context, req *userDto.ListRequest) (*userD
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
-	return &userDto.ListResponse{
+	return &dto.UserListResponse{
 		Users: users,
 		Total: total,
 	}, nil
@@ -69,12 +69,12 @@ func (c *Controller) List(ginCtx *gin.Context, req *userDto.ListRequest) (*userD
 // @Produce      json
 // @Security     BearerAuth
 // @Param        id path int true "User ID"
-// @Success      200 {object} user.Response
+// @Success      200 {object} dto.UserResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      404 {object} handler.Response
 // @Router       /users/{id} [get]
-func (c *Controller) Get(ginCtx *gin.Context) (*userDto.Response, error) {
+func (c *Controller) Get(ginCtx *gin.Context) (*dto.UserResponse, error) {
 	ctx := ginCtx.Request.Context()
 
 	id, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
@@ -96,11 +96,11 @@ func (c *Controller) Get(ginCtx *gin.Context) (*userDto.Response, error) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Success      200 {object} user.Response
+// @Success      200 {object} dto.UserResponse
 // @Failure      401 {object} handler.Response
 // @Failure      404 {object} handler.Response
 // @Router       /users/me [get]
-func (c *Controller) GetMe(ginCtx *gin.Context) (*userDto.Response, error) {
+func (c *Controller) GetMe(ginCtx *gin.Context) (*dto.UserResponse, error) {
 	ctx := ginCtx.Request.Context()
 
 	userID, exists := utils.GetUserID(ginCtx)
@@ -123,14 +123,14 @@ func (c *Controller) GetMe(ginCtx *gin.Context) (*userDto.Response, error) {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        id path int true "User ID"
-// @Param        request body user.UpdateRequest true "Updated user data"
-// @Success      200 {object} user.Response
+// @Param        request body dto.UserUpdateRequest true "Updated user data"
+// @Success      200 {object} dto.UserResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      403 {object} handler.Response
 // @Failure      404 {object} handler.Response
 // @Router       /users/{id} [put]
-func (c *Controller) Update(ginCtx *gin.Context, req *userDto.UpdateRequest) (*userDto.Response, error) {
+func (c *Controller) Update(ginCtx *gin.Context, req *dto.UserUpdateRequest) (*dto.UserResponse, error) {
 	ctx := ginCtx.Request.Context()
 
 	id, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)

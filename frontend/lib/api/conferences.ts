@@ -1,15 +1,9 @@
 // API Layer for Conference Management
 // This file provides the API interface for conference-related operations
-// Currently uses mock data, but structured for easy backend integration
+// Connected to backend API endpoints
 
 import type { Conference, ConferenceStats, Paper, User, Track } from "@/lib/types"
-import {
-  mockConference,
-  mockConferenceStats,
-  mockPapers,
-  mockUsers,
-  mockTracks,
-} from "@/lib/mock-data"
+import { apiFetch } from "@/lib/api/client"
 
 // API Response wrapper for type safety
 export interface ApiResponse<T> {
@@ -20,37 +14,43 @@ export interface ApiResponse<T> {
 
 /**
  * Get conference details by ID
- * Backend endpoint: GET /api/conferences/:id
+ * Backend endpoint: GET /api/v1/conferences/:conference_id
  * Database: conferences table
- * Fields: id, name, acronym, year, description, submission_deadline, review_deadline,
- *         camera_ready_deadline, notification_date, conference_date, location, website, status
  */
 export async function getConferenceById(conferenceId: string): Promise<ApiResponse<Conference>> {
   try {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 300))
+    const { data, response } = await apiFetch<{ data: any }>(`/api/v1/conferences/${conferenceId}`)
 
-    // Mock implementation - replace with actual API call
-    // const response = await fetch(`/api/conferences/${conferenceId}`)
-    // const data = await response.json()
-
-    // if (conferenceId === mockConference.id) {
-    return {
-      data: mockConference,
-      error: null,
-      status: 200,
+    // Transform backend conference format to frontend Conference format
+    const conference: Conference = {
+      id: data.data.id.toString(),
+      name: data.data.title,
+      acronym: data.data.acronym,
+      year: new Date(data.data.configurations?.start_date || data.data.created_at).getFullYear(),
+      description: data.data.description,
+      submission_deadline: data.data.configurations?.full_paper_submission_deadline || "",
+      review_deadline: "", // TODO: Map if available
+      camera_ready_deadline: data.data.configurations?.camera_ready_deadline || "",
+      notification_date: "", // TODO: Map if available
+      conference_date: data.data.configurations?.start_date || "",
+      location: "", // TODO: Map if available
+      website: "", // TODO: Map if available
+      status: "active" as const, // TODO: Map from backend status
+      tracks: data.data.tracks || [], // Ensure tracks is always an array
+      chair: data.data.chair,
+      primary_contact: data.data.primary_contact,
+      area_chair: data.data.area_chair,
     }
-    // }
 
-    // return {
-    //   data: null,
-    //   error: "Conference not found",
-    //   status: 404,
-    // }
+    return {
+      data: conference,
+      error: null,
+      status: response.status,
+    }
   } catch (error) {
     return {
       data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error instanceof Error ? error.message : "Failed to fetch conference",
       status: 500,
     }
   }
@@ -58,41 +58,53 @@ export async function getConferenceById(conferenceId: string): Promise<ApiRespon
 
 /**
  * Get conference statistics
- * Backend endpoint: GET /api/conferences/:id/stats
- * Database: Aggregated from papers, reviews, and submissions tables
- * Fields: total_submissions, total_reviews, avg_reviews_per_paper, acceptance_rate,
- *         submissions_by_track, submissions_over_time, review_progress, top_keywords
+ * TODO: Backend endpoint not yet implemented - using mock data for now
+ * Future endpoint: GET /api/v1/conferences/:conference_id/stats
  */
 export async function getConferenceStats(
   conferenceId: string,
 ): Promise<ApiResponse<ConferenceStats>> {
   try {
-    await new Promise((resolve) => setTimeout(resolve, 300))
+    // TODO: Implement when backend stats endpoint is available
+    // const { data, response } = await apiFetch<{ data: ConferenceStats }>(`/api/v1/conferences/${conferenceId}/stats`)
+    // return {
+    //   data: data.data,
+    //   error: null,
+    //   status: response.status,
+    // }
 
-    // Mock implementation
-    // const response = await fetch(`/api/conferences/${conferenceId}/stats`)
-    // const data = await response.json()
-
+    // For now, return mock data with proper structure
     return {
-      data: mockConferenceStats,
+      data: {
+        total_submissions: 0,
+        total_reviews: 0,
+        avg_reviews_per_paper: 0,
+        acceptance_rate: 0,
+        submissions_by_track: [],
+        submissions_over_time: [],
+        review_progress: {
+          completed: 0,
+          in_progress: 0,
+          pending: 0,
+        },
+        top_keywords: [],
+      },
       error: null,
       status: 200,
     }
   } catch (error) {
     return {
       data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error instanceof Error ? error.message : "Failed to fetch conference stats",
       status: 500,
     }
   }
 }
 
 /**
- * Get all papers for a conference
- * Backend endpoint: GET /api/conferences/:id/papers?status=&track_id=
- * Database: papers table with joins to authors, reviews
- * Fields: id, title, abstract, keywords, authors, conference_id, track_id, status,
- *         submitted_at, updated_at, version
+ * Get all submissions for a conference
+ * Backend endpoint: GET /api/v1/conferences/:conference_id/submissions
+ * Database: submissions table
  */
 export async function getConferencePapers(
   conferenceId: string,
@@ -102,28 +114,263 @@ export async function getConferencePapers(
   },
 ): Promise<ApiResponse<Paper[]>> {
   try {
-    await new Promise((resolve) => setTimeout(resolve, 300))
+    // Build query parameters
+    const params = new URLSearchParams()
+    if (filters?.status) params.append("status", filters.status)
+    // Note: track_id filtering might need backend support
 
-    // Mock implementation with filtering
-    let papers = mockPapers.filter((p) => p.conference_id === conferenceId)
+    const queryString = params.toString()
+    const endpoint = `/api/v1/conferences/${conferenceId}/submissions${queryString ? `?${queryString}` : ""}`
 
-    if (filters?.status) {
-      papers = papers.filter((p) => p.status === filters.status)
-    }
+    const { data, response } = await apiFetch<{ data: { submissions: any[] } }>(endpoint)
 
-    if (filters?.track_id) {
-      papers = papers.filter((p) => p.track_id === filters.track_id)
-    }
+    // Transform backend submission format to frontend Paper format
+    const papers: Paper[] = data.data.submissions.map((sub) => ({
+      id: sub.id.toString(),
+      title: sub.title,
+      abstract: sub.abstract || "",
+      keywords: [], // TODO: Map from submission keywords if available
+      authors: [], // TODO: Map from submission co_authors if available
+      conference_id: conferenceId,
+      track_id: "", // TODO: Map from submission track if available
+      status: sub.status as any,
+      submitted_at: sub.created_at,
+      updated_at: sub.updated_at,
+      version: 1,
+      reviews: [],
+    }))
 
     return {
       data: papers,
       error: null,
-      status: 200,
+      status: response.status,
     }
   } catch (error) {
     return {
       data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error instanceof Error ? error.message : "Failed to fetch conference papers",
+      status: 500,
+    }
+  }
+}
+
+/**
+ * List conferences with optional filters
+ * Backend endpoint: GET /api/v1/conferences
+ * Database: conferences table
+ */
+export async function listConferences(filters?: {
+  limit?: number
+  offset?: number
+  title?: string
+  acronym?: string
+  chair?: string
+}): Promise<ApiResponse<{ conferences: Conference[]; total: number }>> {
+  try {
+    const params = new URLSearchParams()
+    if (filters?.limit) params.append("limit", filters.limit.toString())
+    if (filters?.offset) params.append("offset", filters.offset.toString())
+    if (filters?.title) params.append("title", filters.title)
+    if (filters?.acronym) params.append("acronym", filters.acronym)
+    if (filters?.chair) params.append("chair", filters.chair)
+
+    const queryString = params.toString()
+    const endpoint = `/api/v1/conferences${queryString ? `?${queryString}` : ""}`
+
+    const { data, response } = await apiFetch<{ data: { conferences: any[]; total: number } }>(
+      endpoint,
+    )
+
+    // Transform backend conference format to frontend Conference format
+    const conferences: Conference[] = data.data.conferences.map((conf) => ({
+      id: conf.id.toString(),
+      name: conf.title,
+      acronym: conf.acronym,
+      year: new Date(conf.configurations?.start_date || conf.created_at).getFullYear(),
+      description: conf.description,
+      submission_deadline: conf.configurations?.full_paper_submission_deadline || "",
+      review_deadline: "", // TODO: Map if available
+      camera_ready_deadline: conf.configurations?.camera_ready_deadline || "",
+      notification_date: "", // TODO: Map if available
+      conference_date: conf.configurations?.start_date || "",
+      location: "", // TODO: Map if available
+      website: "", // TODO: Map if available
+      status: "active" as const, // TODO: Map from backend status
+      tracks: conf.tracks || [], // TODO: Map if available
+      chair: conf.chair,
+      primary_contact: conf.primary_contact,
+      area_chair: conf.area_chair,
+      userRole: conf.user_role, // Backend now provides user role information
+    }))
+
+    return {
+      data: { conferences, total: data.data.total },
+      error: null,
+      status: response.status,
+    }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to fetch conferences",
+      status: 500,
+    }
+  }
+}
+
+/**
+ * Create a new conference
+ * Backend endpoint: POST /api/v1/conferences
+ * Database: conferences table
+ */
+export async function createConference(conferenceData: {
+  title: string
+  acronym: string
+  description: string
+  domain: string[]
+  configurations: {
+    start_date: string
+    end_date: string
+    abstract_submission_deadline?: string
+    full_paper_submission_deadline: string
+    camera_ready_deadline?: string
+    format: string
+    review_type: string
+    maximum_pages: number
+    have_coi: boolean
+    submission_format: string
+    require_complete_author_profile: boolean
+    allow_paper_withdrawls: boolean
+  }
+}): Promise<ApiResponse<Conference>> {
+  try {
+    const payload = {
+      conference: {
+        title: conferenceData.title,
+        acronym: conferenceData.acronym,
+        description: conferenceData.description,
+        domain: conferenceData.domain,
+        configurations: conferenceData.configurations,
+      },
+    }
+
+    const { data, response } = await apiFetch<{ data: any }>(`/api/v1/conferences`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })
+
+    // Transform backend response to frontend format
+    const conference: Conference = {
+      id: data.data.id.toString(),
+      name: data.data.title,
+      acronym: data.data.acronym,
+      year: new Date(data.data.configurations?.start_date || data.data.created_at).getFullYear(),
+      description: data.data.description,
+      submission_deadline: data.data.configurations?.full_paper_submission_deadline || "",
+      review_deadline: "",
+      camera_ready_deadline: data.data.configurations?.camera_ready_deadline || "",
+      notification_date: "",
+      conference_date: data.data.configurations?.start_date || "",
+      location: "",
+      website: "",
+      status: "active" as const,
+      tracks: [],
+    }
+
+    return {
+      data: conference,
+      error: null,
+      status: response.status,
+    }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to create conference",
+      status: 500,
+    }
+  }
+}
+
+/**
+ * Update an existing conference
+ * Backend endpoint: PUT /api/v1/conferences/:conference_id
+ * Database: conferences table
+ */
+export async function updateConference(
+  conferenceId: string,
+  updates: Partial<{
+    title: string
+    description: string
+    domain: string[]
+    configurations: Partial<{
+      maximum_pages: number
+    }>
+  }>,
+): Promise<ApiResponse<Conference>> {
+  try {
+    const payload = {
+      conference: updates,
+    }
+
+    const { data, response } = await apiFetch<{ data: any }>(
+      `/api/v1/conferences/${conferenceId}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      },
+    )
+
+    // Transform backend response to frontend format
+    const conference: Conference = {
+      id: data.data.id.toString(),
+      name: data.data.title,
+      acronym: data.data.acronym,
+      year: new Date(data.data.configurations?.start_date || data.data.created_at).getFullYear(),
+      description: data.data.description,
+      submission_deadline: data.data.configurations?.full_paper_submission_deadline || "",
+      review_deadline: "",
+      camera_ready_deadline: data.data.configurations?.camera_ready_deadline || "",
+      notification_date: "",
+      conference_date: data.data.configurations?.start_date || "",
+      location: "",
+      website: "",
+      status: "active" as const,
+      tracks: [],
+    }
+
+    return {
+      data: conference,
+      error: null,
+      status: response.status,
+    }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to update conference",
+      status: 500,
+    }
+  }
+}
+
+/**
+ * Delete a conference
+ * Backend endpoint: DELETE /api/v1/conferences/:conference_id
+ * Database: conferences table
+ */
+export async function deleteConference(conferenceId: string): Promise<ApiResponse<boolean>> {
+  try {
+    const { response } = await apiFetch(`/api/v1/conferences/${conferenceId}`, {
+      method: "DELETE",
+    })
+
+    return {
+      data: true,
+      error: null,
+      status: response.status,
+    }
+  } catch (error) {
+    return {
+      data: false,
+      error: error instanceof Error ? error.message : "Failed to delete conference",
       status: 500,
     }
   }
@@ -131,28 +378,21 @@ export async function getConferencePapers(
 
 /**
  * Get conference committee members
- * Backend endpoint: GET /api/conferences/:id/committee
- * Database: conference_committee table with join to users
- * Fields: user_id, name, email, affiliation, role (chair, pc_member), track_id
+ * TODO: Backend endpoint not yet implemented - using mock data for now
+ * Future endpoint: GET /api/conferences/:id/committee
  */
 export async function getConferenceCommittee(conferenceId: string): Promise<ApiResponse<User[]>> {
   try {
-    await new Promise((resolve) => setTimeout(resolve, 300))
-
-    // Mock implementation - return users who are chairs or PC members
-    const committeeMembers = mockUsers.filter(
-      (user) => user.roles.includes("chair") || user.roles.includes("pc_member"),
-    )
-
+    // TODO: Implement when backend committee endpoint is available
     return {
-      data: committeeMembers,
+      data: [],
       error: null,
       status: 200,
     }
   } catch (error) {
     return {
       data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error instanceof Error ? error.message : "Failed to fetch committee members",
       status: 500,
     }
   }
@@ -160,23 +400,21 @@ export async function getConferenceCommittee(conferenceId: string): Promise<ApiR
 
 /**
  * Get conference tracks
- * Backend endpoint: GET /api/conferences/:id/tracks
- * Database: tracks table with join to users (chairs)
- * Fields: id, name, description, chairs (array of user_ids)
+ * TODO: Backend endpoint not yet implemented - using mock data for now
+ * Future endpoint: GET /api/conferences/:conference_id/tracks
  */
 export async function getConferenceTracks(conferenceId: string): Promise<ApiResponse<Track[]>> {
   try {
-    await new Promise((resolve) => setTimeout(resolve, 300))
-
+    // TODO: Implement when backend tracks endpoint is available
     return {
-      data: mockTracks,
+      data: [],
       error: null,
       status: 200,
     }
   } catch (error) {
     return {
       data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error instanceof Error ? error.message : "Failed to fetch conference tracks",
       status: 500,
     }
   }
@@ -184,10 +422,7 @@ export async function getConferenceTracks(conferenceId: string): Promise<ApiResp
 
 /**
  * Get important dates for conference
- * Backend endpoint: GET /api/conferences/:id/dates
- * Database: conferences table + conference_dates table for additional milestones
- * Fields: submission_deadline, review_deadline, camera_ready_deadline,
- *         notification_date, conference_date, registration_deadline
+ * Extracts dates from conference configurations
  */
 export interface ImportantDate {
   id: string
@@ -202,51 +437,53 @@ export async function getConferenceDates(
   conferenceId: string,
 ): Promise<ApiResponse<ImportantDate[]>> {
   try {
-    await new Promise((resolve) => setTimeout(resolve, 300))
+    // First get the conference details to extract dates from configurations
+    const conferenceResponse = await getConferenceById(conferenceId)
+    if (!conferenceResponse.data) {
+      return {
+        data: null,
+        error: "Conference not found",
+        status: 404,
+      }
+    }
 
+    const conference = conferenceResponse.data
     const now = new Date()
-    const dates: ImportantDate[] = [
-      {
-        id: "date-1",
+    const dates: ImportantDate[] = []
+
+    // Extract dates from conference data
+    if (conference.submission_deadline) {
+      dates.push({
+        id: "submission-deadline",
         title: "Paper Submission Deadline",
-        date: mockConference.submission_deadline,
+        date: conference.submission_deadline,
         description: "Final deadline for paper submissions",
         type: "deadline",
-        isPast: new Date(mockConference.submission_deadline) < now,
-      },
-      {
-        id: "date-2",
-        title: "Review Deadline",
-        date: mockConference.review_deadline,
-        description: "Reviewers must complete their reviews",
-        type: "deadline",
-        isPast: new Date(mockConference.review_deadline) < now,
-      },
-      {
-        id: "date-3",
-        title: "Author Notification",
-        date: mockConference.notification_date,
-        description: "Authors will be notified of acceptance decisions",
-        type: "notification",
-        isPast: new Date(mockConference.notification_date) < now,
-      },
-      {
-        id: "date-4",
+        isPast: new Date(conference.submission_deadline) < now,
+      })
+    }
+
+    if (conference.camera_ready_deadline) {
+      dates.push({
+        id: "camera-ready-deadline",
         title: "Camera-Ready Deadline",
-        date: mockConference.camera_ready_deadline,
+        date: conference.camera_ready_deadline,
         description: "Final version of accepted papers due",
         type: "deadline",
-        isPast: new Date(mockConference.camera_ready_deadline) < now,
-      },
-      {
-        id: "date-5",
+        isPast: new Date(conference.camera_ready_deadline) < now,
+      })
+    }
+
+    if (conference.conference_date) {
+      dates.push({
+        id: "conference-date",
         title: "Conference Date",
-        date: mockConference.conference_date,
+        date: conference.conference_date,
         description: "Main conference event",
         type: "event",
-        isPast: new Date(mockConference.conference_date) < now,
-      },
-    ]
+        isPast: new Date(conference.conference_date) < now,
+      })
+    }
 
     return {
       data: dates,
@@ -256,7 +493,7 @@ export async function getConferenceDates(
   } catch (error) {
     return {
       data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error instanceof Error ? error.message : "Failed to fetch conference dates",
       status: 500,
     }
   }

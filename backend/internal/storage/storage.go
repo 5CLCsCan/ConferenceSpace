@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/dcao/conferencespace/internal/config"
+	"github.com/dcao/conferencespace/internal/storage/assignment"
 	"github.com/dcao/conferencespace/internal/storage/conference"
+	"github.com/dcao/conferencespace/internal/storage/reviewer"
 	"github.com/dcao/conferencespace/internal/storage/submission"
 	"github.com/dcao/conferencespace/internal/storage/user"
 )
@@ -15,6 +17,8 @@ type Storage struct {
 	User       user.StorageInterface
 	Conference conference.StorageInterface
 	Submission submission.StorageInterface
+	Reviewer   reviewer.StorageInterface
+	Assignment assignment.StorageInterface
 }
 
 func NewStorage(db *sql.DB) *Storage {
@@ -22,6 +26,8 @@ func NewStorage(db *sql.DB) *Storage {
 		User:       user.New(db),
 		Conference: conference.New(db),
 		Submission: submission.New(db),
+		Reviewer:   reviewer.New(db),
+		Assignment: assignment.New(db),
 	}
 }
 
@@ -32,15 +38,15 @@ func NewDB(cfg config.DatabaseConfig) (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 
-	// Set connection pool settings
-	db.SetMaxOpenConns(25)
-	db.SetMaxIdleConns(5)
-	db.SetConnMaxLifetime(5 * time.Minute)
-
 	// Test the connection
 	if err := db.Ping(); err != nil {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
+
+	// Set connection pool settings
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(5)
+	db.SetConnMaxLifetime(5 * time.Minute)
 
 	return db, nil
 }

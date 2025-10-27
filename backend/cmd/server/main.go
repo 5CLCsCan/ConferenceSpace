@@ -15,6 +15,7 @@ import (
 	"github.com/dcao/conferencespace/internal/middleware"
 	"github.com/dcao/conferencespace/internal/orchestrator"
 	"github.com/dcao/conferencespace/internal/storage"
+	fileStorage "github.com/dcao/conferencespace/internal/storage/file"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -105,8 +106,12 @@ func initializeApp(cfg *config.Config) (*controller.Controller, func(), error) {
 	}
 
 	store := storage.NewStorage(db)
+
+	// Initialize file storage service
+	fileStore := fileStorage.NewLocalFileStorage("./uploads/submissions")
+
 	orch := orchestrator.NewOrchestrator(store, cfg.JWT.Secret, cfg.JWT.Expiry)
-	ctrl := controller.NewController(orch, store)
+	ctrl := controller.NewController(orch, store, fileStore)
 
 	cleanup := func() {
 		if err := db.Close(); err != nil {
@@ -170,19 +175,32 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 		conferences.Use(middleware.AuthMiddleware(cfg.JWT.Secret))
 		{
 			conferences.GET("", handler.HandleRequestWithQuery(ctrl.Conference.List))
-			conferences.GET("/:conference_id", handler.HandleNoRequest(ctrl.Conference.Get))
+			conferences.GET("/:conference_id", handler.HandleRequestWithURI(ctrl.Conference.Get))
 			conferences.POST("", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Conference.Create))
-			conferences.PUT("/:conference_id", handler.HandleRequest(ctrl.Conference.Update))
-			conferences.DELETE("/:conference_id", handler.HandleNoRequestWithMessage("conference deleted successfully", ctrl.Conference.Delete))
+			conferences.PUT("/:conference_id", handler.HandleRequestWithURIAndJSON(ctrl.Conference.Update))
+			conferences.DELETE("/:conference_id", handler.HandleNoRequestWithURIMessage("conference deleted successfully", ctrl.Conference.Delete))
+
+			// Reviewer routes nested under conferences (all protected - authentication required)
+			reviewers := conferences.Group("/:conference_id/reviewers")
+			{
+				reviewers.GET("", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.List))
+				reviewers.GET("/:reviewer_id", handler.HandleRequestWithURI(ctrl.Reviewer.Get))
+				reviewers.POST("", handler.HandleRequestWithURIAndJSONWithStatus(http.StatusCreated, ctrl.Reviewer.BatchInvite))
+				reviewers.PUT("/:reviewer_id/status", handler.HandleRequestWithURIAndJSON(ctrl.Reviewer.UpdateStatus))
+				reviewers.DELETE("/:reviewer_id", handler.HandleNoRequestWithURIMessage("reviewer removed successfully", ctrl.Reviewer.Delete))
+			}
 
 			// Submission routes nested under conferences (all protected - authentication required)
 			submissions := conferences.Group("/:conference_id/submissions")
 			{
 				submissions.GET("", handler.HandleRequestWithQuery(ctrl.Submission.List))
 				submissions.GET("/:id", handler.HandleNoRequest(ctrl.Submission.Get))
-				submissions.POST("", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Submission.Create))
+				submissions.POST("", handler.HandleNoRequestWithStatus(http.StatusCreated, ctrl.Submission.Create))
 				submissions.PUT("/:id", handler.HandleRequest(ctrl.Submission.Update))
 				submissions.DELETE("/:id", handler.HandleNoRequestWithMessage("submission deleted successfully", ctrl.Submission.Delete))
+
+				// Auto-assignment endpoint
+				submissions.POST("/auto-assign", handler.HandleRequest(ctrl.Assignment.AutoAssign))
 			}
 		}
 	}

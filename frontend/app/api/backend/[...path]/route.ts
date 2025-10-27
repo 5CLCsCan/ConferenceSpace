@@ -32,7 +32,10 @@ async function handler(req: NextRequest) {
   let body: BodyInit | undefined
   if (req.method !== "GET" && req.method !== "HEAD") {
     const contentType = headers.get("content-type") ?? ""
-    if (contentType.includes("application/json") || contentType.includes("text/")) {
+    if (contentType.includes("multipart/form-data")) {
+      // For FormData, we need to read the body as ArrayBuffer and pass it to fetch
+      body = await req.arrayBuffer()
+    } else if (contentType.includes("application/json") || contentType.includes("text/")) {
       body = await req.text()
     } else {
       const arrayBuffer = await req.arrayBuffer()

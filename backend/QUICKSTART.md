@@ -1,30 +1,52 @@
 # Quick Start Guide
 
-## 🚀 Get Started in 3 Commands
+## 🚀 First Time Setup (For Windows)
 
-### Option 1: Local Development (Fastest)
+### Prerequisites
+
+- **Windows:** WSL2 with Ubuntu installed
+- **Docker Desktop** (must be running on Windows)
+
+### Initial Setup (One-Time)
+
+Open WSL Ubuntu terminal and run:
+
+```bash
+# Navigate to backend directory
+cd <path_to_backend>/ConferenceSpace/backend
+
+# 1. Install Go (if not already installed)
+sudo snap install go --classic
+
+# 2. Verify Go installation
+go version
+
+# 3. Install development tools (migrate, swag, golangci-lint)
+make install-tools
+
+# 4. Generate Swagger documentation
+make swagger
+
+# 5. Start backend
+make dev
+```
+
+---
+
+## 🚀 Daily Development
+
+Once initial setup is complete, start development with:
 
 ```bash
 make dev
 ```
 
 This single command will:
+
 1. ✅ Start PostgreSQL in Docker
 2. ✅ Wait for database to be ready
 3. ✅ Run database migrations
 4. ✅ Start your Go server locally
-
-**Access your API:** `http://localhost:8080/health`
-
----
-
-### Option 2: Full Docker (Everything in containers)
-
-```bash
-make docker-up
-```
-
-This will start both PostgreSQL and the API server in Docker containers.
 
 **Access your API:** `http://localhost:8080/health`
 
@@ -70,16 +92,19 @@ make docker-down      # Stop all Docker services
 ## 🧪 Test Your Setup
 
 1. Start the services:
+
    ```bash
    make dev
    ```
 
 2. Check health:
+
    ```bash
    curl http://localhost:8080/health
    ```
 
 3. Create a conference:
+
    ```bash
    curl -X POST http://localhost:8080/api/v1/conferences \
      -H "Content-Type: application/json" \
@@ -102,24 +127,33 @@ make docker-down      # Stop all Docker services
 
 ## 🆘 Troubleshooting
 
-### Port 5432 already in use?
+### Docker not running?
+
 ```bash
-# Check what's using it
-lsof -i :5432
-# Stop existing PostgreSQL
-brew services stop postgresql
+# Start Docker Desktop on Windows
+# Check Docker status in WSL
+docker ps
+```
+
+### Port 5432 already in use?
+
+```bash
+# Stop existing PostgreSQL container
+make db-down
 # or
-sudo systemctl stop postgresql
+docker-compose down
 ```
 
 ### Port 8080 already in use?
+
 ```bash
-# Find and kill the process
+# Find and kill the process in WSL
 lsof -i :8080
 kill -9 <PID>
 ```
 
 ### Database won't connect?
+
 ```bash
 make status           # Check services
 make db-down         # Stop
@@ -127,10 +161,45 @@ make db-up           # Start fresh
 ```
 
 ### Need to reset everything?
+
 ```bash
 make clean-all       # Clean everything
 make dev            # Start fresh
 ```
+
+### "migrate: command not found" or "swag: command not found"?
+
+```bash
+# Reinstall tools
+make install-tools
+# Reload PATH
+source ~/.bashrc
+```
+
+### "no required module provides package github.com/dcao/conferencespace/docs"?
+
+```bash
+# Generate Swagger docs
+make swagger
+```
+
+---
+
+## 🔧 Platform-Specific Notes
+
+### WSL on Windows
+
+- Make sure **Docker Desktop** is running on Windows
+- All backend development happens **inside WSL Ubuntu**
+- Frontend can run in Windows PowerShell (separate terminal)
+- Database runs in Docker (accessible from both WSL and Windows)
+- Port `localhost:8080` and `localhost:5432` work from both environments
+
+### macOS/Linux
+
+- Setup is simpler - just follow the "Initial Setup" section
+- No WSL needed
+- Docker can be Docker Desktop or native Docker
 
 ---
 
@@ -149,6 +218,6 @@ make dev            # Start fresh
 3. **Use `make db-reset`** when you need a clean database
 4. **Run `make format`** before committing code
 5. **Use `make docker-logs`** to debug issues
+6. **Keep Docker Desktop running** if you're on Windows
 
 Happy coding! 🎉
-

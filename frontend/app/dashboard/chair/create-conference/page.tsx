@@ -8,8 +8,10 @@ import { ConferenceDetailsStep } from "@/components/wizard/conference-details-st
 import { TopicsSubmissionsStep } from "@/components/wizard/topics-submissions-step"
 import { OrganizersStep } from "@/components/wizard/organizers-step"
 import { ReviewStep } from "@/components/wizard/review-step"
-import { ChevronLeft, ChevronRight, Save } from "lucide-react"
+import { ChevronLeft, ChevronRight, Save, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { createConference } from "@/lib/api/conferences"
+import { useToast } from "@/hooks/use-toast"
 
 export type ConferenceFormData = {
   // Step 1: Conference Details
@@ -58,7 +60,9 @@ const STEPS = [
 
 export default function CreateConferencePage() {
   const router = useRouter()
+  const { toast } = useToast()
   const [currentStep, setCurrentStep] = useState(1)
+  const [isCreating, setIsCreating] = useState(false)
   const [formData, setFormData] = useState<ConferenceFormData>({
     title: "",
     acronym: "",
@@ -111,10 +115,64 @@ export default function CreateConferencePage() {
     alert("Conference saved as draft!")
   }
 
-  const handleCreateConference = () => {
-    console.log("[v0] Creating conference:", formData)
-    alert("Conference created successfully!")
-    router.push("/")
+  const handleCreateConference = async () => {
+    if (!formData.title || !formData.acronym || !formData.submissionDeadline) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsCreating(true)
+    try {
+      // Transform form data to API format
+      const conferenceData = {
+        title: formData.title,
+        acronym: formData.acronym,
+        description: formData.description,
+        domain: formData.topics, // Map topics to domain
+        configurations: {
+          start_date: formData.dateRange.from?.toISOString() || "",
+          end_date: formData.dateRange.to?.toISOString() || "",
+          abstract_submission_deadline: formData.submissionsOpen?.toISOString(),
+          full_paper_submission_deadline: formData.submissionDeadline.toISOString(),
+          camera_ready_deadline: formData.cameraReadyDeadline?.toISOString(),
+          format: formData.locationType,
+          review_type: formData.anonymity === "double-blind" ? "double-blind" : "single-blind",
+          maximum_pages: 8, // Default value
+          have_coi: true, // Default value
+          submission_format: formData.fileFormats.join(", "),
+          require_complete_author_profile: true, // Default value
+          allow_paper_withdrawls: true, // Default value
+        },
+      }
+
+      const response = await createConference(conferenceData)
+
+      if (response.error) {
+        toast({
+          title: "Error",
+          description: response.error,
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Success",
+          description: "Conference created successfully!",
+        })
+        router.push("/dashboard/chair")
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create conference. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsCreating(false)
+    }
   }
 
   const goToStep = (step: number) => {
@@ -212,10 +270,11 @@ export default function CreateConferencePage() {
             ) : (
               <Button
                 onClick={handleCreateConference}
-                disabled={!formData.confirmed}
+                disabled={!formData.confirmed || isCreating}
                 className="gap-2"
               >
-                Confirm & Create Conference
+                {isCreating && <Loader2 className="w-4 h-4 animate-spin" />}
+                {isCreating ? "Creating..." : "Confirm & Create Conference"}
               </Button>
             )}
           </div>

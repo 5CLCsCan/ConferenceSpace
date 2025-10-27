@@ -7,8 +7,8 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	conferenceDto "github.com/dcao/conferencespace/internal/dto/conference"
-	conferenceModel "github.com/dcao/conferencespace/internal/model/conference"
+	"github.com/dcao/conferencespace/internal/dto"
+	"github.com/dcao/conferencespace/internal/model"
 	"github.com/lib/pq"
 )
 
@@ -21,11 +21,11 @@ type QueryParams struct {
 }
 
 type StorageInterface interface {
-	Create(ctx context.Context, conf *conferenceDto.Conference) (*conferenceDto.Response, error)
-	GetByID(ctx context.Context, id int64) (*conferenceDto.Response, error)
-	GetByAcronym(ctx context.Context, acronym string) (*conferenceDto.Response, error)
-	List(ctx context.Context, params *QueryParams) ([]*conferenceDto.Response, int64, error)
-	Update(ctx context.Context, id int64, conf *conferenceDto.Conference) (*conferenceDto.Response, error)
+	Create(ctx context.Context, conf *dto.Conference) (*dto.ConferenceResponse, error)
+	GetByID(ctx context.Context, id int64) (*dto.ConferenceResponse, error)
+	GetByAcronym(ctx context.Context, acronym string) (*dto.ConferenceResponse, error)
+	List(ctx context.Context, params *QueryParams) ([]*dto.ConferenceResponse, int64, error)
+	Update(ctx context.Context, id int64, conf *dto.Conference) (*dto.ConferenceResponse, error)
 	Delete(ctx context.Context, id int64) error
 }
 
@@ -41,27 +41,27 @@ func New(db *sql.DB) *Storage {
 	}
 }
 
-func (s *Storage) Create(ctx context.Context, conf *conferenceDto.Conference) (*conferenceDto.Response, error) {
+func (s *Storage) Create(ctx context.Context, conf *dto.Conference) (*dto.ConferenceResponse, error) {
 	now := time.Now()
 
-	configBytes, err := conferenceModel.SerializeConfiguration(conf.Configurations)
+	configBytes, err := model.SerializeConferenceConfiguration(conf.Configurations)
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize configuration: %w", err)
 	}
 
 	query, args, err := s.qb.
-		Insert(conferenceModel.TableName).
+		Insert(model.ConferenceTableName).
 		Columns(
-			conferenceModel.ColTitle,
-			conferenceModel.ColAcronym,
-			conferenceModel.ColDescription,
-			conferenceModel.ColChair,
-			conferenceModel.ColPrimaryContact,
-			conferenceModel.ColAreaChair,
-			conferenceModel.ColDomain,
-			conferenceModel.ColConfigurations,
-			conferenceModel.ColCreatedAt,
-			conferenceModel.ColUpdatedAt,
+			model.ColTitle,
+			model.ColAcronym,
+			model.ColDescription,
+			model.ColChair,
+			model.ColPrimaryContact,
+			model.ColAreaChair,
+			model.ColDomain,
+			model.ColConfigurations,
+			model.ColCreatedAt,
+			model.ColUpdatedAt,
 		).
 		Values(
 			conf.Title,
@@ -76,17 +76,17 @@ func (s *Storage) Create(ctx context.Context, conf *conferenceDto.Conference) (*
 			now,
 		).
 		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
-			conferenceModel.ColConferenceID,
-			conferenceModel.ColTitle,
-			conferenceModel.ColAcronym,
-			conferenceModel.ColDescription,
-			conferenceModel.ColChair,
-			conferenceModel.ColPrimaryContact,
-			conferenceModel.ColAreaChair,
-			conferenceModel.ColDomain,
-			conferenceModel.ColConfigurations,
-			conferenceModel.ColCreatedAt,
-			conferenceModel.ColUpdatedAt,
+			model.ColConferenceID,
+			model.ColTitle,
+			model.ColAcronym,
+			model.ColDescription,
+			model.ColChair,
+			model.ColPrimaryContact,
+			model.ColAreaChair,
+			model.ColDomain,
+			model.ColConfigurations,
+			model.ColCreatedAt,
+			model.ColUpdatedAt,
 		)).
 		ToSql()
 
@@ -94,7 +94,7 @@ func (s *Storage) Create(ctx context.Context, conf *conferenceDto.Conference) (*
 		return nil, fmt.Errorf("failed to build insert query: %w", err)
 	}
 
-	entity := &conferenceModel.Conference{}
+	entity := &model.Conference{}
 	err = s.db.QueryRowContext(ctx, query, args...).Scan(
 		&entity.ConferenceID,
 		&entity.Title,
@@ -116,30 +116,30 @@ func (s *Storage) Create(ctx context.Context, conf *conferenceDto.Conference) (*
 	return entity.ToDTO(), nil
 }
 
-func (s *Storage) GetByID(ctx context.Context, id int64) (*conferenceDto.Response, error) {
+func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.ConferenceResponse, error) {
 	query, args, err := s.qb.
 		Select(
-			conferenceModel.ColConferenceID,
-			conferenceModel.ColTitle,
-			conferenceModel.ColAcronym,
-			conferenceModel.ColDescription,
-			conferenceModel.ColChair,
-			conferenceModel.ColPrimaryContact,
-			conferenceModel.ColAreaChair,
-			conferenceModel.ColDomain,
-			conferenceModel.ColConfigurations,
-			conferenceModel.ColCreatedAt,
-			conferenceModel.ColUpdatedAt,
+			model.ColConferenceID,
+			model.ColTitle,
+			model.ColAcronym,
+			model.ColDescription,
+			model.ColChair,
+			model.ColPrimaryContact,
+			model.ColAreaChair,
+			model.ColDomain,
+			model.ColConfigurations,
+			model.ColCreatedAt,
+			model.ColUpdatedAt,
 		).
-		From(conferenceModel.TableName).
-		Where(sq.Eq{conferenceModel.ColConferenceID: id}).
+		From(model.ConferenceTableName).
+		Where(sq.Eq{model.ColConferenceID: id}).
 		ToSql()
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to build select query: %w", err)
 	}
 
-	entity := &conferenceModel.Conference{}
+	entity := &model.Conference{}
 	err = s.db.QueryRowContext(ctx, query, args...).Scan(
 		&entity.ConferenceID,
 		&entity.Title,
@@ -164,30 +164,30 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*conferenceDto.Respons
 	return entity.ToDTO(), nil
 }
 
-func (s *Storage) GetByAcronym(ctx context.Context, acronym string) (*conferenceDto.Response, error) {
+func (s *Storage) GetByAcronym(ctx context.Context, acronym string) (*dto.ConferenceResponse, error) {
 	query, args, err := s.qb.
 		Select(
-			conferenceModel.ColConferenceID,
-			conferenceModel.ColTitle,
-			conferenceModel.ColAcronym,
-			conferenceModel.ColDescription,
-			conferenceModel.ColChair,
-			conferenceModel.ColPrimaryContact,
-			conferenceModel.ColAreaChair,
-			conferenceModel.ColDomain,
-			conferenceModel.ColConfigurations,
-			conferenceModel.ColCreatedAt,
-			conferenceModel.ColUpdatedAt,
+			model.ColConferenceID,
+			model.ColTitle,
+			model.ColAcronym,
+			model.ColDescription,
+			model.ColChair,
+			model.ColPrimaryContact,
+			model.ColAreaChair,
+			model.ColDomain,
+			model.ColConfigurations,
+			model.ColCreatedAt,
+			model.ColUpdatedAt,
 		).
-		From(conferenceModel.TableName).
-		Where(sq.Eq{conferenceModel.ColAcronym: acronym}).
+		From(model.ConferenceTableName).
+		Where(sq.Eq{model.ColAcronym: acronym}).
 		ToSql()
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to build select query: %w", err)
 	}
 
-	entity := &conferenceModel.Conference{}
+	entity := &model.Conference{}
 	err = s.db.QueryRowContext(ctx, query, args...).Scan(
 		&entity.ConferenceID,
 		&entity.Title,
@@ -212,34 +212,34 @@ func (s *Storage) GetByAcronym(ctx context.Context, acronym string) (*conference
 	return entity.ToDTO(), nil
 }
 
-func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*conferenceDto.Response, int64, error) {
+func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.ConferenceResponse, int64, error) {
 	baseQuery := s.qb.Select(
-		conferenceModel.ColConferenceID,
-		conferenceModel.ColTitle,
-		conferenceModel.ColAcronym,
-		conferenceModel.ColDescription,
-		conferenceModel.ColChair,
-		conferenceModel.ColPrimaryContact,
-		conferenceModel.ColAreaChair,
-		conferenceModel.ColDomain,
-		conferenceModel.ColConfigurations,
-		conferenceModel.ColCreatedAt,
-		conferenceModel.ColUpdatedAt,
-	).From(conferenceModel.TableName)
+		model.ColConferenceID,
+		model.ColTitle,
+		model.ColAcronym,
+		model.ColDescription,
+		model.ColChair,
+		model.ColPrimaryContact,
+		model.ColAreaChair,
+		model.ColDomain,
+		model.ColConfigurations,
+		model.ColCreatedAt,
+		model.ColUpdatedAt,
+	).From(model.ConferenceTableName)
 
-	countQuery := s.qb.Select("COUNT(*)").From(conferenceModel.TableName)
+	countQuery := s.qb.Select("COUNT(*)").From(model.ConferenceTableName)
 
 	if params.Title != "" {
-		baseQuery = baseQuery.Where(sq.Like{conferenceModel.ColTitle: "%" + params.Title + "%"})
-		countQuery = countQuery.Where(sq.Like{conferenceModel.ColTitle: "%" + params.Title + "%"})
+		baseQuery = baseQuery.Where(sq.Like{model.ColTitle: "%" + params.Title + "%"})
+		countQuery = countQuery.Where(sq.Like{model.ColTitle: "%" + params.Title + "%"})
 	}
 	if params.Acronym != "" {
-		baseQuery = baseQuery.Where(sq.Like{conferenceModel.ColAcronym: "%" + params.Acronym + "%"})
-		countQuery = countQuery.Where(sq.Like{conferenceModel.ColAcronym: "%" + params.Acronym + "%"})
+		baseQuery = baseQuery.Where(sq.Like{model.ColAcronym: "%" + params.Acronym + "%"})
+		countQuery = countQuery.Where(sq.Like{model.ColAcronym: "%" + params.Acronym + "%"})
 	}
 	if params.Chair != "" {
-		baseQuery = baseQuery.Where(sq.Like{conferenceModel.ColChair: "%" + params.Chair + "%"})
-		countQuery = countQuery.Where(sq.Like{conferenceModel.ColChair: "%" + params.Chair + "%"})
+		baseQuery = baseQuery.Where(sq.Like{model.ColChair: "%" + params.Chair + "%"})
+		countQuery = countQuery.Where(sq.Like{model.ColChair: "%" + params.Chair + "%"})
 	}
 
 	countQueryStr, countArgs, err := countQuery.ToSql()
@@ -260,7 +260,7 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*conferenceD
 		baseQuery = baseQuery.Offset(uint64(params.Offset))
 	}
 
-	query, args, err := baseQuery.OrderBy(conferenceModel.ColCreatedAt + " DESC").ToSql()
+	query, args, err := baseQuery.OrderBy(model.ColCreatedAt + " DESC").ToSql()
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to build select query: %w", err)
 	}
@@ -271,9 +271,9 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*conferenceD
 	}
 	defer rows.Close()
 
-	var entities []*conferenceModel.Conference
+	var entities []*model.Conference
 	for rows.Next() {
-		entity := &conferenceModel.Conference{}
+		entity := &model.Conference{}
 		err := rows.Scan(
 			&entity.ConferenceID,
 			&entity.Title,
@@ -297,47 +297,47 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*conferenceD
 		return nil, 0, fmt.Errorf("error iterating conferences: %w", err)
 	}
 
-	dtos := make([]*conferenceDto.Response, len(entities))
+	dtos := make([]*dto.ConferenceResponse, len(entities))
 	for i, entity := range entities {
 		dtos[i] = entity.ToDTO()
 	}
 	return dtos, total, nil
 }
 
-func (s *Storage) Update(ctx context.Context, id int64, conf *conferenceDto.Conference) (*conferenceDto.Response, error) {
-	configBytes, err := conferenceModel.SerializeConfiguration(conf.Configurations)
+func (s *Storage) Update(ctx context.Context, id int64, conf *dto.Conference) (*dto.ConferenceResponse, error) {
+	configBytes, err := model.SerializeConferenceConfiguration(conf.Configurations)
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize configuration: %w", err)
 	}
 
 	updateMap := map[string]interface{}{
-		conferenceModel.ColTitle:          conf.Title,
-		conferenceModel.ColAcronym:        conf.Acronym,
-		conferenceModel.ColDescription:    conf.Description,
-		conferenceModel.ColChair:          conf.Chair,
-		conferenceModel.ColPrimaryContact: conf.PrimaryContact,
-		conferenceModel.ColAreaChair:      conf.AreaChair,
-		conferenceModel.ColDomain:         pq.Array(conf.Domain),
-		conferenceModel.ColConfigurations: configBytes,
-		conferenceModel.ColUpdatedAt:      time.Now(),
+		model.ColTitle:          conf.Title,
+		model.ColAcronym:        conf.Acronym,
+		model.ColDescription:    conf.Description,
+		model.ColChair:          conf.Chair,
+		model.ColPrimaryContact: conf.PrimaryContact,
+		model.ColAreaChair:      conf.AreaChair,
+		model.ColDomain:         pq.Array(conf.Domain),
+		model.ColConfigurations: configBytes,
+		model.ColUpdatedAt:      time.Now(),
 	}
 
 	query, args, err := s.qb.
-		Update(conferenceModel.TableName).
+		Update(model.ConferenceTableName).
 		SetMap(updateMap).
-		Where(sq.Eq{conferenceModel.ColConferenceID: id}).
+		Where(sq.Eq{model.ColConferenceID: id}).
 		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
-			conferenceModel.ColConferenceID,
-			conferenceModel.ColTitle,
-			conferenceModel.ColAcronym,
-			conferenceModel.ColDescription,
-			conferenceModel.ColChair,
-			conferenceModel.ColPrimaryContact,
-			conferenceModel.ColAreaChair,
-			conferenceModel.ColDomain,
-			conferenceModel.ColConfigurations,
-			conferenceModel.ColCreatedAt,
-			conferenceModel.ColUpdatedAt,
+			model.ColConferenceID,
+			model.ColTitle,
+			model.ColAcronym,
+			model.ColDescription,
+			model.ColChair,
+			model.ColPrimaryContact,
+			model.ColAreaChair,
+			model.ColDomain,
+			model.ColConfigurations,
+			model.ColCreatedAt,
+			model.ColUpdatedAt,
 		)).
 		ToSql()
 
@@ -345,7 +345,7 @@ func (s *Storage) Update(ctx context.Context, id int64, conf *conferenceDto.Conf
 		return nil, fmt.Errorf("failed to build update query: %w", err)
 	}
 
-	entity := &conferenceModel.Conference{}
+	entity := &model.Conference{}
 	err = s.db.QueryRowContext(ctx, query, args...).Scan(
 		&entity.ConferenceID,
 		&entity.Title,
@@ -372,8 +372,8 @@ func (s *Storage) Update(ctx context.Context, id int64, conf *conferenceDto.Conf
 
 func (s *Storage) Delete(ctx context.Context, id int64) error {
 	query, args, err := s.qb.
-		Delete(conferenceModel.TableName).
-		Where(sq.Eq{conferenceModel.ColConferenceID: id}).
+		Delete(model.ConferenceTableName).
+		Where(sq.Eq{model.ColConferenceID: id}).
 		ToSql()
 
 	if err != nil {

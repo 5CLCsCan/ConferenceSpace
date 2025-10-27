@@ -1,5 +1,5 @@
 "use client"
-import type React from "react"
+import React from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -77,7 +77,7 @@ export function PaperTab({
         <Label htmlFor="subject-areas">Subject Areas *</Label>
         <Select value={subjectAreas[0]} onValueChange={(val) => setSubjectAreas([val])}>
           <SelectTrigger>
-            <SelectValue placeholder="Select 2-3 topics" />
+            <SelectValue placeholder="Select a topic" />
           </SelectTrigger>
           <SelectContent>
             {mockTracks.map((track) => (
@@ -87,9 +87,7 @@ export function PaperTab({
             ))}
           </SelectContent>
         </Select>
-        <p className="text-xs text-gray-500">
-          Choose the track topics most relevant to your paper.
-        </p>
+        <p className="text-xs text-gray-500">Choose the track topic most relevant to your paper.</p>
       </div>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
