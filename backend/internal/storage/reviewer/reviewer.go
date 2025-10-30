@@ -23,17 +23,35 @@ type StorageInterface interface {
 	Delete(ctx context.Context, id int64) error
 	
 	// Reviewer Dashboard methods
-	GetConferencesByReviewer(ctx context.Context, reviewerID int64) ([]*dto.ReviewerConference, error)
-	GetPendingInvitations(ctx context.Context, reviewerID int64) ([]*dto.ReviewInvitation, error)
+	GetConferencesByReviewer(ctx context.Context, reviewerID int64, params *ConferenceListParams) ([]*dto.ReviewerConference, int64, error)
+	GetPendingInvitations(ctx context.Context, reviewerID int64, params *InvitationListParams) ([]*dto.ReviewInvitation, int64, error)
 	GetReviewerStats(ctx context.Context, reviewerID int64) (*dto.ReviewerStats, error)
 	GetRecentAssignments(ctx context.Context, reviewerID int64, limit int) ([]*dto.AssignmentWithPaper, error)
-	GetAssignedPapers(ctx context.Context, reviewerID, conferenceID int64) ([]*dto.AssignedPaperResponse, error)
+	GetAssignedPapers(ctx context.Context, reviewerID, conferenceID int64, params *PaperListParams) ([]*dto.AssignedPaperResponse, int64, error)
 }
 
 type ListParams struct {
 	Limit  int
 	Offset int
 	Status string
+}
+
+type ConferenceListParams struct {
+	Limit  int
+	Offset int
+	Search string // Search by conference name
+}
+
+type InvitationListParams struct {
+	Limit  int
+	Offset int
+}
+
+type PaperListParams struct {
+	Limit  int
+	Offset int
+	Search string // Search by paper title
+	Status string // Filter by assignment status
 }
 
 type Storage struct {
@@ -382,9 +400,9 @@ func (s *Storage) Delete(ctx context.Context, id int64) error {
 
 // ================== Reviewer Dashboard Methods ==================
 
-// GetConferencesByReviewer retrieves all conferences where user is an accepted reviewer with progress info
-func (s *Storage) GetConferencesByReviewer(ctx context.Context, reviewerID int64) ([]*dto.ReviewerConference, error) {
-	query, args, err := s.qb.
+// GetConferencesByReviewer retrieves conferences where user is an accepted reviewer with progress info, pagination and search
+func (s *Storage) GetConferencesByReviewer(ctx context.Context, reviewerID int64, params *ConferenceListParams) ([]*dto.ReviewerConference, int64, error) {
+	baseQuery := s.qb.
 		Select(
 			"c.conference_id",
 			"c.title",
@@ -406,18 +424,63 @@ func (s *Storage) GetConferencesByReviewer(ctx context.Context, reviewerID int64
 		Where(sq.Eq{
 			"cr.user_id": reviewerID,
 			"cr.status":  model.ReviewerStatusAccepted,
-		}).
+		})
+
+	// Count query for total
+	countQuery := s.qb.
+		Select("COUNT(DISTINCT c.conference_id)").
+		From("conferences c").
+		Join("conference_reviewers cr ON c.conference_id = cr.conference_id").
+		Where(sq.Eq{
+			"cr.user_id": reviewerID,
+			"cr.status":  model.ReviewerStatusAccepted,
+		})
+
+	// Apply search filter if provided
+	if params.Search != "" {
+		searchPattern := "%" + params.Search + "%"
+		searchCondition := sq.Or{
+			sq.ILike{"c.title": searchPattern},
+			sq.ILike{"c.acronym": searchPattern},
+		}
+		baseQuery = baseQuery.Where(searchCondition)
+		countQuery = countQuery.Where(searchCondition)
+	}
+
+	// Get total count
+	countQueryStr, countArgs, err := countQuery.ToSql()
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to build count query: %w", err)
+	}
+
+	var total int64
+	err = s.db.QueryRowContext(ctx, countQueryStr, countArgs...).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to count conferences: %w", err)
+	}
+
+	// Apply grouping and ordering
+	baseQuery = baseQuery.
 		GroupBy("c.conference_id", "c.title", "c.acronym", "c.description", "c.chair", "c.primary_contact", "c.area_chair", "c.domain", "c.configurations", "c.created_at", "c.updated_at").
-		OrderBy("c.created_at DESC").
-		ToSql()
+		OrderBy("c.created_at DESC")
+
+	// Apply pagination
+	if params.Limit > 0 {
+		baseQuery = baseQuery.Limit(uint64(params.Limit))
+	}
+	if params.Offset > 0 {
+		baseQuery = baseQuery.Offset(uint64(params.Offset))
+	}
+
+	query, args, err := baseQuery.ToSql()
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to build query: %w", err)
+		return nil, 0, fmt.Errorf("failed to build query: %w", err)
 	}
 
 	rows, err := s.db.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query conferences: %w", err)
+		return nil, 0, fmt.Errorf("failed to query conferences: %w", err)
 	}
 	defer rows.Close()
 
@@ -444,7 +507,7 @@ func (s *Storage) GetConferencesByReviewer(ctx context.Context, reviewerID int64
 			&reviewedPapers,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan conference: %w", err)
+			return nil, 0, fmt.Errorf("failed to scan conference: %w", err)
 		}
 
 		// Handle nullable fields
@@ -480,15 +543,15 @@ func (s *Storage) GetConferencesByReviewer(ctx context.Context, reviewerID int64
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error iterating conferences: %w", err)
+		return nil, 0, fmt.Errorf("error iterating conferences: %w", err)
 	}
 
-	return results, nil
+	return results, total, nil
 }
 
-// GetPendingInvitations retrieves pending review invitations for a reviewer
-func (s *Storage) GetPendingInvitations(ctx context.Context, reviewerID int64) ([]*dto.ReviewInvitation, error) {
-	query, args, err := s.qb.
+// GetPendingInvitations retrieves pending review invitations for a reviewer with pagination
+func (s *Storage) GetPendingInvitations(ctx context.Context, reviewerID int64, params *InvitationListParams) ([]*dto.ReviewInvitation, int64, error) {
+	baseQuery := s.qb.
 		Select(
 			"cr.id",
 			"cr.conference_id",
@@ -506,17 +569,49 @@ func (s *Storage) GetPendingInvitations(ctx context.Context, reviewerID int64) (
 		Where(sq.Eq{
 			"cr.user_id": reviewerID,
 			"cr.status":  model.ReviewerStatusPending,
-		}).
-		OrderBy("cr.created_at DESC").
-		ToSql()
+		})
+
+	// Count query for total
+	countQuery := s.qb.
+		Select("COUNT(*)").
+		From("conference_reviewers cr").
+		Where(sq.Eq{
+			"cr.user_id": reviewerID,
+			"cr.status":  model.ReviewerStatusPending,
+		})
+
+	// Get total count
+	countQueryStr, countArgs, err := countQuery.ToSql()
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to build count query: %w", err)
+	}
+
+	var total int64
+	err = s.db.QueryRowContext(ctx, countQueryStr, countArgs...).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to count invitations: %w", err)
+	}
+
+	// Apply ordering
+	baseQuery = baseQuery.OrderBy("cr.created_at DESC")
+
+	// Apply pagination
+	if params.Limit > 0 {
+		baseQuery = baseQuery.Limit(uint64(params.Limit))
+	}
+	if params.Offset > 0 {
+		baseQuery = baseQuery.Offset(uint64(params.Offset))
+	}
+
+	query, args, err := baseQuery.ToSql()
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to build query: %w", err)
+		return nil, 0, fmt.Errorf("failed to build query: %w", err)
 	}
 
 	rows, err := s.db.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query invitations: %w", err)
+		return nil, 0, fmt.Errorf("failed to query invitations: %w", err)
 	}
 	defer rows.Close()
 
@@ -536,7 +631,7 @@ func (s *Storage) GetPendingInvitations(ctx context.Context, reviewerID int64) (
 			&inv.EstimatedPapers,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan invitation: %w", err)
+			return nil, 0, fmt.Errorf("failed to scan invitation: %w", err)
 		}
 
 		// Handle nullable fields
@@ -555,10 +650,10 @@ func (s *Storage) GetPendingInvitations(ctx context.Context, reviewerID int64) (
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error iterating invitations: %w", err)
+		return nil, 0, fmt.Errorf("error iterating invitations: %w", err)
 	}
 
-	return results, nil
+	return results, total, nil
 }
 
 // GetReviewerStats retrieves statistics for a reviewer
@@ -690,9 +785,9 @@ func (s *Storage) GetRecentAssignments(ctx context.Context, reviewerID int64, li
 	return results, nil
 }
 
-// GetAssignedPapers retrieves papers assigned to reviewer in a specific conference
-func (s *Storage) GetAssignedPapers(ctx context.Context, reviewerID, conferenceID int64) ([]*dto.AssignedPaperResponse, error) {
-	query, args, err := s.qb.
+// GetAssignedPapers retrieves papers assigned to reviewer in a specific conference with pagination and filters
+func (s *Storage) GetAssignedPapers(ctx context.Context, reviewerID, conferenceID int64, params *PaperListParams) ([]*dto.AssignedPaperResponse, int64, error) {
+	baseQuery := s.qb.
 		Select(
 			"cs.submission_id",
 			"cs.conference_id",
@@ -718,17 +813,64 @@ func (s *Storage) GetAssignedPapers(ctx context.Context, reviewerID, conferenceI
 		Where(sq.And{
 			sq.Eq{"pa.reviewer_id": reviewerID},
 			sq.Eq{"cs.conference_id": conferenceID},
-		}).
-		OrderBy("pa.assigned_at DESC").
-		ToSql()
+		})
+
+	// Count query for total
+	countQuery := s.qb.
+		Select("COUNT(*)").
+		From("conference_submissions cs").
+		Join("paper_assignments pa ON cs.submission_id = pa.submission_id").
+		Where(sq.And{
+			sq.Eq{"pa.reviewer_id": reviewerID},
+			sq.Eq{"cs.conference_id": conferenceID},
+		})
+
+	// Apply search filter if provided
+	if params.Search != "" {
+		searchPattern := "%" + params.Search + "%"
+		searchCondition := sq.ILike{"cs.title": searchPattern}
+		baseQuery = baseQuery.Where(searchCondition)
+		countQuery = countQuery.Where(searchCondition)
+	}
+
+	// Apply status filter if provided
+	if params.Status != "" {
+		baseQuery = baseQuery.Where(sq.Eq{"pa.status": params.Status})
+		countQuery = countQuery.Where(sq.Eq{"pa.status": params.Status})
+	}
+
+	// Get total count
+	countQueryStr, countArgs, err := countQuery.ToSql()
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to build count query: %w", err)
+	}
+
+	var total int64
+	err = s.db.QueryRowContext(ctx, countQueryStr, countArgs...).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to count papers: %w", err)
+	}
+
+	// Apply ordering
+	baseQuery = baseQuery.OrderBy("pa.assigned_at DESC")
+
+	// Apply pagination
+	if params.Limit > 0 {
+		baseQuery = baseQuery.Limit(uint64(params.Limit))
+	}
+	if params.Offset > 0 {
+		baseQuery = baseQuery.Offset(uint64(params.Offset))
+	}
+
+	query, args, err := baseQuery.ToSql()
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to build query: %w", err)
+		return nil, 0, fmt.Errorf("failed to build query: %w", err)
 	}
 
 	rows, err := s.db.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query papers: %w", err)
+		return nil, 0, fmt.Errorf("failed to query papers: %w", err)
 	}
 	defer rows.Close()
 
@@ -762,7 +904,7 @@ func (s *Storage) GetAssignedPapers(ctx context.Context, reviewerID, conferenceI
 			&assignedAt,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan paper: %w", err)
+			return nil, 0, fmt.Errorf("failed to scan paper: %w", err)
 		}
 
 		// Parse information JSON if exists
@@ -795,8 +937,8 @@ func (s *Storage) GetAssignedPapers(ctx context.Context, reviewerID, conferenceI
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error iterating papers: %w", err)
+		return nil, 0, fmt.Errorf("error iterating papers: %w", err)
 	}
 
-	return results, nil
+	return results, total, nil
 }

@@ -195,13 +195,19 @@ func (c *Controller) Delete(ginCtx *gin.Context, req *dto.ReviewerDeleteRequest)
 // ================== Reviewer Dashboard Controllers ==================
 
 // GetDashboard godoc
-// @Summary      Get reviewer dashboard data
-// @Description  Get all data needed for reviewer dashboard (conferences, stats, invitations, recent assignments)
+// @Summary      Get reviewer dashboard data with pagination
+// @Description  Get all data needed for reviewer dashboard (conferences, stats, invitations, recent assignments) with optional pagination
 // @Tags         reviewers
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
 // @Param        reviewer_id path int true "Reviewer User ID"
+// @Param        conference_limit query int false "Limit conferences (default: 10)"
+// @Param        conference_offset query int false "Offset conferences"
+// @Param        conference_search query string false "Search conferences by name"
+// @Param        invitation_limit query int false "Limit invitations (default: 10)"
+// @Param        invitation_offset query int false "Offset invitations"
+// @Param        recent_assignment_limit query int false "Limit recent assignments (default: 5)"
 // @Success      200 {object} dto.ReviewerDashboardResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
@@ -210,21 +216,38 @@ func (c *Controller) Delete(ginCtx *gin.Context, req *dto.ReviewerDeleteRequest)
 func (c *Controller) GetDashboard(ginCtx *gin.Context, req *dto.GetDashboardRequest) (*dto.ReviewerDashboardResponse, error) {
 	ctx := ginCtx.Request.Context()
 
+	// Set defaults for pagination
+	if req.ConferenceLimit == 0 {
+		req.ConferenceLimit = 10
+	}
+	if req.InvitationLimit == 0 {
+		req.InvitationLimit = 10
+	}
+	if req.RecentAssignmentLimit == 0 {
+		req.RecentAssignmentLimit = 5
+	}
+
 	// Fetch all data in parallel for better performance
 	type result struct {
-		conferences []*dto.ReviewerConference
-		stats       *dto.ReviewerStats
-		invitations []*dto.ReviewInvitation
-		assignments []*dto.AssignmentWithPaper
-		err         error
+		conferences     []*dto.ReviewerConference
+		conferencesTotal int64
+		stats           *dto.ReviewerStats
+		invitations     []*dto.ReviewInvitation
+		invitationsTotal int64
+		assignments     []*dto.AssignmentWithPaper
+		err             error
 	}
 
 	resultChan := make(chan result, 1)
 
 	go func() {
 		var r result
-		// Get conferences
-		r.conferences, r.err = c.reviewerStorage.GetConferencesByReviewer(ctx, req.ReviewerID)
+		// Get conferences with pagination
+		r.conferences, r.conferencesTotal, r.err = c.reviewerStorage.GetConferencesByReviewer(ctx, req.ReviewerID, &reviewerStorage.ConferenceListParams{
+			Limit:  req.ConferenceLimit,
+			Offset: req.ConferenceOffset,
+			Search: req.ConferenceSearch,
+		})
 		if r.err != nil {
 			resultChan <- r
 			return
@@ -237,15 +260,18 @@ func (c *Controller) GetDashboard(ginCtx *gin.Context, req *dto.GetDashboardRequ
 			return
 		}
 
-		// Get invitations
-		r.invitations, r.err = c.reviewerStorage.GetPendingInvitations(ctx, req.ReviewerID)
+		// Get invitations with pagination
+		r.invitations, r.invitationsTotal, r.err = c.reviewerStorage.GetPendingInvitations(ctx, req.ReviewerID, &reviewerStorage.InvitationListParams{
+			Limit:  req.InvitationLimit,
+			Offset: req.InvitationOffset,
+		})
 		if r.err != nil {
 			resultChan <- r
 			return
 		}
 
 		// Get recent assignments
-		r.assignments, r.err = c.reviewerStorage.GetRecentAssignments(ctx, req.ReviewerID, 5)
+		r.assignments, r.err = c.reviewerStorage.GetRecentAssignments(ctx, req.ReviewerID, req.RecentAssignmentLimit)
 		if r.err != nil {
 			resultChan <- r
 			return
@@ -284,26 +310,50 @@ func (c *Controller) GetDashboard(ginCtx *gin.Context, req *dto.GetDashboardRequ
 }
 
 // GetConferencePapers godoc
-// @Summary      Get papers assigned to reviewer in a conference
-// @Description  Get all papers assigned to a reviewer in a specific conference
+// @Summary      Get papers assigned to reviewer in a conference with pagination
+// @Description  Get all papers assigned to a reviewer in a specific conference with pagination, search and filter
 // @Tags         reviewers
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
 // @Param        reviewer_id path int true "Reviewer User ID"
 // @Param        conference_id path int true "Conference ID"
-// @Success      200 {array} dto.AssignedPaperResponse
+// @Param        limit query int false "Limit results (default: 20)"
+// @Param        offset query int false "Offset for pagination"
+// @Param        search query string false "Search by paper title"
+// @Param        status query string false "Filter by assignment status"
+// @Success      200 {object} dto.GetConferencePapersResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      500 {object} handler.Response
 // @Router       /reviewer/{reviewer_id}/conferences/{conference_id}/papers [get]
-func (c *Controller) GetConferencePapers(ginCtx *gin.Context, req *dto.GetConferencePapersRequest) ([]*dto.AssignedPaperResponse, error) {
+func (c *Controller) GetConferencePapers(ginCtx *gin.Context, req *dto.GetConferencePapersRequest) (*dto.GetConferencePapersResponse, error) {
 	ctx := ginCtx.Request.Context()
 
-	papers, err := c.reviewerStorage.GetAssignedPapers(ctx, req.ReviewerID, req.ConferenceID)
+	// Set default limit if not specified
+	if req.Limit == 0 {
+		req.Limit = 20
+	}
+
+	papers, total, err := c.reviewerStorage.GetAssignedPapers(ctx, req.ReviewerID, req.ConferenceID, &reviewerStorage.PaperListParams{
+		Limit:  req.Limit,
+		Offset: req.Offset,
+		Search: req.Search,
+		Status: req.Status,
+	})
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
-	return papers, nil
+	// Ensure non-nil array
+	if papers == nil {
+		papers = []*dto.AssignedPaperResponse{}
+	}
+
+	return &dto.GetConferencePapersResponse{
+		Papers: papers,
+		Total:  total,
+		Limit:  req.Limit,
+		Offset: req.Offset,
+	}, nil
 }

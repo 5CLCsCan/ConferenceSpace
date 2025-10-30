@@ -231,8 +231,12 @@
           "noAssignments": "Không có bài báo cần xử lý"
         },
         "conferences": {
-          "title": "Hội nghị tham gia phản biện",
+          "title": "Hội nghị của tôi",
           "description": "Danh sách các hội nghị bạn đang phản biện",
+          "search": {
+            "placeholder": "Tìm kiếm hội nghị theo tên, từ viết tắt hoặc lĩnh vực...",
+            "noResults": "Không tìm thấy hội nghị nào phù hợp"
+          },
           "table": {
             "name": "Tên hội nghị",
             "role": "Vai trò",
@@ -266,6 +270,15 @@
         },
         "papers": {
           "description": "Có {{count}} bài được giao cho bạn trong hội nghị này.",
+          "search": {
+            "placeholder": "Tìm kiếm bài báo theo tiêu đề...",
+            "noResults": "Không tìm thấy bài báo nào phù hợp",
+            "noResultsDescription": "Thử điều chỉnh tìm kiếm hoặc bộ lọc để tìm thấy những gì bạn đang tìm."
+          },
+          "filter": {
+            "status": "Lọc theo trạng thái",
+            "all": "Tất cả trạng thái"
+          },
           "table": {
             "title": "Tiêu đề bài báo",
             "status": "Trạng thái",

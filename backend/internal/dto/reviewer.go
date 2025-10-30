@@ -129,13 +129,51 @@ type AssignedPaperResponse struct {
 }
 
 
-// GetConferencePapersRequest represents the request to get papers for a conference
+// GetConferencePapersRequest represents the request to get papers for a conference with pagination and filters
 type GetConferencePapersRequest struct {
-	ReviewerID   int64 `uri:"reviewer_id" binding:"required"`
-	ConferenceID int64 `uri:"conference_id" binding:"required"`
+	ReviewerID   int64  `uri:"reviewer_id" binding:"required"`
+	ConferenceID int64  `uri:"conference_id" binding:"required"`
+	Limit        int    `form:"limit" json:"limit"`
+	Offset       int    `form:"offset" json:"offset"`
+	Search       string `form:"search" json:"search"`          // Search by paper title
+	Status       string `form:"status" json:"status"`          // Filter by assignment status
 }
 
-// GetDashboardRequest represents the request to get reviewer dashboard
+// GetConferencePapersResponse represents paginated papers response
+type GetConferencePapersResponse struct {
+	Papers []*AssignedPaperResponse `json:"papers"`
+	Total  int64                    `json:"total"`
+	Limit  int                      `json:"limit"`
+	Offset int                      `json:"offset"`
+}
+
+// GetDashboardRequest represents the request to get reviewer dashboard with optional filters
 type GetDashboardRequest struct {
-	ReviewerID int64 `uri:"reviewer_id" binding:"required"`
+	ReviewerID            int64  `uri:"reviewer_id" binding:"required"`
+	ConferenceLimit       int    `form:"conference_limit" json:"conference_limit"`
+	ConferenceOffset      int    `form:"conference_offset" json:"conference_offset"`
+	ConferenceSearch      string `form:"conference_search" json:"conference_search"`       // Search conferences by name
+	InvitationLimit       int    `form:"invitation_limit" json:"invitation_limit"`
+	InvitationOffset      int    `form:"invitation_offset" json:"invitation_offset"`
+	RecentAssignmentLimit int    `form:"recent_assignment_limit" json:"recent_assignment_limit"` // Default: 5
+}
+
+// ReviewerDashboardResponseWithPagination represents dashboard data with pagination info
+type ReviewerDashboardResponseWithPagination struct {
+	Conferences struct {
+		Data   []*ReviewerConference `json:"data"`
+		Total  int64                 `json:"total"`
+		Limit  int                   `json:"limit"`
+		Offset int                   `json:"offset"`
+	} `json:"conferences"`
+	Stats struct {
+		*ReviewerStats
+	} `json:"stats"`
+	Invitations struct {
+		Data   []*ReviewInvitation `json:"data"`
+		Total  int64               `json:"total"`
+		Limit  int                 `json:"limit"`
+		Offset int                 `json:"offset"`
+	} `json:"invitations"`
+	RecentAssignments []*AssignmentWithPaper `json:"recent_assignments"`
 }

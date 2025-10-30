@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react"
 import { getReviewerDashboard } from "@/lib/api/reviewer"
-import type { ReviewerConference, ReviewerStats, AssignmentWithPaper } from "@/lib/types/reviewer.types"
+import type { ReviewerConference, ReviewerStats, AssignmentWithPaper } from "@/lib/types"
 import type { ReviewRequest } from "@/lib/types"
 
 export function useReviewerData(reviewerId: string) {

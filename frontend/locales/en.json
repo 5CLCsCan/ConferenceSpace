@@ -231,8 +231,12 @@
           "noAssignments": "No pending assignments"
         },
         "conferences": {
-          "title": "Conferences for Review",
+          "title": "My Conferences",
           "description": "List of conferences you are reviewing for",
+          "search": {
+            "placeholder": "Search conferences by name, acronym, or domain...",
+            "noResults": "No conferences match your search criteria"
+          },
           "table": {
             "name": "Conference Name",
             "role": "Role",
@@ -266,6 +270,15 @@
         },
         "papers": {
           "description": "{{count}} papers assigned to you in this conference.",
+          "search": {
+            "placeholder": "Search papers by title...",
+            "noResults": "No papers match your search criteria",
+            "noResultsDescription": "Try adjusting your search or filter to find what you're looking for."
+          },
+          "filter": {
+            "status": "Filter by status",
+            "all": "All Status"
+          },
           "table": {
             "title": "Paper Title",
             "status": "Status",

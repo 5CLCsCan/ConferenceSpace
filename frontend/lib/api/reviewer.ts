@@ -200,20 +200,20 @@ export async function getReviewRequests(
 }
 
 /**
- * Get papers assigned to reviewer in a specific conference
+ * Get papers assigned to reviewer in a specific conference (simple version for backward compatibility)
  */
 export async function getReviewerPapersForConference(
   reviewerId: string,
   conferenceId: string,
 ): Promise<{ data: AssignedPaper[] | null; error: string | null; status: number }> {
   try {
-    const { data, response } = await apiFetch<{ data: AssignedPaper[] }>(
-      `/api/v1/reviewer/${reviewerId}/conferences/${conferenceId}/papers`,
-    )
-    // Backend returns { data: [...] } or { data: null }
-    // Ensure we always return an array (empty array if null/undefined)
+    const { data, response } = await apiFetch<{
+      data: { papers: AssignedPaper[]; total: number }
+    }>(`/api/v1/reviewer/${reviewerId}/conferences/${conferenceId}/papers`)
+
+    // Backend now returns { data: { papers: [...], total: X } }
     return {
-      data: data.data || [],
+      data: data.data?.papers || [],
       error: null,
       status: response.status,
     }
@@ -222,6 +222,63 @@ export async function getReviewerPapersForConference(
     // Return empty array instead of null for better UX
     return {
       data: [],
+      error: error.message || "Failed to fetch reviewer papers",
+      status: error.status || 500,
+    }
+  }
+}
+
+/**
+ * Get papers assigned to reviewer in a specific conference with pagination and filters
+ */
+export async function getReviewerPapersWithPagination(
+  reviewerId: string,
+  conferenceId: string,
+  params?: {
+    limit?: number
+    offset?: number
+    search?: string
+    status?: string
+  },
+): Promise<{
+  data: AssignedPaper[] | null
+  total: number
+  limit: number
+  offset: number
+  error: string | null
+  status: number
+}> {
+  try {
+    // Build query string
+    const queryParams = new URLSearchParams()
+    if (params?.limit) queryParams.append("limit", params.limit.toString())
+    if (params?.offset) queryParams.append("offset", params.offset.toString())
+    if (params?.search) queryParams.append("search", params.search)
+    if (params?.status) queryParams.append("status", params.status)
+
+    const queryString = queryParams.toString()
+    const url = `/api/v1/reviewer/${reviewerId}/conferences/${conferenceId}/papers${queryString ? `?${queryString}` : ""}`
+
+    const { data, response } = await apiFetch<{
+      data: { papers: AssignedPaper[]; total: number; limit: number; offset: number }
+    }>(url)
+
+    // Backend returns { data: { papers: [...], total: X, limit: Y, offset: Z } }
+    return {
+      data: data.data?.papers || [],
+      total: data.data?.total || 0,
+      limit: data.data?.limit || params?.limit || 20,
+      offset: data.data?.offset || params?.offset || 0,
+      error: null,
+      status: response.status,
+    }
+  } catch (error: any) {
+    console.error("Failed to fetch reviewer papers:", error)
+    return {
+      data: [],
+      total: 0,
+      limit: params?.limit || 20,
+      offset: params?.offset || 0,
       error: error.message || "Failed to fetch reviewer papers",
       status: error.status || 500,
     }

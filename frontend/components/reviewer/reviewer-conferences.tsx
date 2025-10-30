@@ -1,6 +1,9 @@
 "use client"
 
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Search } from "lucide-react"
 import type { ReviewerConference } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
@@ -11,6 +14,17 @@ interface ReviewerConferencesProps {
 
 export function ReviewerConferences({ conferences, onSelectConference }: ReviewerConferencesProps) {
   const { t } = useTranslation()
+  const [searchQuery, setSearchQuery] = useState("")
+
+  // Filter conferences based on search
+  const filteredConferences = conferences.filter((conference) => {
+    const searchLower = searchQuery.toLowerCase()
+    return (
+      conference.name.toLowerCase().includes(searchLower) ||
+      conference.acronym?.toLowerCase().includes(searchLower) ||
+      conference.domain?.toLowerCase().includes(searchLower)
+    )
+  })
 
   return (
     <Card>
@@ -18,7 +32,18 @@ export function ReviewerConferences({ conferences, onSelectConference }: Reviewe
         <CardTitle>{t("dashboard.roles.reviewer.conferences.title")}</CardTitle>
         <CardDescription>{t("dashboard.roles.reviewer.conferences.description")}</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
+        {/* Search Input */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground size-4" />
+          <Input
+            placeholder={t("dashboard.roles.reviewer.conferences.search.placeholder")}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
         <div className="border rounded-lg">
           <table className="w-full">
             <thead>
@@ -38,14 +63,16 @@ export function ReviewerConferences({ conferences, onSelectConference }: Reviewe
               </tr>
             </thead>
             <tbody>
-              {conferences.length === 0 ? (
+              {filteredConferences.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="p-8 text-center text-muted-foreground">
-                    {t("review.conferences.noConferences")}
+                    {searchQuery
+                      ? t("dashboard.roles.reviewer.conferences.search.noResults")
+                      : t("review.conferences.noConferences")}
                   </td>
                 </tr>
               ) : (
-                conferences.map((conference) => (
+                filteredConferences.map((conference) => (
                   <tr
                     key={conference.id}
                     className="border-b cursor-pointer hover:bg-muted/50"
