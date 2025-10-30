@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useReviewerData } from "@/hooks/use-reviewer-data"
 import { ReviewerSidebar } from "./reviewer-sidebar"
@@ -8,9 +8,9 @@ import { ReviewerOverview } from "./reviewer-overview"
 import { ReviewerConferences } from "./reviewer-conferences"
 import { ReviewerInvitations } from "./reviewer-invitations"
 import { ConferencePapers } from "./conference-papers"
-import { getReviewerPapersForConference } from "@/lib/api/reviewer"
-import { mockReviewAssignments } from "@/lib/mock-data"
+import { getReviewerPapersForConference, getRecentAssignments } from "@/lib/api/reviewer"
 import type { Paper } from "@/lib/types"
+import type { AssignmentWithPaper } from "@/lib/api/reviewer"
 import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
@@ -20,7 +20,8 @@ export function ReviewerDashboard() {
   const { t } = useTranslation()
   const { user } = useAuth()
   const router = useRouter()
-  const currentReviewerId = user?.id || "user-2" // Fallback for dev
+  // Convert user.id to string, fallback to "1" for development
+  const currentReviewerId = user?.id || "1"
 
   const {
     conferences,
@@ -31,28 +32,46 @@ export function ReviewerDashboard() {
     refetch: refetchData,
   } = useReviewerData(currentReviewerId)
   const [activeNav, setActiveNav] = useState<View>("overview")
-  const [selectedConferenceId, setSelectedConferenceId] = useState<string | null>(null)
+  const [selectedConferenceId, setSelectedConferenceId] = useState<number | null>(null)
   const [conferencePapers, setConferencePapers] = useState<
     (Paper & { assignment_status: string; due_date: string })[]
   >([])
   const [isFetchingPapers, setIsFetchingPapers] = useState(false)
+  const [assignments, setAssignments] = useState<AssignmentWithPaper[]>([])
 
-  const handleSelectConference = async (conferenceId: string) => {
-    setIsFetchingPapers(true)
-    const response = await getReviewerPapersForConference(currentReviewerId, conferenceId)
-    if (response.data) {
-      setConferencePapers(response.data)
-      setSelectedConferenceId(conferenceId)
-      setActiveNav("conference-papers")
-    } else {
-      // TODO: Handle error with a toast
-      console.error(response.error)
+  // Fetch assignments on mount
+  useEffect(() => {
+    const fetchAssignments = async () => {
+      const response = await getRecentAssignments(currentReviewerId)
+      if (response.data) {
+        setAssignments(response.data)
+      }
     }
+    fetchAssignments()
+  }, [currentReviewerId])
+
+  const handleSelectConference = async (conferenceId: number) => {
+    setIsFetchingPapers(true)
+    const response = await getReviewerPapersForConference(currentReviewerId, String(conferenceId))
+    
+    // API now always returns an array (empty or with papers)
+    // Map papers and add due_date fallback
+    const papers = (response.data || []).map((paper) => ({
+      ...paper,
+      due_date: paper.due_date || "",
+    }))
+    
+    setConferencePapers(papers)
+    setSelectedConferenceId(conferenceId)
+    setActiveNav("conference-papers")
     setIsFetchingPapers(false)
   }
 
-  const handleSelectPaper = (paperId: string) => {
-    router.push(`/dashboard/reviewer/papers/${paperId}`)
+  const handleSelectPaper = (paperId: string, conferenceId?: string) => {
+    // Use provided conferenceId or fall back to selectedConferenceId
+    const cid = conferenceId || selectedConferenceId
+    const conferenceParam = cid ? `?conference_id=${cid}` : ''
+    router.push(`/dashboard/reviewer/papers/${paperId}${conferenceParam}`)
   }
 
   const handleBackToConferences = () => {
@@ -78,7 +97,7 @@ export function ReviewerDashboard() {
         return (
           <ReviewerOverview
             stats={stats}
-            assignments={mockReviewAssignments} // This should be fetched if an endpoint is available
+            assignments={assignments}
             conferenceCount={conferences.length}
             onSelectPaper={handleSelectPaper}
           />
@@ -99,7 +118,7 @@ export function ReviewerDashboard() {
           />
         )
       case "conference-papers":
-        const selectedConference = conferences.find((c) => c.id === selectedConferenceId)
+        const selectedConference = conferences.find((c) => Number(c.id) === selectedConferenceId)
         if (isFetchingPapers) {
           return <div>{t("dashboard.roles.reviewer.review.loading")}</div>
         }

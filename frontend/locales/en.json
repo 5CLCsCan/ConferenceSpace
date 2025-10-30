@@ -14,7 +14,8 @@
       "continue": "Continue",
       "accept": "Accept",
       "decline": "Decline",
-      "complete": "Complete"
+      "complete": "Complete",
+      "goBack": "Go back"
     },
     "labels": {
       "email": "Email",
@@ -226,7 +227,8 @@
           "description": "Tasks that require your immediate attention",
           "deadline": "Deadline",
           "daysLeft": "{{count}} days left",
-          "reviewNow": "Review Now"
+          "reviewNow": "Review Now",
+          "noAssignments": "No pending assignments"
         },
         "conferences": {
           "title": "Conferences for Review",
@@ -236,7 +238,14 @@
             "role": "Role",
             "progress": "Progress",
             "deadline": "Review Deadline"
-          }
+          },
+          "status": {
+            "active": "Active",
+            "upcoming": "Upcoming",
+            "completed": "Completed",
+            "unknown": "Unknown"
+          },
+          "noConferences": "No conferences assigned yet"
         },
         "invitations": {
           "title": "Review Invitations",
@@ -263,6 +272,10 @@
             "pending": "Pending",
             "in_progress": "In Progress",
             "completed": "Completed"
+          },
+          "empty": {
+            "title": "No Papers Assigned Yet",
+            "description": "You haven't been assigned any papers for this conference yet. Papers will appear here once the conference chair assigns them to you."
           }
         },
         "review": {
@@ -273,8 +286,12 @@
           "loading": "Loading...",
           "errors": {
             "loadFailed": "Error loading dashboard data",
-            "paperNotFound": "Paper not found"
+            "paperNotFound": "Paper not found",
+            "conferenceIdRequired": "Conference ID is required",
+            "fetchPaperFailed": "Failed to fetch paper",
+            "unknownError": "An error occurred"
           },
+          "loadingPaper": "Loading paper...",
           "tabs": {
             "review": "Review",
             "discussion": "Discussion",
@@ -344,6 +361,20 @@
           },
           "saveDraft": "Save Draft",
           "submitReview": "Submit Review",
+          "saving": "Saving...",
+          "submitting": "Submitting...",
+          "saveDraftSuccess": "Draft saved",
+          "saveDraftDescription": "Your review draft has been saved successfully.",
+          "saveDraftFailed": "Failed to save draft",
+          "saveDraftFailedDescription": "Could not save your review draft. Please try again.",
+          "recommendationRequired": "Recommendation required",
+          "recommendationRequiredDescription": "Please select a recommendation before submitting.",
+          "commentsTooShort": "Comments too short",
+          "commentsTooShortDescription": "Please provide at least 50 words of feedback for authors.",
+          "submitSuccess": "Review submitted",
+          "submitSuccessDescription": "Your review has been submitted successfully.",
+          "submitFailed": "Failed to submit review",
+          "submitFailedDescription": "Could not submit your review. Please try again.",
           "discussion": {
             "title": "Private Discussion",
             "description": "Discuss this paper with other assigned reviewers. This section is not visible to authors.",
@@ -357,7 +388,9 @@
             "actionRequired": "Action Required",
             "actionDescription": "The author has submitted a rebuttal. Please read it and modify your review if necessary.",
             "modifyReview": "Modify Your Review",
-            "notAvailable": "The author has not submitted a rebuttal yet."
+            "notAvailable": "The author has not submitted a rebuttal yet.",
+            "modifyReviewStarted": "Review modification started",
+            "modifyReviewStartedDescription": "You can now edit your review based on the author's rebuttal."
           }
         }
       },
@@ -371,6 +404,20 @@
           "Configure roles and permissions"
         ]
       }
+    }
+  },
+  "review": {
+    "role": {
+      "reviewer": "Reviewer"
+    },
+    "conferences": {
+      "columns": {
+        "domain": "Domain",
+        "timeline": "Conference Date"
+      },
+      "submission": "Deadline",
+      "noConferences": "No conferences assigned yet",
+      "complete": "complete"
     }
   }
 }

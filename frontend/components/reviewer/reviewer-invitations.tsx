@@ -23,15 +23,18 @@ export function ReviewerInvitations({
   const { toast } = useToast()
   const [handling, setHandling] = useState<string | null>(null)
 
-  const handleResponse = async (requestId: string, response: "accepted" | "declined") => {
-    setHandling(requestId)
-    const apiResponse = await respondToReviewRequest(reviewerId, requestId, response)
+  const handleResponse = async (
+    conferenceId: string,
+    reviewerId: string,
+    status: "accepted" | "declined",
+  ) => {
+    setHandling(reviewerId)
+    const apiResponse = await respondToReviewRequest(conferenceId, reviewerId, status)
     if (apiResponse.data) {
       toast({
         title: t("dashboard.roles.reviewer.invitations.toast.successTitle"),
         description: t("dashboard.roles.reviewer.invitations.toast.successDescription", {
-          action:
-            response === "accepted" ? t("common.actions.accept") : t("common.actions.decline"),
+          action: status === "accepted" ? t("common.actions.accept") : t("common.actions.decline"),
         }),
       })
       onInvitationHandled()
@@ -79,14 +82,18 @@ export function ReviewerInvitations({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleResponse(invitation.id, "declined")}
+                      onClick={() =>
+                        handleResponse(invitation.conference_id, invitation.id, "declined")
+                      }
                       disabled={handling === invitation.id}
                     >
                       {t("common.actions.decline")}
                     </Button>
                     <Button
                       size="sm"
-                      onClick={() => handleResponse(invitation.id, "accepted")}
+                      onClick={() =>
+                        handleResponse(invitation.conference_id, invitation.id, "accepted")
+                      }
                       disabled={handling === invitation.id}
                     >
                       {t("common.actions.accept")}

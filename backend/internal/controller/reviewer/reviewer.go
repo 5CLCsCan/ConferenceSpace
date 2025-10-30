@@ -191,3 +191,119 @@ func (c *Controller) Delete(ginCtx *gin.Context, req *dto.ReviewerDeleteRequest)
 
 	return nil
 }
+
+// ================== Reviewer Dashboard Controllers ==================
+
+// GetDashboard godoc
+// @Summary      Get reviewer dashboard data
+// @Description  Get all data needed for reviewer dashboard (conferences, stats, invitations, recent assignments)
+// @Tags         reviewers
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        reviewer_id path int true "Reviewer User ID"
+// @Success      200 {object} dto.ReviewerDashboardResponse
+// @Failure      400 {object} handler.Response
+// @Failure      401 {object} handler.Response
+// @Failure      500 {object} handler.Response
+// @Router       /reviewer/{reviewer_id}/dashboard [get]
+func (c *Controller) GetDashboard(ginCtx *gin.Context, req *dto.GetDashboardRequest) (*dto.ReviewerDashboardResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	// Fetch all data in parallel for better performance
+	type result struct {
+		conferences []*dto.ReviewerConference
+		stats       *dto.ReviewerStats
+		invitations []*dto.ReviewInvitation
+		assignments []*dto.AssignmentWithPaper
+		err         error
+	}
+
+	resultChan := make(chan result, 1)
+
+	go func() {
+		var r result
+		// Get conferences
+		r.conferences, r.err = c.reviewerStorage.GetConferencesByReviewer(ctx, req.ReviewerID)
+		if r.err != nil {
+			resultChan <- r
+			return
+		}
+
+		// Get stats
+		r.stats, r.err = c.reviewerStorage.GetReviewerStats(ctx, req.ReviewerID)
+		if r.err != nil {
+			resultChan <- r
+			return
+		}
+
+		// Get invitations
+		r.invitations, r.err = c.reviewerStorage.GetPendingInvitations(ctx, req.ReviewerID)
+		if r.err != nil {
+			resultChan <- r
+			return
+		}
+
+		// Get recent assignments
+		r.assignments, r.err = c.reviewerStorage.GetRecentAssignments(ctx, req.ReviewerID, 5)
+		if r.err != nil {
+			resultChan <- r
+			return
+		}
+
+		resultChan <- r
+	}()
+
+	r := <-resultChan
+	if r.err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, r.err.Error())
+	}
+
+	// Ensure non-nil slices for consistent API response
+	conferences := r.conferences
+	if conferences == nil {
+		conferences = []*dto.ReviewerConference{}
+	}
+	
+	invitations := r.invitations
+	if invitations == nil {
+		invitations = []*dto.ReviewInvitation{}
+	}
+	
+	assignments := r.assignments
+	if assignments == nil {
+		assignments = []*dto.AssignmentWithPaper{}
+	}
+
+	return &dto.ReviewerDashboardResponse{
+		Conferences:       conferences,
+		Stats:             r.stats,
+		Invitations:       invitations,
+		RecentAssignments: assignments,
+	}, nil
+}
+
+// GetConferencePapers godoc
+// @Summary      Get papers assigned to reviewer in a conference
+// @Description  Get all papers assigned to a reviewer in a specific conference
+// @Tags         reviewers
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        reviewer_id path int true "Reviewer User ID"
+// @Param        conference_id path int true "Conference ID"
+// @Success      200 {array} dto.AssignedPaperResponse
+// @Failure      400 {object} handler.Response
+// @Failure      401 {object} handler.Response
+// @Failure      500 {object} handler.Response
+// @Router       /reviewer/{reviewer_id}/conferences/{conference_id}/papers [get]
+func (c *Controller) GetConferencePapers(ginCtx *gin.Context, req *dto.GetConferencePapersRequest) ([]*dto.AssignedPaperResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	papers, err := c.reviewerStorage.GetAssignedPapers(ctx, req.ReviewerID, req.ConferenceID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	return papers, nil
+}

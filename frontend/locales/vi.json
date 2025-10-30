@@ -14,7 +14,8 @@
       "continue": "Tiếp tục",
       "accept": "Chấp nhận",
       "decline": "Từ chối",
-      "complete": "Hoàn thành"
+      "complete": "Hoàn thành",
+      "goBack": "Quay lại"
     },
     "labels": {
       "email": "Email",
@@ -226,7 +227,8 @@
           "description": "Những việc cần được ưu tiên xử lý",
           "deadline": "Hạn chót",
           "daysLeft": "{{count}} ngày còn lại",
-          "reviewNow": "Phản biện ngay"
+          "reviewNow": "Phản biện ngay",
+          "noAssignments": "Không có bài báo cần xử lý"
         },
         "conferences": {
           "title": "Hội nghị tham gia phản biện",
@@ -236,7 +238,14 @@
             "role": "Vai trò",
             "progress": "Tiến độ",
             "deadline": "Hạn chót"
-          }
+          },
+          "status": {
+            "active": "Đang diễn ra",
+            "upcoming": "Sắp tới",
+            "completed": "Đã hoàn thành",
+            "unknown": "Không xác định"
+          },
+          "noConferences": "Chưa được giao hội nghị nào"
         },
         "invitations": {
           "title": "Lời mời phản biện",
@@ -263,6 +272,10 @@
             "pending": "Chờ",
             "in_progress": "Đang tiến hành",
             "completed": "Hoàn thành"
+          },
+          "empty": {
+            "title": "Chưa Có Bài Báo Nào Được Giao",
+            "description": "Bạn chưa được giao bài báo nào cho hội nghị này. Các bài báo sẽ xuất hiện ở đây khi chủ tọa hội nghị phân công cho bạn."
           }
         },
         "review": {
@@ -273,8 +286,12 @@
           "loading": "Đang tải...",
           "errors": {
             "loadFailed": "Lỗi tải dữ liệu",
-            "paperNotFound": "Không tìm thấy bài báo"
+            "paperNotFound": "Không tìm thấy bài báo",
+            "conferenceIdRequired": "Cần có ID hội nghị",
+            "fetchPaperFailed": "Không thể tải bài báo",
+            "unknownError": "Đã xảy ra lỗi"
           },
+          "loadingPaper": "Đang tải bài báo...",
           "tabs": {
             "review": "Phản biện",
             "discussion": "Thảo luận",
@@ -344,6 +361,20 @@
           },
           "saveDraft": "Lưu bản nháp",
           "submitReview": "Nộp bài phản biện",
+          "saving": "Đang lưu...",
+          "submitting": "Đang gửi...",
+          "saveDraftSuccess": "Đã lưu bản nháp",
+          "saveDraftDescription": "Bản nháp phản biện của bạn đã được lưu thành công.",
+          "saveDraftFailed": "Lưu bản nháp thất bại",
+          "saveDraftFailedDescription": "Không thể lưu bản nháp phản biện. Vui lòng thử lại.",
+          "recommendationRequired": "Cần có đề xuất",
+          "recommendationRequiredDescription": "Vui lòng chọn một đề xuất trước khi gửi.",
+          "commentsTooShort": "Bình luận quá ngắn",
+          "commentsTooShortDescription": "Vui lòng cung cấp ít nhất 50 từ phản hồi cho tác giả.",
+          "submitSuccess": "Đã gửi phản biện",
+          "submitSuccessDescription": "Bài phản biện của bạn đã được gửi thành công.",
+          "submitFailed": "Gửi phản biện thất bại",
+          "submitFailedDescription": "Không thể gửi bài phản biện. Vui lòng thử lại.",
           "discussion": {
             "title": "Thảo luận riêng tư",
             "description": "Thảo luận bài báo này với các phản biện viên khác được giao. Phần này không hiển thị với tác giả.",
@@ -357,7 +388,9 @@
             "actionRequired": "Yêu cầu hành động",
             "actionDescription": "Tác giả đã gửi bài phản biện. Vui lòng đọc và sửa đổi bài đánh giá của bạn nếu cần.",
             "modifyReview": "Sửa đổi bài phản biện của bạn",
-            "notAvailable": "Tác giả chưa gửi bài phản biện."
+            "notAvailable": "Tác giả chưa gửi bài phản biện.",
+            "modifyReviewStarted": "Đã bắt đầu sửa đổi phản biện",
+            "modifyReviewStartedDescription": "Bây giờ bạn có thể chỉnh sửa bài phản biện dựa trên phản hồi của tác giả."
           }
         },
         "features": [
@@ -377,6 +410,20 @@
           "Cấu hình vai trò và quyền hạn"
         ]
       }
+    }
+  },
+  "review": {
+    "role": {
+      "reviewer": "Phản biện viên"
+    },
+    "conferences": {
+      "columns": {
+        "domain": "Lĩnh vực",
+        "timeline": "Ngày Hội Nghị"
+      },
+      "submission": "Hạn nộp",
+      "noConferences": "Chưa được giao hội nghị nào",
+      "complete": "hoàn thành"
     }
   }
 }

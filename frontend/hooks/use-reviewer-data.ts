@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react"
-import { getReviewerConferences, getReviewerStats, getReviewRequests } from "@/lib/api/reviewer"
-import type { Conference, ReviewRequest } from "@/lib/types"
+import { getReviewerConferences, getReviewerStats, getReviewRequests, type ReviewerConference } from "@/lib/api/reviewer"
+import type { ReviewRequest } from "@/lib/types"
 
 interface ReviewerStats {
   total_assigned: number
@@ -11,7 +11,7 @@ interface ReviewerStats {
 }
 
 export function useReviewerData(reviewerId: string) {
-  const [conferences, setConferences] = useState<Conference[]>([])
+  const [conferences, setConferences] = useState<ReviewerConference[]>([])
   const [stats, setStats] = useState<ReviewerStats | null>(null)
   const [invitations, setInvitations] = useState<ReviewRequest[]>([])
   const [loading, setLoading] = useState(true)

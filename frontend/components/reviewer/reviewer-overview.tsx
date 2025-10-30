@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button"
 import { BookOpen, CheckCircle2, Clock, FileText, ChevronRight } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { daysUntilDeadline } from "@/lib/utils"
-import { mockPapers } from "@/lib/mock-data"
-import type { ReviewAssignment } from "@/lib/types"
+import type { AssignmentWithPaper } from "@/lib/api/reviewer"
 
 interface ReviewerOverviewProps {
   stats: {
@@ -16,9 +15,9 @@ interface ReviewerOverviewProps {
     completed: number
     pending_requests: number
   } | null
-  assignments: ReviewAssignment[]
+  assignments: AssignmentWithPaper[]
   conferenceCount: number
-  onSelectPaper: (paperId: string) => void
+  onSelectPaper: (paperId: string, conferenceId: string) => void
 }
 
 export function ReviewerOverview({
@@ -84,35 +83,48 @@ export function ReviewerOverview({
           <CardDescription>{t("dashboard.roles.reviewer.todo.description")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {assignments
-            .filter((a) => a.status !== "completed")
-            .map((assignment) => {
-              const paper = mockPapers.find((p) => p.id === assignment.paper_id)
-              if (!paper) return null
-              const daysLeft = daysUntilDeadline(assignment.due_date)
-              return (
-                <div
-                  key={assignment.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div>
-                    <h4 className="font-semibold">{paper.title}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {t("dashboard.roles.reviewer.todo.deadline")}:{" "}
-                      {new Date(assignment.due_date).toLocaleDateString()} (
-                      {t("dashboard.roles.reviewer.todo.daysLeft", {
-                        count: daysLeft,
-                      })}
-                      )
-                    </p>
+          {assignments.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              {t("dashboard.roles.reviewer.todo.noAssignments") || "No pending assignments"}
+            </p>
+          ) : (
+            assignments
+              .filter((a) => a.status !== "completed")
+              .map((assignment) => {
+                const daysLeft = assignment.due_date ? daysUntilDeadline(assignment.due_date) : 0
+                return (
+                  <div
+                    key={assignment.assignment_id}
+                    className="flex items-center justify-between p-4 border rounded-lg"
+                  >
+                    <div>
+                      <h4 className="font-semibold">{assignment.paper_title}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {assignment.conference_name}
+                      </p>
+                      {assignment.due_date && (
+                        <p className="text-sm text-muted-foreground">
+                          {t("dashboard.roles.reviewer.todo.deadline")}:{" "}
+                          {new Date(assignment.due_date).toLocaleDateString()} (
+                          {t("dashboard.roles.reviewer.todo.daysLeft", {
+                            count: daysLeft,
+                          })}
+                          )
+                        </p>
+                      )}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onSelectPaper(String(assignment.paper_id), String(assignment.conference_id))}
+                    >
+                      {t("dashboard.roles.reviewer.todo.reviewNow")}
+                      <ChevronRight className="ml-2 size-4" />
+                    </Button>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => onSelectPaper(paper.id)}>
-                    {t("dashboard.roles.reviewer.todo.reviewNow")}
-                    <ChevronRight className="ml-2 size-4" />
-                  </Button>
-                </div>
-              )
-            })}
+                )
+              })
+          )}
         </CardContent>
       </Card>
     </>

@@ -2,23 +2,92 @@
 
 import { DashboardHeader } from "@/components/dashboard-header"
 import { PaperReview } from "@/components/reviewer/paper-review"
-import { mockPapers } from "@/lib/mock-data"
-import { notFound } from "next/navigation"
-import { use } from "react"
+import { notFound, useSearchParams } from "next/navigation"
+import { use, useEffect, useState, Suspense } from "react"
+import { getPaperById } from "@/lib/api/papers"
+import type { Paper } from "@/lib/types"
+import { useTranslation } from "@/lib/i18n/translation-context"
+
+function PaperContent({ id }: { id: string }) {
+  const { t } = useTranslation()
+  const searchParams = useSearchParams()
+  const [paper, setPaper] = useState<Paper | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function fetchPaper() {
+      try {
+        setLoading(true)
+        setError(null)
+
+        // Get conference_id from URL query params
+        const conferenceId = searchParams.get('conference_id')
+
+        if (!conferenceId) {
+          setError(t("dashboard.roles.reviewer.review.errors.conferenceIdRequired"))
+          setLoading(false)
+          return
+        }
+
+        const { data, error: fetchError } = await getPaperById(id, conferenceId)
+        
+        if (fetchError || !data) {
+          setError(fetchError || t("dashboard.roles.reviewer.review.errors.fetchPaperFailed"))
+          setLoading(false)
+          return
+        }
+
+        setPaper(data)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : t("dashboard.roles.reviewer.review.errors.unknownError"))
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPaper()
+  }, [id, searchParams, t])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-muted-foreground">{t("dashboard.roles.reviewer.review.loadingPaper")}</p>
+      </div>
+    )
+  }
+
+  if (error || !paper) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <p className="text-destructive mb-4">{error || t("dashboard.roles.reviewer.review.errors.paperNotFound")}</p>
+        <button 
+          onClick={() => window.history.back()}
+          className="text-sm text-primary hover:underline"
+        >
+          {t("common.actions.goBack")}
+        </button>
+      </div>
+    )
+  }
+
+  return <PaperReview paper={paper} onBack={() => window.history.back()} />
+}
 
 export default function ReviewPaperPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params) // Mở params bằng React.use()
-  const paper = mockPapers.find((p) => p.id === resolvedParams.id) // Sử dụng resolvedParams.id
-
-  if (!paper) {
-    notFound()
-  }
+  const resolvedParams = use(params)
 
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader role="reviewer" />
       <main className="container mx-auto px-4 py-8 max-w-6xl">
-        <PaperReview paper={paper!} onBack={() => window.history.back()} />
+        <Suspense fallback={
+          <div className="flex items-center justify-center h-64">
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
+        }>
+          <PaperContent id={resolvedParams.id} />
+        </Suspense>
       </main>
     </div>
   )
