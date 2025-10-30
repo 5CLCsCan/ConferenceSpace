@@ -11,6 +11,7 @@ import (
 
 	"github.com/dcao/conferencespace/internal/config"
 	"github.com/dcao/conferencespace/internal/controller"
+	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/middleware"
 	"github.com/dcao/conferencespace/internal/orchestrator"
@@ -202,6 +203,32 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 				// Auto-assignment endpoint
 				submissions.POST("/auto-assign", handler.HandleRequest(ctrl.Assignment.AutoAssign))
 			}
+		}
+
+		// Reviewer dashboard routes (authentication required)
+		reviewer := v1.Group("/reviewer")
+		reviewer.Use(middleware.AuthMiddleware(cfg.JWT.Secret))
+		{
+			reviewer.GET("/:reviewer_id/dashboard", handler.HandleRequestWithURI(ctrl.Reviewer.GetDashboard))
+			reviewer.GET("/:reviewer_id/conferences/:conference_id/papers", func(c *gin.Context) {
+				var req dto.GetConferencePapersRequest
+				if err := c.ShouldBindUri(&req); err != nil {
+					c.JSON(http.StatusBadRequest, handler.Response{Error: err.Error()})
+					return
+				}
+				
+				papers, err := ctrl.Reviewer.GetConferencePapers(c, &req)
+				if err != nil {
+					if errResp, ok := err.(*handler.ErrorResponse); ok {
+						c.JSON(errResp.StatusCode, handler.Response{Error: errResp.Message})
+						return
+					}
+					c.JSON(http.StatusInternalServerError, handler.Response{Error: err.Error()})
+					return
+				}
+				
+				c.JSON(http.StatusOK, handler.Response{Data: papers})
+			})
 		}
 	}
 
