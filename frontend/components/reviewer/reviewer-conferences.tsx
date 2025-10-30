@@ -1,7 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import type { ReviewerConference } from "@/lib/api/reviewer"
+import type { ReviewerConference } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ReviewerConferencesProps {

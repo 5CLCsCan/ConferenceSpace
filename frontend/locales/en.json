@@ -250,7 +250,10 @@
         "invitations": {
           "title": "Review Invitations",
           "description": "Invitations awaiting your response",
-          "empty": "You have no pending invitations.",
+          "empty": {
+            "title": "No Pending Invitations",
+            "description": "You don't have any pending review invitations at the moment. When conference chairs invite you to review papers, they will appear here."
+          },
           "invitedBy": "Invited by",
           "papersToReview": "Papers to review",
           "responseDeadline": "Response deadline",

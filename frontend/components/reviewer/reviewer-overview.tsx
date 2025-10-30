@@ -2,19 +2,13 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { BookOpen, CheckCircle2, Clock, FileText, ChevronRight } from "lucide-react"
+import { BookOpen, CheckCircle2, Clock, ChevronRight } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { daysUntilDeadline } from "@/lib/utils"
-import type { AssignmentWithPaper } from "@/lib/api/reviewer"
+import type { ReviewerStats, AssignmentWithPaper } from "@/lib/types"
 
 interface ReviewerOverviewProps {
-  stats: {
-    total_assigned: number
-    pending: number
-    in_progress: number
-    completed: number
-    pending_requests: number
-  } | null
+  stats: ReviewerStats | null
   assignments: AssignmentWithPaper[]
   conferenceCount: number
   onSelectPaper: (paperId: string, conferenceId: string) => void

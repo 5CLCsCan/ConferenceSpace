@@ -1,66 +1,66 @@
 import { useState, useEffect, useCallback } from "react"
-import { getReviewerConferences, getReviewerStats, getReviewRequests, type ReviewerConference } from "@/lib/api/reviewer"
+import { getReviewerDashboard } from "@/lib/api/reviewer"
+import type { ReviewerConference, ReviewerStats, AssignmentWithPaper } from "@/lib/types/reviewer.types"
 import type { ReviewRequest } from "@/lib/types"
-
-interface ReviewerStats {
-  total_assigned: number
-  pending: number
-  in_progress: number
-  completed: number
-  pending_requests: number
-}
 
 export function useReviewerData(reviewerId: string) {
   const [conferences, setConferences] = useState<ReviewerConference[]>([])
   const [stats, setStats] = useState<ReviewerStats | null>(null)
   const [invitations, setInvitations] = useState<ReviewRequest[]>([])
+  const [assignments, setAssignments] = useState<AssignmentWithPaper[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const fetchData = useCallback(async () => {
+    if (!reviewerId) {
+      setLoading(false)
+      return
+    }
+
     try {
       setLoading(true)
       setError(null)
-      const [confResponse, statsResponse, invitesResponse] = await Promise.all([
-        getReviewerConferences(reviewerId),
-        getReviewerStats(reviewerId),
-        getReviewRequests(reviewerId),
-      ])
+      
+      // Use single dashboard API call instead of multiple calls
+      const dashboardResponse = await getReviewerDashboard(reviewerId)
 
-      let errors: string[] = []
-      if (confResponse.data) {
-        setConferences(confResponse.data)
+      if (dashboardResponse.error || !dashboardResponse.data) {
+        setError(dashboardResponse.error || "Failed to fetch reviewer dashboard data")
+        // Set empty defaults
+        setConferences([])
+        setStats(null)
+        setInvitations([])
+        setAssignments([])
       } else {
-        errors.push(`Failed to fetch conferences: ${confResponse.error}`)
-      }
-
-      if (statsResponse.data) {
-        setStats(statsResponse.data)
-      } else {
-        errors.push(`Failed to fetch stats: ${statsResponse.error}`)
-      }
-
-      if (invitesResponse.data) {
-        setInvitations(invitesResponse.data)
-      } else {
-        errors.push(`Failed to fetch invitations: ${invitesResponse.error}`)
-      }
-
-      if (errors.length > 0) {
-        setError(errors.join("\n"))
+        // Set all data from single response
+        setConferences(dashboardResponse.data.conferences || [])
+        setStats(dashboardResponse.data.stats || null)
+        setInvitations(dashboardResponse.data.invitations || [])
+        setAssignments(dashboardResponse.data.recent_assignments || [])
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "An unknown error occurred")
+      // Set empty defaults on error
+      setConferences([])
+      setStats(null)
+      setInvitations([])
+      setAssignments([])
     } finally {
       setLoading(false)
     }
   }, [reviewerId])
 
   useEffect(() => {
-    if (reviewerId) {
-      fetchData()
-    }
-  }, [reviewerId, fetchData])
+    fetchData()
+  }, [fetchData])
 
-  return { conferences, stats, invitations, loading, error, refetch: fetchData }
+  return { 
+    conferences, 
+    stats, 
+    invitations, 
+    assignments,
+    loading, 
+    error, 
+    refetch: fetchData 
+  }
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useReviewerData } from "@/hooks/use-reviewer-data"
 import { ReviewerSidebar } from "./reviewer-sidebar"
@@ -8,9 +8,8 @@ import { ReviewerOverview } from "./reviewer-overview"
 import { ReviewerConferences } from "./reviewer-conferences"
 import { ReviewerInvitations } from "./reviewer-invitations"
 import { ConferencePapers } from "./conference-papers"
-import { getReviewerPapersForConference, getRecentAssignments } from "@/lib/api/reviewer"
-import type { Paper } from "@/lib/types"
-import type { AssignmentWithPaper } from "@/lib/api/reviewer"
+import { getReviewerPapersForConference } from "@/lib/api/reviewer"
+import type { AssignedPaper } from "@/lib/types"
 import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
@@ -23,45 +22,28 @@ export function ReviewerDashboard() {
   // Convert user.id to string, fallback to "1" for development
   const currentReviewerId = user?.id || "1"
 
+  // Use optimized hook that fetches all data with single API call
   const {
     conferences,
     stats,
     invitations,
+    assignments,
     loading,
     error,
     refetch: refetchData,
   } = useReviewerData(currentReviewerId)
+  
   const [activeNav, setActiveNav] = useState<View>("overview")
   const [selectedConferenceId, setSelectedConferenceId] = useState<number | null>(null)
-  const [conferencePapers, setConferencePapers] = useState<
-    (Paper & { assignment_status: string; due_date: string })[]
-  >([])
+  const [conferencePapers, setConferencePapers] = useState<AssignedPaper[]>([])
   const [isFetchingPapers, setIsFetchingPapers] = useState(false)
-  const [assignments, setAssignments] = useState<AssignmentWithPaper[]>([])
-
-  // Fetch assignments on mount
-  useEffect(() => {
-    const fetchAssignments = async () => {
-      const response = await getRecentAssignments(currentReviewerId)
-      if (response.data) {
-        setAssignments(response.data)
-      }
-    }
-    fetchAssignments()
-  }, [currentReviewerId])
 
   const handleSelectConference = async (conferenceId: number) => {
     setIsFetchingPapers(true)
     const response = await getReviewerPapersForConference(currentReviewerId, String(conferenceId))
     
     // API now always returns an array (empty or with papers)
-    // Map papers and add due_date fallback
-    const papers = (response.data || []).map((paper) => ({
-      ...paper,
-      due_date: paper.due_date || "",
-    }))
-    
-    setConferencePapers(papers)
+    setConferencePapers(response.data || [])
     setSelectedConferenceId(conferenceId)
     setActiveNav("conference-papers")
     setIsFetchingPapers(false)

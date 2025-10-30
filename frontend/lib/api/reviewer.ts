@@ -1,32 +1,14 @@
 import { apiFetch } from "./client"
-import type { Conference, ReviewRequest, Paper } from "@/lib/types"
+import type { ReviewRequest } from "@/lib/types"
+import type {
+  ReviewerStats,
+  AssignmentWithPaper,
+  ReviewerConference,
+  ReviewerDashboardData,
+  AssignedPaper,
+} from "@/lib/types"
 
-// ================== Response Types ==================
-
-export interface ReviewerStats {
-  total_assigned: number
-  pending: number
-  in_progress: number
-  completed: number
-  pending_requests: number
-}
-
-export interface AssignmentWithPaper {
-  assignment_id: number
-  paper_id: number
-  paper_title: string
-  conference_id: number
-  conference_name: string
-  status: string
-  due_date?: string
-  days_left: number
-}
-
-export interface ReviewerConference extends Conference {
-  reviewed_papers: number
-  total_papers: number
-  domain: string
-}
+// ================== Backend Response Types ==================
 
 // Backend response type (before mapping to frontend format)
 interface BackendReviewerConference {
@@ -46,26 +28,12 @@ interface BackendReviewerConference {
   total_papers: number
 }
 
-export interface ReviewerDashboardResponse {
-  conferences: ReviewerConference[]
-  stats: ReviewerStats
-  invitations: ReviewRequest[]
-  recent_assignments: AssignmentWithPaper[]
-}
-
 // Backend dashboard response type (before mapping)
 interface BackendDashboardResponse {
   conferences: BackendReviewerConference[]
   stats: ReviewerStats
   invitations: ReviewRequest[]
   recent_assignments: AssignmentWithPaper[]
-}
-
-export interface AssignedPaper extends Paper {
-  assignment_status: string
-  due_date?: string
-  assigned_at: string
-  assignment_id: number
 }
 
 // ================== API Functions ==================
@@ -76,7 +44,7 @@ export interface AssignedPaper extends Paper {
  */
 export async function getReviewerDashboard(
   reviewerId: string,
-): Promise<{ data: ReviewerDashboardResponse | null; error: string | null; status: number }> {
+): Promise<{ data: ReviewerDashboardData | null; error: string | null; status: number }> {
   try {
     const { data, response } = await apiFetch<{ data: BackendDashboardResponse }>(
       `/api/v1/reviewer/${reviewerId}/dashboard`,

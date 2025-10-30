@@ -250,7 +250,10 @@
         "invitations": {
           "title": "Lời mời phản biện",
           "description": "Các lời mời đang chờ bạn phản hồi",
-          "empty": "Không có lời mời nào.",
+          "empty": {
+            "title": "Không Có Lời Mời Đang Chờ",
+            "description": "Hiện tại bạn không có lời mời phản biện nào đang chờ. Khi chủ tọa hội nghị mời bạn phản biện bài báo, chúng sẽ xuất hiện ở đây."
+          },
           "invitedBy": "Người mời",
           "papersToReview": "Số bài cần phản biện",
           "responseDeadline": "Hạn phản hồi",

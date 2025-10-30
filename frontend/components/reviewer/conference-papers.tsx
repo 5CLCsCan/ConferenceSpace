@@ -3,11 +3,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Inbox } from "lucide-react"
-import type { Paper } from "@/lib/types"
+import type { AssignedPaper } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ConferencePapersProps {
-  papers: (Paper & { assignment_status: string; due_date: string })[]
+  papers: AssignedPaper[]
   conferenceName: string
   onBack: () => void
   onSelectPaper: (paperId: string) => void
@@ -92,7 +92,9 @@ export function ConferencePapers({
                         {t(`dashboard.roles.reviewer.papers.statusValues.${paper.assignment_status}`)}
                       </span>
                     </td>
-                    <td className="p-4">{new Date(paper.due_date).toLocaleDateString()}</td>
+                    <td className="p-4">
+                      {paper.due_date ? new Date(paper.due_date).toLocaleDateString() : "-"}
+                    </td>
                   </tr>
                 ))
               )}
