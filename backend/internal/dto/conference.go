@@ -69,6 +69,7 @@ type ConferenceListRequest struct {
 	Chair         string `form:"chair" json:"chair"`
 	MyConferences bool   `form:"myConferences" json:"myConferences"` // Filter conferences where user has a role
 	Role          string `form:"role" json:"role"`                   // Filter by specific role: "chair", "author", "reviewer"
+	MyBookmark    bool   `form:"myBookmark" json:"myBookmark"`       // Filter conferences that user has bookmarked
 }
 
 type UserConferenceResponse struct {
@@ -84,4 +85,13 @@ type ConferenceListResponse struct {
 type UserConferenceListResponse struct {
 	Conferences []*UserConferenceResponse `json:"conferences"`
 	Total       int64                     `json:"total"`
+}
+
+type ConferenceBookmarkRequest struct {
+	ConferenceID int64 `uri:"conference_id" binding:"required"`
+}
+
+type ConferenceBookmarkResponse struct {
+	Message      string `json:"message"`
+	IsBookmarked bool   `json:"is_bookmarked"`
 }

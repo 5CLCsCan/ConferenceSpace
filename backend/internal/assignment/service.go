@@ -174,6 +174,28 @@ func (s *Service) AutoAssign(ctx context.Context, conferenceID int64, config Aut
 		if err != nil {
 			return nil, fmt.Errorf("failed to save assignments: %w", err)
 		}
+
+		// 7.1. Bulk update submission status to "reviewing" for all assigned submissions
+		assignedSubmissionIDs := make(map[int64]bool)
+		for _, assignment := range matchResult.Assignments {
+			assignedSubmissionIDs[assignment.SubmissionID] = true
+		}
+
+		// Convert map to slice for bulk update
+		submissionIDsToUpdate := make([]int64, 0, len(assignedSubmissionIDs))
+		for submissionID := range assignedSubmissionIDs {
+			submissionIDsToUpdate = append(submissionIDsToUpdate, submissionID)
+		}
+
+		// Bulk update all assigned submissions' status to "reviewing" in a single query
+		if len(submissionIDsToUpdate) > 0 {
+			err = s.submissionStorage.BulkUpdateStatus(ctx, submissionIDsToUpdate, dto.StatusReviewing)
+			if err != nil {
+				// Log error but don't fail the whole operation
+				// Assignment was successful, status update is secondary
+				fmt.Printf("Warning: failed to bulk update submission status to reviewing: %v\n", err)
+			}
+		}
 	}
 
 	// 8. Build result

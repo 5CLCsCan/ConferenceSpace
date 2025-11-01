@@ -72,6 +72,7 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.ConferenceCreateReques
 // @Param        chair query string false "Filter by chair"
 // @Param        myConferences query bool false "Filter to show only conferences where user has a role"
 // @Param        role query string false "When used with myConferences=true, filter by specific role: 'chair', 'author', 'reviewer'"
+// @Param        myBookmark query bool false "Filter to show only conferences that user has bookmarked"
 // @Success      200 {object} dto.UserConferenceListResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
@@ -94,6 +95,7 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.ConferenceListRequest) (
 		Role:          req.Role,
 		UserID:        userID,
 		UserEmail:     userEmail,
+		MyBookmark:    req.MyBookmark,
 	}
 
 	conferences, total, err := c.conferenceStorage.List(ctx, params)
@@ -228,4 +230,60 @@ func (c *Controller) Delete(ginCtx *gin.Context, req *dto.ConferenceDeleteReques
 	}
 
 	return c.conferenceStorage.Delete(ctx, req.ConferenceID)
+}
+
+// ToggleBookmark godoc
+// @Summary      Toggle conference bookmark
+// @Description  Add or remove a conference bookmark for the authenticated user
+// @Tags         conferences
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        conference_id path int true "Conference ID"
+// @Success      200 {object} dto.ConferenceBookmarkResponse
+// @Failure      400 {object} handler.Response
+// @Failure      401 {object} handler.Response
+// @Failure      404 {object} handler.Response
+// @Router       /conferences/{conference_id}/bookmark [put]
+func (c *Controller) ToggleBookmark(ginCtx *gin.Context, req *dto.ConferenceBookmarkRequest) (*dto.ConferenceBookmarkResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	userID, exists := utils.GetUserID(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	// Check if conference exists
+	_, err := c.conferenceStorage.GetByID(ctx, req.ConferenceID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
+	}
+
+	// Check if already bookmarked
+	isBookmarked, err := c.conferenceStorage.IsBookmarked(ctx, userID, req.ConferenceID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	if isBookmarked {
+		// Remove bookmark
+		err = c.conferenceStorage.RemoveBookmark(ctx, userID, req.ConferenceID)
+		if err != nil {
+			return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+		}
+		return &dto.ConferenceBookmarkResponse{
+			Message:      "bookmark removed successfully",
+			IsBookmarked: false,
+		}, nil
+	} else {
+		// Add bookmark
+		err = c.conferenceStorage.AddBookmark(ctx, userID, req.ConferenceID)
+		if err != nil {
+			return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+		}
+		return &dto.ConferenceBookmarkResponse{
+			Message:      "bookmark added successfully",
+			IsBookmarked: true,
+		}, nil
+	}
 }

@@ -22,6 +22,7 @@ type QueryParams struct {
 	Role          string
 	UserID        int64  // User ID for role-based filtering
 	UserEmail     string // User email for role-based filtering
+	MyBookmark    bool   // Filter by bookmarked conferences
 }
 
 type StorageInterface interface {
@@ -31,6 +32,9 @@ type StorageInterface interface {
 	List(ctx context.Context, params *QueryParams) ([]*dto.ConferenceResponse, int64, error)
 	Update(ctx context.Context, id int64, conf *dto.Conference) (*dto.ConferenceResponse, error)
 	Delete(ctx context.Context, id int64) error
+	AddBookmark(ctx context.Context, userID int64, conferenceID int64) error
+	RemoveBookmark(ctx context.Context, userID int64, conferenceID int64) error
+	IsBookmarked(ctx context.Context, userID int64, conferenceID int64) (bool, error)
 }
 
 type Storage struct {
@@ -246,6 +250,22 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Confere
 		countQuery = countQuery.Where(sq.Like{model.ColChair: "%" + params.Chair + "%"})
 	}
 
+	// Apply bookmark filtering - only filter when myBookmark is true
+	if params.MyBookmark && params.UserID > 0 {
+		bookmarkCond := sq.Expr(
+			fmt.Sprintf("EXISTS (SELECT 1 FROM %s WHERE %s = %s.%s AND %s = ?)",
+				model.BookmarkTableName,
+				model.ColBookmarkConfID,
+				model.ConferenceTableName,
+				model.ColConferenceID,
+				model.ColBookmarkUserID,
+			),
+			params.UserID,
+		)
+		baseQuery = baseQuery.Where(bookmarkCond)
+		countQuery = countQuery.Where(bookmarkCond)
+	}
+
 	// Apply role-based filtering - only filter when myConferences is true
 	if params.MyConferences {
 		var conditions []sq.Sqlizer
@@ -454,4 +474,71 @@ func (s *Storage) Delete(ctx context.Context, id int64) error {
 	}
 
 	return nil
+}
+
+func (s *Storage) AddBookmark(ctx context.Context, userID int64, conferenceID int64) error {
+	query, args, err := s.qb.
+		Insert(model.BookmarkTableName).
+		Columns(model.ColBookmarkUserID, model.ColBookmarkConfID, model.ColBookmarkCreatedAt).
+		Values(userID, conferenceID, time.Now()).
+		Suffix(fmt.Sprintf("ON CONFLICT (%s, %s) DO NOTHING", model.ColBookmarkUserID, model.ColBookmarkConfID)).
+		ToSql()
+
+	if err != nil {
+		return fmt.Errorf("failed to build insert query: %w", err)
+	}
+
+	_, err = s.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to add bookmark: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Storage) RemoveBookmark(ctx context.Context, userID int64, conferenceID int64) error {
+	query, args, err := s.qb.
+		Delete(model.BookmarkTableName).
+		Where(sq.Eq{model.ColBookmarkUserID: userID, model.ColBookmarkConfID: conferenceID}).
+		ToSql()
+
+	if err != nil {
+		return fmt.Errorf("failed to build delete query: %w", err)
+	}
+
+	result, err := s.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to remove bookmark: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to get rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("bookmark not found")
+	}
+
+	return nil
+}
+
+func (s *Storage) IsBookmarked(ctx context.Context, userID int64, conferenceID int64) (bool, error) {
+	query, args, err := s.qb.
+		Select("COUNT(*)").
+		From(model.BookmarkTableName).
+		Where(sq.Eq{model.ColBookmarkUserID: userID, model.ColBookmarkConfID: conferenceID}).
+		ToSql()
+
+	if err != nil {
+		return false, fmt.Errorf("failed to build query: %w", err)
+	}
+
+	var count int
+	err = s.db.QueryRowContext(ctx, query, args...).Scan(&count)
+	if err != nil {
+		return false, fmt.Errorf("failed to check bookmark: %w", err)
+	}
+
+	return count > 0, nil
 }

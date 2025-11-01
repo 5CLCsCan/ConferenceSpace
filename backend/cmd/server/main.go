@@ -179,6 +179,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 			conferences.POST("", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Conference.Create))
 			conferences.PUT("/:conference_id", handler.HandleRequestWithURIAndJSON(ctrl.Conference.Update))
 			conferences.DELETE("/:conference_id", handler.HandleNoRequestWithURIMessage("conference deleted successfully", ctrl.Conference.Delete))
+			conferences.PUT("/:conference_id/bookmark", handler.HandleRequestWithURI(ctrl.Conference.ToggleBookmark))
 
 			// Reviewer routes nested under conferences (all protected - authentication required)
 			reviewers := conferences.Group("/:conference_id/reviewers")
@@ -199,7 +200,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 				submissions.PUT("/:id", handler.HandleRequest(ctrl.Submission.Update))
 				submissions.DELETE("/:id", handler.HandleNoRequestWithMessage("submission deleted successfully", ctrl.Submission.Delete))
 
-				// Auto-assignment endpoint
+				// Auto-assignment endpoint - automatically sets submissions to "reviewing" status
 				submissions.POST("/auto-assign", handler.HandleRequest(ctrl.Assignment.AutoAssign))
 			}
 		}

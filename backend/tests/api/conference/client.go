@@ -108,3 +108,23 @@ func (c *Client) ListSuccess(req *dto.ConferenceListRequest, token string) (*dto
 	testutils.DecodeResponse(c.ctx.T, w, &response)
 	return response.Data, nil
 }
+
+// ToggleBookmark calls the toggle bookmark endpoint
+func (c *Client) ToggleBookmark(conferenceID int64, token string) (*http.Response, error) {
+	path := fmt.Sprintf("/api/v1/conferences/%d/bookmark", conferenceID)
+	return c.ctx.MakeRequest("PUT", path, nil, token)
+}
+
+// ToggleBookmarkSuccess is a helper that toggles a bookmark and returns the response
+func (c *Client) ToggleBookmarkSuccess(conferenceID int64, token string) (*dto.ConferenceBookmarkResponse, error) {
+	w, err := c.ToggleBookmark(conferenceID, token)
+	if err != nil {
+		return nil, err
+	}
+
+	var response struct {
+		Data *dto.ConferenceBookmarkResponse `json:"data"`
+	}
+	testutils.DecodeResponse(c.ctx.T, w, &response)
+	return response.Data, nil
+}
