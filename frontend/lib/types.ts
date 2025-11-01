@@ -1,5 +1,5 @@
 // User roles
-export type UserRole = "author" | "reviewer" | "pc_member" | "chair" | "admin"
+export type UserRole = "author" | "reviewer" | "chair" | "admin"
 
 // Paper status
 export type PaperStatus =

@@ -61,10 +61,6 @@ export default function ConferencePage() {
       author: { label: t("dashboard.roles.author.name"), color: "bg-blue-100 text-blue-700" },
       reviewer: { label: t("dashboard.roles.reviewer.name"), color: "bg-green-100 text-green-700" },
       chair: { label: t("dashboard.roles.chair.name"), color: "bg-purple-100 text-purple-700" },
-      pc_member: {
-        label: t("dashboard.roles.pc_member.name"),
-        color: "bg-yellow-100 text-yellow-700",
-      },
       admin: { label: t("dashboard.roles.admin.name"), color: "bg-red-100 text-red-700" },
     }),
     [t],
@@ -93,8 +89,8 @@ export default function ConferencePage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      {currentRole && ["author", "reviewer", "chair", "pc_member"].includes(currentRole) && (
-        <DashboardHeader role={currentRole as "author" | "reviewer" | "chair" | "pc_member"} />
+      {currentRole && ["author", "reviewer", "chair"].includes(currentRole) && (
+        <DashboardHeader role={currentRole as "author" | "reviewer" | "chair"} />
       )}
 
       <div className="flex flex-1 overflow-hidden">

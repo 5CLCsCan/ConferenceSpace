@@ -19,7 +19,7 @@ import { useTranslation } from "@/lib/i18n/translation-context"
 import { LanguageSwitcher } from "@/components/language-switcher"
 
 interface DashboardHeaderProps {
-  role: "author" | "reviewer" | "chair" | "pc_member"
+  role: "author" | "reviewer" | "chair"
 }
 
 export function DashboardHeader({ role }: DashboardHeaderProps) {
@@ -30,8 +30,9 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
 
   const roleLinks: Record<DashboardHeaderProps["role"], { href: string; label: string }[]> = {
     author: [
-      { href: "/dashboard/author", label: t("dashboard.header.links.author.myPapers") },
-      { href: "/dashboard/author/submit", label: t("dashboard.header.links.author.newSubmission") },
+      { href: "/dashboard/author", label: t("dashboard.header.links.author.dashboard") },
+      { href: "/dashboard/author/submissions", label: t("dashboard.header.links.author.myPapers") },
+      // { href: "/dashboard/author/submit", label: t("dashboard.header.links.author.newSubmission") },
     ],
     reviewer: [
       { href: "/dashboard/reviewer", label: t("dashboard.header.links.reviewer.assignments") },
@@ -44,13 +45,6 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
       { href: "/dashboard/chair", label: t("dashboard.header.links.chair.overview") },
       { href: "/dashboard/chair/papers", label: t("dashboard.header.links.chair.papers") },
       { href: "/dashboard/chair/reviewers", label: t("dashboard.header.links.chair.reviewers") },
-    ],
-    pc_member: [
-      { href: "/dashboard/pc", label: t("dashboard.header.links.pc_member.dashboard") },
-      {
-        href: "/dashboard/pc/assignments",
-        label: t("dashboard.header.links.pc_member.assignments"),
-      },
     ],
   }
 

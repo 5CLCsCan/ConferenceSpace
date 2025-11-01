@@ -195,6 +195,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 			{
 				submissions.GET("", handler.HandleRequestWithQuery(ctrl.Submission.List))
 				submissions.GET("/:id", handler.HandleNoRequest(ctrl.Submission.Get))
+				submissions.GET("/:id/file", ctrl.Submission.GetFile)
 				submissions.POST("", handler.HandleNoRequestWithStatus(http.StatusCreated, ctrl.Submission.Create))
 				submissions.PUT("/:id", handler.HandleRequest(ctrl.Submission.Update))
 				submissions.DELETE("/:id", handler.HandleNoRequestWithMessage("submission deleted successfully", ctrl.Submission.Delete))
