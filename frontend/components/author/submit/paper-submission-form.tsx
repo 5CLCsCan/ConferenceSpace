@@ -13,6 +13,7 @@ import { AuthorsTab } from "./authors-tab"
 import { FileTab } from "./file-tab"
 import { COITab } from "./coi-tab"
 import { SubmissionSidebar } from "./submission-sidebar"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface PaperSubmissionFormProps {
   conference?: Conference | null
@@ -39,6 +40,7 @@ interface Checklist {
 export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
   const router = useRouter()
   const { user } = useAuth()
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<TabType>("paper")
   const [submitting, setSubmitting] = useState(false)
   // Paper tab state
@@ -56,7 +58,9 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
   const [isCorresponding, setIsCorresponding] = useState(false)
   // File tab state
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
-  const [validationStatus, setValidationStatus] = useState<"pending" | "validating" | "success" | "error">("pending")
+  const [validationStatus, setValidationStatus] = useState<
+    "pending" | "validating" | "success" | "error"
+  >("pending")
   // COI tab state
   const [coiPeople, setCoiPeople] = useState<string[]>([])
   const [coiOrgs, setCoiOrgs] = useState<string[]>([])
@@ -68,8 +72,9 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
   const checklist: Checklist = {
     titleProvided: title.trim().length > 0,
     abstractLength:
-      abstract.split(" ").filter(Boolean).length >= 150 && abstract.split(" ").filter(Boolean).length <= 250,
-    subjectAreas: subjectAreas.length >= 2 && subjectAreas.length <= 3,
+      abstract.split(" ").filter(Boolean).length >= 150 &&
+      abstract.split(" ").filter(Boolean).length <= 250,
+    subjectAreas: subjectAreas.length >= 1,
     keywords: keywords.length >= 3,
     pdfUploaded: uploadedFile !== null,
     coAuthorsListed: authors.some((a) => a.name.trim().length > 0),
@@ -77,10 +82,10 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
   }
 
   const tabs = [
-    { id: "paper" as TabType, label: "Paper" },
-    { id: "authors" as TabType, label: "Authors" },
-    { id: "file" as TabType, label: "File" },
-    { id: "coi" as TabType, label: "COI" },
+    { id: "paper" as TabType, label: t("dashboard.author.submit.tabs.paper") },
+    { id: "authors" as TabType, label: t("dashboard.author.submit.tabs.authors") },
+    { id: "file" as TabType, label: t("dashboard.author.submit.tabs.file") },
+    { id: "coi" as TabType, label: t("dashboard.author.submit.tabs.coi") },
   ]
 
   const handleAddKeyword = () => {
@@ -91,28 +96,44 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
   }
 
   const handleSubmit = async () => {
-    if (!user) return
+    if (!user || !conference) return
+
     setSubmitting(true)
-    const submissionData = {
-      title,
-      abstract,
-      keywords,
-      conference_id: conference?.id || "",
-      track_id: subjectAreas[0] || "",
-      authors: authors
-        .filter((a) => a.name.trim())
-        .map((author, index) => ({
-          user_id: index === 0 ? user.id : `temp-${index}`,
-          ...author,
-          is_corresponding: index === 0 && isCorresponding,
-          order: index + 1,
-        })),
-      file: uploadedFile,
-    }
-    const response = await submitPaper(submissionData)
-    setSubmitting(false)
-    if (response.data) {
-      router.push(`/dashboard/author/papers/${response.data.id}`)
+    try {
+      const submissionData = {
+        conference_id: conference.id,
+        title,
+        abstract,
+        link: "", // TODO: Add file upload URL when implemented
+        domain: subjectAreas,
+        file: uploadedFile || undefined, // Include uploaded file
+        information: {
+          keywords,
+          co_authors: authors
+            .filter((a, index) => index > 0 && a.name.trim()) // Skip first author (current user)
+            .map((a) => a.email),
+          paper_type: "research", // Default
+          track_name: subjectAreas[0] || "",
+          additional_notes: "", // TODO: Add notes field
+          metadata: {
+            language: "en", // Default
+            page_count: 0, // TODO: Extract from uploaded file
+          },
+        },
+      }
+
+      const response = await submitPaper(submissionData)
+
+      if (response.error) {
+        alert(`${t("dashboard.author.submit.submissionFailed")}: ${response.error}`)
+      } else {
+        alert(t("dashboard.author.submit.submissionSuccess"))
+        router.push("/dashboard/author")
+      }
+    } catch (error) {
+      alert(t("dashboard.author.submit.submissionError"))
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -127,15 +148,15 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
             size="sm"
             onClick={() => router.back()}
             className="border border-[#0056A3] text-[#0056A3] bg-transparent hover:bg-[#0056A3]/10 px-4 py-2 rounded-[4px] flex items-center gap-2"
-            title="Back to previous page"
+            title={t("dashboard.author.submit.backTooltip")}
           >
             <ArrowLeft className="size-6" />
-            Back
+            {t("dashboard.author.submit.backButton")}
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-[#212529] font-arial">Submit Paper</h1>
+            <h1 className="text-3xl font-bold text-[#212529] font-arial">{t("dashboard.author.submit.title")}</h1>
             <p className="text-[#6C757D] mt-1 text-base font-arial">
-              Enter details, add co-authors, upload your PDF, and declare conflicts (COI). Save as draft anytime.
+              {t("dashboard.author.submit.subtitle")}
             </p>
           </div>
         </div>
@@ -145,7 +166,7 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
             size="lg"
             className="border border-[#0056A3] text-[#0056A3] bg-transparent hover:bg-[#0056A3]/10 px-4 py-2 rounded-[4px] text-base font-medium font-arial"
           >
-            Save as Draft
+            {t("dashboard.author.submit.saveDraft")}
           </Button>
           <Button
             size="lg"
@@ -153,7 +174,7 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
             disabled={!canSubmit || submitting}
             className="bg-[#0056A3] text-white hover:bg-[#0056A3]/90 px-4 py-2 rounded-[4px] text-base font-medium font-arial"
           >
-            {submitting ? "Submitting..." : "Submit"}
+            {submitting ? t("dashboard.author.submit.submitting") : t("dashboard.author.submit.submit")}
           </Button>
         </div>
       </div>
@@ -165,7 +186,9 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex-1 px-6 py-3 rounded-[4px] text-sm font-medium font-arial transition-colors ${
-                  activeTab === tab.id ? "bg-white text-[#212529] shadow-sm" : "text-[#6C757D] hover:text-[#212529]"
+                  activeTab === tab.id
+                    ? "bg-white text-[#212529] shadow-sm"
+                    : "text-[#6C757D] hover:text-[#212529]"
                 }`}
               >
                 {tab.label}
@@ -203,6 +226,7 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
                   setUploadedFile={setUploadedFile}
                   validationStatus={validationStatus}
                   setValidationStatus={setValidationStatus}
+                  conference={conference}
                 />
               )}
               {activeTab === "coi" && (
@@ -225,7 +249,7 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
           </Card>
           <div className="mt-4 flex items-center gap-2 text-sm text-[#6C757D] font-arial">
             <Info className="size-4" />
-            <span>Draft auto-saves every few seconds</span>
+            <span>{t("dashboard.author.submit.draftAutoSave")}</span>
           </div>
         </div>
         <SubmissionSidebar checklist={checklist} />

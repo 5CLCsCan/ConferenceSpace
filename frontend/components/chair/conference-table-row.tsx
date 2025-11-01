@@ -11,7 +11,14 @@ interface ConferenceTableRowProps {
   submissions: number
 }
 
-export function ConferenceTableRow({ id, name, acronym, dates, status, submissions }: ConferenceTableRowProps) {
+export function ConferenceTableRow({
+  id,
+  name,
+  acronym,
+  dates,
+  status,
+  submissions,
+}: ConferenceTableRowProps) {
   const router = useRouter()
   const statusStyles = {
     active: "bg-success/10 text-success",
@@ -35,16 +42,18 @@ export function ConferenceTableRow({ id, name, acronym, dates, status, submissio
       </td>
       <td className="py-4 px-4 text-sm text-foreground">{dates}</td>
       <td className="py-4 px-4">
-        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusStyles[status]}`}>
+        <span
+          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusStyles[status]}`}
+        >
           {statusLabels[status]}
         </span>
       </td>
       <td className="py-4 px-4 text-sm text-foreground">{submissions}</td>
       <td className="py-4 px-4">
         <div className="flex items-center gap-2">
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="h-8 w-8"
             onClick={() => router.push(`/dashboard/conference/${id}`)}
           >
@@ -62,7 +71,14 @@ export function ConferenceTableRow({ id, name, acronym, dates, status, submissio
   )
 }
 
-export function ConferenceCard({ id, name, acronym, dates, status, submissions }: ConferenceTableRowProps) {
+export function ConferenceCard({
+  id,
+  name,
+  acronym,
+  dates,
+  status,
+  submissions,
+}: ConferenceTableRowProps) {
   const router = useRouter()
   const statusStyles = {
     active: "bg-success/10 text-success",
@@ -83,7 +99,9 @@ export function ConferenceCard({ id, name, acronym, dates, status, submissions }
           <h3 className="font-semibold text-foreground">{name}</h3>
           <p className="text-sm text-muted-foreground">{acronym}</p>
         </div>
-        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusStyles[status]}`}>
+        <span
+          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusStyles[status]}`}
+        >
           {statusLabels[status]}
         </span>
       </div>
@@ -98,9 +116,9 @@ export function ConferenceCard({ id, name, acronym, dates, status, submissions }
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <Button 
-          variant="outline" 
-          size="sm" 
+        <Button
+          variant="outline"
+          size="sm"
           className="flex-1 bg-transparent"
           onClick={() => router.push(`/dashboard/conference/${id}`)}
         >

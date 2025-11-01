@@ -22,13 +22,18 @@ export interface User {
   id: string
   name: string
   email: string
-  affiliation: string
+  affiliation?: string
   roles: UserRole[]
   avatar?: string
   expertise: string[]
   h_index?: number
   total_papers?: number
   total_reviews?: number
+  first_name?: string
+  last_name?: string
+  domain?: string[]
+  created_at?: string
+  updated_at?: string
 }
 
 // Conference interface
@@ -47,6 +52,10 @@ export interface Conference {
   website?: string
   status: "upcoming" | "active" | "completed" | "open" | "closed"
   tracks: Track[]
+  chair?: string
+  primary_contact?: number
+  area_chair?: number
+  userRole?: string // "chair", "author", "reviewer", or undefined
 }
 
 // Track interface

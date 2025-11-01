@@ -19,7 +19,9 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-semibold text-foreground mb-1">Step 4: Review and Confirm</h2>
-        <p className="text-sm text-muted-foreground">Please review all information before creating the conference</p>
+        <p className="text-sm text-muted-foreground">
+          Please review all information before creating the conference
+        </p>
       </div>
 
       <div className="space-y-6">
@@ -117,7 +119,9 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
             </div>
             <div className="grid grid-cols-[160px_1fr] gap-2 text-sm">
               <span className="text-muted-foreground">Topics:</span>
-              <span className="font-medium">{data.topics.length > 0 ? data.topics.join(", ") : "No topics added"}</span>
+              <span className="font-medium">
+                {data.topics.length > 0 ? data.topics.join(", ") : "No topics added"}
+              </span>
             </div>
             <div className="grid grid-cols-[160px_1fr] gap-2 text-sm">
               <span className="text-muted-foreground">Anonymity:</span>

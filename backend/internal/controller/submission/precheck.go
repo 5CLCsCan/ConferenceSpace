@@ -1,6 +1,7 @@
 package submission
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/dcao/conferencespace/internal/deskrejection/models"
 	"github.com/dcao/conferencespace/internal/deskrejection/pipeline"
+	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
@@ -68,8 +70,13 @@ func (c *Controller) PreCheck(ginCtx *gin.Context) (*models.ComplianceReport, er
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
 	}
 
-	// Get paper rule configuration
-	paperConfig := conference.Configurations.GetPaperRuleConfig()
+	// Convert conference configuration to paper rule configuration
+	paperConfig := convertConferenceConfigToPaperRuleConfig(conference.Configurations)
+
+	// Add Gemini client to context if available
+	if c.geminiClient != nil {
+		ctx = context.WithValue(ctx, "gemini_client", c.geminiClient)
+	}
 
 	// Run desk rejection validation
 	report, err := pipeline.Run(ctx, tempFilePath, paperConfig)
@@ -79,5 +86,21 @@ func (c *Controller) PreCheck(ginCtx *gin.Context) (*models.ComplianceReport, er
 
 	// Return report without storing anything
 	return &report, nil
+}
+
+// convertConferenceConfigToPaperRuleConfig converts conference configuration to paper rule configuration
+func convertConferenceConfigToPaperRuleConfig(conf *dto.ConferenceConfiguration) *models.PaperRuleConfig {
+	// Start with default configuration
+	paperConfig := models.NewPaperRuleConfig()
+
+	// Apply conference-specific settings if available
+	if conf != nil {
+		if conf.MaximumPages != nil {
+			paperConfig.MaxPages = *conf.MaximumPages
+		}
+		// Add other mappings as needed in the future
+	}
+
+	return paperConfig
 }
 

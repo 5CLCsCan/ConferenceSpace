@@ -7,8 +7,8 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	userDto "github.com/dcao/conferencespace/internal/dto/user"
-	userModel "github.com/dcao/conferencespace/internal/model/user"
+	"github.com/dcao/conferencespace/internal/dto"
+	"github.com/dcao/conferencespace/internal/model"
 	"github.com/lib/pq"
 )
 
@@ -21,12 +21,12 @@ type QueryParams struct {
 }
 
 type StorageInterface interface {
-	Create(ctx context.Context, user *userDto.User, hashedPassword string) (*userDto.Response, error)
-	GetByID(ctx context.Context, id int64) (*userDto.Response, error)
-	GetByEmail(ctx context.Context, email string) (*userDto.Response, error)
-	GetByEmailWithPassword(ctx context.Context, email string) (*userDto.Response, string, error)
-	List(ctx context.Context, params *QueryParams) ([]*userDto.Response, int64, error)
-	Update(ctx context.Context, id int64, user *userDto.User) (*userDto.Response, error)
+	Create(ctx context.Context, user *dto.User, hashedPassword string) (*dto.UserResponse, error)
+	GetByID(ctx context.Context, id int64) (*dto.UserResponse, error)
+	GetByEmail(ctx context.Context, email string) (*dto.UserResponse, error)
+	GetByEmailWithPassword(ctx context.Context, email string) (*dto.UserResponse, string, error)
+	List(ctx context.Context, params *QueryParams) ([]*dto.UserResponse, int64, error)
+	Update(ctx context.Context, id int64, user *dto.User) (*dto.UserResponse, error)
 	Delete(ctx context.Context, id int64) error
 }
 
@@ -44,29 +44,29 @@ func New(db *sql.DB) *Storage {
 	}
 }
 
-func (s *Storage) Create(ctx context.Context, user *userDto.User, hashedPassword string) (*userDto.Response, error) {
+func (s *Storage) Create(ctx context.Context, user *dto.User, hashedPassword string) (*dto.UserResponse, error) {
 	now := time.Now()
 
 	query, args, err := s.qb.
-		Insert(userModel.TableName).
+		Insert(model.UserTableName).
 		Columns(
-			userModel.ColEmail,
-			userModel.ColFirstName,
-			userModel.ColLastName,
-			userModel.ColPassword,
-			userModel.ColDomain,
-			userModel.ColCreatedAt,
-			userModel.ColUpdatedAt,
+			model.UserColEmail,
+			model.UserColFirstName,
+			model.UserColLastName,
+			model.UserColPassword,
+			model.UserColDomain,
+			model.UserColCreatedAt,
+			model.UserColUpdatedAt,
 		).
 		Values(user.Email, user.FirstName, user.LastName, hashedPassword, pq.Array(user.Domain), now, now).
 		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s",
-			userModel.ColUserID,
-			userModel.ColEmail,
-			userModel.ColFirstName,
-			userModel.ColLastName,
-			userModel.ColDomain,
-			userModel.ColCreatedAt,
-			userModel.ColUpdatedAt,
+			model.UserColUserID,
+			model.UserColEmail,
+			model.UserColFirstName,
+			model.UserColLastName,
+			model.UserColDomain,
+			model.UserColCreatedAt,
+			model.UserColUpdatedAt,
 		)).
 		ToSql()
 
@@ -74,7 +74,7 @@ func (s *Storage) Create(ctx context.Context, user *userDto.User, hashedPassword
 		return nil, fmt.Errorf("failed to build insert query: %w", err)
 	}
 
-	entity := &userModel.User{}
+	entity := &model.User{}
 	err = s.db.QueryRowContext(ctx, query, args...).Scan(
 		&entity.UserID,
 		&entity.Email,
@@ -92,26 +92,26 @@ func (s *Storage) Create(ctx context.Context, user *userDto.User, hashedPassword
 	return entity.ToDTO(), nil
 }
 
-func (s *Storage) GetByID(ctx context.Context, id int64) (*userDto.Response, error) {
+func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.UserResponse, error) {
 	query, args, err := s.qb.
 		Select(
-			userModel.ColUserID,
-			userModel.ColEmail,
-			userModel.ColFirstName,
-			userModel.ColLastName,
-			userModel.ColDomain,
-			userModel.ColCreatedAt,
-			userModel.ColUpdatedAt,
+			model.UserColUserID,
+			model.UserColEmail,
+			model.UserColFirstName,
+			model.UserColLastName,
+			model.UserColDomain,
+			model.UserColCreatedAt,
+			model.UserColUpdatedAt,
 		).
-		From(userModel.TableName).
-		Where(sq.Eq{userModel.ColUserID: id}).
+		From(model.UserTableName).
+		Where(sq.Eq{model.UserColUserID: id}).
 		ToSql()
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to build select query: %w", err)
 	}
 
-	entity := &userModel.User{}
+	entity := &model.User{}
 	err = s.db.QueryRowContext(ctx, query, args...).Scan(
 		&entity.UserID,
 		&entity.Email,
@@ -132,26 +132,26 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*userDto.Response, err
 	return entity.ToDTO(), nil
 }
 
-func (s *Storage) GetByEmail(ctx context.Context, email string) (*userDto.Response, error) {
+func (s *Storage) GetByEmail(ctx context.Context, email string) (*dto.UserResponse, error) {
 	query, args, err := s.qb.
 		Select(
-			userModel.ColUserID,
-			userModel.ColEmail,
-			userModel.ColFirstName,
-			userModel.ColLastName,
-			userModel.ColDomain,
-			userModel.ColCreatedAt,
-			userModel.ColUpdatedAt,
+			model.UserColUserID,
+			model.UserColEmail,
+			model.UserColFirstName,
+			model.UserColLastName,
+			model.UserColDomain,
+			model.UserColCreatedAt,
+			model.UserColUpdatedAt,
 		).
-		From(userModel.TableName).
-		Where(sq.Eq{userModel.ColEmail: email}).
+		From(model.UserTableName).
+		Where(sq.Eq{model.UserColEmail: email}).
 		ToSql()
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to build select query: %w", err)
 	}
 
-	entity := &userModel.User{}
+	entity := &model.User{}
 	err = s.db.QueryRowContext(ctx, query, args...).Scan(
 		&entity.UserID,
 		&entity.Email,
@@ -172,27 +172,27 @@ func (s *Storage) GetByEmail(ctx context.Context, email string) (*userDto.Respon
 	return entity.ToDTO(), nil
 }
 
-func (s *Storage) GetByEmailWithPassword(ctx context.Context, email string) (*userDto.Response, string, error) {
+func (s *Storage) GetByEmailWithPassword(ctx context.Context, email string) (*dto.UserResponse, string, error) {
 	query, args, err := s.qb.
 		Select(
-			userModel.ColUserID,
-			userModel.ColEmail,
-			userModel.ColFirstName,
-			userModel.ColLastName,
-			userModel.ColPassword,
-			userModel.ColDomain,
-			userModel.ColCreatedAt,
-			userModel.ColUpdatedAt,
+			model.UserColUserID,
+			model.UserColEmail,
+			model.UserColFirstName,
+			model.UserColLastName,
+			model.UserColPassword,
+			model.UserColDomain,
+			model.UserColCreatedAt,
+			model.UserColUpdatedAt,
 		).
-		From(userModel.TableName).
-		Where(sq.Eq{userModel.ColEmail: email}).
+		From(model.UserTableName).
+		Where(sq.Eq{model.UserColEmail: email}).
 		ToSql()
 
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to build select query: %w", err)
 	}
 
-	entity := &userModel.User{}
+	entity := &model.User{}
 	err = s.db.QueryRowContext(ctx, query, args...).Scan(
 		&entity.UserID,
 		&entity.Email,
@@ -214,30 +214,30 @@ func (s *Storage) GetByEmailWithPassword(ctx context.Context, email string) (*us
 	return entity.ToDTO(), entity.HashedPassword, nil
 }
 
-func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*userDto.Response, int64, error) {
+func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.UserResponse, int64, error) {
 	baseQuery := s.qb.Select(
-		userModel.ColUserID,
-		userModel.ColEmail,
-		userModel.ColFirstName,
-		userModel.ColLastName,
-		userModel.ColDomain,
-		userModel.ColCreatedAt,
-		userModel.ColUpdatedAt,
-	).From(userModel.TableName)
+		model.UserColUserID,
+		model.UserColEmail,
+		model.UserColFirstName,
+		model.UserColLastName,
+		model.UserColDomain,
+		model.UserColCreatedAt,
+		model.UserColUpdatedAt,
+	).From(model.UserTableName)
 
-	countQuery := s.qb.Select("COUNT(*)").From(userModel.TableName)
+	countQuery := s.qb.Select("COUNT(*)").From(model.UserTableName)
 
 	if params.Email != "" {
-		baseQuery = baseQuery.Where(sq.Like{userModel.ColEmail: "%" + params.Email + "%"})
-		countQuery = countQuery.Where(sq.Like{userModel.ColEmail: "%" + params.Email + "%"})
+		baseQuery = baseQuery.Where(sq.Like{model.UserColEmail: "%" + params.Email + "%"})
+		countQuery = countQuery.Where(sq.Like{model.UserColEmail: "%" + params.Email + "%"})
 	}
 	if params.FirstName != "" {
-		baseQuery = baseQuery.Where(sq.Like{userModel.ColFirstName: "%" + params.FirstName + "%"})
-		countQuery = countQuery.Where(sq.Like{userModel.ColFirstName: "%" + params.FirstName + "%"})
+		baseQuery = baseQuery.Where(sq.Like{model.UserColFirstName: "%" + params.FirstName + "%"})
+		countQuery = countQuery.Where(sq.Like{model.UserColFirstName: "%" + params.FirstName + "%"})
 	}
 	if params.LastName != "" {
-		baseQuery = baseQuery.Where(sq.Like{userModel.ColLastName: "%" + params.LastName + "%"})
-		countQuery = countQuery.Where(sq.Like{userModel.ColLastName: "%" + params.LastName + "%"})
+		baseQuery = baseQuery.Where(sq.Like{model.UserColLastName: "%" + params.LastName + "%"})
+		countQuery = countQuery.Where(sq.Like{model.UserColLastName: "%" + params.LastName + "%"})
 	}
 
 	countQueryStr, countArgs, err := countQuery.ToSql()
@@ -258,7 +258,7 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*userDto.Res
 		baseQuery = baseQuery.Offset(uint64(params.Offset))
 	}
 
-	query, args, err := baseQuery.OrderBy(userModel.ColCreatedAt + " DESC").ToSql()
+	query, args, err := baseQuery.OrderBy(model.UserColCreatedAt + " DESC").ToSql()
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to build select query: %w", err)
 	}
@@ -269,9 +269,9 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*userDto.Res
 	}
 	defer rows.Close()
 
-	var entities []*userModel.User
+	var entities []*model.User
 	for rows.Next() {
-		entity := &userModel.User{}
+		entity := &model.User{}
 		err := rows.Scan(
 			&entity.UserID,
 			&entity.Email,
@@ -291,34 +291,34 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*userDto.Res
 		return nil, 0, fmt.Errorf("error iterating users: %w", err)
 	}
 
-	dtos := make([]*userDto.Response, len(entities))
+	dtos := make([]*dto.UserResponse, len(entities))
 	for i, entity := range entities {
 		dtos[i] = entity.ToDTO()
 	}
 	return dtos, total, nil
 }
 
-func (s *Storage) Update(ctx context.Context, id int64, user *userDto.User) (*userDto.Response, error) {
+func (s *Storage) Update(ctx context.Context, id int64, user *dto.User) (*dto.UserResponse, error) {
 	updateMap := map[string]interface{}{
-		userModel.ColEmail:     user.Email,
-		userModel.ColFirstName: user.FirstName,
-		userModel.ColLastName:  user.LastName,
-		userModel.ColDomain:    pq.Array(user.Domain),
-		userModel.ColUpdatedAt: time.Now(),
+		model.UserColEmail:     user.Email,
+		model.UserColFirstName: user.FirstName,
+		model.UserColLastName:  user.LastName,
+		model.UserColDomain:    pq.Array(user.Domain),
+		model.UserColUpdatedAt: time.Now(),
 	}
 
 	query, args, err := s.qb.
-		Update(userModel.TableName).
+		Update(model.UserTableName).
 		SetMap(updateMap).
-		Where(sq.Eq{userModel.ColUserID: id}).
+		Where(sq.Eq{model.UserColUserID: id}).
 		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s",
-			userModel.ColUserID,
-			userModel.ColEmail,
-			userModel.ColFirstName,
-			userModel.ColLastName,
-			userModel.ColDomain,
-			userModel.ColCreatedAt,
-			userModel.ColUpdatedAt,
+			model.UserColUserID,
+			model.UserColEmail,
+			model.UserColFirstName,
+			model.UserColLastName,
+			model.UserColDomain,
+			model.UserColCreatedAt,
+			model.UserColUpdatedAt,
 		)).
 		ToSql()
 
@@ -326,7 +326,7 @@ func (s *Storage) Update(ctx context.Context, id int64, user *userDto.User) (*us
 		return nil, fmt.Errorf("failed to build update query: %w", err)
 	}
 
-	entity := &userModel.User{}
+	entity := &model.User{}
 	err = s.db.QueryRowContext(ctx, query, args...).Scan(
 		&entity.UserID,
 		&entity.Email,
@@ -349,8 +349,8 @@ func (s *Storage) Update(ctx context.Context, id int64, user *userDto.User) (*us
 
 func (s *Storage) Delete(ctx context.Context, id int64) error {
 	query, args, err := s.qb.
-		Delete(userModel.TableName).
-		Where(sq.Eq{userModel.ColUserID: id}).
+		Delete(model.UserTableName).
+		Where(sq.Eq{model.UserColUserID: id}).
 		ToSql()
 
 	if err != nil {

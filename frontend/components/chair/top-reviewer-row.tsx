@@ -5,7 +5,12 @@ interface TopReviewerRowProps {
   isLast?: boolean
 }
 
-export function TopReviewerRow({ name, affiliation, completedReviews, isLast }: TopReviewerRowProps) {
+export function TopReviewerRow({
+  name,
+  affiliation,
+  completedReviews,
+  isLast,
+}: TopReviewerRowProps) {
   return (
     <div className={`py-4 ${!isLast ? "border-b border-border" : ""}`}>
       <div className="flex items-center justify-between">

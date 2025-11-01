@@ -1,13 +1,15 @@
 package submission
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
-	submissionDto "github.com/dcao/conferencespace/internal/dto/submission"
+	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/storage"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
+	fileStorage "github.com/dcao/conferencespace/internal/storage/file"
 	submissionStorage "github.com/dcao/conferencespace/internal/storage/submission"
 	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
@@ -16,30 +18,35 @@ import (
 type Controller struct {
 	submissionStorage submissionStorage.StorageInterface
 	conferenceStorage conferenceStorage.StorageInterface
+	fileStorage       fileStorage.StorageInterface
+	geminiClient      interface{} // Store as interface to allow nil checks
 }
 
-func New(store *storage.Storage) *Controller {
+func New(store *storage.Storage, fileStore fileStorage.StorageInterface, geminiClient interface{}) *Controller {
 	return &Controller{
 		submissionStorage: store.Submission,
-		conferenceStorage:  store.Conference,
+		conferenceStorage: store.Conference,
+		fileStorage:       fileStore,
+		geminiClient:      geminiClient,
 	}
 }
 
 // Create godoc
 // @Summary      Create a new submission
-// @Description  Create a new conference submission
+// @Description  Create a new conference submission with optional file upload
 // @Tags         submissions
-// @Accept       json
+// @Accept       multipart/form-data
 // @Produce      json
 // @Security     BearerAuth
 // @Param        conference_id path int true "Conference ID"
-// @Param        request body submission.CreateRequest true "Submission data"
-// @Success      201 {object} submission.Response
+// @Param        submission formData string true "Submission data as JSON string"
+// @Param        file formData file false "PDF file to upload"
+// @Success      201 {object} dto.Submission
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      500 {object} handler.Response
 // @Router       /conferences/{conference_id}/submissions [post]
-func (c *Controller) Create(ginCtx *gin.Context, req *submissionDto.CreateRequest) (*submissionDto.Response, error) {
+func (c *Controller) Create(ginCtx *gin.Context) (*dto.Submission, error) {
 	ctx := ginCtx.Request.Context()
 
 	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
@@ -47,8 +54,34 @@ func (c *Controller) Create(ginCtx *gin.Context, req *submissionDto.CreateReques
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
 	}
 
+	// Parse multipart form
+	form, err := ginCtx.MultipartForm()
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "failed to parse form data")
+	}
+
+	// Get submission data from form
+	submissionData := ginCtx.PostForm("submission")
+	if submissionData == "" {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "submission data is required")
+	}
+
+	var req dto.SubmissionCreateRequest
+	// For multipart/form-data, parse the submission data from the form field
+	if err := json.Unmarshal([]byte(submissionData), &req); err != nil {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid submission data format")
+	}
+
 	if req.Submission == nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "submission data is required")
+	}
+
+	// Validate required fields
+	if req.Submission.Title == "" {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "title is required")
+	}
+	if req.Submission.Abstract == "" {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "abstract is required")
 	}
 
 	userEmail, exists := utils.GetEmail(ginCtx)
@@ -60,10 +93,49 @@ func (c *Controller) Create(ginCtx *gin.Context, req *submissionDto.CreateReques
 	req.Submission.ConferenceID = conferenceID
 
 	if req.Submission.Status == "" {
-		req.Submission.Status = submissionDto.StatusDraft
+		req.Submission.Status = dto.StatusDraft
 	}
 
-	return c.submissionStorage.Create(ctx, req.Submission)
+	// Create the submission first
+	submission, err := c.submissionStorage.Create(ctx, req.Submission)
+	if err != nil {
+		return nil, err
+	}
+
+	// Handle file upload if present
+	files := form.File["file"]
+	if len(files) > 0 {
+		file := files[0]
+
+		// Open the uploaded file
+		src, err := file.Open()
+		if err != nil {
+			return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to open uploaded file")
+		}
+		defer src.Close()
+
+		// Save file using file storage service with correct submission ID
+		fileMetadata, err := c.fileStorage.SaveFile(src, file, conferenceID, submission.ID)
+		if err != nil {
+			return nil, handler.NewErrorResponse(http.StatusBadRequest, err.Error())
+		}
+
+		// Update submission with file metadata
+		updateData := &dto.Submission{
+			File: fileMetadata,
+		}
+		_, err = c.submissionStorage.Update(ctx, submission.ID, updateData)
+		if err != nil {
+			// Clean up file if update fails
+			c.fileStorage.DeleteFile(conferenceID, submission.ID, fileMetadata.Filename)
+			return nil, err
+		}
+
+		// Update the returned submission with file info
+		submission.File = fileMetadata
+	}
+
+	return submission, nil
 }
 
 // List godoc
@@ -79,12 +151,12 @@ func (c *Controller) Create(ginCtx *gin.Context, req *submissionDto.CreateReques
 // @Param        author query string false "Filter by author"
 // @Param        status query string false "Filter by status"
 // @Param        title query string false "Filter by title"
-// @Success      200 {object} submission.ListResponse
+// @Success      200 {object} dto.SubmissionListResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      500 {object} handler.Response
 // @Router       /conferences/{conference_id}/submissions [get]
-func (c *Controller) List(ginCtx *gin.Context, req *submissionDto.ListRequest) (*submissionDto.ListResponse, error) {
+func (c *Controller) List(ginCtx *gin.Context, req *dto.SubmissionListRequest) (*dto.SubmissionListResponse, error) {
 	ctx := ginCtx.Request.Context()
 
 	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
@@ -106,7 +178,7 @@ func (c *Controller) List(ginCtx *gin.Context, req *submissionDto.ListRequest) (
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
-	return &submissionDto.ListResponse{
+	return &dto.SubmissionListResponse{
 		Submissions: submissions,
 		Total:       total,
 	}, nil
@@ -121,12 +193,12 @@ func (c *Controller) List(ginCtx *gin.Context, req *submissionDto.ListRequest) (
 // @Security     BearerAuth
 // @Param        conference_id path int true "Conference ID"
 // @Param        id path int true "Submission ID"
-// @Success      200 {object} submission.Response
+// @Success      200 {object} dto.Submission
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      404 {object} handler.Response
 // @Router       /conferences/{conference_id}/submissions/{id} [get]
-func (c *Controller) Get(ginCtx *gin.Context) (*submissionDto.Response, error) {
+func (c *Controller) Get(ginCtx *gin.Context) (*dto.Submission, error) {
 	ctx := ginCtx.Request.Context()
 
 	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
@@ -160,14 +232,14 @@ func (c *Controller) Get(ginCtx *gin.Context) (*submissionDto.Response, error) {
 // @Security     BearerAuth
 // @Param        conference_id path int true "Conference ID"
 // @Param        id path int true "Submission ID"
-// @Param        request body submission.UpdateRequest true "Updated submission data"
-// @Success      200 {object} submission.Response
+// @Param        request body dto.SubmissionUpdateRequest true "Updated submission data"
+// @Success      200 {object} dto.Submission
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      403 {object} handler.Response
 // @Failure      404 {object} handler.Response
 // @Router       /conferences/{conference_id}/submissions/{id} [put]
-func (c *Controller) Update(ginCtx *gin.Context, req *submissionDto.UpdateRequest) (*submissionDto.Response, error) {
+func (c *Controller) Update(ginCtx *gin.Context, req *dto.SubmissionUpdateRequest) (*dto.Submission, error) {
 	ctx := ginCtx.Request.Context()
 
 	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
@@ -202,7 +274,7 @@ func (c *Controller) Update(ginCtx *gin.Context, req *submissionDto.UpdateReques
 		return nil, handler.NewErrorResponse(http.StatusForbidden, "only the author can update this submission")
 	}
 
-	if existing.Status == submissionDto.StatusPublished {
+	if existing.Status == dto.StatusPublished {
 		return nil, handler.NewErrorResponse(http.StatusForbidden, "cannot update published submission")
 	}
 
@@ -258,7 +330,7 @@ func (c *Controller) Delete(ginCtx *gin.Context) error {
 		return handler.NewErrorResponse(http.StatusForbidden, "only the author can delete this submission")
 	}
 
-	if existing.Status == submissionDto.StatusPublished {
+	if existing.Status == dto.StatusPublished {
 		return handler.NewErrorResponse(http.StatusForbidden, "cannot delete published submission")
 	}
 

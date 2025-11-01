@@ -9,12 +9,15 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/dcao/conferencespace/internal/clients"
 	"github.com/dcao/conferencespace/internal/config"
 	"github.com/dcao/conferencespace/internal/controller"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/middleware"
 	"github.com/dcao/conferencespace/internal/orchestrator"
 	"github.com/dcao/conferencespace/internal/storage"
+	fileStorage "github.com/dcao/conferencespace/internal/storage/file"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 
@@ -104,12 +107,27 @@ func initializeApp(cfg *config.Config) (*controller.Controller, func(), error) {
 	}
 
 	store := storage.NewStorage(db)
+
+	// Initialize file storage service
+	fileStore := fileStorage.NewLocalFileStorage("./uploads/submissions")
+
+	// Initialize external clients
+	clients, err := clients.NewClients(cfg)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	orch := orchestrator.NewOrchestrator(store, cfg.JWT.Secret, cfg.JWT.Expiry)
-	ctrl := controller.NewController(orch, store)
+	ctrl := controller.NewController(orch, store, fileStore, clients.Gemini)
 
 	cleanup := func() {
 		if err := db.Close(); err != nil {
 			log.Printf("Error closing database: %v", err)
+		}
+		if clients != nil {
+			if err := clients.Close(context.Background()); err != nil {
+				log.Printf("Error closing clients: %v", err)
+			}
 		}
 	}
 
@@ -123,6 +141,14 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Authorization", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	// Swagger documentation
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -147,7 +173,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 
 		// Protected user routes (authentication required)
 		users := v1.Group("/users")
-		users.Use(middleware.AuthMiddleware(cfg.JWT.Secret))
+		users.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
 			users.GET("/me", handler.HandleNoRequest(ctrl.User.GetMe))
 			users.GET("", handler.HandleRequestWithQuery(ctrl.User.List))
@@ -158,23 +184,36 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 
 		// Conference routes (all protected - authentication required)
 		conferences := v1.Group("/conferences")
-		conferences.Use(middleware.AuthMiddleware(cfg.JWT.Secret))
+		conferences.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
 			conferences.GET("", handler.HandleRequestWithQuery(ctrl.Conference.List))
-			conferences.GET("/:id", handler.HandleNoRequest(ctrl.Conference.Get))
+			conferences.GET("/:conference_id", handler.HandleRequestWithURI(ctrl.Conference.Get))
 			conferences.POST("", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Conference.Create))
-			conferences.PUT("/:id", handler.HandleRequest(ctrl.Conference.Update))
-			conferences.DELETE("/:id", handler.HandleNoRequestWithMessage("conference deleted successfully", ctrl.Conference.Delete))
+			conferences.PUT("/:conference_id", handler.HandleRequestWithURIAndJSON(ctrl.Conference.Update))
+			conferences.DELETE("/:conference_id", handler.HandleNoRequestWithURIMessage("conference deleted successfully", ctrl.Conference.Delete))
+			conferences.PUT("/:conference_id/bookmark", handler.HandleRequestWithURI(ctrl.Conference.ToggleBookmark))
+
+			// Reviewer routes nested under conferences (all protected - authentication required)
+			reviewers := conferences.Group("/:conference_id/reviewers")
+			{
+				reviewers.GET("", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.List))
+				reviewers.GET("/:reviewer_id", handler.HandleRequestWithURI(ctrl.Reviewer.Get))
+				reviewers.POST("", handler.HandleRequestWithURIAndJSONWithStatus(http.StatusCreated, ctrl.Reviewer.BatchInvite))
+				reviewers.PUT("/:reviewer_id/status", handler.HandleRequestWithURIAndJSON(ctrl.Reviewer.UpdateStatus))
+				reviewers.DELETE("/:reviewer_id", handler.HandleNoRequestWithURIMessage("reviewer removed successfully", ctrl.Reviewer.Delete))
+			}
 
 			// Submission routes nested under conferences (all protected - authentication required)
-			submissions := conferences.Group("/:id/submissions")
+			submissions := conferences.Group("/:conference_id/submissions")
 			{
-				submissions.GET("", handler.HandleRequestWithQuery(ctrl.Submission.List))
 				submissions.POST("/precheck", handler.HandleNoRequest(ctrl.Submission.PreCheck))
-				submissions.GET("/:submission_id", handler.HandleNoRequest(ctrl.Submission.Get))
-				submissions.POST("", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Submission.Create))
-				submissions.PUT("/:submission_id", handler.HandleRequest(ctrl.Submission.Update))
-				submissions.DELETE("/:submission_id", handler.HandleNoRequestWithMessage("submission deleted successfully", ctrl.Submission.Delete))
+				submissions.GET("/:id", handler.HandleNoRequest(ctrl.Submission.Get))
+				submissions.POST("", handler.HandleNoRequestWithStatus(http.StatusCreated, ctrl.Submission.Create))
+				submissions.PUT("/:id", handler.HandleRequest(ctrl.Submission.Update))
+				submissions.DELETE("/:id", handler.HandleNoRequestWithMessage("submission deleted successfully", ctrl.Submission.Delete))
+
+				// Auto-assignment endpoint - automatically sets submissions to "reviewing" status
+				submissions.POST("/auto-assign", handler.HandleRequest(ctrl.Assignment.AutoAssign))
 			}
 		}
 	}

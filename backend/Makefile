@@ -1,8 +1,13 @@
-.PHONY: help dev db-up db-down db-reset server build run test clean docker-build docker-up docker-down migrate-up migrate-down
+.PHONY: help dev db-up db-down db-reset neo4j-up neo4j-down neo4j-init neo4j-shell neo4j-logs server build run test clean docker-build docker-up docker-down migrate-up migrate-down test-api test-api-coverage
 
 # Go binary path
 GOBIN := $(shell go env GOPATH)/bin
 MIGRATE := $(GOBIN)/migrate
+
+# Neo4j connection details
+NEO4J_URI := bolt://localhost:7687
+NEO4J_USER := neo4j
+NEO4J_PASS := conferencespace
 
 help: ## Show this help message
 	@echo 'Usage: make [target]'
@@ -14,18 +19,18 @@ help: ## Show this help message
 # Development Workflow
 # ============================================================================
 
-dev: db-up migrate-up server ## Start DB, run migrations, and start server (recommended for development)
+dev: db-up neo4j-up migrate-up neo4j-init swagger server ## Start all databases, run migrations, init Neo4j, generate swagger docs, and start server (recommended for development)
 
 db-up: ## Start PostgreSQL database only
 	@echo "Starting PostgreSQL database..."
 	docker-compose up -d postgres
 	@echo "Waiting for database to be ready..."
-	@sleep 3
+	@docker-compose exec -T postgres bash -lc 'until pg_isready -U postgres -d conferencespace -q; do echo "…"; sleep 1; done'
 	@echo "Database is ready!"
 
 db-down: ## Stop PostgreSQL database
 	@echo "Stopping PostgreSQL database..."
-	docker-compose down
+	docker-compose stop postgres
 
 db-reset: db-down db-up migrate-up ## Reset database (down, up, migrate)
 	@echo "Database reset complete!"
@@ -33,6 +38,114 @@ db-reset: db-down db-up migrate-up ## Reset database (down, up, migrate)
 server: ## Run the server locally (requires DB to be running)
 	@echo "Starting server..."
 	go run ./cmd/server/main.go
+
+# ============================================================================
+# Neo4j Graph Database
+# ============================================================================
+
+neo4j-up: ## Start Neo4j graph database
+	@echo "Starting Neo4j graph database..."
+	docker-compose up -d neo4j
+	@echo "Waiting for Neo4j to be ready (this may take 30 seconds)..."
+	@sleep 10
+	@until docker-compose exec -T neo4j wget --no-verbose --tries=1 --spider http://localhost:7474 2>/dev/null; do \
+		echo "Waiting for Neo4j..."; \
+		sleep 5; \
+	done
+	@echo "✅ Neo4j is ready!"
+	@echo "📊 Neo4j Browser UI: http://localhost:7474"
+	@echo "🔐 Username: neo4j"
+	@echo "🔑 Password: conferencespace"
+
+neo4j-down: ## Stop Neo4j database
+	@echo "Stopping Neo4j database..."
+	docker-compose stop neo4j
+
+neo4j-restart: neo4j-down neo4j-up ## Restart Neo4j database
+
+neo4j-init: ## Initialize Neo4j constraints and indexes for COI detection
+	@echo "Initializing Neo4j schema (constraints & indexes)..."
+	@docker-compose exec -T neo4j cypher-shell -u $(NEO4J_USER) -p $(NEO4J_PASS) -d neo4j \
+		"CREATE CONSTRAINT author_email IF NOT EXISTS FOR (a:Author) REQUIRE a.email IS UNIQUE;" 2>/dev/null || true
+	@docker-compose exec -T neo4j cypher-shell -u $(NEO4J_USER) -p $(NEO4J_PASS) -d neo4j \
+		"CREATE INDEX author_name IF NOT EXISTS FOR (a:Author) ON (a.name);" 2>/dev/null || true
+	@docker-compose exec -T neo4j cypher-shell -u $(NEO4J_USER) -p $(NEO4J_PASS) -d neo4j \
+		"CREATE INDEX coauthor_date IF NOT EXISTS FOR ()-[r:COAUTHORED]-() ON (r.established_date);" 2>/dev/null || true
+	@echo "✅ Neo4j schema initialized!"
+	@echo ""
+	@echo "📋 Created constraints:"
+	@echo "   - UNIQUE constraint on Author.email"
+	@echo "📋 Created indexes:"
+	@echo "   - Index on Author.name"
+	@echo "   - Index on COAUTHORED.established_date"
+
+neo4j-shell: ## Open Neo4j Cypher shell
+	@echo "Opening Neo4j Cypher shell..."
+	@echo "💡 Tip: Use :exit to quit"
+	@docker-compose exec neo4j cypher-shell -u $(NEO4J_USER) -p $(NEO4J_PASS) -d neo4j
+
+neo4j-logs: ## View Neo4j logs
+	docker-compose logs -f neo4j
+
+neo4j-status: ## Check Neo4j status and show sample data
+	@echo "=== Neo4j Status ==="
+	@docker-compose exec -T neo4j cypher-shell -u $(NEO4J_USER) -p $(NEO4J_PASS) -d neo4j \
+		"CALL dbms.components() YIELD name, versions, edition RETURN name, versions[0] as version, edition;" 2>/dev/null || echo "Neo4j not accessible"
+	@echo ""
+	@echo "=== Node Counts ==="
+	@docker-compose exec -T neo4j cypher-shell -u $(NEO4J_USER) -p $(NEO4J_PASS) -d neo4j \
+		"MATCH (a:Author) RETURN 'Authors' as type, count(a) as count UNION ALL MATCH ()-[r:COAUTHORED]->() RETURN 'Relationships' as type, count(r) as count;" 2>/dev/null || echo "No data yet"
+
+neo4j-clear: ## Clear all data from Neo4j (WARNING: destructive)
+	@echo "⚠️  WARNING: This will delete ALL data from Neo4j!"
+	@read -p "Are you sure? [y/N] " -n 1 -r; \
+	echo; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		docker-compose exec -T neo4j cypher-shell -u $(NEO4J_USER) -p $(NEO4J_PASS) -d neo4j \
+			"MATCH (n) DETACH DELETE n;" 2>/dev/null; \
+		echo "✅ Neo4j data cleared!"; \
+	fi
+
+# ============================================================================
+# Graph Data Ingestion
+# ============================================================================
+
+graph-import-build: ## Build the graph import tool
+	@echo "Building graph import tool..."
+	cd tools/graph_ingestion && go build -o graph-import
+	@echo "✅ Built: tools/graph_ingestion/graph-import"
+
+graph-import: ## Import data into Neo4j (usage: make graph-import FILE=data.csv)
+	@if [ -z "$(FILE)" ]; then \
+		echo "Usage: make graph-import FILE=your_data.csv"; \
+		echo ""; \
+		echo "Optional parameters:"; \
+		echo "  CLEAR=true    - Clear existing data first"; \
+		echo "  BATCH=2000    - Set batch size"; \
+		echo ""; \
+		echo "Example:"; \
+		echo "  make graph-import FILE=data.csv CLEAR=true BATCH=2000"; \
+		exit 1; \
+	fi
+	@if [ ! -f "$(FILE)" ]; then \
+		echo "❌ File not found: $(FILE)"; \
+		exit 1; \
+	fi
+	@cd tools/graph_ingestion && \
+		if [ ! -f graph-import ]; then \
+			echo "Building import tool..."; \
+			go build -o graph-import; \
+		fi && \
+		./graph-import -file=../../$(FILE) \
+			$(if $(CLEAR),-clear,) \
+			$(if $(BATCH),-batch=$(BATCH),)
+
+graph-import-example: graph-import-build ## Import example data
+	@echo "Importing example data..."
+	cd tools/graph_ingestion && ./graph-import -file=example_data.csv -clear
+	@echo ""
+	@echo "✅ Example data imported!"
+	@echo "📊 View in Neo4j Browser: http://localhost:7474"
 
 # ============================================================================
 # Build & Run
@@ -70,14 +183,26 @@ docker-down: ## Stop all Docker services
 	@echo "Stopping all services..."
 	docker-compose down
 
+docker-down-volumes: ## Stop all services and remove volumes (WARNING: deletes all data)
+	@echo "⚠️  WARNING: This will delete all data including PostgreSQL and Neo4j!"
+	@read -p "Are you sure? [y/N] " -n 1 -r; \
+	echo; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		docker-compose down -v; \
+		echo "✅ All services stopped and volumes removed!"; \
+	fi
+
 docker-logs: ## View logs from all Docker services
 	docker-compose logs -f
 
 docker-logs-api: ## View logs from API service only
 	docker-compose logs -f app
 
-docker-logs-db: ## View logs from database service only
+docker-logs-db: ## View logs from PostgreSQL service only
 	docker-compose logs -f postgres
+
+docker-logs-neo4j: ## View logs from Neo4j service only
+	docker-compose logs -f neo4j
 
 docker-restart: docker-down docker-up ## Restart all Docker services
 
@@ -87,7 +212,7 @@ docker-restart: docker-down docker-up ## Restart all Docker services
 
 migrate-up: ## Run database migrations
 	@echo "Running migrations..."
-	@docker-compose exec -T postgres psql -U postgres -d conferencespace -c "SELECT 1" > /dev/null 2>&1 || (echo "Database not ready. Run 'make db-up' first." && exit 1)
+	@docker-compose exec -T postgres bash -lc 'until pg_isready -U postgres -d conferencespace -q; do sleep 1; done'
 	$(MIGRATE) -path migrations -database "postgresql://postgres:postgres@localhost:5432/conferencespace?sslmode=disable" up
 	@echo "Migrations completed!"
 
@@ -152,6 +277,25 @@ test-unit: ## Run unit tests only
 	go test -v -short ./...
 
 # ============================================================================
+# API Integration Tests
+# ============================================================================
+
+test-api: ## Run API tests (usage: make test-api [path=auth|user|conference|submission|e2e])
+	@if [ -n "$(path)" ]; then \
+		echo "Running tests for: $(path)"; \
+		cd tests/api && go test -v ./$(path); \
+	else \
+		echo "Running all API tests..."; \
+		cd tests/api && go test -v ./...; \
+	fi
+
+test-api-coverage: ## Run API tests with coverage
+	@echo "Running API tests with coverage..."
+	cd tests/api && go test -v -coverprofile=coverage.out ./...
+	cd tests/api && go tool cover -html=coverage.out -o coverage.html
+	@echo "API test coverage report generated: tests/api/coverage.html"
+
+# ============================================================================
 # Code Quality
 # ============================================================================
 
@@ -208,8 +352,13 @@ install-tools: ## Install required development tools
 
 swagger: ## Generate swagger documentation
 	@echo "Generating swagger documentation..."
-	$(GOBIN)/swag init -g cmd/server/main.go -o ./docs
+	@if ! command -v $(GOBIN)/swag >/dev/null 2>&1; then \
+		echo "⚠️  swag not found. Installing..."; \
+		go install github.com/swaggo/swag/cmd/swag@latest; \
+	fi
+	@$(GOBIN)/swag init -g cmd/server/main.go -o ./docs
 	@echo "✅ Swagger docs generated in ./docs"
+	@echo "📚 Access Swagger UI at: http://localhost:8080/swagger/index.html"
 
 swagger-serve: swagger ## Generate and serve swagger UI
 	@echo "Swagger UI available at: http://localhost:8080/swagger/index.html"
@@ -222,8 +371,11 @@ status: ## Check status of services
 	@echo "=== Docker Services Status ==="
 	@docker-compose ps
 	@echo ""
-	@echo "=== Database Connection ==="
-	@docker-compose exec -T postgres psql -U postgres -d conferencespace -c "SELECT 'Connected!' as status" 2>/dev/null || echo "Database not accessible"
+	@echo "=== PostgreSQL Connection ==="
+	@docker-compose exec -T postgres psql -U postgres -d conferencespace -c "SELECT 'Connected!' as status" 2>/dev/null || echo "PostgreSQL not accessible"
+	@echo ""
+	@echo "=== Neo4j Connection ==="
+	@docker-compose exec -T neo4j cypher-shell -u $(NEO4J_USER) -p $(NEO4J_PASS) -d neo4j "RETURN 'Connected!' as status" 2>/dev/null || echo "Neo4j not accessible"
 	@echo ""
 	@echo "=== API Health Check ==="
 	@curl -s http://localhost:8080/health 2>/dev/null | grep -q "healthy" && echo "API is healthy!" || echo "API not accessible"

@@ -103,7 +103,8 @@
 
 @theme inline {
   /* Added font configuration per style guide (Arial/Roboto) */
-  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Arial, sans-serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);

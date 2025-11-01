@@ -4,13 +4,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { Clock, CheckCircle2, AlertCircle, FileText, TrendingUp, Sparkles, Calendar } from "lucide-react"
+import {
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  FileText,
+  TrendingUp,
+  Sparkles,
+  Calendar,
+} from "lucide-react"
 import { mockReviewAssignments, mockPapers, mockConference } from "@/lib/mock-data"
 import { formatDate, daysUntilDeadline } from "@/lib/utils"
 import Link from "next/link"
 import type { ReviewAssignment, Paper } from "@/lib/types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export function ReviewerDashboard() {
+  const { t } = useTranslation()
   const currentReviewerId = "user-2"
   const assignments = mockReviewAssignments.filter((a) => a.reviewer_id === currentReviewerId)
 
@@ -30,20 +40,20 @@ export function ReviewerDashboard() {
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold mb-2">Review Deadline Approaching</h2>
+              <h2 className="text-2xl font-bold mb-2">{t("dashboard.reviewer.dashboard.deadlineApproaching")}</h2>
               <p className="text-muted-foreground mb-4">
-                Complete your reviews before {formatDate(mockConference.review_deadline)}
+                {t("dashboard.reviewer.dashboard.completeBefore")} {formatDate(mockConference.review_deadline)}
               </p>
               <Badge variant="outline" className="gap-1">
                 <Calendar className="size-3" />
-                {daysUntilDeadline(mockConference.review_deadline)} days remaining
+                {daysUntilDeadline(mockConference.review_deadline)} {t("dashboard.reviewer.dashboard.daysRemaining")}
               </Badge>
             </div>
             <div className="text-right">
               <div className="text-4xl font-bold mb-2">
                 {stats.completed}/{stats.total}
               </div>
-              <p className="text-sm text-muted-foreground">Reviews Completed</p>
+              <p className="text-sm text-muted-foreground">{t("dashboard.reviewer.dashboard.reviewsCompleted")}</p>
             </div>
           </div>
         </CardContent>
@@ -53,7 +63,9 @@ export function ReviewerDashboard() {
       <div className="grid md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Assigned</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {t("dashboard.reviewer.dashboard.totalAssigned")}
+            </CardTitle>
             <FileText className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -63,7 +75,7 @@ export function ReviewerDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Pending</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.reviewer.dashboard.pending")}</CardTitle>
             <AlertCircle className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -73,7 +85,7 @@ export function ReviewerDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">In Progress</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.reviewer.dashboard.inProgress")}</CardTitle>
             <Clock className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -83,7 +95,9 @@ export function ReviewerDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Completion Rate</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {t("dashboard.reviewer.dashboard.completionRate")}
+            </CardTitle>
             <TrendingUp className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -95,13 +109,13 @@ export function ReviewerDashboard() {
       {/* Review Progress */}
       <Card>
         <CardHeader>
-          <CardTitle>Overall Progress</CardTitle>
-          <CardDescription>Track your review completion status</CardDescription>
+          <CardTitle>{t("dashboard.reviewer.dashboard.overallProgress")}</CardTitle>
+          <CardDescription>{t("dashboard.reviewer.dashboard.trackCompletion")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span>Completed Reviews</span>
+              <span>{t("dashboard.reviewer.dashboard.completedReviews")}</span>
               <span className="font-medium">{completionRate}%</span>
             </div>
             <Progress value={completionRate} className="h-3" />
@@ -111,21 +125,21 @@ export function ReviewerDashboard() {
               <div className="size-3 rounded-full bg-destructive" />
               <div className="text-sm">
                 <div className="font-medium">{stats.pending}</div>
-                <div className="text-muted-foreground">Pending</div>
+                <div className="text-muted-foreground">{t("dashboard.reviewer.dashboard.pending")}</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <div className="size-3 rounded-full bg-warning" />
               <div className="text-sm">
                 <div className="font-medium">{stats.inProgress}</div>
-                <div className="text-muted-foreground">In Progress</div>
+                <div className="text-muted-foreground">{t("dashboard.reviewer.dashboard.inProgress")}</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <div className="size-3 rounded-full bg-success" />
               <div className="text-sm">
                 <div className="font-medium">{stats.completed}</div>
-                <div className="text-muted-foreground">Completed</div>
+                <div className="text-muted-foreground">{t("dashboard.reviewer.dashboard.completed")}</div>
               </div>
             </div>
           </div>
@@ -135,8 +149,8 @@ export function ReviewerDashboard() {
       {/* Assigned Papers */}
       <Card>
         <CardHeader>
-          <CardTitle>Assigned Papers</CardTitle>
-          <CardDescription>Papers waiting for your review</CardDescription>
+          <CardTitle>{t("dashboard.reviewer.dashboard.assignedPapers")}</CardTitle>
+          <CardDescription>{t("dashboard.reviewer.dashboard.papersWaiting")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {assignments.map((assignment) => {
@@ -154,24 +168,26 @@ function AssignedPaperCard({ assignment, paper }: { assignment: ReviewAssignment
   const daysLeft = daysUntilDeadline(assignment.due_date)
   const isUrgent = daysLeft <= 7
 
+  const { t } = useTranslation()
+  
   const statusConfig = {
     pending: {
       icon: AlertCircle,
       color: "text-destructive",
       bgColor: "bg-destructive/10",
-      label: "Not Started",
+      label: t("dashboard.reviewer.dashboard.notStarted"),
     },
     in_progress: {
       icon: Clock,
       color: "text-warning",
       bgColor: "bg-warning/10",
-      label: "In Progress",
+      label: t("dashboard.reviewer.dashboard.inProgress"),
     },
     completed: {
       icon: CheckCircle2,
       color: "text-success",
       bgColor: "bg-success/10",
-      label: "Completed",
+      label: t("dashboard.reviewer.dashboard.completed"),
     },
   }
 
@@ -193,13 +209,13 @@ function AssignedPaperCard({ assignment, paper }: { assignment: ReviewAssignment
                 </Link>
                 <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{paper.abstract}</p>
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span>Due {formatDate(assignment.due_date)}</span>
+                  <span>{t("dashboard.reviewer.dashboard.due")} {formatDate(assignment.due_date)}</span>
                   {isUrgent && (
                     <>
                       <span>•</span>
                       <Badge variant="destructive" className="gap-1">
                         <AlertCircle className="size-3" />
-                        {daysLeft} days left
+                        {daysLeft} {t("dashboard.reviewer.dashboard.daysLeft")}
                       </Badge>
                     </>
                   )}
@@ -208,7 +224,7 @@ function AssignedPaperCard({ assignment, paper }: { assignment: ReviewAssignment
                       <span>•</span>
                       <Badge variant="secondary" className="gap-1">
                         <Sparkles className="size-3" />
-                        {assignment.ai_match_score}% match
+                        {assignment.ai_match_score}% {t("dashboard.reviewer.dashboard.match")}
                       </Badge>
                     </>
                   )}
@@ -228,9 +244,13 @@ function AssignedPaperCard({ assignment, paper }: { assignment: ReviewAssignment
             </div>
           </div>
 
-          <Button variant={assignment.status === "completed" ? "outline" : "default"} size="sm" asChild>
+          <Button
+            variant={assignment.status === "completed" ? "outline" : "default"}
+            size="sm"
+            asChild
+          >
             <Link href={`/reviewer/papers/${paper.id}`}>
-              {assignment.status === "completed" ? "View Review" : "Start Review"}
+              {assignment.status === "completed" ? t("dashboard.reviewer.dashboard.viewReview") : t("dashboard.reviewer.dashboard.startReview")}
             </Link>
           </Button>
         </div>

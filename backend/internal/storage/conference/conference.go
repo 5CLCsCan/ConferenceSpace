@@ -7,26 +7,34 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	conferenceDto "github.com/dcao/conferencespace/internal/dto/conference"
-	conferenceModel "github.com/dcao/conferencespace/internal/model/conference"
+	"github.com/dcao/conferencespace/internal/dto"
+	"github.com/dcao/conferencespace/internal/model"
 	"github.com/lib/pq"
 )
 
 type QueryParams struct {
-	Limit   int
-	Offset  int
-	Title   string
-	Acronym string
-	Chair   string
+	Limit         int
+	Offset        int
+	Title         string
+	Acronym       string
+	Chair         string
+	MyConferences bool
+	Role          string
+	UserID        int64  // User ID for role-based filtering
+	UserEmail     string // User email for role-based filtering
+	MyBookmark    bool   // Filter by bookmarked conferences
 }
 
 type StorageInterface interface {
-	Create(ctx context.Context, conf *conferenceDto.Conference) (*conferenceDto.Response, error)
-	GetByID(ctx context.Context, id int64) (*conferenceDto.Response, error)
-	GetByAcronym(ctx context.Context, acronym string) (*conferenceDto.Response, error)
-	List(ctx context.Context, params *QueryParams) ([]*conferenceDto.Response, int64, error)
-	Update(ctx context.Context, id int64, conf *conferenceDto.Conference) (*conferenceDto.Response, error)
+	Create(ctx context.Context, conf *dto.Conference) (*dto.ConferenceResponse, error)
+	GetByID(ctx context.Context, id int64) (*dto.ConferenceResponse, error)
+	GetByAcronym(ctx context.Context, acronym string) (*dto.ConferenceResponse, error)
+	List(ctx context.Context, params *QueryParams) ([]*dto.ConferenceResponse, int64, error)
+	Update(ctx context.Context, id int64, conf *dto.Conference) (*dto.ConferenceResponse, error)
 	Delete(ctx context.Context, id int64) error
+	AddBookmark(ctx context.Context, userID int64, conferenceID int64) error
+	RemoveBookmark(ctx context.Context, userID int64, conferenceID int64) error
+	IsBookmarked(ctx context.Context, userID int64, conferenceID int64) (bool, error)
 }
 
 type Storage struct {
@@ -41,27 +49,27 @@ func New(db *sql.DB) *Storage {
 	}
 }
 
-func (s *Storage) Create(ctx context.Context, conf *conferenceDto.Conference) (*conferenceDto.Response, error) {
+func (s *Storage) Create(ctx context.Context, conf *dto.Conference) (*dto.ConferenceResponse, error) {
 	now := time.Now()
 
-	configBytes, err := conferenceModel.SerializeConfiguration(conf.Configurations)
+	configBytes, err := model.SerializeConferenceConfiguration(conf.Configurations)
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize configuration: %w", err)
 	}
 
 	query, args, err := s.qb.
-		Insert(conferenceModel.TableName).
+		Insert(model.ConferenceTableName).
 		Columns(
-			conferenceModel.ColTitle,
-			conferenceModel.ColAcronym,
-			conferenceModel.ColDescription,
-			conferenceModel.ColChair,
-			conferenceModel.ColPrimaryContact,
-			conferenceModel.ColAreaChair,
-			conferenceModel.ColDomain,
-			conferenceModel.ColConfigurations,
-			conferenceModel.ColCreatedAt,
-			conferenceModel.ColUpdatedAt,
+			model.ColTitle,
+			model.ColAcronym,
+			model.ColDescription,
+			model.ColChair,
+			model.ColPrimaryContact,
+			model.ColAreaChair,
+			model.ColDomain,
+			model.ColConfigurations,
+			model.ColCreatedAt,
+			model.ColUpdatedAt,
 		).
 		Values(
 			conf.Title,
@@ -76,17 +84,17 @@ func (s *Storage) Create(ctx context.Context, conf *conferenceDto.Conference) (*
 			now,
 		).
 		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
-			conferenceModel.ColConferenceID,
-			conferenceModel.ColTitle,
-			conferenceModel.ColAcronym,
-			conferenceModel.ColDescription,
-			conferenceModel.ColChair,
-			conferenceModel.ColPrimaryContact,
-			conferenceModel.ColAreaChair,
-			conferenceModel.ColDomain,
-			conferenceModel.ColConfigurations,
-			conferenceModel.ColCreatedAt,
-			conferenceModel.ColUpdatedAt,
+			model.ColConferenceID,
+			model.ColTitle,
+			model.ColAcronym,
+			model.ColDescription,
+			model.ColChair,
+			model.ColPrimaryContact,
+			model.ColAreaChair,
+			model.ColDomain,
+			model.ColConfigurations,
+			model.ColCreatedAt,
+			model.ColUpdatedAt,
 		)).
 		ToSql()
 
@@ -94,7 +102,7 @@ func (s *Storage) Create(ctx context.Context, conf *conferenceDto.Conference) (*
 		return nil, fmt.Errorf("failed to build insert query: %w", err)
 	}
 
-	entity := &conferenceModel.Conference{}
+	entity := &model.Conference{}
 	err = s.db.QueryRowContext(ctx, query, args...).Scan(
 		&entity.ConferenceID,
 		&entity.Title,
@@ -116,30 +124,30 @@ func (s *Storage) Create(ctx context.Context, conf *conferenceDto.Conference) (*
 	return entity.ToDTO(), nil
 }
 
-func (s *Storage) GetByID(ctx context.Context, id int64) (*conferenceDto.Response, error) {
+func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.ConferenceResponse, error) {
 	query, args, err := s.qb.
 		Select(
-			conferenceModel.ColConferenceID,
-			conferenceModel.ColTitle,
-			conferenceModel.ColAcronym,
-			conferenceModel.ColDescription,
-			conferenceModel.ColChair,
-			conferenceModel.ColPrimaryContact,
-			conferenceModel.ColAreaChair,
-			conferenceModel.ColDomain,
-			conferenceModel.ColConfigurations,
-			conferenceModel.ColCreatedAt,
-			conferenceModel.ColUpdatedAt,
+			model.ColConferenceID,
+			model.ColTitle,
+			model.ColAcronym,
+			model.ColDescription,
+			model.ColChair,
+			model.ColPrimaryContact,
+			model.ColAreaChair,
+			model.ColDomain,
+			model.ColConfigurations,
+			model.ColCreatedAt,
+			model.ColUpdatedAt,
 		).
-		From(conferenceModel.TableName).
-		Where(sq.Eq{conferenceModel.ColConferenceID: id}).
+		From(model.ConferenceTableName).
+		Where(sq.Eq{model.ColConferenceID: id}).
 		ToSql()
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to build select query: %w", err)
 	}
 
-	entity := &conferenceModel.Conference{}
+	entity := &model.Conference{}
 	err = s.db.QueryRowContext(ctx, query, args...).Scan(
 		&entity.ConferenceID,
 		&entity.Title,
@@ -164,30 +172,30 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*conferenceDto.Respons
 	return entity.ToDTO(), nil
 }
 
-func (s *Storage) GetByAcronym(ctx context.Context, acronym string) (*conferenceDto.Response, error) {
+func (s *Storage) GetByAcronym(ctx context.Context, acronym string) (*dto.ConferenceResponse, error) {
 	query, args, err := s.qb.
 		Select(
-			conferenceModel.ColConferenceID,
-			conferenceModel.ColTitle,
-			conferenceModel.ColAcronym,
-			conferenceModel.ColDescription,
-			conferenceModel.ColChair,
-			conferenceModel.ColPrimaryContact,
-			conferenceModel.ColAreaChair,
-			conferenceModel.ColDomain,
-			conferenceModel.ColConfigurations,
-			conferenceModel.ColCreatedAt,
-			conferenceModel.ColUpdatedAt,
+			model.ColConferenceID,
+			model.ColTitle,
+			model.ColAcronym,
+			model.ColDescription,
+			model.ColChair,
+			model.ColPrimaryContact,
+			model.ColAreaChair,
+			model.ColDomain,
+			model.ColConfigurations,
+			model.ColCreatedAt,
+			model.ColUpdatedAt,
 		).
-		From(conferenceModel.TableName).
-		Where(sq.Eq{conferenceModel.ColAcronym: acronym}).
+		From(model.ConferenceTableName).
+		Where(sq.Eq{model.ColAcronym: acronym}).
 		ToSql()
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to build select query: %w", err)
 	}
 
-	entity := &conferenceModel.Conference{}
+	entity := &model.Conference{}
 	err = s.db.QueryRowContext(ctx, query, args...).Scan(
 		&entity.ConferenceID,
 		&entity.Title,
@@ -212,34 +220,105 @@ func (s *Storage) GetByAcronym(ctx context.Context, acronym string) (*conference
 	return entity.ToDTO(), nil
 }
 
-func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*conferenceDto.Response, int64, error) {
+func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.ConferenceResponse, int64, error) {
 	baseQuery := s.qb.Select(
-		conferenceModel.ColConferenceID,
-		conferenceModel.ColTitle,
-		conferenceModel.ColAcronym,
-		conferenceModel.ColDescription,
-		conferenceModel.ColChair,
-		conferenceModel.ColPrimaryContact,
-		conferenceModel.ColAreaChair,
-		conferenceModel.ColDomain,
-		conferenceModel.ColConfigurations,
-		conferenceModel.ColCreatedAt,
-		conferenceModel.ColUpdatedAt,
-	).From(conferenceModel.TableName)
+		model.ColConferenceID,
+		model.ColTitle,
+		model.ColAcronym,
+		model.ColDescription,
+		model.ColChair,
+		model.ColPrimaryContact,
+		model.ColAreaChair,
+		model.ColDomain,
+		model.ColConfigurations,
+		model.ColCreatedAt,
+		model.ColUpdatedAt,
+	).From(model.ConferenceTableName)
 
-	countQuery := s.qb.Select("COUNT(*)").From(conferenceModel.TableName)
+	countQuery := s.qb.Select("COUNT(*)").From(model.ConferenceTableName)
 
 	if params.Title != "" {
-		baseQuery = baseQuery.Where(sq.Like{conferenceModel.ColTitle: "%" + params.Title + "%"})
-		countQuery = countQuery.Where(sq.Like{conferenceModel.ColTitle: "%" + params.Title + "%"})
+		baseQuery = baseQuery.Where(sq.Like{model.ColTitle: "%" + params.Title + "%"})
+		countQuery = countQuery.Where(sq.Like{model.ColTitle: "%" + params.Title + "%"})
 	}
 	if params.Acronym != "" {
-		baseQuery = baseQuery.Where(sq.Like{conferenceModel.ColAcronym: "%" + params.Acronym + "%"})
-		countQuery = countQuery.Where(sq.Like{conferenceModel.ColAcronym: "%" + params.Acronym + "%"})
+		baseQuery = baseQuery.Where(sq.Like{model.ColAcronym: "%" + params.Acronym + "%"})
+		countQuery = countQuery.Where(sq.Like{model.ColAcronym: "%" + params.Acronym + "%"})
 	}
 	if params.Chair != "" {
-		baseQuery = baseQuery.Where(sq.Like{conferenceModel.ColChair: "%" + params.Chair + "%"})
-		countQuery = countQuery.Where(sq.Like{conferenceModel.ColChair: "%" + params.Chair + "%"})
+		baseQuery = baseQuery.Where(sq.Like{model.ColChair: "%" + params.Chair + "%"})
+		countQuery = countQuery.Where(sq.Like{model.ColChair: "%" + params.Chair + "%"})
+	}
+
+	// Apply bookmark filtering - only filter when myBookmark is true
+	if params.MyBookmark && params.UserID > 0 {
+		bookmarkCond := sq.Expr(
+			fmt.Sprintf("EXISTS (SELECT 1 FROM %s WHERE %s = %s.%s AND %s = ?)",
+				model.BookmarkTableName,
+				model.ColBookmarkConfID,
+				model.ConferenceTableName,
+				model.ColConferenceID,
+				model.ColBookmarkUserID,
+			),
+			params.UserID,
+		)
+		baseQuery = baseQuery.Where(bookmarkCond)
+		countQuery = countQuery.Where(bookmarkCond)
+	}
+
+	// Apply role-based filtering - only filter when myConferences is true
+	if params.MyConferences {
+		var conditions []sq.Sqlizer
+
+		// If role is specified, only check that specific role
+		// If role is empty, check ALL roles (chair, author, reviewer)
+
+		// Check chair role
+		if params.Role == "" || params.Role == "chair" {
+			chairCond := sq.Or{
+				sq.Eq{model.ColChair: params.UserEmail},
+				sq.Eq{model.ColPrimaryContact: params.UserID},
+				sq.Eq{model.ColAreaChair: params.UserID},
+			}
+			conditions = append(conditions, chairCond)
+		}
+
+		// Check author role (has submissions)
+		if params.Role == "" || params.Role == "author" {
+			authorCond := sq.Expr(
+				fmt.Sprintf("EXISTS (SELECT 1 FROM %s s WHERE s.%s = %s.%s AND s.%s = ?)",
+					model.SubmissionTableName,
+					model.ColConferenceID,
+					model.ConferenceTableName,
+					model.ColConferenceID,
+					model.ColAuthor,
+				),
+				params.UserEmail,
+			)
+			conditions = append(conditions, authorCond)
+		}
+
+		// Check reviewer role (in conference_reviewers table)
+		if params.Role == "" || params.Role == "reviewer" {
+			reviewerCond := sq.Expr(
+				fmt.Sprintf("EXISTS (SELECT 1 FROM %s cr WHERE cr.%s = %s.%s AND cr.%s = ?)",
+					model.ReviewerTableName,
+					model.ColConferenceID,
+					model.ConferenceTableName,
+					model.ColConferenceID,
+					model.ColUserID,
+				),
+				params.UserID,
+			)
+			conditions = append(conditions, reviewerCond)
+		}
+
+		// Combine all conditions with OR
+		if len(conditions) > 0 {
+			roleFilter := sq.Or(conditions)
+			baseQuery = baseQuery.Where(roleFilter)
+			countQuery = countQuery.Where(roleFilter)
+		}
 	}
 
 	countQueryStr, countArgs, err := countQuery.ToSql()
@@ -260,7 +339,7 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*conferenceD
 		baseQuery = baseQuery.Offset(uint64(params.Offset))
 	}
 
-	query, args, err := baseQuery.OrderBy(conferenceModel.ColCreatedAt + " DESC").ToSql()
+	query, args, err := baseQuery.OrderBy(model.ColCreatedAt + " DESC").ToSql()
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to build select query: %w", err)
 	}
@@ -271,9 +350,9 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*conferenceD
 	}
 	defer rows.Close()
 
-	var entities []*conferenceModel.Conference
+	var entities []*model.Conference
 	for rows.Next() {
-		entity := &conferenceModel.Conference{}
+		entity := &model.Conference{}
 		err := rows.Scan(
 			&entity.ConferenceID,
 			&entity.Title,
@@ -297,47 +376,47 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*conferenceD
 		return nil, 0, fmt.Errorf("error iterating conferences: %w", err)
 	}
 
-	dtos := make([]*conferenceDto.Response, len(entities))
+	dtos := make([]*dto.ConferenceResponse, len(entities))
 	for i, entity := range entities {
 		dtos[i] = entity.ToDTO()
 	}
 	return dtos, total, nil
 }
 
-func (s *Storage) Update(ctx context.Context, id int64, conf *conferenceDto.Conference) (*conferenceDto.Response, error) {
-	configBytes, err := conferenceModel.SerializeConfiguration(conf.Configurations)
+func (s *Storage) Update(ctx context.Context, id int64, conf *dto.Conference) (*dto.ConferenceResponse, error) {
+	configBytes, err := model.SerializeConferenceConfiguration(conf.Configurations)
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize configuration: %w", err)
 	}
 
 	updateMap := map[string]interface{}{
-		conferenceModel.ColTitle:          conf.Title,
-		conferenceModel.ColAcronym:        conf.Acronym,
-		conferenceModel.ColDescription:    conf.Description,
-		conferenceModel.ColChair:          conf.Chair,
-		conferenceModel.ColPrimaryContact: conf.PrimaryContact,
-		conferenceModel.ColAreaChair:      conf.AreaChair,
-		conferenceModel.ColDomain:         pq.Array(conf.Domain),
-		conferenceModel.ColConfigurations: configBytes,
-		conferenceModel.ColUpdatedAt:      time.Now(),
+		model.ColTitle:          conf.Title,
+		model.ColAcronym:        conf.Acronym,
+		model.ColDescription:    conf.Description,
+		model.ColChair:          conf.Chair,
+		model.ColPrimaryContact: conf.PrimaryContact,
+		model.ColAreaChair:      conf.AreaChair,
+		model.ColDomain:         pq.Array(conf.Domain),
+		model.ColConfigurations: configBytes,
+		model.ColUpdatedAt:      time.Now(),
 	}
 
 	query, args, err := s.qb.
-		Update(conferenceModel.TableName).
+		Update(model.ConferenceTableName).
 		SetMap(updateMap).
-		Where(sq.Eq{conferenceModel.ColConferenceID: id}).
+		Where(sq.Eq{model.ColConferenceID: id}).
 		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
-			conferenceModel.ColConferenceID,
-			conferenceModel.ColTitle,
-			conferenceModel.ColAcronym,
-			conferenceModel.ColDescription,
-			conferenceModel.ColChair,
-			conferenceModel.ColPrimaryContact,
-			conferenceModel.ColAreaChair,
-			conferenceModel.ColDomain,
-			conferenceModel.ColConfigurations,
-			conferenceModel.ColCreatedAt,
-			conferenceModel.ColUpdatedAt,
+			model.ColConferenceID,
+			model.ColTitle,
+			model.ColAcronym,
+			model.ColDescription,
+			model.ColChair,
+			model.ColPrimaryContact,
+			model.ColAreaChair,
+			model.ColDomain,
+			model.ColConfigurations,
+			model.ColCreatedAt,
+			model.ColUpdatedAt,
 		)).
 		ToSql()
 
@@ -345,7 +424,7 @@ func (s *Storage) Update(ctx context.Context, id int64, conf *conferenceDto.Conf
 		return nil, fmt.Errorf("failed to build update query: %w", err)
 	}
 
-	entity := &conferenceModel.Conference{}
+	entity := &model.Conference{}
 	err = s.db.QueryRowContext(ctx, query, args...).Scan(
 		&entity.ConferenceID,
 		&entity.Title,
@@ -372,8 +451,8 @@ func (s *Storage) Update(ctx context.Context, id int64, conf *conferenceDto.Conf
 
 func (s *Storage) Delete(ctx context.Context, id int64) error {
 	query, args, err := s.qb.
-		Delete(conferenceModel.TableName).
-		Where(sq.Eq{conferenceModel.ColConferenceID: id}).
+		Delete(model.ConferenceTableName).
+		Where(sq.Eq{model.ColConferenceID: id}).
 		ToSql()
 
 	if err != nil {
@@ -395,4 +474,71 @@ func (s *Storage) Delete(ctx context.Context, id int64) error {
 	}
 
 	return nil
+}
+
+func (s *Storage) AddBookmark(ctx context.Context, userID int64, conferenceID int64) error {
+	query, args, err := s.qb.
+		Insert(model.BookmarkTableName).
+		Columns(model.ColBookmarkUserID, model.ColBookmarkConfID, model.ColBookmarkCreatedAt).
+		Values(userID, conferenceID, time.Now()).
+		Suffix(fmt.Sprintf("ON CONFLICT (%s, %s) DO NOTHING", model.ColBookmarkUserID, model.ColBookmarkConfID)).
+		ToSql()
+
+	if err != nil {
+		return fmt.Errorf("failed to build insert query: %w", err)
+	}
+
+	_, err = s.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to add bookmark: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Storage) RemoveBookmark(ctx context.Context, userID int64, conferenceID int64) error {
+	query, args, err := s.qb.
+		Delete(model.BookmarkTableName).
+		Where(sq.Eq{model.ColBookmarkUserID: userID, model.ColBookmarkConfID: conferenceID}).
+		ToSql()
+
+	if err != nil {
+		return fmt.Errorf("failed to build delete query: %w", err)
+	}
+
+	result, err := s.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to remove bookmark: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to get rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("bookmark not found")
+	}
+
+	return nil
+}
+
+func (s *Storage) IsBookmarked(ctx context.Context, userID int64, conferenceID int64) (bool, error) {
+	query, args, err := s.qb.
+		Select("COUNT(*)").
+		From(model.BookmarkTableName).
+		Where(sq.Eq{model.ColBookmarkUserID: userID, model.ColBookmarkConfID: conferenceID}).
+		ToSql()
+
+	if err != nil {
+		return false, fmt.Errorf("failed to build query: %w", err)
+	}
+
+	var count int
+	err = s.db.QueryRowContext(ctx, query, args...).Scan(&count)
+	if err != nil {
+		return false, fmt.Errorf("failed to check bookmark: %w", err)
+	}
+
+	return count > 0, nil
 }

@@ -8,9 +8,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// AuthMiddleware validates JWT tokens
-func AuthMiddleware(jwtSecret string) gin.HandlerFunc {
+// AuthMiddleware validates JWT tokens or X-Admin-Token header
+func AuthMiddleware(jwtSecret string, adminToken string) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// Check for X-Admin-Token header first (bypass authentication)
+		adminTokenHeader := c.GetHeader("X-Admin-Token")
+		if adminTokenHeader != "" && adminToken != "" && adminTokenHeader == adminToken {
+			// Admin token matches - bypass JWT authentication
+			// Set admin context values (use 0 for admin user_id and admin@system for email)
+			c.Set("user_id", int64(0))
+			c.Set("user_email", "admin@system")
+			c.Set("is_admin", true)
+			c.Next()
+			return
+		}
+
+		// Fall back to JWT authentication
 		// Get token from Authorization header
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -40,6 +53,7 @@ func AuthMiddleware(jwtSecret string) gin.HandlerFunc {
 		// Store user info in context
 		c.Set("user_id", claims.UserID)
 		c.Set("user_email", claims.Email)
+		c.Set("is_admin", false)
 
 		c.Next()
 	}

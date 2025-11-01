@@ -48,7 +48,9 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
       </div>
 
       {/* Submission Status */}
-      <Card className={`border-2 p-6 ${isSubmissionOpen ? "border-success bg-success/5" : "border-error bg-error/5"}`}>
+      <Card
+        className={`border-2 p-6 ${isSubmissionOpen ? "border-success bg-success/5" : "border-error bg-error/5"}`}
+      >
         <div className="flex items-start gap-4">
           {isSubmissionOpen ? (
             <CheckCircle className="h-6 w-6 text-success" />
@@ -60,7 +62,8 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
               {isSubmissionOpen ? "Đang Nhận Bài" : "Đã Đóng Nhận Bài"}
             </h3>
             <p className="mt-1 text-gray-600">
-              Deadline: <span className="font-semibold">{formatDate(conference.submission_deadline)}</span>
+              Deadline:{" "}
+              <span className="font-semibold">{formatDate(conference.submission_deadline)}</span>
             </p>
             {isSubmissionOpen && user && (
               <Button className="mt-4" onClick={() => router.push("/author/submit")}>
@@ -90,7 +93,8 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
                 <li className="flex items-start gap-2">
                   <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-success" />
                   <span>
-                    Độ dài: 6-8 trang cho full paper, 4 trang cho short paper (không bao gồm tài liệu tham khảo)
+                    Độ dài: 6-8 trang cho full paper, 4 trang cho short paper (không bao gồm tài
+                    liệu tham khảo)
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
@@ -153,7 +157,9 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
               <ul className="mt-3 space-y-2 text-gray-600">
                 <li className="flex items-start gap-2">
                   <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-success" />
-                  <span>Double-blind review: Tác giả và reviewer không biết danh tính của nhau</span>
+                  <span>
+                    Double-blind review: Tác giả và reviewer không biết danh tính của nhau
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-success" />
@@ -176,7 +182,9 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
       {/* Research Tracks */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900">Tracks Nghiên Cứu</h2>
-        <p className="mt-2 text-gray-600">Chọn track phù hợp nhất với nội dung nghiên cứu của bạn</p>
+        <p className="mt-2 text-gray-600">
+          Chọn track phù hợp nhất với nội dung nghiên cứu của bạn
+        </p>
         <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {conference.tracks.map((track) => (
             <Card key={track.id} className="p-6 transition-shadow hover:shadow-lg">

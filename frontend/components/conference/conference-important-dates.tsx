@@ -79,7 +79,9 @@ export function ConferenceImportantDates({ conferenceId }: ConferenceImportantDa
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Thời Gian Quan Trọng</h1>
-        <p className="mt-3 text-lg leading-relaxed text-gray-600">Timeline các mốc thời gian quan trọng của hội nghị</p>
+        <p className="mt-3 text-lg leading-relaxed text-gray-600">
+          Timeline các mốc thời gian quan trọng của hội nghị
+        </p>
       </div>
 
       {/* Timeline */}
