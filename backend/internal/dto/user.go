@@ -56,3 +56,27 @@ type UserListResponse struct {
 	Users []*UserResponse `json:"users"`
 	Total int64           `json:"total"`
 }
+
+// UserCOICheckRequest represents the request to check COI for a user against conference authors
+type UserCOICheckRequest struct {
+	UserID       int64 `uri:"id" binding:"required"`
+	ConferenceID int64 `form:"conference_id"`
+}
+
+// ConflictingAuthor represents an author that has a COI with the user
+type ConflictingAuthor struct {
+	Email     string `json:"email"`
+	FirstName string `json:"first_name,omitempty"`
+	LastName  string `json:"last_name,omitempty"`
+	Reason    string `json:"reason"` // e.g., "Recent collaboration (2023)"
+}
+
+// UserCOICheckResponse represents the response with list of conflicting authors
+type UserCOICheckResponse struct {
+	UserID             int64               `json:"user_id"`
+	UserEmail          string              `json:"user_email"`
+	ConferenceID       int64               `json:"conference_id"`
+	TotalAuthors       int                 `json:"total_authors"`
+	ConflictingCount   int                 `json:"conflicting_count"`
+	ConflictingAuthors []ConflictingAuthor `json:"conflicting_authors"`
+}
