@@ -5,6 +5,7 @@ import "time"
 const (
 	StatusDraft     = "draft"
 	StatusPublished = "published"
+	StatusReviewing = "reviewing"
 )
 
 type ConflictDeclaration struct {
@@ -38,7 +39,7 @@ type Submission struct {
 	Abstract     string                  `json:"abstract" binding:"required"`
 	Link         string                  `json:"link"`
 	Domain       []string                `json:"domain"`
-	Status       string                  `json:"status" binding:"required,oneof=draft published"`
+	Status       string                  `json:"status" binding:"required,oneof=draft published reviewing"`
 	Information  *SubmissionInformation  `json:"information"`
 	File         *SubmissionFileMetadata `json:"file,omitempty"`
 	CreatedAt    time.Time               `json:"created_at"`

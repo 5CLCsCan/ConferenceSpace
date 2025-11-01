@@ -11,6 +11,7 @@ import (
 type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
+	Neo4j    Neo4jConfig
 	JWT      JWTConfig
 }
 
@@ -36,6 +37,14 @@ type DatabaseConfig struct {
 	SSLMode  string
 }
 
+// Neo4jConfig holds Neo4j graph database configuration
+type Neo4jConfig struct {
+	URI      string
+	Username string
+	Password string
+	Enabled  bool
+}
+
 // Load reads configuration from environment variables
 func Load() (*Config, error) {
 	// Try to load .env file, but don't fail if it doesn't exist
@@ -53,6 +62,12 @@ func Load() (*Config, error) {
 			Password: getEnv("DB_PASSWORD", "postgres"),
 			DBName:   getEnv("DB_NAME", "conferencespace"),
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
+		},
+		Neo4j: Neo4jConfig{
+			URI:      getEnv("NEO4J_URI", "bolt://localhost:7687"),
+			Username: getEnv("NEO4J_USERNAME", "neo4j"),
+			Password: getEnv("NEO4J_PASSWORD", "conferencespace"),
+			Enabled:  getEnv("NEO4J_ENABLED", "true") == "true",
 		},
 		JWT: JWTConfig{
 			Secret: getEnv("JWT_SECRET", "your-secret-key-change-this-in-production"),
@@ -94,4 +109,3 @@ func parseInt(s string) (int, error) {
 	_, err := fmt.Sscanf(s, "%d", &result)
 	return result, err
 }
-

@@ -28,6 +28,7 @@ type StorageInterface interface {
 	List(ctx context.Context, params *QueryParams) ([]*dto.Submission, int64, error)
 	Update(ctx context.Context, id int64, sub *dto.Submission) (*dto.Submission, error)
 	Delete(ctx context.Context, id int64) error
+	BulkUpdateStatus(ctx context.Context, submissionIDs []int64, status string) error
 }
 
 type Storage struct {
@@ -378,6 +379,39 @@ func (s *Storage) Delete(ctx context.Context, id int64) error {
 
 	if rowsAffected == 0 {
 		return fmt.Errorf("submission not found")
+	}
+
+	return nil
+}
+
+func (s *Storage) BulkUpdateStatus(ctx context.Context, submissionIDs []int64, status string) error {
+	if len(submissionIDs) == 0 {
+		return nil
+	}
+
+	query, args, err := s.qb.
+		Update(model.SubmissionTableName).
+		Set(model.ColStatus, status).
+		Set(model.ColUpdatedAt, time.Now()).
+		Where(sq.Eq{model.ColSubmissionID: submissionIDs}).
+		ToSql()
+
+	if err != nil {
+		return fmt.Errorf("failed to build bulk update query: %w", err)
+	}
+
+	result, err := s.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to bulk update submission status: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to get rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("no submissions were updated")
 	}
 
 	return nil

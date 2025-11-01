@@ -1,0 +1,10 @@
+author_1,author_2,date,metadata
+alice@university.edu,bob@university.edu,2021,https://arxiv.org/abs/2101.12345
+bob@university.edu,charlie@lab.org,2022,https://example.com/paper2
+alice@university.edu,david@institute.edu,2020,DOI:10.1234/example
+charlie@lab.org,eve@research.org,2023,https://doi.org/10.5555/paper
+bob@university.edu,frank@college.edu,2021,
+david@institute.edu,eve@research.org,2022,https://arxiv.org/abs/2201.98765
+alice@university.edu,grace@university.edu,2023,https://example.com/paper7
+frank@college.edu,grace@university.edu,2021,https://arxiv.org/abs/2103.45678
+

@@ -18,6 +18,33 @@ services:
     networks:
       - conferencespace-network
 
+  neo4j:
+    image: neo4j:5.15-community
+    container_name: conferencespace-neo4j
+    environment:
+      NEO4J_AUTH: neo4j/conferencespace
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_dbms_security_procedures_unrestricted: apoc.*
+      NEO4J_dbms_security_procedures_allowlist: apoc.*
+      NEO4J_server_memory_heap_initial__size: 256m
+      NEO4J_server_memory_heap_max__size: 512m
+      NEO4J_server_memory_pagecache_size: 256m
+    ports:
+      - "7474:7474"  # HTTP - Neo4j Browser UI
+      - "7687:7687"  # Bolt - Database protocol
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      - neo4j_plugins:/plugins
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - conferencespace-network
+
   app:
     build:
       context: .
@@ -32,10 +59,15 @@ services:
       DB_PASSWORD: postgres
       DB_NAME: conferencespace
       DB_SSLMODE: disable
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USERNAME: neo4j
+      NEO4J_PASSWORD: conferencespace
     ports:
       - "8080:8080"
     depends_on:
       postgres:
+        condition: service_healthy
+      neo4j:
         condition: service_healthy
     networks:
       - conferencespace-network
@@ -43,6 +75,12 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
+  neo4j_data:
+    driver: local
+  neo4j_logs:
+    driver: local
+  neo4j_plugins:
     driver: local
 
 networks:
