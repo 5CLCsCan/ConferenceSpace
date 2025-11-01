@@ -13,6 +13,7 @@ type ConferenceConfiguration struct {
 	ReviewType                   *string    `json:"review_type,omitempty"`
 	SubmissionType               *string    `json:"submission_type,omitempty"`
 	HaveCOI                      *bool      `json:"have_coi,omitempty"`
+	COIWindowYears               *int       `json:"coi_window_years,omitempty"` // Years to look back for collaborations (e.g., 4)
 	MaximumPages                 *int       `json:"maximum_pages,omitempty"`
 	SubmissionFormat             *string    `json:"submission_format,omitempty"`
 	RequireCompleteAuthorProfile *bool      `json:"require_complete_author_profile,omitempty"`

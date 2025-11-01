@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/dcao/conferencespace/internal/clients"
 	"github.com/dcao/conferencespace/internal/config"
 	"github.com/dcao/conferencespace/internal/controller"
 	"github.com/dcao/conferencespace/internal/handler"
@@ -107,15 +108,30 @@ func initializeApp(cfg *config.Config) (*controller.Controller, func(), error) {
 
 	store := storage.NewStorage(db)
 
+	// Initialize external service clients (Neo4j, etc.)
+	clients, err := clients.NewClients(cfg)
+	if err != nil {
+		log.Printf("Warning: Failed to initialize clients: %v", err)
+		log.Printf("Continuing without graph-based COI detection")
+		clients = nil
+	}
+
 	// Initialize file storage service
 	fileStore := fileStorage.NewLocalFileStorage("./uploads/submissions")
 
 	orch := orchestrator.NewOrchestrator(store, cfg.JWT.Secret, cfg.JWT.Expiry)
-	ctrl := controller.NewController(orch, store, fileStore)
+	ctrl := controller.NewController(orch, store, fileStore, clients)
 
 	cleanup := func() {
 		if err := db.Close(); err != nil {
 			log.Printf("Error closing database: %v", err)
+		}
+
+		// Close client connections
+		if clients != nil {
+			if err := clients.Close(context.Background()); err != nil {
+				log.Printf("Error closing clients: %v", err)
+			}
 		}
 	}
 
@@ -166,6 +182,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 			users.GET("/me", handler.HandleNoRequest(ctrl.User.GetMe))
 			users.GET("", handler.HandleRequestWithQuery(ctrl.User.List))
 			users.GET("/:id", handler.HandleNoRequest(ctrl.User.Get))
+			users.GET("/:id/coi-check", handler.HandleRequestWithURIAndQuery(ctrl.User.CheckCOI))
 			users.PUT("/:id", handler.HandleRequest(ctrl.User.Update))
 			users.DELETE("/:id", handler.HandleNoRequestWithMessage("user deleted successfully", ctrl.User.Delete))
 		}
