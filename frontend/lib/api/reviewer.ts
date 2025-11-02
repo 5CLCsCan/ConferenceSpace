@@ -28,27 +28,97 @@ interface BackendReviewerConference {
   total_papers: number
 }
 
-// Backend dashboard response type (before mapping)
+// Backend dashboard response type (before mapping) - with pagination
 interface BackendDashboardResponse {
-  conferences: BackendReviewerConference[]
-  stats: ReviewerStats
-  invitations: ReviewRequest[]
+  conferences: {
+    data: BackendReviewerConference[]
+    total: number
+    limit: number
+    offset: number
+  }
+  stats: {
+    total_assigned: number
+    pending: number
+    in_progress: number
+    completed: number
+    pending_requests: number
+  }
+  invitations: {
+    data: ReviewRequest[]
+    total: number
+    limit: number
+    offset: number
+  }
   recent_assignments: AssignmentWithPaper[]
 }
 
 // ================== API Functions ==================
 
 /**
- * Get complete reviewer dashboard data
+ * Options for dashboard API call with pagination and filters
+ */
+export interface DashboardOptions {
+  // Conference pagination and filters
+  conferenceLimit?: number
+  conferenceOffset?: number
+  conferenceSearch?: string
+  
+  // Invitation pagination and filters
+  invitationLimit?: number
+  invitationOffset?: number
+  invitationStatus?: string
+  
+  // Recent assignments limit and offset
+  recentAssignmentLimit?: number
+  recentAssignmentOffset?: number
+}
+
+/**
+ * Get complete reviewer dashboard data with pagination
  * Fetches conferences, stats, invitations, and recent assignments in one call
  */
 export async function getReviewerDashboard(
   reviewerId: string,
+  options: DashboardOptions = {}
 ): Promise<{ data: ReviewerDashboardData | null; error: string | null; status: number }> {
   try {
-    const { data, response } = await apiFetch<{ data: BackendDashboardResponse }>(
-      `/api/v1/reviewer/${reviewerId}/dashboard`,
-    )
+    // Build query string with all parameters
+    const queryParams = new URLSearchParams()
+    
+    // Conference params (default: limit 10, offset 0)
+    if (options.conferenceLimit !== undefined) {
+      queryParams.append("conference_limit", options.conferenceLimit.toString())
+    }
+    if (options.conferenceOffset !== undefined) {
+      queryParams.append("conference_offset", options.conferenceOffset.toString())
+    }
+    if (options.conferenceSearch) {
+      queryParams.append("conference_search", options.conferenceSearch)
+    }
+    
+    // Invitation params (default: limit 10, offset 0)
+    if (options.invitationLimit !== undefined) {
+      queryParams.append("invitation_limit", options.invitationLimit.toString())
+    }
+    if (options.invitationOffset !== undefined) {
+      queryParams.append("invitation_offset", options.invitationOffset.toString())
+    }
+    if (options.invitationStatus) {
+      queryParams.append("invitation_status", options.invitationStatus)
+    }
+    
+    // Recent assignments limit and offset (default: limit 10, offset 0)
+    if (options.recentAssignmentLimit !== undefined) {
+      queryParams.append("recent_assignment_limit", options.recentAssignmentLimit.toString())
+    }
+    if (options.recentAssignmentOffset !== undefined) {
+      queryParams.append("recent_assignment_offset", options.recentAssignmentOffset.toString())
+    }
+    
+    const queryString = queryParams.toString()
+    const url = `/api/v1/reviewer/${reviewerId}/dashboard${queryString ? `?${queryString}` : ""}`
+    
+    const { data, response } = await apiFetch<{ data: BackendDashboardResponse }>(url)
     
     // Handle case where backend returns { data: null }
     if (!data.data) {
@@ -59,8 +129,15 @@ export async function getReviewerDashboard(
       }
     }
     
+    // Check if backend returned the new paginated format or old format
+    const backendData = data.data
+    const isNewFormat = backendData.conferences && typeof backendData.conferences === 'object' && 'data' in backendData.conferences
+    
     // Map backend conferences to frontend format
-    const mappedConferences: ReviewerConference[] = data.data.conferences.map((conf) => {
+    const conferencesArray = isNewFormat 
+      ? (backendData.conferences as any).data 
+      : (backendData.conferences || [])
+    const mappedConferences: ReviewerConference[] = conferencesArray.map((conf: BackendReviewerConference) => {
       return {
         id: conf.id.toString(),
         name: conf.title,
@@ -86,12 +163,35 @@ export async function getReviewerDashboard(
       }
     })
     
+    // Extract invitations, assignments and totals based on format
+    const invitationsArray = isNewFormat
+      ? (backendData.invitations as any).data
+      : (backendData.invitations || [])
+    const assignmentsArray = isNewFormat
+      ? (backendData.recent_assignments as any).data
+      : (backendData.recent_assignments || [])
+    const totalConferences = isNewFormat
+      ? (backendData.conferences as any).total
+      : mappedConferences.length
+    const totalInvitations = isNewFormat
+      ? (backendData.invitations as any).total
+      : invitationsArray.length
+    const totalAssignments = isNewFormat
+      ? (backendData.recent_assignments as any).total
+      : assignmentsArray.length
+    
+    // Debug: Log stats structure
+    console.log('Backend stats:', backendData.stats)
+    
     return {
       data: {
         conferences: mappedConferences,
-        stats: data.data.stats,
-        invitations: data.data.invitations,
-        recent_assignments: data.data.recent_assignments,
+        stats: backendData.stats,
+        invitations: invitationsArray,
+        recent_assignments: assignmentsArray,
+        total_conferences: totalConferences,
+        total_invitations: totalInvitations,
+        total_assignments: totalAssignments,
       },
       error: null,
       status: response.status,
@@ -286,12 +386,12 @@ export async function getReviewerPapersWithPagination(
 }
 
 /**
- * Respond to a review invitation (accept or decline)
+ * Respond to a review invitation (accept or reject)
  */
 export async function respondToReviewRequest(
   conferenceId: string,
   reviewerId: string,
-  status: "accepted" | "declined",
+  status: "accepted" | "rejected",
 ): Promise<{ data: any | null; error: string | null; status: number }> {
   try {
     const { data: responseData, response: httpResponse } = await apiFetch<{ data: any }>(

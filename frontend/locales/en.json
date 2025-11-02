@@ -15,7 +15,9 @@
       "accept": "Accept",
       "decline": "Decline",
       "complete": "Complete",
-      "goBack": "Go back"
+      "goBack": "Go back",
+      "retry": "Retry",
+      "search": "Search"
     },
     "labels": {
       "email": "Email",
@@ -253,14 +255,27 @@
         },
         "invitations": {
           "title": "Review Invitations",
-          "description": "Invitations awaiting your response",
+          "description": "Manage your review invitations",
           "empty": {
-            "title": "No Pending Invitations",
-            "description": "You don't have any pending review invitations at the moment. When conference chairs invite you to review papers, they will appear here."
+            "title": "No Invitations",
+            "description": "You don't have any review invitations. When conference chairs invite you to review papers, they will appear here."
           },
           "invitedBy": "Invited by",
           "papersToReview": "Papers to review",
+          "requestedAt": "Requested at",
           "responseDeadline": "Response deadline",
+          "status": {
+            "pending": "Pending",
+            "accepted": "Accepted",
+            "rejected": "Rejected"
+          },
+          "filter": {
+            "placeholder": "Filter by status",
+            "all": "All Invitations",
+            "pending": "Pending",
+            "accepted": "Accepted",
+            "rejected": "Rejected"
+          },
           "toast": {
             "successTitle": "Response Sent",
             "successDescription": "You have {{action}} the invitation.",

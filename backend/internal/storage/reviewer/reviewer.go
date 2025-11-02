@@ -26,7 +26,7 @@ type StorageInterface interface {
 	GetConferencesByReviewer(ctx context.Context, reviewerID int64, params *ConferenceListParams) ([]*dto.ReviewerConference, int64, error)
 	GetPendingInvitations(ctx context.Context, reviewerID int64, params *InvitationListParams) ([]*dto.ReviewInvitation, int64, error)
 	GetReviewerStats(ctx context.Context, reviewerID int64) (*dto.ReviewerStats, error)
-	GetRecentAssignments(ctx context.Context, reviewerID int64, limit int) ([]*dto.AssignmentWithPaper, error)
+	GetRecentAssignments(ctx context.Context, reviewerID int64, limit int, offset int) ([]*dto.AssignmentWithPaper, int64, error)
 	GetAssignedPapers(ctx context.Context, reviewerID, conferenceID int64, params *PaperListParams) ([]*dto.AssignedPaperResponse, int64, error)
 }
 
@@ -45,6 +45,7 @@ type ConferenceListParams struct {
 type InvitationListParams struct {
 	Limit  int
 	Offset int
+	Status string // Filter by invitation status (pending, accepted, rejected)
 }
 
 type PaperListParams struct {
@@ -420,7 +421,10 @@ func (s *Storage) GetConferencesByReviewer(ctx context.Context, reviewerID int64
 		).
 		From("conferences c").
 		Join("conference_reviewers cr ON c.conference_id = cr.conference_id").
-		LeftJoin("paper_assignments pa ON pa.conference_id = c.conference_id AND pa.reviewer_id = ?", reviewerID).
+		// Join paper_assignments via the conference_reviewers table so we match
+		// the assignment's reviewer FK (pa.reviewer_id -> conference_reviewers.id)
+		// and then filter by cr.user_id in the WHERE clause below.
+		LeftJoin("paper_assignments pa ON pa.conference_id = c.conference_id AND pa.reviewer_id = cr.id").
 		Where(sq.Eq{
 			"cr.user_id": reviewerID,
 			"cr.status":  model.ReviewerStatusAccepted,
@@ -549,7 +553,7 @@ func (s *Storage) GetConferencesByReviewer(ctx context.Context, reviewerID int64
 	return results, total, nil
 }
 
-// GetPendingInvitations retrieves pending review invitations for a reviewer with pagination
+// GetPendingInvitations retrieves review invitations for a reviewer with pagination and optional status filter
 func (s *Storage) GetPendingInvitations(ctx context.Context, reviewerID int64, params *InvitationListParams) ([]*dto.ReviewInvitation, int64, error) {
 	baseQuery := s.qb.
 		Select(
@@ -566,19 +570,19 @@ func (s *Storage) GetPendingInvitations(ctx context.Context, reviewerID int64, p
 		From("conference_reviewers cr").
 		Join("conferences c ON cr.conference_id = c.conference_id").
 		LeftJoin("users u ON c.chair = u.user_id::text").
-		Where(sq.Eq{
-			"cr.user_id": reviewerID,
-			"cr.status":  model.ReviewerStatusPending,
-		})
+		Where(sq.Eq{"cr.user_id": reviewerID})
 
 	// Count query for total
 	countQuery := s.qb.
 		Select("COUNT(*)").
 		From("conference_reviewers cr").
-		Where(sq.Eq{
-			"cr.user_id": reviewerID,
-			"cr.status":  model.ReviewerStatusPending,
-		})
+		Where(sq.Eq{"cr.user_id": reviewerID})
+
+	// Apply status filter if provided
+	if params.Status != "" {
+		baseQuery = baseQuery.Where(sq.Eq{"cr.status": params.Status})
+		countQuery = countQuery.Where(sq.Eq{"cr.status": params.Status})
+	}
 
 	// Get total count
 	countQueryStr, countArgs, err := countQuery.ToSql()
@@ -658,16 +662,17 @@ func (s *Storage) GetPendingInvitations(ctx context.Context, reviewerID int64, p
 
 // GetReviewerStats retrieves statistics for a reviewer
 func (s *Storage) GetReviewerStats(ctx context.Context, reviewerID int64) (*dto.ReviewerStats, error) {
-	// Get assignment stats
+	// Get assignment stats - need to join with conference_reviewers to match user_id
 	query, args, err := s.qb.
 		Select(
 			"COUNT(*) as total_assigned",
-			"COUNT(*) FILTER (WHERE status = 'pending') as pending",
-			"COUNT(*) FILTER (WHERE status IN ('accepted', 'in_progress')) as in_progress",
-			"COUNT(*) FILTER (WHERE status = 'completed') as completed",
+			"COUNT(*) FILTER (WHERE pa.status = 'pending') as pending",
+			"COUNT(*) FILTER (WHERE pa.status = 'in_progress') as in_progress",
+			"COUNT(*) FILTER (WHERE pa.status = 'completed') as completed",
 		).
-		From("paper_assignments").
-		Where(sq.Eq{"reviewer_id": reviewerID}).
+		From("paper_assignments pa").
+		Join("conference_reviewers cr ON pa.reviewer_id = cr.id").
+		Where(sq.Eq{"cr.user_id": reviewerID}).
 		ToSql()
 
 	if err != nil {
@@ -707,10 +712,31 @@ func (s *Storage) GetReviewerStats(ctx context.Context, reviewerID int64) (*dto.
 	return &stats, nil
 }
 
-// GetRecentAssignments retrieves recent assignments for reviewer dashboard
-func (s *Storage) GetRecentAssignments(ctx context.Context, reviewerID int64, limit int) ([]*dto.AssignmentWithPaper, error) {
+// GetRecentAssignments retrieves recent assignments for reviewer dashboard with pagination
+func (s *Storage) GetRecentAssignments(ctx context.Context, reviewerID int64, limit int, offset int) ([]*dto.AssignmentWithPaper, int64, error) {
 	if limit == 0 {
-		limit = 5
+		limit = 10
+	}
+
+	// Count query for total
+	countQuery, countArgs, err := s.qb.
+		Select("COUNT(*)").
+		From("paper_assignments pa").
+		Join("conference_reviewers cr ON pa.reviewer_id = cr.id").
+		Where(sq.And{
+			sq.Eq{"cr.user_id": reviewerID},
+			sq.NotEq{"pa.status": "completed"},
+		}).
+		ToSql()
+
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to build count query: %w", err)
+	}
+
+	var total int64
+	err = s.db.QueryRowContext(ctx, countQuery, countArgs...).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to count assignments: %w", err)
 	}
 
 	query, args, err := s.qb.
@@ -725,23 +751,25 @@ func (s *Storage) GetRecentAssignments(ctx context.Context, reviewerID int64, li
 			"COALESCE(EXTRACT(DAY FROM (pa.assigned_at + INTERVAL '14 days') - NOW()), 0) as days_left",
 		).
 		From("paper_assignments pa").
+		Join("conference_reviewers cr ON pa.reviewer_id = cr.id").
 		Join("conference_submissions cs ON pa.submission_id = cs.submission_id").
 		Join("conferences c ON cs.conference_id = c.conference_id").
 		Where(sq.And{
-			sq.Eq{"pa.reviewer_id": reviewerID},
+			sq.Eq{"cr.user_id": reviewerID},
 			sq.NotEq{"pa.status": "completed"},
 		}).
 		OrderBy("pa.assigned_at DESC").
 		Limit(uint64(limit)).
+		Offset(uint64(offset)).
 		ToSql()
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to build query: %w", err)
+		return nil, 0, fmt.Errorf("failed to build query: %w", err)
 	}
 
 	rows, err := s.db.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query assignments: %w", err)
+		return nil, 0, fmt.Errorf("failed to query assignments: %w", err)
 	}
 	defer rows.Close()
 
@@ -761,7 +789,7 @@ func (s *Storage) GetRecentAssignments(ctx context.Context, reviewerID int64, li
 			&daysLeft,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan assignment: %w", err)
+			return nil, 0, fmt.Errorf("failed to scan assignment: %w", err)
 		}
 
 		// Handle nullable fields
@@ -779,10 +807,10 @@ func (s *Storage) GetRecentAssignments(ctx context.Context, reviewerID int64, li
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error iterating assignments: %w", err)
+		return nil, 0, fmt.Errorf("error iterating assignments: %w", err)
 	}
 
-	return results, nil
+	return results, total, nil
 }
 
 // GetAssignedPapers retrieves papers assigned to reviewer in a specific conference with pagination and filters
@@ -810,8 +838,9 @@ func (s *Storage) GetAssignedPapers(ctx context.Context, reviewerID, conferenceI
 		).
 		From("conference_submissions cs").
 		Join("paper_assignments pa ON cs.submission_id = pa.submission_id").
+		Join("conference_reviewers cr ON pa.reviewer_id = cr.id").
 		Where(sq.And{
-			sq.Eq{"pa.reviewer_id": reviewerID},
+			sq.Eq{"cr.user_id": reviewerID},
 			sq.Eq{"cs.conference_id": conferenceID},
 		})
 
@@ -820,8 +849,9 @@ func (s *Storage) GetAssignedPapers(ctx context.Context, reviewerID, conferenceI
 		Select("COUNT(*)").
 		From("conference_submissions cs").
 		Join("paper_assignments pa ON cs.submission_id = pa.submission_id").
+		Join("conference_reviewers cr ON pa.reviewer_id = cr.id").
 		Where(sq.And{
-			sq.Eq{"pa.reviewer_id": reviewerID},
+			sq.Eq{"cr.user_id": reviewerID},
 			sq.Eq{"cs.conference_id": conferenceID},
 		})
 

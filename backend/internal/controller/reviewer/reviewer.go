@@ -208,12 +208,12 @@ func (c *Controller) Delete(ginCtx *gin.Context, req *dto.ReviewerDeleteRequest)
 // @Param        invitation_limit query int false "Limit invitations (default: 10)"
 // @Param        invitation_offset query int false "Offset invitations"
 // @Param        recent_assignment_limit query int false "Limit recent assignments (default: 5)"
-// @Success      200 {object} dto.ReviewerDashboardResponse
+// @Success      200 {object} dto.ReviewerDashboardResponseWithPagination
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      500 {object} handler.Response
 // @Router       /reviewer/{reviewer_id}/dashboard [get]
-func (c *Controller) GetDashboard(ginCtx *gin.Context, req *dto.GetDashboardRequest) (*dto.ReviewerDashboardResponse, error) {
+func (c *Controller) GetDashboard(ginCtx *gin.Context, req *dto.GetDashboardRequest) (*dto.ReviewerDashboardResponseWithPagination, error) {
 	ctx := ginCtx.Request.Context()
 
 	// Set defaults for pagination
@@ -229,13 +229,14 @@ func (c *Controller) GetDashboard(ginCtx *gin.Context, req *dto.GetDashboardRequ
 
 	// Fetch all data in parallel for better performance
 	type result struct {
-		conferences     []*dto.ReviewerConference
+		conferences      []*dto.ReviewerConference
 		conferencesTotal int64
-		stats           *dto.ReviewerStats
-		invitations     []*dto.ReviewInvitation
+		stats            *dto.ReviewerStats
+		invitations      []*dto.ReviewInvitation
 		invitationsTotal int64
-		assignments     []*dto.AssignmentWithPaper
-		err             error
+		assignments      []*dto.AssignmentWithPaper
+		assignmentsTotal int64
+		err              error
 	}
 
 	resultChan := make(chan result, 1)
@@ -260,18 +261,19 @@ func (c *Controller) GetDashboard(ginCtx *gin.Context, req *dto.GetDashboardRequ
 			return
 		}
 
-		// Get invitations with pagination
+		// Get invitations with pagination and status filter
 		r.invitations, r.invitationsTotal, r.err = c.reviewerStorage.GetPendingInvitations(ctx, req.ReviewerID, &reviewerStorage.InvitationListParams{
 			Limit:  req.InvitationLimit,
 			Offset: req.InvitationOffset,
+			Status: req.InvitationStatus,
 		})
 		if r.err != nil {
 			resultChan <- r
 			return
 		}
 
-		// Get recent assignments
-		r.assignments, r.err = c.reviewerStorage.GetRecentAssignments(ctx, req.ReviewerID, req.RecentAssignmentLimit)
+		// Get recent assignments with pagination
+		r.assignments, r.assignmentsTotal, r.err = c.reviewerStorage.GetRecentAssignments(ctx, req.ReviewerID, req.RecentAssignmentLimit, req.RecentAssignmentOffset)
 		if r.err != nil {
 			resultChan <- r
 			return
@@ -301,12 +303,32 @@ func (c *Controller) GetDashboard(ginCtx *gin.Context, req *dto.GetDashboardRequ
 		assignments = []*dto.AssignmentWithPaper{}
 	}
 
-	return &dto.ReviewerDashboardResponse{
-		Conferences:       conferences,
-		Stats:             r.stats,
-		Invitations:       invitations,
-		RecentAssignments: assignments,
-	}, nil
+	// Return response with pagination totals
+	response := &dto.ReviewerDashboardResponseWithPagination{}
+	response.Conferences.Data = conferences
+	response.Conferences.Total = r.conferencesTotal
+	response.Conferences.Limit = req.ConferenceLimit
+	response.Conferences.Offset = req.ConferenceOffset
+	
+	// Directly assign stats (embedded struct will serialize correctly)
+	if r.stats != nil {
+		response.Stats.ReviewerStats = r.stats
+	} else {
+		// Ensure non-nil stats
+		response.Stats.ReviewerStats = &dto.ReviewerStats{}
+	}
+	
+	response.Invitations.Data = invitations
+	response.Invitations.Total = r.invitationsTotal
+	response.Invitations.Limit = req.InvitationLimit
+	response.Invitations.Offset = req.InvitationOffset
+	
+	response.RecentAssignments.Data = assignments
+	response.RecentAssignments.Total = r.assignmentsTotal
+	response.RecentAssignments.Limit = req.RecentAssignmentLimit
+	response.RecentAssignments.Offset = req.RecentAssignmentOffset
+
+	return response, nil
 }
 
 // GetConferencePapers godoc

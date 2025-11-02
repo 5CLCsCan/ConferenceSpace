@@ -1,49 +1,86 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
+import { Inbox, Loader2, Search } from "lucide-react"
 import type { ReviewerConference } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ReviewerConferencesProps {
   conferences: ReviewerConference[]
   onSelectConference: (conferenceId: number) => void
+  onLoadMore?: () => void
+  hasMore?: boolean
+  isLoadingMore?: boolean
+  searchQuery?: string
+  onSearchChange?: (query: string) => void
 }
 
-export function ReviewerConferences({ conferences, onSelectConference }: ReviewerConferencesProps) {
+export function ReviewerConferences({ 
+  conferences, 
+  onSelectConference,
+  onLoadMore,
+  hasMore = false,
+  isLoadingMore = false,
+  searchQuery = "",
+  onSearchChange,
+}: ReviewerConferencesProps) {
   const { t } = useTranslation()
-  const [searchQuery, setSearchQuery] = useState("")
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const loadMoreRef = useRef<HTMLDivElement | null>(null)
 
-  // Filter conferences based on search
-  const filteredConferences = conferences.filter((conference) => {
-    const searchLower = searchQuery.toLowerCase()
-    return (
-      conference.name.toLowerCase().includes(searchLower) ||
-      conference.acronym?.toLowerCase().includes(searchLower) ||
-      conference.domain?.toLowerCase().includes(searchLower)
-    )
-  })
+  // Setup intersection observer for infinite scroll
+  useEffect(() => {
+    if (!onLoadMore || !hasMore || isLoadingMore) return
+
+    const options = {
+      root: null,
+      rootMargin: '100px',
+      threshold: 0.1,
+    }
+
+    observerRef.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        onLoadMore()
+      }
+    }, options)
+
+    const currentRef = loadMoreRef.current
+    if (currentRef) {
+      observerRef.current.observe(currentRef)
+    }
+
+    return () => {
+      if (observerRef.current && currentRef) {
+        observerRef.current.unobserve(currentRef)
+      }
+    }
+  }, [onLoadMore, hasMore, isLoadingMore])
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>{t("dashboard.roles.reviewer.conferences.title")}</CardTitle>
-        <CardDescription>{t("dashboard.roles.reviewer.conferences.description")}</CardDescription>
+        <CardDescription>
+          {t("dashboard.roles.reviewer.conferences.description", {
+            count: conferences.length,
+          })}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Search Input */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground size-4" />
-          <Input
-            placeholder={t("dashboard.roles.reviewer.conferences.search.placeholder")}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-
+        {onSearchChange && (
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder={t("common.actions.search")}
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        )}
         <div className="border rounded-lg">
           <table className="w-full">
             <thead>
@@ -63,16 +100,19 @@ export function ReviewerConferences({ conferences, onSelectConference }: Reviewe
               </tr>
             </thead>
             <tbody>
-              {filteredConferences.length === 0 ? (
+              {conferences.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="p-8 text-center text-muted-foreground">
-                    {searchQuery
-                      ? t("dashboard.roles.reviewer.conferences.search.noResults")
-                      : t("review.conferences.noConferences")}
+                  <td colSpan={4} className="p-8 text-center">
+                    <div className="flex flex-col items-center justify-center space-y-3 py-8">
+                      <Inbox className="h-12 w-12 text-muted-foreground" />
+                      <div className="text-muted-foreground">
+                        {t("review.conferences.noConferences")}
+                      </div>
+                    </div>
                   </td>
                 </tr>
               ) : (
-                filteredConferences.map((conference) => (
+                conferences.map((conference) => (
                   <tr
                     key={conference.id}
                     className="border-b cursor-pointer hover:bg-muted/50"
@@ -118,6 +158,20 @@ export function ReviewerConferences({ conferences, onSelectConference }: Reviewe
               )}
             </tbody>
           </table>
+          
+          {/* Infinite scroll sentinel and loading indicator */}
+          {hasMore && (
+            <div ref={loadMoreRef} className="p-4 text-center">
+              {isLoadingMore && (
+                <div className="flex items-center justify-center space-x-2">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span className="text-sm text-muted-foreground">
+                    {t("common.loading")}...
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

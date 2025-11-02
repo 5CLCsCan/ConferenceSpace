@@ -155,7 +155,9 @@ type GetDashboardRequest struct {
 	ConferenceSearch      string `form:"conference_search" json:"conference_search"`       // Search conferences by name
 	InvitationLimit       int    `form:"invitation_limit" json:"invitation_limit"`
 	InvitationOffset      int    `form:"invitation_offset" json:"invitation_offset"`
-	RecentAssignmentLimit int    `form:"recent_assignment_limit" json:"recent_assignment_limit"` // Default: 5
+	InvitationStatus      string `form:"invitation_status" json:"invitation_status"`       // Filter invitations by status (pending, accepted, rejected)
+	RecentAssignmentLimit int    `form:"recent_assignment_limit" json:"recent_assignment_limit"` // Default: 10
+	RecentAssignmentOffset int   `form:"recent_assignment_offset" json:"recent_assignment_offset"` // Offset for pagination
 }
 
 // ReviewerDashboardResponseWithPagination represents dashboard data with pagination info
@@ -175,5 +177,10 @@ type ReviewerDashboardResponseWithPagination struct {
 		Limit  int                 `json:"limit"`
 		Offset int                 `json:"offset"`
 	} `json:"invitations"`
-	RecentAssignments []*AssignmentWithPaper `json:"recent_assignments"`
+	RecentAssignments struct {
+		Data   []*AssignmentWithPaper `json:"data"`
+		Total  int64                  `json:"total"`
+		Limit  int                    `json:"limit"`
+		Offset int                    `json:"offset"`
+	} `json:"recent_assignments"`
 }

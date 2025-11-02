@@ -2,9 +2,10 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { BookOpen, CheckCircle2, Clock, ChevronRight } from "lucide-react"
+import { BookOpen, CheckCircle2, Clock, ChevronRight, Loader2 } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { daysUntilDeadline } from "@/lib/utils"
+import { useEffect, useRef } from "react"
 import type { ReviewerStats, AssignmentWithPaper } from "@/lib/types"
 
 interface ReviewerOverviewProps {
@@ -12,6 +13,9 @@ interface ReviewerOverviewProps {
   assignments: AssignmentWithPaper[]
   conferenceCount: number
   onSelectPaper: (paperId: string, conferenceId: string) => void
+  onLoadMore?: () => void
+  hasMore?: boolean
+  isLoadingMore?: boolean
 }
 
 export function ReviewerOverview({
@@ -19,8 +23,37 @@ export function ReviewerOverview({
   assignments,
   conferenceCount,
   onSelectPaper,
+  onLoadMore,
+  hasMore = false,
+  isLoadingMore = false,
 }: ReviewerOverviewProps) {
   const { t } = useTranslation()
+  const loadMoreRef = useRef<HTMLDivElement>(null)
+
+  // Infinite scroll observer for todo list
+  useEffect(() => {
+    if (!onLoadMore || !hasMore || isLoadingMore) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          onLoadMore()
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    const currentRef = loadMoreRef.current
+    if (currentRef) {
+      observer.observe(currentRef)
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef)
+      }
+    }
+  }, [onLoadMore, hasMore, isLoadingMore])
 
   return (
     <>
@@ -118,6 +151,12 @@ export function ReviewerOverview({
                   </div>
                 )
               })
+          )}
+          {/* Infinite scroll sentinel */}
+          {hasMore && (
+            <div ref={loadMoreRef} className="flex justify-center py-4">
+              {isLoadingMore && <Loader2 className="size-6 animate-spin text-muted-foreground" />}
+            </div>
           )}
         </CardContent>
       </Card>

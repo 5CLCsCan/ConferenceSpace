@@ -15,7 +15,9 @@
       "accept": "Chấp nhận",
       "decline": "Từ chối",
       "complete": "Hoàn thành",
-      "goBack": "Quay lại"
+      "goBack": "Quay lại",
+      "retry": "Thử lại",
+      "search": "Tìm kiếm"
     },
     "labels": {
       "email": "Email",
@@ -253,14 +255,27 @@
         },
         "invitations": {
           "title": "Lời mời phản biện",
-          "description": "Các lời mời đang chờ bạn phản hồi",
+          "description": "Quản lý lời mời phản biện của bạn",
           "empty": {
-            "title": "Không Có Lời Mời Đang Chờ",
-            "description": "Hiện tại bạn không có lời mời phản biện nào đang chờ. Khi chủ tọa hội nghị mời bạn phản biện bài báo, chúng sẽ xuất hiện ở đây."
+            "title": "Không Có Lời Mời",
+            "description": "Bạn không có lời mời phản biện nào. Khi chủ tọa hội nghị mời bạn phản biện bài báo, chúng sẽ xuất hiện ở đây."
           },
           "invitedBy": "Người mời",
           "papersToReview": "Số bài cần phản biện",
+          "requestedAt": "Ngày mời",
           "responseDeadline": "Hạn phản hồi",
+          "status": {
+            "pending": "Đang chờ",
+            "accepted": "Đã chấp nhận",
+            "rejected": "Đã từ chối"
+          },
+          "filter": {
+            "placeholder": "Lọc theo trạng thái",
+            "all": "Tất cả lời mời",
+            "pending": "Đang chờ",
+            "accepted": "Đã chấp nhận",
+            "rejected": "Đã từ chối"
+          },
           "toast": {
             "successTitle": "Phản hồi đã được gửi",
             "successDescription": "Bạn đã {{action}} lời mời.",

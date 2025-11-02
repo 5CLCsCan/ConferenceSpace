@@ -297,6 +297,10 @@ export interface ReviewerDashboardData {
   stats: ReviewerStats
   invitations: any[]
   recent_assignments: AssignmentWithPaper[]
+  // Pagination totals
+  total_conferences?: number
+  total_invitations?: number
+  total_assignments?: number
 }
 
 export interface AssignedPaper {

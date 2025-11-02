@@ -3,7 +3,7 @@ import { getReviewerDashboard } from "@/lib/api/reviewer"
 import type { ReviewerConference, ReviewerStats, AssignmentWithPaper } from "@/lib/types"
 import type { ReviewRequest } from "@/lib/types"
 
-export function useReviewerData(reviewerId: string) {
+export function useReviewerData(reviewerId: string, invitationStatus?: string) {
   const [conferences, setConferences] = useState<ReviewerConference[]>([])
   const [stats, setStats] = useState<ReviewerStats | null>(null)
   const [invitations, setInvitations] = useState<ReviewRequest[]>([])
@@ -22,7 +22,9 @@ export function useReviewerData(reviewerId: string) {
       setError(null)
       
       // Use single dashboard API call instead of multiple calls
-      const dashboardResponse = await getReviewerDashboard(reviewerId)
+      const dashboardResponse = await getReviewerDashboard(reviewerId, {
+        invitationStatus
+      })
 
       if (dashboardResponse.error || !dashboardResponse.data) {
         setError(dashboardResponse.error || "Failed to fetch reviewer dashboard data")
@@ -48,11 +50,11 @@ export function useReviewerData(reviewerId: string) {
     } finally {
       setLoading(false)
     }
-  }, [reviewerId])
+  }, [reviewerId, invitationStatus])
 
   useEffect(() => {
     fetchData()
-  }, [fetchData])
+  }, [fetchData, invitationStatus])
 
   return { 
     conferences, 
