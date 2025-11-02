@@ -130,12 +130,9 @@ func initializeApp(cfg *config.Config) (*controller.Controller, func(), error) {
 			log.Printf("Error closing database: %v", err)
 		}
 
-
-		if clients != nil {
 			if err := clients.Close(context.Background()); err != nil {
 				log.Printf("Error closing clients: %v", err)
 			}
-		}
 	}
 
 	return ctrl, cleanup, nil
