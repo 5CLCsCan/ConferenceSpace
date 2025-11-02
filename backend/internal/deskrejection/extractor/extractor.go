@@ -34,11 +34,13 @@ func Extract(path string, config models.PaperRuleConfig) (models.Document, error
 		for _, line := range lines {
 			trimmed := strings.TrimSpace(line)
 			if isSectionHeader(trimmed, config.RequiredSections) {
+				// Save previous section if exists
 				if currentSection != "" {
 					sections[currentSection] = sectionBuilder.String()
-					sectionBuilder.Reset()
 				}
-				currentSection = trimmed
+				// Reset and start new section
+				sectionBuilder.Reset()
+				currentSection = normalizeSectionName(trimmed)
 			}
 			sectionBuilder.WriteString(line + "\n")
 		}
@@ -69,10 +71,48 @@ func loadPDF(path string) (*model.PdfReader, error) {
 func isSectionHeader(line string, required []string) bool {
 	line = strings.ToLower(line)
 	for _, sec := range required {
-		if strings.Contains(line, sec) {
+		if strings.Contains(line, strings.ToLower(sec)) {
 			return true
 		}
 	}
 	return false
 }
 
+// normalizeSectionName maps common section name variations to canonical names
+func normalizeSectionName(name string) string {
+	name = strings.ToLower(name)
+
+	// Common variations for each section (ordered by specificity - longest first)
+	variations := [][2]string{
+		// Results/Experiments check before individual words to avoid conflicts
+		{"experimental results", "Results"},
+		{"results and discussion", "Results"},
+		{"experiments and results", "Results"},
+		{"experiments", "Experiments"},
+		{"experimental", "Experiments"},
+		{"experiment", "Experiments"},
+		{"results", "Results"},
+		{"result", "Results"},
+
+		// Methods variations
+		{"methodology", "Methods"},
+		{"methods", "Methods"},
+		{"method", "Methods"},
+
+		// Other sections
+		{"abstract", "Abstract"},
+		{"introduction", "Introduction"},
+		{"conclusions", "Conclusions"},
+		{"conclusion", "Conclusions"},
+	}
+
+	// Check if name matches any variation
+	for _, pair := range variations {
+		if strings.Contains(name, pair[0]) {
+			return pair[1]
+		}
+	}
+
+	// Return original if no match found
+	return name
+}

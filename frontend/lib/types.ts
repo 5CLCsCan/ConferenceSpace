@@ -231,3 +231,94 @@ export interface Notification {
   created_at: string
   action_url?: string
 }
+
+export interface ReviewRequest {
+  id: string
+  conference_id: string
+  conference_name: string
+  conference_acronym: string
+  requested_by: String
+  requested_by_name: string
+  requested_at: string
+  status: "pending" | "accepted" | "declined"
+  expertise_match: number
+  papers_count: number
+  estimated_hours: number
+  conflict_of_interest: boolean
+}
+
+// ================== Reviewer Types ==================
+
+export interface ReviewerStats {
+  total_assigned: number
+  pending: number
+  in_progress: number
+  completed: number
+  pending_requests: number
+}
+
+export interface AssignmentWithPaper {
+  assignment_id: number
+  paper_id: number
+  paper_title: string
+  conference_id: number
+  conference_name: string
+  status: string
+  due_date?: string
+  days_left: number
+}
+
+export interface ReviewerConference {
+  id: string
+  name: string
+  acronym: string
+  year: number
+  description: string
+  submission_deadline: string
+  review_deadline: string
+  camera_ready_deadline: string
+  notification_date: string
+  conference_date: string
+  location: string
+  website?: string
+  status: "upcoming" | "active" | "completed" | "open" | "closed"
+  tracks: any[]
+  chair?: string
+  primary_contact?: number
+  area_chair?: number
+  userRole?: string
+  reviewed_papers: number
+  total_papers: number
+  domain: string
+}
+
+export interface ReviewerDashboardData {
+  conferences: ReviewerConference[]
+  stats: ReviewerStats
+  invitations: any[]
+  recent_assignments: AssignmentWithPaper[]
+  // Pagination totals
+  total_conferences?: number
+  total_invitations?: number
+  total_assignments?: number
+}
+
+export interface AssignedPaper {
+  id: string
+  title: string
+  abstract: string
+  keywords: string[]
+  authors: any[]
+  conference_id: string
+  track_id: string
+  status: string
+  submitted_at: string
+  updated_at: string
+  file_url?: string
+  version: number
+  reviews: any[]
+  assignment_status: string
+  due_date?: string
+  assigned_at: string
+  assignment_id: number
+}

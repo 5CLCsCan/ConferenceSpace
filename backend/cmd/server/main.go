@@ -108,22 +108,29 @@ func initializeApp(cfg *config.Config) (*controller.Controller, func(), error) {
 
 	store := storage.NewStorage(db)
 
+	// Initialize external service clients (Neo4j, etc.)
+	clients, err := clients.NewClients(cfg)
+	if err != nil {
+		log.Printf("Warning: Failed to initialize clients: %v", err)
+		log.Printf("Continuing without graph-based COI detection")
+		clients = nil
+	}
+
 	// Initialize file storage service
 	fileStore := fileStorage.NewLocalFileStorage("./uploads/submissions")
-
-	// Initialize external clients
-	clients, err := clients.NewClients(cfg)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	orch := orchestrator.NewOrchestrator(store, cfg.JWT.Secret, cfg.JWT.Expiry)
-	ctrl := controller.NewController(orch, store, fileStore, clients.Gemini)
+	ctrl := controller.NewController(orch, store, fileStore, clients)
 
 	cleanup := func() {
 		if err := db.Close(); err != nil {
 			log.Printf("Error closing database: %v", err)
 		}
+
+
 		if clients != nil {
 			if err := clients.Close(context.Background()); err != nil {
 				log.Printf("Error closing clients: %v", err)
@@ -178,6 +185,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 			users.GET("/me", handler.HandleNoRequest(ctrl.User.GetMe))
 			users.GET("", handler.HandleRequestWithQuery(ctrl.User.List))
 			users.GET("/:id", handler.HandleNoRequest(ctrl.User.Get))
+			users.GET("/:id/coi-check", handler.HandleRequestWithURIAndQuery(ctrl.User.CheckCOI))
 			users.PUT("/:id", handler.HandleRequest(ctrl.User.Update))
 			users.DELETE("/:id", handler.HandleNoRequestWithMessage("user deleted successfully", ctrl.User.Delete))
 		}
@@ -215,6 +223,14 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 				// Auto-assignment endpoint - automatically sets submissions to "reviewing" status
 				submissions.POST("/auto-assign", handler.HandleRequest(ctrl.Assignment.AutoAssign))
 			}
+		}
+
+		// Reviewer dashboard routes (authentication required)
+		reviewer := v1.Group("/reviewer")
+		reviewer.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
+		{
+			reviewer.GET("/:reviewer_id/dashboard", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetDashboard))
+			reviewer.GET("/:reviewer_id/conferences/:conference_id/papers", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetConferencePapers))
 		}
 	}
 

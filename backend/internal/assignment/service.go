@@ -8,42 +8,78 @@ import (
 	"github.com/dcao/conferencespace/internal/assignment/coi/detectors"
 	"github.com/dcao/conferencespace/internal/assignment/matching"
 	"github.com/dcao/conferencespace/internal/assignment/scoring"
+	"github.com/dcao/conferencespace/internal/clients"
+	"github.com/dcao/conferencespace/internal/clients/neo4j"
 	"github.com/dcao/conferencespace/internal/dto"
+	"github.com/dcao/conferencespace/internal/storage"
 	"github.com/dcao/conferencespace/internal/storage/assignment"
+	"github.com/dcao/conferencespace/internal/storage/conference"
 	"github.com/dcao/conferencespace/internal/storage/reviewer"
 	"github.com/dcao/conferencespace/internal/storage/submission"
 )
 
 // Service orchestrates the automatic reviewer assignment process
 type Service struct {
-	coiService        *coi.Service
-	scorer            scoring.SimilarityScorer
-	matcher           matching.AssignmentMatcher
-	reviewerStorage   reviewer.StorageInterface
-	submissionStorage submission.StorageInterface
-	assignmentStorage assignment.StorageInterface
+	coiService           *coi.Service
+	scorer               scoring.SimilarityScorer
+	matcher              matching.AssignmentMatcher
+	reviewerStorage      reviewer.StorageInterface
+	submissionStorage    submission.StorageInterface
+	assignmentStorage    assignment.StorageInterface
+	conferenceStorage    conference.StorageInterface
+	neo4jClient          *neo4j.Client
+	relationshipDetector *detectors.RelationshipDetector
 }
 
-// NewService creates a new assignment service with default Phase 1 (MVP) components
+// NewService creates a new assignment service with all COI detectors including graph-based
 func NewService(
-	reviewerStorage reviewer.StorageInterface,
-	submissionStorage submission.StorageInterface,
-	assignmentStorage assignment.StorageInterface,
+	store *storage.Storage,
+	clientsLayer *clients.Clients,
 ) *Service {
-	// Phase 1 MVP: Use composite COI detector with self-author and declared conflicts
-	coiDetector := detectors.NewCompositeDetector(
-		detectors.NewSelfAuthorDetector(),
-		detectors.NewDeclaredConflictsDetector(),
-	)
+	// Extract Neo4j client from clients if available
+	var neo4jClient *neo4j.Client
+	if clientsLayer != nil && clientsLayer.Neo4j != nil {
+		neo4jClient = clientsLayer.Neo4j
+	}
+
+	// Create relationship detector with defaults (will be configured per conference)
+	var relationshipDetector *detectors.RelationshipDetector
+	var coiDetector detectors.ConflictDetector
+
+	if neo4jClient != nil {
+		// Create relationship detector with default window years
+		// Path threshold is hardcoded to 3 hops
+		relationshipDetector = detectors.NewRelationshipDetector(
+			neo4jClient,
+			detectors.DefaultCOIWindowYears,
+		).(*detectors.RelationshipDetector)
+
+		// Use composite detector with all detectors including graph-based
+		coiDetector = detectors.NewCompositeDetector(
+			detectors.NewSelfAuthorDetector(),
+			detectors.NewDeclaredConflictsDetector(),
+			relationshipDetector,
+		)
+	} else {
+		// Fallback: Use basic detectors without graph-based COI
+		coiDetector = detectors.NewCompositeDetector(
+			detectors.NewSelfAuthorDetector(),
+			detectors.NewDeclaredConflictsDetector(),
+		)
+	}
+
 	coiService := coi.NewServiceWithDetector(coiDetector)
 
 	return &Service{
-		coiService:        coiService,
-		scorer:            scoring.NewDomainJaccardScorer(),
-		matcher:           matching.NewGreedyMatcher(),
-		reviewerStorage:   reviewerStorage,
-		submissionStorage: submissionStorage,
-		assignmentStorage: assignmentStorage,
+		coiService:           coiService,
+		scorer:               scoring.NewDomainJaccardScorer(),
+		matcher:              matching.NewGreedyMatcher(),
+		reviewerStorage:      store.Reviewer,
+		submissionStorage:    store.Submission,
+		assignmentStorage:    store.Assignment,
+		conferenceStorage:    store.Conference,
+		neo4jClient:          neo4jClient,
+		relationshipDetector: relationshipDetector,
 	}
 }
 
@@ -69,6 +105,27 @@ type AutoAssignResult struct {
 
 // AutoAssign performs automatic reviewer assignment
 func (s *Service) AutoAssign(ctx context.Context, conferenceID int64, config AutoAssignConfig) (*AutoAssignResult, error) {
+	// 0. Load conference and configure COI detector based on conference settings
+	conf, err := s.conferenceStorage.GetByID(ctx, conferenceID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load conference: %w", err)
+	}
+
+	// Configure relationship detector from conference settings
+	if s.relationshipDetector != nil && conf.Configurations != nil {
+		// Default value
+		windowYears := detectors.DefaultCOIWindowYears
+
+		// Override with conference setting if provided
+		if conf.Configurations.COIWindowYears != nil {
+			windowYears = *conf.Configurations.COIWindowYears
+		}
+
+		// Update detector with conference-specific window years
+		// Path threshold is hardcoded to 3 hops (technical parameter)
+		s.relationshipDetector.SetWindowYears(windowYears)
+	}
+
 	// 1. Load accepted reviewers
 	reviewers, _, err := s.reviewerStorage.List(ctx, conferenceID, &reviewer.ListParams{
 		Status: "accepted",
@@ -217,4 +274,10 @@ func (s *Service) AutoAssign(ctx context.Context, conferenceID int64, config Aut
 	}
 
 	return result, nil
+}
+
+// GetRelationshipDetector returns the relationship detector if available
+// This is used by other services to check COI before inviting reviewers
+func (s *Service) GetRelationshipDetector() *detectors.RelationshipDetector {
+	return s.relationshipDetector
 }

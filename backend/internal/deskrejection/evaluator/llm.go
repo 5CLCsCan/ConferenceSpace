@@ -47,30 +47,14 @@ func (e *LLMEvaluator) EvaluateContent(ctx context.Context, doc models.Document,
 
 // buildContentEvaluationPrompt creates a comprehensive prompt for content quality evaluation
 func buildContentEvaluationPrompt(doc models.Document, config models.PaperRuleConfig) string {
-	// Extract relevant sections
-	title := extractTitle(doc)
-	abstract := extractAbstract(doc)
-	intro := extractSection(doc, "Introduction")
-	method := extractSection(doc, "Method")
-	experiments := extractSection(doc, "Experiments")
+	// Truncate full text to reasonable length for LLM (e.g., first 20,000 characters)
+	fullText := truncateText(doc.FullText, 100000)
 
 	return fmt.Sprintf(`You are evaluating an academic research paper for content quality based on CS conference submission standards. Analyze the paper comprehensively and evaluate MULTIPLE aspects in a SINGLE response.
 
+The paper content is provided below. Note that the paper may be in any language, and section headers may vary.
+
 PAPER CONTENT:
-
-TITLE:
-%s
-
-ABSTRACT:
-%s
-
-INTRODUCTION (first ~1000 characters):
-%s
-
-METHOD (first ~1500 characters):
-%s
-
-EXPERIMENTS (first ~2000 characters):
 %s
 
 ---
@@ -148,48 +132,7 @@ Respond in EXACT JSON format (no markdown, no code blocks):
   ]
 }
 
-Be concise but specific. Focus on content quality, not formatting.`, 
-		title, abstract, intro, method, experiments)
-}
-
-// Helper functions to extract sections
-func extractTitle(doc models.Document) string {
-	lines := strings.SplitN(doc.FullText, "\n", 2)
-	if len(lines) > 0 {
-		return strings.TrimSpace(lines[0])
-	}
-	return ""
-}
-
-func extractAbstract(doc models.Document) string {
-	// Try to get from sections first
-	if abstract, ok := doc.Sections["Abstract"]; ok {
-		return truncateText(abstract, 500)
-	}
-	if abstract, ok := doc.Sections["abstract"]; ok {
-		return truncateText(abstract, 500)
-	}
-	// Fallback: first 10 lines after title
-	lines := strings.SplitN(doc.FullText, "\n", 15)
-	if len(lines) > 1 {
-		return truncateText(strings.Join(lines[1:], "\n"), 500)
-	}
-	return ""
-}
-
-func extractSection(doc models.Document, sectionName string) string {
-	if section, ok := doc.Sections[sectionName]; ok {
-		return truncateText(section, 2000)
-	}
-	// Try lowercase
-	if section, ok := doc.Sections[strings.ToLower(sectionName)]; ok {
-		return truncateText(section, 2000)
-	}
-	// Try plural
-	if section, ok := doc.Sections[sectionName+"s"]; ok {
-		return truncateText(section, 2000)
-	}
-	return ""
+Be concise but specific. Focus on content quality, not formatting.`, fullText)
 }
 
 func truncateText(text string, maxChars int) string {
@@ -261,12 +204,12 @@ func parseLLMResponse(response string) []models.CheckResult {
 		}
 
 		results = append(results, models.CheckResult{
-			ItemID:     eval.ID,
-			Category:   eval.Category,
+			ItemID:      eval.ID,
+			Category:    eval.Category,
 			Description: desc,
-			Status:     status,
-			Details:    eval.Details,
-			Confidence: confidence,
+			Status:      status,
+			Details:     eval.Details,
+			Confidence:  confidence,
 		})
 	}
 
@@ -303,12 +246,12 @@ func parseTextFormatResponse(response string) []models.CheckResult {
 				}
 
 				results = append(results, models.CheckResult{
-					ItemID:     id,
-					Category:   getCategoryForID(id),
+					ItemID:      id,
+					Category:    getCategoryForID(id),
 					Description: desc,
-					Status:     status,
-					Details:    strings.TrimSpace(line),
-					Confidence: 0.7,
+					Status:      status,
+					Details:     strings.TrimSpace(line),
+					Confidence:  0.7,
 				})
 				break
 			}
@@ -335,4 +278,3 @@ func getCategoryForID(id string) string {
 	}
 	return "content_quality"
 }
-

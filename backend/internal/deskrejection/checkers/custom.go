@@ -14,7 +14,8 @@ func RegisterCustom(config models.PaperRuleConfig) {
 			category:    "experiments",
 			description: fmt.Sprintf("At least %d datasets used", config.CustomRules.MinDatasets),
 			checkFn: func(doc models.Document, conf models.PaperRuleConfig) (string, string, float64) {
-				expText := doc.Sections["experiments"]
+				// Try normalized section name
+				expText := doc.Sections["Experiments"]
 				count := strings.Count(strings.ToLower(expText), "dataset")
 				status := "pass"
 				if count < config.CustomRules.MinDatasets {
@@ -48,4 +49,3 @@ func RegisterCustom(config models.PaperRuleConfig) {
 		})
 	}
 }
-

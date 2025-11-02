@@ -12,13 +12,13 @@ export default function ReviewerPage() {
   const router = useRouter()
   const { t } = useTranslation()
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login")
-    } else if (user && !user.roles.includes("reviewer")) {
-      router.push("/dashboard")
-    }
-  }, [isAuthenticated, user, router])
+  // useEffect(() => {
+  //   if (!isAuthenticated) {
+  //     router.push("/login")
+  //   } else if (user && !user.roles.includes("reviewer")) {
+  //     router.push("/dashboard")
+  //   }
+  // }, [isAuthenticated, user, router])
 
   if (!isAuthenticated || !user) {
     return null

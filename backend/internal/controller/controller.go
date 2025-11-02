@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/dcao/conferencespace/internal/assignment"
+	"github.com/dcao/conferencespace/internal/clients"
 	assignmentController "github.com/dcao/conferencespace/internal/controller/assignment"
 	"github.com/dcao/conferencespace/internal/controller/auth"
 	"github.com/dcao/conferencespace/internal/controller/conference"
@@ -22,19 +23,14 @@ type Controller struct {
 	Assignment *assignmentController.Controller
 }
 
-func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, fileStore fileStorage.StorageInterface, geminiClient interface{}) *Controller {
-	// Initialize assignment service with required storages
-	assignmentService := assignment.NewService(
-		store.Reviewer,
-		store.Submission,
-		store.Assignment,
-	)
+func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, fileStore fileStorage.StorageInterface, clients *clients.Clients) *Controller {
+	assignmentService := assignment.NewService(store, clients)
 
 	return &Controller{
 		Auth:       auth.New(orch),
-		User:       user.New(store),
+		User:       user.New(store, assignmentService), // Pass assignment service for COI checks
 		Conference: conference.New(store),
-		Submission: submission.New(store, fileStore, geminiClient),
+		Submission: submission.New(store, fileStore, clients.Gemini),
 		Reviewer:   reviewer.New(store),
 		Assignment: assignmentController.New(assignmentService),
 	}
