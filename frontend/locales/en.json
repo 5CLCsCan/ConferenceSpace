@@ -11,7 +11,13 @@
       "logout": "Log out",
       "startNow": "Get started",
       "choose": "Select",
-      "continue": "Continue"
+      "continue": "Continue",
+      "accept": "Accept",
+      "decline": "Decline",
+      "complete": "Complete",
+      "goBack": "Go back",
+      "retry": "Retry",
+      "search": "Search"
     },
     "labels": {
       "email": "Email",
@@ -182,16 +188,6 @@
           "Upload camera-ready versions"
         ]
       },
-      "reviewer": {
-        "name": "Reviewer",
-        "description": "Evaluate and comment on assigned papers",
-        "features": [
-          "See assigned submissions",
-          "Write detailed reviews",
-          "Use AI-assisted scoring",
-          "Stay on top of deadlines"
-        ]
-      },
       "chair": {
         "name": "Conference Chair",
         "description": "Coordinate the entire conference workflow",
@@ -212,6 +208,223 @@
           "Track conference-wide progress"
         ]
       },
+      "reviewer": {
+        "name": "Reviewer",
+        "description": "Evaluate and comment on assigned papers",
+        "nav": {
+          "overview": "Overview",
+          "myConferences": "My Conferences",
+          "invitations": "Invitations"
+        },
+        "stats": {
+          "totalConferences": "Total Conferences",
+          "activeReviewing": "Actively reviewing",
+          "completedReviews": "Completed Reviews",
+          "papersCompleted": "Papers completed",
+          "pendingReviews": "Pending Reviews",
+          "papersToDo": "Papers to do"
+        },
+        "todo": {
+          "title": "To-Do List",
+          "description": "Tasks that require your immediate attention",
+          "deadline": "Deadline",
+          "daysLeft": "{{count}} days left",
+          "reviewNow": "Review Now",
+          "noAssignments": "No pending assignments"
+        },
+        "conferences": {
+          "title": "My Conferences",
+          "description": "List of conferences you are reviewing for",
+          "search": {
+            "placeholder": "Search conferences by name, acronym, or domain...",
+            "noResults": "No conferences match your search criteria"
+          },
+          "table": {
+            "name": "Conference Name",
+            "role": "Role",
+            "progress": "Progress",
+            "deadline": "Review Deadline"
+          },
+          "status": {
+            "active": "Active",
+            "upcoming": "Upcoming",
+            "completed": "Completed",
+            "unknown": "Unknown"
+          },
+          "noConferences": "No conferences assigned yet"
+        },
+        "invitations": {
+          "title": "Review Invitations",
+          "description": "Manage your review invitations",
+          "empty": {
+            "title": "No Invitations",
+            "description": "You don't have any review invitations. When conference chairs invite you to review papers, they will appear here."
+          },
+          "invitedBy": "Invited by",
+          "papersToReview": "Papers to review",
+          "requestedAt": "Requested at",
+          "responseDeadline": "Response deadline",
+          "status": {
+            "pending": "Pending",
+            "accepted": "Accepted",
+            "rejected": "Rejected"
+          },
+          "filter": {
+            "placeholder": "Filter by status",
+            "all": "All Invitations",
+            "pending": "Pending",
+            "accepted": "Accepted",
+            "rejected": "Rejected"
+          },
+          "toast": {
+            "successTitle": "Response Sent",
+            "successDescription": "You have {{action}} the invitation.",
+            "errorTitle": "Response Failed",
+            "errorDescription": "An error occurred. Please try again."
+          }
+        },
+        "papers": {
+          "description": "{{count}} papers assigned to you in this conference.",
+          "search": {
+            "placeholder": "Search papers by title...",
+            "noResults": "No papers match your search criteria",
+            "noResultsDescription": "Try adjusting your search or filter to find what you're looking for."
+          },
+          "filter": {
+            "status": "Filter by status",
+            "all": "All Status"
+          },
+          "table": {
+            "title": "Paper Title",
+            "status": "Status",
+            "deadline": "Review Deadline"
+          },
+          "statusValues": {
+            "pending": "Pending",
+            "in_progress": "In Progress",
+            "completed": "Completed"
+          },
+          "empty": {
+            "title": "No Papers Assigned Yet",
+            "description": "You haven't been assigned any papers for this conference yet. Papers will appear here once the conference chair assigns them to you."
+          }
+        },
+        "review": {
+          "reviewing": "Reviewing",
+          "submittedOn": "Submitted on {{date}}",
+          "version": "Version {{version}}",
+          "downloadPDF": "Download PDF",
+          "loading": "Loading...",
+          "errors": {
+            "loadFailed": "Error loading dashboard data",
+            "paperNotFound": "Paper not found",
+            "conferenceIdRequired": "Conference ID is required",
+            "fetchPaperFailed": "Failed to fetch paper",
+            "unknownError": "An error occurred"
+          },
+          "loadingPaper": "Loading paper...",
+          "tabs": {
+            "review": "Review",
+            "discussion": "Discussion",
+            "rebuttal": "Rebuttal"
+          },
+          "ai": {
+            "getAssistance": "Get AI-Powered Review Assistance",
+            "title": "AI Analysis & Suggestions",
+            "description": "AI-generated insights to help you write a comprehensive review",
+            "keyStrengths": "Key Strengths",
+            "areasForImprovement": "Areas for Improvement",
+            "suggestedQuestions": "Suggested Questions for Authors",
+            "strengths": {
+              "strength1": "Novel approach to transformer architecture optimization",
+              "strength2": "Comprehensive experimental evaluation across multiple datasets",
+              "strength3": "Clear presentation of methodology and results"
+            },
+            "weaknesses": {
+              "weakness1": "Limited discussion of computational overhead in real-world scenarios",
+              "weakness2": "Comparison with recent baseline methods could be more thorough",
+              "weakness3": "Scalability concerns for larger models not fully addressed"
+            },
+            "questions": {
+              "question1": "How does the approach perform on languages with different linguistic properties?",
+              "question2": "What is the training time comparison with baseline methods?",
+              "question3": "Can the method be extended to other transformer-based architectures?"
+            },
+            "consistencyCheck": "Consistency Check",
+            "consistencyAligned": "Your scores are well-aligned with typical reviews. Good job!",
+            "consistencyInconsistent": "Your scores are somewhat inconsistent with typical reviews. Consider if your ratings match your written feedback."
+          },
+          "scores": {
+            "title": "Review Scores",
+            "description": "Rate the paper on various criteria (1 = Poor, 5 = Excellent)",
+            "overallScore": "Overall Score",
+            "confidence": "Confidence in Review",
+            "novelty": "Novelty",
+            "technicalQuality": "Technical Quality",
+            "clarity": "Clarity of Presentation",
+            "relevance": "Relevance to Conference"
+          },
+          "comments": {
+            "title": "Review Comments",
+            "description": "Provide detailed feedback for the authors and program committee",
+            "toAuthors": {
+              "title": "Comments to Authors",
+              "label": "Detailed Feedback for Authors",
+              "placeholder": "Provide constructive feedback on strengths, weaknesses, and suggestions for improvement..."
+            },
+            "toPC": {
+              "title": "Comments to PC",
+              "label": "Confidential Comments to Program Committee",
+              "placeholder": "Share any concerns or additional context that should not be visible to authors..."
+            },
+            "wordCount": "{{count}} words"
+          },
+          "recommendation": {
+            "title": "Final Recommendation",
+            "description": "Your recommendation for this paper",
+            "placeholder": "Select your recommendation",
+            "options": {
+              "accept": "Accept",
+              "minor": "Accept with Minor Revisions",
+              "major": "Major Revisions Required",
+              "reject": "Reject"
+            }
+          },
+          "saveDraft": "Save Draft",
+          "submitReview": "Submit Review",
+          "saving": "Saving...",
+          "submitting": "Submitting...",
+          "saveDraftSuccess": "Draft saved",
+          "saveDraftDescription": "Your review draft has been saved successfully.",
+          "saveDraftFailed": "Failed to save draft",
+          "saveDraftFailedDescription": "Could not save your review draft. Please try again.",
+          "recommendationRequired": "Recommendation required",
+          "recommendationRequiredDescription": "Please select a recommendation before submitting.",
+          "commentsTooShort": "Comments too short",
+          "commentsTooShortDescription": "Please provide at least 50 words of feedback for authors.",
+          "submitSuccess": "Review submitted",
+          "submitSuccessDescription": "Your review has been submitted successfully.",
+          "submitFailed": "Failed to submit review",
+          "submitFailedDescription": "Could not submit your review. Please try again.",
+          "discussion": {
+            "title": "Private Discussion",
+            "description": "Discuss this paper with other assigned reviewers. This section is not visible to authors.",
+            "placeholder": "Write a message...",
+            "send": "Send"
+          },
+          "rebuttal": {
+            "title": "Author Rebuttal",
+            "description": "The author's response to the reviews.",
+            "author": "Author",
+            "actionRequired": "Action Required",
+            "actionDescription": "The author has submitted a rebuttal. Please read it and modify your review if necessary.",
+            "modifyReview": "Modify Your Review",
+            "notAvailable": "The author has not submitted a rebuttal yet.",
+            "modifyReviewStarted": "Review modification started",
+            "modifyReviewStartedDescription": "You can now edit your review based on the author's rebuttal."
+          }
+        }
+      },
       "admin": {
         "name": "Administrator",
         "description": "Manage system configuration",
@@ -222,6 +435,20 @@
           "Configure roles and permissions"
         ]
       }
+    }
+  },
+  "review": {
+    "role": {
+      "reviewer": "Reviewer"
+    },
+    "conferences": {
+      "columns": {
+        "domain": "Domain",
+        "timeline": "Conference Date"
+      },
+      "submission": "Deadline",
+      "noConferences": "No conferences assigned yet",
+      "complete": "complete"
     }
   }
 }

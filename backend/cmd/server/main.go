@@ -221,6 +221,14 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 				submissions.POST("/auto-assign", handler.HandleRequest(ctrl.Assignment.AutoAssign))
 			}
 		}
+
+		// Reviewer dashboard routes (authentication required)
+		reviewer := v1.Group("/reviewer")
+		reviewer.Use(middleware.AuthMiddleware(cfg.JWT.Secret))
+		{
+			reviewer.GET("/:reviewer_id/dashboard", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetDashboard))
+			reviewer.GET("/:reviewer_id/conferences/:conference_id/papers", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetConferencePapers))
+		}
 	}
 
 	return router

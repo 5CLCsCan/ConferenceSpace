@@ -11,7 +11,13 @@
       "logout": "Đăng xuất",
       "startNow": "Bắt đầu ngay",
       "choose": "Chọn",
-      "continue": "Tiếp tục"
+      "continue": "Tiếp tục",
+      "accept": "Chấp nhận",
+      "decline": "Từ chối",
+      "complete": "Hoàn thành",
+      "goBack": "Quay lại",
+      "retry": "Thử lại",
+      "search": "Tìm kiếm"
     },
     "labels": {
       "email": "Email",
@@ -182,16 +188,6 @@
           "Tải lên bản hoàn chỉnh (camera-ready)"
         ]
       },
-      "reviewer": {
-        "name": "Phản biện",
-        "description": "Đánh giá và bình luận các bài được giao",
-        "features": [
-          "Xem danh sách bài được giao",
-          "Viết phản biện chi tiết",
-          "Sử dụng công cụ AI hỗ trợ chấm điểm",
-          "Theo dõi hạn nộp phản biện"
-        ]
-      },
       "chair": {
         "name": "Chủ tịch hội nghị",
         "description": "Điều phối toàn bộ quy trình hội nghị",
@@ -212,6 +208,229 @@
           "Theo dõi tiến độ chung của hội nghị"
         ]
       },
+      "reviewer": {
+        "name": "Phản biện",
+        "description": "Đánh giá và bình luận các bài được giao",
+        "nav": {
+          "overview": "Tổng quan",
+          "myConferences": "Hội nghị của tôi",
+          "invitations": "Lời mời"
+        },
+        "stats": {
+          "totalConferences": "Tổng số hội nghị",
+          "activeReviewing": "Đang tham gia phản biện",
+          "completedReviews": "Đã phản biện",
+          "papersCompleted": "Bài báo đã hoàn thành",
+          "pendingReviews": "Chờ phản biện",
+          "papersToDo": "Bài báo cần xử lý"
+        },
+        "todo": {
+          "title": "Các tác vụ cần làm",
+          "description": "Những việc cần được ưu tiên xử lý",
+          "deadline": "Hạn chót",
+          "daysLeft": "{{count}} ngày còn lại",
+          "reviewNow": "Phản biện ngay",
+          "noAssignments": "Không có bài báo cần xử lý"
+        },
+        "conferences": {
+          "title": "Hội nghị của tôi",
+          "description": "Danh sách các hội nghị bạn đang phản biện",
+          "search": {
+            "placeholder": "Tìm kiếm hội nghị theo tên, từ viết tắt hoặc lĩnh vực...",
+            "noResults": "Không tìm thấy hội nghị nào phù hợp"
+          },
+          "table": {
+            "name": "Tên hội nghị",
+            "role": "Vai trò",
+            "progress": "Tiến độ",
+            "deadline": "Hạn chót"
+          },
+          "status": {
+            "active": "Đang diễn ra",
+            "upcoming": "Sắp tới",
+            "completed": "Đã hoàn thành",
+            "unknown": "Không xác định"
+          },
+          "noConferences": "Chưa được giao hội nghị nào"
+        },
+        "invitations": {
+          "title": "Lời mời phản biện",
+          "description": "Quản lý lời mời phản biện của bạn",
+          "empty": {
+            "title": "Không Có Lời Mời",
+            "description": "Bạn không có lời mời phản biện nào. Khi chủ tọa hội nghị mời bạn phản biện bài báo, chúng sẽ xuất hiện ở đây."
+          },
+          "invitedBy": "Người mời",
+          "papersToReview": "Số bài cần phản biện",
+          "requestedAt": "Ngày mời",
+          "responseDeadline": "Hạn phản hồi",
+          "status": {
+            "pending": "Đang chờ",
+            "accepted": "Đã chấp nhận",
+            "rejected": "Đã từ chối"
+          },
+          "filter": {
+            "placeholder": "Lọc theo trạng thái",
+            "all": "Tất cả lời mời",
+            "pending": "Đang chờ",
+            "accepted": "Đã chấp nhận",
+            "rejected": "Đã từ chối"
+          },
+          "toast": {
+            "successTitle": "Phản hồi đã được gửi",
+            "successDescription": "Bạn đã {{action}} lời mời.",
+            "errorTitle": "Gửi phản hồi thất bại",
+            "errorDescription": "Đã có lỗi xảy ra. Vui lòng thử lại."
+          }
+        },
+        "papers": {
+          "description": "Có {{count}} bài được giao cho bạn trong hội nghị này.",
+          "search": {
+            "placeholder": "Tìm kiếm bài báo theo tiêu đề...",
+            "noResults": "Không tìm thấy bài báo nào phù hợp",
+            "noResultsDescription": "Thử điều chỉnh tìm kiếm hoặc bộ lọc để tìm thấy những gì bạn đang tìm."
+          },
+          "filter": {
+            "status": "Lọc theo trạng thái",
+            "all": "Tất cả trạng thái"
+          },
+          "table": {
+            "title": "Tiêu đề bài báo",
+            "status": "Trạng thái",
+            "deadline": "Hạn chót phản biện"
+          },
+          "statusValues": {
+            "pending": "Chờ",
+            "in_progress": "Đang tiến hành",
+            "completed": "Hoàn thành"
+          },
+          "empty": {
+            "title": "Chưa Có Bài Báo Nào Được Giao",
+            "description": "Bạn chưa được giao bài báo nào cho hội nghị này. Các bài báo sẽ xuất hiện ở đây khi chủ tọa hội nghị phân công cho bạn."
+          }
+        },
+        "review": {
+          "reviewing": "Đang phản biện",
+          "submittedOn": "Gửi vào ngày {{date}}",
+          "version": "Phiên bản {{version}}",
+          "downloadPDF": "Tải PDF",
+          "loading": "Đang tải...",
+          "errors": {
+            "loadFailed": "Lỗi tải dữ liệu",
+            "paperNotFound": "Không tìm thấy bài báo",
+            "conferenceIdRequired": "Cần có ID hội nghị",
+            "fetchPaperFailed": "Không thể tải bài báo",
+            "unknownError": "Đã xảy ra lỗi"
+          },
+          "loadingPaper": "Đang tải bài báo...",
+          "tabs": {
+            "review": "Phản biện",
+            "discussion": "Thảo luận",
+            "rebuttal": "Phản hồi"
+          },
+          "ai": {
+            "getAssistance": "Nhận hỗ trợ phản biện từ AI",
+            "title": "Phân tích & Gợi ý từ AI",
+            "description": "Thông tin do AI tạo ra để giúp bạn viết một bài phản biện toàn diện",
+            "keyStrengths": "Điểm mạnh chính",
+            "areasForImprovement": "Điểm cần cải thiện",
+            "suggestedQuestions": "Câu hỏi gợi ý cho tác giả",
+            "strengths": {
+              "strength1": "Phương pháp tiếp cận mới lạ để tối ưu hóa kiến trúc transformer",
+              "strength2": "Đánh giá thực nghiệm toàn diện trên nhiều bộ dữ liệu",
+              "strength3": "Trình bày rõ ràng về phương pháp và kết quả"
+            },
+            "weaknesses": {
+              "weakness1": "Thảo luận hạn chế về chi phí tính toán trong các kịch bản thực tế",
+              "weakness2": "So sánh với các phương pháp cơ sở gần đây có thể kỹ lưỡng hơn",
+              "weakness3": "Các vấn đề về khả năng mở rộng cho các mô hình lớn hơn chưa được giải quyết triệt để"
+            },
+            "questions": {
+              "question1": "Phương pháp này hoạt động như thế nào trên các ngôn ngữ có đặc tính ngôn ngữ khác nhau?",
+              "question2": "So sánh thời gian huấn luyện với các phương pháp cơ sở là gì?",
+              "question3": "Phương pháp này có thể được mở rộng cho các kiến trúc dựa trên transformer khác không?"
+            },
+            "consistencyCheck": "Kiểm tra tính nhất quán",
+            "consistencyAligned": "Điểm số của bạn khá nhất quán với các bài đánh giá thông thường. Làm tốt lắm!",
+            "consistencyInconsistent": "Điểm số của bạn hơi thiếu nhất quán so với các bài đánh giá thông thường. Hãy xem xét lại xem xếp hạng của bạn có khớp với phản hồi bằng văn bản không."
+          },
+          "scores": {
+            "title": "Điểm phản biện",
+            "description": "Đánh giá bài báo theo nhiều tiêu chí (1 = Kém, 5 = Xuất sắc)",
+            "overallScore": "Điểm tổng thể",
+            "confidence": "Mức độ tự tin",
+            "novelty": "Tính mới lạ",
+            "technicalQuality": "Chất lượng kỹ thuật",
+            "clarity": "Sự rõ ràng",
+            "relevance": "Mức độ liên quan"
+          },
+          "comments": {
+            "title": "Bình luận phản biện",
+            "description": "Cung cấp phản hồi chi tiết cho tác giả và ban chương trình",
+            "toAuthors": {
+              "title": "Bình luận cho tác giả",
+              "label": "Phản hồi chi tiết cho tác giả",
+              "placeholder": "Cung cấp phản hồi mang tính xây dựng về điểm mạnh, điểm yếu và đề xuất cải tiến..."
+            },
+            "toPC": {
+              "title": "Bình luận cho ban PC",
+              "label": "Bình luận riêng tư cho Ban chương trình",
+              "placeholder": "Chia sẻ bất kỳ mối quan ngại hoặc bối cảnh bổ sung nào không nên hiển thị cho tác giả..."
+            },
+            "wordCount": "{{count}} từ"
+          },
+          "recommendation": {
+            "title": "Đề xuất cuối cùng",
+            "description": "Đề xuất của bạn cho bài báo này",
+            "placeholder": "Chọn đề xuất của bạn",
+            "options": {
+              "accept": "Chấp nhận",
+              "minor": "Chấp nhận với sửa đổi nhỏ",
+              "major": "Yêu cầu sửa đổi lớn",
+              "reject": "Từ chối"
+            }
+          },
+          "saveDraft": "Lưu bản nháp",
+          "submitReview": "Nộp bài phản biện",
+          "saving": "Đang lưu...",
+          "submitting": "Đang gửi...",
+          "saveDraftSuccess": "Đã lưu bản nháp",
+          "saveDraftDescription": "Bản nháp phản biện của bạn đã được lưu thành công.",
+          "saveDraftFailed": "Lưu bản nháp thất bại",
+          "saveDraftFailedDescription": "Không thể lưu bản nháp phản biện. Vui lòng thử lại.",
+          "recommendationRequired": "Cần có đề xuất",
+          "recommendationRequiredDescription": "Vui lòng chọn một đề xuất trước khi gửi.",
+          "commentsTooShort": "Bình luận quá ngắn",
+          "commentsTooShortDescription": "Vui lòng cung cấp ít nhất 50 từ phản hồi cho tác giả.",
+          "submitSuccess": "Đã gửi phản biện",
+          "submitSuccessDescription": "Bài phản biện của bạn đã được gửi thành công.",
+          "submitFailed": "Gửi phản biện thất bại",
+          "submitFailedDescription": "Không thể gửi bài phản biện. Vui lòng thử lại.",
+          "discussion": {
+            "title": "Thảo luận riêng tư",
+            "description": "Thảo luận bài báo này với các phản biện viên khác được giao. Phần này không hiển thị với tác giả.",
+            "placeholder": "Viết tin nhắn...",
+            "send": "Gửi"
+          },
+          "rebuttal": {
+            "title": "Tác giả phản biện",
+            "description": "Phản hồi của tác giả đối với các bài đánh giá.",
+            "author": "Tác giả",
+            "actionRequired": "Yêu cầu hành động",
+            "actionDescription": "Tác giả đã gửi bài phản biện. Vui lòng đọc và sửa đổi bài đánh giá của bạn nếu cần.",
+            "modifyReview": "Sửa đổi bài phản biện của bạn",
+            "notAvailable": "Tác giả chưa gửi bài phản biện.",
+            "modifyReviewStarted": "Đã bắt đầu sửa đổi phản biện",
+            "modifyReviewStartedDescription": "Bây giờ bạn có thể chỉnh sửa bài phản biện dựa trên phản hồi của tác giả."
+          }
+        },
+        "features": [
+          "Xem danh sách bài được giao",
+          "Viết phản biện chi tiết",
+          "Sử dụng công cụ AI hỗ trợ chấm điểm",
+          "Theo dõi hạn nộp phản biện"
+        ]
+      },
       "admin": {
         "name": "Quản trị viên",
         "description": "Quản lý cấu hình hệ thống",
@@ -222,6 +441,20 @@
           "Cấu hình vai trò và quyền hạn"
         ]
       }
+    }
+  },
+  "review": {
+    "role": {
+      "reviewer": "Phản biện viên"
+    },
+    "conferences": {
+      "columns": {
+        "domain": "Lĩnh vực",
+        "timeline": "Ngày Hội Nghị"
+      },
+      "submission": "Hạn nộp",
+      "noConferences": "Chưa được giao hội nghị nào",
+      "complete": "hoàn thành"
     }
   }
 }
