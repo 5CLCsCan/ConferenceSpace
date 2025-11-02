@@ -13,6 +13,7 @@ import { AuthorsTab } from "./authors-tab"
 import { FileTab } from "./file-tab"
 import { COITab } from "./coi-tab"
 import { SubmissionSidebar } from "./submission-sidebar"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface PaperSubmissionFormProps {
   conference?: Conference | null
@@ -39,6 +40,7 @@ interface Checklist {
 export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
   const router = useRouter()
   const { user } = useAuth()
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<TabType>("paper")
   const [submitting, setSubmitting] = useState(false)
   // Paper tab state
@@ -80,10 +82,10 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
   }
 
   const tabs = [
-    { id: "paper" as TabType, label: "Paper" },
-    { id: "authors" as TabType, label: "Authors" },
-    { id: "file" as TabType, label: "File" },
-    { id: "coi" as TabType, label: "COI" },
+    { id: "paper" as TabType, label: t("dashboard.author.submit.tabs.paper") },
+    { id: "authors" as TabType, label: t("dashboard.author.submit.tabs.authors") },
+    { id: "file" as TabType, label: t("dashboard.author.submit.tabs.file") },
+    { id: "coi" as TabType, label: t("dashboard.author.submit.tabs.coi") },
   ]
 
   const handleAddKeyword = () => {
@@ -123,13 +125,13 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
       const response = await submitPaper(submissionData)
 
       if (response.error) {
-        alert(`Submission failed: ${response.error}`)
+        alert(`${t("dashboard.author.submit.submissionFailed")}: ${response.error}`)
       } else {
-        alert("Paper submitted successfully!")
+        alert(t("dashboard.author.submit.submissionSuccess"))
         router.push("/dashboard/author")
       }
     } catch (error) {
-      alert("Submission failed. Please try again.")
+      alert(t("dashboard.author.submit.submissionError"))
     } finally {
       setSubmitting(false)
     }
@@ -146,16 +148,15 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
             size="sm"
             onClick={() => router.back()}
             className="border border-[#0056A3] text-[#0056A3] bg-transparent hover:bg-[#0056A3]/10 px-4 py-2 rounded-[4px] flex items-center gap-2"
-            title="Back to previous page"
+            title={t("dashboard.author.submit.backTooltip")}
           >
             <ArrowLeft className="size-6" />
-            Back
+            {t("dashboard.author.submit.backButton")}
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-[#212529] font-arial">Submit Paper</h1>
+            <h1 className="text-3xl font-bold text-[#212529] font-arial">{t("dashboard.author.submit.title")}</h1>
             <p className="text-[#6C757D] mt-1 text-base font-arial">
-              Enter details, add co-authors, upload your PDF, and declare conflicts (COI). Save as
-              draft anytime.
+              {t("dashboard.author.submit.subtitle")}
             </p>
           </div>
         </div>
@@ -165,7 +166,7 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
             size="lg"
             className="border border-[#0056A3] text-[#0056A3] bg-transparent hover:bg-[#0056A3]/10 px-4 py-2 rounded-[4px] text-base font-medium font-arial"
           >
-            Save as Draft
+            {t("dashboard.author.submit.saveDraft")}
           </Button>
           <Button
             size="lg"
@@ -173,7 +174,7 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
             disabled={!canSubmit || submitting}
             className="bg-[#0056A3] text-white hover:bg-[#0056A3]/90 px-4 py-2 rounded-[4px] text-base font-medium font-arial"
           >
-            {submitting ? "Submitting..." : "Submit"}
+            {submitting ? t("dashboard.author.submit.submitting") : t("dashboard.author.submit.submit")}
           </Button>
         </div>
       </div>
@@ -225,6 +226,7 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
                   setUploadedFile={setUploadedFile}
                   validationStatus={validationStatus}
                   setValidationStatus={setValidationStatus}
+                  conference={conference}
                 />
               )}
               {activeTab === "coi" && (
@@ -247,7 +249,7 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
           </Card>
           <div className="mt-4 flex items-center gap-2 text-sm text-[#6C757D] font-arial">
             <Info className="size-4" />
-            <span>Draft auto-saves every few seconds</span>
+            <span>{t("dashboard.author.submit.draftAutoSave")}</span>
           </div>
         </div>
         <SubmissionSidebar checklist={checklist} />

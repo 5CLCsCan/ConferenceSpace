@@ -4,13 +4,15 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/dcao/conferencespace/internal/clients/gemini"
 	"github.com/dcao/conferencespace/internal/clients/neo4j"
 	"github.com/dcao/conferencespace/internal/config"
 )
 
 // Clients holds all external service clients
 type Clients struct {
-	Neo4j *neo4j.Client
+	Neo4j  *neo4j.Client
+	Gemini *gemini.Client
 }
 
 // NewClients creates and initializes all external service clients
@@ -31,6 +33,14 @@ func NewClients(cfg *config.Config) (*Clients, error) {
 		clients.Neo4j = neo4jClient
 	}
 
+	// Initialize Gemini client if enabled
+	if cfg.Gemini.Enabled && cfg.Gemini.APIKey != "" {
+		clients.Gemini = gemini.NewClient(gemini.Config{
+			APIKey: cfg.Gemini.APIKey,
+			Model:  cfg.Gemini.Model,
+		})
+	}
+
 	return clients, nil
 }
 
@@ -41,5 +51,6 @@ func (c *Clients) Close(ctx context.Context) error {
 			return fmt.Errorf("failed to close Neo4j client: %w", err)
 		}
 	}
+	// Gemini client doesn't require explicit closing (HTTP client)
 	return nil
 }

@@ -18,16 +18,11 @@ import Link from "next/link"
 import { useState, useEffect } from "react"
 import type { Conference } from "@/lib/types"
 import { useAuth } from "@/lib/auth-context"
-
-const categories = [
-  { value: "all", label: "Tất cả" },
-  { value: "technology", label: "Công nghệ" },
-  { value: "healthcare", label: "Y học" },
-  { value: "education", label: "Giáo dục" },
-]
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export function AuthorDashboard() {
   const { user } = useAuth()
+  const { t } = useTranslation()
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [allConferences, setAllConferences] = useState<Conference[]>([])
@@ -36,6 +31,13 @@ export function AuthorDashboard() {
   >([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const categories = [
+    { value: "all", label: t("dashboard.author.dashboard.categories.all") },
+    { value: "technology", label: t("dashboard.author.dashboard.categories.technology") },
+    { value: "healthcare", label: t("dashboard.author.dashboard.categories.healthcare") },
+    { value: "education", label: t("dashboard.author.dashboard.categories.education") },
+  ]
 
   useEffect(() => {
     const fetchConferences = async () => {
@@ -79,12 +81,20 @@ export function AuthorDashboard() {
               // For authors/reviewers, they might have submission status
               if (conf.userRole !== "chair") {
                 // Simulate submission status for non-chair roles
-                submissionStatus = "Đã nộp" // TODO: Get from backend
+                submissionStatus = t("dashboard.author.dashboard.statuses.submitted") // TODO: Get from backend
               }
+
+              const roleLabel = conf.userRole === "chair" 
+                ? t("dashboard.author.dashboard.roles.chair")
+                : conf.userRole === "pc_member" || conf.userRole === "committee"
+                ? t("dashboard.author.dashboard.roles.committee")
+                : conf.userRole === "reviewer"
+                ? t("dashboard.author.dashboard.roles.reviewer")
+                : conf.userRole
 
               myConfList.push({
                 ...conf,
-                userRole: conf.userRole === "chair" ? "Chair" : conf.userRole,
+                userRole: roleLabel,
                 submissionStatus,
               })
             }
@@ -93,7 +103,7 @@ export function AuthorDashboard() {
           setMyConferences(myConfList)
         }
       } catch (err) {
-        setError("Failed to load conferences")
+        setError(t("dashboard.author.dashboard.messages.failedToLoad"))
       } finally {
         setLoading(false)
       }
@@ -126,25 +136,28 @@ export function AuthorDashboard() {
 
   const renderStatusBadge = (status: string, userRole?: string) => {
     if (userRole) {
-      const roleVariants = {
-        Chair: "bg-purple-100 text-purple-800",
-        Committee: "bg-blue-100 text-blue-800",
-        Reviewer: "bg-indigo-100 text-indigo-800",
-      }
+      // Map role labels to styles (works for both English and Vietnamese)
+      const isChair = userRole === t("dashboard.author.dashboard.roles.chair")
+      const isCommittee = userRole === t("dashboard.author.dashboard.roles.committee")
+      const isReviewer = userRole === t("dashboard.author.dashboard.roles.reviewer")
+      
+      let className = "bg-gray-100 text-gray-800"
+      if (isChair) className = "bg-purple-100 text-purple-800"
+      else if (isCommittee) className = "bg-blue-100 text-blue-800"
+      else if (isReviewer) className = "bg-indigo-100 text-indigo-800"
+      
       return (
-        <Badge
-          className={`${roleVariants[userRole as keyof typeof roleVariants] || "bg-gray-100 text-gray-800"}`}
-        >
+        <Badge className={className}>
           {userRole}
         </Badge>
       )
     }
 
-    const statusVariants = {
-      "Được chấp nhận": "bg-green-100 text-green-800",
-      "Bị từ chối": "bg-red-100 text-red-800",
-      "Đã nộp": "bg-yellow-100 text-yellow-800",
-      "Đang đánh giá": "bg-orange-100 text-orange-800",
+    const statusVariants: Record<string, string> = {
+      [t("dashboard.author.dashboard.statuses.accepted")]: "bg-green-100 text-green-800",
+      [t("dashboard.author.dashboard.statuses.rejected")]: "bg-red-100 text-red-800",
+      [t("dashboard.author.dashboard.statuses.submitted")]: "bg-yellow-100 text-yellow-800",
+      [t("dashboard.author.dashboard.statuses.underReview")]: "bg-orange-100 text-orange-800",
     }
     return (
       <Badge
@@ -171,7 +184,7 @@ export function AuthorDashboard() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
             <Input
               type="text"
-              placeholder="Tìm kiếm hội nghị..."
+              placeholder={t("dashboard.author.dashboard.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -179,7 +192,7 @@ export function AuthorDashboard() {
           </div>
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
             <SelectTrigger className="w-full sm:w-[180px]">
-              <SelectValue placeholder="Chọn danh mục" />
+              <SelectValue placeholder={t("dashboard.author.dashboard.selectCategory")} />
             </SelectTrigger>
             <SelectContent>
               {categories.map((category) => (
@@ -192,33 +205,33 @@ export function AuthorDashboard() {
         </div>
       </div>
 
-      {/* Section: Hội nghị của tôi */}
+      {/* Section: My Conferences */}
       <section className="space-y-6">
-        <h2 className="text-2xl font-semibold tracking-tight">Hội nghị của tôi</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">{t("dashboard.author.dashboard.myConferences")}</h2>
         <Card>
           <CardContent className="p-0">
             {/* Header row */}
             <div className="hidden md:flex items-center gap-4 p-4 bg-gray-50 border-b font-medium text-sm text-gray-500">
-              <div className="flex-1 min-w-0">Tên hội nghị</div>
+              <div className="flex-1 min-w-0">{t("dashboard.author.dashboard.tableHeaders.conferenceName")}</div>
               <div className="flex items-center gap-4 ml-auto">
-                <div className="w-36">Ngày diễn ra</div>
-                <div className="w-36">Địa điểm</div>
-                <div className="w-32">Hạn nộp bài</div>
-                <div className="w-28">Trạng thái</div>
+                <div className="w-36">{t("dashboard.author.dashboard.tableHeaders.date")}</div>
+                <div className="w-36">{t("dashboard.author.dashboard.tableHeaders.location")}</div>
+                <div className="w-32">{t("dashboard.author.dashboard.tableHeaders.submissionDeadline")}</div>
+                <div className="w-28">{t("dashboard.author.dashboard.tableHeaders.status")}</div>
               </div>
             </div>
 
             {loading ? (
               <div className="p-6 text-center">
-                <p className="text-gray-500">Đang tải...</p>
+                <p className="text-gray-500">{t("dashboard.author.dashboard.messages.loading")}</p>
               </div>
             ) : error ? (
               <div className="p-6 text-center">
-                <p className="text-red-500">Lỗi: {error}</p>
+                <p className="text-red-500">{t("dashboard.author.dashboard.messages.error")}: {error}</p>
               </div>
             ) : filterConferences(myConferences).length === 0 ? (
               <div className="p-6 text-center">
-                <p className="text-gray-500">Không tìm thấy hội nghị phù hợp</p>
+                <p className="text-gray-500">{t("dashboard.author.dashboard.messages.noConferencesFound")}</p>
               </div>
             ) : (
               filterConferences(myConferences).map((conference, index, array) => (
@@ -256,32 +269,32 @@ export function AuthorDashboard() {
 
       <Separator className="my-8" />
 
-      {/* Section: Khám phá Hội nghị */}
+      {/* Section: Explore Conferences */}
       <section className="space-y-6">
-        <h2 className="text-2xl font-semibold tracking-tight">Khám phá Hội nghị</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">{t("dashboard.author.dashboard.exploreConferences")}</h2>
         <Card>
           <CardContent className="p-0">
             {/* Header row */}
             <div className="hidden md:flex items-center gap-4 p-4 bg-gray-50 border-b font-medium text-sm text-gray-500">
-              <div className="flex-1 min-w-0">Tên hội nghị</div>
+              <div className="flex-1 min-w-0">{t("dashboard.author.dashboard.tableHeaders.conferenceName")}</div>
               <div className="flex items-center gap-4 ml-auto">
-                <div className="w-36">Ngày diễn ra</div>
-                <div className="w-36">Địa điểm</div>
-                <div className="w-32">Hạn nộp bài</div>
+                <div className="w-36">{t("dashboard.author.dashboard.tableHeaders.date")}</div>
+                <div className="w-36">{t("dashboard.author.dashboard.tableHeaders.location")}</div>
+                <div className="w-32">{t("dashboard.author.dashboard.tableHeaders.submissionDeadline")}</div>
               </div>
             </div>
 
             {loading ? (
               <div className="p-6 text-center">
-                <p className="text-gray-500">Đang tải...</p>
+                <p className="text-gray-500">{t("dashboard.author.dashboard.messages.loading")}</p>
               </div>
             ) : error ? (
               <div className="p-6 text-center">
-                <p className="text-red-500">Lỗi: {error}</p>
+                <p className="text-red-500">{t("dashboard.author.dashboard.messages.error")}: {error}</p>
               </div>
             ) : filterConferences(exploreConferences).length === 0 ? (
               <div className="p-6 text-center">
-                <p className="text-gray-500">Không tìm thấy hội nghị phù hợp</p>
+                <p className="text-gray-500">{t("dashboard.author.dashboard.messages.noConferencesFound")}</p>
               </div>
             ) : (
               filterConferences(exploreConferences).map((conference, index, array) => (

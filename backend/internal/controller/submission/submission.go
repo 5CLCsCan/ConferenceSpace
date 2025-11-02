@@ -8,6 +8,7 @@ import (
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/storage"
+	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
 	fileStorage "github.com/dcao/conferencespace/internal/storage/file"
 	submissionStorage "github.com/dcao/conferencespace/internal/storage/submission"
 	"github.com/dcao/conferencespace/internal/utils"
@@ -16,13 +17,17 @@ import (
 
 type Controller struct {
 	submissionStorage submissionStorage.StorageInterface
+	conferenceStorage conferenceStorage.StorageInterface
 	fileStorage       fileStorage.StorageInterface
+	geminiClient      interface{} // Store as interface to allow nil checks
 }
 
-func New(store *storage.Storage, fileStore fileStorage.StorageInterface) *Controller {
+func New(store *storage.Storage, fileStore fileStorage.StorageInterface, geminiClient interface{}) *Controller {
 	return &Controller{
 		submissionStorage: store.Submission,
+		conferenceStorage: store.Conference,
 		fileStorage:       fileStore,
+		geminiClient:      geminiClient,
 	}
 }
 

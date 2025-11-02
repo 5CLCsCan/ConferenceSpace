@@ -192,6 +192,73 @@ export async function deletePaper(
 }
 
 /**
+ * Pre-check a paper file before submission
+ * Backend endpoint: POST /api/v1/conferences/:conference_id/submissions/precheck
+ */
+export async function precheckPaper(
+  conferenceId: string,
+  file: File,
+): Promise<{
+  data: {
+    paper_title: string
+    overall_score: number
+    decision: string
+    summary: {
+      total_items: number
+      passed: number
+      failed: number
+      pass_rate: number
+    }
+    category_scores: Record<
+      string,
+      {
+        score: number
+        passed: number
+        failed: number
+        weight: number
+      }
+    >
+    detailed_results: Array<{
+      item_id: string
+      category: string
+      description: string
+      status: "pass" | "fail" | "warning"
+      details: string
+      confidence: number
+    }>
+  } | null
+  error: string | null
+}> {
+  try {
+    const formData = new FormData()
+    formData.append("file", file)
+
+    const { data: responseData } = await apiFetch<{ data: any }>(
+      `/api/v1/conferences/${conferenceId}/submissions/precheck`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    )
+
+    // Backend returns { data: ComplianceReport }, so responseData.data contains the report
+    if (!responseData || !responseData.data) {
+      return {
+        data: null,
+        error: "Invalid response format from precheck API",
+      }
+    }
+
+    return { data: responseData.data, error: null }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to precheck paper",
+    }
+  }
+}
+
+/**
  * Submit camera ready version of accepted paper
  * TODO: Backend endpoint not yet implemented - placeholder for future use
  */

@@ -12,12 +12,34 @@
       "startNow": "Get started",
       "choose": "Select",
       "continue": "Continue",
+      "previous": "Previous",
+      "next": "Next",
+      "nextStep": "Next Step",
+      "save": "Save",
+      "saveAsDraft": "Save as Draft",
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "create": "Create",
+      "update": "Update",
+      "view": "View",
+      "back": "Back",
+      "confirm": "Confirm",
+      "loading": "Loading...",
+      "creating": "Creating...",
+      "saving": "Saving...",
+      "submitting": "Submitting...",
+      "add": "Add",
+      "remove": "Remove",
       "accept": "Accept",
       "decline": "Decline",
       "complete": "Complete",
       "goBack": "Go back",
       "retry": "Retry",
-      "search": "Search"
+      "search": "Search",
+      "filter": "Filter",
+      "close": "Close"
     },
     "labels": {
       "email": "Email",
@@ -25,13 +47,35 @@
       "confirmPassword": "Confirm password",
       "firstName": "First name",
       "lastName": "Last name",
-      "domains": "Domains of expertise"
+      "domains": "Domains of expertise",
+      "title": "Title",
+      "abstract": "Abstract",
+      "keywords": "Keywords",
+      "authors": "Authors",
+      "file": "File",
+      "paper": "Paper",
+      "conference": "Conference",
+      "status": "Status",
+      "date": "Date",
+      "deadline": "Deadline"
     },
     "messages": {
       "languages": {
         "english": "English",
         "vietnamese": "Vietnamese"
-      }
+      },
+      "loading": "Loading...",
+      "error": "An error occurred",
+      "success": "Operation completed successfully",
+      "noData": "No data available",
+      "notFound": "Not found"
+    },
+    "status": {
+      "pending": "Pending",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "active": "Active",
+      "inactive": "Inactive"
     }
   },
   "home": {
@@ -139,7 +183,8 @@
           "callForPapers": "Call for Papers",
           "dates": "Key Dates",
           "committee": "Organising Committee",
-          "submissions": "Submissions"
+          "submissions": "Submissions",
+          "coiDemo": "COI Demo"
         },
         "joinNow": "Submit now",
         "currentRole": "Current role",
@@ -434,6 +479,332 @@
           "Review activity logs",
           "Configure roles and permissions"
         ]
+      }
+    },
+    "chair": {
+      "createConference": {
+        "title": "Create New Conference",
+        "subtitle": "Follow the steps below to set up your academic conference",
+        "steps": {
+          "1": {
+            "title": "Details",
+            "description": "Core Conference Details"
+          },
+          "2": {
+            "title": "Topics & Submissions",
+            "description": "Topics & Submission Settings"
+          },
+          "3": {
+            "title": "Organizers",
+            "description": "Assign Conference Chairs"
+          },
+          "4": {
+            "title": "Review",
+            "description": "Review and Confirm"
+          }
+        },
+        "confirmCreate": "Confirm & Create Conference",
+        "validationError": "Validation Error",
+        "validationDescription": "Please fill in all required fields.",
+        "error": "Error",
+        "success": "Success",
+        "successDescription": "Conference created successfully!",
+        "errorDescription": "Failed to create conference. Please try again.",
+        "saveDraft": "Conference saved as draft!"
+      },
+      "dashboard": {
+        "createNewConference": "+ Create New Conference",
+        "manageUsers": "Manage Users",
+        "viewSystemLogs": "View System Logs",
+        "platformOverview": "Platform Overview",
+        "activeConferences": "Active Conferences",
+        "totalUsers": "Total Users",
+        "submissionsThisMonth": "Submissions this Month",
+        "actionItems": "Action Items",
+        "conferenceManagement": "Conference Management",
+        "yourConferences": "Your Conferences",
+        "searchPlaceholder": "Search conferences...",
+        "filterByStatus": "Filter by Status",
+        "tableHeaders": {
+          "conferenceName": "Conference Name",
+          "dates": "Dates",
+          "status": "Status",
+          "submissions": "Submissions",
+          "actions": "Actions"
+        },
+        "messages": {
+          "loading": "Loading conferences...",
+          "error": "Error",
+          "noConferencesFound": "No conferences found. Create your first conference!"
+        },
+        "platformUpdates": {
+          "title": "Platform Updates",
+          "announcements": "Announcements",
+          "recentActivity": "Recent Activity",
+          "createAnnouncement": "Create Announcement"
+        },
+        "topReviewers": {
+          "title": "Platform Top Reviewers",
+          "manageAllUsers": "Manage All Users"
+        }
+      }
+    },
+    "author": {
+      "dashboard": {
+        "title": "My Submissions",
+        "noSubmissions": "No submissions yet",
+        "createSubmission": "Create your first submission",
+        "myConferences": "My Conferences",
+        "exploreConferences": "Explore Conferences",
+        "searchPlaceholder": "Search conferences...",
+        "selectCategory": "Select category",
+        "categories": {
+          "all": "All",
+          "technology": "Technology",
+          "healthcare": "Healthcare",
+          "education": "Education"
+        },
+        "tableHeaders": {
+          "conferenceName": "Conference Name",
+          "date": "Date",
+          "location": "Location",
+          "submissionDeadline": "Submission Deadline",
+          "status": "Status"
+        },
+        "statuses": {
+          "accepted": "Accepted",
+          "rejected": "Rejected",
+          "submitted": "Submitted",
+          "underReview": "Under Review"
+        },
+        "messages": {
+          "loading": "Loading...",
+          "error": "Error",
+          "noConferencesFound": "No matching conferences found",
+          "failedToLoad": "Failed to load conferences"
+        },
+        "roles": {
+          "chair": "Chair",
+          "committee": "Committee",
+          "reviewer": "Reviewer"
+        }
+      },
+      "submit": {
+        "title": "Submit Paper",
+        "subtitle": "Enter details, add co-authors, upload your PDF, and declare conflicts (COI). Save as draft anytime.",
+        "tabs": {
+          "paper": "Paper",
+          "authors": "Authors",
+          "file": "File",
+          "coi": "COI"
+        },
+        "backButton": "Back",
+        "backTooltip": "Back to previous page",
+        "saveDraft": "Save as Draft",
+        "submit": "Submit",
+        "submitting": "Submitting...",
+        "draftAutoSave": "Draft auto-saves every few seconds",
+        "submissionFailed": "Submission failed",
+        "submissionSuccess": "Paper submitted successfully!",
+        "submissionError": "Submission failed. Please try again.",
+        "checklist": {
+          "title": "Submission Checklist",
+          "subtitle": "What you need before submitting",
+          "titleProvided": "Title provided",
+          "abstractLength": "Abstract 150-250 words",
+          "subjectAreas": "Track topic selected",
+          "keywords": "At least 3 keywords added",
+          "coAuthorsListed": "All co-authors listed",
+          "pdfUploaded": "PDF uploaded & validated",
+          "coiDeclared": "COI people/orgs/domains declared"
+        },
+        "paperTab": {
+          "titlePlaceholder": "Concise, informative title of your paper",
+          "selectTopic": "Select a topic"
+        },
+        "authorsTab": {
+          "namePlaceholder": "Full name",
+          "emailPlaceholder": "Email",
+          "orgPlaceholder": "Organization / Institution"
+        },
+        "fileTab": {
+          "mustBePdf": "File must be a PDF",
+          "manuscriptFile": "Manuscript File",
+          "uploadDescription": "Upload anonymized PDF following the conference template",
+          "uploadPdf": "Upload PDF",
+          "noFileSelected": "No file selected",
+          "validationResults": "Validation Results",
+          "checking": "Checking...",
+          "precheckRunning": "Running quality check on your paper...",
+          "precheckError": "Failed to run precheck"
+        },
+        "precheck": {
+          "title": "Paper Quality Check",
+          "extractedTitle": "Extracted from PDF",
+          "summary": {
+            "passed": "Passed",
+            "warnings": "Warnings",
+            "failed": "Failed",
+            "passRate": "Pass Rate"
+          },
+          "categoryScores": "Category Breakdown",
+          "whatsGood": "What's Good",
+          "needsAttention": "Needs Attention",
+          "whatsFixed": "What Needs to be Fixed",
+          "confidence": "Confidence",
+          "status": {
+            "pass": "Pass",
+            "fail": "Fail",
+            "warning": "Warning"
+          },
+          "decision": {
+            "acceptForReview": "Ready for Review"
+          },
+          "categories": {
+            "titleAbstract": "Title & Abstract",
+            "introduction": "Introduction",
+            "method": "Method",
+            "experiments": "Experiments",
+            "writingQuality": "Writing Quality",
+            "preSubmission": "Pre-Submission",
+            "scopeMatch": "Scope Match"
+          }
+        }
+      }
+    },
+    "reviewer": {
+      "dashboard": {
+        "title": "Assigned Papers",
+        "deadlineApproaching": "Review Deadline Approaching",
+        "completeBefore": "Complete your reviews before",
+        "daysRemaining": "days remaining",
+        "reviewsCompleted": "Reviews Completed",
+        "assignments": "Assignments",
+        "statistics": "Statistics",
+        "total": "Total",
+        "totalAssigned": "Total Assigned",
+        "pending": "Pending",
+        "inProgress": "In Progress",
+        "completed": "Completed",
+        "completionRate": "Completion Rate",
+        "overallProgress": "Overall Progress",
+        "trackCompletion": "Track your review completion status",
+        "completedReviews": "Completed Reviews",
+        "assignedPapers": "Assigned Papers",
+        "papersWaiting": "Papers waiting for your review",
+        "due": "Due",
+        "daysLeft": "days left",
+        "match": "match",
+        "notStarted": "Not Started",
+        "viewReview": "View Review",
+        "startReview": "Start Review",
+        "messages": {
+          "loading": "Loading conferences...",
+          "error": "Error"
+        }
+      }
+    },
+    "coi": {
+      "dashboard": {
+        "title": "Conflict of Interest (COI) Analysis",
+        "description": "Manage reviewer assignments with comprehensive COI checking and relationship analysis",
+        "stats": {
+          "totalReviewers": "Total Reviewers",
+          "available": "4 available",
+          "totalPapers": "Total Papers",
+          "underReview": "3 under review",
+          "coiDetected": "COI Detected",
+          "relationships": "12 relationships",
+          "assignments": "Assignments",
+          "completed": "8 completed"
+        },
+        "tabs": {
+          "assignReviewer": "Assign Reviewer",
+          "reviewerToAuthor": "Reviewer → Author",
+          "reviewerToPaper": "Reviewer → Paper"
+        }
+      },
+      "assign": {
+        "title": "Select Reviewers",
+        "description": "Search and select reviewers to assign. COI will be checked based on selection type.",
+        "coiType": "COI Check Type",
+        "types": {
+          "paper": "Paper-based COI",
+          "author": "Author-based COI"
+        },
+        "selectPaper": "Select Paper",
+        "selectAuthor": "Select Author",
+        "paperPlaceholder": "Choose a paper",
+        "authorPlaceholder": "Choose an author",
+        "search": "Search Reviewers",
+        "searchPlaceholder": "Search by name, email, or domain...",
+        "reviewersList": "Available Reviewers",
+        "reviewers": "reviewers",
+        "reviewer": "reviewer",
+        "noReviewers": "No reviewers found",
+        "selectedReviewers": "Selected Reviewers",
+        "reviewerSelected": "reviewer selected",
+        "reviewersSelected": "reviewers selected",
+        "noSelectionYet": "No reviewers selected yet",
+        "assigning": "Assigning...",
+        "assignSelected": "Assign Selected",
+        "noSelection": "No reviewers selected",
+        "selectAtLeastOne": "Please select at least one reviewer.",
+        "noPaper": "No paper selected",
+        "paper": "Please select a paper.",
+        "noAuthor": "No author selected",
+        "author": "Please select an author.",
+        "success": "Assignment successful",
+        "failed": "Assignment failed",
+        "successMessage": "{count} reviewer(s) assigned successfully.",
+        "failureMessage": "{count} assignment(s) failed due to COI conflicts.",
+        "error": "Error",
+        "info": {
+          "title": "COI Check",
+          "paper": "Checking COI against all authors of the selected paper.",
+          "author": "Checking COI specifically for the selected author."
+        }
+      },
+      "reviewerToAuthor": {
+        "title": "Reviewer → Author COI Analysis",
+        "description": "Select a reviewer and author to analyze their conflict of interest relationship",
+        "selectReviewer": "Select Reviewer",
+        "selectAuthor": "Select Author",
+        "reviewerPlaceholder": "Choose reviewer",
+        "authorPlaceholder": "Choose author",
+        "selectBoth": "Please select both reviewer and author to analyze COI",
+        "coiReport": "COI Analysis Report",
+        "relationships": "relationships",
+        "relationshipsDescription": "Detailed breakdown of detected relationships",
+        "from": "From",
+        "to": "to",
+        "evidence": "Evidence:",
+        "timeline": "Relationship History Timeline",
+        "timelineDescription": "Interactive timeline showing the history of interactions",
+        "noTimeline": "No relationship history available",
+        "noData": "No COI data available"
+      },
+      "reviewerToPaper": {
+        "title": "Reviewer → Paper COI Analysis",
+        "description": "Select a reviewer and paper to analyze COI against all paper authors",
+        "selectReviewer": "Select Reviewer",
+        "selectPaper": "Select Paper",
+        "reviewerPlaceholder": "Choose reviewer",
+        "paperPlaceholder": "Choose paper",
+        "selectBoth": "Please select both reviewer and paper to analyze COI",
+        "coiReport": "COI Analysis Report",
+        "authorsAffected": "author(s) affected",
+        "totalRelationships": "total relationships",
+        "authorsBreakdown": "Authors Breakdown",
+        "authorsBreakdownDescription": "COI analysis for each author of the paper",
+        "relationship": "relationship(s)",
+        "noCOI": "No COI detected",
+        "noData": "No COI data available"
+      },
+      "recommendation": {
+        "assign": "ASSIGN",
+        "review": "REVIEW",
+        "avoid": "AVOID"
       }
     }
   },

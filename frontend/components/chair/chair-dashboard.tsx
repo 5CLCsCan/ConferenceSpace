@@ -9,9 +9,11 @@ import { useRouter } from "next/navigation"
 import { Calendar, Users, FileText, AlertCircle, Search, Filter } from "lucide-react"
 import { useEffect, useState } from "react"
 import { listConferences, type Conference } from "@/lib/api/conferences"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export default function ChairDashboard() {
   const router = useRouter()
+  const { t } = useTranslation()
   const [conferences, setConferences] = useState<
     Array<{
       id: string
@@ -48,7 +50,7 @@ export default function ChairDashboard() {
           setConferences(transformedConferences)
         }
       } catch (err) {
-        setError("Failed to load conferences")
+        setError(t("dashboard.chair.dashboard.messages.error"))
       } finally {
         setLoading(false)
       }
@@ -73,53 +75,53 @@ export default function ChairDashboard() {
               className="bg-primary text-primary-foreground hover:bg-primary/90"
               onClick={() => router.push(`/dashboard/chair/create-conference`)}
             >
-              + Create New Conference
+              {t("dashboard.chair.dashboard.createNewConference")}
             </Button>
             <Button variant="outline" onClick={() => router.push("/dashboard/chair/manage-users")}>
-              Manage Users
+              {t("dashboard.chair.dashboard.manageUsers")}
             </Button>
             <Button variant="outline" onClick={() => router.push("/dashboard/chair/system-logs")}>
-              View System Logs
+              {t("dashboard.chair.dashboard.viewSystemLogs")}
             </Button>
           </div>
         </section>
 
         {/* Platform-Wide Metrics */}
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold text-foreground mb-4">Platform Overview</h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-4">{t("dashboard.chair.dashboard.platformOverview")}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <PlatformMetricCard title="Active Conferences" value={12} icon={Calendar} />
+            <PlatformMetricCard title={t("dashboard.chair.dashboard.activeConferences")} value={12} icon={Calendar} />
             <PlatformMetricCard
-              title="Total Users"
+              title={t("dashboard.chair.dashboard.totalUsers")}
               value={3847}
               icon={Users}
               trend="+127 this month"
             />
             <PlatformMetricCard
-              title="Submissions this Month"
+              title={t("dashboard.chair.dashboard.submissionsThisMonth")}
               value={542}
               icon={FileText}
               trend="+18% vs last month"
             />
-            <PlatformMetricCard title="Action Items" value={7} icon={AlertCircle} />
+            <PlatformMetricCard title={t("dashboard.chair.dashboard.actionItems")} value={7} icon={AlertCircle} />
           </div>
         </section>
 
         {/* Conference Management List */}
         <section className="mb-12">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold text-foreground">Your Conferences</h2>
+            <h2 className="text-2xl font-semibold text-foreground">{t("dashboard.chair.dashboard.yourConferences")}</h2>
           </div>
 
           {/* Search and Filter Controls */}
           <div className="flex flex-col sm:flex-row gap-3 mb-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search conferences..." className="pl-10" />
+              <Input placeholder={t("dashboard.chair.dashboard.searchPlaceholder")} className="pl-10" />
             </div>
             <Button variant="outline" className="sm:w-auto bg-transparent">
               <Filter className="h-4 w-4 mr-2" />
-              Filter by Status
+              {t("dashboard.chair.dashboard.filterByStatus")}
             </Button>
           </div>
 
@@ -127,16 +129,16 @@ export default function ChairDashboard() {
           <Card className="shadow-sm overflow-hidden hidden md:block">
             {loading ? (
               <div className="p-8 text-center">
-                <div className="text-muted-foreground">Loading conferences...</div>
+                <div className="text-muted-foreground">{t("dashboard.chair.dashboard.messages.loading")}</div>
               </div>
             ) : error ? (
               <div className="p-8 text-center">
-                <div className="text-destructive">Error: {error}</div>
+                <div className="text-destructive">{t("dashboard.chair.dashboard.messages.error")}: {error}</div>
               </div>
             ) : conferences.length === 0 ? (
               <div className="p-8 text-center">
                 <div className="text-muted-foreground">
-                  No conferences found. Create your first conference!
+                  {t("dashboard.chair.dashboard.messages.noConferencesFound")}
                 </div>
               </div>
             ) : (
@@ -144,19 +146,19 @@ export default function ChairDashboard() {
                 <thead className="bg-muted/50">
                   <tr className="border-b border-border">
                     <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
-                      Conference Name
+                      {t("dashboard.chair.dashboard.tableHeaders.conferenceName")}
                     </th>
                     <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
-                      Dates
+                      {t("dashboard.chair.dashboard.tableHeaders.dates")}
                     </th>
                     <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
-                      Status
+                      {t("dashboard.chair.dashboard.tableHeaders.status")}
                     </th>
                     <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
-                      Submissions
+                      {t("dashboard.chair.dashboard.tableHeaders.submissions")}
                     </th>
                     <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
-                      Actions
+                      {t("dashboard.chair.dashboard.tableHeaders.actions")}
                     </th>
                   </tr>
                 </thead>
@@ -173,16 +175,16 @@ export default function ChairDashboard() {
           <div className="md:hidden">
             {loading ? (
               <div className="p-8 text-center">
-                <div className="text-muted-foreground">Loading conferences...</div>
+                <div className="text-muted-foreground">{t("dashboard.chair.dashboard.messages.loading")}</div>
               </div>
             ) : error ? (
               <div className="p-8 text-center">
-                <div className="text-destructive">Error: {error}</div>
+                <div className="text-destructive">{t("dashboard.chair.dashboard.messages.error")}: {error}</div>
               </div>
             ) : conferences.length === 0 ? (
               <div className="p-8 text-center">
                 <div className="text-muted-foreground">
-                  No conferences found. Create your first conference!
+                  {t("dashboard.chair.dashboard.messages.noConferencesFound")}
                 </div>
               </div>
             ) : (
@@ -196,14 +198,14 @@ export default function ChairDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {/* Announcements & Activity Feed */}
           <section>
-            <h2 className="text-2xl font-semibold text-foreground mb-4">Platform Updates</h2>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">{t("dashboard.chair.dashboard.platformUpdates.title")}</h2>
             <Card className="p-6 shadow-sm">
               <div className="flex items-center gap-4 mb-4 border-b border-border pb-4">
                 <button className="text-sm font-semibold text-primary pb-2 border-b-2 border-primary">
-                  Announcements
+                  {t("dashboard.chair.dashboard.platformUpdates.announcements")}
                 </button>
                 <button className="text-sm font-medium text-muted-foreground hover:text-foreground">
-                  Recent Activity
+                  {t("dashboard.chair.dashboard.platformUpdates.recentActivity")}
                 </button>
               </div>
 
@@ -270,7 +272,7 @@ export default function ChairDashboard() {
               </div>
 
               <Button variant="outline" className="w-full mt-4 bg-transparent">
-                Create Announcement
+                {t("dashboard.chair.dashboard.platformUpdates.createAnnouncement")}
               </Button>
             </Card>
           </section>
@@ -278,7 +280,7 @@ export default function ChairDashboard() {
           {/* Top Reviewers Leaderboard */}
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-semibold text-foreground">Platform Top Reviewers</h2>
+              <h2 className="text-2xl font-semibold text-foreground">{t("dashboard.chair.dashboard.topReviewers.title")}</h2>
             </div>
             <Card className="p-6 shadow-sm">
               <TopReviewerRow
@@ -309,7 +311,7 @@ export default function ChairDashboard() {
               />
 
               <Button variant="outline" className="w-full mt-4 bg-transparent">
-                Manage All Users
+                {t("dashboard.chair.dashboard.topReviewers.manageAllUsers")}
               </Button>
             </Card>
           </section>

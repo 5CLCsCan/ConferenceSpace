@@ -118,6 +118,9 @@ func initializeApp(cfg *config.Config) (*controller.Controller, func(), error) {
 
 	// Initialize file storage service
 	fileStore := fileStorage.NewLocalFileStorage("./uploads/submissions")
+	if err != nil {
+		return nil, nil, err
+	}
 
 	orch := orchestrator.NewOrchestrator(store, cfg.JWT.Secret, cfg.JWT.Expiry)
 	ctrl := controller.NewController(orch, store, fileStore, clients)
@@ -127,12 +130,9 @@ func initializeApp(cfg *config.Config) (*controller.Controller, func(), error) {
 			log.Printf("Error closing database: %v", err)
 		}
 
-		// Close client connections
-		if clients != nil {
 			if err := clients.Close(context.Background()); err != nil {
 				log.Printf("Error closing clients: %v", err)
 			}
-		}
 	}
 
 	return ctrl, cleanup, nil
@@ -177,7 +177,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 
 		// Protected user routes (authentication required)
 		users := v1.Group("/users")
-		users.Use(middleware.AuthMiddleware(cfg.JWT.Secret))
+		users.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
 			users.GET("/me", handler.HandleNoRequest(ctrl.User.GetMe))
 			users.GET("", handler.HandleRequestWithQuery(ctrl.User.List))
@@ -189,7 +189,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 
 		// Conference routes (all protected - authentication required)
 		conferences := v1.Group("/conferences")
-		conferences.Use(middleware.AuthMiddleware(cfg.JWT.Secret))
+		conferences.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
 			conferences.GET("", handler.HandleRequestWithQuery(ctrl.Conference.List))
 			conferences.GET("/:conference_id", handler.HandleRequestWithURI(ctrl.Conference.Get))
@@ -211,7 +211,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 			// Submission routes nested under conferences (all protected - authentication required)
 			submissions := conferences.Group("/:conference_id/submissions")
 			{
-				submissions.GET("", handler.HandleRequestWithQuery(ctrl.Submission.List))
+				submissions.POST("/precheck", handler.HandleNoRequest(ctrl.Submission.PreCheck))
 				submissions.GET("/:id", handler.HandleNoRequest(ctrl.Submission.Get))
 				submissions.POST("", handler.HandleNoRequestWithStatus(http.StatusCreated, ctrl.Submission.Create))
 				submissions.PUT("/:id", handler.HandleRequest(ctrl.Submission.Update))
@@ -224,7 +224,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 
 		// Reviewer dashboard routes (authentication required)
 		reviewer := v1.Group("/reviewer")
-		reviewer.Use(middleware.AuthMiddleware(cfg.JWT.Secret))
+		reviewer.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
 			reviewer.GET("/:reviewer_id/dashboard", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetDashboard))
 			reviewer.GET("/:reviewer_id/conferences/:conference_id/papers", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetConferencePapers))

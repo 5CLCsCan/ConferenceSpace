@@ -9,6 +9,7 @@ import { ConferenceCallForPapers } from "@/components/conference/conference-call
 import { ConferenceImportantDates } from "@/components/conference/conference-important-dates"
 import { ConferenceCommittee } from "@/components/conference/conference-committee"
 import { ConferenceSubmissions } from "@/components/conference/conference-submissions"
+import { COIDashboard } from "@/components/coi/coi-dashboard"
 import { useAuth } from "@/lib/auth-context"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Loader2 } from "lucide-react"
@@ -16,7 +17,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
-type TabType = "overview" | "call-for-papers" | "dates" | "committee" | "submissions"
+type TabType = "overview" | "call-for-papers" | "dates" | "committee" | "submissions" | "coi-demo"
 
 export default function ConferencePage() {
   const params = useParams()
@@ -52,6 +53,7 @@ export default function ConferencePage() {
       { id: "dates" as TabType, label: t("dashboard.conference.details.tabs.dates") },
       { id: "committee" as TabType, label: t("dashboard.conference.details.tabs.committee") },
       { id: "submissions" as TabType, label: t("dashboard.conference.details.tabs.submissions") },
+      { id: "coi-demo" as TabType, label: t("dashboard.conference.details.tabs.coiDemo") || "COI Demo" },
     ],
     [t],
   )
@@ -186,6 +188,7 @@ export default function ConferencePage() {
             {activeTab === "dates" && <ConferenceImportantDates conferenceId={conference.id} />}
             {activeTab === "committee" && <ConferenceCommittee conferenceId={conference.id} />}
             {activeTab === "submissions" && <ConferenceSubmissions conferenceId={conference.id} />}
+            {activeTab === "coi-demo" && <COIDashboard />}
           </div>
         </main>
       </div>

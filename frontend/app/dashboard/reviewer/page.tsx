@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation"
 import { ReviewerDashboard } from "@/components/reviewer/reviewer-dashboard"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { useAuth } from "@/lib/auth-context"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export default function ReviewerPage() {
   const { isAuthenticated, user } = useAuth()
   const router = useRouter()
+  const { t } = useTranslation()
 
   // useEffect(() => {
   //   if (!isAuthenticated) {
@@ -26,7 +28,7 @@ export default function ReviewerPage() {
     <div className="min-h-screen bg-neutral-50">
       <DashboardHeader role="reviewer" />
       <main className="container mx-auto px-4 py-8">
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div>{t("common.messages.loading")}</div>}>
           <ReviewerDashboard />
         </Suspense>
       </main>

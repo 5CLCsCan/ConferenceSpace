@@ -12,6 +12,7 @@ import { ChevronLeft, ChevronRight, Save, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createConference } from "@/lib/api/conferences"
 import { useToast } from "@/hooks/use-toast"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export type ConferenceFormData = {
   // Step 1: Conference Details
@@ -47,20 +48,12 @@ export type ConferenceFormData = {
   confirmed: boolean
 }
 
-const STEPS = [
-  { number: 1, title: "Details", description: "Core Conference Details" },
-  {
-    number: 2,
-    title: "Topics & Submissions",
-    description: "Topics & Submission Settings",
-  },
-  { number: 3, title: "Organizers", description: "Assign Conference Chairs" },
-  { number: 4, title: "Review", description: "Review and Confirm" },
-]
+// STEPS will be defined inside component to use translations
 
 export default function CreateConferencePage() {
   const router = useRouter()
   const { toast } = useToast()
+  const { t } = useTranslation()
   const [currentStep, setCurrentStep] = useState(1)
   const [isCreating, setIsCreating] = useState(false)
   const [formData, setFormData] = useState<ConferenceFormData>({
@@ -96,6 +89,17 @@ export default function CreateConferencePage() {
     setFormData((prev) => ({ ...prev, ...data }))
   }
 
+  const STEPS = [
+    { number: 1, title: t("dashboard.chair.createConference.steps.1.title"), description: t("dashboard.chair.createConference.steps.1.description") },
+    {
+      number: 2,
+      title: t("dashboard.chair.createConference.steps.2.title"),
+      description: t("dashboard.chair.createConference.steps.2.description"),
+    },
+    { number: 3, title: t("dashboard.chair.createConference.steps.3.title"), description: t("dashboard.chair.createConference.steps.3.description") },
+    { number: 4, title: t("dashboard.chair.createConference.steps.4.title"), description: t("dashboard.chair.createConference.steps.4.description") },
+  ]
+
   const handleNext = () => {
     if (currentStep < STEPS.length) {
       setCurrentStep(currentStep + 1)
@@ -112,14 +116,17 @@ export default function CreateConferencePage() {
 
   const handleSaveDraft = () => {
     console.log("[v0] Saving draft:", formData)
-    alert("Conference saved as draft!")
+    toast({
+      title: t("common.messages.success"),
+      description: t("dashboard.chair.createConference.saveDraft"),
+    })
   }
 
   const handleCreateConference = async () => {
     if (!formData.title || !formData.acronym || !formData.submissionDeadline) {
       toast({
-        title: "Validation Error",
-        description: "Please fill in all required fields.",
+        title: t("dashboard.chair.createConference.validationError"),
+        description: t("dashboard.chair.createConference.validationDescription"),
         variant: "destructive",
       })
       return
@@ -153,21 +160,21 @@ export default function CreateConferencePage() {
 
       if (response.error) {
         toast({
-          title: "Error",
+          title: t("dashboard.chair.createConference.error"),
           description: response.error,
           variant: "destructive",
         })
       } else {
         toast({
-          title: "Success",
-          description: "Conference created successfully!",
+          title: t("dashboard.chair.createConference.success"),
+          description: t("dashboard.chair.createConference.successDescription"),
         })
         router.push("/dashboard/chair")
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to create conference. Please try again.",
+        title: t("dashboard.chair.createConference.error"),
+        description: t("dashboard.chair.createConference.errorDescription"),
         variant: "destructive",
       })
     } finally {
@@ -187,9 +194,9 @@ export default function CreateConferencePage() {
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-foreground mb-2">Create New Conference</h1>
+          <h1 className="text-3xl font-semibold text-foreground mb-2">{t("dashboard.chair.createConference.title")}</h1>
           <p className="text-muted-foreground">
-            Follow the steps below to set up your academic conference
+            {t("dashboard.chair.createConference.subtitle")}
           </p>
         </div>
 
@@ -251,7 +258,7 @@ export default function CreateConferencePage() {
             {currentStep > 1 && (
               <Button variant="outline" onClick={handlePrevious} className="gap-2 bg-transparent">
                 <ChevronLeft className="w-4 h-4" />
-                Previous
+                {t("common.actions.previous")}
               </Button>
             )}
           </div>
@@ -259,12 +266,12 @@ export default function CreateConferencePage() {
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleSaveDraft} className="gap-2 bg-transparent">
               <Save className="w-4 h-4" />
-              Save as Draft
+              {t("common.actions.saveAsDraft")}
             </Button>
 
             {currentStep < STEPS.length ? (
               <Button onClick={handleNext} className="gap-2">
-                Next Step
+                {t("common.actions.nextStep")}
                 <ChevronRight className="w-4 h-4" />
               </Button>
             ) : (
@@ -274,7 +281,7 @@ export default function CreateConferencePage() {
                 className="gap-2"
               >
                 {isCreating && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isCreating ? "Creating..." : "Confirm & Create Conference"}
+                {isCreating ? t("common.actions.creating") : t("dashboard.chair.createConference.confirmCreate")}
               </Button>
             )}
           </div>

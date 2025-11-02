@@ -12,13 +12,15 @@ type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	Neo4j    Neo4jConfig
+	Gemini   GeminiConfig
 	JWT      JWTConfig
 }
 
 // ServerConfig holds server-related configuration
 type ServerConfig struct {
-	Port string
-	Env  string
+	Port      string
+	Env       string
+	AdminToken string // Admin token to bypass authentication
 }
 
 // JWTConfig holds JWT-related configuration
@@ -45,6 +47,13 @@ type Neo4jConfig struct {
 	Enabled  bool
 }
 
+// GeminiConfig holds Google Gemini API configuration
+type GeminiConfig struct {
+	APIKey string
+	Model  string // e.g., "gemini-pro" or "gemini-1.5-pro"
+	Enabled bool
+}
+
 // Load reads configuration from environment variables
 func Load() (*Config, error) {
 	// Try to load .env file, but don't fail if it doesn't exist
@@ -52,8 +61,9 @@ func Load() (*Config, error) {
 
 	cfg := &Config{
 		Server: ServerConfig{
-			Port: getEnv("SERVER_PORT", "8080"),
-			Env:  getEnv("SERVER_ENV", "development"),
+			Port:       getEnv("SERVER_PORT", "8080"),
+			Env:        getEnv("SERVER_ENV", "development"),
+			AdminToken: getEnv("ADMIN_TOKEN", ""),
 		},
 		Database: DatabaseConfig{
 			Host:     getEnv("DB_HOST", "localhost"),
@@ -68,6 +78,11 @@ func Load() (*Config, error) {
 			Username: getEnv("NEO4J_USERNAME", "neo4j"),
 			Password: getEnv("NEO4J_PASSWORD", "conferencespace"),
 			Enabled:  getEnv("NEO4J_ENABLED", "true") == "true",
+		},
+		Gemini: GeminiConfig{
+			APIKey:  getEnv("GEMINI_API_KEY", ""),
+			Model:   getEnv("GEMINI_MODEL", "gemini-1.5-pro"),
+			Enabled: getEnv("GEMINI_ENABLED", "false") == "true",
 		},
 		JWT: JWTConfig{
 			Secret: getEnv("JWT_SECRET", "your-secret-key-change-this-in-production"),

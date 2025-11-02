@@ -30,7 +30,7 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 		Auth:       auth.New(orch),
 		User:       user.New(store, assignmentService), // Pass assignment service for COI checks
 		Conference: conference.New(store),
-		Submission: submission.New(store, fileStore),
+		Submission: submission.New(store, fileStore, clients.Gemini),
 		Reviewer:   reviewer.New(store),
 		Assignment: assignmentController.New(assignmentService),
 	}
