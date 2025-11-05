@@ -13,6 +13,8 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { Search } from "lucide-react"
 import { listConferences } from "@/lib/api/conferences"
+import { getUserSubmissions } from "@/lib/api/submissions"
+import type { SubmissionWithConference } from "@/lib/api/submissions"
 import { formatDate } from "@/lib/utils"
 import Link from "next/link"
 import { useState, useEffect } from "react"
@@ -26,9 +28,7 @@ export function AuthorDashboard() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [allConferences, setAllConferences] = useState<Conference[]>([])
-  const [myConferences, setMyConferences] = useState<
-    Array<Conference & { userRole: string; submissionStatus?: string }>
-  >([])
+  const [mySubmissions, setMySubmissions] = useState<SubmissionWithConference[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -40,16 +40,18 @@ export function AuthorDashboard() {
   ]
 
   useEffect(() => {
-    const fetchConferences = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await listConferences({ limit: 100 })
 
-        if (response.error) {
-          setError(response.error)
-        } else if (response.data && user) {
+        // Fetch all conferences
+        const conferencesResponse = await listConferences({ limit: 100 })
+
+        if (conferencesResponse.error) {
+          setError(conferencesResponse.error)
+        } else if (conferencesResponse.data) {
           // Transform API data to frontend format
-          const conferences: Conference[] = response.data.conferences.map((conf) => ({
+          const conferences: Conference[] = conferencesResponse.data.conferences.map((conf) => ({
             id: conf.id,
             name: conf.name,
             acronym: conf.acronym,
@@ -68,55 +70,46 @@ export function AuthorDashboard() {
 
           setAllConferences(conferences)
 
-          // Use backend-provided user roles to categorize conferences
-          const myConfList: Array<Conference & { userRole: string; submissionStatus?: string }> = []
-
-          conferences.forEach((conf) => {
-            // Backend now provides userRole information
-            if (conf.userRole) {
-              // User has a role in this conference - add to "My Conferences"
-              let submissionStatus = ""
-
-              // For chairs, they don't typically submit to their own conferences
-              // For authors/reviewers, they might have submission status
-              if (conf.userRole !== "chair") {
-                // Simulate submission status for non-chair roles
-                submissionStatus = t("dashboard.author.dashboard.statuses.submitted") // TODO: Get from backend
-              }
-
-              const roleLabel = conf.userRole === "chair" 
-                ? t("dashboard.author.dashboard.roles.chair")
-                : conf.userRole === "pc_member" || conf.userRole === "committee"
-                ? t("dashboard.author.dashboard.roles.committee")
-                : conf.userRole === "reviewer"
-                ? t("dashboard.author.dashboard.roles.reviewer")
-                : conf.userRole
-
-              myConfList.push({
-                ...conf,
-                userRole: roleLabel,
-                submissionStatus,
-              })
+          // Fetch user submissions if user is authenticated
+          if (user?.email) {
+            const submissionsResponse = await getUserSubmissions(user.email)
+            if (submissionsResponse.data) {
+              setMySubmissions(submissionsResponse.data)
+            } else if (submissionsResponse.error) {
+              // Don't set error if submissions fail, just show empty state
+              console.error("Failed to load submissions:", submissionsResponse.error)
             }
-          })
-
-          setMyConferences(myConfList)
+          }
         }
       } catch (err) {
-        setError(t("dashboard.author.dashboard.messages.failedToLoad"))
+        setError("Failed to load data")
       } finally {
         setLoading(false)
       }
     }
 
     if (user) {
-      fetchConferences()
+      fetchData()
     }
   }, [user])
 
-  const filterConferences = (
-    conferences: Array<Conference & { userRole?: string; submissionStatus?: string }>,
-  ) => {
+  // Get unique conferences from submissions (group by conference ID)
+  const conferencesWithSubmissions = Array.from(
+    new Map(mySubmissions.map((sub) => [sub.conference.id, sub.conference])).values(),
+  )
+
+  // Get the latest submission status for each conference
+  const getConferenceSubmissionStatus = (conferenceId: string): string => {
+    const conferenceSubmissions = mySubmissions.filter((sub) => sub.conference.id === conferenceId)
+    if (conferenceSubmissions.length === 0) return ""
+
+    // Return the most recent submission status, or "draft" if any is draft
+    const hasDraft = conferenceSubmissions.some((sub) => sub.status === "draft")
+    if (hasDraft) return "Nháp"
+    return "Đã nộp"
+  }
+
+  const filterConferences = (conferences: Conference[]) => {
     return conferences.filter((conf) => {
       const matchesSearch =
         conf.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -129,35 +122,18 @@ export function AuthorDashboard() {
     })
   }
 
-  // Lọc ra các hội nghị chưa tham gia
+  // Filter out conferences that have submissions
   const exploreConferences = allConferences.filter(
-    (conf) => !myConferences.some((myConf) => myConf.id === conf.id),
+    (conf) => !conferencesWithSubmissions.some((myConf) => myConf.id === conf.id),
   )
 
-  const renderStatusBadge = (status: string, userRole?: string) => {
-    if (userRole) {
-      // Map role labels to styles (works for both English and Vietnamese)
-      const isChair = userRole === t("dashboard.author.dashboard.roles.chair")
-      const isCommittee = userRole === t("dashboard.author.dashboard.roles.committee")
-      const isReviewer = userRole === t("dashboard.author.dashboard.roles.reviewer")
-      
-      let className = "bg-gray-100 text-gray-800"
-      if (isChair) className = "bg-purple-100 text-purple-800"
-      else if (isCommittee) className = "bg-blue-100 text-blue-800"
-      else if (isReviewer) className = "bg-indigo-100 text-indigo-800"
-      
-      return (
-        <Badge className={className}>
-          {userRole}
-        </Badge>
-      )
-    }
-
-    const statusVariants: Record<string, string> = {
-      [t("dashboard.author.dashboard.statuses.accepted")]: "bg-green-100 text-green-800",
-      [t("dashboard.author.dashboard.statuses.rejected")]: "bg-red-100 text-red-800",
-      [t("dashboard.author.dashboard.statuses.submitted")]: "bg-yellow-100 text-yellow-800",
-      [t("dashboard.author.dashboard.statuses.underReview")]: "bg-orange-100 text-orange-800",
+  const renderStatusBadge = (status: string) => {
+    const statusVariants = {
+      Nháp: "bg-yellow-100 text-yellow-800",
+      "Đã nộp": "bg-blue-100 text-blue-800",
+      "Được chấp nhận": "bg-green-100 text-green-800",
+      "Bị từ chối": "bg-red-100 text-red-800",
+      "Đang đánh giá": "bg-orange-100 text-orange-800",
     }
     return (
       <Badge
@@ -205,7 +181,7 @@ export function AuthorDashboard() {
         </div>
       </div>
 
-      {/* Section: My Conferences */}
+      {/* Section: Bài nộp của tôi */}
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold tracking-tight">{t("dashboard.author.dashboard.myConferences")}</h2>
         <Card>
@@ -229,39 +205,40 @@ export function AuthorDashboard() {
               <div className="p-6 text-center">
                 <p className="text-red-500">{t("dashboard.author.dashboard.messages.error")}: {error}</p>
               </div>
-            ) : filterConferences(myConferences).length === 0 ? (
+            ) : filterConferences(conferencesWithSubmissions).length === 0 ? (
               <div className="p-6 text-center">
-                <p className="text-gray-500">{t("dashboard.author.dashboard.messages.noConferencesFound")}</p>
+                <p className="text-gray-500">Bạn chưa có bài nộp nào</p>
               </div>
             ) : (
-              filterConferences(myConferences).map((conference, index, array) => (
-                <div
-                  key={conference.id}
-                  className={`flex flex-col md:flex-row md:items-center gap-4 p-4 ${
-                    index !== array.length - 1 ? "border-b" : ""
-                  }`}
-                >
-                  <div className="flex-1 min-w-0">
-                    <Link
-                      href={`/dashboard/conference/${conference.id}`}
-                      className="text-blue-600 hover:underline block font-medium truncate"
-                    >
-                      {conference.name}
-                    </Link>
-                    <div className="text-sm text-gray-500">{conference.acronym}</div>
-                  </div>
-                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4 text-sm text-gray-600 ml-auto">
-                    <div className="md:w-36">{formatDate(conference.conference_date)}</div>
-                    <div className="md:w-36">{conference.location}</div>
-                    <div className="md:w-32">{formatDate(conference.submission_deadline)}</div>
-                    <div className="md:w-28">
-                      {conference.userRole
-                        ? renderStatusBadge("", conference.userRole)
-                        : renderStatusBadge(conference.submissionStatus || "", "")}
+              filterConferences(conferencesWithSubmissions).map((conference, index, array) => {
+                const submissionStatus = getConferenceSubmissionStatus(conference.id)
+                return (
+                  <div
+                    key={conference.id}
+                    className={`flex flex-col md:flex-row md:items-center gap-4 p-4 ${
+                      index !== array.length - 1 ? "border-b" : ""
+                    }`}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <Link
+                        href={`/dashboard/conference/${conference.id}`}
+                        className="text-blue-600 hover:underline block font-medium truncate"
+                      >
+                        {conference.name}
+                      </Link>
+                      <div className="text-sm text-gray-500">{conference.acronym}</div>
+                    </div>
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-4 text-sm text-gray-600 ml-auto">
+                      <div className="md:w-36">{formatDate(conference.conference_date)}</div>
+                      <div className="md:w-36">{conference.location}</div>
+                      <div className="md:w-32">{formatDate(conference.submission_deadline)}</div>
+                      <div className="md:w-28">
+                        {submissionStatus ? renderStatusBadge(submissionStatus) : null}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                )
+              })
             )}
           </CardContent>
         </Card>

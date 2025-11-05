@@ -35,7 +35,7 @@ function normalizeUser(apiUser: any): User {
   const roles: UserRole[] =
     Array.isArray(apiUser?.roles) && apiUser.roles.length > 0
       ? apiUser.roles
-      : ["author", "chair", "reviewer", "pc_member"]
+      : ["author", "chair", "reviewer"]
 
   const expertise: string[] =
     Array.isArray(apiUser?.domain) && apiUser.domain.length > 0
@@ -73,6 +73,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { t } = useTranslation()
 
   const persistSession = useCallback((nextUser: User) => {
+    console.log("[AuthContext] persistSession called with user:", JSON.stringify(nextUser, null, 2))
+    if (!nextUser.email) {
+      console.error("[AuthContext] persistSession - user missing email!", nextUser)
+    }
     setUser(nextUser)
     setIsAuthenticated(true)
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser))
@@ -102,11 +106,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshSession = useCallback(async () => {
     try {
-      const { data } = await apiFetch("/api/v1/users/me", {
+      const response = await apiFetch<{ data: any }>("/api/v1/users/me", {
         method: "GET",
       })
-
-      const normalizedUser = normalizeUser(data)
+      
+      console.log("[AuthContext] refreshSession response:", JSON.stringify(response, null, 2))
+      
+      // Backend returns: { data: { id, email, first_name, ... } }
+      // apiFetch returns: { data: { data: { id, email, ... } } }
+      // So we need response.data.data to get the actual user object
+      const userData = response.data?.data || response.data
+      console.log("[AuthContext] User data to normalize:", JSON.stringify(userData, null, 2))
+      
+      if (!userData || !userData.email) {
+        console.error("[AuthContext] Invalid user data - missing email:", userData)
+        return
+      }
+      
+      const normalizedUser = normalizeUser(userData)
+      console.log("[AuthContext] Normalized user:", JSON.stringify(normalizedUser, null, 2))
+      
+      if (!normalizedUser.email) {
+        console.error("[AuthContext] Normalized user missing email!")
+        return
+      }
+      
       persistSession(normalizedUser)
     } catch (error) {
       if (error instanceof UnauthorizedError) {
