@@ -39,7 +39,8 @@
       "retry": "Thử lại",
       "search": "Tìm kiếm",
       "filter": "Lọc",
-      "close": "Đóng"
+      "close": "Đóng",
+      "download": "Tải xuống"
     },
     "labels": {
       "email": "Email",
@@ -195,6 +196,7 @@
     "header": {
       "links": {
         "author": {
+          "dashboard": "Tổng quan",
           "myPapers": "Bài của tôi",
           "newSubmission": "Gửi bài mới"
         },
@@ -206,10 +208,6 @@
           "overview": "Tổng quan",
           "papers": "Tất cả bài gửi",
           "reviewers": "Phản biện"
-        },
-        "pc_member": {
-          "dashboard": "Bảng điều khiển PC",
-          "assignments": "Phân công"
         }
       },
       "notifications": {
@@ -811,6 +809,62 @@
         "assign": "PHÂN CÔNG",
         "review": "XEM XÉT",
         "avoid": "TRÁNH"
+      }
+    },
+    "submissions": {
+      "pageTitle": "Bài nộp của tôi",
+      "pageDescription": "Xem và quản lý tất cả bài nộp của bạn",
+      "loading": "Đang tải...",
+      "error": "Lỗi",
+      "searchPlaceholder": "Tìm kiếm theo tiêu đề...",
+      "filterConference": "Lọc theo hội nghị",
+      "filterStatus": "Lọc theo trạng thái",
+      "allConferences": "Tất cả hội nghị",
+      "allStatuses": "Tất cả trạng thái",
+      "title": "Tiêu đề",
+      "conference": "Hội nghị",
+      "submittedDate": "Ngày nộp",
+      "noAbstract": "Không có tóm tắt",
+      "empty": "Bạn chưa có bài nộp nào",
+      "status": {
+        "label": "Trạng thái",
+        "draft": "Nháp",
+        "published": "Đã nộp"
+      }
+    },
+    "submission": {
+      "details": {
+        "title": "Chi tiết bài nộp",
+        "description": "Thông tin chi tiết về bài nộp",
+        "author": "Tác giả",
+        "submittedDate": "Ngày nộp",
+        "lastUpdated": "Cập nhật lần cuối",
+        "link": "Liên kết",
+        "domains": "Lĩnh vực",
+        "additionalInfo": "Thông tin bổ sung",
+        "keywords": "Từ khóa",
+        "coAuthors": "Đồng tác giả",
+        "track": "Track",
+        "paperType": "Loại bài",
+        "notes": "Ghi chú bổ sung",
+        "file": "File đính kèm",
+        "fileName": "Tên file",
+        "fileSize": "Kích thước",
+        "fileType": "Loại file",
+        "metadata": "Metadata",
+        "abstract": "Tóm tắt",
+        "documentPreview": "Xem trước tài liệu",
+        "previewNotAvailable": "Xem trước không khả dụng",
+        "downloadToView": "Vui lòng tải xuống để xem file",
+        "noFile": "Không có file đính kèm",
+        "viewExternalLink": "Xem liên kết ngoài"
+      },
+      "error": {
+        "title": "Lỗi"
+      },
+      "notFound": {
+        "title": "Không tìm thấy",
+        "message": "Bài nộp không tồn tại"
       }
     }
   },

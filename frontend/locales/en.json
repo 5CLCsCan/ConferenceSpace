@@ -39,7 +39,8 @@
       "retry": "Retry",
       "search": "Search",
       "filter": "Filter",
-      "close": "Close"
+      "close": "Close",
+      "download": "Download"
     },
     "labels": {
       "email": "Email",
@@ -195,6 +196,7 @@
     "header": {
       "links": {
         "author": {
+          "dashboard": "Dashboard",
           "myPapers": "My submissions",
           "newSubmission": "Submit a paper"
         },
@@ -206,10 +208,6 @@
           "overview": "Overview",
           "papers": "All papers",
           "reviewers": "Reviewers"
-        },
-        "pc_member": {
-          "dashboard": "PC dashboard",
-          "assignments": "Assignments"
         }
       },
       "notifications": {
@@ -805,6 +803,62 @@
         "assign": "ASSIGN",
         "review": "REVIEW",
         "avoid": "AVOID"
+      }
+    },
+    "submissions": {
+      "pageTitle": "My Submissions",
+      "pageDescription": "View and manage all your submissions",
+      "loading": "Loading...",
+      "error": "Error",
+      "searchPlaceholder": "Search by title...",
+      "filterConference": "Filter by conference",
+      "filterStatus": "Filter by status",
+      "allConferences": "All conferences",
+      "allStatuses": "All statuses",
+      "title": "Title",
+      "conference": "Conference",
+      "submittedDate": "Submitted",
+      "noAbstract": "No abstract",
+      "empty": "You have no submissions yet",
+      "status": {
+        "label": "Status",
+        "draft": "Draft",
+        "published": "Published"
+      }
+    },
+    "submission": {
+      "details": {
+        "title": "Submission Details",
+        "description": "Detailed information about the submission",
+        "author": "Author",
+        "submittedDate": "Submitted Date",
+        "lastUpdated": "Last Updated",
+        "link": "Link",
+        "domains": "Domains",
+        "additionalInfo": "Additional Information",
+        "keywords": "Keywords",
+        "coAuthors": "Co-authors",
+        "track": "Track",
+        "paperType": "Paper Type",
+        "notes": "Additional Notes",
+        "file": "Attached File",
+        "fileName": "File Name",
+        "fileSize": "File Size",
+        "fileType": "File Type",
+        "metadata": "Metadata",
+        "abstract": "Abstract",
+        "documentPreview": "Document Preview",
+        "previewNotAvailable": "Preview not available",
+        "downloadToView": "Please download to view the file",
+        "noFile": "No file attached",
+        "viewExternalLink": "View external link"
+      },
+      "error": {
+        "title": "Error"
+      },
+      "notFound": {
+        "title": "Not Found",
+        "message": "Submission does not exist"
       }
     }
   },

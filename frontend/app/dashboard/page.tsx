@@ -57,14 +57,7 @@ export default function DashboardPage() {
         path: "/dashboard/chair",
         features: tList("dashboard.roles.chair.features"),
       },
-      pc_member: {
-        title: t("dashboard.roles.pc_member.name"),
-        description: t("dashboard.roles.pc_member.description"),
-        icon: BarChart3,
-        color: "bg-purple-500",
-        path: "/dashboard/chair",
-        features: tList("dashboard.roles.pc_member.features"),
-      },
+
       admin: {
         title: t("dashboard.roles.admin.name"),
         description: t("dashboard.roles.admin.description"),

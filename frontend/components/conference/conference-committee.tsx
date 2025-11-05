@@ -39,9 +39,6 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
   }, [conferenceId])
 
   const chairs = committee.filter((member) => member.roles.includes("chair"))
-  const pcMembers = committee.filter(
-    (member) => member.roles.includes("pc_member") || member.roles.includes("reviewer"),
-  )
 
   const isChair = currentRole === "chair"
   const canSeeReviewers = isChair
@@ -108,7 +105,7 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
         </div>
       </div>
 
-      {/* Program Committee & Reviewers - Only visible to Chair */}
+      {/* Program Committee & Reviewers - Only visible to Chair
       {
         canSeeReviewers && (
           <div>
@@ -155,8 +152,9 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
               ))}
             </div>
           </div>
-        )
-        // : (
+        ) */}
+
+      {/* // : (
         //   <Card className="p-8 text-center">
         //     <Lock className="mx-auto h-12 w-12 text-gray-400" />
         //     <h3 className="mt-4 text-lg font-semibold text-gray-900">
@@ -168,7 +166,7 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
         //     </p>
         //   </Card>
         // )
-      }
+      } */}
 
       {/* Statistics - Only for Chair */}
       {canSeeReviewers && (
@@ -178,10 +176,6 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
             <div>
               <p className="text-sm font-medium text-gray-500">Tổng Số Chairs</p>
               <p className="mt-1 text-3xl font-bold text-gray-900">{chairs.length}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Tổng Số PC Members</p>
-              <p className="mt-1 text-3xl font-bold text-gray-900">{pcMembers.length}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Tổng Số Reviewers</p>

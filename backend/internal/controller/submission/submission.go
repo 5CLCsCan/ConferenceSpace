@@ -2,7 +2,9 @@ package submission
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/dcao/conferencespace/internal/dto"
@@ -173,9 +175,25 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.SubmissionListRequest) (
 		Title:        req.Title,
 	}
 
+	// Debug logging
+	fmt.Printf("[SUBMISSION LIST] Request received:\n")
+	fmt.Printf("  ConferenceID: %d\n", params.ConferenceID)
+	fmt.Printf("  Author filter: '%s'\n", params.Author)
+	fmt.Printf("  Status filter: '%s'\n", params.Status)
+	fmt.Printf("  Title filter: '%s'\n", params.Title)
+	fmt.Printf("  Limit: %d, Offset: %d\n", params.Limit, params.Offset)
+
 	submissions, total, err := c.submissionStorage.List(ctx, params)
 	if err != nil {
+		fmt.Printf("[SUBMISSION LIST] Storage error: %v\n", err)
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	fmt.Printf("[SUBMISSION LIST] Results:\n")
+	fmt.Printf("  Total found: %d\n", total)
+	fmt.Printf("  Submissions returned: %d\n", len(submissions))
+	for i, sub := range submissions {
+		fmt.Printf("  [%d] ID=%d, Author='%s', Title='%s', Status='%s'\n", i+1, sub.ID, sub.Author, sub.Title, sub.Status)
 	}
 
 	return &dto.SubmissionListResponse{
@@ -335,4 +353,67 @@ func (c *Controller) Delete(ginCtx *gin.Context) error {
 	}
 
 	return c.submissionStorage.Delete(ctx, id)
+}
+
+// GetFile godoc
+// @Summary      Get submission file
+// @Description  Download the file associated with a submission
+// @Tags         submissions
+// @Accept       json
+// @Produce      application/pdf
+// @Security     BearerAuth
+// @Param        conference_id path int true "Conference ID"
+// @Param        id path int true "Submission ID"
+// @Success      200 {file} file
+// @Failure      400 {object} handler.Response
+// @Failure      401 {object} handler.Response
+// @Failure      404 {object} handler.Response
+// @Router       /conferences/{conference_id}/submissions/{id}/file [get]
+func (c *Controller) GetFile(ginCtx *gin.Context) {
+	ctx := ginCtx.Request.Context()
+
+	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
+	if err != nil {
+		ginCtx.JSON(http.StatusBadRequest, handler.Response{Error: "invalid conference ID"})
+		return
+	}
+
+	id, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
+	if err != nil {
+		ginCtx.JSON(http.StatusBadRequest, handler.Response{Error: "invalid submission ID"})
+		return
+	}
+
+	submission, err := c.submissionStorage.GetByID(ctx, id)
+	if err != nil {
+		ginCtx.JSON(http.StatusNotFound, handler.Response{Error: "submission not found"})
+		return
+	}
+
+	if submission.ConferenceID != conferenceID {
+		ginCtx.JSON(http.StatusNotFound, handler.Response{Error: "submission not found in this conference"})
+		return
+	}
+
+	if submission.File == nil || submission.File.Path == "" {
+		ginCtx.JSON(http.StatusNotFound, handler.Response{Error: "file not found"})
+		return
+	}
+
+	// Use the path stored in the database (full path)
+	filePath := submission.File.Path
+
+	// Check if file exists
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		ginCtx.JSON(http.StatusNotFound, handler.Response{Error: "file not found"})
+		return
+	}
+
+	// Set headers for file download
+	ginCtx.Header("Content-Type", submission.File.MimeType)
+	ginCtx.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", submission.File.OriginalName))
+	ginCtx.Header("Content-Length", fmt.Sprintf("%d", submission.File.Size))
+
+	// Serve the file
+	ginCtx.File(filePath)
 }
