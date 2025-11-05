@@ -212,6 +212,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 			submissions := conferences.Group("/:conference_id/submissions")
 			{
 				submissions.POST("/precheck", handler.HandleNoRequest(ctrl.Submission.PreCheck))
+				submissions.GET("", handler.HandleRequestWithURIAndQuery(ctrl.Submission.List))
 				submissions.GET("/:id", handler.HandleNoRequest(ctrl.Submission.Get))
 				submissions.GET("/:id/file", ctrl.Submission.GetFile)
 				submissions.POST("", handler.HandleNoRequestWithStatus(http.StatusCreated, ctrl.Submission.Create))

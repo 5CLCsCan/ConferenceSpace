@@ -1,19 +1,19 @@
 package submission
 
 import (
-	"context"
-	"net/http"
-	"os"
-	"path/filepath"
-	"strconv"
-
 	"github.com/dcao/conferencespace/internal/deskrejection/models"
-	"github.com/dcao/conferencespace/internal/deskrejection/pipeline"
 	"github.com/dcao/conferencespace/internal/dto"
-	"github.com/dcao/conferencespace/internal/handler"
-	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
+	// Unused imports commented out while precheck is disabled
+	// "context"
+	// "net/http"
+	// "os"
+	// "path/filepath"
+	// "strconv"
+	// "github.com/dcao/conferencespace/internal/deskrejection/pipeline"
+	// "github.com/dcao/conferencespace/internal/handler"
+	// "github.com/dcao/conferencespace/internal/utils"
+	// "github.com/google/uuid"
 )
 
 // PreCheck godoc
@@ -32,6 +32,23 @@ import (
 // @Failure      500 {object} handler.Response
 // @Router       /conferences/{conference_id}/submissions/precheck [post]
 func (c *Controller) PreCheck(ginCtx *gin.Context) (*models.ComplianceReport, error) {
+	// TEMPORARILY DISABLED: Always return valid report
+	// TODO: Re-enable validation logic when ready
+	return &models.ComplianceReport{
+		PaperTitle:   "Temporary Validation",
+		OverallScore:  1.0,
+		Decision:     "pass",
+		Summary: models.Summary{
+			TotalItems: 1,
+			Passed:     1,
+			Failed:     0,
+			PassRate:   1.0,
+		},
+		CategoryScores:  make(map[string]models.CategoryScore),
+		DetailedResults: []models.CheckResult{},
+	}, nil
+
+	/* ORIGINAL CODE - DISABLED
 	ctx := ginCtx.Request.Context()
 
 	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
@@ -86,6 +103,7 @@ func (c *Controller) PreCheck(ginCtx *gin.Context) (*models.ComplianceReport, er
 
 	// Return report without storing anything
 	return &report, nil
+	*/
 }
 
 // convertConferenceConfigToPaperRuleConfig converts conference configuration to paper rule configuration

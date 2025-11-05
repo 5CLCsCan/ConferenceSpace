@@ -26,3 +26,5 @@ node_modules/
 
 .cursor/
 openspec/
+
+AGENTS.md
