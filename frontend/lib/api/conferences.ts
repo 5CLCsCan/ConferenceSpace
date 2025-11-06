@@ -165,6 +165,8 @@ export async function listConferences(filters?: {
   title?: string
   acronym?: string
   chair?: string
+  myConferences?: boolean
+  role?: string
 }): Promise<ApiResponse<{ conferences: Conference[]; total: number }>> {
   try {
     const params = new URLSearchParams()
@@ -173,6 +175,8 @@ export async function listConferences(filters?: {
     if (filters?.title) params.append("title", filters.title)
     if (filters?.acronym) params.append("acronym", filters.acronym)
     if (filters?.chair) params.append("chair", filters.chair)
+    if (filters?.myConferences !== undefined) params.append("myConferences", filters.myConferences.toString())
+    if (filters?.role) params.append("role", filters.role)
 
     const queryString = params.toString()
     const endpoint = `/api/v1/conferences${queryString ? `?${queryString}` : ""}`

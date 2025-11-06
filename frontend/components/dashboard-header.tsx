@@ -43,8 +43,6 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
     ],
     chair: [
       { href: "/dashboard/chair", label: t("dashboard.header.links.chair.overview") },
-      { href: "/dashboard/chair/papers", label: t("dashboard.header.links.chair.papers") },
-      { href: "/dashboard/chair/reviewers", label: t("dashboard.header.links.chair.reviewers") },
     ],
   }
 
