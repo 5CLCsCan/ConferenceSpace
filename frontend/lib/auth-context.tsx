@@ -27,15 +27,27 @@ interface RegisterData {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+// Valid user roles - used for validation
+const VALID_USER_ROLES: UserRole[] = ["author", "reviewer", "chair", "admin"]
+
 function normalizeUser(apiUser: any): User {
   const firstName = apiUser?.first_name ?? ""
   const lastName = apiUser?.last_name ?? ""
   const fullName = `${firstName} ${lastName}`.trim() || apiUser?.name || apiUser?.email || "User"
 
-  const roles: UserRole[] =
-    Array.isArray(apiUser?.roles) && apiUser.roles.length > 0
-      ? apiUser.roles
-      : ["author", "chair", "reviewer"]
+  // Validate and filter roles to only include valid UserRole values
+  let roles: UserRole[] = []
+  if (Array.isArray(apiUser?.roles) && apiUser.roles.length > 0) {
+    roles = apiUser.roles.filter(
+      (role: any): role is UserRole =>
+        typeof role === "string" && VALID_USER_ROLES.includes(role as UserRole),
+    )
+  }
+
+  // Default to author if no valid roles found
+  if (roles.length === 0) {
+    roles = ["author"]
+  }
 
   const expertise: string[] =
     Array.isArray(apiUser?.domain) && apiUser.domain.length > 0
@@ -109,35 +121,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await apiFetch<{ data: any }>("/api/v1/users/me", {
         method: "GET",
       })
-      
+
       console.log("[AuthContext] refreshSession response:", JSON.stringify(response, null, 2))
-      
+
       // Backend returns: { data: { id, email, first_name, ... } }
       // apiFetch returns: { data: { data: { id, email, ... } } }
       // So we need response.data.data to get the actual user object
       const userData = response.data?.data || response.data
       console.log("[AuthContext] User data to normalize:", JSON.stringify(userData, null, 2))
-      
+
       if (!userData || !userData.email) {
         console.error("[AuthContext] Invalid user data - missing email:", userData)
+        // Don't clear session if we have a stored user - allow using cached data
         return
       }
-      
+
       const normalizedUser = normalizeUser(userData)
       console.log("[AuthContext] Normalized user:", JSON.stringify(normalizedUser, null, 2))
-      
+
       if (!normalizedUser.email) {
         console.error("[AuthContext] Normalized user missing email!")
         return
       }
-      
+
       persistSession(normalizedUser)
     } catch (error) {
       if (error instanceof UnauthorizedError) {
+        console.warn("[AuthContext] Unauthorized - clearing session")
         clearSession()
         return
       }
-      console.error("Failed to refresh user session", error)
+      // Log API errors but don't clear session - allow using cached user data
+      // This handles cases where the backend is temporarily unavailable
+      if (error instanceof ApiError) {
+        console.error("[AuthContext] API error refreshing session:", error.status, error.message)
+      } else {
+        console.error("[AuthContext] Failed to refresh user session:", error)
+      }
     }
   }, [clearSession, persistSession])
 

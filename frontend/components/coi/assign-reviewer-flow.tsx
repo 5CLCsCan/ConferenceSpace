@@ -82,8 +82,8 @@ export function AssignReviewerFlow() {
   const handleAssign = async () => {
     if (selectedReviewers.size === 0) {
       toast({
-        title: t("coi.assign.noSelection") || "No reviewers selected",
-        description: t("coi.assign.selectAtLeastOne") || "Please select at least one reviewer.",
+        title: t("coi.assign.noSelection"),
+        description: t("coi.assign.selectAtLeastOne"),
         variant: "destructive",
       })
       return
@@ -91,8 +91,8 @@ export function AssignReviewerFlow() {
 
     if (coiType === "paper" && !selectedPaper) {
       toast({
-        title: t("coi.assign.noPaper") || "No paper selected",
-        description: t("coi.assign.selectPaper") || "Please select a paper.",
+        title: t("coi.assign.noPaper"),
+        description: t("coi.assign.paper"),
         variant: "destructive",
       })
       return
@@ -100,8 +100,8 @@ export function AssignReviewerFlow() {
 
     if (coiType === "author" && !selectedAuthor) {
       toast({
-        title: t("coi.assign.noAuthor") || "No author selected",
-        description: t("coi.assign.selectAuthor") || "Please select an author.",
+        title: t("coi.assign.noAuthor"),
+        description: t("coi.assign.author"),
         variant: "destructive",
       })
       return
@@ -125,16 +125,11 @@ export function AssignReviewerFlow() {
       const failed = results.filter((r) => !r.data.success).length
 
       toast({
-        title:
-          successful > 0
-            ? t("coi.assign.success") || "Assignment successful"
-            : t("coi.assign.failed") || "Assignment failed",
+        title: successful > 0 ? t("coi.assign.success") : t("coi.assign.failed"),
         description:
           successful > 0
-            ? t("coi.assign.successMessage", { count: successful }) ||
-              `${successful} reviewer(s) assigned successfully.`
-            : t("coi.assign.failureMessage", { count: failed }) ||
-              `${failed} assignment(s) failed due to COI conflicts.`,
+            ? t("coi.assign.successMessage", { count: successful })
+            : t("coi.assign.failureMessage", { count: failed }),
         variant: successful > 0 ? "default" : "destructive",
       })
 
@@ -143,7 +138,7 @@ export function AssignReviewerFlow() {
       }
     } catch (error) {
       toast({
-        title: t("coi.assign.error") || "Error",
+        title: t("coi.assign.error"),
         description: error instanceof Error ? error.message : "Failed to assign reviewers",
         variant: "destructive",
       })
@@ -158,27 +153,20 @@ export function AssignReviewerFlow() {
       <div className="lg:col-span-2 space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle>{t("coi.assign.title") || "Select Reviewers"}</CardTitle>
-            <CardDescription>
-              {t("coi.assign.description") ||
-                "Search and select reviewers to assign. COI will be checked based on selection type."}
-            </CardDescription>
+            <CardTitle>{t("coi.assign.title")}</CardTitle>
+            <CardDescription>{t("coi.assign.description")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* COI Type Selection */}
             <div className="space-y-2">
-              <Label>{t("coi.assign.coiType") || "COI Check Type"}</Label>
+              <Label>{t("coi.assign.coiType")}</Label>
               <Select value={coiType} onValueChange={(v) => setCoiType(v as COIType)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="paper">
-                    {t("coi.assign.types.paper") || "Paper-based COI"}
-                  </SelectItem>
-                  <SelectItem value="author">
-                    {t("coi.assign.types.author") || "Author-based COI"}
-                  </SelectItem>
+                  <SelectItem value="paper">{t("coi.assign.types.paper")}</SelectItem>
+                  <SelectItem value="author">{t("coi.assign.types.author")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -186,15 +174,20 @@ export function AssignReviewerFlow() {
             {/* Paper/Author Selection */}
             {coiType === "paper" && (
               <div className="space-y-2">
-                <Label>{t("coi.assign.selectPaper") || "Select Paper"}</Label>
+                <Label>{t("coi.assign.selectPaper")}</Label>
                 <Select value={selectedPaper} onValueChange={setSelectedPaper}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("coi.assign.paperPlaceholder") || "Choose a paper"} />
+                  <SelectTrigger className="w-full max-w-full">
+                    <SelectValue
+                      placeholder={t("coi.assign.paperPlaceholder")}
+                      className="truncate"
+                    />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-w-[500px]">
                     {papers.map((paper) => (
-                      <SelectItem key={paper.id} value={paper.id}>
-                        {paper.title}
+                      <SelectItem key={paper.id} value={paper.id} className="max-w-full">
+                        <span className="block truncate" title={paper.title}>
+                          {paper.title}
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -204,17 +197,23 @@ export function AssignReviewerFlow() {
 
             {coiType === "author" && (
               <div className="space-y-2">
-                <Label>{t("coi.assign.selectAuthor") || "Select Author"}</Label>
+                <Label>{t("coi.assign.selectAuthor")}</Label>
                 <Select value={selectedAuthor} onValueChange={setSelectedAuthor}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full max-w-full">
                     <SelectValue
-                      placeholder={t("coi.assign.authorPlaceholder") || "Choose an author"}
+                      placeholder={t("coi.assign.authorPlaceholder")}
+                      className="truncate"
                     />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-w-[500px]">
                     {authors.map((author) => (
-                      <SelectItem key={author.id} value={author.id}>
-                        {author.name} ({author.affiliation})
+                      <SelectItem key={author.id} value={author.id} className="max-w-full">
+                        <span
+                          className="block truncate"
+                          title={`${author.name} (${author.affiliation})`}
+                        >
+                          {author.name} ({author.affiliation})
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -224,12 +223,12 @@ export function AssignReviewerFlow() {
 
             {/* Search */}
             <div className="space-y-2">
-              <Label>{t("coi.assign.search") || "Search Reviewers"}</Label>
+              <Label>{t("coi.assign.search")}</Label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder={t("coi.assign.searchPlaceholder") || "Search by name, email, or domain..."}
+                    placeholder={t("coi.assign.searchPlaceholder")}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -237,7 +236,11 @@ export function AssignReviewerFlow() {
                   />
                 </div>
                 <Button onClick={handleSearch} disabled={loading}>
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                  {loading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Search className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             </div>
@@ -245,9 +248,9 @@ export function AssignReviewerFlow() {
             {/* Reviewers List */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>{t("coi.assign.reviewersList") || "Available Reviewers"}</Label>
+                <Label>{t("coi.assign.reviewersList")}</Label>
                 <Badge variant="outline">
-                  {reviewers.length} {t("coi.assign.reviewers") || "reviewers"}
+                  {reviewers.length} {t("coi.assign.reviewers")}
                 </Badge>
               </div>
               <div className="max-h-[500px] overflow-y-auto space-y-2 border rounded-lg p-3">
@@ -257,7 +260,7 @@ export function AssignReviewerFlow() {
                   </div>
                 ) : reviewers.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    {t("coi.assign.noReviewers") || "No reviewers found"}
+                    {t("coi.assign.noReviewers")}
                   </div>
                 ) : (
                   reviewers.map((reviewer) => (
@@ -284,19 +287,19 @@ export function AssignReviewerFlow() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <UserCheck className="h-5 w-5" />
-              {t("coi.assign.selectedReviewers") || "Selected Reviewers"}
+              {t("coi.assign.selectedReviewers")}
             </CardTitle>
             <CardDescription>
               {selectedReviewers.size}{" "}
               {selectedReviewers.size === 1
-                ? t("coi.assign.reviewerSelected") || "reviewer selected"
-                : t("coi.assign.reviewersSelected") || "reviewers selected"}
+                ? t("coi.assign.reviewerSelected")
+                : t("coi.assign.reviewersSelected")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {selectedReviewers.size === 0 ? (
               <div className="text-center py-8 text-muted-foreground text-sm">
-                {t("coi.assign.noSelectionYet") || "No reviewers selected yet"}
+                {t("coi.assign.noSelectionYet")}
               </div>
             ) : (
               <div className="space-y-2 max-h-[300px] overflow-y-auto">
@@ -334,12 +337,12 @@ export function AssignReviewerFlow() {
               {assigning ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t("coi.assign.assigning") || "Assigning..."}
+                  {t("coi.assign.assigning")}
                 </>
               ) : (
                 <>
                   <UserCheck className="mr-2 h-4 w-4" />
-                  {t("coi.assign.assignSelected") || `Assign Selected (${selectedReviewers.size})`}
+                  {t("coi.assign.assignSelected")}
                 </>
               )}
             </Button>
@@ -352,15 +355,9 @@ export function AssignReviewerFlow() {
             <div className="flex items-start gap-2">
               <AlertTriangle className="h-5 w-5 text-blue-600 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-blue-900">
-                  {t("coi.assign.info.title") || "COI Check"}
-                </p>
+                <p className="text-sm font-medium text-blue-900">{t("coi.assign.info.title")}</p>
                 <p className="text-xs text-blue-700 mt-1">
-                  {coiType === "paper"
-                    ? t("coi.assign.info.paper") ||
-                      "Checking COI against all authors of the selected paper."
-                    : t("coi.assign.info.author") ||
-                      "Checking COI specifically for the selected author."}
+                  {coiType === "paper" ? t("coi.assign.info.paper") : t("coi.assign.info.author")}
                 </p>
               </div>
             </div>
@@ -370,4 +367,3 @@ export function AssignReviewerFlow() {
     </div>
   )
 }
-

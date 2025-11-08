@@ -720,7 +720,8 @@
           "coiDetected": "COI Phát hiện",
           "relationships": "Mối quan hệ",
           "assignments": "Phân công",
-          "completed": "Đã hoàn thành"
+          "completed": "Đã hoàn thành",
+          "viewAll": "Nhấp để xem tất cả"
         },
         "tabs": {
           "assignReviewer": "Phân công Phản biện",
@@ -809,6 +810,58 @@
         "assign": "PHÂN CÔNG",
         "review": "XEM XÉT",
         "avoid": "TRÁNH"
+      },
+      "common": {
+        "reviewer": "Phản biện:",
+        "author": "Tác giả:",
+        "paper": "Bài báo:",
+        "authors": "Tác giả ({count}):",
+        "from": "Từ",
+        "to": "đến"
+      },
+      "severity": {
+        "high": "CAO",
+        "medium": "TRUNG BÌNH",
+        "low": "THẤP",
+        "none": "KHÔNG"
+      },
+      "relationshipTypes": {
+        "co_author": "Đồng tác giả",
+        "same_organization": "Cùng tổ chức",
+        "advisor_advisee": "Cố vấn - Nghiên cứu sinh",
+        "collaborator": "Cộng tác viên",
+        "competitor": "Đối thủ",
+        "citation": "Trích dẫn",
+        "review_history": "Lịch sử phản biện"
+      },
+      "timeline": {
+        "noHistory": "Không có lịch sử mối quan hệ",
+        "active": "Đang hoạt động",
+        "started": "Bắt đầu:",
+        "ended": "Kết thúc:",
+        "ongoing": "Đang diễn ra",
+        "evidence": "Bằng chứng:"
+      },
+      "reviewer": {
+        "hIndex": "H-index:",
+        "overloaded": "Quá tải",
+        "relationshipsDetected": "{count} mối quan hệ được phát hiện",
+        "recommendation": "Khuyến nghị"
+      },
+      "allRelationships": {
+        "title": "Tất cả Mối quan hệ COI",
+        "description": "Xem và lọc tất cả các mối quan hệ xung đột lợi ích được phát hiện",
+        "searchPlaceholder": "Tìm kiếm theo phản biện, tác giả hoặc mô tả...",
+        "filterSeverity": "Lọc theo mức độ",
+        "filterType": "Lọc theo loại",
+        "allSeverities": "Tất cả mức độ",
+        "allTypes": "Tất cả loại",
+        "clearFilters": "Xóa bộ lọc",
+        "totalFound": "{count} mối quan hệ được tìm thấy",
+        "noRelationships": "Không tìm thấy mối quan hệ nào khớp với bộ lọc của bạn",
+        "reviewer": "Phản biện",
+        "author": "Tác giả",
+        "relatedPapers": "Bài báo Liên quan"
       }
     },
     "submissions": {

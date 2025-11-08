@@ -40,7 +40,7 @@ export function ReviewerOverview({
           onLoadMore()
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     )
 
     const currentRef = loadMoreRef.current
@@ -126,9 +126,7 @@ export function ReviewerOverview({
                   >
                     <div>
                       <h4 className="font-semibold">{assignment.paper_title}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {assignment.conference_name}
-                      </p>
+                      <p className="text-sm text-muted-foreground">{assignment.conference_name}</p>
                       {assignment.due_date && (
                         <p className="text-sm text-muted-foreground">
                           {t("dashboard.roles.reviewer.todo.deadline")}:{" "}
@@ -143,7 +141,9 @@ export function ReviewerOverview({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onSelectPaper(String(assignment.paper_id), String(assignment.conference_id))}
+                      onClick={() =>
+                        onSelectPaper(String(assignment.paper_id), String(assignment.conference_id))
+                      }
                     >
                       {t("dashboard.roles.reviewer.todo.reviewNow")}
                       <ChevronRight className="ml-2 size-4" />
