@@ -191,6 +191,76 @@
         "currentRole": "Current role",
         "switchRole": "Switch role (Dev mode)",
         "loggedInAs": "Signed in as"
+      },
+      "committee": {
+        "chairInfo": {
+          "title": "Conference Chair",
+          "description": "Information about the conference chair",
+          "chair": "Chair",
+          "contact": "Primary Contact",
+          "viewProfile": "View profile"
+        },
+        "reviewers": {
+          "title": "Reviewers",
+          "description": "Manage conference reviewers",
+          "count": "reviewers",
+          "unknown": "Unknown reviewer"
+        },
+        "actions": {
+          "invite": "Invite Reviewer",
+          "sendInvite": "Send Invitation",
+          "viewProfile": "View profile",
+          "loadMore": "Load more"
+        },
+        "dialog": {
+          "inviteTitle": "Invite Reviewer",
+          "inviteDescription": "Search and select a user by email to invite as a reviewer to this conference.",
+          "inviteSuccessBannerTitle": "Invitations sent",
+          "inviteSuccessAutoClose": "This dialog will close automatically.",
+          "removeTitle": "Remove Reviewer",
+          "removeDescription": "Are you sure you want to remove this reviewer from the conference?",
+          "userId": "User ID",
+          "userIdHint": "Enter the numeric user ID of the reviewer",
+          "userEmail": "Email Address",
+          "userEmailHint": "Start typing to search for users by email address",
+          "userSelected": "User selected",
+          "noUserFound": "No user found with this email"
+        },
+        "status": {
+          "pending": "Pending",
+          "accepted": "Accepted",
+          "rejected": "Rejected"
+        },
+        "search": {
+          "placeholder": "Search by email or ID..."
+        },
+        "filter": {
+          "placeholder": "Filter by status",
+          "all": "All Reviewers",
+          "pending": "Pending",
+          "accepted": "Accepted",
+          "rejected": "Rejected"
+        },
+        "empty": {
+          "title": "No Reviewers Found",
+          "description": "No reviewers match your search criteria. Try adjusting your filters or invite new reviewers to this conference."
+        },
+        "errors": {
+          "loadFailed": "Failed to load committee data",
+          "invalidUserId": "Invalid User ID",
+          "userIdRequired": "User ID is required",
+          "inviteFailed": "Failed to send invitation",
+          "inviteIssues": "Some invitations could not be sent",
+          "inviteFix": "Review the messages below and try again.",
+          "inviteUnknown": "Unknown error",
+          "removeFailed": "Failed to remove reviewer"
+        },
+        "toast": {
+          "inviteSuccess": "Invitation Sent",
+          "inviteSuccessDescription": "The reviewer invitation has been sent successfully.",
+          "removeSuccess": "Reviewer Removed",
+          "removeSuccessDescription": "The reviewer has been removed from the conference."
+        }
       }
     },
     "header": {

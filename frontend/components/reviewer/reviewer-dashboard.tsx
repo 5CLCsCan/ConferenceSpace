@@ -50,15 +50,17 @@ function ConferencePapersWithSWR({
 
   const selectedConference = conferences.find((c) => c.id === conferenceId)
 
+  const { t } = useTranslation()
+
   if (error) {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Error loading papers</AlertTitle>
+        <AlertTitle>{t("dashboard.roles.reviewer.review.errors.loadFailed")}</AlertTitle>
         <AlertDescription>
           <p className="mb-4">{error}</p>
           <Button onClick={onBack} variant="outline" size="sm">
-            Back to Conferences
+            {t("common.actions.goBack")}
           </Button>
         </AlertDescription>
       </Alert>
@@ -272,9 +274,9 @@ export function ReviewerDashboard() {
       return (
         <Alert>
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>No Data</AlertTitle>
+          <AlertTitle>{t("common.messages.noData")}</AlertTitle>
           <AlertDescription>
-            {t("dashboard.roles.reviewer.review.errors.noData")}
+            {t("common.messages.noData")}
           </AlertDescription>
         </Alert>
       )

@@ -57,6 +57,12 @@ type UserListResponse struct {
 	Total int64           `json:"total"`
 }
 
+// UserSearchResponse represents the response for search endpoint (autocomplete)
+type UserSearchResponse struct {
+	Users []*UserResponse `json:"users"`
+	Total int64           `json:"total"`
+}
+
 // UserCOICheckRequest represents the request to check COI for a user against conference authors
 type UserCOICheckRequest struct {
 	UserID       int64 `uri:"id" binding:"required"`

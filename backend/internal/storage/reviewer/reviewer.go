@@ -217,7 +217,7 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Reviewer, error) 
 		&result.Domain,
 		&result.CreatedAt,
 		&result.UpdatedAt,
-		&result.UserEmail, // From JOIN with users table
+		&result.UserEmail,
 	)
 
 	if err == sql.ErrNoRows {
@@ -252,7 +252,7 @@ func (s *Storage) GetByUserAndConference(ctx context.Context, userID, conference
 		&result.Domain,
 		&result.CreatedAt,
 		&result.UpdatedAt,
-		&result.UserEmail, // From JOIN with users table
+		&result.UserEmail,
 	)
 
 	if err == sql.ErrNoRows {
@@ -323,7 +323,7 @@ func (s *Storage) List(ctx context.Context, conferenceID int64, params *ListPara
 			&result.Domain,
 			&result.CreatedAt,
 			&result.UpdatedAt,
-			&result.UserEmail, // From JOIN with users table
+			&result.UserEmail,
 		)
 		if err != nil {
 			return nil, 0, fmt.Errorf("failed to scan reviewer: %w", err)

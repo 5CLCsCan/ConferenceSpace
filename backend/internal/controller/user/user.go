@@ -162,6 +162,52 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.UserUpdateRequest) (*d
 	return c.userStorage.Update(ctx, id, req.User)
 }
 
+// Search godoc
+// @Summary      Search users
+// @Description  Search users by email (for autocomplete/lookup)
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        q query string true "Search query (email)"
+// @Param        limit query int false "Limit results (default: 10)"
+// @Success      200 {object} dto.UserSearchResponse
+// @Failure      400 {object} handler.Response
+// @Failure      401 {object} handler.Response
+// @Router       /users/search [get]
+func (c *Controller) Search(ginCtx *gin.Context) (*dto.UserSearchResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	query := ginCtx.Query("q")
+	if query == "" {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "search query is required")
+	}
+
+	limit := 10
+	if limitStr := ginCtx.Query("limit"); limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 && l <= 50 {
+			limit = l
+		}
+	}
+
+	// Use List with email filter
+	params := &userStorage.QueryParams{
+		Email:  query,
+		Limit:  limit,
+		Offset: 0,
+	}
+
+	users, total, err := c.userStorage.List(ctx, params)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	return &dto.UserSearchResponse{
+		Users: users,
+		Total: total,
+	}, nil
+}
+
 // Delete godoc
 // @Summary      Delete user
 // @Description  Delete user account (only own account)
