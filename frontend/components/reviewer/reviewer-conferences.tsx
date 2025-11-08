@@ -17,8 +17,8 @@ interface ReviewerConferencesProps {
   onSearchChange?: (query: string) => void
 }
 
-export function ReviewerConferences({ 
-  conferences, 
+export function ReviewerConferences({
+  conferences,
   onSelectConference,
   onLoadMore,
   hasMore = false,
@@ -36,7 +36,7 @@ export function ReviewerConferences({
 
     const options = {
       root: null,
-      rootMargin: '100px',
+      rootMargin: "100px",
       threshold: 0.1,
     }
 
@@ -144,7 +144,8 @@ export function ReviewerConferences({
                             <div>{new Date(conference.conference_date).toLocaleDateString()}</div>
                             {conference.submission_deadline && (
                               <div className="text-xs text-muted-foreground">
-                                {t("review.conferences.submission")}: {new Date(conference.submission_deadline).toLocaleDateString()}
+                                {t("review.conferences.submission")}:{" "}
+                                {new Date(conference.submission_deadline).toLocaleDateString()}
                               </div>
                             )}
                           </>
@@ -158,16 +159,14 @@ export function ReviewerConferences({
               )}
             </tbody>
           </table>
-          
+
           {/* Infinite scroll sentinel and loading indicator */}
           {hasMore && (
             <div ref={loadMoreRef} className="p-4 text-center">
               {isLoadingMore && (
                 <div className="flex items-center justify-center space-x-2">
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  <span className="text-sm text-muted-foreground">
-                    {t("common.loading")}...
-                  </span>
+                  <span className="text-sm text-muted-foreground">{t("common.loading")}...</span>
                 </div>
               )}
             </div>

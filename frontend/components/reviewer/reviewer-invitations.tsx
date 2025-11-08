@@ -51,7 +51,7 @@ export function ReviewerInvitations({
 
     const options = {
       root: null,
-      rootMargin: '100px',
+      rootMargin: "100px",
       threshold: 0.1,
     }
 
@@ -132,21 +132,30 @@ export function ReviewerInvitations({
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>{t("dashboard.roles.reviewer.invitations.title")}</CardTitle>
-            <CardDescription>{t("dashboard.roles.reviewer.invitations.description")}</CardDescription>
+            <CardDescription>
+              {t("dashboard.roles.reviewer.invitations.description")}
+            </CardDescription>
           </div>
           {onStatusFilterChange && (
-            <Select
-              value={currentStatusFilter}
-              onValueChange={onStatusFilterChange}
-            >
+            <Select value={currentStatusFilter} onValueChange={onStatusFilterChange}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder={t("dashboard.roles.reviewer.invitations.filter.placeholder")} />
+                <SelectValue
+                  placeholder={t("dashboard.roles.reviewer.invitations.filter.placeholder")}
+                />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{t("dashboard.roles.reviewer.invitations.filter.all")}</SelectItem>
-                <SelectItem value="pending">{t("dashboard.roles.reviewer.invitations.filter.pending")}</SelectItem>
-                <SelectItem value="accepted">{t("dashboard.roles.reviewer.invitations.filter.accepted")}</SelectItem>
-                <SelectItem value="rejected">{t("dashboard.roles.reviewer.invitations.filter.rejected")}</SelectItem>
+                <SelectItem value="all">
+                  {t("dashboard.roles.reviewer.invitations.filter.all")}
+                </SelectItem>
+                <SelectItem value="pending">
+                  {t("dashboard.roles.reviewer.invitations.filter.pending")}
+                </SelectItem>
+                <SelectItem value="accepted">
+                  {t("dashboard.roles.reviewer.invitations.filter.accepted")}
+                </SelectItem>
+                <SelectItem value="rejected">
+                  {t("dashboard.roles.reviewer.invitations.filter.rejected")}
+                </SelectItem>
               </SelectContent>
             </Select>
           )}
@@ -218,16 +227,14 @@ export function ReviewerInvitations({
             </Card>
           ))
         )}
-        
+
         {/* Infinite scroll sentinel and loading indicator */}
         {hasMore && (
           <div ref={loadMoreRef} className="p-4 text-center">
             {isLoadingMore && (
               <div className="flex items-center justify-center space-x-2">
                 <Loader2 className="h-5 w-5 animate-spin" />
-                <span className="text-sm text-muted-foreground">
-                  {t("common.loading")}...
-                </span>
+                <span className="text-sm text-muted-foreground">{t("common.loading")}...</span>
               </div>
             )}
           </div>

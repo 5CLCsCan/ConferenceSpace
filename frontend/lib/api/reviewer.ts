@@ -62,12 +62,12 @@ export interface DashboardOptions {
   conferenceLimit?: number
   conferenceOffset?: number
   conferenceSearch?: string
-  
+
   // Invitation pagination and filters
   invitationLimit?: number
   invitationOffset?: number
   invitationStatus?: string
-  
+
   // Recent assignments limit and offset
   recentAssignmentLimit?: number
   recentAssignmentOffset?: number
@@ -79,12 +79,12 @@ export interface DashboardOptions {
  */
 export async function getReviewerDashboard(
   reviewerId: string,
-  options: DashboardOptions = {}
+  options: DashboardOptions = {},
 ): Promise<{ data: ReviewerDashboardData | null; error: string | null; status: number }> {
   try {
     // Build query string with all parameters
     const queryParams = new URLSearchParams()
-    
+
     // Conference params (default: limit 10, offset 0)
     if (options.conferenceLimit !== undefined) {
       queryParams.append("conference_limit", options.conferenceLimit.toString())
@@ -95,7 +95,7 @@ export async function getReviewerDashboard(
     if (options.conferenceSearch) {
       queryParams.append("conference_search", options.conferenceSearch)
     }
-    
+
     // Invitation params (default: limit 10, offset 0)
     if (options.invitationLimit !== undefined) {
       queryParams.append("invitation_limit", options.invitationLimit.toString())
@@ -106,7 +106,7 @@ export async function getReviewerDashboard(
     if (options.invitationStatus) {
       queryParams.append("invitation_status", options.invitationStatus)
     }
-    
+
     // Recent assignments limit and offset (default: limit 10, offset 0)
     if (options.recentAssignmentLimit !== undefined) {
       queryParams.append("recent_assignment_limit", options.recentAssignmentLimit.toString())
@@ -114,12 +114,12 @@ export async function getReviewerDashboard(
     if (options.recentAssignmentOffset !== undefined) {
       queryParams.append("recent_assignment_offset", options.recentAssignmentOffset.toString())
     }
-    
+
     const queryString = queryParams.toString()
     const url = `/api/v1/reviewer/${reviewerId}/dashboard${queryString ? `?${queryString}` : ""}`
-    
+
     const { data, response } = await apiFetch<{ data: BackendDashboardResponse }>(url)
-    
+
     // Handle case where backend returns { data: null }
     if (!data.data) {
       return {
@@ -128,48 +128,54 @@ export async function getReviewerDashboard(
         status: response.status,
       }
     }
-    
+
     // Check if backend returned the new paginated format or old format
     const backendData = data.data
-    const isNewFormat = backendData.conferences && typeof backendData.conferences === 'object' && 'data' in backendData.conferences
-    
+    const isNewFormat =
+      backendData.conferences &&
+      typeof backendData.conferences === "object" &&
+      "data" in backendData.conferences
+
     // Map backend conferences to frontend format
-    const conferencesArray = isNewFormat 
-      ? (backendData.conferences as any).data 
-      : (backendData.conferences || [])
-    const mappedConferences: ReviewerConference[] = conferencesArray.map((conf: BackendReviewerConference) => {
-      return {
-        id: conf.id.toString(),
-        name: conf.title,
-        acronym: conf.acronym,
-        year: new Date(conf.configurations?.start_date || conf.created_at).getFullYear(),
-        description: conf.description,
-        submission_deadline: conf.configurations?.full_paper_submission_deadline || "",
-        review_deadline: "",
-        camera_ready_deadline: conf.configurations?.camera_ready_deadline || "",
-        notification_date: "",
-        conference_date: conf.configurations?.start_date || conf.created_at || "",
-        location: "",
-        website: "",
-        status: (conf.status as "upcoming" | "active" | "completed" | "open" | "closed") || "active",
-        tracks: [],
-        chair: conf.chair,
-        primary_contact: conf.primary_contact,
-        area_chair: conf.area_chair,
-        userRole: "reviewer",
-        reviewed_papers: conf.reviewed_papers,
-        total_papers: conf.total_papers,
-        domain: conf.domain,
-      }
-    })
-    
+    const conferencesArray = isNewFormat
+      ? (backendData.conferences as any).data
+      : backendData.conferences || []
+    const mappedConferences: ReviewerConference[] = conferencesArray.map(
+      (conf: BackendReviewerConference) => {
+        return {
+          id: conf.id.toString(),
+          name: conf.title,
+          acronym: conf.acronym,
+          year: new Date(conf.configurations?.start_date || conf.created_at).getFullYear(),
+          description: conf.description,
+          submission_deadline: conf.configurations?.full_paper_submission_deadline || "",
+          review_deadline: "",
+          camera_ready_deadline: conf.configurations?.camera_ready_deadline || "",
+          notification_date: "",
+          conference_date: conf.configurations?.start_date || conf.created_at || "",
+          location: "",
+          website: "",
+          status:
+            (conf.status as "upcoming" | "active" | "completed" | "open" | "closed") || "active",
+          tracks: [],
+          chair: conf.chair,
+          primary_contact: conf.primary_contact,
+          area_chair: conf.area_chair,
+          userRole: "reviewer",
+          reviewed_papers: conf.reviewed_papers,
+          total_papers: conf.total_papers,
+          domain: conf.domain,
+        }
+      },
+    )
+
     // Extract invitations, assignments and totals based on format
     const invitationsArray = isNewFormat
       ? (backendData.invitations as any).data
-      : (backendData.invitations || [])
+      : backendData.invitations || []
     const assignmentsArray = isNewFormat
       ? (backendData.recent_assignments as any).data
-      : (backendData.recent_assignments || [])
+      : backendData.recent_assignments || []
     const totalConferences = isNewFormat
       ? (backendData.conferences as any).total
       : mappedConferences.length
@@ -179,10 +185,10 @@ export async function getReviewerDashboard(
     const totalAssignments = isNewFormat
       ? (backendData.recent_assignments as any).total
       : assignmentsArray.length
-    
+
     // Debug: Log stats structure
-    console.log('Backend stats:', backendData.stats)
-    
+    console.log("Backend stats:", backendData.stats)
+
     return {
       data: {
         conferences: mappedConferences,

@@ -90,14 +90,26 @@ export default function CreateConferencePage() {
   }
 
   const STEPS = [
-    { number: 1, title: t("dashboard.chair.createConference.steps.1.title"), description: t("dashboard.chair.createConference.steps.1.description") },
+    {
+      number: 1,
+      title: t("dashboard.chair.createConference.steps.1.title"),
+      description: t("dashboard.chair.createConference.steps.1.description"),
+    },
     {
       number: 2,
       title: t("dashboard.chair.createConference.steps.2.title"),
       description: t("dashboard.chair.createConference.steps.2.description"),
     },
-    { number: 3, title: t("dashboard.chair.createConference.steps.3.title"), description: t("dashboard.chair.createConference.steps.3.description") },
-    { number: 4, title: t("dashboard.chair.createConference.steps.4.title"), description: t("dashboard.chair.createConference.steps.4.description") },
+    {
+      number: 3,
+      title: t("dashboard.chair.createConference.steps.3.title"),
+      description: t("dashboard.chair.createConference.steps.3.description"),
+    },
+    {
+      number: 4,
+      title: t("dashboard.chair.createConference.steps.4.title"),
+      description: t("dashboard.chair.createConference.steps.4.description"),
+    },
   ]
 
   const handleNext = () => {
@@ -113,8 +125,6 @@ export default function CreateConferencePage() {
       window.scrollTo({ top: 0, behavior: "smooth" })
     }
   }
-
-
 
   const handleCreateConference = async () => {
     if (!formData.title || !formData.acronym || !formData.submissionDeadline) {
@@ -188,10 +198,10 @@ export default function CreateConferencePage() {
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-foreground mb-2">{t("dashboard.chair.createConference.title")}</h1>
-          <p className="text-muted-foreground">
-            {t("dashboard.chair.createConference.subtitle")}
-          </p>
+          <h1 className="text-3xl font-semibold text-foreground mb-2">
+            {t("dashboard.chair.createConference.title")}
+          </h1>
+          <p className="text-muted-foreground">{t("dashboard.chair.createConference.subtitle")}</p>
         </div>
 
         {/* Progress Indicator */}
@@ -270,7 +280,9 @@ export default function CreateConferencePage() {
                 className="gap-2"
               >
                 {isCreating && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isCreating ? t("common.actions.creating") : t("dashboard.chair.createConference.confirmCreate")}
+                {isCreating
+                  ? t("common.actions.creating")
+                  : t("dashboard.chair.createConference.confirmCreate")}
               </Button>
             )}
           </div>

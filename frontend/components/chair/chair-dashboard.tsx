@@ -88,9 +88,15 @@ export default function ChairDashboard() {
 
         {/* Platform-Wide Metrics */}
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold text-foreground mb-4">{t("dashboard.chair.dashboard.platformOverview")}</h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-4">
+            {t("dashboard.chair.dashboard.platformOverview")}
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <PlatformMetricCard title={t("dashboard.chair.dashboard.activeConferences")} value={12} icon={Calendar} />
+            <PlatformMetricCard
+              title={t("dashboard.chair.dashboard.activeConferences")}
+              value={12}
+              icon={Calendar}
+            />
             <PlatformMetricCard
               title={t("dashboard.chair.dashboard.totalUsers")}
               value={3847}
@@ -103,21 +109,30 @@ export default function ChairDashboard() {
               icon={FileText}
               trend="+18% vs last month"
             />
-            <PlatformMetricCard title={t("dashboard.chair.dashboard.actionItems")} value={7} icon={AlertCircle} />
+            <PlatformMetricCard
+              title={t("dashboard.chair.dashboard.actionItems")}
+              value={7}
+              icon={AlertCircle}
+            />
           </div>
         </section>
 
         {/* Conference Management List */}
         <section className="mb-12">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold text-foreground">{t("dashboard.chair.dashboard.yourConferences")}</h2>
+            <h2 className="text-2xl font-semibold text-foreground">
+              {t("dashboard.chair.dashboard.yourConferences")}
+            </h2>
           </div>
 
           {/* Search and Filter Controls */}
           <div className="flex flex-col sm:flex-row gap-3 mb-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder={t("dashboard.chair.dashboard.searchPlaceholder")} className="pl-10" />
+              <Input
+                placeholder={t("dashboard.chair.dashboard.searchPlaceholder")}
+                className="pl-10"
+              />
             </div>
             <Button variant="outline" className="sm:w-auto bg-transparent">
               <Filter className="h-4 w-4 mr-2" />
@@ -129,11 +144,15 @@ export default function ChairDashboard() {
           <Card className="shadow-sm overflow-hidden hidden md:block">
             {loading ? (
               <div className="p-8 text-center">
-                <div className="text-muted-foreground">{t("dashboard.chair.dashboard.messages.loading")}</div>
+                <div className="text-muted-foreground">
+                  {t("dashboard.chair.dashboard.messages.loading")}
+                </div>
               </div>
             ) : error ? (
               <div className="p-8 text-center">
-                <div className="text-destructive">{t("dashboard.chair.dashboard.messages.error")}: {error}</div>
+                <div className="text-destructive">
+                  {t("dashboard.chair.dashboard.messages.error")}: {error}
+                </div>
               </div>
             ) : conferences.length === 0 ? (
               <div className="p-8 text-center">
@@ -175,11 +194,15 @@ export default function ChairDashboard() {
           <div className="md:hidden">
             {loading ? (
               <div className="p-8 text-center">
-                <div className="text-muted-foreground">{t("dashboard.chair.dashboard.messages.loading")}</div>
+                <div className="text-muted-foreground">
+                  {t("dashboard.chair.dashboard.messages.loading")}
+                </div>
               </div>
             ) : error ? (
               <div className="p-8 text-center">
-                <div className="text-destructive">{t("dashboard.chair.dashboard.messages.error")}: {error}</div>
+                <div className="text-destructive">
+                  {t("dashboard.chair.dashboard.messages.error")}: {error}
+                </div>
               </div>
             ) : conferences.length === 0 ? (
               <div className="p-8 text-center">
@@ -198,7 +221,9 @@ export default function ChairDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {/* Announcements & Activity Feed */}
           <section>
-            <h2 className="text-2xl font-semibold text-foreground mb-4">{t("dashboard.chair.dashboard.platformUpdates.title")}</h2>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">
+              {t("dashboard.chair.dashboard.platformUpdates.title")}
+            </h2>
             <Card className="p-6 shadow-sm">
               <div className="flex items-center gap-4 mb-4 border-b border-border pb-4">
                 <button className="text-sm font-semibold text-primary pb-2 border-b-2 border-primary">
@@ -280,7 +305,9 @@ export default function ChairDashboard() {
           {/* Top Reviewers Leaderboard */}
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-semibold text-foreground">{t("dashboard.chair.dashboard.topReviewers.title")}</h2>
+              <h2 className="text-2xl font-semibold text-foreground">
+                {t("dashboard.chair.dashboard.topReviewers.title")}
+              </h2>
             </div>
             <Card className="p-6 shadow-sm">
               <TopReviewerRow

@@ -20,6 +20,9 @@ type RoleConfig = {
   features: string[]
 }
 
+// Valid roles that have dashboard pages (excluding admin)
+const VALID_DASHBOARD_ROLES: UserRole[] = ["author", "reviewer", "chair"]
+
 export default function DashboardPage() {
   const { user, isAuthenticated, logout, switchRole } = useAuth()
   const { t, tList } = useTranslation()
@@ -77,7 +80,9 @@ export default function DashboardPage() {
   const handleRoleSelect = (role: UserRole) => {
     switchRole(role)
     const config = roleConfig[role]
-    router.push(config.path)
+    if (config) {
+      router.push(config.path)
+    }
   }
 
   const handleLogout = () => {
@@ -85,7 +90,12 @@ export default function DashboardPage() {
     router.push("/")
   }
 
-  const availableRoles = user.roles.filter((role) => role !== "admin")
+  // Filter roles to only include valid dashboard roles that exist in user.roles
+  // This ensures we only show roles that have configurations and dashboard pages
+  const availableRoles = user.roles.filter(
+    (role): role is UserRole =>
+      VALID_DASHBOARD_ROLES.includes(role as UserRole) && role in roleConfig,
+  )
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -133,6 +143,12 @@ export default function DashboardPage() {
           <div className="grid md:grid-cols-3 gap-6">
             {availableRoles.map((role) => {
               const config = roleConfig[role]
+
+              // Skip if config doesn't exist (shouldn't happen due to filter, but safety check)
+              if (!config) {
+                return null
+              }
+
               const Icon = config.icon
 
               return (

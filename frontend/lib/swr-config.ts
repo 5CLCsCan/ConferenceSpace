@@ -1,4 +1,4 @@
-import { SWRConfiguration } from 'swr'
+import { SWRConfiguration } from "swr"
 
 /**
  * Global SWR configuration for the application
@@ -6,21 +6,21 @@ import { SWRConfiguration } from 'swr'
 export const swrConfig: SWRConfiguration = {
   // Cache data for 5 minutes by default
   dedupingInterval: 300000,
-  
+
   // Don't revalidate on window focus (prevents unnecessary API calls)
   revalidateOnFocus: false,
-  
+
   // Revalidate on mount only if data is stale
   revalidateOnMount: true,
-  
+
   // Don't revalidate on reconnect (can be enabled for real-time data)
   revalidateOnReconnect: false,
-  
+
   // Retry on error (max 3 times with exponential backoff)
   shouldRetryOnError: true,
   errorRetryCount: 3,
   errorRetryInterval: 5000,
-  
+
   // Keep previous data while fetching new data (prevents flickering)
   keepPreviousData: true,
 }

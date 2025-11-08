@@ -258,7 +258,9 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
             {t("dashboard.author.submit.backButton")}
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-[#212529] font-arial">{t("dashboard.author.submit.title")}</h1>
+            <h1 className="text-3xl font-bold text-[#212529] font-arial">
+              {t("dashboard.author.submit.title")}
+            </h1>
             <p className="text-[#6C757D] mt-1 text-base font-arial">
               {t("dashboard.author.submit.subtitle")}
             </p>
@@ -292,7 +294,9 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
             disabled={!canSubmit || submitting}
             className="bg-[#0056A3] text-white hover:bg-[#0056A3]/90 px-4 py-2 rounded-[4px] text-base font-medium font-arial"
           >
-            {submitting ? t("dashboard.author.submit.submitting") : t("dashboard.author.submit.submit")}
+            {submitting
+              ? t("dashboard.author.submit.submitting")
+              : t("dashboard.author.submit.submit")}
           </Button>
         </div>
       </div>

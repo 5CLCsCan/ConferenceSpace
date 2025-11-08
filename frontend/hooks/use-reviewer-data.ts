@@ -20,10 +20,10 @@ export function useReviewerData(reviewerId: string, invitationStatus?: string) {
     try {
       setLoading(true)
       setError(null)
-      
+
       // Use single dashboard API call instead of multiple calls
       const dashboardResponse = await getReviewerDashboard(reviewerId, {
-        invitationStatus
+        invitationStatus,
       })
 
       if (dashboardResponse.error || !dashboardResponse.data) {
@@ -56,13 +56,13 @@ export function useReviewerData(reviewerId: string, invitationStatus?: string) {
     fetchData()
   }, [fetchData, invitationStatus])
 
-  return { 
-    conferences, 
-    stats, 
-    invitations, 
+  return {
+    conferences,
+    stats,
+    invitations,
     assignments,
-    loading, 
-    error, 
-    refetch: fetchData 
+    loading,
+    error,
+    refetch: fetchData,
   }
 }
