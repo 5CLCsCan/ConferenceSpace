@@ -184,7 +184,7 @@ export function AuthorDashboard() {
       {/* Section: Bài nộp của tôi */}
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold tracking-tight">{t("dashboard.author.dashboard.myConferences")}</h2>
-        <Card>
+        <Card className="gap-0 py-0">
           <CardContent className="p-0">
             {/* Header row */}
             <div className="hidden md:flex items-center gap-4 p-4 bg-gray-50 border-b font-medium text-sm text-gray-500">
@@ -249,7 +249,7 @@ export function AuthorDashboard() {
       {/* Section: Explore Conferences */}
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold tracking-tight">{t("dashboard.author.dashboard.exploreConferences")}</h2>
-        <Card>
+        <Card className="gap-0 py-0">
           <CardContent className="p-0">
             {/* Header row */}
             <div className="hidden md:flex items-center gap-4 p-4 bg-gray-50 border-b font-medium text-sm text-gray-500">

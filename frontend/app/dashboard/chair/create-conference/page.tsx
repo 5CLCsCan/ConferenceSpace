@@ -8,7 +8,7 @@ import { ConferenceDetailsStep } from "@/components/wizard/conference-details-st
 import { TopicsSubmissionsStep } from "@/components/wizard/topics-submissions-step"
 import { OrganizersStep } from "@/components/wizard/organizers-step"
 import { ReviewStep } from "@/components/wizard/review-step"
-import { ChevronLeft, ChevronRight, Save, Loader2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createConference } from "@/lib/api/conferences"
 import { useToast } from "@/hooks/use-toast"
@@ -114,13 +114,7 @@ export default function CreateConferencePage() {
     }
   }
 
-  const handleSaveDraft = () => {
-    console.log("[v0] Saving draft:", formData)
-    toast({
-      title: t("common.messages.success"),
-      description: t("dashboard.chair.createConference.saveDraft"),
-    })
-  }
+
 
   const handleCreateConference = async () => {
     if (!formData.title || !formData.acronym || !formData.submissionDeadline) {
@@ -264,11 +258,6 @@ export default function CreateConferencePage() {
           </div>
 
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleSaveDraft} className="gap-2 bg-transparent">
-              <Save className="w-4 h-4" />
-              {t("common.actions.saveAsDraft")}
-            </Button>
-
             {currentStep < STEPS.length ? (
               <Button onClick={handleNext} className="gap-2">
                 {t("common.actions.nextStep")}
