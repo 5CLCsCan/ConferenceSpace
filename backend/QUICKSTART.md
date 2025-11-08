@@ -21,13 +21,16 @@ sudo snap install go --classic
 # 2. Verify Go installation
 go version
 
-# 3. Install development tools (migrate, swag, golangci-lint)
+# 3, Install Makefile
+sudo apt install make
+
+# 4. Install development tools (migrate, swag, golangci-lint)
 make install-tools
 
-# 4. Generate Swagger documentation
+# 5. Generate Swagger documentation
 make swagger
 
-# 5. Start backend
+# 6. Start backend
 make dev
 ```
 
