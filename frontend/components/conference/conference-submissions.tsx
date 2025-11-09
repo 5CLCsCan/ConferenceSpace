@@ -20,15 +20,10 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { FileText, Search, Filter, Calendar, Users } from "lucide-react"
+import { FileText, Search, Filter, Calendar, Users, X } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface ConferenceSubmissionsProps {
   conferenceId: string
@@ -42,6 +37,9 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [trackFilter, setTrackFilter] = useState<string>("all")
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [tempStatusFilter, setTempStatusFilter] = useState<string>("all")
+  const [tempTrackFilter, setTempTrackFilter] = useState<string>("all")
 
   useEffect(() => {
     async function loadPapers() {
@@ -154,6 +152,47 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
     return "Danh sách các bài báo"
   }
 
+  const handleRemoveStatusFilter = () => {
+    setStatusFilter("all")
+  }
+
+  const handleRemoveTrackFilter = () => {
+    setTrackFilter("all")
+  }
+
+  const handleApplyFilters = () => {
+    setStatusFilter(tempStatusFilter)
+    setTrackFilter(tempTrackFilter)
+    setFilterOpen(false)
+  }
+
+  const handleClearFilters = () => {
+    setTempStatusFilter("all")
+    setTempTrackFilter("all")
+    setStatusFilter("all")
+    setTrackFilter("all")
+    setFilterOpen(false)
+  }
+
+  const hasActiveFilters = statusFilter !== "all" || trackFilter !== "all"
+
+  const getStatusLabelForFilter = (status: string) => {
+    switch (status) {
+      case "submitted":
+        return "Đã Nộp"
+      case "under_review":
+        return "Đang Review"
+      case "accepted":
+        return "Chấp Nhận"
+      case "rejected":
+        return "Từ Chối"
+      case "revision_requested":
+        return "Yêu Cầu Sửa"
+      default:
+        return status
+    }
+  }
+
   if (loading) {
     return <div>Đang tải...</div>
   }
@@ -167,53 +206,167 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
       </div>
 
       {/* Filters */}
-      <Card className="p-6">
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+      <div className="mb-4">
+        <div className="relative flex items-center gap-2 border rounded-md bg-background">
+          <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
+          <div className="flex-1 flex items-center gap-2 pl-10 pr-2 py-2">
+            {hasActiveFilters && (
+              <div className="flex items-center gap-2 flex-wrap">
+                {statusFilter !== "all" && (
+                  <Badge variant="secondary" className="gap-1">
+                    {getStatusLabelForFilter(statusFilter)}
+                    <button
+                      onClick={handleRemoveStatusFilter}
+                      className="ml-1 hover:bg-muted rounded-full"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                )}
+                {trackFilter !== "all" && (
+                  <Badge variant="secondary" className="gap-1">
+                    {trackFilter === "track-1"
+                      ? "Machine Learning & AI"
+                      : trackFilter === "track-2"
+                        ? "Systems & Networking"
+                        : trackFilter === "track-3"
+                          ? "Human-Computer Interaction"
+                          : trackFilter}
+                    <button
+                      onClick={handleRemoveTrackFilter}
+                      className="ml-1 hover:bg-muted rounded-full"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                )}
+              </div>
+            )}
             <Input
-              placeholder="Tìm kiếm theo tiêu đề, abstract, keywords..."
+              placeholder={
+                hasActiveFilters ? "" : "Tìm kiếm theo tiêu đề, abstract, keywords..."
+              }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="!border-0 focus-visible:!ring-0 focus-visible:!border-0 focus-visible:!ring-offset-0 !shadow-none h-auto p-0 flex-1 min-w-[120px]"
             />
           </div>
-
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Lọc theo trạng thái" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tất Cả Trạng Thái</SelectItem>
-              <SelectItem value="submitted">Đã Nộp</SelectItem>
-              <SelectItem value="under_review">Đang Review</SelectItem>
-              <SelectItem value="accepted">Chấp Nhận</SelectItem>
-              <SelectItem value="rejected">Từ Chối</SelectItem>
-              <SelectItem value="revision_requested">Yêu Cầu Sửa</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={trackFilter} onValueChange={setTrackFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Lọc theo track" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tất Cả Tracks</SelectItem>
-              <SelectItem value="track-1">Machine Learning & AI</SelectItem>
-              <SelectItem value="track-2">Systems & Networking</SelectItem>
-              <SelectItem value="track-3">Human-Computer Interaction</SelectItem>
-            </SelectContent>
-          </Select>
+          <Popover open={filterOpen} onOpenChange={setFilterOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`h-8 w-8 mr-2 ${hasActiveFilters ? "text-primary" : ""}`}
+                onClick={() => {
+                  setTempStatusFilter(statusFilter)
+                  setTempTrackFilter(trackFilter)
+                }}
+              >
+                <Filter className="h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="end">
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold text-sm mb-3">Trạng Thái</h4>
+                  <div className="space-y-2">
+                    <label
+                      className="flex items-center gap-2 cursor-pointer"
+                      onClick={() => setTempStatusFilter("all")}
+                    >
+                      <Checkbox checked={tempStatusFilter === "all"} readOnly />
+                      <span className="text-sm">Tất Cả Trạng Thái</span>
+                    </label>
+                    <label
+                      className="flex items-center gap-2 cursor-pointer"
+                      onClick={() => setTempStatusFilter("submitted")}
+                    >
+                      <Checkbox checked={tempStatusFilter === "submitted"} readOnly />
+                      <span className="text-sm">Đã Nộp</span>
+                    </label>
+                    <label
+                      className="flex items-center gap-2 cursor-pointer"
+                      onClick={() => setTempStatusFilter("under_review")}
+                    >
+                      <Checkbox checked={tempStatusFilter === "under_review"} readOnly />
+                      <span className="text-sm">Đang Review</span>
+                    </label>
+                    <label
+                      className="flex items-center gap-2 cursor-pointer"
+                      onClick={() => setTempStatusFilter("accepted")}
+                    >
+                      <Checkbox checked={tempStatusFilter === "accepted"} readOnly />
+                      <span className="text-sm">Chấp Nhận</span>
+                    </label>
+                    <label
+                      className="flex items-center gap-2 cursor-pointer"
+                      onClick={() => setTempStatusFilter("rejected")}
+                    >
+                      <Checkbox checked={tempStatusFilter === "rejected"} readOnly />
+                      <span className="text-sm">Từ Chối</span>
+                    </label>
+                    <label
+                      className="flex items-center gap-2 cursor-pointer"
+                      onClick={() => setTempStatusFilter("revision_requested")}
+                    >
+                      <Checkbox checked={tempStatusFilter === "revision_requested"} readOnly />
+                      <span className="text-sm">Yêu Cầu Sửa</span>
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-sm mb-3">Track</h4>
+                  <div className="space-y-2">
+                    <label
+                      className="flex items-center gap-2 cursor-pointer"
+                      onClick={() => setTempTrackFilter("all")}
+                    >
+                      <Checkbox checked={tempTrackFilter === "all"} readOnly />
+                      <span className="text-sm">Tất Cả Tracks</span>
+                    </label>
+                    <label
+                      className="flex items-center gap-2 cursor-pointer"
+                      onClick={() => setTempTrackFilter("track-1")}
+                    >
+                      <Checkbox checked={tempTrackFilter === "track-1"} readOnly />
+                      <span className="text-sm">Machine Learning & AI</span>
+                    </label>
+                    <label
+                      className="flex items-center gap-2 cursor-pointer"
+                      onClick={() => setTempTrackFilter("track-2")}
+                    >
+                      <Checkbox checked={tempTrackFilter === "track-2"} readOnly />
+                      <span className="text-sm">Systems & Networking</span>
+                    </label>
+                    <label
+                      className="flex items-center gap-2 cursor-pointer"
+                      onClick={() => setTempTrackFilter("track-3")}
+                    >
+                      <Checkbox checked={tempTrackFilter === "track-3"} readOnly />
+                      <span className="text-sm">Human-Computer Interaction</span>
+                    </label>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 pt-2 border-t">
+                  <Button variant="outline" size="sm" onClick={handleClearFilters}>
+                    Clear
+                  </Button>
+                  <Button size="sm" onClick={handleApplyFilters}>
+                    Apply
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
-
-        <div className="mt-4 flex items-center gap-4 text-sm text-gray-600">
+        <div className="mt-2 flex items-center gap-4 text-sm text-gray-600">
           <Filter className="h-4 w-4" />
           <span>
             Hiển thị <span className="font-semibold">{filteredPapers.length}</span> /{" "}
             {papers.length} bài
           </span>
         </div>
-      </Card>
+      </div>
 
       {/* Papers List */}
       <div className="space-y-4">
