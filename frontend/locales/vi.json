@@ -327,7 +327,8 @@
         "nav": {
           "overview": "Tổng quan",
           "myConferences": "Hội nghị của tôi",
-          "invitations": "Lời mời"
+          "invitations": "Lời mời",
+          "completedReviews": "Phản biện đã hoàn thành"
         },
         "stats": {
           "totalConferences": "Tổng số hội nghị",
@@ -422,6 +423,26 @@
             "description": "Bạn chưa được giao bài báo nào cho hội nghị này. Các bài báo sẽ xuất hiện ở đây khi chủ tọa hội nghị phân công cho bạn."
           }
         },
+        "completedReviews": {
+          "description": "Xem tất cả các bài phản biện đã hoàn thành và theo dõi lịch sử đóng góp của bạn",
+          "totalCompleted": "Tổng số đã hoàn thành",
+          "allTime": "Tất cả thời gian",
+          "conferences": "Hội nghị",
+          "uniqueConferences": "Hội nghị khác nhau",
+          "thisMonth": "Tháng này",
+          "currentMonth": "Tháng hiện tại",
+          "filters": "Bộ lọc & Tìm kiếm",
+          "searchPlaceholder": "Tìm kiếm theo tiêu đề hoặc từ khóa...",
+          "allConferences": "Tất cả hội nghị",
+          "sortByDate": "Sắp xếp theo ngày",
+          "sortByTitle": "Sắp xếp theo tiêu đề",
+          "noResults": "Không có bài phản biện nào phù hợp với tiêu chí tìm kiếm",
+          "noCompletedReviews": "Bạn chưa hoàn thành bài phản biện nào",
+          "completed": "Đã hoàn thành",
+          "completedOn": "Hoàn thành vào",
+          "version": "Phiên bản",
+          "viewReview": "Xem phản biện"
+        },
         "review": {
           "reviewing": "Đang phản biện",
           "submittedOn": "Gửi vào ngày {{date}}",
@@ -433,7 +454,8 @@
             "paperNotFound": "Không tìm thấy bài báo",
             "conferenceIdRequired": "Cần có ID hội nghị",
             "fetchPaperFailed": "Không thể tải bài báo",
-            "unknownError": "Đã xảy ra lỗi"
+            "unknownError": "Đã xảy ra lỗi",
+            "noData": "Không có dữ liệu"
           },
           "loadingPaper": "Đang tải bài báo...",
           "tabs": {

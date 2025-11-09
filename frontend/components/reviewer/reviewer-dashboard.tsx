@@ -4,12 +4,14 @@ import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { useReviewerDashboard } from "@/hooks/use-reviewer-dashboard"
 import { useConferencePapers } from "@/hooks/use-conference-papers"
+import { useCompletedReviews } from "@/hooks/use-completed-reviews"
 import { useDebounce } from "@/hooks/use-debounce"
 import { ReviewerSidebar } from "./reviewer-sidebar"
 import { ReviewerOverview } from "./reviewer-overview"
 import { ReviewerConferences } from "./reviewer-conferences"
 import { ReviewerInvitations } from "./reviewer-invitations"
 import { ConferencePapers } from "./conference-papers"
+import { CompletedReviews } from "./completed-reviews"
 import {
   DashboardSkeleton,
   ConferencesSkeleton,
@@ -23,7 +25,7 @@ import { AlertCircle } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import type { ReviewerConference } from "@/lib/types"
 
-type View = "overview" | "conferences" | "invitations" | "conference-papers"
+type View = "overview" | "conferences" | "invitations" | "conference-papers" | "completed-reviews"
 
 // Wrapper component to handle papers with SWR
 function ConferencePapersWithSWR({
@@ -98,6 +100,7 @@ export function ReviewerDashboard() {
   const [conferenceOffset, setConferenceOffset] = useState(0)
   const [invitationOffset, setInvitationOffset] = useState(0)
   const [assignmentOffset, setAssignmentOffset] = useState(0)
+  const [completedOffset] = useState(0)
   const [allConferences, setAllConferences] = useState<any[]>([])
   const [allInvitations, setAllInvitations] = useState<any[]>([])
   const [allAssignments, setAllAssignments] = useState<any[]>([])
@@ -138,6 +141,16 @@ export function ReviewerDashboard() {
       recentAssignmentOffset: assignmentOffset,
     },
   )
+
+  // Fetch completed reviews
+  const {
+    reviews: completedReviews,
+    isLoading: isLoadingCompleted,
+    error: completedError,
+  } = useCompletedReviews(currentReviewerId, {
+    limit: 20,
+    offset: completedOffset,
+  })
 
   // Accumulate conferences for infinite scroll
   useEffect(() => {
@@ -337,6 +350,15 @@ export function ReviewerDashboard() {
             conferences={allConferences}
             onBack={handleBackToConferences}
             onSelectPaper={handleSelectPaper}
+          />
+        )
+      case "completed-reviews":
+        return (
+          <CompletedReviews
+            reviews={completedReviews}
+            onSelectPaper={handleSelectPaper}
+            hasMore={false}
+            isLoadingMore={false}
           />
         )
       default:

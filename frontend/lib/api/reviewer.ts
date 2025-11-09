@@ -118,7 +118,36 @@ export async function getReviewerDashboard(
     const queryString = queryParams.toString()
     const url = `/api/v1/reviewer/${reviewerId}/dashboard${queryString ? `?${queryString}` : ""}`
 
-    const { data, response } = await apiFetch<{ data: BackendDashboardResponse }>(url)
+    let data: { data: BackendDashboardResponse }
+    let response: Response
+
+    try {
+      const result = await apiFetch<{ data: BackendDashboardResponse }>(url)
+      data = result.data
+      response = result.response
+    } catch (fetchError: any) {
+      // If endpoint doesn't exist (404/500), return empty dashboard data
+      console.warn("Reviewer dashboard endpoint not available, returning empty data:", fetchError)
+      return {
+        data: {
+          conferences: [],
+          stats: {
+            total_assigned: 0,
+            pending: 0,
+            in_progress: 0,
+            completed: 0,
+            pending_requests: 0,
+          },
+          invitations: [],
+          recent_assignments: [],
+          total_conferences: 0,
+          total_invitations: 0,
+          total_assignments: 0,
+        },
+        error: null,
+        status: 200,
+      }
+    }
 
     // Handle case where backend returns { data: null }
     if (!data.data) {

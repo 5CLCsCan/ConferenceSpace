@@ -327,7 +327,8 @@
         "nav": {
           "overview": "Overview",
           "myConferences": "My Conferences",
-          "invitations": "Invitations"
+          "invitations": "Invitations",
+          "completedReviews": "Completed Reviews"
         },
         "stats": {
           "totalConferences": "Total Conferences",
@@ -422,6 +423,26 @@
             "description": "You haven't been assigned any papers for this conference yet. Papers will appear here once the conference chair assigns them to you."
           }
         },
+        "completedReviews": {
+          "description": "View all your completed reviews and track your contribution history",
+          "totalCompleted": "Total Completed",
+          "allTime": "All time",
+          "conferences": "Conferences",
+          "uniqueConferences": "Unique conferences",
+          "thisMonth": "This Month",
+          "currentMonth": "Current month",
+          "filters": "Filters & Search",
+          "searchPlaceholder": "Search by title or keywords...",
+          "allConferences": "All Conferences",
+          "sortByDate": "Sort by Date",
+          "sortByTitle": "Sort by Title",
+          "noResults": "No reviews match your search criteria",
+          "noCompletedReviews": "You haven't completed any reviews yet",
+          "completed": "Completed",
+          "completedOn": "Completed on",
+          "version": "Version",
+          "viewReview": "View Review"
+        },
         "review": {
           "reviewing": "Reviewing",
           "submittedOn": "Submitted on {{date}}",
@@ -433,7 +454,8 @@
             "paperNotFound": "Paper not found",
             "conferenceIdRequired": "Conference ID is required",
             "fetchPaperFailed": "Failed to fetch paper",
-            "unknownError": "An error occurred"
+            "unknownError": "An error occurred",
+            "noData": "No data available"
           },
           "loadingPaper": "Loading paper...",
           "tabs": {
