@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { AlertTriangle, CheckCircle2, Users, Loader2 } from "lucide-react"
+import { useTranslation } from "@/lib/i18n/translation-context"
 import type { Reviewer, COIType } from "@/lib/mock-data/coi"
 import { checkReviewerToPaperCOI, checkReviewerToAuthorCOI } from "@/lib/api/coi-mock"
 import type { COIReport } from "@/lib/mock-data/coi"
@@ -27,6 +28,7 @@ export function ReviewerListItem({
   paperId,
   authorId,
 }: ReviewerListItemProps) {
+  const { t } = useTranslation()
   const [coiReport, setCoiReport] = useState<COIReport | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -95,7 +97,7 @@ export function ReviewerListItem({
                 ) : (
                   <AlertTriangle className="h-3 w-3 mr-1" />
                 )}
-                {coiReport.severity.toUpperCase()}
+                {t(`coi.severity.${coiReport.severity}`) || coiReport.severity.toUpperCase()}
               </Badge>
             ) : null}
           </div>
@@ -116,7 +118,9 @@ export function ReviewerListItem({
 
           {/* Stats */}
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span>H-index: {reviewer.h_index}</span>
+            <span>
+              {t("coi.reviewer.hIndex")} {reviewer.h_index}
+            </span>
             <span>•</span>
             <span className="flex items-center gap-1">
               <Users className="h-3 w-3" />
@@ -124,7 +128,7 @@ export function ReviewerListItem({
             </span>
             {isOverloaded && (
               <Badge variant="destructive" className="text-xs">
-                Overloaded
+                {t("coi.reviewer.overloaded")}
               </Badge>
             )}
           </div>
@@ -136,11 +140,15 @@ export function ReviewerListItem({
                 <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium">
-                    {coiReport.relationships.length} relationship(s) detected
+                    {t("coi.reviewer.relationshipsDetected", {
+                      count: coiReport.relationships.length,
+                    })}
                   </p>
                   <p className="text-xs mt-1 opacity-90">{coiReport.summary}</p>
                   <p className="text-xs mt-1 font-medium">
-                    Recommendation: {coiReport.recommendation.toUpperCase()}
+                    {t("coi.reviewer.recommendation")}:{" "}
+                    {t(`coi.recommendation.${coiReport.recommendation}`) ||
+                      coiReport.recommendation.toUpperCase()}
                   </p>
                 </div>
               </div>
@@ -151,4 +159,3 @@ export function ReviewerListItem({
     </Card>
   )
 }
-

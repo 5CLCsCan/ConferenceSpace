@@ -183,16 +183,22 @@ export function AuthorDashboard() {
 
       {/* Section: Bài nộp của tôi */}
       <section className="space-y-6">
-        <h2 className="text-2xl font-semibold tracking-tight">{t("dashboard.author.dashboard.myConferences")}</h2>
-        <Card>
+        <h2 className="text-2xl font-semibold tracking-tight">
+          {t("dashboard.author.dashboard.myConferences")}
+        </h2>
+        <Card className="gap-0 py-0">
           <CardContent className="p-0">
             {/* Header row */}
             <div className="hidden md:flex items-center gap-4 p-4 bg-gray-50 border-b font-medium text-sm text-gray-500">
-              <div className="flex-1 min-w-0">{t("dashboard.author.dashboard.tableHeaders.conferenceName")}</div>
+              <div className="flex-1 min-w-0">
+                {t("dashboard.author.dashboard.tableHeaders.conferenceName")}
+              </div>
               <div className="flex items-center gap-4 ml-auto">
                 <div className="w-36">{t("dashboard.author.dashboard.tableHeaders.date")}</div>
                 <div className="w-36">{t("dashboard.author.dashboard.tableHeaders.location")}</div>
-                <div className="w-32">{t("dashboard.author.dashboard.tableHeaders.submissionDeadline")}</div>
+                <div className="w-32">
+                  {t("dashboard.author.dashboard.tableHeaders.submissionDeadline")}
+                </div>
                 <div className="w-28">{t("dashboard.author.dashboard.tableHeaders.status")}</div>
               </div>
             </div>
@@ -203,7 +209,9 @@ export function AuthorDashboard() {
               </div>
             ) : error ? (
               <div className="p-6 text-center">
-                <p className="text-red-500">{t("dashboard.author.dashboard.messages.error")}: {error}</p>
+                <p className="text-red-500">
+                  {t("dashboard.author.dashboard.messages.error")}: {error}
+                </p>
               </div>
             ) : filterConferences(conferencesWithSubmissions).length === 0 ? (
               <div className="p-6 text-center">
@@ -248,16 +256,22 @@ export function AuthorDashboard() {
 
       {/* Section: Explore Conferences */}
       <section className="space-y-6">
-        <h2 className="text-2xl font-semibold tracking-tight">{t("dashboard.author.dashboard.exploreConferences")}</h2>
-        <Card>
+        <h2 className="text-2xl font-semibold tracking-tight">
+          {t("dashboard.author.dashboard.exploreConferences")}
+        </h2>
+        <Card className="gap-0 py-0">
           <CardContent className="p-0">
             {/* Header row */}
             <div className="hidden md:flex items-center gap-4 p-4 bg-gray-50 border-b font-medium text-sm text-gray-500">
-              <div className="flex-1 min-w-0">{t("dashboard.author.dashboard.tableHeaders.conferenceName")}</div>
+              <div className="flex-1 min-w-0">
+                {t("dashboard.author.dashboard.tableHeaders.conferenceName")}
+              </div>
               <div className="flex items-center gap-4 ml-auto">
                 <div className="w-36">{t("dashboard.author.dashboard.tableHeaders.date")}</div>
                 <div className="w-36">{t("dashboard.author.dashboard.tableHeaders.location")}</div>
-                <div className="w-32">{t("dashboard.author.dashboard.tableHeaders.submissionDeadline")}</div>
+                <div className="w-32">
+                  {t("dashboard.author.dashboard.tableHeaders.submissionDeadline")}
+                </div>
               </div>
             </div>
 
@@ -267,11 +281,15 @@ export function AuthorDashboard() {
               </div>
             ) : error ? (
               <div className="p-6 text-center">
-                <p className="text-red-500">{t("dashboard.author.dashboard.messages.error")}: {error}</p>
+                <p className="text-red-500">
+                  {t("dashboard.author.dashboard.messages.error")}: {error}
+                </p>
               </div>
             ) : filterConferences(exploreConferences).length === 0 ? (
               <div className="p-6 text-center">
-                <p className="text-gray-500">{t("dashboard.author.dashboard.messages.noConferencesFound")}</p>
+                <p className="text-gray-500">
+                  {t("dashboard.author.dashboard.messages.noConferencesFound")}
+                </p>
               </div>
             ) : (
               filterConferences(exploreConferences).map((conference, index, array) => (

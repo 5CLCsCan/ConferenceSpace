@@ -140,7 +140,9 @@ export function ConferencePapers({
                             : "bg-green-100 text-green-800"
                         }`}
                       >
-                        {t(`dashboard.roles.reviewer.papers.statusValues.${paper.assignment_status}`)}
+                        {t(
+                          `dashboard.roles.reviewer.papers.statusValues.${paper.assignment_status}`,
+                        )}
                       </span>
                     </td>
                     <td className="p-4">

@@ -8,7 +8,7 @@ import { ConferenceDetailsStep } from "@/components/wizard/conference-details-st
 import { TopicsSubmissionsStep } from "@/components/wizard/topics-submissions-step"
 import { OrganizersStep } from "@/components/wizard/organizers-step"
 import { ReviewStep } from "@/components/wizard/review-step"
-import { ChevronLeft, ChevronRight, Save, Loader2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createConference } from "@/lib/api/conferences"
 import { useToast } from "@/hooks/use-toast"
@@ -90,14 +90,26 @@ export default function CreateConferencePage() {
   }
 
   const STEPS = [
-    { number: 1, title: t("dashboard.chair.createConference.steps.1.title"), description: t("dashboard.chair.createConference.steps.1.description") },
+    {
+      number: 1,
+      title: t("dashboard.chair.createConference.steps.1.title"),
+      description: t("dashboard.chair.createConference.steps.1.description"),
+    },
     {
       number: 2,
       title: t("dashboard.chair.createConference.steps.2.title"),
       description: t("dashboard.chair.createConference.steps.2.description"),
     },
-    { number: 3, title: t("dashboard.chair.createConference.steps.3.title"), description: t("dashboard.chair.createConference.steps.3.description") },
-    { number: 4, title: t("dashboard.chair.createConference.steps.4.title"), description: t("dashboard.chair.createConference.steps.4.description") },
+    {
+      number: 3,
+      title: t("dashboard.chair.createConference.steps.3.title"),
+      description: t("dashboard.chair.createConference.steps.3.description"),
+    },
+    {
+      number: 4,
+      title: t("dashboard.chair.createConference.steps.4.title"),
+      description: t("dashboard.chair.createConference.steps.4.description"),
+    },
   ]
 
   const handleNext = () => {
@@ -112,14 +124,6 @@ export default function CreateConferencePage() {
       setCurrentStep(currentStep - 1)
       window.scrollTo({ top: 0, behavior: "smooth" })
     }
-  }
-
-  const handleSaveDraft = () => {
-    console.log("[v0] Saving draft:", formData)
-    toast({
-      title: t("common.messages.success"),
-      description: t("dashboard.chair.createConference.saveDraft"),
-    })
   }
 
   const handleCreateConference = async () => {
@@ -194,10 +198,10 @@ export default function CreateConferencePage() {
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-foreground mb-2">{t("dashboard.chair.createConference.title")}</h1>
-          <p className="text-muted-foreground">
-            {t("dashboard.chair.createConference.subtitle")}
-          </p>
+          <h1 className="text-3xl font-semibold text-foreground mb-2">
+            {t("dashboard.chair.createConference.title")}
+          </h1>
+          <p className="text-muted-foreground">{t("dashboard.chair.createConference.subtitle")}</p>
         </div>
 
         {/* Progress Indicator */}
@@ -264,11 +268,6 @@ export default function CreateConferencePage() {
           </div>
 
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleSaveDraft} className="gap-2 bg-transparent">
-              <Save className="w-4 h-4" />
-              {t("common.actions.saveAsDraft")}
-            </Button>
-
             {currentStep < STEPS.length ? (
               <Button onClick={handleNext} className="gap-2">
                 {t("common.actions.nextStep")}
@@ -281,7 +280,9 @@ export default function CreateConferencePage() {
                 className="gap-2"
               >
                 {isCreating && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isCreating ? t("common.actions.creating") : t("dashboard.chair.createConference.confirmCreate")}
+                {isCreating
+                  ? t("common.actions.creating")
+                  : t("dashboard.chair.createConference.confirmCreate")}
               </Button>
             )}
           </div>

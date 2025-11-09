@@ -13,7 +13,11 @@ export default function AuthorSubmissionsPage() {
   const router = useRouter()
 
   useEffect(() => {
-    console.log("[AuthorSubmissionsPage] Auth check", { isAuthenticated, user: user?.email, roles: user?.roles })
+    console.log("[AuthorSubmissionsPage] Auth check", {
+      isAuthenticated,
+      user: user?.email,
+      roles: user?.roles,
+    })
     if (!isAuthenticated) {
       router.push("/login")
     } else if (user && !user.roles.includes("author")) {
@@ -45,4 +49,3 @@ export default function AuthorSubmissionsPage() {
     </div>
   )
 }
-

@@ -3,7 +3,16 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Download, Edit, Calendar, User, FileText, Tag, Link as LinkIcon } from "lucide-react"
+import {
+  ArrowLeft,
+  Download,
+  Edit,
+  Calendar,
+  User,
+  FileText,
+  Tag,
+  Link as LinkIcon,
+} from "lucide-react"
 import { formatDate } from "@/lib/utils"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import type { Submission } from "@/lib/api/submissions"
@@ -44,7 +53,9 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
     ? `/api/backend/api/v1/conferences/${conferenceId}/submissions/${submission.id}/file`
     : null
 
-  const isPdfFile = submission.file?.mime_type === "application/pdf" || submission.file?.original_name?.toLowerCase().endsWith(".pdf")
+  const isPdfFile =
+    submission.file?.mime_type === "application/pdf" ||
+    submission.file?.original_name?.toLowerCase().endsWith(".pdf")
 
   return (
     <div className="space-y-6">
@@ -64,16 +75,16 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
           </div>
           <div className="flex items-center gap-3 mb-4">
             {getStatusBadge(submission.status)}
-            <span className="text-sm text-gray-500">
-              ID: {submission.id}
-            </span>
+            <span className="text-sm text-gray-500">ID: {submission.id}</span>
           </div>
           <h1 className="text-3xl font-bold mb-4">{submission.title}</h1>
         </div>
         <div className="flex gap-2">
           {isAuthor && submission.status === "draft" && (
             <Button variant="outline" size="sm" asChild>
-              <Link href={`/dashboard/author/submit?conference=${conferenceId}&edit=${submission.id}`}>
+              <Link
+                href={`/dashboard/author/submit?conference=${conferenceId}&edit=${submission.id}`}
+              >
                 <Edit className="size-4 mr-2" />
                 {t("common.actions.edit", "Chỉnh sửa")}
               </Link>
@@ -81,10 +92,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
           )}
           {submission.file && (
             <Button variant="outline" size="sm" asChild>
-              <a
-                href={fileUrl || ""}
-                download={submission.file.original_name}
-              >
+              <a href={fileUrl || ""} download={submission.file.original_name}>
                 <Download className="size-4 mr-2" />
                 {t("common.actions.download", "Tải xuống")}
               </a>
@@ -126,10 +134,16 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
                   <div className="flex flex-col items-center justify-center h-full p-8 text-center">
                     <FileText className="size-16 text-gray-400 mb-4" />
                     <p className="text-lg font-medium text-gray-700 mb-2">
-                      {t("dashboard.submission.details.previewNotAvailable", "Xem trước không khả dụng")}
+                      {t(
+                        "dashboard.submission.details.previewNotAvailable",
+                        "Xem trước không khả dụng",
+                      )}
                     </p>
                     <p className="text-sm text-gray-500 mb-4">
-                      {t("dashboard.submission.details.downloadToView", "Vui lòng tải xuống để xem file")}
+                      {t(
+                        "dashboard.submission.details.downloadToView",
+                        "Vui lòng tải xuống để xem file",
+                      )}
                     </p>
                     <Button variant="default" asChild>
                       <a href={fileUrl} download={submission.file?.original_name}>
@@ -378,30 +392,30 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
           )}
 
           {/* Metadata */}
-          {submission.information?.metadata && Object.keys(submission.information.metadata).length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">
-                  {t("dashboard.submission.details.metadata", "Metadata")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <dl className="space-y-2">
-                  {Object.entries(submission.information.metadata).map(([key, value]) => (
-                    <div key={key}>
-                      <dt className="text-xs font-medium text-gray-500 capitalize">
-                        {key.replace(/_/g, " ")}
-                      </dt>
-                      <dd className="text-sm">{String(value)}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </CardContent>
-            </Card>
-          )}
+          {submission.information?.metadata &&
+            Object.keys(submission.information.metadata).length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">
+                    {t("dashboard.submission.details.metadata", "Metadata")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <dl className="space-y-2">
+                    {Object.entries(submission.information.metadata).map(([key, value]) => (
+                      <div key={key}>
+                        <dt className="text-xs font-medium text-gray-500 capitalize">
+                          {key.replace(/_/g, " ")}
+                        </dt>
+                        <dd className="text-sm">{String(value)}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </CardContent>
+              </Card>
+            )}
         </div>
       </div>
     </div>
   )
 }
-

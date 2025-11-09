@@ -5,16 +5,19 @@ import { Badge } from "@/components/ui/badge"
 import { Calendar, ArrowRight } from "lucide-react"
 import type { Relationship } from "@/lib/mock-data/coi"
 import { format } from "date-fns"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface RelationshipTimelineProps {
   relationships: Relationship[]
 }
 
 export function RelationshipTimeline({ relationships }: RelationshipTimelineProps) {
+  const { t } = useTranslation()
+
   if (relationships.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground text-sm">
-        No relationship history available
+        {t("coi.timeline.noHistory")}
       </div>
     )
   }
@@ -30,13 +33,6 @@ export function RelationshipTimeline({ relationships }: RelationshipTimelineProp
       default:
         return "bg-gray-100 text-gray-800 border-gray-300"
     }
-  }
-
-  const getTypeLabel = (type: string) => {
-    return type
-      .split("_")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ")
   }
 
   // Sort by start date
@@ -62,9 +58,7 @@ export function RelationshipTimeline({ relationships }: RelationshipTimelineProp
               <div className="relative z-10 flex-shrink-0">
                 <div
                   className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${
-                    isActive
-                      ? getSeverityColor(rel.severity)
-                      : "bg-gray-100 border-gray-300"
+                    isActive ? getSeverityColor(rel.severity) : "bg-gray-100 border-gray-300"
                   }`}
                 >
                   <Calendar className="h-4 w-4" />
@@ -77,34 +71,42 @@ export function RelationshipTimeline({ relationships }: RelationshipTimelineProp
                   <div className="flex items-start justify-between gap-4 mb-2">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="outline">{getTypeLabel(rel.type)}</Badge>
+                        <Badge variant="outline">
+                          {t(`coi.relationshipTypes.${rel.type}`) || rel.type.replace(/_/g, " ")}
+                        </Badge>
                         <Badge className={getSeverityColor(rel.severity)} variant="outline">
-                          {rel.severity}
+                          {t(`coi.severity.${rel.severity}`) || rel.severity}
                         </Badge>
                         {isActive && (
                           <Badge variant="default" className="bg-green-600">
-                            Active
+                            {t("coi.timeline.active")}
                           </Badge>
                         )}
                       </div>
                       <p className="text-sm font-medium mb-1">{rel.description}</p>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <Calendar className="h-3 w-3" />
-                        <span>Started: {format(startDate, "MMM dd, yyyy")}</span>
+                        <span>
+                          {t("coi.timeline.started")} {format(startDate, "MMM dd, yyyy")}
+                        </span>
                         {endDate && (
                           <>
                             <ArrowRight className="h-3 w-3" />
-                            <span>Ended: {format(endDate, "MMM dd, yyyy")}</span>
+                            <span>
+                              {t("coi.timeline.ended")} {format(endDate, "MMM dd, yyyy")}
+                            </span>
                           </>
                         )}
-                        {!endDate && <span className="text-green-600">• Ongoing</span>}
+                        {!endDate && (
+                          <span className="text-green-600">• {t("coi.timeline.ongoing")}</span>
+                        )}
                       </div>
                     </div>
                   </div>
 
                   {rel.evidence && rel.evidence.length > 0 && (
                     <div className="mt-3 pt-3 border-t">
-                      <p className="text-xs font-medium mb-2">Evidence:</p>
+                      <p className="text-xs font-medium mb-2">{t("coi.timeline.evidence")}</p>
                       <ul className="text-xs space-y-1 list-disc list-inside opacity-90">
                         {rel.evidence.map((ev, i) => (
                           <li key={i}>{ev}</li>
@@ -121,4 +123,3 @@ export function RelationshipTimeline({ relationships }: RelationshipTimelineProp
     </div>
   )
 }
-

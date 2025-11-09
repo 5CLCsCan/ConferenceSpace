@@ -192,7 +192,7 @@ export function AuthorSubmissionsList() {
       </div>
 
       {/* Submissions List */}
-      <Card>
+      <Card className="gap-0 py-0">
         <CardContent className="p-0">
           {/* Header row */}
           <div className="hidden md:flex items-center gap-4 p-4 bg-gray-50 border-b font-medium text-sm text-gray-500">

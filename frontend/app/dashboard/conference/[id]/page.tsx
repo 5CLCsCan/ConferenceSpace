@@ -53,7 +53,10 @@ export default function ConferencePage() {
       { id: "dates" as TabType, label: t("dashboard.conference.details.tabs.dates") },
       { id: "committee" as TabType, label: t("dashboard.conference.details.tabs.committee") },
       { id: "submissions" as TabType, label: t("dashboard.conference.details.tabs.submissions") },
-      { id: "coi-demo" as TabType, label: t("dashboard.conference.details.tabs.coiDemo") || "COI Demo" },
+      {
+        id: "coi-demo" as TabType,
+        label: t("dashboard.conference.details.tabs.coiDemo") || "COI Demo",
+      },
     ],
     [t],
   )

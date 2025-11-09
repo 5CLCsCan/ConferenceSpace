@@ -110,28 +110,35 @@ export function FileTab({
       if (validation.isValid) {
         setUploadedFile(file)
         setValidationStatus("success")
-        
+
         // Run precheck if conference is available
         if (conference?.id) {
           setIsPrechecking(true)
           setPrecheckError(null)
           setPrecheckResult(null)
-          
+
           try {
             // Ensure conference ID is a string for the API call
             const conferenceId = String(conference.id)
             const precheckResponse = await precheckPaper(conferenceId, file)
-            
+
             if (precheckResponse.error) {
               setPrecheckError(precheckResponse.error)
             } else if (precheckResponse.data) {
               setPrecheckResult(precheckResponse.data)
             } else {
-              setPrecheckError(t("dashboard.author.submit.fileTab.precheckError") || "No data returned from precheck")
+              setPrecheckError(
+                t("dashboard.author.submit.fileTab.precheckError") ||
+                  "No data returned from precheck",
+              )
             }
           } catch (error) {
             console.error("Precheck error:", error)
-            setPrecheckError(error instanceof Error ? error.message : t("dashboard.author.submit.fileTab.precheckError"))
+            setPrecheckError(
+              error instanceof Error
+                ? error.message
+                : t("dashboard.author.submit.fileTab.precheckError"),
+            )
           } finally {
             setIsPrechecking(false)
           }
@@ -145,7 +152,9 @@ export function FileTab({
         if (fileInputRef.current) {
           fileInputRef.current.value = ""
         }
-        alert(`${t("dashboard.author.submit.fileTab.validationFailed") || "Validation failed"}:\n${validation.errors.join("\n")}`)
+        alert(
+          `${t("dashboard.author.submit.fileTab.validationFailed") || "Validation failed"}:\n${validation.errors.join("\n")}`,
+        )
       }
 
       setIsUploading(false)
@@ -163,9 +172,12 @@ export function FileTab({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-1">{t("dashboard.author.submit.fileTab.manuscriptFile") || "Manuscript File"}</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-1">
+          {t("dashboard.author.submit.fileTab.manuscriptFile") || "Manuscript File"}
+        </h2>
         <p className="text-sm text-gray-600">
-          {t("dashboard.author.submit.fileTab.uploadDescription") || "Upload anonymized PDF following the conference template"}
+          {t("dashboard.author.submit.fileTab.uploadDescription") ||
+            "Upload anonymized PDF following the conference template"}
         </p>
       </div>
       <div className="space-y-4">
@@ -190,8 +202,12 @@ export function FileTab({
               </div>
             ) : (
               <>
-                <p className="text-base text-gray-700 font-medium mb-1">{t("dashboard.author.submit.fileTab.uploadPdf") || "Upload PDF"}</p>
-                <p className="text-sm text-gray-500">{t("dashboard.author.submit.fileTab.noFileSelected") || "No file selected"}</p>
+                <p className="text-base text-gray-700 font-medium mb-1">
+                  {t("dashboard.author.submit.fileTab.uploadPdf") || "Upload PDF"}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {t("dashboard.author.submit.fileTab.noFileSelected") || "No file selected"}
+                </p>
               </>
             )}
           </div>
@@ -204,13 +220,12 @@ export function FileTab({
           {isPrechecking && (
             <div className="flex items-center justify-center gap-2 text-sm text-primary mt-4">
               <Loader2 className="size-4 animate-spin" />
-              {t("dashboard.author.submit.fileTab.precheckRunning") || "Running quality check on your paper..."}
+              {t("dashboard.author.submit.fileTab.precheckRunning") ||
+                "Running quality check on your paper..."}
             </div>
           )}
         </div>
-        {precheckResult && (
-          <PreCheckResults result={precheckResult} />
-        )}
+        {precheckResult && <PreCheckResults result={precheckResult} />}
         {precheckError && (
           <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
             <p className="text-sm text-destructive">{precheckError}</p>
@@ -218,7 +233,9 @@ export function FileTab({
         )}
         {uploadedFile && !precheckResult && !isPrechecking && (
           <div className="p-4 bg-gray-50 rounded-lg space-y-3">
-            <h4 className="text-sm font-medium text-gray-900">{t("dashboard.author.submit.fileTab.validationResults") || "Validation Results"}</h4>
+            <h4 className="text-sm font-medium text-gray-900">
+              {t("dashboard.author.submit.fileTab.validationResults") || "Validation Results"}
+            </h4>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm">
                 {validationChecklist.fileType === null ? (
