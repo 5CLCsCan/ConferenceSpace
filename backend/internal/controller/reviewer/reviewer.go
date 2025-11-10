@@ -379,3 +379,49 @@ func (c *Controller) GetConferencePapers(ginCtx *gin.Context, req *dto.GetConfer
 		Offset: req.Offset,
 	}, nil
 }
+
+// GetCompletedPapers godoc
+// @Summary      Get all completed papers for a reviewer across all conferences
+// @Description  Get all papers with assignment_status="completed" for a reviewer with pagination and search
+// @Tags         reviewers
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        reviewer_id path int true "Reviewer User ID"
+// @Param        limit query int false "Limit results (default: 20)"
+// @Param        offset query int false "Offset for pagination"
+// @Param        search query string false "Search by paper title"
+// @Success      200 {object} dto.GetCompletedPapersResponse
+// @Failure      400 {object} handler.Response
+// @Failure      401 {object} handler.Response
+// @Failure      500 {object} handler.Response
+// @Router       /reviewer/{reviewer_id}/completed-papers [get]
+func (c *Controller) GetCompletedPapers(ginCtx *gin.Context, req *dto.GetCompletedPapersRequest) (*dto.GetCompletedPapersResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	// Set default limit if not specified
+	if req.Limit == 0 {
+		req.Limit = 20
+	}
+
+	papers, total, err := c.reviewerStorage.GetCompletedPapers(ctx, req.ReviewerID, &reviewerStorage.PaperListParams{
+		Limit:  req.Limit,
+		Offset: req.Offset,
+		Search: req.Search,
+	})
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	// Ensure non-nil array
+	if papers == nil {
+		papers = []*dto.AssignedPaperResponse{}
+	}
+
+	return &dto.GetCompletedPapersResponse{
+		Papers: papers,
+		Total:  total,
+		Limit:  req.Limit,
+		Offset: req.Offset,
+	}, nil
+}

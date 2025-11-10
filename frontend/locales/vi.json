@@ -434,6 +434,7 @@
           "filters": "Bộ lọc & Tìm kiếm",
           "searchPlaceholder": "Tìm kiếm theo tiêu đề hoặc từ khóa...",
           "allConferences": "Tất cả hội nghị",
+          "filterByDate": "Lọc theo khoảng thời gian",
           "sortByDate": "Sắp xếp theo ngày",
           "sortByTitle": "Sắp xếp theo tiêu đề",
           "noResults": "Không có bài phản biện nào phù hợp với tiêu chí tìm kiếm",

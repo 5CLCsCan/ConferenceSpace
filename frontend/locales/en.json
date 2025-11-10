@@ -434,6 +434,7 @@
           "filters": "Filters & Search",
           "searchPlaceholder": "Search by title or keywords...",
           "allConferences": "All Conferences",
+          "filterByDate": "Filter by date range",
           "sortByDate": "Sort by Date",
           "sortByTitle": "Sort by Title",
           "noResults": "No reviews match your search criteria",

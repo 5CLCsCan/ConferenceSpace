@@ -231,6 +231,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 		{
 			reviewer.GET("/:reviewer_id/dashboard", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetDashboard))
 			reviewer.GET("/:reviewer_id/conferences/:conference_id/papers", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetConferencePapers))
+			reviewer.GET("/:reviewer_id/completed-papers", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetCompletedPapers))
 		}
 	}
 

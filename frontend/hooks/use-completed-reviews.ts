@@ -1,116 +1,93 @@
-import useSWR from "swr"
-import { swrConfig } from "@/lib/swr-config"
+import { useState, useEffect, useCallback } from "react"
+import { getCompletedPapers } from "@/lib/api/reviews"
 import type { AssignedPaper } from "@/lib/types"
 
-/**
- * Hook for fetching completed reviews
- * 
- * Currently returns mock data. To integrate with backend:
- * 1. Create backend endpoint: GET /api/v1/reviewer/:reviewerId/completed-reviews
- * 2. Backend should return papers with assignment_status: "completed"
- * 3. Replace mockFetcher with actual API call using apiFetch from @/lib/api/client
- * 
- * Example backend integration:
- * ```typescript
- * import { apiFetch } from "@/lib/api/client"
- * 
- * const fetcher = async () => {
- *   const { data } = await apiFetch<{ data: AssignedPaper[] }>(
- *     `/api/v1/reviewer/${reviewerId}/completed-reviews?limit=${limit}&offset=${offset}`
- *   )
- *   return data.data
- * }
- * ```
- */
-export function useCompletedReviews(
-  reviewerId: string | null,
-  options: { limit?: number; offset?: number } = {}
-) {
-  const key = reviewerId ? ["completed-reviews", reviewerId, JSON.stringify(options)] : null
+const PAGE_SIZE = 20
 
-  // Mock fetcher - replace with actual API call
-  const mockFetcher = async (): Promise<AssignedPaper[]> => {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 500))
+interface UseCompletedReviewsFilters {
+  search?: string
+}
 
-    // Mock data - this should come from backend
-    const mockReviews: AssignedPaper[] = [
-      {
-        id: "1",
-        title: "Deep Learning Approaches for Natural Language Processing",
-        abstract:
-          "This paper presents novel deep learning techniques for improving natural language understanding tasks. We propose a new architecture that combines transformer models with graph neural networks to capture both sequential and structural information in text.",
-        keywords: ["deep learning", "NLP", "transformers", "graph neural networks"],
-        authors: [
-          { name: "John Doe", email: "john@example.com", affiliation: "MIT" },
-          { name: "Jane Smith", email: "jane@example.com", affiliation: "Stanford" },
-        ],
-        conference_id: "1",
-        track_id: "ml",
-        status: "under_review",
-        submitted_at: "2024-01-15T10:00:00Z",
-        updated_at: "2024-02-20T14:30:00Z",
-        version: 2,
-        reviews: [],
-        assignment_status: "completed",
-        assigned_at: "2024-01-20T09:00:00Z",
-        assignment_id: 1,
-      },
-      {
-        id: "2",
-        title: "Quantum Computing Applications in Cryptography",
-        abstract:
-          "We explore the implications of quantum computing on modern cryptographic systems and propose quantum-resistant algorithms that can withstand attacks from quantum computers.",
-        keywords: ["quantum computing", "cryptography", "security", "post-quantum"],
-        authors: [
-          { name: "Alice Johnson", email: "alice@example.com", affiliation: "Oxford" },
-        ],
-        conference_id: "2",
-        track_id: "security",
-        status: "accepted",
-        submitted_at: "2024-01-10T08:00:00Z",
-        updated_at: "2024-02-15T16:45:00Z",
-        version: 1,
-        reviews: [],
-        assignment_status: "completed",
-        assigned_at: "2024-01-12T10:00:00Z",
-        assignment_id: 2,
-      },
-      {
-        id: "3",
-        title: "Federated Learning for Privacy-Preserving Machine Learning",
-        abstract:
-          "This work introduces a novel federated learning framework that enables collaborative model training while preserving data privacy. Our approach reduces communication overhead by 40% compared to existing methods.",
-        keywords: ["federated learning", "privacy", "machine learning", "distributed systems"],
-        authors: [
-          { name: "Bob Wilson", email: "bob@example.com", affiliation: "CMU" },
-          { name: "Carol Davis", email: "carol@example.com", affiliation: "Berkeley" },
-        ],
-        conference_id: "1",
-        track_id: "ml",
-        status: "under_review",
-        submitted_at: "2024-02-01T11:00:00Z",
-        updated_at: "2024-03-10T13:20:00Z",
-        version: 1,
-        reviews: [],
-        assignment_status: "completed",
-        assigned_at: "2024-02-05T09:30:00Z",
-        assignment_id: 3,
-      },
-    ]
+export function useCompletedReviews(reviewerId: string, filters?: UseCompletedReviewsFilters) {
+  const [reviews, setReviews] = useState<AssignedPaper[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [hasMore, setHasMore] = useState(false)
+  const [currentOffset, setCurrentOffset] = useState(0)
 
-    return mockReviews
-  }
+  const loadReviews = useCallback(
+    async (reset: boolean = false) => {
+      if (!reviewerId) return
 
-  const { data, error, isLoading, mutate } = useSWR(key, mockFetcher, {
-    ...swrConfig,
-    dedupingInterval: 300000, // Cache for 5 minutes
-  })
+      if (reset) {
+        setIsLoading(true)
+        setReviews([])
+        setCurrentOffset(0)
+      } else {
+        setIsLoadingMore(true)
+      }
+
+      try {
+        // Load paginated papers from completed-papers API with filters
+        const offset = reset ? 0 : currentOffset
+        const response = await getCompletedPapers(reviewerId, {
+          limit: PAGE_SIZE,
+          offset,
+          search: filters?.search,
+        })
+
+        if (response.error) {
+          setError(response.error)
+          return
+        }
+
+        const newReviews = response.data || []
+        const total = response.total
+
+        if (reset) {
+          setReviews(newReviews)
+          setCurrentOffset(newReviews.length)
+        } else {
+          // Avoid duplicates
+          setReviews((prev) => {
+            const existingIds = new Set(prev.map((r) => r.id))
+            const uniqueNew = newReviews.filter((r) => !existingIds.has(r.id))
+            return [...prev, ...uniqueNew]
+          })
+          setCurrentOffset((prev) => prev + newReviews.length)
+        }
+
+        const totalLoaded = reset ? newReviews.length : currentOffset + newReviews.length
+        setHasMore(totalLoaded < total)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load completed reviews")
+      } finally {
+        setIsLoading(false)
+        setIsLoadingMore(false)
+      }
+    },
+    [reviewerId, currentOffset, filters?.search],
+  )
+
+  useEffect(() => {
+    loadReviews(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reviewerId, filters?.search])
+
+  const loadMore = useCallback(() => {
+    if (!isLoading && !isLoadingMore && hasMore) {
+      loadReviews(false)
+    }
+  }, [isLoading, isLoadingMore, hasMore, loadReviews])
 
   return {
-    reviews: data || [],
+    reviews,
     isLoading,
-    error: error?.message || null,
-    refresh: mutate,
+    isLoadingMore,
+    error,
+    hasMore,
+    loadMore,
+    refresh: () => loadReviews(true),
   }
 }

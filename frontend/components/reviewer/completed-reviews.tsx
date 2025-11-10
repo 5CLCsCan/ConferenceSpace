@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,80 +14,69 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
-  CheckCircle2,
   Search,
-  Calendar,
   FileText,
   Eye,
   Filter,
   Loader2,
-  Award,
+  CheckCircle2,
+  Calendar,
+  ArrowUpDown,
 } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { formatDate } from "@/lib/utils"
 import type { AssignedPaper } from "@/lib/types"
+import { useCompletedReviews } from "@/hooks/use-completed-reviews"
+import { useDebounce } from "@/hooks/use-debounce"
 
 interface CompletedReviewsProps {
-  reviews: AssignedPaper[]
-  onSelectPaper: (paperId: string, conferenceId: string) => void
-  onLoadMore?: () => void
-  hasMore?: boolean
-  isLoadingMore?: boolean
+  reviewerId?: string
+  onSelectPaper?: (paperId: string, conferenceId: string) => void
 }
 
-export function CompletedReviews({
-  reviews,
-  onSelectPaper,
-  onLoadMore,
-  hasMore = false,
-  isLoadingMore = false,
-}: CompletedReviewsProps) {
+export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviewsProps) {
   const { t } = useTranslation()
+  const router = useRouter()
+
+  const currentReviewerId = reviewerId || "1"
+
   const [searchQuery, setSearchQuery] = useState("")
-  const [conferenceFilter, setConferenceFilter] = useState<string>("all")
   const [sortBy, setSortBy] = useState<"date" | "title">("date")
-  const [currentMonth, setCurrentMonth] = useState<{ month: number; year: number } | null>(null)
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
-  // Set current month on client side only to avoid hydration mismatch
-  useEffect(() => {
-    const now = new Date()
-    setCurrentMonth({ month: now.getMonth(), year: now.getFullYear() })
-  }, [])
+  // Debounce search to avoid excessive API calls
+  const debouncedSearch = useDebounce(searchQuery, 500)
 
-  // Extract unique conferences from reviews
-  const conferences = Array.from(
-    new Set(reviews.map((r) => JSON.stringify({ id: r.conference_id, name: r.conference_id }))),
-  ).map((str) => JSON.parse(str))
+  const {
+    reviews,
+    isLoading,
+    isLoadingMore,
+    hasMore,
+    loadMore,
+    refresh,
+  } = useCompletedReviews(currentReviewerId, {
+    search: debouncedSearch,
+  })
 
-  // Filter and sort reviews
-  const filteredReviews = reviews
-    .filter((review) => {
-      const matchesSearch =
-        searchQuery === "" ||
-        review.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        review.keywords?.some((k) => k.toLowerCase().includes(searchQuery.toLowerCase()))
-
-      const matchesConference =
-        conferenceFilter === "all" || review.conference_id === conferenceFilter
-
-      return matchesSearch && matchesConference
-    })
-    .sort((a, b) => {
-      if (sortBy === "date") {
-        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-      }
-      return a.title.localeCompare(b.title)
-    })
+  // Sort reviews client-side (only for current page)
+  const sortedReviews = [...reviews].sort((a, b) => {
+    if (sortBy === "date") {
+      const comparison = new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      return sortOrder === "asc" ? -comparison : comparison
+    }
+    const comparison = a.title.localeCompare(b.title)
+    return sortOrder === "asc" ? comparison : -comparison
+  })
 
   // Infinite scroll observer
   useEffect(() => {
-    if (!onLoadMore || !hasMore || isLoadingMore) return
+    if (!loadMore || !hasMore || isLoadingMore) return
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          onLoadMore()
+          loadMore()
         }
       },
       { threshold: 0.1 },
@@ -102,7 +92,13 @@ export function CompletedReviews({
         observer.unobserve(currentRef)
       }
     }
-  }, [onLoadMore, hasMore, isLoadingMore])
+  }, [loadMore, hasMore, isLoadingMore])
+
+  const handleSelect = (paperId: string, conferenceId: string) => {
+    if (onSelectPaper) return onSelectPaper(paperId, conferenceId)
+    const conferenceParam = conferenceId ? `?conference_id=${conferenceId}` : ""
+    router.push(`/dashboard/reviewer/papers/${paperId}${conferenceParam}`)
+  }
 
   return (
     <div className="space-y-6">
@@ -116,64 +112,6 @@ export function CompletedReviews({
         </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t("dashboard.roles.reviewer.completedReviews.totalCompleted")}
-            </CardTitle>
-            <CheckCircle2 className="size-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{reviews.length}</div>
-            <p className="text-xs text-muted-foreground">
-              {t("dashboard.roles.reviewer.completedReviews.allTime")}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t("dashboard.roles.reviewer.completedReviews.conferences")}
-            </CardTitle>
-            <Award className="size-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{conferences.length}</div>
-            <p className="text-xs text-muted-foreground">
-              {t("dashboard.roles.reviewer.completedReviews.uniqueConferences")}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t("dashboard.roles.reviewer.completedReviews.thisMonth")}
-            </CardTitle>
-            <Calendar className="size-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {currentMonth
-                ? reviews.filter((r) => {
-                    const reviewDate = new Date(r.updated_at)
-                    return (
-                      reviewDate.getMonth() === currentMonth.month &&
-                      reviewDate.getFullYear() === currentMonth.year
-                    )
-                  }).length
-                : 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {t("dashboard.roles.reviewer.completedReviews.currentMonth")}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Filters */}
       <Card>
         <CardHeader>
@@ -183,8 +121,8 @@ export function CompletedReviews({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="relative">
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
                 placeholder={t("dashboard.roles.reviewer.completedReviews.searchPlaceholder")}
@@ -194,26 +132,8 @@ export function CompletedReviews({
               />
             </div>
 
-            <Select value={conferenceFilter} onValueChange={setConferenceFilter}>
-              <SelectTrigger>
-                <SelectValue
-                  placeholder={t("dashboard.roles.reviewer.completedReviews.allConferences")}
-                />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">
-                  {t("dashboard.roles.reviewer.completedReviews.allConferences")}
-                </SelectItem>
-                {conferences.map((conf) => (
-                  <SelectItem key={conf.id} value={conf.id}>
-                    {conf.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
             <Select value={sortBy} onValueChange={(value) => setSortBy(value as "date" | "title")}>
-              <SelectTrigger>
+              <SelectTrigger className="w-[200px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -225,25 +145,49 @@ export function CompletedReviews({
                 </SelectItem>
               </SelectContent>
             </Select>
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))}
+              title={sortOrder === "asc" ? "Ascending" : "Descending"}
+            >
+              <ArrowUpDown className="size-4" />
+            </Button>
+
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                onClick={() => setSearchQuery("")}
+              >
+                Clear
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
 
       {/* Reviews List */}
       <div className="space-y-4">
-        {filteredReviews.length === 0 ? (
+        {isLoading ? (
+          <Card>
+            <CardContent className="flex items-center justify-center py-12">
+              <Loader2 className="size-8 animate-spin text-muted-foreground" />
+            </CardContent>
+          </Card>
+        ) : sortedReviews.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <CheckCircle2 className="size-12 text-muted-foreground mb-4" />
               <p className="text-lg font-medium text-muted-foreground">
-                {searchQuery || conferenceFilter !== "all"
+                {debouncedSearch
                   ? t("dashboard.roles.reviewer.completedReviews.noResults")
                   : t("dashboard.roles.reviewer.completedReviews.noCompletedReviews")}
               </p>
             </CardContent>
           </Card>
         ) : (
-          filteredReviews.map((review) => (
+          sortedReviews.map((review) => (
             <Card key={review.id} className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">
@@ -280,7 +224,7 @@ export function CompletedReviews({
                     <div className="flex items-center gap-2">
                       <Calendar className="size-4" />
                       <span>
-                        {t("dashboard.roles.reviewer.completedReviews.completedOn")}:{" "}
+                        {t("dashboard.roles.reviewer.completedReviews.completedOn")}: {" "}
                         {formatDate(review.updated_at)}
                       </span>
                     </div>
@@ -297,7 +241,7 @@ export function CompletedReviews({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onSelectPaper(review.id, review.conference_id)}
+                      onClick={() => handleSelect(review.id, review.conference_id)}
                       className="gap-2"
                     >
                       <Eye className="size-4" />
