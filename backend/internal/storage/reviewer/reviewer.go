@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/dcao/conferencespace/internal/dto"
@@ -21,13 +22,14 @@ type StorageInterface interface {
 	List(ctx context.Context, conferenceID int64, params *ListParams) ([]*dto.Reviewer, int64, error)
 	UpdateStatus(ctx context.Context, id int64, status string) (*dto.Reviewer, error)
 	Delete(ctx context.Context, id int64) error
-	
+
 	// Reviewer Dashboard methods
 	GetConferencesByReviewer(ctx context.Context, reviewerID int64, params *ConferenceListParams) ([]*dto.ReviewerConference, int64, error)
 	GetPendingInvitations(ctx context.Context, reviewerID int64, params *InvitationListParams) ([]*dto.ReviewInvitation, int64, error)
 	GetReviewerStats(ctx context.Context, reviewerID int64) (*dto.ReviewerStats, error)
 	GetRecentAssignments(ctx context.Context, reviewerID int64, limit int, offset int) ([]*dto.AssignmentWithPaper, int64, error)
 	GetAssignedPapers(ctx context.Context, reviewerID, conferenceID int64, params *PaperListParams) ([]*dto.AssignedPaperResponse, int64, error)
+	GetCompletedPapers(ctx context.Context, reviewerID int64, params *PaperListParams) ([]*dto.AssignedPaperResponse, int64, error)
 }
 
 type ListParams struct {
@@ -217,7 +219,7 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Reviewer, error) 
 		&result.Domain,
 		&result.CreatedAt,
 		&result.UpdatedAt,
-		&result.UserEmail, // From JOIN with users table
+		&result.UserEmail,
 	)
 
 	if err == sql.ErrNoRows {
@@ -252,7 +254,7 @@ func (s *Storage) GetByUserAndConference(ctx context.Context, userID, conference
 		&result.Domain,
 		&result.CreatedAt,
 		&result.UpdatedAt,
-		&result.UserEmail, // From JOIN with users table
+		&result.UserEmail,
 	)
 
 	if err == sql.ErrNoRows {
@@ -311,7 +313,6 @@ func (s *Storage) List(ctx context.Context, conferenceID int64, params *ListPara
 	}
 	defer rows.Close()
 
-
 	var results []*model.Reviewer
 	for rows.Next() {
 		result := &model.Reviewer{}
@@ -323,7 +324,7 @@ func (s *Storage) List(ctx context.Context, conferenceID int64, params *ListPara
 			&result.Domain,
 			&result.CreatedAt,
 			&result.UpdatedAt,
-			&result.UserEmail, // From JOIN with users table
+			&result.UserEmail,
 		)
 		if err != nil {
 			return nil, 0, fmt.Errorf("failed to scan reviewer: %w", err)
@@ -494,7 +495,7 @@ func (s *Storage) GetConferencesByReviewer(ctx context.Context, reviewerID int64
 		var title, acronym, description sql.NullString
 		var primaryContact, areaChair sql.NullInt64
 		var totalPapers, reviewedPapers int
-		
+
 		err := rows.Scan(
 			&conf.ConferenceID,
 			&title,
@@ -811,6 +812,161 @@ func (s *Storage) GetRecentAssignments(ctx context.Context, reviewerID int64, li
 	}
 
 	return results, total, nil
+}
+
+// GetCompletedPapers retrieves all completed papers for a reviewer across all conferences with pagination
+func (s *Storage) GetCompletedPapers(ctx context.Context, reviewerID int64, params *PaperListParams) ([]*dto.AssignedPaperResponse, int64, error) {
+	baseQuery := s.qb.
+		Select(
+			"cs.submission_id",
+			"cs.conference_id",
+			"cs.author",
+			"cs.title",
+			"cs.abstract",
+			"cs.link",
+			"cs.domain",
+			"cs.status",
+			"cs.information",
+			"cs.file_path",
+			"cs.file_original_name",
+			"cs.file_size",
+			"cs.file_mime_type",
+			"cs.created_at",
+			"cs.updated_at",
+			"pa.id as assignment_id",
+			"pa.status as assignment_status",
+			"pa.assigned_at",
+		).
+		From("conference_submissions cs").
+		Join("paper_assignments pa ON cs.submission_id = pa.submission_id").
+		Join("conference_reviewers cr ON pa.reviewer_id = cr.id").
+		Where(sq.And{
+			sq.Eq{"cr.user_id": reviewerID},
+			sq.Eq{"pa.status": "completed"}, // Only completed papers
+		})
+
+	// Count query for total
+	countQuery := s.qb.
+		Select("COUNT(*)").
+		From("conference_submissions cs").
+		Join("paper_assignments pa ON cs.submission_id = pa.submission_id").
+		Join("conference_reviewers cr ON pa.reviewer_id = cr.id").
+		Where(sq.And{
+			sq.Eq{"cr.user_id": reviewerID},
+			sq.Eq{"pa.status": "completed"},
+		})
+
+	// Apply search filter if provided
+	if params.Search != "" {
+		searchPattern := "%" + params.Search + "%"
+		searchCondition := sq.ILike{"cs.title": searchPattern}
+		baseQuery = baseQuery.Where(searchCondition)
+		countQuery = countQuery.Where(searchCondition)
+	}
+
+	// Get total count
+	countQueryStr, countArgs, err := countQuery.ToSql()
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to build count query: %w", err)
+	}
+
+	var total int64
+	err = s.db.QueryRowContext(ctx, countQueryStr, countArgs...).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to count papers: %w", err)
+	}
+
+	// Apply ordering - most recent first
+	baseQuery = baseQuery.OrderBy("pa.assigned_at DESC")
+
+	// Apply pagination
+	if params.Limit > 0 {
+		baseQuery = baseQuery.Limit(uint64(params.Limit))
+	}
+	if params.Offset > 0 {
+		baseQuery = baseQuery.Offset(uint64(params.Offset))
+	}
+
+	query, args, err := baseQuery.ToSql()
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to build query: %w", err)
+	}
+
+	rows, err := s.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to query papers: %w", err)
+	}
+	defer rows.Close()
+
+	var papers []*dto.AssignedPaperResponse
+	for rows.Next() {
+		var paper dto.AssignedPaperResponse
+		paper.Submission = &dto.Submission{}
+		var information []byte
+		var filePath, fileOriginalName, fileMimeType sql.NullString
+		var fileSize sql.NullInt64
+		var createdAt, updatedAt time.Time
+
+		err := rows.Scan(
+			&paper.Submission.ID,
+			&paper.Submission.ConferenceID,
+			&paper.Submission.Author,
+			&paper.Submission.Title,
+			&paper.Submission.Abstract,
+			&paper.Submission.Link,
+			(*pq.StringArray)(&paper.Submission.Domain),
+			&paper.Submission.Status,
+			&information,
+			&filePath,
+			&fileOriginalName,
+			&fileSize,
+			&fileMimeType,
+			&createdAt,
+			&updatedAt,
+			&paper.AssignmentID,
+			&paper.AssignmentStatus,
+			&paper.AssignedAt,
+		)
+		if err != nil {
+			return nil, 0, fmt.Errorf("failed to scan paper: %w", err)
+		}
+
+		paper.Submission.CreatedAt = createdAt
+		paper.Submission.UpdatedAt = updatedAt
+
+		// Unmarshal information JSONB
+		if len(information) > 0 {
+			err = json.Unmarshal(information, &paper.Submission.Information)
+			if err != nil {
+				return nil, 0, fmt.Errorf("failed to unmarshal information: %w", err)
+			}
+		}
+
+		// Handle file metadata
+		if filePath.Valid || fileOriginalName.Valid || fileSize.Valid || fileMimeType.Valid {
+			paper.Submission.File = &dto.SubmissionFileMetadata{}
+			if filePath.Valid {
+				paper.Submission.File.Path = filePath.String
+			}
+			if fileOriginalName.Valid {
+				paper.Submission.File.OriginalName = fileOriginalName.String
+			}
+			if fileSize.Valid {
+				paper.Submission.File.Size = fileSize.Int64
+			}
+			if fileMimeType.Valid {
+				paper.Submission.File.MimeType = fileMimeType.String
+			}
+		}
+
+		papers = append(papers, &paper)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, 0, fmt.Errorf("error iterating papers: %w", err)
+	}
+
+	return papers, total, nil
 }
 
 // GetAssignedPapers retrieves papers assigned to reviewer in a specific conference with pagination and filters

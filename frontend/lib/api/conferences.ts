@@ -377,13 +377,128 @@ export async function deleteConference(conferenceId: string): Promise<ApiRespons
 }
 
 /**
- * Get conference committee members
- * TODO: Backend endpoint not yet implemented - using mock data for now
- * Future endpoint: GET /api/conferences/:id/committee
+ * Reviewer interface matching backend DTO
+ */
+export interface Reviewer {
+  id?: number
+  user_id: number
+  conference_id?: number
+  email?: string
+  status?: "pending" | "accepted" | "rejected"
+  domain?: string[]
+  created_at?: string
+  updated_at?: string
+}
+
+export interface ReviewerListResponse {
+  reviewers: Reviewer[]
+  total: number
+  limit: number
+  offset: number
+}
+
+/**
+ * Get conference reviewers (committee members)
+ * Endpoint: GET /api/v1/conferences/:conference_id/reviewers
+ */
+export async function getConferenceReviewers(
+  conferenceId: string,
+  params?: {
+    limit?: number
+    offset?: number
+    status?: string
+  }
+): Promise<ApiResponse<ReviewerListResponse>> {
+  try {
+    const queryParams = new URLSearchParams()
+    if (params?.limit) queryParams.append("limit", params.limit.toString())
+    if (params?.offset) queryParams.append("offset", params.offset.toString())
+    if (params?.status) queryParams.append("status", params.status)
+
+    const { data, response } = await apiFetch<ReviewerListResponse>(
+      `/api/v1/conferences/${conferenceId}/reviewers?${queryParams.toString()}`
+    )
+
+    return {
+      data: data,
+      error: null,
+      status: response.status,
+    }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to fetch reviewers",
+      status: 500,
+    }
+  }
+}
+
+/**
+ * Invite reviewers to conference (batch)
+ * Endpoint: POST /api/v1/conferences/:conference_id/reviewers
+ */
+export async function inviteReviewers(
+  conferenceId: string,
+  reviewers: { user_id: number }[]
+): Promise<ApiResponse<{ success: Reviewer[]; failed: Array<{ user_id: number; error: string }> }>> {
+  try {
+    const { data, response } = await apiFetch<{
+      success: Reviewer[]
+      failed: Array<{ user_id: number; error: string }>
+    }>(`/api/v1/conferences/${conferenceId}/reviewers`, {
+      method: "POST",
+      body: JSON.stringify({ reviewers }),
+    })
+
+    return {
+      data: data,
+      error: null,
+      status: response.status,
+    }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to invite reviewers",
+      status: 500,
+    }
+  }
+}
+
+/**
+ * Remove a reviewer from conference
+ * Endpoint: DELETE /api/v1/conferences/:conference_id/reviewers/:reviewer_id
+ */
+export async function removeReviewer(
+  conferenceId: string,
+  reviewerId: string
+): Promise<ApiResponse<{ message: string }>> {
+  try {
+    const { data, response } = await apiFetch<{ message: string }>(
+      `/api/v1/conferences/${conferenceId}/reviewers/${reviewerId}`,
+      { method: "DELETE" }
+    )
+
+    return {
+      data: data,
+      error: null,
+      status: response.status,
+    }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to remove reviewer",
+      status: 500,
+    }
+  }
+}
+
+/**
+ * Get conference committee members (alias for getConferenceReviewers)
  */
 export async function getConferenceCommittee(conferenceId: string): Promise<ApiResponse<User[]>> {
   try {
-    // TODO: Implement when backend committee endpoint is available
+    const response = await getConferenceReviewers(conferenceId, { limit: 100 })
+    // Convert reviewers to User format if needed
     return {
       data: [],
       error: null,

@@ -191,6 +191,76 @@
         "currentRole": "Vai trò hiện tại",
         "switchRole": "Chuyển vai trò (chế độ Dev)",
         "loggedInAs": "Đăng nhập với tư cách"
+      },
+      "committee": {
+        "chairInfo": {
+          "title": "Chủ tịch hội nghị",
+          "description": "Thông tin về chủ tịch hội nghị",
+          "chair": "Chủ tịch",
+          "contact": "Liên hệ chính",
+          "viewProfile": "Xem hồ sơ"
+        },
+        "reviewers": {
+          "title": "Phản biện",
+          "description": "Quản lý phản biện hội nghị",
+          "count": "phản biện",
+          "unknown": "Phản biện chưa rõ danh tính"
+        },
+        "actions": {
+          "invite": "Mời phản biện",
+          "sendInvite": "Gửi lời mời",
+          "viewProfile": "Xem hồ sơ",
+          "loadMore": "Xem thêm"
+        },
+        "dialog": {
+          "inviteTitle": "Mời phản biện",
+          "inviteDescription": "Tìm kiếm và chọn người dùng bằng email để mời làm phản biện cho hội nghị này.",
+          "inviteSuccessBannerTitle": "Đã gửi lời mời",
+          "inviteSuccessAutoClose": "Hộp thoại sẽ tự đóng sau giây lát.",
+          "removeTitle": "Xóa phản biện",
+          "removeDescription": "Bạn có chắc chắn muốn xóa phản biện này khỏi hội nghị?",
+          "userId": "ID người dùng",
+          "userIdHint": "Nhập ID người dùng dạng số của phản biện",
+          "userEmail": "Địa chỉ Email",
+          "userEmailHint": "Bắt đầu nhập để tìm kiếm người dùng theo địa chỉ email",
+          "userSelected": "Đã chọn người dùng",
+          "noUserFound": "Không tìm thấy người dùng với email này"
+        },
+        "status": {
+          "pending": "Đang chờ",
+          "accepted": "Đã chấp nhận",
+          "rejected": "Đã từ chối"
+        },
+        "search": {
+          "placeholder": "Tìm kiếm theo email hoặc ID..."
+        },
+        "filter": {
+          "placeholder": "Lọc theo trạng thái",
+          "all": "Tất cả phản biện",
+          "pending": "Đang chờ",
+          "accepted": "Đã chấp nhận",
+          "rejected": "Đã từ chối"
+        },
+        "empty": {
+          "title": "Không tìm thấy phản biện",
+          "description": "Không có phản biện nào khớp với tiêu chí tìm kiếm. Thử điều chỉnh bộ lọc hoặc mời phản biện mới vào hội nghị."
+        },
+        "errors": {
+          "loadFailed": "Không thể tải dữ liệu ban tổ chức",
+          "invalidUserId": "ID người dùng không hợp lệ",
+          "userIdRequired": "Yêu cầu nhập ID người dùng",
+          "inviteFailed": "Không thể gửi lời mời",
+          "inviteIssues": "Một số lời mời chưa được gửi",
+          "inviteFix": "Vui lòng kiểm tra thông báo bên dưới và thử lại.",
+          "inviteUnknown": "Lỗi không xác định",
+          "removeFailed": "Không thể xóa phản biện"
+        },
+        "toast": {
+          "inviteSuccess": "Đã gửi lời mời",
+          "inviteSuccessDescription": "Lời mời phản biện đã được gửi thành công.",
+          "removeSuccess": "Đã xóa phản biện",
+          "removeSuccessDescription": "Phản biện đã được xóa khỏi hội nghị."
+        }
       }
     },
     "header": {
@@ -257,7 +327,8 @@
         "nav": {
           "overview": "Tổng quan",
           "myConferences": "Hội nghị của tôi",
-          "invitations": "Lời mời"
+          "invitations": "Lời mời",
+          "completedReviews": "Phản biện đã hoàn thành"
         },
         "stats": {
           "totalConferences": "Tổng số hội nghị",
@@ -352,6 +423,27 @@
             "description": "Bạn chưa được giao bài báo nào cho hội nghị này. Các bài báo sẽ xuất hiện ở đây khi chủ tọa hội nghị phân công cho bạn."
           }
         },
+        "completedReviews": {
+          "description": "Xem tất cả các bài phản biện đã hoàn thành và theo dõi lịch sử đóng góp của bạn",
+          "totalCompleted": "Tổng số đã hoàn thành",
+          "allTime": "Tất cả thời gian",
+          "conferences": "Hội nghị",
+          "uniqueConferences": "Hội nghị khác nhau",
+          "thisMonth": "Tháng này",
+          "currentMonth": "Tháng hiện tại",
+          "filters": "Bộ lọc & Tìm kiếm",
+          "searchPlaceholder": "Tìm kiếm theo tiêu đề hoặc từ khóa...",
+          "allConferences": "Tất cả hội nghị",
+          "filterByDate": "Lọc theo khoảng thời gian",
+          "sortByDate": "Sắp xếp theo ngày",
+          "sortByTitle": "Sắp xếp theo tiêu đề",
+          "noResults": "Không có bài phản biện nào phù hợp với tiêu chí tìm kiếm",
+          "noCompletedReviews": "Bạn chưa hoàn thành bài phản biện nào",
+          "completed": "Đã hoàn thành",
+          "completedOn": "Hoàn thành vào",
+          "version": "Phiên bản",
+          "viewReview": "Xem phản biện"
+        },
         "review": {
           "reviewing": "Đang phản biện",
           "submittedOn": "Gửi vào ngày {{date}}",
@@ -363,7 +455,8 @@
             "paperNotFound": "Không tìm thấy bài báo",
             "conferenceIdRequired": "Cần có ID hội nghị",
             "fetchPaperFailed": "Không thể tải bài báo",
-            "unknownError": "Đã xảy ra lỗi"
+            "unknownError": "Đã xảy ra lỗi",
+            "noData": "Không có dữ liệu"
           },
           "loadingPaper": "Đang tải bài báo...",
           "tabs": {

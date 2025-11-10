@@ -180,6 +180,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 		users.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
 			users.GET("/me", handler.HandleNoRequest(ctrl.User.GetMe))
+			users.GET("/search", handler.HandleNoRequest(ctrl.User.Search))
 			users.GET("", handler.HandleRequestWithQuery(ctrl.User.List))
 			users.GET("/:id", handler.HandleNoRequest(ctrl.User.Get))
 			users.GET("/:id/coi-check", handler.HandleRequestWithURIAndQuery(ctrl.User.CheckCOI))
@@ -230,6 +231,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 		{
 			reviewer.GET("/:reviewer_id/dashboard", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetDashboard))
 			reviewer.GET("/:reviewer_id/conferences/:conference_id/papers", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetConferencePapers))
+			reviewer.GET("/:reviewer_id/completed-papers", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetCompletedPapers))
 		}
 	}
 
