@@ -15,8 +15,6 @@ export default function ChairPage() {
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/login")
-    } else if (user && !user.roles.includes("chair")) {
-      router.push("/dashboard")
     }
   }, [isAuthenticated, user, router])
 

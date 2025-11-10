@@ -291,6 +291,7 @@
       }
     },
     "roles": {
+      "assigned": "Assigned",
       "author": {
         "name": "Author",
         "description": "Submit and monitor your papers",

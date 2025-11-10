@@ -90,11 +90,10 @@ export default function DashboardPage() {
     router.push("/")
   }
 
-  // Filter roles to only include valid dashboard roles that exist in user.roles
-  // This ensures we only show roles that have configurations and dashboard pages
-  const availableRoles = user.roles.filter(
-    (role): role is UserRole =>
-      VALID_DASHBOARD_ROLES.includes(role as UserRole) && role in roleConfig,
+  // Display all 3 main roles (author, reviewer, chair) regardless of user's actual roles
+  // This allows users to select and operate as any of these roles
+  const availableRoles = VALID_DASHBOARD_ROLES.filter(
+    (role): role is UserRole => role in roleConfig,
   )
 
   return (
@@ -150,6 +149,7 @@ export default function DashboardPage() {
               }
 
               const Icon = config.icon
+              const hasRole = true
 
               return (
                 <Card
@@ -159,10 +159,17 @@ export default function DashboardPage() {
                 >
                   <CardHeader>
                     <div className="flex items-start justify-between mb-4">
-                      <div
-                        className={`w-12 h-12 rounded-lg ${config.color} flex items-center justify-center`}
-                      >
-                        <Icon className="w-6 h-6 text-white" />
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-12 h-12 rounded-lg ${config.color} flex items-center justify-center`}
+                        >
+                          <Icon className="w-6 h-6 text-white" />
+                        </div>
+                        {hasRole && (
+                          <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
+                            {t("dashboard.roles.assigned")}
+                          </span>
+                        )}
                       </div>
                       <Button
                         variant="outline"

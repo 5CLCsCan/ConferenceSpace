@@ -253,7 +253,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const switchRole = useCallback(
     (role: UserRole) => {
-      if (user && user.roles.includes(role)) {
+      // Allow switching to any valid role, not just roles the user has
+      // This enables role-based UI testing and multi-role operations
+      if (user && VALID_USER_ROLES.includes(role)) {
         setCurrentRole(role)
         localStorage.setItem(ROLE_STORAGE_KEY, role)
       }

@@ -291,6 +291,7 @@
       }
     },
     "roles": {
+      "assigned": "Đã được gán",
       "author": {
         "name": "Tác giả",
         "description": "Gửi và theo dõi tiến độ bài của bạn",
