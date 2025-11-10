@@ -275,7 +275,7 @@
           "completed": "Completed reviews"
         },
         "chair": {
-          "overview": "Overview",
+          "overview": "Dashboard",
           "papers": "All papers",
           "reviewers": "Reviewers"
         }
@@ -614,6 +614,7 @@
         "actionItems": "Action Items",
         "conferenceManagement": "Conference Management",
         "yourConferences": "Your Conferences",
+        "discoverConferences": "Discover Conferences",
         "searchPlaceholder": "Search conferences...",
         "filterByStatus": "Filter by Status",
         "tableHeaders": {
@@ -626,7 +627,7 @@
         "messages": {
           "loading": "Loading conferences...",
           "error": "Error",
-          "noConferencesFound": "No conferences found. Create your first conference!"
+          "noConferencesFound": "No conferences found."
         },
         "platformUpdates": {
           "title": "Platform Updates",
@@ -998,6 +999,16 @@
         "downloadToView": "Please download to view the file",
         "noFile": "No file attached",
         "viewExternalLink": "View external link"
+      },
+      "tabs": {
+        "overview": "Overview",
+        "preview": "Preview",
+        "coi": "COI",
+        "coverLetter": "Cover Letter"
+      },
+      "coi": {
+        "description": "Conflicts of interest declared for this submission",
+        "notAvailable": "COI information not available"
       },
       "error": {
         "title": "Error"

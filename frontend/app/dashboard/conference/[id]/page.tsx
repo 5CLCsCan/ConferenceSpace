@@ -51,14 +51,17 @@ export default function ConferencePage() {
         label: t("dashboard.conference.details.tabs.callForPapers"),
       },
       { id: "dates" as TabType, label: t("dashboard.conference.details.tabs.dates") },
-      { id: "committee" as TabType, label: t("dashboard.conference.details.tabs.committee") },
+      { 
+        id: "committee" as TabType, 
+        label: currentRole === "chair" ? "Reviewers" : t("dashboard.conference.details.tabs.committee") 
+      },
       { id: "submissions" as TabType, label: t("dashboard.conference.details.tabs.submissions") },
       {
         id: "coi-demo" as TabType,
         label: t("dashboard.conference.details.tabs.coiDemo") || "COI Demo",
       },
     ],
-    [t],
+    [t, currentRole],
   )
 
   const roleConfig = useMemo(
@@ -102,8 +105,8 @@ export default function ConferencePage() {
         <aside className="w-64 border-r border-gray-200 bg-white overflow-y-auto">
           <div className="sticky top-0">
             <div className="border-b border-gray-200 p-6">
-              <h2 className="text-lg font-bold text-gray-900">{conference.acronym}</h2>
-              <p className="mt-1 text-sm text-gray-600">{conference.year}</p>
+              <h2 className="text-lg font-bold text-gray-900">{conference.name}</h2>
+              <p className="mt-1 text-sm text-gray-600">{conference.acronym}</p>
             </div>
 
             <nav className="p-4">

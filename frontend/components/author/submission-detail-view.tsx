@@ -1,8 +1,10 @@
 "use client"
 
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import {
   ArrowLeft,
   Download,
@@ -12,6 +14,9 @@ import {
   FileText,
   Tag,
   Link as LinkIcon,
+  Eye,
+  AlertTriangle,
+  FileCheck,
 } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 import { useTranslation } from "@/lib/i18n/translation-context"
@@ -28,6 +33,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
   const { t } = useTranslation()
   const { user } = useAuth()
   const isAuthor = user?.email === submission.author
+  const [activeTab, setActiveTab] = useState("overview")
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; className: string }> = {
@@ -75,9 +81,11 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
           </div>
           <div className="flex items-center gap-3 mb-4">
             {getStatusBadge(submission.status)}
-            <span className="text-sm text-gray-500">ID: {submission.id}</span>
           </div>
-          <h1 className="text-3xl font-bold mb-4">{submission.title}</h1>
+          <h1 className="text-3xl font-bold mb-2">{submission.title}</h1>
+          <p className="text-sm text-muted-foreground mb-4">
+            {t("dashboard.submission.details.author", "Author")}: {submission.author}
+          </p>
         </div>
         <div className="flex gap-2">
           {isAuthor && submission.status === "draft" && (
@@ -101,85 +109,42 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
         </div>
       </div>
 
-      {/* Main Content - Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Document Preview (2/3 width) */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Document Preview */}
-          {fileUrl ? (
-            <Card className="h-[calc(100vh-12rem)]">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="size-5" />
-                    {t("dashboard.submission.details.documentPreview", "Xem trước tài liệu")}
-                  </CardTitle>
-                  <Button variant="outline" size="sm" asChild>
-                    <a href={fileUrl} download={submission.file?.original_name}>
-                      <Download className="size-4 mr-2" />
-                      {t("common.actions.download", "Tải xuống")}
-                    </a>
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="p-0 h-[calc(100%-5rem)]">
-                {isPdfFile ? (
-                  <iframe
-                    src={`${fileUrl}#toolbar=0&zoom=40&navpanes=0`}
-                    className="w-full h-full border-0 rounded-b-lg"
-                    title={submission.file?.original_name || "Document Preview"}
-                    allow="fullscreen"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-                    <FileText className="size-16 text-gray-400 mb-4" />
-                    <p className="text-lg font-medium text-gray-700 mb-2">
-                      {t(
-                        "dashboard.submission.details.previewNotAvailable",
-                        "Xem trước không khả dụng",
-                      )}
-                    </p>
-                    <p className="text-sm text-gray-500 mb-4">
-                      {t(
-                        "dashboard.submission.details.downloadToView",
-                        "Vui lòng tải xuống để xem file",
-                      )}
-                    </p>
-                    <Button variant="default" asChild>
-                      <a href={fileUrl} download={submission.file?.original_name}>
-                        <Download className="size-4 mr-2" />
-                        {t("common.actions.download", "Tải xuống")}
-                      </a>
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <FileText className="size-16 text-gray-400 mb-4" />
-                <p className="text-lg font-medium text-gray-700 mb-2">
-                  {t("dashboard.submission.details.noFile", "Không có file đính kèm")}
-                </p>
-                {submission.link && (
-                  <a
-                    href={submission.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline flex items-center gap-2 mt-4"
-                  >
-                    <LinkIcon className="size-4" />
-                    {t("dashboard.submission.details.viewExternalLink", "Xem liên kết ngoài")}
-                  </a>
-                )}
-              </CardContent>
-            </Card>
-          )}
-        </div>
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid w-full grid-cols-4 bg-muted/50 p-1 h-auto border border-border rounded-lg gap-1">
+          <TabsTrigger 
+            value="overview"
+            className="rounded-md border border-transparent data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all hover:bg-background/50 hover:text-foreground"
+          >
+            {t("dashboard.submission.tabs.overview", "Overview")}
+          </TabsTrigger>
+          <TabsTrigger 
+            value="preview"
+            className="rounded-md border border-transparent data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all hover:bg-background/50 hover:text-foreground"
+          >
+            <Eye className="size-4 mr-2" />
+            {t("dashboard.submission.tabs.preview", "Preview")}
+          </TabsTrigger>
+          <TabsTrigger 
+            value="coi"
+            className="rounded-md border border-transparent data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all hover:bg-background/50 hover:text-foreground"
+          >
+            <AlertTriangle className="size-4 mr-2" />
+            {t("dashboard.submission.tabs.coi", "COI")}
+          </TabsTrigger>
+          <TabsTrigger 
+            value="cover-letter"
+            className="rounded-md border border-transparent data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all hover:bg-background/50 hover:text-foreground"
+          >
+            <FileCheck className="size-4 mr-2" />
+            {t("dashboard.submission.tabs.coverLetter", "Cover Letter")}
+          </TabsTrigger>
+        </TabsList>
 
-        {/* Right Column - Metadata and Details (1/3 width) */}
-        <div className="space-y-6">
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-6 mt-4">
+          {/* Overview Content - Single Column Layout */}
+          <div className="space-y-6">
           {/* Abstract */}
           {submission.abstract && (
             <Card>
@@ -414,8 +379,111 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
                 </CardContent>
               </Card>
             )}
-        </div>
-      </div>
+          </div>
+        </TabsContent>
+
+        {/* Preview Tab */}
+        <TabsContent value="preview" className="space-y-6 mt-4">
+          {fileUrl ? (
+            <Card className="h-[calc(100vh-12rem)] flex flex-col p-0 gap-0 overflow-hidden rounded-lg">
+              <CardContent className="p-0 h-full flex-1 overflow-hidden rounded-lg">
+                {isPdfFile ? (
+                  <iframe
+                    src={`${fileUrl}#toolbar=1&navpanes=0`}
+                    className="w-full h-full border-0 rounded-lg"
+                    title={submission.file?.original_name || "Document Preview"}
+                    allow="fullscreen"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+                    <FileText className="size-16 text-gray-400 mb-4" />
+                    <p className="text-lg font-medium text-gray-700 mb-2">
+                      {t(
+                        "dashboard.submission.details.previewNotAvailable",
+                        "Xem trước không khả dụng",
+                      )}
+                    </p>
+                    <p className="text-sm text-gray-500 mb-4">
+                      {t(
+                        "dashboard.submission.details.downloadToView",
+                        "Vui lòng tải xuống để xem file",
+                      )}
+                    </p>
+                    <Button variant="default" asChild>
+                      <a href={fileUrl} download={submission.file?.original_name}>
+                        <Download className="size-4 mr-2" />
+                        {t("common.actions.download", "Tải xuống")}
+                      </a>
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <FileText className="size-16 text-gray-400 mb-4" />
+                <p className="text-lg font-medium text-gray-700 mb-2">
+                  {t("dashboard.submission.details.noFile", "Không có file đính kèm")}
+                </p>
+                {submission.link && (
+                  <a
+                    href={submission.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline flex items-center gap-2 mt-4"
+                  >
+                    <LinkIcon className="size-4" />
+                    {t("dashboard.submission.details.viewExternalLink", "Xem liên kết ngoài")}
+                  </a>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        {/* COI Tab */}
+        <TabsContent value="coi" className="space-y-6 mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="size-5" />
+                {t("dashboard.submission.tabs.coi", "Conflict of Interest")}
+              </CardTitle>
+              <CardDescription>
+                {t(
+                  "dashboard.submission.coi.description",
+                  "Conflicts of interest declared for this submission",
+                )}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  {t("dashboard.submission.coi.notAvailable", "COI information not available")}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Cover Letter Tab */}
+        <TabsContent value="cover-letter" className="space-y-6 mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileCheck className="size-5" />
+                {t("dashboard.submission.tabs.coverLetter", "Cover Letter")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-center py-12">
+                <p className="text-lg font-medium text-muted-foreground">TBI</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

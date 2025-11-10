@@ -275,7 +275,7 @@
           "completed": "Phản biện đã hoàn thành"
         },
         "chair": {
-          "overview": "Tổng quan",
+          "overview": "Bảng điều khiển",
           "papers": "Tất cả bài gửi",
           "reviewers": "Phản biện"
         }
@@ -620,6 +620,7 @@
         "actionItems": "Mục hành động",
         "conferenceManagement": "Quản lý hội nghị",
         "yourConferences": "Hội nghị của bạn",
+        "discoverConferences": "Khám phá hội nghị",
         "searchPlaceholder": "Tìm kiếm hội nghị...",
         "filterByStatus": "Lọc theo trạng thái",
         "tableHeaders": {
@@ -632,7 +633,7 @@
         "messages": {
           "loading": "Đang tải hội nghị...",
           "error": "Lỗi",
-          "noConferencesFound": "Không tìm thấy hội nghị. Tạo hội nghị đầu tiên của bạn!"
+          "noConferencesFound": "Không tìm thấy hội nghị."
         },
         "platformUpdates": {
           "title": "Cập nhật nền tảng",
@@ -1004,6 +1005,16 @@
         "downloadToView": "Vui lòng tải xuống để xem file",
         "noFile": "Không có file đính kèm",
         "viewExternalLink": "Xem liên kết ngoài"
+      },
+      "tabs": {
+        "overview": "Tổng quan",
+        "preview": "Xem trước",
+        "coi": "Xung đột lợi ích",
+        "coverLetter": "Thư giới thiệu"
+      },
+      "coi": {
+        "description": "Các xung đột lợi ích đã khai báo cho bài nộp này",
+        "notAvailable": "Thông tin xung đột lợi ích không khả dụng"
       },
       "error": {
         "title": "Lỗi"
