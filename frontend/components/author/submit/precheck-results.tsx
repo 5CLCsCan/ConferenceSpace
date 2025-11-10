@@ -133,7 +133,9 @@ export function PreCheckResults({ result }: PreCheckResultsProps) {
                 <Sparkles className="size-6 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-2xl font-bold">{t("dashboard.author.submit.precheck.title")}</CardTitle>
+                <CardTitle className="text-2xl font-bold">
+                  {t("dashboard.author.submit.precheck.title")}
+                </CardTitle>
                 <p className="text-sm text-muted-foreground mt-1">
                   {result.paper_title || t("dashboard.author.submit.precheck.extractedTitle")}
                 </p>
@@ -151,20 +153,28 @@ export function PreCheckResults({ result }: PreCheckResultsProps) {
           <div className="grid grid-cols-3 gap-4 mb-4">
             <div className="text-center p-4 rounded-lg bg-green-50 border border-green-200">
               <div className="text-2xl font-bold text-green-700 mb-1">{result.summary.passed}</div>
-              <div className="text-sm text-muted-foreground">{t("dashboard.author.submit.precheck.summary.passed")}</div>
+              <div className="text-sm text-muted-foreground">
+                {t("dashboard.author.submit.precheck.summary.passed")}
+              </div>
             </div>
             <div className="text-center p-4 rounded-lg bg-yellow-50 border border-yellow-200">
               <div className="text-2xl font-bold text-yellow-700 mb-1">{warningResults.length}</div>
-              <div className="text-sm text-muted-foreground">{t("dashboard.author.submit.precheck.summary.warnings")}</div>
+              <div className="text-sm text-muted-foreground">
+                {t("dashboard.author.submit.precheck.summary.warnings")}
+              </div>
             </div>
             <div className="text-center p-4 rounded-lg bg-red-50 border border-red-200">
               <div className="text-2xl font-bold text-red-700 mb-1">{result.summary.failed}</div>
-              <div className="text-sm text-muted-foreground">{t("dashboard.author.submit.precheck.summary.failed")}</div>
+              <div className="text-sm text-muted-foreground">
+                {t("dashboard.author.submit.precheck.summary.failed")}
+              </div>
             </div>
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="font-medium">{t("dashboard.author.submit.precheck.summary.passRate")}</span>
+              <span className="font-medium">
+                {t("dashboard.author.submit.precheck.summary.passRate")}
+              </span>
               <span className="font-semibold">{Math.round(result.summary.pass_rate * 100)}%</span>
             </div>
             <Progress value={result.summary.pass_rate * 100} className="h-3" />
@@ -351,4 +361,3 @@ export function PreCheckResults({ result }: PreCheckResultsProps) {
     </div>
   )
 }
-

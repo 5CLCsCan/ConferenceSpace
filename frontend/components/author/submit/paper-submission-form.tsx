@@ -1,10 +1,10 @@
 "use client"
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Info } from "lucide-react"
+import { ArrowLeft, Info, FileText } from "lucide-react"
 import { submitPaper } from "@/lib/api/papers"
 import { useAuth } from "@/lib/auth-context"
 import type { Conference } from "@/lib/types"
@@ -14,6 +14,7 @@ import { FileTab } from "./file-tab"
 import { COITab } from "./coi-tab"
 import { SubmissionSidebar } from "./submission-sidebar"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { getConferenceSubmissions, type Submission } from "@/lib/api/submissions"
 
 interface PaperSubmissionFormProps {
   conference?: Conference | null
@@ -43,6 +44,8 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<TabType>("paper")
   const [submitting, setSubmitting] = useState(false)
+  const [loadingDraft, setLoadingDraft] = useState(false)
+  const [existingDraft, setExistingDraft] = useState<Submission | null>(null)
   // Paper tab state
   const [title, setTitle] = useState("")
   const [abstract, setAbstract] = useState("")
@@ -88,10 +91,111 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
     { id: "coi" as TabType, label: t("dashboard.author.submit.tabs.coi") },
   ]
 
+  // Load existing draft on component mount
+  useEffect(() => {
+    const loadDraft = async () => {
+      if (!user || !conference) return
+
+      setLoadingDraft(true)
+      try {
+        const response = await getConferenceSubmissions(conference.id, {
+          author: user.email,
+          status: "draft",
+          limit: 1,
+        })
+
+        if (response.data && response.data.submissions.length > 0) {
+          const draft = response.data.submissions[0]
+          setExistingDraft(draft)
+          console.log("[PaperSubmissionForm] Found existing draft:", draft)
+        }
+      } catch (error) {
+        console.error("[PaperSubmissionForm] Error loading draft:", error)
+      } finally {
+        setLoadingDraft(false)
+      }
+    }
+
+    loadDraft()
+  }, [user, conference])
+
+  const handleLoadDraft = () => {
+    if (!existingDraft) return
+
+    // Populate form fields with draft data
+    setTitle(existingDraft.title || "")
+    setAbstract(existingDraft.abstract || "")
+    setSubjectAreas(existingDraft.domain || [])
+    setKeywords(existingDraft.information?.keywords || [])
+
+    // Load co-authors if available
+    if (existingDraft.information?.co_authors && existingDraft.information.co_authors.length > 0) {
+      const coAuthors = existingDraft.information.co_authors.map((email) => ({
+        name: "",
+        email: email,
+        affiliation: "",
+      }))
+      // Keep the first author slot empty and add co-authors
+      setAuthors([
+        { name: "", email: "", affiliation: "" },
+        ...coAuthors,
+        { name: "", email: "", affiliation: "" },
+      ])
+    }
+
+    // Hide the load draft button after loading
+    setExistingDraft(null)
+
+    // Show success message
+    //alert(t("dashboard.author.submit.draftLoadSuccess") || "Draft loaded successfully!")
+  }
+
   const handleAddKeyword = () => {
     if (keywordInput.trim() && !keywords.includes(keywordInput.trim())) {
       setKeywords([...keywords, keywordInput.trim()])
       setKeywordInput("")
+    }
+  }
+
+  const handleSaveAsDraft = async () => {
+    if (!user || !conference) return
+
+    setSubmitting(true)
+    try {
+      const submissionData = {
+        conference_id: conference.id,
+        title,
+        abstract,
+        link: "", // TODO: Add file upload URL when implemented
+        domain: subjectAreas,
+        file: uploadedFile || undefined, // Include uploaded file
+        information: {
+          keywords,
+          co_authors: authors
+            .filter((a, index) => index > 0 && a.name.trim()) // Skip first author (current user)
+            .map((a) => a.email),
+          paper_type: "research", // Default
+          track_name: subjectAreas[0] || "",
+          additional_notes: "", // TODO: Add notes field
+          metadata: {
+            language: "en", // Default
+            page_count: 0, // TODO: Extract from uploaded file
+          },
+        },
+      }
+
+      const response = await submitPaper(submissionData)
+
+      if (response.error) {
+        alert(`${t("dashboard.author.submit.draftSaveFailed")}: ${response.error}`)
+      } else {
+        alert(t("dashboard.author.submit.draftSaveSuccess"))
+        router.push("/dashboard/author")
+      }
+    } catch (error) {
+      alert(t("dashboard.author.submit.draftSaveError"))
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -154,16 +258,32 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
             {t("dashboard.author.submit.backButton")}
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-[#212529] font-arial">{t("dashboard.author.submit.title")}</h1>
+            <h1 className="text-3xl font-bold text-[#212529] font-arial">
+              {t("dashboard.author.submit.title")}
+            </h1>
             <p className="text-[#6C757D] mt-1 text-base font-arial">
               {t("dashboard.author.submit.subtitle")}
             </p>
           </div>
         </div>
         <div className="flex gap-3">
+          {existingDraft && (
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={handleLoadDraft}
+              disabled={loadingDraft}
+              className="border border-[#28A745] text-[#28A745] bg-transparent hover:bg-[#28A745]/10 px-4 py-2 rounded-[4px] text-base font-medium font-arial flex items-center gap-2"
+            >
+              <FileText className="size-4" />
+              {t("Load Draft") || "Load Saved Draft"}
+            </Button>
+          )}
           <Button
             variant="outline"
             size="lg"
+            onClick={handleSaveAsDraft}
+            disabled={submitting}
             className="border border-[#0056A3] text-[#0056A3] bg-transparent hover:bg-[#0056A3]/10 px-4 py-2 rounded-[4px] text-base font-medium font-arial"
           >
             {t("dashboard.author.submit.saveDraft")}
@@ -174,7 +294,9 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
             disabled={!canSubmit || submitting}
             className="bg-[#0056A3] text-white hover:bg-[#0056A3]/90 px-4 py-2 rounded-[4px] text-base font-medium font-arial"
           >
-            {submitting ? t("dashboard.author.submit.submitting") : t("dashboard.author.submit.submit")}
+            {submitting
+              ? t("dashboard.author.submit.submitting")
+              : t("dashboard.author.submit.submit")}
           </Button>
         </div>
       </div>

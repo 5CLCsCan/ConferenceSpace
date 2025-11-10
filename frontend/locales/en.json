@@ -715,7 +715,8 @@
           "coiDetected": "COI Detected",
           "relationships": "12 relationships",
           "assignments": "Assignments",
-          "completed": "8 completed"
+          "completed": "8 completed",
+          "viewAll": "Click to view all"
         },
         "tabs": {
           "assignReviewer": "Assign Reviewer",
@@ -804,6 +805,58 @@
         "assign": "ASSIGN",
         "review": "REVIEW",
         "avoid": "AVOID"
+      },
+      "common": {
+        "reviewer": "Reviewer:",
+        "author": "Author:",
+        "paper": "Paper:",
+        "authors": "Authors ({count}):",
+        "from": "From",
+        "to": "to"
+      },
+      "severity": {
+        "high": "HIGH",
+        "medium": "MEDIUM",
+        "low": "LOW",
+        "none": "NONE"
+      },
+      "relationshipTypes": {
+        "co_author": "Co Author",
+        "same_organization": "Same Organization",
+        "advisor_advisee": "Advisor Advisee",
+        "collaborator": "Collaborator",
+        "competitor": "Competitor",
+        "citation": "Citation",
+        "review_history": "Review History"
+      },
+      "timeline": {
+        "noHistory": "No relationship history available",
+        "active": "Active",
+        "started": "Started:",
+        "ended": "Ended:",
+        "ongoing": "Ongoing",
+        "evidence": "Evidence:"
+      },
+      "reviewer": {
+        "hIndex": "H-index:",
+        "overloaded": "Overloaded",
+        "relationshipsDetected": "{count} relationship(s) detected",
+        "recommendation": "Recommendation"
+      },
+      "allRelationships": {
+        "title": "All COI Relationships",
+        "description": "View and filter all detected conflict of interest relationships",
+        "searchPlaceholder": "Search by reviewer, author, or description...",
+        "filterSeverity": "Filter by severity",
+        "filterType": "Filter by type",
+        "allSeverities": "All severities",
+        "allTypes": "All types",
+        "clearFilters": "Clear filters",
+        "totalFound": "{count} relationship(s) found",
+        "noRelationships": "No relationships found matching your filters",
+        "reviewer": "Reviewer",
+        "author": "Author",
+        "relatedPapers": "Related Papers"
       }
     },
     "submissions": {
@@ -853,6 +906,16 @@
         "downloadToView": "Please download to view the file",
         "noFile": "No file attached",
         "viewExternalLink": "View external link"
+      },
+      "tabs": {
+        "overview": "Overview",
+        "preview": "Preview",
+        "coi": "COI",
+        "coverLetter": "Cover Letter"
+      },
+      "coi": {
+        "description": "Conflicts of interest declared for this submission",
+        "notAvailable": "COI information not available"
       },
       "error": {
         "title": "Error"

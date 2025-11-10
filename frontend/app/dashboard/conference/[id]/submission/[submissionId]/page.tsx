@@ -71,7 +71,7 @@ export default function SubmissionDetailPage() {
       }
     }
 
-    if (isAuthenticated && user && (conferenceId && submissionId)) {
+    if (isAuthenticated && user && conferenceId && submissionId) {
       loadSubmission()
     }
   }, [conferenceId, submissionId, isAuthenticated, user])
@@ -108,11 +108,7 @@ export default function SubmissionDetailPage() {
                   {t("dashboard.submission.error.title", "Lỗi")}
                 </h2>
                 <p className="text-gray-600">{error}</p>
-                <Button
-                  variant="outline"
-                  onClick={() => router.back()}
-                  className="mt-4"
-                >
+                <Button variant="outline" onClick={() => router.back()} className="mt-4">
                   {t("common.actions.back", "Quay lại")}
                 </Button>
               </div>
@@ -154,4 +150,3 @@ export default function SubmissionDetailPage() {
     </div>
   )
 }
-

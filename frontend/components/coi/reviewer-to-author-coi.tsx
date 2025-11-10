@@ -14,7 +14,12 @@ import {
 import { AlertTriangle, User, FileText, Calendar, CheckCircle2, XCircle } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import type { Reviewer, Author, Relationship } from "@/lib/mock-data/coi"
-import { searchReviewers, getAllAuthors, checkReviewerToAuthorCOI, getRelationshipTimeline } from "@/lib/api/coi-mock"
+import {
+  searchReviewers,
+  getAllAuthors,
+  checkReviewerToAuthorCOI,
+  getRelationshipTimeline,
+} from "@/lib/api/coi-mock"
 import { RelationshipTimeline } from "./relationship-timeline"
 import { Loader2 } from "lucide-react"
 
@@ -109,7 +114,9 @@ export function ReviewerToAuthorCOI() {
       {/* Left Panel - Selection */}
       <Card className="lg:col-span-1">
         <CardHeader>
-          <CardTitle>{t("coi.reviewerToAuthor.title") || "Reviewer → Author COI Analysis"}</CardTitle>
+          <CardTitle>
+            {t("coi.reviewerToAuthor.title") || "Reviewer → Author COI Analysis"}
+          </CardTitle>
           <CardDescription>
             {t("coi.reviewerToAuthor.description") ||
               "Select a reviewer and author to analyze their conflict of interest relationship"}
@@ -123,13 +130,21 @@ export function ReviewerToAuthorCOI() {
               {t("coi.reviewerToAuthor.selectReviewer") || "Select Reviewer"}
             </label>
             <Select value={selectedReviewer} onValueChange={setSelectedReviewer}>
-              <SelectTrigger>
-                <SelectValue placeholder={t("coi.reviewerToAuthor.reviewerPlaceholder") || "Choose reviewer"} />
+              <SelectTrigger className="w-full">
+                <SelectValue
+                  placeholder={t("coi.reviewerToAuthor.reviewerPlaceholder") || "Choose reviewer"}
+                  className="truncate"
+                />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-w-[500px]">
                 {reviewers.map((reviewer) => (
-                  <SelectItem key={reviewer.id} value={reviewer.id}>
-                    {reviewer.name} - {reviewer.affiliation}
+                  <SelectItem key={reviewer.id} value={reviewer.id} className="max-w-full">
+                    <span
+                      className="block truncate"
+                      title={`${reviewer.name} - ${reviewer.affiliation}`}
+                    >
+                      {reviewer.name} - {reviewer.affiliation}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -143,13 +158,21 @@ export function ReviewerToAuthorCOI() {
               {t("coi.reviewerToAuthor.selectAuthor") || "Select Author"}
             </label>
             <Select value={selectedAuthor} onValueChange={setSelectedAuthor}>
-              <SelectTrigger>
-                <SelectValue placeholder={t("coi.reviewerToAuthor.authorPlaceholder") || "Choose author"} />
+              <SelectTrigger className="w-full">
+                <SelectValue
+                  placeholder={t("coi.reviewerToAuthor.authorPlaceholder") || "Choose author"}
+                  className="truncate"
+                />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-w-[500px]">
                 {authors.map((author) => (
-                  <SelectItem key={author.id} value={author.id}>
-                    {author.name} - {author.affiliation}
+                  <SelectItem key={author.id} value={author.id} className="max-w-full">
+                    <span
+                      className="block truncate"
+                      title={`${author.name} - ${author.affiliation}`}
+                    >
+                      {author.name} - {author.affiliation}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -161,12 +184,12 @@ export function ReviewerToAuthorCOI() {
               <CardContent className="pt-4">
                 <div className="space-y-2 text-sm">
                   <div>
-                    <p className="font-medium">Reviewer:</p>
+                    <p className="font-medium">{t("coi.common.reviewer")}</p>
                     <p className="text-muted-foreground">{selectedReviewerData.name}</p>
                     <p className="text-xs text-muted-foreground">{selectedReviewerData.email}</p>
                   </div>
                   <div>
-                    <p className="font-medium">Author:</p>
+                    <p className="font-medium">{t("coi.common.author")}</p>
                     <p className="text-muted-foreground">{selectedAuthorData.name}</p>
                     <p className="text-xs text-muted-foreground">{selectedAuthorData.email}</p>
                   </div>
@@ -190,7 +213,10 @@ export function ReviewerToAuthorCOI() {
             <CardContent className="flex items-center justify-center py-12">
               <div className="text-center text-muted-foreground">
                 <User className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>{t("coi.reviewerToAuthor.selectBoth") || "Please select both reviewer and author to analyze COI"}</p>
+                <p>
+                  {t("coi.reviewerToAuthor.selectBoth") ||
+                    "Please select both reviewer and author to analyze COI"}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -209,7 +235,7 @@ export function ReviewerToAuthorCOI() {
                     {t("coi.reviewerToAuthor.coiReport") || "COI Analysis Report"}
                   </CardTitle>
                   <Badge variant="outline" className="text-lg font-semibold">
-                    {coiReport.severity.toUpperCase()}
+                    {t(`coi.severity.${coiReport.severity}`) || coiReport.severity.toUpperCase()}
                   </Badge>
                 </div>
               </CardHeader>
@@ -219,18 +245,20 @@ export function ReviewerToAuthorCOI() {
                 <div className="flex items-center gap-4">
                   <Badge variant="outline" className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    {coiReport.relationships.length} {t("coi.reviewerToAuthor.relationships") || "relationships"}
+                    {coiReport.relationships.length}{" "}
+                    {t("coi.reviewerToAuthor.relationships") || "relationships"}
                   </Badge>
                   <Badge
                     variant={
                       coiReport.recommendation === "assign"
                         ? "default"
                         : coiReport.recommendation === "review"
-                        ? "secondary"
-                        : "destructive"
+                          ? "secondary"
+                          : "destructive"
                     }
                   >
-                    {t(`coi.recommendation.${coiReport.recommendation}`) || coiReport.recommendation.toUpperCase()}
+                    {t(`coi.recommendation.${coiReport.recommendation}`) ||
+                      coiReport.recommendation.toUpperCase()}
                   </Badge>
                 </div>
               </CardContent>
@@ -240,7 +268,9 @@ export function ReviewerToAuthorCOI() {
             {coiReport.relationships.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>{t("coi.reviewerToAuthor.relationships") || "Relationships"}</CardTitle>
+                  <CardTitle>
+                    {t("coi.reviewerToAuthor.relationships") || "Relationships"}
+                  </CardTitle>
                   <CardDescription>
                     {t("coi.reviewerToAuthor.relationshipsDescription") ||
                       "Detailed breakdown of detected relationships"}
@@ -253,20 +283,23 @@ export function ReviewerToAuthorCOI() {
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
-                              <Badge variant="outline">{rel.type.replace(/_/g, " ")}</Badge>
+                              <Badge variant="outline">
+                                {t(`coi.relationshipTypes.${rel.type}`) ||
+                                  rel.type.replace(/_/g, " ")}
+                              </Badge>
                               <Badge className={getSeverityColor(rel.severity)}>
-                                {rel.severity}
+                                {t(`coi.severity.${rel.severity}`) || rel.severity}
                               </Badge>
                             </div>
                             <p className="text-sm font-medium mb-1">{rel.description}</p>
                             <p className="text-xs text-muted-foreground">
-                              {t("coi.reviewerToAuthor.from") || "From"} {rel.start_date}
-                              {rel.end_date && ` ${t("coi.reviewerToAuthor.to") || "to"} ${rel.end_date}`}
+                              {t("coi.common.from")} {rel.start_date}
+                              {rel.end_date && ` ${t("coi.common.to")} ${rel.end_date}`}
                             </p>
                             {rel.evidence && rel.evidence.length > 0 && (
                               <div className="mt-2">
                                 <p className="text-xs font-medium mb-1">
-                                  {t("coi.reviewerToAuthor.evidence") || "Evidence:"}
+                                  {t("coi.timeline.evidence")}
                                 </p>
                                 <ul className="text-xs text-muted-foreground list-disc list-inside space-y-1">
                                   {rel.evidence.map((ev: string, i: number) => (
@@ -287,7 +320,9 @@ export function ReviewerToAuthorCOI() {
             {/* Timeline */}
             <Card>
               <CardHeader>
-                <CardTitle>{t("coi.reviewerToAuthor.timeline") || "Relationship History Timeline"}</CardTitle>
+                <CardTitle>
+                  {t("coi.reviewerToAuthor.timeline") || "Relationship History Timeline"}
+                </CardTitle>
                 <CardDescription>
                   {t("coi.reviewerToAuthor.timelineDescription") ||
                     "Interactive timeline showing the history of interactions"}
@@ -322,4 +357,3 @@ export function ReviewerToAuthorCOI() {
     </div>
   )
 }
-

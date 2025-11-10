@@ -177,7 +177,8 @@ export const mockPapers: Paper[] = [
   {
     id: "paper-1",
     title: "Efficient Transformers for Large-Scale Language Models",
-    abstract: "We propose a novel architecture for efficient transformer models that reduces computational costs by 60% while maintaining performance...",
+    abstract:
+      "We propose a novel architecture for efficient transformer models that reduces computational costs by 60% while maintaining performance...",
     keywords: ["Transformers", "LLMs", "Efficiency", "NLP"],
     authors: [mockAuthors[0], mockAuthors[1]],
     submitted_at: "2024-01-15T10:00:00Z",
@@ -186,7 +187,8 @@ export const mockPapers: Paper[] = [
   {
     id: "paper-2",
     title: "Multi-Modal Learning for Computer Vision Applications",
-    abstract: "This paper explores the integration of visual and textual information in deep learning models...",
+    abstract:
+      "This paper explores the integration of visual and textual information in deep learning models...",
     keywords: ["Computer Vision", "Multimodal", "Deep Learning"],
     authors: [mockAuthors[0], mockAuthors[2]],
     submitted_at: "2024-01-20T14:30:00Z",
@@ -195,7 +197,8 @@ export const mockPapers: Paper[] = [
   {
     id: "paper-3",
     title: "Fairness in Machine Learning: A Comprehensive Survey",
-    abstract: "We survey recent advances in fairness-aware machine learning algorithms and evaluation metrics...",
+    abstract:
+      "We survey recent advances in fairness-aware machine learning algorithms and evaluation metrics...",
     keywords: ["Fairness", "ML", "Ethics", "Bias"],
     authors: [mockAuthors[2], mockAuthors[3]],
     submitted_at: "2024-02-01T09:15:00Z",
@@ -319,10 +322,7 @@ export function getCOIRecommendation(severity: COISeverity): "assign" | "review"
 /**
  * Find COI relationships for a reviewer and author
  */
-export function findReviewerToAuthorCOI(
-  reviewerId: string,
-  authorId: string,
-): Relationship[] {
+export function findReviewerToAuthorCOI(reviewerId: string, authorId: string): Relationship[] {
   return mockRelationships.filter(
     (rel) => rel.reviewer_id === reviewerId && rel.author_id === authorId,
   )
@@ -422,10 +422,7 @@ export function generateReviewerToPaperCOIReport(
 /**
  * Get relationship history timeline for a reviewer-author pair
  */
-export function getRelationshipHistory(
-  reviewerId: string,
-  authorId: string,
-): Relationship[] {
+export function getRelationshipHistory(reviewerId: string, authorId: string): Relationship[] {
   return mockRelationships
     .filter((rel) => rel.reviewer_id === reviewerId && rel.author_id === authorId)
     .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
@@ -459,4 +456,3 @@ export function filterReviewers(
 
   return filtered
 }
-

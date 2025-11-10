@@ -190,20 +190,36 @@
   }
 }
 
-/* Custom scrollbar with lighter colors for light theme */
+/* Modern custom scrollbar styling */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-muted;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-border rounded-full;
+  background: oklch(0.85 0 0);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-secondary;
+  background: oklch(0.7 0 0);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: oklch(0.6 0 0);
+  background-clip: padding-box;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.85 0 0) transparent;
 }

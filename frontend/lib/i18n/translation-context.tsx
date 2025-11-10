@@ -43,9 +43,23 @@ const locales: Record<Locale, Messages> = {
   vi,
 }
 
+const keyAliases: Record<string, string> = {
+  coi: "dashboard.coi",
+}
+
 const TranslationContext = createContext<TranslationContextValue | undefined>(undefined)
 
-function resolveMessage(path: string, messages: Messages, values?: TranslationValues): string {
+function buildCandidatePaths(path: string): string[] {
+  const [first, ...rest] = path.split(".")
+  const alias = keyAliases[first]
+  if (alias) {
+    const suffix = rest.length > 0 ? `.${rest.join(".")}` : ""
+    return [path, `${alias}${suffix}`]
+  }
+  return [path]
+}
+
+function getValueFromPath(path: string, messages: Messages) {
   const segments = path.split(".")
   let current: any = messages
 
@@ -53,19 +67,46 @@ function resolveMessage(path: string, messages: Messages, values?: TranslationVa
     if (current && typeof current === "object" && segment in current) {
       current = current[segment]
     } else {
-      return path
+      return undefined
     }
   }
 
-  let result = typeof current === "string" ? current : path
+  return current
+}
 
-  if (values) {
-    result = Object.entries(values).reduce((text, [key, value]) => {
-      return text.replaceAll(`{${key}}`, String(value))
-    }, result)
+function resolveMessage(path: string, messages: Messages, values?: TranslationValues): string {
+  for (const candidate of buildCandidatePaths(path)) {
+    const resolved = getValueFromPath(candidate, messages)
+
+    if (resolved === undefined) {
+      continue
+    }
+
+    if (typeof resolved !== "string") {
+      if (process.env.NODE_ENV === "development") {
+        console.warn(
+          `[Translation] Key "${candidate}" does not point to a string value:`,
+          typeof resolved,
+        )
+      }
+      return path
+    }
+
+    let result = resolved
+
+    if (values) {
+      result = Object.entries(values).reduce((text, [key, value]) => {
+        return text.replaceAll(`{${key}}`, String(value))
+      }, result)
+    }
+
+    return result
   }
 
-  return result
+  if (process.env.NODE_ENV === "development") {
+    console.warn(`[Translation] Key not found: ${path}`)
+  }
+  return path
 }
 
 export function TranslationProvider({ children }: { children: ReactNode }) {
@@ -94,21 +135,12 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
 
   const translateList = useCallback(
     (key: string) => {
-      const segments = key.split(".")
-      let current: any = messages
-
-      for (const segment of segments) {
-        if (current && typeof current === "object" && segment in current) {
-          current = current[segment]
-        } else {
-          return []
+      for (const candidate of buildCandidatePaths(key)) {
+        const resolved = getValueFromPath(candidate, messages)
+        if (Array.isArray(resolved)) {
+          return resolved.map((item) => String(item))
         }
       }
-
-      if (Array.isArray(current)) {
-        return current.map((item) => String(item))
-      }
-
       return []
     },
     [messages],

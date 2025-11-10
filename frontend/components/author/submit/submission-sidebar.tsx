@@ -20,23 +20,48 @@ interface SubmissionSidebarProps {
 
 export function SubmissionSidebar({ checklist }: SubmissionSidebarProps) {
   const { t } = useTranslation()
-  
+
   return (
     <div className="w-80 space-y-6">
       <Card>
         <CardContent className="p-6">
-          <h3 className="font-bold text-gray-900 mb-1">{t("dashboard.author.submit.checklist.title") || "Submission Checklist"}</h3>
-          <p className="text-xs text-gray-600 mb-4">{t("dashboard.author.submit.checklist.subtitle") || "What you need before submitting"}</p>
+          <h3 className="font-bold text-gray-900 mb-1">
+            {t("dashboard.author.submit.checklist.title") || "Submission Checklist"}
+          </h3>
+          <p className="text-xs text-gray-600 mb-4">
+            {t("dashboard.author.submit.checklist.subtitle") || "What you need before submitting"}
+          </p>
           <div className="space-y-3">
-            <ChecklistItem checked={checklist.titleProvided} label={t("dashboard.author.submit.checklist.titleProvided")} />
-            <ChecklistItem checked={checklist.abstractLength} label={t("dashboard.author.submit.checklist.abstractLength")} />
-            <ChecklistItem checked={checklist.subjectAreas} label={t("dashboard.author.submit.checklist.subjectAreas")} />
-            <ChecklistItem checked={checklist.keywords} label={t("dashboard.author.submit.checklist.keywords")} />
-            <ChecklistItem checked={checklist.pdfUploaded} label={t("dashboard.author.submit.checklist.pdfUploaded")} />
-            <ChecklistItem checked={checklist.coAuthorsListed} label={t("dashboard.author.submit.checklist.coAuthorsListed")} />
+            <ChecklistItem
+              checked={checklist.titleProvided}
+              label={t("dashboard.author.submit.checklist.titleProvided")}
+            />
+            <ChecklistItem
+              checked={checklist.abstractLength}
+              label={t("dashboard.author.submit.checklist.abstractLength")}
+            />
+            <ChecklistItem
+              checked={checklist.subjectAreas}
+              label={t("dashboard.author.submit.checklist.subjectAreas")}
+            />
+            <ChecklistItem
+              checked={checklist.keywords}
+              label={t("dashboard.author.submit.checklist.keywords")}
+            />
+            <ChecklistItem
+              checked={checklist.pdfUploaded}
+              label={t("dashboard.author.submit.checklist.pdfUploaded")}
+            />
+            <ChecklistItem
+              checked={checklist.coAuthorsListed}
+              label={t("dashboard.author.submit.checklist.coAuthorsListed")}
+            />
             <ChecklistItem
               checked={checklist.coiDeclared}
-              label={t("dashboard.author.submit.checklist.coiDeclared") || "COI people/orgs/domains declared"}
+              label={
+                t("dashboard.author.submit.checklist.coiDeclared") ||
+                "COI people/orgs/domains declared"
+              }
             />
           </div>
         </CardContent>

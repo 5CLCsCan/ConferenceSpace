@@ -14,7 +14,12 @@ import {
 import { AlertTriangle, User, FileText, Users, CheckCircle2, Loader2 } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import type { Reviewer, Paper, Relationship } from "@/lib/mock-data/coi"
-import { searchReviewers, getAllPapers, checkReviewerToPaperCOI, getRelationshipTimeline } from "@/lib/api/coi-mock"
+import {
+  searchReviewers,
+  getAllPapers,
+  checkReviewerToPaperCOI,
+  getRelationshipTimeline,
+} from "@/lib/api/coi-mock"
 import { RelationshipTimeline } from "./relationship-timeline"
 
 export function ReviewerToPaperCOI() {
@@ -80,7 +85,7 @@ export function ReviewerToPaperCOI() {
       if (!paper) return
 
       const timelines: Record<string, Relationship[]> = {}
-      
+
       for (const author of paper.authors) {
         const result = await getRelationshipTimeline(selectedReviewer, author.id)
         if (result.data && result.data.length > 0) {
@@ -113,13 +118,14 @@ export function ReviewerToPaperCOI() {
   const selectedPaperData = papers.find((p) => p.id === selectedPaper)
 
   // Group relationships by author
-  const relationshipsByAuthor = coiReport?.relationships?.reduce((acc: any, rel: Relationship) => {
-    if (!acc[rel.author_id]) {
-      acc[rel.author_id] = []
-    }
-    acc[rel.author_id].push(rel)
-    return acc
-  }, {}) || {}
+  const relationshipsByAuthor =
+    coiReport?.relationships?.reduce((acc: any, rel: Relationship) => {
+      if (!acc[rel.author_id]) {
+        acc[rel.author_id] = []
+      }
+      acc[rel.author_id].push(rel)
+      return acc
+    }, {}) || {}
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -140,13 +146,21 @@ export function ReviewerToPaperCOI() {
               {t("coi.reviewerToPaper.selectReviewer") || "Select Reviewer"}
             </label>
             <Select value={selectedReviewer} onValueChange={setSelectedReviewer}>
-              <SelectTrigger>
-                <SelectValue placeholder={t("coi.reviewerToPaper.reviewerPlaceholder") || "Choose reviewer"} />
+              <SelectTrigger className="w-full">
+                <SelectValue
+                  placeholder={t("coi.reviewerToPaper.reviewerPlaceholder") || "Choose reviewer"}
+                  className="truncate"
+                />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-w-[500px]">
                 {reviewers.map((reviewer) => (
-                  <SelectItem key={reviewer.id} value={reviewer.id}>
-                    {reviewer.name} - {reviewer.affiliation}
+                  <SelectItem key={reviewer.id} value={reviewer.id} className="max-w-full">
+                    <span
+                      className="block truncate"
+                      title={`${reviewer.name} - ${reviewer.affiliation}`}
+                    >
+                      {reviewer.name} - {reviewer.affiliation}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -160,13 +174,18 @@ export function ReviewerToPaperCOI() {
               {t("coi.reviewerToPaper.selectPaper") || "Select Paper"}
             </label>
             <Select value={selectedPaper} onValueChange={setSelectedPaper}>
-              <SelectTrigger>
-                <SelectValue placeholder={t("coi.reviewerToPaper.paperPlaceholder") || "Choose paper"} />
+              <SelectTrigger className="w-full">
+                <SelectValue
+                  placeholder={t("coi.reviewerToPaper.paperPlaceholder") || "Choose paper"}
+                  className="truncate"
+                />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-w-[500px]">
                 {papers.map((paper) => (
-                  <SelectItem key={paper.id} value={paper.id}>
-                    {paper.title}
+                  <SelectItem key={paper.id} value={paper.id} className="max-w-full">
+                    <span className="block truncate" title={paper.title}>
+                      {paper.title}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -178,18 +197,20 @@ export function ReviewerToPaperCOI() {
               <Card className="border-2">
                 <CardContent className="pt-4 space-y-3">
                   <div>
-                    <p className="text-sm font-medium mb-1">Reviewer:</p>
+                    <p className="text-sm font-medium mb-1">{t("coi.common.reviewer")}</p>
                     <p className="text-xs text-muted-foreground">{selectedReviewerData.name}</p>
                     <p className="text-xs text-muted-foreground">{selectedReviewerData.email}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium mb-1">Paper:</p>
-                    <p className="text-xs text-muted-foreground line-clamp-2">{selectedPaperData.title}</p>
+                    <p className="text-sm font-medium mb-1">{t("coi.common.paper")}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                      {selectedPaperData.title}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm font-medium mb-1 flex items-center gap-1">
                       <Users className="h-3 w-3" />
-                      Authors ({selectedPaperData.authors.length}):
+                      {t("coi.common.authors", { count: selectedPaperData.authors.length })}
                     </p>
                     <div className="space-y-1">
                       {selectedPaperData.authors.map((author) => (
@@ -241,7 +262,7 @@ export function ReviewerToPaperCOI() {
                     {t("coi.reviewerToPaper.coiReport") || "COI Analysis Report"}
                   </CardTitle>
                   <Badge variant="outline" className="text-lg font-semibold">
-                    {coiReport.severity.toUpperCase()}
+                    {t(`coi.severity.${coiReport.severity}`) || coiReport.severity.toUpperCase()}
                   </Badge>
                 </div>
               </CardHeader>
@@ -264,11 +285,12 @@ export function ReviewerToPaperCOI() {
                       coiReport.recommendation === "assign"
                         ? "default"
                         : coiReport.recommendation === "review"
-                        ? "secondary"
-                        : "destructive"
+                          ? "secondary"
+                          : "destructive"
                     }
                   >
-                    {t(`coi.recommendation.${coiReport.recommendation}`) || coiReport.recommendation.toUpperCase()}
+                    {t(`coi.recommendation.${coiReport.recommendation}`) ||
+                      coiReport.recommendation.toUpperCase()}
                   </Badge>
                 </div>
               </CardContent>
@@ -278,7 +300,9 @@ export function ReviewerToPaperCOI() {
             {selectedPaperData && (
               <Card>
                 <CardHeader>
-                  <CardTitle>{t("coi.reviewerToPaper.authorsBreakdown") || "Authors Breakdown"}</CardTitle>
+                  <CardTitle>
+                    {t("coi.reviewerToPaper.authorsBreakdown") || "Authors Breakdown"}
+                  </CardTitle>
                   <CardDescription>
                     {t("coi.reviewerToPaper.authorsBreakdownDescription") ||
                       "COI analysis for each author of the paper"}
@@ -292,8 +316,8 @@ export function ReviewerToPaperCOI() {
                         ? authorRels.some((r: Relationship) => r.severity === "high")
                           ? "high"
                           : authorRels.some((r: Relationship) => r.severity === "medium")
-                          ? "medium"
-                          : "low"
+                            ? "medium"
+                            : "low"
                         : "none"
 
                     return (
@@ -306,39 +330,47 @@ export function ReviewerToPaperCOI() {
                               <p className="text-xs text-muted-foreground">{author.affiliation}</p>
                             </div>
                             <Badge variant="outline" className={getSeverityColor(authorSeverity)}>
-                              {authorSeverity.toUpperCase()}
+                              {t(`coi.severity.${authorSeverity}`) || authorSeverity.toUpperCase()}
                             </Badge>
                           </div>
 
                           {authorRels.length > 0 ? (
                             <div className="space-y-2">
                               <p className="text-xs font-medium">
-                                {authorRels.length} {t("coi.reviewerToPaper.relationship") || "relationship(s)"}:
+                                {authorRels.length}{" "}
+                                {t("coi.reviewerToPaper.relationship") || "relationship(s)"}:
                               </p>
                               {authorRels.map((rel: Relationship, idx: number) => (
                                 <div key={idx} className="text-xs pl-3 border-l-2 border-current">
                                   <div className="flex items-center gap-2 mb-1">
                                     <Badge variant="outline" className="text-xs">
-                                      {rel.type.replace(/_/g, " ")}
+                                      {t(`coi.relationshipTypes.${rel.type}`) ||
+                                        rel.type.replace(/_/g, " ")}
                                     </Badge>
-                                    <Badge className={getSeverityColor(rel.severity)} variant="outline">
-                                      {rel.severity}
+                                    <Badge
+                                      className={getSeverityColor(rel.severity)}
+                                      variant="outline"
+                                    >
+                                      {t(`coi.severity.${rel.severity}`) || rel.severity}
                                     </Badge>
                                   </div>
                                   <p className="text-xs opacity-90">{rel.description}</p>
                                   <p className="text-xs opacity-75 mt-1">
-                                    {rel.start_date}
-                                    {rel.end_date && ` - ${rel.end_date}`}
+                                    {t("coi.common.from")} {rel.start_date}
+                                    {rel.end_date && ` ${t("coi.common.to")} ${rel.end_date}`}
                                   </p>
                                 </div>
                               ))}
 
                               {/* Timeline for this author */}
-                              {authorTimelines[author.id] && authorTimelines[author.id].length > 0 && (
-                                <div className="mt-4 pt-4 border-t">
-                                  <RelationshipTimeline relationships={authorTimelines[author.id]} />
-                                </div>
-                              )}
+                              {authorTimelines[author.id] &&
+                                authorTimelines[author.id].length > 0 && (
+                                  <div className="mt-4 pt-4 border-t">
+                                    <RelationshipTimeline
+                                      relationships={authorTimelines[author.id]}
+                                    />
+                                  </div>
+                                )}
                             </div>
                           ) : (
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -368,4 +400,3 @@ export function ReviewerToPaperCOI() {
     </div>
   )
 }
-
