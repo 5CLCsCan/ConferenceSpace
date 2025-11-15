@@ -124,41 +124,67 @@ export async function getPaperById(
 export async function updatePaper(
   paperId: string,
   conferenceId: string,
-  updates: {
-    title?: string
-    abstract?: string
-    domain?: string[]
+  data: {
+    title: string
+    abstract: string
+    link?: string
+    domain: string[]
+    file?: File
     information?: {
+      co_authors?: string[]
       keywords?: string[]
+      paper_type?: string
+      track_name?: string
       additional_notes?: string
+      metadata?: {
+        language?: string
+        page_count?: number
+      }
     }
   },
 ): Promise<{ data: Paper | null; error: string | null }> {
   try {
-    const payload = {
-      submission: updates,
+    // Create FormData for multipart upload (supports file updates)
+    const formData = new FormData()
+
+    // Add submission data as JSON string in form field
+    const submissionData = {
+      submission: {
+        title: data.title,
+        abstract: data.abstract,
+        link: data.link || "",
+        domain: data.domain,
+        information: data.information || {},
+      },
+    }
+    formData.append("submission", JSON.stringify(submissionData))
+
+    // Add file if provided
+    if (data.file) {
+      formData.append("file", data.file)
     }
 
-    const { data, response } = await apiFetch<{ data: any }>(
+    const { data: responseData, response } = await apiFetch<{ data: any }>(
       `/api/v1/conferences/${conferenceId}/submissions/${paperId}`,
       {
         method: "PUT",
-        body: JSON.stringify(payload),
+        body: formData,
+        // Let apiFetch handle Content-Type and Authorization headers
       },
     )
 
     // Transform backend response to frontend Paper format
     const paper: Paper = {
-      id: data.data.id.toString(),
-      title: data.data.title,
-      abstract: data.data.abstract,
-      keywords: data.data.information?.keywords || [],
+      id: responseData.data.id.toString(),
+      title: responseData.data.title,
+      abstract: responseData.data.abstract,
+      keywords: responseData.data.information?.keywords || [],
       authors: [], // TODO: Map from submission author/co_authors
       conference_id: conferenceId,
-      track_id: data.data.information?.track_name || "",
-      status: data.data.status as any,
-      submitted_at: data.data.created_at,
-      updated_at: data.data.updated_at,
+      track_id: responseData.data.information?.track_name || "",
+      status: responseData.data.status as any,
+      submitted_at: responseData.data.created_at,
+      updated_at: responseData.data.updated_at,
       version: 1,
       reviews: [],
     }

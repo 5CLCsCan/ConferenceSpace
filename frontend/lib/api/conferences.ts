@@ -175,7 +175,8 @@ export async function listConferences(filters?: {
     if (filters?.title) params.append("title", filters.title)
     if (filters?.acronym) params.append("acronym", filters.acronym)
     if (filters?.chair) params.append("chair", filters.chair)
-    if (filters?.myConferences !== undefined) params.append("myConferences", filters.myConferences.toString())
+    if (filters?.myConferences !== undefined)
+      params.append("myConferences", filters.myConferences.toString())
     if (filters?.role) params.append("role", filters.role)
 
     const queryString = params.toString()
@@ -411,7 +412,7 @@ export async function getConferenceReviewers(
     limit?: number
     offset?: number
     status?: string
-  }
+  },
 ): Promise<ApiResponse<ReviewerListResponse>> {
   try {
     const queryParams = new URLSearchParams()
@@ -420,7 +421,7 @@ export async function getConferenceReviewers(
     if (params?.status) queryParams.append("status", params.status)
 
     const { data, response } = await apiFetch<ReviewerListResponse>(
-      `/api/v1/conferences/${conferenceId}/reviewers?${queryParams.toString()}`
+      `/api/v1/conferences/${conferenceId}/reviewers?${queryParams.toString()}`,
     )
 
     return {
@@ -443,8 +444,10 @@ export async function getConferenceReviewers(
  */
 export async function inviteReviewers(
   conferenceId: string,
-  reviewers: { user_id: number }[]
-): Promise<ApiResponse<{ success: Reviewer[]; failed: Array<{ user_id: number; error: string }> }>> {
+  reviewers: { user_id: number }[],
+): Promise<
+  ApiResponse<{ success: Reviewer[]; failed: Array<{ user_id: number; error: string }> }>
+> {
   try {
     const { data, response } = await apiFetch<{
       success: Reviewer[]
@@ -474,12 +477,12 @@ export async function inviteReviewers(
  */
 export async function removeReviewer(
   conferenceId: string,
-  reviewerId: string
+  reviewerId: string,
 ): Promise<ApiResponse<{ message: string }>> {
   try {
     const { data, response } = await apiFetch<{ message: string }>(
       `/api/v1/conferences/${conferenceId}/reviewers/${reviewerId}`,
-      { method: "DELETE" }
+      { method: "DELETE" },
     )
 
     return {
@@ -556,9 +559,10 @@ export async function getConferenceDates(
   conferenceId: string,
 ): Promise<ApiResponse<ImportantDate[]>> {
   try {
-    // First get the conference details to extract dates from configurations
-    const conferenceResponse = await getConferenceById(conferenceId)
-    if (!conferenceResponse.data) {
+    // Fetch raw conference data to access all configuration fields
+    const { data, response } = await apiFetch<{ data: any }>(`/api/v1/conferences/${conferenceId}`)
+
+    if (!data?.data) {
       return {
         data: null,
         error: "Conference not found",
@@ -566,43 +570,81 @@ export async function getConferenceDates(
       }
     }
 
-    const conference = conferenceResponse.data
+    const config = data.data.configurations
+    if (!config) {
+      return {
+        data: [],
+        error: null,
+        status: 200,
+      }
+    }
+
     const now = new Date()
     const dates: ImportantDate[] = []
 
-    // Extract dates from conference data
-    if (conference.submission_deadline) {
+    // Extract all available dates from configurations
+    if (config.abstract_submission_deadline) {
+      const dateStr = config.abstract_submission_deadline
+      dates.push({
+        id: "abstract-submission-deadline",
+        title: "Abstract Submission Deadline",
+        date: dateStr,
+        description: "Deadline for abstract submissions",
+        type: "deadline",
+        isPast: new Date(dateStr) < now,
+      })
+    }
+
+    if (config.full_paper_submission_deadline) {
+      const dateStr = config.full_paper_submission_deadline
       dates.push({
         id: "submission-deadline",
         title: "Paper Submission Deadline",
-        date: conference.submission_deadline,
+        date: dateStr,
         description: "Final deadline for paper submissions",
         type: "deadline",
-        isPast: new Date(conference.submission_deadline) < now,
+        isPast: new Date(dateStr) < now,
       })
     }
 
-    if (conference.camera_ready_deadline) {
+    if (config.camera_ready_deadline) {
+      const dateStr = config.camera_ready_deadline
       dates.push({
         id: "camera-ready-deadline",
         title: "Camera-Ready Deadline",
-        date: conference.camera_ready_deadline,
+        date: dateStr,
         description: "Final version of accepted papers due",
         type: "deadline",
-        isPast: new Date(conference.camera_ready_deadline) < now,
+        isPast: new Date(dateStr) < now,
       })
     }
 
-    if (conference.conference_date) {
+    if (config.start_date) {
+      const dateStr = config.start_date
       dates.push({
-        id: "conference-date",
-        title: "Conference Date",
-        date: conference.conference_date,
-        description: "Main conference event",
+        id: "conference-start-date",
+        title: "Conference Start Date",
+        date: dateStr,
+        description: "Main conference event begins",
         type: "event",
-        isPast: new Date(conference.conference_date) < now,
+        isPast: new Date(dateStr) < now,
       })
     }
+
+    if (config.end_date) {
+      const dateStr = config.end_date
+      dates.push({
+        id: "conference-end-date",
+        title: "Conference End Date",
+        date: dateStr,
+        description: "Main conference event ends",
+        type: "event",
+        isPast: new Date(dateStr) < now,
+      })
+    }
+
+    // Sort dates chronologically
+    dates.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
     return {
       data: dates,

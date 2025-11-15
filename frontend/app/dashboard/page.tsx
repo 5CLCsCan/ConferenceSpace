@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth-context"
+import { sessionManager } from "@/lib/session-manager"
 import { FileText, Users, BarChart3, GraduationCap, LogOut, Sparkles } from "lucide-react"
 import type { UserRole } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
@@ -27,6 +28,16 @@ export default function DashboardPage() {
   const { user, isAuthenticated, logout, switchRole } = useAuth()
   const { t, tList } = useTranslation()
   const router = useRouter()
+
+  // Enable role changes when on dashboard page
+  useEffect(() => {
+    sessionManager.enableRoleChange()
+    
+    // Disable role changes when leaving dashboard
+    return () => {
+      sessionManager.disableRoleChange()
+    }
+  }, [])
 
   useEffect(() => {
     if (!isAuthenticated) {

@@ -14,6 +14,7 @@
  */
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import type { Paper } from "@/lib/types"
 import { getConferencePapers } from "@/lib/api/conferences"
 import { Card } from "@/components/ui/card"
@@ -30,6 +31,7 @@ interface ConferenceSubmissionsProps {
 }
 
 export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsProps) {
+  const router = useRouter()
   const { user, currentRole } = useAuth()
   const [papers, setPapers] = useState<Paper[]>([])
   const [filteredPapers, setFilteredPapers] = useState<Paper[]>([])
@@ -376,8 +378,8 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
               <div className="flex-1">
                 <div className="flex items-start gap-3">
                   <FileText className="mt-1 h-5 w-5 flex-shrink-0 text-primary" />
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900">{paper.title}</h3>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-semibold text-gray-900 truncate">{paper.title}</h3>
                     <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-600">
                       {paper.abstract}
                     </p>
@@ -411,7 +413,11 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
                 {paper.reviews.length > 0 && (
                   <span className="text-xs text-gray-500">{paper.reviews.length} reviews</span>
                 )}
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => router.push(`/dashboard/conference/${conferenceId}/submission/${paper.id}`)}
+                >
                   Xem Chi Tiết
                 </Button>
               </div>

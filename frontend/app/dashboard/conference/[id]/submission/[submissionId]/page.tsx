@@ -53,12 +53,17 @@ export default function SubmissionDetailPage() {
           setError(response.error)
         } else if (response.data) {
           // Check if user has permission to view this submission
-          // Authors can only view their own submissions
-          // Chairs can view all submissions in their conference
-          const isAuthor = user?.email === response.data.author
+          // When viewing from conference dashboard:
+          // - Authors can view all submissions in the conference
+          // - Chairs can view all submissions
+          // - Users must have author or chair role
           const isChair = user?.roles.includes("chair")
+          const isAuthorRole = user?.roles.includes("author")
 
-          if (!isAuthor && !isChair) {
+          // Since we're in the conference route, authors can view any submission in this conference
+          // Chairs can always view all submissions
+          // Users must have author or chair role
+          if (!isAuthorRole && !isChair) {
             setError("You don't have permission to view this submission")
           } else {
             setSubmission(response.data)

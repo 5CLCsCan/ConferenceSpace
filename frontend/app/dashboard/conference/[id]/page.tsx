@@ -22,7 +22,7 @@ type TabType = "overview" | "call-for-papers" | "dates" | "committee" | "submiss
 export default function ConferencePage() {
   const params = useParams()
   const conferenceId = params.id as string
-  const { user, currentRole, switchRole } = useAuth()
+  const { user, currentRole } = useAuth()
   const router = useRouter()
   const { t } = useTranslation()
 
@@ -43,26 +43,35 @@ export default function ConferencePage() {
     loadConference()
   }, [conferenceId])
 
-  const tabs = useMemo(
-    () => [
+  // Redirect authors away from COI Demo tab
+  useEffect(() => {
+    if (currentRole === "author" && activeTab === "coi-demo") {
+      setActiveTab("overview")
+    }
+  }, [currentRole, activeTab])
+
+  const tabs = useMemo(() => {
+    const allTabs = [
       { id: "overview" as TabType, label: t("dashboard.conference.details.tabs.overview") },
       {
         id: "call-for-papers" as TabType,
         label: t("dashboard.conference.details.tabs.callForPapers"),
       },
       { id: "dates" as TabType, label: t("dashboard.conference.details.tabs.dates") },
-      { 
-        id: "committee" as TabType, 
-        label: currentRole === "chair" ? "Reviewers" : t("dashboard.conference.details.tabs.committee") 
+      {
+        id: "committee" as TabType,
+        label:
+          currentRole === "chair" ? "Reviewers" : t("dashboard.conference.details.tabs.committee"),
       },
       { id: "submissions" as TabType, label: t("dashboard.conference.details.tabs.submissions") },
       {
         id: "coi-demo" as TabType,
         label: t("dashboard.conference.details.tabs.coiDemo") || "COI Demo",
       },
-    ],
-    [t, currentRole],
-  )
+    ]
+    // Hide COI Demo tab for authors
+    return currentRole === "author" ? allTabs.filter((tab) => tab.id !== "coi-demo") : allTabs
+  }, [t, currentRole])
 
   const roleConfig = useMemo(
     () => ({
@@ -130,7 +139,7 @@ export default function ConferencePage() {
 
             {user && (
               <div className="border-t border-gray-200 p-4">
-                <div className="mb-3">
+                <div>
                   <p className="text-xs font-medium text-gray-500 mb-2">
                     {t("dashboard.conference.details.currentRole")}
                   </p>
@@ -139,24 +148,6 @@ export default function ConferencePage() {
                       {roleConfig[currentRole].label}
                     </Badge>
                   )}
-                </div>
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-gray-500">
-                    {t("dashboard.conference.details.switchRole")}
-                  </p>
-                  <div className="flex flex-col gap-2">
-                    {user.roles.map((role) => (
-                      <Button
-                        key={role}
-                        variant={currentRole === role ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => switchRole(role)}
-                        className="w-full justify-start text-xs"
-                      >
-                        {roleConfig[role].label}
-                      </Button>
-                    ))}
-                  </div>
                 </div>
               </div>
             )}

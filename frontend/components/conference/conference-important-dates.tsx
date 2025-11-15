@@ -85,54 +85,64 @@ export function ConferenceImportantDates({ conferenceId }: ConferenceImportantDa
       </div>
 
       {/* Timeline */}
-      <div className="relative">
-        {/* Vertical line */}
-        <div className="absolute left-8 top-0 h-full w-0.5 bg-gray-200" />
+      {dates.length === 0 ? (
+        <Card className="p-12 text-center">
+          <Calendar className="mx-auto h-12 w-12 text-gray-400" />
+          <h3 className="mt-4 text-lg font-semibold text-gray-900">Chưa Có Thông Tin Thời Gian</h3>
+          <p className="mt-2 text-gray-600">
+            Các mốc thời gian quan trọng sẽ được cập nhật sớm nhất
+          </p>
+        </Card>
+      ) : (
+        <div className="relative">
+          {/* Vertical line */}
+          <div className="absolute left-8 top-0 h-full w-0.5 bg-gray-200" />
 
-        {/* Date items */}
-        <div className="space-y-8">
-          {dates.map((date, index) => (
-            <div key={date.id} className="relative flex gap-6">
-              {/* Timeline dot */}
-              <div className="relative z-10 flex h-16 w-16 flex-shrink-0 items-center justify-center">
-                <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-full ${
-                    date.isPast ? "bg-gray-300" : "bg-primary"
-                  }`}
-                >
-                  {date.isPast ? (
-                    <CheckCircle2 className="h-6 w-6 text-white" />
-                  ) : (
-                    <Calendar className="h-6 w-6 text-white" />
-                  )}
-                </div>
-              </div>
-
-              {/* Content card */}
-              <Card className={`flex-1 p-6 ${date.isPast ? "opacity-60" : ""}`}>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-xl font-semibold text-gray-900">{date.title}</h3>
-                      <Badge className={getTypeColor(date.type)}>{getTypeLabel(date.type)}</Badge>
-                      {date.isPast && (
-                        <Badge variant="outline" className="border-gray-400 text-gray-600">
-                          Đã Qua
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="mt-2 text-gray-600">{date.description}</p>
-                    <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-                      <Clock className="h-4 w-4" />
-                      <span>{formatDate(date.date)}</span>
-                    </div>
+          {/* Date items */}
+          <div className="space-y-8">
+            {dates.map((date, index) => (
+              <div key={date.id} className="relative flex gap-6">
+                {/* Timeline dot */}
+                <div className="relative z-10 flex h-16 w-16 flex-shrink-0 items-center justify-center">
+                  <div
+                    className={`flex h-12 w-12 items-center justify-center rounded-full ${
+                      date.isPast ? "bg-gray-300" : "bg-primary"
+                    }`}
+                  >
+                    {date.isPast ? (
+                      <CheckCircle2 className="h-6 w-6 text-white" />
+                    ) : (
+                      <Calendar className="h-6 w-6 text-white" />
+                    )}
                   </div>
                 </div>
-              </Card>
-            </div>
-          ))}
+
+                {/* Content card */}
+                <Card className={`flex-1 p-6 ${date.isPast ? "opacity-60" : ""}`}>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-xl font-semibold text-gray-900">{date.title}</h3>
+                        <Badge className={getTypeColor(date.type)}>{getTypeLabel(date.type)}</Badge>
+                        {date.isPast && (
+                          <Badge variant="outline" className="border-gray-400 text-gray-600">
+                            Đã Qua
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="mt-2 text-gray-600">{date.description}</p>
+                      <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
+                        <Clock className="h-4 w-4" />
+                        <span>{formatDate(date.date)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Summary Card */}
       <Card className="border-2 border-primary bg-primary/5 p-6">

@@ -15,6 +15,11 @@ interface FileTabProps {
   validationStatus: "pending" | "validating" | "success" | "error"
   setValidationStatus: (value: "pending" | "validating" | "success" | "error") => void
   conference?: Conference | null
+  existingFile?: {
+    name: string
+    size: number
+    type: string
+  }
 }
 
 export function FileTab({
@@ -23,6 +28,7 @@ export function FileTab({
   validationStatus,
   setValidationStatus,
   conference,
+  existingFile,
 }: FileTabProps) {
   const { t } = useTranslation()
   const [isUploading, setIsUploading] = useState(false)
@@ -199,6 +205,15 @@ export function FileTab({
                 <p className="text-sm text-gray-500">
                   {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
                 </p>
+                <p className="text-xs text-gray-400 mt-1">(New file - will replace existing)</p>
+              </div>
+            ) : existingFile ? (
+              <div>
+                <p className="text-base text-gray-900 font-medium mb-1">{existingFile.name}</p>
+                <p className="text-sm text-gray-500">
+                  {(existingFile.size / 1024 / 1024).toFixed(2)} MB
+                </p>
+                <p className="text-xs text-gray-400 mt-1">(Existing file - upload new to replace)</p>
               </div>
             ) : (
               <>
