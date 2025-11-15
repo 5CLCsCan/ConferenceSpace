@@ -6,7 +6,9 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { PaperSubmissionForm } from "@/components/author/submit/paper-submission-form"
 import { useAuth } from "@/lib/auth-context"
 import { getConferenceById } from "@/lib/api/conferences"
+import { getSubmissionById } from "@/lib/api/submissions"
 import type { Conference } from "@/lib/types"
+import type { Submission } from "@/lib/api/submissions"
 import { Loader2 } from "lucide-react"
 
 export default function SubmitPaperPage() {
@@ -14,8 +16,10 @@ export default function SubmitPaperPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const conferenceId = searchParams.get("conference")
+  const editSubmissionId = searchParams.get("edit")
 
   const [conference, setConference] = useState<Conference | null>(null)
+  const [submission, setSubmission] = useState<Submission | null>(null)
   const [loading, setLoading] = useState(!!conferenceId)
 
   useEffect(() => {
@@ -26,22 +30,33 @@ export default function SubmitPaperPage() {
   }, [isAuthenticated, router])
 
   useEffect(() => {
-    async function loadConference() {
+    async function loadData() {
       if (!conferenceId) {
         setLoading(false)
         return
       }
 
       setLoading(true)
-      const response = await getConferenceById(conferenceId)
-      if (response.data) {
-        setConference(response.data)
+      
+      // Load conference
+      const conferenceResponse = await getConferenceById(conferenceId)
+      if (conferenceResponse.data) {
+        setConference(conferenceResponse.data)
       }
+
+      // Load submission if edit mode
+      if (editSubmissionId) {
+        const submissionResponse = await getSubmissionById(conferenceId, editSubmissionId)
+        if (submissionResponse.data) {
+          setSubmission(submissionResponse.data)
+        }
+      }
+
       setLoading(false)
     }
 
-    loadConference()
-  }, [conferenceId])
+    loadData()
+  }, [conferenceId, editSubmissionId])
 
   if (!isAuthenticated || !user) {
     return null
@@ -59,7 +74,7 @@ export default function SubmitPaperPage() {
     <div className="min-h-screen bg-gray-50">
       <DashboardHeader role="author" />
       <main className="container mx-auto px-4 py-8">
-        <PaperSubmissionForm conference={conference} />
+        <PaperSubmissionForm conference={conference} submission={submission} />
       </main>
     </div>
   )
