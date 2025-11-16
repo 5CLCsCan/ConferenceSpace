@@ -5,7 +5,6 @@ import type React from "react"
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Calendar } from "@/components/ui/calendar"
@@ -15,7 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { CalendarIcon, X } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
-import type { ConferenceFormData } from "@/app/conferences/new/page"
+import type { ConferenceFormData } from "@/app/dashboard/chair/create-conference/page"
 import { typography, spacing, iconSizes } from "@/lib/typography"
 
 type Props = {
@@ -255,7 +254,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
           {data.topics.length > 0 && (
             <div className={`flex flex-wrap ${spacing.gap.sm} mt-2`}>
               {data.topics.map((topic) => (
-                <Badge key={topic} variant="secondary" className={`${spacing.gap.tight} pr-1 pl-3`}>
+                <Badge key={topic} variant="secondary" className="gap-1 pr-1 pl-3">
                   {topic}
                   <button
                     type="button"
@@ -315,20 +314,6 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Submission Guidelines */}
-        <div className={spacing.item}>
-          <Label htmlFor="guidelines" className={typography.label}>
-            Submission Guidelines
-          </Label>
-          <Textarea
-            id="guidelines"
-            placeholder="Detailed instructions for authors (e.g., page limits, formatting requirements)..."
-            rows={5}
-            value={data.submissionGuidelines}
-            onChange={(e) => updateData({ submissionGuidelines: e.target.value })}
-          />
         </div>
       </div>
     </div>

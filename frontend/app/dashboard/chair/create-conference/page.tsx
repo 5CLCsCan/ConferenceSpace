@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { ConferenceDetailsStep } from "@/components/wizard/conference-details-step"
 import { TopicsSubmissionsStep } from "@/components/wizard/topics-submissions-step"
+import { CfpConfigurationStep } from "@/components/wizard/cfp-configuration-step"
 import { OrganizersStep } from "@/components/wizard/organizers-step"
 import { ReviewStep } from "@/components/wizard/review-step"
 import { ChevronLeft, ChevronRight, ArrowLeft, Loader2 } from "lucide-react"
@@ -34,9 +35,14 @@ export type ConferenceFormData = {
   topics: string[]
   anonymity: "single-blind" | "double-blind"
   fileFormats: string[]
-  submissionGuidelines: string
 
-  // Step 3: Organizers
+  // Step 3: Call For Paper Configuration
+  cfpFormattingRequirements: string[]
+  cfpContentGuidelines: string[]
+  cfpReviewProcess: string[]
+  cfpCoverImage: File | null
+
+  // Step 4: Organizers
   organizers: Array<{
     id: string
     name: string
@@ -44,7 +50,7 @@ export type ConferenceFormData = {
     role: string
   }>
 
-  // Step 4: Review
+  // Step 5: Review
   confirmed: boolean
 }
 
@@ -74,7 +80,10 @@ export default function CreateConferencePage() {
     topics: [],
     anonymity: "double-blind",
     fileFormats: ["PDF"],
-    submissionGuidelines: "",
+    cfpFormattingRequirements: [],
+    cfpContentGuidelines: [],
+    cfpReviewProcess: [],
+    cfpCoverImage: null,
     organizers: [
       {
         id: "1",
@@ -110,6 +119,11 @@ export default function CreateConferencePage() {
       number: 4,
       title: t("dashboard.chair.createConference.steps.4.title"),
       description: t("dashboard.chair.createConference.steps.4.description"),
+    },
+    {
+      number: 5,
+      title: t("dashboard.chair.createConference.steps.5.title"),
+      description: t("dashboard.chair.createConference.steps.5.description"),
     },
   ]
 
@@ -281,15 +295,21 @@ export default function CreateConferencePage() {
             />
           )}
           {currentStep === 3 && (
-            <OrganizersStep
+            <CfpConfigurationStep
               data={formData}
               updateData={isStepEditable(3) ? updateFormData : () => {}}
             />
           )}
           {currentStep === 4 && (
-            <ReviewStep
+            <OrganizersStep
               data={formData}
               updateData={isStepEditable(4) ? updateFormData : () => {}}
+            />
+          )}
+          {currentStep === 5 && (
+            <ReviewStep
+              data={formData}
+              updateData={isStepEditable(5) ? updateFormData : () => {}}
               goToStep={goToStep}
             />
           )}

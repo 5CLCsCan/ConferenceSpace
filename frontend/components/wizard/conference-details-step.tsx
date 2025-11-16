@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
-import type { ConferenceFormData } from "@/app/conferences/new/page"
+import type { ConferenceFormData } from "@/app/dashboard/chair/create-conference/page"
 import { typography, spacing, iconSizes } from "@/lib/typography"
 
 type Props = {
