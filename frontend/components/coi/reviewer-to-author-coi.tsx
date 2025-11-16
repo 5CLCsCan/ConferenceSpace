@@ -22,6 +22,7 @@ import {
 } from "@/lib/api/coi-mock"
 import { RelationshipTimeline } from "./relationship-timeline"
 import { Loader2 } from "lucide-react"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 export function ReviewerToAuthorCOI() {
   const { t } = useTranslation()
@@ -110,23 +111,23 @@ export function ReviewerToAuthorCOI() {
   const selectedAuthorData = authors.find((a) => a.id === selectedAuthor)
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className={`grid grid-cols-1 lg:grid-cols-3 ${spacing.gap.lg}`}>
       {/* Left Panel - Selection */}
       <Card className="lg:col-span-1">
         <CardHeader>
-          <CardTitle>
+          <CardTitle className={typography.h4}>
             {t("coi.reviewerToAuthor.title") || "Reviewer → Author COI Analysis"}
           </CardTitle>
-          <CardDescription>
+          <CardDescription className={typography.body}>
             {t("coi.reviewerToAuthor.description") ||
               "Select a reviewer and author to analyze their conflict of interest relationship"}
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className={spacing.subsection}>
           {/* Reviewer Selection */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-2">
-              <User className="h-4 w-4" />
+          <div className={spacing.item}>
+            <label className={`${typography.body} ${typography.medium} flex items-center ${spacing.gap.sm}`}>
+              <User className={iconSizes.sm} />
               {t("coi.reviewerToAuthor.selectReviewer") || "Select Reviewer"}
             </label>
             <Select value={selectedReviewer} onValueChange={setSelectedReviewer}>
@@ -152,9 +153,9 @@ export function ReviewerToAuthorCOI() {
           </div>
 
           {/* Author Selection */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-2">
-              <FileText className="h-4 w-4" />
+          <div className={spacing.item}>
+            <label className={`${typography.body} ${typography.medium} flex items-center ${spacing.gap.sm}`}>
+              <FileText className={iconSizes.sm} />
               {t("coi.reviewerToAuthor.selectAuthor") || "Select Author"}
             </label>
             <Select value={selectedAuthor} onValueChange={setSelectedAuthor}>
@@ -182,16 +183,16 @@ export function ReviewerToAuthorCOI() {
           {selectedReviewerData && selectedAuthorData && (
             <Card className={`border-2 ${getSeverityColor(coiReport?.severity || "none")}`}>
               <CardContent className="pt-4">
-                <div className="space-y-2 text-sm">
+                <div className={`${spacing.item} ${typography.body}`}>
                   <div>
-                    <p className="font-medium">{t("coi.common.reviewer")}</p>
-                    <p className="text-muted-foreground">{selectedReviewerData.name}</p>
-                    <p className="text-xs text-muted-foreground">{selectedReviewerData.email}</p>
+                    <p className={typography.medium}>{t("coi.common.reviewer")}</p>
+                    <p className={typography.muted}>{selectedReviewerData.name}</p>
+                    <p className={typography.caption}>{selectedReviewerData.email}</p>
                   </div>
                   <div>
-                    <p className="font-medium">{t("coi.common.author")}</p>
-                    <p className="text-muted-foreground">{selectedAuthorData.name}</p>
-                    <p className="text-xs text-muted-foreground">{selectedAuthorData.email}</p>
+                    <p className={typography.medium}>{t("coi.common.author")}</p>
+                    <p className={typography.muted}>{selectedAuthorData.name}</p>
+                    <p className={typography.caption}>{selectedAuthorData.email}</p>
                   </div>
                 </div>
               </CardContent>
@@ -201,19 +202,19 @@ export function ReviewerToAuthorCOI() {
       </Card>
 
       {/* Right Panel - COI Report */}
-      <div className="lg:col-span-2 space-y-6">
+      <div className={`lg:col-span-2 ${spacing.subsection}`}>
         {loading ? (
           <Card>
             <CardContent className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <Loader2 className="animate-spin text-muted-foreground" style={{ width: "2rem", height: "2rem" }} />
             </CardContent>
           </Card>
         ) : !selectedReviewer || !selectedAuthor ? (
           <Card>
             <CardContent className="flex items-center justify-center py-12">
               <div className="text-center text-muted-foreground">
-                <User className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>
+                <User className="mx-auto mb-4 opacity-50" style={{ width: "3rem", height: "3rem" }} />
+                <p className={typography.body}>
                   {t("coi.reviewerToAuthor.selectBoth") ||
                     "Please select both reviewer and author to analyze COI"}
                 </p>
@@ -226,25 +227,25 @@ export function ReviewerToAuthorCOI() {
             <Card className={getSeverityColor(coiReport.severity)}>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className={`flex items-center ${spacing.gap.sm}`}>
                     {coiReport.severity === "none" ? (
-                      <CheckCircle2 className="h-5 w-5" />
+                      <CheckCircle2 className={iconSizes.md} />
                     ) : (
-                      <AlertTriangle className="h-5 w-5" />
+                      <AlertTriangle className={iconSizes.md} />
                     )}
                     {t("coi.reviewerToAuthor.coiReport") || "COI Analysis Report"}
                   </CardTitle>
-                  <Badge variant="outline" className="text-lg font-semibold">
+                  <Badge variant="outline" className={`${typography.h4} ${typography.semibold}`}>
                     {t(`coi.severity.${coiReport.severity}`) || coiReport.severity.toUpperCase()}
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm">{coiReport.summary}</p>
+              <CardContent className={spacing.subsection}>
+                <p className={typography.body}>{coiReport.summary}</p>
 
-                <div className="flex items-center gap-4">
-                  <Badge variant="outline" className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
+                <div className={`flex items-center ${spacing.gap.md}`}>
+                  <Badge variant="outline" className={`flex items-center ${spacing.gap.tight}`}>
+                    <Calendar className={iconSizes.xs} />
                     {coiReport.relationships.length}{" "}
                     {t("coi.reviewerToAuthor.relationships") || "relationships"}
                   </Badge>
@@ -268,21 +269,21 @@ export function ReviewerToAuthorCOI() {
             {coiReport.relationships.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>
+                  <CardTitle className={typography.h4}>
                     {t("coi.reviewerToAuthor.relationships") || "Relationships"}
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className={typography.body}>
                     {t("coi.reviewerToAuthor.relationshipsDescription") ||
                       "Detailed breakdown of detected relationships"}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className={spacing.gap.md}>
                   {coiReport.relationships.map((rel: Relationship, idx: number) => (
                     <Card key={idx} className="border-l-4 border-l-primary">
                       <CardContent className="pt-4">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
+                            <div className={`flex items-center ${spacing.gap.sm} mb-2`}>
                               <Badge variant="outline">
                                 {t(`coi.relationshipTypes.${rel.type}`) ||
                                   rel.type.replace(/_/g, " ")}
@@ -291,17 +292,19 @@ export function ReviewerToAuthorCOI() {
                                 {t(`coi.severity.${rel.severity}`) || rel.severity}
                               </Badge>
                             </div>
-                            <p className="text-sm font-medium mb-1">{rel.description}</p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className={`${typography.body} ${typography.medium} mb-1`}>
+                              {rel.description}
+                            </p>
+                            <p className={typography.caption}>
                               {t("coi.common.from")} {rel.start_date}
                               {rel.end_date && ` ${t("coi.common.to")} ${rel.end_date}`}
                             </p>
                             {rel.evidence && rel.evidence.length > 0 && (
                               <div className="mt-2">
-                                <p className="text-xs font-medium mb-1">
+                                <p className={`${typography.bodySmall} ${typography.medium} mb-1`}>
                                   {t("coi.timeline.evidence")}
                                 </p>
-                                <ul className="text-xs text-muted-foreground list-disc list-inside space-y-1">
+                                <ul className={`${typography.bodySmall} ${typography.muted} list-disc list-inside ${spacing.tight}`}>
                                   {rel.evidence.map((ev: string, i: number) => (
                                     <li key={i}>{ev}</li>
                                   ))}
@@ -320,10 +323,10 @@ export function ReviewerToAuthorCOI() {
             {/* Timeline */}
             <Card>
               <CardHeader>
-                <CardTitle>
+                <CardTitle className={typography.h4}>
                   {t("coi.reviewerToAuthor.timeline") || "Relationship History Timeline"}
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className={typography.body}>
                   {t("coi.reviewerToAuthor.timelineDescription") ||
                     "Interactive timeline showing the history of interactions"}
                 </CardDescription>
@@ -331,12 +334,12 @@ export function ReviewerToAuthorCOI() {
               <CardContent>
                 {loadingTimeline ? (
                   <div className="flex items-center justify-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    <Loader2 className="animate-spin text-muted-foreground" style={{ width: "1.5rem", height: "1.5rem" }} />
                   </div>
                 ) : timeline.length > 0 ? (
                   <RelationshipTimeline relationships={timeline} />
                 ) : (
-                  <div className="text-center py-8 text-muted-foreground text-sm">
+                  <div className={`text-center py-8 text-muted-foreground ${typography.body}`}>
                     {t("coi.reviewerToAuthor.noTimeline") || "No relationship history available"}
                   </div>
                 )}
@@ -347,8 +350,10 @@ export function ReviewerToAuthorCOI() {
           <Card>
             <CardContent className="flex items-center justify-center py-12">
               <div className="text-center text-muted-foreground">
-                <XCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>{t("coi.reviewerToAuthor.noData") || "No COI data available"}</p>
+                <XCircle className="mx-auto mb-4 opacity-50" style={{ width: "3rem", height: "3rem" }} />
+                <p className={typography.body}>
+                  {t("coi.reviewerToAuthor.noData") || "No COI data available"}
+                </p>
               </div>
             </CardContent>
           </Card>

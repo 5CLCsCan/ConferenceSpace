@@ -18,6 +18,7 @@ import {
 import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 export default function HomePage() {
   const { isAuthenticated } = useAuth()
@@ -32,27 +33,26 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white text-neutral-900">
-      <header className="border-b border-neutral-200 bg-white shadow-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="border-b border-neutral-200 bg-white shadow-sm sticky top-0 z-50 h-[7vh]">
+        <div className="container mx-auto px-4 h-full flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-              <GraduationCap className="w-6 h-6 text-white" />
+              <GraduationCap className="w-5 h-5 text-white" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-bold">{t("app.name")}</span>
-              <span className="text-xs text-neutral-600">{t("app.tagline")}</span>
+              <span className={typography.h4}>{t("app.name")}</span>
             </div>
           </Link>
-          <nav className="flex items-center gap-3 sm:gap-6">
+          <nav className={`flex items-center ${spacing.gap.md} sm:${spacing.gap.lg}`}>
             <a
               href="#features"
-              className="text-sm font-medium text-neutral-700 hover:text-primary transition-colors"
+              className={`${typography.body} ${typography.medium} text-neutral-700 hover:text-primary transition-colors`}
             >
               {t("home.nav.features")}
             </a>
             <a
               href="#about"
-              className="text-sm font-medium text-neutral-700 hover:text-primary transition-colors"
+              className={`${typography.body} ${typography.medium} text-neutral-700 hover:text-primary transition-colors`}
             >
               {t("home.nav.about")}
             </a>
@@ -77,12 +77,16 @@ export default function HomePage() {
 
       <section className="bg-gradient-to-b from-neutral-50 to-white border-b border-neutral-200">
         <div className="container mx-auto px-4 py-20 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-            <Sparkles className="w-4 h-4" />
+          <div
+            className={`inline-flex items-center ${spacing.gap.sm} px-4 py-2 rounded-full bg-primary/10 text-primary ${typography.body} ${typography.medium} mb-6`}
+          >
+            <Sparkles className={iconSizes.sm} />
             {t("home.hero.badge")}
           </div>
-          <h1 className="text-5xl font-bold mb-6 text-neutral-900">{t("home.hero.title")}</h1>
-          <p className="text-xl text-neutral-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+          <h1 className={`text-5xl ${typography.bold} mb-6 text-neutral-900`}>
+            {t("home.hero.title")}
+          </h1>
+          <p className={`text-xl text-neutral-600 mb-8 max-w-3xl mx-auto leading-relaxed`}>
             {t("home.hero.subtitle")}
           </p>
           <div className="flex items-center justify-center gap-4">
@@ -105,17 +109,19 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="flex items-center justify-center gap-8 mt-12 text-sm text-neutral-600">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-success" />
+          <div
+            className={`flex items-center justify-center gap-8 mt-12 ${typography.body} text-neutral-600`}
+          >
+            <div className={`flex items-center ${spacing.gap.sm}`}>
+              <CheckCircle2 className={`${iconSizes.md} text-success`} />
               <span>{t("home.metrics.accessibility")}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-success" />
+            <div className={`flex items-center ${spacing.gap.sm}`}>
+              <Award className={`${iconSizes.md} text-success`} />
               <span>{t("home.metrics.adoption")}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-success" />
+            <div className={`flex items-center ${spacing.gap.sm}`}>
+              <TrendingUp className={`${iconSizes.md} text-success`} />
               <span>{t("home.metrics.precision")}</span>
             </div>
           </div>
@@ -124,41 +130,49 @@ export default function HomePage() {
 
       <section id="features" className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">{t("home.features.title")}</h2>
-          <p className="text-neutral-600 max-w-2xl mx-auto">{t("home.features.subtitle")}</p>
+          <h2 className={`${typography.h1} mb-4`}>{t("home.features.title")}</h2>
+          <p className={`text-neutral-600 max-w-2xl mx-auto ${typography.body}`}>
+            {t("home.features.subtitle")}
+          </p>
         </div>
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className={`grid ${spacing.gap.lg} md:grid-cols-3`}>
           <Card className="bg-white border border-neutral-200 shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="space-y-4">
+            <CardHeader className={spacing.subsection}>
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <FileText className="w-6 h-6 text-primary" />
+                <FileText className={`${iconSizes.lg} text-primary`} />
               </div>
-              <CardTitle className="text-xl">{t("home.features.cards.submission.title")}</CardTitle>
-              <CardDescription className="text-neutral-600 leading-relaxed">
+              <CardTitle className={typography.h4}>
+                {t("home.features.cards.submission.title")}
+              </CardTitle>
+              <CardDescription className={`text-neutral-600 leading-relaxed ${typography.body}`}>
                 {t("home.features.cards.submission.description")}
               </CardDescription>
             </CardHeader>
           </Card>
 
           <Card className="bg-white border border-neutral-200 shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="space-y-4">
+            <CardHeader className={spacing.subsection}>
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Users className="w-6 h-6 text-primary" />
+                <Users className={`${iconSizes.lg} text-primary`} />
               </div>
-              <CardTitle className="text-xl">{t("home.features.cards.review.title")}</CardTitle>
-              <CardDescription className="text-neutral-600 leading-relaxed">
+              <CardTitle className={typography.h4}>
+                {t("home.features.cards.review.title")}
+              </CardTitle>
+              <CardDescription className={`text-neutral-600 leading-relaxed ${typography.body}`}>
                 {t("home.features.cards.review.description")}
               </CardDescription>
             </CardHeader>
           </Card>
 
           <Card className="bg-white border border-neutral-200 shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="space-y-4">
+            <CardHeader className={spacing.subsection}>
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <BarChart3 className="w-6 h-6 text-primary" />
+                <BarChart3 className={`${iconSizes.lg} text-primary`} />
               </div>
-              <CardTitle className="text-xl">{t("home.features.cards.analytics.title")}</CardTitle>
-              <CardDescription className="text-neutral-600 leading-relaxed">
+              <CardTitle className={typography.h4}>
+                {t("home.features.cards.analytics.title")}
+              </CardTitle>
+              <CardDescription className={`text-neutral-600 leading-relaxed ${typography.body}`}>
                 {t("home.features.cards.analytics.description")}
               </CardDescription>
             </CardHeader>
@@ -168,24 +182,30 @@ export default function HomePage() {
 
       <section id="about" className="bg-neutral-50 border-y border-neutral-200">
         <div className="container mx-auto px-4 py-16">
-          <div className="grid md:grid-cols-4 gap-8 text-center">
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-primary">247</div>
-              <div className="text-sm text-neutral-600 font-medium">{t("home.stats.papers")}</div>
+          <div className={`grid md:grid-cols-4 ${spacing.gap.lg} text-center`}>
+            <div className={spacing.item}>
+              <div className={`text-4xl ${typography.bold} text-primary`}>247</div>
+              <div className={`${typography.body} text-neutral-600 ${typography.medium}`}>
+                {t("home.stats.papers")}
+              </div>
             </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-primary">486</div>
-              <div className="text-sm text-neutral-600 font-medium">{t("home.stats.reviews")}</div>
+            <div className={spacing.item}>
+              <div className={`text-4xl ${typography.bold} text-primary`}>486</div>
+              <div className={`${typography.body} text-neutral-600 ${typography.medium}`}>
+                {t("home.stats.reviews")}
+              </div>
             </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-primary">28.5%</div>
-              <div className="text-sm text-neutral-600 font-medium">
+            <div className={spacing.item}>
+              <div className={`text-4xl ${typography.bold} text-primary`}>28.5%</div>
+              <div className={`${typography.body} text-neutral-600 ${typography.medium}`}>
                 {t("home.stats.acceptance")}
               </div>
             </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-primary">95%</div>
-              <div className="text-sm text-neutral-600 font-medium">{t("home.stats.accuracy")}</div>
+            <div className={spacing.item}>
+              <div className={`text-4xl ${typography.bold} text-primary`}>95%</div>
+              <div className={`${typography.body} text-neutral-600 ${typography.medium}`}>
+                {t("home.stats.accuracy")}
+              </div>
             </div>
           </div>
         </div>
@@ -194,13 +214,13 @@ export default function HomePage() {
       <footer className="border-t border-neutral-200 bg-white">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className={`flex items-center ${spacing.gap.sm}`}>
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <GraduationCap className="w-5 h-5 text-white" />
+                <GraduationCap className={`${iconSizes.md} text-white`} />
               </div>
-              <span className="font-semibold">{t("app.name")}</span>
+              <span className={typography.semibold}>{t("app.name")}</span>
             </Link>
-            <div className="text-sm text-neutral-600">{t("app.footer")}</div>
+            <div className={`${typography.body} text-neutral-600`}>{t("app.footer")}</div>
           </div>
         </div>
       </footer>

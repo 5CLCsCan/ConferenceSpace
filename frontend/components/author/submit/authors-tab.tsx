@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Plus, Loader2, Check } from "lucide-react"
 import { apiFetch } from "@/lib/api/client"
 import { cn } from "@/lib/utils"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 interface Author {
   name: string
@@ -121,16 +122,22 @@ export function AuthorsTab({
   }
 
   return (
-    <div className="space-y-6">
+    <div className={spacing.subsection}>
       <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-1">Authors & Affiliations</h2>
-        <p className="text-sm text-gray-600">Add all co-authors in the correct order</p>
+        <h2 className={`${typography.h3} ${typography.bold} text-gray-900 mb-1`}>
+          Authors & Affiliations
+        </h2>
+        <p className={`${typography.body} text-gray-600`}>
+          Add all co-authors in the correct order
+        </p>
       </div>
-      <div className="space-y-4">
+      <div className={spacing.subsection}>
         {authors.map((author, index) => (
-          <div key={index} className="space-y-2">
+          <div key={index} className={spacing.item}>
             <div className="relative">
-              <Label className="text-xs text-gray-600">Author {index + 1} - Email *</Label>
+              <Label className={`${typography.bodySmall} text-gray-600`}>
+                Author {index + 1} - Email *
+              </Label>
               <div className="relative">
                 <Input
                   ref={(el) => {
@@ -171,20 +178,20 @@ export function AuthorsTab({
                                 handleSelectUser(index, user)
                               }}
                               className={cn(
-                                "w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer",
+                                `w-full flex items-center ${spacing.gap.sm} px-2 py-1.5 ${typography.body} rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer`,
                                 author.email === user.email && "bg-accent"
                               )}
                             >
                               <div className="flex-1 text-left">
-                                <div className="font-medium">{user.email}</div>
+                                <div className={typography.medium}>{user.email}</div>
                                 {(user.first_name || user.last_name) && (
-                                  <div className="text-xs text-muted-foreground">
+                                  <div className={typography.bodySmall}>
                                     {`${user.first_name || ""} ${user.last_name || ""}`.trim()}
                                   </div>
                                 )}
                               </div>
                               {author.email === user.email && (
-                                <Check className="size-4 text-primary" />
+                                <Check className={`${iconSizes.sm} text-primary`} />
                               )}
                             </button>
                           ))}
@@ -195,8 +202,8 @@ export function AuthorsTab({
               </div>
             </div>
             {author.name && (
-              <div className="text-sm text-muted-foreground pl-1">
-                <span className="font-medium">Name:</span> {author.name}
+              <div className={`${typography.body} text-muted-foreground pl-1`}>
+                <span className={typography.medium}>Name:</span> {author.name}
               </div>
             )}
           </div>
@@ -208,10 +215,10 @@ export function AuthorsTab({
         onClick={handleAddAuthor}
         className="w-full bg-transparent"
       >
-        <Plus className="size-4 mr-2" />
+        <Plus className={`${iconSizes.sm} mr-2`} />
         Add Co-Author
       </Button>
-      <div className="flex items-center space-x-2 pt-4 border-t">
+      <div className={`flex items-center ${spacing.gap.sm} pt-4 border-t`}>
         <Checkbox
           id="corresponding"
           checked={isCorresponding}
@@ -219,7 +226,7 @@ export function AuthorsTab({
         />
         <label
           htmlFor="corresponding"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          className={`${typography.body} ${typography.medium} leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70`}
         >
           I am the corresponding author
         </label>

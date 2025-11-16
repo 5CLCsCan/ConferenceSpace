@@ -33,6 +33,7 @@ import {
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { getAllCOIRelationships, type RelationshipWithDetails } from "@/lib/api/coi-mock"
 import { Loader2 } from "lucide-react"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 interface AllCOIRelationshipsProps {
   open: boolean
@@ -120,19 +121,23 @@ export function AllCOIRelationships({ open, onOpenChange }: AllCOIRelationshipsP
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[90vw] w-[90vw] max-h-[90vh] h-[90vh] overflow-hidden flex flex-col p-0 gap-0">
         {/* Header and Filters Section - Fixed */}
-        <div className="flex-shrink-0 p-6 pb-4 border-b">
+        <div className={`flex-shrink-0 ${spacing.padding.cardLarge} pb-4 border-b`}>
           <DialogHeader>
-            <DialogTitle>{t("coi.allRelationships.title")}</DialogTitle>
-            <DialogDescription>{t("coi.allRelationships.description")}</DialogDescription>
+            <DialogTitle className={typography.h4}>{t("coi.allRelationships.title")}</DialogTitle>
+            <CardDescription className={typography.body}>
+              {t("coi.allRelationships.description")}
+            </CardDescription>
           </DialogHeader>
 
           {/* Filters and Search */}
-          <div className="space-y-4 mt-4">
-            <div className="flex gap-4 flex-wrap">
+          <div className={`${spacing.subsection} mt-4`}>
+            <div className={`flex ${spacing.gap.md} flex-wrap`}>
               {/* Search */}
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Search
+                    className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${iconSizes.sm} text-muted-foreground`}
+                  />
                   <Input
                     placeholder={t("coi.allRelationships.searchPlaceholder")}
                     value={searchQuery}
@@ -199,14 +204,14 @@ export function AllCOIRelationships({ open, onOpenChange }: AllCOIRelationshipsP
                     setTypeFilter("all")
                   }}
                 >
-                  <X className="h-4 w-4 mr-2" />
+                  <X className={`${iconSizes.sm} mr-2`} />
                   {t("coi.allRelationships.clearFilters")}
                 </Button>
               )}
             </div>
 
             {/* Summary Stats */}
-            <div className="flex gap-4 text-sm text-muted-foreground">
+            <div className={`flex ${spacing.gap.md} ${typography.body} text-muted-foreground`}>
               <span>{t("coi.allRelationships.totalFound", { count: relationships.length })}</span>
               {severityFilter === "all" && (
                 <>
@@ -229,15 +234,15 @@ export function AllCOIRelationships({ open, onOpenChange }: AllCOIRelationshipsP
         </div>
 
         {/* Relationships List - Scrollable */}
-        <div className="flex-1 overflow-y-auto space-y-3 p-6 min-h-0">
+        <div className={`flex-1 overflow-y-auto ${spacing.gap.md} ${spacing.padding.cardLarge} min-h-0`}>
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <Loader2 className="animate-spin text-muted-foreground" style={{ width: "2rem", height: "2rem" }} />
             </div>
           ) : relationships.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>{t("coi.allRelationships.noRelationships")}</p>
+            <div className={`text-center py-12 text-muted-foreground`}>
+              <AlertTriangle className="mx-auto mb-4 opacity-50" style={{ width: "3rem", height: "3rem" }} />
+              <p className={typography.body}>{t("coi.allRelationships.noRelationships")}</p>
             </div>
           ) : (
             relationships.map((rel) => {
@@ -249,26 +254,28 @@ export function AllCOIRelationships({ open, onOpenChange }: AllCOIRelationshipsP
                   onClick={() => toggleExpand(rel.id)}
                 >
                   <CardContent className="pt-4">
-                    <div className="flex items-start justify-between gap-4">
+                    <div className={`flex items-start justify-between ${spacing.gap.md}`}>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                        <div className={`flex items-center ${spacing.gap.sm} mb-2 flex-wrap`}>
                           <Badge variant="outline" className={getSeverityColor(rel.severity)}>
                             {t(`coi.severity.${rel.severity}`)}
                           </Badge>
                           <Badge variant="outline">{t(`coi.relationshipTypes.${rel.type}`)}</Badge>
                         </div>
 
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <User className="h-4 w-4 text-muted-foreground" />
-                            <span className="font-medium">{rel.reviewer_name}</span>
-                            <span className="text-muted-foreground">→</span>
-                            <span className="font-medium">{rel.author_name}</span>
+                        <div className={spacing.tight}>
+                          <div className={`flex items-center ${spacing.gap.sm}`}>
+                            <User className={`${iconSizes.sm} text-muted-foreground`} />
+                            <span className={typography.medium}>{rel.reviewer_name}</span>
+                            <span className={typography.muted}>→</span>
+                            <span className={typography.medium}>{rel.author_name}</span>
                           </div>
-                          <p className="text-sm text-muted-foreground">{rel.description}</p>
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
+                          <p className={`${typography.body} text-muted-foreground`}>
+                            {rel.description}
+                          </p>
+                          <div className={`flex items-center ${spacing.gap.md} ${typography.bodySmall} text-muted-foreground`}>
+                            <span className={`flex items-center ${spacing.gap.tight}`}>
+                              <Calendar className={iconSizes.xs} />
                               {t("coi.common.from")} {rel.start_date}
                               {rel.end_date && ` ${t("coi.common.to")} ${rel.end_date}`}
                             </span>
@@ -277,38 +284,34 @@ export function AllCOIRelationships({ open, onOpenChange }: AllCOIRelationshipsP
 
                         {/* Expanded Details */}
                         {isExpanded && (
-                          <div className="mt-4 pt-4 border-t space-y-3">
-                            <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div className={`mt-4 pt-4 border-t ${spacing.gap.md}`}>
+                            <div className={`grid grid-cols-2 ${spacing.gap.md} ${typography.body}`}>
                               <div>
-                                <p className="font-medium mb-1">
+                                <p className={`${typography.medium} mb-1`}>
                                   {t("coi.allRelationships.reviewer")}
                                 </p>
-                                <p className="text-muted-foreground">{rel.reviewer_name}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {rel.reviewer_email}
-                                </p>
+                                <p className={typography.muted}>{rel.reviewer_name}</p>
+                                <p className={typography.caption}>{rel.reviewer_email}</p>
                               </div>
                               <div>
-                                <p className="font-medium mb-1">
+                                <p className={`${typography.medium} mb-1`}>
                                   {t("coi.allRelationships.author")}
                                 </p>
-                                <p className="text-muted-foreground">{rel.author_name}</p>
-                                <p className="text-xs text-muted-foreground">{rel.author_email}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {rel.author_affiliation}
-                                </p>
+                                <p className={typography.muted}>{rel.author_name}</p>
+                                <p className={typography.caption}>{rel.author_email}</p>
+                                <p className={typography.caption}>{rel.author_affiliation}</p>
                               </div>
                             </div>
 
                             {rel.paper_titles && rel.paper_titles.length > 0 && (
                               <div>
-                                <p className="font-medium mb-2 text-sm flex items-center gap-2">
-                                  <FileText className="h-4 w-4" />
+                                <p className={`${typography.medium} mb-2 ${typography.body} flex items-center ${spacing.gap.sm}`}>
+                                  <FileText className={iconSizes.sm} />
                                   {t("coi.allRelationships.relatedPapers")}
                                 </p>
-                                <ul className="space-y-1">
+                                <ul className={spacing.tight}>
                                   {rel.paper_titles.map((title: string, idx: number) => (
-                                    <li key={idx} className="text-sm text-muted-foreground">
+                                    <li key={idx} className={`${typography.body} text-muted-foreground`}>
                                       • {title}
                                     </li>
                                   ))}
@@ -318,10 +321,10 @@ export function AllCOIRelationships({ open, onOpenChange }: AllCOIRelationshipsP
 
                             {rel.evidence && rel.evidence.length > 0 && (
                               <div>
-                                <p className="font-medium mb-2 text-sm">
+                                <p className={`${typography.medium} mb-2 ${typography.body}`}>
                                   {t("coi.timeline.evidence")}
                                 </p>
-                                <ul className="space-y-1 list-disc list-inside text-sm text-muted-foreground">
+                                <ul className={`${spacing.tight} list-disc list-inside ${typography.body} text-muted-foreground`}>
                                   {rel.evidence.map((ev: string, idx: number) => (
                                     <li key={idx}>{ev}</li>
                                   ))}
@@ -341,9 +344,9 @@ export function AllCOIRelationships({ open, onOpenChange }: AllCOIRelationshipsP
                         }}
                       >
                         {isExpanded ? (
-                          <ChevronUp className="h-4 w-4" />
+                          <ChevronUp className={iconSizes.sm} />
                         ) : (
-                          <ChevronDown className="h-4 w-4" />
+                          <ChevronDown className={iconSizes.sm} />
                         )}
                       </Button>
                     </div>

@@ -28,6 +28,7 @@ import { formatDate } from "@/lib/utils"
 import type { AssignedPaper } from "@/lib/types"
 import { useCompletedReviews } from "@/hooks/use-completed-reviews"
 import { useDebounce } from "@/hooks/use-debounce"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 interface CompletedReviewsProps {
   reviewerId?: string
@@ -101,13 +102,13 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
   }
 
   return (
-    <div className="space-y-6">
+    <div className={spacing.subsection}>
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">
+        <h1 className={`${typography.h1} ${typography.bold} tracking-tight`}>
           {t("dashboard.roles.reviewer.nav.completedReviews")}
         </h1>
-        <p className="text-muted-foreground mt-2">
+        <p className={`${typography.muted} mt-2`}>
           {t("dashboard.roles.reviewer.completedReviews.description")}
         </p>
       </div>
@@ -115,15 +116,17 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Filter className="size-4" />
+          <CardTitle className={`${typography.h4} flex items-center ${spacing.gap.sm}`}>
+            <Filter className={iconSizes.sm} />
             {t("dashboard.roles.reviewer.completedReviews.filters")}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center gap-4">
+        <CardContent className={spacing.subsection}>
+          <div className={`flex items-center ${spacing.gap.md}`}>
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Search
+                className={`absolute left-3 top-1/2 -translate-y-1/2 ${iconSizes.sm} text-muted-foreground`}
+              />
               <Input
                 placeholder={t("dashboard.roles.reviewer.completedReviews.searchPlaceholder")}
                 value={searchQuery}
@@ -168,18 +171,18 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
       </Card>
 
       {/* Reviews List */}
-      <div className="space-y-4">
+      <div className={spacing.subsection}>
         {isLoading ? (
           <Card>
             <CardContent className="flex items-center justify-center py-12">
-              <Loader2 className="size-8 animate-spin text-muted-foreground" />
+              <Loader2 className="animate-spin text-muted-foreground" style={{ width: "2rem", height: "2rem" }} />
             </CardContent>
           </Card>
         ) : sortedReviews.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <CheckCircle2 className="size-12 text-muted-foreground mb-4" />
-              <p className="text-lg font-medium text-muted-foreground">
+              <CheckCircle2 className="text-muted-foreground mb-4" style={{ width: "3rem", height: "3rem" }} />
+              <p className={`${typography.h4} ${typography.medium} text-muted-foreground`}>
                 {debouncedSearch
                   ? t("dashboard.roles.reviewer.completedReviews.noResults")
                   : t("dashboard.roles.reviewer.completedReviews.noCompletedReviews")}
@@ -192,27 +195,27 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-lg mb-2">{review.title}</CardTitle>
+                    <CardTitle className={`${typography.h4} mb-2`}>{review.title}</CardTitle>
                     <CardDescription className="line-clamp-2">{review.abstract}</CardDescription>
                   </div>
                   <Badge variant="outline" className="ml-4 bg-green-50 text-green-700 border-green-200">
-                    <CheckCircle2 className="size-3 mr-1" />
+                    <CheckCircle2 className={`${iconSizes.xs} mr-1`} />
                     {t("dashboard.roles.reviewer.completedReviews.completed")}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className={spacing.subsection}>
                   {/* Keywords */}
                   {review.keywords && review.keywords.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
+                    <div className={`flex flex-wrap ${spacing.gap.sm}`}>
                       {review.keywords.slice(0, 5).map((keyword, idx) => (
-                        <Badge key={idx} variant="secondary" className="text-xs">
+                        <Badge key={idx} variant="secondary" className={typography.bodySmall}>
                           {keyword}
                         </Badge>
                       ))}
                       {review.keywords.length > 5 && (
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="secondary" className={typography.bodySmall}>
                           +{review.keywords.length - 5}
                         </Badge>
                       )}
@@ -220,16 +223,16 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
                   )}
 
                   {/* Metadata */}
-                  <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="size-4" />
+                  <div className={`flex items-center ${spacing.gap.lg} ${typography.body} text-muted-foreground`}>
+                    <div className={`flex items-center ${spacing.gap.sm}`}>
+                      <Calendar className={iconSizes.sm} />
                       <span>
                         {t("dashboard.roles.reviewer.completedReviews.completedOn")}: {" "}
                         {formatDate(review.updated_at)}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <FileText className="size-4" />
+                    <div className={`flex items-center ${spacing.gap.sm}`}>
+                      <FileText className={iconSizes.sm} />
                       <span>
                         {t("dashboard.roles.reviewer.completedReviews.version")} {review.version}
                       </span>
@@ -237,14 +240,14 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
                   </div>
 
                   {/* Actions */}
-                  <div className="flex gap-2 pt-2">
+                  <div className={`flex ${spacing.gap.sm} pt-2`}>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleSelect(review.id, review.conference_id)}
-                      className="gap-2"
+                      className={spacing.gap.sm}
                     >
-                      <Eye className="size-4" />
+                      <Eye className={iconSizes.sm} />
                       {t("dashboard.roles.reviewer.completedReviews.viewReview")}
                     </Button>
                   </div>
@@ -258,9 +261,9 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
         {hasMore && (
           <div ref={loadMoreRef} className="flex justify-center py-4">
             {isLoadingMore && (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Loader2 className="size-4 animate-spin" />
-                <span>{t("common.messages.loading")}</span>
+              <div className={`flex items-center ${spacing.gap.sm} text-muted-foreground`}>
+                <Loader2 className={`${iconSizes.sm} animate-spin`} />
+                <span className={typography.body}>{t("common.messages.loading")}</span>
               </div>
             )}
           </div>

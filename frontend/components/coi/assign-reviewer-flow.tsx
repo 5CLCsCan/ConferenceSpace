@@ -20,6 +20,7 @@ import type { Reviewer, Paper, Author, COIType } from "@/lib/mock-data/coi"
 import { searchReviewers, getAllPapers, getAllAuthors, assignReviewer } from "@/lib/api/coi-mock"
 import { ReviewerListItem } from "./reviewer-list-item"
 import { useToast } from "@/hooks/use-toast"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 export function AssignReviewerFlow() {
   const { t } = useTranslation()
@@ -148,18 +149,20 @@ export function AssignReviewerFlow() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className={`grid grid-cols-1 lg:grid-cols-3 ${spacing.gap.lg}`}>
       {/* Left Panel - Selection */}
-      <div className="lg:col-span-2 space-y-4">
+      <div className={`lg:col-span-2 ${spacing.subsection}`}>
         <Card>
           <CardHeader>
-            <CardTitle>{t("coi.assign.title")}</CardTitle>
-            <CardDescription>{t("coi.assign.description")}</CardDescription>
+            <CardTitle className={typography.h4}>{t("coi.assign.title")}</CardTitle>
+            <CardDescription className={typography.body}>
+              {t("coi.assign.description")}
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className={spacing.subsection}>
             {/* COI Type Selection */}
-            <div className="space-y-2">
-              <Label>{t("coi.assign.coiType")}</Label>
+            <div className={spacing.item}>
+              <Label className={typography.label}>{t("coi.assign.coiType")}</Label>
               <Select value={coiType} onValueChange={(v) => setCoiType(v as COIType)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -173,8 +176,8 @@ export function AssignReviewerFlow() {
 
             {/* Paper/Author Selection */}
             {coiType === "paper" && (
-              <div className="space-y-2">
-                <Label>{t("coi.assign.selectPaper")}</Label>
+              <div className={spacing.item}>
+                <Label className={typography.label}>{t("coi.assign.selectPaper")}</Label>
                 <Select value={selectedPaper} onValueChange={setSelectedPaper}>
                   <SelectTrigger className="w-full max-w-full">
                     <SelectValue
@@ -196,8 +199,8 @@ export function AssignReviewerFlow() {
             )}
 
             {coiType === "author" && (
-              <div className="space-y-2">
-                <Label>{t("coi.assign.selectAuthor")}</Label>
+              <div className={spacing.item}>
+                <Label className={typography.label}>{t("coi.assign.selectAuthor")}</Label>
                 <Select value={selectedAuthor} onValueChange={setSelectedAuthor}>
                   <SelectTrigger className="w-full max-w-full">
                     <SelectValue
@@ -222,11 +225,13 @@ export function AssignReviewerFlow() {
             )}
 
             {/* Search */}
-            <div className="space-y-2">
-              <Label>{t("coi.assign.search")}</Label>
-              <div className="flex gap-2">
+            <div className={spacing.item}>
+              <Label className={typography.label}>{t("coi.assign.search")}</Label>
+              <div className={`flex ${spacing.gap.sm}`}>
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Search
+                    className={`absolute left-3 top-1/2 -translate-y-1/2 ${iconSizes.sm} text-muted-foreground`}
+                  />
                   <Input
                     placeholder={t("coi.assign.searchPlaceholder")}
                     value={searchQuery}
@@ -237,29 +242,34 @@ export function AssignReviewerFlow() {
                 </div>
                 <Button onClick={handleSearch} disabled={loading}>
                   {loading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className={`${iconSizes.sm} animate-spin`} />
                   ) : (
-                    <Search className="h-4 w-4" />
+                    <Search className={iconSizes.sm} />
                   )}
                 </Button>
               </div>
             </div>
 
             {/* Reviewers List */}
-            <div className="space-y-2">
+            <div className={spacing.item}>
               <div className="flex items-center justify-between">
-                <Label>{t("coi.assign.reviewersList")}</Label>
+                <Label className={typography.label}>{t("coi.assign.reviewersList")}</Label>
                 <Badge variant="outline">
                   {reviewers.length} {t("coi.assign.reviewers")}
                 </Badge>
               </div>
-              <div className="max-h-[500px] overflow-y-auto space-y-2 border rounded-lg p-3">
+              <div
+                className={`max-h-[500px] overflow-y-auto ${spacing.item} border rounded-lg ${spacing.padding.card}`}
+              >
                 {loading ? (
                   <div className="flex items-center justify-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    <Loader2
+                      className="animate-spin text-muted-foreground"
+                      style={{ width: "1.5rem", height: "1.5rem" }}
+                    />
                   </div>
                 ) : reviewers.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className={`text-center py-8 text-muted-foreground ${typography.body}`}>
                     {t("coi.assign.noReviewers")}
                   </div>
                 ) : (
@@ -282,37 +292,39 @@ export function AssignReviewerFlow() {
       </div>
 
       {/* Right Panel - Selected Reviewers & Actions */}
-      <div className="space-y-4">
+      <div className={spacing.subsection}>
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <UserCheck className="h-5 w-5" />
+            <CardTitle className={`flex items-center ${spacing.gap.sm}`}>
+              <UserCheck className={iconSizes.md} />
               {t("coi.assign.selectedReviewers")}
             </CardTitle>
-            <CardDescription>
+            <CardDescription className={typography.body}>
               {selectedReviewers.size}{" "}
               {selectedReviewers.size === 1
                 ? t("coi.assign.reviewerSelected")
                 : t("coi.assign.reviewersSelected")}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className={spacing.subsection}>
             {selectedReviewers.size === 0 ? (
-              <div className="text-center py-8 text-muted-foreground text-sm">
+              <div className={`text-center py-8 text-muted-foreground ${typography.body}`}>
                 {t("coi.assign.noSelectionYet")}
               </div>
             ) : (
-              <div className="space-y-2 max-h-[300px] overflow-y-auto">
+              <div className={`${spacing.item} max-h-[300px] overflow-y-auto`}>
                 {reviewers
                   .filter((r) => selectedReviewers.has(r.id))
                   .map((reviewer) => (
                     <div
                       key={reviewer.id}
-                      className="flex items-center justify-between p-2 border rounded-lg"
+                      className={`flex items-center justify-between ${spacing.padding.card} border rounded-lg`}
                     >
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{reviewer.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">
+                        <p className={`${typography.body} ${typography.medium} truncate`}>
+                          {reviewer.name}
+                        </p>
+                        <p className={`${typography.bodySmall} text-muted-foreground truncate`}>
                           {reviewer.affiliation}
                         </p>
                       </div>
@@ -336,12 +348,12 @@ export function AssignReviewerFlow() {
             >
               {assigning ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className={`mr-2 ${iconSizes.sm} animate-spin`} />
                   {t("coi.assign.assigning")}
                 </>
               ) : (
                 <>
-                  <UserCheck className="mr-2 h-4 w-4" />
+                  <UserCheck className={`mr-2 ${iconSizes.sm}`} />
                   {t("coi.assign.assignSelected")}
                 </>
               )}
@@ -352,11 +364,13 @@ export function AssignReviewerFlow() {
         {/* Info Card */}
         <Card className="bg-blue-50 border-blue-200">
           <CardContent className="pt-6">
-            <div className="flex items-start gap-2">
-              <AlertTriangle className="h-5 w-5 text-blue-600 mt-0.5" />
+            <div className={`flex items-start ${spacing.gap.sm}`}>
+              <AlertTriangle className={`${iconSizes.md} text-blue-600 mt-0.5`} />
               <div className="flex-1">
-                <p className="text-sm font-medium text-blue-900">{t("coi.assign.info.title")}</p>
-                <p className="text-xs text-blue-700 mt-1">
+                <p className={`${typography.body} ${typography.medium} text-blue-900`}>
+                  {t("coi.assign.info.title")}
+                </p>
+                <p className={`${typography.bodySmall} text-blue-700 mt-1`}>
                   {coiType === "paper" ? t("coi.assign.info.paper") : t("coi.assign.info.author")}
                 </p>
               </div>

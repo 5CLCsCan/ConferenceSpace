@@ -10,6 +10,7 @@ import { AllCOIRelationships } from "./all-coi-relationships"
 import { AlertTriangle, Users, FileText, UserCheck, ExternalLink } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { getCOIDashboardStats } from "@/lib/api/coi-mock"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 export function COIDashboard() {
   const { t } = useTranslation()
@@ -42,40 +43,40 @@ export function COIDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className={spacing.subsection}>
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">{t("coi.dashboard.title")}</h1>
-        <p className="text-muted-foreground">{t("coi.dashboard.description")}</p>
+        <h1 className={`${typography.h1} text-foreground mb-2`}>{t("coi.dashboard.title")}</h1>
+        <p className={typography.muted}>{t("coi.dashboard.description")}</p>
       </div>
 
       {/* Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className={`grid grid-cols-1 md:grid-cols-4 ${spacing.gap.md}`}>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2`}>
+            <CardTitle className={`${typography.body} ${typography.medium}`}>
               {t("coi.dashboard.stats.totalReviewers")}
             </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <Users className={`${iconSizes.sm} text-muted-foreground`} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.total_reviewers}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <div className={typography.stats}>{stats.total_reviewers}</div>
+            <p className={`${typography.bodySmall} text-muted-foreground mt-1`}>
               {t("coi.dashboard.stats.available")} ({stats.available_reviewers})
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2`}>
+            <CardTitle className={`${typography.body} ${typography.medium}`}>
               {t("coi.dashboard.stats.totalPapers")}
             </CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <FileText className={`${iconSizes.sm} text-muted-foreground`} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.total_papers}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <div className={typography.stats}>{stats.total_papers}</div>
+            <p className={`${typography.bodySmall} text-muted-foreground mt-1`}>
               {t("coi.dashboard.stats.underReview")} ({stats.papers_under_review})
             </p>
           </CardContent>
@@ -85,38 +86,40 @@ export function COIDashboard() {
           className="cursor-pointer hover:shadow-md transition-shadow"
           onClick={() => setShowAllRelationships(true)}
         >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2`}>
+            <CardTitle className={`${typography.body} ${typography.medium}`}>
               {t("coi.dashboard.stats.coiDetected")}
             </CardTitle>
-            <AlertTriangle className="h-4 w-4 text-destructive" />
+            <AlertTriangle className={`${iconSizes.sm} text-destructive`} />
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl font-bold text-destructive">{stats.coi_detected}</div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <div className={`${typography.stats} text-destructive`}>
+                  {stats.coi_detected}
+                </div>
+                <p className={`${typography.bodySmall} text-muted-foreground mt-1`}>
                   {t("coi.dashboard.stats.relationships")} ({stats.total_relationships})
                 </p>
               </div>
-              <ExternalLink className="h-4 w-4 text-muted-foreground" />
+              <ExternalLink className={`${iconSizes.sm} text-muted-foreground`} />
             </div>
-            <p className="text-xs text-primary mt-2 font-medium">
+            <p className={`${typography.bodySmall} text-primary mt-2 ${typography.medium}`}>
               {t("coi.dashboard.stats.viewAll")}
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2`}>
+            <CardTitle className={`${typography.body} ${typography.medium}`}>
               {t("coi.dashboard.stats.assignments")}
             </CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
+            <UserCheck className={`${iconSizes.sm} text-muted-foreground`} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.total_assignments}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <div className={typography.stats}>{stats.total_assignments}</div>
+            <p className={`${typography.bodySmall} text-muted-foreground mt-1`}>
               {t("coi.dashboard.stats.completed")} ({stats.completed_assignments})
             </p>
           </CardContent>
@@ -124,7 +127,7 @@ export function COIDashboard() {
       </div>
 
       {/* Main Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className={spacing.subsection}>
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="assign">{t("coi.dashboard.tabs.assignReviewer")}</TabsTrigger>
           <TabsTrigger value="reviewer-author">
@@ -135,15 +138,15 @@ export function COIDashboard() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="assign" className="space-y-4">
+        <TabsContent value="assign" className={spacing.subsection}>
           <AssignReviewerFlow />
         </TabsContent>
 
-        <TabsContent value="reviewer-author" className="space-y-4">
+        <TabsContent value="reviewer-author" className={spacing.subsection}>
           <ReviewerToAuthorCOI />
         </TabsContent>
 
-        <TabsContent value="reviewer-paper" className="space-y-4">
+        <TabsContent value="reviewer-paper" className={spacing.subsection}>
           <ReviewerToPaperCOI />
         </TabsContent>
       </Tabs>
