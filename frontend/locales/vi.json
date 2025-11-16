@@ -593,10 +593,14 @@
             "description": "Cài đặt chủ đề & Bài nộp"
           },
           "3": {
+            "title": "Cấu hình CFP",
+            "description": "Chi tiết Call For Paper"
+          },
+          "4": {
             "title": "Ban tổ chức",
             "description": "Phân công chủ tịch hội nghị"
           },
-          "4": {
+          "5": {
             "title": "Xem lại",
             "description": "Xem lại và xác nhận"
           }

@@ -587,10 +587,14 @@
             "description": "Topics & Submission Settings"
           },
           "3": {
+            "title": "CFP Configuration",
+            "description": "Call For Paper Details"
+          },
+          "4": {
             "title": "Organizers",
             "description": "Assign Conference Chairs"
           },
-          "4": {
+          "5": {
             "title": "Review",
             "description": "Review and Confirm"
           }

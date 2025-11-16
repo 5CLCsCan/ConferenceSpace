@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { X, Search, UserPlus } from "lucide-react"
-import type { ConferenceFormData } from "@/app/conferences/new/page"
+import type { ConferenceFormData } from "@/app/dashboard/chair/create-conference/page"
 import { typography, spacing, iconSizes } from "@/lib/typography"
 
 type Props = {
@@ -73,7 +73,7 @@ export function OrganizersStep({ data, updateData }: Props) {
     <div className={spacing.subsection}>
       <div>
         <h2 className={`${typography.h2} ${typography.semibold} text-foreground mb-1`}>
-          Step 3: Assign Conference Chairs
+          Step 4: Assign Conference Chairs
         </h2>
         <p className={`${typography.body} text-muted-foreground`}>
           Add team members and assign their roles

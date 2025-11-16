@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Edit2 } from "lucide-react"
 import { format } from "date-fns"
-import type { ConferenceFormData } from "@/app/conferences/new/page"
+import type { ConferenceFormData } from "@/app/dashboard/chair/create-conference/page"
 import { typography, spacing, iconSizes } from "@/lib/typography"
 
 type Props = {
@@ -20,7 +20,7 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
     <div className={spacing.subsection}>
       <div>
         <h2 className={`${typography.h2} ${typography.semibold} text-foreground mb-1`}>
-          Step 4: Review and Confirm
+          Step 5: Review and Confirm
         </h2>
         <p className={`${typography.body} text-muted-foreground`}>
           Please review all information before creating the conference
@@ -145,13 +145,60 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
 
         <Separator />
 
+        {/* Call For Paper Configuration */}
+        <div className={spacing.gap.md}>
+          <div className="flex items-center justify-between">
+            <h3 className={`${typography.h4} ${typography.medium} text-foreground`}>
+              Call For Paper Configuration
+            </h3>
+            <Button variant="ghost" size="sm" onClick={() => goToStep(3)} className={spacing.gap.sm}>
+              <Edit2 className={iconSizes.xs} />
+              Edit
+            </Button>
+          </div>
+          <div className={`bg-muted/50 rounded-lg ${spacing.padding.card} ${spacing.item}`}>
+            <div className={`grid grid-cols-[180px_1fr] ${spacing.gap.sm} ${typography.body}`}>
+              <span className={typography.muted}>Formatting Requirements:</span>
+              <span className={typography.medium}>
+                {data.cfpFormattingRequirements.length > 0
+                  ? data.cfpFormattingRequirements.join(", ")
+                  : "No requirements added"}
+              </span>
+            </div>
+            <div className={`grid grid-cols-[180px_1fr] ${spacing.gap.sm} ${typography.body}`}>
+              <span className={typography.muted}>Content Guidelines:</span>
+              <span className={typography.medium}>
+                {data.cfpContentGuidelines.length > 0
+                  ? data.cfpContentGuidelines.join(", ")
+                  : "No guidelines added"}
+              </span>
+            </div>
+            <div className={`grid grid-cols-[180px_1fr] ${spacing.gap.sm} ${typography.body}`}>
+              <span className={typography.muted}>Review Process:</span>
+              <span className={typography.medium}>
+                {data.cfpReviewProcess.length > 0
+                  ? data.cfpReviewProcess.join(", ")
+                  : "No process details added"}
+              </span>
+            </div>
+            <div className={`grid grid-cols-[180px_1fr] ${spacing.gap.sm} ${typography.body}`}>
+              <span className={typography.muted}>Cover Image:</span>
+              <span className={typography.medium}>
+                {data.cfpCoverImage ? data.cfpCoverImage.name : "No image uploaded"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <Separator />
+
         {/* Organizers */}
         <div className={spacing.gap.md}>
           <div className="flex items-center justify-between">
             <h3 className={`${typography.h4} ${typography.medium} text-foreground`}>
               Conference Chairs
             </h3>
-            <Button variant="ghost" size="sm" onClick={() => goToStep(3)} className={spacing.gap.sm}>
+            <Button variant="ghost" size="sm" onClick={() => goToStep(4)} className={spacing.gap.sm}>
               <Edit2 className={iconSizes.xs} />
               Edit
             </Button>
