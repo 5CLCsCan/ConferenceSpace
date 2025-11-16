@@ -179,13 +179,13 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 		users := v1.Group("/users")
 		users.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
-			users.GET("/me", handler.HandleNoRequest(ctrl.User.GetMe))
-			users.GET("/search", handler.HandleNoRequest(ctrl.User.Search))
-			users.GET("", handler.HandleRequestWithQuery(ctrl.User.List))
-			users.GET("/:id", handler.HandleNoRequest(ctrl.User.Get))
-			users.GET("/:id/coi-check", handler.HandleRequestWithURIAndQuery(ctrl.User.CheckCOI))
-			users.PUT("/:id", handler.HandleRequest(ctrl.User.Update))
-			users.DELETE("/:id", handler.HandleNoRequestWithMessage("user deleted successfully", ctrl.User.Delete))
+		users.GET("/me", handler.HandleNoRequest(ctrl.User.GetMe))
+		users.GET("/search", handler.HandleNoRequest(ctrl.User.Search))
+		users.GET("", handler.HandleRequestWithQuery(ctrl.User.List))
+		users.GET("/:email", handler.HandleNoRequest(ctrl.User.Get))
+		users.GET("/:email/coi-check", handler.HandleRequestWithURIAndQuery(ctrl.User.CheckCOI))
+		users.PUT("/:email", handler.HandleRequest(ctrl.User.Update))
+		users.DELETE("/:email", handler.HandleNoRequestWithMessage("user deleted successfully", ctrl.User.Delete))
 		}
 
 		// Conference routes (all protected - authentication required)
@@ -229,9 +229,9 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 		reviewer := v1.Group("/reviewer")
 		reviewer.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
-			reviewer.GET("/:reviewer_id/dashboard", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetDashboard))
-			reviewer.GET("/:reviewer_id/conferences/:conference_id/papers", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetConferencePapers))
-			reviewer.GET("/:reviewer_id/completed-papers", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetCompletedPapers))
+			reviewer.GET("/:reviewer_email/dashboard", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetDashboard))
+			reviewer.GET("/:reviewer_email/conferences/:conference_id/papers", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetConferencePapers))
+			reviewer.GET("/:reviewer_email/completed-papers", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetCompletedPapers))
 		}
 	}
 

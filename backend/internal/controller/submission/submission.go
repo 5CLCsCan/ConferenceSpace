@@ -9,8 +9,10 @@ import (
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
+	"github.com/dcao/conferencespace/internal/model"
 	"github.com/dcao/conferencespace/internal/storage"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
+	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	fileStorage "github.com/dcao/conferencespace/internal/storage/file"
 	submissionStorage "github.com/dcao/conferencespace/internal/storage/submission"
 	"github.com/dcao/conferencespace/internal/utils"
@@ -21,6 +23,7 @@ type Controller struct {
 	submissionStorage submissionStorage.StorageInterface
 	conferenceStorage conferenceStorage.StorageInterface
 	fileStorage       fileStorage.StorageInterface
+	roleStorage       conferenceuserrole.StorageInterface
 	geminiClient      interface{} // Store as interface to allow nil checks
 }
 
@@ -29,6 +32,7 @@ func New(store *storage.Storage, fileStore fileStorage.StorageInterface, geminiC
 		submissionStorage: store.Submission,
 		conferenceStorage: store.Conference,
 		fileStorage:       fileStore,
+		roleStorage:       store.ConferenceUserRole,
 		geminiClient:      geminiClient,
 	}
 }
@@ -102,6 +106,19 @@ func (c *Controller) Create(ginCtx *gin.Context) (*dto.Submission, error) {
 	submission, err := c.submissionStorage.Create(ctx, req.Submission)
 	if err != nil {
 		return nil, err
+	}
+
+	// Add author to conference_user_roles table
+	roleAssignment := model.RoleAssignment{
+		ConferenceID: conferenceID,
+		UserEmail:    userEmail,
+		Role:         model.RoleAuthor,
+	}
+	err = c.roleStorage.AddRole(ctx, roleAssignment.ConferenceID, roleAssignment.UserEmail, roleAssignment.Role)
+	if err != nil {
+		// Log error but don't fail the submission creation
+		// (role might already exist or have other non-critical issues)
+		fmt.Printf("Warning: Failed to add author role for %s in conference %d: %v\n", userEmail, conferenceID, err)
 	}
 
 	// Handle file upload if present

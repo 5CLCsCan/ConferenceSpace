@@ -28,12 +28,10 @@ func TestListSubmissions(t *testing.T) {
 
 	// Create conference via API
 	conf := &dto.Conference{
-		Title:          "Test Conference",
-		Acronym:        testutils.UniqueString("TC2025"),
-		Chair:          chair.Email,
-		PrimaryContact: chair.ID,
-		AreaChair:      chair.ID,
-		Domain:         []string{"AI"},
+		Title:   "Test Conference",
+		Acronym: testutils.UniqueString("TC2025"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI"},
 	}
 	confResp, err := conferenceClient.Create(conf, chairToken)
 	if err != nil {
@@ -146,12 +144,10 @@ func TestCreateSubmission(t *testing.T) {
 
 	// Create conference via API
 	conf := &dto.Conference{
-		Title:          "Test Conference",
-		Acronym:        testutils.UniqueString("TC2025"),
-		Chair:          chair.Email,
-		PrimaryContact: chair.ID,
-		AreaChair:      chair.ID,
-		Domain:         []string{"AI"},
+		Title:   "Test Conference",
+		Acronym: testutils.UniqueString("TC2025"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI"},
 	}
 	confResp, err := conferenceClient.Create(conf, chairToken)
 	if err != nil {
@@ -270,12 +266,10 @@ func TestUpdateSubmission(t *testing.T) {
 
 	// Create conference via API
 	conf := &dto.Conference{
-		Title:          "Test Conference",
-		Acronym:        testutils.UniqueString("TC2025"),
-		Chair:          chair.Email,
-		PrimaryContact: chair.ID,
-		AreaChair:      chair.ID,
-		Domain:         []string{"AI"},
+		Title:   "Test Conference",
+		Acronym: testutils.UniqueString("TC2025"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI"},
 	}
 	confResp, err := conferenceClient.Create(conf, chairToken)
 	if err != nil {
@@ -387,12 +381,10 @@ func TestDeleteSubmission(t *testing.T) {
 
 	// Create conference via API
 	conf := &dto.Conference{
-		Title:          "Test Conference",
-		Acronym:        testutils.UniqueString("TC2025"),
-		Chair:          chair.Email,
-		PrimaryContact: chair.ID,
-		AreaChair:      chair.ID,
-		Domain:         []string{"AI"},
+		Title:   "Test Conference",
+		Acronym: testutils.UniqueString("TC2025"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI"},
 	}
 	confResp, err := conferenceClient.Create(conf, chairToken)
 	if err != nil {

@@ -130,12 +130,12 @@ type AssignedPaperResponse struct {
 
 // GetConferencePapersRequest represents the request to get papers for a conference with pagination and filters
 type GetConferencePapersRequest struct {
-	ReviewerID   int64  `uri:"reviewer_id" binding:"required"`
-	ConferenceID int64  `uri:"conference_id" binding:"required"`
-	Limit        int    `form:"limit" json:"limit"`
-	Offset       int    `form:"offset" json:"offset"`
-	Search       string `form:"search" json:"search"` // Search by paper title
-	Status       string `form:"status" json:"status"` // Filter by assignment status
+	ReviewerEmail string `uri:"reviewer_email" binding:"required"`
+	ConferenceID  int64  `uri:"conference_id" binding:"required"`
+	Limit         int    `form:"limit" json:"limit"`
+	Offset        int    `form:"offset" json:"offset"`
+	Search        string `form:"search" json:"search"` // Search by paper title
+	Status        string `form:"status" json:"status"` // Filter by assignment status
 }
 
 // GetConferencePapersResponse represents paginated papers response
@@ -148,10 +148,10 @@ type GetConferencePapersResponse struct {
 
 // GetCompletedPapersRequest represents the request to get all completed papers for a reviewer
 type GetCompletedPapersRequest struct {
-	ReviewerID int64  `uri:"reviewer_id" binding:"required"`
-	Limit      int    `form:"limit" json:"limit"`
-	Offset     int    `form:"offset" json:"offset"`
-	Search     string `form:"search" json:"search"` // Search by paper title
+	ReviewerEmail string `uri:"reviewer_email" binding:"required"`
+	Limit         int    `form:"limit" json:"limit"`
+	Offset        int    `form:"offset" json:"offset"`
+	Search        string `form:"search" json:"search"` // Search by paper title
 }
 
 // GetCompletedPapersResponse represents paginated completed papers response
@@ -164,7 +164,7 @@ type GetCompletedPapersResponse struct {
 
 // GetDashboardRequest represents the request to get reviewer dashboard with optional filters
 type GetDashboardRequest struct {
-	ReviewerID             int64  `uri:"reviewer_id" binding:"required"`
+	ReviewerEmail          string `uri:"reviewer_email" binding:"required"`
 	ConferenceLimit        int    `form:"conference_limit" json:"conference_limit"`
 	ConferenceOffset       int    `form:"conference_offset" json:"conference_offset"`
 	ConferenceSearch       string `form:"conference_search" json:"conference_search"` // Search conferences by name

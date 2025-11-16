@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"testing"
 	"time"
 
@@ -52,12 +53,10 @@ func TestUserCOICheck_WithConflicts(t *testing.T) {
 
 	// Create conference
 	conference := &dto.Conference{
-		Title:          "Test Conference COI Check",
-		Acronym:        testutils.UniqueString("COICHECK"),
-		Chair:          chairUser.Email,
-		PrimaryContact: chairUser.ID,
-		AreaChair:      chairUser.ID,
-		Domain:         []string{"ML"},
+		Title:   "Test Conference COI Check",
+		Acronym: testutils.UniqueString("COICHECK"),
+		Chair:   chairUser.Email,
+		Domain:  []string{"ML"},
 		Configurations: &dto.ConferenceConfiguration{
 			HaveCOI:        boolPtr(true),
 			COIWindowYears: intPtr(4), // 4-year window
@@ -101,12 +100,12 @@ func TestUserCOICheck_WithConflicts(t *testing.T) {
 	}, author2Token)
 
 	// Check COI for potential reviewer
-	coiCheckPath := fmt.Sprintf("/api/v1/users/%d/coi-check?conference_id=%d", potentialReviewerUser.ID, conferenceID)
+	coiCheckPath := fmt.Sprintf("/api/v1/users/%s/coi-check?conference_id=%d", url.PathEscape(potentialReviewerUser.Email), conferenceID)
 	coiResp, err := ctx.MakeRequest("GET", coiCheckPath, nil, chairToken)
 	if err != nil {
 		t.Fatalf("Failed to check COI: %v", err)
 	}
-	
+
 	if coiResp.StatusCode != http.StatusOK {
 		body := testutils.ReadResponseBody(t, coiResp)
 		t.Fatalf("Expected status 200, got %d. Body: %s", coiResp.StatusCode, body)
@@ -116,7 +115,7 @@ func TestUserCOICheck_WithConflicts(t *testing.T) {
 		Data *dto.UserCOICheckResponse `json:"data"`
 	}
 	testutils.DecodeResponse(t, coiResp, &coiData)
-	
+
 	if coiData.Data == nil {
 		t.Fatal("Expected data in response, got nil")
 	}
@@ -181,12 +180,10 @@ func TestUserCOICheck_NoConflicts(t *testing.T) {
 
 	// Create conference
 	conference := &dto.Conference{
-		Title:          "Test Conference No COI",
-		Acronym:        testutils.UniqueString("NOCOI"),
-		Chair:          chairUser.Email,
-		PrimaryContact: chairUser.ID,
-		AreaChair:      chairUser.ID,
-		Domain:         []string{"ML"},
+		Title:   "Test Conference No COI",
+		Acronym: testutils.UniqueString("NOCOI"),
+		Chair:   chairUser.Email,
+		Domain:  []string{"ML"},
 		Configurations: &dto.ConferenceConfiguration{
 			HaveCOI:        boolPtr(true),
 			COIWindowYears: intPtr(4),
@@ -216,9 +213,9 @@ func TestUserCOICheck_NoConflicts(t *testing.T) {
 	}, authorToken)
 
 	// Check COI
-	coiCheckPath := fmt.Sprintf("/api/v1/users/%d/coi-check?conference_id=%d", reviewerUser.ID, conferenceID)
+	coiCheckPath := fmt.Sprintf("/api/v1/users/%s/coi-check?conference_id=%d", url.PathEscape(reviewerUser.Email), conferenceID)
 	coiResp, _ := ctx.MakeRequest("GET", coiCheckPath, nil, chairToken)
-	
+
 	if coiResp.StatusCode != http.StatusOK {
 		body := testutils.ReadResponseBody(t, coiResp)
 		t.Fatalf("Expected status 200, got %d. Body: %s", coiResp.StatusCode, body)
@@ -228,7 +225,7 @@ func TestUserCOICheck_NoConflicts(t *testing.T) {
 		Data *dto.UserCOICheckResponse `json:"data"`
 	}
 	testutils.DecodeResponse(t, coiResp, &coiData)
-	
+
 	if coiData.Data == nil {
 		t.Fatal("Expected data in response, got nil")
 	}
@@ -268,7 +265,7 @@ func TestUserCOICheck_WithCoAuthors(t *testing.T) {
 	// Setup collaboration: reviewer collaborated with co-author
 	authorSvc := neo4j.NewAuthorService(neo4jClient)
 	currentYear := time.Now().Year()
-	
+
 	authorSvc.CreateAuthor(context.Background(), neo4j.Author{Email: authorUser.Email})
 	authorSvc.CreateAuthor(context.Background(), neo4j.Author{Email: coAuthorUser.Email})
 	authorSvc.CreateAuthor(context.Background(), neo4j.Author{Email: reviewerUser.Email})
@@ -279,12 +276,10 @@ func TestUserCOICheck_WithCoAuthors(t *testing.T) {
 
 	// Create conference
 	conference := &dto.Conference{
-		Title:          "Test Conference CoAuthor COI",
-		Acronym:        testutils.UniqueString("COAUTHORCOI"),
-		Chair:          chairUser.Email,
-		PrimaryContact: chairUser.ID,
-		AreaChair:      chairUser.ID,
-		Domain:         []string{"ML"},
+		Title:   "Test Conference CoAuthor COI",
+		Acronym: testutils.UniqueString("COAUTHORCOI"),
+		Chair:   chairUser.Email,
+		Domain:  []string{"ML"},
 		Configurations: &dto.ConferenceConfiguration{
 			HaveCOI:        boolPtr(true),
 			COIWindowYears: intPtr(4),
@@ -317,9 +312,9 @@ func TestUserCOICheck_WithCoAuthors(t *testing.T) {
 	}, authorToken)
 
 	// Check COI
-	coiCheckPath := fmt.Sprintf("/api/v1/users/%d/coi-check?conference_id=%d", reviewerUser.ID, conferenceID)
+	coiCheckPath := fmt.Sprintf("/api/v1/users/%s/coi-check?conference_id=%d", url.PathEscape(reviewerUser.Email), conferenceID)
 	coiResp, _ := ctx.MakeRequest("GET", coiCheckPath, nil, chairToken)
-	
+
 	if coiResp.StatusCode != http.StatusOK {
 		body := testutils.ReadResponseBody(t, coiResp)
 		t.Fatalf("Expected status 200, got %d. Body: %s", coiResp.StatusCode, body)
@@ -329,7 +324,7 @@ func TestUserCOICheck_WithCoAuthors(t *testing.T) {
 		Data *dto.UserCOICheckResponse `json:"data"`
 	}
 	testutils.DecodeResponse(t, coiResp, &coiData)
-	
+
 	if coiData.Data == nil {
 		t.Fatal("Expected data in response, got nil")
 	}
@@ -367,17 +362,17 @@ func TestUserCOICheck_InvalidInputs(t *testing.T) {
 	}{
 		{
 			name:           "Non-existent user",
-			path:           "/api/v1/users/999999/coi-check?conference_id=1",
+			path:           fmt.Sprintf("/api/v1/users/%s/coi-check?conference_id=1", url.PathEscape("nonexistent@example.com")),
 			expectedStatus: http.StatusNotFound,
 		},
 		{
 			name:           "Missing conference_id",
-			path:           "/api/v1/users/1/coi-check",
+			path:           fmt.Sprintf("/api/v1/users/%s/coi-check", url.PathEscape("test@example.com")),
 			expectedStatus: http.StatusBadRequest,
 		},
 		{
 			name:           "Non-existent conference",
-			path:           "/api/v1/users/1/coi-check?conference_id=999999",
+			path:           fmt.Sprintf("/api/v1/users/%s/coi-check?conference_id=999999", url.PathEscape("test@example.com")),
 			expectedStatus: http.StatusNotFound,
 		},
 	}
@@ -404,7 +399,7 @@ func isNeo4jAvailable() bool {
 		return false
 	}
 	defer client.Close(context.Background())
-	
+
 	return client.VerifyConnectivity(context.Background()) == nil
 }
 
@@ -436,7 +431,7 @@ func clearNeo4jTestData(t *testing.T, client *neo4j.Client) {
 	ctx := context.Background()
 	session := client.NewSession(ctx)
 	defer session.Close(ctx)
-	
+
 	query := `
 		MATCH (n:Author) 
 		WHERE n.email CONTAINS '@example.com'
@@ -455,4 +450,3 @@ func boolPtr(b bool) *bool {
 func intPtr(i int) *int {
 	return &i
 }
-
