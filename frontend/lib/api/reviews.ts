@@ -5,7 +5,7 @@ import type { AssignedPaper } from "@/lib/types"
  * Get all completed papers for a reviewer across all conferences (optimized single call)
  */
 export async function getCompletedPapers(
-  reviewerId: string,
+  reviewerEmail: string,
   params?: {
     limit?: number
     offset?: number
@@ -26,7 +26,7 @@ export async function getCompletedPapers(
     if (params?.search) queryParams.append("search", params.search)
 
     const queryString = queryParams.toString()
-    const url = `/api/v1/reviewer/${reviewerId}/completed-papers${queryString ? `?${queryString}` : ""}`
+    const url = `/api/v1/reviewer/${encodeURIComponent(reviewerEmail)}/completed-papers${queryString ? `?${queryString}` : ""}`
 
     const { data, response } = await apiFetch<{
       data: { papers: AssignedPaper[]; total: number; limit: number; offset: number }
@@ -56,7 +56,7 @@ export async function getCompletedPapers(
  * Get papers assigned to a reviewer in a specific conference with optional filters
  */
 export async function getConferencePapers(
-  reviewerId: string,
+  reviewerEmail: string,
   conferenceId: string,
   params?: {
     limit?: number
@@ -80,7 +80,7 @@ export async function getConferencePapers(
     if (params?.status) queryParams.append("status", params.status)
 
     const queryString = queryParams.toString()
-    const url = `/api/v1/reviewer/${reviewerId}/conferences/${conferenceId}/papers${queryString ? `?${queryString}` : ""}`
+    const url = `/api/v1/reviewer/${encodeURIComponent(reviewerEmail)}/conferences/${conferenceId}/papers${queryString ? `?${queryString}` : ""}`
 
     const { data, response } = await apiFetch<{
       data: { papers: AssignedPaper[]; total: number; limit: number; offset: number }
@@ -110,7 +110,7 @@ export async function getConferencePapers(
  * @deprecated Prefer getConferencePapers per-conference. Kept for compatibility.
  */
 export async function getCompletedReviews(
-  reviewerId: string,
+  reviewerEmail: string,
   params?: { limit?: number; offset?: number; search?: string; conferenceId?: string },
 ): Promise<{
   data: AssignedPaper[] | null
@@ -122,7 +122,7 @@ export async function getCompletedReviews(
 }> {
   // If conferenceId provided, delegate to getConferencePapers
   if (params?.conferenceId) {
-    return getConferencePapers(reviewerId, params.conferenceId, {
+    return getConferencePapers(reviewerEmail, params.conferenceId, {
       limit: params.limit,
       offset: params.offset,
       search: params.search,
@@ -130,13 +130,10 @@ export async function getCompletedReviews(
     })
   }
 
-  // No single endpoint for all conferences; return empty and let consumers combine per-conference
-  return {
-    data: [],
-    total: 0,
-    limit: params?.limit || 20,
-    offset: params?.offset || 0,
-    error: "not_implemented",
-    status: 404,
-  }
+  // Use the completed-papers endpoint for all conferences
+  return getCompletedPapers(reviewerEmail, {
+    limit: params?.limit,
+    offset: params?.offset,
+    search: params?.search,
+  })
 }
