@@ -1037,6 +1037,8 @@
   "profile": {
     "title": "Profile",
     "description": "Manage your personal information and account settings",
+    "viewTitle": "Profile",
+    "viewDescription": "View user information and expertise",
     "sections": {
       "personalInfo": "Personal Information",
       "personalInfoDescription": "Update your name and email address",

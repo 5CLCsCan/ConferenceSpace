@@ -1043,6 +1043,8 @@
   "profile": {
     "title": "Hồ Sơ",
     "description": "Quản lý thông tin cá nhân và cài đặt tài khoản",
+    "viewTitle": "Hồ Sơ Người Dùng",
+    "viewDescription": "Xem thông tin và chuyên môn của người dùng",
     "sections": {
       "personalInfo": "Thông Tin Cá Nhân",
       "personalInfoDescription": "Cập nhật tên và địa chỉ email của bạn",

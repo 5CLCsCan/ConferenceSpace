@@ -1,7 +1,7 @@
 ﻿"use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -61,8 +61,9 @@ function normalizeInviteResult(raw: unknown): InviteResult | null {
 export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) {
   const { t } = useTranslation()
   const { toast } = useToast()
-  const { currentRole } = useAuth()
+  const { currentRole, user } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [conference, setConference] = useState<any>(null)
   const [reviewers, setReviewers] = useState<Reviewer[]>([])
   const [totalReviewers, setTotalReviewers] = useState(0)
@@ -71,7 +72,7 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
   const [hasMoreReviewers, setHasMoreReviewers] = useState(true)
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
-  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false)
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(searchParams.get("invite") === "true")
   const [inviteEmail, setInviteEmail] = useState("")
   const [searchResults, setSearchResults] = useState<Array<{ id: number; email: string; name?: string }>>([])
   const [isSearching, setIsSearching] = useState(false)
@@ -123,6 +124,36 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
   useEffect(() => {
     loadData()
   }, [loadData])
+
+  // Restore invite dialog state from sessionStorage when dialog opens
+  useEffect(() => {
+    if (isInviteDialogOpen) {
+      const storageKey = `invite-dialog-${conferenceId}`
+      const savedState = sessionStorage.getItem(storageKey)
+      if (savedState) {
+        try {
+          const parsed = JSON.parse(savedState)
+          if (parsed.selectedUsers) setSelectedUsers(parsed.selectedUsers)
+          if (parsed.searchResults) setSearchResults(parsed.searchResults)
+          if (parsed.inviteEmail) setInviteEmail(parsed.inviteEmail)
+        } catch (e) {
+          // Ignore parse errors
+        }
+      }
+    }
+  }, [isInviteDialogOpen, conferenceId])
+
+  // Save invite dialog state to sessionStorage whenever it changes
+  useEffect(() => {
+    if (isInviteDialogOpen && (selectedUsers.length > 0 || searchResults.length > 0 || inviteEmail)) {
+      const storageKey = `invite-dialog-${conferenceId}`
+      sessionStorage.setItem(storageKey, JSON.stringify({
+        selectedUsers,
+        searchResults,
+        inviteEmail,
+      }))
+    }
+  }, [isInviteDialogOpen, selectedUsers, searchResults, inviteEmail, conferenceId])
 
   const filteredReviewers = reviewers.filter((reviewer) => {
     if (!searchQuery) return true
@@ -430,7 +461,13 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                   type="button"
                   size="sm"
                   variant="outline"
-                  onClick={() => router.push(`/dashboard/users/${conference.primary_contact}`)}
+                  onClick={() => {
+                    // Remove invite param and push to history (outside dialog)
+                    const url = new URL(window.location.href)
+                    url.searchParams.delete("invite")
+                    window.history.pushState({}, "", url)
+                    router.push(`/dashboard/users/${conference.primary_contact}`)
+                  }}
                 >
                   <ExternalLink className="mr-1 size-3.5" />
                   {t("dashboard.conference.committee.chairInfo.viewProfile")}
@@ -458,15 +495,23 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                 open={isInviteDialogOpen}
                 onOpenChange={(open) => {
                   setIsInviteDialogOpen(open)
-                  if (!open) {
+                  // Update URL to persist dialog state
+                  const url = new URL(window.location.href)
+                  if (open) {
+                    url.searchParams.set("invite", "true")
+                    setInviteSuccessInfo(null)
+                  } else {
+                    url.searchParams.delete("invite")
                     setInviteEmail("")
                     setSelectedUsers([])
                     setSearchResults([])
                     setInviteErrors([])
                     setInviteSuccessInfo(null)
-                  } else {
-                    setInviteSuccessInfo(null)
+                    // Clear saved state when dialog closes
+                    const storageKey = `invite-dialog-${conferenceId}`
+                    sessionStorage.removeItem(storageKey)
                   }
+                  window.history.replaceState({}, "", url)
                 }}
               >
                 <DialogTrigger asChild>
@@ -542,41 +587,57 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                       {/* Search results dropdown */}
                       {searchResults.length > 0 && (
                         <div className={`border rounded-md mt-2 max-h-48 overflow-y-auto bg-background shadow-lg`}>
-                          {searchResults.map((user) => {
-                            const isSelected = selectedUsers.some((u) => u.id === user.id)
+                          {searchResults.map((searchUser) => {
+                            const isSelected = selectedUsers.some((u) => u.id === searchUser.id)
                             return (
-                              <button
-                                key={user.id}
-                                type="button"
-                                onClick={() => {
-                                  if (isSelected) {
-                                    setSelectedUsers(selectedUsers.filter((u) => u.id !== user.id))
-                                  } else {
-                                    setSelectedUsers([...selectedUsers, user])
-                                  }
-                                }}
-                                className={`w-full px-4 py-2 text-left hover:bg-muted flex items-center justify-between ${
+                              <div
+                                key={searchUser.id}
+                                className={`w-full px-4 py-2 flex items-center justify-between gap-2 ${
                                   isSelected ? "bg-green-50 dark:bg-green-950" : ""
                                 }`}
                               >
-                                <div>
-                                  <p className={`${typography.body} ${typography.medium}`}>
-                                    {user.email}
-                                  </p>
-                                  {user.name && (
-                                    <p className={`${typography.bodySmall} text-muted-foreground`}>
-                                      {user.name}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (isSelected) {
+                                      setSelectedUsers(selectedUsers.filter((u) => u.id !== searchUser.id))
+                                    } else {
+                                      setSelectedUsers([...selectedUsers, searchUser])
+                                    }
+                                  }}
+                                  className="flex-1 text-left hover:opacity-80"
+                                >
+                                  <div>
+                                    <p className={`${typography.body} ${typography.medium}`}>
+                                      {searchUser.email}
                                     </p>
-                                  )}
-                                </div>
+                                    {searchUser.name && (
+                                      <p className={`${typography.bodySmall} text-muted-foreground`}>
+                                        {searchUser.name}
+                                      </p>
+                                    )}
+                                  </div>
+                                </button>
                                 <div className={`flex items-center ${spacing.gap.sm}`}>
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => {
+                                      // Push current URL to history before navigating
+                                      window.history.pushState({}, "", window.location.href)
+                                      router.push(`/dashboard/users/${searchUser.id}`)
+                                    }}
+                                  >
+                                    <ExternalLink className={iconSizes.xs} />
+                                  </Button>
                                   {isSelected && (
                                     <CheckCircle2
                                       className={`${iconSizes.sm} text-green-600 dark:text-green-400`}
                                     />
                                   )}
                                 </div>
-                              </button>
+                              </div>
                             )
                           })}
                         </div>
@@ -591,7 +652,7 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                           </p>
                           <div className={`flex flex-wrap ${spacing.gap.sm}`}>
                             {selectedUsers.map((user) => (
-                              <Badge key={user.id} variant="secondary" className={spacing.gap.tight}>
+                              <Badge key={user.id} variant="secondary" className={spacing.gap.sm}>
                                 {user.email}
                                 <button
                                   type="button"
@@ -712,7 +773,7 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                               t("dashboard.conference.committee.reviewers.unknown")}
                           </p>
                           {reviewer.domain && reviewer.domain.length > 0 && (
-                            <div className={`mt-1 flex ${spacing.gap.tight}`}>
+                            <div className={`mt-1 flex ${spacing.gap.sm}`}>
                               {reviewer.domain.slice(0, 3).map((d, idx) => (
                                 <Badge key={idx} variant="secondary" className={typography.bodySmall}>
                                   {d}
@@ -727,7 +788,13 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => router.push(`/dashboard/reviewers/${reviewer.user_id}`)}
+                          onClick={() => {
+                            // Remove invite param and push to history (outside dialog)
+                            const url = new URL(window.location.href)
+                            url.searchParams.delete("invite")
+                            window.history.pushState({}, "", url)
+                            router.push(`/dashboard/users/${reviewer.user_id}`)
+                          }}
                         >
                           <ExternalLink className={`mr-1 ${iconSizes.xs}`} />
                           {t("dashboard.conference.committee.actions.viewProfile")}

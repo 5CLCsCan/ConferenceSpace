@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import type { Conference } from "@/lib/types"
 import { getConferenceById } from "@/lib/api/conferences"
 import { ConferenceOverview } from "@/components/conference/conference-overview"
@@ -23,13 +23,14 @@ type TabType = "overview" | "call-for-papers" | "dates" | "committee" | "submiss
 export default function ConferencePage() {
   const params = useParams()
   const conferenceId = params.id as string
+  const searchParams = useSearchParams()
   const { user, currentRole } = useAuth()
   const router = useRouter()
   const { t } = useTranslation()
 
   const [conference, setConference] = useState<Conference | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<TabType>("overview")
+  const [activeTab, setActiveTab] = useState<TabType>((searchParams.get("tab") as TabType) || "overview")
 
   useEffect(() => {
     async function loadConference() {
@@ -130,7 +131,13 @@ export default function ConferencePage() {
                 {tabs.map((tab) => (
                   <li key={tab.id}>
                     <button
-                      onClick={() => setActiveTab(tab.id)}
+                      onClick={() => {
+                        setActiveTab(tab.id)
+                        // Update URL without triggering navigation for instant switching
+                        const url = new URL(window.location.href)
+                        url.searchParams.set("tab", tab.id)
+                        window.history.replaceState({}, "", url)
+                      }}
                       className={`flex w-full items-center ${spacing.gap.sm} rounded-lg px-3 py-2 text-left ${typography.bodySmall} ${typography.medium} transition-colors ${
                         activeTab === tab.id
                           ? "bg-primary text-white"
@@ -180,7 +187,7 @@ export default function ConferencePage() {
             {currentRole === "author" && (
               <Button
                 onClick={() => router.push(`/dashboard/author/submit?conference=${conference.id}`)}
-                className={`absolute top-3 right-3 bg-primary text-white px-3 py-1.5 rounded-md shadow-md hover:bg-primary/90 flex items-center ${spacing.gap.tight} ${typography.bodySmall} ${typography.medium}`}
+                className={`absolute top-3 right-3 bg-primary text-white px-3 py-1.5 rounded-md shadow-md hover:bg-primary/90 flex items-center ${spacing.gap.sm} ${typography.bodySmall} ${typography.medium}`}
               >
                 {t("dashboard.conference.details.joinNow")}
               </Button>

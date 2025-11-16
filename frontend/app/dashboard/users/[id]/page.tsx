@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -55,9 +55,10 @@ const formatTimestamp = (value?: string): string => {
   }
 }
 
-export default function ProfilePage() {
+export default function UserProfilePage() {
   const { t } = useTranslation()
   const router = useRouter()
+  const params = useParams()
   const { toast } = useToast()
   const { user: authUser, refreshUser } = useAuth()
 
@@ -67,12 +68,21 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState<ProfileFormData>(EMPTY_FORM)
   const [initialFormData, setInitialFormData] = useState<ProfileFormData>(EMPTY_FORM)
   const [domainInput, setDomainInput] = useState("")
-  const [userId, setUserId] = useState<number | null>(null)
+  
+  const userId = params.id as string
+  const isOwnProfile = userId === "me" || Number(userId) === Number(authUser?.id)
 
   const fetchUserProfile = useCallback(async () => {
+    if (!userId) return
+
     try {
       setIsLoading(true)
-      const { data: response } = await apiFetch<{ data: User }>("/api/v1/users/me")
+      // Use /me endpoint if viewing own profile
+      const endpoint = userId === "me" || Number(userId) === Number(authUser?.id)
+        ? "/api/v1/users/me"
+        : `/api/v1/users/${userId}`
+      
+      const { data: response } = await apiFetch<{ data: User }>(endpoint)
 
       if (!response?.data) {
         throw new Error("Missing user data in response")
@@ -80,19 +90,19 @@ export default function ProfilePage() {
 
       setUser(response.data)
 
-      const resolvedId = Number(response.data.id ?? authUser?.id ?? 0)
-      setUserId(Number.isFinite(resolvedId) && resolvedId > 0 ? resolvedId : null)
-
-      const domain = normalizeDomains(response.data.domain)
-      const newFormData: ProfileFormData = {
-        firstName: response.data.first_name || "",
-        lastName: response.data.last_name || "",
-        email: response.data.email || "",
-        domain,
+      // Only populate form data if viewing own profile
+      if (isOwnProfile) {
+        const domain = normalizeDomains(response.data.domain)
+        const newFormData: ProfileFormData = {
+          firstName: response.data.first_name || "",
+          lastName: response.data.last_name || "",
+          email: response.data.email || "",
+          domain,
+        }
+        
+        setFormData(newFormData)
+        setInitialFormData({ ...newFormData, domain: [...domain] })
       }
-      
-      setFormData(newFormData)
-      setInitialFormData({ ...newFormData, domain: [...domain] })
     } catch (error) {
       toast({
         title: t("profile.error.fetchFailed"),
@@ -102,13 +112,15 @@ export default function ProfilePage() {
     } finally {
       setIsLoading(false)
     }
-  }, [authUser?.id, toast, t])
+  }, [userId, authUser?.id, isOwnProfile, toast, t])
 
   useEffect(() => {
     fetchUserProfile()
   }, [fetchUserProfile])
 
   const handleSave = async () => {
+    if (!isOwnProfile) return
+
     const validation = validateProfileForm(formData)
     if (!validation.valid) {
       toast({
@@ -119,7 +131,7 @@ export default function ProfilePage() {
       return
     }
 
-    const targetId = userId ?? Number(user?.id ?? authUser?.id ?? 0)
+    const targetId = Number(user?.id ?? authUser?.id ?? 0)
     if (!Number.isFinite(targetId) || targetId <= 0) {
       toast({
         title: t("profile.error.updateFailed"),
@@ -177,6 +189,7 @@ export default function ProfilePage() {
   }
 
   const handleAddDomain = () => {
+    if (!isOwnProfile) return
     const trimmedDomain = domainInput.trim()
     if (trimmedDomain && !formData.domain.includes(trimmedDomain)) {
       setFormData((prev) => ({
@@ -188,6 +201,7 @@ export default function ProfilePage() {
   }
 
   const handleRemoveDomain = (domainToRemove: string) => {
+    if (!isOwnProfile) return
     setFormData((prev) => ({
       ...prev,
       domain: prev.domain.filter((d) => d !== domainToRemove),
@@ -202,6 +216,7 @@ export default function ProfilePage() {
   }
 
   const isDirty = useMemo(() => {
+    if (!isOwnProfile) return false
     const trim = (value: string) => value.trim()
     const arraysEqual = (a: string[], b: string[]) =>
       a.length === b.length && a.every((value, index) => trim(value) === trim(b[index] ?? ""))
@@ -212,8 +227,10 @@ export default function ProfilePage() {
       trim(formData.email) !== trim(initialFormData.email) ||
       !arraysEqual(formData.domain, initialFormData.domain)
     )
-  }, [formData, initialFormData])
+  }, [formData, initialFormData, isOwnProfile])
+
   const handleResetChanges = () => {
+    if (!isOwnProfile) return
     setFormData({ ...initialFormData, domain: [...initialFormData.domain] })
     setDomainInput("")
   }
@@ -238,17 +255,20 @@ export default function ProfilePage() {
         <main className="container mx-auto px-4 py-8">
           <div className="flex h-[50vh] flex-col items-center justify-center gap-4">
             <p className="text-muted-foreground">{t("profile.error.notFound")}</p>
-            <Button onClick={() => router.push("/dashboard")}>{t("common.actions.goBack")}</Button>
+            <Button onClick={() => router.back()}>{t("common.actions.back")}</Button>
           </div>
         </main>
       </div>
     )
   }
 
-  const fullName = `${formData.firstName || user?.first_name || ""} ${formData.lastName || user?.last_name || ""}`.trim() || "User"
-  const email = formData.email || user?.email || "No email"
-  const roles = user?.roles?.length ? user.roles : authUser?.roles || []
+  const fullName = isOwnProfile 
+    ? `${formData.firstName || user?.first_name || ""} ${formData.lastName || user?.last_name || ""}`.trim() || "User"
+    : `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || "User"
+  const email = isOwnProfile ? (formData.email || user?.email || "No email") : (user?.email || "No email")
+  const roles = user?.roles?.length ? user.roles : []
   const displayRoles = roles.filter((role) => role.toLowerCase() !== "author")
+  const domains = isOwnProfile ? formData.domain : normalizeDomains(user?.domain)
   const joinedAt = formatTimestamp(user?.created_at)
   const lastUpdated = formatTimestamp(user?.updated_at)
 
@@ -263,15 +283,29 @@ export default function ProfilePage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => router.back()}
+                  onClick={() => {
+                    // Use browser history API to go back
+                    // This preserves tab and dialog state from URL params
+                    if (window.history.length > 1) {
+                      router.back()
+                    } else {
+                      // Fallback to dashboard if no history
+                      router.push("/dashboard")
+                    }
+                  }}
                   className="flex items-center gap-2"
                 >
                   <ArrowLeft className={iconSizes.sm} />
                   {t("common.actions.back")}
                 </Button>
+
               </div>
-              <h1 className={`${typography.h1} text-neutral-900`}>{t("profile.title")}</h1>
-              <p className={`${typography.body} text-neutral-600 max-w-2xl`}>{t("profile.description")}</p>
+              <h1 className={`${typography.h1} text-neutral-900`}>
+                {isOwnProfile ? t("profile.title") : t("profile.viewTitle")}
+              </h1>
+              <p className={`${typography.body} text-neutral-600 max-w-2xl`}>
+                {isOwnProfile ? t("profile.description") : t("profile.viewDescription")}
+              </p>
             </div>
           </div>
 
@@ -316,8 +350,8 @@ export default function ProfilePage() {
                   </span>
                 )}
                 <span className="rounded-full border border-primary/10 bg-white px-3 py-1">
-                  {formData.domain.length > 0
-                    ? t("profile.highlights.domainsCount", { count: formData.domain.length })
+                  {domains.length > 0
+                    ? t("profile.highlights.domainsCount", { count: domains.length })
                     : t("profile.highlights.domainsNone")}
                 </span>
               </div>
@@ -331,46 +365,80 @@ export default function ProfilePage() {
                 <CardDescription className={typography.body}>{t("profile.sections.personalInfoDescription")}</CardDescription>
               </CardHeader>
               <CardContent className={`${spacing.section} pt-6`}>
-                <div className={`grid ${spacing.gap.md} sm:grid-cols-2`}>
-                  <div className={spacing.item}>
-                    <Label htmlFor="firstName" className={typography.label}>
-                      {t("common.labels.firstName")}
-                    </Label>
-                    <Input
-                      id="firstName"
-                      value={formData.firstName}
-                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                      placeholder={t("profile.placeholders.firstName")}
-                      disabled={isSaving}
-                    />
-                  </div>
-                  <div className={spacing.item}>
-                    <Label htmlFor="lastName" className={typography.label}>
-                      {t("common.labels.lastName")}
-                    </Label>
-                    <Input
-                      id="lastName"
-                      value={formData.lastName}
-                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                      placeholder={t("profile.placeholders.lastName")}
-                      disabled={isSaving}
-                    />
-                  </div>
-                </div>
+                {isOwnProfile ? (
+                  <>
+                    <div className={`grid ${spacing.gap.md} sm:grid-cols-2`}>
+                      <div className={spacing.item}>
+                        <Label htmlFor="firstName" className={typography.label}>
+                          {t("common.labels.firstName")}
+                        </Label>
+                        <Input
+                          id="firstName"
+                          value={formData.firstName}
+                          onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                          placeholder={t("profile.placeholders.firstName")}
+                          disabled={isSaving}
+                        />
+                      </div>
+                      <div className={spacing.item}>
+                        <Label htmlFor="lastName" className={typography.label}>
+                          {t("common.labels.lastName")}
+                        </Label>
+                        <Input
+                          id="lastName"
+                          value={formData.lastName}
+                          onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                          placeholder={t("profile.placeholders.lastName")}
+                          disabled={isSaving}
+                        />
+                      </div>
+                    </div>
 
-                <div className={spacing.item}>
-                  <Label htmlFor="email" className={typography.label}>
-                    {t("common.labels.email")}
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder={t("profile.placeholders.email")}
-                    disabled={isSaving}
-                  />
-                </div>
+                    <div className={spacing.item}>
+                      <Label htmlFor="email" className={typography.label}>
+                        {t("common.labels.email")}
+                      </Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        placeholder={t("profile.placeholders.email")}
+                        disabled={isSaving}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className={`grid ${spacing.gap.md} sm:grid-cols-2`}>
+                      <div className={spacing.item}>
+                        <p className={`${typography.label} text-muted-foreground`}>
+                          {t("common.labels.firstName")}
+                        </p>
+                        <p className={`${typography.body} ${typography.medium}`}>
+                          {user?.first_name || "—"}
+                        </p>
+                      </div>
+                      <div className={spacing.item}>
+                        <p className={`${typography.label} text-muted-foreground`}>
+                          {t("common.labels.lastName")}
+                        </p>
+                        <p className={`${typography.body} ${typography.medium}`}>
+                          {user?.last_name || "—"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className={spacing.item}>
+                      <p className={`${typography.label} text-muted-foreground`}>
+                        {t("common.labels.email")}
+                      </p>
+                      <p className={`${typography.body} ${typography.medium}`}>
+                        {email}
+                      </p>
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
 
@@ -380,54 +448,72 @@ export default function ProfilePage() {
                 <CardDescription className={typography.body}>{t("profile.sections.expertiseDescription")}</CardDescription>
               </CardHeader>
               <CardContent className={`${spacing.section} pt-6`}>
-                <div className={spacing.item}>
-                  <Label htmlFor="domain" className={typography.label}>
-                    {t("common.labels.domains")}
-                  </Label>
-                  <div className={`flex flex-col ${spacing.gap.sm} sm:flex-row`}>
-                    <Input
-                      id="domain"
-                      value={domainInput}
-                      onChange={(e) => setDomainInput(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder={t("profile.placeholders.domain")}
-                      disabled={isSaving}
-                    />
-                    <Button
-                      type="button"
-                      onClick={handleAddDomain}
-                      variant="secondary"
-                      disabled={isSaving || !domainInput.trim()}
-                    >
-                      {t("common.actions.add")}
-                    </Button>
-                  </div>
-                </div>
-
-                {formData.domain.length > 0 ? (
-                  <div className={`flex flex-wrap ${spacing.gap.sm}`}>
-                    {formData.domain.map((domain, index) => (
-                      <Badge key={index} variant="secondary" className={`${spacing.gap.sm} bg-primary/10 pr-1 text-primary`}>
-                        {domain}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveDomain(domain)}
-                          className="ml-1 rounded-full p-0.5 text-primary transition-colors hover:bg-primary/10"
+                {isOwnProfile ? (
+                  <>
+                    <div className={spacing.item}>
+                      <Label htmlFor="domain" className={typography.label}>
+                        {t("common.labels.domains")}
+                      </Label>
+                      <div className={`flex flex-col ${spacing.gap.sm} sm:flex-row`}>
+                        <Input
+                          id="domain"
+                          value={domainInput}
+                          onChange={(e) => setDomainInput(e.target.value)}
+                          onKeyDown={handleKeyDown}
+                          placeholder={t("profile.placeholders.domain")}
                           disabled={isSaving}
+                        />
+                        <Button
+                          type="button"
+                          onClick={handleAddDomain}
+                          variant="secondary"
+                          disabled={isSaving || !domainInput.trim()}
                         >
-                          <X className={iconSizes.xs} />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
+                          {t("common.actions.add")}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {formData.domain.length > 0 ? (
+                      <div className={`flex flex-wrap ${spacing.gap.sm}`}>
+                        {formData.domain.map((domain, index) => (
+                          <Badge key={index} variant="secondary" className={`${spacing.gap.sm} bg-primary/10 pr-1 text-primary`}>
+                            {domain}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveDomain(domain)}
+                              className="ml-1 rounded-full p-0.5 text-primary transition-colors hover:bg-primary/10"
+                              disabled={isSaving}
+                            >
+                              <X className={iconSizes.xs} />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className={`${typography.body} text-neutral-600`}>{t("profile.highlights.domainsHint")}</p>
+                    )}
+                  </>
                 ) : (
-                  <p className={`${typography.body} text-neutral-600`}>{t("profile.highlights.domainsHint")}</p>
+                  <>
+                    {domains.length > 0 ? (
+                      <div className={`flex flex-wrap ${spacing.gap.sm}`}>
+                        {domains.map((domain, index) => (
+                          <Badge key={index} variant="secondary" className="bg-primary/10 text-primary">
+                            {domain}
+                          </Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className={`${typography.body} text-neutral-600`}>{t("profile.highlights.domainsHint")}</p>
+                    )}
+                  </>
                 )}
               </CardContent>
             </Card>
           </div>
 
-          {isDirty && (
+          {isOwnProfile && isDirty && (
             <div className={`sticky bottom-4 z-10 flex flex-col items-stretch ${spacing.gap.md} rounded-2xl border border-primary/20 bg-white/90 px-6 py-4 shadow-sm backdrop-blur lg:flex-row lg:justify-end`}>
               <Button
                 variant="outline"

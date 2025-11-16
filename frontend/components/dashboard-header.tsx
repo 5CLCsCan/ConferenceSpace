@@ -181,7 +181,7 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="cursor-pointer"
-                  onClick={() => router.push("/dashboard/profile")}
+                  onClick={() => router.push("/dashboard/users/me")}
                 >
                   <User className={`${iconSizes.sm} mr-2`} />
                   {t("dashboard.header.profile.profile")}
