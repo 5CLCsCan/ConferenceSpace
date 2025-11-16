@@ -11,6 +11,7 @@ import { useEffect, useState, useMemo } from "react"
 import { listConferences } from "@/lib/api/conferences"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { useAuth } from "@/lib/auth-context"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 type ViewMode = "your" | "discover"
 type StatusFilter = "active" | "upcoming" | "archived" | ""
@@ -140,9 +141,9 @@ export default function ChairDashboard() {
 
         {/* Conference Management List */}
         <section className="mb-12">
-          <div className="flex items-center gap-4 mb-4">
+          <div className={`flex items-center ${spacing.gap.md} mb-4`}>
             <h2
-              className={`text-2xl font-semibold cursor-pointer transition-all px-4 py-2 rounded-md ${
+              className={`${typography.h2} ${typography.semibold} cursor-pointer transition-all px-4 py-2 rounded-md ${
                 viewMode === "your"
                   ? "text-foreground bg-muted"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -157,7 +158,7 @@ export default function ChairDashboard() {
             </h2>
             <span className="text-muted-foreground">/</span>
             <h2
-              className={`text-2xl font-semibold cursor-pointer transition-all px-4 py-2 rounded-md ${
+              className={`${typography.h2} ${typography.semibold} cursor-pointer transition-all px-4 py-2 rounded-md ${
                 viewMode === "discover"
                   ? "text-foreground bg-muted"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -174,13 +175,13 @@ export default function ChairDashboard() {
 
           {/* Search and Filter Controls */}
           <div className="mb-4">
-            <div className="relative flex items-center gap-2 border rounded-md bg-background">
-              <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
-              <div className="flex-1 flex items-center gap-2 pl-10 pr-2 py-2">
+            <div className={`relative flex items-center ${spacing.gap.sm} border rounded-md bg-background`}>
+              <Search className={`absolute left-3 ${iconSizes.sm} text-muted-foreground`} />
+              <div className={`flex-1 flex items-center ${spacing.gap.sm} pl-10 pr-2 py-2`}>
                 {hasActiveFilters && (
-                  <div className="flex items-center gap-2 flex-wrap">
+                  <div className={`flex items-center ${spacing.gap.sm} flex-wrap`}>
                     {statusFilter && (
-                      <Badge variant="secondary" className="gap-1">
+                      <Badge variant="secondary" className={spacing.gap.tight}>
                         {statusFilter === "active"
                           ? "Accepting Submissions"
                           : statusFilter === "upcoming"
@@ -190,7 +191,7 @@ export default function ChairDashboard() {
                           onClick={handleRemoveStatusFilter}
                           className="ml-1 hover:bg-muted rounded-full"
                         >
-                          <X className="h-3 w-3" />
+                          <X className={iconSizes.xs} />
                         </button>
                       </Badge>
                     )}
@@ -212,42 +213,42 @@ export default function ChairDashboard() {
                     size="icon"
                     className={`h-8 w-8 mr-2 ${hasActiveFilters ? "text-primary" : ""}`}
                   >
-                    <Filter className="h-4 w-4" />
+                    <Filter className={iconSizes.sm} />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-64" align="end">
-                  <div className="space-y-4">
+                  <div className={spacing.subsection}>
                     <div>
-                      <h4 className="font-semibold text-sm mb-3">Status</h4>
-                      <div className="space-y-2">
-                        <label className="flex items-center gap-2 cursor-pointer">
+                      <h4 className={`${typography.semibold} ${typography.body} mb-3`}>Status</h4>
+                      <div className={spacing.item}>
+                        <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
                           <Checkbox
                             checked={statusFilter === "active"}
                             onCheckedChange={(checked) => setStatusFilter(checked ? "active" : "")}
                           />
-                          <span className="text-sm">Accepting Submissions</span>
+                          <span className={typography.body}>Accepting Submissions</span>
                         </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
+                        <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
                           <Checkbox
                             checked={statusFilter === "upcoming"}
                             onCheckedChange={(checked) =>
                               setStatusFilter(checked ? "upcoming" : "")
                             }
                           />
-                          <span className="text-sm">In Review</span>
+                          <span className={typography.body}>In Review</span>
                         </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
+                        <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
                           <Checkbox
                             checked={statusFilter === "archived"}
                             onCheckedChange={(checked) =>
                               setStatusFilter(checked ? "archived" : "")
                             }
                           />
-                          <span className="text-sm">Archived</span>
+                          <span className={typography.body}>Archived</span>
                         </label>
                       </div>
                     </div>
-                    <div className="flex justify-end gap-2 pt-2 border-t">
+                    <div className={`flex justify-end ${spacing.gap.sm} pt-2 border-t`}>
                       <Button
                         variant="outline"
                         size="sm"
@@ -271,20 +272,20 @@ export default function ChairDashboard() {
           {/* Desktop Table */}
           <Card className="shadow-sm overflow-hidden hidden md:block">
             {loading ? (
-              <div className="p-8 text-center">
-                <div className="text-muted-foreground">
+              <div className={`${spacing.padding.cardLarge} text-center`}>
+                <div className={typography.muted}>
                   {t("dashboard.chair.dashboard.messages.loading")}
                 </div>
               </div>
             ) : error ? (
-              <div className="p-8 text-center">
-                <div className="text-destructive">
+              <div className={`${spacing.padding.cardLarge} text-center`}>
+                <div className={`text-destructive ${typography.body}`}>
                   {t("dashboard.chair.dashboard.messages.error")}: {error}
                 </div>
               </div>
             ) : conferences.length === 0 ? (
-              <div className="p-8 text-center">
-                <div className="text-muted-foreground">
+              <div className={`${spacing.padding.cardLarge} text-center`}>
+                <div className={typography.muted}>
                   {t("dashboard.chair.dashboard.messages.noConferencesFound")}
                 </div>
               </div>
@@ -292,16 +293,16 @@ export default function ChairDashboard() {
               <table className="w-full">
                 <thead className="bg-muted/50">
                   <tr className="border-b border-border">
-                    <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
+                    <th className={`py-3 px-4 text-left ${typography.body} ${typography.semibold} text-foreground`}>
                       {t("dashboard.chair.dashboard.tableHeaders.conferenceName")}
                     </th>
-                    <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
+                    <th className={`py-3 px-4 text-left ${typography.body} ${typography.semibold} text-foreground`}>
                       {t("dashboard.chair.dashboard.tableHeaders.dates")}
                     </th>
-                    <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
+                    <th className={`py-3 px-4 text-left ${typography.body} ${typography.semibold} text-foreground`}>
                       {t("dashboard.chair.dashboard.tableHeaders.status")}
                     </th>
-                    <th className="py-3 px-4 text-left text-sm font-semibold text-foreground">
+                    <th className={`py-3 px-4 text-left ${typography.body} ${typography.semibold} text-foreground`}>
                       {t("dashboard.chair.dashboard.tableHeaders.submissions")}
                     </th>
                   </tr>
@@ -318,20 +319,20 @@ export default function ChairDashboard() {
           {/* Mobile Cards */}
           <div className="md:hidden">
             {loading ? (
-              <div className="p-8 text-center">
-                <div className="text-muted-foreground">
+              <div className={`${spacing.padding.cardLarge} text-center`}>
+                <div className={typography.muted}>
                   {t("dashboard.chair.dashboard.messages.loading")}
                 </div>
               </div>
             ) : error ? (
-              <div className="p-8 text-center">
-                <div className="text-destructive">
+              <div className={`${spacing.padding.cardLarge} text-center`}>
+                <div className={`text-destructive ${typography.body}`}>
                   {t("dashboard.chair.dashboard.messages.error")}: {error}
                 </div>
               </div>
             ) : conferences.length === 0 ? (
-              <div className="p-8 text-center">
-                <div className="text-muted-foreground">
+              <div className={`${spacing.padding.cardLarge} text-center`}>
+                <div className={typography.muted}>
                   {t("dashboard.chair.dashboard.messages.noConferencesFound")}
                 </div>
               </div>
@@ -347,7 +348,7 @@ export default function ChairDashboard() {
       {/* Footer */}
       <footer className="border-t border-border bg-muted py-6 mt-16">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-muted-foreground">
+          <div className={`flex flex-col sm:flex-row items-center justify-center ${spacing.gap.md} ${typography.body} text-muted-foreground`}>
             <span>© 2025 ConferenceHub</span>
             <span className="hidden sm:inline">•</span>
             <a href="#" className="hover:text-primary transition-colors">

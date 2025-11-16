@@ -15,6 +15,7 @@ import { COITab } from "./coi-tab"
 import { SubmissionSidebar } from "./submission-sidebar"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { getConferenceSubmissions, type Submission } from "@/lib/api/submissions"
+import { typography, spacing } from "@/lib/typography"
 
 interface PaperSubmissionFormProps {
   conference?: Conference | null
@@ -364,10 +365,10 @@ export function PaperSubmissionForm({ conference, submission: initialSubmission 
             {t("dashboard.author.submit.backButton")}
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-[#212529] font-arial">
+            <h1 className={`${typography.h1} ${typography.bold} text-[#212529] font-arial`}>
               {t("dashboard.author.submit.title")}
             </h1>
-            <p className="text-[#6C757D] mt-1 text-base font-arial">
+            <p className={`text-[#6C757D] mt-1 ${typography.bodyLarge} font-arial`}>
               {t("dashboard.author.submit.subtitle")}
             </p>
           </div>
@@ -379,7 +380,7 @@ export function PaperSubmissionForm({ conference, submission: initialSubmission 
               size="lg"
               onClick={handleLoadDraft}
               disabled={loadingDraft}
-              className="border border-[#28A745] text-[#28A745] bg-transparent hover:bg-[#28A745]/10 px-4 py-2 rounded-[4px] text-base font-medium font-arial flex items-center gap-2"
+              className={`border border-[#28A745] text-[#28A745] bg-transparent hover:bg-[#28A745]/10 px-4 py-2 rounded-[4px] ${typography.bodyLarge} ${typography.medium} font-arial flex items-center ${spacing.gap.sm}`}
             >
               <FileText className="size-4" />
               {t("Load Draft") || "Load Saved Draft"}
@@ -390,7 +391,7 @@ export function PaperSubmissionForm({ conference, submission: initialSubmission 
             size="lg"
             onClick={handleSaveAsDraft}
             disabled={submitting}
-            className="border border-[#0056A3] text-[#0056A3] bg-transparent hover:bg-[#0056A3]/10 px-4 py-2 rounded-[4px] text-base font-medium font-arial"
+            className={`border border-[#0056A3] text-[#0056A3] bg-transparent hover:bg-[#0056A3]/10 px-4 py-2 rounded-[4px] ${typography.bodyLarge} ${typography.medium} font-arial`}
           >
             {t("dashboard.author.submit.saveDraft")}
           </Button>
@@ -398,7 +399,7 @@ export function PaperSubmissionForm({ conference, submission: initialSubmission 
             size="lg"
             onClick={handleSubmit}
             disabled={!canSubmit || submitting}
-            className="bg-[#0056A3] text-white hover:bg-[#0056A3]/90 px-4 py-2 rounded-[4px] text-base font-medium font-arial"
+            className={`bg-[#0056A3] text-white hover:bg-[#0056A3]/90 px-4 py-2 rounded-[4px] ${typography.bodyLarge} ${typography.medium} font-arial`}
           >
             {submitting
               ? t("dashboard.author.submit.submitting")
@@ -413,7 +414,7 @@ export function PaperSubmissionForm({ conference, submission: initialSubmission 
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 px-6 py-3 rounded-[4px] text-sm font-medium font-arial transition-colors ${
+                className={`flex-1 px-6 py-3 rounded-[4px] ${typography.body} ${typography.medium} font-arial transition-colors ${
                   activeTab === tab.id
                     ? "bg-white text-[#212529] shadow-sm"
                     : "text-[#6C757D] hover:text-[#212529]"
@@ -480,7 +481,7 @@ export function PaperSubmissionForm({ conference, submission: initialSubmission 
               )}
             </CardContent>
           </Card>
-          <div className="mt-4 flex items-center gap-2 text-sm text-[#6C757D] font-arial">
+          <div className={`mt-4 flex items-center ${spacing.gap.sm} ${typography.body} text-[#6C757D] font-arial`}>
             <Info className="size-4" />
             <span>{t("dashboard.author.submit.draftAutoSave")}</span>
           </div>

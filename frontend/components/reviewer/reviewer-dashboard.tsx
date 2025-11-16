@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button"
 import { AlertCircle } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import type { ReviewerConference } from "@/lib/types"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 type View = "overview" | "conferences" | "invitations" | "conference-papers"
 
@@ -55,10 +56,12 @@ function ConferencePapersWithSWR({
   if (error) {
     return (
       <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>{t("dashboard.roles.reviewer.review.errors.loadFailed")}</AlertTitle>
+        <AlertCircle className={iconSizes.sm} />
+        <AlertTitle className={typography.h6}>
+          {t("dashboard.roles.reviewer.review.errors.loadFailed")}
+        </AlertTitle>
         <AlertDescription>
-          <p className="mb-4">{error}</p>
+          <p className={`mb-4 ${typography.body}`}>{error}</p>
           <Button onClick={onBack} variant="outline" size="sm">
             {t("common.actions.goBack")}
           </Button>
@@ -245,10 +248,12 @@ export function ReviewerDashboard() {
     if (error) {
       return (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>{t("dashboard.roles.reviewer.review.errors.loadFailed")}</AlertTitle>
+          <AlertCircle className={iconSizes.sm} />
+          <AlertTitle className={typography.h6}>
+            {t("dashboard.roles.reviewer.review.errors.loadFailed")}
+          </AlertTitle>
           <AlertDescription className="mt-2">
-            <p className="mb-4">{error}</p>
+            <p className={`mb-4 ${typography.body}`}>{error}</p>
             <Button onClick={() => refresh()} variant="outline" size="sm">
               {t("common.actions.retry")}
             </Button>
@@ -273,9 +278,9 @@ export function ReviewerDashboard() {
     if (!dashboard) {
       return (
         <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>{t("common.messages.noData")}</AlertTitle>
-          <AlertDescription>
+          <AlertCircle className={iconSizes.sm} />
+          <AlertTitle className={typography.h6}>{t("common.messages.noData")}</AlertTitle>
+          <AlertDescription className={typography.body}>
             {t("common.messages.noData")}
           </AlertDescription>
         </Alert>
@@ -347,7 +352,9 @@ export function ReviewerDashboard() {
           setSelectedConferenceId(null)
         }}
       />
-      <div className="flex-1 p-8 space-y-8">{renderContent()}</div>
+      <div className={`flex-1 ${spacing.padding.cardLarge} ${spacing.section}`}>
+        {renderContent()}
+      </div>
     </div>
   )
 }

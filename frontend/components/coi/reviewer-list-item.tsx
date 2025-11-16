@@ -10,6 +10,7 @@ import { useTranslation } from "@/lib/i18n/translation-context"
 import type { Reviewer, COIType } from "@/lib/mock-data/coi"
 import { checkReviewerToPaperCOI, checkReviewerToAuthorCOI } from "@/lib/api/coi-mock"
 import type { COIReport } from "@/lib/mock-data/coi"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 interface ReviewerListItemProps {
   reviewer: Reviewer
@@ -77,25 +78,31 @@ export function ReviewerListItem({
   const isOverloaded = workloadPercentage >= 100
 
   return (
-    <Card className={`p-3 transition-all ${selected ? "ring-2 ring-primary" : ""}`}>
-      <div className="flex items-start gap-3">
+    <Card className={`${spacing.padding.card} transition-all ${selected ? "ring-2 ring-primary" : ""}`}>
+      <div className={`flex items-start ${spacing.gap.md}`}>
         <Checkbox checked={selected} onCheckedChange={onSelect} className="mt-1" />
-        <div className="flex-1 min-w-0 space-y-2">
+        <div className={`flex-1 min-w-0 ${spacing.item}`}>
           {/* Header */}
-          <div className="flex items-start justify-between gap-2">
+          <div className={`flex items-start justify-between ${spacing.gap.sm}`}>
             <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-sm truncate">{reviewer.name}</h4>
-              <p className="text-xs text-muted-foreground truncate">{reviewer.email}</p>
-              <p className="text-xs text-muted-foreground truncate">{reviewer.affiliation}</p>
+              <h4 className={`${typography.body} ${typography.semibold} truncate`}>
+                {reviewer.name}
+              </h4>
+              <p className={`${typography.bodySmall} text-muted-foreground truncate`}>
+                {reviewer.email}
+              </p>
+              <p className={`${typography.bodySmall} text-muted-foreground truncate`}>
+                {reviewer.affiliation}
+              </p>
             </div>
             {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              <Loader2 className={`${iconSizes.sm} animate-spin text-muted-foreground`} />
             ) : coiReport ? (
               <Badge className={getSeverityColor(coiReport.severity)} variant="outline">
                 {coiReport.severity === "none" ? (
-                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                  <CheckCircle2 className={`${iconSizes.xs} mr-1`} />
                 ) : (
-                  <AlertTriangle className="h-3 w-3 mr-1" />
+                  <AlertTriangle className={`${iconSizes.xs} mr-1`} />
                 )}
                 {t(`coi.severity.${coiReport.severity}`) || coiReport.severity.toUpperCase()}
               </Badge>
@@ -103,31 +110,31 @@ export function ReviewerListItem({
           </div>
 
           {/* Domains */}
-          <div className="flex flex-wrap gap-1">
+          <div className={`flex flex-wrap ${spacing.gap.tight}`}>
             {reviewer.domains.slice(0, 3).map((domain, idx) => (
-              <Badge key={idx} variant="secondary" className="text-xs">
+              <Badge key={idx} variant="secondary" className={typography.bodySmall}>
                 {domain}
               </Badge>
             ))}
             {reviewer.domains.length > 3 && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className={typography.bodySmall}>
                 +{reviewer.domains.length - 3}
               </Badge>
             )}
           </div>
 
           {/* Stats */}
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <div className={`flex items-center ${spacing.gap.md} ${typography.bodySmall} text-muted-foreground`}>
             <span>
               {t("coi.reviewer.hIndex")} {reviewer.h_index}
             </span>
             <span>•</span>
-            <span className="flex items-center gap-1">
-              <Users className="h-3 w-3" />
+            <span className={`flex items-center ${spacing.gap.tight}`}>
+              <Users className={iconSizes.xs} />
               {reviewer.current_workload}/{reviewer.max_capacity}
             </span>
             {isOverloaded && (
-              <Badge variant="destructive" className="text-xs">
+              <Badge variant="destructive" className={typography.bodySmall}>
                 {t("coi.reviewer.overloaded")}
               </Badge>
             )}
@@ -135,17 +142,21 @@ export function ReviewerListItem({
 
           {/* COI Warning */}
           {coiReport && coiReport.severity !== "none" && (
-            <div className={`mt-2 p-2 rounded-lg border ${getSeverityColor(coiReport.severity)}`}>
-              <div className="flex items-start gap-2">
-                <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+            <div
+              className={`mt-2 ${spacing.padding.card} rounded-lg border ${getSeverityColor(coiReport.severity)}`}
+            >
+              <div className={`flex items-start ${spacing.gap.sm}`}>
+                <AlertTriangle className={`${iconSizes.sm} mt-0.5 flex-shrink-0`} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium">
+                  <p className={`${typography.bodySmall} ${typography.medium}`}>
                     {t("coi.reviewer.relationshipsDetected", {
                       count: coiReport.relationships.length,
                     })}
                   </p>
-                  <p className="text-xs mt-1 opacity-90">{coiReport.summary}</p>
-                  <p className="text-xs mt-1 font-medium">
+                  <p className={`${typography.bodySmall} mt-1 opacity-90`}>
+                    {coiReport.summary}
+                  </p>
+                  <p className={`${typography.bodySmall} mt-1 ${typography.medium}`}>
                     {t("coi.reviewer.recommendation")}:{" "}
                     {t(`coi.recommendation.${coiReport.recommendation}`) ||
                       coiReport.recommendation.toUpperCase()}

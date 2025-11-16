@@ -6,6 +6,7 @@ import { Calendar, ArrowRight } from "lucide-react"
 import type { Relationship } from "@/lib/mock-data/coi"
 import { format } from "date-fns"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 interface RelationshipTimelineProps {
   relationships: Relationship[]
@@ -16,7 +17,7 @@ export function RelationshipTimeline({ relationships }: RelationshipTimelineProp
 
   if (relationships.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground text-sm">
+      <div className={`text-center py-8 text-muted-foreground ${typography.body}`}>
         {t("coi.timeline.noHistory")}
       </div>
     )
@@ -46,14 +47,14 @@ export function RelationshipTimeline({ relationships }: RelationshipTimelineProp
       <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border"></div>
 
       {/* Timeline items */}
-      <div className="space-y-6">
+      <div className={spacing.subsection}>
         {sortedRels.map((rel, idx) => {
           const startDate = new Date(rel.start_date)
           const endDate = rel.end_date ? new Date(rel.end_date) : null
           const isActive = !endDate || endDate > new Date()
 
           return (
-            <div key={rel.id} className="relative flex gap-4">
+            <div key={rel.id} className={`relative flex ${spacing.gap.md}`}>
               {/* Timeline dot */}
               <div className="relative z-10 flex-shrink-0">
                 <div
@@ -61,16 +62,16 @@ export function RelationshipTimeline({ relationships }: RelationshipTimelineProp
                     isActive ? getSeverityColor(rel.severity) : "bg-gray-100 border-gray-300"
                   }`}
                 >
-                  <Calendar className="h-4 w-4" />
+                  <Calendar className={iconSizes.sm} />
                 </div>
               </div>
 
               {/* Content */}
               <Card className={`flex-1 ${getSeverityColor(rel.severity)}`}>
                 <CardContent className="pt-4">
-                  <div className="flex items-start justify-between gap-4 mb-2">
+                  <div className={`flex items-start justify-between ${spacing.gap.md} mb-2`}>
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className={`flex items-center ${spacing.gap.sm} mb-2`}>
                         <Badge variant="outline">
                           {t(`coi.relationshipTypes.${rel.type}`) || rel.type.replace(/_/g, " ")}
                         </Badge>
@@ -83,15 +84,17 @@ export function RelationshipTimeline({ relationships }: RelationshipTimelineProp
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm font-medium mb-1">{rel.description}</p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Calendar className="h-3 w-3" />
+                      <p className={`${typography.body} ${typography.medium} mb-1`}>
+                        {rel.description}
+                      </p>
+                      <div className={`flex items-center ${spacing.gap.sm} ${typography.bodySmall} text-muted-foreground`}>
+                        <Calendar className={iconSizes.xs} />
                         <span>
                           {t("coi.timeline.started")} {format(startDate, "MMM dd, yyyy")}
                         </span>
                         {endDate && (
                           <>
-                            <ArrowRight className="h-3 w-3" />
+                            <ArrowRight className={iconSizes.xs} />
                             <span>
                               {t("coi.timeline.ended")} {format(endDate, "MMM dd, yyyy")}
                             </span>
@@ -106,8 +109,10 @@ export function RelationshipTimeline({ relationships }: RelationshipTimelineProp
 
                   {rel.evidence && rel.evidence.length > 0 && (
                     <div className="mt-3 pt-3 border-t">
-                      <p className="text-xs font-medium mb-2">{t("coi.timeline.evidence")}</p>
-                      <ul className="text-xs space-y-1 list-disc list-inside opacity-90">
+                      <p className={`${typography.bodySmall} ${typography.medium} mb-2`}>
+                        {t("coi.timeline.evidence")}
+                      </p>
+                      <ul className={`${typography.bodySmall} ${spacing.tight} list-disc list-inside opacity-90`}>
                         {rel.evidence.map((ev, i) => (
                           <li key={i}>{ev}</li>
                         ))}

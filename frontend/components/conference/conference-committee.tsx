@@ -15,6 +15,7 @@ import { getConferenceReviewers, inviteReviewers, removeReviewer, getConferenceB
 import { useAuth } from "@/lib/auth-context"
 import { apiFetch } from "@/lib/api/client"
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 interface ConferenceCommitteeProps {
   conferenceId: string
@@ -304,9 +305,9 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
           variant: "destructive",
           title: `${t("dashboard.conference.committee.errors.inviteFailed")} (${failedCount})`,
           description: (
-            <div className="space-y-1 mt-2 max-h-32 overflow-y-auto">
+            <div className={`${spacing.tight} mt-2 max-h-32 overflow-y-auto`}>
               {failureMessages.map((message, index) => (
-                <p key={index} className="text-sm">{message}</p>
+                <p key={index} className={typography.body}>{message}</p>
               ))}
             </div>
           ),
@@ -368,35 +369,60 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
   const getStatusBadge = (status?: string) => {
     switch (status) {
       case "accepted":
-        return <Badge variant="default" className="bg-green-500"><CheckCircle2 className="mr-1 size-3" />{t("dashboard.conference.committee.status.accepted")}</Badge>
+        return (
+          <Badge variant="default" className="bg-green-500">
+            <CheckCircle2 className={`mr-1 ${iconSizes.xs}`} />
+            {t("dashboard.conference.committee.status.accepted")}
+          </Badge>
+        )
       case "rejected":
-        return <Badge variant="destructive"><XCircle className="mr-1 size-3" />{t("dashboard.conference.committee.status.rejected")}</Badge>
+        return (
+          <Badge variant="destructive">
+            <XCircle className={`mr-1 ${iconSizes.xs}`} />
+            {t("dashboard.conference.committee.status.rejected")}
+          </Badge>
+        )
       case "pending":
       default:
-        return <Badge variant="outline"><Mail className="mr-1 size-3" />{t("dashboard.conference.committee.status.pending")}</Badge>
+        return (
+          <Badge variant="outline">
+            <Mail className={`mr-1 ${iconSizes.xs}`} />
+            {t("dashboard.conference.committee.status.pending")}
+          </Badge>
+        )
     }
   }
 
   if (isLoading) {
-    return <div className="flex items-center justify-center py-12"><Loader2 className="size-8 animate-spin text-muted-foreground" /></div>
+    return <div className={`flex items-center justify-center py-12`}><Loader2 className={`${iconSizes.lg} animate-spin text-muted-foreground`} style={{ width: "2rem", height: "2rem" }} /></div>
   }
 
   return (
-    <div className="space-y-6">
+    <div className={spacing.subsection}>
       {conference && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Award className="size-5" />{t("dashboard.conference.committee.chairInfo.title")}</CardTitle>
-            <CardDescription>{t("dashboard.conference.committee.chairInfo.description")}</CardDescription>
+            <CardTitle className={`flex items-center ${spacing.gap.sm}`}>
+              <Award className={iconSizes.md} />
+              {t("dashboard.conference.committee.chairInfo.title")}
+            </CardTitle>
+            <CardDescription className={typography.body}>
+              {t("dashboard.conference.committee.chairInfo.description")}
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="space-y-2">
-                <p className="text-sm">
-                  <span className="font-medium">{t("dashboard.conference.committee.chairInfo.chair")}:</span> {conference.chair || "N/A"}
+            <div className={`flex flex-wrap items-start justify-between ${spacing.gap.md}`}>
+              <div className={spacing.item}>
+                <p className={typography.body}>
+                  <span className={typography.medium}>
+                    {t("dashboard.conference.committee.chairInfo.chair")}:
+                  </span>{" "}
+                  {conference.chair || "N/A"}
                 </p>
                 {conference.chair_email && (
-                  <p className="text-sm text-muted-foreground">{conference.chair_email}</p>
+                  <p className={`${typography.body} text-muted-foreground`}>
+                    {conference.chair_email}
+                  </p>
                 )}
               </div>
               {conference.primary_contact && (
@@ -419,8 +445,14 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="flex items-center gap-2"><Users className="size-5" />{t("dashboard.conference.committee.reviewers.title")}</CardTitle>
-                <CardDescription>{t("dashboard.conference.committee.reviewers.description")}  {totalReviewers} {t("dashboard.conference.committee.reviewers.count")}</CardDescription>
+                <CardTitle className={`flex items-center ${spacing.gap.sm}`}>
+                  <Users className={iconSizes.md} />
+                  {t("dashboard.conference.committee.reviewers.title")}
+                </CardTitle>
+                <CardDescription className={typography.body}>
+                  {t("dashboard.conference.committee.reviewers.description")} {totalReviewers}{" "}
+                  {t("dashboard.conference.committee.reviewers.count")}
+                </CardDescription>
               </div>
               <Dialog
                 open={isInviteDialogOpen}
@@ -437,17 +469,23 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                   }
                 }}
               >
-                <DialogTrigger asChild><Button size="sm"><UserPlus className="mr-2 size-4" />{t("dashboard.conference.committee.actions.invite")}</Button></DialogTrigger>
+                <DialogTrigger asChild>
+                  <Button size="sm">
+                    <UserPlus className={`mr-2 ${iconSizes.sm}`} />
+                    {t("dashboard.conference.committee.actions.invite")}
+                  </Button>
+                </DialogTrigger>
                 <DialogContent>
                   {/* Loading overlay */}
                   {isInviting && (
                     <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center rounded-lg">
-                      <div className="bg-card p-6 rounded-lg shadow-lg border flex flex-col items-center gap-4 max-w-sm">
-                        <Loader2 className="size-12 animate-spin text-primary" />
+                      <div className={`bg-card ${spacing.padding.cardLarge} rounded-lg shadow-lg border flex flex-col items-center ${spacing.gap.md} max-w-sm`}>
+                        <Loader2 className="animate-spin text-primary" style={{ width: "3rem", height: "3rem" }} />
                         <div className="text-center">
-                          <p className="font-semibold text-lg">Sending invitations...</p>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            Inviting {selectedUsers.length} {selectedUsers.length > 1 ? 'reviewers' : 'reviewer'}
+                          <p className={`${typography.semibold} ${typography.h4}`}>Sending invitations...</p>
+                          <p className={`${typography.body} text-muted-foreground mt-1`}>
+                            Inviting {selectedUsers.length}{" "}
+                            {selectedUsers.length > 1 ? "reviewers" : "reviewer"}
                           </p>
                         </div>
                       </div>
@@ -455,89 +493,114 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                   )}
 
                   {inviteSuccessInfo && (
-                    <div className="mb-4 flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-900/60 dark:bg-green-950/40">
-                      <CheckCircle2 className="mt-0.5 size-5 text-green-600 dark:text-green-300" />
+                    <div className={`mb-4 flex items-start ${spacing.gap.md} rounded-lg border border-green-200 bg-green-50 ${spacing.padding.card} dark:border-green-900/60 dark:bg-green-950/40`}>
+                      <CheckCircle2 className={`mt-0.5 ${iconSizes.md} text-green-600 dark:text-green-300`} />
                       <div>
-                        <p className="font-semibold text-green-700 dark:text-green-200">
+                        <p className={`${typography.semibold} text-green-700 dark:text-green-200`}>
                           {t("dashboard.conference.committee.dialog.inviteSuccessBannerTitle")}
                         </p>
-                        <p className="text-sm text-green-700 dark:text-green-200/80">{inviteSuccessInfo}</p>
+                        <p className={`${typography.body} text-green-700 dark:text-green-200/80`}>
+                          {inviteSuccessInfo}
+                        </p>
                       </div>
                     </div>
                   )}
-                  
+
                   <DialogHeader>
-                    <DialogTitle>{t("dashboard.conference.committee.dialog.inviteTitle")}</DialogTitle>
-                    <DialogDescription>{t("dashboard.conference.committee.dialog.inviteDescription")}</DialogDescription>
+                    <DialogTitle className={typography.h4}>
+                      {t("dashboard.conference.committee.dialog.inviteTitle")}
+                    </DialogTitle>
+                    <DialogDescription className={typography.body}>
+                      {t("dashboard.conference.committee.dialog.inviteDescription")}
+                    </DialogDescription>
                   </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                      <label htmlFor="userEmail" className="text-sm font-medium">{t("dashboard.conference.committee.dialog.userEmail")} *</label>
+                  <div className={`${spacing.subsection} py-4`}>
+                    <div className={spacing.item}>
+                      <label htmlFor="userEmail" className={`${typography.body} ${typography.medium}`}>
+                        {t("dashboard.conference.committee.dialog.userEmail")} *
+                      </label>
                       <div className="relative">
-                        <Input 
-                          id="userEmail" 
-                          type="email" 
-                          placeholder="reviewer@example.com" 
-                          value={inviteEmail} 
+                        <Input
+                          id="userEmail"
+                          type="email"
+                          placeholder="reviewer@example.com"
+                          value={inviteEmail}
                           onChange={(e) => {
                             setInviteEmail(e.target.value)
                           }}
                         />
                         {isSearching && (
                           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                            <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                            <Loader2 className={`${iconSizes.sm} animate-spin text-muted-foreground`} />
                           </div>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground">{t("dashboard.conference.committee.dialog.userEmailHint")}</p>
+                      <p className={`${typography.bodySmall} text-muted-foreground`}>
+                        {t("dashboard.conference.committee.dialog.userEmailHint")}
+                      </p>
                       
                       {/* Search results dropdown */}
                       {searchResults.length > 0 && (
-                        <div className="border rounded-md mt-2 max-h-48 overflow-y-auto bg-background shadow-lg">
+                        <div className={`border rounded-md mt-2 max-h-48 overflow-y-auto bg-background shadow-lg`}>
                           {searchResults.map((user) => {
-                            const isSelected = selectedUsers.some(u => u.id === user.id)
+                            const isSelected = selectedUsers.some((u) => u.id === user.id)
                             return (
                               <button
                                 key={user.id}
                                 type="button"
                                 onClick={() => {
                                   if (isSelected) {
-                                    setSelectedUsers(selectedUsers.filter(u => u.id !== user.id))
+                                    setSelectedUsers(selectedUsers.filter((u) => u.id !== user.id))
                                   } else {
                                     setSelectedUsers([...selectedUsers, user])
                                   }
                                 }}
-                                className={`w-full px-4 py-2 text-left hover:bg-muted flex items-center justify-between ${isSelected ? 'bg-green-50 dark:bg-green-950' : ''}`}
+                                className={`w-full px-4 py-2 text-left hover:bg-muted flex items-center justify-between ${
+                                  isSelected ? "bg-green-50 dark:bg-green-950" : ""
+                                }`}
                               >
                                 <div>
-                                  <p className="text-sm font-medium">{user.email}</p>
-                                  {user.name && <p className="text-xs text-muted-foreground">{user.name}</p>}
+                                  <p className={`${typography.body} ${typography.medium}`}>
+                                    {user.email}
+                                  </p>
+                                  {user.name && (
+                                    <p className={`${typography.bodySmall} text-muted-foreground`}>
+                                      {user.name}
+                                    </p>
+                                  )}
                                 </div>
-                                <div className="flex items-center gap-2">
-                                  {isSelected && <CheckCircle2 className="size-4 text-green-600 dark:text-green-400" />}
+                                <div className={`flex items-center ${spacing.gap.sm}`}>
+                                  {isSelected && (
+                                    <CheckCircle2
+                                      className={`${iconSizes.sm} text-green-600 dark:text-green-400`}
+                                    />
+                                  )}
                                 </div>
                               </button>
                             )
                           })}
                         </div>
                       )}
-                      
+
                       {/* Selected users display */}
                       {selectedUsers.length > 0 && (
-                        <div className="space-y-2">
-                          <p className="text-xs font-medium text-muted-foreground">
-                            {selectedUsers.length} {selectedUsers.length === 1 ? 'reviewer' : 'reviewers'} selected
+                        <div className={spacing.item}>
+                          <p className={`${typography.bodySmall} ${typography.medium} text-muted-foreground`}>
+                            {selectedUsers.length}{" "}
+                            {selectedUsers.length === 1 ? "reviewer" : "reviewers"} selected
                           </p>
-                          <div className="flex flex-wrap gap-2">
+                          <div className={`flex flex-wrap ${spacing.gap.sm}`}>
                             {selectedUsers.map((user) => (
-                              <Badge key={user.id} variant="secondary" className="gap-1">
+                              <Badge key={user.id} variant="secondary" className={spacing.gap.tight}>
                                 {user.email}
                                 <button
                                   type="button"
-                                  onClick={() => setSelectedUsers(selectedUsers.filter(u => u.id !== user.id))}
+                                  onClick={() =>
+                                    setSelectedUsers(selectedUsers.filter((u) => u.id !== user.id))
+                                  }
                                   className="ml-1 hover:text-destructive"
                                 >
-                                  <XCircle className="size-3" />
+                                  <XCircle className={iconSizes.xs} />
                                 </button>
                               </Badge>
                             ))}
@@ -546,18 +609,18 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                       )}
                       {/* Invite errors */}
                       {inviteErrors.length > 0 && (
-                        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3">
-                          <p className="text-sm font-medium text-destructive">
+                        <div className={`rounded-md border border-destructive/30 bg-destructive/10 p-3`}>
+                          <p className={`${typography.body} ${typography.medium} text-destructive`}>
                             {t("dashboard.conference.committee.errors.inviteIssues")}
                           </p>
-                          <div className="mt-2 space-y-1 max-h-32 overflow-y-auto">
+                          <div className={`mt-2 ${spacing.tight} max-h-32 overflow-y-auto`}>
                             {inviteErrors.map((message, index) => (
-                              <p key={index} className="text-sm text-destructive">
+                              <p key={index} className={`${typography.body} text-destructive`}>
                                 {message}
                               </p>
                             ))}
                           </div>
-                          <p className="mt-2 text-xs text-destructive/80">
+                          <p className={`mt-2 ${typography.bodySmall} text-destructive/80`}>
                             {t("dashboard.conference.committee.errors.inviteFix")}
                           </p>
                         </div>
@@ -571,77 +634,143 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                       setSelectedUsers([])
                       setSearchResults([])
                     }} disabled={isInviting}>{t("common.actions.cancel")}</Button>
-                    <Button type="button" onClick={handleInvite} disabled={isInviting || selectedUsers.length === 0}>
-                      {isInviting && <Loader2 className="mr-2 size-4 animate-spin" />}
-                      {t("dashboard.conference.committee.actions.sendInvite")} {selectedUsers.length > 0 && `(${selectedUsers.length})`}
+                    <Button
+                      type="button"
+                      onClick={handleInvite}
+                      disabled={isInviting || selectedUsers.length === 0}
+                    >
+                      {isInviting && <Loader2 className={`mr-2 ${iconSizes.sm} animate-spin`} />}
+                      {t("dashboard.conference.committee.actions.sendInvite")}{" "}
+                      {selectedUsers.length > 0 && `(${selectedUsers.length})`}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-4">
+          <CardContent className={spacing.subsection}>
+            <div className={`flex items-center ${spacing.gap.md}`}>
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input placeholder={t("dashboard.conference.committee.search.placeholder")} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
+                <Search
+                  className={`absolute left-3 top-1/2 ${iconSizes.sm} -translate-y-1/2 text-muted-foreground`}
+                />
+                <Input
+                  placeholder={t("dashboard.conference.committee.search.placeholder")}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[180px]"><SelectValue placeholder={t("dashboard.conference.committee.filter.placeholder")} /></SelectTrigger>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue
+                    placeholder={t("dashboard.conference.committee.filter.placeholder")}
+                  />
+                </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{t("dashboard.conference.committee.filter.all")}</SelectItem>
-                  <SelectItem value="pending">{t("dashboard.conference.committee.filter.pending")}</SelectItem>
-                  <SelectItem value="accepted">{t("dashboard.conference.committee.filter.accepted")}</SelectItem>
-                  <SelectItem value="rejected">{t("dashboard.conference.committee.filter.rejected")}</SelectItem>
+                  <SelectItem value="all">
+                    {t("dashboard.conference.committee.filter.all")}
+                  </SelectItem>
+                  <SelectItem value="pending">
+                    {t("dashboard.conference.committee.filter.pending")}
+                  </SelectItem>
+                  <SelectItem value="accepted">
+                    {t("dashboard.conference.committee.filter.accepted")}
+                  </SelectItem>
+                  <SelectItem value="rejected">
+                    {t("dashboard.conference.committee.filter.rejected")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
             {filteredReviewers.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center space-y-4 py-12">
-                <div className="rounded-full bg-muted p-6"><Users className="size-12 text-muted-foreground" /></div>
-                <div className="space-y-2">
-                  <h3 className="text-lg font-semibold">{t("dashboard.conference.committee.empty.title")}</h3>
-                  <p className="text-sm text-muted-foreground max-w-md">{t("dashboard.conference.committee.empty.description")}</p>
+              <div className={`flex flex-col items-center justify-center text-center ${spacing.subsection} py-12`}>
+                <div className={`rounded-full bg-muted ${spacing.padding.cardLarge}`}>
+                  <Users className="text-muted-foreground" style={{ width: "3rem", height: "3rem" }} />
+                </div>
+                <div className={spacing.item}>
+                  <h3 className={`${typography.h4} ${typography.semibold}`}>
+                    {t("dashboard.conference.committee.empty.title")}
+                  </h3>
+                  <p className={`${typography.body} text-muted-foreground max-w-md`}>
+                    {t("dashboard.conference.committee.empty.description")}
+                  </p>
                 </div>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className={spacing.item}>
                 {filteredReviewers.map((reviewer) => (
                   <Card key={reviewer.id ?? reviewer.user_id}>
-                    <CardContent className="flex items-center justify-between py-4">
-                      <div className="flex items-center gap-4">
-                        <div className="flex size-10 items-center justify-center rounded-full bg-muted"><Users className="size-5 text-muted-foreground" /></div>
+                    <CardContent className={`flex items-center justify-between py-4`}>
+                      <div className={`flex items-center ${spacing.gap.md}`}>
+                        <div className="flex size-10 items-center justify-center rounded-full bg-muted">
+                          <Users className={`${iconSizes.md} text-muted-foreground`} />
+                        </div>
                         <div>
-                          <p className="font-medium">
-                            {reviewer.email || t("dashboard.conference.committee.reviewers.unknown")}
+                          <p className={typography.medium}>
+                            {reviewer.email ||
+                              t("dashboard.conference.committee.reviewers.unknown")}
                           </p>
                           {reviewer.domain && reviewer.domain.length > 0 && (
-                            <div className="mt-1 flex gap-1">
-                              {reviewer.domain.slice(0, 3).map((d, idx) => <Badge key={idx} variant="secondary" className="text-xs">{d}</Badge>)}
+                            <div className={`mt-1 flex ${spacing.gap.tight}`}>
+                              {reviewer.domain.slice(0, 3).map((d, idx) => (
+                                <Badge key={idx} variant="secondary" className={typography.bodySmall}>
+                                  {d}
+                                </Badge>
+                              ))}
                             </div>
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className={`flex items-center ${spacing.gap.sm}`}>
                         {getStatusBadge(reviewer.status)}
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => router.push(`/dashboard/reviewers/${reviewer.user_id}`)}
                         >
-                          <ExternalLink className="mr-1 size-3.5" />
+                          <ExternalLink className={`mr-1 ${iconSizes.xs}`} />
                           {t("dashboard.conference.committee.actions.viewProfile")}
                         </Button>
-                        <Dialog open={reviewerToRemove?.id === reviewer.id} onOpenChange={(open) => { if (!open) setReviewerToRemove(null); else setReviewerToRemove(reviewer) }}>
-                          <DialogTrigger asChild><Button variant="ghost" size="sm"><Trash2 className="size-4 text-destructive" /></Button></DialogTrigger>
+                        <Dialog
+                          open={reviewerToRemove?.id === reviewer.id}
+                          onOpenChange={(open) => {
+                            if (!open) setReviewerToRemove(null)
+                            else setReviewerToRemove(reviewer)
+                          }}
+                        >
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <Trash2 className={`${iconSizes.sm} text-destructive`} />
+                            </Button>
+                          </DialogTrigger>
                           <DialogContent>
                             <DialogHeader>
-                              <DialogTitle>{t("dashboard.conference.committee.dialog.removeTitle")}</DialogTitle>
-                              <DialogDescription>{t("dashboard.conference.committee.dialog.removeDescription")}</DialogDescription>
+                              <DialogTitle className={typography.h4}>
+                                {t("dashboard.conference.committee.dialog.removeTitle")}
+                              </DialogTitle>
+                              <DialogDescription className={typography.body}>
+                                {t("dashboard.conference.committee.dialog.removeDescription")}
+                              </DialogDescription>
                             </DialogHeader>
                             <DialogFooter>
-                              <Button variant="outline" onClick={() => setReviewerToRemove(null)} disabled={isRemoving}>{t("common.actions.cancel")}</Button>
-                              <Button variant="destructive" onClick={() => handleRemove(reviewer)} disabled={isRemoving}>{isRemoving && <Loader2 className="mr-2 size-4 animate-spin" />}{t("common.actions.remove")}</Button>
+                              <Button
+                                variant="outline"
+                                onClick={() => setReviewerToRemove(null)}
+                                disabled={isRemoving}
+                              >
+                                {t("common.actions.cancel")}
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                onClick={() => handleRemove(reviewer)}
+                                disabled={isRemoving}
+                              >
+                                {isRemoving && (
+                                  <Loader2 className={`mr-2 ${iconSizes.sm} animate-spin`} />
+                                )}
+                                {t("common.actions.remove")}
+                              </Button>
                             </DialogFooter>
                           </DialogContent>
                         </Dialog>
@@ -651,8 +780,15 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                 ))}
                 {hasMoreReviewers && !searchQuery && (
                   <div className="flex justify-center pt-2">
-                    <Button variant="ghost" size="sm" onClick={loadMoreReviewers} disabled={isLoadingMore}>
-                      {isLoadingMore && <Loader2 className="mr-2 size-4 animate-spin" />}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={loadMoreReviewers}
+                      disabled={isLoadingMore}
+                    >
+                      {isLoadingMore && (
+                        <Loader2 className={`mr-2 ${iconSizes.sm} animate-spin`} />
+                      )}
                       {t("dashboard.conference.committee.actions.loadMore")}
                     </Button>
                   </div>
