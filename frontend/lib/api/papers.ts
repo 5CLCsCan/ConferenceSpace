@@ -12,6 +12,7 @@ export async function submitPaper(data: {
   link?: string
   domain: string[]
   file?: File
+  status?: "draft" | "published" // Allow caller to specify status
   information?: {
     co_authors?: string[]
     keywords?: string[]
@@ -36,7 +37,7 @@ export async function submitPaper(data: {
         abstract: data.abstract,
         link: data.link || "",
         domain: data.domain,
-        status: "draft",
+        status: data.status || "draft", // Use provided status or default to draft
         information: data.information || {},
       },
     }

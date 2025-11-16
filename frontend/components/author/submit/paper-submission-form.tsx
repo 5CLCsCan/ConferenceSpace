@@ -169,6 +169,7 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
         link: "", // TODO: Add file upload URL when implemented
         domain: subjectAreas,
         file: uploadedFile || undefined, // Include uploaded file
+        status: "draft" as const, // Explicitly set status to draft
         information: {
           keywords,
           co_authors: authors
@@ -211,6 +212,7 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
         link: "", // TODO: Add file upload URL when implemented
         domain: subjectAreas,
         file: uploadedFile || undefined, // Include uploaded file
+        status: "published" as const, // Set status to published for final submission
         information: {
           keywords,
           co_authors: authors
