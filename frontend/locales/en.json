@@ -1033,5 +1033,51 @@
       "noConferences": "No conferences assigned yet",
       "complete": "complete"
     }
+  },
+  "profile": {
+    "title": "Profile",
+    "description": "Manage your personal information and account settings",
+    "sections": {
+      "personalInfo": "Personal Information",
+      "personalInfoDescription": "Update your name and email address",
+      "expertise": "Expertise",
+      "expertiseDescription": "Add your domains of expertise for better paper matching",
+      "accountInfo": "Account Information",
+      "accountInfoDescription": "View your account details and roles"
+    },
+    "fields": {
+      "userId": "User ID",
+      "roles": "Roles",
+      "createdAt": "Account Created",
+      "updatedAt": "Last Updated"
+    },
+    "highlights": {
+      "joined": "Joined {date}",
+      "updated": "Updated {date}",
+      "domainsNone": "No domains added yet",
+      "domainsCount": "{count} domains tracked",
+      "domainsHint": "Add domains to improve reviewer matching and recommendations."
+    },
+    "placeholders": {
+      "firstName": "Enter your first name",
+      "lastName": "Enter your last name",
+      "email": "Enter your email address",
+      "domain": "e.g., Machine Learning, Natural Language Processing"
+    },
+    "success": {
+      "updated": "Profile Updated",
+      "updatedDescription": "Your profile has been successfully updated"
+    },
+    "error": {
+      "fetchFailed": "Failed to Load Profile",
+      "fetchDescription": "Unable to retrieve your profile information",
+      "updateFailed": "Update Failed",
+      "updateDescription": "Unable to update your profile. Please try again",
+      "validationFailed": "Validation Error",
+      "notFound": "Profile not found",
+      "missingId": "Unable to determine your user ID. Please refresh and try again.",
+      "unauthorized": "Session expired",
+      "unauthorizedDescription": "Please sign in again to save your changes."
+    }
   }
 }

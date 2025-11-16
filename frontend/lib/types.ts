@@ -322,3 +322,23 @@ export interface AssignedPaper {
   assigned_at: string
   assignment_id: number
 }
+
+// ================== Profile Types ==================
+
+export interface ProfileFormData {
+  firstName: string
+  lastName: string
+  email: string
+  domain: string[]
+}
+
+export interface UpdateProfileRequest {
+  id: number
+  user: {
+    id: number
+    first_name: string
+    last_name: string
+    email: string
+    domain: string[]
+  }
+}

@@ -179,7 +179,10 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
                   <Home className={`${iconSizes.sm} mr-2`} />
                   {t("dashboard.header.profile.switchRole")}
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => router.push("/dashboard/profile")}
+                >
                   <User className={`${iconSizes.sm} mr-2`} />
                   {t("dashboard.header.profile.profile")}
                 </DropdownMenuItem>

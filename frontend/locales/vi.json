@@ -1039,5 +1039,51 @@
       "noConferences": "Chưa được giao hội nghị nào",
       "complete": "hoàn thành"
     }
+  },
+  "profile": {
+    "title": "Hồ Sơ",
+    "description": "Quản lý thông tin cá nhân và cài đặt tài khoản",
+    "sections": {
+      "personalInfo": "Thông Tin Cá Nhân",
+      "personalInfoDescription": "Cập nhật tên và địa chỉ email của bạn",
+      "expertise": "Chuyên Môn",
+      "expertiseDescription": "Thêm các lĩnh vực chuyên môn để ghép bài phù hợp hơn",
+      "accountInfo": "Thông Tin Tài Khoản",
+      "accountInfoDescription": "Xem chi tiết tài khoản và vai trò của bạn"
+    },
+    "fields": {
+      "userId": "Mã Người Dùng",
+      "roles": "Vai Trò",
+      "createdAt": "Tài Khoản Được Tạo",
+      "updatedAt": "Cập Nhật Lần Cuối"
+    },
+    "highlights": {
+      "joined": "Đăng ký ngày {date}",
+      "updated": "Cập nhật {date}",
+      "domainsNone": "Chưa có lĩnh vực nào",
+      "domainsCount": "{count} lĩnh vực đang theo dõi",
+      "domainsHint": "Thêm lĩnh vực để cải thiện gợi ý phân công và đề xuất."
+    },
+    "placeholders": {
+      "firstName": "Nhập tên của bạn",
+      "lastName": "Nhập họ của bạn",
+      "email": "Nhập địa chỉ email",
+      "domain": "vd: Học Máy, Xử Lý Ngôn Ngữ Tự Nhiên"
+    },
+    "success": {
+      "updated": "Đã Cập Nhật Hồ Sơ",
+      "updatedDescription": "Hồ sơ của bạn đã được cập nhật thành công"
+    },
+    "error": {
+      "fetchFailed": "Không Thể Tải Hồ Sơ",
+      "fetchDescription": "Không thể lấy thông tin hồ sơ của bạn",
+      "updateFailed": "Cập Nhật Thất Bại",
+      "updateDescription": "Không thể cập nhật hồ sơ. Vui lòng thử lại",
+      "validationFailed": "Lỗi Xác Thực",
+      "notFound": "Không tìm thấy hồ sơ",
+      "missingId": "Không xác định được mã người dùng. Vui lòng tải lại trang và thử lại.",
+      "unauthorized": "Phiên đăng nhập đã hết hạn",
+      "unauthorizedDescription": "Vui lòng đăng nhập lại để lưu thay đổi."
+    }
   }
 }
