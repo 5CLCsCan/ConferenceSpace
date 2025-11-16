@@ -1,5 +1,5 @@
 "use client"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -37,7 +37,7 @@ export function AuthorDashboard() {
   
   // Filter state for My Conferences section
   const [myConferencesSearchQuery, setMyConferencesSearchQuery] = useState("")
-  const [myConferencesStatusFilter, setMyConferencesStatusFilter] = useState<StatusFilter>("")
+  const [myConferencesStatusFilter, setMyConferencesStatusFilter] = useState<"" | "active" | "upcoming" | "archived">("")
   const [myConferencesFilterOpen, setMyConferencesFilterOpen] = useState(false)
 
   const categories = [
