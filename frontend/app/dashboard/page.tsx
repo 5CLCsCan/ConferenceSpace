@@ -6,10 +6,12 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth-context"
+import { sessionManager } from "@/lib/session-manager"
 import { FileText, Users, BarChart3, GraduationCap, LogOut, Sparkles } from "lucide-react"
 import type { UserRole } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 type RoleConfig = {
   title: string
@@ -27,6 +29,16 @@ export default function DashboardPage() {
   const { user, isAuthenticated, logout, switchRole } = useAuth()
   const { t, tList } = useTranslation()
   const router = useRouter()
+
+  // Enable role changes when on dashboard page
+  useEffect(() => {
+    sessionManager.enableRoleChange()
+
+    // Disable role changes when leaving dashboard
+    return () => {
+      sessionManager.disableRoleChange()
+    }
+  }, [])
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -98,21 +110,43 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <header className="border-b border-neutral-200 bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="border-b border-neutral-200 bg-white shadow-sm h-[7vh]">
+        <div className="w-full px-4 h-full flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-              <GraduationCap className="w-6 h-6 text-white" />
+            <div
+              className="rounded-lg bg-primary flex items-center justify-center"
+              style={{ width: "calc(7vh * 0.6)", height: "calc(7vh * 0.6)" }}
+            >
+              <GraduationCap
+                className="text-white"
+                style={{ width: "calc(7vh * 0.6 * 0.6)", height: "calc(7vh * 0.6 * 0.6)" }}
+              />
             </div>
             <div className="flex flex-col">
-              <span className="text-lg font-bold text-neutral-900">{t("app.name")}</span>
-              <span className="text-xs text-neutral-600">{t("app.tagline")}</span>
+              <span
+                className="font-bold text-neutral-900 leading-none"
+                style={{ fontSize: "calc(7vh * 0.6 * 0.4)" }}
+              >
+                {t("app.name")}
+              </span>
             </div>
           </Link>
           <div className="flex items-center gap-3">
-            <LanguageSwitcher />
-            <Button variant="outline" onClick={handleLogout} className="gap-2 bg-transparent">
-              <LogOut className="w-4 h-4" />
+            <div style={{ fontSize: "calc(7vh * 0.6 * 0.35)" }}>
+              <LanguageSwitcher />
+            </div>
+            <Button
+              variant="outline"
+              onClick={handleLogout}
+              className="gap-2 bg-transparent leading-none"
+              style={{
+                height: "calc(7vh * 0.6)",
+                fontSize: "calc(7vh * 0.6 * 0.35)",
+                paddingLeft: "calc(7vh * 0.6 * 0.3)",
+                paddingRight: "calc(7vh * 0.6 * 0.3)",
+              }}
+            >
+              <LogOut style={{ width: "calc(7vh * 0.6 * 0.5)", height: "calc(7vh * 0.6 * 0.5)" }} />
               {t("common.actions.logout")}
             </Button>
           </div>
@@ -121,25 +155,29 @@ export default function DashboardPage() {
 
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
+          <div className={`text-center mb-12`}>
             <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
-              <Sparkles className="w-8 h-8 text-primary" />
+              <Sparkles className={`${iconSizes.lg} text-primary`} />
             </div>
-            <h1 className="text-3xl font-bold text-neutral-900 mb-2">
+            <h1 className={`${typography.h1} text-neutral-900 mb-2`}>
               {t("dashboard.greeting", { name: user.name })}
             </h1>
-            {user.affiliation ? <p className="text-neutral-600 mb-1">{user.affiliation}</p> : null}
-            <p className="text-sm text-neutral-500">{user.email}</p>
+            {user.affiliation ? (
+              <p className={`text-neutral-600 mb-1 ${typography.body}`}>{user.affiliation}</p>
+            ) : null}
+            <p className={`${typography.body} text-neutral-500`}>{user.email}</p>
           </div>
 
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-neutral-900 mb-2">
+            <h2 className={`${typography.h2} text-neutral-900 mb-2`}>
               {t("dashboard.selectRole")}
             </h2>
-            <p className="text-neutral-600">{t("dashboard.selectRoleDescription")}</p>
+            <p className={`text-neutral-600 ${typography.body}`}>
+              {t("dashboard.selectRoleDescription")}
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className={`grid md:grid-cols-3 ${spacing.gap.lg}`}>
             {availableRoles.map((role) => {
               const config = roleConfig[role]
 
@@ -158,15 +196,15 @@ export default function DashboardPage() {
                   onClick={() => handleRoleSelect(role)}
                 >
                   <CardHeader>
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
+                    <div className={`flex items-start justify-between mb-4`}>
+                      <div className={`flex items-center ${spacing.gap.md}`}>
                         <div
                           className={`w-12 h-12 rounded-lg ${config.color} flex items-center justify-center`}
                         >
-                          <Icon className="w-6 h-6 text-white" />
+                          <Icon className={`${iconSizes.lg} text-white`} />
                         </div>
                         {hasRole && (
-                          <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
+                          <span className={`px-2 py-1 ${typography.bodySmall} ${typography.medium} bg-green-100 text-green-700 rounded-full`}>
                             {t("dashboard.roles.assigned")}
                           </span>
                         )}
@@ -179,17 +217,17 @@ export default function DashboardPage() {
                         {t("common.actions.choose")}
                       </Button>
                     </div>
-                    <CardTitle className="text-xl text-neutral-900">{config.title}</CardTitle>
-                    <CardDescription className="text-neutral-600">
+                    <CardTitle className={`${typography.h4} text-neutral-900`}>{config.title}</CardTitle>
+                    <CardDescription className={`text-neutral-600 ${typography.body}`}>
                       {config.description}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <ul className="space-y-2">
+                    <ul className={spacing.item}>
                       {config.features.map((feature, index) => (
                         <li
                           key={index}
-                          className="flex items-center gap-2 text-sm text-neutral-700"
+                          className={`flex items-center ${spacing.gap.sm} ${typography.body} text-neutral-700`}
                         >
                           <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                           {feature}
@@ -206,7 +244,7 @@ export default function DashboardPage() {
             <Card className="bg-white border border-neutral-200 mt-8">
               <CardContent className="py-12 text-center">
                 <p className="text-neutral-600">{t("dashboard.noRoles.title")}</p>
-                <p className="text-sm text-neutral-500 mt-2">
+                <p className={`${typography.body} text-neutral-500 mt-2`}>
                   {t("dashboard.noRoles.description")}
                 </p>
               </CardContent>

@@ -23,8 +23,7 @@ import { useState, useEffect } from "react"
 import type { Conference } from "@/lib/types"
 import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
-
-type StatusFilter = "active" | "upcoming" | "archived" | ""
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 export function AuthorDashboard() {
   const { user } = useAuth()
@@ -171,19 +170,12 @@ export function AuthorDashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className={spacing.section}>
       <div>
-        {/* <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Welcome, Author!
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Quản lý bài báo và khám phá hội nghị mới
-        </p> */}
-
         {/* Thanh tìm kiếm và Filter */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className={`flex flex-col sm:flex-row ${spacing.gap.md}`}>
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+            <Search className={`absolute left-3 top-1/2 -translate-y-1/2 ${iconSizes.md} text-gray-400`} />
             <Input
               type="text"
               placeholder={t("dashboard.author.dashboard.searchPlaceholder")}
@@ -208,8 +200,8 @@ export function AuthorDashboard() {
       </div>
 
       {/* Section: Bài nộp của tôi */}
-      <section className="space-y-6">
-        <h2 className="text-2xl font-semibold tracking-tight">
+      <section className={spacing.subsection}>
+        <h2 className={`${typography.h2} ${typography.semibold} tracking-tight`}>
           {t("dashboard.author.dashboard.myConferences")}
         </h2>
         <Card className="gap-0 py-0">
@@ -315,11 +307,11 @@ export function AuthorDashboard() {
             </div>
             
             {/* Header row */}
-            <div className="hidden md:flex items-center gap-4 p-4 bg-gray-50 border-b font-medium text-sm text-gray-500">
+            <div className={`hidden md:flex items-center ${spacing.gap.md} ${spacing.padding.card} bg-gray-50 border-b ${typography.medium} ${typography.body} text-gray-500`}>
               <div className="flex-1 min-w-0">
                 {t("dashboard.author.dashboard.tableHeaders.conferenceName")}
               </div>
-              <div className="flex items-center gap-4 ml-auto">
+              <div className={`flex items-center ${spacing.gap.md} ml-auto`}>
                 <div className="w-36">{t("dashboard.author.dashboard.tableHeaders.date")}</div>
                 <div className="w-36">{t("dashboard.author.dashboard.tableHeaders.location")}</div>
                 <div className="w-32">
@@ -330,18 +322,20 @@ export function AuthorDashboard() {
             </div>
 
             {loading ? (
-              <div className="p-6 text-center">
-                <p className="text-gray-500">{t("dashboard.author.dashboard.messages.loading")}</p>
+              <div className={`${spacing.padding.cardLarge} text-center`}>
+                <p className={`text-gray-500 ${typography.body}`}>
+                  {t("dashboard.author.dashboard.messages.loading")}
+                </p>
               </div>
             ) : error ? (
-              <div className="p-6 text-center">
-                <p className="text-red-500">
+              <div className={`${spacing.padding.cardLarge} text-center`}>
+                <p className={`text-red-500 ${typography.body}`}>
                   {t("dashboard.author.dashboard.messages.error")}: {error}
                 </p>
               </div>
-            ) : filterMyConferences(conferencesWithSubmissions).length === 0 ? (
-              <div className="p-6 text-center">
-                <p className="text-gray-500">Bạn chưa có bài nộp nào</p>
+            ) : filterConferences(conferencesWithSubmissions).length === 0 ? (
+              <div className={`${spacing.padding.cardLarge} text-center`}>
+                <p className={`text-gray-500 ${typography.body}`}>Bạn chưa có bài nộp nào</p>
               </div>
             ) : (
               filterMyConferences(conferencesWithSubmissions).map((conference, index, array) => {
@@ -349,20 +343,20 @@ export function AuthorDashboard() {
                 return (
                   <div
                     key={conference.id}
-                    className={`flex flex-col md:flex-row md:items-center gap-4 p-4 ${
+                    className={`flex flex-col md:flex-row md:items-center ${spacing.gap.md} ${spacing.padding.card} ${
                       index !== array.length - 1 ? "border-b" : ""
                     }`}
                   >
                     <div className="flex-1 min-w-0">
                       <Link
                         href={`/dashboard/conference/${conference.id}`}
-                        className="text-blue-600 hover:underline block font-medium truncate"
+                        className={`text-blue-600 hover:underline block ${typography.medium} truncate`}
                       >
                         {conference.name}
                       </Link>
-                      <div className="text-sm text-gray-500">{conference.acronym}</div>
+                      <div className={`${typography.body} text-gray-500`}>{conference.acronym}</div>
                     </div>
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-4 text-sm text-gray-600 ml-auto">
+                    <div className={`flex flex-col md:flex-row items-start md:items-center ${spacing.gap.md} ${typography.body} text-gray-600 ml-auto`}>
                       <div className="md:w-36">{formatDate(conference.conference_date)}</div>
                       <div className="md:w-36">{conference.location}</div>
                       <div className="md:w-32">{formatDate(conference.submission_deadline)}</div>
@@ -381,18 +375,18 @@ export function AuthorDashboard() {
       <Separator className="my-8" />
 
       {/* Section: Explore Conferences */}
-      <section className="space-y-6">
-        <h2 className="text-2xl font-semibold tracking-tight">
+      <section className={spacing.subsection}>
+        <h2 className={`${typography.h2} ${typography.semibold} tracking-tight`}>
           {t("dashboard.author.dashboard.exploreConferences")}
         </h2>
         <Card className="gap-0 py-0">
           <CardContent className="p-0">
             {/* Header row */}
-            <div className="hidden md:flex items-center gap-4 p-4 bg-gray-50 border-b font-medium text-sm text-gray-500">
+            <div className={`hidden md:flex items-center ${spacing.gap.md} ${spacing.padding.card} bg-gray-50 border-b ${typography.medium} ${typography.body} text-gray-500`}>
               <div className="flex-1 min-w-0">
                 {t("dashboard.author.dashboard.tableHeaders.conferenceName")}
               </div>
-              <div className="flex items-center gap-4 ml-auto">
+              <div className={`flex items-center ${spacing.gap.md} ml-auto`}>
                 <div className="w-36">{t("dashboard.author.dashboard.tableHeaders.date")}</div>
                 <div className="w-36">{t("dashboard.author.dashboard.tableHeaders.location")}</div>
                 <div className="w-32">
@@ -402,18 +396,20 @@ export function AuthorDashboard() {
             </div>
 
             {loading ? (
-              <div className="p-6 text-center">
-                <p className="text-gray-500">{t("dashboard.author.dashboard.messages.loading")}</p>
+              <div className={`${spacing.padding.cardLarge} text-center`}>
+                <p className={`text-gray-500 ${typography.body}`}>
+                  {t("dashboard.author.dashboard.messages.loading")}
+                </p>
               </div>
             ) : error ? (
-              <div className="p-6 text-center">
-                <p className="text-red-500">
+              <div className={`${spacing.padding.cardLarge} text-center`}>
+                <p className={`text-red-500 ${typography.body}`}>
                   {t("dashboard.author.dashboard.messages.error")}: {error}
                 </p>
               </div>
             ) : filterConferences(exploreConferences).length === 0 ? (
-              <div className="p-6 text-center">
-                <p className="text-gray-500">
+              <div className={`${spacing.padding.cardLarge} text-center`}>
+                <p className={`text-gray-500 ${typography.body}`}>
                   {t("dashboard.author.dashboard.messages.noConferencesFound")}
                 </p>
               </div>
@@ -421,20 +417,20 @@ export function AuthorDashboard() {
               filterConferences(exploreConferences).map((conference, index, array) => (
                 <div
                   key={conference.id}
-                  className={`flex flex-col md:flex-row md:items-center gap-4 p-4 ${
+                  className={`flex flex-col md:flex-row md:items-center ${spacing.gap.md} ${spacing.padding.card} ${
                     index !== array.length - 1 ? "border-b" : ""
                   }`}
                 >
                   <div className="flex-1 min-w-0">
                     <Link
                       href={`/dashboard/conference/${conference.id}`}
-                      className="text-blue-600 hover:underline block font-medium truncate"
+                      className={`text-blue-600 hover:underline block ${typography.medium} truncate`}
                     >
                       {conference.name}
                     </Link>
-                    <div className="text-sm text-gray-500">{conference.acronym}</div>
+                    <div className={`${typography.body} text-gray-500`}>{conference.acronym}</div>
                   </div>
-                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4 text-sm text-gray-600 ml-auto">
+                  <div className={`flex flex-col md:flex-row items-start md:items-center ${spacing.gap.md} ${typography.body} text-gray-600 ml-auto`}>
                     <div className="md:w-36">{formatDate(conference.conference_date)}</div>
                     <div className="md:w-36">{conference.location}</div>
                     <div className="md:w-32">{formatDate(conference.submission_deadline)}</div>

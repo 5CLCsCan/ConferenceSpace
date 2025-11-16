@@ -14,6 +14,7 @@
  */
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import type { Paper } from "@/lib/types"
 import { getConferencePapers } from "@/lib/api/conferences"
 import { Card } from "@/components/ui/card"
@@ -24,12 +25,14 @@ import { FileText, Search, Filter, Calendar, Users, X } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Checkbox } from "@/components/ui/checkbox"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 interface ConferenceSubmissionsProps {
   conferenceId: string
 }
 
 export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsProps) {
+  const router = useRouter()
   const { user, currentRole } = useAuth()
   const [papers, setPapers] = useState<Paper[]>([])
   const [filteredPapers, setFilteredPapers] = useState<Paper[]>([])
@@ -198,33 +201,35 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
   }
 
   return (
-    <div className="space-y-8">
+    <div className={spacing.section}>
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Bài Nộp</h1>
-        <p className="mt-3 text-lg leading-relaxed text-gray-600">{getRoleDescription()}</p>
+        <h1 className={`${typography.h1} text-gray-900`}>Bài Nộp</h1>
+        <p className={`mt-3 ${typography.bodyLarge} leading-relaxed text-gray-600`}>
+          {getRoleDescription()}
+        </p>
       </div>
 
       {/* Filters */}
       <div className="mb-4">
-        <div className="relative flex items-center gap-2 border rounded-md bg-background">
-          <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
-          <div className="flex-1 flex items-center gap-2 pl-10 pr-2 py-2">
+        <div className={`relative flex items-center ${spacing.gap.sm} border rounded-md bg-background`}>
+          <Search className={`absolute left-3 ${iconSizes.sm} text-muted-foreground`} />
+          <div className={`flex-1 flex items-center ${spacing.gap.sm} pl-10 pr-2 py-2`}>
             {hasActiveFilters && (
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className={`flex items-center ${spacing.gap.sm} flex-wrap`}>
                 {statusFilter !== "all" && (
-                  <Badge variant="secondary" className="gap-1">
+                  <Badge variant="secondary" className={spacing.gap.tight}>
                     {getStatusLabelForFilter(statusFilter)}
                     <button
                       onClick={handleRemoveStatusFilter}
                       className="ml-1 hover:bg-muted rounded-full"
                     >
-                      <X className="h-3 w-3" />
+                      <X className={iconSizes.xs} />
                     </button>
                   </Badge>
                 )}
                 {trackFilter !== "all" && (
-                  <Badge variant="secondary" className="gap-1">
+                  <Badge variant="secondary" className={spacing.gap.tight}>
                     {trackFilter === "track-1"
                       ? "Machine Learning & AI"
                       : trackFilter === "track-2"
@@ -236,7 +241,7 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
                       onClick={handleRemoveTrackFilter}
                       className="ml-1 hover:bg-muted rounded-full"
                     >
-                      <X className="h-3 w-3" />
+                      <X className={iconSizes.xs} />
                     </button>
                   </Badge>
                 )}
@@ -262,92 +267,92 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
                   setTempTrackFilter(trackFilter)
                 }}
               >
-                <Filter className="h-4 w-4" />
+                <Filter className={iconSizes.sm} />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80" align="end">
-              <div className="space-y-4">
+              <div className={spacing.subsection}>
                 <div>
-                  <h4 className="font-semibold text-sm mb-3">Trạng Thái</h4>
-                  <div className="space-y-2">
+                  <h4 className={`${typography.semibold} ${typography.body} mb-3`}>Trạng Thái</h4>
+                  <div className={spacing.item}>
                     <label
-                      className="flex items-center gap-2 cursor-pointer"
+                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
                       onClick={() => setTempStatusFilter("all")}
                     >
                       <Checkbox checked={tempStatusFilter === "all"} readOnly />
-                      <span className="text-sm">Tất Cả Trạng Thái</span>
+                      <span className={typography.body}>Tất Cả Trạng Thái</span>
                     </label>
                     <label
-                      className="flex items-center gap-2 cursor-pointer"
+                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
                       onClick={() => setTempStatusFilter("submitted")}
                     >
                       <Checkbox checked={tempStatusFilter === "submitted"} readOnly />
-                      <span className="text-sm">Đã Nộp</span>
+                      <span className={typography.body}>Đã Nộp</span>
                     </label>
                     <label
-                      className="flex items-center gap-2 cursor-pointer"
+                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
                       onClick={() => setTempStatusFilter("under_review")}
                     >
                       <Checkbox checked={tempStatusFilter === "under_review"} readOnly />
-                      <span className="text-sm">Đang Review</span>
+                      <span className={typography.body}>Đang Review</span>
                     </label>
                     <label
-                      className="flex items-center gap-2 cursor-pointer"
+                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
                       onClick={() => setTempStatusFilter("accepted")}
                     >
                       <Checkbox checked={tempStatusFilter === "accepted"} readOnly />
-                      <span className="text-sm">Chấp Nhận</span>
+                      <span className={typography.body}>Chấp Nhận</span>
                     </label>
                     <label
-                      className="flex items-center gap-2 cursor-pointer"
+                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
                       onClick={() => setTempStatusFilter("rejected")}
                     >
                       <Checkbox checked={tempStatusFilter === "rejected"} readOnly />
-                      <span className="text-sm">Từ Chối</span>
+                      <span className={typography.body}>Từ Chối</span>
                     </label>
                     <label
-                      className="flex items-center gap-2 cursor-pointer"
+                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
                       onClick={() => setTempStatusFilter("revision_requested")}
                     >
                       <Checkbox checked={tempStatusFilter === "revision_requested"} readOnly />
-                      <span className="text-sm">Yêu Cầu Sửa</span>
+                      <span className={typography.body}>Yêu Cầu Sửa</span>
                     </label>
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-sm mb-3">Track</h4>
-                  <div className="space-y-2">
+                  <h4 className={`${typography.semibold} ${typography.body} mb-3`}>Track</h4>
+                  <div className={spacing.item}>
                     <label
-                      className="flex items-center gap-2 cursor-pointer"
+                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
                       onClick={() => setTempTrackFilter("all")}
                     >
                       <Checkbox checked={tempTrackFilter === "all"} readOnly />
-                      <span className="text-sm">Tất Cả Tracks</span>
+                      <span className={typography.body}>Tất Cả Tracks</span>
                     </label>
                     <label
-                      className="flex items-center gap-2 cursor-pointer"
+                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
                       onClick={() => setTempTrackFilter("track-1")}
                     >
                       <Checkbox checked={tempTrackFilter === "track-1"} readOnly />
-                      <span className="text-sm">Machine Learning & AI</span>
+                      <span className={typography.body}>Machine Learning & AI</span>
                     </label>
                     <label
-                      className="flex items-center gap-2 cursor-pointer"
+                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
                       onClick={() => setTempTrackFilter("track-2")}
                     >
                       <Checkbox checked={tempTrackFilter === "track-2"} readOnly />
-                      <span className="text-sm">Systems & Networking</span>
+                      <span className={typography.body}>Systems & Networking</span>
                     </label>
                     <label
-                      className="flex items-center gap-2 cursor-pointer"
+                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
                       onClick={() => setTempTrackFilter("track-3")}
                     >
                       <Checkbox checked={tempTrackFilter === "track-3"} readOnly />
-                      <span className="text-sm">Human-Computer Interaction</span>
+                      <span className={typography.body}>Human-Computer Interaction</span>
                     </label>
                   </div>
                 </div>
-                <div className="flex justify-end gap-2 pt-2 border-t">
+                <div className={`flex justify-end ${spacing.gap.sm} pt-2 border-t`}>
                   <Button variant="outline" size="sm" onClick={handleClearFilters}>
                     Clear
                   </Button>
@@ -359,43 +364,43 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
             </PopoverContent>
           </Popover>
         </div>
-        <div className="mt-2 flex items-center gap-4 text-sm text-gray-600">
-          <Filter className="h-4 w-4" />
+        <div className={`mt-2 flex items-center ${spacing.gap.md} ${typography.body} text-gray-600`}>
+          <Filter className={iconSizes.sm} />
           <span>
-            Hiển thị <span className="font-semibold">{filteredPapers.length}</span> /{" "}
+            Hiển thị <span className={typography.semibold}>{filteredPapers.length}</span> /{" "}
             {papers.length} bài
           </span>
         </div>
       </div>
 
       {/* Papers List */}
-      <div className="space-y-4">
+      <div className={spacing.subsection}>
         {filteredPapers.map((paper) => (
-          <Card key={paper.id} className="p-6 transition-shadow hover:shadow-lg">
+          <Card key={paper.id} className={`${spacing.padding.cardLarge} transition-shadow hover:shadow-lg`}>
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <div className="flex items-start gap-3">
-                  <FileText className="mt-1 h-5 w-5 flex-shrink-0 text-primary" />
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900">{paper.title}</h3>
-                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-600">
+                <div className={`flex items-start ${spacing.gap.md}`}>
+                  <FileText className={`mt-1 ${iconSizes.md} flex-shrink-0 text-primary`} />
+                  <div className="flex-1 min-w-0">
+                    <h3 className={`${typography.h4} text-gray-900 truncate`}>{paper.title}</h3>
+                    <p className={`mt-2 line-clamp-2 ${typography.body} leading-relaxed text-gray-600`}>
                       {paper.abstract}
                     </p>
 
-                    <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4" />
+                    <div className={`mt-4 flex flex-wrap items-center ${spacing.gap.md} ${typography.body} text-gray-600`}>
+                      <div className={`flex items-center ${spacing.gap.sm}`}>
+                        <Users className={iconSizes.sm} />
                         <span>{paper.authors.map((a) => a.name).join(", ")}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
+                      <div className={`flex items-center ${spacing.gap.sm}`}>
+                        <Calendar className={iconSizes.sm} />
                         <span>{formatDate(paper.submitted_at)}</span>
                       </div>
                     </div>
 
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className={`mt-3 flex flex-wrap ${spacing.gap.sm}`}>
                       {paper.keywords.map((keyword) => (
-                        <Badge key={keyword} variant="outline" className="text-xs">
+                        <Badge key={keyword} variant="outline" className={typography.bodySmall}>
                           {keyword}
                         </Badge>
                       ))}
@@ -404,14 +409,22 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
                 </div>
               </div>
 
-              <div className="ml-4 flex flex-col items-end gap-3">
+              <div className={`ml-4 flex flex-col items-end ${spacing.gap.md}`}>
                 <Badge className={getStatusColor(paper.status)}>
                   {getStatusLabel(paper.status)}
                 </Badge>
                 {paper.reviews.length > 0 && (
-                  <span className="text-xs text-gray-500">{paper.reviews.length} reviews</span>
+                  <span className={`${typography.bodySmall} text-gray-500`}>
+                    {paper.reviews.length} reviews
+                  </span>
                 )}
-                <Button variant="outline" size="sm">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    router.push(`/dashboard/conference/${conferenceId}/submission/${paper.id}`)
+                  }
+                >
                   Xem Chi Tiết
                 </Button>
               </div>
@@ -420,10 +433,10 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
         ))}
 
         {filteredPapers.length === 0 && (
-          <Card className="p-12 text-center">
-            <FileText className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-4 text-lg font-semibold text-gray-900">Không Tìm Thấy Bài Nộp</h3>
-            <p className="mt-2 text-gray-600">
+          <Card className={`${spacing.padding.cardLarge} text-center`}>
+            <FileText className="mx-auto text-gray-400" style={{ width: "3rem", height: "3rem" }} />
+            <h3 className={`mt-4 ${typography.h4} text-gray-900`}>Không Tìm Thấy Bài Nộp</h3>
+            <p className={`mt-2 ${typography.body} text-gray-600`}>
               {currentRole === "author"
                 ? "Bạn chưa nộp bài nào cho hội nghị này"
                 : currentRole === "reviewer"

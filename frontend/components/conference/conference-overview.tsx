@@ -16,6 +16,7 @@ import { getConferenceStats } from "@/lib/api/conferences"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, MapPin, Globe, TrendingUp, FileText, Users, CheckCircle } from "lucide-react"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 import {
   BarChart,
   Bar,
@@ -66,14 +67,14 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
   const showCharts = isChair
 
   return (
-    <div className="space-y-8">
+    <div className={spacing.section}>
       {/* Conference Header */}
       <div>
-        <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold text-gray-900">{conference.name}</h1>
+        <div className="flex items-center gap-2">
+          <h1 className={typography.h1}>{conference.name}</h1>
           <Badge
             variant={conference.status === "active" ? "default" : "secondary"}
-            className="bg-success text-white"
+            className={`bg-success text-white ${typography.bodySmall}`}
           >
             {conference.status === "active"
               ? "Đang Diễn Ra"
@@ -82,50 +83,54 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
                 : "Đã Kết Thúc"}
           </Badge>
         </div>
-        <p className="mt-3 text-lg leading-relaxed text-gray-600">{conference.description}</p>
+        <p className={`mt-2 ${typography.body} leading-relaxed text-gray-600`}>
+          {conference.description}
+        </p>
       </div>
 
       {/* Quick Info Cards - Public for all roles */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="p-6">
-          <div className="flex items-start gap-4">
-            <div className="rounded-lg bg-primary/10 p-3">
-              <Calendar className="h-6 w-6 text-primary" />
+      <div className={`grid ${spacing.gap.md} md:grid-cols-2 lg:grid-cols-3`}>
+        <Card className={spacing.padding.card}>
+          <div className={`flex items-start ${spacing.gap.md}`}>
+            <div className="rounded-lg bg-primary/10 p-2">
+              <Calendar className={`${iconSizes.sm} text-primary`} />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Ngày Tổ Chức</p>
-              <p className="mt-1 text-lg font-semibold text-gray-900">
+              <p className={`${typography.label} text-gray-500`}>Ngày Tổ Chức</p>
+              <p className={`mt-1 ${typography.body} ${typography.semibold} text-gray-900`}>
                 {formatDate(conference.conference_date)}
               </p>
             </div>
           </div>
         </Card>
 
-        <Card className="p-6">
-          <div className="flex items-start gap-4">
-            <div className="rounded-lg bg-primary/10 p-3">
-              <MapPin className="h-6 w-6 text-primary" />
+        <Card className={spacing.padding.card}>
+          <div className={`flex items-start ${spacing.gap.md}`}>
+            <div className="rounded-lg bg-primary/10 p-2">
+              <MapPin className={`${iconSizes.sm} text-primary`} />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Địa Điểm</p>
-              <p className="mt-1 text-lg font-semibold text-gray-900">{conference.location}</p>
+              <p className={`${typography.label} text-gray-500`}>Địa Điểm</p>
+              <p className={`mt-1 ${typography.body} ${typography.semibold} text-gray-900`}>
+                {conference.location}
+              </p>
             </div>
           </div>
         </Card>
 
         {conference.website && (
-          <Card className="p-6">
-            <div className="flex items-start gap-4">
-              <div className="rounded-lg bg-primary/10 p-3">
-                <Globe className="h-6 w-6 text-primary" />
+          <Card className={spacing.padding.card}>
+            <div className={`flex items-start ${spacing.gap.md}`}>
+              <div className="rounded-lg bg-primary/10 p-2">
+                <Globe className={`${iconSizes.sm} text-primary`} />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Website</p>
+                <p className={`${typography.label} text-gray-500`}>Website</p>
                 <a
                   href={conference.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-1 text-lg font-semibold text-primary hover:underline"
+                  className={`mt-1 ${typography.body} ${typography.semibold} text-primary hover:underline`}
                 >
                   Truy cập
                 </a>
@@ -139,8 +144,8 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
       {stats && !loading && (
         <>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Thống Kê Hội Nghị</h2>
-            <p className="mt-2 text-gray-600">
+            <h2 className={typography.h2}>Thống Kê Hội Nghị</h2>
+            <p className={`mt-1 ${typography.body} text-gray-600`}>
               {isChair
                 ? "Tổng quan về số liệu và tiến độ của hội nghị"
                 : "Thông tin cơ bản về hội nghị"}
@@ -148,57 +153,61 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
           </div>
 
           {/* Key Metrics - Chair sees all, others see limited */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="p-6">
+          <div className={`grid ${spacing.gap.md} md:grid-cols-2 lg:grid-cols-4`}>
+            <Card className={spacing.padding.card}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Tổng Bài Nộp</p>
-                  <p className="mt-2 text-3xl font-bold text-gray-900">{stats.total_submissions}</p>
+                  <p className={`${typography.label} text-gray-500`}>Tổng Bài Nộp</p>
+                  <p className={`mt-1 ${typography.stats} text-gray-900`}>
+                    {stats.total_submissions}
+                  </p>
                 </div>
-                <div className="rounded-lg bg-primary/10 p-3">
-                  <FileText className="h-8 w-8 text-primary" />
+                <div className="rounded-lg bg-primary/10 p-2">
+                  <FileText className={`${iconSizes.md} text-primary`} />
                 </div>
               </div>
             </Card>
 
             {showFullStats && (
               <>
-                <Card className="p-6">
+                <Card className={spacing.padding.card}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-500">Tổng Reviews</p>
-                      <p className="mt-2 text-3xl font-bold text-gray-900">{stats.total_reviews}</p>
+                      <p className={`${typography.label} text-gray-500`}>Tổng Reviews</p>
+                      <p className={`mt-1 ${typography.stats} text-gray-900`}>
+                        {stats.total_reviews}
+                      </p>
                     </div>
-                    <div className="rounded-lg bg-primary/10 p-3">
-                      <Users className="h-8 w-8 text-primary" />
+                    <div className="rounded-lg bg-primary/10 p-2">
+                      <Users className={`${iconSizes.md} text-primary`} />
                     </div>
                   </div>
                 </Card>
 
-                <Card className="p-6">
+                <Card className={spacing.padding.card}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-500">Tỷ Lệ Chấp Nhận</p>
-                      <p className="mt-2 text-3xl font-bold text-gray-900">
+                      <p className={`${typography.label} text-gray-500`}>Tỷ Lệ Chấp Nhận</p>
+                      <p className={`mt-1 ${typography.stats} text-gray-900`}>
                         {stats.acceptance_rate}%
                       </p>
                     </div>
-                    <div className="rounded-lg bg-success/10 p-3">
-                      <CheckCircle className="h-8 w-8 text-success" />
+                    <div className="rounded-lg bg-success/10 p-2">
+                      <CheckCircle className={`${iconSizes.md} text-success`} />
                     </div>
                   </div>
                 </Card>
 
-                <Card className="p-6">
+                <Card className={spacing.padding.card}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-500">TB Reviews/Bài</p>
-                      <p className="mt-2 text-3xl font-bold text-gray-900">
+                      <p className={`${typography.label} text-gray-500`}>TB Reviews/Bài</p>
+                      <p className={`mt-1 ${typography.stats} text-gray-900`}>
                         {stats.avg_reviews_per_paper.toFixed(1)}
                       </p>
                     </div>
-                    <div className="rounded-lg bg-primary/10 p-3">
-                      <TrendingUp className="h-8 w-8 text-primary" />
+                    <div className="rounded-lg bg-primary/10 p-2">
+                      <TrendingUp className={`${iconSizes.md} text-primary`} />
                     </div>
                   </div>
                 </Card>
@@ -208,14 +217,14 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
 
           {/* Charts Section - Only for Chair */}
           {showCharts && (
-            <div className="grid gap-6 lg:grid-cols-2">
+            <div className={`grid ${spacing.gap.md} lg:grid-cols-2`}>
               {/* Submissions by Track */}
-              <Card className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900">Bài Nộp Theo Track</h3>
-                <p className="mt-1 text-sm text-gray-600">
+              <Card className={spacing.padding.card}>
+                <h3 className={typography.h5}>Bài Nộp Theo Track</h3>
+                <p className={`mt-1 ${typography.caption}`}>
                   Phân bố bài nộp theo từng track nghiên cứu
                 </p>
-                <div className="mt-6 h-80">
+                <div className="mt-4 h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={stats.submissions_by_track}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
@@ -235,12 +244,12 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
               </Card>
 
               {/* Review Progress */}
-              <Card className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900">Tiến Độ Review</h3>
-                <p className="mt-1 text-sm text-gray-600">
+              <Card className={spacing.padding.card}>
+                <h3 className={typography.h5}>Tiến Độ Review</h3>
+                <p className={`mt-1 ${typography.caption}`}>
                   Trạng thái hiện tại của quá trình review
                 </p>
-                <div className="mt-6 h-80">
+                <div className="mt-4 h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -282,15 +291,17 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
           )}
 
           {/* Top Keywords - Public for all */}
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900">Từ Khóa Phổ Biến</h3>
-            <p className="mt-1 text-sm text-gray-600">Các chủ đề nghiên cứu được quan tâm nhất</p>
-            <div className="mt-6 flex flex-wrap gap-3">
+          <Card className={spacing.padding.card}>
+            <h3 className={typography.h5}>Từ Khóa Phổ Biến</h3>
+            <p className={`mt-1 ${typography.caption}`}>
+              Các chủ đề nghiên cứu được quan tâm nhất
+            </p>
+            <div className={`mt-4 flex flex-wrap ${spacing.gap.sm}`}>
               {stats.top_keywords.map((keyword, index) => (
                 <Badge
                   key={keyword.keyword}
                   variant="secondary"
-                  className="px-4 py-2 text-sm"
+                  className={`px-2.5 py-1 ${typography.bodySmall}`}
                   style={{
                     backgroundColor: `rgba(0, 86, 163, ${0.1 + index * 0.15})`,
                     color: "#0056A3",
@@ -304,24 +315,24 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
 
           {/* Tracks Section - Public for all */}
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Tracks Nghiên Cứu</h2>
-            <p className="mt-2 text-gray-600">Các lĩnh vực nghiên cứu của hội nghị</p>
+            <h2 className={typography.h2}>Tracks Nghiên Cứu</h2>
+            <p className={`mt-1 ${typography.body} text-gray-600`}>
+              Các lĩnh vực nghiên cứu của hội nghị
+            </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className={`grid ${spacing.gap.md} md:grid-cols-2 lg:grid-cols-3`}>
             {(conference.tracks || []).map((track) => (
-              <Card key={track.id} className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {track.name || "Unnamed Track"}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-gray-600">
+              <Card key={track.id} className={spacing.padding.card}>
+                <h3 className={typography.h5}>{track.name || "Unnamed Track"}</h3>
+                <p className={`mt-1.5 ${typography.bodySmall} leading-relaxed text-gray-600`}>
                   {track.description || "No description available"}
                 </p>
-                <div className="mt-4">
-                  <p className="text-xs font-medium text-gray-500">Track Chairs</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
+                <div className="mt-3">
+                  <p className={`${typography.label} text-gray-500`}>Track Chairs</p>
+                  <div className={`mt-1.5 flex flex-wrap ${spacing.gap.sm}`}>
                     {(track.chairs || []).map((chairId) => (
-                      <Badge key={chairId} variant="outline">
+                      <Badge key={chairId} variant="outline" className={typography.bodySmall}>
                         Chair {chairId}
                       </Badge>
                     ))}
