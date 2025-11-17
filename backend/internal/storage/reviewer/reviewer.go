@@ -411,8 +411,6 @@ func (s *Storage) GetConferencesByReviewer(ctx context.Context, reviewerID int64
 			"c.acronym",
 			"c.description",
 			"c.chair",
-			"c.primary_contact",
-			"c.area_chair",
 			"c.domain",
 			"c.configurations",
 			"c.created_at",
@@ -466,7 +464,7 @@ func (s *Storage) GetConferencesByReviewer(ctx context.Context, reviewerID int64
 
 	// Apply grouping and ordering
 	baseQuery = baseQuery.
-		GroupBy("c.conference_id", "c.title", "c.acronym", "c.description", "c.chair", "c.primary_contact", "c.area_chair", "c.domain", "c.configurations", "c.created_at", "c.updated_at").
+		GroupBy("c.conference_id", "c.title", "c.acronym", "c.description", "c.chair", "c.domain", "c.configurations", "c.created_at", "c.updated_at").
 		OrderBy("c.created_at DESC")
 
 	// Apply pagination
@@ -493,7 +491,6 @@ func (s *Storage) GetConferencesByReviewer(ctx context.Context, reviewerID int64
 	for rows.Next() {
 		var conf model.Conference
 		var title, acronym, description sql.NullString
-		var primaryContact, areaChair sql.NullInt64
 		var totalPapers, reviewedPapers int
 
 		err := rows.Scan(
@@ -502,8 +499,6 @@ func (s *Storage) GetConferencesByReviewer(ctx context.Context, reviewerID int64
 			&acronym,
 			&description,
 			&conf.Chair,
-			&primaryContact,
-			&areaChair,
 			&conf.Domain,
 			&conf.Configurations,
 			&conf.CreatedAt,
@@ -524,12 +519,6 @@ func (s *Storage) GetConferencesByReviewer(ctx context.Context, reviewerID int64
 		}
 		if description.Valid {
 			conf.Description = description.String
-		}
-		if primaryContact.Valid {
-			conf.PrimaryContact = primaryContact.Int64
-		}
-		if areaChair.Valid {
-			conf.AreaChair = areaChair.Int64
 		}
 
 		// Get domain as string (take first domain if multiple exist)

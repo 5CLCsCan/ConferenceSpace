@@ -18,6 +18,7 @@ type ConferenceConfiguration struct {
 	SubmissionFormat             *string    `json:"submission_format,omitempty"`
 	RequireCompleteAuthorProfile *bool      `json:"require_complete_author_profile,omitempty"`
 	AllowPaperWithDrawls         *bool      `json:"allow_paper_withdrawls,omitempty"`
+	CallForPaperText             *string    `json:"call_for_paper_text,omitempty"`
 }
 
 type Conference struct {
@@ -25,9 +26,9 @@ type Conference struct {
 	Acronym        string                   `json:"acronym" binding:"required"`
 	Description    string                   `json:"description"`
 	Chair          string                   `json:"chair"`
-	PrimaryContact int64                    `json:"primary_contact"`
-	AreaChair      int64                    `json:"area_chair"`
+	CoChairs       []string                 `json:"co_chairs"`
 	Domain         []string                 `json:"domain"`
+	Tracks         []string                 `json:"tracks"`
 	Configurations *ConferenceConfiguration `json:"configurations"`
 }
 
@@ -37,12 +38,13 @@ type ConferenceResponse struct {
 	Acronym        string                   `json:"acronym"`
 	Description    string                   `json:"description"`
 	Chair          string                   `json:"chair"`
-	PrimaryContact int64                    `json:"primary_contact"`
-	AreaChair      int64                    `json:"area_chair"`
+	CoChairs       []string                 `json:"co_chairs"`
 	Domain         []string                 `json:"domain"`
+	Tracks         []string                 `json:"tracks"`
 	Configurations *ConferenceConfiguration `json:"configurations"`
 	CreatedAt      time.Time                `json:"created_at"`
 	UpdatedAt      time.Time                `json:"updated_at"`
+	UserRole       string                   `json:"user_role,omitempty"` // User's role in this conference (if queried)
 }
 
 type ConferenceCreateRequest struct {

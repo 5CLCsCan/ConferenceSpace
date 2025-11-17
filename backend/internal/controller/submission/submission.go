@@ -9,8 +9,10 @@ import (
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
+	"github.com/dcao/conferencespace/internal/model"
 	"github.com/dcao/conferencespace/internal/storage"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
+	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	fileStorage "github.com/dcao/conferencespace/internal/storage/file"
 	submissionStorage "github.com/dcao/conferencespace/internal/storage/submission"
 	"github.com/dcao/conferencespace/internal/utils"
@@ -21,6 +23,7 @@ type Controller struct {
 	submissionStorage submissionStorage.StorageInterface
 	conferenceStorage conferenceStorage.StorageInterface
 	fileStorage       fileStorage.StorageInterface
+	roleStorage       conferenceuserrole.StorageInterface
 	geminiClient      interface{} // Store as interface to allow nil checks
 }
 
@@ -29,19 +32,20 @@ func New(store *storage.Storage, fileStore fileStorage.StorageInterface, geminiC
 		submissionStorage: store.Submission,
 		conferenceStorage: store.Conference,
 		fileStorage:       fileStore,
+		roleStorage:       store.ConferenceUserRole,
 		geminiClient:      geminiClient,
 	}
 }
 
 // Create godoc
 // @Summary      Create a new submission
-// @Description  Create a new conference submission with optional file upload
+// @Description  Create a new conference submission with optional file upload. Submission can include a track field to categorize the paper into one of the conference tracks.
 // @Tags         submissions
 // @Accept       multipart/form-data
 // @Produce      json
 // @Security     BearerAuth
 // @Param        conference_id path int true "Conference ID"
-// @Param        submission formData string true "Submission data as JSON string"
+// @Param        submission formData string true "Submission data as JSON string (includes title, abstract, author, track, status, domain[], information)"
 // @Param        file formData file false "PDF file to upload"
 // @Success      201 {object} dto.Submission
 // @Failure      400 {object} handler.Response
@@ -104,6 +108,19 @@ func (c *Controller) Create(ginCtx *gin.Context) (*dto.Submission, error) {
 		return nil, err
 	}
 
+	// Add author to conference_user_roles table
+	roleAssignment := model.RoleAssignment{
+		ConferenceID: conferenceID,
+		UserEmail:    userEmail,
+		Role:         model.RoleAuthor,
+	}
+	err = c.roleStorage.AddRole(ctx, roleAssignment.ConferenceID, roleAssignment.UserEmail, roleAssignment.Role)
+	if err != nil {
+		// Log error but don't fail the submission creation
+		// (role might already exist or have other non-critical issues)
+		fmt.Printf("Warning: Failed to add author role for %s in conference %d: %v\n", userEmail, conferenceID, err)
+	}
+
 	// Handle file upload if present
 	files := form.File["file"]
 	if len(files) > 0 {
@@ -150,9 +167,10 @@ func (c *Controller) Create(ginCtx *gin.Context) (*dto.Submission, error) {
 // @Param        conference_id path int true "Conference ID"
 // @Param        limit query int false "Limit results"
 // @Param        offset query int false "Offset for pagination"
-// @Param        author query string false "Filter by author"
-// @Param        status query string false "Filter by status"
-// @Param        title query string false "Filter by title"
+// @Param        author query string false "Filter by author email"
+// @Param        status query string false "Filter by status (draft, submitted, reviewing)"
+// @Param        title query string false "Filter by title (partial match)"
+// @Param        track query string false "Filter by track name"
 // @Success      200 {object} dto.SubmissionListResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
@@ -173,6 +191,7 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.SubmissionListRequest) (
 		Author:       req.Author,
 		Status:       req.Status,
 		Title:        req.Title,
+		Track:        req.Track,
 	}
 
 	// Debug logging
@@ -181,6 +200,7 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.SubmissionListRequest) (
 	fmt.Printf("  Author filter: '%s'\n", params.Author)
 	fmt.Printf("  Status filter: '%s'\n", params.Status)
 	fmt.Printf("  Title filter: '%s'\n", params.Title)
+	fmt.Printf("  Track filter: '%s'\n", params.Track)
 	fmt.Printf("  Limit: %d, Offset: %d\n", params.Limit, params.Offset)
 
 	submissions, total, err := c.submissionStorage.List(ctx, params)
@@ -243,14 +263,14 @@ func (c *Controller) Get(ginCtx *gin.Context) (*dto.Submission, error) {
 
 // Update godoc
 // @Summary      Update submission
-// @Description  Update submission (only if status is draft, only author can update)
+// @Description  Update submission details including track, title, abstract, domain, and information (only if status is draft, only author can update)
 // @Tags         submissions
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
 // @Param        conference_id path int true "Conference ID"
 // @Param        id path int true "Submission ID"
-// @Param        request body dto.SubmissionUpdateRequest true "Updated submission data"
+// @Param        request body dto.SubmissionUpdateRequest true "Updated submission data (can include track, title, abstract, domain[], information)"
 // @Success      200 {object} dto.Submission
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response

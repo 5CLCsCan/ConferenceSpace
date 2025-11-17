@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/tests/api/testutils"
@@ -55,13 +56,16 @@ func (c *Client) List(conferenceID int64, req *dto.SubmissionListRequest, token 
 	if req != nil {
 		path += fmt.Sprintf("?limit=%d&offset=%d", req.Limit, req.Offset)
 		if req.Author != "" {
-			path += fmt.Sprintf("&author=%s", req.Author)
+			path += fmt.Sprintf("&author=%s", url.QueryEscape(req.Author))
 		}
 		if req.Status != "" {
-			path += fmt.Sprintf("&status=%s", req.Status)
+			path += fmt.Sprintf("&status=%s", url.QueryEscape(req.Status))
 		}
 		if req.Title != "" {
-			path += fmt.Sprintf("&title=%s", req.Title)
+			path += fmt.Sprintf("&title=%s", url.QueryEscape(req.Title))
+		}
+		if req.Track != "" {
+			path += fmt.Sprintf("&track=%s", url.QueryEscape(req.Track))
 		}
 	}
 	return c.ctx.MakeRequest("GET", path, nil, token)

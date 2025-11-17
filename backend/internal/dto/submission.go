@@ -39,6 +39,7 @@ type Submission struct {
 	Abstract     string                  `json:"abstract" binding:"required"`
 	Link         string                  `json:"link"`
 	Domain       []string                `json:"domain"`
+	Track        string                  `json:"track"` // Must be one of the conference's tracks
 	Status       string                  `json:"status" binding:"required,oneof=draft published reviewing"`
 	Information  *SubmissionInformation  `json:"information"`
 	File         *SubmissionFileMetadata `json:"file,omitempty"`
@@ -74,6 +75,7 @@ type SubmissionListRequest struct {
 	Author       string `form:"author" json:"author"`
 	Status       string `form:"status" json:"status"`
 	Title        string `form:"title" json:"title"`
+	Track        string `form:"track" json:"track"`
 }
 
 type SubmissionListResponse struct {

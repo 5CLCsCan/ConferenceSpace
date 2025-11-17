@@ -64,12 +64,10 @@ func TestRelationshipCOI_E2E_DirectCollaboration(t *testing.T) {
 
 	// Create conference with 4-year COI window
 	conference := &dto.Conference{
-		Title:          "Test Conference COI",
-		Acronym:        testutils.UniqueString("TESTCOI"),
-		Chair:          chairUser.Email,
-		PrimaryContact: chairUser.ID,
-		AreaChair:      chairUser.ID,
-		Domain:         []string{"AI", "ML"},
+		Title:   "Test Conference COI",
+		Acronym: testutils.UniqueString("TESTCOI"),
+		Chair:   chairUser.Email,
+		Domain:  []string{"AI", "ML"},
 		Configurations: &dto.ConferenceConfiguration{
 			HaveCOI:        boolPtr(true),
 			COIWindowYears: intPtr(4),
@@ -240,12 +238,10 @@ func TestRelationshipCOI_E2E_OldCollaboration(t *testing.T) {
 
 	// Create conference with 4-year COI window
 	conference := &dto.Conference{
-		Title:          "Test Conference Old COI",
-		Acronym:        testutils.UniqueString("TESTOLDCOI"),
-		Chair:          chairUser.Email,
-		PrimaryContact: chairUser.ID,
-		AreaChair:      chairUser.ID,
-		Domain:         []string{"AI", "ML"},
+		Title:   "Test Conference Old COI",
+		Acronym: testutils.UniqueString("TESTOLDCOI"),
+		Chair:   chairUser.Email,
+		Domain:  []string{"AI", "ML"},
 		Configurations: &dto.ConferenceConfiguration{
 			HaveCOI:        boolPtr(true),
 			COIWindowYears: intPtr(4),
@@ -385,12 +381,10 @@ func TestRelationshipCOI_E2E_DifferentWindowYears(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// Create conference with specific window
 			conference := &dto.Conference{
-				Title:          fmt.Sprintf("Test Conference Window %d", tc.windowYears),
-				Acronym:        testutils.UniqueString(fmt.Sprintf("WINDOW%d", tc.windowYears)),
-				Chair:          chairUser.Email,
-				PrimaryContact: chairUser.ID,
-				AreaChair:      chairUser.ID,
-				Domain:         []string{"ML"},
+				Title:   fmt.Sprintf("Test Conference Window %d", tc.windowYears),
+				Acronym: testutils.UniqueString(fmt.Sprintf("WINDOW%d", tc.windowYears)),
+				Chair:   chairUser.Email,
+				Domain:  []string{"ML"},
 				Configurations: &dto.ConferenceConfiguration{
 					HaveCOI:        boolPtr(true),
 					COIWindowYears: intPtr(tc.windowYears),

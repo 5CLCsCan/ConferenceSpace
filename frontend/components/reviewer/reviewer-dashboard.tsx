@@ -88,8 +88,8 @@ export function ReviewerDashboard() {
   const { t } = useTranslation()
   const { user } = useAuth()
   const router = useRouter()
-  // Convert user.id to string, fallback to "1" for development
-  const currentReviewerId = user?.id || "1"
+  // Use email for reviewer endpoints
+  const currentReviewerEmail = user?.email || ""
 
   const [activeNav, setActiveNav] = useState<View>("overview")
   const [selectedConferenceId, setSelectedConferenceId] = useState<string | null>(null)
@@ -133,7 +133,7 @@ export function ReviewerDashboard() {
     error,
     refresh,
     updateOptimistic,
-  } = useReviewerDashboard(currentReviewerId, {
+  } = useReviewerDashboard(currentReviewerEmail, {
     conferenceSearch: debouncedConferenceSearch,
     invitationStatus: invitationStatusFilter,
     conferenceLimit: 20, // Load 20 at a time for infinite scroll
@@ -319,7 +319,7 @@ export function ReviewerDashboard() {
           <ReviewerInvitations
             invitations={allInvitations}
             onInvitationHandled={handleInvitationResponse}
-            reviewerId={currentReviewerId}
+            reviewerId={currentReviewerEmail}
             onStatusFilterChange={(status) => setInvitationStatusFilter(status === "all" ? "" : status)}
             currentStatusFilter={invitationStatusFilter || "all"}
             onLoadMore={loadMoreInvitations}
@@ -331,7 +331,7 @@ export function ReviewerDashboard() {
         if (!selectedConferenceId) return null
         return (
           <ConferencePapersWithSWR
-            reviewerId={currentReviewerId}
+            reviewerId={currentReviewerEmail}
             conferenceId={selectedConferenceId}
             conferences={allConferences}
             onBack={handleBackToConferences}

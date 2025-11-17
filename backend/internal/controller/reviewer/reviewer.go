@@ -1,22 +1,30 @@
 package reviewer
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
+	"github.com/dcao/conferencespace/internal/model"
 	"github.com/dcao/conferencespace/internal/storage"
+	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	reviewerStorage "github.com/dcao/conferencespace/internal/storage/reviewer"
+	userStorage "github.com/dcao/conferencespace/internal/storage/user"
 	"github.com/gin-gonic/gin"
 )
 
 type Controller struct {
 	reviewerStorage reviewerStorage.StorageInterface
+	roleStorage     conferenceuserrole.StorageInterface
+	userStorage     userStorage.StorageInterface
 }
 
 func New(store *storage.Storage) *Controller {
 	return &Controller{
 		reviewerStorage: store.Reviewer,
+		roleStorage:     store.ConferenceUserRole,
+		userStorage:     store.User,
 	}
 }
 
@@ -155,6 +163,21 @@ func (c *Controller) UpdateStatus(ginCtx *gin.Context, req *dto.ReviewerUpdateSt
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
+	// If reviewer accepted the invitation, add them to conference_user_roles table
+	if req.Status == model.ReviewerStatusAccepted {
+		roleAssignment := model.RoleAssignment{
+			ConferenceID: req.ConferenceID,
+			UserEmail:    result.Email,
+			Role:         model.RoleReviewer,
+		}
+		err = c.roleStorage.AddRole(ctx, roleAssignment.ConferenceID, roleAssignment.UserEmail, roleAssignment.Role)
+		if err != nil {
+			// Log error but don't fail the status update
+			// (role might already exist or have other non-critical issues)
+			fmt.Printf("Warning: Failed to add reviewer role for %s in conference %d: %v\n", result.Email, req.ConferenceID, err)
+		}
+	}
+
 	return result, nil
 }
 
@@ -216,6 +239,14 @@ func (c *Controller) Delete(ginCtx *gin.Context, req *dto.ReviewerDeleteRequest)
 func (c *Controller) GetDashboard(ginCtx *gin.Context, req *dto.GetDashboardRequest) (*dto.ReviewerDashboardResponseWithPagination, error) {
 	ctx := ginCtx.Request.Context()
 
+	// Get reviewer by email
+	reviewer, err := c.userStorage.GetByEmail(ctx, req.ReviewerEmail)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get reviewer: %w", err)
+	}
+
+	reviewerID := reviewer.ID
+
 	// Set defaults for pagination
 	if req.ConferenceLimit == 0 {
 		req.ConferenceLimit = 10
@@ -244,7 +275,7 @@ func (c *Controller) GetDashboard(ginCtx *gin.Context, req *dto.GetDashboardRequ
 	go func() {
 		var r result
 		// Get conferences with pagination
-		r.conferences, r.conferencesTotal, r.err = c.reviewerStorage.GetConferencesByReviewer(ctx, req.ReviewerID, &reviewerStorage.ConferenceListParams{
+		r.conferences, r.conferencesTotal, r.err = c.reviewerStorage.GetConferencesByReviewer(ctx, reviewerID, &reviewerStorage.ConferenceListParams{
 			Limit:  req.ConferenceLimit,
 			Offset: req.ConferenceOffset,
 			Search: req.ConferenceSearch,
@@ -255,14 +286,14 @@ func (c *Controller) GetDashboard(ginCtx *gin.Context, req *dto.GetDashboardRequ
 		}
 
 		// Get stats
-		r.stats, r.err = c.reviewerStorage.GetReviewerStats(ctx, req.ReviewerID)
+		r.stats, r.err = c.reviewerStorage.GetReviewerStats(ctx, reviewerID)
 		if r.err != nil {
 			resultChan <- r
 			return
 		}
 
 		// Get invitations with pagination and status filter
-		r.invitations, r.invitationsTotal, r.err = c.reviewerStorage.GetPendingInvitations(ctx, req.ReviewerID, &reviewerStorage.InvitationListParams{
+		r.invitations, r.invitationsTotal, r.err = c.reviewerStorage.GetPendingInvitations(ctx, reviewerID, &reviewerStorage.InvitationListParams{
 			Limit:  req.InvitationLimit,
 			Offset: req.InvitationOffset,
 			Status: req.InvitationStatus,
@@ -273,7 +304,7 @@ func (c *Controller) GetDashboard(ginCtx *gin.Context, req *dto.GetDashboardRequ
 		}
 
 		// Get recent assignments with pagination
-		r.assignments, r.assignmentsTotal, r.err = c.reviewerStorage.GetRecentAssignments(ctx, req.ReviewerID, req.RecentAssignmentLimit, req.RecentAssignmentOffset)
+		r.assignments, r.assignmentsTotal, r.err = c.reviewerStorage.GetRecentAssignments(ctx, reviewerID, req.RecentAssignmentLimit, req.RecentAssignmentOffset)
 		if r.err != nil {
 			resultChan <- r
 			return
@@ -292,12 +323,12 @@ func (c *Controller) GetDashboard(ginCtx *gin.Context, req *dto.GetDashboardRequ
 	if conferences == nil {
 		conferences = []*dto.ReviewerConference{}
 	}
-	
+
 	invitations := r.invitations
 	if invitations == nil {
 		invitations = []*dto.ReviewInvitation{}
 	}
-	
+
 	assignments := r.assignments
 	if assignments == nil {
 		assignments = []*dto.AssignmentWithPaper{}
@@ -309,7 +340,7 @@ func (c *Controller) GetDashboard(ginCtx *gin.Context, req *dto.GetDashboardRequ
 	response.Conferences.Total = r.conferencesTotal
 	response.Conferences.Limit = req.ConferenceLimit
 	response.Conferences.Offset = req.ConferenceOffset
-	
+
 	// Directly assign stats (embedded struct will serialize correctly)
 	if r.stats != nil {
 		response.Stats.ReviewerStats = r.stats
@@ -317,12 +348,12 @@ func (c *Controller) GetDashboard(ginCtx *gin.Context, req *dto.GetDashboardRequ
 		// Ensure non-nil stats
 		response.Stats.ReviewerStats = &dto.ReviewerStats{}
 	}
-	
+
 	response.Invitations.Data = invitations
 	response.Invitations.Total = r.invitationsTotal
 	response.Invitations.Limit = req.InvitationLimit
 	response.Invitations.Offset = req.InvitationOffset
-	
+
 	response.RecentAssignments.Data = assignments
 	response.RecentAssignments.Total = r.assignmentsTotal
 	response.RecentAssignments.Limit = req.RecentAssignmentLimit
@@ -352,12 +383,20 @@ func (c *Controller) GetDashboard(ginCtx *gin.Context, req *dto.GetDashboardRequ
 func (c *Controller) GetConferencePapers(ginCtx *gin.Context, req *dto.GetConferencePapersRequest) (*dto.GetConferencePapersResponse, error) {
 	ctx := ginCtx.Request.Context()
 
+	// Get reviewer by email
+	reviewer, err := c.userStorage.GetByEmail(ctx, req.ReviewerEmail)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get reviewer: %w", err)
+	}
+
+	reviewerID := reviewer.ID
+
 	// Set default limit if not specified
 	if req.Limit == 0 {
 		req.Limit = 20
 	}
 
-	papers, total, err := c.reviewerStorage.GetAssignedPapers(ctx, req.ReviewerID, req.ConferenceID, &reviewerStorage.PaperListParams{
+	papers, total, err := c.reviewerStorage.GetAssignedPapers(ctx, reviewerID, req.ConferenceID, &reviewerStorage.PaperListParams{
 		Limit:  req.Limit,
 		Offset: req.Offset,
 		Search: req.Search,
@@ -399,12 +438,20 @@ func (c *Controller) GetConferencePapers(ginCtx *gin.Context, req *dto.GetConfer
 func (c *Controller) GetCompletedPapers(ginCtx *gin.Context, req *dto.GetCompletedPapersRequest) (*dto.GetCompletedPapersResponse, error) {
 	ctx := ginCtx.Request.Context()
 
+	// Get reviewer by email
+	reviewer, err := c.userStorage.GetByEmail(ctx, req.ReviewerEmail)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get reviewer: %w", err)
+	}
+
+	reviewerID := reviewer.ID
+
 	// Set default limit if not specified
 	if req.Limit == 0 {
 		req.Limit = 20
 	}
 
-	papers, total, err := c.reviewerStorage.GetCompletedPapers(ctx, req.ReviewerID, &reviewerStorage.PaperListParams{
+	papers, total, err := c.reviewerStorage.GetCompletedPapers(ctx, reviewerID, &reviewerStorage.PaperListParams{
 		Limit:  req.Limit,
 		Offset: req.Offset,
 		Search: req.Search,

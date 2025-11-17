@@ -20,6 +20,7 @@ type QueryParams struct {
 	Author       string
 	Status       string
 	Title        string
+	Track        string
 }
 
 type StorageInterface interface {
@@ -55,16 +56,24 @@ func (s *Storage) Create(ctx context.Context, sub *dto.Submission) (*dto.Submiss
 	domainArray := "{" + strings.Join(sub.Domain, ",") + "}"
 
 	// Build the INSERT query
-	insertQuery := `INSERT INTO conference_submissions (conference_id, author, title, abstract, link, domain, status, information, created_at, updated_at`
-	valuesQuery := `) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10`
-	returningQuery := `) RETURNING submission_id, author, domain, status, link, information, created_at, updated_at, conference_id, title, abstract, file_path, file_original_name, file_size, file_mime_type, file_uploaded_at`
+	insertQuery := `INSERT INTO conference_submissions (conference_id, author, title, abstract, link, domain, track, status, information, created_at, updated_at`
+	valuesQuery := `) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11`
+	returningQuery := `) RETURNING submission_id, author, domain, track, status, link, information, created_at, updated_at, conference_id, title, abstract, file_path, file_original_name, file_size, file_mime_type, file_uploaded_at`
 
-	queryArgs := []interface{}{sub.ConferenceID, sub.Author, sub.Title, sub.Abstract, sub.Link, domainArray, sub.Status, infoBytes, now, now}
+	// Use NULL for track if empty
+	var trackValue interface{}
+	if sub.Track != "" {
+		trackValue = sub.Track
+	} else {
+		trackValue = nil
+	}
+
+	queryArgs := []interface{}{sub.ConferenceID, sub.Author, sub.Title, sub.Abstract, sub.Link, domainArray, trackValue, sub.Status, infoBytes, now, now}
 
 	// Add file fields if present
 	if sub.File != nil {
 		insertQuery += `, file_path, file_original_name, file_size, file_mime_type, file_uploaded_at`
-		valuesQuery += `, $11, $12, $13, $14, $15`
+		valuesQuery += `, $12, $13, $14, $15, $16`
 		queryArgs = append(queryArgs, sub.File.Path, sub.File.OriginalName, sub.File.Size, sub.File.MimeType, now)
 	}
 
@@ -72,7 +81,7 @@ func (s *Storage) Create(ctx context.Context, sub *dto.Submission) (*dto.Submiss
 
 	entity := &model.Submission{}
 	err = s.db.QueryRowContext(ctx, fullQuery, queryArgs...).Scan(
-		&entity.SubmissionID, &entity.Author, &entity.Domain, &entity.Status,
+		&entity.SubmissionID, &entity.Author, &entity.Domain, &entity.Track, &entity.Status,
 		&entity.Link, &entity.Information, &entity.CreatedAt, &entity.UpdatedAt,
 		&entity.ConferenceID, &entity.Title, &entity.Abstract,
 		&entity.FilePath, &entity.FileOriginalName, &entity.FileSize, &entity.FileMimeType, &entity.FileUploadedAt,
@@ -95,6 +104,7 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Submission, error
 			model.ColAbstract,
 			model.ColLink,
 			model.ColDomain,
+			model.ColTrack,
 			model.ColStatus,
 			model.ColInformation,
 			model.ColFilePath,
@@ -122,6 +132,7 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Submission, error
 		&entity.Abstract,
 		&entity.Link,
 		&entity.Domain,
+		&entity.Track,
 		&entity.Status,
 		&entity.Information,
 		&entity.FilePath,
@@ -155,6 +166,7 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Submiss
 		model.ColAbstract,
 		model.ColLink,
 		model.ColDomain,
+		model.ColTrack,
 		model.ColStatus,
 		model.ColInformation,
 		model.ColFilePath,
@@ -188,6 +200,11 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Submiss
 		fmt.Printf("[STORAGE LIST] Adding Title filter: '%s'\n", params.Title)
 		baseQuery = baseQuery.Where(sq.Like{model.ColTitle: "%" + params.Title + "%"})
 		countQuery = countQuery.Where(sq.Like{model.ColTitle: "%" + params.Title + "%"})
+	}
+	if params.Track != "" {
+		fmt.Printf("[STORAGE LIST] Adding Track filter: '%s'\n", params.Track)
+		baseQuery = baseQuery.Where(sq.Eq{model.ColTrack: params.Track})
+		countQuery = countQuery.Where(sq.Eq{model.ColTrack: params.Track})
 	}
 
 	countQueryStr, countArgs, err := countQuery.ToSql()
@@ -239,6 +256,7 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Submiss
 			&entity.Abstract,
 			&entity.Link,
 			&entity.Domain,
+			&entity.Track,
 			&entity.Status,
 			&entity.Information,
 			&entity.FilePath,
@@ -299,6 +317,11 @@ func (s *Storage) Update(ctx context.Context, id int64, sub *dto.Submission) (*d
 		updateMap[model.ColDomain] = pq.Array(sub.Domain)
 	}
 
+	// Allow track to be set or cleared
+	if sub.Track != "" {
+		updateMap[model.ColTrack] = sub.Track
+	}
+
 	if sub.Status != "" {
 		updateMap[model.ColStatus] = sub.Status
 	}
@@ -326,7 +349,7 @@ func (s *Storage) Update(ctx context.Context, id int64, sub *dto.Submission) (*d
 		Update(model.SubmissionTableName).
 		SetMap(updateMap).
 		Where(sq.Eq{model.ColSubmissionID: id}).
-		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
+		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
 			model.ColSubmissionID,
 			model.ColConferenceID,
 			model.ColAuthor,
@@ -334,6 +357,7 @@ func (s *Storage) Update(ctx context.Context, id int64, sub *dto.Submission) (*d
 			model.ColAbstract,
 			model.ColLink,
 			model.ColDomain,
+			model.ColTrack,
 			model.ColStatus,
 			model.ColInformation,
 			model.ColFilePath,
@@ -359,6 +383,7 @@ func (s *Storage) Update(ctx context.Context, id int64, sub *dto.Submission) (*d
 		&entity.Abstract,
 		&entity.Link,
 		&entity.Domain,
+		&entity.Track,
 		&entity.Status,
 		&entity.Information,
 		&entity.FilePath,

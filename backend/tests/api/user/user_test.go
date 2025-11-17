@@ -155,16 +155,16 @@ func TestUpdateUser(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		userID         int64
+		userEmail      string
 		token          string
 		updateData     *dto.User
 		expectedStatus int
 		expectError    bool
 	}{
 		{
-			name:   "successfully update own profile",
-			userID: user1.ID,
-			token:  token1,
+			name:      "successfully update own profile",
+			userEmail: user1.Email,
+			token:     token1,
 			updateData: &dto.User{
 				Email:     user1.Email, // Keep original email
 				FirstName: "Updated",
@@ -175,9 +175,9 @@ func TestUpdateUser(t *testing.T) {
 			expectError:    false,
 		},
 		{
-			name:   "cannot update another user's profile",
-			userID: user2.ID,
-			token:  token1,
+			name:      "cannot update another user's profile",
+			userEmail: user2.Email,
+			token:     token1,
 			updateData: &dto.User{
 				Email:     "user2@example.com",
 				FirstName: "Hacker",
@@ -187,9 +187,9 @@ func TestUpdateUser(t *testing.T) {
 			expectError:    true,
 		},
 		{
-			name:   "update without authentication",
-			userID: user1.ID,
-			token:  "",
+			name:      "update without authentication",
+			userEmail: user1.Email,
+			token:     "",
 			updateData: &dto.User{
 				Email:     "user1@example.com",
 				FirstName: "Anonymous",
@@ -202,7 +202,7 @@ func TestUpdateUser(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			resp, err := client.Update(tt.userID, tt.updateData, tt.token)
+			resp, err := client.Update(tt.userEmail, tt.updateData, tt.token)
 			if err != nil {
 				t.Fatalf("Failed to make request: %v", err)
 			}
@@ -238,28 +238,28 @@ func TestDeleteUser(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		userID         int64
+		userEmail      string
 		token          string
 		expectedStatus int
 		expectError    bool
 	}{
 		{
 			name:           "cannot delete another user's account",
-			userID:         user1.ID,
+			userEmail:      user1.Email,
 			token:          token2,
 			expectedStatus: http.StatusForbidden,
 			expectError:    true,
 		},
 		{
 			name:           "delete without authentication",
-			userID:         user1.ID,
+			userEmail:      user1.Email,
 			token:          "",
 			expectedStatus: http.StatusUnauthorized,
 			expectError:    true,
 		},
 		{
 			name:           "successfully delete own account",
-			userID:         user2.ID,
+			userEmail:      user2.Email,
 			token:          token2,
 			expectedStatus: http.StatusOK,
 			expectError:    false,
@@ -268,7 +268,7 @@ func TestDeleteUser(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			resp, err := client.Delete(tt.userID, tt.token)
+			resp, err := client.Delete(tt.userEmail, tt.token)
 			if err != nil {
 				t.Fatalf("Failed to make request: %v", err)
 			}
