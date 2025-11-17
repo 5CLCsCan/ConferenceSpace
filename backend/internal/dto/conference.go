@@ -28,6 +28,7 @@ type Conference struct {
 	Chair          string                   `json:"chair"`
 	CoChairs       []string                 `json:"co_chairs"`
 	Domain         []string                 `json:"domain"`
+	Tracks         []string                 `json:"tracks"`
 	Configurations *ConferenceConfiguration `json:"configurations"`
 }
 
@@ -39,6 +40,7 @@ type ConferenceResponse struct {
 	Chair          string                   `json:"chair"`
 	CoChairs       []string                 `json:"co_chairs"`
 	Domain         []string                 `json:"domain"`
+	Tracks         []string                 `json:"tracks"`
 	Configurations *ConferenceConfiguration `json:"configurations"`
 	CreatedAt      time.Time                `json:"created_at"`
 	UpdatedAt      time.Time                `json:"updated_at"`

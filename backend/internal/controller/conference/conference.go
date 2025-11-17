@@ -27,12 +27,12 @@ func New(store *storage.Storage) *Controller {
 
 // Create godoc
 // @Summary      Create a new conference
-// @Description  Create a new conference (authenticated users only)
+// @Description  Create a new conference with optional tracks, co-chairs, and configurations (authenticated users only)
 // @Tags         conferences
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        request body dto.Conference true "Conference data"
+// @Param        request body dto.Conference true "Conference data (title, acronym, chair, optional: tracks[], co_chairs[], domain[], configurations)"
 // @Success      201 {object} dto.ConferenceResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
@@ -174,13 +174,13 @@ func (c *Controller) Get(ginCtx *gin.Context, req *dto.ConferenceGetRequest) (*d
 
 // Update godoc
 // @Summary      Update conference
-// @Description  Update conference (only chair can update)
+// @Description  Update conference details including tracks, co-chairs, and configurations (only chair or co-chair can update)
 // @Tags         conferences
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
 // @Param        conference_id path int true "Conference ID"
-// @Param        request body dto.ConferenceUpdateRequest true "Updated conference data"
+// @Param        request body dto.ConferenceUpdateRequest true "Updated conference data (can include tracks[], co_chairs[], domain[], configurations)"
 // @Success      200 {object} dto.ConferenceResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response

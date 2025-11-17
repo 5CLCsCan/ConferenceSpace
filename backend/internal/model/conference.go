@@ -18,6 +18,7 @@ const (
 	ColChair               = "chair"
 	ColCoChairs            = "co_chairs"
 	ConferenceColDomain    = "domain"
+	ColTracks              = "tracks"
 	ColConfigurations      = "configurations"
 	ConferenceColCreatedAt = "created_at"
 	ConferenceColUpdatedAt = "updated_at"
@@ -39,6 +40,7 @@ type Conference struct {
 	Chair          string         `db:"chair"`
 	CoChairs       pq.StringArray `db:"co_chairs"`
 	Domain         pq.StringArray `db:"domain"`
+	Tracks         pq.StringArray `db:"tracks"`
 	Configurations []byte         `db:"configurations"`
 	CreatedAt      time.Time      `db:"created_at"`
 	UpdatedAt      time.Time      `db:"updated_at"`
@@ -59,6 +61,11 @@ func (c *Conference) ToDTO() *dto.ConferenceResponse {
 		coChairs = []string{}
 	}
 
+	tracks := []string(c.Tracks)
+	if tracks == nil {
+		tracks = []string{}
+	}
+
 	var config *dto.ConferenceConfiguration
 	if len(c.Configurations) > 0 {
 		config = &dto.ConferenceConfiguration{}
@@ -75,6 +82,7 @@ func (c *Conference) ToDTO() *dto.ConferenceResponse {
 		Chair:          c.Chair,
 		CoChairs:       coChairs,
 		Domain:         domain,
+		Tracks:         tracks,
 		Configurations: config,
 		CreatedAt:      c.CreatedAt,
 		UpdatedAt:      c.UpdatedAt,

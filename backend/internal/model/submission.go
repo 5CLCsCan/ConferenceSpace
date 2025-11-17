@@ -17,6 +17,7 @@ const (
 	ColAbstract         = "abstract"
 	ColLink             = "link"
 	ColDomain           = "domain"
+	ColTrack            = "track"
 	ColInformation      = "information"
 	ColFilePath         = "file_path"
 	ColFileOriginalName = "file_original_name"
@@ -35,6 +36,7 @@ type Submission struct {
 	Abstract         string         `db:"abstract"`
 	Link             string         `db:"link"`
 	Domain           pq.StringArray `db:"domain"`
+	Track            *string        `db:"track"`
 	Status           string         `db:"status"`
 	Information      []byte         `db:"information"`
 	FilePath         *string        `db:"file_path"`
@@ -71,6 +73,11 @@ func (s *Submission) ToDTO() *dto.Submission {
 		}
 	}
 
+	var track string
+	if s.Track != nil {
+		track = *s.Track
+	}
+
 	return &dto.Submission{
 		ID:           s.SubmissionID,
 		ConferenceID: s.ConferenceID,
@@ -79,6 +86,7 @@ func (s *Submission) ToDTO() *dto.Submission {
 		Abstract:     s.Abstract,
 		Link:         s.Link,
 		Domain:       domain,
+		Track:        track,
 		Status:       s.Status,
 		Information:  info,
 		File:         fileMetadata,

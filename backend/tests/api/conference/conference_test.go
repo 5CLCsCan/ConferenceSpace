@@ -160,6 +160,20 @@ func TestCreateConference(t *testing.T) {
 			expectError:    false,
 		},
 		{
+			name: "successfully create conference with tracks",
+			conference: &dto.Conference{
+				Title:       "Conference with Tracks",
+				Acronym:     testutils.UniqueString("CWT2025"),
+				Description: "A conference with multiple tracks",
+				Chair:       user.Email,
+				Domain:      []string{"AI", "ML", "NLP"},
+				Tracks:      []string{"Machine Learning", "Natural Language Processing", "Computer Vision"},
+			},
+			token:          token,
+			expectedStatus: http.StatusCreated,
+			expectError:    false,
+		},
+		{
 			name: "create without authentication",
 			conference: &dto.Conference{
 				Title:   "Unauthorized Conference",
@@ -203,6 +217,18 @@ func TestCreateConference(t *testing.T) {
 
 				if respData.Data.Title != tt.conference.Title {
 					t.Errorf("Expected title %s, got %s", tt.conference.Title, respData.Data.Title)
+				}
+
+				// Verify tracks if they were provided
+				if len(tt.conference.Tracks) > 0 {
+					if len(respData.Data.Tracks) != len(tt.conference.Tracks) {
+						t.Errorf("Expected %d tracks, got %d", len(tt.conference.Tracks), len(respData.Data.Tracks))
+					}
+					for i, track := range tt.conference.Tracks {
+						if i < len(respData.Data.Tracks) && respData.Data.Tracks[i] != track {
+							t.Errorf("Expected track[%d] %s, got %s", i, track, respData.Data.Tracks[i])
+						}
+					}
 				}
 			}
 		})
