@@ -409,9 +409,9 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Confere
 			}
 		} else {
 			err := rows.Scan(scanArgs...)
-			if err != nil {
-				return nil, 0, fmt.Errorf("failed to scan conference: %w", err)
-			}
+		if err != nil {
+			return nil, 0, fmt.Errorf("failed to scan conference: %w", err)
+		}
 		}
 
 		entities = append(entities, entity)

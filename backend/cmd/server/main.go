@@ -179,9 +179,9 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 		users := v1.Group("/users")
 		users.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
-		users.GET("/me", handler.HandleNoRequest(ctrl.User.GetMe))
-		users.GET("/search", handler.HandleNoRequest(ctrl.User.Search))
-		users.GET("", handler.HandleRequestWithQuery(ctrl.User.List))
+			users.GET("/me", handler.HandleNoRequest(ctrl.User.GetMe))
+			users.GET("/search", handler.HandleNoRequest(ctrl.User.Search))
+			users.GET("", handler.HandleRequestWithQuery(ctrl.User.List))
 		users.GET("/:email", handler.HandleNoRequest(ctrl.User.Get))
 		users.GET("/:email/coi-check", handler.HandleRequestWithURIAndQuery(ctrl.User.CheckCOI))
 		users.PUT("/:email", handler.HandleRequest(ctrl.User.Update))
