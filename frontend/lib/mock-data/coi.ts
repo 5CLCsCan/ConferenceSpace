@@ -61,8 +61,13 @@ export interface Relationship {
 export interface COIReport {
   reviewer_id: string
   reviewer_name: string
+  reviewer_email: string
+  reviewer_affiliation: string
   paper_id?: string
   author_id?: string
+  author_name?: string
+  author_email?: string
+  author_affiliation?: string
   coi_type: COIType
   severity: COISeverity
   relationships: Relationship[]
@@ -371,7 +376,12 @@ export function generateReviewerToAuthorCOIReport(
   return {
     reviewer_id: reviewerId,
     reviewer_name: reviewer.name,
+    reviewer_email: reviewer.email,
+    reviewer_affiliation: reviewer.affiliation,
     author_id: authorId,
+    author_name: author.name,
+    author_email: author.email,
+    author_affiliation: author.affiliation,
     coi_type: "author",
     severity,
     relationships,
@@ -410,6 +420,8 @@ export function generateReviewerToPaperCOIReport(
   return {
     reviewer_id: reviewerId,
     reviewer_name: reviewer.name,
+    reviewer_email: reviewer.email,
+    reviewer_affiliation: reviewer.affiliation,
     paper_id: paperId,
     coi_type: "paper",
     severity,
