@@ -234,6 +234,13 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 			reviewer.GET("/:reviewer_email/conferences/:conference_id/papers", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetConferencePapers))
 			reviewer.GET("/:reviewer_email/completed-papers", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetCompletedPapers))
 		}
+
+		// Assignment review routes (authentication required)
+		assignments := conferences.Group("/:conference_id/assignments")
+		{
+			assignments.PUT("/:assignment_id/review", handler.HandleRequestWithAll(ctrl.Assignment.SaveReview))
+			assignments.GET("/:assignment_id/review", handler.HandleRequestWithURI(ctrl.Assignment.GetReview))
+		}
 	}
 
 	return router

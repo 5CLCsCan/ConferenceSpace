@@ -1,10 +1,10 @@
 package conference
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 
+	"github.com/dcao/conferencespace/internal/assignment"
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/model"
@@ -18,25 +18,15 @@ import (
 type Controller struct {
 	conferenceStorage conferenceStorage.StorageInterface
 	roleStorage       conferenceuserrole.StorageInterface
-	assignmentService AssignmentServiceInterface
+	assignmentService *assignment.Service
 }
 
-// AssignmentServiceInterface defines the methods we need from the assignment service
-type AssignmentServiceInterface interface {
-	AutoAssign(ctx context.Context, conferenceID int64, config interface{}) (interface{}, error)
-}
-
-func New(store *storage.Storage) *Controller {
+func New(store *storage.Storage, assignmentSvc *assignment.Service) *Controller {
 	return &Controller{
 		conferenceStorage: store.Conference,
 		roleStorage:       store.ConferenceUserRole,
-		assignmentService: nil, // Will be set via SetAssignmentService
+		assignmentService: assignmentSvc,
 	}
-}
-
-// SetAssignmentService sets the assignment service (dependency injection)
-func (c *Controller) SetAssignmentService(service AssignmentServiceInterface) {
-	c.assignmentService = service
 }
 
 // Create godoc
@@ -400,12 +390,21 @@ func (c *Controller) TransitionStatus(ginCtx *gin.Context, req *dto.ConferenceTr
 		NewStatus:      req.NewStatus,
 	}
 
-	// If transitioning to reviewing, trigger auto-assign (if assignment service is available)
+	// If transitioning to reviewing, trigger auto-assign automatically
 	if req.NewStatus == model.ConferenceStatusReviewing && c.assignmentService != nil {
-		// Note: Auto-assign logic would go here
-		// For now, we'll skip this to avoid circular dependencies
-		// The chair should manually trigger auto-assign after status change
-		response.Message = "conference status updated to reviewing. Please trigger auto-assignment manually."
+		autoAssignConfig := assignment.AutoAssignConfig{
+			MinReviewersPerPaper: 2, // Default values, can be made configurable
+			MaxReviewersPerPaper: 3,
+			MinScoreThreshold:    0.3,
+			DryRun:               false,
+		}
+		_, err := c.assignmentService.AutoAssign(ctx, req.ConferenceID, autoAssignConfig)
+		if err != nil {
+			// Log error but don't fail the status transition
+			response.Message = fmt.Sprintf("conference status updated to reviewing. Auto-assignment failed: %v", err)
+		} else {
+			response.Message = "conference status updated to reviewing and reviewers auto-assigned successfully"
+		}
 	}
 
 	return response, nil
