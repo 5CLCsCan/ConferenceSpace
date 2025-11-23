@@ -20,6 +20,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { useAuth } from "@/lib/auth-context"
 import { Loader2, GraduationCap, CheckCircle } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -66,17 +67,17 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4 py-8">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+        <div className={`text-center mb-8`}>
           <Link
             href="/"
             className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-lg mb-4"
           >
-            <GraduationCap className="w-8 h-8 text-white" />
+            <GraduationCap className={`${iconSizes.lg} text-white`} />
           </Link>
-          <h1 className="text-3xl font-bold text-neutral-900 mb-2">
+          <h1 className={`${typography.h1} text-neutral-900 mb-2`}>
             <Link href="/">{t("auth.login.cta")}</Link>
           </h1>
-          <p className="text-neutral-600">{t("auth.login.subtitle")}</p>
+          <p className={`text-neutral-600 ${typography.body}`}>{t("auth.login.subtitle")}</p>
         </div>
 
         <Card className="border-neutral-200 shadow-sm">
@@ -85,12 +86,14 @@ export default function LoginPage() {
             <CardDescription>{t("auth.login.subtitle")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className={spacing.subsection}>
               {showRegistrationMessage && (
                 <Alert>
-                  <CheckCircle className="h-4 w-4" />
-                  <AlertTitle>{t("auth.login.registrationComplete")}</AlertTitle>
-                  <AlertDescription>{t("auth.login.registrationDetails")}</AlertDescription>
+                  <CheckCircle className={iconSizes.sm} />
+                  <AlertTitle className={typography.h6}>{t("auth.login.registrationComplete")}</AlertTitle>
+                  <AlertDescription className={typography.body}>
+                    {t("auth.login.registrationDetails")}
+                  </AlertDescription>
                 </Alert>
               )}
 
@@ -131,7 +134,7 @@ export default function LoginPage() {
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className={`mr-2 ${iconSizes.sm} animate-spin`} />
                     {t("auth.login.title")}...
                   </>
                 ) : (
@@ -140,10 +143,10 @@ export default function LoginPage() {
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <div className="text-sm text-center text-neutral-600">
+          <CardFooter className={`flex flex-col ${spacing.subsection}`}>
+            <div className={`${typography.body} text-center text-neutral-600`}>
               {t("auth.login.noAccount")}{" "}
-              <Link href="/register" className="text-primary hover:underline font-medium">
+              <Link href="/register" className={`text-primary hover:underline ${typography.medium}`}>
                 {t("common.actions.signUp")}
               </Link>
             </div>

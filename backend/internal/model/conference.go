@@ -11,14 +11,33 @@ import (
 const (
 	ConferenceTableName = "conferences"
 
-	ColConferenceID   = "conference_id"
-	ColTitle          = "title"
-	ColAcronym        = "acronym"
-	ColDescription    = "description"
-	ColChair          = "chair"
-	ColPrimaryContact = "primary_contact"
-	ColAreaChair      = "area_chair"
-	ColConfigurations = "configurations"
+	ColConferenceID        = "conference_id"
+	ColTitle               = "title"
+	ColAcronym             = "acronym"
+	ColDescription         = "description"
+	ColChair               = "chair"
+	ColCoChairs            = "co_chairs"
+	ConferenceColDomain    = "domain"
+	ColTracks              = "tracks"
+	ColConfigurations      = "configurations"
+	ColConferenceStatus    = "status"
+	ConferenceColCreatedAt = "created_at"
+	ConferenceColUpdatedAt = "updated_at"
+)
+
+// User roles in conference context
+const (
+	RoleChair    = "chair"
+	RoleCoChair  = "co_chair"
+	RoleAuthor   = "author"
+	RoleReviewer = "reviewer"
+)
+
+// Conference status constants
+const (
+	ConferenceStatusOpen      = "open"      // Accepting submissions
+	ConferenceStatusReviewing = "reviewing" // Submissions closed, under review
+	ConferenceStatusCompleted = "completed" // Conference finished
 )
 
 type Conference struct {
@@ -27,18 +46,33 @@ type Conference struct {
 	Acronym        string         `db:"acronym"`
 	Description    string         `db:"description"`
 	Chair          string         `db:"chair"`
-	PrimaryContact int64          `db:"primary_contact"`
-	AreaChair      int64          `db:"area_chair"`
+	CoChairs       pq.StringArray `db:"co_chairs"`
 	Domain         pq.StringArray `db:"domain"`
+	Tracks         pq.StringArray `db:"tracks"`
 	Configurations []byte         `db:"configurations"`
+	Status         string         `db:"status"`
 	CreatedAt      time.Time      `db:"created_at"`
 	UpdatedAt      time.Time      `db:"updated_at"`
+
+	// ========= View Fields ===========
+	// These fields are populated from JOINs and are not stored in the conferences table
+	UserRole string `db:"user_role"` // User's role in this conference (from conference_user_roles)
 }
 
 func (c *Conference) ToDTO() *dto.ConferenceResponse {
 	domain := []string(c.Domain)
 	if domain == nil {
 		domain = []string{}
+	}
+
+	coChairs := []string(c.CoChairs)
+	if coChairs == nil {
+		coChairs = []string{}
+	}
+
+	tracks := []string(c.Tracks)
+	if tracks == nil {
+		tracks = []string{}
 	}
 
 	var config *dto.ConferenceConfiguration
@@ -55,12 +89,14 @@ func (c *Conference) ToDTO() *dto.ConferenceResponse {
 		Acronym:        c.Acronym,
 		Description:    c.Description,
 		Chair:          c.Chair,
-		PrimaryContact: c.PrimaryContact,
-		AreaChair:      c.AreaChair,
+		CoChairs:       coChairs,
 		Domain:         domain,
+		Tracks:         tracks,
 		Configurations: config,
+		Status:         c.Status,
 		CreatedAt:      c.CreatedAt,
 		UpdatedAt:      c.UpdatedAt,
+		UserRole:       c.UserRole, // Include view field
 	}
 }
 

@@ -6,9 +6,10 @@ import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { ConferenceDetailsStep } from "@/components/wizard/conference-details-step"
 import { TopicsSubmissionsStep } from "@/components/wizard/topics-submissions-step"
+import { CfpConfigurationStep } from "@/components/wizard/cfp-configuration-step"
 import { OrganizersStep } from "@/components/wizard/organizers-step"
 import { ReviewStep } from "@/components/wizard/review-step"
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, ArrowLeft, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createConference } from "@/lib/api/conferences"
 import { useToast } from "@/hooks/use-toast"
@@ -34,9 +35,14 @@ export type ConferenceFormData = {
   topics: string[]
   anonymity: "single-blind" | "double-blind"
   fileFormats: string[]
-  submissionGuidelines: string
 
-  // Step 3: Organizers
+  // Step 3: Call For Paper Configuration
+  cfpFormattingRequirements: string[]
+  cfpContentGuidelines: string[]
+  cfpReviewProcess: string[]
+  cfpCoverImage: File | null
+
+  // Step 4: Organizers
   organizers: Array<{
     id: string
     name: string
@@ -44,7 +50,7 @@ export type ConferenceFormData = {
     role: string
   }>
 
-  // Step 4: Review
+  // Step 5: Review
   confirmed: boolean
 }
 
@@ -55,6 +61,7 @@ export default function CreateConferencePage() {
   const { toast } = useToast()
   const { t } = useTranslation()
   const [currentStep, setCurrentStep] = useState(1)
+  const [maxStepReached, setMaxStepReached] = useState(1)
   const [isCreating, setIsCreating] = useState(false)
   const [formData, setFormData] = useState<ConferenceFormData>({
     title: "",
@@ -73,7 +80,10 @@ export default function CreateConferencePage() {
     topics: [],
     anonymity: "double-blind",
     fileFormats: ["PDF"],
-    submissionGuidelines: "",
+    cfpFormattingRequirements: [],
+    cfpContentGuidelines: [],
+    cfpReviewProcess: [],
+    cfpCoverImage: null,
     organizers: [
       {
         id: "1",
@@ -110,11 +120,19 @@ export default function CreateConferencePage() {
       title: t("dashboard.chair.createConference.steps.4.title"),
       description: t("dashboard.chair.createConference.steps.4.description"),
     },
+    {
+      number: 5,
+      title: t("dashboard.chair.createConference.steps.5.title"),
+      description: t("dashboard.chair.createConference.steps.5.description"),
+    },
   ]
 
   const handleNext = () => {
     if (currentStep < STEPS.length) {
-      setCurrentStep(currentStep + 1)
+      const nextStep = currentStep + 1
+      setCurrentStep(nextStep)
+      // Mark the next step as reached (and implicitly the current step too)
+      setMaxStepReached(Math.max(maxStepReached, nextStep))
       window.scrollTo({ top: 0, behavior: "smooth" })
     }
   }
@@ -124,6 +142,10 @@ export default function CreateConferencePage() {
       setCurrentStep(currentStep - 1)
       window.scrollTo({ top: 0, behavior: "smooth" })
     }
+  }
+
+  const handleReturn = () => {
+    router.push("/dashboard/chair")
   }
 
   const handleCreateConference = async () => {
@@ -187,17 +209,29 @@ export default function CreateConferencePage() {
   }
 
   const goToStep = (step: number) => {
+    // Allow viewing any step (for preview), but editing is only allowed for reached steps
     setCurrentStep(step)
     window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
+  const isStepEditable = (step: number) => {
+    // Only allow editing steps that have been reached (not future steps being previewed)
+    return step <= maxStepReached
   }
 
   const progressPercentage = (currentStep / STEPS.length) * 100
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
+      <main className="container mx-auto px-4 py-8 max-w-4xl pb-24">
         {/* Page Header */}
         <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <Button variant="outline" size="sm" onClick={handleReturn} className="gap-2">
+              <ArrowLeft className="w-4 h-4" />
+              Return to Dashboard
+            </Button>
+          </div>
           <h1 className="text-3xl font-semibold text-foreground mb-2">
             {t("dashboard.chair.createConference.title")}
           </h1>
@@ -210,23 +244,27 @@ export default function CreateConferencePage() {
             {STEPS.map((step, index) => (
               <div key={step.number} className="flex items-center flex-1">
                 <div className="flex flex-col items-center flex-1">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-colors ${
+                  <button
+                    type="button"
+                    onClick={() => goToStep(step.number)}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-colors cursor-pointer hover:scale-110 ${
                       currentStep >= step.number
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted text-muted-foreground"
                     }`}
                   >
                     {step.number}
-                  </div>
+                  </button>
                   <div className="mt-2 text-center">
-                    <div
-                      className={`text-sm font-medium ${
+                    <button
+                      type="button"
+                      onClick={() => goToStep(step.number)}
+                      className={`text-sm font-medium transition-colors cursor-pointer hover:text-foreground ${
                         currentStep >= step.number ? "text-foreground" : "text-muted-foreground"
                       }`}
                     >
                       {step.title}
-                    </div>
+                    </button>
                   </div>
                 </div>
                 {index < STEPS.length - 1 && (
@@ -243,51 +281,81 @@ export default function CreateConferencePage() {
         </div>
 
         {/* Form Content */}
-        <Card className="p-6 md:p-8 mb-6">
+        <Card className="p-6 md:p-8 mb-6 relative">
           {currentStep === 1 && (
-            <ConferenceDetailsStep data={formData} updateData={updateFormData} />
+            <ConferenceDetailsStep
+              data={formData}
+              updateData={isStepEditable(1) ? updateFormData : () => {}}
+            />
           )}
           {currentStep === 2 && (
-            <TopicsSubmissionsStep data={formData} updateData={updateFormData} />
+            <TopicsSubmissionsStep
+              data={formData}
+              updateData={isStepEditable(2) ? updateFormData : () => {}}
+            />
           )}
-          {currentStep === 3 && <OrganizersStep data={formData} updateData={updateFormData} />}
+          {currentStep === 3 && (
+            <CfpConfigurationStep
+              data={formData}
+              updateData={isStepEditable(3) ? updateFormData : () => {}}
+            />
+          )}
           {currentStep === 4 && (
-            <ReviewStep data={formData} updateData={updateFormData} goToStep={goToStep} />
+            <OrganizersStep
+              data={formData}
+              updateData={isStepEditable(4) ? updateFormData : () => {}}
+            />
+          )}
+          {currentStep === 5 && (
+            <ReviewStep
+              data={formData}
+              updateData={isStepEditable(5) ? updateFormData : () => {}}
+              goToStep={goToStep}
+            />
+          )}
+          {/* Preview Veil - prevents interaction when viewing unreached steps */}
+          {!isStepEditable(currentStep) && (
+            <div className="absolute inset-0 bg-gray-300/40 backdrop-blur-[0.5px] z-50 rounded-lg pointer-events-auto" />
           )}
         </Card>
-
-        {/* Navigation Controls */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex gap-2">
-            {currentStep > 1 && (
-              <Button variant="outline" onClick={handlePrevious} className="gap-2 bg-transparent">
-                <ChevronLeft className="w-4 h-4" />
-                {t("common.actions.previous")}
-              </Button>
-            )}
-          </div>
-
-          <div className="flex gap-2">
-            {currentStep < STEPS.length ? (
-              <Button onClick={handleNext} className="gap-2">
-                {t("common.actions.nextStep")}
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            ) : (
-              <Button
-                onClick={handleCreateConference}
-                disabled={!formData.confirmed || isCreating}
-                className="gap-2"
-              >
-                {isCreating && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isCreating
-                  ? t("common.actions.creating")
-                  : t("dashboard.chair.createConference.confirmCreate")}
-              </Button>
-            )}
-          </div>
-        </div>
       </main>
+
+      {/* Floating Navigation Buttons */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex gap-2 sm:gap-4 items-center max-w-[calc(100%-2rem)]">
+        {currentStep > 1 && (
+          <Button
+            variant="outline"
+            onClick={handlePrevious}
+            className="gap-2 shadow-lg text-xs sm:text-sm"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Previous Step</span>
+            <span className="sm:hidden">Previous</span>
+          </Button>
+        )}
+
+        {currentStep < STEPS.length ? (
+          <Button onClick={handleNext} className="gap-2 shadow-lg text-xs sm:text-sm">
+            <span className="hidden sm:inline">{t("common.actions.nextStep")}</span>
+            <span className="sm:hidden">Next</span>
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        ) : (
+          <Button
+            onClick={handleCreateConference}
+            disabled={!formData.confirmed || isCreating}
+            className="gap-2 shadow-lg text-xs sm:text-sm"
+          >
+            {isCreating && <Loader2 className="w-4 h-4 animate-spin" />}
+            <span className="hidden sm:inline">
+              {isCreating
+                ? t("common.actions.creating")
+                : t("dashboard.chair.createConference.confirmCreate")}
+            </span>
+            <span className="sm:hidden">{isCreating ? "Creating..." : "Create"}</span>
+          </Button>
+        )}
+      </div>
     </div>
   )
 }

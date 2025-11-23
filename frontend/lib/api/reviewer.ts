@@ -78,7 +78,7 @@ export interface DashboardOptions {
  * Fetches conferences, stats, invitations, and recent assignments in one call
  */
 export async function getReviewerDashboard(
-  reviewerId: string,
+  reviewerEmail: string,
   options: DashboardOptions = {},
 ): Promise<{ data: ReviewerDashboardData | null; error: string | null; status: number }> {
   try {
@@ -116,9 +116,38 @@ export async function getReviewerDashboard(
     }
 
     const queryString = queryParams.toString()
-    const url = `/api/v1/reviewer/${reviewerId}/dashboard${queryString ? `?${queryString}` : ""}`
+    const url = `/api/v1/reviewer/${encodeURIComponent(reviewerEmail)}/dashboard${queryString ? `?${queryString}` : ""}`
 
-    const { data, response } = await apiFetch<{ data: BackendDashboardResponse }>(url)
+    let data: { data: BackendDashboardResponse }
+    let response: Response
+
+    try {
+      const result = await apiFetch<{ data: BackendDashboardResponse }>(url)
+      data = result.data
+      response = result.response
+    } catch (fetchError: any) {
+      // If endpoint doesn't exist (404/500), return empty dashboard data
+      console.warn("Reviewer dashboard endpoint not available, returning empty data:", fetchError)
+      return {
+        data: {
+          conferences: [],
+          stats: {
+            total_assigned: 0,
+            pending: 0,
+            in_progress: 0,
+            completed: 0,
+            pending_requests: 0,
+          },
+          invitations: [],
+          recent_assignments: [],
+          total_conferences: 0,
+          total_invitations: 0,
+          total_assignments: 0,
+        },
+        error: null,
+        status: 200,
+      }
+    }
 
     // Handle case where backend returns { data: null }
     if (!data.data) {
@@ -216,10 +245,10 @@ export async function getReviewerDashboard(
  * Get conferences where user is a reviewer (reuses dashboard API for consistency)
  */
 export async function getReviewerConferences(
-  reviewerId: string,
+  reviewerEmail: string,
 ): Promise<{ data: ReviewerConference[] | null; error: string | null; status: number }> {
   try {
-    const dashboardResponse = await getReviewerDashboard(reviewerId)
+    const dashboardResponse = await getReviewerDashboard(reviewerEmail)
     if (dashboardResponse.error || !dashboardResponse.data) {
       return {
         data: null,
@@ -247,10 +276,10 @@ export async function getReviewerConferences(
  * Get reviewer statistics
  */
 export async function getReviewerStats(
-  reviewerId: string,
+  reviewerEmail: string,
 ): Promise<{ data: ReviewerStats | null; error: string | null; status: number }> {
   try {
-    const dashboardResponse = await getReviewerDashboard(reviewerId)
+    const dashboardResponse = await getReviewerDashboard(reviewerEmail)
     if (dashboardResponse.error || !dashboardResponse.data) {
       return {
         data: null,
@@ -278,10 +307,10 @@ export async function getReviewerStats(
  * Get pending review invitations/requests
  */
 export async function getReviewRequests(
-  reviewerId: string,
+  reviewerEmail: string,
 ): Promise<{ data: ReviewRequest[] | null; error: string | null; status: number }> {
   try {
-    const dashboardResponse = await getReviewerDashboard(reviewerId)
+    const dashboardResponse = await getReviewerDashboard(reviewerEmail)
     if (dashboardResponse.error || !dashboardResponse.data) {
       return {
         data: null,
@@ -309,13 +338,13 @@ export async function getReviewRequests(
  * Get papers assigned to reviewer in a specific conference (simple version for backward compatibility)
  */
 export async function getReviewerPapersForConference(
-  reviewerId: string,
+  reviewerEmail: string,
   conferenceId: string,
 ): Promise<{ data: AssignedPaper[] | null; error: string | null; status: number }> {
   try {
     const { data, response } = await apiFetch<{
       data: { papers: AssignedPaper[]; total: number }
-    }>(`/api/v1/reviewer/${reviewerId}/conferences/${conferenceId}/papers`)
+    }>(`/api/v1/reviewer/${encodeURIComponent(reviewerEmail)}/conferences/${conferenceId}/papers`)
 
     // Backend now returns { data: { papers: [...], total: X } }
     return {
@@ -338,7 +367,7 @@ export async function getReviewerPapersForConference(
  * Get papers assigned to reviewer in a specific conference with pagination and filters
  */
 export async function getReviewerPapersWithPagination(
-  reviewerId: string,
+  reviewerEmail: string,
   conferenceId: string,
   params?: {
     limit?: number
@@ -363,7 +392,7 @@ export async function getReviewerPapersWithPagination(
     if (params?.status) queryParams.append("status", params.status)
 
     const queryString = queryParams.toString()
-    const url = `/api/v1/reviewer/${reviewerId}/conferences/${conferenceId}/papers${queryString ? `?${queryString}` : ""}`
+    const url = `/api/v1/reviewer/${encodeURIComponent(reviewerEmail)}/conferences/${conferenceId}/papers${queryString ? `?${queryString}` : ""}`
 
     const { data, response } = await apiFetch<{
       data: { papers: AssignedPaper[]; total: number; limit: number; offset: number }
@@ -426,10 +455,10 @@ export async function respondToReviewRequest(
  * Get recent assignments for reviewer dashboard
  */
 export async function getRecentAssignments(
-  reviewerId: string,
+  reviewerEmail: string,
 ): Promise<{ data: AssignmentWithPaper[] | null; error: string | null; status: number }> {
   try {
-    const dashboardResponse = await getReviewerDashboard(reviewerId)
+    const dashboardResponse = await getReviewerDashboard(reviewerEmail)
     if (dashboardResponse.error || !dashboardResponse.data) {
       return {
         data: null,

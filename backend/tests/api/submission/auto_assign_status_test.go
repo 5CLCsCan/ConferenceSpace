@@ -47,12 +47,10 @@ func TestAutoAssignUpdatesSubmissionStatus(t *testing.T) {
 
 	// Create test conference
 	conf := &dto.Conference{
-		Title:          "Auto-Assign Status Test Conference",
-		Acronym:        testutils.UniqueString("AASTC2025"),
-		Chair:          chair.Email,
-		PrimaryContact: chair.ID,
-		AreaChair:      chair.ID,
-		Domain:         []string{"AI", "ML", "NLP"},
+		Title:   "Auto-Assign Status Test Conference",
+		Acronym: testutils.UniqueString("AASTC2025"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI", "ML", "NLP"},
 	}
 	confResp, err := conferenceClient.CreateSuccess(conf, chairToken)
 	if err != nil {
@@ -273,12 +271,10 @@ func TestAutoAssignBulkStatusUpdate(t *testing.T) {
 
 	// Create test conference
 	conf := &dto.Conference{
-		Title:          "Bulk Status Test Conference",
-		Acronym:        testutils.UniqueString("BSTC2025"),
-		Chair:          chair.Email,
-		PrimaryContact: chair.ID,
-		AreaChair:      chair.ID,
-		Domain:         []string{"AI", "ML", "NLP"},
+		Title:   "Bulk Status Test Conference",
+		Acronym: testutils.UniqueString("BSTC2025"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI", "ML", "NLP"},
 	}
 	confResp, err := conferenceClient.CreateSuccess(conf, chairToken)
 	if err != nil {
@@ -418,12 +414,10 @@ func TestListSubmissionsByReviewingStatus(t *testing.T) {
 
 	// Create test conference
 	conf := &dto.Conference{
-		Title:          "Filter Status Test Conference",
-		Acronym:        testutils.UniqueString("FSTC2025"),
-		Chair:          chair.Email,
-		PrimaryContact: chair.ID,
-		AreaChair:      chair.ID,
-		Domain:         []string{"AI"},
+		Title:   "Filter Status Test Conference",
+		Acronym: testutils.UniqueString("FSTC2025"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI"},
 	}
 	confResp, err := conferenceClient.CreateSuccess(conf, chairToken)
 	if err != nil {

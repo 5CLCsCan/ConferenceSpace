@@ -1,6 +1,7 @@
 package model
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/dcao/conferencespace/internal/dto"
@@ -9,24 +10,32 @@ import (
 const (
 	AssignmentTableName = "paper_assignments"
 
-	ColReviewerID   = "reviewer_id"
-	ColScore        = "score"
-	ColAssignedAt   = "assigned_at"
-	ColCompletedAt  = "completed_at"
+	ColReviewerID        = "reviewer_id"
+	ColScore             = "score"
+	ColAssignedAt        = "assigned_at"
+	ColCompletedAt       = "completed_at"
+	ColReviewStatus      = "review_status"
+	ColReviewScore       = "review_score"
+	ColReviewData        = "review_data"
+	ColReviewSubmittedAt = "review_submitted_at"
 )
 
 // Assignment represents the paper_assignments database entity
 type Assignment struct {
-	ID           int64      `db:"id"`
-	ConferenceID int64      `db:"conference_id"`
-	SubmissionID int64      `db:"submission_id"`
-	ReviewerID   int64      `db:"reviewer_id"`
-	Score        float64    `db:"score"`
-	Status       string     `db:"status"`
-	AssignedAt   time.Time  `db:"assigned_at"`
-	CompletedAt  *time.Time `db:"completed_at"`
-	CreatedAt    time.Time  `db:"created_at"`
-	UpdatedAt    time.Time  `db:"updated_at"`
+	ID                int64           `db:"id"`
+	ConferenceID      int64           `db:"conference_id"`
+	SubmissionID      int64           `db:"submission_id"`
+	ReviewerID        int64           `db:"reviewer_id"`
+	Score             float64         `db:"score"`
+	Status            string          `db:"status"`
+	AssignedAt        time.Time       `db:"assigned_at"`
+	CompletedAt       *time.Time      `db:"completed_at"`
+	ReviewStatus      *string         `db:"review_status"`
+	ReviewScore       *float64        `db:"review_score"`
+	ReviewData        json.RawMessage `db:"review_data"`
+	ReviewSubmittedAt *time.Time      `db:"review_submitted_at"`
+	CreatedAt         time.Time       `db:"created_at"`
+	UpdatedAt         time.Time       `db:"updated_at"`
 }
 
 // Assignment status constants
@@ -37,9 +46,33 @@ const (
 	AssignmentStatusCompleted = "completed"
 )
 
+// Review status constants
+const (
+	ReviewStatusDraft     = "draft"
+	ReviewStatusSubmitted = "submitted"
+)
+
+// Review recommendation constants
+const (
+	RecommendationStrongAccept = "strong_accept"
+	RecommendationAccept       = "accept"
+	RecommendationWeakAccept   = "weak_accept"
+	RecommendationBorderline   = "borderline"
+	RecommendationWeakReject   = "weak_reject"
+	RecommendationReject       = "reject"
+	RecommendationStrongReject = "strong_reject"
+)
+
+// Review confidence constants
+const (
+	ConfidenceHigh   = "high"
+	ConfidenceMedium = "medium"
+	ConfidenceLow    = "low"
+)
+
 // ToDTO converts model to DTO
 func (a *Assignment) ToDTO() *dto.Assignment {
-	return &dto.Assignment{
+	result := &dto.Assignment{
 		ID:           a.ID,
 		ConferenceID: a.ConferenceID,
 		SubmissionID: a.SubmissionID,
@@ -51,4 +84,21 @@ func (a *Assignment) ToDTO() *dto.Assignment {
 		CreatedAt:    a.CreatedAt,
 		UpdatedAt:    a.UpdatedAt,
 	}
+
+	// Add review fields if present
+	result.ReviewStatus = a.ReviewStatus
+	result.ReviewScore = a.ReviewScore
+	// Only populate ReviewData if it's more than just an empty object
+	if len(a.ReviewData) > 0 { // "{}" is 2 bytes
+		// Parse ReviewData into structured format
+		var reviewData dto.ReviewData
+		if err := json.Unmarshal(a.ReviewData, &reviewData); err == nil {
+			result.ReviewData = &reviewData
+		}
+	}
+	if a.ReviewSubmittedAt != nil {
+		result.ReviewSubmittedAt = a.ReviewSubmittedAt
+	}
+
+	return result
 }

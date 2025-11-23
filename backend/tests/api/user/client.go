@@ -3,6 +3,7 @@ package user
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/tests/api/testutils"
@@ -23,9 +24,9 @@ func (c *Client) GetMe(token string) (*http.Response, error) {
 	return c.ctx.MakeRequest("GET", "/api/v1/users/me", nil, token)
 }
 
-// Get calls the get user by ID endpoint
-func (c *Client) Get(userID int64, token string) (*http.Response, error) {
-	path := fmt.Sprintf("/api/v1/users/%d", userID)
+// Get calls the get user by email endpoint
+func (c *Client) Get(userEmail string, token string) (*http.Response, error) {
+	path := fmt.Sprintf("/api/v1/users/%s", url.PathEscape(userEmail))
 	return c.ctx.MakeRequest("GET", path, nil, token)
 }
 
@@ -48,18 +49,17 @@ func (c *Client) List(req *dto.UserListRequest, token string) (*http.Response, e
 }
 
 // Update calls the update user endpoint
-func (c *Client) Update(userID int64, user *dto.User, token string) (*http.Response, error) {
-	path := fmt.Sprintf("/api/v1/users/%d", userID)
+func (c *Client) Update(userEmail string, user *dto.User, token string) (*http.Response, error) {
+	path := fmt.Sprintf("/api/v1/users/%s", url.PathEscape(userEmail))
 	req := &dto.UserUpdateRequest{
-		ID:   userID,
 		User: user,
 	}
 	return c.ctx.MakeRequest("PUT", path, req, token)
 }
 
 // Delete calls the delete user endpoint
-func (c *Client) Delete(userID int64, token string) (*http.Response, error) {
-	path := fmt.Sprintf("/api/v1/users/%d", userID)
+func (c *Client) Delete(userEmail string, token string) (*http.Response, error) {
+	path := fmt.Sprintf("/api/v1/users/%s", url.PathEscape(userEmail))
 	return c.ctx.MakeRequest("DELETE", path, nil, token)
 }
 

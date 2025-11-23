@@ -74,27 +74,27 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.UserListRequest) (*dto.U
 }
 
 // Get godoc
-// @Summary      Get user by ID
-// @Description  Get a specific user by their ID
+// @Summary      Get user by email
+// @Description  Get a specific user by their email
 // @Tags         users
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        id path int true "User ID"
+// @Param        email path string true "User Email"
 // @Success      200 {object} dto.UserResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      404 {object} handler.Response
-// @Router       /users/{id} [get]
+// @Router       /users/{email} [get]
 func (c *Controller) Get(ginCtx *gin.Context) (*dto.UserResponse, error) {
 	ctx := ginCtx.Request.Context()
 
-	id, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
-	if err != nil {
-		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid user ID")
+	email := ginCtx.Param("email")
+	if email == "" {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "email is required")
 	}
 
-	user, err := c.userStorage.GetByID(ctx, id)
+	user, err := c.userStorage.GetByEmail(ctx, email)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "user not found")
 	}
@@ -115,12 +115,12 @@ func (c *Controller) Get(ginCtx *gin.Context) (*dto.UserResponse, error) {
 func (c *Controller) GetMe(ginCtx *gin.Context) (*dto.UserResponse, error) {
 	ctx := ginCtx.Request.Context()
 
-	userID, exists := utils.GetUserID(ginCtx)
+	userEmail, exists := utils.GetEmail(ginCtx)
 	if !exists {
 		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
 	}
 
-	user, err := c.userStorage.GetByID(ctx, userID)
+	user, err := c.userStorage.GetByEmail(ctx, userEmail)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "user not found")
 	}
@@ -134,24 +134,24 @@ func (c *Controller) GetMe(ginCtx *gin.Context) (*dto.UserResponse, error) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        id path int true "User ID"
+// @Param        email path string true "User Email"
 // @Param        request body dto.UserUpdateRequest true "Updated user data"
 // @Success      200 {object} dto.UserResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      403 {object} handler.Response
 // @Failure      404 {object} handler.Response
-// @Router       /users/{id} [put]
+// @Router       /users/{email} [put]
 func (c *Controller) Update(ginCtx *gin.Context, req *dto.UserUpdateRequest) (*dto.UserResponse, error) {
 	ctx := ginCtx.Request.Context()
 
-	id, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
-	if err != nil {
-		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid user ID")
+	email := ginCtx.Param("email")
+	if email == "" {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "email is required")
 	}
 
-	userID, exists := utils.GetUserID(ginCtx)
-	if !exists || userID != id {
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists || userEmail != email {
 		return nil, handler.NewErrorResponse(http.StatusForbidden, "you can only update your own profile")
 	}
 
@@ -159,7 +159,53 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.UserUpdateRequest) (*d
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "user data is required")
 	}
 
-	return c.userStorage.Update(ctx, id, req.User)
+	return c.userStorage.UpdateByEmail(ctx, email, req.User)
+}
+
+// Search godoc
+// @Summary      Search users
+// @Description  Search users by email (for autocomplete/lookup)
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        q query string true "Search query (email)"
+// @Param        limit query int false "Limit results (default: 10)"
+// @Success      200 {object} dto.UserSearchResponse
+// @Failure      400 {object} handler.Response
+// @Failure      401 {object} handler.Response
+// @Router       /users/search [get]
+func (c *Controller) Search(ginCtx *gin.Context) (*dto.UserSearchResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	query := ginCtx.Query("q")
+	if query == "" {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "search query is required")
+	}
+
+	limit := 10
+	if limitStr := ginCtx.Query("limit"); limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 && l <= 50 {
+			limit = l
+		}
+	}
+
+	// Use List with email filter
+	params := &userStorage.QueryParams{
+		Email:  query,
+		Limit:  limit,
+		Offset: 0,
+	}
+
+	users, total, err := c.userStorage.List(ctx, params)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	return &dto.UserSearchResponse{
+		Users: users,
+		Total: total,
+	}, nil
 }
 
 // Delete godoc
@@ -169,26 +215,26 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.UserUpdateRequest) (*d
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        id path int true "User ID"
+// @Param        email path string true "User Email"
 // @Success      200 {object} map[string]string
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      403 {object} handler.Response
-// @Router       /users/{id} [delete]
+// @Router       /users/{email} [delete]
 func (c *Controller) Delete(ginCtx *gin.Context) error {
 	ctx := ginCtx.Request.Context()
 
-	id, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
-	if err != nil {
-		return handler.NewErrorResponse(http.StatusBadRequest, "invalid user ID")
+	email := ginCtx.Param("email")
+	if email == "" {
+		return handler.NewErrorResponse(http.StatusBadRequest, "email is required")
 	}
 
-	userID, exists := utils.GetUserID(ginCtx)
-	if !exists || userID != id {
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists || userEmail != email {
 		return handler.NewErrorResponse(http.StatusForbidden, "you can only delete your own account")
 	}
 
-	return c.userStorage.Delete(ctx, id)
+	return c.userStorage.DeleteByEmail(ctx, email)
 }
 
 // CheckCOI godoc
@@ -198,13 +244,13 @@ func (c *Controller) Delete(ginCtx *gin.Context) error {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        id path int true "User ID (potential reviewer)"
+// @Param        email path string true "User Email (potential reviewer)"
 // @Param        conference_id query int true "Conference ID"
 // @Success      200 {object} dto.UserCOICheckResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      500 {object} handler.Response
-// @Router       /users/{id}/coi-check [get]
+// @Router       /users/{email}/coi-check [get]
 func (c *Controller) CheckCOI(ginCtx *gin.Context, req *dto.UserCOICheckRequest) (*dto.UserCOICheckResponse, error) {
 	ctx := ginCtx.Request.Context()
 
@@ -213,8 +259,13 @@ func (c *Controller) CheckCOI(ginCtx *gin.Context, req *dto.UserCOICheckRequest)
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "conference_id is required")
 	}
 
+	// Validate user_email is provided
+	if req.UserEmail == "" {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "user_email is required")
+	}
+
 	// Get the user being checked
-	user, err := c.userStorage.GetByID(ctx, req.UserID)
+	user, err := c.userStorage.GetByEmail(ctx, req.UserEmail)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "user not found")
 	}

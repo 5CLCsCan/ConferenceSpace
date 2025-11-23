@@ -5,7 +5,6 @@ import type React from "react"
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Calendar } from "@/components/ui/calendar"
@@ -15,7 +14,8 @@ import { Badge } from "@/components/ui/badge"
 import { CalendarIcon, X } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
-import type { ConferenceFormData } from "@/app/conferences/new/page"
+import type { ConferenceFormData } from "@/app/dashboard/chair/create-conference/page"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 type Props = {
   data: ConferenceFormData
@@ -54,25 +54,27 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className={spacing.subsection}>
       <div>
-        <h2 className="text-2xl font-semibold text-foreground mb-1">
+        <h2 className={`${typography.h2} ${typography.semibold} text-foreground mb-1`}>
           Step 2: Topics & Submission Settings
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className={`${typography.body} text-muted-foreground`}>
           Configure submission deadlines and academic structure
         </p>
       </div>
 
-      <div className="space-y-6">
+      <div className={spacing.subsection}>
         {/* Key Deadlines */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-foreground">Key Deadlines</h3>
+        <div className={spacing.subsection}>
+          <h3 className={`${typography.h4} ${typography.medium} text-foreground`}>
+            Key Deadlines
+          </h3>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className={`grid ${spacing.gap.md} md:grid-cols-2`}>
             {/* Submissions Open */}
-            <div className="space-y-2">
-              <Label>Submissions Open</Label>
+            <div className={spacing.item}>
+              <Label className={typography.label}>Submissions Open</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -82,7 +84,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
                       !data.submissionsOpen && "text-muted-foreground",
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    <CalendarIcon className={`mr-2 ${iconSizes.sm}`} />
                     {data.submissionsOpen ? (
                       format(data.submissionsOpen, "PPP")
                     ) : (
@@ -102,8 +104,8 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
             </div>
 
             {/* Submission Deadline */}
-            <div className="space-y-2">
-              <Label>
+            <div className={spacing.item}>
+              <Label className={typography.label}>
                 Submission Deadline <span className="text-destructive">*</span>
               </Label>
               <Popover>
@@ -115,7 +117,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
                       !data.submissionDeadline && "text-muted-foreground",
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    <CalendarIcon className={`mr-2 ${iconSizes.sm}`} />
                     {data.submissionDeadline ? (
                       format(data.submissionDeadline, "PPP")
                     ) : (
@@ -135,8 +137,8 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
             </div>
 
             {/* Review Deadline */}
-            <div className="space-y-2">
-              <Label>Review Deadline</Label>
+            <div className={spacing.item}>
+              <Label className={typography.label}>Review Deadline</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -146,7 +148,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
                       !data.reviewDeadline && "text-muted-foreground",
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    <CalendarIcon className={`mr-2 ${iconSizes.sm}`} />
                     {data.reviewDeadline ? (
                       format(data.reviewDeadline, "PPP")
                     ) : (
@@ -166,8 +168,8 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
             </div>
 
             {/* Author Notification */}
-            <div className="space-y-2">
-              <Label>Author Notification</Label>
+            <div className={spacing.item}>
+              <Label className={typography.label}>Author Notification</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -177,7 +179,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
                       !data.authorNotification && "text-muted-foreground",
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    <CalendarIcon className={`mr-2 ${iconSizes.sm}`} />
                     {data.authorNotification ? (
                       format(data.authorNotification, "PPP")
                     ) : (
@@ -197,8 +199,8 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
             </div>
 
             {/* Camera-Ready Deadline */}
-            <div className="space-y-2">
-              <Label>Camera-Ready Deadline</Label>
+            <div className={spacing.item}>
+              <Label className={typography.label}>Camera-Ready Deadline</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -208,7 +210,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
                       !data.cameraReadyDeadline && "text-muted-foreground",
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    <CalendarIcon className={`mr-2 ${iconSizes.sm}`} />
                     {data.cameraReadyDeadline ? (
                       format(data.cameraReadyDeadline, "PPP")
                     ) : (
@@ -230,9 +232,11 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
         </div>
 
         {/* Conference Tracks / Topics */}
-        <div className="space-y-2">
-          <Label htmlFor="topics">Conference Tracks / Topics</Label>
-          <div className="flex gap-2">
+        <div className={spacing.item}>
+          <Label htmlFor="topics" className={typography.label}>
+            Conference Tracks / Topics
+          </Label>
+          <div className={`flex ${spacing.gap.sm}`}>
             <Input
               id="topics"
               placeholder="e.g., AI & Ethics, Natural Language Processing"
@@ -244,11 +248,11 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
               Add
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className={typography.caption}>
             Press Enter or click Add to create a topic tag
           </p>
           {data.topics.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
+            <div className={`flex flex-wrap ${spacing.gap.sm} mt-2`}>
               {data.topics.map((topic) => (
                 <Badge key={topic} variant="secondary" className="gap-1 pr-1 pl-3">
                   {topic}
@@ -257,7 +261,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
                     onClick={() => removeTopic(topic)}
                     className="ml-1 hover:bg-muted rounded-full p-0.5"
                   >
-                    <X className="w-3 h-3" />
+                    <X className={iconSizes.xs} />
                   </button>
                 </Badge>
               ))}
@@ -266,8 +270,8 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
         </div>
 
         {/* Submission Anonymity */}
-        <div className="space-y-2">
-          <Label>
+        <div className={spacing.item}>
+          <Label className={typography.label}>
             Submission Anonymity <span className="text-destructive">*</span>
           </Label>
           <RadioGroup
@@ -276,15 +280,15 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
               updateData({ anonymity: value })
             }
           >
-            <div className="flex items-center space-x-2">
+            <div className={`flex items-center ${spacing.gap.sm}`}>
               <RadioGroupItem value="single-blind" id="single-blind" />
-              <Label htmlFor="single-blind" className="font-normal">
+              <Label htmlFor="single-blind" className={typography.normal}>
                 Single-Blind (reviewers are anonymous to authors)
               </Label>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className={`flex items-center ${spacing.gap.sm}`}>
               <RadioGroupItem value="double-blind" id="double-blind" />
-              <Label htmlFor="double-blind" className="font-normal">
+              <Label htmlFor="double-blind" className={typography.normal}>
                 Double-Blind (both reviewers and authors are anonymous)
               </Label>
             </div>
@@ -292,36 +296,24 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
         </div>
 
         {/* Allowed File Formats */}
-        <div className="space-y-2">
-          <Label>
+        <div className={spacing.item}>
+          <Label className={typography.label}>
             Allowed File Formats <span className="text-destructive">*</span>
           </Label>
-          <div className="space-y-2">
+          <div className={spacing.item}>
             {["PDF", "DOCX", "ZIP"].map((format) => (
-              <div key={format} className="flex items-center space-x-2">
+              <div key={format} className={`flex items-center ${spacing.gap.sm}`}>
                 <Checkbox
                   id={format}
                   checked={data.fileFormats.includes(format)}
                   onCheckedChange={() => toggleFileFormat(format)}
                 />
-                <Label htmlFor={format} className="font-normal">
+                <Label htmlFor={format} className={typography.normal}>
                   {format}
                 </Label>
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Submission Guidelines */}
-        <div className="space-y-2">
-          <Label htmlFor="guidelines">Submission Guidelines</Label>
-          <Textarea
-            id="guidelines"
-            placeholder="Detailed instructions for authors (e.g., page limits, formatting requirements)..."
-            rows={5}
-            value={data.submissionGuidelines}
-            onChange={(e) => updateData({ submissionGuidelines: e.target.value })}
-          />
         </div>
       </div>
     </div>

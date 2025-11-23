@@ -23,6 +23,10 @@ export interface Submission {
     paper_type?: string
     track_name?: string
     additional_notes?: string
+    declared_conflicts?: Array<{
+      email: string
+      reason: string
+    }>
     metadata?: Record<string, unknown>
   }
   file?: {

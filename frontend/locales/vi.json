@@ -192,6 +192,76 @@
         "currentRole": "Vai trò hiện tại",
         "switchRole": "Chuyển vai trò (chế độ Dev)",
         "loggedInAs": "Đăng nhập với tư cách"
+      },
+      "committee": {
+        "chairInfo": {
+          "title": "Chủ tịch hội nghị",
+          "description": "Thông tin về chủ tịch hội nghị",
+          "chair": "Chủ tịch",
+          "contact": "Liên hệ chính",
+          "viewProfile": "Xem hồ sơ"
+        },
+        "reviewers": {
+          "title": "Phản biện",
+          "description": "Quản lý phản biện hội nghị",
+          "count": "phản biện",
+          "unknown": "Phản biện chưa rõ danh tính"
+        },
+        "actions": {
+          "invite": "Mời phản biện",
+          "sendInvite": "Gửi lời mời",
+          "viewProfile": "Xem hồ sơ",
+          "loadMore": "Xem thêm"
+        },
+        "dialog": {
+          "inviteTitle": "Mời phản biện",
+          "inviteDescription": "Tìm kiếm và chọn người dùng bằng email để mời làm phản biện cho hội nghị này.",
+          "inviteSuccessBannerTitle": "Đã gửi lời mời",
+          "inviteSuccessAutoClose": "Hộp thoại sẽ tự đóng sau giây lát.",
+          "removeTitle": "Xóa phản biện",
+          "removeDescription": "Bạn có chắc chắn muốn xóa phản biện này khỏi hội nghị?",
+          "userId": "ID người dùng",
+          "userIdHint": "Nhập ID người dùng dạng số của phản biện",
+          "userEmail": "Địa chỉ Email",
+          "userEmailHint": "Bắt đầu nhập để tìm kiếm người dùng theo địa chỉ email",
+          "userSelected": "Đã chọn người dùng",
+          "noUserFound": "Không tìm thấy người dùng với email này"
+        },
+        "status": {
+          "pending": "Đang chờ",
+          "accepted": "Đã chấp nhận",
+          "rejected": "Đã từ chối"
+        },
+        "search": {
+          "placeholder": "Tìm kiếm theo email hoặc ID..."
+        },
+        "filter": {
+          "placeholder": "Lọc theo trạng thái",
+          "all": "Tất cả phản biện",
+          "pending": "Đang chờ",
+          "accepted": "Đã chấp nhận",
+          "rejected": "Đã từ chối"
+        },
+        "empty": {
+          "title": "Không tìm thấy phản biện",
+          "description": "Không có phản biện nào khớp với tiêu chí tìm kiếm. Thử điều chỉnh bộ lọc hoặc mời phản biện mới vào hội nghị."
+        },
+        "errors": {
+          "loadFailed": "Không thể tải dữ liệu ban tổ chức",
+          "invalidUserId": "ID người dùng không hợp lệ",
+          "userIdRequired": "Yêu cầu nhập ID người dùng",
+          "inviteFailed": "Không thể gửi lời mời",
+          "inviteIssues": "Một số lời mời chưa được gửi",
+          "inviteFix": "Vui lòng kiểm tra thông báo bên dưới và thử lại.",
+          "inviteUnknown": "Lỗi không xác định",
+          "removeFailed": "Không thể xóa phản biện"
+        },
+        "toast": {
+          "inviteSuccess": "Đã gửi lời mời",
+          "inviteSuccessDescription": "Lời mời phản biện đã được gửi thành công.",
+          "removeSuccess": "Đã xóa phản biện",
+          "removeSuccessDescription": "Phản biện đã được xóa khỏi hội nghị."
+        }
       }
     },
     "header": {
@@ -206,7 +276,7 @@
           "completed": "Phản biện đã hoàn thành"
         },
         "chair": {
-          "overview": "Tổng quan",
+          "overview": "Bảng điều khiển",
           "papers": "Tất cả bài gửi",
           "reviewers": "Phản biện"
         }
@@ -222,6 +292,7 @@
       }
     },
     "roles": {
+      "assigned": "Đã được gán",
       "author": {
         "name": "Tác giả",
         "description": "Gửi và theo dõi tiến độ bài của bạn",
@@ -258,7 +329,8 @@
         "nav": {
           "overview": "Tổng quan",
           "myConferences": "Hội nghị của tôi",
-          "invitations": "Lời mời"
+          "invitations": "Lời mời",
+          "completedReviews": "Phản biện đã hoàn thành"
         },
         "stats": {
           "totalConferences": "Tổng số hội nghị",
@@ -353,6 +425,27 @@
             "description": "Bạn chưa được giao bài báo nào cho hội nghị này. Các bài báo sẽ xuất hiện ở đây khi chủ tọa hội nghị phân công cho bạn."
           }
         },
+        "completedReviews": {
+          "description": "Xem tất cả các bài phản biện đã hoàn thành và theo dõi lịch sử đóng góp của bạn",
+          "totalCompleted": "Tổng số đã hoàn thành",
+          "allTime": "Tất cả thời gian",
+          "conferences": "Hội nghị",
+          "uniqueConferences": "Hội nghị khác nhau",
+          "thisMonth": "Tháng này",
+          "currentMonth": "Tháng hiện tại",
+          "filters": "Bộ lọc & Tìm kiếm",
+          "searchPlaceholder": "Tìm kiếm theo tiêu đề hoặc từ khóa...",
+          "allConferences": "Tất cả hội nghị",
+          "filterByDate": "Lọc theo khoảng thời gian",
+          "sortByDate": "Sắp xếp theo ngày",
+          "sortByTitle": "Sắp xếp theo tiêu đề",
+          "noResults": "Không có bài phản biện nào phù hợp với tiêu chí tìm kiếm",
+          "noCompletedReviews": "Bạn chưa hoàn thành bài phản biện nào",
+          "completed": "Đã hoàn thành",
+          "completedOn": "Hoàn thành vào",
+          "version": "Phiên bản",
+          "viewReview": "Xem phản biện"
+        },
         "review": {
           "reviewing": "Đang phản biện",
           "submittedOn": "Gửi vào ngày {{date}}",
@@ -364,7 +457,8 @@
             "paperNotFound": "Không tìm thấy bài báo",
             "conferenceIdRequired": "Cần có ID hội nghị",
             "fetchPaperFailed": "Không thể tải bài báo",
-            "unknownError": "Đã xảy ra lỗi"
+            "unknownError": "Đã xảy ra lỗi",
+            "noData": "Không có dữ liệu"
           },
           "loadingPaper": "Đang tải bài báo...",
           "tabs": {
@@ -500,10 +594,14 @@
             "description": "Cài đặt chủ đề & Bài nộp"
           },
           "3": {
+            "title": "Cấu hình CFP",
+            "description": "Chi tiết Call For Paper"
+          },
+          "4": {
             "title": "Ban tổ chức",
             "description": "Phân công chủ tịch hội nghị"
           },
-          "4": {
+          "5": {
             "title": "Xem lại",
             "description": "Xem lại và xác nhận"
           }
@@ -528,6 +626,7 @@
         "actionItems": "Mục hành động",
         "conferenceManagement": "Quản lý hội nghị",
         "yourConferences": "Hội nghị của bạn",
+        "discoverConferences": "Khám phá hội nghị",
         "searchPlaceholder": "Tìm kiếm hội nghị...",
         "filterByStatus": "Lọc theo trạng thái",
         "tableHeaders": {
@@ -540,7 +639,7 @@
         "messages": {
           "loading": "Đang tải hội nghị...",
           "error": "Lỗi",
-          "noConferencesFound": "Không tìm thấy hội nghị. Tạo hội nghị đầu tiên của bạn!"
+          "noConferencesFound": "Không tìm thấy hội nghị."
         },
         "platformUpdates": {
           "title": "Cập nhật nền tảng",
@@ -856,6 +955,16 @@
         "noFile": "Không có file đính kèm",
         "viewExternalLink": "Xem liên kết ngoài"
       },
+      "tabs": {
+        "overview": "Tổng quan",
+        "preview": "Xem trước",
+        "coi": "Xung đột lợi ích",
+        "coverLetter": "Thư giới thiệu"
+      },
+      "coi": {
+        "description": "Các xung đột lợi ích đã khai báo cho bài nộp này",
+        "notAvailable": "Thông tin xung đột lợi ích không khả dụng"
+      },
       "error": {
         "title": "Lỗi"
       },
@@ -877,6 +986,54 @@
       "submission": "Hạn nộp",
       "noConferences": "Chưa được giao hội nghị nào",
       "complete": "hoàn thành"
+    }
+  },
+  "profile": {
+    "title": "Hồ Sơ",
+    "description": "Quản lý thông tin cá nhân và cài đặt tài khoản",
+    "viewTitle": "Hồ Sơ Người Dùng",
+    "viewDescription": "Xem thông tin và chuyên môn của người dùng",
+    "sections": {
+      "personalInfo": "Thông Tin Cá Nhân",
+      "personalInfoDescription": "Cập nhật tên và địa chỉ email của bạn",
+      "expertise": "Chuyên Môn",
+      "expertiseDescription": "Thêm các lĩnh vực chuyên môn để ghép bài phù hợp hơn",
+      "accountInfo": "Thông Tin Tài Khoản",
+      "accountInfoDescription": "Xem chi tiết tài khoản và vai trò của bạn"
+    },
+    "fields": {
+      "userId": "Mã Người Dùng",
+      "roles": "Vai Trò",
+      "createdAt": "Tài Khoản Được Tạo",
+      "updatedAt": "Cập Nhật Lần Cuối"
+    },
+    "highlights": {
+      "joined": "Đăng ký ngày {date}",
+      "updated": "Cập nhật {date}",
+      "domainsNone": "Chưa có lĩnh vực nào",
+      "domainsCount": "{count} lĩnh vực đang theo dõi",
+      "domainsHint": "Thêm lĩnh vực để cải thiện gợi ý phân công và đề xuất."
+    },
+    "placeholders": {
+      "firstName": "Nhập tên của bạn",
+      "lastName": "Nhập họ của bạn",
+      "email": "Nhập địa chỉ email",
+      "domain": "vd: Học Máy, Xử Lý Ngôn Ngữ Tự Nhiên"
+    },
+    "success": {
+      "updated": "Đã Cập Nhật Hồ Sơ",
+      "updatedDescription": "Hồ sơ của bạn đã được cập nhật thành công"
+    },
+    "error": {
+      "fetchFailed": "Không Thể Tải Hồ Sơ",
+      "fetchDescription": "Không thể lấy thông tin hồ sơ của bạn",
+      "updateFailed": "Cập Nhật Thất Bại",
+      "updateDescription": "Không thể cập nhật hồ sơ. Vui lòng thử lại",
+      "validationFailed": "Lỗi Xác Thực",
+      "notFound": "Không tìm thấy hồ sơ",
+      "missingId": "Không xác định được mã người dùng. Vui lòng tải lại trang và thử lại.",
+      "unauthorized": "Phiên đăng nhập đã hết hạn",
+      "unauthorizedDescription": "Vui lòng đăng nhập lại để lưu thay đổi."
     }
   }
 }

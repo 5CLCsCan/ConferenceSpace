@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { AuthProvider } from "@/lib/auth-context"
 import { TranslationProvider } from "@/lib/i18n/translation-context"
+import { ChatbotProvider, Chatbot } from "@/components/chatbot"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,10 +28,19 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="antialiased">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full`} suppressHydrationWarning>
+      <body className="antialiased overflow-hidden h-screen" suppressHydrationWarning>
         <TranslationProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <ChatbotProvider>
+              <div className="flex h-screen overflow-hidden">
+                <main className="flex-1 transition-all duration-300 ease-out overflow-y-auto overflow-x-hidden">
+                  {children}
+                </main>
+                <Chatbot />
+              </div>
+            </ChatbotProvider>
+          </AuthProvider>
         </TranslationProvider>
       </body>
     </html>

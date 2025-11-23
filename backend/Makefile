@@ -21,6 +21,16 @@ help: ## Show this help message
 
 dev: db-up neo4j-up migrate-up neo4j-init swagger server ## Start all databases, run migrations, init Neo4j, generate swagger docs, and start server (recommended for development)
 
+restart: ## Restart all services (kill current server, stop databases, and run make dev)
+	@echo "Stopping existing server..."
+	@pkill -f "go run ./cmd/server/main.go" || true
+	@pkill -f "bin/server" || true
+	@echo "Killing any process on port 8080..."
+	@lsof -ti:8080 | xargs kill -9 2>/dev/null || true
+	@echo "Waiting for processes to terminate..."
+	@sleep 2
+	$(MAKE) dev
+
 db-up: ## Start PostgreSQL database only
 	@echo "Starting PostgreSQL database..."
 	docker-compose up -d postgres

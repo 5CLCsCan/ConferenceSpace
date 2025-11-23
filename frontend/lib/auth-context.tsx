@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 import type { User, UserRole } from "./types"
 import { apiFetch, ApiError, UnauthorizedError } from "./api/client"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { ROLE_STORAGE_KEY, USER_STORAGE_KEY } from "./config"
+import { sessionManager } from "./session-manager"
 
 interface AuthContextType {
   user: User | null
@@ -69,113 +69,81 @@ function normalizeUser(apiUser: any): User {
   }
 }
 
-function readStoredUser(): User | null {
-  try {
-    const stored = localStorage.getItem(USER_STORAGE_KEY)
-    return stored ? (JSON.parse(stored) as User) : null
-  } catch {
-    return null
-  }
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [currentRole, setCurrentRole] = useState<UserRole | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const { t } = useTranslation()
 
-  const persistSession = useCallback((nextUser: User) => {
-    console.log("[AuthContext] persistSession called with user:", JSON.stringify(nextUser, null, 2))
-    if (!nextUser.email) {
-      console.error("[AuthContext] persistSession - user missing email!", nextUser)
-    }
-    setUser(nextUser)
-    setIsAuthenticated(true)
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser))
+  // Sync state with SessionManager
+  const syncWithSessionManager = useCallback(() => {
+    const sessionUser = sessionManager.getUser()
+    const sessionRole = sessionManager.getRole()
+    const sessionAuth = sessionManager.isAuthenticated()
 
-    const preferredRole = localStorage.getItem(ROLE_STORAGE_KEY) as UserRole | null
-    const resolvedRole =
-      preferredRole && nextUser.roles.includes(preferredRole)
-        ? preferredRole
-        : (nextUser.roles[0] ?? null)
-
-    if (resolvedRole) {
-      setCurrentRole(resolvedRole)
-      localStorage.setItem(ROLE_STORAGE_KEY, resolvedRole)
-    } else {
-      setCurrentRole(null)
-      localStorage.removeItem(ROLE_STORAGE_KEY)
-    }
+    setUser(sessionUser)
+    setCurrentRole(sessionRole)
+    setIsAuthenticated(sessionAuth)
   }, [])
+
+  // Initialize from SessionManager on mount
+  useEffect(() => {
+    syncWithSessionManager()
+  }, [syncWithSessionManager])
+
+  const persistSession = useCallback(
+    (nextUser: User) => {
+      if (!nextUser.email) {
+        return
+      }
+
+      sessionManager.refreshUser(nextUser)
+      syncWithSessionManager()
+    },
+    [syncWithSessionManager],
+  )
 
   const clearSession = useCallback(() => {
-    setUser(null)
-    setCurrentRole(null)
-    setIsAuthenticated(false)
-    localStorage.removeItem(USER_STORAGE_KEY)
-    localStorage.removeItem(ROLE_STORAGE_KEY)
-  }, [])
+    sessionManager.clearSession()
+    syncWithSessionManager()
+  }, [syncWithSessionManager])
 
   const refreshSession = useCallback(async () => {
     try {
+      const existingUser = sessionManager.getUser()
+      const existingRoles = existingUser?.roles || ["author"]
+
       const response = await apiFetch<{ data: any }>("/api/v1/users/me", {
         method: "GET",
       })
 
-      console.log("[AuthContext] refreshSession response:", JSON.stringify(response, null, 2))
-
-      // Backend returns: { data: { id, email, first_name, ... } }
-      // apiFetch returns: { data: { data: { id, email, ... } } }
-      // So we need response.data.data to get the actual user object
       const userData = response.data?.data || response.data
-      console.log("[AuthContext] User data to normalize:", JSON.stringify(userData, null, 2))
 
       if (!userData || !userData.email) {
-        console.error("[AuthContext] Invalid user data - missing email:", userData)
-        // Don't clear session if we have a stored user - allow using cached data
         return
       }
 
+      userData.roles = existingRoles
+
       const normalizedUser = normalizeUser(userData)
-      console.log("[AuthContext] Normalized user:", JSON.stringify(normalizedUser, null, 2))
 
       if (!normalizedUser.email) {
-        console.error("[AuthContext] Normalized user missing email!")
         return
       }
 
       persistSession(normalizedUser)
     } catch (error) {
       if (error instanceof UnauthorizedError) {
-        console.warn("[AuthContext] Unauthorized - clearing session")
         clearSession()
         return
-      }
-      // Log API errors but don't clear session - allow using cached user data
-      // This handles cases where the backend is temporarily unavailable
-      if (error instanceof ApiError) {
-        console.error("[AuthContext] API error refreshing session:", error.status, error.message)
-      } else {
-        console.error("[AuthContext] Failed to refresh user session:", error)
       }
     }
   }, [clearSession, persistSession])
 
   useEffect(() => {
-    const storedUser = readStoredUser()
-    const storedRole = localStorage.getItem(ROLE_STORAGE_KEY) as UserRole | null
-
-    if (storedUser) {
-      setUser(storedUser)
-      setIsAuthenticated(true)
-    }
-
-    if (storedRole) {
-      setCurrentRole(storedRole)
-    }
-
+    syncWithSessionManager()
     void refreshSession()
-  }, [refreshSession])
+  }, [refreshSession, syncWithSessionManager])
 
   const login = useCallback(
     async (email: string, password: string) => {
@@ -203,7 +171,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         const normalizedUser = normalizeUser(apiUser)
-        persistSession(normalizedUser)
+        sessionManager.setUser(normalizedUser)
+        syncWithSessionManager()
 
         return { success: true }
       } catch (error) {
@@ -253,12 +222,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const switchRole = useCallback(
     (role: UserRole) => {
-      if (user && user.roles.includes(role)) {
-        setCurrentRole(role)
-        localStorage.setItem(ROLE_STORAGE_KEY, role)
+      const success = sessionManager.setRole(role, false)
+      if (success) {
+        syncWithSessionManager()
       }
     },
-    [user],
+    [syncWithSessionManager],
   )
 
   const refreshUser = useCallback(async () => {
