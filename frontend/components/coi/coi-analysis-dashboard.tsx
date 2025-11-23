@@ -1,10 +1,9 @@
 "use client"
 
-import { useEffect, useState, useMemo } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
   Search,
-  Filter,
   X,
   ChevronDown,
   ArrowRight,
@@ -12,12 +11,11 @@ import {
   AlertCircle,
   TrendingUp,
   Download,
-  ExternalLink,
-  Calendar,
-  Tag
+  LayoutList,
+  Users as UsersIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -26,10 +24,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { getAllCOIRelationships, type RelationshipWithDetails } from "@/lib/api/coi-mock"
 import type { Relationship } from "@/lib/mock-data/coi"
-import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
+import { PaperCOIList } from "./paper-coi-list"
 import { COIDetailView } from "./coi-detail-view"
 
 interface FilterState {
@@ -50,6 +49,7 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
   const { t } = useTranslation()
   const router = useRouter()
 
+  const [viewMode, setViewMode] = useState<"person" | "paper">("person")
   const [relationships, setRelationships] = useState<RelationshipWithDetails[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -61,12 +61,16 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
   })
   const [page, setPage] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
-  const [selectedRelationship, setSelectedRelationship] = useState<RelationshipWithDetails | null>(null)
+  const [selectedRelationship, setSelectedRelationship] = useState<RelationshipWithDetails | null>(
+    null,
+  )
   const itemsPerPage = 10
 
   useEffect(() => {
-    loadRelationships()
-  }, [filters, page])
+    if (viewMode === "person") {
+      loadRelationships()
+    }
+  }, [filters, page, viewMode])
 
   const loadRelationships = async () => {
     try {
@@ -74,8 +78,10 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
       setError(null)
 
       const result = await getAllCOIRelationships({
-        severity: filters.severity === "all" ? undefined : (filters.severity as "high" | "medium" | "low"),
-        relationship_type: filters.type === "all" ? undefined : (filters.type as Relationship["type"]),
+        severity:
+          filters.severity === "all" ? undefined : (filters.severity as "high" | "medium" | "low"),
+        relationship_type:
+          filters.type === "all" ? undefined : (filters.type as Relationship["type"]),
         search: filters.search || undefined,
         limit: itemsPerPage,
         page,
@@ -107,7 +113,8 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
     setPage(1)
   }
 
-  const hasActiveFilters = filters.severity !== "all" || filters.type !== "all" || filters.search !== ""
+  const hasActiveFilters =
+    filters.severity !== "all" || filters.type !== "all" || filters.search !== ""
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -150,7 +157,10 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
     const label = t(key)
     // If translation key is not found, return formatted type
     if (label === key) {
-      return type.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
+      return type
+        .split("_")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ")
     }
     return label
   }
@@ -167,9 +177,7 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
               <h1 className="text-3xl lg:text-4xl font-bold text-foreground">
                 {t("coi.dashboard.title")}
               </h1>
-              <p className="text-muted-foreground mt-2">
-                {t("coi.dashboard.description")}
-              </p>
+              <p className="text-muted-foreground mt-2">{t("coi.dashboard.description")}</p>
             </div>
             <Button className="bg-primary hover:bg-primary/90 gap-2">
               <Download className="h-4 w-4" />
@@ -208,6 +216,34 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
           />
         </div>
 
+        {/* View Toggle */}
+        <div className="flex justify-center">
+          <div className="inline-flex p-1 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+            <button
+              onClick={() => setViewMode("person")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer ${
+                viewMode === "person"
+                  ? "bg-white dark:bg-slate-950 text-primary shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <UsersIcon className="h-4 w-4" />
+              Person to Person
+            </button>
+            <button
+              onClick={() => setViewMode("paper")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer ${
+                viewMode === "paper"
+                  ? "bg-white dark:bg-slate-950 text-primary shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <LayoutList className="h-4 w-4" />
+              Paper View
+            </button>
+          </div>
+        </div>
+
         {/* Search and Filters */}
         <Card className="shadow-sm">
           <CardContent className="pt-6 space-y-4">
@@ -215,7 +251,11 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder={t("coi.allRelationships.searchPlaceholder")}
+                placeholder={
+                  viewMode === "person"
+                    ? t("coi.allRelationships.searchPlaceholder")
+                    : "Search by paper title or author..."
+                }
                 value={filters.search}
                 onChange={(e) => {
                   setFilters((prev) => ({ ...prev, search: e.target.value }))
@@ -247,28 +287,30 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
                   </SelectContent>
                 </Select>
 
-                {/* Type Filter */}
-                <Select
-                  value={filters.type}
-                  onValueChange={(value) => {
-                    setFilters((prev) => ({ ...prev, type: value }))
-                    setPage(1)
-                  }}
-                >
-                  <SelectTrigger className="w-[200px] h-9 bg-slate-100 dark:bg-slate-800 border-0">
-                    <SelectValue placeholder="Filter by type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="co_author">Co-Author</SelectItem>
-                    <SelectItem value="same_organization">Same Organization</SelectItem>
-                    <SelectItem value="advisor_advisee">Advisor/Advisee</SelectItem>
-                    <SelectItem value="collaborator">Collaborator</SelectItem>
-                    <SelectItem value="competitor">Competitor</SelectItem>
-                    <SelectItem value="citation">Citation</SelectItem>
-                    <SelectItem value="review_history">Review History</SelectItem>
-                  </SelectContent>
-                </Select>
+                {/* Type Filter - Only for Person View */}
+                {viewMode === "person" && (
+                  <Select
+                    value={filters.type}
+                    onValueChange={(value) => {
+                      setFilters((prev) => ({ ...prev, type: value }))
+                      setPage(1)
+                    }}
+                  >
+                    <SelectTrigger className="w-[200px] h-9 bg-slate-100 dark:bg-slate-800 border-0">
+                      <SelectValue placeholder="Filter by type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Types</SelectItem>
+                      <SelectItem value="co_author">Co-Author</SelectItem>
+                      <SelectItem value="same_organization">Same Organization</SelectItem>
+                      <SelectItem value="advisor_advisee">Advisor/Advisee</SelectItem>
+                      <SelectItem value="collaborator">Collaborator</SelectItem>
+                      <SelectItem value="competitor">Competitor</SelectItem>
+                      <SelectItem value="citation">Citation</SelectItem>
+                      <SelectItem value="review_history">Review History</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               {hasActiveFilters && (
@@ -286,252 +328,268 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
           </CardContent>
         </Card>
 
-        {/* Relationships List */}
-        <div className="space-y-3">
-          {loading ? (
-            <Card>
-              <CardContent className="py-12 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                  <p className="text-muted-foreground">{t("common.actions.loading")}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ) : error ? (
-            <Card className="border-destructive/50">
-              <CardContent className="py-6 flex items-center gap-3">
-                <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
-                <p className="text-destructive">{error}</p>
-              </CardContent>
-            </Card>
-          ) : relationships.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 flex flex-col items-center justify-center text-center">
-                <AlertCircle className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
-                <h3 className="font-semibold text-foreground mb-1">
-                  {t("coi.allRelationships.noRelationships")}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {t("common.messages.noData")}
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            relationships.map((rel) => {
-              const isExpanded = expandedRows[rel.id]
-              const colors = getSeverityColor(rel.severity)
-
-              return (
-                <Card
-                  key={rel.id}
-                  className={`border-l-4 ${colors.border} ${colors.bg} shadow-sm hover:shadow-md transition-all overflow-hidden cursor-pointer`}
-                  onClick={() => toggleExpanded(rel.id)}
-                >
-                  {/* Collapsed View */}
-                  <div className="p-4 flex flex-col md:flex-row md:items-center gap-4">
-                    <div className="flex-1 space-y-3">
-                      {/* Badges */}
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${colors.badge}`}>
-                          {getSeverityIcon(rel.severity)}
-                          {t(`coi.severity.${rel.severity}`)}
-                        </span>
-                        <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-500/10 text-slate-600 dark:text-slate-300 text-xs font-semibold">
-                          {getRelationshipTypeLabel(rel.type)}
-                        </span>
-                        <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-500/10 text-slate-600 dark:text-slate-300 text-xs font-semibold">
-                          {new Date(rel.start_date).getFullYear()}
-                        </span>
-                      </div>
-
-                      {/* Names */}
-                      <div className="flex items-center gap-3 flex-wrap">
-                        <p className="font-semibold text-foreground">{rel.reviewer_name}</p>
-                        <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                        <p className="font-semibold text-foreground">{rel.author_name}</p>
-                      </div>
-
-                      {/* Description */}
-                      <p className="text-sm text-muted-foreground">{rel.description}</p>
-                    </div>
-
-                    {/* Timeline Bar */}
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span>Timeline</span>
-                      <div className="w-24 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-primary"
-                          style={{
-                            width: isExpanded ? "100%" : "75%",
-                          }}
-                        ></div>
-                      </div>
-                    </div>
-
-                    {/* Expand/Collapse Icon */}
-                    <ChevronDown
-                      className={`h-5 w-5 text-muted-foreground transition-transform flex-shrink-0 ${isExpanded ? "rotate-180" : ""
-                        }`}
-                    />
+        {/* Content Area */}
+        {viewMode === "paper" ? (
+          <PaperCOIList filters={filters} />
+        ) : (
+          /* Relationships List (Person View) */
+          <div className="space-y-3">
+            {loading ? (
+              <Card>
+                <CardContent className="py-12 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                    <p className="text-muted-foreground">{t("common.actions.loading")}</p>
                   </div>
+                </CardContent>
+              </Card>
+            ) : error ? (
+              <Card className="border-destructive/50">
+                <CardContent className="py-6 flex items-center gap-3">
+                  <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+                  <p className="text-destructive">{error}</p>
+                </CardContent>
+              </Card>
+            ) : relationships.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 flex flex-col items-center justify-center text-center">
+                  <AlertCircle className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
+                  <h3 className="font-semibold text-foreground mb-1">
+                    {t("coi.allRelationships.noRelationships")}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">{t("common.messages.noData")}</p>
+                </CardContent>
+              </Card>
+            ) : (
+              relationships.map((rel) => {
+                const isExpanded = expandedRows[rel.id]
+                const colors = getSeverityColor(rel.severity)
 
-                  {/* Expanded View */}
-                  {isExpanded && (
-                    <>
-                      <div className="border-t border-slate-200 dark:border-slate-700"></div>
-                      <div className="p-6 bg-white dark:bg-slate-900/50 space-y-6">
-                        {/* Reviewer and Author Info */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                          <div>
-                            <h4 className="font-semibold text-foreground mb-3">
-                              {t("coi.common.reviewer")} Info
-                            </h4>
-                            <div className="space-y-2 text-sm">
-                              <p>
-                                <span className="font-medium text-muted-foreground">Name:</span>
-                                <span className="text-foreground ml-2">{rel.reviewer_name}</span>
-                              </p>
-                              <p>
-                                <span className="font-medium text-muted-foreground">Email:</span>
-                                <span className="text-foreground ml-2">{rel.reviewer_email}</span>
-                              </p>
-                              <p>
-                                <span className="font-medium text-muted-foreground">Affiliation:</span>
-                                <span className="text-foreground ml-2">{rel.author_affiliation}</span>
-                              </p>
-                            </div>
-                          </div>
-
-                          <div>
-                            <h4 className="font-semibold text-foreground mb-3">
-                              {t("coi.common.author")} Info
-                            </h4>
-                            <div className="space-y-2 text-sm">
-                              <p>
-                                <span className="font-medium text-muted-foreground">Name:</span>
-                                <span className="text-foreground ml-2">{rel.author_name}</span>
-                              </p>
-                              <p>
-                                <span className="font-medium text-muted-foreground">Email:</span>
-                                <span className="text-foreground ml-2">{rel.author_email}</span>
-                              </p>
-                              <p>
-                                <span className="font-medium text-muted-foreground">Affiliation:</span>
-                                <span className="text-foreground ml-2">{rel.author_affiliation}</span>
-                              </p>
-                            </div>
-                          </div>
+                return (
+                  <Card
+                    key={rel.id}
+                    className={`border-l-4 ${colors.border} ${colors.bg} shadow-sm hover:shadow-md transition-all overflow-hidden cursor-pointer`}
+                    onClick={() => toggleExpanded(rel.id)}
+                  >
+                    {/* Collapsed View */}
+                    <div className="p-4 flex flex-col md:flex-row md:items-center gap-4">
+                      <div className="flex-1 space-y-3">
+                        {/* Badges */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${colors.badge}`}
+                          >
+                            {getSeverityIcon(rel.severity)}
+                            {t(`coi.severity.${rel.severity}`)}
+                          </span>
+                          <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-500/10 text-slate-600 dark:text-slate-300 text-xs font-semibold">
+                            {getRelationshipTypeLabel(rel.type)}
+                          </span>
+                          <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-500/10 text-slate-600 dark:text-slate-300 text-xs font-semibold">
+                            {new Date(rel.start_date).getFullYear()}
+                          </span>
                         </div>
 
-                        {/* Related Papers */}
-                        {rel.paper_titles && rel.paper_titles.length > 0 && (
-                          <div>
-                            <h4 className="font-semibold text-foreground mb-2">
-                              Related Papers
-                            </h4>
-                            <ul className="space-y-1 text-sm">
-                              {rel.paper_titles.map((title, idx) => (
-                                <li key={idx} className="text-slate-600 dark:text-slate-300">
-                                  • {title}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
+                        {/* Names */}
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <p className="font-semibold text-foreground">{rel.reviewer_name}</p>
+                          <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                          <p className="font-semibold text-foreground">{rel.author_name}</p>
+                        </div>
 
-                        {/* Evidence Timeline */}
-                        {rel.evidence && rel.evidence.length > 0 && (
-                          <div>
-                            <h4 className="font-semibold text-foreground mb-3">
-                              Evidence
-                            </h4>
-                            <div className="space-y-2 border-l-2 border-slate-300 dark:border-slate-600 pl-4">
-                              {rel.evidence.map((evidence, idx) => (
-                                <p key={idx} className="text-sm text-slate-600 dark:text-slate-300">
-                                  • {evidence}
-                                </p>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                        {/* Description */}
+                        <p className="text-sm text-muted-foreground">{rel.description}</p>
+                      </div>
 
-                        {/* Action Buttons */}
-                        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setSelectedRelationship(rel)
+                      {/* Timeline Bar */}
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <span>Timeline</span>
+                        <div className="w-24 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-primary"
+                            style={{
+                              width: isExpanded ? "100%" : "75%",
                             }}
-                          >
-                            View Details
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="bg-primary hover:bg-primary/90"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              // Perform action
-                            }}
-                          >
-                            Review
-                          </Button>
+                          ></div>
                         </div>
                       </div>
-                    </>
-                  )}
-                </Card>
-              )
-            })
-          )}
-        </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              Showing {(page - 1) * itemsPerPage + 1} to{" "}
-              {Math.min(page * itemsPerPage, totalCount)} of {totalCount} results
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(Math.max(1, page - 1))}
-                disabled={page === 1}
-              >
-                Previous
-              </Button>
-              <div className="flex items-center gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1)
-                  .filter((p) => p >= page - 1 && p <= page + 1)
-                  .map((p) => (
-                    <Button
-                      key={p}
-                      variant={p === page ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setPage(p)}
-                      className="w-8"
-                    >
-                      {p}
-                    </Button>
-                  ))}
+                      {/* Expand/Collapse Icon */}
+                      <ChevronDown
+                        className={`h-5 w-5 text-muted-foreground transition-transform flex-shrink-0 ${
+                          isExpanded ? "rotate-180" : ""
+                        }`}
+                      />
+                    </div>
+
+                    {/* Expanded View */}
+                    {isExpanded && (
+                      <>
+                        <div className="border-t border-slate-200 dark:border-slate-700"></div>
+                        <div className="p-6 bg-white dark:bg-slate-900/50 space-y-6">
+                          {/* Reviewer and Author Info */}
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                              <h4 className="font-semibold text-foreground mb-3">
+                                {t("coi.common.reviewer")} Info
+                              </h4>
+                              <div className="space-y-2 text-sm">
+                                <p>
+                                  <span className="font-medium text-muted-foreground">Name:</span>
+                                  <span className="text-foreground ml-2">{rel.reviewer_name}</span>
+                                </p>
+                                <p>
+                                  <span className="font-medium text-muted-foreground">Email:</span>
+                                  <span className="text-foreground ml-2">{rel.reviewer_email}</span>
+                                </p>
+                                <p>
+                                  <span className="font-medium text-muted-foreground">
+                                    Affiliation:
+                                  </span>
+                                  <span className="text-foreground ml-2">
+                                    {rel.author_affiliation}
+                                  </span>
+                                </p>
+                              </div>
+                            </div>
+
+                            <div>
+                              <h4 className="font-semibold text-foreground mb-3">
+                                {t("coi.common.author")} Info
+                              </h4>
+                              <div className="space-y-2 text-sm">
+                                <p>
+                                  <span className="font-medium text-muted-foreground">Name:</span>
+                                  <span className="text-foreground ml-2">{rel.author_name}</span>
+                                </p>
+                                <p>
+                                  <span className="font-medium text-muted-foreground">Email:</span>
+                                  <span className="text-foreground ml-2">{rel.author_email}</span>
+                                </p>
+                                <p>
+                                  <span className="font-medium text-muted-foreground">
+                                    Affiliation:
+                                  </span>
+                                  <span className="text-foreground ml-2">
+                                    {rel.author_affiliation}
+                                  </span>
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Related Papers */}
+                          {rel.paper_titles && rel.paper_titles.length > 0 && (
+                            <div>
+                              <h4 className="font-semibold text-foreground mb-2">Related Papers</h4>
+                              <ul className="space-y-1 text-sm">
+                                {rel.paper_titles.map((title, idx) => (
+                                  <li key={idx} className="text-slate-600 dark:text-slate-300">
+                                    • {title}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {/* Evidence Timeline */}
+                          {rel.evidence && rel.evidence.length > 0 && (
+                            <div>
+                              <h4 className="font-semibold text-foreground mb-3">Evidence</h4>
+                              <div className="space-y-2 border-l-2 border-slate-300 dark:border-slate-600 pl-4">
+                                {rel.evidence.map((evidence, idx) => (
+                                  <p
+                                    key={idx}
+                                    className="text-sm text-slate-600 dark:text-slate-300"
+                                  >
+                                    • {evidence}
+                                  </p>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Action Buttons */}
+                          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setSelectedRelationship(rel)
+                              }}
+                            >
+                              View Details
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="bg-primary hover:bg-primary/90"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                // Perform action
+                              }}
+                            >
+                              Review
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </Card>
+                )
+              })
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  Showing {(page - 1) * itemsPerPage + 1} to{" "}
+                  {Math.min(page * itemsPerPage, totalCount)} of {totalCount} results
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(Math.max(1, page - 1))}
+                    disabled={page === 1}
+                  >
+                    Previous
+                  </Button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter((p) => p >= page - 1 && p <= page + 1)
+                      .map((p) => (
+                        <Button
+                          key={p}
+                          variant={p === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setPage(p)}
+                          className="w-8"
+                        >
+                          {p}
+                        </Button>
+                      ))}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(Math.min(totalPages, page + 1))}
+                    disabled={page === totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(Math.min(totalPages, page + 1))}
-                disabled={page === totalPages}
-              >
-                Next
-              </Button>
-            </div>
+            )}
           </div>
         )}
       </div>
 
-      <Sheet open={!!selectedRelationship} onOpenChange={(open) => !open && setSelectedRelationship(null)}>
+      <Sheet
+        open={!!selectedRelationship}
+        onOpenChange={(open) => !open && setSelectedRelationship(null)}
+      >
         <SheetContent className="w-full sm:max-w-2xl overflow-y-auto rounded-l-2xl">
           <SheetTitle className="sr-only">Conflict of Interest Details</SheetTitle>
           {selectedRelationship && (

@@ -137,7 +137,7 @@ export async function getCOIDashboardStats(conferenceId: string): Promise<
  * INPUT: Query parameters (all optional)
  * - severity?: "high" | "medium" | "low" - Filter by severity level
  * - relationship_type?: string - Filter by relationship type
- *   Types: "co_author" | "same_organization" | "advisor_advisee" | 
+ *   Types: "co_author" | "same_organization" | "advisor_advisee" |
  *          "collaborator" | "competitor" | "citation" | "review_history"
  * - search?: string - Full-text search across names/emails/descriptions
  * - limit?: number - Results per page (default: 100, max: 500)
@@ -390,3 +390,77 @@ export async function checkReviewerToAuthorCOI(
   }
 }
 
+// ============================================================================
+// API #4: GET /api/v1/coi/papers
+// ============================================================================
+/**
+ * ENDPOINT: GET /api/v1/coi/papers
+ *
+ * PURPOSE:
+ * Get COI summaries for all papers in the conference.
+ * Used for the "Paper View" in the dashboard.
+ */
+import { PaperCOISummary, generatePaperCOISummary } from "@/lib/mock-data/coi"
+
+export async function getAllPaperCOIs(params?: {
+  search?: string
+  severity?: "high" | "medium" | "low"
+  limit?: number
+  page?: number
+}): Promise<
+  ApiResponse<{
+    papers: PaperCOISummary[]
+    total: number
+    page: number
+    limit: number
+  }>
+> {
+  await delay(300)
+
+  let summaries: PaperCOISummary[] = []
+
+  // Generate summaries for all papers
+  mockPapers.forEach((paper) => {
+    const summary = generatePaperCOISummary(paper.id)
+    if (summary) {
+      summaries.push(summary)
+    }
+  })
+
+  // Filter by search (Paper title or Author name)
+  if (params?.search) {
+    const searchLower = params.search.toLowerCase()
+    summaries = summaries.filter(
+      (s) =>
+        s.paper_title.toLowerCase().includes(searchLower) ||
+        s.authors.some((a) => a.name.toLowerCase().includes(searchLower)),
+    )
+  }
+
+  // Filter by severity (Show papers that have AT LEAST one conflict of this severity)
+  if (params?.severity) {
+    if (params.severity === "high") {
+      summaries = summaries.filter((s) => s.high_severity_count > 0)
+    } else if (params.severity === "medium") {
+      summaries = summaries.filter((s) => s.medium_severity_count > 0)
+    } else if (params.severity === "low") {
+      summaries = summaries.filter((s) => s.low_severity_count > 0)
+    }
+  }
+
+  // Pagination
+  const limit = params?.limit || 10
+  const page = params?.page || 1
+  const start = (page - 1) * limit
+  const end = start + limit
+
+  return {
+    data: {
+      papers: summaries.slice(start, end),
+      total: summaries.length,
+      page,
+      limit,
+    },
+    error: null,
+  }
+}

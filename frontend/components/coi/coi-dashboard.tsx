@@ -58,7 +58,7 @@ export function COIDashboard({ conferenceId }: COIDashboardProps) {
   return (
     <div className="space-y-6">
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <StatsCard
           label={t("coi.dashboard.stats.totalReviewers")}
           value={stats.total_reviewers}
@@ -77,12 +77,6 @@ export function COIDashboard({ conferenceId }: COIDashboardProps) {
           sublabel={`${stats.total_relationships} relationships`}
           icon={AlertTriangle}
           highlight="destructive"
-        />
-        <StatsCard
-          label={t("coi.dashboard.stats.assignments")}
-          value={stats.total_assignments}
-          sublabel={`${stats.completed_assignments} completed`}
-          icon={UserCheck}
         />
       </div>
 
