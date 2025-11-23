@@ -11,6 +11,7 @@ interface ReviewerSidebarProps {
 
 export function ReviewerSidebar({ activeNav, setActiveNav }: ReviewerSidebarProps) {
   const { t } = useTranslation()
+
   return (
     <div className="w-64 border-r bg-card">
       <div className="flex flex-col p-4 space-y-2">

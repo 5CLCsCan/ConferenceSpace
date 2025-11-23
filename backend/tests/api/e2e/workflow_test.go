@@ -37,13 +37,11 @@ func TestCompleteConferenceWorkflow(t *testing.T) {
 	}
 
 	newConference := &dto.Conference{
-		Title:          "International Conference on AI 2025",
-		Acronym:        testutils.UniqueString("ICAI2025"),
-		Description:    "A premier conference on AI research",
-		Chair:          chair.Email,
-		PrimaryContact: chair.ID,
-		AreaChair:      chair.ID,
-		Domain:         []string{"AI", "Machine Learning", "Deep Learning"},
+		Title:       "International Conference on AI 2025",
+		Acronym:     testutils.UniqueString("ICAI2025"),
+		Description: "A premier conference on AI research",
+		Chair:       chair.Email,
+		Domain:      []string{"AI", "Machine Learning", "Deep Learning"},
 	}
 
 	confResp, err := conferenceClient.Create(newConference, chairToken)

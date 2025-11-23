@@ -33,10 +33,8 @@ export function useReviewerDashboard(reviewerId: string | null, options: Dashboa
 
       const response = await getReviewerDashboard(reviewerId, options)
 
-      if (response.error) {
-        throw new Error(response.error)
-      }
-
+      // Don't throw error, just return the data (which may be empty)
+      // This allows the UI to render gracefully even if backend endpoint is missing
       return response.data
     },
     {

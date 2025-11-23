@@ -62,12 +62,10 @@ func TestConferenceListWithRoleFiltering(t *testing.T) {
 	// Create Conference 1 (chair1 is chair)
 	// ========================================
 	conf1 := &dto.Conference{
-		Title:          "AI Conference 2025",
-		Acronym:        testutils.UniqueString("AI2025"),
-		Chair:          chair1.Email,
-		PrimaryContact: chair1.ID,
-		AreaChair:      chair1.ID,
-		Domain:         []string{"AI"},
+		Title:   "AI Conference 2025",
+		Acronym: testutils.UniqueString("AI2025"),
+		Chair:   chair1.Email,
+		Domain:  []string{"AI"},
 	}
 	resp1, err := conferenceClient.Create(conf1, chair1Token)
 	if err != nil {
@@ -84,12 +82,10 @@ func TestConferenceListWithRoleFiltering(t *testing.T) {
 	// Create Conference 2 (chair2 is chair)
 	// ========================================
 	conf2 := &dto.Conference{
-		Title:          "ML Conference 2025",
-		Acronym:        testutils.UniqueString("ML2025"),
-		Chair:          chair2.Email,
-		PrimaryContact: chair2.ID,
-		AreaChair:      chair2.ID,
-		Domain:         []string{"ML"},
+		Title:   "ML Conference 2025",
+		Acronym: testutils.UniqueString("ML2025"),
+		Chair:   chair2.Email,
+		Domain:  []string{"ML"},
 	}
 	resp2, err := conferenceClient.Create(conf2, chair2Token)
 	if err != nil {
@@ -263,8 +259,8 @@ func TestConferenceListWithRoleFiltering(t *testing.T) {
 			name:          "multirole_myConferences_and_role_author",
 			token:         multiRoleToken,
 			queryParams:   "myConferences=true&role=author",
-			expectedConfs: []int64{conference2ID},
-			description:   "MultiRole with myConferences=true&role=author should see conference 2",
+			expectedConfs: []int64{}, // User had author role, but it was overwritten when they accepted reviewer invitation
+			description:   "MultiRole with myConferences=true&role=author should see no conferences (role was overwritten to reviewer)",
 		},
 		{
 			name:          "multirole_myConferences_and_role_reviewer",

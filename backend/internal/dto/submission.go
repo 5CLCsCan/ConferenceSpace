@@ -39,9 +39,11 @@ type Submission struct {
 	Abstract     string                  `json:"abstract" binding:"required"`
 	Link         string                  `json:"link"`
 	Domain       []string                `json:"domain"`
+	Track        string                  `json:"track"` // Must be one of the conference's tracks
 	Status       string                  `json:"status" binding:"required,oneof=draft published reviewing"`
 	Information  *SubmissionInformation  `json:"information"`
 	File         *SubmissionFileMetadata `json:"file,omitempty"`
+	Reviewers    []Reviewer              `json:"reviewers,omitempty"` // Only populated when includeReviewers=true
 	CreatedAt    time.Time               `json:"created_at"`
 	UpdatedAt    time.Time               `json:"updated_at"`
 }
@@ -52,8 +54,9 @@ type SubmissionCreateRequest struct {
 }
 
 type SubmissionGetRequest struct {
-	ConferenceID int64 `uri:"conference_id" binding:"required"`
-	ID           int64 `uri:"id" binding:"required"`
+	ConferenceID     int64 `uri:"conference_id" binding:"required"`
+	ID               int64 `uri:"id" binding:"required"`
+	IncludeReviewers bool  `form:"includeReviewers" json:"includeReviewers"`
 }
 
 type SubmissionUpdateRequest struct {
@@ -74,6 +77,7 @@ type SubmissionListRequest struct {
 	Author       string `form:"author" json:"author"`
 	Status       string `form:"status" json:"status"`
 	Title        string `form:"title" json:"title"`
+	Track        string `form:"track" json:"track"`
 }
 
 type SubmissionListResponse struct {

@@ -27,12 +27,10 @@ func TestConferenceBookmark(t *testing.T) {
 
 	// Create test conference
 	conf := &dto.Conference{
-		Title:          "Test Conference for Bookmarks",
-		Acronym:        testutils.UniqueString("TCFB2025"),
-		Chair:          user1.Email,
-		PrimaryContact: user1.ID,
-		AreaChair:      user1.ID,
-		Domain:         []string{"AI", "ML"},
+		Title:   "Test Conference for Bookmarks",
+		Acronym: testutils.UniqueString("TCFB2025"),
+		Chair:   user1.Email,
+		Domain:  []string{"AI", "ML"},
 	}
 	createResp, err := client.Create(conf, user1Token)
 	if err != nil {
@@ -137,12 +135,10 @@ func TestListConferencesWithBookmarkFilter(t *testing.T) {
 
 	// Create multiple conferences
 	conf1 := &dto.Conference{
-		Title:          "Conference 1",
-		Acronym:        testutils.UniqueString("C1"),
-		Chair:          user.Email,
-		PrimaryContact: user.ID,
-		AreaChair:      user.ID,
-		Domain:         []string{"AI"},
+		Title:   "Conference 1",
+		Acronym: testutils.UniqueString("C1"),
+		Chair:   user.Email,
+		Domain:  []string{"AI"},
 	}
 	resp1, err := client.Create(conf1, userToken)
 	if err != nil {
@@ -155,12 +151,10 @@ func TestListConferencesWithBookmarkFilter(t *testing.T) {
 	conferenceID1 := data1.Data.ID
 
 	conf2 := &dto.Conference{
-		Title:          "Conference 2",
-		Acronym:        testutils.UniqueString("C2"),
-		Chair:          user.Email,
-		PrimaryContact: user.ID,
-		AreaChair:      user.ID,
-		Domain:         []string{"ML"},
+		Title:   "Conference 2",
+		Acronym: testutils.UniqueString("C2"),
+		Chair:   user.Email,
+		Domain:  []string{"ML"},
 	}
 	resp2, err := client.Create(conf2, userToken)
 	if err != nil {
@@ -173,12 +167,10 @@ func TestListConferencesWithBookmarkFilter(t *testing.T) {
 	conferenceID2 := data2.Data.ID
 
 	conf3 := &dto.Conference{
-		Title:          "Conference 3",
-		Acronym:        testutils.UniqueString("C3"),
-		Chair:          user.Email,
-		PrimaryContact: user.ID,
-		AreaChair:      user.ID,
-		Domain:         []string{"NLP"},
+		Title:   "Conference 3",
+		Acronym: testutils.UniqueString("C3"),
+		Chair:   user.Email,
+		Domain:  []string{"NLP"},
 	}
 	_, err = client.Create(conf3, userToken)
 	if err != nil {

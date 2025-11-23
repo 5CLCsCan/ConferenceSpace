@@ -18,6 +18,7 @@ type ConferenceConfiguration struct {
 	SubmissionFormat             *string    `json:"submission_format,omitempty"`
 	RequireCompleteAuthorProfile *bool      `json:"require_complete_author_profile,omitempty"`
 	AllowPaperWithDrawls         *bool      `json:"allow_paper_withdrawls,omitempty"`
+	CallForPaperText             *string    `json:"call_for_paper_text,omitempty"`
 }
 
 type Conference struct {
@@ -25,9 +26,9 @@ type Conference struct {
 	Acronym        string                   `json:"acronym" binding:"required"`
 	Description    string                   `json:"description"`
 	Chair          string                   `json:"chair"`
-	PrimaryContact int64                    `json:"primary_contact"`
-	AreaChair      int64                    `json:"area_chair"`
+	CoChairs       []string                 `json:"co_chairs"`
 	Domain         []string                 `json:"domain"`
+	Tracks         []string                 `json:"tracks"`
 	Configurations *ConferenceConfiguration `json:"configurations"`
 }
 
@@ -37,12 +38,14 @@ type ConferenceResponse struct {
 	Acronym        string                   `json:"acronym"`
 	Description    string                   `json:"description"`
 	Chair          string                   `json:"chair"`
-	PrimaryContact int64                    `json:"primary_contact"`
-	AreaChair      int64                    `json:"area_chair"`
+	CoChairs       []string                 `json:"co_chairs"`
 	Domain         []string                 `json:"domain"`
+	Tracks         []string                 `json:"tracks"`
 	Configurations *ConferenceConfiguration `json:"configurations"`
+	Status         string                   `json:"status"` // open, reviewing, completed
 	CreatedAt      time.Time                `json:"created_at"`
 	UpdatedAt      time.Time                `json:"updated_at"`
+	UserRole       string                   `json:"user_role,omitempty"` // User's role in this conference (if queried)
 }
 
 type ConferenceCreateRequest struct {
@@ -95,4 +98,18 @@ type ConferenceBookmarkRequest struct {
 type ConferenceBookmarkResponse struct {
 	Message      string `json:"message"`
 	IsBookmarked bool   `json:"is_bookmarked"`
+}
+
+// ConferenceTransitionStatusRequest represents the request to transition conference status
+type ConferenceTransitionStatusRequest struct {
+	ConferenceID int64  `uri:"conference_id" json:"conference_id" binding:"required"`
+	NewStatus    string `json:"new_status" binding:"required,oneof=open reviewing completed"`
+}
+
+// ConferenceTransitionStatusResponse represents the response after status transition
+type ConferenceTransitionStatusResponse struct {
+	Message            string `json:"message"`
+	PreviousStatus     string `json:"previous_status"`
+	NewStatus          string `json:"new_status"`
+	AssignmentsCreated int    `json:"assignments_created,omitempty"` // Only set when transitioning to reviewing
 }

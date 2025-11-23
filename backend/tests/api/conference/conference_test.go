@@ -22,12 +22,10 @@ func TestListConferences(t *testing.T) {
 
 	// Create test conferences via API
 	conf1 := &dto.Conference{
-		Title:          "AI Conference 2025",
-		Acronym:        testutils.UniqueString("AIC2025"),
-		Chair:          user.Email,
-		PrimaryContact: user.ID,
-		AreaChair:      user.ID,
-		Domain:         []string{"AI", "ML"},
+		Title:   "AI Conference 2025",
+		Acronym: testutils.UniqueString("AIC2025"),
+		Chair:   user.Email,
+		Domain:  []string{"AI", "ML"},
 	}
 	_, err = client.Create(conf1, token)
 	if err != nil {
@@ -35,12 +33,10 @@ func TestListConferences(t *testing.T) {
 	}
 
 	conf2 := &dto.Conference{
-		Title:          "ML Conference 2025",
-		Acronym:        testutils.UniqueString("MLC2025"),
-		Chair:          user.Email,
-		PrimaryContact: user.ID,
-		AreaChair:      user.ID,
-		Domain:         []string{"ML"},
+		Title:   "ML Conference 2025",
+		Acronym: testutils.UniqueString("MLC2025"),
+		Chair:   user.Email,
+		Domain:  []string{"ML"},
 	}
 	_, err = client.Create(conf2, token)
 	if err != nil {
@@ -118,6 +114,17 @@ func TestCreateConference(t *testing.T) {
 		t.Fatalf("Failed to register chair user: %v", err)
 	}
 
+	// Create co-chair users for testing
+	_, coChair1, err := ctx.RegisterUniqueUser("cochair1", "password123", "CoChair", "One", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register cochair1 user: %v", err)
+	}
+
+	_, coChair2, err := ctx.RegisterUniqueUser("cochair2", "password123", "CoChair", "Two", []string{"ML"})
+	if err != nil {
+		t.Fatalf("Failed to register cochair2 user: %v", err)
+	}
+
 	tests := []struct {
 		name           string
 		conference     *dto.Conference
@@ -128,13 +135,39 @@ func TestCreateConference(t *testing.T) {
 		{
 			name: "successfully create conference",
 			conference: &dto.Conference{
-				Title:          "New Conference 2025",
-				Acronym:        testutils.UniqueString("NC2025"),
-				Description:    "A test conference",
-				Chair:          user.Email,
-				PrimaryContact: user.ID,
-				AreaChair:      user.ID,
-				Domain:         []string{"Computer Science", "AI"},
+				Title:       "New Conference 2025",
+				Acronym:     testutils.UniqueString("NC2025"),
+				Description: "A test conference",
+				Chair:       user.Email,
+				Domain:      []string{"Computer Science", "AI"},
+			},
+			token:          token,
+			expectedStatus: http.StatusCreated,
+			expectError:    false,
+		},
+		{
+			name: "successfully create conference with multiple co-chairs",
+			conference: &dto.Conference{
+				Title:       "Conference with Co-Chairs",
+				Acronym:     testutils.UniqueString("CWC2025"),
+				Description: "A conference with multiple co-chairs",
+				Chair:       user.Email,
+				CoChairs:    []string{coChair1.Email, coChair2.Email},
+				Domain:      []string{"AI", "ML"},
+			},
+			token:          token,
+			expectedStatus: http.StatusCreated,
+			expectError:    false,
+		},
+		{
+			name: "successfully create conference with tracks",
+			conference: &dto.Conference{
+				Title:       "Conference with Tracks",
+				Acronym:     testutils.UniqueString("CWT2025"),
+				Description: "A conference with multiple tracks",
+				Chair:       user.Email,
+				Domain:      []string{"AI", "ML", "NLP"},
+				Tracks:      []string{"Machine Learning", "Natural Language Processing", "Computer Vision"},
 			},
 			token:          token,
 			expectedStatus: http.StatusCreated,
@@ -185,6 +218,18 @@ func TestCreateConference(t *testing.T) {
 				if respData.Data.Title != tt.conference.Title {
 					t.Errorf("Expected title %s, got %s", tt.conference.Title, respData.Data.Title)
 				}
+
+				// Verify tracks if they were provided
+				if len(tt.conference.Tracks) > 0 {
+					if len(respData.Data.Tracks) != len(tt.conference.Tracks) {
+						t.Errorf("Expected %d tracks, got %d", len(tt.conference.Tracks), len(respData.Data.Tracks))
+					}
+					for i, track := range tt.conference.Tracks {
+						if i < len(respData.Data.Tracks) && respData.Data.Tracks[i] != track {
+							t.Errorf("Expected track[%d] %s, got %s", i, track, respData.Data.Tracks[i])
+						}
+					}
+				}
 			}
 		})
 	}
@@ -203,12 +248,10 @@ func TestGetConference(t *testing.T) {
 	}
 
 	confReq := &dto.Conference{
-		Title:          "Test Conference",
-		Acronym:        testutils.UniqueString("TC2025"),
-		Chair:          user.Email,
-		PrimaryContact: user.ID,
-		AreaChair:      user.ID,
-		Domain:         []string{"AI"},
+		Title:   "Test Conference",
+		Acronym: testutils.UniqueString("TC2025"),
+		Chair:   user.Email,
+		Domain:  []string{"AI"},
 	}
 	createResp, err := client.Create(confReq, token)
 	if err != nil {
@@ -281,12 +324,10 @@ func TestUpdateConference(t *testing.T) {
 
 	// Create conference via API
 	confReq := &dto.Conference{
-		Title:          "Test Conference",
-		Acronym:        testutils.UniqueString("TC2025"),
-		Chair:          chair.Email,
-		PrimaryContact: chair.ID,
-		AreaChair:      chair.ID,
-		Domain:         []string{"AI"},
+		Title:   "Test Conference",
+		Acronym: testutils.UniqueString("TC2025"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI"},
 	}
 	createResp, err := client.Create(confReq, chairToken)
 	if err != nil {
@@ -311,13 +352,11 @@ func TestUpdateConference(t *testing.T) {
 			conferenceID: conferenceID,
 			token:        chairToken,
 			updateData: &dto.Conference{
-				Title:          "Updated Conference Title",
-				Acronym:        confReq.Acronym, // Keep original acronym
-				Description:    "Updated description",
-				Chair:          chair.Email,
-				PrimaryContact: chair.ID,
-				AreaChair:      chair.ID,
-				Domain:         []string{"AI", "Updated"},
+				Title:       "Updated Conference Title",
+				Acronym:     confReq.Acronym, // Keep original acronym
+				Description: "Updated description",
+				Chair:       chair.Email,
+				Domain:      []string{"AI", "Updated"},
 			},
 			expectedStatus: http.StatusOK,
 			expectError:    false,
@@ -327,11 +366,9 @@ func TestUpdateConference(t *testing.T) {
 			conferenceID: conferenceID,
 			token:        otherToken,
 			updateData: &dto.Conference{
-				Title:          "Hacked Title",
-				Acronym:        confReq.Acronym,
-				Chair:          chair.Email,
-				PrimaryContact: chair.ID,
-				AreaChair:      chair.ID,
+				Title:   "Hacked Title",
+				Acronym: confReq.Acronym,
+				Chair:   chair.Email,
 			},
 			expectedStatus: http.StatusForbidden,
 			expectError:    true,
@@ -376,12 +413,10 @@ func TestDeleteConference(t *testing.T) {
 
 	// Create conferences via API
 	conf1 := &dto.Conference{
-		Title:          "Conference 1",
-		Acronym:        testutils.UniqueString("C1"),
-		Chair:          chair.Email,
-		PrimaryContact: chair.ID,
-		AreaChair:      chair.ID,
-		Domain:         []string{"AI"},
+		Title:   "Conference 1",
+		Acronym: testutils.UniqueString("C1"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI"},
 	}
 	resp1, err := client.Create(conf1, chairToken)
 	if err != nil {
@@ -393,12 +428,10 @@ func TestDeleteConference(t *testing.T) {
 	testutils.DecodeResponse(t, resp1, &data1)
 
 	conf2 := &dto.Conference{
-		Title:          "Conference 2",
-		Acronym:        testutils.UniqueString("C2"),
-		Chair:          chair.Email,
-		PrimaryContact: chair.ID,
-		AreaChair:      chair.ID,
-		Domain:         []string{"AI"},
+		Title:   "Conference 2",
+		Acronym: testutils.UniqueString("C2"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI"},
 	}
 	resp2, err := client.Create(conf2, chairToken)
 	if err != nil {

@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { computerScienceKeywords, searchKeywords } from "@/lib/data/domain-keywords"
 import { Check, Circle, Eye, EyeOff, GraduationCap, Loader2, Plus, X } from "lucide-react"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -120,17 +121,14 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4 py-8">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+        <div className={`text-center mb-8`}>
           <Link
             href="/"
             className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-lg mb-4"
           >
-            <GraduationCap className="w-8 h-8 text-white" />
+            <GraduationCap className={`${iconSizes.lg} text-white`} />
           </Link>
-          <h1 className="text-3xl font-bold text-neutral-900 mb-2">
-            <Link href="/">{t("app.tagline")}</Link>
-          </h1>
-          <p className="text-neutral-600">{t("auth.register.title")}</p>
+          <p className={`text-neutral-600 ${typography.body}`}>{t("auth.register.title")}</p>
         </div>
 
         <Card className="border-neutral-200 shadow-sm">
@@ -139,10 +137,10 @@ export default function RegisterPage() {
             <CardDescription>{t("auth.register.subtitle")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className={spacing.subsection}>
               {error && (
                 <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertDescription className={typography.body}>{error}</AlertDescription>
                 </Alert>
               )}
 
@@ -232,14 +230,14 @@ export default function RegisterPage() {
                     ))}
                   </div>
                 )}
-                <div className="mt-4 space-y-2">
-                  <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
+                <div className={`mt-4 ${spacing.item}`}>
+                  <p className={`${typography.bodySmall} ${typography.medium} text-neutral-500 uppercase tracking-wide`}>
                     {t("auth.register.suggestions.title")}
                   </p>
-                  <p className="text-xs text-neutral-500">
+                  <p className={`${typography.bodySmall} text-neutral-500`}>
                     {t("auth.register.suggestions.subtitle")}
                   </p>
-                  <div className="flex flex-wrap gap-2 min-h-[112px] max-h-[112px] overflow-y-auto overscroll-contain">
+                  <div className={`flex flex-wrap ${spacing.gap.sm} min-h-[112px] max-h-[112px] overflow-y-auto overscroll-contain`}>
                     {suggestions.length > 0 ? (
                       suggestions.map((keyword) => (
                         <Button
@@ -255,7 +253,7 @@ export default function RegisterPage() {
                         </Button>
                       ))
                     ) : (
-                      <span className="text-xs text-neutral-400">
+                      <span className={`${typography.bodySmall} text-neutral-400`}>
                         {t("auth.register.suggestions.empty")}
                       </span>
                     )}
@@ -295,20 +293,20 @@ export default function RegisterPage() {
                 </div>
                 <div
                   id="password-hint"
-                  className="mt-3 space-y-2 rounded-md bg-neutral-100 p-3 text-xs text-neutral-600"
+                  className={`mt-3 ${spacing.item} rounded-md bg-neutral-100 p-3 ${typography.bodySmall} text-neutral-600`}
                 >
-                  <p className="font-medium text-neutral-700 uppercase tracking-wide">
+                  <p className={`${typography.medium} text-neutral-700 uppercase tracking-wide`}>
                     {t("auth.register.passwordHints.title")}
                   </p>
-                  <ul className="space-y-1">
+                  <ul className={spacing.tight}>
                     {passwordRuleOrder.map((rule) => {
                       const met = passwordChecks[rule]
                       return (
-                        <li key={rule} className="flex items-center gap-2">
+                        <li key={rule} className={`flex items-center ${spacing.gap.sm}`}>
                           {met ? (
-                            <Check className="h-3.5 w-3.5 text-success" aria-hidden="true" />
+                            <Check className={`${iconSizes.xs} text-success`} aria-hidden="true" />
                           ) : (
-                            <Circle className="h-3.5 w-3.5 text-neutral-400" aria-hidden="true" />
+                            <Circle className={`${iconSizes.xs} text-neutral-400`} aria-hidden="true" />
                           )}
                           <span className={met ? "text-neutral-700" : "text-neutral-400"}>
                             {t(`auth.register.passwordHints.rules.${rule}`)}
@@ -358,7 +356,7 @@ export default function RegisterPage() {
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className={`mr-2 ${iconSizes.sm} animate-spin`} />
                     {t("common.actions.signUp")}...
                   </>
                 ) : (
@@ -368,9 +366,9 @@ export default function RegisterPage() {
             </form>
           </CardContent>
           <CardFooter>
-            <div className="text-sm text-center text-neutral-600 w-full">
+            <div className={`${typography.body} text-center text-neutral-600 w-full`}>
               {t("auth.register.haveAccount")}{" "}
-              <Link href="/login" className="text-primary hover:underline font-medium">
+              <Link href="/login" className={`text-primary hover:underline ${typography.medium}`}>
                 {t("common.actions.signIn")}
               </Link>
             </div>

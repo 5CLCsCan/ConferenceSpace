@@ -17,6 +17,7 @@ import { mockNotifications } from "@/lib/mock-data"
 import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 interface DashboardHeaderProps {
   role: "author" | "reviewer" | "chair"
@@ -41,11 +42,7 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
         label: t("dashboard.header.links.reviewer.completed"),
       },
     ],
-    chair: [
-      { href: "/dashboard/chair", label: t("dashboard.header.links.chair.overview") },
-      { href: "/dashboard/chair/papers", label: t("dashboard.header.links.chair.papers") },
-      { href: "/dashboard/chair/reviewers", label: t("dashboard.header.links.chair.reviewers") },
-    ],
+    chair: [{ href: "/dashboard/chair", label: t("dashboard.header.links.chair.overview") }],
   }
 
   const handleLogout = () => {
@@ -60,22 +57,34 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
   if (!user) return null
 
   return (
-    <header className="border-b border-neutral-200 bg-white shadow-sm sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex items-center justify-between">
+    <header className="border-b border-neutral-200 bg-white shadow-sm sticky top-0 z-50 h-[7vh]">
+      <div className="w-full px-4 h-full">
+        <div className="flex items-center justify-between h-full">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-                <GraduationCap className="w-5 h-5 text-white" />
+              <div
+                className="rounded-lg bg-primary flex items-center justify-center"
+                style={{ width: "calc(7vh * 0.6)", height: "calc(7vh * 0.6)" }}
+              >
+                <GraduationCap
+                  className="text-white"
+                  style={{ width: "calc(7vh * 0.6 * 0.6)", height: "calc(7vh * 0.6 * 0.6)" }}
+                />
               </div>
-              <span className="text-lg font-bold text-neutral-900">{t("app.name")}</span>
+              <span
+                className="font-bold text-neutral-900 leading-none"
+                style={{ fontSize: "calc(7vh * 0.6 * 0.4)" }}
+              >
+                {t("app.name")}
+              </span>
             </Link>
             <nav className="flex items-center gap-6">
               {roleLinks[role].map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-sm font-medium text-neutral-700 hover:text-primary transition-colors"
+                  className="font-medium text-neutral-700 hover:text-primary transition-colors leading-none"
+                  style={{ fontSize: "calc(7vh * 0.6 * 0.35)" }}
                 >
                   {link.label}
                 </Link>
@@ -84,40 +93,57 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
           </div>
 
           <div className="flex items-center gap-3">
-            <LanguageSwitcher />
+            <div style={{ fontSize: "calc(7vh * 0.6 * 0.35)" }}>
+              <LanguageSwitcher />
+            </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
                   className="relative hover:bg-neutral-100 bg-transparent"
+                  style={{ width: "calc(7vh * 0.6)", height: "calc(7vh * 0.6)" }}
                 >
-                  <Bell className="w-5 h-5 text-neutral-700" />
+                  <Bell
+                    className="text-neutral-700"
+                    style={{ width: "calc(7vh * 0.6 * 0.6)", height: "calc(7vh * 0.6 * 0.6)" }}
+                  />
                   {unreadNotifications > 0 && (
-                    <Badge className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 text-xs bg-error text-white">
+                    <Badge
+                      className="absolute -top-1 -right-1 flex items-center justify-center p-0 bg-error text-white"
+                      style={{
+                        width: "calc(7vh * 0.6 * 0.6)",
+                        height: "calc(7vh * 0.6 * 0.6)",
+                        fontSize: "calc(7vh * 0.6 * 0.25)",
+                      }}
+                    >
                       {unreadNotifications}
                     </Badge>
                   )}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80 bg-white border-neutral-200">
-                <DropdownMenuLabel className="font-semibold text-neutral-900">
+                <DropdownMenuLabel className={`${typography.semibold} text-neutral-900`}>
                   {t("dashboard.header.notifications.title")}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {mockNotifications.slice(0, 3).map((notification) => (
                   <DropdownMenuItem
                     key={notification.id}
-                    className="flex flex-col items-start gap-1 p-3 cursor-pointer"
+                    className={`flex flex-col items-start ${spacing.tight} ${spacing.padding.card} cursor-pointer`}
                   >
-                    <div className="font-medium text-sm text-neutral-900">{notification.title}</div>
-                    <div className="text-xs text-neutral-600 leading-relaxed">
+                    <div className={`${typography.medium} ${typography.body} text-neutral-900`}>
+                      {notification.title}
+                    </div>
+                    <div className={`${typography.bodySmall} text-neutral-600 leading-relaxed`}>
                       {notification.message}
                     </div>
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-center text-sm text-primary font-medium cursor-pointer">
+                <DropdownMenuItem
+                  className={`text-center ${typography.body} text-primary ${typography.medium} cursor-pointer`}
+                >
                   {t("dashboard.header.notifications.seeAll")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -125,29 +151,44 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="hover:bg-neutral-100 bg-transparent">
-                  <User className="w-5 h-5 text-neutral-700" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hover:bg-neutral-100 bg-transparent"
+                  style={{ width: "calc(7vh * 0.6)", height: "calc(7vh * 0.6)" }}
+                >
+                  <User
+                    className="text-neutral-700"
+                    style={{ width: "calc(7vh * 0.6 * 0.6)", height: "calc(7vh * 0.6 * 0.6)" }}
+                  />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 bg-white border-neutral-200">
                 <DropdownMenuLabel>
-                  <div className="flex flex-col gap-1">
-                    <div className="font-semibold text-neutral-900">{user.name}</div>
-                    <div className="text-xs text-neutral-600 font-normal">{user.email}</div>
+                  <div className={`flex flex-col ${spacing.tight}`}>
+                    <div className={`${typography.semibold} text-neutral-900`}>{user.name}</div>
+                    <div
+                      className={`${typography.bodySmall} text-neutral-600 ${typography.normal}`}
+                    >
+                      {user.email}
+                    </div>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="cursor-pointer" onClick={handleBackToDashboard}>
-                  <Home className="w-4 h-4 mr-2" />
+                  <Home className={`${iconSizes.sm} mr-2`} />
                   {t("dashboard.header.profile.switchRole")}
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">
-                  <User className="w-4 h-4 mr-2" />
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => router.push("/dashboard/users/me")}
+                >
+                  <User className={`${iconSizes.sm} mr-2`} />
                   {t("dashboard.header.profile.profile")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="cursor-pointer text-error" onClick={handleLogout}>
-                  <LogOut className="w-4 h-4 mr-2" />
+                  <LogOut className={`${iconSizes.sm} mr-2`} />
                   {t("dashboard.header.profile.logout")}
                 </DropdownMenuItem>
               </DropdownMenuContent>

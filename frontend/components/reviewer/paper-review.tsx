@@ -34,6 +34,7 @@ import { useTranslation } from "@/lib/i18n/translation-context"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/hooks/use-toast"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 // Giả lập API
 interface ApiResponse {
@@ -222,12 +223,12 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
+    <div className={spacing.subsection}>
+      <div className={`flex items-center ${spacing.gap.md}`}>
         <Button variant="outline" size="icon" onClick={onBack}>
-          <ArrowLeft className="size-4" />
+          <ArrowLeft className={iconSizes.sm} />
         </Button>
-        <h1 className="text-xl font-semibold">
+        <h1 className={`${typography.h3} ${typography.semibold}`}>
           {t("dashboard.roles.reviewer.review.reviewing")}: {paper.title}
         </h1>
       </div>
@@ -235,28 +236,32 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="review">
-            <MessageSquare className="size-4 mr-2" />
+            <MessageSquare className={`${iconSizes.sm} mr-2`} />
             {t("dashboard.roles.reviewer.review.tabs.review")}
           </TabsTrigger>
           <TabsTrigger value="discussion">
-            <Users className="size-4 mr-2" />
+            <Users className={`${iconSizes.sm} mr-2`} />
             {t("dashboard.roles.reviewer.review.tabs.discussion")}
           </TabsTrigger>
           <TabsTrigger value="rebuttal">
-            <Reply className="size-4 mr-2" />
+            <Reply className={`${iconSizes.sm} mr-2`} />
             {t("dashboard.roles.reviewer.review.tabs.rebuttal")}
           </TabsTrigger>
         </TabsList>
 
         {/* REVIEW TAB */}
-        <TabsContent value="review" className="space-y-6 mt-6">
+        <TabsContent value="review" className={`${spacing.subsection} mt-6`}>
           <Card>
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardTitle className="text-2xl mb-3">{paper.title}</CardTitle>
-                  <CardDescription className="text-base">{paper.abstract}</CardDescription>
-                  <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
+                  <CardTitle className={`${typography.h2} mb-3`}>{paper.title}</CardTitle>
+                  <CardDescription className={typography.bodyLarge}>
+                    {paper.abstract}
+                  </CardDescription>
+                  <div
+                    className={`flex items-center ${spacing.gap.md} mt-4 ${typography.body} text-muted-foreground`}
+                  >
                     <span>
                       {t("dashboard.roles.reviewer.review.submittedOn", {
                         date: formatDate(paper.submitted_at),
@@ -269,7 +274,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                       })}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 flex-wrap mt-4">
+                  <div className={`flex items-center ${spacing.gap.sm} flex-wrap mt-4`}>
                     {paper.keywords.map((keyword) => (
                       <Badge key={keyword} variant="outline">
                         {keyword}
@@ -277,8 +282,8 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                     ))}
                   </div>
                 </div>
-                <Button variant="outline" className="gap-2 bg-transparent">
-                  <Download className="size-4" />
+                <Button variant="outline" className={`${spacing.gap.sm} bg-transparent`}>
+                  <Download className={iconSizes.sm} />
                   {t("dashboard.roles.reviewer.review.downloadPDF")}
                 </Button>
               </div>
@@ -292,7 +297,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
               className="w-full bg-transparent"
               size="lg"
             >
-              <Sparkles className="size-4 mr-2" />
+              <Sparkles className={`${iconSizes.sm} mr-2`} />
               {t("dashboard.roles.reviewer.review.ai.getAssistance")}
             </Button>
           )}
@@ -300,27 +305,30 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
           {showAIAnalysis && (
             <Card className="border-primary/50 bg-primary/5">
               <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Sparkles className="size-5 text-primary" />
-                  <CardTitle className="text-lg">
+                <div className={`flex items-center ${spacing.gap.sm}`}>
+                  <Sparkles className={`${iconSizes.md} text-primary`} />
+                  <CardTitle className={typography.h4}>
                     {t("dashboard.roles.reviewer.review.ai.title")}
                   </CardTitle>
                 </div>
-                <CardDescription>
+                <CardDescription className={typography.body}>
                   {t("dashboard.roles.reviewer.review.ai.description")}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className={spacing.subsection}>
                 <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <TrendingUp className="size-4 text-success" />
-                    <h4 className="font-semibold">
+                  <div className={`flex items-center ${spacing.gap.sm} mb-3`}>
+                    <TrendingUp className={`${iconSizes.sm} text-success`} />
+                    <h4 className={typography.semibold}>
                       {t("dashboard.roles.reviewer.review.ai.keyStrengths")}
                     </h4>
                   </div>
-                  <ul className="space-y-2">
+                  <ul className={spacing.item}>
                     {aiAnalysis.strengths.map((strength, i) => (
-                      <li key={i} className="text-sm flex items-start gap-2">
+                      <li
+                        key={i}
+                        className={`${typography.body} flex items-start ${spacing.gap.sm}`}
+                      >
                         <span className="text-success mt-1">•</span>
                         <span>{strength}</span>
                       </li>
@@ -328,15 +336,18 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                   </ul>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <TrendingDown className="size-4 text-warning" />
-                    <h4 className="font-semibold">
+                  <div className={`flex items-center ${spacing.gap.sm} mb-3`}>
+                    <TrendingDown className={`${iconSizes.sm} text-warning`} />
+                    <h4 className={typography.semibold}>
                       {t("dashboard.roles.reviewer.review.ai.areasForImprovement")}
                     </h4>
                   </div>
-                  <ul className="space-y-2">
+                  <ul className={spacing.item}>
                     {aiAnalysis.weaknesses.map((weakness, i) => (
-                      <li key={i} className="text-sm flex items-start gap-2">
+                      <li
+                        key={i}
+                        className={`${typography.body} flex items-start ${spacing.gap.sm}`}
+                      >
                         <span className="text-warning mt-1">•</span>
                         <span>{weakness}</span>
                       </li>
@@ -344,15 +355,18 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                   </ul>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Lightbulb className="size-4 text-info" />
-                    <h4 className="font-semibold">
+                  <div className={`flex items-center ${spacing.gap.sm} mb-3`}>
+                    <Lightbulb className={`${iconSizes.sm} text-info`} />
+                    <h4 className={typography.semibold}>
                       {t("dashboard.roles.reviewer.review.ai.suggestedQuestions")}
                     </h4>
                   </div>
-                  <ul className="space-y-2">
+                  <ul className={spacing.item}>
                     {aiAnalysis.suggestedQuestions.map((question, i) => (
-                      <li key={i} className="text-sm flex items-start gap-2">
+                      <li
+                        key={i}
+                        className={`${typography.body} flex items-start ${spacing.gap.sm}`}
+                      >
                         <span className="text-info mt-1">•</span>
                         <span>{question}</span>
                       </li>
@@ -370,12 +384,16 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                 {t("dashboard.roles.reviewer.review.scores.description")}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-3">
+            <CardContent className={spacing.section}>
+              <div className={`grid grid-cols-1 md:grid-cols-2 ${spacing.gap.lg}`}>
+                <div className={spacing.gap.md}>
                   <div className="flex items-center justify-between">
-                    <Label>{t("dashboard.roles.reviewer.review.scores.overallScore")}</Label>
-                    <Badge variant="secondary">{overallScore[0]}/5</Badge>
+                    <Label className={typography.label}>
+                      {t("dashboard.roles.reviewer.review.scores.overallScore")}
+                    </Label>
+                    <Badge variant="secondary" className={typography.bodySmall}>
+                      {overallScore[0]}/5
+                    </Badge>
                   </div>
                   <Slider
                     value={overallScore}
@@ -385,10 +403,14 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                     step={1}
                   />
                 </div>
-                <div className="space-y-3">
+                <div className={spacing.gap.md}>
                   <div className="flex items-center justify-between">
-                    <Label>{t("dashboard.roles.reviewer.review.scores.confidence")}</Label>
-                    <Badge variant="secondary">{confidence[0]}/5</Badge>
+                    <Label className={typography.label}>
+                      {t("dashboard.roles.reviewer.review.scores.confidence")}
+                    </Label>
+                    <Badge variant="secondary" className={typography.bodySmall}>
+                      {confidence[0]}/5
+                    </Badge>
                   </div>
                   <Slider
                     value={confidence}
@@ -398,17 +420,25 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                     step={1}
                   />
                 </div>
-                <div className="space-y-3">
+                <div className={spacing.gap.md}>
                   <div className="flex items-center justify-between">
-                    <Label>{t("dashboard.roles.reviewer.review.scores.novelty")}</Label>
-                    <Badge variant="secondary">{novelty[0]}/5</Badge>
+                    <Label className={typography.label}>
+                      {t("dashboard.roles.reviewer.review.scores.novelty")}
+                    </Label>
+                    <Badge variant="secondary" className={typography.bodySmall}>
+                      {novelty[0]}/5
+                    </Badge>
                   </div>
                   <Slider value={novelty} onValueChange={setNovelty} min={1} max={5} step={1} />
                 </div>
-                <div className="space-y-3">
+                <div className={spacing.gap.md}>
                   <div className="flex items-center justify-between">
-                    <Label>{t("dashboard.roles.reviewer.review.scores.technicalQuality")}</Label>
-                    <Badge variant="secondary">{technicalQuality[0]}/5</Badge>
+                    <Label className={typography.label}>
+                      {t("dashboard.roles.reviewer.review.scores.technicalQuality")}
+                    </Label>
+                    <Badge variant="secondary" className={typography.bodySmall}>
+                      {technicalQuality[0]}/5
+                    </Badge>
                   </div>
                   <Slider
                     value={technicalQuality}
@@ -418,17 +448,25 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                     step={1}
                   />
                 </div>
-                <div className="space-y-3">
+                <div className={spacing.gap.md}>
                   <div className="flex items-center justify-between">
-                    <Label>{t("dashboard.roles.reviewer.review.scores.clarity")}</Label>
-                    <Badge variant="secondary">{clarity[0]}/5</Badge>
+                    <Label className={typography.label}>
+                      {t("dashboard.roles.reviewer.review.scores.clarity")}
+                    </Label>
+                    <Badge variant="secondary" className={typography.bodySmall}>
+                      {clarity[0]}/5
+                    </Badge>
                   </div>
                   <Slider value={clarity} onValueChange={setClarity} min={1} max={5} step={1} />
                 </div>
-                <div className="space-y-3">
+                <div className={spacing.gap.md}>
                   <div className="flex items-center justify-between">
-                    <Label>{t("dashboard.roles.reviewer.review.scores.relevance")}</Label>
-                    <Badge variant="secondary">{relevance[0]}/5</Badge>
+                    <Label className={typography.label}>
+                      {t("dashboard.roles.reviewer.review.scores.relevance")}
+                    </Label>
+                    <Badge variant="secondary" className={typography.bodySmall}>
+                      {relevance[0]}/5
+                    </Badge>
                   </div>
                   <Slider value={relevance} onValueChange={setRelevance} min={1} max={5} step={1} />
                 </div>
@@ -468,8 +506,8 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                     {t("dashboard.roles.reviewer.review.comments.toPC.title")}
                   </TabsTrigger>
                 </TabsList>
-                <TabsContent value="authors" className="space-y-4 mt-6">
-                  <div className="space-y-2">
+                <TabsContent value="authors" className={`${spacing.subsection} mt-6`}>
+                  <div className={spacing.item}>
                     <Label htmlFor="comments-authors">
                       {t("dashboard.roles.reviewer.review.comments.toAuthors.label")}
                     </Label>
@@ -482,15 +520,15 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                       value={commentsToAuthors}
                       onChange={(e) => setCommentsToAuthors(e.target.value)}
                     />
-                    <p className="text-xs text-muted-foreground">
+                    <p className={`${typography.bodySmall} text-muted-foreground`}>
                       {t("dashboard.roles.reviewer.review.comments.wordCount", {
                         count: commentsToAuthors.split(/\s+/).filter(Boolean).length,
                       })}
                     </p>
                   </div>
                 </TabsContent>
-                <TabsContent value="pc" className="space-y-4 mt-6">
-                  <div className="space-y-2">
+                <TabsContent value="pc" className={`${spacing.subsection} mt-6`}>
+                  <div className={spacing.item}>
                     <Label htmlFor="comments-pc">
                       {t("dashboard.roles.reviewer.review.comments.toPC.label")}
                     </Label>
@@ -501,7 +539,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                       value={commentsToPC}
                       onChange={(e) => setCommentsToPC(e.target.value)}
                     />
-                    <p className="text-xs text-muted-foreground">
+                    <p className={`${typography.bodySmall} text-muted-foreground`}>
                       {t("dashboard.roles.reviewer.review.comments.wordCount", {
                         count: commentsToPC.split(/\s+/).filter(Boolean).length,
                       })}
@@ -544,7 +582,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
             </CardContent>
           </Card>
 
-          <div className="flex gap-4">
+          <div className={`flex ${spacing.gap.md}`}>
             <Button
               variant="outline"
               className="flex-1 bg-transparent"
@@ -577,25 +615,27 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                 {t("dashboard.roles.reviewer.review.discussion.description")}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
+            <CardContent className={spacing.subsection}>
+              <div className={spacing.subsection}>
                 {mockDiscussion.map((msg) => (
-                  <div key={msg.id} className="flex items-start gap-4">
+                  <div key={msg.id} className={`flex items-start ${spacing.gap.md}`}>
                     <Avatar>
                       <AvatarImage src={msg.user.avatar} />
                       <AvatarFallback>{msg.user.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <p className="font-semibold">{msg.user.name}</p>
-                        <p className="text-xs text-muted-foreground">{msg.timestamp}</p>
+                        <p className={typography.semibold}>{msg.user.name}</p>
+                        <p className={`${typography.bodySmall} text-muted-foreground`}>
+                          {msg.timestamp}
+                        </p>
                       </div>
-                      <p className="text-sm text-muted-foreground">{msg.comment}</p>
+                      <p className={`${typography.body} text-muted-foreground`}>{msg.comment}</p>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="flex items-center gap-2 pt-4 border-t">
+              <div className={`flex items-center ${spacing.gap.sm} pt-4 border-t`}>
                 <Avatar>
                   <AvatarImage src="/avatars/03.png" />
                   <AvatarFallback>ME</AvatarFallback>
@@ -622,20 +662,26 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
             </CardHeader>
             <CardContent>
               {mockRebuttal ? (
-                <div className="space-y-4">
-                  <div className="flex items-start gap-4 p-4 border rounded-lg bg-muted/50">
+                <div className={spacing.subsection}>
+                  <div
+                    className={`flex items-start ${spacing.gap.md} ${spacing.padding.card} border rounded-lg bg-muted/50`}
+                  >
                     <Avatar>
                       <AvatarFallback>{mockRebuttal.author.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <p className="font-semibold">
+                        <p className={typography.semibold}>
                           {mockRebuttal.author} (
                           {t("dashboard.roles.reviewer.review.rebuttal.author")})
                         </p>
-                        <p className="text-xs text-muted-foreground">{mockRebuttal.timestamp}</p>
+                        <p className={`${typography.bodySmall} text-muted-foreground`}>
+                          {mockRebuttal.timestamp}
+                        </p>
                       </div>
-                      <p className="text-sm mt-2 whitespace-pre-wrap">{mockRebuttal.content}</p>
+                      <p className={`${typography.body} mt-2 whitespace-pre-wrap`}>
+                        {mockRebuttal.content}
+                      </p>
                     </div>
                   </div>
                   <Alert>

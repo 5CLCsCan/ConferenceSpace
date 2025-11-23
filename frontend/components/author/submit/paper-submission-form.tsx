@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Info, FileText } from "lucide-react"
-import { submitPaper } from "@/lib/api/papers"
+import { submitPaper, updatePaper } from "@/lib/api/papers"
 import { useAuth } from "@/lib/auth-context"
 import type { Conference } from "@/lib/types"
 import { PaperTab } from "./paper-tab"
@@ -15,9 +15,11 @@ import { COITab } from "./coi-tab"
 import { SubmissionSidebar } from "./submission-sidebar"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { getConferenceSubmissions, type Submission } from "@/lib/api/submissions"
+import { typography, spacing } from "@/lib/typography"
 
 interface PaperSubmissionFormProps {
   conference?: Conference | null
+  submission?: Submission | null
 }
 
 type TabType = "paper" | "authors" | "file" | "coi"
@@ -38,7 +40,7 @@ interface Checklist {
   coiDeclared: boolean
 }
 
-export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
+export function PaperSubmissionForm({ conference, submission: initialSubmission }: PaperSubmissionFormProps) {
   const router = useRouter()
   const { user } = useAuth()
   const { t } = useTranslation()
@@ -46,6 +48,7 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
   const [submitting, setSubmitting] = useState(false)
   const [loadingDraft, setLoadingDraft] = useState(false)
   const [existingDraft, setExistingDraft] = useState<Submission | null>(null)
+  const [isEditMode, setIsEditMode] = useState(!!initialSubmission)
   // Paper tab state
   const [title, setTitle] = useState("")
   const [abstract, setAbstract] = useState("")
@@ -79,7 +82,8 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
       abstract.split(" ").filter(Boolean).length <= 250,
     subjectAreas: subjectAreas.length >= 1,
     keywords: keywords.length >= 3,
-    pdfUploaded: uploadedFile !== null,
+    // In edit mode, allow submission if original submission has a file OR new file is uploaded
+    pdfUploaded: uploadedFile !== null || (isEditMode && initialSubmission?.file !== undefined),
     coAuthorsListed: authors.some((a) => a.name.trim().length > 0),
     coiDeclared: coiPeople.length > 0 || coiOrgs.length > 0 || coiDomains.length > 0,
   }
@@ -91,8 +95,72 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
     { id: "coi" as TabType, label: t("dashboard.author.submit.tabs.coi") },
   ]
 
-  // Load existing draft on component mount
+  // Pre-fill form with submission data if in edit mode
   useEffect(() => {
+    if (!initialSubmission) return
+    
+    // Pre-fill paper tab data immediately (doesn't depend on user)
+    setTitle(initialSubmission.title || "")
+    setAbstract(initialSubmission.abstract || "")
+    setSubjectAreas(initialSubmission.domain || [])
+    setKeywords(initialSubmission.information?.keywords || [])
+
+    // Pre-fill authors
+    // Load co-authors from submission first
+    const coAuthors: Author[] = []
+    if (initialSubmission.information?.co_authors && initialSubmission.information.co_authors.length > 0) {
+      initialSubmission.information.co_authors.forEach((email) => {
+        coAuthors.push({
+          name: "", // Name not stored in submission, only email
+          email: email,
+          affiliation: "", // Affiliation not stored in submission
+        })
+      })
+    }
+
+    // First author: use user info if available, otherwise use submission author email
+    if (user) {
+      const firstAuthor = {
+        name: user.name || "",
+        email: user.email || initialSubmission.author || "",
+        affiliation: user.affiliation || "",
+      }
+      // Set authors array: first author (current user) + co-authors + one empty slot
+      setAuthors([firstAuthor, ...coAuthors, { name: "", email: "", affiliation: "" }])
+    } else {
+      // Fallback: at least set the email from submission
+      const firstAuthor = {
+        name: "",
+        email: initialSubmission.author || "",
+        affiliation: "",
+      }
+      setAuthors([firstAuthor, ...coAuthors, { name: "", email: "", affiliation: "" }])
+    }
+
+    // Pre-fill COI data from declared_conflicts
+    // Note: Backend stores conflicts as {email, reason}, but frontend has separate arrays for people/orgs/domains
+    // For now, we'll map all declared conflicts to the people array
+    // Users can manually reorganize if needed
+    if (initialSubmission.information?.declared_conflicts) {
+      const people: string[] = []
+      
+      initialSubmission.information.declared_conflicts.forEach((conflict) => {
+        // Add the email/identifier to people list
+        people.push(conflict.email)
+      })
+
+      setCoiPeople(people)
+      // Note: Orgs and domains would need to be stored separately in the backend
+      // For now, they remain empty and user needs to re-enter them
+    }
+
+    // Note: File cannot be pre-loaded from URL, user needs to re-upload if they want to change it
+  }, [initialSubmission, user])
+
+  // Load existing draft on component mount (only if not in edit mode)
+  useEffect(() => {
+    if (isEditMode) return // Skip draft loading in edit mode
+
     const loadDraft = async () => {
       if (!user || !conference) return
 
@@ -106,8 +174,11 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
 
         if (response.data && response.data.submissions.length > 0) {
           const draft = response.data.submissions[0]
-          setExistingDraft(draft)
-          console.log("[PaperSubmissionForm] Found existing draft:", draft)
+          // Don't show draft if we're editing a different submission
+          if (!initialSubmission || draft.id !== initialSubmission.id) {
+            setExistingDraft(draft)
+            console.log("[PaperSubmissionForm] Found existing draft:", draft)
+          }
         }
       } catch (error) {
         console.error("[PaperSubmissionForm] Error loading draft:", error)
@@ -117,7 +188,7 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
     }
 
     loadDraft()
-  }, [user, conference])
+  }, [user, conference, isEditMode, initialSubmission])
 
   const handleLoadDraft = () => {
     if (!existingDraft) return
@@ -163,12 +234,12 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
     setSubmitting(true)
     try {
       const submissionData = {
-        conference_id: conference.id,
         title,
         abstract,
         link: "", // TODO: Add file upload URL when implemented
         domain: subjectAreas,
         file: uploadedFile || undefined, // Include uploaded file
+        status: "draft" as const, // Explicitly set status to draft
         information: {
           keywords,
           co_authors: authors
@@ -184,13 +255,32 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
         },
       }
 
-      const response = await submitPaper(submissionData)
-
-      if (response.error) {
-        alert(`${t("dashboard.author.submit.draftSaveFailed")}: ${response.error}`)
+      let response
+      if (isEditMode && initialSubmission) {
+        // Update existing submission as draft
+        response = await updatePaper(
+          initialSubmission.id.toString(),
+          conference.id,
+          submissionData,
+        )
+        if (response.error) {
+          alert(`${t("dashboard.author.submit.draftSaveFailed")}: ${response.error}`)
+        } else {
+          alert(t("dashboard.author.submit.draftSaveSuccess"))
+          router.push("/dashboard/author")
+        }
       } else {
-        alert(t("dashboard.author.submit.draftSaveSuccess"))
-        router.push("/dashboard/author")
+        // Create new draft
+        response = await submitPaper({
+          conference_id: conference.id,
+          ...submissionData,
+        })
+        if (response.error) {
+          alert(`${t("dashboard.author.submit.draftSaveFailed")}: ${response.error}`)
+        } else {
+          alert(t("dashboard.author.submit.draftSaveSuccess"))
+          router.push("/dashboard/author")
+        }
       }
     } catch (error) {
       alert(t("dashboard.author.submit.draftSaveError"))
@@ -205,12 +295,12 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
     setSubmitting(true)
     try {
       const submissionData = {
-        conference_id: conference.id,
         title,
         abstract,
         link: "", // TODO: Add file upload URL when implemented
         domain: subjectAreas,
         file: uploadedFile || undefined, // Include uploaded file
+        status: "published" as const, // Set status to published for final submission
         information: {
           keywords,
           co_authors: authors
@@ -226,13 +316,32 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
         },
       }
 
-      const response = await submitPaper(submissionData)
-
-      if (response.error) {
-        alert(`${t("dashboard.author.submit.submissionFailed")}: ${response.error}`)
+      let response
+      if (isEditMode && initialSubmission) {
+        // Update existing submission
+        response = await updatePaper(
+          initialSubmission.id.toString(),
+          conference.id,
+          submissionData,
+        )
+        if (response.error) {
+          alert(`${t("dashboard.author.submit.updateFailed") || "Update failed"}: ${response.error}`)
+        } else {
+          alert(t("dashboard.author.submit.updateSuccess") || "Submission updated successfully")
+          router.push("/dashboard/author")
+        }
       } else {
-        alert(t("dashboard.author.submit.submissionSuccess"))
-        router.push("/dashboard/author")
+        // Create new submission
+        response = await submitPaper({
+          conference_id: conference.id,
+          ...submissionData,
+        })
+        if (response.error) {
+          alert(`${t("dashboard.author.submit.submissionFailed")}: ${response.error}`)
+        } else {
+          alert(t("dashboard.author.submit.submissionSuccess"))
+          router.push("/dashboard/author")
+        }
       }
     } catch (error) {
       alert(t("dashboard.author.submit.submissionError"))
@@ -258,10 +367,10 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
             {t("dashboard.author.submit.backButton")}
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-[#212529] font-arial">
+            <h1 className={`${typography.h1} ${typography.bold} text-[#212529] font-arial`}>
               {t("dashboard.author.submit.title")}
             </h1>
-            <p className="text-[#6C757D] mt-1 text-base font-arial">
+            <p className={`text-[#6C757D] mt-1 ${typography.bodyLarge} font-arial`}>
               {t("dashboard.author.submit.subtitle")}
             </p>
           </div>
@@ -273,7 +382,7 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
               size="lg"
               onClick={handleLoadDraft}
               disabled={loadingDraft}
-              className="border border-[#28A745] text-[#28A745] bg-transparent hover:bg-[#28A745]/10 px-4 py-2 rounded-[4px] text-base font-medium font-arial flex items-center gap-2"
+              className={`border border-[#28A745] text-[#28A745] bg-transparent hover:bg-[#28A745]/10 px-4 py-2 rounded-[4px] ${typography.bodyLarge} ${typography.medium} font-arial flex items-center ${spacing.gap.sm}`}
             >
               <FileText className="size-4" />
               {t("Load Draft") || "Load Saved Draft"}
@@ -284,7 +393,7 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
             size="lg"
             onClick={handleSaveAsDraft}
             disabled={submitting}
-            className="border border-[#0056A3] text-[#0056A3] bg-transparent hover:bg-[#0056A3]/10 px-4 py-2 rounded-[4px] text-base font-medium font-arial"
+            className={`border border-[#0056A3] text-[#0056A3] bg-transparent hover:bg-[#0056A3]/10 px-4 py-2 rounded-[4px] ${typography.bodyLarge} ${typography.medium} font-arial`}
           >
             {t("dashboard.author.submit.saveDraft")}
           </Button>
@@ -292,7 +401,7 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
             size="lg"
             onClick={handleSubmit}
             disabled={!canSubmit || submitting}
-            className="bg-[#0056A3] text-white hover:bg-[#0056A3]/90 px-4 py-2 rounded-[4px] text-base font-medium font-arial"
+            className={`bg-[#0056A3] text-white hover:bg-[#0056A3]/90 px-4 py-2 rounded-[4px] ${typography.bodyLarge} ${typography.medium} font-arial`}
           >
             {submitting
               ? t("dashboard.author.submit.submitting")
@@ -307,7 +416,7 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 px-6 py-3 rounded-[4px] text-sm font-medium font-arial transition-colors ${
+                className={`flex-1 px-6 py-3 rounded-[4px] ${typography.body} ${typography.medium} font-arial transition-colors ${
                   activeTab === tab.id
                     ? "bg-white text-[#212529] shadow-sm"
                     : "text-[#6C757D] hover:text-[#212529]"
@@ -349,6 +458,11 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
                   validationStatus={validationStatus}
                   setValidationStatus={setValidationStatus}
                   conference={conference}
+                  existingFile={isEditMode && initialSubmission?.file ? {
+                    name: initialSubmission.file.original_name,
+                    size: initialSubmission.file.size,
+                    type: initialSubmission.file.mime_type,
+                  } : undefined}
                 />
               )}
               {activeTab === "coi" && (
@@ -369,7 +483,7 @@ export function PaperSubmissionForm({ conference }: PaperSubmissionFormProps) {
               )}
             </CardContent>
           </Card>
-          <div className="mt-4 flex items-center gap-2 text-sm text-[#6C757D] font-arial">
+          <div className={`mt-4 flex items-center ${spacing.gap.sm} ${typography.body} text-[#6C757D] font-arial`}>
             <Info className="size-4" />
             <span>{t("dashboard.author.submit.draftAutoSave")}</span>
           </div>

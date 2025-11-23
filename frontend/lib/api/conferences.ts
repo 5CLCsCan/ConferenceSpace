@@ -165,6 +165,8 @@ export async function listConferences(filters?: {
   title?: string
   acronym?: string
   chair?: string
+  myConferences?: boolean
+  role?: string
 }): Promise<ApiResponse<{ conferences: Conference[]; total: number }>> {
   try {
     const params = new URLSearchParams()
@@ -173,6 +175,9 @@ export async function listConferences(filters?: {
     if (filters?.title) params.append("title", filters.title)
     if (filters?.acronym) params.append("acronym", filters.acronym)
     if (filters?.chair) params.append("chair", filters.chair)
+    if (filters?.myConferences !== undefined)
+      params.append("myConferences", filters.myConferences.toString())
+    if (filters?.role) params.append("role", filters.role)
 
     const queryString = params.toString()
     const endpoint = `/api/v1/conferences${queryString ? `?${queryString}` : ""}`
@@ -377,13 +382,130 @@ export async function deleteConference(conferenceId: string): Promise<ApiRespons
 }
 
 /**
- * Get conference committee members
- * TODO: Backend endpoint not yet implemented - using mock data for now
- * Future endpoint: GET /api/conferences/:id/committee
+ * Reviewer interface matching backend DTO
+ */
+export interface Reviewer {
+  id?: number
+  user_id: number
+  conference_id?: number
+  email?: string
+  status?: "pending" | "accepted" | "rejected"
+  domain?: string[]
+  created_at?: string
+  updated_at?: string
+}
+
+export interface ReviewerListResponse {
+  reviewers: Reviewer[]
+  total: number
+  limit: number
+  offset: number
+}
+
+/**
+ * Get conference reviewers (committee members)
+ * Endpoint: GET /api/v1/conferences/:conference_id/reviewers
+ */
+export async function getConferenceReviewers(
+  conferenceId: string,
+  params?: {
+    limit?: number
+    offset?: number
+    status?: string
+  },
+): Promise<ApiResponse<ReviewerListResponse>> {
+  try {
+    const queryParams = new URLSearchParams()
+    if (params?.limit) queryParams.append("limit", params.limit.toString())
+    if (params?.offset) queryParams.append("offset", params.offset.toString())
+    if (params?.status) queryParams.append("status", params.status)
+
+    const { data, response } = await apiFetch<ReviewerListResponse>(
+      `/api/v1/conferences/${conferenceId}/reviewers?${queryParams.toString()}`,
+    )
+
+    return {
+      data: data,
+      error: null,
+      status: response.status,
+    }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to fetch reviewers",
+      status: 500,
+    }
+  }
+}
+
+/**
+ * Invite reviewers to conference (batch)
+ * Endpoint: POST /api/v1/conferences/:conference_id/reviewers
+ */
+export async function inviteReviewers(
+  conferenceId: string,
+  reviewers: { user_id: number }[],
+): Promise<
+  ApiResponse<{ success: Reviewer[]; failed: Array<{ user_id: number; error: string }> }>
+> {
+  try {
+    const { data, response } = await apiFetch<{
+      success: Reviewer[]
+      failed: Array<{ user_id: number; error: string }>
+    }>(`/api/v1/conferences/${conferenceId}/reviewers`, {
+      method: "POST",
+      body: JSON.stringify({ reviewers }),
+    })
+
+    return {
+      data: data,
+      error: null,
+      status: response.status,
+    }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to invite reviewers",
+      status: 500,
+    }
+  }
+}
+
+/**
+ * Remove a reviewer from conference
+ * Endpoint: DELETE /api/v1/conferences/:conference_id/reviewers/:reviewer_id
+ */
+export async function removeReviewer(
+  conferenceId: string,
+  reviewerId: string,
+): Promise<ApiResponse<{ message: string }>> {
+  try {
+    const { data, response } = await apiFetch<{ message: string }>(
+      `/api/v1/conferences/${conferenceId}/reviewers/${reviewerId}`,
+      { method: "DELETE" },
+    )
+
+    return {
+      data: data,
+      error: null,
+      status: response.status,
+    }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to remove reviewer",
+      status: 500,
+    }
+  }
+}
+
+/**
+ * Get conference committee members (alias for getConferenceReviewers)
  */
 export async function getConferenceCommittee(conferenceId: string): Promise<ApiResponse<User[]>> {
   try {
-    // TODO: Implement when backend committee endpoint is available
+    const response = await getConferenceReviewers(conferenceId, { limit: 100 })
+    // Convert reviewers to User format if needed
     return {
       data: [],
       error: null,
@@ -437,9 +559,10 @@ export async function getConferenceDates(
   conferenceId: string,
 ): Promise<ApiResponse<ImportantDate[]>> {
   try {
-    // First get the conference details to extract dates from configurations
-    const conferenceResponse = await getConferenceById(conferenceId)
-    if (!conferenceResponse.data) {
+    // Fetch raw conference data to access all configuration fields
+    const { data, response } = await apiFetch<{ data: any }>(`/api/v1/conferences/${conferenceId}`)
+
+    if (!data?.data) {
       return {
         data: null,
         error: "Conference not found",
@@ -447,43 +570,81 @@ export async function getConferenceDates(
       }
     }
 
-    const conference = conferenceResponse.data
+    const config = data.data.configurations
+    if (!config) {
+      return {
+        data: [],
+        error: null,
+        status: 200,
+      }
+    }
+
     const now = new Date()
     const dates: ImportantDate[] = []
 
-    // Extract dates from conference data
-    if (conference.submission_deadline) {
+    // Extract all available dates from configurations
+    if (config.abstract_submission_deadline) {
+      const dateStr = config.abstract_submission_deadline
+      dates.push({
+        id: "abstract-submission-deadline",
+        title: "Abstract Submission Deadline",
+        date: dateStr,
+        description: "Deadline for abstract submissions",
+        type: "deadline",
+        isPast: new Date(dateStr) < now,
+      })
+    }
+
+    if (config.full_paper_submission_deadline) {
+      const dateStr = config.full_paper_submission_deadline
       dates.push({
         id: "submission-deadline",
         title: "Paper Submission Deadline",
-        date: conference.submission_deadline,
+        date: dateStr,
         description: "Final deadline for paper submissions",
         type: "deadline",
-        isPast: new Date(conference.submission_deadline) < now,
+        isPast: new Date(dateStr) < now,
       })
     }
 
-    if (conference.camera_ready_deadline) {
+    if (config.camera_ready_deadline) {
+      const dateStr = config.camera_ready_deadline
       dates.push({
         id: "camera-ready-deadline",
         title: "Camera-Ready Deadline",
-        date: conference.camera_ready_deadline,
+        date: dateStr,
         description: "Final version of accepted papers due",
         type: "deadline",
-        isPast: new Date(conference.camera_ready_deadline) < now,
+        isPast: new Date(dateStr) < now,
       })
     }
 
-    if (conference.conference_date) {
+    if (config.start_date) {
+      const dateStr = config.start_date
       dates.push({
-        id: "conference-date",
-        title: "Conference Date",
-        date: conference.conference_date,
-        description: "Main conference event",
+        id: "conference-start-date",
+        title: "Conference Start Date",
+        date: dateStr,
+        description: "Main conference event begins",
         type: "event",
-        isPast: new Date(conference.conference_date) < now,
+        isPast: new Date(dateStr) < now,
       })
     }
+
+    if (config.end_date) {
+      const dateStr = config.end_date
+      dates.push({
+        id: "conference-end-date",
+        title: "Conference End Date",
+        date: dateStr,
+        description: "Main conference event ends",
+        type: "event",
+        isPast: new Date(dateStr) < now,
+      })
+    }
+
+    // Sort dates chronologically
+    dates.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
     return {
       data: dates,

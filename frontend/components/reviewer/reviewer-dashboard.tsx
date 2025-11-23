@@ -10,18 +10,14 @@ import { ReviewerOverview } from "./reviewer-overview"
 import { ReviewerConferences } from "./reviewer-conferences"
 import { ReviewerInvitations } from "./reviewer-invitations"
 import { ConferencePapers } from "./conference-papers"
-import {
-  DashboardSkeleton,
-  ConferencesSkeleton,
-  InvitationsSkeleton,
-  PapersSkeleton,
-} from "./loading-skeletons"
+import { DashboardSkeleton, ConferencesSkeleton, InvitationsSkeleton, PapersSkeleton } from "./loading-skeletons"
 import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { Button } from "@/components/ui/button"
 import { AlertCircle } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import type { ReviewerConference } from "@/lib/types"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 type View = "overview" | "conferences" | "invitations" | "conference-papers"
 
@@ -43,23 +39,31 @@ function ConferencePapersWithSWR({
   const [statusFilter, setStatusFilter] = useState("")
   const debouncedSearch = useDebounce(searchQuery, 500)
 
-  const { papers, isLoading, error } = useConferencePapers(reviewerId, conferenceId, {
-    search: debouncedSearch,
-    status: statusFilter,
-    limit: 20,
-  })
+  const { papers, isLoading, error } = useConferencePapers(
+    reviewerId,
+    conferenceId,
+    {
+      search: debouncedSearch,
+      status: statusFilter,
+      limit: 20,
+    }
+  )
 
   const selectedConference = conferences.find((c) => c.id === conferenceId)
+
+  const { t } = useTranslation()
 
   if (error) {
     return (
       <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Error loading papers</AlertTitle>
+        <AlertCircle className={iconSizes.sm} />
+        <AlertTitle className={typography.h6}>
+          {t("dashboard.roles.reviewer.review.errors.loadFailed")}
+        </AlertTitle>
         <AlertDescription>
-          <p className="mb-4">{error}</p>
+          <p className={`mb-4 ${typography.body}`}>{error}</p>
           <Button onClick={onBack} variant="outline" size="sm">
-            Back to Conferences
+            {t("common.actions.goBack")}
           </Button>
         </AlertDescription>
       </Alert>
@@ -84,14 +88,14 @@ export function ReviewerDashboard() {
   const { t } = useTranslation()
   const { user } = useAuth()
   const router = useRouter()
-  // Convert user.id to string, fallback to "1" for development
-  const currentReviewerId = user?.id || "1"
+  // Use email for reviewer endpoints
+  const currentReviewerEmail = user?.email || ""
 
   const [activeNav, setActiveNav] = useState<View>("overview")
   const [selectedConferenceId, setSelectedConferenceId] = useState<string | null>(null)
   const [invitationStatusFilter, setInvitationStatusFilter] = useState<string>("")
   const [conferenceSearch, setConferenceSearch] = useState<string>("")
-
+  
   // Pagination states for infinite scroll
   const [conferenceOffset, setConferenceOffset] = useState(0)
   const [invitationOffset, setInvitationOffset] = useState(0)
@@ -102,41 +106,44 @@ export function ReviewerDashboard() {
 
   // Debounce search to avoid excessive API calls
   const debouncedConferenceSearch = useDebounce(conferenceSearch, 500)
-
+  
   // Reset offsets when search/filter changes
   useEffect(() => {
     setConferenceOffset(0)
     setAllConferences([])
   }, [debouncedConferenceSearch])
-
+  
   useEffect(() => {
     setInvitationOffset(0)
     setAllInvitations([])
   }, [invitationStatusFilter])
-
+  
   // Reset assignments when switching to overview (optional, for fresh data)
   useEffect(() => {
-    if (activeNav === "overview") {
+    if (activeNav === 'overview') {
       setAssignmentOffset(0)
       setAllAssignments([])
     }
   }, [activeNav])
 
   // Use SWR hook with caching for dashboard data
-  const { dashboard, isLoading, error, refresh, updateOptimistic } = useReviewerDashboard(
-    currentReviewerId,
-    {
-      conferenceSearch: debouncedConferenceSearch,
-      invitationStatus: invitationStatusFilter,
-      conferenceLimit: 20, // Load 20 at a time for infinite scroll
-      conferenceOffset: conferenceOffset,
-      invitationLimit: 20, // Load 20 at a time for infinite scroll
-      invitationOffset: invitationOffset,
-      recentAssignmentLimit: 20, // Load 20 at a time for infinite scroll
-      recentAssignmentOffset: assignmentOffset,
-    },
-  )
-
+  const {
+    dashboard,
+    isLoading,
+    error,
+    refresh,
+    updateOptimistic,
+  } = useReviewerDashboard(currentReviewerEmail, {
+    conferenceSearch: debouncedConferenceSearch,
+    invitationStatus: invitationStatusFilter,
+    conferenceLimit: 20, // Load 20 at a time for infinite scroll
+    conferenceOffset: conferenceOffset,
+    invitationLimit: 20, // Load 20 at a time for infinite scroll
+    invitationOffset: invitationOffset,
+    recentAssignmentLimit: 20, // Load 20 at a time for infinite scroll
+    recentAssignmentOffset: assignmentOffset,
+  })
+  
   // Accumulate conferences for infinite scroll
   useEffect(() => {
     if (dashboard?.conferences) {
@@ -145,15 +152,15 @@ export function ReviewerDashboard() {
         setAllConferences(dashboard.conferences)
       } else {
         // Append new items, filter out duplicates by ID
-        setAllConferences((prev) => {
-          const existingIds = new Set(prev.map((c) => c.id))
+        setAllConferences(prev => {
+          const existingIds = new Set(prev.map(c => c.id))
           const newItems = dashboard.conferences.filter((c: any) => !existingIds.has(c.id))
           return [...prev, ...newItems]
         })
       }
     }
   }, [dashboard?.conferences, conferenceOffset])
-
+  
   // Accumulate invitations for infinite scroll
   useEffect(() => {
     if (dashboard?.invitations) {
@@ -162,15 +169,15 @@ export function ReviewerDashboard() {
         setAllInvitations(dashboard.invitations)
       } else {
         // Append new items, filter out duplicates by ID
-        setAllInvitations((prev) => {
-          const existingIds = new Set(prev.map((inv) => inv.id))
+        setAllInvitations(prev => {
+          const existingIds = new Set(prev.map(inv => inv.id))
           const newItems = dashboard.invitations.filter((inv: any) => !existingIds.has(inv.id))
           return [...prev, ...newItems]
         })
       }
     }
   }, [dashboard?.invitations, invitationOffset])
-
+  
   // Accumulate assignments for infinite scroll
   useEffect(() => {
     if (dashboard?.recent_assignments) {
@@ -179,44 +186,36 @@ export function ReviewerDashboard() {
         setAllAssignments(dashboard.recent_assignments)
       } else {
         // Append new items, filter out duplicates by assignment ID
-        setAllAssignments((prev) => {
-          const existingIds = new Set(prev.map((a) => a.assignment_id))
-          const newItems = dashboard.recent_assignments.filter(
-            (a: any) => !existingIds.has(a.assignment_id),
-          )
+        setAllAssignments(prev => {
+          const existingIds = new Set(prev.map(a => a.assignment_id))
+          const newItems = dashboard.recent_assignments.filter((a: any) => !existingIds.has(a.assignment_id))
           return [...prev, ...newItems]
         })
       }
     }
   }, [dashboard?.recent_assignments, assignmentOffset])
-
+  
   // Calculate if there's more data to load based on total counts
-  const hasMoreConferences = dashboard?.total_conferences
-    ? allConferences.length < dashboard.total_conferences
-    : false
-  const hasMoreInvitations = dashboard?.total_invitations
-    ? allInvitations.length < dashboard.total_invitations
-    : false
-  const hasMoreAssignments = dashboard?.total_assignments
-    ? allAssignments.length < dashboard.total_assignments
-    : false
-
+  const hasMoreConferences = dashboard?.total_conferences ? allConferences.length < dashboard.total_conferences : false
+  const hasMoreInvitations = dashboard?.total_invitations ? allInvitations.length < dashboard.total_invitations : false
+  const hasMoreAssignments = dashboard?.total_assignments ? allAssignments.length < dashboard.total_assignments : false
+  
   // Load more functions
   const loadMoreConferences = useCallback(() => {
     if (!isLoading && hasMoreConferences) {
-      setConferenceOffset((prev) => prev + 20)
+      setConferenceOffset(prev => prev + 20)
     }
   }, [isLoading, hasMoreConferences])
-
+  
   const loadMoreInvitations = useCallback(() => {
     if (!isLoading && hasMoreInvitations) {
-      setInvitationOffset((prev) => prev + 20)
+      setInvitationOffset(prev => prev + 20)
     }
   }, [isLoading, hasMoreInvitations])
-
+  
   const loadMoreAssignments = useCallback(() => {
     if (!isLoading && hasMoreAssignments) {
-      setAssignmentOffset((prev) => prev + 20)
+      setAssignmentOffset(prev => prev + 20)
     }
   }, [isLoading, hasMoreAssignments])
 
@@ -229,7 +228,7 @@ export function ReviewerDashboard() {
   const handleSelectPaper = (paperId: string, conferenceId?: string) => {
     // Use provided conferenceId or fall back to selectedConferenceId
     const cid = conferenceId || selectedConferenceId
-    const conferenceParam = cid ? `?conference_id=${cid}` : ""
+    const conferenceParam = cid ? `?conference_id=${cid}` : ''
     router.push(`/dashboard/reviewer/papers/${paperId}${conferenceParam}`)
   }
 
@@ -249,10 +248,12 @@ export function ReviewerDashboard() {
     if (error) {
       return (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>{t("dashboard.roles.reviewer.review.errors.loadFailed")}</AlertTitle>
+          <AlertCircle className={iconSizes.sm} />
+          <AlertTitle className={typography.h6}>
+            {t("dashboard.roles.reviewer.review.errors.loadFailed")}
+          </AlertTitle>
           <AlertDescription className="mt-2">
-            <p className="mb-4">{error}</p>
+            <p className={`mb-4 ${typography.body}`}>{error}</p>
             <Button onClick={() => refresh()} variant="outline" size="sm">
               {t("common.actions.retry")}
             </Button>
@@ -277,9 +278,11 @@ export function ReviewerDashboard() {
     if (!dashboard) {
       return (
         <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>No Data</AlertTitle>
-          <AlertDescription>{t("dashboard.roles.reviewer.review.errors.noData")}</AlertDescription>
+          <AlertCircle className={iconSizes.sm} />
+          <AlertTitle className={typography.h6}>{t("common.messages.noData")}</AlertTitle>
+          <AlertDescription className={typography.body}>
+            {t("common.messages.noData")}
+          </AlertDescription>
         </Alert>
       )
     }
@@ -316,10 +319,8 @@ export function ReviewerDashboard() {
           <ReviewerInvitations
             invitations={allInvitations}
             onInvitationHandled={handleInvitationResponse}
-            reviewerId={currentReviewerId}
-            onStatusFilterChange={(status) =>
-              setInvitationStatusFilter(status === "all" ? "" : status)
-            }
+            reviewerId={currentReviewerEmail}
+            onStatusFilterChange={(status) => setInvitationStatusFilter(status === "all" ? "" : status)}
             currentStatusFilter={invitationStatusFilter || "all"}
             onLoadMore={loadMoreInvitations}
             hasMore={hasMoreInvitations}
@@ -330,7 +331,7 @@ export function ReviewerDashboard() {
         if (!selectedConferenceId) return null
         return (
           <ConferencePapersWithSWR
-            reviewerId={currentReviewerId}
+            reviewerId={currentReviewerEmail}
             conferenceId={selectedConferenceId}
             conferences={allConferences}
             onBack={handleBackToConferences}
@@ -351,7 +352,9 @@ export function ReviewerDashboard() {
           setSelectedConferenceId(null)
         }}
       />
-      <div className="flex-1 p-8 space-y-8">{renderContent()}</div>
+      <div className={`flex-1 ${spacing.padding.cardLarge} ${spacing.section}`}>
+        {renderContent()}
+      </div>
     </div>
   )
 }

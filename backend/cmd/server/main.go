@@ -180,11 +180,12 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 		users.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
 			users.GET("/me", handler.HandleNoRequest(ctrl.User.GetMe))
+			users.GET("/search", handler.HandleNoRequest(ctrl.User.Search))
 			users.GET("", handler.HandleRequestWithQuery(ctrl.User.List))
-			users.GET("/:id", handler.HandleNoRequest(ctrl.User.Get))
-			users.GET("/:id/coi-check", handler.HandleRequestWithURIAndQuery(ctrl.User.CheckCOI))
-			users.PUT("/:id", handler.HandleRequest(ctrl.User.Update))
-			users.DELETE("/:id", handler.HandleNoRequestWithMessage("user deleted successfully", ctrl.User.Delete))
+		users.GET("/:email", handler.HandleNoRequest(ctrl.User.Get))
+		users.GET("/:email/coi-check", handler.HandleRequestWithURIAndQuery(ctrl.User.CheckCOI))
+		users.PUT("/:email", handler.HandleRequest(ctrl.User.Update))
+		users.DELETE("/:email", handler.HandleNoRequestWithMessage("user deleted successfully", ctrl.User.Delete))
 		}
 
 		// Conference routes (all protected - authentication required)
@@ -197,6 +198,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 			conferences.PUT("/:conference_id", handler.HandleRequestWithURIAndJSON(ctrl.Conference.Update))
 			conferences.DELETE("/:conference_id", handler.HandleNoRequestWithURIMessage("conference deleted successfully", ctrl.Conference.Delete))
 			conferences.PUT("/:conference_id/bookmark", handler.HandleRequestWithURI(ctrl.Conference.ToggleBookmark))
+			conferences.PUT("/:conference_id/status", handler.HandleRequestWithAll(ctrl.Conference.TransitionStatus))
 
 			// Reviewer routes nested under conferences (all protected - authentication required)
 			reviewers := conferences.Group("/:conference_id/reviewers")
@@ -228,8 +230,16 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 		reviewer := v1.Group("/reviewer")
 		reviewer.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
-			reviewer.GET("/:reviewer_id/dashboard", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetDashboard))
-			reviewer.GET("/:reviewer_id/conferences/:conference_id/papers", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetConferencePapers))
+			reviewer.GET("/:reviewer_email/dashboard", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetDashboard))
+			reviewer.GET("/:reviewer_email/conferences/:conference_id/papers", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetConferencePapers))
+			reviewer.GET("/:reviewer_email/completed-papers", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetCompletedPapers))
+		}
+
+		// Assignment review routes (authentication required)
+		assignments := conferences.Group("/:conference_id/assignments")
+		{
+			assignments.PUT("/:assignment_id/review", handler.HandleRequestWithAll(ctrl.Assignment.SaveReview))
+			assignments.GET("/:assignment_id/review", handler.HandleRequestWithURI(ctrl.Assignment.GetReview))
 		}
 	}
 

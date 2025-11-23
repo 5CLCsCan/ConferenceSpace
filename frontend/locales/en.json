@@ -192,6 +192,76 @@
         "currentRole": "Current role",
         "switchRole": "Switch role (Dev mode)",
         "loggedInAs": "Signed in as"
+      },
+      "committee": {
+        "chairInfo": {
+          "title": "Conference Chair",
+          "description": "Information about the conference chair",
+          "chair": "Chair",
+          "contact": "Primary Contact",
+          "viewProfile": "View profile"
+        },
+        "reviewers": {
+          "title": "Reviewers",
+          "description": "Manage conference reviewers",
+          "count": "reviewers",
+          "unknown": "Unknown reviewer"
+        },
+        "actions": {
+          "invite": "Invite Reviewer",
+          "sendInvite": "Send Invitation",
+          "viewProfile": "View profile",
+          "loadMore": "Load more"
+        },
+        "dialog": {
+          "inviteTitle": "Invite Reviewer",
+          "inviteDescription": "Search and select a user by email to invite as a reviewer to this conference.",
+          "inviteSuccessBannerTitle": "Invitations sent",
+          "inviteSuccessAutoClose": "This dialog will close automatically.",
+          "removeTitle": "Remove Reviewer",
+          "removeDescription": "Are you sure you want to remove this reviewer from the conference?",
+          "userId": "User ID",
+          "userIdHint": "Enter the numeric user ID of the reviewer",
+          "userEmail": "Email Address",
+          "userEmailHint": "Start typing to search for users by email address",
+          "userSelected": "User selected",
+          "noUserFound": "No user found with this email"
+        },
+        "status": {
+          "pending": "Pending",
+          "accepted": "Accepted",
+          "rejected": "Rejected"
+        },
+        "search": {
+          "placeholder": "Search by email or ID..."
+        },
+        "filter": {
+          "placeholder": "Filter by status",
+          "all": "All Reviewers",
+          "pending": "Pending",
+          "accepted": "Accepted",
+          "rejected": "Rejected"
+        },
+        "empty": {
+          "title": "No Reviewers Found",
+          "description": "No reviewers match your search criteria. Try adjusting your filters or invite new reviewers to this conference."
+        },
+        "errors": {
+          "loadFailed": "Failed to load committee data",
+          "invalidUserId": "Invalid User ID",
+          "userIdRequired": "User ID is required",
+          "inviteFailed": "Failed to send invitation",
+          "inviteIssues": "Some invitations could not be sent",
+          "inviteFix": "Review the messages below and try again.",
+          "inviteUnknown": "Unknown error",
+          "removeFailed": "Failed to remove reviewer"
+        },
+        "toast": {
+          "inviteSuccess": "Invitation Sent",
+          "inviteSuccessDescription": "The reviewer invitation has been sent successfully.",
+          "removeSuccess": "Reviewer Removed",
+          "removeSuccessDescription": "The reviewer has been removed from the conference."
+        }
       }
     },
     "header": {
@@ -206,7 +276,7 @@
           "completed": "Completed reviews"
         },
         "chair": {
-          "overview": "Overview",
+          "overview": "Dashboard",
           "papers": "All papers",
           "reviewers": "Reviewers"
         }
@@ -222,6 +292,7 @@
       }
     },
     "roles": {
+      "assigned": "Assigned",
       "author": {
         "name": "Author",
         "description": "Submit and monitor your papers",
@@ -258,7 +329,8 @@
         "nav": {
           "overview": "Overview",
           "myConferences": "My Conferences",
-          "invitations": "Invitations"
+          "invitations": "Invitations",
+          "completedReviews": "Completed Reviews"
         },
         "stats": {
           "totalConferences": "Total Conferences",
@@ -353,6 +425,27 @@
             "description": "You haven't been assigned any papers for this conference yet. Papers will appear here once the conference chair assigns them to you."
           }
         },
+        "completedReviews": {
+          "description": "View all your completed reviews and track your contribution history",
+          "totalCompleted": "Total Completed",
+          "allTime": "All time",
+          "conferences": "Conferences",
+          "uniqueConferences": "Unique conferences",
+          "thisMonth": "This Month",
+          "currentMonth": "Current month",
+          "filters": "Filters & Search",
+          "searchPlaceholder": "Search by title or keywords...",
+          "allConferences": "All Conferences",
+          "filterByDate": "Filter by date range",
+          "sortByDate": "Sort by Date",
+          "sortByTitle": "Sort by Title",
+          "noResults": "No reviews match your search criteria",
+          "noCompletedReviews": "You haven't completed any reviews yet",
+          "completed": "Completed",
+          "completedOn": "Completed on",
+          "version": "Version",
+          "viewReview": "View Review"
+        },
         "review": {
           "reviewing": "Reviewing",
           "submittedOn": "Submitted on {{date}}",
@@ -364,7 +457,8 @@
             "paperNotFound": "Paper not found",
             "conferenceIdRequired": "Conference ID is required",
             "fetchPaperFailed": "Failed to fetch paper",
-            "unknownError": "An error occurred"
+            "unknownError": "An error occurred",
+            "noData": "No data available"
           },
           "loadingPaper": "Loading paper...",
           "tabs": {
@@ -494,10 +588,14 @@
             "description": "Topics & Submission Settings"
           },
           "3": {
+            "title": "CFP Configuration",
+            "description": "Call For Paper Details"
+          },
+          "4": {
             "title": "Organizers",
             "description": "Assign Conference Chairs"
           },
-          "4": {
+          "5": {
             "title": "Review",
             "description": "Review and Confirm"
           }
@@ -522,6 +620,7 @@
         "actionItems": "Action Items",
         "conferenceManagement": "Conference Management",
         "yourConferences": "Your Conferences",
+        "discoverConferences": "Discover Conferences",
         "searchPlaceholder": "Search conferences...",
         "filterByStatus": "Filter by Status",
         "tableHeaders": {
@@ -534,7 +633,7 @@
         "messages": {
           "loading": "Loading conferences...",
           "error": "Error",
-          "noConferencesFound": "No conferences found. Create your first conference!"
+          "noConferencesFound": "No conferences found."
         },
         "platformUpdates": {
           "title": "Platform Updates",
@@ -871,6 +970,54 @@
       "submission": "Deadline",
       "noConferences": "No conferences assigned yet",
       "complete": "complete"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "description": "Manage your personal information and account settings",
+    "viewTitle": "Profile",
+    "viewDescription": "View user information and expertise",
+    "sections": {
+      "personalInfo": "Personal Information",
+      "personalInfoDescription": "Update your name and email address",
+      "expertise": "Expertise",
+      "expertiseDescription": "Add your domains of expertise for better paper matching",
+      "accountInfo": "Account Information",
+      "accountInfoDescription": "View your account details and roles"
+    },
+    "fields": {
+      "userId": "User ID",
+      "roles": "Roles",
+      "createdAt": "Account Created",
+      "updatedAt": "Last Updated"
+    },
+    "highlights": {
+      "joined": "Joined {date}",
+      "updated": "Updated {date}",
+      "domainsNone": "No domains added yet",
+      "domainsCount": "{count} domains tracked",
+      "domainsHint": "Add domains to improve reviewer matching and recommendations."
+    },
+    "placeholders": {
+      "firstName": "Enter your first name",
+      "lastName": "Enter your last name",
+      "email": "Enter your email address",
+      "domain": "e.g., Machine Learning, Natural Language Processing"
+    },
+    "success": {
+      "updated": "Profile Updated",
+      "updatedDescription": "Your profile has been successfully updated"
+    },
+    "error": {
+      "fetchFailed": "Failed to Load Profile",
+      "fetchDescription": "Unable to retrieve your profile information",
+      "updateFailed": "Update Failed",
+      "updateDescription": "Unable to update your profile. Please try again",
+      "validationFailed": "Validation Error",
+      "notFound": "Profile not found",
+      "missingId": "Unable to determine your user ID. Please refresh and try again.",
+      "unauthorized": "Session expired",
+      "unauthorizedDescription": "Please sign in again to save your changes."
     }
   }
 }

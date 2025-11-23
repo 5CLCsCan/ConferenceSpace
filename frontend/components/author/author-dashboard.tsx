@@ -1,8 +1,10 @@
 "use client"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Select,
   SelectContent,
@@ -11,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { Search } from "lucide-react"
+import { Search, Filter, X } from "lucide-react"
 import { listConferences } from "@/lib/api/conferences"
 import { getUserSubmissions } from "@/lib/api/submissions"
 import type { SubmissionWithConference } from "@/lib/api/submissions"
@@ -21,6 +23,7 @@ import { useState, useEffect } from "react"
 import type { Conference } from "@/lib/types"
 import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 export function AuthorDashboard() {
   const { user } = useAuth()
@@ -31,6 +34,11 @@ export function AuthorDashboard() {
   const [mySubmissions, setMySubmissions] = useState<SubmissionWithConference[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  
+  // Filter state for My Conferences section
+  const [myConferencesSearchQuery, setMyConferencesSearchQuery] = useState("")
+  const [myConferencesStatusFilter, setMyConferencesStatusFilter] = useState<"" | "active" | "upcoming" | "archived">("")
+  const [myConferencesFilterOpen, setMyConferencesFilterOpen] = useState(false)
 
   const categories = [
     { value: "all", label: t("dashboard.author.dashboard.categories.all") },
@@ -121,6 +129,23 @@ export function AuthorDashboard() {
       return matchesSearch && matchesCategory
     })
   }
+  
+  // Filter My Conferences based on search and status
+  const filterMyConferences = (conferences: Conference[]) => {
+    return conferences.filter((conf) => {
+      const matchesSearch =
+        conf.name.toLowerCase().includes(myConferencesSearchQuery.toLowerCase()) ||
+        conf.acronym.toLowerCase().includes(myConferencesSearchQuery.toLowerCase())
+      const matchesStatus = myConferencesStatusFilter === "" || conf.status === myConferencesStatusFilter
+      return matchesSearch && matchesStatus
+    })
+  }
+  
+  const handleRemoveMyConferencesStatusFilter = () => {
+    setMyConferencesStatusFilter("")
+  }
+  
+  const hasMyConferencesActiveFilters = myConferencesStatusFilter !== ""
 
   // Filter out conferences that have submissions
   const exploreConferences = allConferences.filter(
@@ -145,19 +170,12 @@ export function AuthorDashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className={spacing.section}>
       <div>
-        {/* <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Welcome, Author!
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Quản lý bài báo và khám phá hội nghị mới
-        </p> */}
-
         {/* Thanh tìm kiếm và Filter */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className={`flex flex-col sm:flex-row ${spacing.gap.md}`}>
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+            <Search className={`absolute left-3 top-1/2 -translate-y-1/2 ${iconSizes.md} text-gray-400`} />
             <Input
               type="text"
               placeholder={t("dashboard.author.dashboard.searchPlaceholder")}
@@ -182,18 +200,118 @@ export function AuthorDashboard() {
       </div>
 
       {/* Section: Bài nộp của tôi */}
-      <section className="space-y-6">
-        <h2 className="text-2xl font-semibold tracking-tight">
+      <section className={spacing.subsection}>
+        <h2 className={`${typography.h2} ${typography.semibold} tracking-tight`}>
           {t("dashboard.author.dashboard.myConferences")}
         </h2>
         <Card className="gap-0 py-0">
           <CardContent className="p-0">
+            {/* Search and Filter Controls for My Conferences */}
+            <div className="p-4 border-b">
+              <div className="relative flex items-center gap-2 border rounded-md bg-background">
+                <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                <div className="flex-1 flex items-center gap-2 pl-10 pr-2 py-2">
+                  {hasMyConferencesActiveFilters && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {myConferencesStatusFilter && (
+                        <Badge variant="secondary" className="gap-1">
+                          {myConferencesStatusFilter === "active"
+                            ? "Accepting Submissions"
+                            : myConferencesStatusFilter === "upcoming"
+                              ? "In Review"
+                              : "Archived"}
+                          <button
+                            onClick={handleRemoveMyConferencesStatusFilter}
+                            className="ml-1 hover:bg-muted rounded-full"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      )}
+                    </div>
+                  )}
+                  <Input
+                    placeholder={
+                      hasMyConferencesActiveFilters
+                        ? ""
+                        : t("dashboard.chair.dashboard.searchPlaceholder")
+                    }
+                    value={myConferencesSearchQuery}
+                    onChange={(e) => setMyConferencesSearchQuery(e.target.value)}
+                    className="!border-0 focus-visible:!ring-0 focus-visible:!border-0 focus-visible:!ring-offset-0 !shadow-none h-auto p-0 flex-1 min-w-[120px]"
+                  />
+                </div>
+                <Popover open={myConferencesFilterOpen} onOpenChange={setMyConferencesFilterOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={`h-8 w-8 mr-2 ${hasMyConferencesActiveFilters ? "text-primary" : ""}`}
+                    >
+                      <Filter className="h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64" align="end">
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="font-semibold text-sm mb-3">Status</h4>
+                        <div className="space-y-2">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <Checkbox
+                              checked={myConferencesStatusFilter === "active"}
+                              onCheckedChange={(checked) =>
+                                setMyConferencesStatusFilter(checked ? "active" : "")
+                              }
+                            />
+                            <span className="text-sm">Accepting Submissions</span>
+                          </label>
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <Checkbox
+                              checked={myConferencesStatusFilter === "upcoming"}
+                              onCheckedChange={(checked) =>
+                                setMyConferencesStatusFilter(checked ? "upcoming" : "")
+                              }
+                            />
+                            <span className="text-sm">In Review</span>
+                          </label>
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <Checkbox
+                              checked={myConferencesStatusFilter === "archived"}
+                              onCheckedChange={(checked) =>
+                                setMyConferencesStatusFilter(checked ? "archived" : "")
+                              }
+                            />
+                            <span className="text-sm">Archived</span>
+                          </label>
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2 pt-2 border-t">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setMyConferencesStatusFilter("")
+                            setMyConferencesFilterOpen(false)
+                          }}
+                        >
+                          Clear
+                        </Button>
+                        <Button size="sm" onClick={() => setMyConferencesFilterOpen(false)}>
+                          Apply
+                        </Button>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+            
             {/* Header row */}
-            <div className="hidden md:flex items-center gap-4 p-4 bg-gray-50 border-b font-medium text-sm text-gray-500">
+            <div className={`hidden md:flex items-center ${spacing.gap.md} ${spacing.padding.card} bg-gray-50 border-b ${typography.medium} ${typography.body} text-gray-500`}>
               <div className="flex-1 min-w-0">
                 {t("dashboard.author.dashboard.tableHeaders.conferenceName")}
               </div>
-              <div className="flex items-center gap-4 ml-auto">
+              <div className={`flex items-center ${spacing.gap.md} ml-auto`}>
                 <div className="w-36">{t("dashboard.author.dashboard.tableHeaders.date")}</div>
                 <div className="w-36">{t("dashboard.author.dashboard.tableHeaders.location")}</div>
                 <div className="w-32">
@@ -204,39 +322,41 @@ export function AuthorDashboard() {
             </div>
 
             {loading ? (
-              <div className="p-6 text-center">
-                <p className="text-gray-500">{t("dashboard.author.dashboard.messages.loading")}</p>
+              <div className={`${spacing.padding.cardLarge} text-center`}>
+                <p className={`text-gray-500 ${typography.body}`}>
+                  {t("dashboard.author.dashboard.messages.loading")}
+                </p>
               </div>
             ) : error ? (
-              <div className="p-6 text-center">
-                <p className="text-red-500">
+              <div className={`${spacing.padding.cardLarge} text-center`}>
+                <p className={`text-red-500 ${typography.body}`}>
                   {t("dashboard.author.dashboard.messages.error")}: {error}
                 </p>
               </div>
             ) : filterConferences(conferencesWithSubmissions).length === 0 ? (
-              <div className="p-6 text-center">
-                <p className="text-gray-500">Bạn chưa có bài nộp nào</p>
+              <div className={`${spacing.padding.cardLarge} text-center`}>
+                <p className={`text-gray-500 ${typography.body}`}>Bạn chưa có bài nộp nào</p>
               </div>
             ) : (
-              filterConferences(conferencesWithSubmissions).map((conference, index, array) => {
+              filterMyConferences(conferencesWithSubmissions).map((conference, index, array) => {
                 const submissionStatus = getConferenceSubmissionStatus(conference.id)
                 return (
                   <div
                     key={conference.id}
-                    className={`flex flex-col md:flex-row md:items-center gap-4 p-4 ${
+                    className={`flex flex-col md:flex-row md:items-center ${spacing.gap.md} ${spacing.padding.card} ${
                       index !== array.length - 1 ? "border-b" : ""
                     }`}
                   >
                     <div className="flex-1 min-w-0">
                       <Link
                         href={`/dashboard/conference/${conference.id}`}
-                        className="text-blue-600 hover:underline block font-medium truncate"
+                        className={`text-blue-600 hover:underline block ${typography.medium} truncate`}
                       >
                         {conference.name}
                       </Link>
-                      <div className="text-sm text-gray-500">{conference.acronym}</div>
+                      <div className={`${typography.body} text-gray-500`}>{conference.acronym}</div>
                     </div>
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-4 text-sm text-gray-600 ml-auto">
+                    <div className={`flex flex-col md:flex-row items-start md:items-center ${spacing.gap.md} ${typography.body} text-gray-600 ml-auto`}>
                       <div className="md:w-36">{formatDate(conference.conference_date)}</div>
                       <div className="md:w-36">{conference.location}</div>
                       <div className="md:w-32">{formatDate(conference.submission_deadline)}</div>
@@ -255,18 +375,18 @@ export function AuthorDashboard() {
       <Separator className="my-8" />
 
       {/* Section: Explore Conferences */}
-      <section className="space-y-6">
-        <h2 className="text-2xl font-semibold tracking-tight">
+      <section className={spacing.subsection}>
+        <h2 className={`${typography.h2} ${typography.semibold} tracking-tight`}>
           {t("dashboard.author.dashboard.exploreConferences")}
         </h2>
         <Card className="gap-0 py-0">
           <CardContent className="p-0">
             {/* Header row */}
-            <div className="hidden md:flex items-center gap-4 p-4 bg-gray-50 border-b font-medium text-sm text-gray-500">
+            <div className={`hidden md:flex items-center ${spacing.gap.md} ${spacing.padding.card} bg-gray-50 border-b ${typography.medium} ${typography.body} text-gray-500`}>
               <div className="flex-1 min-w-0">
                 {t("dashboard.author.dashboard.tableHeaders.conferenceName")}
               </div>
-              <div className="flex items-center gap-4 ml-auto">
+              <div className={`flex items-center ${spacing.gap.md} ml-auto`}>
                 <div className="w-36">{t("dashboard.author.dashboard.tableHeaders.date")}</div>
                 <div className="w-36">{t("dashboard.author.dashboard.tableHeaders.location")}</div>
                 <div className="w-32">
@@ -276,18 +396,20 @@ export function AuthorDashboard() {
             </div>
 
             {loading ? (
-              <div className="p-6 text-center">
-                <p className="text-gray-500">{t("dashboard.author.dashboard.messages.loading")}</p>
+              <div className={`${spacing.padding.cardLarge} text-center`}>
+                <p className={`text-gray-500 ${typography.body}`}>
+                  {t("dashboard.author.dashboard.messages.loading")}
+                </p>
               </div>
             ) : error ? (
-              <div className="p-6 text-center">
-                <p className="text-red-500">
+              <div className={`${spacing.padding.cardLarge} text-center`}>
+                <p className={`text-red-500 ${typography.body}`}>
                   {t("dashboard.author.dashboard.messages.error")}: {error}
                 </p>
               </div>
             ) : filterConferences(exploreConferences).length === 0 ? (
-              <div className="p-6 text-center">
-                <p className="text-gray-500">
+              <div className={`${spacing.padding.cardLarge} text-center`}>
+                <p className={`text-gray-500 ${typography.body}`}>
                   {t("dashboard.author.dashboard.messages.noConferencesFound")}
                 </p>
               </div>
@@ -295,20 +417,20 @@ export function AuthorDashboard() {
               filterConferences(exploreConferences).map((conference, index, array) => (
                 <div
                   key={conference.id}
-                  className={`flex flex-col md:flex-row md:items-center gap-4 p-4 ${
+                  className={`flex flex-col md:flex-row md:items-center ${spacing.gap.md} ${spacing.padding.card} ${
                     index !== array.length - 1 ? "border-b" : ""
                   }`}
                 >
                   <div className="flex-1 min-w-0">
                     <Link
                       href={`/dashboard/conference/${conference.id}`}
-                      className="text-blue-600 hover:underline block font-medium truncate"
+                      className={`text-blue-600 hover:underline block ${typography.medium} truncate`}
                     >
                       {conference.name}
                     </Link>
-                    <div className="text-sm text-gray-500">{conference.acronym}</div>
+                    <div className={`${typography.body} text-gray-500`}>{conference.acronym}</div>
                   </div>
-                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4 text-sm text-gray-600 ml-auto">
+                  <div className={`flex flex-col md:flex-row items-start md:items-center ${spacing.gap.md} ${typography.body} text-gray-600 ml-auto`}>
                     <div className="md:w-36">{formatDate(conference.conference_date)}</div>
                     <div className="md:w-36">{conference.location}</div>
                     <div className="md:w-32">{formatDate(conference.submission_deadline)}</div>

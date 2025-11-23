@@ -8,26 +8,29 @@ import (
 	"github.com/dcao/conferencespace/internal/config"
 	"github.com/dcao/conferencespace/internal/storage/assignment"
 	"github.com/dcao/conferencespace/internal/storage/conference"
+	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	"github.com/dcao/conferencespace/internal/storage/reviewer"
 	"github.com/dcao/conferencespace/internal/storage/submission"
 	"github.com/dcao/conferencespace/internal/storage/user"
 )
 
 type Storage struct {
-	User       user.StorageInterface
-	Conference conference.StorageInterface
-	Submission submission.StorageInterface
-	Reviewer   reviewer.StorageInterface
-	Assignment assignment.StorageInterface
+	User               user.StorageInterface
+	Conference         conference.StorageInterface
+	Submission         submission.StorageInterface
+	Reviewer           reviewer.StorageInterface
+	Assignment         assignment.StorageInterface
+	ConferenceUserRole conferenceuserrole.StorageInterface
 }
 
 func NewStorage(db *sql.DB) *Storage {
 	return &Storage{
-		User:       user.New(db),
-		Conference: conference.New(db),
-		Submission: submission.New(db),
-		Reviewer:   reviewer.New(db),
-		Assignment: assignment.New(db),
+		User:               user.New(db),
+		Conference:         conference.New(db),
+		Submission:         submission.New(db),
+		Reviewer:           reviewer.New(db),
+		Assignment:         assignment.New(db),
+		ConferenceUserRole: conferenceuserrole.New(db),
 	}
 }
 

@@ -12,7 +12,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { X, Search, UserPlus } from "lucide-react"
-import type { ConferenceFormData } from "@/app/conferences/new/page"
+import type { ConferenceFormData } from "@/app/dashboard/chair/create-conference/page"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
 type Props = {
   data: ConferenceFormData
@@ -69,20 +70,24 @@ export function OrganizersStep({ data, updateData }: Props) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className={spacing.subsection}>
       <div>
-        <h2 className="text-2xl font-semibold text-foreground mb-1">
-          Step 3: Assign Conference Chairs
+        <h2 className={`${typography.h2} ${typography.semibold} text-foreground mb-1`}>
+          Step 4: Assign Conference Chairs
         </h2>
-        <p className="text-sm text-muted-foreground">Add team members and assign their roles</p>
+        <p className={`${typography.body} text-muted-foreground`}>
+          Add team members and assign their roles
+        </p>
       </div>
 
-      <div className="space-y-4">
+      <div className={spacing.subsection}>
         {/* Search Bar */}
-        <div className="space-y-2">
-          <Label htmlFor="search">Search for Users</Label>
+        <div className={spacing.item}>
+          <Label htmlFor="search" className={typography.label}>Search for Users</Label>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search
+              className={`absolute left-3 top-1/2 -translate-y-1/2 ${iconSizes.sm} text-muted-foreground`}
+            />
             <Input
               id="search"
               placeholder="Search by name or email..."
@@ -101,35 +106,43 @@ export function OrganizersStep({ data, updateData }: Props) {
                     key={user.id}
                     type="button"
                     onClick={() => addOrganizer(user)}
-                    className="w-full px-4 py-3 text-left hover:bg-muted transition-colors flex items-center gap-2"
+                    className={`w-full px-4 py-3 text-left hover:bg-muted transition-colors flex items-center ${spacing.gap.sm}`}
                   >
-                    <UserPlus className="w-4 h-4 text-muted-foreground" />
+                    <UserPlus className={`${iconSizes.sm} text-muted-foreground`} />
                     <div>
-                      <div className="font-medium text-sm">{user.name}</div>
-                      <div className="text-xs text-muted-foreground">{user.email}</div>
+                      <div className={`${typography.medium} ${typography.body}`}>
+                        {user.name}
+                      </div>
+                      <div className={`${typography.bodySmall} text-muted-foreground`}>
+                        {user.email}
+                      </div>
                     </div>
                   </button>
                 ))}
               </div>
             )}
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className={typography.caption}>
             Search for registered platform users to add as conference chairs
           </p>
         </div>
 
         {/* Organizers List */}
-        <div className="space-y-2">
-          <Label>Conference Chairs</Label>
-          <div className="space-y-2">
+        <div className={spacing.item}>
+          <Label className={typography.label}>Conference Chairs</Label>
+          <div className={spacing.item}>
             {data.organizers.map((organizer, index) => (
               <div
                 key={organizer.id}
-                className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border"
+                className={`flex items-center ${spacing.gap.md} ${spacing.padding.card} bg-muted/50 rounded-lg border border-border`}
               >
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm">{organizer.name}</div>
-                  <div className="text-xs text-muted-foreground truncate">{organizer.email}</div>
+                  <div className={`${typography.medium} ${typography.body}`}>
+                    {organizer.name}
+                  </div>
+                  <div className={`${typography.bodySmall} text-muted-foreground truncate`}>
+                    {organizer.email}
+                  </div>
                 </div>
                 <Select
                   value={organizer.role}
@@ -155,14 +168,14 @@ export function OrganizersStep({ data, updateData }: Props) {
                     onClick={() => removeOrganizer(organizer.id)}
                     className="shrink-0"
                   >
-                    <X className="w-4 h-4" />
+                    <X className={iconSizes.sm} />
                   </Button>
                 )}
               </div>
             ))}
           </div>
           {data.organizers.length === 1 && (
-            <p className="text-xs text-muted-foreground">
+            <p className={typography.caption}>
               You are automatically added as the General Chair. Search above to add more team
               members.
             </p>

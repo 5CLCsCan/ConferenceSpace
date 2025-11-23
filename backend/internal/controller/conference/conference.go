@@ -1,34 +1,42 @@
 package conference
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/dcao/conferencespace/internal/assignment"
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
+	"github.com/dcao/conferencespace/internal/model"
 	"github.com/dcao/conferencespace/internal/storage"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
+	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
 type Controller struct {
 	conferenceStorage conferenceStorage.StorageInterface
+	roleStorage       conferenceuserrole.StorageInterface
+	assignmentService *assignment.Service
 }
 
-func New(store *storage.Storage) *Controller {
+func New(store *storage.Storage, assignmentSvc *assignment.Service) *Controller {
 	return &Controller{
 		conferenceStorage: store.Conference,
+		roleStorage:       store.ConferenceUserRole,
+		assignmentService: assignmentSvc,
 	}
 }
 
 // Create godoc
 // @Summary      Create a new conference
-// @Description  Create a new conference (authenticated users only)
+// @Description  Create a new conference with optional tracks, co-chairs, and configurations (authenticated users only)
 // @Tags         conferences
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        request body dto.Conference true "Conference data"
+// @Param        request body dto.Conference true "Conference data (title, acronym, chair, optional: tracks[], co_chairs[], domain[], configurations)"
 // @Success      201 {object} dto.ConferenceResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
@@ -46,16 +54,43 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.ConferenceCreateReques
 		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
 	}
 
-	userID, exists := utils.GetUserID(ginCtx)
-	if !exists {
-		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	req.Conference.Chair = userEmail
+
+	conference, err := c.conferenceStorage.Create(ctx, req.Conference)
+	if err != nil {
+		return nil, err
 	}
 
-	req.Conference.Chair = userEmail
-	req.Conference.PrimaryContact = userID
-	req.Conference.AreaChair = userID
+	// Add creator as chair and co-chairs in the roles table (bulk insert)
+	roles := []model.RoleAssignment{
+		{
+			ConferenceID: conference.ID,
+			UserEmail:    userEmail,
+			Role:         model.RoleChair,
+		},
+	}
 
-	return c.conferenceStorage.Create(ctx, req.Conference)
+	// Add co-chairs if provided
+	if len(req.Conference.CoChairs) > 0 {
+		for _, coChairEmail := range req.Conference.CoChairs {
+			if coChairEmail != "" && coChairEmail != userEmail {
+				roles = append(roles, model.RoleAssignment{
+					ConferenceID: conference.ID,
+					UserEmail:    coChairEmail,
+					Role:         model.RoleCoChair,
+				})
+			}
+		}
+	}
+
+	err = c.roleStorage.AddRoles(ctx, roles)
+	if err != nil {
+		// Log error but don't fail the conference creation
+		// The chair/co_chairs fields in conferences table still have the data
+		_ = err
+	}
+
+	return conference, nil
 }
 
 // List godoc
@@ -81,8 +116,7 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.ConferenceCreateReques
 func (c *Controller) List(ginCtx *gin.Context, req *dto.ConferenceListRequest) (*dto.UserConferenceListResponse, error) {
 	ctx := ginCtx.Request.Context()
 
-	// Get current user for role-based filtering
-	userID, _ := utils.GetUserID(ginCtx)
+	// Get current user email for filtering
 	userEmail, _ := utils.GetEmail(ginCtx)
 
 	params := &conferenceStorage.QueryParams{
@@ -93,7 +127,6 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.ConferenceListRequest) (
 		Chair:         req.Chair,
 		MyConferences: req.MyConferences,
 		Role:          req.Role,
-		UserID:        userID,
 		UserEmail:     userEmail,
 		MyBookmark:    req.MyBookmark,
 	}
@@ -103,26 +136,12 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.ConferenceListRequest) (
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
-	// Get current user for role determination
-	userID, exists := utils.GetUserID(ginCtx)
-	userEmail, _ = utils.GetEmail(ginCtx)
-
-	// Convert to user-specific response with role information
+	// Convert to user-specific response with role information (already included from JOIN)
 	userConferences := make([]*dto.UserConferenceResponse, len(conferences))
 	for i, conf := range conferences {
 		userConf := &dto.UserConferenceResponse{
 			ConferenceResponse: *conf,
-			UserRole:           "", // Default: no role
-		}
-
-		// Determine user role if user context is available
-		if exists {
-			// Check if user is chair
-			if userEmail == conf.Chair || (userID > 0 && (userID == conf.PrimaryContact || userID == conf.AreaChair)) {
-				userConf.UserRole = "chair"
-			}
-			// TODO: Check if user is author (has submissions to this conference)
-			// TODO: Check if user is reviewer (assigned to review this conference)
+			UserRole:           conf.UserRole, // Role already populated by storage layer JOIN
 		}
 
 		userConferences[i] = userConf
@@ -159,13 +178,13 @@ func (c *Controller) Get(ginCtx *gin.Context, req *dto.ConferenceGetRequest) (*d
 
 // Update godoc
 // @Summary      Update conference
-// @Description  Update conference (only chair can update)
+// @Description  Update conference details including tracks, co-chairs, and configurations (only chair or co-chair can update)
 // @Tags         conferences
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
 // @Param        conference_id path int true "Conference ID"
-// @Param        request body dto.ConferenceUpdateRequest true "Updated conference data"
+// @Param        request body dto.ConferenceUpdateRequest true "Updated conference data (can include tracks[], co_chairs[], domain[], configurations)"
 // @Success      200 {object} dto.ConferenceResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
@@ -189,11 +208,15 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.ConferenceUpdateReques
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
 	}
 
-	if existing.Chair != userEmail {
-		return nil, handler.NewErrorResponse(http.StatusForbidden, "only the chair can update this conference")
+	// Check if user has chair permissions
+	if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, req.ConferenceID, userEmail) {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "only the chair or co-chairs can update this conference")
 	}
 
-	req.Conference.Chair = userEmail
+	// Preserve the main chair if not being explicitly changed
+	if req.Conference.Chair == "" {
+		req.Conference.Chair = existing.Chair
+	}
 
 	return c.conferenceStorage.Update(ctx, req.ConferenceID, req.Conference)
 }
@@ -220,13 +243,9 @@ func (c *Controller) Delete(ginCtx *gin.Context, req *dto.ConferenceDeleteReques
 		return handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
 	}
 
-	existing, err := c.conferenceStorage.GetByID(ctx, req.ConferenceID)
-	if err != nil {
-		return handler.NewErrorResponse(http.StatusNotFound, "conference not found")
-	}
-
-	if existing.Chair != userEmail {
-		return handler.NewErrorResponse(http.StatusForbidden, "only the chair can delete this conference")
+	// Check if user has chair permissions
+	if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, req.ConferenceID, userEmail) {
+		return handler.NewErrorResponse(http.StatusForbidden, "only the chair or co-chairs can delete this conference")
 	}
 
 	return c.conferenceStorage.Delete(ctx, req.ConferenceID)
@@ -248,7 +267,7 @@ func (c *Controller) Delete(ginCtx *gin.Context, req *dto.ConferenceDeleteReques
 func (c *Controller) ToggleBookmark(ginCtx *gin.Context, req *dto.ConferenceBookmarkRequest) (*dto.ConferenceBookmarkResponse, error) {
 	ctx := ginCtx.Request.Context()
 
-	userID, exists := utils.GetUserID(ginCtx)
+	userEmail, exists := utils.GetEmail(ginCtx)
 	if !exists {
 		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
 	}
@@ -260,14 +279,14 @@ func (c *Controller) ToggleBookmark(ginCtx *gin.Context, req *dto.ConferenceBook
 	}
 
 	// Check if already bookmarked
-	isBookmarked, err := c.conferenceStorage.IsBookmarked(ctx, userID, req.ConferenceID)
+	isBookmarked, err := c.conferenceStorage.IsBookmarked(ctx, userEmail, req.ConferenceID)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
 	if isBookmarked {
 		// Remove bookmark
-		err = c.conferenceStorage.RemoveBookmark(ctx, userID, req.ConferenceID)
+		err = c.conferenceStorage.RemoveBookmark(ctx, userEmail, req.ConferenceID)
 		if err != nil {
 			return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 		}
@@ -277,7 +296,7 @@ func (c *Controller) ToggleBookmark(ginCtx *gin.Context, req *dto.ConferenceBook
 		}, nil
 	} else {
 		// Add bookmark
-		err = c.conferenceStorage.AddBookmark(ctx, userID, req.ConferenceID)
+		err = c.conferenceStorage.AddBookmark(ctx, userEmail, req.ConferenceID)
 		if err != nil {
 			return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 		}
@@ -286,4 +305,107 @@ func (c *Controller) ToggleBookmark(ginCtx *gin.Context, req *dto.ConferenceBook
 			IsBookmarked: true,
 		}, nil
 	}
+}
+
+// TransitionStatus godoc
+// @Summary      Transition conference status
+// @Description  Transition conference status (open -> reviewing -> completed). Auto-assigns reviewers when transitioning to reviewing.
+// @Tags         conferences
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        conference_id path int true "Conference ID"
+// @Param        request body dto.ConferenceTransitionStatusRequest true "New status (open, reviewing, completed)"
+// @Success      200 {object} dto.ConferenceTransitionStatusResponse
+// @Failure      400 {object} handler.Response
+// @Failure      401 {object} handler.Response
+// @Failure      403 {object} handler.Response
+// @Failure      404 {object} handler.Response
+// @Router       /conferences/{conference_id}/status [put]
+func (c *Controller) TransitionStatus(ginCtx *gin.Context, req *dto.ConferenceTransitionStatusRequest) (*dto.ConferenceTransitionStatusResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	// Get current conference to check permissions and current status
+	conference, err := c.conferenceStorage.GetByID(ctx, req.ConferenceID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
+	}
+
+	// Check if user is chair or co-chair
+	isChair := conference.Chair == userEmail
+	isCoChair := false
+	for _, coChair := range conference.CoChairs {
+		if coChair == userEmail {
+			isCoChair = true
+			break
+		}
+	}
+
+	if !isChair && !isCoChair {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "only chair or co-chairs can change conference status")
+	}
+
+	previousStatus := conference.Status
+
+	// Validate status transition (no reversion allowed)
+	validTransitions := map[string][]string{
+		model.ConferenceStatusOpen:      {model.ConferenceStatusReviewing},
+		model.ConferenceStatusReviewing: {model.ConferenceStatusCompleted},
+		model.ConferenceStatusCompleted: {}, // No transitions allowed from completed
+	}
+
+	allowedStatuses, exists := validTransitions[previousStatus]
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid current status")
+	}
+
+	isValid := false
+	for _, allowed := range allowedStatuses {
+		if allowed == req.NewStatus {
+			isValid = true
+			break
+		}
+	}
+
+	if !isValid {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, 
+			fmt.Sprintf("cannot transition from %s to %s. Allowed transitions: %v", 
+				previousStatus, req.NewStatus, allowedStatuses))
+	}
+
+	// Perform status transition
+	_, err = c.conferenceStorage.TransitionStatus(ctx, req.ConferenceID, req.NewStatus)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	response := &dto.ConferenceTransitionStatusResponse{
+		Message:        "conference status updated successfully",
+		PreviousStatus: previousStatus,
+		NewStatus:      req.NewStatus,
+	}
+
+	// If transitioning to reviewing, trigger auto-assign automatically
+	if req.NewStatus == model.ConferenceStatusReviewing && c.assignmentService != nil {
+		autoAssignConfig := assignment.AutoAssignConfig{
+			MinReviewersPerPaper: 2, // Default values, can be made configurable
+			MaxReviewersPerPaper: 3,
+			MinScoreThreshold:    0.3,
+			DryRun:               false,
+		}
+		_, err := c.assignmentService.AutoAssign(ctx, req.ConferenceID, autoAssignConfig)
+		if err != nil {
+			// Log error but don't fail the status transition
+			response.Message = fmt.Sprintf("conference status updated to reviewing. Auto-assignment failed: %v", err)
+		} else {
+			response.Message = "conference status updated to reviewing and reviewers auto-assigned successfully"
+		}
+	}
+
+	return response, nil
 }
