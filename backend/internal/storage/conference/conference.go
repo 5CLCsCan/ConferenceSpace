@@ -31,6 +31,7 @@ type StorageInterface interface {
 	List(ctx context.Context, params *QueryParams) ([]*dto.ConferenceResponse, int64, error)
 	Update(ctx context.Context, id int64, conf *dto.Conference) (*dto.ConferenceResponse, error)
 	Delete(ctx context.Context, id int64) error
+	TransitionStatus(ctx context.Context, id int64, newStatus string) (*dto.ConferenceResponse, error)
 	AddBookmark(ctx context.Context, userEmail string, conferenceID int64) error
 	RemoveBookmark(ctx context.Context, userEmail string, conferenceID int64) error
 	IsBookmarked(ctx context.Context, userEmail string, conferenceID int64) (bool, error)
@@ -67,6 +68,7 @@ func (s *Storage) Create(ctx context.Context, conf *dto.Conference) (*dto.Confer
 			model.ConferenceColDomain,
 			model.ColTracks,
 			model.ColConfigurations,
+			model.ColConferenceStatus,
 			model.ConferenceColCreatedAt,
 			model.ConferenceColUpdatedAt,
 		).
@@ -79,10 +81,11 @@ func (s *Storage) Create(ctx context.Context, conf *dto.Conference) (*dto.Confer
 			pq.Array(conf.Domain),
 			pq.Array(conf.Tracks),
 			configBytes,
+			model.ConferenceStatusOpen, // Default to open status
 			now,
 			now,
 		).
-		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
+		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
 			model.ColConferenceID,
 			model.ColTitle,
 			model.ColAcronym,
@@ -92,6 +95,7 @@ func (s *Storage) Create(ctx context.Context, conf *dto.Conference) (*dto.Confer
 			model.ConferenceColDomain,
 			model.ColTracks,
 			model.ColConfigurations,
+			model.ColConferenceStatus,
 			model.ConferenceColCreatedAt,
 			model.ConferenceColUpdatedAt,
 		)).
@@ -112,6 +116,7 @@ func (s *Storage) Create(ctx context.Context, conf *dto.Conference) (*dto.Confer
 		&entity.Domain,
 		&entity.Tracks,
 		&entity.Configurations,
+		&entity.Status,
 		&entity.CreatedAt,
 		&entity.UpdatedAt,
 	)
@@ -135,6 +140,7 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.ConferenceRespons
 			model.ConferenceColDomain,
 			model.ColTracks,
 			model.ColConfigurations,
+			model.ColConferenceStatus,
 			model.ConferenceColCreatedAt,
 			model.ConferenceColUpdatedAt,
 		).
@@ -157,6 +163,7 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.ConferenceRespons
 		&entity.Domain,
 		&entity.Tracks,
 		&entity.Configurations,
+		&entity.Status,
 		&entity.CreatedAt,
 		&entity.UpdatedAt,
 	)
@@ -183,6 +190,7 @@ func (s *Storage) GetByAcronym(ctx context.Context, acronym string) (*dto.Confer
 			model.ConferenceColDomain,
 			model.ColTracks,
 			model.ColConfigurations,
+			model.ColConferenceStatus,
 			model.ConferenceColCreatedAt,
 			model.ConferenceColUpdatedAt,
 		).
@@ -205,6 +213,7 @@ func (s *Storage) GetByAcronym(ctx context.Context, acronym string) (*dto.Confer
 		&entity.Domain,
 		&entity.Tracks,
 		&entity.Configurations,
+		&entity.Status,
 		&entity.CreatedAt,
 		&entity.UpdatedAt,
 	)
@@ -231,6 +240,7 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Confere
 		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ConferenceColDomain),
 		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ColTracks),
 		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ColConfigurations),
+		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ColConferenceStatus),
 		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ConferenceColCreatedAt),
 		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ConferenceColUpdatedAt),
 	}
@@ -391,6 +401,7 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Confere
 			&entity.Domain,
 			&entity.Tracks,
 			&entity.Configurations,
+			&entity.Status,
 			&entity.CreatedAt,
 			&entity.UpdatedAt,
 		}
@@ -450,7 +461,7 @@ func (s *Storage) Update(ctx context.Context, id int64, conf *dto.Conference) (*
 		Update(model.ConferenceTableName).
 		SetMap(updateMap).
 		Where(sq.Eq{model.ColConferenceID: id}).
-		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
+		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
 			model.ColConferenceID,
 			model.ColTitle,
 			model.ColAcronym,
@@ -460,6 +471,7 @@ func (s *Storage) Update(ctx context.Context, id int64, conf *dto.Conference) (*
 			model.ConferenceColDomain,
 			model.ColTracks,
 			model.ColConfigurations,
+			model.ColConferenceStatus,
 			model.ConferenceColCreatedAt,
 			model.ConferenceColUpdatedAt,
 		)).
@@ -480,6 +492,7 @@ func (s *Storage) Update(ctx context.Context, id int64, conf *dto.Conference) (*
 		&entity.Domain,
 		&entity.Tracks,
 		&entity.Configurations,
+		&entity.Status,
 		&entity.CreatedAt,
 		&entity.UpdatedAt,
 	)
@@ -586,4 +599,57 @@ func (s *Storage) IsBookmarked(ctx context.Context, userEmail string, conference
 	}
 
 	return count > 0, nil
+}
+
+// TransitionStatus updates the status of a conference
+func (s *Storage) TransitionStatus(ctx context.Context, id int64, newStatus string) (*dto.ConferenceResponse, error) {
+	query, args, err := s.qb.
+		Update(model.ConferenceTableName).
+		Set(model.ColConferenceStatus, newStatus).
+		Set(model.ConferenceColUpdatedAt, time.Now()).
+		Where(sq.Eq{model.ColConferenceID: id}).
+		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
+			model.ColConferenceID,
+			model.ColTitle,
+			model.ColAcronym,
+			model.ColDescription,
+			model.ColChair,
+			model.ColCoChairs,
+			model.ConferenceColDomain,
+			model.ColTracks,
+			model.ColConfigurations,
+			model.ColConferenceStatus,
+			model.ConferenceColCreatedAt,
+			model.ConferenceColUpdatedAt,
+		)).
+		ToSql()
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to build update query: %w", err)
+	}
+
+	entity := &model.Conference{}
+	err = s.db.QueryRowContext(ctx, query, args...).Scan(
+		&entity.ConferenceID,
+		&entity.Title,
+		&entity.Acronym,
+		&entity.Description,
+		&entity.Chair,
+		&entity.CoChairs,
+		&entity.Domain,
+		&entity.Tracks,
+		&entity.Configurations,
+		&entity.Status,
+		&entity.CreatedAt,
+		&entity.UpdatedAt,
+	)
+
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("conference not found")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to transition status: %w", err)
+	}
+
+	return entity.ToDTO(), nil
 }

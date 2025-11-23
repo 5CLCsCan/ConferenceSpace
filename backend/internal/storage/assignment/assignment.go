@@ -3,7 +3,9 @@ package assignment
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/dcao/conferencespace/internal/dto"
@@ -19,6 +21,8 @@ type StorageInterface interface {
 	Delete(ctx context.Context, id int64) error
 	DeleteBySubmission(ctx context.Context, submissionID int64) error
 	DeleteByReviewer(ctx context.Context, reviewerID int64) error
+	SaveReview(ctx context.Context, assignmentID int64, reviewScore *float64, reviewData *dto.ReviewData, status string) (*dto.Assignment, error)
+	GetReview(ctx context.Context, assignmentID int64) (*dto.Assignment, error)
 }
 
 type ListParams struct {
@@ -152,7 +156,8 @@ func (s *Storage) BatchCreate(ctx context.Context, conferenceID int64, assignmen
 // GetByID retrieves an assignment by ID
 func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Assignment, error) {
 	query, args, err := s.qb.
-		Select("id", "conference_id", "submission_id", "reviewer_id", "score", "status", "assigned_at", "completed_at", "created_at", "updated_at").
+		Select("id", "conference_id", "submission_id", "reviewer_id", "score", "status", "assigned_at", "completed_at", 
+			"review_status", "review_score", "review_data", "review_submitted_at", "created_at", "updated_at").
 		From(model.AssignmentTableName).
 		Where(sq.Eq{"id": id}).
 		ToSql()
@@ -171,6 +176,10 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Assignment, error
 		&result.Status,
 		&result.AssignedAt,
 		&result.CompletedAt,
+		&result.ReviewStatus,
+		&result.ReviewScore,
+		&result.ReviewData,
+		&result.ReviewSubmittedAt,
 		&result.CreatedAt,
 		&result.UpdatedAt,
 	)
@@ -179,7 +188,7 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Assignment, error
 		return nil, fmt.Errorf("assignment not found")
 	}
 	if err != nil {
-		return nil, fmt.Errorf("failed to get assignment: %w", err)
+		return nil, fmt.Errorf("failed to get assignment (id=%d, error=%v, query=%s): %w", id, err, query, err)
 	}
 
 	return result.ToDTO(), nil
@@ -377,4 +386,73 @@ func (s *Storage) DeleteByReviewer(ctx context.Context, reviewerID int64) error 
 	}
 
 	return nil
+}
+
+// SaveReview saves or updates a review for an assignment
+func (s *Storage) SaveReview(ctx context.Context, assignmentID int64, reviewScore *float64, reviewData *dto.ReviewData, status string) (*dto.Assignment, error) {
+	updateBuilder := s.qb.
+		Update(model.AssignmentTableName).
+		Set(model.ColReviewStatus, status).
+		Set(model.ColUpdatedAt, sq.Expr("NOW()"))
+
+	// Set review score if provided
+	if reviewScore != nil {
+		updateBuilder = updateBuilder.Set(model.ColReviewScore, *reviewScore)
+	}
+
+	// Set review data if provided
+	if reviewData != nil {
+		reviewDataJSON, err := json.Marshal(reviewData)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal review data: %w", err)
+		}
+		updateBuilder = updateBuilder.Set(model.ColReviewData, reviewDataJSON)
+	}
+
+	// Set review_submitted_at timestamp if status is submitted
+	if status == model.ReviewStatusSubmitted {
+		updateBuilder = updateBuilder.Set(model.ColReviewSubmittedAt, time.Now())
+	}
+
+	query, args, err := updateBuilder.
+		Where(sq.Eq{"id": assignmentID}).
+		Suffix("RETURNING id, conference_id, submission_id, reviewer_id, score, status, assigned_at, completed_at, review_status, review_score, review_data, review_submitted_at, created_at, updated_at").
+		ToSql()
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to build update query: %w", err)
+	}
+
+	var result model.Assignment
+	err = s.db.QueryRowContext(ctx, query, args...).Scan(
+		&result.ID,
+		&result.ConferenceID,
+		&result.SubmissionID,
+		&result.ReviewerID,
+		&result.Score,
+		&result.Status,
+		&result.AssignedAt,
+		&result.CompletedAt,
+		&result.ReviewStatus,
+		&result.ReviewScore,
+		&result.ReviewData,
+		&result.ReviewSubmittedAt,
+		&result.CreatedAt,
+		&result.UpdatedAt,
+	)
+
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("assignment not found")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to save review: %w", err)
+	}
+
+	return result.ToDTO(), nil
+}
+
+// GetReview retrieves an assignment with review data
+func (s *Storage) GetReview(ctx context.Context, assignmentID int64) (*dto.Assignment, error) {
+	// Reuse GetByID which now includes review fields
+	return s.GetByID(ctx, assignmentID)
 }

@@ -1,8 +1,10 @@
 package conference
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/dcao/conferencespace/internal/assignment"
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/model"
@@ -16,12 +18,14 @@ import (
 type Controller struct {
 	conferenceStorage conferenceStorage.StorageInterface
 	roleStorage       conferenceuserrole.StorageInterface
+	assignmentService *assignment.Service
 }
 
-func New(store *storage.Storage) *Controller {
+func New(store *storage.Storage, assignmentSvc *assignment.Service) *Controller {
 	return &Controller{
 		conferenceStorage: store.Conference,
 		roleStorage:       store.ConferenceUserRole,
+		assignmentService: assignmentSvc,
 	}
 }
 
@@ -301,4 +305,107 @@ func (c *Controller) ToggleBookmark(ginCtx *gin.Context, req *dto.ConferenceBook
 			IsBookmarked: true,
 		}, nil
 	}
+}
+
+// TransitionStatus godoc
+// @Summary      Transition conference status
+// @Description  Transition conference status (open -> reviewing -> completed). Auto-assigns reviewers when transitioning to reviewing.
+// @Tags         conferences
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        conference_id path int true "Conference ID"
+// @Param        request body dto.ConferenceTransitionStatusRequest true "New status (open, reviewing, completed)"
+// @Success      200 {object} dto.ConferenceTransitionStatusResponse
+// @Failure      400 {object} handler.Response
+// @Failure      401 {object} handler.Response
+// @Failure      403 {object} handler.Response
+// @Failure      404 {object} handler.Response
+// @Router       /conferences/{conference_id}/status [put]
+func (c *Controller) TransitionStatus(ginCtx *gin.Context, req *dto.ConferenceTransitionStatusRequest) (*dto.ConferenceTransitionStatusResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	// Get current conference to check permissions and current status
+	conference, err := c.conferenceStorage.GetByID(ctx, req.ConferenceID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
+	}
+
+	// Check if user is chair or co-chair
+	isChair := conference.Chair == userEmail
+	isCoChair := false
+	for _, coChair := range conference.CoChairs {
+		if coChair == userEmail {
+			isCoChair = true
+			break
+		}
+	}
+
+	if !isChair && !isCoChair {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "only chair or co-chairs can change conference status")
+	}
+
+	previousStatus := conference.Status
+
+	// Validate status transition (no reversion allowed)
+	validTransitions := map[string][]string{
+		model.ConferenceStatusOpen:      {model.ConferenceStatusReviewing},
+		model.ConferenceStatusReviewing: {model.ConferenceStatusCompleted},
+		model.ConferenceStatusCompleted: {}, // No transitions allowed from completed
+	}
+
+	allowedStatuses, exists := validTransitions[previousStatus]
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid current status")
+	}
+
+	isValid := false
+	for _, allowed := range allowedStatuses {
+		if allowed == req.NewStatus {
+			isValid = true
+			break
+		}
+	}
+
+	if !isValid {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, 
+			fmt.Sprintf("cannot transition from %s to %s. Allowed transitions: %v", 
+				previousStatus, req.NewStatus, allowedStatuses))
+	}
+
+	// Perform status transition
+	_, err = c.conferenceStorage.TransitionStatus(ctx, req.ConferenceID, req.NewStatus)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	response := &dto.ConferenceTransitionStatusResponse{
+		Message:        "conference status updated successfully",
+		PreviousStatus: previousStatus,
+		NewStatus:      req.NewStatus,
+	}
+
+	// If transitioning to reviewing, trigger auto-assign automatically
+	if req.NewStatus == model.ConferenceStatusReviewing && c.assignmentService != nil {
+		autoAssignConfig := assignment.AutoAssignConfig{
+			MinReviewersPerPaper: 2, // Default values, can be made configurable
+			MaxReviewersPerPaper: 3,
+			MinScoreThreshold:    0.3,
+			DryRun:               false,
+		}
+		_, err := c.assignmentService.AutoAssign(ctx, req.ConferenceID, autoAssignConfig)
+		if err != nil {
+			// Log error but don't fail the status transition
+			response.Message = fmt.Sprintf("conference status updated to reviewing. Auto-assignment failed: %v", err)
+		} else {
+			response.Message = "conference status updated to reviewing and reviewers auto-assigned successfully"
+		}
+	}
+
+	return response, nil
 }

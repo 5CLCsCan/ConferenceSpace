@@ -95,6 +95,17 @@ func (c *Controller) Create(ginCtx *gin.Context) (*dto.Submission, error) {
 		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
 	}
 
+	// Check if conference is open for submissions
+	conference, err := c.conferenceStorage.GetByID(ctx, conferenceID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
+	}
+
+	if conference.Status != model.ConferenceStatusOpen {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, 
+			fmt.Sprintf("submissions are not allowed. Conference status is '%s', but must be 'open'", conference.Status))
+	}
+
 	req.Submission.Author = userEmail
 	req.Submission.ConferenceID = conferenceID
 
@@ -231,6 +242,7 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.SubmissionListRequest) (
 // @Security     BearerAuth
 // @Param        conference_id path int true "Conference ID"
 // @Param        id path int true "Submission ID"
+// @Param        includeReviewers query bool false "Include reviewers assigned to this submission"
 // @Success      200 {object} dto.Submission
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
@@ -249,6 +261,9 @@ func (c *Controller) Get(ginCtx *gin.Context) (*dto.Submission, error) {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid submission ID")
 	}
 
+	// Parse includeReviewers query parameter
+	includeReviewers := ginCtx.Query("includeReviewers") == "true"
+
 	submission, err := c.submissionStorage.GetByID(ctx, id)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "submission not found")
@@ -256,6 +271,18 @@ func (c *Controller) Get(ginCtx *gin.Context) (*dto.Submission, error) {
 
 	if submission.ConferenceID != conferenceID {
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "submission not found in this conference")
+	}
+
+	// Fetch reviewers if requested
+	if includeReviewers {
+		reviewers, err := c.submissionStorage.GetReviewersBySubmissionID(ctx, id)
+		if err != nil {
+			// Log error but don't fail the request
+			// Just return submission without reviewers
+			fmt.Printf("Warning: failed to fetch reviewers for submission %d: %v\n", id, err)
+		} else {
+			submission.Reviewers = reviewers
+		}
 	}
 
 	return submission, nil

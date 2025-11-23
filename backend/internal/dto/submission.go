@@ -43,6 +43,7 @@ type Submission struct {
 	Status       string                  `json:"status" binding:"required,oneof=draft published reviewing"`
 	Information  *SubmissionInformation  `json:"information"`
 	File         *SubmissionFileMetadata `json:"file,omitempty"`
+	Reviewers    []Reviewer              `json:"reviewers,omitempty"` // Only populated when includeReviewers=true
 	CreatedAt    time.Time               `json:"created_at"`
 	UpdatedAt    time.Time               `json:"updated_at"`
 }
@@ -53,8 +54,9 @@ type SubmissionCreateRequest struct {
 }
 
 type SubmissionGetRequest struct {
-	ConferenceID int64 `uri:"conference_id" binding:"required"`
-	ID           int64 `uri:"id" binding:"required"`
+	ConferenceID     int64 `uri:"conference_id" binding:"required"`
+	ID               int64 `uri:"id" binding:"required"`
+	IncludeReviewers bool  `form:"includeReviewers" json:"includeReviewers"`
 }
 
 type SubmissionUpdateRequest struct {

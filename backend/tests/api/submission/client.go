@@ -50,6 +50,12 @@ func (c *Client) Get(conferenceID, submissionID int64, token string) (*http.Resp
 	return c.ctx.MakeRequest("GET", path, nil, token)
 }
 
+// GetWithReviewers calls the get submission by ID endpoint with includeReviewers parameter
+func (c *Client) GetWithReviewers(conferenceID, submissionID int64, includeReviewers bool, token string) (*http.Response, error) {
+	path := fmt.Sprintf("/api/v1/conferences/%d/submissions/%d?includeReviewers=%v", conferenceID, submissionID, includeReviewers)
+	return c.ctx.MakeRequest("GET", path, nil, token)
+}
+
 // List calls the list submissions endpoint
 func (c *Client) List(conferenceID int64, req *dto.SubmissionListRequest, token string) (*http.Response, error) {
 	path := fmt.Sprintf("/api/v1/conferences/%d/submissions", conferenceID)
@@ -105,6 +111,20 @@ func (c *Client) CreateSuccess(conferenceID int64, submission *dto.Submission, t
 // GetSuccess is a helper that gets a submission and returns the response
 func (c *Client) GetSuccess(conferenceID, submissionID int64, token string) (*dto.Submission, error) {
 	w, err := c.Get(conferenceID, submissionID, token)
+	if err != nil {
+		return nil, err
+	}
+
+	var response struct {
+		Data *dto.Submission `json:"data"`
+	}
+	testutils.DecodeResponse(c.ctx.T, w, &response)
+	return response.Data, nil
+}
+
+// GetWithReviewersSuccess is a helper that gets a submission with reviewers and returns the response
+func (c *Client) GetWithReviewersSuccess(conferenceID, submissionID int64, includeReviewers bool, token string) (*dto.Submission, error) {
+	w, err := c.GetWithReviewers(conferenceID, submissionID, includeReviewers, token)
 	if err != nil {
 		return nil, err
 	}
