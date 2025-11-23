@@ -61,8 +61,13 @@ export interface Relationship {
 export interface COIReport {
   reviewer_id: string
   reviewer_name: string
+  reviewer_email: string
+  reviewer_affiliation: string
   paper_id?: string
   author_id?: string
+  author_name?: string
+  author_email?: string
+  author_affiliation?: string
   coi_type: COIType
   severity: COISeverity
   relationships: Relationship[]
@@ -371,7 +376,12 @@ export function generateReviewerToAuthorCOIReport(
   return {
     reviewer_id: reviewerId,
     reviewer_name: reviewer.name,
+    reviewer_email: reviewer.email,
+    reviewer_affiliation: reviewer.affiliation,
     author_id: authorId,
+    author_name: author.name,
+    author_email: author.email,
+    author_affiliation: author.affiliation,
     coi_type: "author",
     severity,
     relationships,
@@ -410,6 +420,8 @@ export function generateReviewerToPaperCOIReport(
   return {
     reviewer_id: reviewerId,
     reviewer_name: reviewer.name,
+    reviewer_email: reviewer.email,
+    reviewer_affiliation: reviewer.affiliation,
     paper_id: paperId,
     coi_type: "paper",
     severity,
@@ -455,4 +467,71 @@ export function filterReviewers(
   }
 
   return filtered
+}
+
+export interface PaperCOISummary {
+  paper_id: string
+  paper_title: string
+  authors: Author[]
+  total_conflicts: number
+  high_severity_count: number
+  medium_severity_count: number
+  low_severity_count: number
+  conflicted_reviewers: {
+    reviewer: Reviewer
+    severity: COISeverity
+    reasons: string[]
+  }[]
+}
+
+/**
+ * Generate a summary of COIs for a single paper against all reviewers
+ */
+export function generatePaperCOISummary(paperId: string): PaperCOISummary | null {
+  const paper = mockPapers.find((p) => p.id === paperId)
+  if (!paper) return null
+
+  const conflictedReviewers: PaperCOISummary["conflicted_reviewers"] = []
+  let high = 0
+  let medium = 0
+  let low = 0
+
+  mockReviewers.forEach((reviewer) => {
+    // Check this reviewer against all authors of the paper
+    const relationships: Relationship[] = []
+    paper.authors.forEach((author) => {
+      const rels = findReviewerToAuthorCOI(reviewer.id, author.id)
+      relationships.push(...rels)
+    })
+
+    if (relationships.length > 0) {
+      const severity = calculateCOISeverity(relationships)
+      if (severity !== "none") {
+        if (severity === "high") high++
+        else if (severity === "medium") medium++
+        else if (severity === "low") low++
+
+        conflictedReviewers.push({
+          reviewer,
+          severity,
+          reasons: relationships.map((r) => r.description),
+        })
+      }
+    }
+  })
+
+  return {
+    paper_id: paper.id,
+    paper_title: paper.title,
+    authors: paper.authors,
+    total_conflicts: high + medium + low,
+    high_severity_count: high,
+    medium_severity_count: medium,
+    low_severity_count: low,
+    conflicted_reviewers: conflictedReviewers.sort((a, b) => {
+      // Sort by severity (High > Medium > Low)
+      const severityScore = { high: 3, medium: 2, low: 1, none: 0 }
+      return severityScore[b.severity] - severityScore[a.severity]
+    }),
+  }
 }

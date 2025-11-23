@@ -58,6 +58,7 @@
       "conference": "Hội nghị",
       "status": "Trạng thái",
       "date": "Ngày",
+      "details": "Chi tiết",
       "deadline": "Hạn nộp"
     },
     "messages": {
@@ -185,7 +186,7 @@
           "dates": "Các mốc thời gian",
           "committee": "Ban tổ chức",
           "submissions": "Bài gửi",
-          "coiDemo": "Demo COI"
+          "coiDemo": "COI Check"
         },
         "joinNow": "Gửi bài ngay",
         "currentRole": "Vai trò hiện tại",
@@ -821,89 +822,7 @@
           "assignments": "Phân công",
           "completed": "Đã hoàn thành",
           "viewAll": "Nhấp để xem tất cả"
-        },
-        "tabs": {
-          "assignReviewer": "Phân công Phản biện",
-          "reviewerToAuthor": "Phản biện → Tác giả",
-          "reviewerToPaper": "Phản biện → Bài báo"
         }
-      },
-      "assign": {
-        "title": "Chọn Phản biện",
-        "description": "Tìm kiếm và chọn phản biện để phân công. COI sẽ được kiểm tra dựa trên loại lựa chọn.",
-        "coiType": "Loại Kiểm tra COI",
-        "types": {
-          "paper": "COI dựa trên Bài báo",
-          "author": "COI dựa trên Tác giả"
-        },
-        "selectPaper": "Chọn Bài báo",
-        "selectAuthor": "Chọn Tác giả",
-        "paperPlaceholder": "Chọn một bài báo",
-        "authorPlaceholder": "Chọn một tác giả",
-        "search": "Tìm kiếm Phản biện",
-        "searchPlaceholder": "Tìm kiếm theo tên, email, hoặc lĩnh vực...",
-        "reviewersList": "Phản biện Có sẵn",
-        "reviewers": "phản biện",
-        "reviewer": "phản biện",
-        "noReviewers": "Không tìm thấy phản biện",
-        "selectedReviewers": "Phản biện Đã chọn",
-        "reviewerSelected": "phản biện đã chọn",
-        "reviewersSelected": "phản biện đã chọn",
-        "noSelectionYet": "Chưa chọn phản biện nào",
-        "assigning": "Đang phân công...",
-        "assignSelected": "Phân công Đã chọn",
-        "noSelection": "Chưa chọn phản biện",
-        "selectAtLeastOne": "Vui lòng chọn ít nhất một phản biện.",
-        "noPaper": "Chưa chọn bài báo",
-        "paper": "Vui lòng chọn một bài báo.",
-        "noAuthor": "Chưa chọn tác giả",
-        "author": "Vui lòng chọn một tác giả.",
-        "success": "Phân công thành công",
-        "failed": "Phân công thất bại",
-        "successMessage": "{count} phản biện đã được phân công thành công.",
-        "failureMessage": "{count} phân công thất bại do xung đột COI.",
-        "error": "Lỗi",
-        "info": {
-          "title": "Kiểm tra COI",
-          "paper": "Đang kiểm tra COI đối với tất cả tác giả của bài báo đã chọn.",
-          "author": "Đang kiểm tra COI cụ thể cho tác giả đã chọn."
-        }
-      },
-      "reviewerToAuthor": {
-        "title": "Phân tích COI Phản biện → Tác giả",
-        "description": "Chọn phản biện và tác giả để phân tích mối quan hệ xung đột lợi ích của họ",
-        "selectReviewer": "Chọn Phản biện",
-        "selectAuthor": "Chọn Tác giả",
-        "reviewerPlaceholder": "Chọn phản biện",
-        "authorPlaceholder": "Chọn tác giả",
-        "selectBoth": "Vui lòng chọn cả phản biện và tác giả để phân tích COI",
-        "coiReport": "Báo cáo Phân tích COI",
-        "relationships": "mối quan hệ",
-        "relationshipsDescription": "Phân tích chi tiết các mối quan hệ được phát hiện",
-        "from": "Từ",
-        "to": "đến",
-        "evidence": "Bằng chứng:",
-        "timeline": "Timeline Lịch sử Mối quan hệ",
-        "timelineDescription": "Timeline tương tác hiển thị lịch sử tương tác",
-        "noTimeline": "Không có lịch sử mối quan hệ",
-        "noData": "Không có dữ liệu COI"
-      },
-      "reviewerToPaper": {
-        "title": "Phân tích COI Phản biện → Bài báo",
-        "description": "Chọn phản biện và bài báo để phân tích COI đối với tất cả tác giả của bài báo",
-        "selectReviewer": "Chọn Phản biện",
-        "selectPaper": "Chọn Bài báo",
-        "reviewerPlaceholder": "Chọn phản biện",
-        "paperPlaceholder": "Chọn bài báo",
-        "selectBoth": "Vui lòng chọn cả phản biện và bài báo để phân tích COI",
-        "coiReport": "Báo cáo Phân tích COI",
-        "authorsAffected": "tác giả bị ảnh hưởng",
-        "totalRelationships": "tổng mối quan hệ",
-        "authorsBreakdown": "Phân tích Tác giả",
-        "authorsBreakdownDescription": "Phân tích COI cho từng tác giả của bài báo",
-        "relationship": "mối quan hệ",
-        "noCOI": "Không phát hiện COI",
-        "noData": "Không có dữ liệu COI"
       },
       "recommendation": {
         "assign": "PHÂN CÔNG",
@@ -961,6 +880,31 @@
         "reviewer": "Phản biện",
         "author": "Tác giả",
         "relatedPapers": "Bài báo Liên quan"
+      },
+      "detail": {
+        "title": "Chi tiết COI",
+        "reviewerInfo": "Thông tin Phản biện",
+        "authorInfo": "Thông tin Tác giả",
+        "evidenceTimeline": "Dòng thời gian Bằng chứng",
+        "coiAnalysisReport": "Báo cáo Phân tích COI",
+        "relationshipsDetected": "mối quan hệ được phát hiện",
+        "noConflict": "Không phát hiện xung đột",
+        "actions": {
+          "disqualifyReviewer": "Loại bỏ Phản biện",
+          "reassignPaper": "Gán lại Bài báo"
+        }
+      },
+      "analysis": {
+        "dashboard": {
+          "title": "Bảng điều khiển Phân tích Xung đột Lợi ích (COI)",
+          "description": "Quản lý và phân tích các mối quan hệ xung đột lợi ích giữa phản biện và bài báo",
+          "exportReport": "Xuất Báo cáo",
+          "criticalConflicts": "Xung đột Nghiêm trọng",
+          "needsReview": "Cần Xem xét",
+          "informational": "Thông tin",
+          "totalRelationships": "Tổng Mối quan hệ",
+          "showingResults": "Hiển thị {start} đến {end} của {total} kết quả"
+        }
       }
     },
     "submissions": {

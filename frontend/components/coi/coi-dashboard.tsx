@@ -1,22 +1,20 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ReviewerToAuthorCOI } from "./reviewer-to-author-coi"
-import { ReviewerToPaperCOI } from "./reviewer-to-paper-coi"
-import { AssignReviewerFlow } from "./assign-reviewer-flow"
-import { AllCOIRelationships } from "./all-coi-relationships"
-import { AlertTriangle, Users, FileText, UserCheck, ExternalLink } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { AlertTriangle, Users, FileText, UserCheck } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { getCOIDashboardStats } from "@/lib/api/coi-mock"
-import { typography, spacing, iconSizes } from "@/lib/typography"
+import { COIAnalysisDashboard } from "./coi-analysis-dashboard"
 
-export function COIDashboard() {
+interface COIDashboardProps {
+  conferenceId: string
+}
+
+export function COIDashboard({ conferenceId }: COIDashboardProps) {
   const { t } = useTranslation()
-  const [activeTab, setActiveTab] = useState("assign")
-  const [showAllRelationships, setShowAllRelationships] = useState(false)
   const [stats, setStats] = useState({
+    conference_id: "",
     total_reviewers: 0,
     available_reviewers: 0,
     total_papers: 0,
@@ -26,133 +24,94 @@ export function COIDashboard() {
     total_assignments: 0,
     completed_assignments: 0,
   })
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     loadStats()
-  }, [])
+  }, [conferenceId])
 
   const loadStats = async () => {
     try {
-      const result = await getCOIDashboardStats()
+      setLoading(true)
+      const result = await getCOIDashboardStats(conferenceId)
       if (result.data) {
         setStats(result.data)
       }
     } catch (error) {
       console.error("Failed to load COI dashboard stats:", error)
+    } finally {
+      setLoading(false)
     }
   }
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">{t("common.actions.loading")}</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className={spacing.subsection}>
-      {/* Header */}
-      <div>
-        <h1 className={`${typography.h1} text-foreground mb-2`}>{t("coi.dashboard.title")}</h1>
-        <p className={typography.muted}>{t("coi.dashboard.description")}</p>
+    <div className="space-y-6">
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <StatsCard
+          label={t("coi.dashboard.stats.totalReviewers")}
+          value={stats.total_reviewers}
+          sublabel={`${stats.available_reviewers} available`}
+          icon={Users}
+        />
+        <StatsCard
+          label={t("coi.dashboard.stats.totalPapers")}
+          value={stats.total_papers}
+          sublabel={`${stats.papers_under_review} under review`}
+          icon={FileText}
+        />
+        <StatsCard
+          label={t("coi.dashboard.stats.coiDetected")}
+          value={stats.coi_detected}
+          sublabel={`${stats.total_relationships} relationships`}
+          icon={AlertTriangle}
+          highlight="destructive"
+        />
       </div>
 
-      {/* Overview Stats */}
-      <div className={`grid grid-cols-1 md:grid-cols-4 ${spacing.gap.md}`}>
-        <Card>
-          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2`}>
-            <CardTitle className={`${typography.body} ${typography.medium}`}>
-              {t("coi.dashboard.stats.totalReviewers")}
-            </CardTitle>
-            <Users className={`${iconSizes.sm} text-muted-foreground`} />
-          </CardHeader>
-          <CardContent>
-            <div className={typography.stats}>{stats.total_reviewers}</div>
-            <p className={`${typography.bodySmall} text-muted-foreground mt-1`}>
-              {t("coi.dashboard.stats.available")} ({stats.available_reviewers})
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2`}>
-            <CardTitle className={`${typography.body} ${typography.medium}`}>
-              {t("coi.dashboard.stats.totalPapers")}
-            </CardTitle>
-            <FileText className={`${iconSizes.sm} text-muted-foreground`} />
-          </CardHeader>
-          <CardContent>
-            <div className={typography.stats}>{stats.total_papers}</div>
-            <p className={`${typography.bodySmall} text-muted-foreground mt-1`}>
-              {t("coi.dashboard.stats.underReview")} ({stats.papers_under_review})
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card
-          className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => setShowAllRelationships(true)}
-        >
-          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2`}>
-            <CardTitle className={`${typography.body} ${typography.medium}`}>
-              {t("coi.dashboard.stats.coiDetected")}
-            </CardTitle>
-            <AlertTriangle className={`${iconSizes.sm} text-destructive`} />
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className={`${typography.stats} text-destructive`}>
-                  {stats.coi_detected}
-                </div>
-                <p className={`${typography.bodySmall} text-muted-foreground mt-1`}>
-                  {t("coi.dashboard.stats.relationships")} ({stats.total_relationships})
-                </p>
-              </div>
-              <ExternalLink className={`${iconSizes.sm} text-muted-foreground`} />
-            </div>
-            <p className={`${typography.bodySmall} text-primary mt-2 ${typography.medium}`}>
-              {t("coi.dashboard.stats.viewAll")}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className={`flex flex-row items-center justify-between space-y-0 pb-2`}>
-            <CardTitle className={`${typography.body} ${typography.medium}`}>
-              {t("coi.dashboard.stats.assignments")}
-            </CardTitle>
-            <UserCheck className={`${iconSizes.sm} text-muted-foreground`} />
-          </CardHeader>
-          <CardContent>
-            <div className={typography.stats}>{stats.total_assignments}</div>
-            <p className={`${typography.bodySmall} text-muted-foreground mt-1`}>
-              {t("coi.dashboard.stats.completed")} ({stats.completed_assignments})
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className={spacing.subsection}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="assign">{t("coi.dashboard.tabs.assignReviewer")}</TabsTrigger>
-          <TabsTrigger value="reviewer-author">
-            {t("coi.dashboard.tabs.reviewerToAuthor")}
-          </TabsTrigger>
-          <TabsTrigger value="reviewer-paper">
-            {t("coi.dashboard.tabs.reviewerToPaper")}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="assign" className={spacing.subsection}>
-          <AssignReviewerFlow />
-        </TabsContent>
-
-        <TabsContent value="reviewer-author" className={spacing.subsection}>
-          <ReviewerToAuthorCOI />
-        </TabsContent>
-
-        <TabsContent value="reviewer-paper" className={spacing.subsection}>
-          <ReviewerToPaperCOI />
-        </TabsContent>
-      </Tabs>
-
-      {/* All COI Relationships Dialog */}
-      <AllCOIRelationships open={showAllRelationships} onOpenChange={setShowAllRelationships} />
+      {/* Main Analysis Dashboard */}
+      <COIAnalysisDashboard conferenceId={conferenceId} />
     </div>
+  )
+}
+
+interface StatsCardProps {
+  label: string
+  value: string | number
+  sublabel: string
+  icon: React.ElementType
+  highlight?: "destructive" | "warning"
+}
+
+function StatsCard({ label, value, sublabel, icon: Icon, highlight }: StatsCardProps) {
+  const highlightClass =
+    highlight === "destructive"
+      ? "text-destructive"
+      : highlight === "warning"
+        ? "text-amber-500"
+        : "text-muted-foreground"
+
+  return (
+    <Card className="shadow-sm hover:shadow-md transition-shadow">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{label}</CardTitle>
+        <Icon className={`h-4 w-4 ${highlightClass}`} />
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        <p className="text-xs text-muted-foreground mt-1">{sublabel}</p>
+      </CardContent>
+    </Card>
   )
 }

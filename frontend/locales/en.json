@@ -58,6 +58,7 @@
       "conference": "Conference",
       "status": "Status",
       "date": "Date",
+      "details": "Details",
       "deadline": "Deadline"
     },
     "messages": {
@@ -815,89 +816,7 @@
           "assignments": "Assignments",
           "completed": "8 completed",
           "viewAll": "Click to view all"
-        },
-        "tabs": {
-          "assignReviewer": "Assign Reviewer",
-          "reviewerToAuthor": "Reviewer → Author",
-          "reviewerToPaper": "Reviewer → Paper"
         }
-      },
-      "assign": {
-        "title": "Select Reviewers",
-        "description": "Search and select reviewers to assign. COI will be checked based on selection type.",
-        "coiType": "COI Check Type",
-        "types": {
-          "paper": "Paper-based COI",
-          "author": "Author-based COI"
-        },
-        "selectPaper": "Select Paper",
-        "selectAuthor": "Select Author",
-        "paperPlaceholder": "Choose a paper",
-        "authorPlaceholder": "Choose an author",
-        "search": "Search Reviewers",
-        "searchPlaceholder": "Search by name, email, or domain...",
-        "reviewersList": "Available Reviewers",
-        "reviewers": "reviewers",
-        "reviewer": "reviewer",
-        "noReviewers": "No reviewers found",
-        "selectedReviewers": "Selected Reviewers",
-        "reviewerSelected": "reviewer selected",
-        "reviewersSelected": "reviewers selected",
-        "noSelectionYet": "No reviewers selected yet",
-        "assigning": "Assigning...",
-        "assignSelected": "Assign Selected",
-        "noSelection": "No reviewers selected",
-        "selectAtLeastOne": "Please select at least one reviewer.",
-        "noPaper": "No paper selected",
-        "paper": "Please select a paper.",
-        "noAuthor": "No author selected",
-        "author": "Please select an author.",
-        "success": "Assignment successful",
-        "failed": "Assignment failed",
-        "successMessage": "{count} reviewer(s) assigned successfully.",
-        "failureMessage": "{count} assignment(s) failed due to COI conflicts.",
-        "error": "Error",
-        "info": {
-          "title": "COI Check",
-          "paper": "Checking COI against all authors of the selected paper.",
-          "author": "Checking COI specifically for the selected author."
-        }
-      },
-      "reviewerToAuthor": {
-        "title": "Reviewer → Author COI Analysis",
-        "description": "Select a reviewer and author to analyze their conflict of interest relationship",
-        "selectReviewer": "Select Reviewer",
-        "selectAuthor": "Select Author",
-        "reviewerPlaceholder": "Choose reviewer",
-        "authorPlaceholder": "Choose author",
-        "selectBoth": "Please select both reviewer and author to analyze COI",
-        "coiReport": "COI Analysis Report",
-        "relationships": "relationships",
-        "relationshipsDescription": "Detailed breakdown of detected relationships",
-        "from": "From",
-        "to": "to",
-        "evidence": "Evidence:",
-        "timeline": "Relationship History Timeline",
-        "timelineDescription": "Interactive timeline showing the history of interactions",
-        "noTimeline": "No relationship history available",
-        "noData": "No COI data available"
-      },
-      "reviewerToPaper": {
-        "title": "Reviewer → Paper COI Analysis",
-        "description": "Select a reviewer and paper to analyze COI against all paper authors",
-        "selectReviewer": "Select Reviewer",
-        "selectPaper": "Select Paper",
-        "reviewerPlaceholder": "Choose reviewer",
-        "paperPlaceholder": "Choose paper",
-        "selectBoth": "Please select both reviewer and paper to analyze COI",
-        "coiReport": "COI Analysis Report",
-        "authorsAffected": "author(s) affected",
-        "totalRelationships": "total relationships",
-        "authorsBreakdown": "Authors Breakdown",
-        "authorsBreakdownDescription": "COI analysis for each author of the paper",
-        "relationship": "relationship(s)",
-        "noCOI": "No COI detected",
-        "noData": "No COI data available"
       },
       "recommendation": {
         "assign": "ASSIGN",
@@ -955,73 +874,88 @@
         "reviewer": "Reviewer",
         "author": "Author",
         "relatedPapers": "Related Papers"
+      },
+      "detail": {
+        "title": "COI Detail",
+        "reviewerInfo": "Reviewer Information",
+        "authorInfo": "Author Information",
+        "evidenceTimeline": "Evidence Timeline",
+        "coiAnalysisReport": "COI Analysis Report",
+        "relationshipsDetected": "relationships detected",
+        "noConflict": "No conflict detected",
+        "actions": {
+          "disqualifyReviewer": "Disqualify Reviewer",
+          "reassignPaper": "Reassign Paper"
+        }
+      },
+      "analysis": {
+        "dashboard": {
+          "title": "Conflict of Interest (COI) Analysis Dashboard",
+          "description": "Manage and analyze conflict of interest relationships across reviewers and papers",
+          "exportReport": "Export Report",
+          "criticalConflicts": "Critical Conflicts",
+          "needsReview": "Needs Review",
+          "informational": "Informational",
+          "totalRelationships": "Total Relationships",
+          "showingResults": "Showing {start} to {end} of {total} results"
+        }
       }
+    }
+  },
+  "submissions": {
+    "pageTitle": "My Submissions",
+    "pageDescription": "View and manage all your submissions",
+    "loading": "Loading...",
+    "error": "Error",
+    "searchPlaceholder": "Search by title...",
+    "filterConference": "Filter by conference",
+    "filterStatus": "Filter by status",
+    "allConferences": "All conferences",
+    "allStatuses": "All statuses",
+    "title": "Title",
+    "conference": "Conference",
+    "submittedDate": "Submitted",
+    "noAbstract": "No abstract",
+    "empty": "You have no submissions yet",
+    "status": {
+      "label": "Status",
+      "draft": "Draft",
+      "published": "Published"
+    }
+  },
+  "submission": {
+    "details": {
+      "title": "Submission Details",
+      "description": "Detailed information about the submission",
+      "author": "Author",
+      "submittedDate": "Submitted Date",
+      "lastUpdated": "Last Updated",
+      "link": "Link",
+      "domains": "Domains",
+      "additionalInfo": "Additional Information",
+      "keywords": "Keywords",
+      "coAuthors": "Co-authors",
+      "track": "Track",
+      "paperType": "Paper Type",
+      "notes": "Additional Notes",
+      "file": "Attached File",
+      "fileName": "File Name",
+      "fileSize": "File Size",
+      "fileType": "File Type",
+      "metadata": "Metadata",
+      "abstract": "Abstract",
+      "documentPreview": "Document Preview",
+      "previewNotAvailable": "Preview not available",
+      "downloadToView": "Please download to view the file",
+      "noFile": "No file attached",
+      "viewExternalLink": "View external link"
     },
-    "submissions": {
-      "pageTitle": "My Submissions",
-      "pageDescription": "View and manage all your submissions",
-      "loading": "Loading...",
-      "error": "Error",
-      "searchPlaceholder": "Search by title...",
-      "filterConference": "Filter by conference",
-      "filterStatus": "Filter by status",
-      "allConferences": "All conferences",
-      "allStatuses": "All statuses",
-      "title": "Title",
-      "conference": "Conference",
-      "submittedDate": "Submitted",
-      "noAbstract": "No abstract",
-      "empty": "You have no submissions yet",
-      "status": {
-        "label": "Status",
-        "draft": "Draft",
-        "published": "Published"
-      }
+    "error": {
+      "title": "Error"
     },
-    "submission": {
-      "details": {
-        "title": "Submission Details",
-        "description": "Detailed information about the submission",
-        "author": "Author",
-        "submittedDate": "Submitted Date",
-        "lastUpdated": "Last Updated",
-        "link": "Link",
-        "domains": "Domains",
-        "additionalInfo": "Additional Information",
-        "keywords": "Keywords",
-        "coAuthors": "Co-authors",
-        "track": "Track",
-        "paperType": "Paper Type",
-        "notes": "Additional Notes",
-        "file": "Attached File",
-        "fileName": "File Name",
-        "fileSize": "File Size",
-        "fileType": "File Type",
-        "metadata": "Metadata",
-        "abstract": "Abstract",
-        "documentPreview": "Document Preview",
-        "previewNotAvailable": "Preview not available",
-        "downloadToView": "Please download to view the file",
-        "noFile": "No file attached",
-        "viewExternalLink": "View external link"
-      },
-      "tabs": {
-        "overview": "Overview",
-        "preview": "Preview",
-        "coi": "COI",
-        "coverLetter": "Cover Letter"
-      },
-      "coi": {
-        "description": "Conflicts of interest declared for this submission",
-        "notAvailable": "COI information not available"
-      },
-      "error": {
-        "title": "Error"
-      },
-      "notFound": {
-        "title": "Not Found",
-        "message": "Submission does not exist"
-      }
+    "notFound": {
+      "title": "Not Found",
+      "message": "Submission does not exist"
     }
   },
   "review": {

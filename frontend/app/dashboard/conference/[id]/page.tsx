@@ -9,7 +9,7 @@ import { ConferenceCallForPapers } from "@/components/conference/conference-call
 import { ConferenceImportantDates } from "@/components/conference/conference-important-dates"
 import { ConferenceCommittee } from "@/components/conference/conference-committee"
 import { ConferenceSubmissions } from "@/components/conference/conference-submissions"
-import { COIDashboard } from "@/components/coi/coi-dashboard"
+import { COIDashboard } from "@/components/coi"
 import { useAuth } from "@/lib/auth-context"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Loader2 } from "lucide-react"
@@ -197,7 +197,7 @@ export default function ConferencePage() {
             {activeTab === "dates" && <ConferenceImportantDates conferenceId={conference.id} />}
             {activeTab === "committee" && <ConferenceCommittee conferenceId={conference.id} />}
             {activeTab === "submissions" && <ConferenceSubmissions conferenceId={conference.id} />}
-            {activeTab === "coi-demo" && <COIDashboard />}
+            {activeTab === "coi-demo" && <COIDashboard conferenceId={conference.id} />}
           </div>
         </main>
       </div>
