@@ -1,6 +1,7 @@
 package submission
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -469,4 +470,177 @@ func TestDeleteSubmission(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGetSubmissionWithReviewers(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	submissionClient := NewClient(ctx)
+	conferenceClient := conference.NewClient(ctx)
+
+	// Create test users via API
+	chairToken, chair, err := ctx.RegisterUniqueUser("chair", "password123", "Chair", "User", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register chair user: %v", err)
+	}
+	authorToken, author, err := ctx.RegisterUniqueUser("author", "password123", "Author", "User", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register author user: %v", err)
+	}
+	_, reviewer1, err := ctx.RegisterUniqueUser("reviewer1", "password123", "Reviewer", "One", []string{"AI", "ML"})
+	if err != nil {
+		t.Fatalf("Failed to register reviewer1: %v", err)
+	}
+	_, reviewer2, err := ctx.RegisterUniqueUser("reviewer2", "password123", "Reviewer", "Two", []string{"AI", "NLP"})
+	if err != nil {
+		t.Fatalf("Failed to register reviewer2: %v", err)
+	}
+
+	// Create conference via API
+	conf := &dto.Conference{
+		Title:   "Test Conference",
+		Acronym: testutils.UniqueString("TC2025"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI"},
+	}
+	confResp, err := conferenceClient.Create(conf, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to create conference: %v", err)
+	}
+	var confData struct {
+		Data *dto.ConferenceResponse `json:"data"`
+	}
+	testutils.DecodeResponse(t, confResp, &confData)
+	conferenceID := confData.Data.ID
+
+	// Create submission via API
+	sub := &dto.Submission{
+		ConferenceID: conferenceID,
+		Author:       author.Email,
+		Title:        "Test Paper for Reviewers",
+		Abstract:     "Abstract for testing includeReviewers parameter",
+		Domain:       []string{"AI"},
+		Status:       dto.StatusPublished,
+	}
+	created, err := submissionClient.CreateSuccess(conferenceID, sub, authorToken)
+	if err != nil {
+		t.Fatalf("Failed to create submission: %v", err)
+	}
+	submissionID := created.ID
+
+	// Add reviewers to the conference
+	reviewerReq := map[string]interface{}{
+		"reviewers": []map[string]interface{}{
+			{"user_id": reviewer1.ID, "domain": []string{"AI", "ML"}},
+			{"user_id": reviewer2.ID, "domain": []string{"AI", "NLP"}},
+		},
+	}
+	addRevResp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/reviewers", conferenceID), reviewerReq, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to add reviewers: %v", err)
+	}
+	testutils.AssertStatusCode(t, addRevResp, http.StatusCreated)
+
+	var addRevData struct {
+		Data *dto.ReviewerBatchInviteResponse `json:"data"`
+	}
+	testutils.DecodeResponse(t, addRevResp, &addRevData)
+
+	// Accept reviewer invitations
+	for _, reviewer := range addRevData.Data.Success {
+		updateStatusPath := fmt.Sprintf("/api/v1/conferences/%d/reviewers/%d/status", conferenceID, reviewer.ID)
+		statusUpdate := map[string]interface{}{
+			"status": "accepted",
+		}
+		statusResp, err := ctx.MakeRequest("PUT", updateStatusPath, statusUpdate, chairToken)
+		if err != nil {
+			t.Fatalf("Failed to update reviewer status: %v", err)
+		}
+		testutils.AssertStatusCode(t, statusResp, http.StatusOK)
+	}
+
+	// Trigger auto-assignment to assign reviewers to the submission
+	autoAssignReq := map[string]interface{}{
+		"min_reviewers_per_paper": 2,
+		"max_reviewers_per_paper": 2,
+		"min_score_threshold":     0.0,
+		"dry_run":                 false,
+	}
+	assignResp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/submissions/auto-assign", conferenceID), autoAssignReq, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to trigger auto-assignment: %v", err)
+	}
+	testutils.AssertStatusCode(t, assignResp, http.StatusOK)
+
+	t.Run("get submission without reviewers (includeReviewers=false)", func(t *testing.T) {
+		submission, err := submissionClient.GetWithReviewersSuccess(conferenceID, submissionID, false, chairToken)
+		if err != nil {
+			t.Fatalf("Failed to get submission: %v", err)
+		}
+
+		if submission.ID != submissionID {
+			t.Errorf("Expected submission ID %d, got %d", submissionID, submission.ID)
+		}
+
+		if len(submission.Reviewers) > 0 {
+			t.Errorf("Expected no reviewers when includeReviewers=false, got %d reviewers", len(submission.Reviewers))
+		}
+	})
+
+	t.Run("get submission with reviewers (includeReviewers=true)", func(t *testing.T) {
+		submission, err := submissionClient.GetWithReviewersSuccess(conferenceID, submissionID, true, chairToken)
+		if err != nil {
+			t.Fatalf("Failed to get submission: %v", err)
+		}
+
+		if submission.ID != submissionID {
+			t.Errorf("Expected submission ID %d, got %d", submissionID, submission.ID)
+		}
+
+		if len(submission.Reviewers) != 2 {
+			t.Errorf("Expected 2 reviewers when includeReviewers=true, got %d reviewers", len(submission.Reviewers))
+		}
+
+		// Verify reviewer data contains expected fields
+		for i, reviewer := range submission.Reviewers {
+			if reviewer.ID == 0 {
+				t.Errorf("Reviewer %d has no ID", i)
+			}
+			if reviewer.Email == "" {
+				t.Errorf("Reviewer %d has no email", i)
+			}
+			if reviewer.UserID == 0 {
+				t.Errorf("Reviewer %d has no user ID", i)
+			}
+			t.Logf("Reviewer %d: ID=%d, UserID=%d, Email=%s, Status=%s", i, reviewer.ID, reviewer.UserID, reviewer.Email, reviewer.Status)
+		}
+
+		// Verify reviewers match the expected reviewers
+		reviewerEmails := make(map[string]bool)
+		for _, reviewer := range submission.Reviewers {
+			reviewerEmails[reviewer.Email] = true
+		}
+
+		if !reviewerEmails[reviewer1.Email] && !reviewerEmails[reviewer2.Email] {
+			t.Error("Expected reviewers to include reviewer1 or reviewer2")
+		}
+	})
+
+	t.Run("default behavior (no includeReviewers param) should not include reviewers", func(t *testing.T) {
+		resp, err := submissionClient.Get(conferenceID, submissionID, chairToken)
+		if err != nil {
+			t.Fatalf("Failed to get submission: %v", err)
+		}
+		testutils.AssertStatusCode(t, resp, http.StatusOK)
+
+		var respData struct {
+			Data *dto.Submission `json:"data"`
+		}
+		testutils.DecodeResponse(t, resp, &respData)
+
+		if len(respData.Data.Reviewers) > 0 {
+			t.Errorf("Expected no reviewers in default response, got %d reviewers", len(respData.Data.Reviewers))
+		}
+	})
 }

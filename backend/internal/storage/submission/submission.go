@@ -30,6 +30,7 @@ type StorageInterface interface {
 	Update(ctx context.Context, id int64, sub *dto.Submission) (*dto.Submission, error)
 	Delete(ctx context.Context, id int64) error
 	BulkUpdateStatus(ctx context.Context, submissionIDs []int64, status string) error
+	GetReviewersBySubmissionID(ctx context.Context, submissionID int64) ([]dto.Reviewer, error)
 }
 
 type Storage struct {
@@ -463,4 +464,59 @@ func (s *Storage) BulkUpdateStatus(ctx context.Context, submissionIDs []int64, s
 	}
 
 	return nil
+}
+
+// GetReviewersBySubmissionID retrieves all reviewers assigned to a submission
+func (s *Storage) GetReviewersBySubmissionID(ctx context.Context, submissionID int64) ([]dto.Reviewer, error) {
+	query, args, err := s.qb.
+		Select(
+			"cr.id",
+			"cr.user_id",
+			"cr.conference_id",
+			"u.email",
+			"cr.status",
+			"cr.domain",
+			"cr.created_at",
+			"cr.updated_at",
+		).
+		From("paper_assignments pa").
+		Join("conference_reviewers cr ON pa.reviewer_id = cr.id").
+		Join("users u ON cr.user_id = u.user_id").
+		Where(sq.Eq{"pa.submission_id": submissionID}).
+		ToSql()
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to build query: %w", err)
+	}
+
+	rows, err := s.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query reviewers: %w", err)
+	}
+	defer rows.Close()
+
+	var reviewers []dto.Reviewer
+	for rows.Next() {
+		var reviewer dto.Reviewer
+		err := rows.Scan(
+			&reviewer.ID,
+			&reviewer.UserID,
+			&reviewer.ConferenceID,
+			&reviewer.Email,
+			&reviewer.Status,
+			pq.Array(&reviewer.Domain),
+			&reviewer.CreatedAt,
+			&reviewer.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan reviewer: %w", err)
+		}
+		reviewers = append(reviewers, reviewer)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating reviewers: %w", err)
+	}
+
+	return reviewers, nil
 }
