@@ -322,8 +322,8 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
           </div>
 
           <div className={`grid ${spacing.gap.md} md:grid-cols-2 lg:grid-cols-3`}>
-            {(conference.tracks || []).map((track) => (
-              <Card key={track.id} className={spacing.padding.card}>
+            {(conference.tracks || []).map((track, index) => (
+              <Card key={track.id || `track-${index}`} className={spacing.padding.card}>
                 <h3 className={typography.h5}>{track.name || "Unnamed Track"}</h3>
                 <p className={`mt-1.5 ${typography.bodySmall} leading-relaxed text-gray-600`}>
                   {track.description || "No description available"}
@@ -331,8 +331,8 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
                 <div className="mt-3">
                   <p className={`${typography.label} text-gray-500`}>Track Chairs</p>
                   <div className={`mt-1.5 flex flex-wrap ${spacing.gap.sm}`}>
-                    {(track.chairs || []).map((chairId) => (
-                      <Badge key={chairId} variant="outline" className={typography.bodySmall}>
+                    {(track.chairs || []).map((chairId, chairIndex) => (
+                      <Badge key={chairId || `chair-${chairIndex}`} variant="outline" className={typography.bodySmall}>
                         Chair {chairId}
                       </Badge>
                     ))}

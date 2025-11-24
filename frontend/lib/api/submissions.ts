@@ -36,6 +36,13 @@ export interface Submission {
     mime_type: string
     path: string
   }
+  cover_letter?: {
+    filename: string
+    original_name: string
+    size: number
+    mime_type: string
+    path: string
+  }
   created_at: string
   updated_at: string
 }
@@ -158,28 +165,36 @@ export async function getUserSubmissions(
 
     const conferences = conferencesResponse.data.conferences
     console.log("[getUserSubmissions] Found conferences:", conferences.length)
-    const allSubmissions: SubmissionWithConference[] = []
 
-    // Fetch submissions for each conference with author filter
-    for (const conference of conferences) {
-      const submissionsResponse = await getConferenceSubmissions(conference.id, {
+    // Fetch submissions for ALL conferences in PARALLEL (instead of sequential loop)
+    const submissionPromises = conferences.map((conference) =>
+      getConferenceSubmissions(conference.id, {
         author: userEmail,
-      })
+      }).then((response) => ({
+        conference,
+        response,
+      })),
+    )
 
-      if (submissionsResponse.data && submissionsResponse.data.submissions.length > 0) {
-        console.log(
-          `[getUserSubmissions] Found ${submissionsResponse.data.submissions.length} submissions for conference ${conference.id}`,
-        )
-        // Add conference context to each submission
-        const submissionsWithConference = submissionsResponse.data.submissions.map(
-          (submission) => ({
+    // Wait for all requests to complete
+    const results = await Promise.all(submissionPromises)
+    
+    // Collect all submissions with conference context
+    const allSubmissions: SubmissionWithConference[] = results.flatMap(
+      ({ conference, response }) => {
+        if (response.data && response.data.submissions.length > 0) {
+          console.log(
+            `[getUserSubmissions] Found ${response.data.submissions.length} submissions for conference ${conference.id}`,
+          )
+          // Add conference context to each submission
+          return response.data.submissions.map((submission) => ({
             ...submission,
             conference,
-          }),
-        )
-        allSubmissions.push(...submissionsWithConference)
-      }
-    }
+          }))
+        }
+        return []
+      },
+    )
 
     console.log("[getUserSubmissions] Total submissions found:", allSubmissions.length)
     return {

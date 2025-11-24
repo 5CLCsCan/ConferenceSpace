@@ -29,28 +29,30 @@ type SubmissionFileMetadata struct {
 	Size         int64  `json:"size"`
 	MimeType     string `json:"mime_type"`
 	Path         string `json:"path"`
+	Content      []byte `json:"-"` // File content for upload (not serialized to JSON)
 }
 
 type Submission struct {
 	ID           int64                   `json:"id"`
-	ConferenceID int64                   `json:"conference_id" binding:"required"`
-	Author       string                  `json:"author" binding:"required,email"`
-	Title        string                  `json:"title" binding:"required"`
-	Abstract     string                  `json:"abstract" binding:"required"`
+	ConferenceID int64                   `json:"conference_id"`                              // Set by controller from path parameter
+	Author       string                  `json:"author,omitempty" binding:"omitempty,email"` // Set by controller from auth context
+	Title        string                  `json:"title"`
+	Abstract     string                  `json:"abstract"`
 	Link         string                  `json:"link"`
 	Domain       []string                `json:"domain"`
-	Track        string                  `json:"track"` // Must be one of the conference's tracks
-	Status       string                  `json:"status" binding:"required,oneof=draft published reviewing"`
+	Track        string                  `json:"track"`                                                                // Must be one of the conference's tracks
+	Status       string                  `json:"status,omitempty" binding:"omitempty,oneof=draft published reviewing"` // Optional for updates
 	Information  *SubmissionInformation  `json:"information"`
 	File         *SubmissionFileMetadata `json:"file,omitempty"`
-	Reviewers    []Reviewer              `json:"reviewers,omitempty"` // Only populated when includeReviewers=true
+	CoverLetter  *SubmissionFileMetadata `json:"cover_letter,omitempty"` // Optional cover letter (PDF, DOCX, or TXT)
+	Reviewers    []Reviewer              `json:"reviewers,omitempty"`    // Only populated when includeReviewers=true
 	CreatedAt    time.Time               `json:"created_at"`
 	UpdatedAt    time.Time               `json:"updated_at"`
 }
 
 type SubmissionCreateRequest struct {
 	ConferenceID int64       `uri:"conference_id" binding:"required"`
-	Submission   *Submission `json:"submission" binding:"required"`
+	Submission   *Submission `json:"submission" form:"submission" binding:"required"`
 }
 
 type SubmissionGetRequest struct {
@@ -62,7 +64,13 @@ type SubmissionGetRequest struct {
 type SubmissionUpdateRequest struct {
 	ConferenceID int64       `uri:"conference_id" binding:"required"`
 	ID           int64       `uri:"id" binding:"required"`
-	Submission   *Submission `json:"submission" binding:"required"`
+	Submission   *Submission `json:"submission" form:"submission" binding:"required"`
+}
+
+type SubmissionPublishRequest struct {
+	ConferenceID int64       `uri:"conference_id" binding:"required"`
+	ID           int64       `uri:"id" binding:"required"`
+	Submission   *Submission `form:"submission"` // Contains File and CoverLetter if provided
 }
 
 type SubmissionDeleteRequest struct {

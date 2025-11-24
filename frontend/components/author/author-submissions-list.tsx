@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
 import { FilterBar, type ActiveFilter } from "@/components/ui/filter-bar"
-import { FileText } from "lucide-react"
+import { FileText, FileCheck, Paperclip } from "lucide-react"
 import { getUserSubmissions } from "@/lib/api/submissions"
 import type { SubmissionWithConference } from "@/lib/api/submissions"
 import { formatDate } from "@/lib/utils"
@@ -284,6 +284,32 @@ export function AuthorSubmissionsList() {
           <div className="whitespace-nowrap">{renderStatusBadge(submission.status)}</div>
         ),
         mobileLabel: t("dashboard.submissions.status.label"),
+      },
+      {
+        key: "attachments",
+        label: t("dashboard.submissions.attachments", "Files"),
+        width: "w-24",
+        className: "whitespace-nowrap",
+        render: (submission) => (
+          <div className="flex items-center gap-2">
+            {submission.file && (
+              <div className="flex items-center gap-1 text-xs text-gray-600" title="Paper attached">
+                <FileText className="size-4 text-blue-600" />
+                <span className="sr-only">Paper</span>
+              </div>
+            )}
+            {submission.cover_letter && (
+              <div className="flex items-center gap-1 text-xs text-gray-600" title="Cover letter attached">
+                <FileCheck className="size-4 text-green-600" />
+                <span className="sr-only">Cover Letter</span>
+              </div>
+            )}
+            {!submission.file && !submission.cover_letter && (
+              <span className="text-xs text-gray-400">-</span>
+            )}
+          </div>
+        ),
+        mobileLabel: t("dashboard.submissions.attachments", "Files"),
       },
     ],
     [t, renderStatusBadge],

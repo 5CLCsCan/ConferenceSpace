@@ -208,10 +208,10 @@ func TestCreateSubmission(t *testing.T) {
 				ConferenceID: conferenceID,
 				Author:       author.Email,
 				Abstract:     "Missing title",
-				Status:       dto.StatusDraft,
+				Status:       dto.StatusDraft, // Drafts allow incomplete data
 			},
-			expectedStatus: http.StatusBadRequest,
-			expectError:    true,
+			expectedStatus: http.StatusCreated, // Should succeed for draft
+			expectError:    false,              // Drafts can be incomplete
 		},
 	}
 
