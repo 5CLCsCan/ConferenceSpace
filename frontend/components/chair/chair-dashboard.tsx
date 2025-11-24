@@ -1,17 +1,16 @@
-import { ConferenceTableRow, ConferenceCard } from "@/components/chair/conference-table-row"
+import { ConferenceCard } from "@/components/chair/conference-table-row"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Checkbox } from "@/components/ui/checkbox"
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
+import { FilterBar, type ActiveFilter } from "@/components/ui/filter-bar"
 import { useRouter } from "next/navigation"
-import { Search, Filter, X } from "lucide-react"
-import { useEffect, useState, useMemo } from "react"
+import { useEffect, useState, useMemo, useCallback } from "react"
 import { listConferences } from "@/lib/api/conferences"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { useAuth } from "@/lib/auth-context"
-import { typography, spacing, iconSizes } from "@/lib/typography"
+import { typography, spacing } from "@/lib/typography"
+import Link from "next/link"
 
 type ViewMode = "your" | "discover"
 type StatusFilter = "active" | "upcoming" | "archived" | ""
@@ -35,7 +34,6 @@ export default function ChairDashboard() {
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("")
-  const [filterOpen, setFilterOpen] = useState(false)
 
   useEffect(() => {
     const fetchConferences = async () => {
@@ -117,6 +115,142 @@ export default function ChairDashboard() {
   }
 
   const hasActiveFilters = statusFilter !== ""
+
+  const activeFilters: ActiveFilter[] = useMemo(() => {
+    if (!statusFilter) return []
+    return [
+      {
+        id: "status",
+        label:
+          statusFilter === "active"
+            ? "Accepting Submissions"
+            : statusFilter === "upcoming"
+              ? "In Review"
+              : "Archived",
+        onRemove: handleRemoveStatusFilter,
+      },
+    ]
+  }, [statusFilter])
+
+  const filterPopover = (
+    <div className={spacing.subsection}>
+      <div>
+        <h4 className={`${typography.semibold} ${typography.body} mb-3`}>Status</h4>
+        <div className={spacing.item}>
+          <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
+            <Checkbox
+              checked={statusFilter === "active"}
+              onCheckedChange={(checked) => setStatusFilter(checked ? "active" : "")}
+            />
+            <span className={typography.body}>Accepting Submissions</span>
+          </label>
+          <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
+            <Checkbox
+              checked={statusFilter === "upcoming"}
+              onCheckedChange={(checked) => setStatusFilter(checked ? "upcoming" : "")}
+            />
+            <span className={typography.body}>In Review</span>
+          </label>
+          <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
+            <Checkbox
+              checked={statusFilter === "archived"}
+              onCheckedChange={(checked) => setStatusFilter(checked ? "archived" : "")}
+            />
+            <span className={typography.body}>Archived</span>
+          </label>
+        </div>
+      </div>
+      <div className={`flex justify-end ${spacing.gap.sm} pt-2 border-t`}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setStatusFilter("")
+          }}
+        >
+          Clear
+        </Button>
+      </div>
+    </div>
+  )
+
+  const renderStatusBadge = useCallback((status: "active" | "upcoming" | "archived") => {
+    const statusStyles = {
+      active: "bg-success/10 text-success",
+      upcoming: "bg-primary/10 text-primary",
+      archived: "bg-secondary/10 text-secondary",
+    }
+
+    const statusLabels = {
+      active: "Accepting Submissions",
+      upcoming: "In Review",
+      archived: "Archived",
+    }
+
+    return (
+      <span
+        className={`inline-flex items-center px-3 py-1 rounded-full ${typography.bodySmall} ${typography.medium} ${statusStyles[status]}`}
+      >
+        {statusLabels[status]}
+      </span>
+    )
+  }, [])
+
+  type ConferenceData = {
+    id: string
+    name: string
+    acronym: string
+    dates: string
+    status: "active" | "upcoming" | "archived"
+    submissions: number
+  }
+
+  const columns = useMemo<DataTableColumn<ConferenceData>[]>(
+    () => [
+      {
+        key: "name",
+        label: t("dashboard.chair.dashboard.tableHeaders.conferenceName"),
+        render: (conference) => (
+          <div
+            className="cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={(e) => {
+              e.stopPropagation()
+              router.push(`/dashboard/conference/${conference.id}`)
+            }}
+          >
+            <div className={`${typography.semibold} text-foreground`}>{conference.name}</div>
+            <div className={`${typography.body} text-muted-foreground`}>{conference.acronym}</div>
+          </div>
+        ),
+      },
+      {
+        key: "dates",
+        label: t("dashboard.chair.dashboard.tableHeaders.dates"),
+        width: "w-32",
+        render: (conference) => (
+          <span className={`${typography.body} text-foreground`}>{conference.dates}</span>
+        ),
+        mobileLabel: t("dashboard.chair.dashboard.tableHeaders.dates"),
+      },
+      {
+        key: "status",
+        label: t("dashboard.chair.dashboard.tableHeaders.status"),
+        width: "w-40",
+        render: (conference) => renderStatusBadge(conference.status),
+        mobileLabel: t("dashboard.chair.dashboard.tableHeaders.status"),
+      },
+      {
+        key: "submissions",
+        label: t("dashboard.chair.dashboard.tableHeaders.submissions"),
+        width: "w-32",
+        render: (conference) => (
+          <span className={`${typography.body} text-foreground`}>{conference.submissions}</span>
+        ),
+        mobileLabel: t("dashboard.chair.dashboard.tableHeaders.submissions"),
+      },
+    ],
+    [t, renderStatusBadge, router],
+  )
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-8">
@@ -175,180 +309,42 @@ export default function ChairDashboard() {
 
           {/* Search and Filter Controls */}
           <div className="mb-4">
-            <div className={`relative flex items-center ${spacing.gap.sm} border rounded-md bg-background`}>
-              <Search className={`absolute left-3 ${iconSizes.sm} text-muted-foreground`} />
-              <div className={`flex-1 flex items-center ${spacing.gap.sm} pl-10 pr-2 py-2`}>
-                {hasActiveFilters && (
-                  <div className={`flex items-center ${spacing.gap.sm} flex-wrap`}>
-                    {statusFilter && (
-                      <Badge variant="secondary" className={spacing.gap.tight}>
-                        {statusFilter === "active"
-                          ? "Accepting Submissions"
-                          : statusFilter === "upcoming"
-                            ? "In Review"
-                            : "Archived"}
-                        <button
-                          onClick={handleRemoveStatusFilter}
-                          className="ml-1 hover:bg-muted rounded-full"
-                        >
-                          <X className={iconSizes.xs} />
-                        </button>
-                      </Badge>
-                    )}
-                  </div>
-                )}
-                <Input
-                  placeholder={
-                    hasActiveFilters ? "" : t("dashboard.chair.dashboard.searchPlaceholder")
-                  }
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="!border-0 focus-visible:!ring-0 focus-visible:!border-0 focus-visible:!ring-offset-0 !shadow-none h-auto p-0 flex-1 min-w-[120px]"
-                />
-              </div>
-              <Popover open={filterOpen} onOpenChange={setFilterOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={`h-8 w-8 mr-2 ${hasActiveFilters ? "text-primary" : ""}`}
-                  >
-                    <Filter className={iconSizes.sm} />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-64" align="end">
-                  <div className={spacing.subsection}>
-                    <div>
-                      <h4 className={`${typography.semibold} ${typography.body} mb-3`}>Status</h4>
-                      <div className={spacing.item}>
-                        <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
-                          <Checkbox
-                            checked={statusFilter === "active"}
-                            onCheckedChange={(checked) => setStatusFilter(checked ? "active" : "")}
-                          />
-                          <span className={typography.body}>Accepting Submissions</span>
-                        </label>
-                        <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
-                          <Checkbox
-                            checked={statusFilter === "upcoming"}
-                            onCheckedChange={(checked) =>
-                              setStatusFilter(checked ? "upcoming" : "")
-                            }
-                          />
-                          <span className={typography.body}>In Review</span>
-                        </label>
-                        <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
-                          <Checkbox
-                            checked={statusFilter === "archived"}
-                            onCheckedChange={(checked) =>
-                              setStatusFilter(checked ? "archived" : "")
-                            }
-                          />
-                          <span className={typography.body}>Archived</span>
-                        </label>
-                      </div>
-                    </div>
-                    <div className={`flex justify-end ${spacing.gap.sm} pt-2 border-t`}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setStatusFilter("")
-                          setFilterOpen(false)
-                        }}
-                      >
-                        Clear
-                      </Button>
-                      <Button size="sm" onClick={() => setFilterOpen(false)}>
-                        Apply
-                      </Button>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
+            <FilterBar
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              searchPlaceholder={t("dashboard.chair.dashboard.searchPlaceholder")}
+              activeFilters={activeFilters}
+              filterPopover={filterPopover}
+              hasActiveFilters={hasActiveFilters}
+            />
           </div>
 
-          {/* Desktop Table */}
-          <Card className="shadow-sm overflow-hidden hidden md:block">
-            {loading ? (
-              <div className={`${spacing.padding.cardLarge} text-center`}>
-                <div className={typography.muted}>
-                  {t("dashboard.chair.dashboard.messages.loading")}
-                </div>
-              </div>
-            ) : error ? (
-              <div className={`${spacing.padding.cardLarge} text-center`}>
-                <div className={`text-destructive ${typography.body}`}>
-                  {t("dashboard.chair.dashboard.messages.error")}: {error}
-                </div>
-              </div>
-            ) : conferences.length === 0 ? (
-              <div className={`${spacing.padding.cardLarge} text-center`}>
-                <div className={typography.muted}>
-                  {t("dashboard.chair.dashboard.messages.noConferencesFound")}
-                </div>
-              </div>
-            ) : (
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr className="border-b border-border">
-                    <th className={`py-3 px-4 text-left ${typography.body} ${typography.semibold} text-foreground`}>
-                      {t("dashboard.chair.dashboard.tableHeaders.conferenceName")}
-                    </th>
-                    <th className={`py-3 px-4 text-left ${typography.body} ${typography.semibold} text-foreground`}>
-                      {t("dashboard.chair.dashboard.tableHeaders.dates")}
-                    </th>
-                    <th className={`py-3 px-4 text-left ${typography.body} ${typography.semibold} text-foreground`}>
-                      {t("dashboard.chair.dashboard.tableHeaders.status")}
-                    </th>
-                    <th className={`py-3 px-4 text-left ${typography.body} ${typography.semibold} text-foreground`}>
-                      {t("dashboard.chair.dashboard.tableHeaders.submissions")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {conferences.map((conference, index) => (
-                    <ConferenceTableRow key={conference.id} {...conference} />
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </Card>
-
-          {/* Mobile Cards */}
-          <div className="md:hidden">
-            {loading ? (
-              <div className={`${spacing.padding.cardLarge} text-center`}>
-                <div className={typography.muted}>
-                  {t("dashboard.chair.dashboard.messages.loading")}
-                </div>
-              </div>
-            ) : error ? (
-              <div className={`${spacing.padding.cardLarge} text-center`}>
-                <div className={`text-destructive ${typography.body}`}>
-                  {t("dashboard.chair.dashboard.messages.error")}: {error}
-                </div>
-              </div>
-            ) : conferences.length === 0 ? (
-              <div className={`${spacing.padding.cardLarge} text-center`}>
-                <div className={typography.muted}>
-                  {t("dashboard.chair.dashboard.messages.noConferencesFound")}
-                </div>
-              </div>
-            ) : (
-              conferences.map((conference) => (
-                <ConferenceCard key={conference.id} {...conference} />
-              ))
-            )}
-          </div>
+          {/* Data Table */}
+          <DataTable<ConferenceData>
+            columns={columns}
+            data={conferences}
+            loading={loading}
+            error={error}
+            emptyMessage={t("dashboard.chair.dashboard.messages.noConferencesFound")}
+            loadingMessage={t("dashboard.chair.dashboard.messages.loading")}
+            errorMessage={
+              error ? `${t("dashboard.chair.dashboard.messages.error")}: ${error}` : undefined
+            }
+            getRowKey={(conference) => conference.id}
+            onRowClick={(conference) => {
+              router.push(`/dashboard/conference/${conference.id}`)
+            }}
+            renderMobileCard={(conference) => <ConferenceCard {...conference} />}
+          />
         </section>
       </main>
 
       {/* Footer */}
       <footer className="border-t border-border bg-muted py-6 mt-16">
         <div className="container mx-auto px-4">
-          <div className={`flex flex-col sm:flex-row items-center justify-center ${spacing.gap.md} ${typography.body} text-muted-foreground`}>
+          <div
+            className={`flex flex-col sm:flex-row items-center justify-center ${spacing.gap.md} ${typography.body} text-muted-foreground`}
+          >
             <span>© 2025 ConferenceHub</span>
             <span className="hidden sm:inline">•</span>
             <a href="#" className="hover:text-primary transition-colors">

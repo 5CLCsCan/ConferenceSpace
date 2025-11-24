@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,9 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
 import { ArrowLeft, Inbox, Search } from "lucide-react"
 import type { AssignedPaper } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { typography, spacing } from "@/lib/typography"
 
 interface ConferencePapersProps {
   papers: AssignedPaper[]
@@ -33,11 +35,54 @@ export function ConferencePapers({
   const [statusFilter, setStatusFilter] = useState<string>("all")
 
   // Filter papers based on search and status
-  const filteredPapers = papers.filter((paper) => {
-    const matchesSearch = paper.title.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = statusFilter === "all" || paper.assignment_status === statusFilter
-    return matchesSearch && matchesStatus
-  })
+  const filteredPapers = useMemo(() => {
+    return papers.filter((paper) => {
+      const matchesSearch = paper.title.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesStatus = statusFilter === "all" || paper.assignment_status === statusFilter
+      return matchesSearch && matchesStatus
+    })
+  }, [papers, searchQuery, statusFilter])
+
+  const renderStatusBadge = useCallback(
+    (status: string) => {
+      const isPending = status === "pending"
+      return (
+        <span
+          className={`px-2 py-1 text-xs font-medium rounded-full ${
+            isPending ? "bg-yellow-100 text-yellow-800" : "bg-green-100 text-green-800"
+          }`}
+        >
+          {t(`dashboard.roles.reviewer.papers.statusValues.${status}`)}
+        </span>
+      )
+    },
+    [t],
+  )
+
+  const columns = useMemo<DataTableColumn<AssignedPaper>[]>(
+    () => [
+      {
+        key: "title",
+        label: t("dashboard.roles.reviewer.papers.table.title"),
+        render: (paper) => <span className="font-medium">{paper.title}</span>,
+      },
+      {
+        key: "assignment_status",
+        label: t("dashboard.roles.reviewer.papers.table.status"),
+        width: "w-32",
+        render: (paper) => renderStatusBadge(paper.assignment_status),
+        mobileLabel: t("dashboard.roles.reviewer.papers.table.status"),
+      },
+      {
+        key: "due_date",
+        label: t("dashboard.roles.reviewer.papers.table.deadline"),
+        width: "w-36",
+        render: (paper) => (paper.due_date ? new Date(paper.due_date).toLocaleDateString() : "-"),
+        mobileLabel: t("dashboard.roles.reviewer.papers.table.deadline"),
+      },
+    ],
+    [t, renderStatusBadge],
+  )
 
   return (
     <Card>
@@ -86,74 +131,50 @@ export function ConferencePapers({
             </SelectContent>
           </Select>
         </div>
-        <div className="border rounded-lg">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b bg-muted/50">
-                <th className="text-left p-4 font-medium">
-                  {t("dashboard.roles.reviewer.papers.table.title")}
-                </th>
-                <th className="text-left p-4 font-medium">
-                  {t("dashboard.roles.reviewer.papers.table.status")}
-                </th>
-                <th className="text-left p-4 font-medium">
-                  {t("dashboard.roles.reviewer.papers.table.deadline")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPapers.length === 0 ? (
-                <tr>
-                  <td colSpan={3} className="p-12">
-                    <div className="flex flex-col items-center justify-center text-center space-y-4">
-                      <div className="rounded-full bg-muted p-6">
-                        <Inbox className="size-12 text-muted-foreground" />
-                      </div>
-                      <div className="space-y-2">
-                        <h3 className="text-lg font-semibold">
-                          {searchQuery || statusFilter !== "all"
-                            ? t("dashboard.roles.reviewer.papers.search.noResults")
-                            : t("dashboard.roles.reviewer.papers.empty.title")}
-                        </h3>
-                        <p className="text-sm text-muted-foreground max-w-md">
-                          {searchQuery || statusFilter !== "all"
-                            ? t("dashboard.roles.reviewer.papers.search.noResultsDescription")
-                            : t("dashboard.roles.reviewer.papers.empty.description")}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                filteredPapers.map((paper) => (
-                  <tr
-                    key={paper.id}
-                    className="border-b cursor-pointer hover:bg-muted"
-                    onClick={() => onSelectPaper(paper.id)}
-                  >
-                    <td className="p-4 font-medium">{paper.title}</td>
-                    <td className="p-4">
-                      <span
-                        className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          paper.assignment_status === "pending"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-green-100 text-green-800"
-                        }`}
-                      >
-                        {t(
-                          `dashboard.roles.reviewer.papers.statusValues.${paper.assignment_status}`,
-                        )}
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      {paper.due_date ? new Date(paper.due_date).toLocaleDateString() : "-"}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <DataTable<AssignedPaper>
+          columns={columns}
+          data={filteredPapers}
+          loading={false}
+          error={null}
+          emptyMessage={
+            <div className="flex flex-col items-center justify-center text-center space-y-4 py-12">
+              <div className="rounded-full bg-muted p-6">
+                <Inbox className="size-12 text-muted-foreground" />
+              </div>
+              <div className="space-y-2">
+                <h3 className={`text-lg ${typography.semibold}`}>
+                  {searchQuery || statusFilter !== "all"
+                    ? t("dashboard.roles.reviewer.papers.search.noResults")
+                    : t("dashboard.roles.reviewer.papers.empty.title")}
+                </h3>
+                <p className={`${typography.body} text-muted-foreground max-w-md`}>
+                  {searchQuery || statusFilter !== "all"
+                    ? t("dashboard.roles.reviewer.papers.search.noResultsDescription")
+                    : t("dashboard.roles.reviewer.papers.empty.description")}
+                </p>
+              </div>
+            </div>
+          }
+          getRowKey={(paper) => paper.id}
+          onRowClick={(paper) => onSelectPaper(paper.id)}
+          renderMobileCard={(paper) => (
+            <div className={spacing.padding.card}>
+              <div className={`${typography.medium} mb-2`}>{paper.title}</div>
+              <div
+                className={`flex flex-col ${spacing.gap.sm} ${typography.body} text-muted-foreground`}
+              >
+                <div>
+                  {t("dashboard.roles.reviewer.papers.table.status")}:{" "}
+                  {renderStatusBadge(paper.assignment_status)}
+                </div>
+                <div>
+                  {t("dashboard.roles.reviewer.papers.table.deadline")}:{" "}
+                  {paper.due_date ? new Date(paper.due_date).toLocaleDateString() : "-"}
+                </div>
+              </div>
+            </div>
+          )}
+        />
       </CardContent>
     </Card>
   )

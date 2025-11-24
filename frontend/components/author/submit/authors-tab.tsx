@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Plus, Loader2, Check } from "lucide-react"
+import { Card } from "@/components/ui/card"
+import { Plus, Loader2, Check, Users, Info, Trash2 } from "lucide-react"
 import { apiFetch } from "@/lib/api/client"
 import { cn } from "@/lib/utils"
 import { typography, spacing, iconSizes } from "@/lib/typography"
@@ -46,6 +47,12 @@ export function AuthorsTab({
     setAuthors([...authors, { name: "", email: "", affiliation: "" }])
   }
 
+  const handleRemoveAuthor = (index: number) => {
+    if (authors.length > 1) {
+      setAuthors(authors.filter((_, i) => i !== index))
+    }
+  }
+
   const handleUpdateEmail = (index: number, email: string) => {
     const updated = [...authors]
     updated[index].email = email
@@ -76,7 +83,7 @@ export function AuthorsTab({
         }
       }>(`/api/v1/users/search?q=${encodeURIComponent(query)}&limit=10`)
 
-      const users = (data.data?.users || []).map(user => ({
+      const users = (data.data?.users || []).map((user) => ({
         id: user.id,
         email: user.email,
         first_name: user.first_name,
@@ -122,115 +129,184 @@ export function AuthorsTab({
   }
 
   return (
-    <div className={spacing.subsection}>
-      <div>
-        <h2 className={`${typography.h3} ${typography.bold} text-gray-900 mb-1`}>
-          Authors & Affiliations
-        </h2>
-        <p className={`${typography.body} text-gray-600`}>
-          Add all co-authors in the correct order
-        </p>
+    <div className={spacing.section}>
+      {/* Header */}
+      <div className={spacing.item}>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-purple-50 rounded-lg">
+            <Users className="size-6 text-purple-600" />
+          </div>
+          <div>
+            <h2 className={`${typography.h2} text-[#212529] font-arial`}>Authors & Affiliations</h2>
+            <p className={`${typography.body} text-[#6C757D] font-arial ${spacing.margin.top.sm}`}>
+              List all co-authors in the order they should appear
+            </p>
+          </div>
+        </div>
       </div>
+
+      {/* Info Card */}
+      <Card className="bg-purple-50 border-purple-200">
+        <div className={spacing.padding.card}>
+          <div className="flex items-start gap-3">
+            <Info className="size-5 text-purple-600 flex-shrink-0 mt-0.5" />
+            <div className={`${typography.bodySmall} text-gray-700`}>
+              <p className={`${typography.medium} text-purple-900 mb-2`}>Author Guidelines:</p>
+              <ul className="space-y-1 ml-4 list-disc">
+                <li>Enter email addresses to search for registered users</li>
+                <li>Authors will be listed in the order shown below</li>
+                <li>The first author is typically the primary contributor</li>
+                <li>Mark yourself as corresponding author if applicable</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Authors List */}
       <div className={spacing.subsection}>
         {authors.map((author, index) => (
-          <div key={index} className={spacing.item}>
-            <div className="relative">
-              <Label className={`${typography.bodySmall} text-gray-600`}>
-                Author {index + 1} - Email *
-              </Label>
-              <div className="relative">
-                <Input
-                  ref={(el) => {
-                    inputRefs.current[index] = el
-                  }}
-                  type="email"
-                  placeholder="Enter email address"
-                  value={author.email}
-                  onChange={(e) => handleUpdateEmail(index, e.target.value)}
-                  onFocus={() => {
-                    if (author.email && author.email.length >= 2) {
-                      searchUsers(index, author.email)
-                    }
-                  }}
-                  onBlur={() => {
-                    // Close popover after a short delay to allow click events
-                    setTimeout(() => {
-                      setOpenPopovers({ ...openPopovers, [index]: false })
-                    }, 200)
-                  }}
-                  className="w-full"
-                />
-                {(searchResults[index]?.length > 0 || isSearching[index]) &&
-                  openPopovers[index] && (
-                    <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-md max-h-[200px] overflow-y-auto">
-                      {isSearching[index] ? (
-                        <div className="flex items-center justify-center p-4">
-                          <Loader2 className="size-4 animate-spin text-muted-foreground" />
-                        </div>
-                      ) : searchResults[index]?.length > 0 ? (
-                        <div className="p-1">
-                          {searchResults[index].map((user) => (
-                            <button
-                              key={user.id}
-                              type="button"
-                              onMouseDown={(e) => {
-                                e.preventDefault() // Prevent input blur
-                                handleSelectUser(index, user)
-                              }}
-                              className={cn(
-                                `w-full flex items-center ${spacing.gap.sm} px-2 py-1.5 ${typography.body} rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer`,
-                                author.email === user.email && "bg-accent"
-                              )}
-                            >
-                              <div className="flex-1 text-left">
-                                <div className={typography.medium}>{user.email}</div>
-                                {(user.first_name || user.last_name) && (
-                                  <div className={typography.bodySmall}>
-                                    {`${user.first_name || ""} ${user.last_name || ""}`.trim()}
-                                  </div>
-                                )}
+          <Card key={index} className="border-[#DEE2E6]">
+            <div className={spacing.padding.card}>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#E9ECEF] text-[#495057] font-semibold text-sm">
+                      {index + 1}
+                    </div>
+                    <Label className={`${typography.label} text-[#212529] font-arial`}>
+                      {index === 0 ? "Primary Author" : `Co-Author ${index}`}
+                    </Label>
+                  </div>
+
+                  <div className="relative">
+                    <Label
+                      className={`${typography.bodySmall} text-[#6C757D] font-arial mb-1.5 block`}
+                    >
+                      Email Address *
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        ref={(el) => {
+                          inputRefs.current[index] = el
+                        }}
+                        type="email"
+                        placeholder="author@university.edu"
+                        value={author.email}
+                        onChange={(e) => handleUpdateEmail(index, e.target.value)}
+                        onFocus={() => {
+                          if (author.email && author.email.length >= 2) {
+                            searchUsers(index, author.email)
+                          }
+                        }}
+                        onBlur={() => {
+                          setTimeout(() => {
+                            setOpenPopovers({ ...openPopovers, [index]: false })
+                          }, 200)
+                        }}
+                        className={`${typography.body} font-arial border-[#DEE2E6] focus:border-[#0056A3] focus:ring-[#0056A3]`}
+                      />
+                      {(searchResults[index]?.length > 0 || isSearching[index]) &&
+                        openPopovers[index] && (
+                          <div className="absolute z-50 w-full mt-1 bg-white border border-[#DEE2E6] rounded-md shadow-lg max-h-[200px] overflow-y-auto">
+                            {isSearching[index] ? (
+                              <div className="flex items-center justify-center p-4">
+                                <Loader2 className="size-4 animate-spin text-[#6C757D]" />
                               </div>
-                              {author.email === user.email && (
-                                <Check className={`${iconSizes.sm} text-primary`} />
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      ) : null}
+                            ) : searchResults[index]?.length > 0 ? (
+                              <div className="p-1">
+                                {searchResults[index].map((user) => (
+                                  <button
+                                    key={user.id}
+                                    type="button"
+                                    onMouseDown={(e) => {
+                                      e.preventDefault()
+                                      handleSelectUser(index, user)
+                                    }}
+                                    className={cn(
+                                      `w-full flex items-center ${spacing.gap.sm} px-3 py-2 ${typography.body} font-arial rounded-sm hover:bg-[#F8F9FA] cursor-pointer transition-colors`,
+                                      author.email === user.email && "bg-[#E9ECEF]",
+                                    )}
+                                  >
+                                    <div className="flex-1 text-left">
+                                      <div className={`${typography.medium} text-[#212529]`}>
+                                        {user.email}
+                                      </div>
+                                      {(user.first_name || user.last_name) && (
+                                        <div className={`${typography.bodySmall} text-[#6C757D]`}>
+                                          {`${user.first_name || ""} ${user.last_name || ""}`.trim()}
+                                        </div>
+                                      )}
+                                    </div>
+                                    {author.email === user.email && (
+                                      <Check className={`${iconSizes.sm} text-[#0056A3]`} />
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                        )}
+                    </div>
+                  </div>
+
+                  {author.name && (
+                    <div className={`${typography.body} text-[#495057] font-arial pl-1`}>
+                      <span className={typography.medium}>Name:</span> {author.name}
                     </div>
                   )}
+                </div>
+
+                {authors.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveAuthor(index)}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                )}
               </div>
             </div>
-            {author.name && (
-              <div className={`${typography.body} text-muted-foreground pl-1`}>
-                <span className={typography.medium}>Name:</span> {author.name}
-              </div>
-            )}
-          </div>
+          </Card>
         ))}
       </div>
+
+      {/* Add Author Button */}
       <Button
         type="button"
         variant="outline"
         onClick={handleAddAuthor}
-        className="w-full bg-transparent"
+        className={`w-full border-[#0056A3] text-[#0056A3] hover:bg-[#0056A3]/10 ${typography.body} ${typography.medium} font-arial`}
       >
         <Plus className={`${iconSizes.sm} mr-2`} />
         Add Co-Author
       </Button>
-      <div className={`flex items-center ${spacing.gap.sm} pt-4 border-t`}>
-        <Checkbox
-          id="corresponding"
-          checked={isCorresponding}
-          onCheckedChange={(checked) => setIsCorresponding(checked === true)}
-        />
-        <label
-          htmlFor="corresponding"
-          className={`${typography.body} ${typography.medium} leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70`}
-        >
-          I am the corresponding author
-        </label>
-      </div>
+
+      {/* Corresponding Author Checkbox */}
+      <Card className="border-[#DEE2E6] bg-[#F8F9FA]">
+        <div className={spacing.padding.card}>
+          <div className={`flex items-center ${spacing.gap.sm}`}>
+            <Checkbox
+              id="corresponding"
+              checked={isCorresponding}
+              onCheckedChange={(checked) => setIsCorresponding(checked === true)}
+              className="border-[#0056A3]"
+            />
+            <label
+              htmlFor="corresponding"
+              className={`${typography.body} ${typography.medium} text-[#212529] font-arial leading-none cursor-pointer`}
+            >
+              I am the corresponding author for this submission
+            </label>
+          </div>
+          <p className={`${typography.bodySmall} text-[#6C757D] font-arial ml-6 mt-1`}>
+            The corresponding author will receive all communication regarding this submission
+          </p>
+        </div>
+      </Card>
     </div>
   )
 }

@@ -103,7 +103,7 @@ function StatsCard({ label, value, sublabel, icon: Icon, highlight }: StatsCardP
         : "text-muted-foreground"
 
   return (
-    <Card className="shadow-sm hover:shadow-md transition-shadow">
+    <Card className="shadow-sm hover:shadow-md transition-shadow py-6">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{label}</CardTitle>
         <Icon className={`h-4 w-4 ${highlightClass}`} />

@@ -187,12 +187,11 @@ export default function DashboardPage() {
               }
 
               const Icon = config.icon
-              const hasRole = true
 
               return (
                 <Card
                   key={role}
-                  className="bg-white border-2 border-neutral-200 hover:border-primary hover:shadow-lg transition-all cursor-pointer group"
+                  className="bg-white border-2 border-neutral-200 hover:border-primary hover:shadow-lg transition-all cursor-pointer group py-6"
                   onClick={() => handleRoleSelect(role)}
                 >
                   <CardHeader>
@@ -203,11 +202,6 @@ export default function DashboardPage() {
                         >
                           <Icon className={`${iconSizes.lg} text-white`} />
                         </div>
-                        {hasRole && (
-                          <span className={`px-2 py-1 ${typography.bodySmall} ${typography.medium} bg-green-100 text-green-700 rounded-full`}>
-                            {t("dashboard.roles.assigned")}
-                          </span>
-                        )}
                       </div>
                       <Button
                         variant="outline"
@@ -217,7 +211,9 @@ export default function DashboardPage() {
                         {t("common.actions.choose")}
                       </Button>
                     </div>
-                    <CardTitle className={`${typography.h4} text-neutral-900`}>{config.title}</CardTitle>
+                    <CardTitle className={`${typography.h4} text-neutral-900`}>
+                      {config.title}
+                    </CardTitle>
                     <CardDescription className={`text-neutral-600 ${typography.body}`}>
                       {config.description}
                     </CardDescription>

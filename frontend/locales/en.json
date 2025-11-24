@@ -291,6 +291,72 @@
         "logout": "Log out"
       }
     },
+    "submissions": {
+      "pageTitle": "My Submissions",
+      "pageDescription": "View and manage all your submissions",
+      "loading": "Loading...",
+      "error": "Error",
+      "searchPlaceholder": "Search by title...",
+      "filterConference": "Filter by conference",
+      "filterStatus": "Filter by status",
+      "allConferences": "All conferences",
+      "allStatuses": "All statuses",
+      "title": "Title",
+      "conference": "Conference",
+      "submittedDate": "Submitted",
+      "noAbstract": "No abstract",
+      "empty": "You have no submissions yet",
+      "status": {
+        "label": "Status",
+        "draft": "Draft",
+        "published": "Published"
+      }
+    },
+    "submission": {
+      "details": {
+        "title": "Submission Details",
+        "description": "Detailed information about the submission",
+        "author": "Author",
+        "submittedDate": "Submitted Date",
+        "lastUpdated": "Last Updated",
+        "link": "Link",
+        "domains": "Domains",
+        "additionalInfo": "Additional Information",
+        "keywords": "Keywords",
+        "coAuthors": "Co-authors",
+        "track": "Track",
+        "paperType": "Paper Type",
+        "notes": "Additional Notes",
+        "file": "Attached File",
+        "fileName": "File Name",
+        "fileSize": "File Size",
+        "fileType": "File Type",
+        "metadata": "Metadata",
+        "abstract": "Abstract",
+        "documentPreview": "Document Preview",
+        "previewNotAvailable": "Preview not available",
+        "downloadToView": "Please download to view the file",
+        "noFile": "No file attached",
+        "viewExternalLink": "View external link"
+      },
+      "tabs": {
+        "overview": "Overview",
+        "preview": "Preview",
+        "coi": "COI",
+        "coverLetter": "Cover Letter"
+      },
+      "coi": {
+        "description": "Conflicts of interest declared for this submission",
+        "notAvailable": "COI information not available"
+      },
+      "error": {
+        "title": "Error"
+      },
+      "notFound": {
+        "title": "Not Found",
+        "message": "Submission does not exist"
+      }
+    },
     "roles": {
       "assigned": "Assigned",
       "author": {
@@ -709,12 +775,12 @@
           "title": "Submission Checklist",
           "subtitle": "What you need before submitting",
           "titleProvided": "Title provided",
-          "abstractLength": "Abstract 150-250 words",
+          "abstractLength": "Abstract provided",
           "subjectAreas": "Track topic selected",
           "keywords": "At least 3 keywords added",
           "coAuthorsListed": "All co-authors listed",
           "pdfUploaded": "PDF uploaded & validated",
-          "coiDeclared": "COI people/orgs/domains declared"
+          "coiDeclared": "COI declared"
         },
         "paperTab": {
           "titlePlaceholder": "Concise, informative title of your paper",

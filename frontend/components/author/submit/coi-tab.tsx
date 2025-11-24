@@ -4,36 +4,22 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Plus, X, AlertCircle } from "lucide-react"
+import { Card } from "@/components/ui/card"
+import { Plus, X, AlertCircle, UserX, Info, Lightbulb } from "lucide-react"
+import { typography, spacing } from "@/lib/typography"
 
 interface COITabProps {
   coiPeople: string[]
   setCoiPeople: (value: string[]) => void
-  coiOrgs: string[]
-  setCoiOrgs: (value: string[]) => void
-  coiDomains: string[]
-  setCoiDomains: (value: string[]) => void
   coiPersonInput: string
   setCoiPersonInput: (value: string) => void
-  coiOrgInput: string
-  setCoiOrgInput: (value: string) => void
-  coiDomainInput: string
-  setCoiDomainInput: (value: string) => void
 }
 
 export function COITab({
   coiPeople,
   setCoiPeople,
-  coiOrgs,
-  setCoiOrgs,
-  coiDomains,
-  setCoiDomains,
   coiPersonInput,
   setCoiPersonInput,
-  coiOrgInput,
-  setCoiOrgInput,
-  coiDomainInput,
-  setCoiDomainInput,
 }: COITabProps) {
   const handleAddCOIPerson = () => {
     if (coiPersonInput.trim() && !coiPeople.includes(coiPersonInput.trim())) {
@@ -42,145 +28,163 @@ export function COITab({
     }
   }
 
-  const handleAddCOIOrg = () => {
-    if (coiOrgInput.trim() && !coiOrgs.includes(coiOrgInput.trim())) {
-      setCoiOrgs([...coiOrgs, coiOrgInput.trim()])
-      setCoiOrgInput("")
-    }
-  }
-
-  const handleAddCOIDomain = () => {
-    if (coiDomainInput.trim() && !coiDomains.includes(coiDomainInput.trim())) {
-      setCoiDomains([...coiDomains, coiDomainInput.trim()])
-      setCoiDomainInput("")
-    }
-  }
-
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-1">
-          COI Declaration (Conflicts of Interest)
-        </h2>
-        <p className="text-sm text-gray-600">
-          List people, organizations, and domains that must not review this paper
-        </p>
-      </div>
-      <div className="space-y-4">
-        <div>
-          <Label>People (emails or full names) *</Label>
-          <div className="flex gap-2 mt-2">
-            <Input
-              placeholder="e.g., jane.doe@univ.edu or 'Jane Doe'"
-              value={coiPersonInput}
-              onChange={(e) => setCoiPersonInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault()
-                  handleAddCOIPerson()
-                }
-              }}
-            />
-            <Button type="button" variant="outline" onClick={handleAddCOIPerson} size="icon">
-              <Plus className="size-4" />
-            </Button>
+    <div className={spacing.section}>
+      {/* Header */}
+      <div className={spacing.item}>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-amber-50 rounded-lg">
+            <UserX className="size-6 text-amber-600" />
           </div>
-          {coiPeople.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-3">
-              {coiPeople.map((person) => (
-                <Badge key={person} variant="secondary" className="gap-1 px-3 py-1">
-                  {person}
-                  <button
-                    onClick={() => setCoiPeople(coiPeople.filter((p) => p !== person))}
-                    className="ml-1 hover:text-destructive"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </Badge>
-              ))}
-            </div>
-          )}
-        </div>
-        <div>
-          <Label>Organizations / Labs</Label>
-          <div className="flex gap-2 mt-2">
-            <Input
-              placeholder="e.g., Example University, AI Lab"
-              value={coiOrgInput}
-              onChange={(e) => setCoiOrgInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault()
-                  handleAddCOIOrg()
-                }
-              }}
-            />
-            <Button type="button" variant="outline" onClick={handleAddCOIOrg} size="icon">
-              <Plus className="size-4" />
-            </Button>
-          </div>
-          {coiOrgs.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-3">
-              {coiOrgs.map((org) => (
-                <Badge key={org} variant="secondary" className="gap-1 px-3 py-1">
-                  {org}
-                  <button
-                    onClick={() => setCoiOrgs(coiOrgs.filter((o) => o !== org))}
-                    className="ml-1 hover:text-destructive"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </Badge>
-              ))}
-            </div>
-          )}
-        </div>
-        <div>
-          <Label>Email Domains</Label>
-          <div className="flex gap-2 mt-2">
-            <Input
-              placeholder="e.g., example.edu"
-              value={coiDomainInput}
-              onChange={(e) => setCoiDomainInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault()
-                  handleAddCOIDomain()
-                }
-              }}
-            />
-            <Button type="button" variant="outline" onClick={handleAddCOIDomain} size="icon">
-              <Plus className="size-4" />
-            </Button>
-          </div>
-          {coiDomains.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-3">
-              {coiDomains.map((domain) => (
-                <Badge key={domain} variant="secondary" className="gap-1 px-3 py-1">
-                  {domain}
-                  <button
-                    onClick={() => setCoiDomains(coiDomains.filter((d) => d !== domain))}
-                    className="ml-1 hover:text-destructive"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </Badge>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-      <details className="border-t pt-4">
-        <summary className="cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center gap-2">
-          <span>COI policy quick summary</span>
-        </summary>
-        <div className="mt-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <div className="flex items-start gap-2">
-            <AlertCircle className="size-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-gray-700">
-              By submitting, you confirm your COI list is accurate. Missing conflicts may lead to
-              desk rejection.
+          <div>
+            <h2 className={`${typography.h2} text-[#212529] font-arial`}>
+              Conflict of Interest Declaration
+            </h2>
+            <p className={`${typography.body} text-[#6C757D] font-arial ${spacing.margin.top.sm}`}>
+              Identify individuals who should not review your submission
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Info Card */}
+      <Card className="bg-amber-50 border-amber-200">
+        <div className={spacing.padding.card}>
+          <div className="flex items-start gap-3">
+            <Info className="size-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div className={`${typography.bodySmall} text-gray-700 font-arial`}>
+              <p className={`${typography.medium} text-amber-900 mb-2`}>What to declare:</p>
+              <ul className="space-y-1 ml-4 list-disc">
+                <li>Current or recent collaborators (past 3 years)</li>
+                <li>Co-authors on recent publications</li>
+                <li>Colleagues from your institution</li>
+                <li>PhD advisors and students</li>
+                <li>Close personal or professional relationships</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Input Section */}
+      <div className={spacing.item}>
+        <Label htmlFor="coi-people" className={`${typography.label} text-[#212529] font-arial`}>
+          Conflicted Reviewers *
+        </Label>
+        <p className={`${typography.bodySmall} text-[#6C757D] font-arial mb-2`}>
+          Enter email addresses or full names of individuals with potential conflicts
+        </p>
+        <div className={`flex ${spacing.gap.sm}`}>
+          <Input
+            id="coi-people"
+            placeholder="e.g., jane.doe@university.edu or 'Dr. Jane Doe'"
+            value={coiPersonInput}
+            onChange={(e) => setCoiPersonInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault()
+                handleAddCOIPerson()
+              }
+            }}
+            className={`flex-1 ${typography.body} font-arial border-[#DEE2E6] focus:border-[#0056A3] focus:ring-[#0056A3]`}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleAddCOIPerson}
+            size="icon"
+            className="shrink-0 border-[#0056A3] text-[#0056A3] hover:bg-[#0056A3]/10"
+          >
+            <Plus className="size-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Display Added COIs */}
+      {coiPeople.length > 0 && (
+        <div className={spacing.item}>
+          <div className="flex items-center justify-between mb-3">
+            <Label className={`${typography.label} text-[#495057] font-arial`}>
+              Declared Conflicts ({coiPeople.length})
+            </Label>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setCoiPeople([])}
+              className={`${typography.bodySmall} text-red-600 hover:text-red-700 hover:bg-red-50 font-arial`}
+            >
+              Clear all
+            </Button>
+          </div>
+          <div className={`flex flex-wrap ${spacing.gap.sm}`}>
+            {coiPeople.map((person) => (
+              <Badge
+                key={person}
+                variant="secondary"
+                className={`${spacing.gap.sm} px-3 py-2 ${typography.bodySmall} font-arial bg-[#E9ECEF] text-[#212529] hover:bg-[#DEE2E6] transition-colors`}
+              >
+                <span>{person}</span>
+                <button
+                  onClick={() => setCoiPeople(coiPeople.filter((p) => p !== person))}
+                  className="hover:text-red-600 transition-colors"
+                  aria-label={`Remove ${person}`}
+                >
+                  <X className="size-3.5" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {coiPeople.length === 0 && (
+        <Card className="border-dashed border-2 border-[#DEE2E6]">
+          <div className="p-8 text-center">
+            <UserX className="size-12 text-[#ADB5BD] mx-auto mb-3" />
+            <p className={`${typography.body} text-[#6C757D] font-arial`}>
+              No conflicts declared yet. Add at least one conflicted reviewer above.
+            </p>
+          </div>
+        </Card>
+      )}
+
+      {/* Warning */}
+      <Card className="bg-amber-50 border-amber-200">
+        <div className={spacing.padding.card}>
+          <div className="flex items-start gap-3">
+            <AlertCircle className="size-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div className={`${typography.bodySmall} text-gray-700 font-arial`}>
+              <p className={`${typography.semibold} text-amber-900 mb-1`}>Important Notice</p>
+              <p>
+                By submitting, you confirm that your conflict of interest declaration is accurate
+                and complete. Failure to declare relevant conflicts may result in desk rejection or
+                withdrawal of your submission.
+              </p>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Best Practices */}
+      <details className="border-t border-[#DEE2E6] pt-4">
+        <summary
+          className={`cursor-pointer ${typography.label} text-[#495057] hover:text-[#212529] flex items-center ${spacing.gap.sm} font-arial`}
+        >
+          <Lightbulb className="size-4 text-amber-500" />
+          <span>COI Declaration Best Practices</span>
+        </summary>
+        <div className="mt-3 p-4 bg-gray-50 rounded-lg">
+          <div className={`${typography.bodySmall} text-gray-700 space-y-2 font-arial`}>
+            <p className={`${typography.medium} text-gray-900`}>Guidelines:</p>
+            <ul className="space-y-1 ml-4 list-disc">
+              <li>Declare anyone you've collaborated with in the past 3 years</li>
+              <li>Include co-authors from recent publications</li>
+              <li>List colleagues from your current and recent institutions</li>
+              <li>When in doubt, declare the conflict - it's better to be safe</li>
+              <li>Use full names or email addresses for clarity</li>
+            </ul>
           </div>
         </div>
       </details>

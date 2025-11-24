@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import {
   Search,
@@ -16,14 +16,8 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { FilterBar, type ActiveFilter } from "@/components/ui/filter-bar"
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { getAllCOIRelationships, type RelationshipWithDetails } from "@/lib/api/coi-mock"
@@ -108,6 +102,16 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
     }))
   }
 
+  const handleRemoveSeverityFilter = () => {
+    setFilters((prev) => ({ ...prev, severity: "all" }))
+    setPage(1)
+  }
+
+  const handleRemoveTypeFilter = () => {
+    setFilters((prev) => ({ ...prev, type: "all" }))
+    setPage(1)
+  }
+
   const handleClearFilters = () => {
     setFilters({ severity: "all", type: "all", search: "" })
     setPage(1)
@@ -115,6 +119,170 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
 
   const hasActiveFilters =
     filters.severity !== "all" || filters.type !== "all" || filters.search !== ""
+
+  const activeFilters: ActiveFilter[] = useMemo(() => {
+    const filtersList: ActiveFilter[] = []
+    if (filters.severity !== "all") {
+      filtersList.push({
+        id: "severity",
+        label: filters.severity.charAt(0).toUpperCase() + filters.severity.slice(1),
+        onRemove: handleRemoveSeverityFilter,
+      })
+    }
+    if (filters.type !== "all") {
+      filtersList.push({
+        id: "type",
+        label:
+          filters.type === "co_author"
+            ? "Co-Author"
+            : filters.type === "same_organization"
+              ? "Same Organization"
+              : filters.type === "advisor_advisee"
+                ? "Advisor/Advisee"
+                : filters.type === "collaborator"
+                  ? "Collaborator"
+                  : filters.type === "competitor"
+                    ? "Competitor"
+                    : filters.type === "citation"
+                      ? "Citation"
+                      : filters.type === "review_history"
+                        ? "Review History"
+                        : filters.type,
+        onRemove: handleRemoveTypeFilter,
+      })
+    }
+    return filtersList
+  }, [filters.severity, filters.type])
+
+  const filterPopover = (
+    <div className="space-y-4">
+      <div>
+        <h4 className="font-semibold text-sm mb-3">Severity</h4>
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <Checkbox
+              checked={filters.severity === "all"}
+              onCheckedChange={(checked) =>
+                setFilters((prev) => ({ ...prev, severity: checked ? "all" : prev.severity }))
+              }
+            />
+            <span className="text-sm">All Severities</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <Checkbox
+              checked={filters.severity === "high"}
+              onCheckedChange={(checked) =>
+                setFilters((prev) => ({ ...prev, severity: checked ? "high" : "all" }))
+              }
+            />
+            <span className="text-sm">High</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <Checkbox
+              checked={filters.severity === "medium"}
+              onCheckedChange={(checked) =>
+                setFilters((prev) => ({ ...prev, severity: checked ? "medium" : "all" }))
+              }
+            />
+            <span className="text-sm">Medium</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <Checkbox
+              checked={filters.severity === "low"}
+              onCheckedChange={(checked) =>
+                setFilters((prev) => ({ ...prev, severity: checked ? "low" : "all" }))
+              }
+            />
+            <span className="text-sm">Low</span>
+          </label>
+        </div>
+      </div>
+      {viewMode === "person" && (
+        <div>
+          <h4 className="font-semibold text-sm mb-3">Type</h4>
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox
+                checked={filters.type === "all"}
+                onCheckedChange={(checked) =>
+                  setFilters((prev) => ({ ...prev, type: checked ? "all" : prev.type }))
+                }
+              />
+              <span className="text-sm">All Types</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox
+                checked={filters.type === "co_author"}
+                onCheckedChange={(checked) =>
+                  setFilters((prev) => ({ ...prev, type: checked ? "co_author" : "all" }))
+                }
+              />
+              <span className="text-sm">Co-Author</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox
+                checked={filters.type === "same_organization"}
+                onCheckedChange={(checked) =>
+                  setFilters((prev) => ({ ...prev, type: checked ? "same_organization" : "all" }))
+                }
+              />
+              <span className="text-sm">Same Organization</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox
+                checked={filters.type === "advisor_advisee"}
+                onCheckedChange={(checked) =>
+                  setFilters((prev) => ({ ...prev, type: checked ? "advisor_advisee" : "all" }))
+                }
+              />
+              <span className="text-sm">Advisor/Advisee</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox
+                checked={filters.type === "collaborator"}
+                onCheckedChange={(checked) =>
+                  setFilters((prev) => ({ ...prev, type: checked ? "collaborator" : "all" }))
+                }
+              />
+              <span className="text-sm">Collaborator</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox
+                checked={filters.type === "competitor"}
+                onCheckedChange={(checked) =>
+                  setFilters((prev) => ({ ...prev, type: checked ? "competitor" : "all" }))
+                }
+              />
+              <span className="text-sm">Competitor</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox
+                checked={filters.type === "citation"}
+                onCheckedChange={(checked) =>
+                  setFilters((prev) => ({ ...prev, type: checked ? "citation" : "all" }))
+                }
+              />
+              <span className="text-sm">Citation</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox
+                checked={filters.type === "review_history"}
+                onCheckedChange={(checked) =>
+                  setFilters((prev) => ({ ...prev, type: checked ? "review_history" : "all" }))
+                }
+              />
+              <span className="text-sm">Review History</span>
+            </label>
+          </div>
+        </div>
+      )}
+      <div className="flex justify-end gap-2 pt-2 border-t">
+        <Button variant="outline" size="sm" onClick={handleClearFilters}>
+          Clear
+        </Button>
+      </div>
+    </div>
+  )
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -245,86 +413,23 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
         </div>
 
         {/* Search and Filters */}
-        <Card className="shadow-sm">
+        <Card className="shadow-sm py-6">
           <CardContent className="pt-6 space-y-4">
-            {/* Search Bar */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder={
-                  viewMode === "person"
-                    ? t("coi.allRelationships.searchPlaceholder")
-                    : "Search by paper title or author..."
-                }
-                value={filters.search}
-                onChange={(e) => {
-                  setFilters((prev) => ({ ...prev, search: e.target.value }))
-                  setPage(1)
-                }}
-                className="pl-10 h-11 bg-slate-50 dark:bg-slate-800"
-              />
-            </div>
-
-            {/* Filter Buttons */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-wrap">
-              <div className="flex flex-wrap gap-3 flex-1">
-                {/* Severity Filter */}
-                <Select
-                  value={filters.severity}
-                  onValueChange={(value) => {
-                    setFilters((prev) => ({ ...prev, severity: value as FilterState["severity"] }))
-                    setPage(1)
-                  }}
-                >
-                  <SelectTrigger className="w-[200px] h-9 bg-slate-100 dark:bg-slate-800 border-0">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Severities</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="low">Low</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                {/* Type Filter - Only for Person View */}
-                {viewMode === "person" && (
-                  <Select
-                    value={filters.type}
-                    onValueChange={(value) => {
-                      setFilters((prev) => ({ ...prev, type: value }))
-                      setPage(1)
-                    }}
-                  >
-                    <SelectTrigger className="w-[200px] h-9 bg-slate-100 dark:bg-slate-800 border-0">
-                      <SelectValue placeholder="Filter by type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Types</SelectItem>
-                      <SelectItem value="co_author">Co-Author</SelectItem>
-                      <SelectItem value="same_organization">Same Organization</SelectItem>
-                      <SelectItem value="advisor_advisee">Advisor/Advisee</SelectItem>
-                      <SelectItem value="collaborator">Collaborator</SelectItem>
-                      <SelectItem value="competitor">Competitor</SelectItem>
-                      <SelectItem value="citation">Citation</SelectItem>
-                      <SelectItem value="review_history">Review History</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
-
-              {hasActiveFilters && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleClearFilters}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  <X className="h-4 w-4 mr-1" />
-                  Clear Filters
-                </Button>
-              )}
-            </div>
+            <FilterBar
+              searchQuery={filters.search}
+              onSearchChange={(value) => {
+                setFilters((prev) => ({ ...prev, search: value }))
+                setPage(1)
+              }}
+              searchPlaceholder={
+                viewMode === "person"
+                  ? t("coi.allRelationships.searchPlaceholder")
+                  : "Search by paper title or author..."
+              }
+              activeFilters={activeFilters}
+              filterPopover={filterPopover}
+              hasActiveFilters={filters.severity !== "all" || filters.type !== "all"}
+            />
           </CardContent>
         </Card>
 
@@ -335,7 +440,7 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
           /* Relationships List (Person View) */
           <div className="space-y-3">
             {loading ? (
-              <Card>
+              <Card className="py-6">
                 <CardContent className="py-12 flex items-center justify-center">
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
@@ -344,14 +449,14 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
                 </CardContent>
               </Card>
             ) : error ? (
-              <Card className="border-destructive/50">
+              <Card className="border-destructive/50 py-6">
                 <CardContent className="py-6 flex items-center gap-3">
                   <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
                   <p className="text-destructive">{error}</p>
                 </CardContent>
               </Card>
             ) : relationships.length === 0 ? (
-              <Card>
+              <Card className="py-6">
                 <CardContent className="py-12 flex flex-col items-center justify-center text-center">
                   <AlertCircle className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
                   <h3 className="font-semibold text-foreground mb-1">
@@ -368,7 +473,7 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
                 return (
                   <Card
                     key={rel.id}
-                    className={`border-l-4 ${colors.border} ${colors.bg} shadow-sm hover:shadow-md transition-all overflow-hidden cursor-pointer`}
+                    className={`border-l-4 ${colors.border} ${colors.bg} shadow-sm hover:shadow-md transition-all overflow-hidden cursor-pointer py-6`}
                     onClick={() => toggleExpanded(rel.id)}
                   >
                     {/* Collapsed View */}
@@ -622,7 +727,7 @@ function StatsCard({ label, value, trend, icon: Icon, highlight }: StatsCardProp
         : "text-emerald-500"
 
   return (
-    <Card className="shadow-sm hover:shadow-md transition-shadow">
+    <Card className="shadow-sm hover:shadow-md transition-shadow py-6">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{label}</CardTitle>
         <Icon className={`h-4 w-4 ${highlightClass || "text-muted-foreground"}`} />

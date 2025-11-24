@@ -156,8 +156,6 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Submission, error
 }
 
 func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Submission, int64, error) {
-	fmt.Printf("[STORAGE LIST] Starting with params: ConferenceID=%d, Author='%s', Status='%s', Title='%s'\n",
-		params.ConferenceID, params.Author, params.Status, params.Title)
 
 	baseQuery := s.qb.Select(
 		model.ColSubmissionID,
@@ -182,28 +180,22 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Submiss
 	countQuery := s.qb.Select("COUNT(*)").From(model.SubmissionTableName)
 
 	if params.ConferenceID > 0 {
-		fmt.Printf("[STORAGE LIST] Adding ConferenceID filter: %d\n", params.ConferenceID)
 		baseQuery = baseQuery.Where(sq.Eq{model.ColConferenceID: params.ConferenceID})
 		countQuery = countQuery.Where(sq.Eq{model.ColConferenceID: params.ConferenceID})
 	}
 	if params.Author != "" {
-		// Use exact match for email addresses (case-insensitive comparison)
-		fmt.Printf("[STORAGE LIST] Adding Author filter (case-insensitive): '%s'\n", params.Author)
 		baseQuery = baseQuery.Where("LOWER("+model.ColAuthor+") = LOWER(?)", params.Author)
 		countQuery = countQuery.Where("LOWER("+model.ColAuthor+") = LOWER(?)", params.Author)
 	}
 	if params.Status != "" {
-		fmt.Printf("[STORAGE LIST] Adding Status filter: '%s'\n", params.Status)
 		baseQuery = baseQuery.Where(sq.Eq{model.ColStatus: params.Status})
 		countQuery = countQuery.Where(sq.Eq{model.ColStatus: params.Status})
 	}
 	if params.Title != "" {
-		fmt.Printf("[STORAGE LIST] Adding Title filter: '%s'\n", params.Title)
 		baseQuery = baseQuery.Where(sq.Like{model.ColTitle: "%" + params.Title + "%"})
 		countQuery = countQuery.Where(sq.Like{model.ColTitle: "%" + params.Title + "%"})
 	}
 	if params.Track != "" {
-		fmt.Printf("[STORAGE LIST] Adding Track filter: '%s'\n", params.Track)
 		baseQuery = baseQuery.Where(sq.Eq{model.ColTrack: params.Track})
 		countQuery = countQuery.Where(sq.Eq{model.ColTrack: params.Track})
 	}
@@ -212,16 +204,12 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Submiss
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to build count query: %w", err)
 	}
-	fmt.Printf("[STORAGE LIST] Count query: %s\n", countQueryStr)
-	fmt.Printf("[STORAGE LIST] Count query args: %v\n", countArgs)
 
 	var total int64
 	err = s.db.QueryRowContext(ctx, countQueryStr, countArgs...).Scan(&total)
 	if err != nil {
-		fmt.Printf("[STORAGE LIST] Count query error: %v\n", err)
 		return nil, 0, fmt.Errorf("failed to count submissions: %w", err)
 	}
-	fmt.Printf("[STORAGE LIST] Total count result: %d\n", total)
 
 	if params.Limit > 0 {
 		baseQuery = baseQuery.Limit(uint64(params.Limit))
@@ -234,12 +222,9 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Submiss
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to build select query: %w", err)
 	}
-	fmt.Printf("[STORAGE LIST] Select query: %s\n", query)
-	fmt.Printf("[STORAGE LIST] Select query args: %v\n", args)
 
 	rows, err := s.db.QueryContext(ctx, query, args...)
 	if err != nil {
-		fmt.Printf("[STORAGE LIST] Query execution error: %v\n", err)
 		return nil, 0, fmt.Errorf("failed to list submissions: %w", err)
 	}
 	defer rows.Close()
@@ -272,22 +257,17 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Submiss
 			return nil, 0, fmt.Errorf("failed to scan submission: %w", err)
 		}
 		entities = append(entities, entity)
-		fmt.Printf("[STORAGE LIST] Scanned row %d: ID=%d, Author='%s', Title='%s', Status='%s', ConferenceID=%d\n",
-			rowCount, entity.SubmissionID, entity.Author, entity.Title, entity.Status, entity.ConferenceID)
 	}
 
 	if err := rows.Err(); err != nil {
-		fmt.Printf("[STORAGE LIST] Rows iteration error: %v\n", err)
 		return nil, 0, fmt.Errorf("error iterating submissions: %w", err)
 	}
 
-	fmt.Printf("[STORAGE LIST] Total rows scanned: %d\n", len(entities))
 
 	dtos := make([]*dto.Submission, len(entities))
 	for i, entity := range entities {
 		dtos[i] = entity.ToDTO()
 	}
-	fmt.Printf("[STORAGE LIST] Returning %d submissions, total=%d\n", len(dtos), total)
 	return dtos, total, nil
 }
 

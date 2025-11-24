@@ -13,18 +13,18 @@
  * - Assignments: GET /api/users/:userId/assignments (review_assignments table)
  */
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import type { Paper } from "@/lib/types"
 import { getConferencePapers } from "@/lib/api/conferences"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { FileText, Search, Filter, Calendar, Users, X } from "lucide-react"
+import { FileText, Calendar, Users, X, Filter } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Checkbox } from "@/components/ui/checkbox"
+import { FilterBar, type ActiveFilter } from "@/components/ui/filter-bar"
 import { typography, spacing, iconSizes } from "@/lib/typography"
 
 interface ConferenceSubmissionsProps {
@@ -179,6 +179,125 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
 
   const hasActiveFilters = statusFilter !== "all" || trackFilter !== "all"
 
+  const activeFilters: ActiveFilter[] = useMemo(() => {
+    const filters: ActiveFilter[] = []
+    if (statusFilter !== "all") {
+      filters.push({
+        id: "status",
+        label: getStatusLabelForFilter(statusFilter),
+        onRemove: handleRemoveStatusFilter,
+      })
+    }
+    if (trackFilter !== "all") {
+      filters.push({
+        id: "track",
+        label:
+          trackFilter === "track-1"
+            ? "Machine Learning & AI"
+            : trackFilter === "track-2"
+              ? "Systems & Networking"
+              : trackFilter === "track-3"
+                ? "Human-Computer Interaction"
+                : trackFilter,
+        onRemove: handleRemoveTrackFilter,
+      })
+    }
+    return filters
+  }, [statusFilter, trackFilter])
+
+  const filterPopover = (
+    <div className={spacing.subsection}>
+      <div>
+        <h4 className={`${typography.semibold} ${typography.body} mb-3`}>Trạng Thái</h4>
+        <div className={spacing.item}>
+          <label
+            className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
+            onClick={() => setTempStatusFilter("all")}
+          >
+            <Checkbox checked={tempStatusFilter === "all"} />
+            <span className={typography.body}>Tất Cả Trạng Thái</span>
+          </label>
+          <label
+            className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
+            onClick={() => setTempStatusFilter("submitted")}
+          >
+            <Checkbox checked={tempStatusFilter === "submitted"} />
+            <span className={typography.body}>Đã Nộp</span>
+          </label>
+          <label
+            className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
+            onClick={() => setTempStatusFilter("under_review")}
+          >
+            <Checkbox checked={tempStatusFilter === "under_review"} />
+            <span className={typography.body}>Đang Review</span>
+          </label>
+          <label
+            className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
+            onClick={() => setTempStatusFilter("accepted")}
+          >
+            <Checkbox checked={tempStatusFilter === "accepted"} />
+            <span className={typography.body}>Chấp Nhận</span>
+          </label>
+          <label
+            className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
+            onClick={() => setTempStatusFilter("rejected")}
+          >
+            <Checkbox checked={tempStatusFilter === "rejected"} />
+            <span className={typography.body}>Từ Chối</span>
+          </label>
+          <label
+            className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
+            onClick={() => setTempStatusFilter("revision_requested")}
+          >
+            <Checkbox checked={tempStatusFilter === "revision_requested"} />
+            <span className={typography.body}>Yêu Cầu Sửa</span>
+          </label>
+        </div>
+      </div>
+      <div>
+        <h4 className={`${typography.semibold} ${typography.body} mb-3`}>Track</h4>
+        <div className={spacing.item}>
+          <label
+            className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
+            onClick={() => setTempTrackFilter("all")}
+          >
+            <Checkbox checked={tempTrackFilter === "all"} />
+            <span className={typography.body}>Tất Cả Tracks</span>
+          </label>
+          <label
+            className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
+            onClick={() => setTempTrackFilter("track-1")}
+          >
+            <Checkbox checked={tempTrackFilter === "track-1"} />
+            <span className={typography.body}>Machine Learning & AI</span>
+          </label>
+          <label
+            className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
+            onClick={() => setTempTrackFilter("track-2")}
+          >
+            <Checkbox checked={tempTrackFilter === "track-2"} />
+            <span className={typography.body}>Systems & Networking</span>
+          </label>
+          <label
+            className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
+            onClick={() => setTempTrackFilter("track-3")}
+          >
+            <Checkbox checked={tempTrackFilter === "track-3"} />
+            <span className={typography.body}>Human-Computer Interaction</span>
+          </label>
+        </div>
+      </div>
+      <div className={`flex justify-end ${spacing.gap.sm} pt-2 border-t`}>
+        <Button variant="outline" size="sm" onClick={handleClearFilters}>
+          Clear
+        </Button>
+        <Button size="sm" onClick={handleApplyFilters}>
+          Apply
+        </Button>
+      </div>
+    </div>
+  )
+
   const getStatusLabelForFilter = (status: string) => {
     switch (status) {
       case "submitted":
@@ -212,159 +331,23 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
 
       {/* Filters */}
       <div className="mb-4">
-        <div className={`relative flex items-center ${spacing.gap.sm} border rounded-md bg-background`}>
-          <Search className={`absolute left-3 ${iconSizes.sm} text-muted-foreground`} />
-          <div className={`flex-1 flex items-center ${spacing.gap.sm} pl-10 pr-2 py-2`}>
-            {hasActiveFilters && (
-              <div className={`flex items-center ${spacing.gap.sm} flex-wrap`}>
-                {statusFilter !== "all" && (
-                  <Badge variant="secondary" className={spacing.gap.tight}>
-                    {getStatusLabelForFilter(statusFilter)}
-                    <button
-                      onClick={handleRemoveStatusFilter}
-                      className="ml-1 hover:bg-muted rounded-full"
-                    >
-                      <X className={iconSizes.xs} />
-                    </button>
-                  </Badge>
-                )}
-                {trackFilter !== "all" && (
-                  <Badge variant="secondary" className={spacing.gap.tight}>
-                    {trackFilter === "track-1"
-                      ? "Machine Learning & AI"
-                      : trackFilter === "track-2"
-                        ? "Systems & Networking"
-                        : trackFilter === "track-3"
-                          ? "Human-Computer Interaction"
-                          : trackFilter}
-                    <button
-                      onClick={handleRemoveTrackFilter}
-                      className="ml-1 hover:bg-muted rounded-full"
-                    >
-                      <X className={iconSizes.xs} />
-                    </button>
-                  </Badge>
-                )}
-              </div>
-            )}
-            <Input
-              placeholder={
-                hasActiveFilters ? "" : "Tìm kiếm theo tiêu đề, abstract, keywords..."
-              }
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="!border-0 focus-visible:!ring-0 focus-visible:!border-0 focus-visible:!ring-offset-0 !shadow-none h-auto p-0 flex-1 min-w-[120px]"
-            />
-          </div>
-          <Popover open={filterOpen} onOpenChange={setFilterOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`h-8 w-8 mr-2 ${hasActiveFilters ? "text-primary" : ""}`}
-                onClick={() => {
-                  setTempStatusFilter(statusFilter)
-                  setTempTrackFilter(trackFilter)
-                }}
-              >
-                <Filter className={iconSizes.sm} />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80" align="end">
-              <div className={spacing.subsection}>
-                <div>
-                  <h4 className={`${typography.semibold} ${typography.body} mb-3`}>Trạng Thái</h4>
-                  <div className={spacing.item}>
-                    <label
-                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
-                      onClick={() => setTempStatusFilter("all")}
-                    >
-                      <Checkbox checked={tempStatusFilter === "all"} readOnly />
-                      <span className={typography.body}>Tất Cả Trạng Thái</span>
-                    </label>
-                    <label
-                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
-                      onClick={() => setTempStatusFilter("submitted")}
-                    >
-                      <Checkbox checked={tempStatusFilter === "submitted"} readOnly />
-                      <span className={typography.body}>Đã Nộp</span>
-                    </label>
-                    <label
-                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
-                      onClick={() => setTempStatusFilter("under_review")}
-                    >
-                      <Checkbox checked={tempStatusFilter === "under_review"} readOnly />
-                      <span className={typography.body}>Đang Review</span>
-                    </label>
-                    <label
-                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
-                      onClick={() => setTempStatusFilter("accepted")}
-                    >
-                      <Checkbox checked={tempStatusFilter === "accepted"} readOnly />
-                      <span className={typography.body}>Chấp Nhận</span>
-                    </label>
-                    <label
-                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
-                      onClick={() => setTempStatusFilter("rejected")}
-                    >
-                      <Checkbox checked={tempStatusFilter === "rejected"} readOnly />
-                      <span className={typography.body}>Từ Chối</span>
-                    </label>
-                    <label
-                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
-                      onClick={() => setTempStatusFilter("revision_requested")}
-                    >
-                      <Checkbox checked={tempStatusFilter === "revision_requested"} readOnly />
-                      <span className={typography.body}>Yêu Cầu Sửa</span>
-                    </label>
-                  </div>
-                </div>
-                <div>
-                  <h4 className={`${typography.semibold} ${typography.body} mb-3`}>Track</h4>
-                  <div className={spacing.item}>
-                    <label
-                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
-                      onClick={() => setTempTrackFilter("all")}
-                    >
-                      <Checkbox checked={tempTrackFilter === "all"} readOnly />
-                      <span className={typography.body}>Tất Cả Tracks</span>
-                    </label>
-                    <label
-                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
-                      onClick={() => setTempTrackFilter("track-1")}
-                    >
-                      <Checkbox checked={tempTrackFilter === "track-1"} readOnly />
-                      <span className={typography.body}>Machine Learning & AI</span>
-                    </label>
-                    <label
-                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
-                      onClick={() => setTempTrackFilter("track-2")}
-                    >
-                      <Checkbox checked={tempTrackFilter === "track-2"} readOnly />
-                      <span className={typography.body}>Systems & Networking</span>
-                    </label>
-                    <label
-                      className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
-                      onClick={() => setTempTrackFilter("track-3")}
-                    >
-                      <Checkbox checked={tempTrackFilter === "track-3"} readOnly />
-                      <span className={typography.body}>Human-Computer Interaction</span>
-                    </label>
-                  </div>
-                </div>
-                <div className={`flex justify-end ${spacing.gap.sm} pt-2 border-t`}>
-                  <Button variant="outline" size="sm" onClick={handleClearFilters}>
-                    Clear
-                  </Button>
-                  <Button size="sm" onClick={handleApplyFilters}>
-                    Apply
-                  </Button>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </div>
-        <div className={`mt-2 flex items-center ${spacing.gap.md} ${typography.body} text-gray-600`}>
+        <FilterBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="Tìm kiếm theo tiêu đề, abstract, keywords..."
+          activeFilters={activeFilters}
+          filterPopover={filterPopover}
+          hasActiveFilters={hasActiveFilters}
+          filterOpen={filterOpen}
+          onFilterOpenChange={setFilterOpen}
+          onFilterButtonClick={() => {
+            setTempStatusFilter(statusFilter)
+            setTempTrackFilter(trackFilter)
+          }}
+        />
+        <div
+          className={`mt-2 flex items-center ${spacing.gap.md} ${typography.body} text-gray-600`}
+        >
           <Filter className={iconSizes.sm} />
           <span>
             Hiển thị <span className={typography.semibold}>{filteredPapers.length}</span> /{" "}
@@ -376,18 +359,25 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
       {/* Papers List */}
       <div className={spacing.subsection}>
         {filteredPapers.map((paper) => (
-          <Card key={paper.id} className={`${spacing.padding.cardLarge} transition-shadow hover:shadow-lg`}>
+          <Card
+            key={paper.id}
+            className={`${spacing.padding.cardLarge} transition-shadow hover:shadow-lg`}
+          >
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className={`flex items-start ${spacing.gap.md}`}>
                   <FileText className={`mt-1 ${iconSizes.md} flex-shrink-0 text-primary`} />
                   <div className="flex-1 min-w-0">
                     <h3 className={`${typography.h4} text-gray-900 truncate`}>{paper.title}</h3>
-                    <p className={`mt-2 line-clamp-2 ${typography.body} leading-relaxed text-gray-600`}>
+                    <p
+                      className={`mt-2 line-clamp-2 ${typography.body} leading-relaxed text-gray-600`}
+                    >
                       {paper.abstract}
                     </p>
 
-                    <div className={`mt-4 flex flex-wrap items-center ${spacing.gap.md} ${typography.body} text-gray-600`}>
+                    <div
+                      className={`mt-4 flex flex-wrap items-center ${spacing.gap.md} ${typography.body} text-gray-600`}
+                    >
                       <div className={`flex items-center ${spacing.gap.sm}`}>
                         <Users className={iconSizes.sm} />
                         <span>{paper.authors.map((a) => a.name).join(", ")}</span>

@@ -1,6 +1,7 @@
 "use client"
 import type React from "react"
-import { CheckCircle2 } from "lucide-react"
+import { CheckCircle2, Circle } from "lucide-react"
+import { typography } from "@/lib/typography"
 
 interface ChecklistItemProps {
   checked: boolean
@@ -11,11 +12,15 @@ export function ChecklistItem({ checked, label }: ChecklistItemProps) {
   return (
     <div className="flex items-center gap-2">
       {checked ? (
-        <CheckCircle2 className="size-4 text-green-600 flex-shrink-0" />
+        <CheckCircle2 className="size-5 text-green-600 flex-shrink-0" />
       ) : (
-        <div className="size-4 rounded-full border-2 border-gray-300 flex-shrink-0" />
+        <Circle className="size-5 text-[#ADB5BD] flex-shrink-0" />
       )}
-      <span className={`text-sm ${checked ? "text-gray-900" : "text-gray-500"}`}>{label}</span>
+      <span
+        className={`${typography.body} font-arial ${checked ? "text-[#212529]" : "text-[#6C757D]"}`}
+      >
+        {label}
+      </span>
     </div>
   )
 }
