@@ -187,7 +187,6 @@ export default function DashboardPage() {
               }
 
               const Icon = config.icon
-              const hasRole = true
 
               return (
                 <Card
@@ -203,11 +202,6 @@ export default function DashboardPage() {
                         >
                           <Icon className={`${iconSizes.lg} text-white`} />
                         </div>
-                        {hasRole && (
-                          <span className={`px-2 py-1 ${typography.bodySmall} ${typography.medium} bg-green-100 text-green-700 rounded-full`}>
-                            {t("dashboard.roles.assigned")}
-                          </span>
-                        )}
                       </div>
                       <Button
                         variant="outline"

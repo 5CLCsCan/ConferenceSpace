@@ -1,17 +1,42 @@
 ﻿"use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { FilterBar, type ActiveFilter } from "@/components/ui/filter-bar"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { Search, UserPlus, Trash2, Mail, CheckCircle2, XCircle, Loader2, Users, Award, ExternalLink } from "lucide-react"
-import { getConferenceReviewers, inviteReviewers, removeReviewer, getConferenceById, type Reviewer } from "@/lib/api/conferences"
+import {
+  UserPlus,
+  Trash2,
+  Mail,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  Users,
+  Award,
+  ExternalLink,
+} from "lucide-react"
+import {
+  getConferenceReviewers,
+  inviteReviewers,
+  removeReviewer,
+  getConferenceById,
+  type Reviewer,
+} from "@/lib/api/conferences"
 import { useAuth } from "@/lib/auth-context"
 import { apiFetch } from "@/lib/api/client"
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll"
@@ -45,9 +70,7 @@ function normalizeInviteResult(raw: unknown): InviteResult | null {
   if (hasSuccessArray || hasFailedArray) {
     return {
       success: hasSuccessArray ? (candidate.success as Reviewer[]) : [],
-      failed: hasFailedArray
-        ? (candidate.failed as Array<{ user_id: number; error: string }>)
-        : [],
+      failed: hasFailedArray ? (candidate.failed as Array<{ user_id: number; error: string }>) : [],
     }
   }
 
@@ -72,11 +95,17 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
   const [hasMoreReviewers, setHasMoreReviewers] = useState(true)
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
-  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(searchParams.get("invite") === "true")
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(
+    searchParams.get("invite") === "true",
+  )
   const [inviteEmail, setInviteEmail] = useState("")
-  const [searchResults, setSearchResults] = useState<Array<{ id: number; email: string; name?: string }>>([])
+  const [searchResults, setSearchResults] = useState<
+    Array<{ id: number; email: string; name?: string }>
+  >([])
   const [isSearching, setIsSearching] = useState(false)
-  const [selectedUsers, setSelectedUsers] = useState<Array<{ id: number; email: string; name?: string }>>([])
+  const [selectedUsers, setSelectedUsers] = useState<
+    Array<{ id: number; email: string; name?: string }>
+  >([])
   const [isInviting, setIsInviting] = useState(false)
   const [reviewerToRemove, setReviewerToRemove] = useState<Reviewer | null>(null)
   const [isRemoving, setIsRemoving] = useState(false)
@@ -145,15 +174,97 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
 
   // Save invite dialog state to sessionStorage whenever it changes
   useEffect(() => {
-    if (isInviteDialogOpen && (selectedUsers.length > 0 || searchResults.length > 0 || inviteEmail)) {
+    if (
+      isInviteDialogOpen &&
+      (selectedUsers.length > 0 || searchResults.length > 0 || inviteEmail)
+    ) {
       const storageKey = `invite-dialog-${conferenceId}`
-      sessionStorage.setItem(storageKey, JSON.stringify({
-        selectedUsers,
-        searchResults,
-        inviteEmail,
-      }))
+      sessionStorage.setItem(
+        storageKey,
+        JSON.stringify({
+          selectedUsers,
+          searchResults,
+          inviteEmail,
+        }),
+      )
     }
   }, [isInviteDialogOpen, selectedUsers, searchResults, inviteEmail, conferenceId])
+
+  const handleRemoveStatusFilter = () => {
+    setStatusFilter("all")
+  }
+
+  const hasActiveFilters = statusFilter !== "all"
+
+  const activeFilters: ActiveFilter[] = useMemo(() => {
+    if (statusFilter === "all") return []
+    return [
+      {
+        id: "status",
+        label: t(`dashboard.conference.committee.filter.${statusFilter}`),
+        onRemove: handleRemoveStatusFilter,
+      },
+    ]
+  }, [statusFilter, t])
+
+  const filterPopover = (
+    <div className={spacing.subsection}>
+      <div>
+        <h4 className={`${typography.semibold} ${typography.body} mb-3`}>
+          {t("dashboard.conference.committee.filter.placeholder")}
+        </h4>
+        <div className={spacing.item}>
+          <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
+            <Checkbox
+              checked={statusFilter === "all"}
+              onCheckedChange={(checked) => setStatusFilter(checked ? "all" : statusFilter)}
+            />
+            <span className={typography.body}>
+              {t("dashboard.conference.committee.filter.all")}
+            </span>
+          </label>
+          <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
+            <Checkbox
+              checked={statusFilter === "pending"}
+              onCheckedChange={(checked) => setStatusFilter(checked ? "pending" : "all")}
+            />
+            <span className={typography.body}>
+              {t("dashboard.conference.committee.filter.pending")}
+            </span>
+          </label>
+          <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
+            <Checkbox
+              checked={statusFilter === "accepted"}
+              onCheckedChange={(checked) => setStatusFilter(checked ? "accepted" : "all")}
+            />
+            <span className={typography.body}>
+              {t("dashboard.conference.committee.filter.accepted")}
+            </span>
+          </label>
+          <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
+            <Checkbox
+              checked={statusFilter === "rejected"}
+              onCheckedChange={(checked) => setStatusFilter(checked ? "rejected" : "all")}
+            />
+            <span className={typography.body}>
+              {t("dashboard.conference.committee.filter.rejected")}
+            </span>
+          </label>
+        </div>
+      </div>
+      <div className={`flex justify-end ${spacing.gap.sm} pt-2 border-t`}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setStatusFilter("all")
+          }}
+        >
+          Clear
+        </Button>
+      </div>
+    </div>
+  )
 
   const filteredReviewers = reviewers.filter((reviewer) => {
     if (!searchQuery) return true
@@ -224,19 +335,22 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
       setSearchResults([])
       return
     }
-    
+
     setIsSearching(true)
     try {
       // Call API to search users by email using apiFetch
-      const { data } = await apiFetch<{ data: { users: Array<{ id: number; email: string; first_name?: string; last_name?: string }> } }>(
-        `/api/v1/users/search?q=${encodeURIComponent(query)}`
-      )
-      
+      const { data } = await apiFetch<{
+        data: {
+          users: Array<{ id: number; email: string; first_name?: string; last_name?: string }>
+        }
+      }>(`/api/v1/users/search?q=${encodeURIComponent(query)}`)
+
       // Transform the response to include name field
-      const users = (data.data.users || []).map(user => ({
+      const users = (data.data.users || []).map((user) => ({
         id: user.id,
         email: user.email,
-        name: user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : undefined
+        name:
+          user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : undefined,
       }))
       setSearchResults(users)
     } catch (error) {
@@ -253,27 +367,30 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
         searchUsers(inviteEmail)
       }
     }, 300)
-    
+
     return () => clearTimeout(timer)
   }, [inviteEmail])
 
   const handleInvite = async () => {
     if (selectedUsers.length === 0) {
-      toast({ 
-        variant: "destructive", 
-        title: t("dashboard.conference.committee.errors.invalidUserId"), 
-        description: t("dashboard.conference.committee.errors.userIdRequired") 
+      toast({
+        variant: "destructive",
+        title: t("dashboard.conference.committee.errors.invalidUserId"),
+        description: t("dashboard.conference.committee.errors.userIdRequired"),
       })
       return
     }
-    
+
     setIsInviting(true)
     setInviteErrors([])
     setInviteSuccessInfo(null)
     const selectedSnapshot = [...selectedUsers]
-    
+
     try {
-      const response = await inviteReviewers(conferenceId, selectedUsers.map(u => ({ user_id: u.id })))
+      const response = await inviteReviewers(
+        conferenceId,
+        selectedUsers.map((u) => ({ user_id: u.id })),
+      )
       if (!response.data) {
         toast({
           variant: "destructive",
@@ -328,7 +445,10 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
           const user = selectedSnapshot.find((item) => item.id === failure.user_id)
           const email = user?.email || t("dashboard.conference.committee.errors.unknownReviewer")
           const normalizedError = (failure.error || "").toLowerCase()
-          const prefix = normalizedError.includes("already") || normalizedError.includes("duplicate") ? "WARN" : "ERROR"
+          const prefix =
+            normalizedError.includes("already") || normalizedError.includes("duplicate")
+              ? "WARN"
+              : "ERROR"
           return `${prefix}: ${email} - ${failure.error}`
         })
 
@@ -338,7 +458,9 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
           description: (
             <div className={`${spacing.tight} mt-2 max-h-32 overflow-y-auto`}>
               {failureMessages.map((message, index) => (
-                <p key={index} className={typography.body}>{message}</p>
+                <p key={index} className={typography.body}>
+                  {message}
+                </p>
               ))}
             </div>
           ),
@@ -351,7 +473,8 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
       }
 
       if (successCount === 0 && failedCount === 0) {
-        const fallbackMessage = response.error || t("dashboard.conference.committee.errors.inviteUnknown")
+        const fallbackMessage =
+          response.error || t("dashboard.conference.committee.errors.inviteUnknown")
 
         toast({
           variant: "destructive",
@@ -363,7 +486,10 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
         setInviteErrors([fallbackMessage])
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : t("dashboard.conference.committee.errors.inviteUnknown")
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : t("dashboard.conference.committee.errors.inviteUnknown")
 
       toast({
         variant: "destructive",
@@ -384,14 +510,25 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
     try {
       const response = await removeReviewer(conferenceId, reviewer.id.toString())
       if (response.data) {
-        toast({ title: t("dashboard.conference.committee.toast.removeSuccess"), description: t("dashboard.conference.committee.toast.removeSuccessDescription") })
+        toast({
+          title: t("dashboard.conference.committee.toast.removeSuccess"),
+          description: t("dashboard.conference.committee.toast.removeSuccessDescription"),
+        })
         setReviewerToRemove(null)
         loadData()
       } else {
-        toast({ variant: "destructive", title: t("dashboard.conference.committee.errors.removeFailed"), description: response.error })
+        toast({
+          variant: "destructive",
+          title: t("dashboard.conference.committee.errors.removeFailed"),
+          description: response.error,
+        })
       }
     } catch (error) {
-      toast({ variant: "destructive", title: t("dashboard.conference.committee.errors.removeFailed"), description: error instanceof Error ? error.message : "Unknown error" })
+      toast({
+        variant: "destructive",
+        title: t("dashboard.conference.committee.errors.removeFailed"),
+        description: error instanceof Error ? error.message : "Unknown error",
+      })
     } finally {
       setIsRemoving(false)
     }
@@ -425,7 +562,14 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
   }
 
   if (isLoading) {
-    return <div className={`flex items-center justify-center py-12`}><Loader2 className={`${iconSizes.lg} animate-spin text-muted-foreground`} style={{ width: "2rem", height: "2rem" }} /></div>
+    return (
+      <div className={`flex items-center justify-center py-12`}>
+        <Loader2
+          className={`${iconSizes.lg} animate-spin text-muted-foreground`}
+          style={{ width: "2rem", height: "2rem" }}
+        />
+      </div>
+    )
   }
 
   return (
@@ -524,10 +668,17 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                   {/* Loading overlay */}
                   {isInviting && (
                     <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center rounded-lg">
-                      <div className={`bg-card ${spacing.padding.cardLarge} rounded-lg shadow-lg border flex flex-col items-center ${spacing.gap.md} max-w-sm`}>
-                        <Loader2 className="animate-spin text-primary" style={{ width: "3rem", height: "3rem" }} />
+                      <div
+                        className={`bg-card ${spacing.padding.cardLarge} rounded-lg shadow-lg border flex flex-col items-center ${spacing.gap.md} max-w-sm`}
+                      >
+                        <Loader2
+                          className="animate-spin text-primary"
+                          style={{ width: "3rem", height: "3rem" }}
+                        />
                         <div className="text-center">
-                          <p className={`${typography.semibold} ${typography.h4}`}>Sending invitations...</p>
+                          <p className={`${typography.semibold} ${typography.h4}`}>
+                            Sending invitations...
+                          </p>
                           <p className={`${typography.body} text-muted-foreground mt-1`}>
                             Inviting {selectedUsers.length}{" "}
                             {selectedUsers.length > 1 ? "reviewers" : "reviewer"}
@@ -538,8 +689,12 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                   )}
 
                   {inviteSuccessInfo && (
-                    <div className={`mb-4 flex items-start ${spacing.gap.md} rounded-lg border border-green-200 bg-green-50 ${spacing.padding.card} dark:border-green-900/60 dark:bg-green-950/40`}>
-                      <CheckCircle2 className={`mt-0.5 ${iconSizes.md} text-green-600 dark:text-green-300`} />
+                    <div
+                      className={`mb-4 flex items-start ${spacing.gap.md} rounded-lg border border-green-200 bg-green-50 ${spacing.padding.card} dark:border-green-900/60 dark:bg-green-950/40`}
+                    >
+                      <CheckCircle2
+                        className={`mt-0.5 ${iconSizes.md} text-green-600 dark:text-green-300`}
+                      />
                       <div>
                         <p className={`${typography.semibold} text-green-700 dark:text-green-200`}>
                           {t("dashboard.conference.committee.dialog.inviteSuccessBannerTitle")}
@@ -561,7 +716,10 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                   </DialogHeader>
                   <div className={`${spacing.subsection} py-4`}>
                     <div className={spacing.item}>
-                      <label htmlFor="userEmail" className={`${typography.body} ${typography.medium}`}>
+                      <label
+                        htmlFor="userEmail"
+                        className={`${typography.body} ${typography.medium}`}
+                      >
                         {t("dashboard.conference.committee.dialog.userEmail")} *
                       </label>
                       <div className="relative">
@@ -570,23 +728,27 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                           type="email"
                           placeholder="reviewer@example.com"
                           value={inviteEmail}
-                          onChange={(e) => {
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                             setInviteEmail(e.target.value)
                           }}
                         />
                         {isSearching && (
                           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                            <Loader2 className={`${iconSizes.sm} animate-spin text-muted-foreground`} />
+                            <Loader2
+                              className={`${iconSizes.sm} animate-spin text-muted-foreground`}
+                            />
                           </div>
                         )}
                       </div>
                       <p className={`${typography.bodySmall} text-muted-foreground`}>
                         {t("dashboard.conference.committee.dialog.userEmailHint")}
                       </p>
-                      
+
                       {/* Search results dropdown */}
                       {searchResults.length > 0 && (
-                        <div className={`border rounded-md mt-2 max-h-48 overflow-y-auto bg-background shadow-lg`}>
+                        <div
+                          className={`border rounded-md mt-2 max-h-48 overflow-y-auto bg-background shadow-lg`}
+                        >
                           {searchResults.map((searchUser) => {
                             const isSelected = selectedUsers.some((u) => u.id === searchUser.id)
                             return (
@@ -600,7 +762,9 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                                   type="button"
                                   onClick={() => {
                                     if (isSelected) {
-                                      setSelectedUsers(selectedUsers.filter((u) => u.id !== searchUser.id))
+                                      setSelectedUsers(
+                                        selectedUsers.filter((u) => u.id !== searchUser.id),
+                                      )
                                     } else {
                                       setSelectedUsers([...selectedUsers, searchUser])
                                     }
@@ -612,7 +776,9 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                                       {searchUser.email}
                                     </p>
                                     {searchUser.name && (
-                                      <p className={`${typography.bodySmall} text-muted-foreground`}>
+                                      <p
+                                        className={`${typography.bodySmall} text-muted-foreground`}
+                                      >
                                         {searchUser.name}
                                       </p>
                                     )}
@@ -646,7 +812,9 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                       {/* Selected users display */}
                       {selectedUsers.length > 0 && (
                         <div className={spacing.item}>
-                          <p className={`${typography.bodySmall} ${typography.medium} text-muted-foreground`}>
+                          <p
+                            className={`${typography.bodySmall} ${typography.medium} text-muted-foreground`}
+                          >
                             {selectedUsers.length}{" "}
                             {selectedUsers.length === 1 ? "reviewer" : "reviewers"} selected
                           </p>
@@ -670,7 +838,9 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                       )}
                       {/* Invite errors */}
                       {inviteErrors.length > 0 && (
-                        <div className={`rounded-md border border-destructive/30 bg-destructive/10 p-3`}>
+                        <div
+                          className={`rounded-md border border-destructive/30 bg-destructive/10 p-3`}
+                        >
                           <p className={`${typography.body} ${typography.medium} text-destructive`}>
                             {t("dashboard.conference.committee.errors.inviteIssues")}
                           </p>
@@ -689,12 +859,19 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => {
-                      setIsInviteDialogOpen(false)
-                      setInviteEmail("")
-                      setSelectedUsers([])
-                      setSearchResults([])
-                    }} disabled={isInviting}>{t("common.actions.cancel")}</Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setIsInviteDialogOpen(false)
+                        setInviteEmail("")
+                        setSelectedUsers([])
+                        setSearchResults([])
+                      }}
+                      disabled={isInviting}
+                    >
+                      {t("common.actions.cancel")}
+                    </Button>
                     <Button
                       type="button"
                       onClick={handleInvite}
@@ -710,44 +887,25 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
             </div>
           </CardHeader>
           <CardContent className={spacing.subsection}>
-            <div className={`flex items-center ${spacing.gap.md}`}>
-              <div className="relative flex-1">
-                <Search
-                  className={`absolute left-3 top-1/2 ${iconSizes.sm} -translate-y-1/2 text-muted-foreground`}
-                />
-                <Input
-                  placeholder={t("dashboard.conference.committee.search.placeholder")}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue
-                    placeholder={t("dashboard.conference.committee.filter.placeholder")}
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">
-                    {t("dashboard.conference.committee.filter.all")}
-                  </SelectItem>
-                  <SelectItem value="pending">
-                    {t("dashboard.conference.committee.filter.pending")}
-                  </SelectItem>
-                  <SelectItem value="accepted">
-                    {t("dashboard.conference.committee.filter.accepted")}
-                  </SelectItem>
-                  <SelectItem value="rejected">
-                    {t("dashboard.conference.committee.filter.rejected")}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="mb-4">
+              <FilterBar
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                searchPlaceholder={t("dashboard.conference.committee.search.placeholder")}
+                activeFilters={activeFilters}
+                filterPopover={filterPopover}
+                hasActiveFilters={hasActiveFilters}
+              />
             </div>
             {filteredReviewers.length === 0 ? (
-              <div className={`flex flex-col items-center justify-center text-center ${spacing.subsection} py-12`}>
+              <div
+                className={`flex flex-col items-center justify-center text-center ${spacing.subsection} py-12`}
+              >
                 <div className={`rounded-full bg-muted ${spacing.padding.cardLarge}`}>
-                  <Users className="text-muted-foreground" style={{ width: "3rem", height: "3rem" }} />
+                  <Users
+                    className="text-muted-foreground"
+                    style={{ width: "3rem", height: "3rem" }}
+                  />
                 </div>
                 <div className={spacing.item}>
                   <h3 className={`${typography.h4} ${typography.semibold}`}>
@@ -775,7 +933,11 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                           {reviewer.domain && reviewer.domain.length > 0 && (
                             <div className={`mt-1 flex ${spacing.gap.sm}`}>
                               {reviewer.domain.slice(0, 3).map((d, idx) => (
-                                <Badge key={idx} variant="secondary" className={typography.bodySmall}>
+                                <Badge
+                                  key={idx}
+                                  variant="secondary"
+                                  className={typography.bodySmall}
+                                >
                                   {d}
                                 </Badge>
                               ))}
@@ -853,9 +1015,7 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                       onClick={loadMoreReviewers}
                       disabled={isLoadingMore}
                     >
-                      {isLoadingMore && (
-                        <Loader2 className={`mr-2 ${iconSizes.sm} animate-spin`} />
-                      )}
+                      {isLoadingMore && <Loader2 className={`mr-2 ${iconSizes.sm} animate-spin`} />}
                       {t("dashboard.conference.committee.actions.loadMore")}
                     </Button>
                   </div>

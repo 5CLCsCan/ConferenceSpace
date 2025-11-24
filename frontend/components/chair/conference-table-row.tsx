@@ -33,7 +33,7 @@ export function ConferenceTableRow({
 
   return (
     <tr className="border-b border-border hover:bg-muted/50 transition-colors">
-      <td className={`${spacing.padding.card}`}>
+      <td className="py-3 px-4">
         <div
           className="cursor-pointer hover:opacity-80 transition-opacity"
           onClick={() => router.push(`/dashboard/conference/${id}`)}
@@ -42,15 +42,15 @@ export function ConferenceTableRow({
           <div className={`${typography.body} text-muted-foreground`}>{acronym}</div>
         </div>
       </td>
-      <td className={`${spacing.padding.card} ${typography.body} text-foreground`}>{dates}</td>
-      <td className={spacing.padding.card}>
+      <td className={`py-3 px-4 ${typography.body} text-foreground`}>{dates}</td>
+      <td className="py-3 px-4">
         <span
           className={`inline-flex items-center px-3 py-1 rounded-full ${typography.bodySmall} ${typography.medium} ${statusStyles[status]}`}
         >
           {statusLabels[status]}
         </span>
       </td>
-      <td className={`${spacing.padding.card} ${typography.body} text-foreground`}>{submissions}</td>
+      <td className={`py-3 px-4 ${typography.body} text-foreground`}>{submissions}</td>
     </tr>
   )
 }
