@@ -59,7 +59,7 @@ func (s *Storage) Create(ctx context.Context, sub *dto.Submission) (*dto.Submiss
 	// Build the INSERT query
 	insertQuery := `INSERT INTO conference_submissions (conference_id, author, title, abstract, link, domain, track, status, information, created_at, updated_at`
 	valuesQuery := `) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11`
-	returningQuery := `) RETURNING submission_id, author, domain, track, status, link, information, created_at, updated_at, conference_id, title, abstract, file_path, file_original_name, file_size, file_mime_type, file_uploaded_at`
+	returningQuery := `) RETURNING submission_id, author, domain, track, status, link, information, created_at, updated_at, conference_id, title, abstract, file_path, file_original_name, file_size, file_mime_type, file_uploaded_at, cover_letter_path, cover_letter_original_name, cover_letter_size, cover_letter_mime_type, cover_letter_uploaded_at`
 
 	// Use NULL for track if empty
 	var trackValue interface{}
@@ -78,6 +78,14 @@ func (s *Storage) Create(ctx context.Context, sub *dto.Submission) (*dto.Submiss
 		queryArgs = append(queryArgs, sub.File.Path, sub.File.OriginalName, sub.File.Size, sub.File.MimeType, now)
 	}
 
+	// Add cover letter fields if present
+	if sub.CoverLetter != nil {
+		paramCount := len(queryArgs) + 1
+		insertQuery += `, cover_letter_path, cover_letter_original_name, cover_letter_size, cover_letter_mime_type, cover_letter_uploaded_at`
+		valuesQuery += fmt.Sprintf(`, $%d, $%d, $%d, $%d, $%d`, paramCount, paramCount+1, paramCount+2, paramCount+3, paramCount+4)
+		queryArgs = append(queryArgs, sub.CoverLetter.Path, sub.CoverLetter.OriginalName, sub.CoverLetter.Size, sub.CoverLetter.MimeType, now)
+	}
+
 	fullQuery := insertQuery + valuesQuery + returningQuery
 
 	entity := &model.Submission{}
@@ -86,6 +94,7 @@ func (s *Storage) Create(ctx context.Context, sub *dto.Submission) (*dto.Submiss
 		&entity.Link, &entity.Information, &entity.CreatedAt, &entity.UpdatedAt,
 		&entity.ConferenceID, &entity.Title, &entity.Abstract,
 		&entity.FilePath, &entity.FileOriginalName, &entity.FileSize, &entity.FileMimeType, &entity.FileUploadedAt,
+		&entity.CoverLetterPath, &entity.CoverLetterOriginalName, &entity.CoverLetterSize, &entity.CoverLetterMimeType, &entity.CoverLetterUploadedAt,
 	)
 
 	if err != nil {
@@ -113,6 +122,11 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Submission, error
 			model.ColFileSize,
 			model.ColFileMimeType,
 			model.ColFileUploadedAt,
+			model.ColCoverLetterPath,
+			model.ColCoverLetterOriginalName,
+			model.ColCoverLetterSize,
+			model.ColCoverLetterMimeType,
+			model.ColCoverLetterUploadedAt,
 			model.ColCreatedAt,
 			model.ColUpdatedAt,
 		).
@@ -141,6 +155,11 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Submission, error
 		&entity.FileSize,
 		&entity.FileMimeType,
 		&entity.FileUploadedAt,
+		&entity.CoverLetterPath,
+		&entity.CoverLetterOriginalName,
+		&entity.CoverLetterSize,
+		&entity.CoverLetterMimeType,
+		&entity.CoverLetterUploadedAt,
 		&entity.CreatedAt,
 		&entity.UpdatedAt,
 	)
@@ -173,6 +192,11 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Submiss
 		model.ColFileSize,
 		model.ColFileMimeType,
 		model.ColFileUploadedAt,
+		model.ColCoverLetterPath,
+		model.ColCoverLetterOriginalName,
+		model.ColCoverLetterSize,
+		model.ColCoverLetterMimeType,
+		model.ColCoverLetterUploadedAt,
 		model.ColCreatedAt,
 		model.ColUpdatedAt,
 	).From(model.SubmissionTableName)
@@ -250,6 +274,11 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Submiss
 			&entity.FileSize,
 			&entity.FileMimeType,
 			&entity.FileUploadedAt,
+			&entity.CoverLetterPath,
+			&entity.CoverLetterOriginalName,
+			&entity.CoverLetterSize,
+			&entity.CoverLetterMimeType,
+			&entity.CoverLetterUploadedAt,
 			&entity.CreatedAt,
 			&entity.UpdatedAt,
 		)
@@ -324,13 +353,22 @@ func (s *Storage) Update(ctx context.Context, id int64, sub *dto.Submission) (*d
 		updateMap[model.ColFileUploadedAt] = time.Now()
 	}
 
+	// Add cover letter metadata if provided
+	if sub.CoverLetter != nil {
+		updateMap[model.ColCoverLetterPath] = sub.CoverLetter.Path
+		updateMap[model.ColCoverLetterOriginalName] = sub.CoverLetter.OriginalName
+		updateMap[model.ColCoverLetterSize] = sub.CoverLetter.Size
+		updateMap[model.ColCoverLetterMimeType] = sub.CoverLetter.MimeType
+		updateMap[model.ColCoverLetterUploadedAt] = time.Now()
+	}
+
 	updateMap[model.ColUpdatedAt] = time.Now()
 
 	query, args, err := s.qb.
 		Update(model.SubmissionTableName).
 		SetMap(updateMap).
 		Where(sq.Eq{model.ColSubmissionID: id}).
-		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
+		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
 			model.ColSubmissionID,
 			model.ColConferenceID,
 			model.ColAuthor,
@@ -346,6 +384,11 @@ func (s *Storage) Update(ctx context.Context, id int64, sub *dto.Submission) (*d
 			model.ColFileSize,
 			model.ColFileMimeType,
 			model.ColFileUploadedAt,
+			model.ColCoverLetterPath,
+			model.ColCoverLetterOriginalName,
+			model.ColCoverLetterSize,
+			model.ColCoverLetterMimeType,
+			model.ColCoverLetterUploadedAt,
 			model.ColCreatedAt,
 			model.ColUpdatedAt,
 		)).
@@ -372,6 +415,11 @@ func (s *Storage) Update(ctx context.Context, id int64, sub *dto.Submission) (*d
 		&entity.FileSize,
 		&entity.FileMimeType,
 		&entity.FileUploadedAt,
+		&entity.CoverLetterPath,
+		&entity.CoverLetterOriginalName,
+		&entity.CoverLetterSize,
+		&entity.CoverLetterMimeType,
+		&entity.CoverLetterUploadedAt,
 		&entity.CreatedAt,
 		&entity.UpdatedAt,
 	)

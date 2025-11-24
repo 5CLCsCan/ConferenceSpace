@@ -1,8 +1,11 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 
+	"github.com/dcao/conferencespace/internal/dto"
+	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -339,6 +342,97 @@ func HandleNoRequestWithStatus[Res any](statusCode int, handler func(ctx *gin.Co
 	}
 }
 
+// HandleMultipartOrJSON is a handler that supports both multipart/form-data and JSON requests
+// For multipart requests, it extracts JSON from the specified form field name
+// For JSON requests, it binds the JSON body directly
+// This is useful for endpoints that need to handle file uploads but also support metadata-only updates
+func HandleMultipartOrJSON[Req any, Res any](jsonFieldName string, handler func(ctx *gin.Context, req *Req) (*Res, error)) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req Req
+
+		// Try to parse as multipart form first
+		form, formErr := ctx.MultipartForm()
+
+		if formErr == nil {
+			// Store parsed form in context for controller access (avoid re-parsing)
+			ctx.Set("multipart_form", form)
+
+			// Multipart form data - extract JSON from form field
+			jsonData := ctx.PostForm(jsonFieldName)
+			if jsonData == "" {
+				ctx.JSON(http.StatusBadRequest, Response{Error: jsonFieldName + " field is required in form data"})
+				return
+			}
+
+			if err := ctx.ShouldBindJSON(&req); err != nil {
+				// Since we have form data, manually unmarshal the JSON string
+				var tempReq Req
+				if err := json.Unmarshal([]byte(jsonData), &tempReq); err != nil {
+					ctx.JSON(http.StatusBadRequest, Response{Error: "invalid " + jsonFieldName + " data format: " + err.Error()})
+					return
+				}
+				req = tempReq
+			}
+		} else {
+			// Regular JSON request
+			if err := ctx.ShouldBindJSON(&req); err != nil {
+				ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+				return
+			}
+		}
+
+		response, err := handler(ctx, &req)
+		if err != nil {
+			handleError(ctx, err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, Response{Data: response})
+	}
+}
+
+// HandleMultipartOrJSONWithStatus is similar to HandleMultipartOrJSON but allows custom success status code
+func HandleMultipartOrJSONWithStatus[Req any, Res any](statusCode int, jsonFieldName string, handler func(ctx *gin.Context, req *Req) (*Res, error)) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req Req
+
+		// Try to parse as multipart form first
+		form, formErr := ctx.MultipartForm()
+
+		if formErr == nil {
+			// Store parsed form in context for controller access (avoid re-parsing)
+			ctx.Set("multipart_form", form)
+
+			// Multipart form data - extract JSON from form field
+			jsonData := ctx.PostForm(jsonFieldName)
+			if jsonData == "" {
+				ctx.JSON(http.StatusBadRequest, Response{Error: jsonFieldName + " field is required in form data"})
+				return
+			}
+
+			// Manually unmarshal the JSON string from form data
+			if err := json.Unmarshal([]byte(jsonData), &req); err != nil {
+				ctx.JSON(http.StatusBadRequest, Response{Error: "invalid " + jsonFieldName + " data format: " + err.Error()})
+				return
+			}
+		} else {
+			// Regular JSON request
+			if err := ctx.ShouldBindJSON(&req); err != nil {
+				ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+				return
+			}
+		}
+
+		response, err := handler(ctx, &req)
+		if err != nil {
+			handleError(ctx, err)
+			return
+		}
+
+		ctx.JSON(statusCode, Response{Data: response})
+	}
+}
+
 // HandleNoRequestList handles list endpoints with no request body (GET)
 func HandleNoRequestList[Res any](handler func(ctx *gin.Context) ([]*Res, error)) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -373,6 +467,103 @@ func HandleNoRequestWithMessage(message string, handler func(ctx *gin.Context) e
 		}
 
 		ctx.JSON(http.StatusOK, gin.H{"message": message})
+	}
+}
+
+// HandleSubmissionCreate handles submission creation with custom form binding
+func HandleSubmissionCreate(handler func(ctx *gin.Context, req *dto.SubmissionCreateRequest) (*dto.Submission, error)) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		// Parse multipart form
+		form, err := ctx.MultipartForm()
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, Response{Error: "failed to parse form data: " + err.Error()})
+			return
+		}
+
+		// Bind form data to request DTO using custom binder
+		req, err := utils.BindSubmissionCreateRequest(form)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+			return
+		}
+
+		// Call controller
+		response, err := handler(ctx, req)
+		if err != nil {
+			handleError(ctx, err)
+			return
+		}
+
+		ctx.JSON(http.StatusCreated, Response{Data: response})
+	}
+}
+
+// HandleSubmissionUpdate handles submission update with custom form binding
+func HandleSubmissionUpdate(handler func(ctx *gin.Context, req *dto.SubmissionUpdateRequest) (*dto.Submission, error)) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		// Try to parse as multipart form first
+		form, formErr := ctx.MultipartForm()
+
+		var req *dto.SubmissionUpdateRequest
+
+		if formErr == nil {
+			// Multipart request - use custom binder
+			var err error
+			req, err = utils.BindSubmissionUpdateRequest(form)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+				return
+			}
+		} else {
+			// JSON request - use standard binding
+			if err := ctx.ShouldBindJSON(&req); err != nil {
+				ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+				return
+			}
+		}
+
+		// Call controller
+		response, err := handler(ctx, req)
+		if err != nil {
+			handleError(ctx, err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, Response{Data: response})
+	}
+}
+
+// HandleSubmissionPublish handles submission publish with custom form binding
+func HandleSubmissionPublish(handler func(ctx *gin.Context, req *dto.SubmissionPublishRequest) (*dto.Submission, error)) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		// Try to parse multipart form (optional - publish can work without new files)
+		form, formErr := ctx.MultipartForm()
+
+		var req *dto.SubmissionPublishRequest
+
+		if formErr == nil {
+			// Multipart request - use custom binder
+			var err error
+			req, err = utils.BindSubmissionPublishRequest(form)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+				return
+			}
+		} else {
+			// No form data - create empty request with empty Submission (no files being uploaded)
+			req = &dto.SubmissionPublishRequest{
+				Submission: &dto.Submission{},
+			}
+		}
+
+		// Call controller
+		response, err := handler(ctx, req)
+		if err != nil {
+			handleError(ctx, err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, Response{Data: response})
 	}
 }
 

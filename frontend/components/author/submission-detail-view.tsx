@@ -469,19 +469,89 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
 
         {/* Cover Letter Tab */}
         <TabsContent value="cover-letter" className="space-y-6 mt-4">
-          <Card className="py-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileCheck className="size-5" />
-                {t("dashboard.submission.tabs.coverLetter", "Cover Letter")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-center py-12">
-                <p className="text-lg font-medium text-muted-foreground">TBI</p>
-              </div>
-            </CardContent>
-          </Card>
+          {submission.cover_letter ? (
+            <div className="space-y-6">
+              {/* Cover Letter File Information */}
+              <Card className="py-6">
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <FileCheck className="size-4" />
+                    {t("dashboard.submission.details.coverLetterFile", "Cover Letter")}
+                  </CardTitle>
+                  <CardDescription>
+                    {t(
+                      "dashboard.submission.details.coverLetterDescription",
+                      "Supporting document for your submission",
+                    )}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <div className="text-xs font-medium text-gray-500 mb-1">
+                      {t("dashboard.submission.details.fileName", "File Name")}
+                    </div>
+                    <div className="text-sm break-all">{submission.cover_letter.original_name}</div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-xs font-medium text-gray-500 mb-1">
+                        {t("dashboard.submission.details.fileSize", "File Size")}
+                      </div>
+                      <div className="text-sm">
+                        {(submission.cover_letter.size / 1024 / 1024).toFixed(2)} MB
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-medium text-gray-500 mb-1">
+                        {t("dashboard.submission.details.fileType", "File Type")}
+                      </div>
+                      <div className="text-sm">{submission.cover_letter.mime_type}</div>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <Button variant="default" asChild>
+                      <a
+                        href={`/api/backend/api/v1/conferences/${conferenceId}/submissions/${submission.id}/cover_letter`}
+                        download={submission.cover_letter.original_name}
+                      >
+                        <Download className="size-4 mr-2" />
+                        {t("common.actions.download", "Download")}
+                      </a>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Preview Cover Letter */}
+              {submission.cover_letter.mime_type === "application/pdf" && (
+                <Card className="h-[calc(100vh-20rem)] flex flex-col p-0 gap-0 overflow-hidden rounded-lg">
+                  <CardContent className="p-0 h-full flex-1 overflow-hidden rounded-lg">
+                    <iframe
+                      src={`/api/backend/api/v1/conferences/${conferenceId}/submissions/${submission.id}/cover_letter#toolbar=1&navpanes=0`}
+                      className="w-full h-full border-0 rounded-lg"
+                      title={submission.cover_letter.original_name || "Cover Letter Preview"}
+                      allow="fullscreen"
+                    />
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          ) : (
+            <Card className="py-6">
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <FileCheck className="size-16 text-gray-400 mb-4" />
+                <p className="text-lg font-medium text-gray-700 mb-2">
+                  {t("dashboard.submission.details.noCoverLetter", "No cover letter attached")}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {t(
+                    "dashboard.submission.details.coverLetterOptional",
+                    "Cover letter is optional for this submission",
+                  )}
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
     </div>

@@ -143,9 +143,20 @@ func TestRelationshipCOI_E2E_DirectCollaboration(t *testing.T) {
 	subPath := fmt.Sprintf("/api/v1/conferences/%d/submissions", conferenceID)
 	t.Logf("Creating submission at path: %s", subPath)
 	t.Logf("Submission JSON: %s", string(submissionJSON))
-	subResp, err := ctx.MakeMultipartRequest("POST", subPath, map[string]string{
+	
+	// Include required paper file
+	files := []testutils.FileUpload{
+		{
+			FieldName: "file",
+			FileName:  "test_paper.pdf",
+			Content:   []byte("%PDF-1.4\n%âãÏÓ\n1 0 obj\n<<\n/Type /Catalog\n>>\nendobj\nxref\n0 2\ntrailer\n<<\n/Size 2\n>>\nstartxref\n50\n%%EOF"),
+			MimeType:  "application/pdf",
+		},
+	}
+	
+	subResp, err := ctx.MakeMultipartRequestWithFiles("POST", subPath, map[string]string{
 		"submission": string(submissionJSON),
-	}, authorToken)
+	}, files, authorToken)
 	if err != nil {
 		t.Fatalf("Failed to create submission: %v", err)
 	}
@@ -296,9 +307,20 @@ func TestRelationshipCOI_E2E_OldCollaboration(t *testing.T) {
 		},
 	}
 	submissionJSON2, _ := json.Marshal(submissionReq2)
-	subResp, _ := ctx.MakeMultipartRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/submissions", conferenceID), map[string]string{
+	
+	// Include required paper file
+	files2 := []testutils.FileUpload{
+		{
+			FieldName: "file",
+			FileName:  "test_paper.pdf",
+			Content:   []byte("%PDF-1.4\n%âãÏÓ\n1 0 obj\n<<\n/Type /Catalog\n>>\nendobj\nxref\n0 2\ntrailer\n<<\n/Size 2\n>>\nstartxref\n50\n%%EOF"),
+			MimeType:  "application/pdf",
+		},
+	}
+	
+	subResp, _ := ctx.MakeMultipartRequestWithFiles("POST", fmt.Sprintf("/api/v1/conferences/%d/submissions", conferenceID), map[string]string{
 		"submission": string(submissionJSON2),
-	}, authorToken)
+	}, files2, authorToken)
 	testutils.AssertStatusCode(t, subResp, http.StatusCreated)
 
 	var subData struct {
@@ -430,9 +452,20 @@ func TestRelationshipCOI_E2E_DifferentWindowYears(t *testing.T) {
 				},
 			}
 			submissionJSON3, _ := json.Marshal(submissionReq3)
-			subResp, _ := ctx.MakeMultipartRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/submissions", conferenceID), map[string]string{
+			
+			// Include required paper file
+			files3 := []testutils.FileUpload{
+				{
+					FieldName: "file",
+					FileName:  "test_paper.pdf",
+					Content:   []byte("%PDF-1.4\n%âãÏÓ\n1 0 obj\n<<\n/Type /Catalog\n>>\nendobj\nxref\n0 2\ntrailer\n<<\n/Size 2\n>>\nstartxref\n50\n%%EOF"),
+					MimeType:  "application/pdf",
+				},
+			}
+			
+			subResp, _ := ctx.MakeMultipartRequestWithFiles("POST", fmt.Sprintf("/api/v1/conferences/%d/submissions", conferenceID), map[string]string{
 				"submission": string(submissionJSON3),
-			}, authorToken)
+			}, files3, authorToken)
 			var subData struct {
 				Data *dto.Submission `json:"data"`
 			}
