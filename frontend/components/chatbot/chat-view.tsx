@@ -7,20 +7,29 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import type { ChatConversation, ChatMessage, ChatAttachment } from "./types"
+import { useChat } from "@ai-sdk/react"
+import { DefaultChatTransport } from "ai"
+import { Streamdown } from "streamdown"
+import type { ChatConversation, ChatAttachment } from "./types"
 import { typography, spacing, iconSizes } from "@/lib/typography"
 
 interface ChatViewProps {
   conversation: ChatConversation
-  onSendMessage: (message: string, attachments?: ChatAttachment[]) => void
+  onSendMessage?: (message: string, attachments?: ChatAttachment[]) => void
 }
 
 export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
-  const [message, setMessage] = React.useState("")
+  const [input, setInput] = React.useState("")
   const [attachments, setAttachments] = React.useState<ChatAttachment[]>([])
-  const [isTyping, setIsTyping] = React.useState(false)
   const scrollAreaRef = React.useRef<HTMLDivElement>(null)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
+
+  const { messages, sendMessage, status } = useChat({
+    id: conversation.id,
+    transport: new DefaultChatTransport({
+      api: "/api/chat",
+    }),
+  })
 
   const scrollToBottom = React.useCallback(() => {
     if (scrollAreaRef.current) {
@@ -33,7 +42,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
 
   React.useEffect(() => {
     scrollToBottom()
-  }, [conversation.messages, scrollToBottom])
+  }, [messages, scrollToBottom])
 
   const handleFileSelect = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
@@ -57,20 +66,18 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
   const handleSubmit = React.useCallback(
     (e: React.FormEvent) => {
       e.preventDefault()
-      if (!message.trim() && attachments.length === 0) return
+      if (!input.trim() && attachments.length === 0) return
 
-      onSendMessage(message, attachments.length > 0 ? attachments : undefined)
-      setMessage("")
+      sendMessage({ text: input })
+      setInput("")
       setAttachments([])
 
-      // Simulate typing indicator
-      setIsTyping(true)
-      setTimeout(() => {
-        setIsTyping(false)
-        // TODO: Add assistant response
-      }, 1500)
+      // Call legacy onSendMessage if provided (for backwards compatibility)
+      if (onSendMessage) {
+        onSendMessage(input, attachments.length > 0 ? attachments : undefined)
+      }
     },
-    [message, attachments, onSendMessage],
+    [input, attachments, sendMessage, onSendMessage],
   )
 
   const handleKeyDown = React.useCallback(
@@ -84,26 +91,27 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
   )
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Messages Area */}
-      <ScrollArea ref={scrollAreaRef} className={`flex-1 ${spacing.padding.card}`}>
+      <ScrollArea ref={scrollAreaRef} className={`flex-1 overflow-hidden ${spacing.padding.card}`}>
         <div className={spacing.subsection}>
-          {conversation.messages.length === 0 ? (
-            <div className={`flex flex-col items-center justify-center h-full py-12 text-center text-muted-foreground`}>
+          {messages.length === 0 ? (
+            <div
+              className={`flex flex-col items-center justify-center h-full py-12 text-center text-muted-foreground`}
+            >
               <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center mb-4">
                 <GraduationCap className={`${iconSizes.lg} text-white`} />
               </div>
               <p className={`${typography.body} ${typography.medium}`}>Start a conversation</p>
-              <p className={`${typography.bodySmall} mt-1`}>Ask me anything about the conference system</p>
+              <p className={`${typography.bodySmall} mt-1`}>
+                Ask me anything about the conference system
+              </p>
             </div>
           ) : (
-            conversation.messages.map((msg) => (
+            messages.map((msg) => (
               <div
                 key={msg.id}
-                className={cn(
-                  "flex",
-                  msg.role === "user" ? "justify-end" : "justify-start",
-                )}
+                className={cn("flex", msg.role === "user" ? "justify-end" : "justify-start")}
               >
                 <div
                   className={cn(
@@ -119,29 +127,59 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                         : "bg-muted text-foreground",
                     )}
                   >
-                    <p className="whitespace-pre-wrap">{msg.content}</p>
-                    {msg.attachments && msg.attachments.length > 0 && (
-                      <div className={`mt-2 ${spacing.tight}`}>
-                        {msg.attachments.map((att) => (
-                          <div
-                            key={att.id}
-                            className={`${typography.bodySmall} opacity-80 flex items-center ${spacing.gap.tight}`}
-                          >
-                            <Paperclip className={iconSizes.xs} />
-                            {att.name}
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    {msg.parts.map((part, i) => {
+                      switch (part.type) {
+                        case "text":
+                          return (
+                            <div key={`${msg.id}-${i}`}>
+                              <Streamdown
+                                isAnimating={
+                                  status === "streaming" &&
+                                  msg.role === "assistant" &&
+                                  msg.id === messages[messages.length - 1]?.id &&
+                                  i === msg.parts.length - 1
+                                }
+                              >
+                                {part.text}
+                              </Streamdown>
+                            </div>
+                          )
+                        case "reasoning":
+                          return (
+                            <details
+                              key={`${msg.id}-${i}`}
+                              className="mt-2 text-xs opacity-70 border-t pt-2 border-border/50"
+                            >
+                              <summary className="cursor-pointer hover:opacity-100">
+                                Show reasoning
+                              </summary>
+                              <div className="mt-2 text-xs">
+                                <Streamdown
+                                  isAnimating={
+                                    status === "streaming" &&
+                                    msg.role === "assistant" &&
+                                    msg.id === messages[messages.length - 1]?.id &&
+                                    i === msg.parts.length - 1
+                                  }
+                                >
+                                  {part.text}
+                                </Streamdown>
+                              </div>
+                            </details>
+                          )
+                        default:
+                          return null
+                      }
+                    })}
                   </div>
                   <p className={`${typography.bodySmall} text-muted-foreground px-1`}>
-                    {format(msg.timestamp, "HH:mm")}
+                    {format(new Date(), "HH:mm")}
                   </p>
                 </div>
               </div>
             ))
           )}
-          {isTyping && (
+          {status === "submitted" && (
             <div className="flex justify-start">
               <div className={`bg-muted rounded-lg px-4 py-2`}>
                 <div className={`flex ${spacing.gap.tight}`}>
@@ -193,12 +231,13 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
               aria-label="Attach files"
             />
             <Textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type your message..."
               className="min-h-[44px] max-h-[120px] resize-none border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 flex-1"
               rows={1}
+              disabled={status !== "ready"}
             />
             <div className="flex flex-col gap-1 shrink-0">
               <Button
@@ -216,11 +255,11 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                 size="icon"
                 className={cn(
                   "h-8 w-8 rounded-lg",
-                  message.trim() || attachments.length > 0
+                  input.trim() || attachments.length > 0
                     ? "bg-primary text-primary-foreground hover:bg-primary/90"
                     : "bg-muted text-muted-foreground cursor-not-allowed",
                 )}
-                disabled={!message.trim() && attachments.length === 0}
+                disabled={(!input.trim() && attachments.length === 0) || status !== "ready"}
                 aria-label="Send message"
               >
                 <Send className="h-4 w-4" />
@@ -232,4 +271,3 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
     </div>
   )
 }
-

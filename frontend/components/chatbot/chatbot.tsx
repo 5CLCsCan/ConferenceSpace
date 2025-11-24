@@ -104,20 +104,12 @@ export function Chatbot() {
     (message: string, attachments?: ChatMessage["attachments"]) => {
       if (!currentConversationId) return
 
-      const newMessage: ChatMessage = {
-        id: `msg-${Date.now()}`,
-        role: "user",
-        content: message,
-        timestamp: new Date(),
-        attachments,
-      }
-
+      // Update conversation title if it's a new conversation
       setConversations((prev) =>
         prev.map((conv) =>
           conv.id === currentConversationId
             ? {
                 ...conv,
-                messages: [...conv.messages, newMessage],
                 updatedAt: new Date(),
                 title:
                   conv.title === "New Conversation" && conv.messages.length === 0

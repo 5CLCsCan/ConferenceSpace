@@ -181,6 +181,7 @@
         "notFoundTitle": "Không tìm thấy hội nghị",
         "notFound": "Hội nghị bạn đang tìm kiếm không tồn tại.",
         "tabs": {
+          "dashboard": "Bảng điều khiển",
           "overview": "Tổng quan",
           "callForPapers": "Lời mời gửi bài",
           "dates": "Các mốc thời gian",

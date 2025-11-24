@@ -29,6 +29,9 @@ interface PaperTabProps {
   keywordInput: string
   setKeywordInput: (value: string) => void
   handleAddKeyword: () => void
+  selectedTrack: string
+  setSelectedTrack: (value: string) => void
+  availableTracks: string[]
 }
 
 export function PaperTab({
@@ -43,6 +46,9 @@ export function PaperTab({
   keywordInput,
   setKeywordInput,
   handleAddKeyword,
+  selectedTrack,
+  setSelectedTrack,
+  availableTracks,
 }: PaperTabProps) {
   const wordCount = abstract.split(" ").filter(Boolean).length
 
@@ -120,6 +126,34 @@ export function PaperTab({
         </p>
       </div>
 
+      {/* Conference Track Selection */}
+      <div className={spacing.item}>
+        <Label htmlFor="track" className={`${typography.label} text-[#212529] font-arial`}>
+          Conference Track *
+        </Label>
+        <Select value={selectedTrack} onValueChange={setSelectedTrack}>
+          <SelectTrigger className={`${typography.body} font-arial border-[#DEE2E6]`}>
+            <SelectValue placeholder="Select the conference track for your paper" />
+          </SelectTrigger>
+          <SelectContent>
+            {availableTracks.length > 0 ? (
+              availableTracks.map((track) => (
+                <SelectItem key={track} value={track} className="font-arial">
+                  {track}
+                </SelectItem>
+              ))
+            ) : (
+              <SelectItem value="no-tracks" disabled className="font-arial text-muted-foreground">
+                No tracks available for this conference
+              </SelectItem>
+            )}
+          </SelectContent>
+        </Select>
+        <p className={`${typography.bodySmall} text-[#6C757D] font-arial`}>
+          Choose the track that best matches your paper's theme
+        </p>
+      </div>
+
       {/* Subject Areas Field */}
       <div className={spacing.item}>
         <Label htmlFor="subject-areas" className={`${typography.label} text-[#212529] font-arial`}>
@@ -138,7 +172,7 @@ export function PaperTab({
           </SelectContent>
         </Select>
         <p className={`${typography.bodySmall} text-[#6C757D] font-arial`}>
-          Choose the track topic most relevant to your paper
+          Choose the research domain most relevant to your paper
         </p>
       </div>
 

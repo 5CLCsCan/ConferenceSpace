@@ -17,8 +17,16 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { typography, spacing } from "@/lib/typography"
+import { ConferenceDashboard } from "@/components/conference/conference-dashboard"
 
-type TabType = "overview" | "call-for-papers" | "dates" | "committee" | "submissions" | "coi-demo"
+type TabType =
+  | "dashboard"
+  | "overview"
+  | "call-for-papers"
+  | "dates"
+  | "committee"
+  | "submissions"
+  | "coi-demo"
 
 export default function ConferencePage() {
   const params = useParams()
@@ -30,7 +38,9 @@ export default function ConferencePage() {
 
   const [conference, setConference] = useState<Conference | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<TabType>((searchParams.get("tab") as TabType) || "overview")
+  const [activeTab, setActiveTab] = useState<TabType>(
+    (searchParams.get("tab") as TabType) || (currentRole === "chair" ? "dashboard" : "overview"),
+  )
 
   useEffect(() => {
     async function loadConference() {
@@ -45,9 +55,9 @@ export default function ConferencePage() {
     loadConference()
   }, [conferenceId])
 
-  // Redirect authors away from COI Demo tab
+  // Redirect authors away from COI Demo tab and Dashboard tab
   useEffect(() => {
-    if (currentRole === "author" && activeTab === "coi-demo") {
+    if (currentRole === "author" && (activeTab === "coi-demo" || activeTab === "dashboard")) {
       setActiveTab("overview")
     }
   }, [currentRole, activeTab])
@@ -70,6 +80,14 @@ export default function ConferencePage() {
         id: "coi-demo" as TabType,
         label: t("dashboard.conference.details.tabs.coiDemo") || "COI Demo",
       },
+      ...(currentRole === "chair"
+        ? [
+            {
+              id: "dashboard" as TabType,
+              label: "Statistics",
+            },
+          ]
+        : []),
     ]
     // Hide COI Demo tab for authors
     return currentRole === "author" ? allTabs.filter((tab) => tab.id !== "coi-demo") : allTabs
@@ -121,9 +139,7 @@ export default function ConferencePage() {
               <h2 className={`${typography.h5} ${typography.bold} text-gray-900`}>
                 {conference.name}
               </h2>
-              <p className={`mt-0.5 ${typography.bodySmall} text-gray-600`}>
-                {conference.acronym}
-              </p>
+              <p className={`mt-0.5 ${typography.bodySmall} text-gray-600`}>{conference.acronym}</p>
             </div>
 
             <nav className={spacing.padding.card}>
@@ -154,11 +170,15 @@ export default function ConferencePage() {
             {user && (
               <div className={`border-t border-gray-200 ${spacing.padding.card}`}>
                 <div>
-                  <p className={`${typography.bodySmall} ${typography.medium} text-gray-500 mb-1.5`}>
+                  <p
+                    className={`${typography.bodySmall} ${typography.medium} text-gray-500 mb-1.5`}
+                  >
                     {t("dashboard.conference.details.currentRole")}
                   </p>
                   {currentRole && (
-                    <Badge className={`${roleConfig[currentRole].color} border-0 ${typography.bodySmall}`}>
+                    <Badge
+                      className={`${roleConfig[currentRole].color} border-0 ${typography.bodySmall}`}
+                    >
                       {roleConfig[currentRole].label}
                     </Badge>
                   )}
@@ -172,7 +192,9 @@ export default function ConferencePage() {
                   <p className={`${typography.bodySmall} ${typography.medium} text-gray-500`}>
                     {t("dashboard.conference.details.loggedInAs")}
                   </p>
-                  <p className={`mt-0.5 ${typography.bodySmall} ${typography.semibold} text-gray-900`}>
+                  <p
+                    className={`mt-0.5 ${typography.bodySmall} ${typography.semibold} text-gray-900`}
+                  >
                     {user.name}
                   </p>
                   <p className={`${typography.bodySmall} text-gray-600`}>{user.email}</p>
@@ -192,6 +214,7 @@ export default function ConferencePage() {
                 {t("dashboard.conference.details.joinNow")}
               </Button>
             )}
+            {activeTab === "dashboard" && <ConferenceDashboard conferenceId={conference.id} />}
             {activeTab === "overview" && <ConferenceOverview conference={conference} />}
             {activeTab === "call-for-papers" && <ConferenceCallForPapers conference={conference} />}
             {activeTab === "dates" && <ConferenceImportantDates conferenceId={conference.id} />}

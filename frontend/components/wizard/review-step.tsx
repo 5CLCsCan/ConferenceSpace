@@ -34,7 +34,12 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
             <h3 className={`${typography.h4} ${typography.medium} text-foreground`}>
               Conference Details
             </h3>
-            <Button variant="ghost" size="sm" onClick={() => goToStep(1)} className={spacing.gap.sm}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => goToStep(1)}
+              className={spacing.gap.sm}
+            >
               <Edit2 className={iconSizes.xs} />
               Edit
             </Button>
@@ -88,7 +93,12 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
             <h3 className={`${typography.h4} ${typography.medium} text-foreground`}>
               Topics & Submissions
             </h3>
-            <Button variant="ghost" size="sm" onClick={() => goToStep(2)} className={spacing.gap.sm}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => goToStep(2)}
+              className={spacing.gap.sm}
+            >
               <Edit2 className={iconSizes.xs} />
               Edit
             </Button>
@@ -131,6 +141,12 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
               </span>
             </div>
             <div className={`grid grid-cols-[160px_1fr] ${spacing.gap.sm} ${typography.body}`}>
+              <span className={typography.muted}>Tracks:</span>
+              <span className={typography.medium}>
+                {data.tracks.length > 0 ? data.tracks.join(", ") : "No tracks added"}
+              </span>
+            </div>
+            <div className={`grid grid-cols-[160px_1fr] ${spacing.gap.sm} ${typography.body}`}>
               <span className={typography.muted}>Anonymity:</span>
               <span className={`${typography.medium} capitalize`}>
                 {data.anonymity.replace("-", " ")}
@@ -151,40 +167,25 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
             <h3 className={`${typography.h4} ${typography.medium} text-foreground`}>
               Call For Paper Configuration
             </h3>
-            <Button variant="ghost" size="sm" onClick={() => goToStep(3)} className={spacing.gap.sm}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => goToStep(3)}
+              className={spacing.gap.sm}
+            >
               <Edit2 className={iconSizes.xs} />
               Edit
             </Button>
           </div>
           <div className={`bg-muted/50 rounded-lg ${spacing.padding.card} ${spacing.item}`}>
             <div className={`grid grid-cols-[180px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Formatting Requirements:</span>
+              <span className={typography.muted}>Call For Paper:</span>
               <span className={typography.medium}>
-                {data.cfpFormattingRequirements.length > 0
-                  ? data.cfpFormattingRequirements.join(", ")
-                  : "No requirements added"}
-              </span>
-            </div>
-            <div className={`grid grid-cols-[180px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Content Guidelines:</span>
-              <span className={typography.medium}>
-                {data.cfpContentGuidelines.length > 0
-                  ? data.cfpContentGuidelines.join(", ")
-                  : "No guidelines added"}
-              </span>
-            </div>
-            <div className={`grid grid-cols-[180px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Review Process:</span>
-              <span className={typography.medium}>
-                {data.cfpReviewProcess.length > 0
-                  ? data.cfpReviewProcess.join(", ")
-                  : "No process details added"}
-              </span>
-            </div>
-            <div className={`grid grid-cols-[180px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Cover Image:</span>
-              <span className={typography.medium}>
-                {data.cfpCoverImage ? data.cfpCoverImage.name : "No image uploaded"}
+                {data.callForPaperText
+                  ? data.callForPaperText.length > 100
+                    ? `${data.callForPaperText.substring(0, 100)}...`
+                    : data.callForPaperText
+                  : "No content provided"}
               </span>
             </div>
           </div>
@@ -198,7 +199,12 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
             <h3 className={`${typography.h4} ${typography.medium} text-foreground`}>
               Conference Chairs
             </h3>
-            <Button variant="ghost" size="sm" onClick={() => goToStep(4)} className={spacing.gap.sm}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => goToStep(4)}
+              className={spacing.gap.sm}
+            >
               <Edit2 className={iconSizes.xs} />
               Edit
             </Button>

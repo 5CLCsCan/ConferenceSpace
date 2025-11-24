@@ -11,6 +11,7 @@ export async function submitPaper(data: {
   abstract: string
   link?: string
   domain: string[]
+  track?: string
   file?: File
   cover_letter?: File // Cover letter file (PDF, DOCX, or TXT)
   status?: "draft" | "published" // Allow caller to specify status
@@ -38,6 +39,7 @@ export async function submitPaper(data: {
         abstract: data.abstract,
         link: data.link || "",
         domain: data.domain,
+        track: data.track || "", // Include track field
         status: data.status || "draft", // Use provided status or default to draft
         information: data.information || {},
       },
@@ -127,7 +129,7 @@ export async function getPaperById(
 /**
  * Update a submission
  * Backend endpoint: PUT /api/v1/conferences/:conference_id/submissions/:id
- * 
+ *
  * Supports updating metadata, paper file, and cover letter.
  * Files are optional - only updated if provided.
  */
@@ -139,7 +141,8 @@ export async function updatePaper(
     abstract: string
     link?: string
     domain: string[]
-    file?: File // Paper file (replaces existing if provided)
+    track?: string
+    file?: File
     cover_letter?: File // Cover letter file (PDF, DOCX, or TXT)
     information?: {
       co_authors?: string[]
@@ -165,6 +168,7 @@ export async function updatePaper(
         abstract: data.abstract,
         link: data.link || "",
         domain: data.domain,
+        track: data.track || "", // Include track field
         information: data.information || {},
       },
     }
@@ -214,7 +218,7 @@ export async function updatePaper(
 /**
  * Publish a draft submission
  * Backend endpoint: POST /api/v1/conferences/:conference_id/submissions/:id/publish
- * 
+ *
  * This endpoint changes a draft submission to published status.
  * If the draft doesn't have a paper file yet, you can provide one.
  */

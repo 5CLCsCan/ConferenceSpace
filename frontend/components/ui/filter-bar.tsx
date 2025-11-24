@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { spacing, iconSizes } from "@/lib/typography"
+import { cn } from "@/lib/utils"
 
 export interface ActiveFilter {
   id: string
@@ -44,21 +45,48 @@ export function FilterBar({
 
   return (
     <div
-      className={`relative flex items-center ${spacing.gap.sm} border rounded-md bg-background ${className || ""}`}
+      className={cn(
+        "group relative flex items-center gap-2 rounded-lg border bg-background/50 backdrop-blur-sm",
+        "transition-all duration-200 ease-in-out",
+        "hover:border-primary/50 hover:shadow-sm",
+        "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 focus-within:shadow-md",
+        className
+      )}
     >
-      <Search className={`absolute left-3 ${iconSizes.sm} text-muted-foreground`} />
-      <div className={`flex-1 flex items-center ${spacing.gap.sm} pl-10 pr-2 py-2`}>
+      <Search
+        className={cn(
+          "absolute left-3.5 text-muted-foreground transition-colors duration-200",
+          "group-focus-within:text-primary",
+          iconSizes.sm
+        )}
+      />
+      <div className="flex flex-1 items-center gap-2 pl-10 pr-2 py-2.5">
         {hasActiveFilters && activeFilters.length > 0 && (
-          <div className={`flex items-center ${spacing.gap.sm} flex-wrap`}>
+          <div className="flex items-center gap-1.5 flex-wrap">
             {activeFilters.map((filter) => (
-              <Badge key={filter.id} variant="secondary" className={spacing.gap.sm}>
-                {filter.label}
+              <Badge
+                key={filter.id}
+                variant="secondary"
+                className={cn(
+                  "group/badge inline-flex items-center gap-1 px-2 py-0.5 pr-1",
+                  "bg-primary/10 text-primary border-primary/20",
+                  "transition-all duration-200 ease-in-out",
+                  "hover:bg-primary/15 hover:border-primary/30",
+                  "animate-in fade-in slide-in-from-left-2"
+                )}
+              >
+                <span className="text-xs font-medium">{filter.label}</span>
                 <button
                   onClick={filter.onRemove}
-                  className="ml-1 hover:bg-muted rounded-full"
+                  className={cn(
+                    "ml-0.5 rounded-full p-0.5 transition-all duration-150",
+                    "hover:bg-primary/20 hover:text-primary",
+                    "focus:outline-none focus:ring-1 focus:ring-primary/50 focus:ring-offset-1"
+                  )}
                   type="button"
+                  aria-label={`Remove filter ${filter.label}`}
                 >
-                  <X className={iconSizes.xs} />
+                  <X className={cn("h-3 w-3", iconSizes.xs)} />
                 </button>
               </Badge>
             ))}
@@ -68,7 +96,12 @@ export function FilterBar({
           placeholder={hasActiveFilters ? "" : searchPlaceholder}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="!border-0 focus-visible:!ring-0 focus-visible:!border-0 focus-visible:!ring-offset-0 !shadow-none h-auto p-0 flex-1 min-w-[120px]"
+          className={cn(
+            "!border-0 !shadow-none h-auto p-0 flex-1 min-w-[120px]",
+            "focus-visible:!ring-0 focus-visible:!border-0 focus-visible:!ring-offset-0",
+            "placeholder:text-muted-foreground/60",
+            "bg-transparent"
+          )}
         />
       </div>
       {filterPopover && (
@@ -77,10 +110,15 @@ export function FilterBar({
             <Button
               variant="ghost"
               size="icon"
-              className={`h-8 w-8 mr-2 ${hasActiveFilters ? "text-primary" : ""}`}
+              className={cn(
+                "h-9 w-9 mr-2 rounded-md transition-all duration-200",
+                "hover:bg-primary/10 hover:text-primary",
+                "focus-visible:ring-2 focus-visible:ring-primary/50",
+                hasActiveFilters && "text-primary bg-primary/5"
+              )}
               onClick={onFilterButtonClick}
             >
-              <Filter className={iconSizes.sm} />
+              <Filter className={cn(iconSizes.sm, "transition-transform duration-200", filterOpen && "rotate-90")} />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-64" align="end">

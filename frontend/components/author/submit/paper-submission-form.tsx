@@ -74,6 +74,12 @@ export function PaperSubmissionForm({
   const [coiPersonInput, setCoiPersonInput] = useState("")
   // Cover letter tab state
   const [coverLetter, setCoverLetter] = useState<File | null>(null)
+  // Track selection state
+  const [selectedTrack, setSelectedTrack] = useState<string>("")
+  // Extract track names from conference tracks (backend returns array of strings)
+  const availableTracks: string[] = Array.isArray(conference?.tracks)
+    ? conference.tracks.map((t) => (typeof t === "string" ? t : (t as any).name || String(t)))
+    : []
   // Checklist state
   const checklist: Checklist = {
     titleProvided: title.trim().length > 0,
@@ -103,6 +109,7 @@ export function PaperSubmissionForm({
     setAbstract(initialSubmission.abstract || "")
     setSubjectAreas(initialSubmission.domain || [])
     setKeywords(initialSubmission.information?.keywords || [])
+    setSelectedTrack(initialSubmission.information?.track_name || "")
 
     // Pre-fill authors
     // Load co-authors from submission first
@@ -232,13 +239,14 @@ export function PaperSubmissionForm({
         file: uploadedFile || undefined, // Include uploaded file
         cover_letter: coverLetter || undefined, // Include cover letter
         status: "draft" as const, // Explicitly set status to draft
+        track: selectedTrack, // Send track as top-level field
         information: {
           keywords,
           co_authors: authors
             .filter((a, index) => index > 0 && a.name.trim()) // Skip first author (current user)
             .map((a) => a.email),
           paper_type: "research", // Default
-          track_name: subjectAreas[0] || "",
+          track_name: selectedTrack, // Also keep in information for backward compat
           additional_notes: "", // TODO: Add notes field
           metadata: {
             language: "en", // Default
@@ -291,13 +299,14 @@ export function PaperSubmissionForm({
         file: uploadedFile || undefined, // Include uploaded file
         cover_letter: coverLetter || undefined, // Include cover letter
         status: "published" as const, // Set status to published for final submission
+        track: selectedTrack, // Send track as top-level field
         information: {
           keywords,
           co_authors: authors
             .filter((a, index) => index > 0 && a.name.trim()) // Skip first author (current user)
             .map((a) => a.email),
           paper_type: "research", // Default
-          track_name: subjectAreas[0] || "",
+          track_name: selectedTrack, // Also keep in information for backward compat
           additional_notes: "", // TODO: Add notes field
           metadata: {
             language: "en", // Default
@@ -419,6 +428,9 @@ export function PaperSubmissionForm({
                   keywordInput={keywordInput}
                   setKeywordInput={setKeywordInput}
                   handleAddKeyword={handleAddKeyword}
+                  selectedTrack={selectedTrack}
+                  setSelectedTrack={setSelectedTrack}
+                  availableTracks={availableTracks}
                 />
               )}
               {activeTab === "authors" && (

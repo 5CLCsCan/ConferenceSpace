@@ -181,6 +181,7 @@
         "notFoundTitle": "Conference Not Found",
         "notFound": "The conference you are looking for does not exist.",
         "tabs": {
+          "dashboard": "Dashboard",
           "overview": "Overview",
           "callForPapers": "Call for Papers",
           "dates": "Key Dates",

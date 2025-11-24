@@ -24,6 +24,7 @@ type Props = {
 
 export function TopicsSubmissionsStep({ data, updateData }: Props) {
   const [topicInput, setTopicInput] = useState("")
+  const [trackInput, setTrackInput] = useState("")
 
   const addTopic = () => {
     if (topicInput.trim() && !data.topics.includes(topicInput.trim())) {
@@ -40,6 +41,24 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
     if (e.key === "Enter") {
       e.preventDefault()
       addTopic()
+    }
+  }
+
+  const addTrack = () => {
+    if (trackInput.trim() && !data.tracks.includes(trackInput.trim())) {
+      updateData({ tracks: [...data.tracks, trackInput.trim()] })
+      setTrackInput("")
+    }
+  }
+
+  const removeTrack = (track: string) => {
+    updateData({ tracks: data.tracks.filter((t) => t !== track) })
+  }
+
+  const handleTrackKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault()
+      addTrack()
     }
   }
 
@@ -67,9 +86,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
       <div className={spacing.subsection}>
         {/* Key Deadlines */}
         <div className={spacing.subsection}>
-          <h3 className={`${typography.h4} ${typography.medium} text-foreground`}>
-            Key Deadlines
-          </h3>
+          <h3 className={`${typography.h4} ${typography.medium} text-foreground`}>Key Deadlines</h3>
 
           <div className={`grid ${spacing.gap.md} md:grid-cols-2`}>
             {/* Submissions Open */}
@@ -231,15 +248,15 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
           </div>
         </div>
 
-        {/* Conference Tracks / Topics */}
+        {/* Research Topics / Domains */}
         <div className={spacing.item}>
           <Label htmlFor="topics" className={typography.label}>
-            Conference Tracks / Topics
+            Research Topics / Domains
           </Label>
           <div className={`flex ${spacing.gap.sm}`}>
             <Input
               id="topics"
-              placeholder="e.g., AI & Ethics, Natural Language Processing"
+              placeholder="e.g., Machine Learning, Computer Vision, Natural Language Processing"
               value={topicInput}
               onChange={(e) => setTopicInput(e.target.value)}
               onKeyDown={handleTopicKeyDown}
@@ -248,9 +265,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
               Add
             </Button>
           </div>
-          <p className={typography.caption}>
-            Press Enter or click Add to create a topic tag
-          </p>
+          <p className={typography.caption}>Research areas and domains covered by the conference</p>
           {data.topics.length > 0 && (
             <div className={`flex flex-wrap ${spacing.gap.sm} mt-2`}>
               {data.topics.map((topic) => (
@@ -259,6 +274,45 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
                   <button
                     type="button"
                     onClick={() => removeTopic(topic)}
+                    className="ml-1 hover:bg-muted rounded-full p-0.5"
+                  >
+                    <X className={iconSizes.xs} />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Conference Tracks */}
+        <div className={spacing.item}>
+          <Label htmlFor="tracks" className={typography.label}>
+            Conference Tracks
+          </Label>
+          <div className={`flex ${spacing.gap.sm}`}>
+            <Input
+              id="tracks"
+              placeholder="e.g., AI & Ethics Track, Systems Track, Theory Track"
+              value={trackInput}
+              onChange={(e) => setTrackInput(e.target.value)}
+              onKeyDown={handleTrackKeyDown}
+            />
+            <Button type="button" onClick={addTrack}>
+              Add
+            </Button>
+          </div>
+          <p className={typography.caption}>
+            Submission tracks for organizing papers by theme (authors will select one when
+            submitting)
+          </p>
+          {data.tracks.length > 0 && (
+            <div className={`flex flex-wrap ${spacing.gap.sm} mt-2`}>
+              {data.tracks.map((track) => (
+                <Badge key={track} variant="default" className="gap-1 pr-1 pl-3">
+                  {track}
+                  <button
+                    type="button"
+                    onClick={() => removeTrack(track)}
                     className="ml-1 hover:bg-muted rounded-full p-0.5"
                   >
                     <X className={iconSizes.xs} />

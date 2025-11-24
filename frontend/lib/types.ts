@@ -52,6 +52,8 @@ export interface Conference {
   website?: string
   status: "upcoming" | "active" | "completed" | "open" | "closed"
   tracks: Track[]
+  domain?: string[] // Research domains/keywords/topics
+  call_for_paper_text?: string // Call for paper content
   chair?: string
   primary_contact?: number
   area_chair?: number

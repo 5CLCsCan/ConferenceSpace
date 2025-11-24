@@ -1,0 +1,224 @@
+"use client"
+
+/**
+ * Conference Dashboard Component
+ * Displays conference statistics and analytics
+ * Role-based visibility: Chair sees all, Author/Reviewer see limited info
+ *
+ * Data Sources:
+ * - Statistics: GET /api/conferences/:id/stats (aggregated from papers, reviews tables)
+ */
+
+import { useEffect, useState } from "react"
+import type { ConferenceStats } from "@/lib/types"
+import { getConferenceStats } from "@/lib/api/conferences"
+import { Card } from "@/components/ui/card"
+import { TrendingUp, FileText, Users, CheckCircle } from "lucide-react"
+import { typography, spacing, iconSizes } from "@/lib/typography"
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts"
+import { useAuth } from "@/lib/auth-context"
+
+interface ConferenceDashboardProps {
+  conferenceId: string
+}
+
+export function ConferenceDashboard({ conferenceId }: ConferenceDashboardProps) {
+  const { currentRole } = useAuth()
+  const [stats, setStats] = useState<ConferenceStats | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadStats() {
+      const response = await getConferenceStats(conferenceId)
+      if (response.data) {
+        setStats(response.data)
+      }
+      setLoading(false)
+    }
+
+    loadStats()
+  }, [conferenceId])
+
+  const COLORS = ["#0056A3", "#28A745", "#FFC107", "#DC3545"]
+
+  const isChair = currentRole === "chair"
+  const showFullStats = isChair
+  const showCharts = isChair
+
+  if (loading) {
+    return (
+      <div className={spacing.section}>
+        <div className="flex items-center justify-center h-64">
+          <p className={`${typography.body} text-gray-500`}>Đang tải thống kê...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!stats) {
+    return (
+      <div className={spacing.section}>
+        <div className="flex items-center justify-center h-64">
+          <p className={`${typography.body} text-gray-500`}>Không có dữ liệu thống kê</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className={spacing.section}>
+      {/* Header */}
+      <div>
+        <h1 className={typography.h1}>Thống Kê Hội Nghị</h1>
+        <p className={`mt-1 ${typography.body} text-gray-600`}>
+          {isChair
+            ? "Tổng quan về số liệu và tiến độ của hội nghị"
+            : "Thông tin cơ bản về hội nghị"}
+        </p>
+      </div>
+
+      {/* Key Metrics - Chair sees all, others see limited */}
+      <div className={`grid ${spacing.gap.md} md:grid-cols-2 lg:grid-cols-4`}>
+        <Card className={spacing.padding.card}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className={`${typography.label} text-gray-500`}>Tổng Bài Nộp</p>
+              <p className={`mt-1 ${typography.stats} text-gray-900`}>{stats.total_submissions}</p>
+            </div>
+            <div className="rounded-lg bg-primary/10 p-2">
+              <FileText className={`${iconSizes.md} text-primary`} />
+            </div>
+          </div>
+        </Card>
+
+        {showFullStats && (
+          <>
+            <Card className={spacing.padding.card}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`${typography.label} text-gray-500`}>Tổng Reviews</p>
+                  <p className={`mt-1 ${typography.stats} text-gray-900`}>{stats.total_reviews}</p>
+                </div>
+                <div className="rounded-lg bg-primary/10 p-2">
+                  <Users className={`${iconSizes.md} text-primary`} />
+                </div>
+              </div>
+            </Card>
+
+            <Card className={spacing.padding.card}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`${typography.label} text-gray-500`}>Tỷ Lệ Chấp Nhận</p>
+                  <p className={`mt-1 ${typography.stats} text-gray-900`}>
+                    {stats.acceptance_rate}%
+                  </p>
+                </div>
+                <div className="rounded-lg bg-success/10 p-2">
+                  <CheckCircle className={`${iconSizes.md} text-success`} />
+                </div>
+              </div>
+            </Card>
+
+            <Card className={spacing.padding.card}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`${typography.label} text-gray-500`}>TB Reviews/Bài</p>
+                  <p className={`mt-1 ${typography.stats} text-gray-900`}>
+                    {stats.avg_reviews_per_paper.toFixed(1)}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-primary/10 p-2">
+                  <TrendingUp className={`${iconSizes.md} text-primary`} />
+                </div>
+              </div>
+            </Card>
+          </>
+        )}
+      </div>
+
+      {/* Charts Section - Only for Chair */}
+      {showCharts && (
+        <div className={`grid ${spacing.gap.md} lg:grid-cols-2`}>
+          {/* Submissions by Track */}
+          <Card className={spacing.padding.card}>
+            <h3 className={typography.h5}>Bài Nộp Theo Track</h3>
+            <p className={`mt-1 ${typography.caption}`}>
+              Phân bố bài nộp theo từng track nghiên cứu
+            </p>
+            <div className="mt-4 h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.submissions_by_track}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis dataKey="track" tick={{ fill: "#6B7280", fontSize: 12 }} />
+                  <YAxis tick={{ fill: "#6B7280", fontSize: 12 }} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#FFFFFF",
+                      border: "1px solid #E5E7EB",
+                      borderRadius: "8px",
+                    }}
+                  />
+                  <Bar dataKey="count" fill="#0056A3" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+
+          {/* Review Progress */}
+          <Card className={spacing.padding.card}>
+            <h3 className={typography.h5}>Tiến Độ Review</h3>
+            <p className={`mt-1 ${typography.caption}`}>Trạng thái hiện tại của quá trình review</p>
+            <div className="mt-4 h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={[
+                      {
+                        name: "Hoàn Thành",
+                        value: stats.review_progress.completed,
+                      },
+                      {
+                        name: "Đang Thực Hiện",
+                        value: stats.review_progress.in_progress,
+                      },
+                      {
+                        name: "Chưa Bắt Đầu",
+                        value: stats.review_progress.pending,
+                      },
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => {
+                      const p = typeof percent === "number" ? percent : 0
+                      return `${name}: ${(p * 100).toFixed(0)}%`
+                    }}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {[0, 1, 2].map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </div>
+      )}
+    </div>
+  )
+}
