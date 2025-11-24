@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/tests/api/testutils"
@@ -20,28 +21,42 @@ func NewClient(ctx *testutils.TestContext) *Client {
 	return &Client{ctx: ctx}
 }
 
-// Create calls the create submission endpoint
+// Create calls the create submission endpoint with a default test paper file
 func (c *Client) Create(conferenceID int64, submission *dto.Submission, token string) (*http.Response, error) {
 	path := fmt.Sprintf("/api/v1/conferences/%d/submissions", conferenceID)
 
-	// Submission API requires multipart/form-data
-	req := &dto.SubmissionCreateRequest{
-		ConferenceID: conferenceID,
-		Submission:   submission,
+	// Wrap submission in the format expected by backend binder (same as frontend)
+	submissionData := map[string]interface{}{
+		"submission": submission,
 	}
-
-	// Convert submission to JSON string
-	jsonBytes, err := json.Marshal(req)
+	jsonBytes, err := json.Marshal(submissionData)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal submission: %w", err)
 	}
 
-	// Send as multipart form data
+	// Send as multipart form data with required paper file
 	formData := map[string]string{
 		"submission": string(jsonBytes),
 	}
 
-	return c.ctx.MakeMultipartRequest("POST", path, formData, token)
+	// Include default test paper file (required for create with status="published")
+	// Read the valid test PDF file
+	testPDFContent, err := os.ReadFile("../test_paper.pdf")
+	if err != nil {
+		// Fallback to a minimal valid PDF if file doesn't exist
+		testPDFContent = []byte("%PDF-1.4\n%âãÏÓ\n1 0 obj\n<<\n/Type /Catalog\n/Pages 2 0 R\n>>\nendobj\n2 0 obj\n<<\n/Type /Pages\n/Count 0\n>>\nendobj\nxref\n0 3\n0000000000 65535 f\n0000000015 00000 n\n0000000068 00000 n\ntrailer\n<<\n/Size 3\n/Root 1 0 R\n>>\nstartxref\n117\n%%EOF")
+	}
+
+	files := []testutils.FileUpload{
+		{
+			FieldName: "file",
+			FileName:  "test_paper.pdf",
+			Content:   testPDFContent,
+			MimeType:  "application/pdf",
+		},
+	}
+
+	return c.ctx.MakeMultipartRequestWithFiles("POST", path, formData, files, token)
 }
 
 // Get calls the get submission by ID endpoint
@@ -98,13 +113,29 @@ func (c *Client) Delete(conferenceID, submissionID int64, token string) (*http.R
 func (c *Client) CreateSuccess(conferenceID int64, submission *dto.Submission, token string) (*dto.Submission, error) {
 	w, err := c.Create(conferenceID, submission, token)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to make create request: %w", err)
+	}
+
+	if w.StatusCode != 201 {
+		// Read response body
+		bodyBytes, _ := json.Marshal(w)
+
+		// Also try to decode error response
+		var errorResp map[string]interface{}
+		json.NewDecoder(w.Body).Decode(&errorResp)
+
+		return nil, fmt.Errorf("expected status 201, got %d. Error: %v. Full response: %s", w.StatusCode, errorResp, string(bodyBytes))
 	}
 
 	var response struct {
 		Data *dto.Submission `json:"data"`
 	}
 	testutils.DecodeResponse(c.ctx.T, w, &response)
+
+	if response.Data == nil {
+		return nil, fmt.Errorf("response data is nil")
+	}
+
 	return response.Data, nil
 }
 
@@ -148,4 +179,218 @@ func (c *Client) ListSuccess(conferenceID int64, req *dto.SubmissionListRequest,
 	}
 	testutils.DecodeResponse(c.ctx.T, w, &response)
 	return response.Data, nil
+}
+
+// CreateWithoutFile tries to create a submission without a paper file (for testing draft creation)
+func (c *Client) CreateWithoutFile(conferenceID int64, submission *dto.Submission, token string) (*http.Response, error) {
+	path := fmt.Sprintf("/api/v1/conferences/%d/submissions", conferenceID)
+
+	// Wrap submission in the format expected by backend binder
+	submissionData := map[string]interface{}{
+		"submission": submission,
+	}
+	jsonBytes, err := json.Marshal(submissionData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal submission: %w", err)
+	}
+
+	// Send as multipart form data WITHOUT paper file
+	formData := map[string]string{
+		"submission": string(jsonBytes),
+	}
+
+	return c.ctx.MakeMultipartRequest("POST", path, formData, token)
+}
+
+// CreateWithFile creates a submission with a paper file
+func (c *Client) CreateWithFile(conferenceID int64, submission *dto.Submission, paperContent []byte, paperFilename, paperMimeType, token string) (*http.Response, error) {
+	path := fmt.Sprintf("/api/v1/conferences/%d/submissions", conferenceID)
+
+	// Wrap submission in the format expected by backend binder
+	submissionData := map[string]interface{}{
+		"submission": submission,
+	}
+	jsonBytes, err := json.Marshal(submissionData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal submission: %w", err)
+	}
+
+	formData := map[string]string{
+		"submission": string(jsonBytes),
+	}
+
+	var files []testutils.FileUpload
+	if paperContent != nil {
+		files = append(files, testutils.FileUpload{
+			FieldName: "file",
+			FileName:  paperFilename,
+			Content:   paperContent,
+			MimeType:  paperMimeType,
+		})
+	}
+
+	return c.ctx.MakeMultipartRequestWithFiles("POST", path, formData, files, token)
+}
+
+// CreateWithCoverLetter creates a submission with a paper file and cover letter
+func (c *Client) CreateWithCoverLetter(conferenceID int64, submission *dto.Submission, coverLetterContent []byte, coverLetterFilename, coverLetterMimeType, token string) (*http.Response, error) {
+	path := fmt.Sprintf("/api/v1/conferences/%d/submissions", conferenceID)
+
+	// Wrap submission in the format expected by backend binder
+	submissionData := map[string]interface{}{
+		"submission": submission,
+	}
+	jsonBytes, err := json.Marshal(submissionData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal submission: %w", err)
+	}
+
+	formData := map[string]string{
+		"submission": string(jsonBytes),
+	}
+
+	var files []testutils.FileUpload
+
+	// Add paper file (required for create with status="published")
+	// Read the valid test PDF file
+	testPDFContent, err := os.ReadFile("../test_paper.pdf")
+	if err != nil {
+		// Fallback to a minimal valid PDF
+		testPDFContent = []byte("%PDF-1.4\n%âãÏÓ\n1 0 obj\n<<\n/Type /Catalog\n/Pages 2 0 R\n>>\nendobj\n2 0 obj\n<<\n/Type /Pages\n/Count 0\n>>\nendobj\nxref\n0 3\n0000000000 65535 f\n0000000015 00000 n\n0000000068 00000 n\ntrailer\n<<\n/Size 3\n/Root 1 0 R\n>>\nstartxref\n117\n%%EOF")
+	}
+	files = append(files, testutils.FileUpload{
+		FieldName: "file",
+		FileName:  "test_paper.pdf",
+		Content:   testPDFContent,
+		MimeType:  "application/pdf",
+	})
+
+	// Add cover letter if provided
+	if coverLetterContent != nil {
+		files = append(files, testutils.FileUpload{
+			FieldName: "cover_letter",
+			FileName:  coverLetterFilename,
+			Content:   coverLetterContent,
+			MimeType:  coverLetterMimeType,
+		})
+	}
+
+	return c.ctx.MakeMultipartRequestWithFiles("POST", path, formData, files, token)
+}
+
+// UpdateWithCoverLetter updates a submission with an optional cover letter
+func (c *Client) UpdateWithCoverLetter(conferenceID, submissionID int64, submission *dto.Submission, coverLetterContent []byte, coverLetterFilename, coverLetterMimeType, token string) (*http.Response, error) {
+	path := fmt.Sprintf("/api/v1/conferences/%d/submissions/%d", conferenceID, submissionID)
+
+	// Wrap submission in the format expected by backend binder
+	submissionData := map[string]interface{}{
+		"submission": submission,
+	}
+	jsonBytes, err := json.Marshal(submissionData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal submission: %w", err)
+	}
+
+	formData := map[string]string{
+		"submission": string(jsonBytes),
+	}
+
+	var files []testutils.FileUpload
+	if coverLetterContent != nil {
+		files = append(files, testutils.FileUpload{
+			FieldName: "cover_letter",
+			FileName:  coverLetterFilename,
+			Content:   coverLetterContent,
+			MimeType:  coverLetterMimeType,
+		})
+	}
+
+	return c.ctx.MakeMultipartRequestWithFiles("PUT", path, formData, files, token)
+}
+
+// GetCoverLetter downloads the cover letter for a submission
+func (c *Client) GetCoverLetter(conferenceID, submissionID int64, token string) (*http.Response, error) {
+	path := fmt.Sprintf("/api/v1/conferences/%d/submissions/%d/cover_letter", conferenceID, submissionID)
+	return c.ctx.MakeRequest("GET", path, nil, token)
+}
+
+// UpdateWithFiles updates a submission with optional paper file and/or cover letter
+func (c *Client) UpdateWithFiles(conferenceID, submissionID int64, submission *dto.Submission, paperContent []byte, paperFilename, paperMimeType string, coverLetterContent []byte, coverLetterFilename, coverLetterMimeType, token string) (*http.Response, error) {
+	path := fmt.Sprintf("/api/v1/conferences/%d/submissions/%d", conferenceID, submissionID)
+
+	// Wrap submission in the format expected by backend binder
+	submissionData := map[string]interface{}{
+		"submission": submission,
+	}
+	jsonBytes, err := json.Marshal(submissionData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal submission: %w", err)
+	}
+
+	formData := map[string]string{
+		"submission": string(jsonBytes),
+	}
+
+	var files []testutils.FileUpload
+
+	// Add paper file if provided
+	if paperContent != nil {
+		files = append(files, testutils.FileUpload{
+			FieldName: "file",
+			FileName:  paperFilename,
+			Content:   paperContent,
+			MimeType:  paperMimeType,
+		})
+	}
+
+	// Add cover letter if provided
+	if coverLetterContent != nil {
+		files = append(files, testutils.FileUpload{
+			FieldName: "cover_letter",
+			FileName:  coverLetterFilename,
+			Content:   coverLetterContent,
+			MimeType:  coverLetterMimeType,
+		})
+	}
+
+	return c.ctx.MakeMultipartRequestWithFiles("PUT", path, formData, files, token)
+}
+
+// Publish calls the publish submission endpoint (without files)
+func (c *Client) Publish(conferenceID, submissionID int64, token string) (*http.Response, error) {
+	path := fmt.Sprintf("/api/v1/conferences/%d/submissions/%d/publish", conferenceID, submissionID)
+	// No body needed for simple publish (when file already exists)
+	return c.ctx.MakeRequest("POST", path, nil, token)
+}
+
+// PublishWithFiles calls the publish submission endpoint with optional paper file and/or cover letter
+func (c *Client) PublishWithFiles(conferenceID, submissionID int64, paperContent []byte, paperFilename, paperMimeType string, coverLetterContent []byte, coverLetterFilename, coverLetterMimeType, token string) (*http.Response, error) {
+	path := fmt.Sprintf("/api/v1/conferences/%d/submissions/%d/publish", conferenceID, submissionID)
+
+	// No submission metadata needed for publish - just files
+	formData := map[string]string{}
+
+	var files []testutils.FileUpload
+
+	// Add paper file if provided
+	if paperContent != nil {
+		files = append(files, testutils.FileUpload{
+			FieldName: "file",
+			FileName:  paperFilename,
+			Content:   paperContent,
+			MimeType:  paperMimeType,
+		})
+	}
+
+	// Add cover letter if provided
+	if coverLetterContent != nil {
+		files = append(files, testutils.FileUpload{
+			FieldName: "cover_letter",
+			FileName:  coverLetterFilename,
+			Content:   coverLetterContent,
+			MimeType:  coverLetterMimeType,
+		})
+	}
+
+	return c.ctx.MakeMultipartRequestWithFiles("POST", path, formData, files, token)
 }

@@ -4,31 +4,29 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { FileText, Upload, X, CheckCircle2, Info, Lightbulb } from "lucide-react"
+import { FileText, Upload, X, CheckCircle2, Info, Lightbulb, Download } from "lucide-react"
 import { typography, spacing } from "@/lib/typography"
-
-// TODO: Cover Letter Backend Implementation Required
-// The backend currently does NOT support cover letter uploads. To implement this feature:
-// 1. Add cover letter fields to database schema (conference_submissions table):
-//    - cover_letter_path (TEXT)
-//    - cover_letter_original_name (TEXT)
-//    - cover_letter_size (BIGINT)
-//    - cover_letter_mime_type (TEXT)
-//    - cover_letter_uploaded_at (TIMESTAMP)
-// 2. Update backend/internal/model/submission.go to include cover letter fields
-// 3. Update backend/internal/dto/submission.go to include CoverLetterMetadata
-// 4. Modify backend/internal/controller/submission/submission.go Create() and Update()
-//    to accept 'cover_letter' file in multipart form (similar to main 'file')
-// 5. Add file validation: PDF only, max 5MB
-// 6. Update frontend API calls in lib/api/papers.ts to include cover letter file
-// For now, this component only manages UI state and does not persist cover letter data.
+import { downloadCoverLetter } from "@/lib/api/papers"
 
 interface CoverLetterTabProps {
   coverLetter: File | null
   setCoverLetter: (file: File | null) => void
+  submissionId?: string
+  conferenceId?: string
+  existingCoverLetter?: {
+    name: string
+    size: number
+    type: string
+  }
 }
 
-export function CoverLetterTab({ coverLetter, setCoverLetter }: CoverLetterTabProps) {
+export function CoverLetterTab({
+  coverLetter,
+  setCoverLetter,
+  submissionId,
+  conferenceId,
+  existingCoverLetter,
+}: CoverLetterTabProps) {
   const [dragActive, setDragActive] = useState(false)
 
   const handleDrag = (e: React.DragEvent) => {
@@ -75,6 +73,35 @@ export function CoverLetterTab({ coverLetter, setCoverLetter }: CoverLetterTabPr
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i]
   }
 
+  const handleDownloadExistingCoverLetter = async () => {
+    if (!submissionId || !conferenceId) {
+      alert("Cannot download: missing submission or conference ID")
+      return
+    }
+
+    try {
+      const response = await downloadCoverLetter(submissionId, conferenceId)
+
+      if (response.error || !response.data) {
+        alert(`Download failed: ${response.error}`)
+        return
+      }
+
+      // Create a download link and trigger it
+      const url = window.URL.createObjectURL(response.data)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = response.filename || "cover_letter.pdf"
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error("Download error:", error)
+      alert("Failed to download cover letter")
+    }
+  }
+
   return (
     <div className={spacing.section}>
       {/* Header */}
@@ -117,22 +144,38 @@ export function CoverLetterTab({ coverLetter, setCoverLetter }: CoverLetterTabPr
         </div>
       </Card>
 
-      {/* Warning: Feature Not Yet Implemented */}
-      <Card className="bg-amber-50 border-amber-300">
-        <div className={spacing.padding.card}>
-          <div className="flex items-start gap-3">
-            <Info className="size-5 text-amber-600 flex-shrink-0 mt-0.5" />
-            <div className={`${typography.bodySmall} text-amber-900 font-arial`}>
-              <p className={`${typography.semibold} mb-1`}>Note: Feature In Development</p>
-              <p>
-                Cover letter upload is currently for preview only. The file will not be saved when
-                you submit your paper. This feature requires backend implementation and will be
-                available in a future update.
-              </p>
+      {/* Existing Cover Letter */}
+      {!coverLetter && existingCoverLetter && (
+        <Card className="bg-blue-50 border-blue-200">
+          <div className={spacing.padding.card}>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3 flex-1">
+                <CheckCircle2 className="size-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className={`${typography.bodySmall} text-gray-700 font-arial`}>
+                  <p className={`${typography.medium} text-blue-900 mb-1`}>
+                    Existing Cover Letter
+                  </p>
+                  <p className="mb-2">
+                    <strong>{existingCoverLetter.name}</strong> ({formatFileSize(existingCoverLetter.size)})
+                  </p>
+                  <p className="text-gray-600">
+                    Upload a new file below to replace the existing cover letter.
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDownloadExistingCoverLetter}
+                className="flex-shrink-0"
+              >
+                <Download className="size-4 mr-2" />
+                Download
+              </Button>
             </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      )}
 
       {/* Upload Section */}
       <div className={spacing.item}>

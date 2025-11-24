@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Info, FileText } from "lucide-react"
+import { ArrowLeft, Info } from "lucide-react"
 import { submitPaper, updatePaper } from "@/lib/api/papers"
 import { useAuth } from "@/lib/auth-context"
 import type { Conference } from "@/lib/types"
@@ -50,8 +50,6 @@ export function PaperSubmissionForm({
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<TabType>("paper")
   const [submitting, setSubmitting] = useState(false)
-  const [loadingDraft, setLoadingDraft] = useState(false)
-  const [existingDraft, setExistingDraft] = useState<Submission | null>(null)
   const [isEditMode, setIsEditMode] = useState(!!initialSubmission)
   // Paper tab state
   const [title, setTitle] = useState("")
@@ -75,7 +73,6 @@ export function PaperSubmissionForm({
   const [coiPeople, setCoiPeople] = useState<string[]>([])
   const [coiPersonInput, setCoiPersonInput] = useState("")
   // Cover letter tab state
-  // TODO: Cover letter is not currently sent to backend - see cover-letter-tab.tsx for implementation details
   const [coverLetter, setCoverLetter] = useState<File | null>(null)
   // Track selection state
   const [selectedTrack, setSelectedTrack] = useState<string>("")
@@ -169,14 +166,13 @@ export function PaperSubmissionForm({
     // Note: File cannot be pre-loaded from URL, user needs to re-upload if they want to change it
   }, [initialSubmission, user])
 
-  // Load existing draft on component mount (only if not in edit mode)
+  // Auto-load existing draft on component mount (only if not in edit mode)
   useEffect(() => {
     if (isEditMode) return // Skip draft loading in edit mode
 
     const loadDraft = async () => {
       if (!user || !conference) return
 
-      setLoadingDraft(true)
       try {
         const response = await getConferenceSubmissions(conference.id, {
           author: user.email,
@@ -186,52 +182,42 @@ export function PaperSubmissionForm({
 
         if (response.data && response.data.submissions.length > 0) {
           const draft = response.data.submissions[0]
-          // Don't show draft if we're editing a different submission
+          // Don't load draft if we're editing a different submission
           if (!initialSubmission || draft.id !== initialSubmission.id) {
-            setExistingDraft(draft)
-            console.log("[PaperSubmissionForm] Found existing draft:", draft)
+            console.log("[PaperSubmissionForm] Auto-loading existing draft:", draft)
+            
+            // Auto-populate form fields with draft data
+            setTitle(draft.title || "")
+            setAbstract(draft.abstract || "")
+            setSubjectAreas(draft.domain || [])
+            setKeywords(draft.information?.keywords || [])
+
+            // Load co-authors if available
+            if (draft.information?.co_authors && draft.information.co_authors.length > 0) {
+              const coAuthors = draft.information.co_authors.map((email) => ({
+                name: "",
+                email: email,
+                affiliation: "",
+              }))
+              // Keep the first author slot empty and add co-authors
+              setAuthors([
+                { name: "", email: "", affiliation: "" },
+                ...coAuthors,
+                { name: "", email: "", affiliation: "" },
+              ])
+            }
+            
+            // Redirect to edit mode for the draft
+            router.push(`/dashboard/author/submit?conference=${conference.id}&edit=${draft.id}`)
           }
         }
       } catch (error) {
         console.error("[PaperSubmissionForm] Error loading draft:", error)
-      } finally {
-        setLoadingDraft(false)
       }
     }
 
     loadDraft()
-  }, [user, conference, isEditMode, initialSubmission])
-
-  const handleLoadDraft = () => {
-    if (!existingDraft) return
-
-    // Populate form fields with draft data
-    setTitle(existingDraft.title || "")
-    setAbstract(existingDraft.abstract || "")
-    setSubjectAreas(existingDraft.domain || [])
-    setKeywords(existingDraft.information?.keywords || [])
-
-    // Load co-authors if available
-    if (existingDraft.information?.co_authors && existingDraft.information.co_authors.length > 0) {
-      const coAuthors = existingDraft.information.co_authors.map((email) => ({
-        name: "",
-        email: email,
-        affiliation: "",
-      }))
-      // Keep the first author slot empty and add co-authors
-      setAuthors([
-        { name: "", email: "", affiliation: "" },
-        ...coAuthors,
-        { name: "", email: "", affiliation: "" },
-      ])
-    }
-
-    // Hide the load draft button after loading
-    setExistingDraft(null)
-
-    // Show success message
-    //alert(t("dashboard.author.submit.draftLoadSuccess") || "Draft loaded successfully!")
-  }
+  }, [user, conference, isEditMode, initialSubmission, router])
 
   const handleAddKeyword = () => {
     if (keywordInput.trim() && !keywords.includes(keywordInput.trim())) {
@@ -251,6 +237,7 @@ export function PaperSubmissionForm({
         link: "", // TODO: Add file upload URL when implemented
         domain: subjectAreas,
         file: uploadedFile || undefined, // Include uploaded file
+        cover_letter: coverLetter || undefined, // Include cover letter
         status: "draft" as const, // Explicitly set status to draft
         track: selectedTrack, // Send track as top-level field
         information: {
@@ -276,7 +263,7 @@ export function PaperSubmissionForm({
           alert(`${t("dashboard.author.submit.draftSaveFailed")}: ${response.error}`)
         } else {
           alert(t("dashboard.author.submit.draftSaveSuccess"))
-          router.push("/dashboard/author")
+          // Stay on the same page - no redirect
         }
       } else {
         // Create new draft
@@ -286,9 +273,10 @@ export function PaperSubmissionForm({
         })
         if (response.error) {
           alert(`${t("dashboard.author.submit.draftSaveFailed")}: ${response.error}`)
-        } else {
+        } else if (response.data) {
           alert(t("dashboard.author.submit.draftSaveSuccess"))
-          router.push("/dashboard/author")
+          // Redirect to edit mode for the newly created draft
+          router.push(`/dashboard/author/submit?conference=${conference.id}&edit=${response.data.id}`)
         }
       }
     } catch (error) {
@@ -309,6 +297,7 @@ export function PaperSubmissionForm({
         link: "", // TODO: Add file upload URL when implemented
         domain: subjectAreas,
         file: uploadedFile || undefined, // Include uploaded file
+        cover_letter: coverLetter || undefined, // Include cover letter
         status: "published" as const, // Set status to published for final submission
         track: selectedTrack, // Send track as top-level field
         information: {
@@ -328,27 +317,29 @@ export function PaperSubmissionForm({
 
       let response
       if (isEditMode && initialSubmission) {
-        // Update existing submission
+        // Update existing submission (publish it)
         response = await updatePaper(initialSubmission.id.toString(), conference.id, submissionData)
         if (response.error) {
           alert(
             `${t("dashboard.author.submit.updateFailed") || "Update failed"}: ${response.error}`,
           )
-        } else {
+        } else if (response.data) {
           alert(t("dashboard.author.submit.updateSuccess") || "Submission updated successfully")
-          router.push("/dashboard/author")
+          // Redirect to the submission detail view
+          router.push(`/dashboard/conference/${conference.id}/submission/${response.data.id}`)
         }
       } else {
-        // Create new submission
+        // Create new submission (published directly)
         response = await submitPaper({
           conference_id: conference.id,
           ...submissionData,
         })
         if (response.error) {
           alert(`${t("dashboard.author.submit.submissionFailed")}: ${response.error}`)
-        } else {
+        } else if (response.data) {
           alert(t("dashboard.author.submit.submissionSuccess"))
-          router.push("/dashboard/author")
+          // Redirect to the submission detail view
+          router.push(`/dashboard/conference/${conference.id}/submission/${response.data.id}`)
         }
       }
     } catch (error) {
@@ -384,18 +375,6 @@ export function PaperSubmissionForm({
           </div>
         </div>
         <div className="flex gap-3">
-          {existingDraft && (
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={handleLoadDraft}
-              disabled={loadingDraft}
-              className={`border border-[#28A745] text-[#28A745] bg-transparent hover:bg-[#28A745]/10 px-4 py-2 rounded-[4px] ${typography.bodyLarge} ${typography.medium} font-arial flex items-center ${spacing.gap.sm}`}
-            >
-              <FileText className="size-4" />
-              {t("Load Draft") || "Load Saved Draft"}
-            </Button>
-          )}
           <Button
             variant="outline"
             size="lg"
@@ -469,6 +448,8 @@ export function PaperSubmissionForm({
                   validationStatus={validationStatus}
                   setValidationStatus={setValidationStatus}
                   conference={conference}
+                  submissionId={initialSubmission?.id?.toString()}
+                  conferenceId={conference?.id}
                   existingFile={
                     isEditMode && initialSubmission?.file
                       ? {
@@ -489,7 +470,21 @@ export function PaperSubmissionForm({
                 />
               )}
               {activeTab === "cover-letter" && (
-                <CoverLetterTab coverLetter={coverLetter} setCoverLetter={setCoverLetter} />
+                <CoverLetterTab
+                  coverLetter={coverLetter}
+                  setCoverLetter={setCoverLetter}
+                  submissionId={initialSubmission?.id?.toString()}
+                  conferenceId={conference?.id}
+                  existingCoverLetter={
+                    isEditMode && initialSubmission?.cover_letter
+                      ? {
+                          name: initialSubmission.cover_letter.original_name,
+                          size: initialSubmission.cover_letter.size,
+                          type: initialSubmission.cover_letter.mime_type,
+                        }
+                      : undefined
+                  }
+                />
               )}
             </CardContent>
           </Card>

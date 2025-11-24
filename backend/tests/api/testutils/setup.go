@@ -7,6 +7,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"os"
 	"testing"
 	"time"
@@ -198,6 +199,85 @@ func (tc *TestContext) MakeMultipartRequest(method, path string, formData map[st
 	for key, val := range formData {
 		if err := writer.WriteField(key, val); err != nil {
 			return nil, fmt.Errorf("failed to write form field %s: %w", key, err)
+		}
+	}
+
+	if err := writer.Close(); err != nil {
+		return nil, fmt.Errorf("failed to close multipart writer: %w", err)
+	}
+
+	url := tc.BaseURL + path
+	req, err := http.NewRequest(method, url, &reqBody)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	if token != "" {
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	}
+
+	resp, err := tc.Client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to make request: %w", err)
+	}
+
+	// Buffer the response body so it can be read multiple times
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		resp.Body.Close()
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+	resp.Body.Close()
+
+	// Replace body with a buffer that can be read multiple times
+	resp.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+
+	return resp, nil
+}
+
+// FileUpload represents a file to upload in a multipart request
+type FileUpload struct {
+	FieldName string
+	FileName  string
+	Content   []byte
+	MimeType  string
+}
+
+// MakeMultipartRequestWithFiles makes a multipart/form-data request with file uploads
+func (tc *TestContext) MakeMultipartRequestWithFiles(method, path string, formData map[string]string, files []FileUpload, token string) (*http.Response, error) {
+	var reqBody bytes.Buffer
+	writer := multipart.NewWriter(&reqBody)
+
+	// Add all form fields
+	for key, val := range formData {
+		if err := writer.WriteField(key, val); err != nil {
+			return nil, fmt.Errorf("failed to write form field %s: %w", key, err)
+		}
+	}
+
+	// Add files
+	for _, file := range files {
+		// Create part with custom MIME type if provided
+		var part io.Writer
+		var err error
+
+		if file.MimeType != "" {
+			// Use CreatePart to set custom Content-Type
+			h := make(textproto.MIMEHeader)
+			h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`, file.FieldName, file.FileName))
+			h.Set("Content-Type", file.MimeType)
+			part, err = writer.CreatePart(h)
+		} else {
+			// Fall back to CreateFormFile (uses application/octet-stream)
+			part, err = writer.CreateFormFile(file.FieldName, file.FileName)
+		}
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to create form file %s: %w", file.FieldName, err)
+		}
+		if _, err := part.Write(file.Content); err != nil {
+			return nil, fmt.Errorf("failed to write file content: %w", err)
 		}
 	}
 

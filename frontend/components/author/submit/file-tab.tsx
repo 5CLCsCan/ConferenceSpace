@@ -3,8 +3,9 @@ import type React from "react"
 import { useState, useRef } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Upload, Loader2 } from "lucide-react"
-import { precheckPaper } from "@/lib/api/papers"
+import { Button } from "@/components/ui/button"
+import { Upload, Loader2, Download } from "lucide-react"
+import { precheckPaper, downloadPaperFile } from "@/lib/api/papers"
 import type { Conference } from "@/lib/types"
 import { PreCheckResults, type PreCheckResult } from "./precheck-results"
 import { useTranslation } from "@/lib/i18n/translation-context"
@@ -16,6 +17,8 @@ interface FileTabProps {
   validationStatus: "pending" | "validating" | "success" | "error"
   setValidationStatus: (value: "pending" | "validating" | "success" | "error") => void
   conference?: Conference | null
+  submissionId?: string
+  conferenceId?: string
   existingFile?: {
     name: string
     size: number
@@ -29,6 +32,8 @@ export function FileTab({
   validationStatus,
   setValidationStatus,
   conference,
+  submissionId,
+  conferenceId,
   existingFile,
 }: FileTabProps) {
   const { t } = useTranslation()
@@ -176,6 +181,38 @@ export function FileTab({
     }
   }
 
+  const handleDownloadExistingFile = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    if (!submissionId || !conferenceId) {
+      alert(t("dashboard.author.submit.fileTab.downloadError") || "Cannot download: missing submission or conference ID")
+      return
+    }
+
+    try {
+      const response = await downloadPaperFile(submissionId, conferenceId)
+      
+      if (response.error || !response.data) {
+        alert(t("dashboard.author.submit.fileTab.downloadError") || `Download failed: ${response.error}`)
+        return
+      }
+
+      // Create a download link and trigger it
+      const url = window.URL.createObjectURL(response.data)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = response.filename || "paper.pdf"
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error("Download error:", error)
+      alert(t("dashboard.author.submit.fileTab.downloadError") || "Failed to download file")
+    }
+  }
+
   return (
     <div className={spacing.subsection}>
       <div>
@@ -223,6 +260,15 @@ export function FileTab({
                 <p className={`${typography.bodySmall} text-gray-400 mt-1`}>
                   (Existing file - upload new to replace)
                 </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownloadExistingFile}
+                  className="mt-3"
+                >
+                  <Download className="size-4 mr-2" />
+                  {t("dashboard.author.submit.fileTab.download") || "Download"}
+                </Button>
               </div>
             ) : (
               <>

@@ -1,8 +1,10 @@
 package submission
 
 import (
-	"encoding/json"
+	"bytes"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"strconv"
@@ -39,20 +41,21 @@ func New(store *storage.Storage, fileStore fileStorage.StorageInterface, geminiC
 
 // Create godoc
 // @Summary      Create a new submission
-// @Description  Create a new conference submission with optional file upload. Submission can include a track field to categorize the paper into one of the conference tracks.
+// @Description  Create a new conference submission with required paper file and optional cover letter. The paper PDF file is mandatory when creating a submission. Submission can include a track field to categorize the paper into one of the conference tracks.
 // @Tags         submissions
 // @Accept       multipart/form-data
 // @Produce      json
 // @Security     BearerAuth
 // @Param        conference_id path int true "Conference ID"
 // @Param        submission formData string true "Submission data as JSON string (includes title, abstract, author, track, status, domain[], information)"
-// @Param        file formData file false "PDF file to upload"
+// @Param        file formData file true "PDF file to upload (main paper) - REQUIRED"
+// @Param        cover_letter formData file false "Cover letter file (PDF, DOCX, or TXT) - OPTIONAL"
 // @Success      201 {object} dto.Submission
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
 // @Failure      500 {object} handler.Response
 // @Router       /conferences/{conference_id}/submissions [post]
-func (c *Controller) Create(ginCtx *gin.Context) (*dto.Submission, error) {
+func (c *Controller) Create(ginCtx *gin.Context, req *dto.SubmissionCreateRequest) (*dto.Submission, error) {
 	ctx := ginCtx.Request.Context()
 
 	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
@@ -60,34 +63,18 @@ func (c *Controller) Create(ginCtx *gin.Context) (*dto.Submission, error) {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
 	}
 
-	// Parse multipart form
-	form, err := ginCtx.MultipartForm()
-	if err != nil {
-		return nil, handler.NewErrorResponse(http.StatusBadRequest, "failed to parse form data")
-	}
-
-	// Get submission data from form
-	submissionData := ginCtx.PostForm("submission")
-	if submissionData == "" {
-		return nil, handler.NewErrorResponse(http.StatusBadRequest, "submission data is required")
-	}
-
-	var req dto.SubmissionCreateRequest
-	// For multipart/form-data, parse the submission data from the form field
-	if err := json.Unmarshal([]byte(submissionData), &req); err != nil {
-		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid submission data format")
-	}
-
 	if req.Submission == nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "submission data is required")
 	}
 
-	// Validate required fields
-	if req.Submission.Title == "" {
-		return nil, handler.NewErrorResponse(http.StatusBadRequest, "title is required")
-	}
-	if req.Submission.Abstract == "" {
-		return nil, handler.NewErrorResponse(http.StatusBadRequest, "abstract is required")
+	// Validate required fields for published status
+	if req.Submission.Status == dto.StatusPublished {
+		if req.Submission.Title == "" {
+			return nil, handler.NewErrorResponse(http.StatusBadRequest, "title is required for published submissions")
+		}
+		if req.Submission.Abstract == "" {
+			return nil, handler.NewErrorResponse(http.StatusBadRequest, "abstract is required for published submissions")
+		}
 	}
 
 	userEmail, exists := utils.GetEmail(ginCtx)
@@ -102,7 +89,7 @@ func (c *Controller) Create(ginCtx *gin.Context) (*dto.Submission, error) {
 	}
 
 	if conference.Status != model.ConferenceStatusOpen {
-		return nil, handler.NewErrorResponse(http.StatusForbidden, 
+		return nil, handler.NewErrorResponse(http.StatusForbidden,
 			fmt.Sprintf("submissions are not allowed. Conference status is '%s', but must be 'open'", conference.Status))
 	}
 
@@ -132,20 +119,28 @@ func (c *Controller) Create(ginCtx *gin.Context) (*dto.Submission, error) {
 		fmt.Printf("Warning: Failed to add author role for %s in conference %d: %v\n", userEmail, conferenceID, err)
 	}
 
-	// Handle file upload if present
-	files := form.File["file"]
-	if len(files) > 0 {
-		file := files[0]
+	// Handle file upload
+	// - For draft: file is OPTIONAL (can save empty draft)
+	// - For published: file is REQUIRED
+	if req.Submission.Status == dto.StatusPublished && req.Submission.File == nil {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "paper file is required when publishing a submission")
+	}
 
-		// Open the uploaded file
-		src, err := file.Open()
-		if err != nil {
-			return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to open uploaded file")
+	// If file is provided, save it
+	if req.Submission.File != nil {
+		// Save file using file storage service
+		// Create a bytes reader from the content and wrap in ReadCloser
+		fileReader := io.NopCloser(bytes.NewReader(req.Submission.File.Content))
+
+		// Create a temporary file header for the storage service
+		fileHeader := &multipart.FileHeader{
+			Filename: req.Submission.File.OriginalName,
+			Size:     req.Submission.File.Size,
+			Header:   make(map[string][]string),
 		}
-		defer src.Close()
+		fileHeader.Header.Set("Content-Type", req.Submission.File.MimeType)
 
-		// Save file using file storage service with correct submission ID
-		fileMetadata, err := c.fileStorage.SaveFile(src, file, conferenceID, submission.ID)
+		fileMetadata, err := c.fileStorage.SaveFile(fileReader, fileHeader, conferenceID, submission.ID)
 		if err != nil {
 			return nil, handler.NewErrorResponse(http.StatusBadRequest, err.Error())
 		}
@@ -163,6 +158,39 @@ func (c *Controller) Create(ginCtx *gin.Context) (*dto.Submission, error) {
 
 		// Update the returned submission with file info
 		submission.File = fileMetadata
+	}
+
+	// Handle cover letter upload if present
+	if req.Submission.CoverLetter != nil {
+		// Save cover letter using file storage service
+		coverReader := io.NopCloser(bytes.NewReader(req.Submission.CoverLetter.Content))
+
+		// Create a temporary file header for the storage service
+		coverHeader := &multipart.FileHeader{
+			Filename: req.Submission.CoverLetter.OriginalName,
+			Size:     req.Submission.CoverLetter.Size,
+			Header:   make(map[string][]string),
+		}
+		coverHeader.Header.Set("Content-Type", req.Submission.CoverLetter.MimeType)
+
+		coverLetterMetadata, err := c.fileStorage.SaveCoverLetter(coverReader, coverHeader, conferenceID, submission.ID)
+		if err != nil {
+			return nil, handler.NewErrorResponse(http.StatusBadRequest, err.Error())
+		}
+
+		// Update submission with cover letter metadata
+		updateData := &dto.Submission{
+			CoverLetter: coverLetterMetadata,
+		}
+		_, err = c.submissionStorage.Update(ctx, submission.ID, updateData)
+		if err != nil {
+			// Clean up cover letter if update fails
+			c.fileStorage.DeleteCoverLetter(conferenceID, submission.ID, coverLetterMetadata.Filename)
+			return nil, err
+		}
+
+		// Update the returned submission with cover letter info
+		submission.CoverLetter = coverLetterMetadata
 	}
 
 	return submission, nil
@@ -290,14 +318,16 @@ func (c *Controller) Get(ginCtx *gin.Context) (*dto.Submission, error) {
 
 // Update godoc
 // @Summary      Update submission
-// @Description  Update submission details including track, title, abstract, domain, and information (only if status is draft, only author can update)
+// @Description  Update submission details including metadata, paper file, and cover letter. Supports both JSON (metadata only) and multipart/form-data (with file uploads). Only draft submissions can be updated, and only by the author.
 // @Tags         submissions
-// @Accept       json
+// @Accept       json,multipart/form-data
 // @Produce      json
 // @Security     BearerAuth
 // @Param        conference_id path int true "Conference ID"
 // @Param        id path int true "Submission ID"
-// @Param        request body dto.SubmissionUpdateRequest true "Updated submission data (can include track, title, abstract, domain[], information)"
+// @Param        submission formData string false "Updated submission data as JSON string (for multipart requests)"
+// @Param        file formData file false "Paper PDF file (replaces existing paper)"
+// @Param        cover_letter formData file false "Cover letter file in PDF, DOCX, or TXT format"
 // @Success      200 {object} dto.Submission
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
@@ -346,7 +376,214 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.SubmissionUpdateReques
 	req.Submission.Author = userEmail
 	req.Submission.ConferenceID = conferenceID
 
-	return c.submissionStorage.Update(ctx, id, req.Submission)
+	// Update the submission metadata
+	updatedSubmission, err := c.submissionStorage.Update(ctx, id, req.Submission)
+	if err != nil {
+		return nil, err
+	}
+
+	// Handle paper file update if provided
+	if req.Submission.File != nil {
+		// Delete old paper file if exists
+		if existing.File != nil {
+			c.fileStorage.DeleteFile(conferenceID, id, existing.File.Filename)
+		}
+
+		// Save new paper file
+		fileReader := io.NopCloser(bytes.NewReader(req.Submission.File.Content))
+		fileHeader := &multipart.FileHeader{
+			Filename: req.Submission.File.OriginalName,
+			Size:     req.Submission.File.Size,
+			Header:   make(map[string][]string),
+		}
+		fileHeader.Header.Set("Content-Type", req.Submission.File.MimeType)
+
+		fileMetadata, err := c.fileStorage.SaveFile(fileReader, fileHeader, conferenceID, id)
+		if err != nil {
+			return nil, handler.NewErrorResponse(http.StatusBadRequest, err.Error())
+		}
+
+		// Update submission with file metadata
+		updateData := &dto.Submission{
+			File: fileMetadata,
+		}
+		updatedSubmission, err = c.submissionStorage.Update(ctx, id, updateData)
+		if err != nil {
+			// Clean up file if update fails
+			c.fileStorage.DeleteFile(conferenceID, id, fileMetadata.Filename)
+			return nil, err
+		}
+	}
+
+	// Handle cover letter update if provided
+	if req.Submission.CoverLetter != nil {
+		// Delete old cover letter if exists
+		if existing.CoverLetter != nil {
+			c.fileStorage.DeleteCoverLetter(conferenceID, id, existing.CoverLetter.Filename)
+		}
+
+		// Save new cover letter
+		coverReader := io.NopCloser(bytes.NewReader(req.Submission.CoverLetter.Content))
+		coverHeader := &multipart.FileHeader{
+			Filename: req.Submission.CoverLetter.OriginalName,
+			Size:     req.Submission.CoverLetter.Size,
+			Header:   make(map[string][]string),
+		}
+		coverHeader.Header.Set("Content-Type", req.Submission.CoverLetter.MimeType)
+
+		coverLetterMetadata, err := c.fileStorage.SaveCoverLetter(coverReader, coverHeader, conferenceID, id)
+		if err != nil {
+			return nil, handler.NewErrorResponse(http.StatusBadRequest, err.Error())
+		}
+
+		// Update submission with cover letter metadata
+		updateData := &dto.Submission{
+			CoverLetter: coverLetterMetadata,
+		}
+		updatedSubmission, err = c.submissionStorage.Update(ctx, id, updateData)
+		if err != nil {
+			// Clean up cover letter if update fails
+			c.fileStorage.DeleteCoverLetter(conferenceID, id, coverLetterMetadata.Filename)
+			return nil, err
+		}
+	}
+
+	return updatedSubmission, nil
+}
+
+// Publish godoc
+// @Summary      Publish a draft submission
+// @Description  Publish a draft submission. Requires paper file if not already uploaded. Changes status from draft to published.
+// @Tags         submissions
+// @Accept       multipart/form-data
+// @Produce      json
+// @Security     BearerAuth
+// @Param        conference_id path int true "Conference ID"
+// @Param        id path int true "Submission ID"
+// @Param        file formData file false "Paper PDF file (required if not already uploaded)"
+// @Param        cover_letter formData file false "Cover letter file (PDF, DOCX, or TXT)"
+// @Success      200 {object} dto.Submission
+// @Failure      400 {object} handler.Response
+// @Failure      401 {object} handler.Response
+// @Failure      403 {object} handler.Response
+// @Failure      404 {object} handler.Response
+// @Router       /conferences/{conference_id}/submissions/{id}/publish [post]
+func (c *Controller) Publish(ginCtx *gin.Context, req *dto.SubmissionPublishRequest) (*dto.Submission, error) {
+	ctx := ginCtx.Request.Context()
+
+	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
+	}
+
+	id, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid submission ID")
+	}
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	existing, err := c.submissionStorage.GetByID(ctx, id)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "submission not found")
+	}
+
+	if existing.ConferenceID != conferenceID {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "submission not found in this conference")
+	}
+
+	if existing.Author != userEmail {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "only the author can publish this submission")
+	}
+
+	if existing.Status != dto.StatusDraft {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, fmt.Sprintf("cannot publish submission with status '%s', only draft submissions can be published", existing.Status))
+	}
+
+	// Handle paper file upload if provided
+	if req.Submission.File != nil {
+		// Delete old paper file if exists
+		if existing.File != nil {
+			c.fileStorage.DeleteFile(conferenceID, id, existing.File.Filename)
+		}
+
+		// Save new paper file
+		fileReader := io.NopCloser(bytes.NewReader(req.Submission.File.Content))
+		fileHeader := &multipart.FileHeader{
+			Filename: req.Submission.File.OriginalName,
+			Size:     req.Submission.File.Size,
+			Header:   make(map[string][]string),
+		}
+		fileHeader.Header.Set("Content-Type", req.Submission.File.MimeType)
+
+		fileMetadata, err := c.fileStorage.SaveFile(fileReader, fileHeader, conferenceID, id)
+		if err != nil {
+			return nil, handler.NewErrorResponse(http.StatusBadRequest, err.Error())
+		}
+
+		// Update submission with file metadata
+		updateData := &dto.Submission{
+			File: fileMetadata,
+		}
+		existing, err = c.submissionStorage.Update(ctx, id, updateData)
+		if err != nil {
+			// Clean up file if update fails
+			c.fileStorage.DeleteFile(conferenceID, id, fileMetadata.Filename)
+			return nil, err
+		}
+	}
+
+	// Check if paper file exists (either uploaded now or already exists)
+	if existing.File == nil {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "paper file is required to publish submission")
+	}
+
+	// Handle cover letter upload if provided
+	if req.Submission.CoverLetter != nil {
+		// Delete old cover letter if exists
+		if existing.CoverLetter != nil {
+			c.fileStorage.DeleteCoverLetter(conferenceID, id, existing.CoverLetter.Filename)
+		}
+
+		// Save new cover letter
+		coverReader := io.NopCloser(bytes.NewReader(req.Submission.CoverLetter.Content))
+		coverHeader := &multipart.FileHeader{
+			Filename: req.Submission.CoverLetter.OriginalName,
+			Size:     req.Submission.CoverLetter.Size,
+			Header:   make(map[string][]string),
+		}
+		coverHeader.Header.Set("Content-Type", req.Submission.CoverLetter.MimeType)
+
+		coverLetterMetadata, err := c.fileStorage.SaveCoverLetter(coverReader, coverHeader, conferenceID, id)
+		if err != nil {
+			return nil, handler.NewErrorResponse(http.StatusBadRequest, err.Error())
+		}
+
+		// Update submission with cover letter metadata
+		updateData := &dto.Submission{
+			CoverLetter: coverLetterMetadata,
+		}
+		existing, err = c.submissionStorage.Update(ctx, id, updateData)
+		if err != nil {
+			// Clean up cover letter if update fails
+			c.fileStorage.DeleteCoverLetter(conferenceID, id, coverLetterMetadata.Filename)
+			return nil, err
+		}
+	}
+
+	// Update status to published
+	publishData := &dto.Submission{
+		Status: dto.StatusPublished,
+	}
+	publishedSubmission, err := c.submissionStorage.Update(ctx, id, publishData)
+	if err != nil {
+		return nil, err
+	}
+
+	return publishedSubmission, nil
 }
 
 // Delete godoc
@@ -460,6 +697,69 @@ func (c *Controller) GetFile(ginCtx *gin.Context) {
 	ginCtx.Header("Content-Type", submission.File.MimeType)
 	ginCtx.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", submission.File.OriginalName))
 	ginCtx.Header("Content-Length", fmt.Sprintf("%d", submission.File.Size))
+
+	// Serve the file
+	ginCtx.File(filePath)
+}
+
+// GetCoverLetter godoc
+// @Summary      Get submission cover letter
+// @Description  Download the cover letter associated with a submission
+// @Tags         submissions
+// @Accept       json
+// @Produce      application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain
+// @Security     BearerAuth
+// @Param        conference_id path int true "Conference ID"
+// @Param        id path int true "Submission ID"
+// @Success      200 {file} file
+// @Failure      400 {object} handler.Response
+// @Failure      401 {object} handler.Response
+// @Failure      404 {object} handler.Response
+// @Router       /conferences/{conference_id}/submissions/{id}/cover_letter [get]
+func (c *Controller) GetCoverLetter(ginCtx *gin.Context) {
+	ctx := ginCtx.Request.Context()
+
+	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
+	if err != nil {
+		ginCtx.JSON(http.StatusBadRequest, handler.Response{Error: "invalid conference ID"})
+		return
+	}
+
+	id, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
+	if err != nil {
+		ginCtx.JSON(http.StatusBadRequest, handler.Response{Error: "invalid submission ID"})
+		return
+	}
+
+	submission, err := c.submissionStorage.GetByID(ctx, id)
+	if err != nil {
+		ginCtx.JSON(http.StatusNotFound, handler.Response{Error: "submission not found"})
+		return
+	}
+
+	if submission.ConferenceID != conferenceID {
+		ginCtx.JSON(http.StatusNotFound, handler.Response{Error: "submission not found in this conference"})
+		return
+	}
+
+	if submission.CoverLetter == nil || submission.CoverLetter.Path == "" {
+		ginCtx.JSON(http.StatusNotFound, handler.Response{Error: "cover letter not found"})
+		return
+	}
+
+	// Use the path stored in the database (full path)
+	filePath := submission.CoverLetter.Path
+
+	// Check if file exists
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		ginCtx.JSON(http.StatusNotFound, handler.Response{Error: "cover letter file not found"})
+		return
+	}
+
+	// Set headers for file download
+	ginCtx.Header("Content-Type", submission.CoverLetter.MimeType)
+	ginCtx.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", submission.CoverLetter.OriginalName))
+	ginCtx.Header("Content-Length", fmt.Sprintf("%d", submission.CoverLetter.Size))
 
 	// Serve the file
 	ginCtx.File(filePath)

@@ -654,6 +654,20 @@ Authorization: Bearer <token>
         "page_count": 8
       }
     },
+    "file": {
+      "filename": "1234567890_paper.pdf",
+      "original_name": "paper.pdf",
+      "size": 2048576,
+      "mime_type": "application/pdf",
+      "path": "/uploads/submissions/1/1/1234567890_paper.pdf"
+    },
+    "cover_letter": {
+      "filename": "cover_letter_1234567891_cover.pdf",
+      "original_name": "cover.pdf",
+      "size": 102400,
+      "mime_type": "application/pdf",
+      "path": "/uploads/submissions/1/1/cover_letter_1234567891_cover.pdf"
+    },
     "created_at": "2025-01-15T10:00:00Z",
     "updated_at": "2025-01-20T10:00:00Z"
   }
@@ -667,15 +681,22 @@ Authorization: Bearer <token>
 ```http
 POST /api/v1/conferences/:conference_id/submissions
 Authorization: Bearer <token>
+Content-Type: multipart/form-data
 ```
 
 **Description:** Create a new submission for a conference. The authenticated user becomes the author automatically.
+
+**File Requirements:**
+- **Draft** (`status: "draft"`): All fields including paper file are **OPTIONAL** (can save empty draft)
+- **Published** (`status: "published"`): Paper file is **REQUIRED**
 
 **URL Parameters:**
 
 - `conference_id` (integer, required) - Conference ID
 
-**Request Body:**
+**Request Body (multipart/form-data):**
+
+- `submission` (string, required) - JSON string containing submission data:
 
 ```json
 {
@@ -684,7 +705,7 @@ Authorization: Bearer <token>
     "abstract": "This paper presents novel techniques in deep learning optimization.",
     "link": "https://example.com/paper.pdf",
     "domain": ["Deep Learning", "Neural Networks"],
-    "status": "draft",
+    "status": "draft",  // "draft" or "published"
     "information": {
       "co_authors": ["coauthor1@example.com", "coauthor2@example.com"],
       "keywords": ["deep learning", "neural networks", "optimization"],
@@ -699,6 +720,11 @@ Authorization: Bearer <token>
   }
 }
 ```
+
+- `file` (file, conditional) - PDF file for the main paper (max 20MB)
+  - **Required** if `status: "published"`
+  - **Optional** if `status: "draft"`
+- `cover_letter` (file, optional) - Cover letter file in PDF, DOCX, or TXT format (max 20MB)
 
 **Response (201):**
 
@@ -724,6 +750,20 @@ Authorization: Bearer <token>
         "page_count": 8
       }
     },
+    "file": {
+      "filename": "1234567890_paper.pdf",
+      "original_name": "paper.pdf",
+      "size": 2048576,
+      "mime_type": "application/pdf",
+      "path": "/uploads/submissions/1/1/1234567890_paper.pdf"
+    },
+    "cover_letter": {
+      "filename": "cover_letter_1234567891_cover.pdf",
+      "original_name": "cover.pdf",
+      "size": 102400,
+      "mime_type": "application/pdf",
+      "path": "/uploads/submissions/1/1/cover_letter_1234567891_cover.pdf"
+    },
     "created_at": "2025-01-15T10:00:00Z",
     "updated_at": "2025-01-15T10:00:00Z"
   }
@@ -737,16 +777,19 @@ Authorization: Bearer <token>
 ```http
 PUT /api/v1/conferences/:conference_id/submissions/:id
 Authorization: Bearer <token>
+Content-Type: multipart/form-data OR application/json
 ```
 
-**Description:** Update a submission. Only the author can update, and only if the status is `draft`.
+**Description:** Update a submission including metadata, paper file, and cover letter. Only the author can update, and only if the status is `draft`. Supports both JSON (metadata only) and multipart/form-data (with file uploads).
 
 **URL Parameters:**
 
 - `conference_id` (integer, required) - Conference ID
 - `id` (integer, required) - Submission ID
 
-**Request Body:**
+**Option 1: Multipart Form-Data (for file uploads)**
+
+- `submission` (string, required) - JSON string containing updated submission data:
 
 ```json
 {
@@ -760,6 +803,30 @@ Authorization: Bearer <token>
   }
 }
 ```
+
+- `file` (file, optional) - Paper PDF file (max 20MB). If provided, replaces existing paper file.
+- `cover_letter` (file, optional) - Cover letter file in PDF, DOCX, or TXT format (max 20MB). If provided, replaces existing cover letter.
+
+**Option 2: JSON (for metadata updates only)**
+
+```json
+{
+  "submission": {
+    "title": "Updated Paper Title",
+    "abstract": "Updated abstract",
+    "domain": ["Deep Learning", "AI"],
+    "information": {
+      "keywords": ["machine learning", "optimization"]
+    }
+  }
+}
+```
+
+**Notes:**
+- You can update metadata only (JSON) without affecting files
+- You can update paper file independently of cover letter
+- Each file field is optional - only provided files will be updated
+- All file uploads replace existing files (they don't append)
 
 **Response (200):**
 
@@ -780,6 +847,34 @@ Authorization: Bearer <token>
     "created_at": "2025-01-15T10:00:00Z",
     "updated_at": "2025-01-25T10:00:00Z"
   }
+}
+```
+
+---
+
+### Get Submission Cover Letter
+
+```http
+GET /api/v1/conferences/:conference_id/submissions/:id/cover_letter
+Authorization: Bearer <token>
+```
+
+**Description:** Download the cover letter file associated with a submission.
+
+**URL Parameters:**
+
+- `conference_id` (integer, required) - Conference ID
+- `id` (integer, required) - Submission ID
+
+**Response (200):**
+
+Returns the cover letter file with appropriate Content-Type header (application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document, or text/plain).
+
+**Response (404):**
+
+```json
+{
+  "error": "cover letter not found"
 }
 ```
 

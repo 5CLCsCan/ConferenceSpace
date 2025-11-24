@@ -21,13 +21,24 @@ export default function SubmitPaperPage() {
   const [conference, setConference] = useState<Conference | null>(null)
   const [submission, setSubmission] = useState<Submission | null>(null)
   const [loading, setLoading] = useState(!!conferenceId)
+  const [authChecked, setAuthChecked] = useState(false)
+
+  // Wait for auth to be checked before redirecting
+  useEffect(() => {
+    // Give auth context time to initialize from localStorage
+    const timer = setTimeout(() => {
+      setAuthChecked(true)
+    }, 100)
+    
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (authChecked && !isAuthenticated) {
       router.push("/login")
       return
     }
-  }, [isAuthenticated, router])
+  }, [authChecked, isAuthenticated, router])
 
   useEffect(() => {
     async function loadData() {
@@ -58,11 +69,8 @@ export default function SubmitPaperPage() {
     loadData()
   }, [conferenceId, editSubmissionId])
 
-  if (!isAuthenticated || !user) {
-    return null
-  }
-
-  if (loading) {
+  // Show loading while checking auth or loading data
+  if (!authChecked || !isAuthenticated || !user || loading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
