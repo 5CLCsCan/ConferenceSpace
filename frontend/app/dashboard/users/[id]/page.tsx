@@ -309,7 +309,7 @@ export default function UserProfilePage() {
             </div>
           </div>
 
-          <Card className="overflow-hidden border-primary/20 bg-gradient-to-r from-primary/10 via-background to-background shadow-sm">
+          <Card className="overflow-hidden border-primary/20 bg-gradient-to-r from-primary/10 via-background to-background shadow-sm py-6">
             <CardContent className={`${spacing.section} p-6`}>
               <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                 <div className={`flex items-center ${spacing.gap.md}`}>
@@ -359,7 +359,7 @@ export default function UserProfilePage() {
           </Card>
 
           <div className="grid gap-6 lg:grid-cols-12">
-            <Card className="lg:col-span-7">
+            <Card className="lg:col-span-7 py-6">
               <CardHeader className="border-b pb-4">
                 <CardTitle className={typography.h4}>{t("profile.sections.personalInfo")}</CardTitle>
                 <CardDescription className={typography.body}>{t("profile.sections.personalInfoDescription")}</CardDescription>
@@ -442,7 +442,7 @@ export default function UserProfilePage() {
               </CardContent>
             </Card>
 
-            <Card className="lg:col-span-5">
+            <Card className="lg:col-span-5 py-6">
               <CardHeader className="border-b pb-4">
                 <CardTitle className={typography.h4}>{t("profile.sections.expertise")}</CardTitle>
                 <CardDescription className={typography.body}>{t("profile.sections.expertiseDescription")}</CardDescription>

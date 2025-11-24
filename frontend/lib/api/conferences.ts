@@ -33,6 +33,7 @@ export async function getConferenceById(conferenceId: string): Promise<ApiRespon
       camera_ready_deadline: data.data.configurations?.camera_ready_deadline || "",
       notification_date: "", // TODO: Map if available
       conference_date: data.data.configurations?.start_date || "",
+      conference_end_date: data.data.configurations?.end_date || undefined,
       location: "", // TODO: Map if available
       website: "", // TODO: Map if available
       status: "active" as const, // TODO: Map from backend status
@@ -198,6 +199,7 @@ export async function listConferences(filters?: {
       camera_ready_deadline: conf.configurations?.camera_ready_deadline || "",
       notification_date: "", // TODO: Map if available
       conference_date: conf.configurations?.start_date || "",
+      conference_end_date: conf.configurations?.end_date || undefined,
       location: "", // TODO: Map if available
       website: "", // TODO: Map if available
       status: "active" as const, // TODO: Map from backend status
@@ -275,6 +277,7 @@ export async function createConference(conferenceData: {
       camera_ready_deadline: data.data.configurations?.camera_ready_deadline || "",
       notification_date: "",
       conference_date: data.data.configurations?.start_date || "",
+      conference_end_date: data.data.configurations?.end_date || undefined,
       location: "",
       website: "",
       status: "active" as const,
@@ -336,6 +339,7 @@ export async function updateConference(
       camera_ready_deadline: data.data.configurations?.camera_ready_deadline || "",
       notification_date: "",
       conference_date: data.data.configurations?.start_date || "",
+      conference_end_date: data.data.configurations?.end_date || undefined,
       location: "",
       website: "",
       status: "active" as const,

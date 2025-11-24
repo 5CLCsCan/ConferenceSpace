@@ -4,6 +4,9 @@ import type { Paper } from "@/lib/types"
 /**
  * Submit a new paper to a conference
  * Backend endpoint: POST /api/v1/conferences/:conference_id/submissions
+ *
+ * TODO: Add cover_letter?: File parameter when backend implements cover letter support
+ * See: frontend/components/author/submit/cover-letter-tab.tsx for implementation details
  */
 export async function submitPaper(data: {
   conference_id: string
@@ -121,6 +124,9 @@ export async function getPaperById(
 /**
  * Update a submission
  * Backend endpoint: PUT /api/v1/conferences/:conference_id/submissions/:id
+ *
+ * TODO: Add cover_letter?: File parameter when backend implements cover letter support
+ * See: frontend/components/author/submit/cover-letter-tab.tsx for implementation details
  */
 export async function updatePaper(
   paperId: string,

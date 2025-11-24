@@ -147,7 +147,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
           <div className="space-y-6">
           {/* Abstract */}
           {submission.abstract && (
-            <Card>
+            <Card className="py-6">
               <CardHeader>
                 <CardTitle className="text-base">
                   {t("dashboard.submission.details.abstract", "Tóm tắt")}
@@ -162,7 +162,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
           )}
 
           {/* Submission Details */}
-          <Card>
+          <Card className="py-6">
             <CardHeader>
               <CardTitle>{t("dashboard.submission.details.title", "Chi tiết bài nộp")}</CardTitle>
             </CardHeader>
@@ -222,7 +222,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
 
           {/* File Information */}
           {submission.file && (
-            <Card>
+            <Card className="py-6">
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
                   <FileText className="size-4" />
@@ -256,7 +256,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
 
           {/* Domains */}
           {submission.domain && submission.domain.length > 0 && (
-            <Card>
+            <Card className="py-6">
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
                   <Tag className="size-4" />
@@ -277,7 +277,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
 
           {/* Keywords */}
           {submission.information?.keywords && submission.information.keywords.length > 0 && (
-            <Card>
+            <Card className="py-6">
               <CardHeader>
                 <CardTitle className="text-base">
                   {t("dashboard.submission.details.keywords", "Từ khóa")}
@@ -297,7 +297,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
 
           {/* Co-authors */}
           {submission.information?.co_authors && submission.information.co_authors.length > 0 && (
-            <Card>
+            <Card className="py-6">
               <CardHeader>
                 <CardTitle className="text-base">
                   {t("dashboard.submission.details.coAuthors", "Đồng tác giả")}
@@ -317,7 +317,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
 
           {/* Track and Paper Type */}
           {(submission.information?.track_name || submission.information?.paper_type) && (
-            <Card>
+            <Card className="py-6">
               <CardHeader>
                 <CardTitle className="text-base">
                   {t("dashboard.submission.details.additionalInfo", "Thông tin bổ sung")}
@@ -359,7 +359,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
           {/* Metadata */}
           {submission.information?.metadata &&
             Object.keys(submission.information.metadata).length > 0 && (
-              <Card>
+              <Card className="py-6">
                 <CardHeader>
                   <CardTitle className="text-base">
                     {t("dashboard.submission.details.metadata", "Metadata")}
@@ -420,7 +420,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
               </CardContent>
             </Card>
           ) : (
-            <Card>
+            <Card className="py-6">
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <FileText className="size-16 text-gray-400 mb-4" />
                 <p className="text-lg font-medium text-gray-700 mb-2">
@@ -444,7 +444,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
 
         {/* COI Tab */}
         <TabsContent value="coi" className="space-y-6 mt-4">
-          <Card>
+          <Card className="py-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <AlertTriangle className="size-5" />
@@ -469,7 +469,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
 
         {/* Cover Letter Tab */}
         <TabsContent value="cover-letter" className="space-y-6 mt-4">
-          <Card>
+          <Card className="py-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileCheck className="size-5" />

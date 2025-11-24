@@ -67,7 +67,7 @@ export function PaperCOIList({ filters }: PaperCOIListProps) {
 
   if (loading) {
     return (
-      <Card>
+      <Card className="py-6">
         <CardContent className="py-12 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
@@ -80,7 +80,7 @@ export function PaperCOIList({ filters }: PaperCOIListProps) {
 
   if (error) {
     return (
-      <Card className="border-destructive/50">
+      <Card className="border-destructive/50 py-6">
         <CardContent className="py-6 flex items-center gap-3">
           <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
           <p className="text-destructive">{error}</p>
@@ -91,7 +91,7 @@ export function PaperCOIList({ filters }: PaperCOIListProps) {
 
   if (papers.length === 0) {
     return (
-      <Card>
+      <Card className="py-6">
         <CardContent className="py-12 flex flex-col items-center justify-center text-center">
           <FileText className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
           <h3 className="font-semibold text-foreground mb-1">No papers found</h3>
@@ -126,7 +126,7 @@ export function PaperCOIList({ filters }: PaperCOIListProps) {
         return (
           <Card
             key={paper.paper_id}
-            className={`border-l-4 ${borderColor} ${bgColor} shadow-sm hover:shadow-md transition-all overflow-hidden cursor-pointer`}
+            className={`border-l-4 ${borderColor} ${bgColor} shadow-sm hover:shadow-md transition-all overflow-hidden cursor-pointer py-6`}
             onClick={() => toggleExpanded(paper.paper_id)}
           >
             <div className="p-4 flex flex-col md:flex-row md:items-center gap-4">

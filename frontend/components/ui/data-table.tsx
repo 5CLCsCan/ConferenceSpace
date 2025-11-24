@@ -1,6 +1,14 @@
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { typography, spacing } from "@/lib/typography"
 import { cn } from "@/lib/utils"
 import type { ReactNode } from "react"
@@ -43,100 +51,89 @@ export function DataTable<T = any>({
   mobileCardClassName,
   renderMobileCard,
 }: DataTableProps<T>) {
-  const primaryColumn = columns[0]
-  const otherColumns = columns.slice(1)
-
   // Desktop Table
   const desktopTable = (
-    <Card className={cn("shadow-sm overflow-hidden hidden md:block p-0", className)}>
-      {/* Header row */}
-      <div
-        className={cn(
-          "flex items-center",
-          spacing.gap.md,
-          "py-3 px-4 bg-muted/50 border-b",
-          typography.body,
-          typography.semibold,
-          "text-foreground",
-        )}
-      >
-        <div className="flex-1 min-w-0">{primaryColumn.label}</div>
-        <div className={cn("flex items-center", spacing.gap.md, "ml-auto")}>
-          {otherColumns.map((column) => (
-            <div key={column.key} className={cn(column.width || "w-auto", column.className)}>
-              {column.label}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Content */}
-      {loading ? (
-        <div className="py-12 px-4 text-center">
-          <div className={typography.muted}>{loadingMessage}</div>
-        </div>
-      ) : error ? (
-        <div className="py-12 px-4 text-center">
-          <div className={cn("text-destructive", typography.body)}>{errorMessage || error}</div>
-        </div>
-      ) : data.length === 0 ? (
-        <div className="py-12 px-4 text-center">
-          <div className={typography.muted}>{emptyMessage}</div>
-        </div>
-      ) : (
-        <div>
-          {data.map((item, index, array) => {
-            const rowKey = getRowKey(item, index)
-            const primaryContent = primaryColumn.render
-              ? primaryColumn.render(item, index)
-              : String(item[primaryColumn.key as keyof T] || "")
-
-            return (
-              <div
-                key={rowKey}
+    <div
+      className={cn(
+        "rounded-md border shadow-sm overflow-hidden hidden md:block bg-card",
+        className,
+      )}
+    >
+      <Table className="table-auto">
+        <TableHeader>
+          <TableRow className="hover:bg-transparent bg-muted/50">
+            {columns.map((column) => (
+              <TableHead
+                key={column.key}
                 className={cn(
-                  "flex flex-col md:flex-row md:items-center",
-                  spacing.gap.md,
-                  "py-3 px-4",
-                  index !== array.length - 1 && "border-b border-border",
-                  "hover:bg-muted/50 transition-colors",
-                  onRowClick && "cursor-pointer",
+                  column.width || "w-auto",
+                  column.className,
+                  "text-foreground font-semibold py-3 px-4 overflow-hidden",
                 )}
-                onClick={() => onRowClick?.(item, index)}
               >
-                <div className="flex-1 min-w-0">{primaryContent}</div>
-                <div
+                <div className="truncate">{column.label}</div>
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {loading ? (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                <div className={typography.muted}>{loadingMessage}</div>
+              </TableCell>
+            </TableRow>
+          ) : error ? (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                <div className={cn("text-destructive", typography.body)}>
+                  {errorMessage || error}
+                </div>
+              </TableCell>
+            </TableRow>
+          ) : data.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                <div className={typography.muted}>{emptyMessage}</div>
+              </TableCell>
+            </TableRow>
+          ) : (
+            data.map((item, index) => {
+              const rowKey = getRowKey(item, index)
+              return (
+                <TableRow
+                  key={rowKey}
                   className={cn(
-                    "flex flex-col md:flex-row items-start md:items-center",
-                    spacing.gap.md,
-                    typography.body,
-                    "text-muted-foreground ml-auto",
+                    "transition-colors hover:bg-muted/50",
+                    onRowClick && "cursor-pointer",
                   )}
+                  onClick={() => onRowClick?.(item, index)}
                 >
-                  {otherColumns.map((column) => {
+                  {columns.map((column) => {
                     const content = column.render
                       ? column.render(item, index)
                       : String(item[column.key as keyof T] || "")
 
                     return (
-                      <div
+                      <TableCell
                         key={column.key}
                         className={cn(
-                          column.width ? `md:${column.width}` : "md:w-auto",
+                          column.width || "w-auto",
                           column.className,
+                          "py-3 px-4 overflow-hidden",
                         )}
                       >
                         {content}
-                      </div>
+                      </TableCell>
                     )
                   })}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
-    </Card>
+                </TableRow>
+              )
+            })
+          )}
+        </TableBody>
+      </Table>
+    </div>
   )
 
   // Mobile Cards

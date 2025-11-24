@@ -575,7 +575,7 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
   return (
     <div className={spacing.subsection}>
       {conference && (
-        <Card>
+        <Card className="py-6">
           <CardHeader>
             <CardTitle className={`flex items-center ${spacing.gap.sm}`}>
               <Award className={iconSizes.md} />
@@ -622,7 +622,7 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
         </Card>
       )}
       {isChair && (
-        <Card>
+        <Card className="py-6">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>

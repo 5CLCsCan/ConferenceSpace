@@ -179,10 +179,7 @@ export function AuthorSubmissionsList() {
             <span className={typography.body}>{t("dashboard.submissions.allConferences")}</span>
           </label>
           {uniqueConferences.map((conf) => (
-            <label
-              key={conf.id}
-              className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
-            >
+            <label key={conf.id} className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
               <Checkbox
                 checked={conferenceFilter === conf.id}
                 onCheckedChange={(checked) => setConferenceFilter(checked ? conf.id : "all")}
@@ -237,8 +234,10 @@ export function AuthorSubmissionsList() {
       {
         key: "title",
         label: t("dashboard.submissions.title"),
+        width: "w-[400px]",
+        className: "min-w-0",
         render: (submission) => (
-          <>
+          <div className="min-w-0 w-[40vw] max-w-[40vw]">
             <Link
               href={`/dashboard/conference/${submission.conference_id}/submission/${submission.id}`}
               className="text-primary hover:underline block font-medium truncate"
@@ -248,20 +247,21 @@ export function AuthorSubmissionsList() {
             <div className={`${typography.body} text-muted-foreground mt-1 line-clamp-2`}>
               {submission.abstract || t("dashboard.submissions.noAbstract")}
             </div>
-          </>
+          </div>
         ),
       },
       {
         key: "conference",
         label: t("dashboard.submissions.conference"),
         width: "w-48",
+        className: "min-w-0",
         render: (submission) => (
-          <>
-            <div className="font-medium">{submission.conference.name}</div>
-            <div className={`${typography.bodySmall} text-muted-foreground`}>
+          <div className="min-w-0">
+            <div className="font-medium truncate">{submission.conference.name}</div>
+            <div className={`${typography.bodySmall} text-muted-foreground truncate`}>
               {submission.conference.acronym}
             </div>
-          </>
+          </div>
         ),
         mobileLabel: t("dashboard.submissions.conference"),
       },
@@ -269,14 +269,20 @@ export function AuthorSubmissionsList() {
         key: "created_at",
         label: t("dashboard.submissions.submittedDate"),
         width: "w-32",
-        render: (submission) => formatDate(submission.created_at),
+        className: "whitespace-nowrap",
+        render: (submission) => (
+          <div className="whitespace-nowrap">{formatDate(submission.created_at)}</div>
+        ),
         mobileLabel: t("dashboard.submissions.submittedDate"),
       },
       {
         key: "status",
         label: t("dashboard.submissions.status.label"),
         width: "w-28",
-        render: (submission) => renderStatusBadge(submission.status),
+        className: "whitespace-nowrap",
+        render: (submission) => (
+          <div className="whitespace-nowrap">{renderStatusBadge(submission.status)}</div>
+        ),
         mobileLabel: t("dashboard.submissions.status.label"),
       },
     ],
@@ -328,7 +334,9 @@ export function AuthorSubmissionsList() {
             <div className={`${typography.body} text-muted-foreground mb-2 line-clamp-2`}>
               {submission.abstract || t("dashboard.submissions.noAbstract")}
             </div>
-            <div className={`flex flex-col ${spacing.gap.sm} ${typography.body} text-muted-foreground`}>
+            <div
+              className={`flex flex-col ${spacing.gap.sm} ${typography.body} text-muted-foreground`}
+            >
               <div>
                 {t("dashboard.submissions.conference")}: {submission.conference.name} (
                 {submission.conference.acronym})

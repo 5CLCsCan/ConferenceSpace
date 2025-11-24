@@ -775,12 +775,12 @@
           "title": "Submission Checklist",
           "subtitle": "What you need before submitting",
           "titleProvided": "Title provided",
-          "abstractLength": "Abstract 150-250 words",
+          "abstractLength": "Abstract provided",
           "subjectAreas": "Track topic selected",
           "keywords": "At least 3 keywords added",
           "coAuthorsListed": "All co-authors listed",
           "pdfUploaded": "PDF uploaded & validated",
-          "coiDeclared": "COI people/orgs/domains declared"
+          "coiDeclared": "COI declared"
         },
         "paperTab": {
           "titlePlaceholder": "Concise, informative title of your paper",

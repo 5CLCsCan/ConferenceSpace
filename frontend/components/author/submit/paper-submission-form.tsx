@@ -12,6 +12,7 @@ import { PaperTab } from "./paper-tab"
 import { AuthorsTab } from "./authors-tab"
 import { FileTab } from "./file-tab"
 import { COITab } from "./coi-tab"
+import { CoverLetterTab } from "./cover-letter-tab"
 import { SubmissionSidebar } from "./submission-sidebar"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { getConferenceSubmissions, type Submission } from "@/lib/api/submissions"
@@ -22,7 +23,7 @@ interface PaperSubmissionFormProps {
   submission?: Submission | null
 }
 
-type TabType = "paper" | "authors" | "file" | "coi"
+type TabType = "paper" | "authors" | "file" | "coi" | "cover-letter"
 
 interface Author {
   name: string
@@ -40,7 +41,10 @@ interface Checklist {
   coiDeclared: boolean
 }
 
-export function PaperSubmissionForm({ conference, submission: initialSubmission }: PaperSubmissionFormProps) {
+export function PaperSubmissionForm({
+  conference,
+  submission: initialSubmission,
+}: PaperSubmissionFormProps) {
   const router = useRouter()
   const { user } = useAuth()
   const { t } = useTranslation()
@@ -69,23 +73,20 @@ export function PaperSubmissionForm({ conference, submission: initialSubmission 
   >("pending")
   // COI tab state
   const [coiPeople, setCoiPeople] = useState<string[]>([])
-  const [coiOrgs, setCoiOrgs] = useState<string[]>([])
-  const [coiDomains, setCoiDomains] = useState<string[]>([])
   const [coiPersonInput, setCoiPersonInput] = useState("")
-  const [coiOrgInput, setCoiOrgInput] = useState("")
-  const [coiDomainInput, setCoiDomainInput] = useState("")
+  // Cover letter tab state
+  // TODO: Cover letter is not currently sent to backend - see cover-letter-tab.tsx for implementation details
+  const [coverLetter, setCoverLetter] = useState<File | null>(null)
   // Checklist state
   const checklist: Checklist = {
     titleProvided: title.trim().length > 0,
-    abstractLength:
-      abstract.split(" ").filter(Boolean).length >= 150 &&
-      abstract.split(" ").filter(Boolean).length <= 250,
+    abstractLength: abstract.trim().length > 0,
     subjectAreas: subjectAreas.length >= 1,
     keywords: keywords.length >= 3,
     // In edit mode, allow submission if original submission has a file OR new file is uploaded
     pdfUploaded: uploadedFile !== null || (isEditMode && initialSubmission?.file !== undefined),
     coAuthorsListed: authors.some((a) => a.name.trim().length > 0),
-    coiDeclared: coiPeople.length > 0 || coiOrgs.length > 0 || coiDomains.length > 0,
+    coiDeclared: coiPeople.length > 0,
   }
 
   const tabs = [
@@ -93,12 +94,13 @@ export function PaperSubmissionForm({ conference, submission: initialSubmission 
     { id: "authors" as TabType, label: t("dashboard.author.submit.tabs.authors") },
     { id: "file" as TabType, label: t("dashboard.author.submit.tabs.file") },
     { id: "coi" as TabType, label: t("dashboard.author.submit.tabs.coi") },
+    { id: "cover-letter" as TabType, label: "Cover Letter" },
   ]
 
   // Pre-fill form with submission data if in edit mode
   useEffect(() => {
     if (!initialSubmission) return
-    
+
     // Pre-fill paper tab data immediately (doesn't depend on user)
     setTitle(initialSubmission.title || "")
     setAbstract(initialSubmission.abstract || "")
@@ -108,7 +110,10 @@ export function PaperSubmissionForm({ conference, submission: initialSubmission 
     // Pre-fill authors
     // Load co-authors from submission first
     const coAuthors: Author[] = []
-    if (initialSubmission.information?.co_authors && initialSubmission.information.co_authors.length > 0) {
+    if (
+      initialSubmission.information?.co_authors &&
+      initialSubmission.information.co_authors.length > 0
+    ) {
       initialSubmission.information.co_authors.forEach((email) => {
         coAuthors.push({
           name: "", // Name not stored in submission, only email
@@ -143,7 +148,7 @@ export function PaperSubmissionForm({ conference, submission: initialSubmission 
     // Users can manually reorganize if needed
     if (initialSubmission.information?.declared_conflicts) {
       const people: string[] = []
-      
+
       initialSubmission.information.declared_conflicts.forEach((conflict) => {
         // Add the email/identifier to people list
         people.push(conflict.email)
@@ -258,11 +263,7 @@ export function PaperSubmissionForm({ conference, submission: initialSubmission 
       let response
       if (isEditMode && initialSubmission) {
         // Update existing submission as draft
-        response = await updatePaper(
-          initialSubmission.id.toString(),
-          conference.id,
-          submissionData,
-        )
+        response = await updatePaper(initialSubmission.id.toString(), conference.id, submissionData)
         if (response.error) {
           alert(`${t("dashboard.author.submit.draftSaveFailed")}: ${response.error}`)
         } else {
@@ -319,13 +320,11 @@ export function PaperSubmissionForm({ conference, submission: initialSubmission 
       let response
       if (isEditMode && initialSubmission) {
         // Update existing submission
-        response = await updatePaper(
-          initialSubmission.id.toString(),
-          conference.id,
-          submissionData,
-        )
+        response = await updatePaper(initialSubmission.id.toString(), conference.id, submissionData)
         if (response.error) {
-          alert(`${t("dashboard.author.submit.updateFailed") || "Update failed"}: ${response.error}`)
+          alert(
+            `${t("dashboard.author.submit.updateFailed") || "Update failed"}: ${response.error}`,
+          )
         } else {
           alert(t("dashboard.author.submit.updateSuccess") || "Submission updated successfully")
           router.push("/dashboard/author")
@@ -458,32 +457,33 @@ export function PaperSubmissionForm({ conference, submission: initialSubmission 
                   validationStatus={validationStatus}
                   setValidationStatus={setValidationStatus}
                   conference={conference}
-                  existingFile={isEditMode && initialSubmission?.file ? {
-                    name: initialSubmission.file.original_name,
-                    size: initialSubmission.file.size,
-                    type: initialSubmission.file.mime_type,
-                  } : undefined}
+                  existingFile={
+                    isEditMode && initialSubmission?.file
+                      ? {
+                          name: initialSubmission.file.original_name,
+                          size: initialSubmission.file.size,
+                          type: initialSubmission.file.mime_type,
+                        }
+                      : undefined
+                  }
                 />
               )}
               {activeTab === "coi" && (
                 <COITab
                   coiPeople={coiPeople}
                   setCoiPeople={setCoiPeople}
-                  coiOrgs={coiOrgs}
-                  setCoiOrgs={setCoiOrgs}
-                  coiDomains={coiDomains}
-                  setCoiDomains={setCoiDomains}
                   coiPersonInput={coiPersonInput}
                   setCoiPersonInput={setCoiPersonInput}
-                  coiOrgInput={coiOrgInput}
-                  setCoiOrgInput={setCoiOrgInput}
-                  coiDomainInput={coiDomainInput}
-                  setCoiDomainInput={setCoiDomainInput}
                 />
+              )}
+              {activeTab === "cover-letter" && (
+                <CoverLetterTab coverLetter={coverLetter} setCoverLetter={setCoverLetter} />
               )}
             </CardContent>
           </Card>
-          <div className={`mt-4 flex items-center ${spacing.gap.sm} ${typography.body} text-[#6C757D] font-arial`}>
+          <div
+            className={`mt-4 flex items-center ${spacing.gap.sm} ${typography.body} text-[#6C757D] font-arial`}
+          >
             <Info className="size-4" />
             <span>{t("dashboard.author.submit.draftAutoSave")}</span>
           </div>

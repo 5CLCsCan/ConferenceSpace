@@ -413,7 +413,7 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
         </div>
 
         {/* Search and Filters */}
-        <Card className="shadow-sm">
+        <Card className="shadow-sm py-6">
           <CardContent className="pt-6 space-y-4">
             <FilterBar
               searchQuery={filters.search}
@@ -440,7 +440,7 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
           /* Relationships List (Person View) */
           <div className="space-y-3">
             {loading ? (
-              <Card>
+              <Card className="py-6">
                 <CardContent className="py-12 flex items-center justify-center">
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
@@ -449,14 +449,14 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
                 </CardContent>
               </Card>
             ) : error ? (
-              <Card className="border-destructive/50">
+              <Card className="border-destructive/50 py-6">
                 <CardContent className="py-6 flex items-center gap-3">
                   <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
                   <p className="text-destructive">{error}</p>
                 </CardContent>
               </Card>
             ) : relationships.length === 0 ? (
-              <Card>
+              <Card className="py-6">
                 <CardContent className="py-12 flex flex-col items-center justify-center text-center">
                   <AlertCircle className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
                   <h3 className="font-semibold text-foreground mb-1">
@@ -473,7 +473,7 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
                 return (
                   <Card
                     key={rel.id}
-                    className={`border-l-4 ${colors.border} ${colors.bg} shadow-sm hover:shadow-md transition-all overflow-hidden cursor-pointer`}
+                    className={`border-l-4 ${colors.border} ${colors.bg} shadow-sm hover:shadow-md transition-all overflow-hidden cursor-pointer py-6`}
                     onClick={() => toggleExpanded(rel.id)}
                   >
                     {/* Collapsed View */}
@@ -727,7 +727,7 @@ function StatsCard({ label, value, trend, icon: Icon, highlight }: StatsCardProp
         : "text-emerald-500"
 
   return (
-    <Card className="shadow-sm hover:shadow-md transition-shadow">
+    <Card className="shadow-sm hover:shadow-md transition-shadow py-6">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{label}</CardTitle>
         <Icon className={`h-4 w-4 ${highlightClass || "text-muted-foreground"}`} />

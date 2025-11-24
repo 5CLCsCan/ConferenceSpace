@@ -171,7 +171,7 @@ export function COIDetailView({ reviewerId, authorId, onClose }: COIDetailViewPr
       </div>
 
       {/* Evidence Timeline */}
-      <Card className={`border-l-4 ${getSeverityColor(coiReport.severity)}`}>
+      <Card className={`border-l-4 ${getSeverityColor(coiReport.severity)} py-6`}>
         <CardHeader className="pb-3">
           <CardTitle className="text-base">{t("coi.timeline.active")}</CardTitle>
         </CardHeader>
@@ -216,7 +216,7 @@ export function COIDetailView({ reviewerId, authorId, onClose }: COIDetailViewPr
       </Card>
 
       {/* Recommendation */}
-      <Card>
+      <Card className="py-6">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">{t("coi.reviewer.recommendation")}</CardTitle>
         </CardHeader>

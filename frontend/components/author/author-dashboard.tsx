@@ -287,24 +287,34 @@ export function AuthorDashboard() {
                   ),
                 },
                 {
-                  key: "conference_date",
-                  label: t("dashboard.author.dashboard.tableHeaders.date"),
-                  width: "w-36",
-                  render: (conference) => formatDate(conference.conference_date),
-                  mobileLabel: t("dashboard.author.dashboard.tableHeaders.date"),
-                },
-                {
                   key: "location",
                   label: t("dashboard.author.dashboard.tableHeaders.location"),
                   width: "w-36",
-                  render: (conference) => conference.location || "-",
+                  render: (conference) => (
+                    <div className="whitespace-nowrap">{conference.location || "-"}</div>
+                  ),
                   mobileLabel: t("dashboard.author.dashboard.tableHeaders.location"),
+                },
+                {
+                  key: "conference_date",
+                  label: t("dashboard.author.dashboard.tableHeaders.date"),
+                  width: "w-36",
+                  render: (conference) => (
+                    <div className="whitespace-nowrap">
+                      {conference.conference_date ? formatDate(conference.conference_date) : "-"}
+                    </div>
+                  ),
+                  mobileLabel: t("dashboard.author.dashboard.tableHeaders.date"),
                 },
                 {
                   key: "submission_deadline",
                   label: t("dashboard.author.dashboard.tableHeaders.submissionDeadline"),
                   width: "w-[140px]",
-                  render: (conference) => formatDate(conference.submission_deadline),
+                  render: (conference) => (
+                    <div className="whitespace-nowrap">
+                      {conference.submission_deadline ? formatDate(conference.submission_deadline) : "-"}
+                    </div>
+                  ),
                   mobileLabel: t("dashboard.author.dashboard.tableHeaders.submissionDeadline"),
                 },
               ]
@@ -316,7 +326,7 @@ export function AuthorDashboard() {
                   width: "w-28",
                   render: (conference) => {
                     const status = getConferenceSubmissionStatus(conference.id)
-                    return status ? renderStatusBadge(status) : null
+                    return status ? <div className="whitespace-nowrap">{renderStatusBadge(status)}</div> : null
                   },
                   mobileLabel: t("dashboard.author.dashboard.tableHeaders.status"),
                 })
@@ -358,16 +368,18 @@ export function AuthorDashboard() {
                     className={`flex flex-col ${spacing.gap.sm} ${typography.body} text-muted-foreground`}
                   >
                     <div>
-                      {t("dashboard.author.dashboard.tableHeaders.date")}:{" "}
-                      {formatDate(conference.conference_date)}
-                    </div>
-                    <div>
                       {t("dashboard.author.dashboard.tableHeaders.location")}:{" "}
                       {conference.location || "-"}
                     </div>
                     <div>
+                      {t("dashboard.author.dashboard.tableHeaders.date")}:{" "}
+                      {conference.conference_date ? formatDate(conference.conference_date) : "-"}
+                    </div>
+                    <div>
                       {t("dashboard.author.dashboard.tableHeaders.submissionDeadline")}:{" "}
-                      {formatDate(conference.submission_deadline)}
+                      {conference.submission_deadline
+                        ? formatDate(conference.submission_deadline)
+                        : "-"}
                     </div>
                     {viewMode === "my" && submissionStatus && (
                       <div>

@@ -191,7 +191,7 @@ export default function DashboardPage() {
               return (
                 <Card
                   key={role}
-                  className="bg-white border-2 border-neutral-200 hover:border-primary hover:shadow-lg transition-all cursor-pointer group"
+                  className="bg-white border-2 border-neutral-200 hover:border-primary hover:shadow-lg transition-all cursor-pointer group py-6"
                   onClick={() => handleRoleSelect(role)}
                 >
                   <CardHeader>
@@ -211,7 +211,9 @@ export default function DashboardPage() {
                         {t("common.actions.choose")}
                       </Button>
                     </div>
-                    <CardTitle className={`${typography.h4} text-neutral-900`}>{config.title}</CardTitle>
+                    <CardTitle className={`${typography.h4} text-neutral-900`}>
+                      {config.title}
+                    </CardTitle>
                     <CardDescription className={`text-neutral-600 ${typography.body}`}>
                       {config.description}
                     </CardDescription>
