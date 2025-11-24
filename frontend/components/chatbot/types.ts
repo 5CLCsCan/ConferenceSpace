@@ -4,6 +4,7 @@ export interface ChatMessage {
   content: string
   timestamp: Date
   attachments?: ChatAttachment[]
+  reasoning_details?: unknown // Preserved from OpenRouter API
 }
 
 export interface ChatAttachment {
@@ -22,4 +23,3 @@ export interface ChatConversation {
   createdAt: Date
   updatedAt: Date
 }
-

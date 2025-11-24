@@ -12,6 +12,7 @@ import {
 import { typography, spacing } from "@/lib/typography"
 import { cn } from "@/lib/utils"
 import type { ReactNode } from "react"
+import { Loader2 } from "lucide-react"
 
 export interface DataTableColumn<T = any> {
   key: string
@@ -55,132 +56,186 @@ export function DataTable<T = any>({
   const desktopTable = (
     <div
       className={cn(
-        "rounded-md border shadow-sm overflow-hidden hidden md:block bg-card",
+        "rounded-lg border border-border/50 shadow-sm overflow-hidden hidden md:block",
+        "bg-card/50 backdrop-blur-sm",
+        "transition-all duration-200",
         className,
       )}
     >
-      <Table className="table-auto">
-        <TableHeader>
-          <TableRow className="hover:bg-transparent bg-muted/50">
-            {columns.map((column) => (
-              <TableHead
-                key={column.key}
-                className={cn(
-                  column.width || "w-auto",
-                  column.className,
-                  "text-foreground font-semibold py-3 px-4 overflow-hidden",
-                )}
-              >
-                <div className="truncate">{column.label}</div>
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {loading ? (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                <div className={typography.muted}>{loadingMessage}</div>
-              </TableCell>
-            </TableRow>
-          ) : error ? (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                <div className={cn("text-destructive", typography.body)}>
-                  {errorMessage || error}
-                </div>
-              </TableCell>
-            </TableRow>
-          ) : data.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                <div className={typography.muted}>{emptyMessage}</div>
-              </TableCell>
-            </TableRow>
-          ) : (
-            data.map((item, index) => {
-              const rowKey = getRowKey(item, index)
-              return (
-                <TableRow
-                  key={rowKey}
+      <div className="overflow-x-auto">
+        <Table className="table-auto w-full">
+          <TableHeader>
+            <TableRow className="hover:bg-transparent border-b border-border/50 bg-muted/30">
+              {columns.map((column) => (
+                <TableHead
+                  key={column.key}
                   className={cn(
-                    "transition-colors hover:bg-muted/50",
-                    onRowClick && "cursor-pointer",
+                    column.width || "w-auto",
+                    column.className,
+                    "text-foreground font-semibold py-4 px-6 overflow-hidden",
+                    "first:pl-6 last:pr-6",
+                    "transition-colors duration-150",
                   )}
-                  onClick={() => onRowClick?.(item, index)}
                 >
-                  {columns.map((column) => {
-                    const content = column.render
-                      ? column.render(item, index)
-                      : String(item[column.key as keyof T] || "")
+                  <div className="truncate text-sm font-medium text-muted-foreground">
+                    {column.label}
+                  </div>
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-32 text-center py-12"
+                >
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    <div className={cn(typography.body, "text-muted-foreground")}>
+                      {loadingMessage}
+                    </div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : error ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-32 text-center py-12"
+                >
+                  <div className={cn("text-destructive", typography.body)}>
+                    {errorMessage || error}
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : data.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-32 text-center py-12"
+                >
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <div className="text-4xl opacity-50">📊</div>
+                    <div className={cn(typography.body, "text-muted-foreground")}>
+                      {emptyMessage}
+                    </div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              data.map((item, index) => {
+                const rowKey = getRowKey(item, index)
+                return (
+                  <TableRow
+                    key={rowKey}
+                    className={cn(
+                      "border-b border-border/30 transition-all duration-150",
+                      "hover:bg-muted/40 hover:shadow-sm",
+                      "group",
+                      onRowClick && "cursor-pointer",
+                      index === data.length - 1 && "border-b-0",
+                    )}
+                    onClick={() => onRowClick?.(item, index)}
+                  >
+                    {columns.map((column) => {
+                      const content = column.render
+                        ? column.render(item, index)
+                        : String(item[column.key as keyof T] || "")
 
-                    return (
-                      <TableCell
-                        key={column.key}
-                        className={cn(
-                          column.width || "w-auto",
-                          column.className,
-                          "py-3 px-4 overflow-hidden",
-                        )}
-                      >
-                        {content}
-                      </TableCell>
-                    )
-                  })}
-                </TableRow>
-              )
-            })
-          )}
-        </TableBody>
-      </Table>
+                      return (
+                        <TableCell
+                          key={column.key}
+                          className={cn(
+                            column.width || "w-auto",
+                            column.className,
+                            "py-4 px-6 overflow-hidden",
+                            "first:pl-6 last:pr-6",
+                            "text-sm text-foreground",
+                            "group-hover:text-foreground transition-colors duration-150",
+                          )}
+                        >
+                          <div className="truncate">{content}</div>
+                        </TableCell>
+                      )
+                    })}
+                  </TableRow>
+                )
+              })
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   )
 
   // Mobile Cards
   const mobileCards = (
-    <div className="md:hidden">
+    <div className="md:hidden space-y-3">
       {loading ? (
-        <Card className="shadow-sm">
+        <Card className="shadow-sm border-border/50 bg-card/50 backdrop-blur-sm">
           <CardContent className="py-12 text-center">
-            <div className={typography.muted}>{loadingMessage}</div>
+            <div className="flex flex-col items-center justify-center gap-3">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <div className={cn(typography.body, "text-muted-foreground")}>
+                {loadingMessage}
+              </div>
+            </div>
           </CardContent>
         </Card>
       ) : error ? (
-        <Card className="shadow-sm">
+        <Card className="shadow-sm border-border/50 bg-card/50 backdrop-blur-sm">
           <CardContent className="py-12 text-center">
-            <div className={cn("text-destructive", typography.body)}>{errorMessage || error}</div>
+            <div className={cn("text-destructive", typography.body)}>
+              {errorMessage || error}
+            </div>
           </CardContent>
         </Card>
       ) : data.length === 0 ? (
-        <Card className="shadow-sm">
+        <Card className="shadow-sm border-border/50 bg-card/50 backdrop-blur-sm">
           <CardContent className="py-12 text-center">
-            <div className={typography.muted}>{emptyMessage}</div>
+            <div className="flex flex-col items-center justify-center gap-2">
+              <div className="text-4xl opacity-50">📊</div>
+              <div className={cn(typography.body, "text-muted-foreground")}>
+                {emptyMessage}
+              </div>
+            </div>
           </CardContent>
         </Card>
       ) : (
-        <Card className={cn("shadow-sm", mobileCardClassName)}>
-          <CardContent className="p-0">
-            {data.map((item, index, array) => {
-              const rowKey = getRowKey(item, index)
+        <div className={cn("space-y-3", mobileCardClassName)}>
+          {data.map((item, index, array) => {
+            const rowKey = getRowKey(item, index)
 
-              if (renderMobileCard) {
-                return (
-                  <div key={rowKey} className={index !== array.length - 1 ? "border-b" : ""}>
-                    {renderMobileCard(item, index)}
-                  </div>
-                )
-              }
-
+            if (renderMobileCard) {
               return (
-                <div
+                <Card
                   key={rowKey}
                   className={cn(
-                    spacing.padding.card,
-                    index !== array.length - 1 && "border-b",
-                    onRowClick && "cursor-pointer",
+                    "shadow-sm border-border/50 bg-card/50 backdrop-blur-sm",
+                    "transition-all duration-150",
+                    onRowClick && "hover:shadow-md hover:border-border cursor-pointer",
                   )}
-                  onClick={() => onRowClick?.(item, index)}
                 >
+                  <CardContent className="p-0">
+                    {renderMobileCard(item, index)}
+                  </CardContent>
+                </Card>
+              )
+            }
+
+            return (
+              <Card
+                key={rowKey}
+                className={cn(
+                  "shadow-sm border-border/50 bg-card/50 backdrop-blur-sm",
+                  "transition-all duration-150",
+                  onRowClick && "hover:shadow-md hover:border-border cursor-pointer",
+                )}
+                onClick={() => onRowClick?.(item, index)}
+              >
+                <CardContent className={cn(spacing.padding.card, "space-y-3")}>
                   {columns.map((column, colIndex) => {
                     const content = column.render
                       ? column.render(item, index)
@@ -188,7 +243,13 @@ export function DataTable<T = any>({
 
                     if (colIndex === 0) {
                       return (
-                        <div key={column.key} className="mb-2">
+                        <div
+                          key={column.key}
+                          className={cn(
+                            "font-semibold text-foreground",
+                            typography.bodyLarge,
+                          )}
+                        >
                           {content}
                         </div>
                       )
@@ -198,24 +259,25 @@ export function DataTable<T = any>({
                       <div
                         key={column.key}
                         className={cn(
-                          "flex flex-col",
-                          spacing.gap.sm,
+                          "flex flex-col gap-1",
                           typography.body,
                           "text-muted-foreground",
                         )}
                       >
-                        <div>
-                          <span className="font-medium">{column.mobileLabel || column.label}:</span>{" "}
-                          {content}
+                        <div className="flex items-start gap-2">
+                          <span className="font-medium text-foreground min-w-fit">
+                            {column.mobileLabel || column.label}:
+                          </span>
+                          <span className="text-muted-foreground break-words">{content}</span>
                         </div>
                       </div>
                     )
                   })}
-                </div>
-              )
-            })}
-          </CardContent>
-        </Card>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
       )}
     </div>
   )

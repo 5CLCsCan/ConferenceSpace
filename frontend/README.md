@@ -234,6 +234,7 @@ The app expects the following keys (populate `.env.local` based on `.env.example
 | `BACKEND_API_BASE_URL`     | Internal base URL used by Next.js API routes when forwarding authenticated requests | `http://localhost:8080` |
 | `JWT_EXPIRY_SECONDS`       | JWT lifetime in seconds; used as the HTTP-only cookie max-age                       | `86400`                 |
 | `NODE_ENV`                 | Environment flag (`development`, `production`, etc.). Usually set automatically.    | `development`           |
+| `OPENROUTER_API_KEY`       | API key for OpenRouter (required for chatbot functionality)                        | None                    |
 
 Create your environment file:
 

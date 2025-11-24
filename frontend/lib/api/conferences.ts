@@ -38,6 +38,8 @@ export async function getConferenceById(conferenceId: string): Promise<ApiRespon
       website: "", // TODO: Map if available
       status: "active" as const, // TODO: Map from backend status
       tracks: data.data.tracks || [], // Ensure tracks is always an array
+      domain: data.data.domain || [], // Research domains/keywords/topics
+      call_for_paper_text: data.data.configurations?.call_for_paper_text || undefined,
       chair: data.data.chair,
       primary_contact: data.data.primary_contact,
       area_chair: data.data.area_chair,
@@ -204,6 +206,8 @@ export async function listConferences(filters?: {
       website: "", // TODO: Map if available
       status: "active" as const, // TODO: Map from backend status
       tracks: conf.tracks || [], // TODO: Map if available
+      domain: conf.domain || [], // Research domains/keywords/topics
+      call_for_paper_text: conf.configurations?.call_for_paper_text || undefined,
       chair: conf.chair,
       primary_contact: conf.primary_contact,
       area_chair: conf.area_chair,
@@ -234,6 +238,7 @@ export async function createConference(conferenceData: {
   acronym: string
   description: string
   domain: string[]
+  tracks?: string[]
   configurations: {
     start_date: string
     end_date: string
@@ -256,6 +261,7 @@ export async function createConference(conferenceData: {
         acronym: conferenceData.acronym,
         description: conferenceData.description,
         domain: conferenceData.domain,
+        tracks: conferenceData.tracks || [],
         configurations: conferenceData.configurations,
       },
     }
@@ -281,7 +287,9 @@ export async function createConference(conferenceData: {
       location: "",
       website: "",
       status: "active" as const,
-      tracks: [],
+      tracks: data.data.tracks || [],
+      domain: data.data.domain || [],
+      call_for_paper_text: data.data.configurations?.call_for_paper_text || undefined,
     }
 
     return {
@@ -343,7 +351,9 @@ export async function updateConference(
       location: "",
       website: "",
       status: "active" as const,
-      tracks: [],
+      tracks: data.data.tracks || [],
+      domain: data.data.domain || [],
+      call_for_paper_text: data.data.configurations?.call_for_paper_text || undefined,
     }
 
     return {

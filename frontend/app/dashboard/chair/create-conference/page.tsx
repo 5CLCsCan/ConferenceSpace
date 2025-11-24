@@ -32,15 +32,13 @@ export type ConferenceFormData = {
   reviewDeadline: Date | undefined
   authorNotification: Date | undefined
   cameraReadyDeadline: Date | undefined
-  topics: string[]
+  topics: string[] // Research domains/areas
+  tracks: string[] // Conference tracks for paper submission
   anonymity: "single-blind" | "double-blind"
   fileFormats: string[]
 
   // Step 3: Call For Paper Configuration
-  cfpFormattingRequirements: string[]
-  cfpContentGuidelines: string[]
-  cfpReviewProcess: string[]
-  cfpCoverImage: File | null
+  callForPaperText: string
 
   // Step 4: Organizers
   organizers: Array<{
@@ -78,12 +76,10 @@ export default function CreateConferencePage() {
     authorNotification: undefined,
     cameraReadyDeadline: undefined,
     topics: [],
+    tracks: [],
     anonymity: "double-blind",
     fileFormats: ["PDF"],
-    cfpFormattingRequirements: [],
-    cfpContentGuidelines: [],
-    cfpReviewProcess: [],
-    cfpCoverImage: null,
+    callForPaperText: "",
     organizers: [
       {
         id: "1",
@@ -165,7 +161,8 @@ export default function CreateConferencePage() {
         title: formData.title,
         acronym: formData.acronym,
         description: formData.description,
-        domain: formData.topics, // Map topics to domain
+        domain: formData.topics, // Research domains/areas
+        tracks: formData.tracks, // Conference tracks for submissions
         configurations: {
           start_date: formData.dateRange.from?.toISOString() || "",
           end_date: formData.dateRange.to?.toISOString() || "",
@@ -179,6 +176,7 @@ export default function CreateConferencePage() {
           submission_format: formData.fileFormats.join(", "),
           require_complete_author_profile: true, // Default value
           allow_paper_withdrawls: true, // Default value
+          call_for_paper_text: formData.callForPaperText || undefined,
         },
       }
 

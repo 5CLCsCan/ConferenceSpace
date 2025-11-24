@@ -14,6 +14,7 @@ export async function submitPaper(data: {
   abstract: string
   link?: string
   domain: string[]
+  track?: string
   file?: File
   status?: "draft" | "published" // Allow caller to specify status
   information?: {
@@ -40,6 +41,7 @@ export async function submitPaper(data: {
         abstract: data.abstract,
         link: data.link || "",
         domain: data.domain,
+        track: data.track || "", // Include track field
         status: data.status || "draft", // Use provided status or default to draft
         information: data.information || {},
       },
@@ -136,6 +138,7 @@ export async function updatePaper(
     abstract: string
     link?: string
     domain: string[]
+    track?: string
     file?: File
     information?: {
       co_authors?: string[]
@@ -161,6 +164,7 @@ export async function updatePaper(
         abstract: data.abstract,
         link: data.link || "",
         domain: data.domain,
+        track: data.track || "", // Include track field
         information: data.information || {},
       },
     }
