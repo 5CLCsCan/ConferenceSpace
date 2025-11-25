@@ -36,7 +36,7 @@ export async function getConferenceById(conferenceId: string): Promise<ApiRespon
       conference_end_date: data.data.configurations?.end_date || undefined,
       location: "", // TODO: Map if available
       website: "", // TODO: Map if available
-      status: "active" as const, // TODO: Map from backend status
+      status: (data.data.status || "open") as ConferenceStatus,
       tracks: data.data.tracks || [], // Ensure tracks is always an array
       domain: data.data.domain || [], // Research domains/keywords/topics
       call_for_paper_text: data.data.configurations?.call_for_paper_text || undefined,
@@ -168,6 +168,7 @@ export async function listConferences(filters?: {
   title?: string
   acronym?: string
   chair?: string
+  status?: string
   myConferences?: boolean
   role?: string
 }): Promise<ApiResponse<{ conferences: Conference[]; total: number }>> {
@@ -178,6 +179,7 @@ export async function listConferences(filters?: {
     if (filters?.title) params.append("title", filters.title)
     if (filters?.acronym) params.append("acronym", filters.acronym)
     if (filters?.chair) params.append("chair", filters.chair)
+    if (filters?.status) params.append("status", filters.status)
     if (filters?.myConferences !== undefined)
       params.append("myConferences", filters.myConferences.toString())
     if (filters?.role) params.append("role", filters.role)
@@ -204,7 +206,7 @@ export async function listConferences(filters?: {
       conference_end_date: conf.configurations?.end_date || undefined,
       location: "", // TODO: Map if available
       website: "", // TODO: Map if available
-      status: "active" as const, // TODO: Map from backend status
+      status: (data.data.status || "open") as ConferenceStatus,
       tracks: conf.tracks || [], // TODO: Map if available
       domain: conf.domain || [], // Research domains/keywords/topics
       call_for_paper_text: conf.configurations?.call_for_paper_text || undefined,
@@ -286,7 +288,7 @@ export async function createConference(conferenceData: {
       conference_end_date: data.data.configurations?.end_date || undefined,
       location: "",
       website: "",
-      status: "active" as const,
+      status: (conf.status || "open") as ConferenceStatus,
       tracks: data.data.tracks || [],
       domain: data.data.domain || [],
       call_for_paper_text: data.data.configurations?.call_for_paper_text || undefined,
@@ -350,7 +352,7 @@ export async function updateConference(
       conference_end_date: data.data.configurations?.end_date || undefined,
       location: "",
       website: "",
-      status: "active" as const,
+      status: (conf.status || "open") as ConferenceStatus,
       tracks: data.data.tracks || [],
       domain: data.data.domain || [],
       call_for_paper_text: data.data.configurations?.call_for_paper_text || undefined,

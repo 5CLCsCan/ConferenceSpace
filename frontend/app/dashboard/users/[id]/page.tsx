@@ -60,7 +60,7 @@ export default function UserProfilePage() {
   const router = useRouter()
   const params = useParams()
   const { toast } = useToast()
-  const { user: authUser, refreshUser } = useAuth()
+  const { user: authUser, refreshUser, isAuthenticated } = useAuth()
 
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -68,9 +68,30 @@ export default function UserProfilePage() {
   const [formData, setFormData] = useState<ProfileFormData>(EMPTY_FORM)
   const [initialFormData, setInitialFormData] = useState<ProfileFormData>(EMPTY_FORM)
   const [domainInput, setDomainInput] = useState("")
+  const [authChecked, setAuthChecked] = useState(false)
   
   const userId = params.id as string
   const isOwnProfile = userId === "me" || Number(userId) === Number(authUser?.id)
+
+  // Wait for auth to be checked before redirecting
+  useEffect(() => {
+    // Give auth context time to initialize from localStorage
+    const timer = setTimeout(() => {
+      setAuthChecked(true)
+    }, 100)
+    
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    if (!authChecked) {
+      return
+    }
+
+    if (!isAuthenticated) {
+      router.push("/login")
+    }
+  }, [authChecked, isAuthenticated, router])
 
   const fetchUserProfile = useCallback(async () => {
     if (!userId) return
@@ -235,7 +256,7 @@ export default function UserProfilePage() {
     setDomainInput("")
   }
 
-  if (isLoading) {
+  if (!authChecked || !isAuthenticated || isLoading) {
     return (
       <div className="min-h-screen bg-neutral-50">
         <DashboardHeader role={authUser?.roles?.[0] as any || "author"} />

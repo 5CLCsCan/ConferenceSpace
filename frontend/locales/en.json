@@ -78,6 +78,11 @@
       "completed": "Completed",
       "active": "Active",
       "inactive": "Inactive"
+    },
+    "conferenceStatus": {
+      "open": "Accepting Submissions",
+      "reviewing": "In Review",
+      "completed": "Completed"
     }
   },
   "home": {

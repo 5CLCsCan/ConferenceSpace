@@ -11,7 +11,7 @@ import type { ReviewerConference } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { typography, spacing, iconSizes } from "@/lib/typography"
 
-type StatusFilter = "active" | "upcoming" | "archived" | ""
+type StatusFilter = "open" | "reviewing" | "completed" | ""
 
 interface ReviewerConferencesProps {
   conferences: ReviewerConference[]
@@ -83,12 +83,7 @@ export function ReviewerConferences({
     return [
       {
         id: "status",
-        label:
-          statusFilter === "active"
-            ? "Accepting Submissions"
-            : statusFilter === "upcoming"
-              ? "In Review"
-              : "Archived",
+        label: t(`common.conferenceStatus.${statusFilter}`),
         onRemove: handleRemoveStatusFilter,
       },
     ]
@@ -101,24 +96,24 @@ export function ReviewerConferences({
         <div className="space-y-2">
           <label className="flex items-center gap-2 cursor-pointer">
             <Checkbox
-              checked={statusFilter === "active"}
-              onCheckedChange={(checked) => setStatusFilter(checked ? "active" : "")}
+              checked={statusFilter === "open"}
+              onCheckedChange={(checked) => setStatusFilter(checked ? "open" : "")}
             />
-            <span className="text-sm">Accepting Submissions</span>
+            <span className="text-sm">{t("common.conferenceStatus.open")}</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <Checkbox
-              checked={statusFilter === "upcoming"}
-              onCheckedChange={(checked) => setStatusFilter(checked ? "upcoming" : "")}
+              checked={statusFilter === "reviewing"}
+              onCheckedChange={(checked) => setStatusFilter(checked ? "reviewing" : "")}
             />
-            <span className="text-sm">In Review</span>
+            <span className="text-sm">{t("common.conferenceStatus.reviewing")}</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <Checkbox
-              checked={statusFilter === "archived"}
-              onCheckedChange={(checked) => setStatusFilter(checked ? "archived" : "")}
+              checked={statusFilter === "completed"}
+              onCheckedChange={(checked) => setStatusFilter(checked ? "completed" : "")}
             />
-            <span className="text-sm">Archived</span>
+            <span className="text-sm">{t("common.conferenceStatus.completed")}</span>
           </label>
         </div>
       </div>

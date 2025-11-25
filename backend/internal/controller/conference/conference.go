@@ -125,6 +125,7 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.ConferenceListRequest) (
 		Title:         req.Title,
 		Acronym:       req.Acronym,
 		Chair:         req.Chair,
+		Status:        req.Status,
 		MyConferences: req.MyConferences,
 		Role:          req.Role,
 		UserEmail:     userEmail,
@@ -373,8 +374,8 @@ func (c *Controller) TransitionStatus(ginCtx *gin.Context, req *dto.ConferenceTr
 	}
 
 	if !isValid {
-		return nil, handler.NewErrorResponse(http.StatusBadRequest, 
-			fmt.Sprintf("cannot transition from %s to %s. Allowed transitions: %v", 
+		return nil, handler.NewErrorResponse(http.StatusBadRequest,
+			fmt.Sprintf("cannot transition from %s to %s. Allowed transitions: %v",
 				previousStatus, req.NewStatus, allowedStatuses))
 	}
 

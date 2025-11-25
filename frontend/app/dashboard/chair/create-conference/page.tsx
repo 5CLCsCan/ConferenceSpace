@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation"
 import { createConference } from "@/lib/api/conferences"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { useAuth } from "@/lib/auth-context"
 
 export type ConferenceFormData = {
   // Step 1: Conference Details
@@ -58,9 +59,11 @@ export default function CreateConferencePage() {
   const router = useRouter()
   const { toast } = useToast()
   const { t } = useTranslation()
+  const { isAuthenticated, user } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
   const [maxStepReached, setMaxStepReached] = useState(1)
   const [isCreating, setIsCreating] = useState(false)
+  const [authChecked, setAuthChecked] = useState(false)
   const [formData, setFormData] = useState<ConferenceFormData>({
     title: "",
     acronym: "",
@@ -94,6 +97,28 @@ export default function CreateConferencePage() {
   const updateFormData = (data: Partial<ConferenceFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }))
   }
+
+  // Wait for auth to be checked before redirecting
+  useEffect(() => {
+    // Give auth context time to initialize from localStorage
+    const timer = setTimeout(() => {
+      setAuthChecked(true)
+    }, 100)
+    
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    if (!authChecked) {
+      return
+    }
+
+    if (!isAuthenticated) {
+      router.push("/login")
+    } else if (user && !user.roles.includes("chair")) {
+      router.push("/dashboard")
+    }
+  }, [authChecked, isAuthenticated, user, router])
 
   const STEPS = [
     {
@@ -218,6 +243,14 @@ export default function CreateConferencePage() {
   }
 
   const progressPercentage = (currentStep / STEPS.length) * 100
+
+  if (!authChecked || !isAuthenticated || !user) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background">
