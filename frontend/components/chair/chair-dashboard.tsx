@@ -199,10 +199,10 @@ export default function ChairDashboard() {
       <span
         className={`inline-flex items-center px-3 py-1 rounded-full ${typography.bodySmall} ${typography.medium} ${statusStyles[status]}`}
       >
-        {statusLabels[status]}
+        {statusLabel}
       </span>
     )
-  }, [])
+  }, [t])
 
   type ConferenceData = {
     id: string
