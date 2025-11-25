@@ -12,6 +12,7 @@ import { useAuth } from "@/lib/auth-context"
 function PaperContent({ id }: { id: string }) {
   const { t } = useTranslation()
   const searchParams = useSearchParams()
+  const router = require('next/navigation').useRouter()
   const [paper, setPaper] = useState<Paper | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -69,7 +70,15 @@ function PaperContent({ id }: { id: string }) {
           {error || t("dashboard.roles.reviewer.review.errors.paperNotFound")}
         </p>
         <button
-          onClick={() => window.history.back()}
+          onClick={() => {
+            const from = searchParams.get('from')
+            const conferenceId = searchParams.get('conference_id')
+            if (from === 'conferences' && conferenceId) {
+              router.push(`/dashboard/reviewer?tab=conferences&conference_id=${conferenceId}`)
+            } else {
+              router.back()
+            }
+          }}
           className="text-sm text-primary hover:underline"
         >
           {t("common.actions.goBack")}
@@ -78,7 +87,23 @@ function PaperContent({ id }: { id: string }) {
     )
   }
 
-  return <PaperReview paper={paper} onBack={() => window.history.back()} />
+  return <PaperReview paper={paper} onBack={() => {
+    const from = searchParams.get('from')
+    const conferenceId = searchParams.get('conference_id')
+    const fromConferenceId = searchParams.get('from_conference_id')
+    if (from === 'conference-papers' && fromConferenceId) {
+      // Go back to the conference-papers view for the same conference
+      router.push(`/dashboard/reviewer?tab=conference-papers&conference_id=${fromConferenceId}`)
+    } else if (from === 'conferences' && conferenceId) {
+      // Go back to the conferences tab with the correct conference selected
+      router.push(`/dashboard/reviewer?tab=conferences&conference_id=${conferenceId}`)
+    } else if (from) {
+      // Go back to the originating tab
+      router.push(`/dashboard/reviewer?tab=${from}`)
+    } else {
+      router.back()
+    }
+  }} />
 }
 
 export default function ReviewPaperPage({ params }: { params: Promise<{ id: string }> }) {

@@ -398,6 +398,18 @@
       "reviewer": {
         "name": "Phản biện",
         "description": "Đánh giá và bình luận các bài được giao",
+        "todo": {
+          "status": {
+            "submitted": "Đã nộp",
+            "draft": "Bản nháp"
+          },
+          "title": "Các tác vụ cần làm",
+          "description": "Những việc cần được ưu tiên xử lý",
+          "deadline": "Hạn chót",
+          "daysLeft": "{{count}} ngày còn lại",
+          "reviewNow": "Phản biện ngay",
+          "noAssignments": "Không có bài báo cần xử lý"
+        },
         "nav": {
           "overview": "Tổng quan",
           "myConferences": "Hội nghị của tôi",
@@ -412,14 +424,7 @@
           "pendingReviews": "Chờ phản biện",
           "papersToDo": "Bài báo cần xử lý"
         },
-        "todo": {
-          "title": "Các tác vụ cần làm",
-          "description": "Những việc cần được ưu tiên xử lý",
-          "deadline": "Hạn chót",
-          "daysLeft": "{{count}} ngày còn lại",
-          "reviewNow": "Phản biện ngay",
-          "noAssignments": "Không có bài báo cần xử lý"
-        },
+        
         "conferences": {
           "title": "Hội nghị của tôi",
           "description": "Danh sách các hội nghị bạn đang phản biện",
@@ -1058,6 +1063,112 @@
       "submission": "Hạn nộp",
       "noConferences": "Chưa được giao hội nghị nào",
       "complete": "hoàn thành"
+    },
+    "form": {
+      "title": "Đánh giá bài báo",
+      "reviewing": "Đang đánh giá",
+      "submittedOn": "Nộp ngày {date}",
+      "version": "Phiên bản {version}",
+      "downloadPDF": "Tải PDF",
+      "scores": {
+        "title": "Điểm đánh giá",
+        "description": "Đánh giá bài báo theo nhiều tiêu chí (1 = Kém, 10 = Xuất sắc)",
+        "originality": "Tính độc đáo",
+        "technicalQuality": "Chất lượng kỹ thuật",
+        "clarity": "Rõ ràng & Trình bày",
+        "significance": "Ý nghĩa",
+        "methodology": "Phương pháp luận"
+      },
+      "feedback": {
+        "title": "Nhận xét chi tiết",
+        "description": "Đưa ra nhận xét xây dựng cho tác giả và ban tổ chức",
+        "strengths": "Điểm mạnh",
+        "strengthsPlaceholder": "Điểm mạnh chính của bài báo là gì? (tối thiểu 50 ký tự)",
+        "weaknesses": "Điểm yếu",
+        "weaknessesPlaceholder": "Điểm yếu chính hoặc cần cải thiện là gì?",
+        "questions": "Câu hỏi cho tác giả",
+        "questionsPlaceholder": "Có câu hỏi hoặc làm rõ nào cần từ tác giả không?"
+      },
+      "recommendation": {
+        "title": "Đề xuất tổng thể",
+        "description": "Đề xuất cuối cùng của bạn cho bài báo này",
+        "placeholder": "Chọn đề xuất của bạn",
+        "options": {
+          "strong_accept": "Chấp nhận mạnh",
+          "accept": "Chấp nhận",
+          "weak_accept": "Chấp nhận yếu",
+          "borderline": "Biên giới",
+          "weak_reject": "Từ chối yếu",
+          "reject": "Từ chối",
+          "strong_reject": "Từ chối mạnh"
+        }
+      },
+      "confidence": {
+        "title": "Mức độ tự tin",
+        "description": "Bạn tự tin như thế nào với đánh giá của mình?",
+        "placeholder": "Chọn mức độ tự tin",
+        "options": {
+          "high": "Cao - Chuyên gia trong lĩnh vực này",
+          "medium": "Trung bình - Am hiểu",
+          "low": "Thấp - Kiến thức hạn chế"
+        }
+      },
+      "ai": {
+        "getAssistance": "Nhận hỗ trợ AI",
+        "title": "Trợ lý đánh giá AI",
+        "description": "Phân tích AI giúp hướng dẫn đánh giá của bạn (chỉ tham khảo)"
+      },
+      "actions": {
+        "saveDraft": "Lưu nháp",
+        "submitReview": "Nộp đánh giá",
+        "saving": "Đang lưu...",
+        "submitting": "Đang nộp..."
+      },
+      "validation": {
+        "recommendationRequired": "Cần đề xuất",
+        "recommendationRequiredDescription": "Vui lòng chọn đề xuất tổng thể của bạn",
+        "confidenceRequired": "Cần mức độ tự tin",
+        "confidenceRequiredDescription": "Vui lòng chọn mức độ tự tin của bạn",
+        "strengthsTooShort": "Điểm mạnh quá ngắn",
+        "strengthsTooShortDescription": "Phần điểm mạnh phải có ít nhất 50 ký tự",
+        "missingAssignment": "Thiếu ID phân công",
+        "missingAssignmentDescription": "assignment_id cần có trong URL để lưu/nộp đánh giá",
+        "requiredField": "Trường bắt buộc"
+      },
+      "success": {
+        "saveDraft": "Đã lưu nháp",
+        "saveDraftDescription": "Bản nháp đánh giá của bạn đã được lưu thành công",
+        "submitReview": "Đã nộp đánh giá",
+        "submitReviewDescription": "Đánh giá của bạn đã được nộp thành công"
+      },
+      "error": {
+        "saveDraft": "Lưu nháp thất bại",
+        "saveDraftDescription": "Không thể lưu bản nháp đánh giá. Vui lòng thử lại",
+        "submitReview": "Nộp đánh giá thất bại",
+        "submitReviewDescription": "Không thể nộp đánh giá. Vui lòng thử lại"
+      },
+      "tabs": {
+        "review": "Đánh giá",
+        "discussion": "Thảo luận",
+        "rebuttal": "Phản hồi"
+      },
+      "discussion": {
+        "title": "Thảo luận với phản biện",
+        "description": "Thảo luận bài báo này với các phản biện khác (ẩn danh)",
+        "placeholder": "Nhập tin nhắn...",
+        "send": "Gửi"
+      },
+      "rebuttal": {
+        "title": "Phản hồi của tác giả",
+        "description": "Xem lại phản hồi của tác giả với nhận xét phản biện",
+        "author": "Tác giả",
+        "actionRequired": "Cần hành động",
+        "actionDescription": "Vui lòng xem lại phản hồi của tác giả và cân nhắc cập nhật đánh giá nếu cần",
+        "modifyReview": "Sửa đánh giá",
+        "notAvailable": "Chưa có phản hồi",
+        "modifyReviewStarted": "Sửa đánh giá",
+        "modifyReviewStartedDescription": "Bạn có thể cập nhật đánh giá dựa trên phản hồi"
+      }
     }
   },
   "profile": {

@@ -88,7 +88,7 @@ type ReviewCriteria struct {
 
 // ReviewFeedback represents textual feedback sections
 type ReviewFeedback struct {
-	Strengths  string `json:"strengths" binding:"required"`
+	Strengths  string `json:"strengths"`
 	Weaknesses string `json:"weaknesses,omitempty"`
 	Questions  string `json:"questions,omitempty"`
 }

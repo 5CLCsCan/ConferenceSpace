@@ -398,6 +398,18 @@
       "reviewer": {
         "name": "Reviewer",
         "description": "Evaluate and comment on assigned papers",
+        "todo": {
+          "status": {
+            "submitted": "Submitted",
+            "draft": "Draft"
+          },
+          "title": "To-Do List",
+          "description": "Tasks that require your immediate attention",
+          "deadline": "Deadline",
+          "daysLeft": "{{count}} days left",
+          "reviewNow": "Review Now",
+          "noAssignments": "No pending assignments"
+        },
         "nav": {
           "overview": "Overview",
           "myConferences": "My Conferences",
@@ -412,14 +424,7 @@
           "pendingReviews": "Pending Reviews",
           "papersToDo": "Papers to do"
         },
-        "todo": {
-          "title": "To-Do List",
-          "description": "Tasks that require your immediate attention",
-          "deadline": "Deadline",
-          "daysLeft": "{{count}} days left",
-          "reviewNow": "Review Now",
-          "noAssignments": "No pending assignments"
-        },
+        
         "conferences": {
           "title": "My Conferences",
           "description": "List of conferences you are reviewing for",
@@ -1042,6 +1047,112 @@
       "submission": "Deadline",
       "noConferences": "No conferences assigned yet",
       "complete": "complete"
+    },
+    "form": {
+      "title": "Review Paper",
+      "reviewing": "Reviewing",
+      "submittedOn": "Submitted on {date}",
+      "version": "Version {version}",
+      "downloadPDF": "Download PDF",
+      "scores": {
+        "title": "Review Scores",
+        "description": "Rate the paper on multiple criteria (1 = Poor, 10 = Excellent)",
+        "originality": "Originality",
+        "technicalQuality": "Technical Quality",
+        "clarity": "Clarity & Presentation",
+        "significance": "Significance",
+        "methodology": "Methodology"
+      },
+      "feedback": {
+        "title": "Detailed Feedback",
+        "description": "Provide constructive feedback for authors and program committee",
+        "strengths": "Strengths",
+        "strengthsPlaceholder": "What are the main strengths of this paper? (minimum 50 characters)",
+        "weaknesses": "Weaknesses",
+        "weaknessesPlaceholder": "What are the main weaknesses or areas for improvement?",
+        "questions": "Questions for Authors",
+        "questionsPlaceholder": "Any questions or clarifications needed from the authors?"
+      },
+      "recommendation": {
+        "title": "Overall Recommendation",
+        "description": "Your final recommendation for this paper",
+        "placeholder": "Select your recommendation",
+        "options": {
+          "strong_accept": "Strong Accept",
+          "accept": "Accept",
+          "weak_accept": "Weak Accept",
+          "borderline": "Borderline",
+          "weak_reject": "Weak Reject",
+          "reject": "Reject",
+          "strong_reject": "Strong Reject"
+        }
+      },
+      "confidence": {
+        "title": "Confidence Level",
+        "description": "How confident are you in your assessment?",
+        "placeholder": "Select confidence level",
+        "options": {
+          "high": "High - Expert in this area",
+          "medium": "Medium - Knowledgeable",
+          "low": "Low - Limited expertise"
+        }
+      },
+      "ai": {
+        "getAssistance": "Get AI Assistance",
+        "title": "AI-Powered Review Assistant",
+        "description": "AI analysis to help guide your review (for reference only)"
+      },
+      "actions": {
+        "saveDraft": "Save Draft",
+        "submitReview": "Submit Review",
+        "saving": "Saving...",
+        "submitting": "Submitting..."
+      },
+      "validation": {
+        "recommendationRequired": "Recommendation Required",
+        "recommendationRequiredDescription": "Please select your overall recommendation",
+        "confidenceRequired": "Confidence Required",
+        "confidenceRequiredDescription": "Please select your confidence level",
+        "strengthsTooShort": "Strengths Too Short",
+        "strengthsTooShortDescription": "Strengths section must be at least 50 characters",
+        "missingAssignment": "Missing Assignment ID",
+        "missingAssignmentDescription": "assignment_id is required in URL to save/submit review",
+        "requiredField": "Required field"
+      },
+      "success": {
+        "saveDraft": "Draft Saved",
+        "saveDraftDescription": "Your review draft has been saved successfully",
+        "submitReview": "Review Submitted",
+        "submitReviewDescription": "Your review has been submitted successfully"
+      },
+      "error": {
+        "saveDraft": "Failed to Save Draft",
+        "saveDraftDescription": "Unable to save your review draft. Please try again",
+        "submitReview": "Failed to Submit Review",
+        "submitReviewDescription": "Unable to submit your review. Please try again"
+      },
+      "tabs": {
+        "review": "Review",
+        "discussion": "Discussion",
+        "rebuttal": "Rebuttal"
+      },
+      "discussion": {
+        "title": "Discussion with Reviewers",
+        "description": "Discuss this paper with other reviewers (anonymous)",
+        "placeholder": "Type your message...",
+        "send": "Send"
+      },
+      "rebuttal": {
+        "title": "Author Rebuttal",
+        "description": "Review the author's response to reviewer feedback",
+        "author": "Author",
+        "actionRequired": "Action Required",
+        "actionDescription": "Please review the author's rebuttal and consider updating your review if needed",
+        "modifyReview": "Modify Review",
+        "notAvailable": "No rebuttal available yet",
+        "modifyReviewStarted": "Review Modification",
+        "modifyReviewStartedDescription": "You can now update your review based on the rebuttal"
+      }
     }
   },
   "profile": {

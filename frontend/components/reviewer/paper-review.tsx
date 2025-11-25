@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import {
   Sparkles,
   Download,
@@ -35,19 +36,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/hooks/use-toast"
 import { typography, spacing, iconSizes } from "@/lib/typography"
-
-// Giả lập API
-interface ApiResponse {
-  success: boolean
-}
-
-async function saveDraftReview(paperId: string, reviewData: any): Promise<ApiResponse> {
-  return new Promise((resolve) => setTimeout(() => resolve({ success: true }), 1000))
-}
-
-async function submitReview(paperId: string, reviewData: any): Promise<ApiResponse> {
-  return new Promise((resolve) => setTimeout(() => resolve({ success: true }), 1000))
-}
+import useAssignmentReview from "@/hooks/use-assignment-review"
+import { useSearchParams } from "next/navigation"
+import type { ReviewData } from "@/lib/api/reviews"
 
 interface PaperReviewProps {
   paper: Paper
@@ -82,122 +73,193 @@ const mockRebuttal = {
 
 export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewProps) {
   const { t } = useTranslation()
+  
+  const { review, loading: loadingReview, saving: savingReview, error: reviewError, saveReview } =
+    useAssignmentReview(paper.conference_id, paper.id)
+
+  // Track review status ("draft" | "submitted")
+  const [reviewStatus, setReviewStatus] = useState<string>("")
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalType, setModalType] = useState<"draft" | "submit" | "error" | "">("")
+  const [modalMessage, setModalMessage] = useState<string>("")
+
   const [activeTab, setActiveTab] = useState<"review" | "discussion" | "rebuttal">("review")
-  const [overallScore, setOverallScore] = useState([3])
-  const [confidence, setConfidence] = useState([3])
-  const [novelty, setNovelty] = useState([3])
-  const [technicalQuality, setTechnicalQuality] = useState([3])
-  const [clarity, setClarity] = useState([3])
-  const [relevance, setRelevance] = useState([3])
-  const [commentsToAuthors, setCommentsToAuthors] = useState("")
-  const [commentsToPC, setCommentsToPC] = useState("")
-  const [recommendation, setRecommendation] = useState("")
+  const [originality, setOriginality] = useState([5])
+  const [technicalQuality, setTechnicalQuality] = useState([5])
+  const [clarity, setClarity] = useState([5])
+  const [significance, setSignificance] = useState([5])
+  const [methodology, setMethodology] = useState([5])
+  const [strengths, setStrengths] = useState("")
+  const [weaknesses, setWeaknesses] = useState("")
+  const [questions, setQuestions] = useState("")
+  const [recommendation, setRecommendation] = useState<"strong_accept" | "accept" | "weak_accept" | "borderline" | "weak_reject" | "reject" | "strong_reject" | "">("")
+  const [confidence, setConfidence] = useState<"high" | "medium" | "low" | "">("")
   const [showAIAnalysis, setShowAIAnalysis] = useState(false)
   const [discussionMessage, setDiscussionMessage] = useState("")
-  const [isSaving, setIsSaving] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Prefill form when review data is loaded
+  useEffect(() => {
+    if (review?.review_data) {
+      const data = review.review_data
+      setOriginality([data.criteria.originality || 5])
+      setTechnicalQuality([data.criteria.technical_quality || 5])
+      setClarity([data.criteria.clarity || 5])
+      setSignificance([data.criteria.significance || 5])
+      setMethodology([data.criteria.methodology || 5])
+      setStrengths(data.feedback.strengths || "")
+      setWeaknesses(data.feedback.weaknesses || "")
+      setQuestions(data.feedback.questions || "")
+      setRecommendation(data.recommendation || "")
+      setConfidence(data.confidence || "")
+    }
+    if (review?.review_status) {
+      setReviewStatus(review.review_status)
+    }
+  }, [review])
+
+  const strengthsWordCount = strengths.trim().split(/\s+/).filter(Boolean).length
 
   const handleGetAIAnalysis = () => {
     setShowAIAnalysis(true)
   }
 
   const handleSaveDraft = async () => {
-    setIsSaving(true)
-    try {
-      const reviewData = {
-        overallScore: overallScore[0],
-        confidence: confidence[0],
-        novelty: novelty[0],
-        technicalQuality: technicalQuality[0],
-        clarity: clarity[0],
-        relevance: relevance[0],
-        commentsToAuthors,
-        commentsToPC,
-        recommendation,
-      }
-      const response = await saveDraftReview(paper.id, reviewData)
-      if (response.success) {
-        toast({
-          title: t("dashboard.roles.reviewer.review.saveDraftSuccess"),
-          description: t("dashboard.roles.reviewer.review.saveDraftDescription"),
-        })
-      } else {
-        toast({
-          title: t("dashboard.roles.reviewer.review.saveDraftFailed"),
-          description: t("dashboard.roles.reviewer.review.saveDraftFailedDescription"),
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      toast({
-        title: t("dashboard.roles.reviewer.review.saveDraftFailed"),
-        description: t("dashboard.roles.reviewer.review.saveDraftFailedDescription"),
-        variant: "destructive",
-      })
+    if (reviewStatus === "submitted") {
+      setModalType("error")
+      setModalMessage(t("review.form.error.alreadySubmitted"))
+      setModalOpen(true)
+      return
     }
-    setIsSaving(false)
+    if (!paper.id) {
+      setModalType("error")
+      setModalMessage(t("review.form.validation.missingAssignmentDescription"))
+      setModalOpen(true)
+      return
+    }
+    // Calculate average score
+    const avgScore = (originality[0] + technicalQuality[0] + clarity[0] + significance[0] + methodology[0]) / 5
+    // Always provide valid temp data for required fields when saving draft
+    const reviewData: ReviewData = {
+      criteria: {
+        originality: originality[0] || 5,
+        technical_quality: technicalQuality[0] || 5,
+        clarity: clarity[0] || 5,
+        significance: significance[0] || 5,
+        methodology: methodology[0] || 5,
+      },
+      feedback: {
+        strengths: strengths || "(Draft) To be filled.",
+        weaknesses: weaknesses || "(Draft) To be filled.",
+        questions: questions || "(Draft) To be filled.",
+      },
+      recommendation: (recommendation as any) || "borderline",
+      confidence: (confidence as any) || "medium",
+    }
+    setModalType("")
+    setModalOpen(false)
+    const result = await saveReview({
+      assignment_id: parseInt(paper.id, 10),
+      conference_id: parseInt(paper.conference_id, 10),
+      review_score: avgScore,
+      review_data: reviewData,
+      status: "draft",
+    })
+    if (result.success) {
+      setReviewStatus("draft")
+      setModalType("draft")
+      setModalMessage(t("review.form.success.saveDraftDescription"))
+      setModalOpen(true)
+    } else {
+      setModalType("error")
+      setModalMessage(result.error || t("review.form.error.saveDraftDescription"))
+      setModalOpen(true)
+    }
   }
 
   const handleSubmitReview = async () => {
+    if (!paper.id) {
+      setModalType("error")
+      setModalMessage(t("review.form.validation.missingAssignmentDescription"))
+      setModalOpen(true)
+      return
+    }
+    // Validation for submit - all fields required
     if (!recommendation) {
-      toast({
-        title: t("dashboard.roles.reviewer.review.recommendationRequired"),
-        description: t("dashboard.roles.reviewer.review.recommendationRequiredDescription"),
-        variant: "destructive",
-      })
+      setModalType("error")
+      setModalMessage(t("review.form.validation.recommendationRequiredDescription"))
+      setModalOpen(true)
       return
     }
-    if (commentsToAuthors.trim().length < 50) {
-      toast({
-        title: t("dashboard.roles.reviewer.review.commentsTooShort"),
-        description: t("dashboard.roles.reviewer.review.commentsTooShortDescription"),
-        variant: "destructive",
-      })
+    if (!confidence) {
+      setModalType("error")
+      setModalMessage(t("review.form.validation.confidenceRequiredDescription"))
+      setModalOpen(true)
       return
     }
-
-    setIsSubmitting(true)
-    try {
-      const reviewData = {
-        overallScore: overallScore[0],
-        confidence: confidence[0],
-        novelty: novelty[0],
-        technicalQuality: technicalQuality[0],
+    if (strengthsWordCount < 10) {
+      setModalType("error")
+      setModalMessage(t("review.form.validation.strengthsTooShortDescription"))
+      setModalOpen(true)
+      return
+    }
+    if (!weaknesses.trim()) {
+      setModalType("error")
+      setModalMessage(t("review.form.validation.weaknessesRequired"))
+      setModalOpen(true)
+      return
+    }
+    if (!questions.trim()) {
+      setModalType("error")
+      setModalMessage(t("review.form.validation.questionsRequired"))
+      setModalOpen(true)
+      return
+    }
+    // Calculate average score
+    const avgScore = (originality[0] + technicalQuality[0] + clarity[0] + significance[0] + methodology[0]) / 5
+    const reviewData: ReviewData = {
+      criteria: {
+        originality: originality[0],
+        technical_quality: technicalQuality[0],
         clarity: clarity[0],
-        relevance: relevance[0],
-        commentsToAuthors,
-        commentsToPC,
-        recommendation,
-      }
-      const response = await submitReview(paper.id, reviewData)
-      if (response.success) {
-        toast({
-          title: t("dashboard.roles.reviewer.review.submitSuccess"),
-          description: t("dashboard.roles.reviewer.review.submitSuccessDescription"),
-        })
-        onReviewSubmitted?.()
-      } else {
-        toast({
-          title: t("dashboard.roles.reviewer.review.submitFailed"),
-          description: t("dashboard.roles.reviewer.review.submitFailedDescription"),
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      toast({
-        title: t("dashboard.roles.reviewer.review.submitFailed"),
-        description: t("dashboard.roles.reviewer.review.submitFailedDescription"),
-        variant: "destructive",
-      })
+        significance: significance[0],
+        methodology: methodology[0],
+      },
+      feedback: {
+        strengths: strengths,
+        weaknesses: weaknesses,
+        questions: questions,
+      },
+      recommendation: recommendation as any,
+      confidence: confidence as any,
     }
-    setIsSubmitting(false)
+    setModalType("")
+    setModalOpen(false)
+    const result = await saveReview({
+      assignment_id: parseInt(paper.id, 10),
+      conference_id: parseInt(paper.conference_id, 10),
+      review_score: avgScore,
+      review_data: reviewData,
+      status: "submitted",
+    })
+    if (result.success) {
+      setReviewStatus("submitted")
+      setModalType("submit")
+      setModalMessage(t("review.form.success.submitReviewDescription"))
+      setModalOpen(true)
+      onReviewSubmitted?.()
+    } else {
+      setModalType("error")
+      setModalMessage(result.error || t("review.form.error.submitReviewDescription"))
+      setModalOpen(true)
+    }
   }
 
   const handleModifyReview = () => {
     setActiveTab("review")
     toast({
-      title: t("dashboard.roles.reviewer.review.rebuttal.modifyReviewStarted"),
-      description: t("dashboard.roles.reviewer.review.rebuttal.modifyReviewStartedDescription"),
+      title: t("review.form.rebuttal.modifyReviewStarted"),
+      description: t("review.form.rebuttal.modifyReviewStartedDescription"),
     })
   }
 
@@ -224,28 +286,57 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
 
   return (
     <div className={spacing.subsection}>
+      {/* Modal for feedback */}
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {modalType === "draft" && t("review.form.success.saveDraft")}
+              {modalType === "submit" && t("review.form.success.submitReview")}
+              {modalType === "error" && t("common.messages.error")}
+            </DialogTitle>
+            <DialogDescription>
+              {modalMessage}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setModalOpen(false)}>{t("common.actions.close")}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className={`flex items-center ${spacing.gap.md}`}>
         <Button variant="outline" size="icon" onClick={onBack}>
           <ArrowLeft className={iconSizes.sm} />
         </Button>
         <h1 className={`${typography.h3} ${typography.semibold}`}>
-          {t("dashboard.roles.reviewer.review.reviewing")}: {paper.title}
+          {t("review.form.reviewing")}: {paper.title}
         </h1>
+        {reviewStatus === "submitted" && (
+          <Badge variant="success" className="ml-4">
+            {t("dashboard.roles.reviewer.todo.status.submitted")}
+          </Badge>
+        )}
+        {reviewStatus === "draft" && (
+          <Badge variant="secondary" className="ml-4">
+            {t("dashboard.roles.reviewer.todo.status.draft")}
+          </Badge>
+        )}
       </div>
 
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="review">
             <MessageSquare className={`${iconSizes.sm} mr-2`} />
-            {t("dashboard.roles.reviewer.review.tabs.review")}
+            {t("review.form.tabs.review")}
           </TabsTrigger>
           <TabsTrigger value="discussion">
             <Users className={`${iconSizes.sm} mr-2`} />
-            {t("dashboard.roles.reviewer.review.tabs.discussion")}
+            {t("review.form.tabs.discussion")}
           </TabsTrigger>
           <TabsTrigger value="rebuttal">
             <Reply className={`${iconSizes.sm} mr-2`} />
-            {t("dashboard.roles.reviewer.review.tabs.rebuttal")}
+            {t("review.form.tabs.rebuttal")}
           </TabsTrigger>
         </TabsList>
 
@@ -263,13 +354,13 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                     className={`flex items-center ${spacing.gap.md} mt-4 ${typography.body} text-muted-foreground`}
                   >
                     <span>
-                      {t("dashboard.roles.reviewer.review.submittedOn", {
+                      {t("review.form.submittedOn", {
                         date: formatDate(paper.submitted_at),
                       })}
                     </span>
                     <span>•</span>
                     <span>
-                      {t("dashboard.roles.reviewer.review.version", {
+                      {t("review.form.version", {
                         version: paper.version,
                       })}
                     </span>
@@ -284,7 +375,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                 </div>
                 <Button variant="outline" className={`${spacing.gap.sm} bg-transparent`}>
                   <Download className={iconSizes.sm} />
-                  {t("dashboard.roles.reviewer.review.downloadPDF")}
+                  {t("review.form.downloadPDF")}
                 </Button>
               </div>
             </CardHeader>
@@ -298,7 +389,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
               size="lg"
             >
               <Sparkles className={`${iconSizes.sm} mr-2`} />
-              {t("dashboard.roles.reviewer.review.ai.getAssistance")}
+              {t("review.form.ai.getAssistance")}
             </Button>
           )}
 
@@ -308,11 +399,11 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                 <div className={`flex items-center ${spacing.gap.sm}`}>
                   <Sparkles className={`${iconSizes.md} text-primary`} />
                   <CardTitle className={typography.h4}>
-                    {t("dashboard.roles.reviewer.review.ai.title")}
+                    {t("review.form.ai.title")}
                   </CardTitle>
                 </div>
                 <CardDescription className={typography.body}>
-                  {t("dashboard.roles.reviewer.review.ai.description")}
+                  {t("review.form.ai.description")}
                 </CardDescription>
               </CardHeader>
               <CardContent className={spacing.subsection}>
@@ -379,96 +470,69 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
 
           <Card>
             <CardHeader>
-              <CardTitle>{t("dashboard.roles.reviewer.review.scores.title")}</CardTitle>
+              <CardTitle>{t("review.form.scores.title")}</CardTitle>
               <CardDescription>
-                {t("dashboard.roles.reviewer.review.scores.description")}
+                {t("review.form.scores.description")}
               </CardDescription>
             </CardHeader>
             <CardContent className={spacing.section}>
               <div className={`grid grid-cols-1 md:grid-cols-2 ${spacing.gap.lg}`}>
                 <div className={spacing.gap.md}>
                   <div className="flex items-center justify-between">
-                    <Label className={typography.label}>
-                      {t("dashboard.roles.reviewer.review.scores.overallScore")}
-                    </Label>
+                    <Label className={typography.label}>{t("review.form.scores.originality")}</Label>
                     <Badge variant="secondary" className={typography.bodySmall}>
-                      {overallScore[0]}/5
+                      {originality[0]}/10
                     </Badge>
                   </div>
                   <Slider
-                    value={overallScore}
-                    onValueChange={setOverallScore}
+                    value={originality}
+                    onValueChange={setOriginality}
                     min={1}
-                    max={5}
+                    max={10}
                     step={1}
                   />
                 </div>
                 <div className={spacing.gap.md}>
                   <div className="flex items-center justify-between">
-                    <Label className={typography.label}>
-                      {t("dashboard.roles.reviewer.review.scores.confidence")}
-                    </Label>
+                    <Label className={typography.label}>{t("review.form.scores.technicalQuality")}</Label>
                     <Badge variant="secondary" className={typography.bodySmall}>
-                      {confidence[0]}/5
-                    </Badge>
-                  </div>
-                  <Slider
-                    value={confidence}
-                    onValueChange={setConfidence}
-                    min={1}
-                    max={5}
-                    step={1}
-                  />
-                </div>
-                <div className={spacing.gap.md}>
-                  <div className="flex items-center justify-between">
-                    <Label className={typography.label}>
-                      {t("dashboard.roles.reviewer.review.scores.novelty")}
-                    </Label>
-                    <Badge variant="secondary" className={typography.bodySmall}>
-                      {novelty[0]}/5
-                    </Badge>
-                  </div>
-                  <Slider value={novelty} onValueChange={setNovelty} min={1} max={5} step={1} />
-                </div>
-                <div className={spacing.gap.md}>
-                  <div className="flex items-center justify-between">
-                    <Label className={typography.label}>
-                      {t("dashboard.roles.reviewer.review.scores.technicalQuality")}
-                    </Label>
-                    <Badge variant="secondary" className={typography.bodySmall}>
-                      {technicalQuality[0]}/5
+                      {technicalQuality[0]}/10
                     </Badge>
                   </div>
                   <Slider
                     value={technicalQuality}
                     onValueChange={setTechnicalQuality}
                     min={1}
-                    max={5}
+                    max={10}
                     step={1}
                   />
                 </div>
                 <div className={spacing.gap.md}>
                   <div className="flex items-center justify-between">
-                    <Label className={typography.label}>
-                      {t("dashboard.roles.reviewer.review.scores.clarity")}
-                    </Label>
+                    <Label className={typography.label}>{t("review.form.scores.clarity")}</Label>
                     <Badge variant="secondary" className={typography.bodySmall}>
-                      {clarity[0]}/5
+                      {clarity[0]}/10
                     </Badge>
                   </div>
-                  <Slider value={clarity} onValueChange={setClarity} min={1} max={5} step={1} />
+                  <Slider value={clarity} onValueChange={setClarity} min={1} max={10} step={1} />
                 </div>
                 <div className={spacing.gap.md}>
                   <div className="flex items-center justify-between">
-                    <Label className={typography.label}>
-                      {t("dashboard.roles.reviewer.review.scores.relevance")}
-                    </Label>
+                    <Label className={typography.label}>{t("review.form.scores.significance")}</Label>
                     <Badge variant="secondary" className={typography.bodySmall}>
-                      {relevance[0]}/5
+                      {significance[0]}/10
                     </Badge>
                   </div>
-                  <Slider value={relevance} onValueChange={setRelevance} min={1} max={5} step={1} />
+                  <Slider value={significance} onValueChange={setSignificance} min={1} max={10} step={1} />
+                </div>
+                <div className={spacing.gap.md}>
+                  <div className="flex items-center justify-between">
+                    <Label className={typography.label}>{t("review.form.scores.methodology")}</Label>
+                    <Badge variant="secondary" className={typography.bodySmall}>
+                      {methodology[0]}/10
+                    </Badge>
+                  </div>
+                  <Slider value={methodology} onValueChange={setMethodology} min={1} max={10} step={1} />
                 </div>
               </div>
               {showAIAnalysis && (
@@ -491,9 +555,9 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
 
           <Card>
             <CardHeader>
-              <CardTitle>{t("dashboard.roles.reviewer.review.comments.title")}</CardTitle>
+              <CardTitle>{t("review.form.feedback.title")}</CardTitle>
               <CardDescription>
-                {t("dashboard.roles.reviewer.review.comments.description")}
+                {t("review.form.feedback.description")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -508,42 +572,55 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                 </TabsList>
                 <TabsContent value="authors" className={`${spacing.subsection} mt-6`}>
                   <div className={spacing.item}>
-                    <Label htmlFor="comments-authors">
-                      {t("dashboard.roles.reviewer.review.comments.toAuthors.label")}
+                    <Label htmlFor="strengths">
+                      {t("review.form.feedback.strengths")} <span className="text-destructive">*</span>
                     </Label>
                     <Textarea
-                      id="comments-authors"
-                      placeholder={t(
-                        "dashboard.roles.reviewer.review.comments.toAuthors.placeholder",
-                      )}
-                      rows={12}
-                      value={commentsToAuthors}
-                      onChange={(e) => setCommentsToAuthors(e.target.value)}
+                      id="strengths"
+                      placeholder={t("review.form.feedback.strengthsPlaceholder")}
+                      rows={6}
+                      value={strengths}
+                      onChange={(e) => setStrengths(e.target.value)}
+                      className={strengthsWordCount > 0 && strengthsWordCount < 10 ? "border-destructive" : ""}
                     />
                     <p className={`${typography.bodySmall} text-muted-foreground`}>
-                      {t("dashboard.roles.reviewer.review.comments.wordCount", {
-                        count: commentsToAuthors.split(/\s+/).filter(Boolean).length,
-                      })}
+                      {t("dashboard.roles.reviewer.review.comments.wordCount", { count: strengthsWordCount })}
                     </p>
+                    {strengths.trim() && strengthsWordCount < 10 && (
+                      <p className="text-destructive text-sm mt-2">
+                        {t("review.form.validation.strengthsTooShortDescription")} (Hiện tại: {strengthsWordCount} từ, yêu cầu tối thiểu 10 từ)
+                      </p>
+                    )}
+                  </div>
+                  <div className={spacing.item}>
+                    <Label htmlFor="weaknesses">
+                      {t("review.form.feedback.weaknesses")} <span className="text-destructive">*</span>
+                    </Label>
+                    <Textarea
+                      id="weaknesses"
+                      placeholder={t("review.form.feedback.weaknessesPlaceholder")}
+                      rows={6}
+                      value={weaknesses}
+                      onChange={(e) => setWeaknesses(e.target.value)}
+                    />
+                  </div>
+                  <div className={spacing.item}>
+                    <Label htmlFor="questions">
+                      {t("review.form.feedback.questions")} <span className="text-destructive">*</span>
+                    </Label>
+                    <Textarea
+                      id="questions"
+                      placeholder={t("review.form.feedback.questionsPlaceholder")}
+                      rows={4}
+                      value={questions}
+                      onChange={(e) => setQuestions(e.target.value)}
+                    />
                   </div>
                 </TabsContent>
                 <TabsContent value="pc" className={`${spacing.subsection} mt-6`}>
-                  <div className={spacing.item}>
-                    <Label htmlFor="comments-pc">
-                      {t("dashboard.roles.reviewer.review.comments.toPC.label")}
-                    </Label>
-                    <Textarea
-                      id="comments-pc"
-                      placeholder={t("dashboard.roles.reviewer.review.comments.toPC.placeholder")}
-                      rows={12}
-                      value={commentsToPC}
-                      onChange={(e) => setCommentsToPC(e.target.value)}
-                    />
-                    <p className={`${typography.bodySmall} text-muted-foreground`}>
-                      {t("dashboard.roles.reviewer.review.comments.wordCount", {
-                        count: commentsToPC.split(/\s+/).filter(Boolean).length,
-                      })}
-                    </p>
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>{t("dashboard.roles.reviewer.review.comments.toPC.comingSoon")}</p>
+                    <p className="text-sm mt-2">{t("dashboard.roles.reviewer.review.comments.toPC.comingSoonDescription")}</p>
                   </div>
                 </TabsContent>
               </Tabs>
@@ -552,56 +629,70 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
 
           <Card>
             <CardHeader>
-              <CardTitle>{t("dashboard.roles.reviewer.review.recommendation.title")}</CardTitle>
+              <CardTitle>
+                {t("review.form.recommendation.title")} <span className="text-destructive">*</span>
+              </CardTitle>
               <CardDescription>
-                {t("dashboard.roles.reviewer.review.recommendation.description")}
+                {t("review.form.recommendation.description")}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Select value={recommendation} onValueChange={setRecommendation}>
-                <SelectTrigger>
-                  <SelectValue
-                    placeholder={t("dashboard.roles.reviewer.review.recommendation.placeholder")}
-                  />
+              <Select value={recommendation} onValueChange={(v) => setRecommendation(v as any)}>
+                <SelectTrigger className={!recommendation ? "border-destructive" : ""}>
+                  <SelectValue placeholder={t("review.form.recommendation.placeholder")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="accept">
-                    {t("dashboard.roles.reviewer.review.recommendation.options.accept")}
-                  </SelectItem>
-                  <SelectItem value="minor_revision">
-                    {t("dashboard.roles.reviewer.review.recommendation.options.minor")}
-                  </SelectItem>
-                  <SelectItem value="major_revision">
-                    {t("dashboard.roles.reviewer.review.recommendation.options.major")}
-                  </SelectItem>
-                  <SelectItem value="reject">
-                    {t("dashboard.roles.reviewer.review.recommendation.options.reject")}
-                  </SelectItem>
+                  <SelectItem value="strong_accept">{t("review.form.recommendation.options.strong_accept")}</SelectItem>
+                  <SelectItem value="accept">{t("review.form.recommendation.options.accept")}</SelectItem>
+                  <SelectItem value="weak_accept">{t("review.form.recommendation.options.weak_accept")}</SelectItem>
+                  <SelectItem value="borderline">{t("review.form.recommendation.options.borderline")}</SelectItem>
+                  <SelectItem value="weak_reject">{t("review.form.recommendation.options.weak_reject")}</SelectItem>
+                  <SelectItem value="reject">{t("review.form.recommendation.options.reject")}</SelectItem>
+                  <SelectItem value="strong_reject">{t("review.form.recommendation.options.strong_reject")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                {t("review.form.confidence.title")} <span className="text-destructive">*</span>
+              </CardTitle>
+              <CardDescription>{t("review.form.confidence.description")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Select value={confidence} onValueChange={(v) => setConfidence(v as any)}>
+                <SelectTrigger className={!confidence ? "border-destructive" : ""}>
+                  <SelectValue placeholder={t("review.form.confidence.placeholder")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="high">{t("review.form.confidence.options.high")}</SelectItem>
+                  <SelectItem value="medium">{t("review.form.confidence.options.medium")}</SelectItem>
+                  <SelectItem value="low">{t("review.form.confidence.options.low")}</SelectItem>
                 </SelectContent>
               </Select>
             </CardContent>
           </Card>
 
           <div className={`flex ${spacing.gap.md}`}>
-            <Button
-              variant="outline"
-              className="flex-1 bg-transparent"
-              onClick={handleSaveDraft}
-              disabled={isSaving}
-            >
-              {isSaving
-                ? t("dashboard.roles.reviewer.review.saving")
-                : t("dashboard.roles.reviewer.review.saveDraft")}
-            </Button>
+            {reviewStatus !== "submitted" && (
+              <Button
+                variant="outline"
+                className="flex-1 bg-transparent"
+                onClick={handleSaveDraft}
+                disabled={savingReview}
+              >
+                {savingReview ? t("review.form.actions.saving") : t("review.form.actions.saveDraft")}
+              </Button>
+            )}
             <Button
               className="flex-1"
               size="lg"
               onClick={handleSubmitReview}
-              disabled={isSubmitting}
+              disabled={savingReview || !recommendation || !confidence || strengthsWordCount < 10 || !weaknesses.trim() || !questions.trim() || reviewStatus === "submitted"}
             >
-              {isSubmitting
-                ? t("dashboard.roles.reviewer.review.submitting")
-                : t("dashboard.roles.reviewer.review.submitReview")}
+              {savingReview ? t("review.form.actions.submitting") : t("review.form.actions.submitReview")}
             </Button>
           </div>
         </TabsContent>
@@ -610,9 +701,9 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
         <TabsContent value="discussion" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>{t("dashboard.roles.reviewer.review.discussion.title")}</CardTitle>
+              <CardTitle>{t("review.form.discussion.title")}</CardTitle>
               <CardDescription>
-                {t("dashboard.roles.reviewer.review.discussion.description")}
+                {t("review.form.discussion.description")}
               </CardDescription>
             </CardHeader>
             <CardContent className={spacing.subsection}>
@@ -641,11 +732,11 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                   <AvatarFallback>ME</AvatarFallback>
                 </Avatar>
                 <Input
-                  placeholder={t("dashboard.roles.reviewer.review.discussion.placeholder")}
+                  placeholder={t("review.form.discussion.placeholder")}
                   value={discussionMessage}
                   onChange={(e) => setDiscussionMessage(e.target.value)}
                 />
-                <Button>{t("dashboard.roles.reviewer.review.discussion.send")}</Button>
+                <Button>{t("review.form.discussion.send")}</Button>
               </div>
             </CardContent>
           </Card>
@@ -655,9 +746,9 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
         <TabsContent value="rebuttal" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>{t("dashboard.roles.reviewer.review.rebuttal.title")}</CardTitle>
+              <CardTitle>{t("review.form.rebuttal.title")}</CardTitle>
               <CardDescription>
-                {t("dashboard.roles.reviewer.review.rebuttal.description")}
+                {t("review.form.rebuttal.description")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -672,8 +763,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <p className={typography.semibold}>
-                          {mockRebuttal.author} (
-                          {t("dashboard.roles.reviewer.review.rebuttal.author")})
+                          {mockRebuttal.author} ({t("review.form.rebuttal.author")})
                         </p>
                         <p className={`${typography.bodySmall} text-muted-foreground`}>
                           {mockRebuttal.timestamp}
@@ -687,20 +777,20 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                   <Alert>
                     <AlertCircle className="size-4" />
                     <AlertTitle>
-                      {t("dashboard.roles.reviewer.review.rebuttal.actionRequired")}
+                      {t("review.form.rebuttal.actionRequired")}
                     </AlertTitle>
                     <AlertDescription>
-                      {t("dashboard.roles.reviewer.review.rebuttal.actionDescription")}
+                      {t("review.form.rebuttal.actionDescription")}
                     </AlertDescription>
                   </Alert>
                   <Button onClick={handleModifyReview} className="w-full">
-                    {t("dashboard.roles.reviewer.review.rebuttal.modifyReview")}
+                    {t("review.form.rebuttal.modifyReview")}
                   </Button>
                 </div>
               ) : (
                 <div className="text-center py-12">
                   <p className="text-muted-foreground">
-                    {t("dashboard.roles.reviewer.review.rebuttal.notAvailable")}
+                    {t("review.form.rebuttal.notAvailable")}
                   </p>
                 </div>
               )}
