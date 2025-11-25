@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useReviewerDashboard } from "@/hooks/use-reviewer-dashboard"
 import { useConferencePapers } from "@/hooks/use-conference-papers"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -83,16 +83,20 @@ function ConferencePapersWithSWR({
     />
   )
 }
-
 export function ReviewerDashboard() {
   const { t } = useTranslation()
   const { user } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   // Use email for reviewer endpoints
   const currentReviewerEmail = user?.email || ""
 
-  const [activeNav, setActiveNav] = useState<View>("overview")
-  const [selectedConferenceId, setSelectedConferenceId] = useState<string | null>(null)
+  // Read initial state from URL
+  const initialTab = (searchParams.get("tab") as View) || "overview"
+  const initialConferenceId = searchParams.get("conference_id") || null
+
+  const [activeNav, setActiveNav] = useState<View>(initialTab)
+  const [selectedConferenceId, setSelectedConferenceId] = useState<string | null>(initialConferenceId)
   const [invitationStatusFilter, setInvitationStatusFilter] = useState<string>("")
   const [conferenceSearch, setConferenceSearch] = useState<string>("")
   
@@ -220,21 +224,39 @@ export function ReviewerDashboard() {
   }, [isLoading, hasMoreAssignments])
 
   const handleSelectConference = (conferenceId: string) => {
-    // Just navigate - papers will be loaded by ConferencePapers component with SWR
     setSelectedConferenceId(conferenceId)
     setActiveNav("conference-papers")
+    // Update URL for back/refresh
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("tab", "conference-papers")
+    params.set("conference_id", conferenceId)
+    router.replace(`?${params.toString()}`)
   }
 
   const handleSelectPaper = (paperId: string, conferenceId?: string) => {
     // Use provided conferenceId or fall back to selectedConferenceId
     const cid = conferenceId || selectedConferenceId
-    const conferenceParam = cid ? `?conference_id=${cid}` : ''
-    router.push(`/dashboard/reviewer/papers/${paperId}${conferenceParam}`)
+    // Track the current tab and conference context for back navigation
+    const params = new URLSearchParams()
+    if (cid) params.set('conference_id', cid)
+    // If currently viewing conference-papers, set from=conference-papers, else from=activeNav
+    if (activeNav === 'conference-papers' && cid) {
+      params.set('from', 'conference-papers')
+      params.set('from_conference_id', cid)
+    } else {
+      params.set('from', activeNav)
+    }
+    router.push(`/dashboard/reviewer/papers/${paperId}?${params.toString()}`)
   }
 
   const handleBackToConferences = () => {
     setSelectedConferenceId(null)
     setActiveNav("conferences")
+    // Update URL for back/refresh
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("tab", "conferences")
+    params.delete("conference_id")
+    router.replace(`?${params.toString()}`)
   }
 
   // Optimistic update for invitation response
@@ -350,6 +372,11 @@ export function ReviewerDashboard() {
         setActiveNav={(nav) => {
           setActiveNav(nav as View)
           setSelectedConferenceId(null)
+          // Update URL for tab switch
+          const params = new URLSearchParams(searchParams.toString())
+          params.set("tab", nav)
+          params.delete("conference_id")
+          router.replace(`?${params.toString()}`)
         }}
       />
       <div className={`flex-1 ${spacing.padding.cardLarge} ${spacing.section}`}>

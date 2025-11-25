@@ -71,10 +71,10 @@ type AutoAssignResponse struct {
 
 // ReviewData represents the structured review data stored in JSONB
 type ReviewData struct {
-	Criteria       ReviewCriteria `json:"criteria" binding:"required"`
-	Feedback       ReviewFeedback `json:"feedback" binding:"required"`
-	Recommendation string         `json:"recommendation" binding:"required,oneof=strong_accept accept weak_accept borderline weak_reject reject strong_reject"`
-	Confidence     string         `json:"confidence" binding:"required,oneof=high medium low"`
+	Criteria       ReviewCriteria `json:"criteria"`
+	Feedback       ReviewFeedback `json:"feedback"`
+	Recommendation string         `json:"recommendation"`
+	Confidence     string         `json:"confidence"`
 }
 
 // ReviewCriteria represents individual scoring criteria
@@ -88,7 +88,7 @@ type ReviewCriteria struct {
 
 // ReviewFeedback represents textual feedback sections
 type ReviewFeedback struct {
-	Strengths  string `json:"strengths" binding:"required"`
+	Strengths  string `json:"strengths"`
 	Weaknesses string `json:"weaknesses,omitempty"`
 	Questions  string `json:"questions,omitempty"`
 }
