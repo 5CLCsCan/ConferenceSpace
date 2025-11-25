@@ -36,6 +36,9 @@ export interface User {
   updated_at?: string
 }
 
+// Conference status type - matches backend enum
+export type ConferenceStatus = "open" | "reviewing" | "completed"
+
 // Conference interface
 export interface Conference {
   id: string
@@ -48,16 +51,31 @@ export interface Conference {
   camera_ready_deadline: string
   notification_date: string
   conference_date: string
+  conference_end_date?: string
   location: string
   website?: string
-  status: "upcoming" | "active" | "completed" | "open" | "closed"
-  tracks: Track[]
+  status: ConferenceStatus
+  tracks: string[]
   domain?: string[] // Research domains/keywords/topics
   call_for_paper_text?: string // Call for paper content
   chair?: string
   primary_contact?: number
   area_chair?: number
   userRole?: string // "chair", "author", "reviewer", or undefined
+  configurations?: {
+    start_date?: string
+    end_date?: string
+    abstract_submission_deadline?: string
+    full_paper_submission_deadline?: string
+    camera_ready_deadline?: string
+    format?: string
+    review_type?: string
+    have_coi?: boolean
+    maximum_pages?: number
+    submission_format?: string
+    require_complete_author_profile?: boolean
+    allow_paper_withdrawls?: boolean
+  }
 }
 
 // Track interface

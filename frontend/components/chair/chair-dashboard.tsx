@@ -9,24 +9,25 @@ import { useEffect, useState, useMemo, useCallback } from "react"
 import { listConferences } from "@/lib/api/conferences"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { useAuth } from "@/lib/auth-context"
+import { useDebounce } from "@/hooks/use-debounce"
 import { typography, spacing } from "@/lib/typography"
 import Link from "next/link"
 
 type ViewMode = "your" | "discover"
-type StatusFilter = "active" | "upcoming" | "archived" | ""
+type StatusFilter = "open" | "reviewing" | "completed" | ""
 
 export default function ChairDashboard() {
   const router = useRouter()
   const { t } = useTranslation()
   const { user } = useAuth()
   const [viewMode, setViewMode] = useState<ViewMode>("your")
-  const [allConferences, setAllConferences] = useState<
+  const [conferences, setConferences] = useState<
     Array<{
       id: string
       name: string
       acronym: string
       dates: string
-      status: "active" | "upcoming" | "archived"
+      status: "open" | "reviewing" | "completed"
       submissions: number
     }>
   >([])
@@ -34,13 +35,44 @@ export default function ChairDashboard() {
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const limit = 20 // Items per page
+
+  const totalPages = Math.ceil(total / limit)
+
+  // Debounce search query to avoid excessive API calls
+  const debouncedSearchQuery = useDebounce(searchQuery, 500)
 
   useEffect(() => {
     const fetchConferences = async () => {
       try {
         setLoading(true)
-        const filters =
-          viewMode === "your" ? { limit: 50, myConferences: true, role: "chair" } : { limit: 50 }
+
+        const offset = (currentPage - 1) * limit
+
+        // Use backend query parameters to filter conferences
+        const filters: any = {
+          limit,
+          offset,
+        }
+
+        // Add view mode filter
+        if (viewMode === "your") {
+          filters.myConferences = true
+          filters.role = "chair"
+        }
+
+        // Add search filter (pass to backend as 'title' parameter)
+        if (debouncedSearchQuery.trim()) {
+          filters.title = debouncedSearchQuery.trim()
+        }
+
+        // Add status filter (pass to backend)
+        if (statusFilter) {
+          filters.status = statusFilter
+        }
+
         const response = await listConferences(filters)
 
         if (response.error) {
@@ -54,7 +86,7 @@ export default function ChairDashboard() {
             dates: conf.conference_date
               ? new Date(conf.conference_date).toLocaleDateString()
               : "TBD",
-            status: conf.status as "active" | "upcoming" | "archived",
+            status: conf.status as "open" | "reviewing" | "completed",
             submissions: 0, // TODO: Get actual submission count
             chair: conf.chair,
             primary_contact: conf.primary_contact,
@@ -77,7 +109,8 @@ export default function ChairDashboard() {
           const finalConferences = transformedConferences.map(
             ({ chair, primary_contact, area_chair, ...rest }) => rest,
           )
-          setAllConferences(finalConferences)
+          setConferences(finalConferences)
+          setTotal(response.data.total || 0)
         }
       } catch (err) {
         setError(t("dashboard.chair.dashboard.messages.error"))
@@ -87,28 +120,12 @@ export default function ChairDashboard() {
     }
 
     fetchConferences()
-  }, [viewMode, t, user])
+  }, [viewMode, t, user, currentPage, debouncedSearchQuery, statusFilter, limit])
 
-  // Filter conferences based on search and status
-  const conferences = useMemo(() => {
-    let filtered = [...allConferences]
-
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(
-        (conf) =>
-          conf.name.toLowerCase().includes(query) || conf.acronym.toLowerCase().includes(query),
-      )
-    }
-
-    // Apply status filter
-    if (statusFilter) {
-      filtered = filtered.filter((conf) => conf.status === statusFilter)
-    }
-
-    return filtered
-  }, [allConferences, searchQuery, statusFilter])
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [viewMode, debouncedSearchQuery, statusFilter])
 
   const handleRemoveStatusFilter = () => {
     setStatusFilter("")
@@ -121,12 +138,7 @@ export default function ChairDashboard() {
     return [
       {
         id: "status",
-        label:
-          statusFilter === "active"
-            ? "Accepting Submissions"
-            : statusFilter === "upcoming"
-              ? "In Review"
-              : "Archived",
+        label: t(`common.conferenceStatus.${statusFilter}`),
         onRemove: handleRemoveStatusFilter,
       },
     ]
@@ -139,24 +151,24 @@ export default function ChairDashboard() {
         <div className={spacing.item}>
           <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
             <Checkbox
-              checked={statusFilter === "active"}
-              onCheckedChange={(checked) => setStatusFilter(checked ? "active" : "")}
+              checked={statusFilter === "open"}
+              onCheckedChange={(checked) => setStatusFilter(checked ? "open" : "")}
             />
-            <span className={typography.body}>Accepting Submissions</span>
+            <span className={typography.body}>{t("common.conferenceStatus.open")}</span>
           </label>
           <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
             <Checkbox
-              checked={statusFilter === "upcoming"}
-              onCheckedChange={(checked) => setStatusFilter(checked ? "upcoming" : "")}
+              checked={statusFilter === "reviewing"}
+              onCheckedChange={(checked) => setStatusFilter(checked ? "reviewing" : "")}
             />
-            <span className={typography.body}>In Review</span>
+            <span className={typography.body}>{t("common.conferenceStatus.reviewing")}</span>
           </label>
           <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
             <Checkbox
-              checked={statusFilter === "archived"}
-              onCheckedChange={(checked) => setStatusFilter(checked ? "archived" : "")}
+              checked={statusFilter === "completed"}
+              onCheckedChange={(checked) => setStatusFilter(checked ? "completed" : "")}
             />
-            <span className={typography.body}>Archived</span>
+            <span className={typography.body}>{t("common.conferenceStatus.completed")}</span>
           </label>
         </div>
       </div>
@@ -174,18 +186,14 @@ export default function ChairDashboard() {
     </div>
   )
 
-  const renderStatusBadge = useCallback((status: "active" | "upcoming" | "archived") => {
+  const renderStatusBadge = useCallback((status: "open" | "reviewing" | "completed") => {
     const statusStyles = {
-      active: "bg-success/10 text-success",
-      upcoming: "bg-primary/10 text-primary",
-      archived: "bg-secondary/10 text-secondary",
+      open: "bg-success/10 text-success",
+      reviewing: "bg-primary/10 text-primary",
+      completed: "bg-secondary/10 text-secondary",
     }
 
-    const statusLabels = {
-      active: "Accepting Submissions",
-      upcoming: "In Review",
-      archived: "Archived",
-    }
+    const statusLabel = t(`common.conferenceStatus.${status}`)
 
     return (
       <span
@@ -201,7 +209,7 @@ export default function ChairDashboard() {
     name: string
     acronym: string
     dates: string
-    status: "active" | "upcoming" | "archived"
+    status: "open" | "reviewing" | "completed"
     submissions: number
   }
 
@@ -336,6 +344,78 @@ export default function ChairDashboard() {
             }}
             renderMobileCard={(conference) => <ConferenceCard {...conference} />}
           />
+
+          {/* Pagination Controls */}
+          {!loading && totalPages > 1 && (
+            <div className="mt-6 flex items-center justify-between">
+              <div className={`${typography.body} text-muted-foreground`}>
+                Showing {((currentPage - 1) * limit) + 1} to {Math.min(currentPage * limit, total)} of {total} conferences
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                >
+                  First
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                
+                {/* Page Numbers */}
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum: number
+                    if (totalPages <= 5) {
+                      pageNum = i + 1
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i
+                    } else {
+                      pageNum = currentPage - 2 + i
+                    }
+                    
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(pageNum)}
+                        className="min-w-[40px]"
+                      >
+                        {pageNum}
+                      </Button>
+                    )
+                  })}
+                </div>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                >
+                  Last
+                </Button>
+              </div>
+            </div>
+          )}
         </section>
       </main>
 

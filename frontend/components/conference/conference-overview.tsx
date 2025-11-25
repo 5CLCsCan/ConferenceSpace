@@ -16,12 +16,14 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, MapPin, Globe } from "lucide-react"
 import { typography, spacing, iconSizes } from "@/lib/typography"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ConferenceOverviewProps {
   conference: Conference
 }
 
 export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
+  const { t } = useTranslation()
   const [stats, setStats] = useState<ConferenceStats | null>(null)
 
   useEffect(() => {
@@ -49,14 +51,10 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
         <div className="flex items-center gap-2">
           <h1 className={typography.h1}>{conference.name}</h1>
           <Badge
-            variant={conference.status === "active" ? "default" : "secondary"}
+            variant={conference.status === "open" ? "default" : "secondary"}
             className={`bg-success text-white ${typography.bodySmall}`}
           >
-            {conference.status === "active"
-              ? "Đang Diễn Ra"
-              : conference.status === "upcoming"
-                ? "Sắp Tới"
-                : "Đã Kết Thúc"}
+          {t(`common.conferenceStatus.${conference.status}`)}
           </Badge>
         </div>
         <p className={`mt-2 ${typography.body} leading-relaxed text-gray-600`}>
@@ -159,8 +157,8 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
 
           <div className={`grid ${spacing.gap.md} md:grid-cols-2 lg:grid-cols-3`}>
             {conference.tracks.map((track, index) => (
-              <Card key={track.id || `track-${index}`} className={spacing.padding.card}>
-                <h3 className={typography.h5}>{track.name || "Unnamed Track"}</h3>
+              <Card key={`track-${index}`} className={spacing.padding.card}>
+                <h3 className={typography.h5}>{track}</h3>
               </Card>
             ))}
           </div>

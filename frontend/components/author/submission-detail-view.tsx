@@ -472,19 +472,19 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
           {submission.cover_letter ? (
             <div className="space-y-6">
               {/* Cover Letter File Information */}
-              <Card className="py-6">
-                <CardHeader>
+          <Card className="py-6">
+            <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2">
                     <FileCheck className="size-4" />
                     {t("dashboard.submission.details.coverLetterFile", "Cover Letter")}
-                  </CardTitle>
+              </CardTitle>
                   <CardDescription>
                     {t(
                       "dashboard.submission.details.coverLetterDescription",
                       "Supporting document for your submission",
                     )}
                   </CardDescription>
-                </CardHeader>
+            </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
                     <div className="text-xs font-medium text-gray-500 mb-1">
@@ -518,9 +518,9 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
                         {t("common.actions.download", "Download")}
                       </a>
                     </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              </div>
+            </CardContent>
+          </Card>
 
               {/* Preview Cover Letter */}
               {submission.cover_letter.mime_type === "application/pdf" && (

@@ -2,11 +2,12 @@
 
 import { DashboardHeader } from "@/components/dashboard-header"
 import { PaperReview } from "@/components/reviewer/paper-review"
-import { notFound, useSearchParams } from "next/navigation"
+import { notFound, useSearchParams, useRouter } from "next/navigation"
 import { use, useEffect, useState, Suspense } from "react"
 import { getPaperById } from "@/lib/api/papers"
 import type { Paper } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { useAuth } from "@/lib/auth-context"
 
 function PaperContent({ id }: { id: string }) {
   const { t } = useTranslation()
@@ -82,6 +83,39 @@ function PaperContent({ id }: { id: string }) {
 
 export default function ReviewPaperPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
+  const { isAuthenticated, user } = useAuth()
+  const router = useRouter()
+  const [authChecked, setAuthChecked] = useState(false)
+
+  // Wait for auth to be checked before redirecting
+  useEffect(() => {
+    // Give auth context time to initialize from localStorage
+    const timer = setTimeout(() => {
+      setAuthChecked(true)
+    }, 100)
+    
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    if (!authChecked) {
+      return
+    }
+
+    if (!isAuthenticated) {
+      router.push("/login")
+    } else if (user && !user.roles.includes("reviewer")) {
+      router.push("/dashboard")
+    }
+  }, [authChecked, isAuthenticated, user, router])
+
+  if (!authChecked || !isAuthenticated || !user) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background">

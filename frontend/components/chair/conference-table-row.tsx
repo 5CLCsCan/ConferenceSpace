@@ -1,12 +1,13 @@
 import { useRouter } from "next/navigation"
 import { typography, spacing } from "@/lib/typography"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ConferenceTableRowProps {
   id: string
   name: string
   acronym: string
   dates: string
-  status: "active" | "upcoming" | "archived"
+  status: "open" | "reviewing" | "completed"
   submissions: number
 }
 
@@ -19,16 +20,11 @@ export function ConferenceTableRow({
   submissions,
 }: ConferenceTableRowProps) {
   const router = useRouter()
+  const { t } = useTranslation()
   const statusStyles = {
-    active: "bg-success/10 text-success",
-    upcoming: "bg-primary/10 text-primary",
-    archived: "bg-secondary/10 text-secondary",
-  }
-
-  const statusLabels = {
-    active: "Accepting Submissions",
-    upcoming: "In Review",
-    archived: "Archived",
+    open: "bg-success/10 text-success",
+    reviewing: "bg-primary/10 text-primary",
+    completed: "bg-secondary/10 text-secondary",
   }
 
   return (
@@ -47,7 +43,7 @@ export function ConferenceTableRow({
         <span
           className={`inline-flex items-center px-3 py-1 rounded-full ${typography.bodySmall} ${typography.medium} ${statusStyles[status]}`}
         >
-          {statusLabels[status]}
+          {t(`common.conferenceStatus.${status}`)}
         </span>
       </td>
       <td className={`py-3 px-4 ${typography.body} text-foreground`}>{submissions}</td>
@@ -64,16 +60,11 @@ export function ConferenceCard({
   submissions,
 }: ConferenceTableRowProps) {
   const router = useRouter()
+  const { t } = useTranslation()
   const statusStyles = {
-    active: "bg-success/10 text-success",
-    upcoming: "bg-primary/10 text-primary",
-    archived: "bg-secondary/10 text-secondary",
-  }
-
-  const statusLabels = {
-    active: "Accepting Submissions",
-    upcoming: "In Review",
-    archived: "Archived",
+    open: "bg-success/10 text-success",
+    reviewing: "bg-primary/10 text-primary",
+    completed: "bg-secondary/10 text-secondary",
   }
 
   return (
@@ -89,7 +80,7 @@ export function ConferenceCard({
         <span
           className={`inline-flex items-center px-3 py-1 rounded-full ${typography.bodySmall} ${typography.medium} ${statusStyles[status]}`}
         >
-          {statusLabels[status]}
+          {t(`common.conferenceStatus.${status}`)}
         </span>
       </div>
       <div className={`${spacing.item} mb-4`}>

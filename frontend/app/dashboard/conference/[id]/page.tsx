@@ -32,15 +32,36 @@ export default function ConferencePage() {
   const params = useParams()
   const conferenceId = params.id as string
   const searchParams = useSearchParams()
-  const { user, currentRole } = useAuth()
+  const { user, currentRole, isAuthenticated } = useAuth()
   const router = useRouter()
   const { t } = useTranslation()
 
   const [conference, setConference] = useState<Conference | null>(null)
   const [loading, setLoading] = useState(true)
+  const [authChecked, setAuthChecked] = useState(false)
   const [activeTab, setActiveTab] = useState<TabType>(
     (searchParams.get("tab") as TabType) || (currentRole === "chair" ? "dashboard" : "overview"),
   )
+
+  // Wait for auth to be checked before redirecting
+  useEffect(() => {
+    // Give auth context time to initialize from localStorage
+    const timer = setTimeout(() => {
+      setAuthChecked(true)
+    }, 100)
+    
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    if (!authChecked) {
+      return
+    }
+
+    if (!isAuthenticated) {
+      router.push("/login")
+    }
+  }, [authChecked, isAuthenticated, router])
 
   useEffect(() => {
     async function loadConference() {
@@ -103,7 +124,7 @@ export default function ConferencePage() {
     [t],
   )
 
-  if (loading) {
+  if (!authChecked || !isAuthenticated || loading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

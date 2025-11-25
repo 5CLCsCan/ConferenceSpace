@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useEffect } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { ReviewerDashboard } from "@/components/reviewer/reviewer-dashboard"
 import { DashboardHeader } from "@/components/dashboard-header"
@@ -11,16 +11,31 @@ export default function ReviewerPage() {
   const { isAuthenticated, user } = useAuth()
   const router = useRouter()
   const { t } = useTranslation()
+  const [authChecked, setAuthChecked] = useState(false)
 
-  // useEffect(() => {
-  //   if (!isAuthenticated) {
-  //     router.push("/login")
-  //   } else if (user && !user.roles.includes("reviewer")) {
-  //     router.push("/dashboard")
-  //   }
-  // }, [isAuthenticated, user, router])
+  // Wait for auth to be checked before redirecting
+  useEffect(() => {
+    // Give auth context time to initialize from localStorage
+    const timer = setTimeout(() => {
+      setAuthChecked(true)
+    }, 100)
+    
+    return () => clearTimeout(timer)
+  }, [])
 
-  if (!isAuthenticated || !user) {
+  useEffect(() => {
+    if (!authChecked) {
+      return
+    }
+
+    if (!isAuthenticated) {
+      router.push("/login")
+    } else if (user && !user.roles.includes("reviewer")) {
+      router.push("/dashboard")
+    }
+  }, [authChecked, isAuthenticated, user, router])
+
+  if (!authChecked || !isAuthenticated || !user) {
     return null
   }
 

@@ -23,8 +23,23 @@ export default function SubmissionDetailPage() {
   const [submission, setSubmission] = useState<Submission | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [authChecked, setAuthChecked] = useState(false)
+
+  // Wait for auth to be checked before redirecting
+  useEffect(() => {
+    // Give auth context time to initialize from localStorage
+    const timer = setTimeout(() => {
+      setAuthChecked(true)
+    }, 100)
+    
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
+    if (!authChecked) {
+      return
+    }
+
     if (!isAuthenticated) {
       router.push("/login")
       return
@@ -35,7 +50,7 @@ export default function SubmissionDetailPage() {
       router.push("/dashboard")
       return
     }
-  }, [isAuthenticated, user, router])
+  }, [authChecked, isAuthenticated, user, router])
 
   useEffect(() => {
     async function loadSubmission() {

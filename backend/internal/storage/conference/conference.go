@@ -18,6 +18,7 @@ type QueryParams struct {
 	Title         string
 	Acronym       string
 	Chair         string
+	Status        string // Filter by status: "active", "upcoming", "archived"
 	MyConferences bool
 	Role          string
 	UserEmail     string // User email - single source of truth
@@ -285,6 +286,11 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Confere
 		baseQuery = baseQuery.Where(sq.Like{chairCol: fmt.Sprintf("%%%s%%", params.Chair)})
 		countQuery = countQuery.Where(sq.Like{model.ColChair: fmt.Sprintf("%%%s%%", params.Chair)})
 	}
+	if params.Status != "" {
+		statusCol := fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ColConferenceStatus)
+		baseQuery = baseQuery.Where(sq.Eq{statusCol: params.Status})
+		countQuery = countQuery.Where(sq.Eq{model.ColConferenceStatus: params.Status})
+	}
 
 	// Apply bookmark filtering - only filter when myBookmark is true
 	if params.MyBookmark && params.UserEmail != "" {
@@ -420,9 +426,9 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Confere
 			}
 		} else {
 			err := rows.Scan(scanArgs...)
-		if err != nil {
-			return nil, 0, fmt.Errorf("failed to scan conference: %w", err)
-		}
+			if err != nil {
+				return nil, 0, fmt.Errorf("failed to scan conference: %w", err)
+			}
 		}
 
 		entities = append(entities, entity)

@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { CompletedReviews } from "@/components/reviewer/completed-reviews"
 import { DashboardHeader } from "@/components/dashboard-header"
@@ -13,8 +13,31 @@ export default function CompletedReviewsPage() {
   const { isAuthenticated, user } = useAuth()
   const router = useRouter()
   const { t } = useTranslation()
+  const [authChecked, setAuthChecked] = useState(false)
 
-  if (!isAuthenticated || !user) {
+  // Wait for auth to be checked before redirecting
+  useEffect(() => {
+    // Give auth context time to initialize from localStorage
+    const timer = setTimeout(() => {
+      setAuthChecked(true)
+    }, 100)
+    
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    if (!authChecked) {
+      return
+    }
+
+    if (!isAuthenticated) {
+      router.push("/login")
+    } else if (user && !user.roles.includes("reviewer")) {
+      router.push("/dashboard")
+    }
+  }, [authChecked, isAuthenticated, user, router])
+
+  if (!authChecked || !isAuthenticated || !user) {
     return null
   }
 

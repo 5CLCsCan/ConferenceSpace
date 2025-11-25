@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -29,6 +29,17 @@ export default function DashboardPage() {
   const { user, isAuthenticated, logout, switchRole } = useAuth()
   const { t, tList } = useTranslation()
   const router = useRouter()
+  const [authChecked, setAuthChecked] = useState(false)
+
+  // Wait for auth to be checked before redirecting
+  useEffect(() => {
+    // Give auth context time to initialize from localStorage
+    const timer = setTimeout(() => {
+      setAuthChecked(true)
+    }, 100)
+    
+    return () => clearTimeout(timer)
+  }, [])
 
   // Enable role changes when on dashboard page
   useEffect(() => {
@@ -41,10 +52,14 @@ export default function DashboardPage() {
   }, [])
 
   useEffect(() => {
+    if (!authChecked) {
+      return
+    }
+
     if (!isAuthenticated) {
       router.push("/login")
     }
-  }, [isAuthenticated, router])
+  }, [authChecked, isAuthenticated, router])
 
   const roleConfig = useMemo<Record<UserRole, RoleConfig>>(
     () => ({
@@ -85,7 +100,7 @@ export default function DashboardPage() {
     [t, tList],
   )
 
-  if (!user) {
+  if (!authChecked || !isAuthenticated || !user) {
     return null
   }
 

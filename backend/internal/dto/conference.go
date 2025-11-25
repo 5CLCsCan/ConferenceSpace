@@ -71,6 +71,7 @@ type ConferenceListRequest struct {
 	Title         string `form:"title" json:"title"`
 	Acronym       string `form:"acronym" json:"acronym"`
 	Chair         string `form:"chair" json:"chair"`
+	Status        string `form:"status" json:"status"`               // Filter by status: "active", "upcoming", "archived"
 	MyConferences bool   `form:"myConferences" json:"myConferences"` // Filter conferences where user has a role
 	Role          string `form:"role" json:"role"`                   // Filter by specific role: "chair", "author", "reviewer"
 	MyBookmark    bool   `form:"myBookmark" json:"myBookmark"`       // Filter conferences that user has bookmarked

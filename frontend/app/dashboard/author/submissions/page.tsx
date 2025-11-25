@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useEffect } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { AuthorSubmissionsList } from "@/components/author/author-submissions-list"
 import { DashboardHeader } from "@/components/dashboard-header"
@@ -11,8 +11,23 @@ export default function AuthorSubmissionsPage() {
   const { isAuthenticated, user } = useAuth()
   const { t } = useTranslation()
   const router = useRouter()
+  const [authChecked, setAuthChecked] = useState(false)
+
+  // Wait for auth to be checked before redirecting
+  useEffect(() => {
+    // Give auth context time to initialize from localStorage
+    const timer = setTimeout(() => {
+      setAuthChecked(true)
+    }, 100)
+    
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
+    if (!authChecked) {
+      return
+    }
+
     console.log("[AuthorSubmissionsPage] Auth check", {
       isAuthenticated,
       user: user?.email,
@@ -23,9 +38,9 @@ export default function AuthorSubmissionsPage() {
     } else if (user && !user.roles.includes("author")) {
       router.push("/dashboard")
     }
-  }, [isAuthenticated, user, router])
+  }, [authChecked, isAuthenticated, user, router])
 
-  if (!isAuthenticated || !user) {
+  if (!authChecked || !isAuthenticated || !user) {
     console.log("[AuthorSubmissionsPage] Not authenticated or no user, returning null")
     return null
   }

@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useEffect } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { AuthorDashboard } from "@/components/author/author-dashboard"
 import { DashboardHeader } from "@/components/dashboard-header"
@@ -11,16 +11,31 @@ export default function AuthorPage() {
   const { isAuthenticated, user } = useAuth()
   const router = useRouter()
   const { t } = useTranslation()
+  const [authChecked, setAuthChecked] = useState(false)
+
+  // Wait for auth to be checked before redirecting
+  useEffect(() => {
+    // Give auth context time to initialize from localStorage
+    const timer = setTimeout(() => {
+      setAuthChecked(true)
+    }, 100)
+    
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
+    if (!authChecked) {
+      return
+    }
+
     if (!isAuthenticated) {
       router.push("/login")
     } else if (user && !user.roles.includes("author")) {
       router.push("/dashboard")
     }
-  }, [isAuthenticated, user, router])
+  }, [authChecked, isAuthenticated, user, router])
 
-  if (!isAuthenticated || !user) {
+  if (!authChecked || !isAuthenticated || !user) {
     return null
   }
 

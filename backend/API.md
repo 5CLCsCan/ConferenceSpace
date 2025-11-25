@@ -311,7 +311,7 @@ Authorization: Bearer <token>
 ### List Conferences
 
 ```http
-GET /api/v1/conferences?limit=10&offset=0&title=AI&acronym=AAAI&chair=john@example.com
+GET /api/v1/conferences?limit=10&offset=0&title=AI&acronym=AAAI&chair=john@example.com&status=active&myConferences=true&role=author
 Authorization: Bearer <token>
 ```
 
@@ -319,11 +319,15 @@ Authorization: Bearer <token>
 
 **Query Parameters:**
 
-- `limit` (integer, optional) - Number of results to return
-- `offset` (integer, optional) - Offset for pagination
-- `title` (string, optional) - Filter by title
-- `acronym` (string, optional) - Filter by acronym
-- `chair` (string, optional) - Filter by chair email
+- `limit` (integer, optional) - Number of results to return (default: all)
+- `offset` (integer, optional) - Offset for pagination (default: 0)
+- `title` (string, optional) - Filter by title (partial match)
+- `acronym` (string, optional) - Filter by acronym (partial match)
+- `chair` (string, optional) - Filter by chair email (partial match)
+- `status` (string, optional) - Filter by status: `active`, `upcoming`, or `archived`
+- `myConferences` (boolean, optional) - Only return conferences where the user has a role (default: false)
+- `role` (string, optional) - Filter by user's specific role: `chair`, `author`, or `reviewer` (requires `myConferences=true`)
+- `myBookmark` (boolean, optional) - Only return bookmarked conferences (default: false)
 
 **Response (200):**
 
