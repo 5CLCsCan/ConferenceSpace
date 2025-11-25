@@ -139,21 +139,22 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
     }
     // Calculate average score
     const avgScore = (originality[0] + technicalQuality[0] + clarity[0] + significance[0] + methodology[0]) / 5
+    // Always provide valid temp data for required fields when saving draft
     const reviewData: ReviewData = {
       criteria: {
-        originality: originality[0],
-        technical_quality: technicalQuality[0],
-        clarity: clarity[0],
-        significance: significance[0],
-        methodology: methodology[0],
+        originality: originality[0] || 5,
+        technical_quality: technicalQuality[0] || 5,
+        clarity: clarity[0] || 5,
+        significance: significance[0] || 5,
+        methodology: methodology[0] || 5,
       },
       feedback: {
-        strengths: strengths || "",
-        weaknesses: weaknesses || "",
-        questions: questions || "",
+        strengths: strengths || "(Draft) To be filled.",
+        weaknesses: weaknesses || "(Draft) To be filled.",
+        questions: questions || "(Draft) To be filled.",
       },
-      recommendation: recommendation as any,
-      confidence: confidence as any,
+      recommendation: (recommendation as any) || "borderline",
+      confidence: (confidence as any) || "medium",
     }
     setModalType("")
     setModalOpen(false)
