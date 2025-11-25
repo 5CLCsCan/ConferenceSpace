@@ -28,6 +28,22 @@ export const typography = {
   semibold: "font-semibold",
   medium: "font-medium",
   normal: "font-normal",
+
+  // Markdown styling for chatbot
+  markdown: {
+    // Container for all markdown content
+    container: "text-xs leading-relaxed",
+    // All markdown elements should inherit small font size
+    all: "[&_p]:text-xs [&_li]:text-xs [&_strong]:text-xs [&_em]:text-xs [&_code]:text-xs [&_pre]:text-xs [&_h1]:text-xs [&_h2]:text-xs [&_h3]:text-xs [&_h4]:text-xs [&_h5]:text-xs [&_h6]:text-xs [&_ul]:text-xs [&_ol]:text-xs [&_blockquote]:text-xs [&_a]:text-xs [&_span]:text-xs",
+    // Specific element styles
+    paragraph: "text-xs mb-1 last:mb-0",
+    list: "text-xs my-1",
+    listItem: "text-xs py-0.5",
+    strong: "text-xs font-semibold",
+    em: "text-xs italic",
+    code: "text-xs font-mono bg-muted px-1 py-0.5 rounded",
+    heading: "text-xs font-semibold my-1",
+  },
 } as const
 
 export const spacing = {

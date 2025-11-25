@@ -13,20 +13,24 @@ interface ConversationListProps {
   conversations: ChatConversation[]
   onSelectConversation: (id: string) => void
   onNewConversation: () => void
+  onDeleteConversation: (id: string) => void
 }
 
 export function ConversationList({
   conversations,
   onSelectConversation,
   onNewConversation,
+  onDeleteConversation,
 }: ConversationListProps) {
   const [hoveredId, setHoveredId] = React.useState<string | null>(null)
 
-  const handleDelete = React.useCallback((e: React.MouseEvent, id: string) => {
-    e.stopPropagation()
-    // TODO: Implement delete functionality
-    console.log("Delete conversation", id)
-  }, [])
+  const handleDelete = React.useCallback(
+    (e: React.MouseEvent, id: string) => {
+      e.stopPropagation()
+      onDeleteConversation(id)
+    },
+    [onDeleteConversation],
+  )
 
   return (
     <div className="flex flex-col h-full relative">
@@ -62,10 +66,6 @@ export function ConversationList({
                       {conversation.title}
                     </p>
                     <p className={`${typography.bodySmall} text-muted-foreground mt-1`}>
-                      {conversation.messages.length} message
-                      {conversation.messages.length !== 1 ? "s" : ""}
-                    </p>
-                    <p className={`${typography.bodySmall} text-muted-foreground mt-0.5`}>
                       {formatDistanceToNow(conversation.updatedAt, { addSuffix: true })}
                     </p>
                   </div>

@@ -1,21 +1,51 @@
 "use client"
 
 import * as React from "react"
-import { Send, Paperclip, X, GraduationCap } from "lucide-react"
+import { Send, Paperclip, X, GraduationCap, Loader2 } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useChat } from "@ai-sdk/react"
-import { DefaultChatTransport } from "ai"
+import {
+  DefaultChatTransport,
+  lastAssistantMessageIsCompleteWithToolCalls,
+  type UIMessage,
+} from "ai"
 import { Streamdown } from "streamdown"
 import type { ChatConversation, ChatAttachment } from "./types"
 import { typography, spacing, iconSizes } from "@/lib/typography"
+import { capturePageContext } from "@/lib/chatbot/page-context"
+import { executeAction, type ActionType, type ActionParams } from "@/lib/chatbot/action-executor"
 
 interface ChatViewProps {
   conversation: ChatConversation
   onSendMessage?: (message: string, attachments?: ChatAttachment[]) => void
+}
+
+// Load messages from localStorage for a given conversation id
+function loadMessagesFromStorage(conversationId: string): UIMessage[] {
+  if (typeof window === "undefined") return []
+
+  try {
+    const stored = localStorage.getItem(`ai-chat-${conversationId}`)
+    if (!stored) return []
+
+    const messages = JSON.parse(stored)
+    return Array.isArray(messages) ? messages : []
+  } catch {
+    return []
+  }
+}
+
+// Convert tool name to display alias
+function getToolDisplayName(toolName: string): string {
+  const aliases: Record<string, string> = {
+    getPageContext: "Get Page Context",
+    performAction: "Perform Action",
+  }
+  return aliases[toolName] || toolName
 }
 
 export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
@@ -23,12 +53,64 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
   const [attachments, setAttachments] = React.useState<ChatAttachment[]>([])
   const scrollAreaRef = React.useRef<HTMLDivElement>(null)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const refMapRef = React.useRef<Map<string, Element>>(new Map())
 
-  const { messages, sendMessage, status } = useChat({
+  // Load initial messages from localStorage
+  const initialMessages = React.useMemo(
+    () => loadMessagesFromStorage(conversation.id),
+    [conversation.id],
+  )
+
+  const { messages, sendMessage, status, addToolOutput } = useChat({
     id: conversation.id,
+    messages: initialMessages,
     transport: new DefaultChatTransport({
       api: "/api/chat",
     }),
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+    async onToolCall({ toolCall }) {
+      if (toolCall.toolName === "getPageContext") {
+        try {
+          const { tree, refMap } = capturePageContext()
+          refMapRef.current = refMap
+
+          addToolOutput({
+            tool: "getPageContext",
+            toolCallId: toolCall.toolCallId,
+            output: tree,
+          })
+        } catch (error) {
+          addToolOutput({
+            tool: "getPageContext",
+            toolCallId: toolCall.toolCallId,
+            state: "output-error",
+            errorText: error instanceof Error ? error.message : "Failed to capture page context",
+          })
+        }
+      }
+      if (toolCall.toolName === "performAction") {
+        try {
+          const result = await executeAction(
+            (toolCall.input as any).action as ActionType,
+            refMapRef.current,
+            toolCall.input as ActionParams,
+          )
+
+          addToolOutput({
+            tool: "performAction",
+            toolCallId: toolCall.toolCallId,
+            output: result,
+          })
+        } catch (error) {
+          addToolOutput({
+            tool: "performAction",
+            toolCallId: toolCall.toolCallId,
+            state: "output-error",
+            errorText: error instanceof Error ? error.message : "Failed to execute action",
+          })
+        }
+      }
+    },
   })
 
   const scrollToBottom = React.useCallback(() => {
@@ -115,13 +197,14 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
               >
                 <div
                   className={cn(
-                    `flex flex-col ${spacing.gap.tight} max-w-[80%]`,
+                    `flex flex-col ${spacing.gap.sm} max-w-[80%]`,
                     msg.role === "user" && "items-end",
                   )}
                 >
                   <div
                     className={cn(
-                      `rounded-lg px-4 py-2 ${typography.body}`,
+                      "rounded-lg px-4 py-2",
+                      typography.bodySmall,
                       msg.role === "user"
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted text-foreground",
@@ -131,7 +214,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                       switch (part.type) {
                         case "text":
                           return (
-                            <div key={`${msg.id}-${i}`}>
+                            <div key={`${msg.id}-${i}`} className="chatbot-markdown">
                               <Streamdown
                                 isAnimating={
                                   status === "streaming" &&
@@ -145,15 +228,18 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                             </div>
                           )
                         case "reasoning":
+                          // Note: Some reasoning content may show "[REDACTED]" - this comes from the Grok model
+                          // via OpenRouter and cannot be controlled on our end. This is provider-side behavior.
                           return (
                             <details
                               key={`${msg.id}-${i}`}
                               className="mt-2 text-xs opacity-70 border-t pt-2 border-border/50"
+                              open={true}
                             >
-                              <summary className="cursor-pointer hover:opacity-100">
+                              <summary className="cursor-pointer hover:opacity-100 font-medium text-xs">
                                 Show reasoning
                               </summary>
-                              <div className="mt-2 text-xs">
+                              <div className="mt-2 whitespace-pre-wrap font-mono bg-muted/50 p-2 rounded chatbot-markdown">
                                 <Streamdown
                                   isAnimating={
                                     status === "streaming" &&
@@ -167,7 +253,305 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                               </div>
                             </details>
                           )
+                        // Step indicator - hidden per user request
+                        case "step-start":
+                          return null
+                        // Tool calls with specific tool names
+                        case "tool-getPageContext":
+                        case "tool-performAction": {
+                          const toolPart = part as any
+                          const hasError =
+                            toolPart.state === "output-error" ||
+                            (toolPart.result &&
+                              typeof toolPart.result === "object" &&
+                              toolPart.result.success === false)
+                          const isSuccess =
+                            toolPart.result &&
+                            typeof toolPart.result === "object" &&
+                            toolPart.result.success === true
+
+                          return (
+                            <details
+                              key={`${msg.id}-${i}`}
+                              className="mt-2 text-xs opacity-70 border-t pt-2 border-border/50"
+                              open={false}
+                            >
+                              <summary className="cursor-pointer hover:opacity-100 font-medium text-xs text-primary">
+                                Tool call: {getToolDisplayName(part.type.replace("tool-", ""))}
+                              </summary>
+                              <div
+                                className={cn(
+                                  "mt-2 font-mono p-3 rounded border break-words",
+                                  "chatbot-markdown",
+                                  hasError
+                                    ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800/50"
+                                    : "bg-primary/10 dark:bg-primary/20 border-primary/30 dark:border-primary/40",
+                                )}
+                              >
+                                <div className="mb-2">
+                                  <strong className="text-xs">Tool:</strong>
+                                  <div className="mt-1 text-xs break-words">
+                                    {part.type.replace("tool-", "")}
+                                  </div>
+                                </div>
+                                <div className="mb-2">
+                                  <strong className="text-xs">Input:</strong>
+                                  <pre className="mt-1 text-xs whitespace-pre-wrap break-words overflow-wrap-anywhere">
+                                    {JSON.stringify(toolPart.args || toolPart.input || {}, null, 2)}
+                                  </pre>
+                                </div>
+                                {toolPart.result && (
+                                  <div>
+                                    <strong className="text-xs">Output:</strong>
+                                    <pre className="mt-1 text-xs max-h-40 overflow-auto whitespace-pre-wrap break-words overflow-wrap-anywhere">
+                                      {JSON.stringify(toolPart.result, null, 2)}
+                                    </pre>
+                                  </div>
+                                )}
+                              </div>
+                            </details>
+                          )
+                        }
+                        // Tool invocation UI - handle dynamic tools (legacy format)
+                        case "dynamic-tool": {
+                          const toolPart = part
+                          const toolName = toolPart.toolName
+                          const toolInput = toolPart.input as any
+                          const toolOutput = toolPart.output
+                          const toolError = toolPart.errorText
+
+                          // Show loading state while tool is being called
+                          if (
+                            toolPart.state === "input-streaming" ||
+                            toolPart.state === "input-available"
+                          ) {
+                            return (
+                              <details
+                                key={`${msg.id}-${i}`}
+                                className="mt-2 text-xs opacity-70 border-t pt-2 border-border/50"
+                                open={true}
+                              >
+                                <summary className="cursor-pointer hover:opacity-100 font-medium text-xs text-primary flex items-center gap-2">
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                  <span>Tool call: {getToolDisplayName(toolName)}</span>
+                                </summary>
+                                <div className="mt-2 font-mono p-3 rounded border bg-primary/10 dark:bg-primary/20 border-primary/30 dark:border-primary/40 chatbot-markdown break-words">
+                                  <div className="mb-2">
+                                    <strong className="text-xs">Tool:</strong>
+                                    <div className="mt-1 text-xs break-words">{toolName}</div>
+                                  </div>
+                                  <div className="mb-2">
+                                    <strong className="text-xs">Input:</strong>
+                                    <pre className="mt-1 text-xs whitespace-pre-wrap break-words overflow-wrap-anywhere">
+                                      {JSON.stringify(toolInput, null, 2)}
+                                    </pre>
+                                  </div>
+                                  <div className="text-muted-foreground italic text-xs">
+                                    Executing...
+                                  </div>
+                                </div>
+                              </details>
+                            )
+                          }
+
+                          // Show result when available
+                          if (toolPart.state === "output-available") {
+                            let summaryText = `Tool call: ${getToolDisplayName(toolName)}`
+                            let resultDisplay: React.ReactNode = null
+
+                            if (toolName === "getPageContext") {
+                              const output = toolOutput as any
+                              const elementCount = output?.children?.length || 0
+                              summaryText = `Tool call: ${getToolDisplayName(toolName)} (captured ${elementCount} elements)`
+                              resultDisplay = (
+                                <div>
+                                  <strong className="text-xs">Output:</strong>
+                                  <pre className="mt-1 text-xs max-h-40 overflow-auto whitespace-pre-wrap break-words overflow-wrap-anywhere">
+                                    {JSON.stringify(
+                                      {
+                                        elementCount,
+                                        topLevelElements: output?.children
+                                          ?.slice(0, 3)
+                                          .map((c: any) => ({
+                                            ref: c.ref,
+                                            role: c.role,
+                                            name: c.name,
+                                          })),
+                                      },
+                                      null,
+                                      2,
+                                    )}
+                                  </pre>
+                                </div>
+                              )
+                            } else if (toolName === "performAction") {
+                              const result = toolOutput as {
+                                success: boolean
+                                message: string
+                                verified?: boolean
+                                previousValue?: string
+                                currentValue?: string
+                              }
+                              summaryText = `Tool call: ${getToolDisplayName(toolName)} - ${result.success ? "✓ Success" : "✗ Failed"}`
+                              resultDisplay = (
+                                <div>
+                                  <strong className="text-xs">Output:</strong>
+                                  <pre className="mt-1 text-xs whitespace-pre-wrap break-words overflow-wrap-anywhere">
+                                    {JSON.stringify(
+                                      {
+                                        success: result.success,
+                                        message: result.message,
+                                        verified: result.verified,
+                                        previousValue: result.previousValue,
+                                        currentValue: result.currentValue,
+                                      },
+                                      null,
+                                      2,
+                                    )}
+                                  </pre>
+                                </div>
+                              )
+                            } else {
+                              summaryText = `Tool call: ${getToolDisplayName(toolName)}`
+                              resultDisplay = (
+                                <div>
+                                  <strong className="text-xs">Output:</strong>
+                                  <pre className="mt-1 text-xs max-h-40 overflow-auto whitespace-pre-wrap break-words overflow-wrap-anywhere">
+                                    {JSON.stringify(toolOutput, null, 2)}
+                                  </pre>
+                                </div>
+                              )
+                            }
+
+                            return (
+                              <details
+                                key={`${msg.id}-${i}`}
+                                className="mt-2 text-xs opacity-70 border-t pt-2 border-border/50"
+                                open={true}
+                              >
+                                <summary className="cursor-pointer hover:opacity-100 font-medium text-xs text-primary">
+                                  {summaryText}
+                                </summary>
+                                <div
+                                  className={cn(
+                                    "mt-2 font-mono p-3 rounded border chatbot-markdown break-words",
+                                    toolName === "performAction" &&
+                                      (toolOutput as any)?.success === false
+                                      ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800/50"
+                                      : "bg-primary/10 dark:bg-primary/20 border-primary/30 dark:border-primary/40",
+                                  )}
+                                >
+                                  <div className="mb-2">
+                                    <strong className="text-xs">Tool:</strong>
+                                    <div className="mt-1 text-xs break-words">{toolName}</div>
+                                  </div>
+                                  <div className="mb-2">
+                                    <strong className="text-xs">Input:</strong>
+                                    <pre className="mt-1 text-xs whitespace-pre-wrap break-words overflow-wrap-anywhere">
+                                      {JSON.stringify(toolInput, null, 2)}
+                                    </pre>
+                                  </div>
+                                  {resultDisplay}
+                                </div>
+                              </details>
+                            )
+                          }
+
+                          // Show error state
+                          if (toolPart.state === "output-error") {
+                            return (
+                              <details
+                                key={`${msg.id}-${i}`}
+                                className="mt-2 text-xs opacity-70 border-t pt-2 border-border/50"
+                                open={true}
+                              >
+                                <summary className="cursor-pointer hover:opacity-100 font-medium text-xs text-destructive">
+                                  Tool call: {getToolDisplayName(toolName)} - ✗ Error
+                                </summary>
+                                <div className="mt-2 font-mono p-3 rounded border bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800/50 chatbot-markdown break-words">
+                                  <div className="mb-2">
+                                    <strong className="text-xs">Tool:</strong>
+                                    <div className="mt-1 text-xs break-words">{toolName}</div>
+                                  </div>
+                                  <div className="mb-2">
+                                    <strong className="text-xs">Input:</strong>
+                                    <pre className="mt-1 text-xs whitespace-pre-wrap break-words overflow-wrap-anywhere">
+                                      {JSON.stringify(toolInput, null, 2)}
+                                    </pre>
+                                  </div>
+                                  <div>
+                                    <strong className="text-xs">Error:</strong>
+                                    <div className="mt-1 text-destructive text-xs break-words">
+                                      {toolError}
+                                    </div>
+                                  </div>
+                                </div>
+                              </details>
+                            )
+                          }
+
+                          return null
+                        }
                         default:
+                          // Handle any other tool-* types generically
+                          if (part.type.startsWith("tool-")) {
+                            const toolName = part.type.replace("tool-", "")
+                            const toolPart = part as any
+                            const hasError =
+                              toolPart.state === "output-error" ||
+                              (toolPart.result &&
+                                typeof toolPart.result === "object" &&
+                                toolPart.result.success === false)
+                            const isSuccess =
+                              toolPart.result &&
+                              typeof toolPart.result === "object" &&
+                              toolPart.result.success === true
+
+                            return (
+                              <details
+                                key={`${msg.id}-${i}`}
+                                className="mt-2 text-xs opacity-70 border-t pt-2 border-border/50"
+                                open={false}
+                              >
+                                <summary className="cursor-pointer hover:opacity-100 font-medium text-xs text-primary">
+                                  Tool call: {getToolDisplayName(toolName)}
+                                </summary>
+                                <div
+                                  className={cn(
+                                    "mt-2 font-mono p-3 rounded border chatbot-markdown break-words",
+                                    hasError
+                                      ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800/50"
+                                      : "bg-primary/10 dark:bg-primary/20 border-primary/30 dark:border-primary/40",
+                                  )}
+                                >
+                                  <div className="mb-2">
+                                    <strong className="text-xs">Tool:</strong>
+                                    <div className="mt-1 text-xs break-words">{toolName}</div>
+                                  </div>
+                                  <div className="mb-2">
+                                    <strong className="text-xs">Input:</strong>
+                                    <pre className="mt-1 text-xs whitespace-pre-wrap break-words overflow-wrap-anywhere">
+                                      {JSON.stringify(
+                                        toolPart.args || toolPart.input || {},
+                                        null,
+                                        2,
+                                      )}
+                                    </pre>
+                                  </div>
+                                  {toolPart.result && (
+                                    <div>
+                                      <strong className="text-xs">Output:</strong>
+                                      <pre className="mt-1 text-xs max-h-40 overflow-auto whitespace-pre-wrap break-words overflow-wrap-anywhere">
+                                        {JSON.stringify(toolPart.result, null, 2)}
+                                      </pre>
+                                    </div>
+                                  )}
+                                </div>
+                              </details>
+                            )
+                          }
+
+                          // Silently ignore other unhandled types
                           return null
                       }
                     })}
@@ -182,7 +566,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
           {status === "submitted" && (
             <div className="flex justify-start">
               <div className={`bg-muted rounded-lg px-4 py-2`}>
-                <div className={`flex ${spacing.gap.tight}`}>
+                <div className={`flex ${spacing.gap.sm}`}>
                   <div className="h-2 w-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:0ms]" />
                   <div className="h-2 w-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:150ms]" />
                   <div className="h-2 w-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:300ms]" />

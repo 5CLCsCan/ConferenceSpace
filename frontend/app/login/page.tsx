@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -22,7 +22,7 @@ import { Loader2, GraduationCap, CheckCircle } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { typography, spacing, iconSizes } from "@/lib/typography"
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const registrationIndicator = searchParams.get("registered")
@@ -80,7 +80,7 @@ export default function LoginPage() {
           <p className={`text-neutral-600 ${typography.body}`}>{t("auth.login.subtitle")}</p>
         </div>
 
-        <Card className="border-neutral-200 shadow-sm">
+        <Card className="border-neutral-200 shadow-sm py-8">
           <CardHeader>
             <CardTitle>{t("auth.login.title")}</CardTitle>
             <CardDescription>{t("auth.login.subtitle")}</CardDescription>
@@ -90,7 +90,9 @@ export default function LoginPage() {
               {showRegistrationMessage && (
                 <Alert>
                   <CheckCircle className={iconSizes.sm} />
-                  <AlertTitle className={typography.h6}>{t("auth.login.registrationComplete")}</AlertTitle>
+                  <AlertTitle className={typography.h6}>
+                    {t("auth.login.registrationComplete")}
+                  </AlertTitle>
                   <AlertDescription className={typography.body}>
                     {t("auth.login.registrationDetails")}
                   </AlertDescription>
@@ -146,7 +148,10 @@ export default function LoginPage() {
           <CardFooter className={`flex flex-col ${spacing.subsection}`}>
             <div className={`${typography.body} text-center text-neutral-600`}>
               {t("auth.login.noAccount")}{" "}
-              <Link href="/register" className={`text-primary hover:underline ${typography.medium}`}>
+              <Link
+                href="/register"
+                className={`text-primary hover:underline ${typography.medium}`}
+              >
                 {t("common.actions.signUp")}
               </Link>
             </div>
@@ -154,5 +159,19 @@ export default function LoginPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+          <Loader2 className={`${iconSizes.lg} animate-spin text-primary`} />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   )
 }
