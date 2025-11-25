@@ -2,7 +2,7 @@
 // This file provides the API interface for conference-related operations
 // Connected to backend API endpoints
 
-import type { Conference, ConferenceStats, Paper, User, Track } from "@/lib/types"
+import type { Conference, ConferenceStats, ConferenceStatus, Paper, User, Track } from "@/lib/types"
 import { apiFetch } from "@/lib/api/client"
 
 // API Response wrapper for type safety
@@ -206,7 +206,7 @@ export async function listConferences(filters?: {
       conference_end_date: conf.configurations?.end_date || undefined,
       location: "", // TODO: Map if available
       website: "", // TODO: Map if available
-      status: (data.data.status || "open") as ConferenceStatus,
+      status: (conf.status || "open") as ConferenceStatus,
       tracks: conf.tracks || [], // TODO: Map if available
       domain: conf.domain || [], // Research domains/keywords/topics
       call_for_paper_text: conf.configurations?.call_for_paper_text || undefined,
@@ -288,7 +288,7 @@ export async function createConference(conferenceData: {
       conference_end_date: data.data.configurations?.end_date || undefined,
       location: "",
       website: "",
-      status: (conf.status || "open") as ConferenceStatus,
+      status: (data.data.status || "open") as ConferenceStatus,
       tracks: data.data.tracks || [],
       domain: data.data.domain || [],
       call_for_paper_text: data.data.configurations?.call_for_paper_text || undefined,
@@ -352,7 +352,7 @@ export async function updateConference(
       conference_end_date: data.data.configurations?.end_date || undefined,
       location: "",
       website: "",
-      status: (conf.status || "open") as ConferenceStatus,
+      status: (data.data.status || "open") as ConferenceStatus,
       tracks: data.data.tracks || [],
       domain: data.data.domain || [],
       call_for_paper_text: data.data.configurations?.call_for_paper_text || undefined,
