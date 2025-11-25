@@ -192,6 +192,84 @@
   }
 }
 
+/* Chatbot markdown styling - ensure all markdown elements use text-sm */
+@layer components {
+  .chatbot-markdown {
+    @apply text-sm leading-relaxed;
+  }
+
+  .chatbot-markdown p,
+  .chatbot-markdown li,
+  .chatbot-markdown strong,
+  .chatbot-markdown em,
+  .chatbot-markdown code,
+  .chatbot-markdown pre,
+  .chatbot-markdown h1,
+  .chatbot-markdown h2,
+  .chatbot-markdown h3,
+  .chatbot-markdown h4,
+  .chatbot-markdown h5,
+  .chatbot-markdown h6,
+  .chatbot-markdown ul,
+  .chatbot-markdown ol,
+  .chatbot-markdown blockquote,
+  .chatbot-markdown a,
+  .chatbot-markdown span,
+  .chatbot-markdown div {
+    @apply text-sm;
+  }
+
+  .chatbot-markdown p {
+    @apply my-1 leading-relaxed;
+  }
+
+  .chatbot-markdown li {
+    @apply py-0.5;
+  }
+
+  .chatbot-markdown strong {
+    @apply font-semibold;
+  }
+
+  .chatbot-markdown em {
+    @apply italic;
+  }
+
+  .chatbot-markdown code {
+    @apply font-mono bg-muted px-1 py-0.5 rounded;
+  }
+
+  .chatbot-markdown h1,
+  .chatbot-markdown h2,
+  .chatbot-markdown h3,
+  .chatbot-markdown h4,
+  .chatbot-markdown h5,
+  .chatbot-markdown h6 {
+    @apply font-semibold my-1;
+  }
+
+  .chatbot-markdown ul,
+  .chatbot-markdown ol {
+    @apply my-1;
+  }
+
+  .chatbot-markdown ul {
+    @apply list-disc list-inside;
+  }
+
+  .chatbot-markdown ol {
+    @apply list-decimal list-inside;
+  }
+
+  .chatbot-markdown blockquote {
+    @apply border-l-2 border-muted pl-2 my-1;
+  }
+
+  .chatbot-markdown a {
+    @apply text-primary underline;
+  }
+}
+
 /* Modern custom scrollbar styling */
 ::-webkit-scrollbar {
   width: 10px;
