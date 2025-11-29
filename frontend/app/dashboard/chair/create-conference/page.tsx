@@ -115,10 +115,10 @@ export default function CreateConferencePage() {
 
     if (!isAuthenticated) {
       router.push("/login")
-    } else if (user && !user.roles.includes("chair")) {
-      router.push("/dashboard")
     }
-  }, [authChecked, isAuthenticated, user, router])
+    // Note: Removed role check - users can select any role from dashboard
+    // The roles array represents backend-assigned roles, currentRole is the selected dashboard view
+  }, [authChecked, isAuthenticated, router])
 
   const STEPS = [
     {
