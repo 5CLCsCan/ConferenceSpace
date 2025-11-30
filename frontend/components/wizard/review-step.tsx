@@ -8,6 +8,7 @@ import { Edit2 } from "lucide-react"
 import { format } from "date-fns"
 import type { ConferenceFormData } from "@/app/dashboard/chair/create-conference/page"
 import { typography, spacing, iconSizes } from "@/lib/typography"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 type Props = {
   data: ConferenceFormData
@@ -16,14 +17,16 @@ type Props = {
 }
 
 export function ReviewStep({ data, updateData, goToStep }: Props) {
+  const { t } = useTranslation()
+  
   return (
     <div className={spacing.subsection}>
       <div>
         <h2 className={`${typography.h2} ${typography.semibold} text-foreground mb-1`}>
-          Step 5: Review and Confirm
+          {t("dashboard.chair.createConference.steps.5.title")}
         </h2>
         <p className={`${typography.body} text-muted-foreground`}>
-          Please review all information before creating the conference
+          {t("dashboard.chair.createConference.steps.5.description")}
         </p>
       </div>
 
@@ -32,7 +35,7 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
         <div className={spacing.gap.md}>
           <div className="flex items-center justify-between">
             <h3 className={`${typography.h4} ${typography.medium} text-foreground`}>
-              Conference Details
+              {t("dashboard.chair.createConference.steps.1.description")}
             </h3>
             <Button
               variant="ghost"
@@ -41,36 +44,36 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
               className={spacing.gap.sm}
             >
               <Edit2 className={iconSizes.xs} />
-              Edit
+              {t("common.actions.edit")}
             </Button>
           </div>
           <div className={`bg-muted/50 rounded-lg ${spacing.padding.card} ${spacing.item}`}>
             <div className={`grid grid-cols-[120px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Title:</span>
-              <span className={typography.medium}>{data.title || "Not set"}</span>
+              <span className={typography.muted}>{t("common.labels.title")}:</span>
+              <span className={typography.medium}>{data.title || t("common.messages.notFound")}</span>
             </div>
             <div className={`grid grid-cols-[120px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Acronym:</span>
-              <span className={typography.medium}>{data.acronym || "Not set"}</span>
+              <span className={typography.muted}>{t("common.labels.acronym")}:</span>
+              <span className={typography.medium}>{data.acronym || t("common.messages.notFound")}</span>
             </div>
             <div className={`grid grid-cols-[120px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Description:</span>
-              <span className={typography.medium}>{data.description || "Not set"}</span>
+              <span className={typography.muted}>{t("common.labels.description")}:</span>
+              <span className={typography.medium}>{data.description || t("common.messages.notFound")}</span>
             </div>
             <div className={`grid grid-cols-[120px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Website:</span>
-              <span className={typography.medium}>{data.website || "Not provided"}</span>
+              <span className={typography.muted}>{t("common.labels.website")}:</span>
+              <span className={typography.medium}>{data.website || t("common.messages.notFound")}</span>
             </div>
             <div className={`grid grid-cols-[120px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Dates:</span>
+              <span className={typography.muted}>{t("common.labels.dates")}:</span>
               <span className={typography.medium}>
                 {data.dateRange.from && data.dateRange.to
                   ? `${format(data.dateRange.from, "PPP")} - ${format(data.dateRange.to, "PPP")}`
-                  : "Not set"}
+                  : t("common.messages.notFound")}
               </span>
             </div>
             <div className={`grid grid-cols-[120px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Location:</span>
+              <span className={typography.muted}>{t("common.labels.location")}:</span>
               <span className={`${typography.medium} capitalize`}>
                 {data.locationType}
                 {(data.locationType === "in-person" || data.locationType === "hybrid") &&
@@ -79,8 +82,8 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
               </span>
             </div>
             <div className={`grid grid-cols-[120px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Contact:</span>
-              <span className={typography.medium}>{data.contactEmail || "Not set"}</span>
+              <span className={typography.muted}>{t("common.labels.contact")}:</span>
+              <span className={typography.medium}>{data.contactEmail || t("common.messages.notFound")}</span>
             </div>
           </div>
         </div>
@@ -91,7 +94,7 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
         <div className={spacing.gap.md}>
           <div className="flex items-center justify-between">
             <h3 className={`${typography.h4} ${typography.medium} text-foreground`}>
-              Topics & Submissions
+              {t("dashboard.chair.createConference.steps.2.description")}
             </h3>
             <Button
               variant="ghost"
@@ -100,60 +103,60 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
               className={spacing.gap.sm}
             >
               <Edit2 className={iconSizes.xs} />
-              Edit
+              {t("common.actions.edit")}
             </Button>
           </div>
           <div className={`bg-muted/50 rounded-lg ${spacing.padding.card} ${spacing.item}`}>
             <div className={`grid grid-cols-[160px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Submissions Open:</span>
+              <span className={typography.muted}>{t("common.labels.submissionsOpen")}:</span>
               <span className={typography.medium}>
-                {data.submissionsOpen ? format(data.submissionsOpen, "PPP") : "Not set"}
+                {data.submissionsOpen ? format(data.submissionsOpen, "PPP") : t("common.messages.notFound")}
               </span>
             </div>
             <div className={`grid grid-cols-[160px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Submission Deadline:</span>
+              <span className={typography.muted}>{t("common.labels.submissionDeadline")}:</span>
               <span className={typography.medium}>
-                {data.submissionDeadline ? format(data.submissionDeadline, "PPP") : "Not set"}
+                {data.submissionDeadline ? format(data.submissionDeadline, "PPP") : t("common.messages.notFound")}
               </span>
             </div>
             <div className={`grid grid-cols-[160px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Review Deadline:</span>
+              <span className={typography.muted}>{t("common.labels.reviewDeadline")}:</span>
               <span className={typography.medium}>
-                {data.reviewDeadline ? format(data.reviewDeadline, "PPP") : "Not set"}
+                {data.reviewDeadline ? format(data.reviewDeadline, "PPP") : t("common.messages.notFound")}
               </span>
             </div>
             <div className={`grid grid-cols-[160px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Author Notification:</span>
+              <span className={typography.muted}>{t("common.labels.authorNotification")}:</span>
               <span className={typography.medium}>
-                {data.authorNotification ? format(data.authorNotification, "PPP") : "Not set"}
+                {data.authorNotification ? format(data.authorNotification, "PPP") : t("common.messages.notFound")}
               </span>
             </div>
             <div className={`grid grid-cols-[160px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Camera-Ready:</span>
+              <span className={typography.muted}>{t("common.labels.cameraReady")}:</span>
               <span className={typography.medium}>
-                {data.cameraReadyDeadline ? format(data.cameraReadyDeadline, "PPP") : "Not set"}
+                {data.cameraReadyDeadline ? format(data.cameraReadyDeadline, "PPP") : t("common.messages.notFound")}
               </span>
             </div>
             <div className={`grid grid-cols-[160px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Topics:</span>
+              <span className={typography.muted}>{t("common.labels.topics")}:</span>
               <span className={typography.medium}>
-                {data.topics.length > 0 ? data.topics.join(", ") : "No topics added"}
+                {data.topics.length > 0 ? data.topics.join(", ") : t("common.messages.noTopics")}
               </span>
             </div>
             <div className={`grid grid-cols-[160px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Tracks:</span>
+              <span className={typography.muted}>{t("common.labels.tracks")}:</span>
               <span className={typography.medium}>
-                {data.tracks.length > 0 ? data.tracks.join(", ") : "No tracks added"}
+                {data.tracks.length > 0 ? data.tracks.join(", ") : t("common.messages.noTracks")}
               </span>
             </div>
             <div className={`grid grid-cols-[160px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Anonymity:</span>
+              <span className={typography.muted}>{t("common.labels.anonymity")}:</span>
               <span className={`${typography.medium} capitalize`}>
                 {data.anonymity.replace("-", " ")}
               </span>
             </div>
             <div className={`grid grid-cols-[160px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>File Formats:</span>
+              <span className={typography.muted}>{t("common.labels.fileFormats")}:</span>
               <span className={typography.medium}>{data.fileFormats.join(", ")}</span>
             </div>
           </div>
@@ -165,7 +168,7 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
         <div className={spacing.gap.md}>
           <div className="flex items-center justify-between">
             <h3 className={`${typography.h4} ${typography.medium} text-foreground`}>
-              Call For Paper Configuration
+              {t("dashboard.chair.createConference.steps.3.description")}
             </h3>
             <Button
               variant="ghost"
@@ -174,18 +177,18 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
               className={spacing.gap.sm}
             >
               <Edit2 className={iconSizes.xs} />
-              Edit
+              {t("common.actions.edit")}
             </Button>
           </div>
           <div className={`bg-muted/50 rounded-lg ${spacing.padding.card} ${spacing.item}`}>
             <div className={`grid grid-cols-[180px_1fr] ${spacing.gap.sm} ${typography.body}`}>
-              <span className={typography.muted}>Call For Paper:</span>
+              <span className={typography.muted}>{t("common.labels.callForPaper")}:</span>
               <span className={typography.medium}>
                 {data.callForPaperText
                   ? data.callForPaperText.length > 100
                     ? `${data.callForPaperText.substring(0, 100)}...`
                     : data.callForPaperText
-                  : "No content provided"}
+                  : t("common.messages.noContent")}
               </span>
             </div>
           </div>
@@ -197,7 +200,7 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
         <div className={spacing.gap.md}>
           <div className="flex items-center justify-between">
             <h3 className={`${typography.h4} ${typography.medium} text-foreground`}>
-              Conference Chairs
+              {t("dashboard.chair.createConference.steps.4.description")}
             </h3>
             <Button
               variant="ghost"
@@ -206,7 +209,7 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
               className={spacing.gap.sm}
             >
               <Edit2 className={iconSizes.xs} />
-              Edit
+              {t("common.actions.edit")}
             </Button>
           </div>
           <div className={`bg-muted/50 rounded-lg ${spacing.padding.card} ${spacing.item}`}>
@@ -241,10 +244,10 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
               htmlFor="confirm"
               className={`${typography.body} ${typography.medium} leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer`}
             >
-              I have reviewed the details and am ready to create this conference
+              {t("dashboard.chair.createConference.confirmLabel")}
             </Label>
             <p className={typography.caption}>
-              You can edit conference settings after creation from the conference dashboard
+              {t("dashboard.chair.createConference.confirmDescription")}
             </p>
           </div>
         </div>

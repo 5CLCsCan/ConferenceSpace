@@ -59,7 +59,23 @@
       "status": "Trạng thái",
       "date": "Ngày",
       "details": "Chi tiết",
-      "deadline": "Hạn nộp"
+      "deadline": "Hạn nộp",
+      "acronym": "Từ viết tắt",
+      "description": "Mô tả",
+      "website": "Website",
+      "dates": "Ngày diễn ra",
+      "location": "Địa điểm",
+      "contact": "Liên hệ",
+      "submissionsOpen": "Mở nhận bài",
+      "submissionDeadline": "Hạn nộp bài",
+      "reviewDeadline": "Hạn phản biện",
+      "authorNotification": "Thông báo tác giả",
+      "cameraReady": "Camera-Ready",
+      "topics": "Chủ đề",
+      "tracks": "Track",
+      "anonymity": "Ẩn danh",
+      "fileFormats": "Định dạng file",
+      "callForPaper": "Lời mời gửi bài"
     },
     "messages": {
       "languages": {
@@ -70,7 +86,10 @@
       "error": "Đã xảy ra lỗi",
       "success": "Thao tác hoàn tất thành công",
       "noData": "Không có dữ liệu",
-      "notFound": "Không tìm thấy"
+      "notFound": "Không tìm thấy",
+      "noContent": "Chưa có nội dung",
+      "noTopics": "Chưa thêm chủ đề",
+      "noTracks": "Chưa thêm track"
     },
     "status": {
       "pending": "Đang chờ",
@@ -194,7 +213,6 @@
           "submissions": "Bài gửi",
           "coiDemo": "COI Check"
         },
-        "joinNow": "Gửi bài ngay",
         "currentRole": "Vai trò hiện tại",
         "switchRole": "Chuyển vai trò (chế độ Dev)",
         "loggedInAs": "Đăng nhập với tư cách"
@@ -690,7 +708,9 @@
         "success": "Thành công",
         "successDescription": "Hội nghị đã được tạo thành công!",
         "errorDescription": "Không thể tạo hội nghị. Vui lòng thử lại.",
-        "saveDraft": "Hội nghị đã được lưu nháp!"
+        "saveDraft": "Hội nghị đã được lưu nháp!",
+        "confirmLabel": "Tôi đã xem xét các chi tiết và sẵn sàng tạo hội nghị này",
+        "confirmDescription": "Bạn có thể chỉnh sửa cài đặt hội nghị sau khi tạo từ bảng điều khiển hội nghị"
       },
       "dashboard": {
         "createNewConference": "+ Tạo hội nghị mới",

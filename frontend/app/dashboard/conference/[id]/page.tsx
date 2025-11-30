@@ -227,14 +227,6 @@ export default function ConferencePage() {
 
         <main className="flex-1 overflow-y-auto relative">
           <div className="mx-auto max-w-7xl p-5">
-            {currentRole === "author" && (
-              <Button
-                onClick={() => router.push(`/dashboard/author/submit?conference=${conference.id}`)}
-                className={`absolute top-3 right-3 bg-primary text-white px-3 py-1.5 rounded-md shadow-md hover:bg-primary/90 flex items-center ${spacing.gap.sm} ${typography.bodySmall} ${typography.medium}`}
-              >
-                {t("dashboard.conference.details.joinNow")}
-              </Button>
-            )}
             {activeTab === "dashboard" && <ConferenceDashboard conferenceId={conference.id} />}
             {activeTab === "overview" && <ConferenceOverview conference={conference} />}
             {activeTab === "call-for-papers" && <ConferenceCallForPapers conference={conference} />}
