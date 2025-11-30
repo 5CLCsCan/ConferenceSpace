@@ -59,7 +59,23 @@
       "status": "Status",
       "date": "Date",
       "details": "Details",
-      "deadline": "Deadline"
+      "deadline": "Deadline",
+      "acronym": "Acronym",
+      "description": "Description",
+      "website": "Website",
+      "dates": "Dates",
+      "location": "Location",
+      "contact": "Contact",
+      "submissionsOpen": "Submissions Open",
+      "submissionDeadline": "Submission Deadline",
+      "reviewDeadline": "Review Deadline",
+      "authorNotification": "Author Notification",
+      "cameraReady": "Camera-Ready",
+      "topics": "Topics",
+      "tracks": "Tracks",
+      "anonymity": "Anonymity",
+      "fileFormats": "File Formats",
+      "callForPaper": "Call For Paper"
     },
     "messages": {
       "languages": {
@@ -70,7 +86,10 @@
       "error": "An error occurred",
       "success": "Operation completed successfully",
       "noData": "No data available",
-      "notFound": "Not found"
+      "notFound": "Not found",
+      "noContent": "No content provided",
+      "noTopics": "No topics added",
+      "noTracks": "No tracks added"
     },
     "status": {
       "pending": "Pending",
@@ -194,7 +213,6 @@
           "submissions": "Submissions",
           "coiDemo": "COI Demo"
         },
-        "joinNow": "Submit now",
         "currentRole": "Current role",
         "switchRole": "Switch role (Dev mode)",
         "loggedInAs": "Signed in as"
@@ -684,7 +702,9 @@
         "success": "Success",
         "successDescription": "Conference created successfully!",
         "errorDescription": "Failed to create conference. Please try again.",
-        "saveDraft": "Conference saved as draft!"
+        "saveDraft": "Conference saved as draft!",
+        "confirmLabel": "I have reviewed the details and am ready to create this conference",
+        "confirmDescription": "You can edit conference settings after creation from the conference dashboard"
       },
       "dashboard": {
         "createNewConference": "+ Create New Conference",

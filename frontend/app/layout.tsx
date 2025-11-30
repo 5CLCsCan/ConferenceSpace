@@ -5,6 +5,7 @@ import "./globals.css"
 import { AuthProvider } from "@/lib/auth-context"
 import { TranslationProvider } from "@/lib/i18n/translation-context"
 import { ChatbotProvider, Chatbot } from "@/components/chatbot"
+import { Toaster } from "@/components/ui/toaster"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +40,7 @@ export default function RootLayout({
                 </main>
                 <Chatbot />
               </div>
+              <Toaster />
             </ChatbotProvider>
           </AuthProvider>
         </TranslationProvider>

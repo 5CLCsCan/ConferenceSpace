@@ -17,6 +17,16 @@ import { SubmissionSidebar } from "./submission-sidebar"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { getConferenceSubmissions, type Submission } from "@/lib/api/submissions"
 import { typography, spacing } from "@/lib/typography"
+import { useToast } from "@/components/ui/use-toast"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface PaperSubmissionFormProps {
   conference?: Conference | null
@@ -48,9 +58,13 @@ export function PaperSubmissionForm({
   const router = useRouter()
   const { user } = useAuth()
   const { t } = useTranslation()
+  const { toast } = useToast()
   const [activeTab, setActiveTab] = useState<TabType>("paper")
   const [submitting, setSubmitting] = useState(false)
   const [isEditMode, setIsEditMode] = useState(!!initialSubmission)
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false)
+  const [successMessage, setSuccessMessage] = useState("")
+  const [redirectPath, setRedirectPath] = useState("")
   // Paper tab state
   const [title, setTitle] = useState("")
   const [abstract, setAbstract] = useState("")
@@ -231,26 +245,35 @@ export function PaperSubmissionForm({
 
     setSubmitting(true)
     try {
+      // Build COI declarations from coiPeople array
+      const declaredConflicts = coiPeople
+        .filter((person) => person.trim())
+        .map((person) => ({
+          email: person.trim(),
+          reason: "Declared conflict of interest",
+        }))
+
       const submissionData = {
         title,
         abstract,
-        link: "", // TODO: Add file upload URL when implemented
+        link: "",
         domain: subjectAreas,
         file: uploadedFile || undefined, // Include uploaded file
         cover_letter: coverLetter || undefined, // Include cover letter
         status: "draft" as const, // Explicitly set status to draft
-        track: selectedTrack, // Send track as top-level field
+        track: selectedTrack,
         information: {
           keywords,
           co_authors: authors
-            .filter((a, index) => index > 0 && a.name.trim()) // Skip first author (current user)
-            .map((a) => a.email),
-          paper_type: "research", // Default
-          track_name: selectedTrack, // Also keep in information for backward compat
-          additional_notes: "", // TODO: Add notes field
+            .filter((a, index) => index > 0 && a.email.trim()) // Skip first author, filter by email
+            .map((a) => a.email.trim()),
+          declared_conflicts: declaredConflicts, // Include COI declarations
+          paper_type: "research",
+          track_name: selectedTrack,
+          additional_notes: "",
           metadata: {
-            language: "en", // Default
-            page_count: 0, // TODO: Extract from uploaded file
+            language: "en",
+            page_count: 0,
           },
         },
       }
@@ -260,9 +283,16 @@ export function PaperSubmissionForm({
         // Update existing submission as draft
         response = await updatePaper(initialSubmission.id.toString(), conference.id, submissionData)
         if (response.error) {
-          alert(`${t("dashboard.author.submit.draftSaveFailed")}: ${response.error}`)
+          toast({
+            title: t("dashboard.author.submit.draftSaveFailed") || "Failed to save draft",
+            description: response.error,
+            variant: "destructive",
+          })
         } else {
-          alert(t("dashboard.author.submit.draftSaveSuccess"))
+          toast({
+            title: t("dashboard.author.submit.draftSaveSuccess") || "Draft saved successfully",
+            description: "Your draft has been saved. You can continue editing anytime.",
+          })
           // Stay on the same page - no redirect
         }
       } else {
@@ -272,15 +302,26 @@ export function PaperSubmissionForm({
           ...submissionData,
         })
         if (response.error) {
-          alert(`${t("dashboard.author.submit.draftSaveFailed")}: ${response.error}`)
+          toast({
+            title: t("dashboard.author.submit.draftSaveFailed") || "Failed to save draft",
+            description: response.error,
+            variant: "destructive",
+          })
         } else if (response.data) {
-          alert(t("dashboard.author.submit.draftSaveSuccess"))
+          toast({
+            title: t("dashboard.author.submit.draftSaveSuccess") || "Draft saved successfully",
+            description: "Your draft has been saved. You can continue editing anytime.",
+          })
           // Redirect to edit mode for the newly created draft
           router.push(`/dashboard/author/submit?conference=${conference.id}&edit=${response.data.id}`)
         }
       }
     } catch (error) {
-      alert(t("dashboard.author.submit.draftSaveError"))
+      toast({
+        title: t("dashboard.author.submit.draftSaveError") || "Error saving draft",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setSubmitting(false)
     }
@@ -291,59 +332,82 @@ export function PaperSubmissionForm({
 
     setSubmitting(true)
     try {
+      // Build COI declarations from coiPeople array
+      const declaredConflicts = coiPeople
+        .filter((person) => person.trim())
+        .map((person) => ({
+          email: person.trim(),
+          reason: "Declared conflict of interest",
+        }))
+
       const submissionData = {
         title,
         abstract,
-        link: "", // TODO: Add file upload URL when implemented
+        link: "",
         domain: subjectAreas,
-        file: uploadedFile || undefined, // Include uploaded file
-        cover_letter: coverLetter || undefined, // Include cover letter
-        status: "published" as const, // Set status to published for final submission
-        track: selectedTrack, // Send track as top-level field
+        file: uploadedFile || undefined,
+        cover_letter: coverLetter || undefined,
+        status: "published" as const,
+        track: selectedTrack,
         information: {
           keywords,
           co_authors: authors
-            .filter((a, index) => index > 0 && a.name.trim()) // Skip first author (current user)
-            .map((a) => a.email),
-          paper_type: "research", // Default
-          track_name: selectedTrack, // Also keep in information for backward compat
-          additional_notes: "", // TODO: Add notes field
+            .filter((a, index) => index > 0 && a.email.trim())
+            .map((a) => a.email.trim()),
+          declared_conflicts: declaredConflicts,
+          paper_type: "research",
+          track_name: selectedTrack,
+          additional_notes: "",
           metadata: {
-            language: "en", // Default
-            page_count: 0, // TODO: Extract from uploaded file
+            language: "en",
+            page_count: 0,
           },
         },
       }
 
       let response
       if (isEditMode && initialSubmission) {
-        // Update existing submission (publish it)
         response = await updatePaper(initialSubmission.id.toString(), conference.id, submissionData)
         if (response.error) {
-          alert(
-            `${t("dashboard.author.submit.updateFailed") || "Update failed"}: ${response.error}`,
-          )
+          toast({
+            title: t("dashboard.author.submit.updateFailed") || "Update failed",
+            description: response.error,
+            variant: "destructive",
+          })
         } else if (response.data) {
-          alert(t("dashboard.author.submit.updateSuccess") || "Submission updated successfully")
-          // Redirect to the submission detail view
-          router.push(`/dashboard/conference/${conference.id}/submission/${response.data.id}`)
+          setSuccessMessage(
+            t("dashboard.author.submit.updateSuccess") ||
+              "Your submission has been updated successfully!"
+          )
+          setRedirectPath(`/dashboard/conference/${conference.id}`)
+          setShowSuccessDialog(true)
         }
       } else {
-        // Create new submission (published directly)
         response = await submitPaper({
           conference_id: conference.id,
           ...submissionData,
         })
         if (response.error) {
-          alert(`${t("dashboard.author.submit.submissionFailed")}: ${response.error}`)
+          toast({
+            title: t("dashboard.author.submit.submissionFailed") || "Submission failed",
+            description: response.error,
+            variant: "destructive",
+          })
         } else if (response.data) {
-          alert(t("dashboard.author.submit.submissionSuccess"))
-          // Redirect to the submission detail view
-          router.push(`/dashboard/conference/${conference.id}/submission/${response.data.id}`)
+          setSuccessMessage(
+            t("dashboard.author.submit.submissionSuccess") ||
+              "Your paper has been submitted successfully!"
+          )
+          setRedirectPath(`/dashboard/conference/${conference.id}`)
+          setShowSuccessDialog(true)
         }
       }
     } catch (error) {
-      alert(t("dashboard.author.submit.submissionError"))
+      toast({
+        title: t("dashboard.author.submit.submissionError") || "Submission error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setSubmitting(false)
     }
@@ -497,6 +561,26 @@ export function PaperSubmissionForm({
         </div>
         <SubmissionSidebar checklist={checklist} />
       </div>
+
+      {/* Success Dialog */}
+      <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Success!</AlertDialogTitle>
+            <AlertDialogDescription>{successMessage}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction
+              onClick={() => {
+                setShowSuccessDialog(false)
+                router.push(redirectPath)
+              }}
+            >
+              Continue to Conference
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
