@@ -87,10 +87,7 @@ export function DataTable<T = any>({
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-32 text-center py-12"
-                >
+                <TableCell colSpan={columns.length} className="h-32 text-center py-12">
                   <div className="flex flex-col items-center justify-center gap-3">
                     <Loader2 className="h-6 w-6 animate-spin text-primary" />
                     <div className={cn(typography.body, "text-muted-foreground")}>
@@ -101,10 +98,7 @@ export function DataTable<T = any>({
               </TableRow>
             ) : error ? (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-32 text-center py-12"
-                >
+                <TableCell colSpan={columns.length} className="h-32 text-center py-12">
                   <div className={cn("text-destructive", typography.body)}>
                     {errorMessage || error}
                   </div>
@@ -112,10 +106,7 @@ export function DataTable<T = any>({
               </TableRow>
             ) : data.length === 0 ? (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-32 text-center py-12"
-                >
+                <TableCell colSpan={columns.length} className="h-32 text-center py-12">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <div className="text-4xl opacity-50">📊</div>
                     <div className={cn(typography.body, "text-muted-foreground")}>
@@ -178,18 +169,14 @@ export function DataTable<T = any>({
           <CardContent className="py-12 text-center">
             <div className="flex flex-col items-center justify-center gap-3">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              <div className={cn(typography.body, "text-muted-foreground")}>
-                {loadingMessage}
-              </div>
+              <div className={cn(typography.body, "text-muted-foreground")}>{loadingMessage}</div>
             </div>
           </CardContent>
         </Card>
       ) : error ? (
         <Card className="shadow-sm border-border/50 bg-card/50 backdrop-blur-sm">
           <CardContent className="py-12 text-center">
-            <div className={cn("text-destructive", typography.body)}>
-              {errorMessage || error}
-            </div>
+            <div className={cn("text-destructive", typography.body)}>{errorMessage || error}</div>
           </CardContent>
         </Card>
       ) : data.length === 0 ? (
@@ -197,9 +184,7 @@ export function DataTable<T = any>({
           <CardContent className="py-12 text-center">
             <div className="flex flex-col items-center justify-center gap-2">
               <div className="text-4xl opacity-50">📊</div>
-              <div className={cn(typography.body, "text-muted-foreground")}>
-                {emptyMessage}
-              </div>
+              <div className={cn(typography.body, "text-muted-foreground")}>{emptyMessage}</div>
             </div>
           </CardContent>
         </Card>
@@ -218,9 +203,7 @@ export function DataTable<T = any>({
                     onRowClick && "hover:shadow-md hover:border-border cursor-pointer",
                   )}
                 >
-                  <CardContent className="p-0">
-                    {renderMobileCard(item, index)}
-                  </CardContent>
+                  <CardContent className="p-0">{renderMobileCard(item, index)}</CardContent>
                 </Card>
               )
             }
@@ -245,10 +228,7 @@ export function DataTable<T = any>({
                       return (
                         <div
                           key={column.key}
-                          className={cn(
-                            "font-semibold text-foreground",
-                            typography.bodyLarge,
-                          )}
+                          className={cn("font-semibold text-foreground", typography.bodyLarge)}
                         >
                           {content}
                         </div>

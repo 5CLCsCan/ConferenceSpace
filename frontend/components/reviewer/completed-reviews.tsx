@@ -49,16 +49,12 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
   // Debounce search to avoid excessive API calls
   const debouncedSearch = useDebounce(searchQuery, 500)
 
-  const {
-    reviews,
-    isLoading,
-    isLoadingMore,
-    hasMore,
-    loadMore,
-    refresh,
-  } = useCompletedReviews(currentReviewerId, {
-    search: debouncedSearch,
-  })
+  const { reviews, isLoading, isLoadingMore, hasMore, loadMore, refresh } = useCompletedReviews(
+    currentReviewerId,
+    {
+      search: debouncedSearch,
+    },
+  )
 
   // Sort reviews client-side (only for current page)
   const sortedReviews = [...reviews].sort((a, b) => {
@@ -159,10 +155,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
             </Button>
 
             {searchQuery && (
-              <Button
-                variant="ghost"
-                onClick={() => setSearchQuery("")}
-              >
+              <Button variant="ghost" onClick={() => setSearchQuery("")}>
                 Clear
               </Button>
             )}
@@ -175,13 +168,19 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
         {isLoading ? (
           <Card>
             <CardContent className="flex items-center justify-center py-12">
-              <Loader2 className="animate-spin text-muted-foreground" style={{ width: "2rem", height: "2rem" }} />
+              <Loader2
+                className="animate-spin text-muted-foreground"
+                style={{ width: "2rem", height: "2rem" }}
+              />
             </CardContent>
           </Card>
         ) : sortedReviews.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <CheckCircle2 className="text-muted-foreground mb-4" style={{ width: "3rem", height: "3rem" }} />
+              <CheckCircle2
+                className="text-muted-foreground mb-4"
+                style={{ width: "3rem", height: "3rem" }}
+              />
               <p className={`${typography.h4} ${typography.medium} text-muted-foreground`}>
                 {debouncedSearch
                   ? t("dashboard.roles.reviewer.completedReviews.noResults")
@@ -198,7 +197,10 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
                     <CardTitle className={`${typography.h4} mb-2`}>{review.title}</CardTitle>
                     <CardDescription className="line-clamp-2">{review.abstract}</CardDescription>
                   </div>
-                  <Badge variant="outline" className="ml-4 bg-green-50 text-green-700 border-green-200">
+                  <Badge
+                    variant="outline"
+                    className="ml-4 bg-green-50 text-green-700 border-green-200"
+                  >
                     <CheckCircle2 className={`${iconSizes.xs} mr-1`} />
                     {t("dashboard.roles.reviewer.completedReviews.completed")}
                   </Badge>
@@ -223,11 +225,13 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
                   )}
 
                   {/* Metadata */}
-                  <div className={`flex items-center ${spacing.gap.lg} ${typography.body} text-muted-foreground`}>
+                  <div
+                    className={`flex items-center ${spacing.gap.lg} ${typography.body} text-muted-foreground`}
+                  >
                     <div className={`flex items-center ${spacing.gap.sm}`}>
                       <Calendar className={iconSizes.sm} />
                       <span>
-                        {t("dashboard.roles.reviewer.completedReviews.completedOn")}: {" "}
+                        {t("dashboard.roles.reviewer.completedReviews.completedOn")}:{" "}
                         {formatDate(review.updated_at)}
                       </span>
                     </div>

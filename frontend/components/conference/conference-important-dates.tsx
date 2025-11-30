@@ -119,19 +119,26 @@ export function ConferenceImportantDates({ conferenceId }: ConferenceImportantDa
                 </div>
 
                 {/* Content card */}
-                <Card className={`flex-1 ${spacing.padding.card} ${date.isPast ? "opacity-60" : ""}`}>
+                <Card
+                  className={`flex-1 ${spacing.padding.card} ${date.isPast ? "opacity-60" : ""}`}
+                >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className={`flex items-center ${spacing.gap.sm} flex-wrap`}>
                         <h3 className={typography.h5}>{date.title}</h3>
                         <Badge className={getTypeColor(date.type)}>{getTypeLabel(date.type)}</Badge>
                         {date.isPast && (
-                          <Badge variant="outline" className={`border-gray-400 text-gray-600 ${typography.bodySmall}`}>
+                          <Badge
+                            variant="outline"
+                            className={`border-gray-400 text-gray-600 ${typography.bodySmall}`}
+                          >
                             Đã Qua
                           </Badge>
                         )}
                       </div>
-                      <p className={`mt-1.5 ${typography.body} text-gray-600`}>{date.description}</p>
+                      <p className={`mt-1.5 ${typography.body} text-gray-600`}>
+                        {date.description}
+                      </p>
                       <div className={`mt-3 flex items-center gap-1.5 ${typography.caption}`}>
                         <Clock className={iconSizes.xs} />
                         <span>{formatDate(date.date)}</span>

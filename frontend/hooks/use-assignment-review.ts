@@ -1,12 +1,17 @@
 import { useEffect, useState, useCallback } from "react"
-import { getAssignmentReview, saveAssignmentReview, type AssignmentReview, type ReviewData } from "@/lib/api/reviews"
+import {
+  getAssignmentReview,
+  saveAssignmentReview,
+  type AssignmentReview,
+  type ReviewData,
+} from "@/lib/api/reviews"
 
 type SaveReviewPayload = {
   review_score?: number
   review_data?: ReviewData
   status: "draft" | "submitted"
-  assignment_id?: number 
-  conference_id?: number 
+  assignment_id?: number
+  conference_id?: number
 }
 
 export default function useAssignmentReview(conferenceId: string, assignmentId: string) {
@@ -50,7 +55,7 @@ export default function useAssignmentReview(conferenceId: string, assignmentId: 
           conferenceId,
           assignmentId,
           payload,
-          method
+          method,
         )
         if (e) {
           setError(e)

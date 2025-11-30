@@ -49,7 +49,7 @@ export default function ConferencePage() {
     const timer = setTimeout(() => {
       setAuthChecked(true)
     }, 100)
-    
+
     return () => clearTimeout(timer)
   }, [])
 
@@ -116,10 +116,16 @@ export default function ConferencePage() {
 
   const roleConfig = useMemo(
     () => ({
-      author: { label: t("dashboard.roles.author.name"), color: "bg-blue-100 text-blue-700" },
-      reviewer: { label: t("dashboard.roles.reviewer.name"), color: "bg-green-100 text-green-700" },
-      chair: { label: t("dashboard.roles.chair.name"), color: "bg-purple-100 text-purple-700" },
-      admin: { label: t("dashboard.roles.admin.name"), color: "bg-red-100 text-red-700" },
+      author: { label: t("dashboard.roles.author.name"), color: "bg-muted text-muted-foreground" },
+      reviewer: {
+        label: t("dashboard.roles.reviewer.name"),
+        color: "bg-secondary/10 text-secondary-foreground",
+      },
+      chair: { label: t("dashboard.roles.chair.name"), color: "bg-primary/10 text-primary" },
+      admin: {
+        label: t("dashboard.roles.admin.name"),
+        color: "bg-destructive/10 text-destructive",
+      },
     }),
     [t],
   )

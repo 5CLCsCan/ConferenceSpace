@@ -57,31 +57,8 @@ export function COIDashboard({ conferenceId }: COIDashboardProps) {
 
   return (
     <div className="space-y-6">
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <StatsCard
-          label={t("coi.dashboard.stats.totalReviewers")}
-          value={stats.total_reviewers}
-          sublabel={`${stats.available_reviewers} available`}
-          icon={Users}
-        />
-        <StatsCard
-          label={t("coi.dashboard.stats.totalPapers")}
-          value={stats.total_papers}
-          sublabel={`${stats.papers_under_review} under review`}
-          icon={FileText}
-        />
-        <StatsCard
-          label={t("coi.dashboard.stats.coiDetected")}
-          value={stats.coi_detected}
-          sublabel={`${stats.total_relationships} relationships`}
-          icon={AlertTriangle}
-          highlight="destructive"
-        />
-      </div>
-
       {/* Main Analysis Dashboard */}
-      <COIAnalysisDashboard conferenceId={conferenceId} />
+      <COIAnalysisDashboard conferenceId={conferenceId} stats={stats} />
     </div>
   )
 }

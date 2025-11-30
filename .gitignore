@@ -29,3 +29,6 @@ node_modules/
 openspec/
 
 AGENTS.md
+
+# Allow shared settings
+!.vscode/settings.json

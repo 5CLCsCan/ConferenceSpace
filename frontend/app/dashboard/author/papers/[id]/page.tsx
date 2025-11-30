@@ -19,7 +19,7 @@ export default function PaperDetailPage({ params }: { params: { id: string } }) 
     const timer = setTimeout(() => {
       setAuthChecked(true)
     }, 100)
-    
+
     return () => clearTimeout(timer)
   }, [])
 

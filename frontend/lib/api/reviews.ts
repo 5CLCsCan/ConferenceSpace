@@ -153,7 +153,14 @@ export interface ReviewData {
     weaknesses?: string
     questions?: string
   }
-  recommendation: "strong_accept" | "accept" | "weak_accept" | "borderline" | "weak_reject" | "reject" | "strong_reject"
+  recommendation:
+    | "strong_accept"
+    | "accept"
+    | "weak_accept"
+    | "borderline"
+    | "weak_reject"
+    | "reject"
+    | "strong_reject"
   confidence: "high" | "medium" | "low"
 }
 
@@ -183,7 +190,11 @@ export async function getAssignmentReview(
     const { data, response } = await apiFetch<{ data: AssignmentReview }>(endpoint)
     return { data: data.data || null, error: null, status: response.status }
   } catch (error: any) {
-    return { data: null, error: error.message || "Failed to fetch review", status: error.status || 500 }
+    return {
+      data: null,
+      error: error.message || "Failed to fetch review",
+      status: error.status || 500,
+    }
   }
 }
 
@@ -199,7 +210,7 @@ export async function saveAssignmentReview(
     review_data?: ReviewData
     status: "draft" | "submitted"
   },
-  method : "POST" | "PUT" = "POST"
+  method: "POST" | "PUT" = "POST",
 ): Promise<{ data: AssignmentReview | null; error: string | null; status: number }> {
   try {
     const endpoint = `/api/v1/conferences/${conferenceId}/assignments/${assignmentId}/review`
@@ -209,6 +220,10 @@ export async function saveAssignmentReview(
     })
     return { data: data.data || null, error: null, status: response.status }
   } catch (error: any) {
-    return { data: null, error: error.message || "Failed to save review", status: error.status || 500 }
+    return {
+      data: null,
+      error: error.message || "Failed to save review",
+      status: error.status || 500,
+    }
   }
 }

@@ -226,8 +226,8 @@ export function AuthorDashboard() {
                   width: "w-36",
                   render: (conference) => (
                     <div className="whitespace-nowrap">
-                      {(conference as any).configurations?.start_date 
-                        ? formatDate((conference as any).configurations.start_date) 
+                      {(conference as any).configurations?.start_date
+                        ? formatDate((conference as any).configurations.start_date)
                         : "-"}
                     </div>
                   ),
@@ -239,8 +239,10 @@ export function AuthorDashboard() {
                   width: "w-[140px]",
                   render: (conference) => (
                     <div className="whitespace-nowrap">
-                      {(conference as any).configurations?.full_paper_submission_deadline 
-                        ? formatDate((conference as any).configurations.full_paper_submission_deadline) 
+                      {(conference as any).configurations?.full_paper_submission_deadline
+                        ? formatDate(
+                            (conference as any).configurations.full_paper_submission_deadline,
+                          )
                         : "-"}
                     </div>
                   ),
@@ -281,14 +283,16 @@ export function AuthorDashboard() {
                 >
                   <div>
                     {t("dashboard.author.dashboard.tableHeaders.date")}:{" "}
-                    {(conference as any).configurations?.start_date 
-                      ? formatDate((conference as any).configurations.start_date) 
+                    {(conference as any).configurations?.start_date
+                      ? formatDate((conference as any).configurations.start_date)
                       : "-"}
                   </div>
                   <div>
                     {t("dashboard.author.dashboard.tableHeaders.submissionDeadline")}:{" "}
                     {(conference as any).configurations?.full_paper_submission_deadline
-                      ? formatDate((conference as any).configurations.full_paper_submission_deadline)
+                      ? formatDate(
+                          (conference as any).configurations.full_paper_submission_deadline,
+                        )
                       : "-"}
                   </div>
                 </div>
@@ -300,7 +304,8 @@ export function AuthorDashboard() {
           {!loading && totalPages > 1 && (
             <div className="mt-6 flex items-center justify-between">
               <div className={`${typography.body} text-muted-foreground`}>
-                Showing {((currentPage - 1) * limit) + 1} to {Math.min(currentPage * limit, total)} of {total} conferences
+                Showing {(currentPage - 1) * limit + 1} to {Math.min(currentPage * limit, total)} of{" "}
+                {total} conferences
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -314,12 +319,12 @@ export function AuthorDashboard() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
                 >
                   Previous
                 </Button>
-                
+
                 {/* Page Numbers */}
                 <div className="flex items-center gap-1">
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -333,7 +338,7 @@ export function AuthorDashboard() {
                     } else {
                       pageNum = currentPage - 2 + i
                     }
-                    
+
                     return (
                       <Button
                         key={pageNum}
@@ -347,11 +352,11 @@ export function AuthorDashboard() {
                     )
                   })}
                 </div>
-                
+
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
                 >
                   Next

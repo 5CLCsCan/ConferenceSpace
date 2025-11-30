@@ -464,3 +464,27 @@ export async function getAllPaperCOIs(params?: {
     error: null,
   }
 }
+// ============================================================================
+// API #5: GET /api/v1/coi/check/reviewer/:reviewerId/paper/:paperId
+// ============================================================================
+/**
+ * ENDPOINT: GET /api/v1/coi/check/reviewer/:reviewerId/paper/:paperId
+ *
+ * PURPOSE:
+ * Perform detailed COI analysis for a specific reviewer-paper pair.
+ * Checks the reviewer against ALL authors of the paper.
+ */
+import { generateReviewerToPaperCOIReport } from "@/lib/mock-data/coi"
+
+export async function checkReviewerToPaperCOI(
+  reviewerId: string,
+  paperId: string,
+): Promise<ApiResponse<COIReport | null>> {
+  await delay(400)
+
+  const report = generateReviewerToPaperCOIReport(reviewerId, paperId)
+  return {
+    data: report,
+    error: report ? null : "Invalid reviewer or paper ID",
+  }
+}

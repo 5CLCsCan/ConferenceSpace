@@ -79,12 +79,13 @@ export function ConferenceProgram({ conferenceId }: ConferenceProgramProps) {
               <p className={`${typography.body} ${typography.medium} text-gray-500`}>
                 Tổng Bài Chấp Nhận
               </p>
-              <p className={`mt-2 ${typography.stats} text-gray-900`}>
-                {acceptedPapers.length}
-              </p>
+              <p className={`mt-2 ${typography.stats} text-gray-900`}>{acceptedPapers.length}</p>
             </div>
             <div className={`rounded-lg bg-success/10 p-3`}>
-              <Award className={`${iconSizes.lg} text-success`} style={{ width: "2rem", height: "2rem" }} />
+              <Award
+                className={`${iconSizes.lg} text-success`}
+                style={{ width: "2rem", height: "2rem" }}
+              />
             </div>
           </div>
         </Card>
@@ -98,7 +99,10 @@ export function ConferenceProgram({ conferenceId }: ConferenceProgramProps) {
               </p>
             </div>
             <div className={`rounded-lg bg-primary/10 p-3`}>
-              <FileText className={`${iconSizes.lg} text-primary`} style={{ width: "2rem", height: "2rem" }} />
+              <FileText
+                className={`${iconSizes.lg} text-primary`}
+                style={{ width: "2rem", height: "2rem" }}
+              />
             </div>
           </div>
         </Card>
@@ -106,13 +110,18 @@ export function ConferenceProgram({ conferenceId }: ConferenceProgramProps) {
         <Card className={spacing.padding.cardLarge}>
           <div className="flex items-center justify-between">
             <div>
-              <p className={`${typography.body} ${typography.medium} text-gray-500`}>Tổng Tác Giả</p>
+              <p className={`${typography.body} ${typography.medium} text-gray-500`}>
+                Tổng Tác Giả
+              </p>
               <p className={`mt-2 ${typography.stats} text-gray-900`}>
                 {new Set(acceptedPapers.flatMap((p) => p.authors.map((a) => a.user_id))).size}
               </p>
             </div>
             <div className={`rounded-lg bg-primary/10 p-3`}>
-              <Users className={`${iconSizes.lg} text-primary`} style={{ width: "2rem", height: "2rem" }} />
+              <Users
+                className={`${iconSizes.lg} text-primary`}
+                style={{ width: "2rem", height: "2rem" }}
+              />
             </div>
           </div>
         </Card>
@@ -128,18 +137,25 @@ export function ConferenceProgram({ conferenceId }: ConferenceProgramProps) {
 
           <div className={spacing.subsection}>
             {papers.map((paper, index) => (
-              <Card key={paper.id} className={`${spacing.padding.cardLarge} transition-shadow hover:shadow-lg`}>
+              <Card
+                key={paper.id}
+                className={`${spacing.padding.cardLarge} transition-shadow hover:shadow-lg`}
+              >
                 <div className={`flex items-start ${spacing.gap.md}`}>
                   <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 ${typography.semibold} text-primary">
                     {index + 1}
                   </div>
                   <div className="flex-1">
                     <h3 className={`${typography.h4} text-gray-900`}>{paper.title}</h3>
-                    <p className={`mt-2 line-clamp-2 ${typography.body} leading-relaxed text-gray-600`}>
+                    <p
+                      className={`mt-2 line-clamp-2 ${typography.body} leading-relaxed text-gray-600`}
+                    >
                       {paper.abstract}
                     </p>
 
-                    <div className={`mt-3 flex items-center ${spacing.gap.sm} ${typography.body} text-gray-600`}>
+                    <div
+                      className={`mt-3 flex items-center ${spacing.gap.sm} ${typography.body} text-gray-600`}
+                    >
                       <Users className={iconSizes.sm} />
                       <span>{paper.authors.map((a) => a.name).join(", ")}</span>
                     </div>
