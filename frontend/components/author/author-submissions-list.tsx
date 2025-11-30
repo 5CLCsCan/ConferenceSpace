@@ -299,7 +299,10 @@ export function AuthorSubmissionsList() {
               </div>
             )}
             {submission.cover_letter && (
-              <div className="flex items-center gap-1 text-xs text-gray-600" title="Cover letter attached">
+              <div
+                className="flex items-center gap-1 text-xs text-gray-600"
+                title="Cover letter attached"
+              >
                 <FileCheck className="size-4 text-green-600" />
                 <span className="sr-only">Cover Letter</span>
               </div>

@@ -10,7 +10,12 @@ import { ReviewerOverview } from "./reviewer-overview"
 import { ReviewerConferences } from "./reviewer-conferences"
 import { ReviewerInvitations } from "./reviewer-invitations"
 import { ConferencePapers } from "./conference-papers"
-import { DashboardSkeleton, ConferencesSkeleton, InvitationsSkeleton, PapersSkeleton } from "./loading-skeletons"
+import {
+  DashboardSkeleton,
+  ConferencesSkeleton,
+  InvitationsSkeleton,
+  PapersSkeleton,
+} from "./loading-skeletons"
 import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { Button } from "@/components/ui/button"
@@ -39,15 +44,11 @@ function ConferencePapersWithSWR({
   const [statusFilter, setStatusFilter] = useState("")
   const debouncedSearch = useDebounce(searchQuery, 500)
 
-  const { papers, isLoading, error } = useConferencePapers(
-    reviewerId,
-    conferenceId,
-    {
-      search: debouncedSearch,
-      status: statusFilter,
-      limit: 20,
-    }
-  )
+  const { papers, isLoading, error } = useConferencePapers(reviewerId, conferenceId, {
+    search: debouncedSearch,
+    status: statusFilter,
+    limit: 20,
+  })
 
   const selectedConference = conferences.find((c) => c.id === conferenceId)
 
@@ -96,10 +97,12 @@ export function ReviewerDashboard() {
   const initialConferenceId = searchParams.get("conference_id") || null
 
   const [activeNav, setActiveNav] = useState<View>(initialTab)
-  const [selectedConferenceId, setSelectedConferenceId] = useState<string | null>(initialConferenceId)
+  const [selectedConferenceId, setSelectedConferenceId] = useState<string | null>(
+    initialConferenceId,
+  )
   const [invitationStatusFilter, setInvitationStatusFilter] = useState<string>("")
   const [conferenceSearch, setConferenceSearch] = useState<string>("")
-  
+
   // Pagination states for infinite scroll
   const [conferenceOffset, setConferenceOffset] = useState(0)
   const [invitationOffset, setInvitationOffset] = useState(0)
@@ -110,44 +113,41 @@ export function ReviewerDashboard() {
 
   // Debounce search to avoid excessive API calls
   const debouncedConferenceSearch = useDebounce(conferenceSearch, 500)
-  
+
   // Reset offsets when search/filter changes
   useEffect(() => {
     setConferenceOffset(0)
     setAllConferences([])
   }, [debouncedConferenceSearch])
-  
+
   useEffect(() => {
     setInvitationOffset(0)
     setAllInvitations([])
   }, [invitationStatusFilter])
-  
+
   // Reset assignments when switching to overview (optional, for fresh data)
   useEffect(() => {
-    if (activeNav === 'overview') {
+    if (activeNav === "overview") {
       setAssignmentOffset(0)
       setAllAssignments([])
     }
   }, [activeNav])
 
   // Use SWR hook with caching for dashboard data
-  const {
-    dashboard,
-    isLoading,
-    error,
-    refresh,
-    updateOptimistic,
-  } = useReviewerDashboard(currentReviewerEmail, {
-    conferenceSearch: debouncedConferenceSearch,
-    invitationStatus: invitationStatusFilter,
-    conferenceLimit: 20, // Load 20 at a time for infinite scroll
-    conferenceOffset: conferenceOffset,
-    invitationLimit: 20, // Load 20 at a time for infinite scroll
-    invitationOffset: invitationOffset,
-    recentAssignmentLimit: 20, // Load 20 at a time for infinite scroll
-    recentAssignmentOffset: assignmentOffset,
-  })
-  
+  const { dashboard, isLoading, error, refresh, updateOptimistic } = useReviewerDashboard(
+    currentReviewerEmail,
+    {
+      conferenceSearch: debouncedConferenceSearch,
+      invitationStatus: invitationStatusFilter,
+      conferenceLimit: 20, // Load 20 at a time for infinite scroll
+      conferenceOffset: conferenceOffset,
+      invitationLimit: 20, // Load 20 at a time for infinite scroll
+      invitationOffset: invitationOffset,
+      recentAssignmentLimit: 20, // Load 20 at a time for infinite scroll
+      recentAssignmentOffset: assignmentOffset,
+    },
+  )
+
   // Accumulate conferences for infinite scroll
   useEffect(() => {
     if (dashboard?.conferences) {
@@ -156,15 +156,15 @@ export function ReviewerDashboard() {
         setAllConferences(dashboard.conferences)
       } else {
         // Append new items, filter out duplicates by ID
-        setAllConferences(prev => {
-          const existingIds = new Set(prev.map(c => c.id))
+        setAllConferences((prev) => {
+          const existingIds = new Set(prev.map((c) => c.id))
           const newItems = dashboard.conferences.filter((c: any) => !existingIds.has(c.id))
           return [...prev, ...newItems]
         })
       }
     }
   }, [dashboard?.conferences, conferenceOffset])
-  
+
   // Accumulate invitations for infinite scroll
   useEffect(() => {
     if (dashboard?.invitations) {
@@ -173,15 +173,15 @@ export function ReviewerDashboard() {
         setAllInvitations(dashboard.invitations)
       } else {
         // Append new items, filter out duplicates by ID
-        setAllInvitations(prev => {
-          const existingIds = new Set(prev.map(inv => inv.id))
+        setAllInvitations((prev) => {
+          const existingIds = new Set(prev.map((inv) => inv.id))
           const newItems = dashboard.invitations.filter((inv: any) => !existingIds.has(inv.id))
           return [...prev, ...newItems]
         })
       }
     }
   }, [dashboard?.invitations, invitationOffset])
-  
+
   // Accumulate assignments for infinite scroll
   useEffect(() => {
     if (dashboard?.recent_assignments) {
@@ -190,36 +190,44 @@ export function ReviewerDashboard() {
         setAllAssignments(dashboard.recent_assignments)
       } else {
         // Append new items, filter out duplicates by assignment ID
-        setAllAssignments(prev => {
-          const existingIds = new Set(prev.map(a => a.assignment_id))
-          const newItems = dashboard.recent_assignments.filter((a: any) => !existingIds.has(a.assignment_id))
+        setAllAssignments((prev) => {
+          const existingIds = new Set(prev.map((a) => a.assignment_id))
+          const newItems = dashboard.recent_assignments.filter(
+            (a: any) => !existingIds.has(a.assignment_id),
+          )
           return [...prev, ...newItems]
         })
       }
     }
   }, [dashboard?.recent_assignments, assignmentOffset])
-  
+
   // Calculate if there's more data to load based on total counts
-  const hasMoreConferences = dashboard?.total_conferences ? allConferences.length < dashboard.total_conferences : false
-  const hasMoreInvitations = dashboard?.total_invitations ? allInvitations.length < dashboard.total_invitations : false
-  const hasMoreAssignments = dashboard?.total_assignments ? allAssignments.length < dashboard.total_assignments : false
-  
+  const hasMoreConferences = dashboard?.total_conferences
+    ? allConferences.length < dashboard.total_conferences
+    : false
+  const hasMoreInvitations = dashboard?.total_invitations
+    ? allInvitations.length < dashboard.total_invitations
+    : false
+  const hasMoreAssignments = dashboard?.total_assignments
+    ? allAssignments.length < dashboard.total_assignments
+    : false
+
   // Load more functions
   const loadMoreConferences = useCallback(() => {
     if (!isLoading && hasMoreConferences) {
-      setConferenceOffset(prev => prev + 20)
+      setConferenceOffset((prev) => prev + 20)
     }
   }, [isLoading, hasMoreConferences])
-  
+
   const loadMoreInvitations = useCallback(() => {
     if (!isLoading && hasMoreInvitations) {
-      setInvitationOffset(prev => prev + 20)
+      setInvitationOffset((prev) => prev + 20)
     }
   }, [isLoading, hasMoreInvitations])
-  
+
   const loadMoreAssignments = useCallback(() => {
     if (!isLoading && hasMoreAssignments) {
-      setAssignmentOffset(prev => prev + 20)
+      setAssignmentOffset((prev) => prev + 20)
     }
   }, [isLoading, hasMoreAssignments])
 
@@ -238,13 +246,13 @@ export function ReviewerDashboard() {
     const cid = conferenceId || selectedConferenceId
     // Track the current tab and conference context for back navigation
     const params = new URLSearchParams()
-    if (cid) params.set('conference_id', cid)
+    if (cid) params.set("conference_id", cid)
     // If currently viewing conference-papers, set from=conference-papers, else from=activeNav
-    if (activeNav === 'conference-papers' && cid) {
-      params.set('from', 'conference-papers')
-      params.set('from_conference_id', cid)
+    if (activeNav === "conference-papers" && cid) {
+      params.set("from", "conference-papers")
+      params.set("from_conference_id", cid)
     } else {
-      params.set('from', activeNav)
+      params.set("from", activeNav)
     }
     router.push(`/dashboard/reviewer/papers/${paperId}?${params.toString()}`)
   }
@@ -342,7 +350,9 @@ export function ReviewerDashboard() {
             invitations={allInvitations}
             onInvitationHandled={handleInvitationResponse}
             reviewerId={currentReviewerEmail}
-            onStatusFilterChange={(status) => setInvitationStatusFilter(status === "all" ? "" : status)}
+            onStatusFilterChange={(status) =>
+              setInvitationStatusFilter(status === "all" ? "" : status)
+            }
             currentStatusFilter={invitationStatusFilter || "all"}
             onLoadMore={loadMoreInvitations}
             hasMore={hasMoreInvitations}

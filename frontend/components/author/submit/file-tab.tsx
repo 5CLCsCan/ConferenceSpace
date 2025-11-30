@@ -184,17 +184,23 @@ export function FileTab({
   const handleDownloadExistingFile = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    
+
     if (!submissionId || !conferenceId) {
-      alert(t("dashboard.author.submit.fileTab.downloadError") || "Cannot download: missing submission or conference ID")
+      alert(
+        t("dashboard.author.submit.fileTab.downloadError") ||
+          "Cannot download: missing submission or conference ID",
+      )
       return
     }
 
     try {
       const response = await downloadPaperFile(submissionId, conferenceId)
-      
+
       if (response.error || !response.data) {
-        alert(t("dashboard.author.submit.fileTab.downloadError") || `Download failed: ${response.error}`)
+        alert(
+          t("dashboard.author.submit.fileTab.downloadError") ||
+            `Download failed: ${response.error}`,
+        )
         return
       }
 
@@ -282,13 +288,17 @@ export function FileTab({
             )}
           </div>
           {isUploading && (
-            <div className={`flex items-center justify-center ${spacing.gap.sm} ${typography.body} text-muted-foreground mt-4`}>
+            <div
+              className={`flex items-center justify-center ${spacing.gap.sm} ${typography.body} text-muted-foreground mt-4`}
+            >
               <Loader2 className={`${iconSizes.sm} animate-spin`} />
               {t("dashboard.author.submit.fileTab.checking") || "Checking..."}
             </div>
           )}
           {isPrechecking && (
-            <div className={`flex items-center justify-center ${spacing.gap.sm} ${typography.body} text-primary mt-4`}>
+            <div
+              className={`flex items-center justify-center ${spacing.gap.sm} ${typography.body} text-primary mt-4`}
+            >
               <Loader2 className={`${iconSizes.sm} animate-spin`} />
               {t("dashboard.author.submit.fileTab.precheckRunning") ||
                 "Running quality check on your paper..."}
@@ -297,7 +307,9 @@ export function FileTab({
         </div>
         {precheckResult && <PreCheckResults result={precheckResult} />}
         {precheckError && (
-          <div className={`${spacing.padding.card} bg-destructive/10 border border-destructive/20 rounded-lg`}>
+          <div
+            className={`${spacing.padding.card} bg-destructive/10 border border-destructive/20 rounded-lg`}
+          >
             <p className={`${typography.body} text-destructive`}>{precheckError}</p>
           </div>
         )}

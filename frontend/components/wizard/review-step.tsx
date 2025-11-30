@@ -18,7 +18,7 @@ type Props = {
 
 export function ReviewStep({ data, updateData, goToStep }: Props) {
   const { t } = useTranslation()
-  
+
   return (
     <div className={spacing.subsection}>
       <div>
@@ -50,19 +50,27 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
           <div className={`bg-muted/50 rounded-lg ${spacing.padding.card} ${spacing.item}`}>
             <div className={`grid grid-cols-[120px_1fr] ${spacing.gap.sm} ${typography.body}`}>
               <span className={typography.muted}>{t("common.labels.title")}:</span>
-              <span className={typography.medium}>{data.title || t("common.messages.notFound")}</span>
+              <span className={typography.medium}>
+                {data.title || t("common.messages.notFound")}
+              </span>
             </div>
             <div className={`grid grid-cols-[120px_1fr] ${spacing.gap.sm} ${typography.body}`}>
               <span className={typography.muted}>{t("common.labels.acronym")}:</span>
-              <span className={typography.medium}>{data.acronym || t("common.messages.notFound")}</span>
+              <span className={typography.medium}>
+                {data.acronym || t("common.messages.notFound")}
+              </span>
             </div>
             <div className={`grid grid-cols-[120px_1fr] ${spacing.gap.sm} ${typography.body}`}>
               <span className={typography.muted}>{t("common.labels.description")}:</span>
-              <span className={typography.medium}>{data.description || t("common.messages.notFound")}</span>
+              <span className={typography.medium}>
+                {data.description || t("common.messages.notFound")}
+              </span>
             </div>
             <div className={`grid grid-cols-[120px_1fr] ${spacing.gap.sm} ${typography.body}`}>
               <span className={typography.muted}>{t("common.labels.website")}:</span>
-              <span className={typography.medium}>{data.website || t("common.messages.notFound")}</span>
+              <span className={typography.medium}>
+                {data.website || t("common.messages.notFound")}
+              </span>
             </div>
             <div className={`grid grid-cols-[120px_1fr] ${spacing.gap.sm} ${typography.body}`}>
               <span className={typography.muted}>{t("common.labels.dates")}:</span>
@@ -83,7 +91,9 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
             </div>
             <div className={`grid grid-cols-[120px_1fr] ${spacing.gap.sm} ${typography.body}`}>
               <span className={typography.muted}>{t("common.labels.contact")}:</span>
-              <span className={typography.medium}>{data.contactEmail || t("common.messages.notFound")}</span>
+              <span className={typography.medium}>
+                {data.contactEmail || t("common.messages.notFound")}
+              </span>
             </div>
           </div>
         </div>
@@ -110,31 +120,41 @@ export function ReviewStep({ data, updateData, goToStep }: Props) {
             <div className={`grid grid-cols-[160px_1fr] ${spacing.gap.sm} ${typography.body}`}>
               <span className={typography.muted}>{t("common.labels.submissionsOpen")}:</span>
               <span className={typography.medium}>
-                {data.submissionsOpen ? format(data.submissionsOpen, "PPP") : t("common.messages.notFound")}
+                {data.submissionsOpen
+                  ? format(data.submissionsOpen, "PPP")
+                  : t("common.messages.notFound")}
               </span>
             </div>
             <div className={`grid grid-cols-[160px_1fr] ${spacing.gap.sm} ${typography.body}`}>
               <span className={typography.muted}>{t("common.labels.submissionDeadline")}:</span>
               <span className={typography.medium}>
-                {data.submissionDeadline ? format(data.submissionDeadline, "PPP") : t("common.messages.notFound")}
+                {data.submissionDeadline
+                  ? format(data.submissionDeadline, "PPP")
+                  : t("common.messages.notFound")}
               </span>
             </div>
             <div className={`grid grid-cols-[160px_1fr] ${spacing.gap.sm} ${typography.body}`}>
               <span className={typography.muted}>{t("common.labels.reviewDeadline")}:</span>
               <span className={typography.medium}>
-                {data.reviewDeadline ? format(data.reviewDeadline, "PPP") : t("common.messages.notFound")}
+                {data.reviewDeadline
+                  ? format(data.reviewDeadline, "PPP")
+                  : t("common.messages.notFound")}
               </span>
             </div>
             <div className={`grid grid-cols-[160px_1fr] ${spacing.gap.sm} ${typography.body}`}>
               <span className={typography.muted}>{t("common.labels.authorNotification")}:</span>
               <span className={typography.medium}>
-                {data.authorNotification ? format(data.authorNotification, "PPP") : t("common.messages.notFound")}
+                {data.authorNotification
+                  ? format(data.authorNotification, "PPP")
+                  : t("common.messages.notFound")}
               </span>
             </div>
             <div className={`grid grid-cols-[160px_1fr] ${spacing.gap.sm} ${typography.body}`}>
               <span className={typography.muted}>{t("common.labels.cameraReady")}:</span>
               <span className={typography.medium}>
-                {data.cameraReadyDeadline ? format(data.cameraReadyDeadline, "PPP") : t("common.messages.notFound")}
+                {data.cameraReadyDeadline
+                  ? format(data.cameraReadyDeadline, "PPP")
+                  : t("common.messages.notFound")}
               </span>
             </div>
             <div className={`grid grid-cols-[160px_1fr] ${spacing.gap.sm} ${typography.body}`}>

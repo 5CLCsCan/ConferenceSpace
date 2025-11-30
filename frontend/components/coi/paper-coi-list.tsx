@@ -14,9 +14,10 @@ interface PaperCOIListProps {
     search: string
     severity: "all" | "high" | "medium" | "low"
   }
+  onViewDetail?: (reviewerId: string, paperId: string) => void
 }
 
-export function PaperCOIList({ filters }: PaperCOIListProps) {
+export function PaperCOIList({ filters, onViewDetail }: PaperCOIListProps) {
   const { t } = useTranslation()
   const [papers, setPapers] = useState<PaperCOISummary[]>([])
   const [loading, setLoading] = useState(true)
@@ -119,8 +120,8 @@ export function PaperCOIList({ filters }: PaperCOIListProps) {
           borderColor = "border-l-amber-500"
           bgColor = "bg-amber-50/30 dark:bg-amber-950/10"
         } else if (paper.low_severity_count > 0) {
-          borderColor = "border-l-blue-500"
-          bgColor = "bg-blue-50/30 dark:bg-blue-950/10"
+          borderColor = "border-l-primary"
+          bgColor = "bg-primary/5 dark:bg-primary/10"
         }
 
         return (
@@ -164,7 +165,7 @@ export function PaperCOIList({ filters }: PaperCOIListProps) {
                   {paper.low_severity_count > 0 && (
                     <Badge
                       variant="secondary"
-                      className="bg-blue-500/10 text-blue-700 dark:text-blue-400 hover:bg-blue-500/20 border-0"
+                      className="bg-primary/10 text-primary dark:text-primary hover:bg-primary/20 border-0"
                     >
                       {paper.low_severity_count} Low Conflicts
                     </Badge>
@@ -206,7 +207,7 @@ export function PaperCOIList({ filters }: PaperCOIListProps) {
                               ? "text-red-500"
                               : item.severity === "medium"
                                 ? "text-amber-500"
-                                : "text-blue-500"
+                                : "text-primary"
                           }`}
                         >
                           {item.severity === "high" ? (
@@ -224,7 +225,7 @@ export function PaperCOIList({ filters }: PaperCOIListProps) {
                                   ? "bg-red-100 text-red-700"
                                   : item.severity === "medium"
                                     ? "bg-amber-100 text-amber-700"
-                                    : "bg-blue-100 text-blue-700"
+                                    : "bg-primary/10 text-primary"
                               }`}
                             >
                               {item.severity}
@@ -242,6 +243,19 @@ export function PaperCOIList({ filters }: PaperCOIListProps) {
                                 • {reason}
                               </p>
                             ))}
+                          </div>
+                          <div className="mt-2 flex justify-end">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onViewDetail?.(item.reviewer.id, paper.paper_id)
+                              }}
+                            >
+                              View Detail
+                            </Button>
                           </div>
                         </div>
                       </div>

@@ -9,7 +9,7 @@ import { useTranslation } from "@/lib/i18n/translation-context"
 
 export function MyComponent() {
   const { t, locale, setLocale } = useTranslation()
-  
+
   return (
     <div>
       <h1>{t("common.labels.title")}</h1>
@@ -27,39 +27,43 @@ export function MyComponent() {
 ### ✅ DO
 
 1. **Always use translation keys for user-facing text**
+
    ```typescript
    // ✅ GOOD
    <button>{t("common.actions.save")}</button>
-   
+
    // ❌ BAD
    <button>Save</button>
    ```
 
 2. **Use interpolation for dynamic values**
+
    ```typescript
    // ✅ GOOD
-   t("dashboard.greeting", { name: user.name })
-   
-   // ❌ BAD
+   t("dashboard.greeting", {
+     name: user.name,
+   }) // ❌ BAD
    `Welcome, ${user.name}!`
    ```
 
 3. **Use existing keys when possible**
+
    ```typescript
    // ✅ GOOD - Reuse common keys
    t("common.actions.edit")
    t("common.messages.notFound")
-   
+
    // ❌ BAD - Creating duplicate keys
    t("myComponent.edit")
    t("myComponent.notFound")
    ```
 
 4. **Add keys to BOTH language files**
+
    ```json
    // en.json
    { "myFeature": { "title": "My Feature" } }
-   
+
    // vi.json
    { "myFeature": { "title": "Tính năng của tôi" } }
    ```
@@ -67,28 +71,31 @@ export function MyComponent() {
 ### ❌ DON'T
 
 1. **Don't hardcode strings**
+
    ```typescript
    // ❌ BAD
    <h1>Conference Details</h1>
-   
+
    // ✅ GOOD
    <h1>{t("dashboard.conference.details.title")}</h1>
    ```
 
 2. **Don't concatenate translated strings**
+
    ```typescript
    // ❌ BAD
    const message = t("hello") + " " + t("world")
-   
+
    // ✅ GOOD
    const message = t("greeting.helloWorld")
    ```
 
 3. **Don't use translation keys for internal logic**
+
    ```typescript
    // ❌ BAD
    if (status === t("common.status.active")) { ... }
-   
+
    // ✅ GOOD
    if (status === "active") { ... }
    // Then display: {t(`common.status.${status}`)}
@@ -154,7 +161,7 @@ auth/
 ```typescript
 export function MyFeature() {
   const { t } = useTranslation()
-  
+
   return (
     <div>
       <h1>{t("myFeature.title")}</h1>
@@ -206,14 +213,14 @@ features.map(feature => <li>{feature}</li>)
 toast({
   variant: "destructive",
   title: t("common.messages.error"),
-  description: t("auth.errors.invalidCredentials")
+  description: t("auth.errors.invalidCredentials"),
 })
 
 // ✅ GOOD - Show server error with fallback
 toast({
   variant: "destructive",
   title: t("common.messages.error"),
-  description: error.message || t("common.messages.unknownError")
+  description: error.message || t("common.messages.unknownError"),
 })
 ```
 
@@ -251,13 +258,10 @@ formatter.format(1234567.89)
 ```typescript
 const { locale } = useTranslation()
 
-const formatter = new Intl.NumberFormat(
-  locale === "vi" ? "vi-VN" : "en-US",
-  {
-    style: "currency",
-    currency: locale === "vi" ? "VND" : "USD"
-  }
-)
+const formatter = new Intl.NumberFormat(locale === "vi" ? "vi-VN" : "en-US", {
+  style: "currency",
+  currency: locale === "vi" ? "VND" : "USD",
+})
 formatter.format(1000000)
 // EN: "$1,000,000.00"
 // VI: "1.000.000 ₫"
@@ -284,7 +288,7 @@ test("renders translated text", () => {
       <MyComponent />
     </TranslationProvider>
   )
-  
+
   expect(screen.getByText(/My Feature/i)).toBeInTheDocument()
 })
 ```
@@ -296,6 +300,7 @@ test("renders translated text", () => {
 **Symptom:** You see the key name instead of translated text (e.g., "common.actions.save")
 
 **Solution:**
+
 1. Check if key exists in both `en.json` and `vi.json`
 2. Check spelling and case sensitivity
 3. Check console for warnings in development mode
@@ -305,6 +310,7 @@ test("renders translated text", () => {
 **Symptom:** Language switcher doesn't update the UI
 
 **Solution:**
+
 1. Verify component uses `useTranslation()` hook
 2. Check if component is wrapped in `<TranslationProvider>`
 3. Verify localStorage is working (check browser DevTools)
@@ -314,6 +320,7 @@ test("renders translated text", () => {
 **Symptom:** Some text is in English, some in Vietnamese
 
 **Solution:**
+
 1. Search for hardcoded strings in the component
 2. Replace with `t()` function calls
 3. Run the localization audit script
@@ -321,6 +328,7 @@ test("renders translated text", () => {
 ## Best Practices
 
 1. **Group related translations together**
+
    ```json
    {
      "auth": {
@@ -331,19 +339,22 @@ test("renders translated text", () => {
    ```
 
 2. **Use descriptive key names**
+
    ```typescript
    // ✅ GOOD
    t("dashboard.conference.committee.inviteSuccess")
-   
+
    // ❌ BAD
    t("msg1")
    ```
 
 3. **Keep translations short and concise**
+
    - Avoid very long text in translation files
    - Consider breaking into multiple keys if needed
 
 4. **Document context for translators**
+
    ```json
    {
      "button": {

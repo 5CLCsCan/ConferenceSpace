@@ -178,15 +178,15 @@ export async function getUserSubmissions(
 
     // Wait for all requests to complete
     const results = await Promise.all(submissionPromises)
-    
+
     // Collect all submissions with conference context
     const allSubmissions: SubmissionWithConference[] = results.flatMap(
       ({ conference, response }) => {
         if (response.data && response.data.submissions.length > 0) {
-        console.log(
+          console.log(
             `[getUserSubmissions] Found ${response.data.submissions.length} submissions for conference ${conference.id}`,
-        )
-        // Add conference context to each submission
+          )
+          // Add conference context to each submission
           return response.data.submissions.map((submission) => ({
             ...submission,
             conference,
@@ -194,7 +194,7 @@ export async function getUserSubmissions(
         }
         return []
       },
-        )
+    )
 
     console.log("[getUserSubmissions] Total submissions found:", allSubmissions.length)
     return {

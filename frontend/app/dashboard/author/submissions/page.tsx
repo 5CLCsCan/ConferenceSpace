@@ -19,7 +19,7 @@ export default function AuthorSubmissionsPage() {
     const timer = setTimeout(() => {
       setAuthChecked(true)
     }, 100)
-    
+
     return () => clearTimeout(timer)
   }, [])
 

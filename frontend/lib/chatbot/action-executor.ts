@@ -67,23 +67,27 @@ function handleClick(refMap: Map<string, Element>, params: ActionParams): Action
   }
 
   // Get element info before clicking
-  const elementName = element.getAttribute("aria-label") || 
-    element.textContent?.trim().slice(0, 50) || 
+  const elementName =
+    element.getAttribute("aria-label") ||
+    element.textContent?.trim().slice(0, 50) ||
     element.tagName.toLowerCase()
 
   element.click()
-  
+
   // Small delay to allow any async handlers to process
-  return { 
-    success: true, 
-    message: `Clicked ${params.ref} (${elementName})` 
+  return {
+    success: true,
+    message: `Clicked ${params.ref} (${elementName})`,
   }
 }
 
 /**
  * Type text into an input element
  */
-async function handleType(refMap: Map<string, Element>, params: ActionParams): Promise<ActionResult> {
+async function handleType(
+  refMap: Map<string, Element>,
+  params: ActionParams,
+): Promise<ActionResult> {
   if (!params.ref) {
     return { success: false, message: "Missing ref parameter for type action" }
   }
@@ -99,16 +103,16 @@ async function handleType(refMap: Map<string, Element>, params: ActionParams): P
       .filter((ref) => ref.includes("textarea") || ref.includes("input"))
       .slice(0, 10)
       .join(", ")
-    return { 
-      success: false, 
-      message: `Element not found: ${params.ref}. Available text input refs: ${availableRefs || "none"}` 
+    return {
+      success: false,
+      message: `Element not found: ${params.ref}. Available text input refs: ${availableRefs || "none"}`,
     }
   }
 
   if (!(element instanceof HTMLInputElement) && !(element instanceof HTMLTextAreaElement)) {
-    return { 
-      success: false, 
-      message: `Element ${params.ref} is not a text input (found: ${element.tagName.toLowerCase()}, id: ${element.id || "none"})` 
+    return {
+      success: false,
+      message: `Element ${params.ref} is not a text input (found: ${element.tagName.toLowerCase()}, id: ${element.id || "none"})`,
     }
   }
 
@@ -119,13 +123,16 @@ async function handleType(refMap: Map<string, Element>, params: ActionParams): P
 
   // Get the correct native value setter based on element type
   let nativeValueSetter: ((value: string) => void) | null = null
-  
+
   if (element instanceof HTMLInputElement) {
     const descriptor = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")
-    nativeValueSetter = descriptor?.set as ((value: string) => void) | undefined || null
+    nativeValueSetter = (descriptor?.set as ((value: string) => void) | undefined) || null
   } else if (element instanceof HTMLTextAreaElement) {
-    const descriptor = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value")
-    nativeValueSetter = descriptor?.set as ((value: string) => void) | undefined || null
+    const descriptor = Object.getOwnPropertyDescriptor(
+      window.HTMLTextAreaElement.prototype,
+      "value",
+    )
+    nativeValueSetter = (descriptor?.set as ((value: string) => void) | undefined) || null
   }
 
   // Set the value using native setter to bypass React's controlled component restrictions
@@ -171,17 +178,19 @@ async function handleType(refMap: Map<string, Element>, params: ActionParams): P
 
   // Try to trigger React's onChange handler directly if available
   // This is for React 16-18 compatibility
-  const reactFiber = (element as any)._reactInternalFiber || 
-                     (element as any)._reactInternalInstance ||
-                     (element as any).__reactFiber ||
-                     (element as any).__reactInternalInstance
+  const reactFiber =
+    (element as any)._reactInternalFiber ||
+    (element as any)._reactInternalInstance ||
+    (element as any).__reactFiber ||
+    (element as any).__reactInternalInstance
 
   if (reactFiber) {
     // React 18+ uses memoizedProps
-    const props = reactFiber.memoizedProps || 
-                  reactFiber.currentProps || 
-                  reactFiber.pendingProps ||
-                  reactFiber.memoizedState?.props
+    const props =
+      reactFiber.memoizedProps ||
+      reactFiber.currentProps ||
+      reactFiber.pendingProps ||
+      reactFiber.memoizedState?.props
 
     if (props?.onChange) {
       // Create a synthetic event object that React expects
@@ -199,7 +208,7 @@ async function handleType(refMap: Map<string, Element>, params: ActionParams): P
         type: "change",
         timeStamp: Date.now(),
       }
-      
+
       try {
         props.onChange(syntheticEvent as any)
       } catch (e) {
@@ -223,7 +232,7 @@ async function handleType(refMap: Map<string, Element>, params: ActionParams): P
         type: "input",
         timeStamp: Date.now(),
       }
-      
+
       try {
         props.onInput(syntheticInputEvent as any)
       } catch (e) {
@@ -312,8 +321,8 @@ function handleSelect(refMap: Map<string, Element>, params: ActionParams): Actio
   const currentValue = element.value
   const verified = currentValue === params.value
 
-  return { 
-    success: true, 
+  return {
+    success: true,
     message: verified
       ? `Selected "${params.value}" in ${params.ref}. Value confirmed.`
       : `Attempted to select "${params.value}" in ${params.ref}. Current value: "${currentValue}"`,

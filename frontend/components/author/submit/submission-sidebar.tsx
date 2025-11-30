@@ -33,11 +33,11 @@ export function SubmissionSidebar({ checklist }: SubmissionSidebarProps) {
       <Card className="border-[#DEE2E6] bg-gradient-to-br from-blue-50 to-white">
         <CardContent className={spacing.padding.cardLarge}>
           <div className="flex items-center gap-3 mb-4">
-            <div className={`p-2 rounded-lg ${allComplete ? "bg-green-100" : "bg-blue-100"}`}>
+            <div className={`p-2 rounded-lg ${allComplete ? "bg-success/10" : "bg-primary/10"}`}>
               {allComplete ? (
-                <CheckCircle2 className="size-6 text-green-600" />
+                <CheckCircle2 className="size-6 text-success" />
               ) : (
-                <FileCheck className="size-6 text-blue-600" />
+                <FileCheck className="size-6 text-primary" />
               )}
             </div>
             <div>
@@ -54,15 +54,17 @@ export function SubmissionSidebar({ checklist }: SubmissionSidebarProps) {
           <div className="w-full bg-[#E9ECEF] rounded-full h-2 mb-4">
             <div
               className={`h-2 rounded-full transition-all duration-300 ${
-                allComplete ? "bg-green-500" : "bg-[#0056A3]"
+                allComplete ? "bg-success" : "bg-primary"
               }`}
               style={{ width: `${(completedCount / totalCount) * 100}%` }}
             />
           </div>
 
           {allComplete && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-              <p className={`${typography.bodySmall} text-green-800 font-arial text-center`}>
+            <div className="p-3 bg-success/10 border border-success/20 rounded-lg">
+              <p
+                className={`${typography.bodySmall} text-success-foreground font-arial text-center`}
+              >
                 ✓ All requirements met. You can now submit your paper!
               </p>
             </div>
@@ -118,7 +120,7 @@ export function SubmissionSidebar({ checklist }: SubmissionSidebarProps) {
       <Card className="border-[#DEE2E6]">
         <CardContent className={spacing.padding.cardLarge}>
           <div className="flex items-center gap-2 mb-3">
-            <Shield className="size-5 text-[#0056A3]" />
+            <Shield className="size-5 text-primary" />
             <h3 className={`${typography.h5} text-[#212529] font-arial`}>Policy & Formatting</h3>
           </div>
           <p className={`${typography.bodySmall} text-[#6C757D] font-arial mb-4`}>
@@ -126,19 +128,19 @@ export function SubmissionSidebar({ checklist }: SubmissionSidebarProps) {
           </p>
           <ul className={`space-y-2 ${typography.bodySmall} text-[#495057] font-arial`}>
             <li className="flex items-start gap-2">
-              <span className="text-[#0056A3] mt-0.5">•</span>
+              <span className="text-primary mt-0.5">•</span>
               <span>Double-blind: remove all identifying information</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-[#0056A3] mt-0.5">•</span>
+              <span className="text-primary mt-0.5">•</span>
               <span>Maximum 10 pages (excluding references)</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-[#0056A3] mt-0.5">•</span>
+              <span className="text-primary mt-0.5">•</span>
               <span>PDF ≤ 20MB with embedded fonts</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-[#0056A3] mt-0.5">•</span>
+              <span className="text-primary mt-0.5">•</span>
               <span>Use the official conference template</span>
             </li>
           </ul>

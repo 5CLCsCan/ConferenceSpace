@@ -199,7 +199,7 @@ export function PaperSubmissionForm({
           // Don't load draft if we're editing a different submission
           if (!initialSubmission || draft.id !== initialSubmission.id) {
             console.log("[PaperSubmissionForm] Auto-loading existing draft:", draft)
-            
+
             // Auto-populate form fields with draft data
             setTitle(draft.title || "")
             setAbstract(draft.abstract || "")
@@ -220,7 +220,7 @@ export function PaperSubmissionForm({
                 { name: "", email: "", affiliation: "" },
               ])
             }
-            
+
             // Redirect to edit mode for the draft
             router.push(`/dashboard/author/submit?conference=${conference.id}&edit=${draft.id}`)
           }
@@ -313,7 +313,9 @@ export function PaperSubmissionForm({
             description: "Your draft has been saved. You can continue editing anytime.",
           })
           // Redirect to edit mode for the newly created draft
-          router.push(`/dashboard/author/submit?conference=${conference.id}&edit=${response.data.id}`)
+          router.push(
+            `/dashboard/author/submit?conference=${conference.id}&edit=${response.data.id}`,
+          )
         }
       }
     } catch (error) {
@@ -377,7 +379,7 @@ export function PaperSubmissionForm({
         } else if (response.data) {
           setSuccessMessage(
             t("dashboard.author.submit.updateSuccess") ||
-              "Your submission has been updated successfully!"
+              "Your submission has been updated successfully!",
           )
           setRedirectPath(`/dashboard/conference/${conference.id}`)
           setShowSuccessDialog(true)
@@ -396,7 +398,7 @@ export function PaperSubmissionForm({
         } else if (response.data) {
           setSuccessMessage(
             t("dashboard.author.submit.submissionSuccess") ||
-              "Your paper has been submitted successfully!"
+              "Your paper has been submitted successfully!",
           )
           setRedirectPath(`/dashboard/conference/${conference.id}`)
           setShowSuccessDialog(true)

@@ -35,11 +35,24 @@ interface ExpandedRows {
   [key: string]: boolean
 }
 
-interface COIAnalysisDashboardProps {
-  conferenceId: string
+interface DashboardStats {
+  conference_id: string
+  total_reviewers: number
+  available_reviewers: number
+  total_papers: number
+  papers_under_review: number
+  coi_detected: number
+  total_relationships: number
+  total_assignments: number
+  completed_assignments: number
 }
 
-export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps) {
+interface COIAnalysisDashboardProps {
+  conferenceId: string
+  stats?: DashboardStats
+}
+
+export function COIAnalysisDashboard({ conferenceId, stats }: COIAnalysisDashboardProps) {
   const { t } = useTranslation()
   const router = useRouter()
 
@@ -55,9 +68,11 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
   })
   const [page, setPage] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
-  const [selectedRelationship, setSelectedRelationship] = useState<RelationshipWithDetails | null>(
-    null,
-  )
+  const [selectedRelationship, setSelectedRelationship] = useState<{
+    reviewerId: string
+    authorId?: string
+    paperId?: string
+  } | null>(null)
   const itemsPerPage = 10
 
   useEffect(() => {
@@ -377,10 +392,10 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
             highlight="warning"
           />
           <StatsCard
-            label="Informational"
-            value={Math.max(0, totalCount - 87 - 156)}
-            trend="+4.8%"
-            icon={TrendingUp}
+            label="Number of papers"
+            value={stats?.total_papers || 0}
+            trend="+8%"
+            icon={LayoutList}
           />
         </div>
 
@@ -435,7 +450,12 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
 
         {/* Content Area */}
         {viewMode === "paper" ? (
-          <PaperCOIList filters={filters} />
+          <PaperCOIList
+            filters={filters}
+            onViewDetail={(reviewerId, paperId) => {
+              setSelectedRelationship({ reviewerId, paperId })
+            }}
+          />
         ) : (
           /* Relationships List (Person View) */
           <div className="space-y-3">
@@ -621,7 +641,10 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
                               size="sm"
                               onClick={(e) => {
                                 e.stopPropagation()
-                                setSelectedRelationship(rel)
+                                setSelectedRelationship({
+                                  reviewerId: rel.reviewer_id,
+                                  authorId: rel.author_id,
+                                })
                               }}
                             >
                               View Details
@@ -699,8 +722,9 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
           <SheetTitle className="sr-only">Conflict of Interest Details</SheetTitle>
           {selectedRelationship && (
             <COIDetailView
-              reviewerId={selectedRelationship.reviewer_id}
-              authorId={selectedRelationship.author_id}
+              reviewerId={selectedRelationship.reviewerId}
+              authorId={selectedRelationship.authorId}
+              paperId={selectedRelationship.paperId}
               onClose={() => setSelectedRelationship(null)}
             />
           )}

@@ -13,27 +13,27 @@ export function ReviewerSidebar({ activeNav, setActiveNav }: ReviewerSidebarProp
   const { t } = useTranslation()
 
   return (
-    <div className="w-64 border-r bg-card">
+    <div className="w-64 border-r bg-sidebar">
       <div className="flex flex-col p-4 space-y-2">
         <Button
-          variant={activeNav === "overview" ? "secondary" : "ghost"}
-          className="justify-start"
+          variant="ghost"
+          className={`justify-start cursor-pointer ${activeNav === "overview" ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm" : ""}`}
           onClick={() => setActiveNav("overview")}
         >
           <LayoutDashboard className="mr-2 size-4" />
           {t("dashboard.roles.reviewer.nav.overview")}
         </Button>
         <Button
-          variant={activeNav === "conferences" ? "secondary" : "ghost"}
-          className="justify-start"
+          variant="ghost"
+          className={`justify-start cursor-pointer ${activeNav === "conferences" ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm" : ""}`}
           onClick={() => setActiveNav("conferences")}
         >
           <BookOpen className="mr-2 size-4" />
           {t("dashboard.roles.reviewer.nav.myConferences")}
         </Button>
         <Button
-          variant={activeNav === "invitations" ? "secondary" : "ghost"}
-          className="justify-start"
+          variant="ghost"
+          className={`justify-start cursor-pointer ${activeNav === "invitations" ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm" : ""}`}
           onClick={() => setActiveNav("invitations")}
         >
           <Mail className="mr-2 size-4" />

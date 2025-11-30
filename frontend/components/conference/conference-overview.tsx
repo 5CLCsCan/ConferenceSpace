@@ -54,7 +54,7 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
             variant={conference.status === "open" ? "default" : "secondary"}
             className={`bg-success text-white ${typography.bodySmall}`}
           >
-          {t(`common.conferenceStatus.${conference.status}`)}
+            {t(`common.conferenceStatus.${conference.status}`)}
           </Badge>
         </div>
         <p className={`mt-2 ${typography.body} leading-relaxed text-gray-600`}>
