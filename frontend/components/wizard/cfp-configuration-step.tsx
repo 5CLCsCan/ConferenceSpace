@@ -1,8 +1,7 @@
 "use client"
 
-import type React from "react"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { MarkdownEditor } from "@/components/ui/markdown-editor"
 import type { ConferenceFormData } from "@/app/dashboard/chair/create-conference/page"
 import { typography, spacing } from "@/lib/typography"
 
@@ -19,7 +18,8 @@ export function CfpConfigurationStep({ data, updateData }: Props) {
           Step 3: Call For Paper Configuration
         </h2>
         <p className={`${typography.body} text-muted-foreground`}>
-          Enter the complete Call For Paper content that will be displayed to potential authors
+          Enter the complete Call For Paper content that will be displayed to potential authors.
+          Markdown formatting is supported.
         </p>
       </div>
 
@@ -28,17 +28,27 @@ export function CfpConfigurationStep({ data, updateData }: Props) {
           <Label htmlFor="callForPaperText" className={typography.label}>
             Call For Paper Content
           </Label>
-          <Textarea
-            id="callForPaperText"
-            placeholder="Enter the complete Call For Paper text here. Include all submission guidelines, formatting requirements, review process details, and any other relevant information for authors..."
+          <MarkdownEditor
             value={data.callForPaperText}
-            onChange={(e) => updateData({ callForPaperText: e.target.value })}
-            className="min-h-[400px] font-mono text-sm"
+            onChange={(value) => updateData({ callForPaperText: value })}
+            placeholder="# Call for Papers
+
+## Important Dates
+- Submission deadline: ...
+- Author notification: ...
+- Camera-ready deadline: ...
+
+## Topics of Interest
+- Topic 1
+- Topic 2
+
+## Submission Guidelines
+Papers should be submitted via..."
+            height={450}
           />
           <p className={typography.caption}>
-            This content will be displayed on the conference Call For Papers page. You can include
-            formatting requirements, content guidelines, review process, deadlines, and any other
-            information relevant to paper submissions.
+            Use the toolbar to format your content with headings, lists, links, and more. The
+            preview mode lets you see how the content will appear to authors.
           </p>
         </div>
       </div>

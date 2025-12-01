@@ -226,7 +226,7 @@ export default function ChairDashboard() {
             className="cursor-pointer hover:opacity-80 transition-opacity"
             onClick={(e) => {
               e.stopPropagation()
-              router.push(`/dashboard/conference/${conference.id}`)
+              router.push(`/dashboard/conference/${conference.id}?tab=overview`)
             }}
           >
             <div className={`${typography.semibold} text-foreground`}>{conference.name}</div>
@@ -343,7 +343,7 @@ export default function ChairDashboard() {
             }
             getRowKey={(conference) => conference.id}
             onRowClick={(conference) => {
-              router.push(`/dashboard/conference/${conference.id}`)
+              router.push(`/dashboard/conference/${conference.id}?tab=overview`)
             }}
             renderMobileCard={(conference) => <ConferenceCard {...conference} />}
           />

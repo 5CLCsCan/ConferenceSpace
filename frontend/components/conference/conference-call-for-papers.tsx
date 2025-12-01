@@ -19,6 +19,7 @@ import { useAuth } from "@/lib/auth-context"
 import { useRouter } from "next/navigation"
 import { typography, spacing, iconSizes } from "@/lib/typography"
 import { getConferenceSubmissions } from "@/lib/api/submissions"
+import { GithubMarkdown } from "@/components/ui/github-markdown"
 
 interface ConferenceCallForPapersProps {
   conference: Conference
@@ -123,8 +124,6 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
     })
   }
 
-  const isSubmissionOpen = new Date(conference.submission_deadline) > new Date()
-
   const handleSubmitClick = () => {
     if (hasSubmission && userSubmissionId) {
       // Navigate to edit existing submission
@@ -145,63 +144,11 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
         </p>
       </div>
 
-      {/* Submission Status */}
-      <Card
-        className={`border-2 ${spacing.padding.card} ${isSubmissionOpen ? "border-success bg-success/5" : "border-error bg-error/5"}`}
-      >
-        <div className={`flex items-start ${spacing.gap.md}`}>
-          {isSubmissionOpen ? (
-            <CheckCircle className={`${iconSizes.md} text-success`} />
-          ) : (
-            <AlertCircle className={`${iconSizes.md} text-error`} />
-          )}
-          <div className="flex-1">
-            <h3 className={typography.h5}>
-              {isSubmissionOpen ? "Đang Nhận Bài" : "Đã Đóng Nhận Bài"}
-            </h3>
-            <p className={`mt-1 ${typography.body} text-gray-600`}>
-              Deadline:{" "}
-              <span className={typography.semibold}>
-                {formatDate(conference.submission_deadline)}
-              </span>
-            </p>
-            {isSubmissionOpen && user && !checkingSubmission && (
-              <Button
-                className={`mt-3 ${typography.bodySmall}`}
-                size="sm"
-                onClick={handleSubmitClick}
-                disabled={checkingSubmission}
-              >
-                {hasSubmission ? (
-                  <>
-                    <Edit className={`mr-1.5 ${iconSizes.xs}`} />
-                    Chỉnh Sửa Bài Nộp
-                  </>
-                ) : (
-                  <>
-                    <Upload className={`mr-1.5 ${iconSizes.xs}`} />
-                    Nộp Bài Ngay
-                  </>
-                )}
-              </Button>
-            )}
-            {checkingSubmission && user && (
-              <Button className={`mt-3 ${typography.bodySmall}`} size="sm" disabled>
-                Đang kiểm tra...
-              </Button>
-            )}
-          </div>
-        </div>
-      </Card>
-
       {/* Submission Guidelines */}
       <div>
-        <h2 className={typography.h2}>Hướng Dẫn Nộp Bài</h2>
         <Card className={`mt-3 ${spacing.padding.card}`}>
           {conference.call_for_paper_text ? (
-            <div className={`${typography.body} text-gray-600 whitespace-pre-wrap`}>
-              {conference.call_for_paper_text}
-            </div>
+            <GithubMarkdown content={conference.call_for_paper_text} className="w-full" />
           ) : (
             <div className={spacing.subsection}>
               <div>

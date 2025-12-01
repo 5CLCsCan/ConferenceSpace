@@ -131,7 +131,7 @@ export default function RegisterPage() {
           <p className={`text-neutral-600 ${typography.body}`}>{t("auth.register.title")}</p>
         </div>
 
-        <Card className="border-neutral-200 shadow-sm">
+        <Card className="border-neutral-200 shadow-sm py-6">
           <CardHeader>
             <CardTitle>{t("common.actions.signUp")}</CardTitle>
             <CardDescription>{t("auth.register.subtitle")}</CardDescription>
