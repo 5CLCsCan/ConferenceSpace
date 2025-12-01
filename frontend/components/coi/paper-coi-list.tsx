@@ -6,18 +6,17 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { getAllPaperCOIs } from "@/lib/api/coi-mock"
-import type { PaperCOISummary } from "@/lib/mock-data/coi"
+import { getAllPaperCOIs, type PaperCOISummary } from "@/lib/api/coi"
 
 interface PaperCOIListProps {
+  conferenceId: string
   filters: {
     search: string
     severity: "all" | "high" | "medium" | "low"
   }
-  onViewDetail?: (reviewerId: string, paperId: string) => void
 }
 
-export function PaperCOIList({ filters, onViewDetail }: PaperCOIListProps) {
+export function PaperCOIList({ conferenceId, filters }: PaperCOIListProps) {
   const { t } = useTranslation()
   const [papers, setPapers] = useState<PaperCOISummary[]>([])
   const [loading, setLoading] = useState(true)
@@ -37,18 +36,15 @@ export function PaperCOIList({ filters, onViewDetail }: PaperCOIListProps) {
       setError(null)
 
       const result = await getAllPaperCOIs({
+        conference_id: parseInt(conferenceId),
         search: filters.search || undefined,
         severity: filters.severity === "all" ? undefined : filters.severity,
         limit: itemsPerPage,
         page,
       })
 
-      if (result.data) {
-        setPapers(result.data.papers)
-        setTotalCount(result.data.total)
-      } else {
-        setError(result.error || "Failed to load papers")
-      }
+      setPapers(result.papers)
+      setTotalCount(result.total)
     } catch (err) {
       setError("Failed to load papers")
       console.error(err)
@@ -218,7 +214,7 @@ export function PaperCOIList({ filters, onViewDetail }: PaperCOIListProps) {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2 mb-1">
-                            <p className="font-medium text-sm truncate">{item.reviewer.name}</p>
+                            <p className="font-medium text-sm truncate">{item.reviewer_name}</p>
                             <span
                               className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${
                                 item.severity === "high"
@@ -232,7 +228,7 @@ export function PaperCOIList({ filters, onViewDetail }: PaperCOIListProps) {
                             </span>
                           </div>
                           <p className="text-xs text-muted-foreground mb-1.5 truncate">
-                            {item.reviewer.affiliation}
+                            {item.reviewer_email}
                           </p>
                           <div className="space-y-1">
                             {item.reasons.map((reason, rIdx) => (
@@ -243,19 +239,6 @@ export function PaperCOIList({ filters, onViewDetail }: PaperCOIListProps) {
                                 • {reason}
                               </p>
                             ))}
-                          </div>
-                          <div className="mt-2 flex justify-end">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-7 text-xs"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                onViewDetail?.(item.reviewer.id, paper.paper_id)
-                              }}
-                            >
-                              View Detail
-                            </Button>
                           </div>
                         </div>
                       </div>

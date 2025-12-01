@@ -130,9 +130,9 @@ func initializeApp(cfg *config.Config) (*controller.Controller, func(), error) {
 			log.Printf("Error closing database: %v", err)
 		}
 
-			if err := clients.Close(context.Background()); err != nil {
-				log.Printf("Error closing clients: %v", err)
-			}
+		if err := clients.Close(context.Background()); err != nil {
+			log.Printf("Error closing clients: %v", err)
+		}
 	}
 
 	return ctrl, cleanup, nil
@@ -182,10 +182,10 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 			users.GET("/me", handler.HandleNoRequest(ctrl.User.GetMe))
 			users.GET("/search", handler.HandleNoRequest(ctrl.User.Search))
 			users.GET("", handler.HandleRequestWithQuery(ctrl.User.List))
-		users.GET("/:email", handler.HandleNoRequest(ctrl.User.Get))
-		users.GET("/:email/coi-check", handler.HandleRequestWithURIAndQuery(ctrl.User.CheckCOI))
-		users.PUT("/:email", handler.HandleRequest(ctrl.User.Update))
-		users.DELETE("/:email", handler.HandleNoRequestWithMessage("user deleted successfully", ctrl.User.Delete))
+			users.GET("/:email", handler.HandleNoRequest(ctrl.User.Get))
+			users.GET("/:email/coi-check", handler.HandleRequestWithURIAndQuery(ctrl.User.CheckCOI))
+			users.PUT("/:email", handler.HandleRequest(ctrl.User.Update))
+			users.DELETE("/:email", handler.HandleNoRequestWithMessage("user deleted successfully", ctrl.User.Delete))
 		}
 
 		// Conference routes (all protected - authentication required)
@@ -242,6 +242,26 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 		{
 			assignments.PUT("/:assignment_id/review", handler.HandleRequestWithAll(ctrl.Assignment.SaveReview))
 			assignments.GET("/:assignment_id/review", handler.HandleRequestWithURI(ctrl.Assignment.GetReview))
+		}
+
+		// COI (Conflict of Interest) routes (authentication required)
+		coi := v1.Group("/coi")
+		coi.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
+		{
+			// Dashboard stats
+			coi.GET("/dashboard/stats/:conference_id", handler.HandleRequestWithURI(ctrl.COI.GetDashboardStats))
+
+			// All relationships (with filters and pagination)
+			coi.GET("/relationships", handler.HandleRequestWithQuery(ctrl.COI.GetAllRelationships))
+
+			// Detailed check for reviewer-author pair
+			coi.GET("/check/reviewer/:reviewer_id/author/:author_email", handler.HandleRequestWithURI(ctrl.COI.CheckReviewerAuthorCOI))
+
+			// Paper COI summaries
+			coi.GET("/papers", handler.HandleRequestWithQuery(ctrl.COI.GetPaperCOIs))
+
+			// Rebuild COI relationships (admin/chair only)
+			coi.POST("/conferences/:conference_id/rebuild", handler.HandleRequestWithURI(ctrl.COI.RebuildCOI))
 		}
 	}
 

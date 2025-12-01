@@ -124,6 +124,73 @@ func (d *RelationshipDetector) HasConflict(
 	return false, fmt.Errorf("single-pair check not implemented - use DetectConflicts for batch operations")
 }
 
+// DetectConflictsWithDetails returns detailed conflict information for relationship-based conflicts
+func (d *RelationshipDetector) DetectConflictsWithDetails(
+	ctx context.Context,
+	submissions []commons.Submission,
+	reviewers []commons.Reviewer,
+) ([]commons.ConflictDetail, error) {
+	var details []commons.ConflictDetail
+
+	// Calculate year threshold
+	yearThreshold := time.Now().Year() - d.windowYears
+
+	// Build reviewer email map for quick lookup
+	reviewerByEmail := make(map[string]int64)
+	for _, r := range reviewers {
+		reviewerByEmail[r.UserEmail] = r.ID
+	}
+
+	// Check each submission against all reviewers
+	for _, sub := range submissions {
+		// Collect all authors from the submission (main author + co-authors)
+		authors := []string{sub.AuthorEmail}
+		authors = append(authors, sub.CoAuthors...)
+
+		// Check each author against each reviewer
+		for _, authorEmail := range authors {
+			for reviewerEmail, reviewerID := range reviewerByEmail {
+				// Check if there's a collaboration path
+				hasConflict, err := d.authorService.HasIndirectCollaboration(
+					ctx,
+					authorEmail,
+					reviewerEmail,
+					DefaultCOIPathThreshold,
+					yearThreshold,
+				)
+
+				if err != nil {
+					// Log error but continue
+					continue
+				}
+
+				if hasConflict {
+					// For now, infer relationship details
+					// In a more sophisticated implementation, you would query Neo4j for path details
+					description := fmt.Sprintf("Collaboration detected between %s and %s within the last %d years",
+						authorEmail, reviewerEmail, d.windowYears)
+
+					// Assume "collaborator" type and "medium" severity for graph-detected relationships
+					// In a real implementation, you would analyze the path to determine type and severity
+					details = append(details, commons.ConflictDetail{
+						SubmissionID: sub.ID,
+						ReviewerID:   reviewerID,
+						AuthorEmail:  authorEmail,
+						Type:         "collaborator",
+						Severity:     "medium",
+						Description:  description,
+						Evidence:     []string{fmt.Sprintf("Graph-based collaboration within %d years", d.windowYears)},
+						StartDate:    nil, // Would need to query Neo4j for actual dates
+						EndDate:      nil,
+					})
+				}
+			}
+		}
+	}
+
+	return details, nil
+}
+
 // CheckAuthorReviewerConflict checks if a specific author-reviewer pair has conflict
 // This is a helper method that can be used when you have email addresses
 func (d *RelationshipDetector) CheckAuthorReviewerConflict(

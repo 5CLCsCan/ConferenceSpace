@@ -13,45 +13,34 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { checkReviewerToAuthorCOI, checkReviewerToPaperCOI } from "@/lib/api/coi-mock"
-import type { COIReport } from "@/lib/mock-data/coi"
+import { checkReviewerToAuthorCOI, type COIReport } from "@/lib/api/coi"
 
 interface COIDetailViewProps {
-  reviewerId: string
-  authorId?: string
-  paperId?: string
+  conferenceId: number
+  reviewerId: number
+  authorEmail: string
   onClose: () => void
 }
 
-export function COIDetailView({ reviewerId, authorId, paperId, onClose }: COIDetailViewProps) {
+export function COIDetailView({ conferenceId, reviewerId, authorEmail, onClose }: COIDetailViewProps) {
   const { t } = useTranslation()
   const [coiReport, setCoiReport] = useState<COIReport | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (reviewerId && (authorId || paperId)) {
+    if (conferenceId && reviewerId && authorEmail) {
       loadCOIDetails()
     }
-  }, [reviewerId, authorId, paperId])
+  }, [conferenceId, reviewerId, authorEmail])
 
   const loadCOIDetails = async () => {
     try {
       setLoading(true)
       setError(null)
 
-      let result
-      if (paperId) {
-        result = await checkReviewerToPaperCOI(reviewerId, paperId)
-      } else if (authorId) {
-        result = await checkReviewerToAuthorCOI(reviewerId, authorId)
-      }
-
-      if (result?.data) {
-        setCoiReport(result.data)
-      } else {
-        setError(result?.error || "Failed to load COI details")
-      }
+      const result = await checkReviewerToAuthorCOI(conferenceId, reviewerId, authorEmail)
+      setCoiReport(result)
     } catch (err) {
       setError("Failed to load COI details")
       console.error(err)

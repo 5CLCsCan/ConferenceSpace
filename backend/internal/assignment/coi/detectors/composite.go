@@ -45,6 +45,27 @@ func (d *CompositeDetector) DetectConflicts(
 	return merged, nil
 }
 
+// DetectConflictsWithDetails runs all detectors and aggregates their detailed results
+func (d *CompositeDetector) DetectConflictsWithDetails(
+	ctx context.Context,
+	submissions []commons.Submission,
+	reviewers []commons.Reviewer,
+) ([]commons.ConflictDetail, error) {
+	var allDetails []commons.ConflictDetail
+
+	// Run each detector and collect all details
+	for _, detector := range d.detectors {
+		details, err := detector.DetectConflictsWithDetails(ctx, submissions, reviewers)
+		if err != nil {
+			return nil, fmt.Errorf("%s detector failed: %w", detector.Name(), err)
+		}
+
+		allDetails = append(allDetails, details...)
+	}
+
+	return allDetails, nil
+}
+
 // HasConflict checks if any detector reports a conflict
 func (d *CompositeDetector) HasConflict(ctx context.Context, submissionID, reviewerID int64) (bool, error) {
 	for _, detector := range d.detectors {
