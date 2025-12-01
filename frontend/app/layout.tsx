@@ -5,6 +5,7 @@ import "./globals.css"
 import { AuthProvider } from "@/lib/auth-context"
 import { TranslationProvider } from "@/lib/i18n/translation-context"
 import { ChatbotProvider, Chatbot } from "@/components/chatbot"
+import { ConferenceFloatingActions } from "@/components/conference/conference-floating-actions"
 import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({
@@ -44,6 +45,7 @@ export default function RootLayout({
                   {children}
                 </main>
                 <Chatbot />
+                <ConferenceFloatingActions />
               </div>
               <Toaster />
             </ChatbotProvider>

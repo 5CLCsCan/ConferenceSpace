@@ -715,3 +715,60 @@ export async function toggleBookmark(
     }
   }
 }
+
+/**
+ * Update conference status (stage)
+ * Expected backend endpoint: PUT /api/v1/conferences/:conference_id/status
+ */
+export async function updateConferenceStatus(
+  conferenceId: string,
+  status: ConferenceStatus,
+): Promise<ApiResponse<Conference>> {
+  try {
+    const { data, response } = await apiFetch<{ data: any }>(
+      `/api/v1/conferences/${conferenceId}/status`,
+      {
+        method: "PUT",
+        body: JSON.stringify({
+          conference_id: Number(conferenceId),
+          new_status: status,
+        }),
+      },
+    )
+
+    const conference: Conference = {
+      id: data.data.id.toString(),
+      name: data.data.title,
+      acronym: data.data.acronym,
+      year: new Date(data.data.configurations?.start_date || data.data.created_at).getFullYear(),
+      description: data.data.description,
+      submission_deadline: data.data.configurations?.full_paper_submission_deadline || "",
+      review_deadline: "",
+      camera_ready_deadline: data.data.configurations?.camera_ready_deadline || "",
+      notification_date: "",
+      conference_date: data.data.configurations?.start_date || "",
+      conference_end_date: data.data.configurations?.end_date || undefined,
+      location: data.data.venue || data.data.location || "",
+      website: data.data.website || "",
+      status: (data.data.status || status) as ConferenceStatus,
+      tracks: data.data.tracks || [],
+      domain: data.data.domain || [],
+      call_for_paper_text: data.data.configurations?.call_for_paper_text || undefined,
+      chair: data.data.chair,
+      primary_contact: data.data.primary_contact,
+      area_chair: data.data.area_chair,
+    }
+
+    return {
+      data: conference,
+      error: null,
+      status: response.status,
+    }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to update conference status",
+      status: 500,
+    }
+  }
+}

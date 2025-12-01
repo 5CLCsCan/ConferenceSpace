@@ -4,7 +4,7 @@ import type { UIMessage } from "ai"
 import { z } from "zod"
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
-const MODEL = "x-ai/grok-4.1-fast"
+const MODEL = "google/gemini-2.5-flash-lite-preview-09-2025"
 
 if (!OPENROUTER_API_KEY) {
   console.warn("OPENROUTER_API_KEY is not set. Chat functionality will not work.")
