@@ -58,7 +58,7 @@ export function ReviewerOverview({
   return (
     <>
       <div className="grid md:grid-cols-3 gap-6">
-        <Card>
+        <Card className="py-6">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">
               {t("dashboard.roles.reviewer.stats.totalConferences")}
@@ -73,7 +73,7 @@ export function ReviewerOverview({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="py-6">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">
               {t("dashboard.roles.reviewer.stats.completedReviews")}
@@ -88,7 +88,7 @@ export function ReviewerOverview({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="py-6">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">
               {t("dashboard.roles.reviewer.stats.pendingReviews")}
@@ -104,7 +104,7 @@ export function ReviewerOverview({
         </Card>
       </div>
 
-      <Card>
+      <Card className="py-6">
         <CardHeader>
           <CardTitle>{t("dashboard.roles.reviewer.todo.title")}</CardTitle>
           <CardDescription>{t("dashboard.roles.reviewer.todo.description")}</CardDescription>

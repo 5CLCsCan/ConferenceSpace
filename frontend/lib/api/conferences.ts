@@ -34,8 +34,9 @@ export async function getConferenceById(conferenceId: string): Promise<ApiRespon
       notification_date: "", // TODO: Map if available
       conference_date: data.data.configurations?.start_date || "",
       conference_end_date: data.data.configurations?.end_date || undefined,
-      location: "", // TODO: Map if available
-      website: "", // TODO: Map if available
+      // Prefer explicit backend venue/location fields if present
+      location: data.data.venue || data.data.location || "",
+      website: data.data.website || "",
       status: (data.data.status || "open") as ConferenceStatus,
       tracks: data.data.tracks || [], // Ensure tracks is always an array
       domain: data.data.domain || [], // Research domains/keywords/topics
@@ -171,6 +172,7 @@ export async function listConferences(filters?: {
   status?: string
   myConferences?: boolean
   role?: string
+  myBookmark?: boolean
 }): Promise<ApiResponse<{ conferences: Conference[]; total: number }>> {
   try {
     const params = new URLSearchParams()
@@ -183,6 +185,8 @@ export async function listConferences(filters?: {
     if (filters?.myConferences !== undefined)
       params.append("myConferences", filters.myConferences.toString())
     if (filters?.role) params.append("role", filters.role)
+    if (filters?.myBookmark !== undefined)
+      params.append("myBookmark", filters.myBookmark.toString())
 
     const queryString = params.toString()
     const endpoint = `/api/v1/conferences${queryString ? `?${queryString}` : ""}`
@@ -204,8 +208,8 @@ export async function listConferences(filters?: {
       notification_date: "", // TODO: Map if available
       conference_date: conf.configurations?.start_date || "",
       conference_end_date: conf.configurations?.end_date || undefined,
-      location: "", // TODO: Map if available
-      website: "", // TODO: Map if available
+      location: conf.venue || conf.location || "",
+      website: conf.website || "",
       status: (conf.status || "open") as ConferenceStatus,
       tracks: conf.tracks || [], // TODO: Map if available
       domain: conf.domain || [], // Research domains/keywords/topics
@@ -241,6 +245,7 @@ export async function createConference(conferenceData: {
   description: string
   domain: string[]
   tracks?: string[]
+  venue: string
   configurations: {
     start_date: string
     end_date: string
@@ -254,6 +259,7 @@ export async function createConference(conferenceData: {
     submission_format: string
     require_complete_author_profile: boolean
     allow_paper_withdrawls: boolean
+    call_for_paper_text?: string
   }
 }): Promise<ApiResponse<Conference>> {
   try {
@@ -264,6 +270,7 @@ export async function createConference(conferenceData: {
         description: conferenceData.description,
         domain: conferenceData.domain,
         tracks: conferenceData.tracks || [],
+        venue: conferenceData.venue,
         configurations: conferenceData.configurations,
       },
     }
@@ -286,8 +293,8 @@ export async function createConference(conferenceData: {
       notification_date: "",
       conference_date: data.data.configurations?.start_date || "",
       conference_end_date: data.data.configurations?.end_date || undefined,
-      location: "",
-      website: "",
+      location: data.data.venue || data.data.location || "",
+      website: data.data.website || "",
       status: (data.data.status || "open") as ConferenceStatus,
       tracks: data.data.tracks || [],
       domain: data.data.domain || [],
@@ -319,6 +326,7 @@ export async function updateConference(
     title: string
     description: string
     domain: string[]
+    venue: string
     configurations: Partial<{
       maximum_pages: number
     }>
@@ -671,6 +679,38 @@ export async function getConferenceDates(
     return {
       data: null,
       error: error instanceof Error ? error.message : "Failed to fetch conference dates",
+      status: 500,
+    }
+  }
+}
+
+/**
+ * Toggle conference bookmark
+ * Backend endpoint: PUT /api/v1/conferences/:conference_id/bookmark
+ * Database: conference_bookmarks table
+ */
+export async function toggleBookmark(
+  conferenceId: string,
+): Promise<ApiResponse<{ message: string; isBookmarked: boolean }>> {
+  try {
+    const { data, response } = await apiFetch<{
+      data: { message: string; is_bookmarked: boolean }
+    }>(`/api/v1/conferences/${conferenceId}/bookmark`, {
+      method: "PUT",
+    })
+
+    return {
+      data: {
+        message: data.data.message,
+        isBookmarked: data.data.is_bookmarked,
+      },
+      error: null,
+      status: response.status,
+    }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to toggle bookmark",
       status: 500,
     }
   }

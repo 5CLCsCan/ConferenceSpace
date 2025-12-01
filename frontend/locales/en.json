@@ -96,12 +96,14 @@
       "inProgress": "In Progress",
       "completed": "Completed",
       "active": "Active",
-      "inactive": "Inactive"
+      "inactive": "Inactive",
+      "submitted": "Submitted",
+      "bookmarked": "Bookmarked"
     },
     "conferenceStatus": {
       "open": "Accepting Submissions",
-      "reviewing": "In Review",
-      "completed": "Completed"
+      "reviewing": "Submission Closed",
+      "completed": "Ended"
     }
   },
   "home": {
@@ -211,6 +213,7 @@
           "dates": "Key Dates",
           "committee": "Organising Committee",
           "submissions": "Submissions",
+          "mySubmission": "My Submission",
           "coiDemo": "COI Demo"
         },
         "currentRole": "Current role",
@@ -454,7 +457,9 @@
             "name": "Conference Name",
             "role": "Role",
             "progress": "Progress",
-            "deadline": "Review Deadline"
+            "deadline": "Review Deadline",
+            "status": "Status",
+            "actions": "Actions"
           },
           "status": {
             "active": "Active",
@@ -865,6 +870,22 @@
             "scopeMatch": "Scope Match"
           }
         }
+      },
+      "submission": {
+        "description": "View and manage your submission for this conference",
+        "noSubmission": "No Submission Yet",
+        "noSubmissionDescription": "You haven't submitted a paper to this conference yet. Start your submission now to participate.",
+        "submitNow": "Submit Paper",
+        "submittedOn": "Submitted on {date}",
+        "lastUpdated": "Updated {date}",
+        "untitled": "Untitled Submission",
+        "continueDraft": "Continue Draft",
+        "viewDetails": "View Details",
+        "editSubmission": "Edit Submission",
+        "versionHistory": "Version History",
+        "versionHistoryDescription": "Track changes and revisions to your submission",
+        "versionHistoryPlaceholder": "Version history will be available when you make revisions to your paper",
+        "comingSoon": "Coming Soon"
       }
     },
     "reviewer": {

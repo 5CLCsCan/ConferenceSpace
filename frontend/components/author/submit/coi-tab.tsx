@@ -155,9 +155,9 @@ export function COITab({
         <div className={spacing.padding.card}>
           <div className="flex items-start gap-3">
             <AlertCircle className="size-5 text-amber-600 flex-shrink-0 mt-0.5" />
-            <div className={`${typography.bodySmall} text-gray-700 font-arial`}>
+            <div className={`${typography.normal} text-gray-700 font-arial`}>
               <p className={`${typography.semibold} text-amber-900 mb-1`}>Important Notice</p>
-              <p>
+              <p className={`${typography.bodySmall} text-gray-700 font-arial`}>
                 By submitting, you confirm that your conflict of interest declaration is accurate
                 and complete. Failure to declare relevant conflicts may result in desk rejection or
                 withdrawal of your submission.

@@ -96,7 +96,9 @@
       "inProgress": "Đang xử lý",
       "completed": "Hoàn thành",
       "active": "Hoạt động",
-      "inactive": "Không hoạt động"
+      "inactive": "Không hoạt động",
+      "submitted": "Đã nộp",
+      "bookmarked": "Đã lưu"
     },
     "conferenceStatus": {
       "open": "Đang Nhận Bài",
@@ -211,6 +213,7 @@
           "dates": "Các mốc thời gian",
           "committee": "Ban tổ chức",
           "submissions": "Bài gửi",
+          "mySubmission": "Bài của tôi",
           "coiDemo": "COI Check"
         },
         "currentRole": "Vai trò hiện tại",
@@ -453,7 +456,9 @@
             "name": "Tên hội nghị",
             "role": "Vai trò",
             "progress": "Tiến độ",
-            "deadline": "Hạn chót"
+            "deadline": "Hạn chót",
+            "status": "Trạng thái",
+            "actions": "Hành động"
           },
           "status": {
             "active": "Đang diễn ra",
@@ -870,6 +875,22 @@
             "scopeMatch": "Khớp Phạm vi"
           }
         }
+      },
+      "submission": {
+        "description": "Xem và quản lý bài nộp của bạn cho hội nghị này",
+        "noSubmission": "Chưa có bài nộp",
+        "noSubmissionDescription": "Bạn chưa nộp bài cho hội nghị này. Bắt đầu nộp bài ngay để tham gia.",
+        "submitNow": "Nộp bài",
+        "submittedOn": "Đã nộp vào {date}",
+        "lastUpdated": "Cập nhật {date}",
+        "untitled": "Bài chưa có tiêu đề",
+        "continueDraft": "Tiếp tục bản nháp",
+        "viewDetails": "Xem chi tiết",
+        "editSubmission": "Chỉnh sửa bài nộp",
+        "versionHistory": "Lịch sử phiên bản",
+        "versionHistoryDescription": "Theo dõi các thay đổi và chỉnh sửa bài nộp của bạn",
+        "versionHistoryPlaceholder": "Lịch sử phiên bản sẽ khả dụng khi bạn chỉnh sửa bài báo của mình",
+        "comingSoon": "Sắp có"
       }
     },
     "reviewer": {

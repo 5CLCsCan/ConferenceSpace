@@ -3,16 +3,18 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
 import { FilterBar, type ActiveFilter } from "@/components/ui/filter-bar"
-import { listConferences } from "@/lib/api/conferences"
+import { listConferences, toggleBookmark } from "@/lib/api/conferences"
 import { formatDate } from "@/lib/utils"
 import { useDebounce } from "@/hooks/use-debounce"
+import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState, useEffect, useMemo } from "react"
-import type { Conference } from "@/lib/types"
+import type { Conference, ConferenceStatus } from "@/lib/types"
 import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { typography, spacing, iconSizes } from "@/lib/typography"
+import { Bookmark, BookmarkCheck } from "lucide-react"
 
 type ViewMode = "my" | "discover"
 type StatusFilter = "open" | "reviewing" | "completed" | ""
@@ -20,6 +22,7 @@ type StatusFilter = "open" | "reviewing" | "completed" | ""
 export function AuthorDashboard() {
   const { user } = useAuth()
   const { t } = useTranslation()
+  const { toast } = useToast()
   const router = useRouter()
   const [viewMode, setViewMode] = useState<ViewMode>("discover") // Default view mode
   const [conferences, setConferences] = useState<Conference[]>([])
@@ -52,27 +55,80 @@ export function AuthorDashboard() {
 
         // Add view mode filter
         if (viewMode === "my") {
-          filters.myConferences = true
-          filters.role = "author"
-        }
+          // For "My Conference" tab: show conferences where user has submissions OR bookmarks
+          // We'll fetch both and merge them
+          // First, get conferences with submissions (role=author)
+          const submissionsFilters = {
+            ...filters,
+            myConferences: true,
+            role: "author",
+          }
 
-        // Add search filter (pass to backend as 'title' parameter)
-        if (debouncedSearchQuery.trim()) {
-          filters.title = debouncedSearchQuery.trim()
-        }
+          // Add search filter if present
+          if (debouncedSearchQuery.trim()) {
+            submissionsFilters.title = debouncedSearchQuery.trim()
+          }
 
-        // Add status filter (pass to backend)
-        if (statusFilter) {
-          filters.status = statusFilter
-        }
+          const [submissionsResponse, bookmarksResponse] = await Promise.all([
+            listConferences(submissionsFilters),
+            listConferences({
+              ...filters,
+              myBookmark: true,
+              title: debouncedSearchQuery.trim() || undefined,
+            }),
+          ])
 
-        const conferencesResponse = await listConferences(filters)
+          // Merge results, avoiding duplicates
+          const conferenceMap = new Map<string, Conference>()
 
-        if (conferencesResponse.error) {
-          setError(conferencesResponse.error)
-        } else if (conferencesResponse.data) {
-          setConferences(conferencesResponse.data.conferences)
-          setTotal(conferencesResponse.data.total || 0)
+          if (submissionsResponse.data) {
+            submissionsResponse.data.conferences.forEach((conf) => {
+              conferenceMap.set(conf.id, conf)
+            })
+          }
+
+          if (bookmarksResponse.data) {
+            bookmarksResponse.data.conferences.forEach((conf) => {
+              const existing = conferenceMap.get(conf.id)
+              if (existing) {
+                conferenceMap.set(conf.id, { ...existing, isBookmarked: true })
+              } else {
+                conferenceMap.set(conf.id, { ...conf, isBookmarked: true })
+              }
+            })
+          }
+
+          let mergedConferences = Array.from(conferenceMap.values())
+
+          if (statusFilter) {
+            mergedConferences = mergedConferences.filter(
+              (conf) => computeConferenceStatus(conf) === statusFilter,
+            )
+          }
+
+          setConferences(mergedConferences)
+          setTotal(mergedConferences.length)
+        } else {
+          // Explore tab: show all conferences
+          // Add search filter (pass to backend as 'title' parameter)
+          if (debouncedSearchQuery.trim()) {
+            filters.title = debouncedSearchQuery.trim()
+          }
+
+          const conferencesResponse = await listConferences(filters)
+
+          if (conferencesResponse.error) {
+            setError(conferencesResponse.error)
+          } else if (conferencesResponse.data) {
+            let list = conferencesResponse.data.conferences
+
+            if (statusFilter) {
+              list = list.filter((conf) => computeConferenceStatus(conf) === statusFilter)
+            }
+
+            setConferences(list)
+            setTotal(list.length)
+          }
         }
       } catch (err) {
         setError("Failed to load conferences")
@@ -107,6 +163,71 @@ export function AuthorDashboard() {
       },
     ]
   }, [statusFilter])
+
+  const computeConferenceStatus = (conference: Conference): ConferenceStatus => {
+    const parseDate = (value?: string | null) => (value ? new Date(value) : null)
+    const now = new Date()
+    const submissionDeadline = parseDate(conference.submission_deadline)
+    const conferenceEnd = parseDate(conference.conference_end_date ?? conference.conference_date)
+
+    if (submissionDeadline && now < submissionDeadline) {
+      return "open"
+    }
+
+    if (conferenceEnd) {
+      return now >= conferenceEnd ? "completed" : "reviewing"
+    }
+
+    return conference.status
+  }
+
+  // Handle bookmark toggle
+  const handleBookmarkToggle = async (conference: Conference, e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent row click
+
+    try {
+      const result = await toggleBookmark(conference.id)
+
+      if (result.error) {
+        console.error("Failed to toggle bookmark:", result.error)
+        toast({
+          title: "Bookmark failed",
+          description: result.error,
+          variant: "destructive",
+        })
+        return
+      }
+
+      const isBookmarked = result.data?.isBookmarked ?? false
+
+      toast({
+        title: isBookmarked ? "Conference bookmarked" : "Bookmark removed",
+        description: conference.name,
+      })
+
+      setConferences((prev) => {
+        const updated = prev.map((conf) =>
+          conf.id === conference.id ? { ...conf, isBookmarked } : conf,
+        )
+
+        if (viewMode === "discover") {
+          return updated.filter((conf) => !conf.isBookmarked)
+        }
+
+        if (viewMode === "my") {
+          return updated.filter((conf) => {
+            if (conf.id !== conference.id) return true
+            if (conf.isBookmarked) return true
+            return conf.userRole === "author"
+          })
+        }
+
+        return updated
+      })
+    } catch (error) {
+      console.error("Error toggling bookmark:", error)
+    }
+  }
 
   const filterPopover = (
     <div className={spacing.subsection}>
@@ -151,16 +272,16 @@ export function AuthorDashboard() {
   )
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <main className="container mx-auto px-4 py-8">
         {/* Conference Management List */}
         <section className="mb-12">
           <div className={`flex items-center ${spacing.gap.md} mb-4`}>
             <h2
-              className={`${typography.h2} ${typography.semibold} cursor-pointer transition-all px-4 py-2 rounded-md ${
+              className={`${typography.h2} ${typography.semibold} cursor-pointer transition-all px-4 pb-1 rounded-t-md border-b-2 ${
                 viewMode === "my"
-                  ? "text-foreground bg-muted"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  ? "border-primary text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
               onClick={() => {
                 setViewMode("my")
@@ -172,10 +293,10 @@ export function AuthorDashboard() {
             </h2>
             <span className="text-muted-foreground">/</span>
             <h2
-              className={`${typography.h2} ${typography.semibold} cursor-pointer transition-all px-4 py-2 rounded-md ${
+              className={`${typography.h2} ${typography.semibold} cursor-pointer transition-all px-4 pb-1 rounded-t-md border-b-2 ${
                 viewMode === "discover"
-                  ? "text-foreground bg-muted"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  ? "border-primary text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
               onClick={() => {
                 setViewMode("discover")
@@ -226,9 +347,7 @@ export function AuthorDashboard() {
                   width: "w-36",
                   render: (conference) => (
                     <div className="whitespace-nowrap">
-                      {(conference as any).configurations?.start_date
-                        ? formatDate((conference as any).configurations.start_date)
-                        : "-"}
+                      {conference.conference_date ? formatDate(conference.conference_date) : "-"}
                     </div>
                   ),
                   mobileLabel: t("dashboard.author.dashboard.tableHeaders.date"),
@@ -239,19 +358,84 @@ export function AuthorDashboard() {
                   width: "w-[140px]",
                   render: (conference) => (
                     <div className="whitespace-nowrap">
-                      {(conference as any).configurations?.full_paper_submission_deadline
-                        ? formatDate(
-                            (conference as any).configurations.full_paper_submission_deadline,
-                          )
+                      {conference.submission_deadline
+                        ? formatDate(conference.submission_deadline)
                         : "-"}
                     </div>
                   ),
                   mobileLabel: t("dashboard.author.dashboard.tableHeaders.submissionDeadline"),
                 },
+                {
+                  key: "status",
+                  label: "Status",
+                  width: "w-32",
+                  render: (conference) => {
+                    if (viewMode === "my") {
+                      // For My Conference: show submission status
+                      // TODO: This should come from backend with submission data
+                      const status =
+                        conference.submissionStatus || conference.userRole === "author"
+                          ? t("common.status.submitted")
+                          : t("common.status.bookmarked")
+                      const statusColors: Record<string, string> = {
+                        Submitted: "bg-blue-100 text-blue-800",
+                        Reviewing: "bg-yellow-100 text-yellow-800",
+                        Accepted: "bg-green-100 text-green-800",
+                        Rejected: "bg-red-100 text-red-800",
+                        Bookmarked: "bg-gray-100 text-gray-800",
+                      }
+                      return (
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[status] || "bg-gray-100 text-gray-800"}`}
+                        >
+                          {status}
+                        </span>
+                      )
+                    } else {
+                      // For Explore: show conference status
+                      const derivedStatus = computeConferenceStatus(conference)
+                      const statusMap: Record<ConferenceStatus, string> = {
+                        open: t("common.conferenceStatus.open"),
+                        reviewing: t("common.conferenceStatus.reviewing"),
+                        completed: t("common.conferenceStatus.completed"),
+                      }
+                      const statusColors: Record<ConferenceStatus, string> = {
+                        open: "bg-green-100 text-green-800",
+                        reviewing: "bg-yellow-100 text-yellow-800",
+                        completed: "bg-gray-100 text-gray-800",
+                      }
+                      return (
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[derivedStatus]}`}
+                        >
+                          {statusMap[derivedStatus]}
+                        </span>
+                      )
+                    }
+                  },
+                  mobileLabel: "Status",
+                },
+                {
+                  key: "actions",
+                  label: "Action",
+                  width: "w-24",
+                  render: (conference) => (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => handleBookmarkToggle(conference, e)}
+                      className="hover:bg-accent"
+                    >
+                      {conference.isBookmarked || conference.userRole === "author" ? (
+                        <BookmarkCheck className="h-4 w-4 text-primary" />
+                      ) : (
+                        <Bookmark className="h-4 w-4" />
+                      )}
+                    </Button>
+                  ),
+                  mobileLabel: "Action",
+                },
               ]
-
-              // Note: Removed "status" column since we don't load submissions on this page
-              // Submissions are loaded when user clicks into a specific conference
 
               return baseColumns
             }, [viewMode, t])}
@@ -283,16 +467,12 @@ export function AuthorDashboard() {
                 >
                   <div>
                     {t("dashboard.author.dashboard.tableHeaders.date")}:{" "}
-                    {(conference as any).configurations?.start_date
-                      ? formatDate((conference as any).configurations.start_date)
-                      : "-"}
+                    {conference.conference_date ? formatDate(conference.conference_date) : "-"}
                   </div>
                   <div>
                     {t("dashboard.author.dashboard.tableHeaders.submissionDeadline")}:{" "}
-                    {(conference as any).configurations?.full_paper_submission_deadline
-                      ? formatDate(
-                          (conference as any).configurations.full_paper_submission_deadline,
-                        )
+                    {conference.submission_deadline
+                      ? formatDate(conference.submission_deadline)
                       : "-"}
                   </div>
                 </div>

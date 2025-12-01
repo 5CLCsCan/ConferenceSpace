@@ -9,6 +9,7 @@ import { ConferenceCallForPapers } from "@/components/conference/conference-call
 import { ConferenceImportantDates } from "@/components/conference/conference-important-dates"
 import { ConferenceCommittee } from "@/components/conference/conference-committee"
 import { ConferenceSubmissions } from "@/components/conference/conference-submissions"
+import { AuthorSubmission } from "@/components/conference/author-submission"
 import { COIDashboard } from "@/components/coi"
 import { useAuth } from "@/lib/auth-context"
 import { DashboardHeader } from "@/components/dashboard-header"
@@ -96,7 +97,13 @@ export default function ConferencePage() {
         label:
           currentRole === "chair" ? "Reviewers" : t("dashboard.conference.details.tabs.committee"),
       },
-      { id: "submissions" as TabType, label: t("dashboard.conference.details.tabs.submissions") },
+      {
+        id: "submissions" as TabType,
+        label:
+          currentRole === "author"
+            ? t("dashboard.conference.details.tabs.mySubmission")
+            : t("dashboard.conference.details.tabs.submissions"),
+      },
       {
         id: "coi-demo" as TabType,
         label: t("dashboard.conference.details.tabs.coiDemo") || "COI Demo",
@@ -238,7 +245,12 @@ export default function ConferencePage() {
             {activeTab === "call-for-papers" && <ConferenceCallForPapers conference={conference} />}
             {activeTab === "dates" && <ConferenceImportantDates conferenceId={conference.id} />}
             {activeTab === "committee" && <ConferenceCommittee conferenceId={conference.id} />}
-            {activeTab === "submissions" && <ConferenceSubmissions conferenceId={conference.id} />}
+            {activeTab === "submissions" &&
+              (currentRole === "author" ? (
+                <AuthorSubmission conferenceId={conference.id} />
+              ) : (
+                <ConferenceSubmissions conferenceId={conference.id} />
+              ))}
             {activeTab === "coi-demo" && <COIDashboard conferenceId={conference.id} />}
           </div>
         </main>

@@ -14,7 +14,7 @@
  */
 
 import { useEffect, useState, useMemo } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import type { Paper } from "@/lib/types"
 import { getConferencePapers } from "@/lib/api/conferences"
 import { Card } from "@/components/ui/card"
@@ -33,6 +33,7 @@ interface ConferenceSubmissionsProps {
 
 export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user, currentRole } = useAuth()
   const [papers, setPapers] = useState<Paper[]>([])
   const [filteredPapers, setFilteredPapers] = useState<Paper[]>([])
@@ -43,6 +44,21 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
   const [filterOpen, setFilterOpen] = useState(false)
   const [tempStatusFilter, setTempStatusFilter] = useState<string>("all")
   const [tempTrackFilter, setTempTrackFilter] = useState<string>("all")
+
+  // Initialize filters from URL query params (e.g., keyword, track)
+  useEffect(() => {
+    const initialKeyword = searchParams.get("keyword")
+    const initialTrack = searchParams.get("track")
+
+    if (initialKeyword) {
+      setSearchQuery(initialKeyword)
+    }
+
+    if (initialTrack) {
+      setTrackFilter(initialTrack)
+      setTempTrackFilter(initialTrack)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     async function loadPapers() {
