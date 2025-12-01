@@ -1098,6 +1098,246 @@ curl -X GET "http://localhost:8080/api/v1/conferences/1/submissions?status=draft
 
 ---
 
+## COI (Conflict of Interest) Management
+
+### Get COI Dashboard Stats
+
+```http
+GET /api/v1/coi/dashboard/stats/:conference_id
+Authorization: Bearer <token>
+```
+
+**Description:** Get COI statistics and overview metrics for a specific conference.
+
+**URL Parameters:**
+
+- `conference_id` (integer, required) - Conference ID
+
+**Response (200):**
+
+```json
+{
+  "data": {
+    "conference_id": 1,
+    "total_reviewers": 25,
+    "available_reviewers": 20,
+    "total_papers": 100,
+    "papers_under_review": 85,
+    "coi_detected": 42,
+    "total_relationships": 215,
+    "total_assignments": 180,
+    "completed_assignments": 150
+  }
+}
+```
+
+---
+
+### Get All COI Relationships
+
+```http
+GET /api/v1/coi/relationships?conference_id=1&severity=high&search=john&page=1&limit=100
+Authorization: Bearer <token>
+```
+
+**Description:** Get all COI relationships for a conference with filtering, searching, and pagination.
+
+**Query Parameters:**
+
+- `conference_id` (integer, required) - Conference ID
+- `severity` (string, optional) - Filter by severity: `high`, `medium`, or `low`
+- `relationship_type` (string, optional) - Filter by type: `self_author`, `co_author`, `declared`, `collaborator`, etc.
+- `search` (string, optional) - Search in names, emails, or descriptions
+- `limit` (integer, optional) - Results per page (default: 100)
+- `page` (integer, optional) - Page number (default: 1)
+
+**Response (200):**
+
+```json
+{
+  "data": {
+    "relationships": [
+      {
+        "id": 1,
+        "conference_id": 1,
+        "reviewer_id": 5,
+        "reviewer_name": "Dr. John Smith",
+        "reviewer_email": "john@example.com",
+        "author_email": "jane@example.com",
+        "author_name": "Jane Doe",
+        "author_affiliation": "MIT",
+        "submission_id": 10,
+        "type": "co_author",
+        "severity": "high",
+        "description": "Co-authored 3 papers together",
+        "evidence": ["Paper A (2021)", "Paper B (2022)"],
+        "start_date": "2021-01-15T00:00:00Z",
+        "end_date": null,
+        "detected_by": "self_author",
+        "paper_titles": ["Paper Title 1", "Paper Title 2"],
+        "created_at": "2025-01-20T10:00:00Z",
+        "updated_at": "2025-01-20T10:00:00Z"
+      }
+    ],
+    "total": 245,
+    "page": 1,
+    "limit": 100
+  }
+}
+```
+
+---
+
+### Check Reviewer-Author COI
+
+```http
+GET /api/v1/coi/check/reviewer/:reviewer_id/author/:author_email?conference_id=1
+Authorization: Bearer <token>
+```
+
+**Description:** Perform detailed COI analysis for a specific reviewer-author pair.
+
+**URL Parameters:**
+
+- `reviewer_id` (integer, required) - Reviewer ID
+- `author_email` (string, required) - Author email address
+
+**Query Parameters:**
+
+- `conference_id` (integer, required) - Conference ID
+
+**Response (200):**
+
+```json
+{
+  "data": {
+    "reviewer_id": 5,
+    "reviewer_name": "Dr. John Smith",
+    "reviewer_email": "john@example.com",
+    "reviewer_affiliation": "Harvard",
+    "author_email": "jane@example.com",
+    "author_name": "Jane Doe",
+    "author_affiliation": "MIT",
+    "coi_type": "author",
+    "severity": "high",
+    "relationships": [
+      {
+        "id": 1,
+        "type": "co_author",
+        "severity": "high",
+        "description": "Co-authored 5 papers (2019-2023)",
+        "evidence": ["Paper A", "Paper B"],
+        "start_date": "2019-03-15T00:00:00Z",
+        "end_date": "2023-11-20T00:00:00Z"
+      }
+    ],
+    "summary": "Found 1 relationship(s) between Dr. John Smith and Jane Doe",
+    "recommendation": "avoid"
+  }
+}
+```
+
+**Recommendation Values:**
+
+- `assign` - Safe to assign as reviewer (no or low COI)
+- `review` - Can assign with caution (medium COI)
+- `avoid` - Should not assign (high COI)
+
+---
+
+### Get Paper COI Summaries
+
+```http
+GET /api/v1/coi/papers?conference_id=1&severity=high&search=neural&page=1&limit=10
+Authorization: Bearer <token>
+```
+
+**Description:** Get COI summaries for all papers in a conference, showing which reviewers have conflicts with each paper.
+
+**Query Parameters:**
+
+- `conference_id` (integer, required) - Conference ID
+- `severity` (string, optional) - Filter by minimum severity level
+- `search` (string, optional) - Search paper titles or author names
+- `limit` (integer, optional) - Results per page (default: 10)
+- `page` (integer, optional) - Page number (default: 1)
+
+**Response (200):**
+
+```json
+{
+  "data": {
+    "papers": [
+      {
+        "paper_id": "10",
+        "paper_title": "Neural Networks for Computer Vision",
+        "authors": [
+          {
+            "email": "author@example.com",
+            "name": "Author Name",
+            "affiliation": "MIT"
+          }
+        ],
+        "total_conflicts": 5,
+        "high_severity_count": 2,
+        "medium_severity_count": 2,
+        "low_severity_count": 1,
+        "conflicted_reviewers": [
+          {
+            "reviewer_id": 3,
+            "reviewer_name": "Dr. Jane Smith",
+            "reviewer_email": "jane@example.com",
+            "severity": "high",
+            "reasons": ["Co-author", "Same organization"]
+          }
+        ]
+      }
+    ],
+    "total": 45,
+    "page": 1,
+    "limit": 10
+  }
+}
+```
+
+---
+
+### Rebuild COI Relationships
+
+```http
+POST /api/v1/coi/conferences/:conference_id/rebuild
+Authorization: Bearer <token>
+```
+
+**Description:** Trigger re-detection of COI relationships for a conference. Clears existing relationships and rebuilds from current data.
+
+**URL Parameters:**
+
+- `conference_id` (integer, required) - Conference ID
+
+**Response (200):**
+
+```json
+{
+  "data": {
+    "conference_id": 1,
+    "relationships_found": 150,
+    "relationships_stored": 150,
+    "detection_time_ms": 2500
+  }
+}
+```
+
+**Notes:**
+
+- This endpoint should typically be restricted to conference chairs or admins
+- Detection runs composite algorithm including:
+  - Self-authorship detection (authors cannot review their own papers)
+  - Declared conflicts (user-specified conflicts)
+  - Graph-based collaboration detection (if Neo4j is configured)
+
+---
+
 ## Features
 
 ✅ **JWT Authentication** - Secure token-based auth

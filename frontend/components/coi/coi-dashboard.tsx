@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AlertTriangle, Users, FileText, UserCheck } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { getCOIDashboardStats } from "@/lib/api/coi-mock"
+import { getCOIDashboardStats } from "@/lib/api/coi"
 import { COIAnalysisDashboard } from "./coi-analysis-dashboard"
 
 interface COIDashboardProps {
@@ -33,10 +33,11 @@ export function COIDashboard({ conferenceId }: COIDashboardProps) {
   const loadStats = async () => {
     try {
       setLoading(true)
-      const result = await getCOIDashboardStats(conferenceId)
-      if (result.data) {
-        setStats(result.data)
-      }
+      const result = await getCOIDashboardStats(parseInt(conferenceId))
+      setStats({
+        ...result,
+        conference_id: conferenceId, // Keep as string for display
+      })
     } catch (error) {
       console.error("Failed to load COI dashboard stats:", error)
     } finally {
