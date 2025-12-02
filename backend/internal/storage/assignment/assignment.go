@@ -23,6 +23,8 @@ type StorageInterface interface {
 	DeleteByReviewer(ctx context.Context, reviewerID int64) error
 	SaveReview(ctx context.Context, assignmentID int64, reviewScore *float64, reviewData *dto.ReviewData, status string) (*dto.Assignment, error)
 	GetReview(ctx context.Context, assignmentID int64) (*dto.Assignment, error)
+	GetReviewsBySubmission(ctx context.Context, submissionID int64, limit, offset int) ([]*dto.Assignment, int64, error)
+	GetReviewAnalytics(ctx context.Context, submissionID int64) (*dto.ReviewAnalyticsResponse, error)
 }
 
 type ListParams struct {
@@ -156,7 +158,7 @@ func (s *Storage) BatchCreate(ctx context.Context, conferenceID int64, assignmen
 // GetByID retrieves an assignment by ID
 func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Assignment, error) {
 	query, args, err := s.qb.
-		Select("id", "conference_id", "submission_id", "reviewer_id", "score", "status", "assigned_at", "completed_at", 
+		Select("id", "conference_id", "submission_id", "reviewer_id", "score", "status", "assigned_at", "completed_at",
 			"review_status", "review_score", "review_data", "review_submitted_at", "created_at", "updated_at").
 		From(model.AssignmentTableName).
 		Where(sq.Eq{"id": id}).
@@ -455,4 +457,158 @@ func (s *Storage) SaveReview(ctx context.Context, assignmentID int64, reviewScor
 func (s *Storage) GetReview(ctx context.Context, assignmentID int64) (*dto.Assignment, error) {
 	// Reuse GetByID which now includes review fields
 	return s.GetByID(ctx, assignmentID)
+}
+
+// GetReviewsBySubmission retrieves all reviews for a specific submission
+func (s *Storage) GetReviewsBySubmission(ctx context.Context, submissionID int64, limit, offset int) ([]*dto.Assignment, int64, error) {
+	// Get total count
+	countQuery, countArgs, err := s.qb.
+		Select("COUNT(*)").
+		From(model.AssignmentTableName).
+		Where(sq.Eq{model.ColSubmissionID: submissionID}).
+		Where(sq.Eq{model.ColReviewStatus: model.ReviewStatusSubmitted}).
+		ToSql()
+
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to build count query: %w", err)
+	}
+
+	var total int64
+	err = s.db.QueryRowContext(ctx, countQuery, countArgs...).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to count reviews: %w", err)
+	}
+
+	// Get reviews with reviewer email
+	query, args, err := s.qb.
+		Select(
+			"a.id", "a.conference_id", "a.submission_id", "a.reviewer_id", "a.score", "a.status", "a.assigned_at", "a.completed_at", "a.review_status", "a.review_score", "a.review_data", "a.review_submitted_at", "a.created_at", "a.updated_at",
+			"u.email AS reviewer_email",
+		).
+		From(model.AssignmentTableName + " AS a").
+		Join("users u ON a.reviewer_id = u.user_id").
+		Where(sq.Eq{"a." + model.ColSubmissionID: submissionID}).
+		Where(sq.Eq{"a." + model.ColReviewStatus: model.ReviewStatusSubmitted}).
+		OrderBy("a.review_submitted_at DESC").
+		Limit(uint64(limit)).
+		Offset(uint64(offset)).
+		ToSql()
+
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to build select query: %w", err)
+	}
+
+	rows, err := s.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to query reviews: %w", err)
+	}
+	defer rows.Close()
+
+	var reviews []*dto.Assignment
+	for rows.Next() {
+		var result model.Assignment
+		err := rows.Scan(
+			&result.ID,
+			&result.ConferenceID,
+			&result.SubmissionID,
+			&result.ReviewerID,
+			&result.Score,
+			&result.Status,
+			&result.AssignedAt,
+			&result.CompletedAt,
+			&result.ReviewStatus,
+			&result.ReviewScore,
+			&result.ReviewData,
+			&result.ReviewSubmittedAt,
+			&result.CreatedAt,
+			&result.UpdatedAt,
+			&result.ReviewerEmail,
+		)
+		if err != nil {
+			return nil, 0, fmt.Errorf("failed to scan review: %w", err)
+		}
+		reviews = append(reviews, result.ToDTO())
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, 0, fmt.Errorf("error iterating reviews: %w", err)
+	}
+
+	return reviews, total, nil
+}
+
+// GetReviewAnalytics calculates analytics for all reviews of a submission
+func (s *Storage) GetReviewAnalytics(ctx context.Context, submissionID int64) (*dto.ReviewAnalyticsResponse, error) {
+	query := `
+		SELECT 
+			COUNT(*) as total_reviews,
+			AVG(review_score) as average_score,
+			SUM(CASE WHEN (review_data->>'recommendation') = 'strong_accept' THEN 1 ELSE 0 END) as strong_accept,
+			SUM(CASE WHEN (review_data->>'recommendation') = 'accept' THEN 1 ELSE 0 END) as accept,
+			SUM(CASE WHEN (review_data->>'recommendation') = 'weak_accept' THEN 1 ELSE 0 END) as weak_accept,
+			SUM(CASE WHEN (review_data->>'recommendation') = 'borderline' THEN 1 ELSE 0 END) as borderline,
+			SUM(CASE WHEN (review_data->>'recommendation') = 'weak_reject' THEN 1 ELSE 0 END) as weak_reject,
+			SUM(CASE WHEN (review_data->>'recommendation') = 'reject' THEN 1 ELSE 0 END) as reject,
+			SUM(CASE WHEN (review_data->>'recommendation') = 'strong_reject' THEN 1 ELSE 0 END) as strong_reject,
+			SUM(CASE WHEN (review_data->>'confidence') = 'high' THEN 1 ELSE 0 END) as confidence_high,
+			SUM(CASE WHEN (review_data->>'confidence') = 'medium' THEN 1 ELSE 0 END) as confidence_medium,
+			SUM(CASE WHEN (review_data->>'confidence') = 'low' THEN 1 ELSE 0 END) as confidence_low,
+			AVG(CAST(review_data->>'originality' AS FLOAT)) as avg_originality,
+			AVG(CAST(review_data->>'technical_quality' AS FLOAT)) as avg_technical_quality,
+			AVG(CAST(review_data->>'clarity' AS FLOAT)) as avg_clarity,
+			AVG(CAST(review_data->>'significance' AS FLOAT)) as avg_significance,
+			AVG(CAST(review_data->>'methodology' AS FLOAT)) as avg_methodology
+		FROM paper_assignments
+		WHERE submission_id = $1 AND review_status = 'submitted'
+	`
+
+	var analytics dto.ReviewAnalyticsResponse
+	var avgScore sql.NullFloat64
+	var avgOriginality, avgTechnicalQuality, avgClarity, avgSignificance, avgMethodology sql.NullFloat64
+
+	err := s.db.QueryRowContext(ctx, query, submissionID).Scan(
+		&analytics.TotalReviews,
+		&avgScore,
+		&analytics.ScoreDistribution.StrongAccept,
+		&analytics.ScoreDistribution.Accept,
+		&analytics.ScoreDistribution.WeakAccept,
+		&analytics.ScoreDistribution.Borderline,
+		&analytics.ScoreDistribution.WeakReject,
+		&analytics.ScoreDistribution.Reject,
+		&analytics.ScoreDistribution.StrongReject,
+		&analytics.ConfidenceDistribution.High,
+		&analytics.ConfidenceDistribution.Medium,
+		&analytics.ConfidenceDistribution.Low,
+		&avgOriginality,
+		&avgTechnicalQuality,
+		&avgClarity,
+		&avgSignificance,
+		&avgMethodology,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get review analytics: %w", err)
+	}
+
+	// Handle nullable averages
+	if avgScore.Valid {
+		analytics.AverageScore = avgScore.Float64
+	}
+	if avgOriginality.Valid {
+		analytics.CriteriaAverages.Originality = avgOriginality.Float64
+	}
+	if avgTechnicalQuality.Valid {
+		analytics.CriteriaAverages.TechnicalQuality = avgTechnicalQuality.Float64
+	}
+	if avgClarity.Valid {
+		analytics.CriteriaAverages.Clarity = avgClarity.Float64
+	}
+	if avgSignificance.Valid {
+		analytics.CriteriaAverages.Significance = avgSignificance.Float64
+	}
+	if avgMethodology.Valid {
+		analytics.CriteriaAverages.Methodology = avgMethodology.Float64
+	}
+
+	return &analytics, nil
 }

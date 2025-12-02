@@ -225,6 +225,10 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 
 				// Auto-assignment endpoint - automatically sets submissions to "reviewing" status
 				submissions.POST("/auto-assign", handler.HandleRequest(ctrl.Assignment.AutoAssign))
+
+				// Review endpoints for chair (list reviews and analytics)
+				submissions.GET("/:id/reviews", handler.HandleRequestWithURIAndQuery(ctrl.Assignment.ListReviews))
+				submissions.GET("/:id/reviews/analytics", handler.HandleNoRequest(ctrl.Assignment.GetReviewAnalytics))
 			}
 		}
 
