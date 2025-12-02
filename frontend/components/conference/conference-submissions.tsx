@@ -17,15 +17,31 @@ import { useEffect, useState, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import type { Paper } from "@/lib/types"
 import { getConferencePapers } from "@/lib/api/conferences"
+import { getSubmissionReviewAnalytics, type ReviewAnalytics } from "@/lib/api/reviews"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { FileText, Calendar, Users, X, Filter } from "lucide-react"
+import { FileText, Calendar, Users, X, Filter, Eye, Loader2 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Checkbox } from "@/components/ui/checkbox"
 import { FilterBar, type ActiveFilter } from "@/components/ui/filter-bar"
 import { typography, spacing, iconSizes } from "@/lib/typography"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { SubmissionAnalytics } from "@/components/chair/submission-analytics"
 
 interface ConferenceSubmissionsProps {
   conferenceId: string
@@ -35,6 +51,7 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user, currentRole } = useAuth()
+  const { t } = useTranslation()
   const [papers, setPapers] = useState<Paper[]>([])
   const [filteredPapers, setFilteredPapers] = useState<Paper[]>([])
   const [loading, setLoading] = useState(true)
@@ -44,6 +61,10 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
   const [filterOpen, setFilterOpen] = useState(false)
   const [tempStatusFilter, setTempStatusFilter] = useState<string>("all")
   const [tempTrackFilter, setTempTrackFilter] = useState<string>("all")
+  const [quickViewOpen, setQuickViewOpen] = useState(false)
+  const [selectedPaperId, setSelectedPaperId] = useState<string | null>(null)
+  const [quickViewAnalytics, setQuickViewAnalytics] = useState<ReviewAnalytics | null>(null)
+  const [loadingQuickView, setLoadingQuickView] = useState(false)
 
   // Initialize filters from URL query params (e.g., keyword, track)
   useEffect(() => {
@@ -136,17 +157,17 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
   const getStatusLabel = (status: string) => {
     switch (status) {
       case "submitted":
-        return "Đã Nộp"
+        return t("dashboard.chair.submissions.submitted")
       case "under_review":
-        return "Đang Review"
+        return t("dashboard.chair.submissions.underReview")
       case "accepted":
-        return "Chấp Nhận"
+        return t("dashboard.chair.submissions.accepted")
       case "rejected":
-        return "Từ Chối"
+        return t("dashboard.chair.submissions.rejected")
       case "revision_requested":
-        return "Yêu Cầu Sửa"
+        return t("dashboard.chair.submissions.revisionRequested")
       case "camera_ready":
-        return "Camera Ready"
+        return t("dashboard.chair.submissions.cameraReady")
       default:
         return status
     }
@@ -160,15 +181,33 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
     })
   }
 
+  const handleDecision = async (paperId: string, decision: "accept" | "reject" | "pending") => {
+    // TODO: Call backend API to update submission status
+    console.log(`Decision for paper ${paperId}: ${decision}`)
+    // This will be implemented when backend endpoint is ready
+  }
+
+  const handleQuickView = async (paperId: string) => {
+    setSelectedPaperId(paperId)
+    setQuickViewOpen(true)
+    setLoadingQuickView(true)
+    
+    const response = await getSubmissionReviewAnalytics(conferenceId, paperId)
+    if (!response.error && response.data) {
+      setQuickViewAnalytics(response.data)
+    }
+    setLoadingQuickView(false)
+  }
+
   const getRoleDescription = () => {
     if (currentRole === "author") {
-      return "Danh sách các bài báo bạn đã nộp cho hội nghị"
+      return t("dashboard.chair.submissions.descriptionAuthor")
     } else if (currentRole === "reviewer") {
-      return "Danh sách các bài báo được phân công cho bạn review"
+      return t("dashboard.chair.submissions.descriptionReviewer")
     } else if (currentRole === "chair") {
-      return "Danh sách tất cả các bài báo đã nộp cho hội nghị"
+      return t("dashboard.chair.submissions.descriptionChair")
     }
-    return "Danh sách các bài báo"
+    return t("dashboard.chair.submissions.descriptionDefault")
   }
 
   const handleRemoveStatusFilter = () => {
@@ -224,61 +263,61 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
   const filterPopover = (
     <div className={spacing.subsection}>
       <div>
-        <h4 className={`${typography.semibold} ${typography.body} mb-3`}>Trạng Thái</h4>
+        <h4 className={`${typography.semibold} ${typography.body} mb-3`}>{t("dashboard.chair.submissions.statusLabel")}</h4>
         <div className={spacing.item}>
           <label
             className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
             onClick={() => setTempStatusFilter("all")}
           >
             <Checkbox checked={tempStatusFilter === "all"} />
-            <span className={typography.body}>Tất Cả Trạng Thái</span>
+            <span className={typography.body}>{t("dashboard.chair.submissions.allStatuses")}</span>
           </label>
           <label
             className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
             onClick={() => setTempStatusFilter("submitted")}
           >
             <Checkbox checked={tempStatusFilter === "submitted"} />
-            <span className={typography.body}>Đã Nộp</span>
+            <span className={typography.body}>{t("dashboard.chair.submissions.submitted")}</span>
           </label>
           <label
             className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
             onClick={() => setTempStatusFilter("under_review")}
           >
             <Checkbox checked={tempStatusFilter === "under_review"} />
-            <span className={typography.body}>Đang Review</span>
+            <span className={typography.body}>{t("dashboard.chair.submissions.underReview")}</span>
           </label>
           <label
             className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
             onClick={() => setTempStatusFilter("accepted")}
           >
             <Checkbox checked={tempStatusFilter === "accepted"} />
-            <span className={typography.body}>Chấp Nhận</span>
+            <span className={typography.body}>{t("dashboard.chair.submissions.accepted")}</span>
           </label>
           <label
             className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
             onClick={() => setTempStatusFilter("rejected")}
           >
             <Checkbox checked={tempStatusFilter === "rejected"} />
-            <span className={typography.body}>Từ Chối</span>
+            <span className={typography.body}>{t("dashboard.chair.submissions.rejected")}</span>
           </label>
           <label
             className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
             onClick={() => setTempStatusFilter("revision_requested")}
           >
             <Checkbox checked={tempStatusFilter === "revision_requested"} />
-            <span className={typography.body}>Yêu Cầu Sửa</span>
+            <span className={typography.body}>{t("dashboard.chair.submissions.revisionRequested")}</span>
           </label>
         </div>
       </div>
       <div>
-        <h4 className={`${typography.semibold} ${typography.body} mb-3`}>Track</h4>
+        <h4 className={`${typography.semibold} ${typography.body} mb-3`}>{t("dashboard.chair.submissions.trackLabel")}</h4>
         <div className={spacing.item}>
           <label
             className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
             onClick={() => setTempTrackFilter("all")}
           >
             <Checkbox checked={tempTrackFilter === "all"} />
-            <span className={typography.body}>Tất Cả Tracks</span>
+            <span className={typography.body}>{t("dashboard.chair.submissions.allTracks")}</span>
           </label>
           <label
             className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
@@ -305,10 +344,10 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
       </div>
       <div className={`flex justify-end ${spacing.gap.sm} pt-2 border-t`}>
         <Button variant="outline" size="sm" onClick={handleClearFilters}>
-          Clear
+          {t("dashboard.chair.submissions.clear")}
         </Button>
         <Button size="sm" onClick={handleApplyFilters}>
-          Apply
+          {t("dashboard.chair.submissions.apply")}
         </Button>
       </div>
     </div>
@@ -317,29 +356,29 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
   const getStatusLabelForFilter = (status: string) => {
     switch (status) {
       case "submitted":
-        return "Đã Nộp"
+        return t("dashboard.chair.submissions.submitted")
       case "under_review":
-        return "Đang Review"
+        return t("dashboard.chair.submissions.underReview")
       case "accepted":
-        return "Chấp Nhận"
+        return t("dashboard.chair.submissions.accepted")
       case "rejected":
-        return "Từ Chối"
+        return t("dashboard.chair.submissions.rejected")
       case "revision_requested":
-        return "Yêu Cầu Sửa"
+        return t("dashboard.chair.submissions.revisionRequested")
       default:
         return status
     }
   }
 
   if (loading) {
-    return <div>Đang tải...</div>
+    return <div>{t("common.actions.loading")}</div>
   }
 
   return (
     <div className={spacing.section}>
       {/* Header */}
       <div>
-        <h1 className={`${typography.h1} text-gray-900`}>Bài Nộp</h1>
+        <h1 className={`${typography.h1} text-gray-900`}>{t("dashboard.chair.submissions.title")}</h1>
         <p className={`mt-3 ${typography.bodyLarge} leading-relaxed text-gray-600`}>
           {getRoleDescription()}
         </p>
@@ -350,7 +389,7 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
         <FilterBar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          searchPlaceholder="Tìm kiếm theo tiêu đề, abstract, keywords..."
+          searchPlaceholder={t("dashboard.chair.submissions.searchPlaceholder")}
           activeFilters={activeFilters}
           filterPopover={filterPopover}
           hasActiveFilters={hasActiveFilters}
@@ -366,8 +405,8 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
         >
           <Filter className={iconSizes.sm} />
           <span>
-            Hiển thị <span className={typography.semibold}>{filteredPapers.length}</span> /{" "}
-            {papers.length} bài
+            {t("dashboard.chair.submissions.resultsCount")} <span className={typography.semibold}>{filteredPapers.length}</span> /{" "}
+            {papers.length}
           </span>
         </div>
       </div>
@@ -421,9 +460,55 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
                 </Badge>
                 {paper.reviews.length > 0 && (
                   <span className={`${typography.bodySmall} text-gray-500`}>
-                    {paper.reviews.length} reviews
+                    {paper.reviews.length} {t("dashboard.chair.submissions.reviews")}
                   </span>
                 )}
+                
+                {/* Chair-only actions */}
+                {currentRole === "chair" && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleQuickView(paper.id)
+                      }}
+                      title={t("dashboard.chair.submissions.quickViewTitle")}
+                    >
+                      <Eye className={iconSizes.sm} />
+                    </Button>
+                    <Select
+                      value={paper.status}
+                      onValueChange={(value) => handleDecision(paper.id, value as "accept" | "reject" | "pending")}
+                    >
+                      <SelectTrigger className="w-[140px] h-8 text-xs">
+                        <SelectValue placeholder={t("dashboard.chair.submissions.decision")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">
+                          <span className="flex items-center gap-2">
+                            <span className="size-2 rounded-full bg-yellow-500" />
+                            {t("dashboard.chair.submissions.pending")}
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="accept">
+                          <span className="flex items-center gap-2">
+                            <span className="size-2 rounded-full bg-green-500" />
+                            {t("common.actions.accept")}
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="reject">
+                          <span className="flex items-center gap-2">
+                            <span className="size-2 rounded-full bg-red-500" />
+                            {t("common.actions.decline")}
+                          </span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                
                 <Button
                   variant="outline"
                   size="sm"
@@ -431,7 +516,7 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
                     router.push(`/dashboard/conference/${conferenceId}/submission/${paper.id}`)
                   }
                 >
-                  Xem Chi Tiết
+                  {t("common.actions.viewDetail")}
                 </Button>
               </div>
             </div>
@@ -441,17 +526,39 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
         {filteredPapers.length === 0 && (
           <Card className={`${spacing.padding.cardLarge} text-center`}>
             <FileText className="mx-auto text-gray-400" style={{ width: "3rem", height: "3rem" }} />
-            <h3 className={`mt-4 ${typography.h4} text-gray-900`}>Không Tìm Thấy Bài Nộp</h3>
+            <h3 className={`mt-4 ${typography.h4} text-gray-900`}>{t("dashboard.chair.submissions.noSubmissionsFound")}</h3>
             <p className={`mt-2 ${typography.body} text-gray-600`}>
               {currentRole === "author"
-                ? "Bạn chưa nộp bài nào cho hội nghị này"
+                ? t("dashboard.chair.submissions.noSubmissionsAuthor")
                 : currentRole === "reviewer"
-                  ? "Bạn chưa được phân công review bài nào"
-                  : "Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác"}
+                  ? t("dashboard.chair.submissions.noSubmissionsReviewer")
+                  : t("dashboard.chair.submissions.noSubmissionsFilter")}
             </p>
           </Card>
         )}
       </div>
+
+      {/* Quick View Analytics Dialog */}
+      <Dialog open={quickViewOpen} onOpenChange={setQuickViewOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedPaperId && papers.find(p => p.id === selectedPaperId)?.title}
+            </DialogTitle>
+          </DialogHeader>
+          {loadingQuickView ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="size-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : quickViewAnalytics ? (
+            <SubmissionAnalytics analytics={quickViewAnalytics} compact />
+          ) : (
+            <div className="py-8 text-center text-muted-foreground">
+              {t("dashboard.chair.submissions.noAnalytics")}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
