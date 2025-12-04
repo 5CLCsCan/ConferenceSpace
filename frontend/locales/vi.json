@@ -339,7 +339,14 @@
       "status": {
         "label": "Trạng thái",
         "draft": "Nháp",
-        "published": "Đã nộp"
+        "published": "Đã nộp",
+        "reviewing": "Đang đánh giá",
+        "accepted": "Đã chấp nhận",
+        "rejected": "Đã từ chối",
+        "submitted": "Đã gửi",
+        "underReview": "Đang được đánh giá",
+        "revisionRequested": "Yêu cầu sửa đổi",
+        "cameraReady": "Sẵn sàng in ấn"
       }
     },
     "submission": {

@@ -42,6 +42,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { SubmissionAnalytics } from "@/components/chair/submission-analytics"
+import type { PaperStatus } from "@/lib/types"
 
 interface ConferenceSubmissionsProps {
   conferenceId: string
@@ -181,10 +182,30 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
     })
   }
 
-  const handleDecision = async (paperId: string, decision: "accept" | "reject" | "pending") => {
-    // TODO: Call backend API to update submission status
-    console.log(`Decision for paper ${paperId}: ${decision}`)
-    // This will be implemented when backend endpoint is ready
+  const handleDecision = async (paperId: string, decision: "accepted" | "rejected") => {
+    try {
+      const { updateSubmissionStatus } = await import("@/lib/api/submissions")
+      const response = await updateSubmissionStatus(conferenceId, paperId, decision)
+      
+      if (response.error) {
+        console.error("Failed to update submission status:", response.error)
+        // TODO: Show error toast
+        return
+      }
+      
+      // Update local state
+      setPapers((prevPapers) =>
+        prevPapers.map((paper) =>
+          paper.id === paperId ? { ...paper, status: decision as PaperStatus } : paper
+        )
+      )
+      
+      console.log(`Successfully updated paper ${paperId} to ${decision}`)
+      // TODO: Show success toast
+    } catch (error) {
+      console.error("Error updating submission status:", error)
+      // TODO: Show error toast
+    }
   }
 
   const handleQuickView = async (paperId: string) => {
@@ -235,11 +256,28 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
   const hasActiveFilters = statusFilter !== "all" || trackFilter !== "all"
 
   const activeFilters: ActiveFilter[] = useMemo(() => {
+    const getStatusLabel = (status: string) => {
+      switch (status) {
+        case "submitted":
+          return t("dashboard.chair.submissions.submitted")
+        case "under_review":
+          return t("dashboard.chair.submissions.underReview")
+        case "accepted":
+          return t("dashboard.chair.submissions.accepted")
+        case "rejected":
+          return t("dashboard.chair.submissions.rejected")
+        case "revision_requested":
+          return t("dashboard.chair.submissions.revisionRequested")
+        default:
+          return status
+      }
+    }
+
     const filters: ActiveFilter[] = []
     if (statusFilter !== "all") {
       filters.push({
         id: "status",
-        label: getStatusLabelForFilter(statusFilter),
+        label: getStatusLabel(statusFilter),
         onRemove: handleRemoveStatusFilter,
       })
     }
@@ -258,7 +296,7 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
       })
     }
     return filters
-  }, [statusFilter, trackFilter])
+  }, [statusFilter, trackFilter, t])
 
   const filterPopover = (
     <div className={spacing.subsection}>
@@ -479,30 +517,23 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
                       <Eye className={iconSizes.sm} />
                     </Button>
                     <Select
-                      value={paper.status}
-                      onValueChange={(value) => handleDecision(paper.id, value as "accept" | "reject" | "pending")}
+                      value={["accepted", "rejected"].includes(paper.status) ? paper.status : "__current"}
+                      onValueChange={(value) => handleDecision(paper.id, value as "accepted" | "rejected")}
                     >
                       <SelectTrigger className="w-[140px] h-8 text-xs">
                         <SelectValue placeholder={t("dashboard.chair.submissions.decision")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="pending">
-                          <span className="flex items-center gap-2">
-                            <span className="size-2 rounded-full bg-yellow-500" />
-                            {t("dashboard.chair.submissions.pending")}
-                          </span>
+                        {!["accepted", "rejected"].includes(paper.status) && (
+                          <SelectItem value="__current" disabled>
+                            {getStatusLabel(paper.status)}
+                          </SelectItem>
+                        )}
+                        <SelectItem value="accepted">
+                          <span className="font-bold text-green-700">{t("common.actions.accept")}</span>
                         </SelectItem>
-                        <SelectItem value="accept">
-                          <span className="flex items-center gap-2">
-                            <span className="size-2 rounded-full bg-green-500" />
-                            {t("common.actions.accept")}
-                          </span>
-                        </SelectItem>
-                        <SelectItem value="reject">
-                          <span className="flex items-center gap-2">
-                            <span className="size-2 rounded-full bg-red-500" />
-                            {t("common.actions.decline")}
-                          </span>
+                        <SelectItem value="rejected">
+                          <span className="font-bold text-red-700">{t("common.actions.decline")}</span>
                         </SelectItem>
                       </SelectContent>
                     </Select>

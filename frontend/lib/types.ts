@@ -6,6 +6,7 @@ export type PaperStatus =
   | "draft"
   | "submitted"
   | "under_review"
+  | "reviewing"
   | "revision_requested"
   | "accepted"
   | "rejected"

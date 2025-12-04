@@ -339,7 +339,14 @@
       "status": {
         "label": "Status",
         "draft": "Draft",
-        "published": "Published"
+        "published": "Published",
+        "reviewing": "Reviewing",
+        "accepted": "Accepted",
+        "rejected": "Rejected",
+        "submitted": "Submitted",
+        "underReview": "Under Review",
+        "revisionRequested": "Revision Requested",
+        "cameraReady": "Camera Ready"
       }
     },
     "submission": {
@@ -1148,7 +1155,14 @@
     "status": {
       "label": "Status",
       "draft": "Draft",
-      "published": "Published"
+      "published": "Published",
+      "reviewing": "Reviewing",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "submitted": "Submitted",
+      "underReview": "Under Review",
+      "revisionRequested": "Revision Requested",
+      "cameraReady": "Camera Ready"
     }
   },
   "submission": {

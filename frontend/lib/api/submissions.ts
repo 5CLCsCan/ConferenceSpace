@@ -16,7 +16,7 @@ export interface Submission {
   abstract: string
   link?: string
   domain: string[]
-  status: "draft" | "published"
+  status: "draft" | "published" | "reviewing" | "accepted" | "rejected"
   information?: {
     co_authors?: string[]
     keywords?: string[]
@@ -136,6 +136,48 @@ export async function getSubmissionById(
     return {
       data: null,
       error: error instanceof Error ? error.message : "Failed to fetch submission",
+      status: 500,
+    }
+  }
+}
+
+/**
+ * Update submission status
+ * Backend endpoint: PUT /api/v1/conferences/:conference_id/submissions/:id/status
+ */
+export async function updateSubmissionStatus(
+  conferenceId: string,
+  submissionId: string,
+  status: "draft" | "published" | "reviewing" | "accepted" | "rejected",
+): Promise<ApiResponse<Submission>> {
+  try {
+    const endpoint = `/api/v1/conferences/${conferenceId}/submissions/${submissionId}/status`
+
+    if (!status || status.trim() === '') {
+      console.error('Status is empty or invalid!');
+      // Handle error, ví dụ throw hoặc alert
+      return {
+        data: null,
+        error: "Status is empty or invalid",
+        status: 400,
+      }
+    }
+    console.log('Sending body:', JSON.stringify({ status }));
+    const { data, response } = await apiFetch<{ data: Submission }>(endpoint, {
+      method: "PUT",
+      body: JSON.stringify({ status }),
+    })
+
+    return {
+      data: data.data,
+      error: null,
+      status: response.status,
+    }
+  } catch (error) {
+    console.error("[updateSubmissionStatus] Error:", error)
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to update submission status",
       status: 500,
     }
   }
