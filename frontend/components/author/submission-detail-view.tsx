@@ -6,6 +6,13 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   ArrowLeft,
   Download,
   Edit,
@@ -17,9 +24,6 @@ import {
   Eye,
   AlertTriangle,
   FileCheck,
-  Check,
-  XCircle,
-  MinusCircle,
   MessageSquare,
 } from "lucide-react"
 import { formatDate } from "@/lib/utils"
@@ -41,10 +45,28 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
   const isChair = currentRole === "chair"
   const [activeTab, setActiveTab] = useState("overview")
 
-  const handleDecision = async (decision: "accept" | "reject" | "pending") => {
-    // TODO: Call backend API to update submission status
-    console.log(`Decision for submission ${submission.id}: ${decision}`)
-    // This will be implemented when backend endpoint is ready
+  const handleDecision = async (decision: "accepted" | "rejected") => {
+    try {
+      const { updateSubmissionStatus } = await import("@/lib/api/submissions")
+      const response = await updateSubmissionStatus(
+        conferenceId,
+        submission.id.toString(),
+        decision
+      )
+      
+      if (response.error) {
+        console.error("Failed to update submission status:", response.error)
+        // TODO: Show error toast
+        return
+      }
+      
+      console.log(`Successfully updated submission ${submission.id} to ${decision}`)
+      // TODO: Show success toast and refresh page
+      window.location.reload()
+    } catch (error) {
+      console.error("Error updating submission status:", error)
+      // TODO: Show error toast
+    }
   }
 
   const getStatusBadge = (status: string) => {
@@ -98,37 +120,29 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
           </p>
         </div>
         <div className="flex gap-2">
-          {/* Chair Decision Buttons */}
+          {/* Chair Decision Dropdown */}
           {isChair && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                onClick={() => handleDecision("accept")}
-              >
-                <Check className="size-4 mr-2" />
-                {t("dashboard.chair.submissions.accept", "Accept")}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                onClick={() => handleDecision("reject")}
-              >
-                <XCircle className="size-4 mr-2" />
-                {t("dashboard.chair.submissions.reject", "Reject")}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-gray-600 hover:text-gray-700 hover:bg-gray-50"
-                onClick={() => handleDecision("pending")}
-              >
-                <MinusCircle className="size-4 mr-2" />
-                {t("dashboard.chair.submissions.pending", "Pending")}
-              </Button>
-            </>
+            <Select
+              value={["accepted", "rejected"].includes(submission.status) ? submission.status : "__current"}
+              onValueChange={(value) => handleDecision(value as "accepted" | "rejected")}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder={t("dashboard.chair.submissions.decision")} />
+              </SelectTrigger>
+              <SelectContent>
+                {!["accepted", "rejected"].includes(submission.status) && (
+                  <SelectItem value="__current" disabled>
+                    {t(`dashboard.submissions.status.${submission.status}`, { defaultValue: submission.status })}
+                  </SelectItem>
+                )}
+                <SelectItem value="accepted">
+                  <span className="font-bold text-green-700">{t("common.actions.accept", { defaultValue: "Accept" })}</span>
+                </SelectItem>
+                <SelectItem value="rejected">
+                  <span className="font-bold text-red-700">{t("common.actions.decline", { defaultValue: "Reject" })}</span>
+                </SelectItem>
+              </SelectContent>
+            </Select>
           )}
           
           {isAuthor && submission.status === "draft" && (

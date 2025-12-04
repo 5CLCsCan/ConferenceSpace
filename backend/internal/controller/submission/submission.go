@@ -702,6 +702,73 @@ func (c *Controller) GetFile(ginCtx *gin.Context) {
 	ginCtx.File(filePath)
 }
 
+// UpdateStatus godoc
+// @Summary      Update submission status
+// @Description  Update the status of a submission (role-based: chair for accepted/rejected, author for draft/published/reviewing)
+// @Tags         submissions
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        conference_id path int true "Conference ID"
+// @Param        id path int true "Submission ID"
+// @Param        status body object true "New status value"
+// @Success      200 {object} dto.Submission
+// @Failure      400 {object} handler.Response
+// @Failure      401 {object} handler.Response
+// @Failure      403 {object} handler.Response
+// @Failure      404 {object} handler.Response
+// @Router       /conferences/{conference_id}/submissions/{id}/status [patch]
+func (c *Controller) UpdateStatus(ginCtx *gin.Context, req *dto.UpdateStatusRequest) (*dto.Submission, error) {
+	ctx := ginCtx.Request.Context()
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	submission, err := c.submissionStorage.GetByID(ctx, req.ID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "submission not found")
+	}
+	if submission.ConferenceID != req.ConferenceID {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "submission not found in this conference")
+	}
+
+	// Only allow valid statuses
+	validStatuses := map[string]bool{
+		dto.StatusDraft:     true,
+		dto.StatusPublished: true,
+		dto.StatusReviewing: true,
+		dto.StatusAccepted:  true,
+		dto.StatusRejected:  true,
+	}
+	if !validStatuses[req.Status] {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid status value")
+	}
+
+	// Role-based status update logic
+	switch req.Status {
+	case dto.StatusAccepted, dto.StatusRejected:
+		// Check if user has chair permissions
+		if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, req.ConferenceID, userEmail) {
+			return nil, handler.NewErrorResponse(http.StatusForbidden, "only the chair or co-chairs can update this conference")
+		}
+	case dto.StatusDraft, dto.StatusPublished, dto.StatusReviewing:
+		if submission.Author != userEmail {
+			return nil, handler.NewErrorResponse(http.StatusForbidden, "only author can set this status")
+		}
+	}
+
+	updateData := &dto.Submission{
+		Status: req.Status,
+	}
+	updatedSubmission, err := c.submissionStorage.Update(ctx, req.ID, updateData)
+	if err != nil {
+		return nil, err
+	}
+	return updatedSubmission, nil
+}
+
 // GetCoverLetter godoc
 // @Summary      Get submission cover letter
 // @Description  Download the cover letter associated with a submission

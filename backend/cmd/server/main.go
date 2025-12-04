@@ -221,6 +221,7 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 				submissions.POST("", handler.HandleSubmissionCreate(ctrl.Submission.Create))
 				submissions.PUT("/:id", handler.HandleSubmissionUpdate(ctrl.Submission.Update))
 				submissions.POST("/:id/publish", handler.HandleSubmissionPublish(ctrl.Submission.Publish))
+				submissions.PUT("/:id/status", handler.HandleRequestWithAll(ctrl.Submission.UpdateStatus))
 				submissions.DELETE("/:id", handler.HandleNoRequestWithMessage("submission deleted successfully", ctrl.Submission.Delete))
 
 				// Auto-assignment endpoint - automatically sets submissions to "reviewing" status
