@@ -104,7 +104,8 @@ func (m *GreedyMatcher) Match(ctx context.Context, input MatchInput) (*MatchResu
 				return subScores[i].Score > subScores[j].Score
 			})
 
-			// Try to find at least one reviewer, ignoring score threshold and relaxing max load
+			// Try to find at least one reviewer, ignoring score threshold and max load constraints
+			// COI is the ONLY hard constraint in fallback - we must assign even if reviewer is overloaded
 			assigned := false
 			for _, entry := range subScores {
 				// COI is the only hard constraint - never violate it
@@ -112,11 +113,8 @@ func (m *GreedyMatcher) Match(ctx context.Context, input MatchInput) (*MatchResu
 					continue
 				}
 
-				// Allow exceeding max load by 1 for fallback assignments
-				// This ensures papers don't go unreviewed just because reviewers are at capacity
-				if reviewerLoad[entry.ReviewerID] > maxLoad+1 {
-					continue
-				}
+				// In fallback pass, we ignore max load completely
+				// The core guarantee is: no paper without a reviewer (unless all have COI)
 
 				// Make fallback assignment
 				assignments = append(assignments, entry)
