@@ -113,6 +113,9 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
   const [inviteSuccessInfo, setInviteSuccessInfo] = useState<string | null>(null)
   const isChair = currentRole === "chair"
 
+  // Get chair email - prioritize chair_email field, fallback to chair if it looks like email
+  const chairEmail = conference?.chair_email || (conference?.chair?.includes('@') ? conference.chair : null)
+
   const loadData = useCallback(async () => {
     setIsLoading(true)
     setIsLoadingMore(false)
@@ -600,7 +603,7 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                   </p>
                 )}
               </div>
-              {conference.primary_contact && (
+              {chairEmail && (
                 <Button
                   type="button"
                   size="sm"
@@ -610,7 +613,7 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                     const url = new URL(window.location.href)
                     url.searchParams.delete("invite")
                     window.history.pushState({}, "", url)
-                    router.push(`/dashboard/users/${conference.primary_contact}`)
+                    router.push(`/dashboard/users/${chairEmail}`)
                   }}
                 >
                   <ExternalLink className="mr-1 size-3.5" />
@@ -792,7 +795,7 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                                     onClick={() => {
                                       // Push current URL to history before navigating
                                       window.history.pushState({}, "", window.location.href)
-                                      router.push(`/dashboard/users/${searchUser.id}`)
+                                      router.push(`/dashboard/users/${searchUser.email}`)
                                     }}
                                   >
                                     <ExternalLink className={iconSizes.xs} />
@@ -955,7 +958,7 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
                             const url = new URL(window.location.href)
                             url.searchParams.delete("invite")
                             window.history.pushState({}, "", url)
-                            router.push(`/dashboard/users/${reviewer.user_id}`)
+                            router.push(`/dashboard/users/${reviewer.email}`)
                           }}
                         >
                           <ExternalLink className={`mr-1 ${iconSizes.xs}`} />
