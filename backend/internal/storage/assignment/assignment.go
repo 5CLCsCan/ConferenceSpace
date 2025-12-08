@@ -553,11 +553,11 @@ func (s *Storage) GetReviewAnalytics(ctx context.Context, submissionID int64) (*
 			SUM(CASE WHEN (review_data->>'confidence') = 'high' THEN 1 ELSE 0 END) as confidence_high,
 			SUM(CASE WHEN (review_data->>'confidence') = 'medium' THEN 1 ELSE 0 END) as confidence_medium,
 			SUM(CASE WHEN (review_data->>'confidence') = 'low' THEN 1 ELSE 0 END) as confidence_low,
-			AVG(CAST(review_data->>'originality' AS FLOAT)) as avg_originality,
-			AVG(CAST(review_data->>'technical_quality' AS FLOAT)) as avg_technical_quality,
-			AVG(CAST(review_data->>'clarity' AS FLOAT)) as avg_clarity,
-			AVG(CAST(review_data->>'significance' AS FLOAT)) as avg_significance,
-			AVG(CAST(review_data->>'methodology' AS FLOAT)) as avg_methodology
+			AVG(CAST(review_data->'criteria'->>'originality' AS FLOAT)) as avg_originality,
+			AVG(CAST(review_data->'criteria'->>'technical_quality' AS FLOAT)) as avg_technical_quality,
+			AVG(CAST(review_data->'criteria'->>'clarity' AS FLOAT)) as avg_clarity,
+			AVG(CAST(review_data->'criteria'->>'significance' AS FLOAT)) as avg_significance,
+			AVG(CAST(review_data->'criteria'->>'methodology' AS FLOAT)) as avg_methodology
 		FROM paper_assignments
 		WHERE submission_id = $1 AND review_status = 'submitted'
 	`

@@ -52,6 +52,7 @@ interface PaperReviewProps {
   onBack: () => void
   onReviewSubmitted?: () => void // Callback để cập nhật dashboard
   readOnly?: boolean
+  assignmentId?: string // Assignment ID for saving reviews
 }
 
 // Mock data for discussion and rebuttal (giữ nguyên)
@@ -79,8 +80,11 @@ const mockRebuttal = {
     "Thank you for your valuable feedback. We'd like to address the concerns regarding novelty. Our work differs from prior art (e.g., NeurIPS 2024) in its unique application of cross-attention mechanisms, which results in a 15% efficiency gain on the benchmarked tasks. We have updated Section 3.2 to highlight this distinction more clearly and added a new ablation study in Appendix A.",
 }
 
-export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false }: PaperReviewProps) {
+export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false, assignmentId }: PaperReviewProps) {
   const { t } = useTranslation()
+
+  // Use assignmentId prop if provided, otherwise fall back to paper.id
+  const actualAssignmentId = assignmentId || paper.id
 
   const {
     review,
@@ -88,7 +92,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
     saving: savingReview,
     error: reviewError,
     saveReview,
-  } = useAssignmentReview(paper.conference_id, paper.id)
+  } = useAssignmentReview(paper.conference_id, actualAssignmentId)
 
   // Track review status ("draft" | "submitted")
   const [reviewStatus, setReviewStatus] = useState<string>("")
@@ -153,7 +157,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
       setModalOpen(true)
       return
     }
-    if (!paper.id) {
+    if (!actualAssignmentId) {
       setModalType("error")
       setModalMessage(t("review.form.validation.missingAssignmentDescription"))
       setModalOpen(true)
@@ -182,7 +186,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
     setModalType("")
     setModalOpen(false)
     const result = await saveReview({
-      assignment_id: parseInt(paper.id, 10),
+      assignment_id: parseInt(actualAssignmentId, 10),
       conference_id: parseInt(paper.conference_id, 10),
       review_score: avgScore,
       review_data: reviewData,
@@ -201,7 +205,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
   }
 
   const handleSubmitReview = async () => {
-    if (!paper.id) {
+    if (!actualAssignmentId) {
       setModalType("error")
       setModalMessage(t("review.form.validation.missingAssignmentDescription"))
       setModalOpen(true)
@@ -260,7 +264,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
     setModalType("")
     setModalOpen(false)
     const result = await saveReview({
-      assignment_id: parseInt(paper.id, 10),
+      assignment_id: parseInt(actualAssignmentId, 10),
       conference_id: parseInt(paper.conference_id, 10),
       review_score: avgScore,
       review_data: reviewData,
