@@ -13,36 +13,34 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { checkReviewerToAuthorCOI } from "@/lib/api/coi-mock"
-import type { COIReport } from "@/lib/mock-data/coi"
+import { checkReviewerToAuthorCOI, type COIReport } from "@/lib/api/coi"
 
 interface COIDetailViewProps {
-  reviewerId: string
-  authorId: string
+  conferenceId: number
+  reviewerId: number
+  authorEmail: string
   onClose: () => void
 }
 
-export function COIDetailView({ reviewerId, authorId, onClose }: COIDetailViewProps) {
+export function COIDetailView({ conferenceId, reviewerId, authorEmail, onClose }: COIDetailViewProps) {
   const { t } = useTranslation()
   const [coiReport, setCoiReport] = useState<COIReport | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    loadCOIDetails()
-  }, [reviewerId, authorId])
+    if (conferenceId && reviewerId && authorEmail) {
+      loadCOIDetails()
+    }
+  }, [conferenceId, reviewerId, authorEmail])
 
   const loadCOIDetails = async () => {
     try {
       setLoading(true)
       setError(null)
 
-      const result = await checkReviewerToAuthorCOI(reviewerId, authorId)
-      if (result.data) {
-        setCoiReport(result.data)
-      } else {
-        setError(result.error || "Failed to load COI details")
-      }
+      const result = await checkReviewerToAuthorCOI(conferenceId, reviewerId, authorEmail)
+      setCoiReport(result)
     } catch (err) {
       setError("Failed to load COI details")
       console.error(err)
@@ -119,7 +117,13 @@ export function COIDetailView({ reviewerId, authorId, onClose }: COIDetailViewPr
               {t("coi.common.reviewer")}{" "}
               <span className="font-semibold text-foreground">{coiReport.reviewer_name}</span>
               {" → "}
-              <span className="font-semibold text-foreground">{coiReport.author_name}</span>
+              {coiReport.coi_type === "paper" ? (
+                <span>
+                  Paper <span className="font-semibold text-foreground">Conflict Analysis</span>
+                </span>
+              ) : (
+                <span className="font-semibold text-foreground">{coiReport.author_name}</span>
+              )}
             </p>
           </div>
           <div
@@ -154,18 +158,24 @@ export function COIDetailView({ reviewerId, authorId, onClose }: COIDetailViewPr
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <Users className="h-4 w-4 text-purple-600" />
-            {t("coi.common.author")}
+            {coiReport.coi_type === "paper" ? "Affected Authors" : t("coi.common.author")}
           </div>
           <div className="space-y-1 text-sm">
-            <p className="font-medium">{coiReport.author_name}</p>
-            <div className="flex items-center gap-2 text-muted-foreground text-xs">
-              <Mail className="h-3 w-3" />
-              <span className="truncate">{coiReport.author_email}</span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground text-xs">
-              <Building2 className="h-3 w-3" />
-              <span className="truncate">{coiReport.author_affiliation}</span>
-            </div>
+            {coiReport.coi_type === "paper" ? (
+              <p className="font-medium">{coiReport.summary}</p>
+            ) : (
+              <>
+                <p className="font-medium">{coiReport.author_name}</p>
+                <div className="flex items-center gap-2 text-muted-foreground text-xs">
+                  <Mail className="h-3 w-3" />
+                  <span className="truncate">{coiReport.author_email}</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground text-xs">
+                  <Building2 className="h-3 w-3" />
+                  <span className="truncate">{coiReport.author_affiliation}</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

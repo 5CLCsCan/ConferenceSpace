@@ -6,6 +6,13 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   ArrowLeft,
   Download,
   Edit,
@@ -17,12 +24,14 @@ import {
   Eye,
   AlertTriangle,
   FileCheck,
+  MessageSquare,
 } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import type { Submission } from "@/lib/api/submissions"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
+import { SubmissionReviewTab } from "@/components/chair/submission-review-tab"
 
 interface SubmissionDetailViewProps {
   submission: Submission
@@ -31,9 +40,34 @@ interface SubmissionDetailViewProps {
 
 export function SubmissionDetailView({ submission, conferenceId }: SubmissionDetailViewProps) {
   const { t } = useTranslation()
-  const { user } = useAuth()
+  const { user, currentRole } = useAuth()
   const isAuthor = user?.email === submission.author
+  const isChair = currentRole === "chair"
   const [activeTab, setActiveTab] = useState("overview")
+
+  const handleDecision = async (decision: "accepted" | "rejected") => {
+    try {
+      const { updateSubmissionStatus } = await import("@/lib/api/submissions")
+      const response = await updateSubmissionStatus(
+        conferenceId,
+        submission.id.toString(),
+        decision
+      )
+      
+      if (response.error) {
+        console.error("Failed to update submission status:", response.error)
+        // TODO: Show error toast
+        return
+      }
+      
+      console.log(`Successfully updated submission ${submission.id} to ${decision}`)
+      // TODO: Show success toast and refresh page
+      window.location.reload()
+    } catch (error) {
+      console.error("Error updating submission status:", error)
+      // TODO: Show error toast
+    }
+  }
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; className: string }> = {
@@ -79,15 +113,38 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
               {t("common.actions.back", "Quay lại")}
             </Button>
           </div>
-          <div className="flex items-center gap-3 mb-4">
-            {getStatusBadge(submission.status)}
-          </div>
+          <div className="flex items-center gap-3 mb-4">{getStatusBadge(submission.status)}</div>
           <h1 className="text-3xl font-bold mb-2">{submission.title}</h1>
           <p className="text-sm text-muted-foreground mb-4">
             {t("dashboard.submission.details.author", "Author")}: {submission.author}
           </p>
         </div>
         <div className="flex gap-2">
+          {/* Chair Decision Dropdown */}
+          {isChair && (
+            <Select
+              value={["accepted", "rejected"].includes(submission.status) ? submission.status : "__current"}
+              onValueChange={(value) => handleDecision(value as "accepted" | "rejected")}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder={t("dashboard.chair.submissions.decision")} />
+              </SelectTrigger>
+              <SelectContent>
+                {!["accepted", "rejected"].includes(submission.status) && (
+                  <SelectItem value="__current" disabled>
+                    {t(`dashboard.submissions.status.${submission.status}`, { defaultValue: submission.status })}
+                  </SelectItem>
+                )}
+                <SelectItem value="accepted">
+                  <span className="font-bold text-green-700">{t("common.actions.accept", { defaultValue: "Accept" })}</span>
+                </SelectItem>
+                <SelectItem value="rejected">
+                  <span className="font-bold text-red-700">{t("common.actions.decline", { defaultValue: "Reject" })}</span>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+          
           {isAuthor && submission.status === "draft" && (
             <Button variant="outline" size="sm" asChild>
               <Link
@@ -111,28 +168,37 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4 bg-muted/50 p-1 h-auto border border-border rounded-lg gap-1">
-          <TabsTrigger 
+        <TabsList className={`grid w-full ${isChair ? 'grid-cols-5' : 'grid-cols-4'} bg-muted/50 p-1 h-auto border border-border rounded-lg gap-1`}>
+          <TabsTrigger
             value="overview"
             className="rounded-md border border-transparent data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all hover:bg-background/50 hover:text-foreground"
           >
             {t("dashboard.submission.tabs.overview", "Overview")}
           </TabsTrigger>
-          <TabsTrigger 
+          {isChair && (
+            <TabsTrigger
+              value="review"
+              className="rounded-md border border-transparent data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all hover:bg-background/50 hover:text-foreground"
+            >
+              <MessageSquare className="size-4 mr-2" />
+              {t("dashboard.submission.tabs.review", "Review")}
+            </TabsTrigger>
+          )}
+          <TabsTrigger
             value="preview"
             className="rounded-md border border-transparent data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all hover:bg-background/50 hover:text-foreground"
           >
             <Eye className="size-4 mr-2" />
             {t("dashboard.submission.tabs.preview", "Preview")}
           </TabsTrigger>
-          <TabsTrigger 
+          <TabsTrigger
             value="coi"
             className="rounded-md border border-transparent data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all hover:bg-background/50 hover:text-foreground"
           >
             <AlertTriangle className="size-4 mr-2" />
             {t("dashboard.submission.tabs.coi", "COI")}
           </TabsTrigger>
-          <TabsTrigger 
+          <TabsTrigger
             value="cover-letter"
             className="rounded-md border border-transparent data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all hover:bg-background/50 hover:text-foreground"
           >
@@ -145,242 +211,249 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
         <TabsContent value="overview" className="space-y-6 mt-4">
           {/* Overview Content - Single Column Layout */}
           <div className="space-y-6">
-          {/* Abstract */}
-          {submission.abstract && (
+            {/* Abstract */}
+            {submission.abstract && (
+              <Card className="py-6">
+                <CardHeader>
+                  <CardTitle className="text-base">
+                    {t("dashboard.submission.details.abstract", "Tóm tắt")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
+                    {submission.abstract}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Submission Details */}
             <Card className="py-6">
               <CardHeader>
-                <CardTitle className="text-base">
-                  {t("dashboard.submission.details.abstract", "Tóm tắt")}
-                </CardTitle>
+                <CardTitle>{t("dashboard.submission.details.title", "Chi tiết bài nộp")}</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
-                  {submission.abstract}
-                </p>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Submission Details */}
-          <Card className="py-6">
-            <CardHeader>
-              <CardTitle>{t("dashboard.submission.details.title", "Chi tiết bài nộp")}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start gap-3">
-                <User className="size-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <div className="text-xs font-medium text-gray-500 mb-1">
-                    {t("dashboard.submission.details.author", "Tác giả")}
+              <CardContent className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <User className="size-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-medium text-gray-500 mb-1">
+                      {t("dashboard.submission.details.author", "Tác giả")}
+                    </div>
+                    <div className="text-sm break-all">{submission.author}</div>
                   </div>
-                  <div className="text-sm break-all">{submission.author}</div>
                 </div>
-              </div>
 
-              <div className="flex items-start gap-3">
-                <Calendar className="size-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <div className="text-xs font-medium text-gray-500 mb-1">
-                    {t("dashboard.submission.details.submittedDate", "Ngày nộp")}
-                  </div>
-                  <div className="text-sm">{formatDate(submission.created_at)}</div>
-                </div>
-              </div>
-
-              {submission.updated_at !== submission.created_at && (
                 <div className="flex items-start gap-3">
                   <Calendar className="size-4 text-gray-400 mt-0.5 flex-shrink-0" />
                   <div className="min-w-0 flex-1">
                     <div className="text-xs font-medium text-gray-500 mb-1">
-                      {t("dashboard.submission.details.lastUpdated", "Cập nhật lần cuối")}
+                      {t("dashboard.submission.details.submittedDate", "Ngày nộp")}
                     </div>
-                    <div className="text-sm">{formatDate(submission.updated_at)}</div>
+                    <div className="text-sm">{formatDate(submission.created_at)}</div>
                   </div>
                 </div>
-              )}
 
-              {submission.link && (
-                <div className="flex items-start gap-3">
-                  <LinkIcon className="size-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <div className="text-xs font-medium text-gray-500 mb-1">
-                      {t("dashboard.submission.details.link", "Liên kết")}
+                {submission.updated_at !== submission.created_at && (
+                  <div className="flex items-start gap-3">
+                    <Calendar className="size-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-medium text-gray-500 mb-1">
+                        {t("dashboard.submission.details.lastUpdated", "Cập nhật lần cuối")}
+                      </div>
+                      <div className="text-sm">{formatDate(submission.updated_at)}</div>
                     </div>
-                    <a
-                      href={submission.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline text-sm break-all block"
-                    >
-                      {submission.link}
-                    </a>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* File Information */}
-          {submission.file && (
-            <Card className="py-6">
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <FileText className="size-4" />
-                  {t("dashboard.submission.details.file", "File đính kèm")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <div className="text-xs font-medium text-gray-500 mb-1">
-                    {t("dashboard.submission.details.fileName", "Tên file")}
-                  </div>
-                  <div className="text-sm break-all">{submission.file.original_name}</div>
-                </div>
-                <div>
-                  <div className="text-xs font-medium text-gray-500 mb-1">
-                    {t("dashboard.submission.details.fileSize", "Kích thước")}
-                  </div>
-                  <div className="text-sm">
-                    {(submission.file.size / 1024 / 1024).toFixed(2)} MB
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs font-medium text-gray-500 mb-1">
-                    {t("dashboard.submission.details.fileType", "Loại file")}
-                  </div>
-                  <div className="text-sm">{submission.file.mime_type}</div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Domains */}
-          {submission.domain && submission.domain.length > 0 && (
-            <Card className="py-6">
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Tag className="size-4" />
-                  {t("dashboard.submission.details.domains", "Lĩnh vực")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {submission.domain.map((domain) => (
-                    <Badge key={domain} variant="secondary" className="text-xs">
-                      {domain}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Keywords */}
-          {submission.information?.keywords && submission.information.keywords.length > 0 && (
-            <Card className="py-6">
-              <CardHeader>
-                <CardTitle className="text-base">
-                  {t("dashboard.submission.details.keywords", "Từ khóa")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {submission.information.keywords.map((keyword) => (
-                    <Badge key={keyword} variant="outline" className="text-xs">
-                      {keyword}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Co-authors */}
-          {submission.information?.co_authors && submission.information.co_authors.length > 0 && (
-            <Card className="py-6">
-              <CardHeader>
-                <CardTitle className="text-base">
-                  {t("dashboard.submission.details.coAuthors", "Đồng tác giả")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {submission.information.co_authors.map((email, index) => (
-                    <li key={index} className="text-sm break-all">
-                      {email}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Track and Paper Type */}
-          {(submission.information?.track_name || submission.information?.paper_type) && (
-            <Card className="py-6">
-              <CardHeader>
-                <CardTitle className="text-base">
-                  {t("dashboard.submission.details.additionalInfo", "Thông tin bổ sung")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {submission.information.track_name && (
-                  <div>
-                    <div className="text-xs font-medium text-gray-500 mb-1">
-                      {t("dashboard.submission.details.track", "Track")}
-                    </div>
-                    <div className="text-sm">{submission.information.track_name}</div>
                   </div>
                 )}
 
-                {submission.information.paper_type && (
-                  <div>
-                    <div className="text-xs font-medium text-gray-500 mb-1">
-                      {t("dashboard.submission.details.paperType", "Loại bài")}
-                    </div>
-                    <div className="text-sm">{submission.information.paper_type}</div>
-                  </div>
-                )}
-
-                {submission.information.additional_notes && (
-                  <div>
-                    <div className="text-xs font-medium text-gray-500 mb-1">
-                      {t("dashboard.submission.details.notes", "Ghi chú bổ sung")}
-                    </div>
-                    <div className="text-sm whitespace-pre-wrap max-h-40 overflow-y-auto">
-                      {submission.information.additional_notes}
+                {submission.link && (
+                  <div className="flex items-start gap-3">
+                    <LinkIcon className="size-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-medium text-gray-500 mb-1">
+                        {t("dashboard.submission.details.link", "Liên kết")}
+                      </div>
+                      <a
+                        href={submission.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline text-sm break-all block"
+                      >
+                        {submission.link}
+                      </a>
                     </div>
                   </div>
                 )}
               </CardContent>
             </Card>
-          )}
 
-          {/* Metadata */}
-          {submission.information?.metadata &&
-            Object.keys(submission.information.metadata).length > 0 && (
+            {/* File Information */}
+            {submission.file && (
               <Card className="py-6">
                 <CardHeader>
-                  <CardTitle className="text-base">
-                    {t("dashboard.submission.details.metadata", "Metadata")}
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <FileText className="size-4" />
+                    {t("dashboard.submission.details.file", "File đính kèm")}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <dl className="space-y-2">
-                    {Object.entries(submission.information.metadata).map(([key, value]) => (
-                      <div key={key}>
-                        <dt className="text-xs font-medium text-gray-500 capitalize">
-                          {key.replace(/_/g, " ")}
-                        </dt>
-                        <dd className="text-sm">{String(value)}</dd>
-                      </div>
-                    ))}
-                  </dl>
+                <CardContent className="space-y-3">
+                  <div>
+                    <div className="text-xs font-medium text-gray-500 mb-1">
+                      {t("dashboard.submission.details.fileName", "Tên file")}
+                    </div>
+                    <div className="text-sm break-all">{submission.file.original_name}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium text-gray-500 mb-1">
+                      {t("dashboard.submission.details.fileSize", "Kích thước")}
+                    </div>
+                    <div className="text-sm">
+                      {(submission.file.size / 1024 / 1024).toFixed(2)} MB
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium text-gray-500 mb-1">
+                      {t("dashboard.submission.details.fileType", "Loại file")}
+                    </div>
+                    <div className="text-sm">{submission.file.mime_type}</div>
+                  </div>
                 </CardContent>
               </Card>
             )}
+
+            {/* Domains */}
+            {submission.domain && submission.domain.length > 0 && (
+              <Card className="py-6">
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Tag className="size-4" />
+                    {t("dashboard.submission.details.domains", "Lĩnh vực")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {submission.domain.map((domain) => (
+                      <Badge key={domain} variant="secondary" className="text-xs">
+                        {domain}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Keywords */}
+            {submission.information?.keywords && submission.information.keywords.length > 0 && (
+              <Card className="py-6">
+                <CardHeader>
+                  <CardTitle className="text-base">
+                    {t("dashboard.submission.details.keywords", "Từ khóa")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {submission.information.keywords.map((keyword) => (
+                      <Badge key={keyword} variant="outline" className="text-xs">
+                        {keyword}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Co-authors */}
+            {submission.information?.co_authors && submission.information.co_authors.length > 0 && (
+              <Card className="py-6">
+                <CardHeader>
+                  <CardTitle className="text-base">
+                    {t("dashboard.submission.details.coAuthors", "Đồng tác giả")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {submission.information.co_authors.map((email, index) => (
+                      <li key={index} className="text-sm break-all">
+                        {email}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Track and Paper Type */}
+            {(submission.information?.track_name || submission.information?.paper_type) && (
+              <Card className="py-6">
+                <CardHeader>
+                  <CardTitle className="text-base">
+                    {t("dashboard.submission.details.additionalInfo", "Thông tin bổ sung")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {submission.information.track_name && (
+                    <div>
+                      <div className="text-xs font-medium text-gray-500 mb-1">
+                        {t("dashboard.submission.details.track", "Track")}
+                      </div>
+                      <div className="text-sm">{submission.information.track_name}</div>
+                    </div>
+                  )}
+
+                  {submission.information.paper_type && (
+                    <div>
+                      <div className="text-xs font-medium text-gray-500 mb-1">
+                        {t("dashboard.submission.details.paperType", "Loại bài")}
+                      </div>
+                      <div className="text-sm">{submission.information.paper_type}</div>
+                    </div>
+                  )}
+
+                  {submission.information.additional_notes && (
+                    <div>
+                      <div className="text-xs font-medium text-gray-500 mb-1">
+                        {t("dashboard.submission.details.notes", "Ghi chú bổ sung")}
+                      </div>
+                      <div className="text-sm whitespace-pre-wrap max-h-40 overflow-y-auto">
+                        {submission.information.additional_notes}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Metadata */}
+            {submission.information?.metadata &&
+              Object.keys(submission.information.metadata).length > 0 && (
+                <Card className="py-6">
+                  <CardHeader>
+                    <CardTitle className="text-base">
+                      {t("dashboard.submission.details.metadata", "Metadata")}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <dl className="space-y-2">
+                      {Object.entries(submission.information.metadata).map(([key, value]) => (
+                        <div key={key}>
+                          <dt className="text-xs font-medium text-gray-500 capitalize">
+                            {key.replace(/_/g, " ")}
+                          </dt>
+                          <dd className="text-sm">{String(value)}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </CardContent>
+                </Card>
+              )}
           </div>
         </TabsContent>
+
+        {/* Review Tab - Chair Only */}
+        {isChair && (
+          <TabsContent value="review" className="space-y-6 mt-4">
+            <SubmissionReviewTab conferenceId={conferenceId} submissionId={submission.id.toString()} />
+          </TabsContent>
+        )}
 
         {/* Preview Tab */}
         <TabsContent value="preview" className="space-y-6 mt-4">
@@ -472,19 +545,19 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
           {submission.cover_letter ? (
             <div className="space-y-6">
               {/* Cover Letter File Information */}
-          <Card className="py-6">
-            <CardHeader>
+              <Card className="py-6">
+                <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2">
                     <FileCheck className="size-4" />
                     {t("dashboard.submission.details.coverLetterFile", "Cover Letter")}
-              </CardTitle>
+                  </CardTitle>
                   <CardDescription>
                     {t(
                       "dashboard.submission.details.coverLetterDescription",
                       "Supporting document for your submission",
                     )}
                   </CardDescription>
-            </CardHeader>
+                </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
                     <div className="text-xs font-medium text-gray-500 mb-1">
@@ -518,9 +591,9 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
                         {t("common.actions.download", "Download")}
                       </a>
                     </Button>
-              </div>
-            </CardContent>
-          </Card>
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Preview Cover Letter */}
               {submission.cover_letter.mime_type === "application/pdf" && (

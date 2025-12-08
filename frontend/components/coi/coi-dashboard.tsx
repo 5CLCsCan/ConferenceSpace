@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AlertTriangle, Users, FileText, UserCheck } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { getCOIDashboardStats } from "@/lib/api/coi-mock"
+import { getCOIDashboardStats } from "@/lib/api/coi"
 import { COIAnalysisDashboard } from "./coi-analysis-dashboard"
 
 interface COIDashboardProps {
@@ -33,10 +33,11 @@ export function COIDashboard({ conferenceId }: COIDashboardProps) {
   const loadStats = async () => {
     try {
       setLoading(true)
-      const result = await getCOIDashboardStats(conferenceId)
-      if (result.data) {
-        setStats(result.data)
-      }
+      const result = await getCOIDashboardStats(parseInt(conferenceId))
+      setStats({
+        ...result,
+        conference_id: conferenceId, // Keep as string for display
+      })
     } catch (error) {
       console.error("Failed to load COI dashboard stats:", error)
     } finally {
@@ -57,31 +58,8 @@ export function COIDashboard({ conferenceId }: COIDashboardProps) {
 
   return (
     <div className="space-y-6">
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <StatsCard
-          label={t("coi.dashboard.stats.totalReviewers")}
-          value={stats.total_reviewers}
-          sublabel={`${stats.available_reviewers} available`}
-          icon={Users}
-        />
-        <StatsCard
-          label={t("coi.dashboard.stats.totalPapers")}
-          value={stats.total_papers}
-          sublabel={`${stats.papers_under_review} under review`}
-          icon={FileText}
-        />
-        <StatsCard
-          label={t("coi.dashboard.stats.coiDetected")}
-          value={stats.coi_detected}
-          sublabel={`${stats.total_relationships} relationships`}
-          icon={AlertTriangle}
-          highlight="destructive"
-        />
-      </div>
-
       {/* Main Analysis Dashboard */}
-      <COIAnalysisDashboard conferenceId={conferenceId} />
+      <COIAnalysisDashboard conferenceId={conferenceId} stats={stats} />
     </div>
   )
 }

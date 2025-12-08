@@ -14,18 +14,34 @@
  */
 
 import { useEffect, useState, useMemo } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import type { Paper } from "@/lib/types"
 import { getConferencePapers } from "@/lib/api/conferences"
+import { getSubmissionReviewAnalytics, type ReviewAnalytics } from "@/lib/api/reviews"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { FileText, Calendar, Users, X, Filter } from "lucide-react"
+import { FileText, Calendar, Users, X, Filter, Eye, Loader2 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { Checkbox } from "@/components/ui/checkbox"
 import { FilterBar, type ActiveFilter } from "@/components/ui/filter-bar"
 import { typography, spacing, iconSizes } from "@/lib/typography"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { SubmissionAnalytics } from "@/components/chair/submission-analytics"
+import type { PaperStatus } from "@/lib/types"
 
 interface ConferenceSubmissionsProps {
   conferenceId: string
@@ -34,7 +50,9 @@ interface ConferenceSubmissionsProps {
 export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsProps) {
   const { t } = useTranslation()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user, currentRole } = useAuth()
+  const { t } = useTranslation()
   const [papers, setPapers] = useState<Paper[]>([])
   const [filteredPapers, setFilteredPapers] = useState<Paper[]>([])
   const [loading, setLoading] = useState(true)
@@ -44,6 +62,25 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
   const [filterOpen, setFilterOpen] = useState(false)
   const [tempStatusFilter, setTempStatusFilter] = useState<string>("all")
   const [tempTrackFilter, setTempTrackFilter] = useState<string>("all")
+  const [quickViewOpen, setQuickViewOpen] = useState(false)
+  const [selectedPaperId, setSelectedPaperId] = useState<string | null>(null)
+  const [quickViewAnalytics, setQuickViewAnalytics] = useState<ReviewAnalytics | null>(null)
+  const [loadingQuickView, setLoadingQuickView] = useState(false)
+
+  // Initialize filters from URL query params (e.g., keyword, track)
+  useEffect(() => {
+    const initialKeyword = searchParams.get("keyword")
+    const initialTrack = searchParams.get("track")
+
+    if (initialKeyword) {
+      setSearchQuery(initialKeyword)
+    }
+
+    if (initialTrack) {
+      setTrackFilter(initialTrack)
+      setTempTrackFilter(initialTrack)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     async function loadPapers() {
@@ -119,15 +156,22 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
   }
 
   const getStatusLabel = (status: string) => {
-    const statusMap: Record<string, string> = {
-      submitted: t("conference.submissions.status.submitted"),
-      under_review: t("conference.submissions.status.underReview"),
-      accepted: t("conference.submissions.status.accepted"),
-      rejected: t("conference.submissions.status.rejected"),
-      revision_requested: t("conference.submissions.status.revisionRequested"),
-      camera_ready: t("conference.submissions.status.cameraReady"),
+    switch (status) {
+      case "submitted":
+        return t("dashboard.chair.submissions.submitted")
+      case "under_review":
+        return t("dashboard.chair.submissions.underReview")
+      case "accepted":
+        return t("dashboard.chair.submissions.accepted")
+      case "rejected":
+        return t("dashboard.chair.submissions.rejected")
+      case "revision_requested":
+        return t("dashboard.chair.submissions.revisionRequested")
+      case "camera_ready":
+        return t("dashboard.chair.submissions.cameraReady")
+      default:
+        return status
     }
-    return statusMap[status] || status
   }
 
   const formatDate = (dateString: string) => {
@@ -139,15 +183,53 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
     })
   }
 
+  const handleDecision = async (paperId: string, decision: "accepted" | "rejected") => {
+    try {
+      const { updateSubmissionStatus } = await import("@/lib/api/submissions")
+      const response = await updateSubmissionStatus(conferenceId, paperId, decision)
+      
+      if (response.error) {
+        console.error("Failed to update submission status:", response.error)
+        // TODO: Show error toast
+        return
+      }
+      
+      // Update local state
+      setPapers((prevPapers) =>
+        prevPapers.map((paper) =>
+          paper.id === paperId ? { ...paper, status: decision as PaperStatus } : paper
+        )
+      )
+      
+      console.log(`Successfully updated paper ${paperId} to ${decision}`)
+      // TODO: Show success toast
+    } catch (error) {
+      console.error("Error updating submission status:", error)
+      // TODO: Show error toast
+    }
+  }
+
+  const handleQuickView = async (paperId: string) => {
+    setSelectedPaperId(paperId)
+    setQuickViewOpen(true)
+    setLoadingQuickView(true)
+    
+    const response = await getSubmissionReviewAnalytics(conferenceId, paperId)
+    if (!response.error && response.data) {
+      setQuickViewAnalytics(response.data)
+    }
+    setLoadingQuickView(false)
+  }
+
   const getRoleDescription = () => {
     if (currentRole === "author") {
-      return t("conference.submissions.roleDescriptions.author")
+      return t("dashboard.chair.submissions.descriptionAuthor")
     } else if (currentRole === "reviewer") {
-      return t("conference.submissions.roleDescriptions.reviewer")
+      return t("dashboard.chair.submissions.descriptionReviewer")
     } else if (currentRole === "chair") {
-      return t("conference.submissions.roleDescriptions.chair")
+      return t("dashboard.chair.submissions.descriptionChair")
     }
-    return t("conference.submissions.roleDescriptions.default")
+    return t("dashboard.chair.submissions.descriptionDefault")
   }
 
   const handleRemoveStatusFilter = () => {
@@ -175,11 +257,28 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
   const hasActiveFilters = statusFilter !== "all" || trackFilter !== "all"
 
   const activeFilters: ActiveFilter[] = useMemo(() => {
+    const getStatusLabel = (status: string) => {
+      switch (status) {
+        case "submitted":
+          return t("dashboard.chair.submissions.submitted")
+        case "under_review":
+          return t("dashboard.chair.submissions.underReview")
+        case "accepted":
+          return t("dashboard.chair.submissions.accepted")
+        case "rejected":
+          return t("dashboard.chair.submissions.rejected")
+        case "revision_requested":
+          return t("dashboard.chair.submissions.revisionRequested")
+        default:
+          return status
+      }
+    }
+
     const filters: ActiveFilter[] = []
     if (statusFilter !== "all") {
       filters.push({
         id: "status",
-        label: getStatusLabelForFilter(statusFilter),
+        label: getStatusLabel(statusFilter),
         onRemove: handleRemoveStatusFilter,
       })
     }
@@ -198,66 +297,66 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
       })
     }
     return filters
-  }, [statusFilter, trackFilter])
+  }, [statusFilter, trackFilter, t])
 
   const filterPopover = (
     <div className={spacing.subsection}>
       <div>
-        <h4 className={`${typography.semibold} ${typography.body} mb-3`}>{t("conference.submissions.status.label")}</h4>
+        <h4 className={`${typography.semibold} ${typography.body} mb-3`}>{t("dashboard.chair.submissions.statusLabel")}</h4>
         <div className={spacing.item}>
           <label
             className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
             onClick={() => setTempStatusFilter("all")}
           >
             <Checkbox checked={tempStatusFilter === "all"} />
-            <span className={typography.body}>{t("conference.submissions.status.all")}</span>
+            <span className={typography.body}>{t("dashboard.chair.submissions.allStatuses")}</span>
           </label>
           <label
             className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
             onClick={() => setTempStatusFilter("submitted")}
           >
             <Checkbox checked={tempStatusFilter === "submitted"} />
-            <span className={typography.body}>{t("conference.submissions.status.submitted")}</span>
+            <span className={typography.body}>{t("dashboard.chair.submissions.submitted")}</span>
           </label>
           <label
             className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
             onClick={() => setTempStatusFilter("under_review")}
           >
             <Checkbox checked={tempStatusFilter === "under_review"} />
-            <span className={typography.body}>{t("conference.submissions.status.underReview")}</span>
+            <span className={typography.body}>{t("dashboard.chair.submissions.underReview")}</span>
           </label>
           <label
             className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
             onClick={() => setTempStatusFilter("accepted")}
           >
             <Checkbox checked={tempStatusFilter === "accepted"} />
-            <span className={typography.body}>{t("conference.submissions.status.accepted")}</span>
+            <span className={typography.body}>{t("dashboard.chair.submissions.accepted")}</span>
           </label>
           <label
             className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
             onClick={() => setTempStatusFilter("rejected")}
           >
             <Checkbox checked={tempStatusFilter === "rejected"} />
-            <span className={typography.body}>{t("conference.submissions.status.rejected")}</span>
+            <span className={typography.body}>{t("dashboard.chair.submissions.rejected")}</span>
           </label>
           <label
             className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
             onClick={() => setTempStatusFilter("revision_requested")}
           >
             <Checkbox checked={tempStatusFilter === "revision_requested"} />
-            <span className={typography.body}>{t("conference.submissions.status.revisionRequested")}</span>
+            <span className={typography.body}>{t("dashboard.chair.submissions.revisionRequested")}</span>
           </label>
         </div>
       </div>
       <div>
-        <h4 className={`${typography.semibold} ${typography.body} mb-3`}>{t("conference.submissions.track.label")}</h4>
+        <h4 className={`${typography.semibold} ${typography.body} mb-3`}>{t("dashboard.chair.submissions.trackLabel")}</h4>
         <div className={spacing.item}>
           <label
             className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
             onClick={() => setTempTrackFilter("all")}
           >
             <Checkbox checked={tempTrackFilter === "all"} />
-            <span className={typography.body}>{t("conference.submissions.track.all")}</span>
+            <span className={typography.body}>{t("dashboard.chair.submissions.allTracks")}</span>
           </label>
           <label
             className={`flex items-center ${spacing.gap.sm} cursor-pointer`}
@@ -284,28 +383,41 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
       </div>
       <div className={`flex justify-end ${spacing.gap.sm} pt-2 border-t`}>
         <Button variant="outline" size="sm" onClick={handleClearFilters}>
-          {t("conference.submissions.filterButton.clear")}
+          {t("dashboard.chair.submissions.clear")}
         </Button>
         <Button size="sm" onClick={handleApplyFilters}>
-          {t("conference.submissions.filterButton.apply")}
+          {t("dashboard.chair.submissions.apply")}
         </Button>
       </div>
     </div>
   )
 
   const getStatusLabelForFilter = (status: string) => {
-    return getStatusLabel(status)
+    switch (status) {
+      case "submitted":
+        return t("dashboard.chair.submissions.submitted")
+      case "under_review":
+        return t("dashboard.chair.submissions.underReview")
+      case "accepted":
+        return t("dashboard.chair.submissions.accepted")
+      case "rejected":
+        return t("dashboard.chair.submissions.rejected")
+      case "revision_requested":
+        return t("dashboard.chair.submissions.revisionRequested")
+      default:
+        return status
+    }
   }
 
   if (loading) {
-    return <div>{t("conference.submissions.loading")}</div>
+    return <div>{t("common.actions.loading")}</div>
   }
 
   return (
     <div className={spacing.section}>
       {/* Header */}
       <div>
-        <h1 className={`${typography.h1} text-gray-900`}>{t("conference.submissions.title")}</h1>
+        <h1 className={`${typography.h1} text-gray-900`}>{t("dashboard.chair.submissions.title")}</h1>
         <p className={`mt-3 ${typography.bodyLarge} leading-relaxed text-gray-600`}>
           {getRoleDescription()}
         </p>
@@ -316,7 +428,7 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
         <FilterBar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          searchPlaceholder={t("conference.submissions.searchPlaceholder")}
+          searchPlaceholder={t("dashboard.chair.submissions.searchPlaceholder")}
           activeFilters={activeFilters}
           filterPopover={filterPopover}
           hasActiveFilters={hasActiveFilters}
@@ -332,8 +444,8 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
         >
           <Filter className={iconSizes.sm} />
           <span>
-            {t("conference.submissions.showing")} <span className={typography.semibold}>{filteredPapers.length}</span> {t("conference.submissions.of")}{" "}
-            {papers.length} {t("conference.submissions.papers")}
+            {t("dashboard.chair.submissions.resultsCount")} <span className={typography.semibold}>{filteredPapers.length}</span> /{" "}
+            {papers.length}
           </span>
         </div>
       </div>
@@ -387,9 +499,48 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
                 </Badge>
                 {paper.reviews.length > 0 && (
                   <span className={`${typography.bodySmall} text-gray-500`}>
-                    {paper.reviews.length} reviews
+                    {paper.reviews.length} {t("dashboard.chair.submissions.reviews")}
                   </span>
                 )}
+                
+                {/* Chair-only actions */}
+                {currentRole === "chair" && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleQuickView(paper.id)
+                      }}
+                      title={t("dashboard.chair.submissions.quickViewTitle")}
+                    >
+                      <Eye className={iconSizes.sm} />
+                    </Button>
+                    <Select
+                      value={["accepted", "rejected"].includes(paper.status) ? paper.status : "__current"}
+                      onValueChange={(value) => handleDecision(paper.id, value as "accepted" | "rejected")}
+                    >
+                      <SelectTrigger className="w-[140px] h-8 text-xs">
+                        <SelectValue placeholder={t("dashboard.chair.submissions.decision")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {!["accepted", "rejected"].includes(paper.status) && (
+                          <SelectItem value="__current" disabled>
+                            {getStatusLabel(paper.status)}
+                          </SelectItem>
+                        )}
+                        <SelectItem value="accepted">
+                          <span className="font-bold text-green-700">{t("common.actions.accept")}</span>
+                        </SelectItem>
+                        <SelectItem value="rejected">
+                          <span className="font-bold text-red-700">{t("common.actions.decline")}</span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                
                 <Button
                   variant="outline"
                   size="sm"
@@ -397,7 +548,7 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
                     router.push(`/dashboard/conference/${conferenceId}/submission/${paper.id}`)
                   }
                 >
-                  {t("conference.submissions.viewDetails")}
+                  {t("common.actions.viewDetail")}
                 </Button>
               </div>
             </div>
@@ -407,17 +558,39 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
         {filteredPapers.length === 0 && (
           <Card className={`${spacing.padding.cardLarge} text-center`}>
             <FileText className="mx-auto text-gray-400" style={{ width: "3rem", height: "3rem" }} />
-            <h3 className={`mt-4 ${typography.h4} text-gray-900`}>{t("conference.submissions.noSubmissionsFound")}</h3>
+            <h3 className={`mt-4 ${typography.h4} text-gray-900`}>{t("dashboard.chair.submissions.noSubmissionsFound")}</h3>
             <p className={`mt-2 ${typography.body} text-gray-600`}>
               {currentRole === "author"
-                ? t("conference.submissions.emptyState.author")
+                ? t("dashboard.chair.submissions.noSubmissionsAuthor")
                 : currentRole === "reviewer"
-                  ? t("conference.submissions.emptyState.reviewer")
-                  : t("conference.submissions.emptyState.default")}
+                  ? t("dashboard.chair.submissions.noSubmissionsReviewer")
+                  : t("dashboard.chair.submissions.noSubmissionsFilter")}
             </p>
           </Card>
         )}
       </div>
+
+      {/* Quick View Analytics Dialog */}
+      <Dialog open={quickViewOpen} onOpenChange={setQuickViewOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedPaperId && papers.find(p => p.id === selectedPaperId)?.title}
+            </DialogTitle>
+          </DialogHeader>
+          {loadingQuickView ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="size-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : quickViewAnalytics ? (
+            <SubmissionAnalytics analytics={quickViewAnalytics} compact />
+          ) : (
+            <div className="py-8 text-center text-muted-foreground">
+              {t("dashboard.chair.submissions.noAnalytics")}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

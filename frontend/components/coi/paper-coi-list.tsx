@@ -6,17 +6,17 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { getAllPaperCOIs } from "@/lib/api/coi-mock"
-import type { PaperCOISummary } from "@/lib/mock-data/coi"
+import { getAllPaperCOIs, type PaperCOISummary } from "@/lib/api/coi"
 
 interface PaperCOIListProps {
+  conferenceId: string
   filters: {
     search: string
     severity: "all" | "high" | "medium" | "low"
   }
 }
 
-export function PaperCOIList({ filters }: PaperCOIListProps) {
+export function PaperCOIList({ conferenceId, filters }: PaperCOIListProps) {
   const { t } = useTranslation()
   const [papers, setPapers] = useState<PaperCOISummary[]>([])
   const [loading, setLoading] = useState(true)
@@ -36,18 +36,15 @@ export function PaperCOIList({ filters }: PaperCOIListProps) {
       setError(null)
 
       const result = await getAllPaperCOIs({
+        conference_id: parseInt(conferenceId),
         search: filters.search || undefined,
         severity: filters.severity === "all" ? undefined : filters.severity,
         limit: itemsPerPage,
         page,
       })
 
-      if (result.data) {
-        setPapers(result.data.papers)
-        setTotalCount(result.data.total)
-      } else {
-        setError(result.error || "Failed to load papers")
-      }
+      setPapers(result.papers)
+      setTotalCount(result.total)
     } catch (err) {
       setError("Failed to load papers")
       console.error(err)
@@ -119,8 +116,8 @@ export function PaperCOIList({ filters }: PaperCOIListProps) {
           borderColor = "border-l-amber-500"
           bgColor = "bg-amber-50/30 dark:bg-amber-950/10"
         } else if (paper.low_severity_count > 0) {
-          borderColor = "border-l-blue-500"
-          bgColor = "bg-blue-50/30 dark:bg-blue-950/10"
+          borderColor = "border-l-primary"
+          bgColor = "bg-primary/5 dark:bg-primary/10"
         }
 
         return (
@@ -164,7 +161,7 @@ export function PaperCOIList({ filters }: PaperCOIListProps) {
                   {paper.low_severity_count > 0 && (
                     <Badge
                       variant="secondary"
-                      className="bg-blue-500/10 text-blue-700 dark:text-blue-400 hover:bg-blue-500/20 border-0"
+                      className="bg-primary/10 text-primary dark:text-primary hover:bg-primary/20 border-0"
                     >
                       {paper.low_severity_count} Low Conflicts
                     </Badge>
@@ -206,7 +203,7 @@ export function PaperCOIList({ filters }: PaperCOIListProps) {
                               ? "text-red-500"
                               : item.severity === "medium"
                                 ? "text-amber-500"
-                                : "text-blue-500"
+                                : "text-primary"
                           }`}
                         >
                           {item.severity === "high" ? (
@@ -217,21 +214,21 @@ export function PaperCOIList({ filters }: PaperCOIListProps) {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2 mb-1">
-                            <p className="font-medium text-sm truncate">{item.reviewer.name}</p>
+                            <p className="font-medium text-sm truncate">{item.reviewer_name}</p>
                             <span
                               className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${
                                 item.severity === "high"
                                   ? "bg-red-100 text-red-700"
                                   : item.severity === "medium"
                                     ? "bg-amber-100 text-amber-700"
-                                    : "bg-blue-100 text-blue-700"
+                                    : "bg-primary/10 text-primary"
                               }`}
                             >
                               {item.severity}
                             </span>
                           </div>
                           <p className="text-xs text-muted-foreground mb-1.5 truncate">
-                            {item.reviewer.affiliation}
+                            {item.reviewer_email}
                           </p>
                           <div className="space-y-1">
                             {item.reasons.map((reason, rIdx) => (

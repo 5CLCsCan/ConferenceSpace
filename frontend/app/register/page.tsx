@@ -131,7 +131,7 @@ export default function RegisterPage() {
           <p className={`text-neutral-600 ${typography.body}`}>{t("auth.register.title")}</p>
         </div>
 
-        <Card className="border-neutral-200 shadow-sm">
+        <Card className="border-neutral-200 shadow-sm py-6">
           <CardHeader>
             <CardTitle>{t("common.actions.signUp")}</CardTitle>
             <CardDescription>{t("auth.register.subtitle")}</CardDescription>
@@ -231,13 +231,17 @@ export default function RegisterPage() {
                   </div>
                 )}
                 <div className={`mt-4 ${spacing.item}`}>
-                  <p className={`${typography.bodySmall} ${typography.medium} text-neutral-500 uppercase tracking-wide`}>
+                  <p
+                    className={`${typography.bodySmall} ${typography.medium} text-neutral-500 uppercase tracking-wide`}
+                  >
                     {t("auth.register.suggestions.title")}
                   </p>
                   <p className={`${typography.bodySmall} text-neutral-500`}>
                     {t("auth.register.suggestions.subtitle")}
                   </p>
-                  <div className={`flex flex-wrap ${spacing.gap.sm} min-h-[112px] max-h-[112px] overflow-y-auto overscroll-contain`}>
+                  <div
+                    className={`flex flex-wrap ${spacing.gap.sm} min-h-[112px] max-h-[112px] overflow-y-auto overscroll-contain`}
+                  >
                     {suggestions.length > 0 ? (
                       suggestions.map((keyword) => (
                         <Button
@@ -306,7 +310,10 @@ export default function RegisterPage() {
                           {met ? (
                             <Check className={`${iconSizes.xs} text-success`} aria-hidden="true" />
                           ) : (
-                            <Circle className={`${iconSizes.xs} text-neutral-400`} aria-hidden="true" />
+                            <Circle
+                              className={`${iconSizes.xs} text-neutral-400`}
+                              aria-hidden="true"
+                            />
                           )}
                           <span className={met ? "text-neutral-700" : "text-neutral-400"}>
                             {t(`auth.register.passwordHints.rules.${rule}`)}

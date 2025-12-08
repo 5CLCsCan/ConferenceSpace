@@ -6,6 +6,7 @@ export type PaperStatus =
   | "draft"
   | "submitted"
   | "under_review"
+  | "reviewing"
   | "revision_requested"
   | "accepted"
   | "rejected"
@@ -62,6 +63,8 @@ export interface Conference {
   primary_contact?: number
   area_chair?: number
   userRole?: string // "chair", "author", "reviewer", or undefined
+  isBookmarked?: boolean // Whether the user has bookmarked this conference
+  submissionStatus?: "draft" | "submitted" | "under_review" | "accepted" | "rejected" // User's submission status for this conference
   configurations?: {
     start_date?: string
     end_date?: string

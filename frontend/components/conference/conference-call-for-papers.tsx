@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation"
 import { typography, spacing, iconSizes } from "@/lib/typography"
 import { getConferenceSubmissions } from "@/lib/api/submissions"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { GithubMarkdown } from "@/components/ui/github-markdown"
 
 interface ConferenceCallForPapersProps {
   conference: Conference
@@ -126,8 +127,6 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
     })
   }
 
-  const isSubmissionOpen = new Date(conference.submission_deadline) > new Date()
-
   const handleSubmitClick = () => {
     if (hasSubmission && userSubmissionId) {
       // Navigate to edit existing submission
@@ -202,9 +201,7 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
         <h2 className={typography.h2}>{t("conference.callForPapers.guidelinesTitle")}</h2>
         <Card className={`mt-3 ${spacing.padding.card}`}>
           {conference.call_for_paper_text ? (
-            <div className={`${typography.body} text-gray-600 whitespace-pre-wrap`}>
-              {conference.call_for_paper_text}
-            </div>
+            <GithubMarkdown content={conference.call_for_paper_text} className="w-full" />
           ) : (
             <div className={spacing.subsection}>
               <div>

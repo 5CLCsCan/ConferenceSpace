@@ -83,7 +83,9 @@ export function OrganizersStep({ data, updateData }: Props) {
       <div className={spacing.subsection}>
         {/* Search Bar */}
         <div className={spacing.item}>
-          <Label htmlFor="search" className={typography.label}>Search for Users</Label>
+          <Label htmlFor="search" className={typography.label}>
+            Search for Users
+          </Label>
           <div className="relative">
             <Search
               className={`absolute left-3 top-1/2 -translate-y-1/2 ${iconSizes.sm} text-muted-foreground`}
@@ -110,9 +112,7 @@ export function OrganizersStep({ data, updateData }: Props) {
                   >
                     <UserPlus className={`${iconSizes.sm} text-muted-foreground`} />
                     <div>
-                      <div className={`${typography.medium} ${typography.body}`}>
-                        {user.name}
-                      </div>
+                      <div className={`${typography.medium} ${typography.body}`}>{user.name}</div>
                       <div className={`${typography.bodySmall} text-muted-foreground`}>
                         {user.email}
                       </div>
@@ -137,9 +137,7 @@ export function OrganizersStep({ data, updateData }: Props) {
                 className={`flex items-center ${spacing.gap.md} ${spacing.padding.card} bg-muted/50 rounded-lg border border-border`}
               >
                 <div className="flex-1 min-w-0">
-                  <div className={`${typography.medium} ${typography.body}`}>
-                    {organizer.name}
-                  </div>
+                  <div className={`${typography.medium} ${typography.body}`}>{organizer.name}</div>
                   <div className={`${typography.bodySmall} text-muted-foreground truncate`}>
                     {organizer.email}
                   </div>

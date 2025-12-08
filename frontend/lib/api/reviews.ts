@@ -153,7 +153,14 @@ export interface ReviewData {
     weaknesses?: string
     questions?: string
   }
-  recommendation: "strong_accept" | "accept" | "weak_accept" | "borderline" | "weak_reject" | "reject" | "strong_reject"
+  recommendation:
+    | "strong_accept"
+    | "accept"
+    | "weak_accept"
+    | "borderline"
+    | "weak_reject"
+    | "reject"
+    | "strong_reject"
   confidence: "high" | "medium" | "low"
 }
 
@@ -162,6 +169,7 @@ export interface AssignmentReview {
   conference_id: number
   submission_id: number
   reviewer_id: number
+  reviewer_email?: string
   review_status?: "draft" | "submitted"
   review_score?: number
   review_data?: ReviewData
@@ -183,7 +191,11 @@ export async function getAssignmentReview(
     const { data, response } = await apiFetch<{ data: AssignmentReview }>(endpoint)
     return { data: data.data || null, error: null, status: response.status }
   } catch (error: any) {
-    return { data: null, error: error.message || "Failed to fetch review", status: error.status || 500 }
+    return {
+      data: null,
+      error: error.message || "Failed to fetch review",
+      status: error.status || 500,
+    }
   }
 }
 
@@ -199,7 +211,7 @@ export async function saveAssignmentReview(
     review_data?: ReviewData
     status: "draft" | "submitted"
   },
-  method : "POST" | "PUT" = "POST"
+  method: "POST" | "PUT" = "POST",
 ): Promise<{ data: AssignmentReview | null; error: string | null; status: number }> {
   try {
     const endpoint = `/api/v1/conferences/${conferenceId}/assignments/${assignmentId}/review`
@@ -209,6 +221,102 @@ export async function saveAssignmentReview(
     })
     return { data: data.data || null, error: null, status: response.status }
   } catch (error: any) {
-    return { data: null, error: error.message || "Failed to save review", status: error.status || 500 }
+    return {
+      data: null,
+      error: error.message || "Failed to save review",
+      status: error.status || 500,
+    }
+  }
+}
+
+/**
+ * Get all reviews for a specific submission
+ * Backend endpoint: GET /api/v1/conferences/:conference_id/submissions/:submission_id/reviews
+ */
+export async function getSubmissionReviews(
+  conferenceId: string,
+  submissionId: string,
+  params?: {
+    limit?: number
+    offset?: number
+  },
+): Promise<{
+  data: AssignmentReview[] | null
+  total: number
+  error: string | null
+  status: number
+}> {
+  try {
+    const queryParams = new URLSearchParams()
+    if (params?.limit) queryParams.append("limit", params.limit.toString())
+    if (params?.offset) queryParams.append("offset", params.offset.toString())
+
+    const queryString = queryParams.toString()
+    const endpoint = `/api/v1/conferences/${conferenceId}/submissions/${submissionId}/reviews${queryString ? `?${queryString}` : ""}`
+
+    const { data, response } = await apiFetch<{
+      data: { reviews: AssignmentReview[]; total: number }
+    }>(endpoint)
+
+    return {
+      data: data.data?.reviews || [],
+      total: data.data?.total || 0,
+      error: null,
+      status: response.status,
+    }
+  } catch (error: any) {
+    return {
+      data: [],
+      total: 0,
+      error: error.message || "Failed to fetch reviews",
+      status: error.status || 500,
+    }
+  }
+}
+
+/**
+ * Get review analytics/statistics for a specific submission
+ * Backend endpoint: GET /api/v1/conferences/:conference_id/submissions/:submission_id/reviews/analytics
+ */
+export interface ReviewAnalytics {
+  total_reviews: number
+  average_score: number
+  score_distribution: {
+    strong_accept: number
+    accept: number
+    weak_accept: number
+    borderline: number
+    weak_reject: number
+    reject: number
+    strong_reject: number
+  }
+  confidence_distribution: {
+    high: number
+    medium: number
+    low: number
+  }
+  criteria_averages: {
+    originality: number
+    technical_quality: number
+    clarity: number
+    significance: number
+    methodology: number
+  }
+}
+
+export async function getSubmissionReviewAnalytics(
+  conferenceId: string,
+  submissionId: string,
+): Promise<{ data: ReviewAnalytics | null; error: string | null; status: number }> {
+  try {
+    const endpoint = `/api/v1/conferences/${conferenceId}/submissions/${submissionId}/reviews/analytics`
+    const { data, response } = await apiFetch<{ data: ReviewAnalytics }>(endpoint)
+    return { data: data.data || null, error: null, status: response.status }
+  } catch (error: any) {
+    return {
+      data: null,
+      error: error.message || "Failed to fetch review analytics",
+      status: error.status || 500,
+    }
   }
 }

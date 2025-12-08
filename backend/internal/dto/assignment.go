@@ -18,6 +18,7 @@ type Assignment struct {
 	ReviewSubmittedAt *time.Time  `json:"review_submitted_at,omitempty"`
 	CreatedAt         time.Time   `json:"created_at,omitempty"`
 	UpdatedAt         time.Time   `json:"updated_at,omitempty"`
+	ReviewerEmail     string      `json:"reviewer_email,omitempty"`
 }
 
 // AssignmentCreateRequest represents the request to create a single assignment
@@ -106,4 +107,56 @@ type ReviewSaveRequest struct {
 type ReviewGetRequest struct {
 	AssignmentID int64 `uri:"assignment_id" binding:"required"`
 	ConferenceID int64 `uri:"conference_id" binding:"required"`
+}
+
+// ReviewListRequest represents the request to list reviews for a submission
+type ReviewListRequest struct {
+	ConferenceID int64 `uri:"conference_id"`
+	SubmissionID int64 `uri:"submission_id"`
+	Limit        int   `form:"limit" json:"limit"`
+	Offset       int   `form:"offset" json:"offset"`
+}
+
+// ReviewListResponse represents the response for listing reviews
+type ReviewListResponse struct {
+	Reviews []*Assignment `json:"reviews"`
+	Total   int64         `json:"total"`
+	Limit   int           `json:"limit"`
+	Offset  int           `json:"offset"`
+}
+
+// ReviewAnalyticsResponse represents aggregated analytics for submission reviews
+type ReviewAnalyticsResponse struct {
+	TotalReviews           int                          `json:"total_reviews"`
+	AverageScore           float64                      `json:"average_score"`
+	ScoreDistribution      ReviewScoreDistribution      `json:"score_distribution"`
+	ConfidenceDistribution ReviewConfidenceDistribution `json:"confidence_distribution"`
+	CriteriaAverages       ReviewCriteriaAverages       `json:"criteria_averages"`
+}
+
+// ReviewScoreDistribution represents recommendation distribution
+type ReviewScoreDistribution struct {
+	StrongAccept int `json:"strong_accept"`
+	Accept       int `json:"accept"`
+	WeakAccept   int `json:"weak_accept"`
+	Borderline   int `json:"borderline"`
+	WeakReject   int `json:"weak_reject"`
+	Reject       int `json:"reject"`
+	StrongReject int `json:"strong_reject"`
+}
+
+// ReviewConfidenceDistribution represents confidence level distribution
+type ReviewConfidenceDistribution struct {
+	High   int `json:"high"`
+	Medium int `json:"medium"`
+	Low    int `json:"low"`
+}
+
+// ReviewCriteriaAverages represents average scores for each criterion
+type ReviewCriteriaAverages struct {
+	Originality      float64 `json:"originality"`
+	TechnicalQuality float64 `json:"technical_quality"`
+	Clarity          float64 `json:"clarity"`
+	Significance     float64 `json:"significance"`
+	Methodology      float64 `json:"methodology"`
 }

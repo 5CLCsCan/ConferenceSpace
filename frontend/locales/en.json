@@ -40,7 +40,10 @@
       "search": "Search",
       "filter": "Filter",
       "close": "Close",
-      "download": "Download"
+      "download": "Download",
+      "viewDetail": "View Detail",
+      "expand": "Expand",
+      "collapse": "Collapse"
     },
     "labels": {
       "email": "Email",
@@ -96,12 +99,14 @@
       "inProgress": "In Progress",
       "completed": "Completed",
       "active": "Active",
-      "inactive": "Inactive"
+      "inactive": "Inactive",
+      "submitted": "Submitted",
+      "bookmarked": "Bookmarked"
     },
     "conferenceStatus": {
       "open": "Accepting Submissions",
-      "reviewing": "In Review",
-      "completed": "Completed"
+      "reviewing": "Submission Closed",
+      "completed": "Ended"
     }
   },
   "home": {
@@ -211,6 +216,7 @@
           "dates": "Key Dates",
           "committee": "Organising Committee",
           "submissions": "Submissions",
+          "mySubmission": "My Submission",
           "coiDemo": "COI Demo"
         },
         "currentRole": "Current role",
@@ -333,7 +339,14 @@
       "status": {
         "label": "Status",
         "draft": "Draft",
-        "published": "Published"
+        "published": "Published",
+        "reviewing": "Reviewing",
+        "accepted": "Accepted",
+        "rejected": "Rejected",
+        "submitted": "Submitted",
+        "underReview": "Under Review",
+        "revisionRequested": "Revision Requested",
+        "cameraReady": "Camera Ready"
       }
     },
     "submission": {
@@ -365,6 +378,7 @@
       },
       "tabs": {
         "overview": "Overview",
+        "review": "Review",
         "preview": "Preview",
         "coi": "COI",
         "coverLetter": "Cover Letter"
@@ -442,7 +456,7 @@
           "pendingReviews": "Pending Reviews",
           "papersToDo": "Papers to do"
         },
-        
+
         "conferences": {
           "title": "My Conferences",
           "description": "List of conferences you are reviewing for",
@@ -454,7 +468,9 @@
             "name": "Conference Name",
             "role": "Role",
             "progress": "Progress",
-            "deadline": "Review Deadline"
+            "deadline": "Review Deadline",
+            "status": "Status",
+            "actions": "Actions"
           },
           "status": {
             "active": "Active",
@@ -809,6 +825,112 @@
           "title": "Platform Top Reviewers",
           "manageAllUsers": "Manage All Users"
         }
+      },
+      "submissions": {
+        "quickView": "Quick View",
+        "accept": "Accept",
+        "reject": "Reject",
+        "pending": "Pending",
+        "title": "Submissions",
+        "searchPlaceholder": "Search by title, abstract, keywords...",
+        "resultsCount": "Showing",
+        "descriptionAuthor": "List of papers you have submitted to the conference",
+        "descriptionReviewer": "List of papers assigned to you for review",
+        "descriptionChair": "List of all papers submitted to the conference",
+        "descriptionDefault": "List of papers",
+        "statusLabel": "Status",
+        "trackLabel": "Track",
+        "allStatuses": "All Statuses",
+        "allTracks": "All Tracks",
+        "submitted": "Submitted",
+        "underReview": "Under Review",
+        "accepted": "Accepted",
+        "rejected": "Rejected",
+        "revisionRequested": "Revision Requested",
+        "cameraReady": "Camera Ready",
+        "clear": "Clear",
+        "apply": "Apply",
+        "decision": "Decision",
+        "quickViewTitle": "Quick View Analytics",
+        "noAnalytics": "No analytics available for this submission.",
+        "noSubmissionsFound": "No Submissions Found",
+        "noSubmissionsAuthor": "You have not submitted any papers to this conference yet",
+        "noSubmissionsReviewer": "You have not been assigned any papers to review yet",
+        "noSubmissionsFilter": "Try changing filters or searching with different keywords",
+        "reviews": "reviews"
+      },
+      "review": {
+        "totalReviews": "Total Reviews",
+        "averageScore": "Average Score",
+        "criteriaAverages": "Criteria Averages",
+        "recommendationDistribution": "Recommendation Distribution",
+        "confidenceDistribution": "Confidence Distribution",
+        "reviewList": "Review List",
+        "viewOnlyTitle": "View Only Mode",
+        "viewOnlyDescription": "You are viewing this review as a chair. You cannot edit or submit reviews.",
+        "noAnalytics": "No review analytics available",
+        "noReviews": "No reviews available yet",
+        "reviewNumber": "Review",
+        "score": "Score",
+        "submittedAt": "Submitted",
+        "strengths": "Strengths",
+        "weaknesses": "Weaknesses",
+        "questions": "Questions",
+        "criteriaScores": "Criteria Scores",
+        "analytics": {
+          "strongConsensus": "Strong Consensus",
+          "reviewersDisagree": "Reviewers Disagree",
+          "mixedReviews": "Mixed Reviews",
+          "review": "review",
+          "reviews": "reviews",
+          "submitted": "submitted",
+          "accept": "Accept",
+          "borderline": "Borderline",
+          "reject": "Reject",
+          "qualityCriteria": "Quality Criteria",
+          "originality": "Originality",
+          "technicalQuality": "Technical Quality",
+          "clarity": "Clarity",
+          "significance": "Significance",
+          "methodology": "Methodology",
+          "breakdown": "Breakdown",
+          "qualityMetrics": "Quality Metrics",
+          "recommendationBreakdown": "Recommendation Breakdown",
+          "strongAccept": "Strong Accept",
+          "weakAccept": "Weak Accept",
+          "weakReject": "Weak Reject",
+          "strongReject": "Strong Reject",
+          "qualityCriteriaAnalysis": "Quality Criteria Analysis",
+          "averageScoresDescription": "Average scores across all reviews (1-10 scale)",
+          "reviewerConfidence": "Reviewer Confidence",
+          "confidenceDistributionDescription": "Distribution of reviewer confidence levels",
+          "highConfidence": "High Confidence",
+          "mediumConfidence": "Medium Confidence",
+          "lowConfidence": "Low Confidence",
+          "significantDisagreement": "Significant Disagreement",
+          "significantDisagreementDescription": "Reviewers have conflicting opinions. Consider additional reviews or meta-review.",
+          "strongAcceptRecommendation": "Strong Accept Recommendation",
+          "strongAcceptDescription": "of reviewers recommend acceptance. High-quality paper with broad support.",
+          "strongRejectRecommendation": "Strong Reject Recommendation",
+          "strongRejectDescription": "of reviewers recommend rejection. Consider major revisions or desk rejection.",
+          "showingReviews": "Showing",
+          "to": "to",
+          "of": "of",
+          "previous": "Previous",
+          "next": "Next"
+        },
+        "criteria": {
+          "originality": "Originality",
+          "technicalQuality": "Technical Quality",
+          "clarity": "Clarity",
+          "significance": "Significance",
+          "methodology": "Methodology"
+        },
+        "confidence": {
+          "high": "High",
+          "medium": "Medium",
+          "low": "Low"
+        }
       }
     },
     "author": {
@@ -944,6 +1066,22 @@
             "scopeMatch": "Scope Match"
           }
         }
+      },
+      "submission": {
+        "description": "View and manage your submission for this conference",
+        "noSubmission": "No Submission Yet",
+        "noSubmissionDescription": "You haven't submitted a paper to this conference yet. Start your submission now to participate.",
+        "submitNow": "Submit Paper",
+        "submittedOn": "Submitted on {date}",
+        "lastUpdated": "Updated {date}",
+        "untitled": "Untitled Submission",
+        "continueDraft": "Continue Draft",
+        "viewDetails": "View Details",
+        "editSubmission": "Edit Submission",
+        "versionHistory": "Version History",
+        "versionHistoryDescription": "Track changes and revisions to your submission",
+        "versionHistoryPlaceholder": "Version history will be available when you make revisions to your paper",
+        "comingSoon": "Coming Soon"
       }
     },
     "reviewer": {
@@ -1204,7 +1342,14 @@
     "status": {
       "label": "Status",
       "draft": "Draft",
-      "published": "Published"
+      "published": "Published",
+      "reviewing": "Reviewing",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "submitted": "Submitted",
+      "underReview": "Under Review",
+      "revisionRequested": "Revision Requested",
+      "cameraReady": "Camera Ready"
     }
   },
   "submission": {

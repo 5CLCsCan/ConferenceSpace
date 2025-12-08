@@ -19,7 +19,7 @@ export default function ChairPage() {
     const timer = setTimeout(() => {
       setAuthChecked(true)
     }, 100)
-    
+
     return () => clearTimeout(timer)
   }, [])
 

@@ -186,23 +186,26 @@ export default function ChairDashboard() {
     </div>
   )
 
-  const renderStatusBadge = useCallback((status: "open" | "reviewing" | "completed") => {
-    const statusStyles = {
-      open: "bg-success/10 text-success",
-      reviewing: "bg-primary/10 text-primary",
-      completed: "bg-secondary/10 text-secondary",
-    }
+  const renderStatusBadge = useCallback(
+    (status: "open" | "reviewing" | "completed") => {
+      const statusStyles = {
+        open: "bg-success/10 text-success",
+        reviewing: "bg-primary/10 text-primary",
+        completed: "bg-secondary/10 text-secondary",
+      }
 
-    const statusLabel = t(`common.conferenceStatus.${status}`)
+      const statusLabel = t(`common.conferenceStatus.${status}`)
 
-    return (
-      <span
-        className={`inline-flex items-center px-3 py-1 rounded-full ${typography.bodySmall} ${typography.medium} ${statusStyles[status]}`}
-      >
-        {statusLabel}
-      </span>
-    )
-  }, [t])
+      return (
+        <span
+          className={`inline-flex items-center px-3 py-1 rounded-full ${typography.bodySmall} ${typography.medium} ${statusStyles[status]}`}
+        >
+          {statusLabel}
+        </span>
+      )
+    },
+    [t],
+  )
 
   type ConferenceData = {
     id: string
@@ -223,7 +226,7 @@ export default function ChairDashboard() {
             className="cursor-pointer hover:opacity-80 transition-opacity"
             onClick={(e) => {
               e.stopPropagation()
-              router.push(`/dashboard/conference/${conference.id}`)
+              router.push(`/dashboard/conference/${conference.id}?tab=overview`)
             }}
           >
             <div className={`${typography.semibold} text-foreground`}>{conference.name}</div>
@@ -340,7 +343,7 @@ export default function ChairDashboard() {
             }
             getRowKey={(conference) => conference.id}
             onRowClick={(conference) => {
-              router.push(`/dashboard/conference/${conference.id}`)
+              router.push(`/dashboard/conference/${conference.id}?tab=overview`)
             }}
             renderMobileCard={(conference) => <ConferenceCard {...conference} />}
           />
@@ -349,7 +352,8 @@ export default function ChairDashboard() {
           {!loading && totalPages > 1 && (
             <div className="mt-6 flex items-center justify-between">
               <div className={`${typography.body} text-muted-foreground`}>
-                Showing {((currentPage - 1) * limit) + 1} to {Math.min(currentPage * limit, total)} of {total} conferences
+                Showing {(currentPage - 1) * limit + 1} to {Math.min(currentPage * limit, total)} of{" "}
+                {total} conferences
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -363,12 +367,12 @@ export default function ChairDashboard() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
                 >
                   Previous
                 </Button>
-                
+
                 {/* Page Numbers */}
                 <div className="flex items-center gap-1">
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -382,7 +386,7 @@ export default function ChairDashboard() {
                     } else {
                       pageNum = currentPage - 2 + i
                     }
-                    
+
                     return (
                       <Button
                         key={pageNum}
@@ -396,11 +400,11 @@ export default function ChairDashboard() {
                     )
                   })}
                 </div>
-                
+
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
                 >
                   Next

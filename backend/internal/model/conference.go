@@ -19,6 +19,7 @@ const (
 	ColCoChairs            = "co_chairs"
 	ConferenceColDomain    = "domain"
 	ColTracks              = "tracks"
+	ColVenue               = "venue"
 	ColConfigurations      = "configurations"
 	ColConferenceStatus    = "status"
 	ConferenceColCreatedAt = "created_at"
@@ -49,6 +50,7 @@ type Conference struct {
 	CoChairs       pq.StringArray `db:"co_chairs"`
 	Domain         pq.StringArray `db:"domain"`
 	Tracks         pq.StringArray `db:"tracks"`
+	Venue          string         `db:"venue"`
 	Configurations []byte         `db:"configurations"`
 	Status         string         `db:"status"`
 	CreatedAt      time.Time      `db:"created_at"`
@@ -92,6 +94,7 @@ func (c *Conference) ToDTO() *dto.ConferenceResponse {
 		CoChairs:       coChairs,
 		Domain:         domain,
 		Tracks:         tracks,
+		Venue:          c.Venue,
 		Configurations: config,
 		Status:         c.Status,
 		CreatedAt:      c.CreatedAt,

@@ -36,6 +36,7 @@ type Assignment struct {
 	ReviewSubmittedAt *time.Time      `db:"review_submitted_at"`
 	CreatedAt         time.Time       `db:"created_at"`
 	UpdatedAt         time.Time       `db:"updated_at"`
+	ReviewerEmail     string          `db:"reviewer_email"`
 }
 
 // Assignment status constants
@@ -73,16 +74,17 @@ const (
 // ToDTO converts model to DTO
 func (a *Assignment) ToDTO() *dto.Assignment {
 	result := &dto.Assignment{
-		ID:           a.ID,
-		ConferenceID: a.ConferenceID,
-		SubmissionID: a.SubmissionID,
-		ReviewerID:   a.ReviewerID,
-		Score:        a.Score,
-		Status:       a.Status,
-		AssignedAt:   a.AssignedAt,
-		CompletedAt:  a.CompletedAt,
-		CreatedAt:    a.CreatedAt,
-		UpdatedAt:    a.UpdatedAt,
+		ID:            a.ID,
+		ConferenceID:  a.ConferenceID,
+		SubmissionID:  a.SubmissionID,
+		ReviewerID:    a.ReviewerID,
+		ReviewerEmail: a.ReviewerEmail,
+		Score:         a.Score,
+		Status:        a.Status,
+		AssignedAt:    a.AssignedAt,
+		CompletedAt:   a.CompletedAt,
+		CreatedAt:     a.CreatedAt,
+		UpdatedAt:     a.UpdatedAt,
 	}
 
 	// Add review fields if present
@@ -90,10 +92,51 @@ func (a *Assignment) ToDTO() *dto.Assignment {
 	result.ReviewScore = a.ReviewScore
 	// Only populate ReviewData if it's more than just an empty object
 	if len(a.ReviewData) > 0 { // "{}" is 2 bytes
-		// Parse ReviewData into structured format
-		var reviewData dto.ReviewData
-		if err := json.Unmarshal(a.ReviewData, &reviewData); err == nil {
-			result.ReviewData = &reviewData
+		// Parse ReviewData from flat structure in DB to nested DTO structure
+		var flatReviewData map[string]interface{}
+		if err := json.Unmarshal(a.ReviewData, &flatReviewData); err == nil {
+			// Build structured ReviewData
+			reviewData := &dto.ReviewData{}
+
+			// Map flat criteria fields to nested Criteria struct
+			if originality, ok := flatReviewData["originality"].(float64); ok {
+				reviewData.Criteria.Originality = int(originality)
+			}
+			if techQuality, ok := flatReviewData["technical_quality"].(float64); ok {
+				reviewData.Criteria.TechnicalQuality = int(techQuality)
+			}
+			if clarity, ok := flatReviewData["clarity"].(float64); ok {
+				reviewData.Criteria.Clarity = int(clarity)
+			}
+			if significance, ok := flatReviewData["significance"].(float64); ok {
+				reviewData.Criteria.Significance = int(significance)
+			}
+			if methodology, ok := flatReviewData["methodology"].(float64); ok {
+				reviewData.Criteria.Methodology = int(methodology)
+			}
+
+			// Map other fields
+			if recommendation, ok := flatReviewData["recommendation"].(string); ok {
+				reviewData.Recommendation = recommendation
+			}
+			if confidence, ok := flatReviewData["confidence"].(string); ok {
+				reviewData.Confidence = confidence
+			}
+
+			// Map feedback (if exists as nested object or flat)
+			if feedbackMap, ok := flatReviewData["feedback"].(map[string]interface{}); ok {
+				if strengths, ok := feedbackMap["strengths"].(string); ok {
+					reviewData.Feedback.Strengths = strengths
+				}
+				if weaknesses, ok := feedbackMap["weaknesses"].(string); ok {
+					reviewData.Feedback.Weaknesses = weaknesses
+				}
+				if questions, ok := feedbackMap["questions"].(string); ok {
+					reviewData.Feedback.Questions = questions
+				}
+			}
+
+			result.ReviewData = reviewData
 		}
 	}
 	if a.ReviewSubmittedAt != nil {

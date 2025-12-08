@@ -381,9 +381,11 @@ export function Chatbot() {
           }
         })
 
-        // Remove conversations that no longer have messages
         const toRemove: string[] = []
         merged.forEach((conv, id) => {
+          if (id === currentConversationId) {
+            return
+          }
           if (typeof window !== "undefined") {
             try {
               const messages = localStorage.getItem(`ai-chat-${id}`)
@@ -409,7 +411,7 @@ export function Chatbot() {
     }, 2000) // Check every 2 seconds for more responsive updates
 
     return () => clearInterval(interval)
-  }, [])
+  }, [currentConversationId])
 
   const handleMouseDown = React.useCallback((e: React.MouseEvent) => {
     e.preventDefault()

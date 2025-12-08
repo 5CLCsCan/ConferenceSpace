@@ -9,7 +9,14 @@ import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import {
   Sparkles,
   Download,
@@ -44,6 +51,7 @@ interface PaperReviewProps {
   paper: Paper
   onBack: () => void
   onReviewSubmitted?: () => void // Callback để cập nhật dashboard
+  readOnly?: boolean
 }
 
 // Mock data for discussion and rebuttal (giữ nguyên)
@@ -71,11 +79,16 @@ const mockRebuttal = {
     "Thank you for your valuable feedback. We'd like to address the concerns regarding novelty. Our work differs from prior art (e.g., NeurIPS 2024) in its unique application of cross-attention mechanisms, which results in a 15% efficiency gain on the benchmarked tasks. We have updated Section 3.2 to highlight this distinction more clearly and added a new ablation study in Appendix A.",
 }
 
-export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewProps) {
+export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false }: PaperReviewProps) {
   const { t } = useTranslation()
-  
-  const { review, loading: loadingReview, saving: savingReview, error: reviewError, saveReview } =
-    useAssignmentReview(paper.conference_id, paper.id)
+
+  const {
+    review,
+    loading: loadingReview,
+    saving: savingReview,
+    error: reviewError,
+    saveReview,
+  } = useAssignmentReview(paper.conference_id, paper.id)
 
   // Track review status ("draft" | "submitted")
   const [reviewStatus, setReviewStatus] = useState<string>("")
@@ -93,7 +106,16 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
   const [strengths, setStrengths] = useState("")
   const [weaknesses, setWeaknesses] = useState("")
   const [questions, setQuestions] = useState("")
-  const [recommendation, setRecommendation] = useState<"strong_accept" | "accept" | "weak_accept" | "borderline" | "weak_reject" | "reject" | "strong_reject" | "">("")
+  const [recommendation, setRecommendation] = useState<
+    | "strong_accept"
+    | "accept"
+    | "weak_accept"
+    | "borderline"
+    | "weak_reject"
+    | "reject"
+    | "strong_reject"
+    | ""
+  >("")
   const [confidence, setConfidence] = useState<"high" | "medium" | "low" | "">("")
   const [showAIAnalysis, setShowAIAnalysis] = useState(false)
   const [discussionMessage, setDiscussionMessage] = useState("")
@@ -138,7 +160,8 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
       return
     }
     // Calculate average score
-    const avgScore = (originality[0] + technicalQuality[0] + clarity[0] + significance[0] + methodology[0]) / 5
+    const avgScore =
+      (originality[0] + technicalQuality[0] + clarity[0] + significance[0] + methodology[0]) / 5
     // Always provide valid temp data for required fields when saving draft
     const reviewData: ReviewData = {
       criteria: {
@@ -216,7 +239,8 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
       return
     }
     // Calculate average score
-    const avgScore = (originality[0] + technicalQuality[0] + clarity[0] + significance[0] + methodology[0]) / 5
+    const avgScore =
+      (originality[0] + technicalQuality[0] + clarity[0] + significance[0] + methodology[0]) / 5
     const reviewData: ReviewData = {
       criteria: {
         originality: originality[0],
@@ -295,9 +319,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
               {modalType === "submit" && t("review.form.success.submitReview")}
               {modalType === "error" && t("common.messages.error")}
             </DialogTitle>
-            <DialogDescription>
-              {modalMessage}
-            </DialogDescription>
+            <DialogDescription>{modalMessage}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button onClick={() => setModalOpen(false)}>{t("common.actions.close")}</Button>
@@ -398,9 +420,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
               <CardHeader>
                 <div className={`flex items-center ${spacing.gap.sm}`}>
                   <Sparkles className={`${iconSizes.md} text-primary`} />
-                  <CardTitle className={typography.h4}>
-                    {t("review.form.ai.title")}
-                  </CardTitle>
+                  <CardTitle className={typography.h4}>{t("review.form.ai.title")}</CardTitle>
                 </div>
                 <CardDescription className={typography.body}>
                   {t("review.form.ai.description")}
@@ -471,42 +491,43 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
           <Card>
             <CardHeader>
               <CardTitle>{t("review.form.scores.title")}</CardTitle>
-              <CardDescription>
-                {t("review.form.scores.description")}
-              </CardDescription>
+              <CardDescription>{t("review.form.scores.description")}</CardDescription>
             </CardHeader>
             <CardContent className={spacing.section}>
               <div className={`grid grid-cols-1 md:grid-cols-2 ${spacing.gap.lg}`}>
+                {/* Originality */}
                 <div className={spacing.gap.md}>
                   <div className="flex items-center justify-between">
-                    <Label className={typography.label}>{t("review.form.scores.originality")}</Label>
+                    <Label className={typography.label}>
+                      {t("review.form.scores.originality")}
+                    </Label>
                     <Badge variant="secondary" className={typography.bodySmall}>
                       {originality[0]}/10
                     </Badge>
                   </div>
-                  <Slider
-                    value={originality}
-                    onValueChange={setOriginality}
-                    min={1}
-                    max={10}
-                    step={1}
-                  />
+                  {readOnly ? (
+                    <Slider value={originality} min={1} max={10} step={1} disabled />
+                  ) : (
+                    <Slider value={originality} onValueChange={setOriginality} min={1} max={10} step={1} />
+                  )}
                 </div>
+                {/* Technical Quality */}
                 <div className={spacing.gap.md}>
                   <div className="flex items-center justify-between">
-                    <Label className={typography.label}>{t("review.form.scores.technicalQuality")}</Label>
+                    <Label className={typography.label}>
+                      {t("review.form.scores.technicalQuality")}
+                    </Label>
                     <Badge variant="secondary" className={typography.bodySmall}>
                       {technicalQuality[0]}/10
                     </Badge>
                   </div>
-                  <Slider
-                    value={technicalQuality}
-                    onValueChange={setTechnicalQuality}
-                    min={1}
-                    max={10}
-                    step={1}
-                  />
+                  {readOnly ? (
+                    <Slider value={technicalQuality} min={1} max={10} step={1} disabled />
+                  ) : (
+                    <Slider value={technicalQuality} onValueChange={setTechnicalQuality} min={1} max={10} step={1} />
+                  )}
                 </div>
+                {/* Clarity */}
                 <div className={spacing.gap.md}>
                   <div className="flex items-center justify-between">
                     <Label className={typography.label}>{t("review.form.scores.clarity")}</Label>
@@ -514,25 +535,43 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                       {clarity[0]}/10
                     </Badge>
                   </div>
-                  <Slider value={clarity} onValueChange={setClarity} min={1} max={10} step={1} />
+                  {readOnly ? (
+                    <Slider value={clarity} min={1} max={10} step={1} disabled />
+                  ) : (
+                    <Slider value={clarity} onValueChange={setClarity} min={1} max={10} step={1} />
+                  )}
                 </div>
+                {/* Significance */}
                 <div className={spacing.gap.md}>
                   <div className="flex items-center justify-between">
-                    <Label className={typography.label}>{t("review.form.scores.significance")}</Label>
+                    <Label className={typography.label}>
+                      {t("review.form.scores.significance")}
+                    </Label>
                     <Badge variant="secondary" className={typography.bodySmall}>
                       {significance[0]}/10
                     </Badge>
                   </div>
-                  <Slider value={significance} onValueChange={setSignificance} min={1} max={10} step={1} />
+                  {readOnly ? (
+                    <Slider value={significance} min={1} max={10} step={1} disabled />
+                  ) : (
+                    <Slider value={significance} onValueChange={setSignificance} min={1} max={10} step={1} />
+                  )}
                 </div>
+                {/* Methodology */}
                 <div className={spacing.gap.md}>
                   <div className="flex items-center justify-between">
-                    <Label className={typography.label}>{t("review.form.scores.methodology")}</Label>
+                    <Label className={typography.label}>
+                      {t("review.form.scores.methodology")}
+                    </Label>
                     <Badge variant="secondary" className={typography.bodySmall}>
                       {methodology[0]}/10
                     </Badge>
                   </div>
-                  <Slider value={methodology} onValueChange={setMethodology} min={1} max={10} step={1} />
+                  {readOnly ? (
+                    <Slider value={methodology} min={1} max={10} step={1} disabled />
+                  ) : (
+                    <Slider value={methodology} onValueChange={setMethodology} min={1} max={10} step={1} />
+                  )}
                 </div>
               </div>
               {showAIAnalysis && (
@@ -556,9 +595,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
           <Card>
             <CardHeader>
               <CardTitle>{t("review.form.feedback.title")}</CardTitle>
-              <CardDescription>
-                {t("review.form.feedback.description")}
-              </CardDescription>
+              <CardDescription>{t("review.form.feedback.description")}</CardDescription>
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="authors">
@@ -575,18 +612,28 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                     <Label htmlFor="strengths">
                       {t("review.form.feedback.strengths")} <span className="text-destructive">*</span>
                     </Label>
-                    <Textarea
-                      id="strengths"
-                      placeholder={t("review.form.feedback.strengthsPlaceholder")}
-                      rows={6}
-                      value={strengths}
-                      onChange={(e) => setStrengths(e.target.value)}
-                      className={strengthsWordCount > 0 && strengthsWordCount < 10 ? "border-destructive" : ""}
-                    />
+                    {readOnly ? (
+                      <div className="bg-muted/50 rounded px-3 py-2 min-h-[3rem] text-muted-foreground whitespace-pre-line">{strengths}</div>
+                    ) : (
+                      <Textarea
+                        id="strengths"
+                        placeholder={t("review.form.feedback.strengthsPlaceholder")}
+                        rows={6}
+                        value={strengths}
+                        onChange={(e) => setStrengths(e.target.value)}
+                        className={
+                          strengthsWordCount > 0 && strengthsWordCount < 10
+                            ? "border-destructive"
+                            : ""
+                        }
+                      />
+                    )}
                     <p className={`${typography.bodySmall} text-muted-foreground`}>
-                      {t("dashboard.roles.reviewer.review.comments.wordCount", { count: strengthsWordCount })}
+                      {t("dashboard.roles.reviewer.review.comments.wordCount", {
+                        count: strengthsWordCount,
+                      })}
                     </p>
-                    {strengths.trim() && strengthsWordCount < 10 && (
+                    {strengths.trim() && strengthsWordCount < 10 && !readOnly && (
                       <p className="text-destructive text-sm mt-2">
                         {t("review.form.validation.strengthsTooShortDescription")} (Hiện tại: {strengthsWordCount} từ, yêu cầu tối thiểu 10 từ)
                       </p>
@@ -596,31 +643,41 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                     <Label htmlFor="weaknesses">
                       {t("review.form.feedback.weaknesses")} <span className="text-destructive">*</span>
                     </Label>
-                    <Textarea
-                      id="weaknesses"
-                      placeholder={t("review.form.feedback.weaknessesPlaceholder")}
-                      rows={6}
-                      value={weaknesses}
-                      onChange={(e) => setWeaknesses(e.target.value)}
-                    />
+                    {readOnly ? (
+                      <div className="bg-muted/50 rounded px-3 py-2 min-h-[3rem] text-muted-foreground whitespace-pre-line">{weaknesses}</div>
+                    ) : (
+                      <Textarea
+                        id="weaknesses"
+                        placeholder={t("review.form.feedback.weaknessesPlaceholder")}
+                        rows={6}
+                        value={weaknesses}
+                        onChange={(e) => setWeaknesses(e.target.value)}
+                      />
+                    )}
                   </div>
                   <div className={spacing.item}>
                     <Label htmlFor="questions">
                       {t("review.form.feedback.questions")} <span className="text-destructive">*</span>
                     </Label>
-                    <Textarea
-                      id="questions"
-                      placeholder={t("review.form.feedback.questionsPlaceholder")}
-                      rows={4}
-                      value={questions}
-                      onChange={(e) => setQuestions(e.target.value)}
-                    />
+                    {readOnly ? (
+                      <div className="bg-muted/50 rounded px-3 py-2 min-h-[2.5rem] text-muted-foreground whitespace-pre-line">{questions}</div>
+                    ) : (
+                      <Textarea
+                        id="questions"
+                        placeholder={t("review.form.feedback.questionsPlaceholder")}
+                        rows={4}
+                        value={questions}
+                        onChange={(e) => setQuestions(e.target.value)}
+                      />
+                    )}
                   </div>
                 </TabsContent>
                 <TabsContent value="pc" className={`${spacing.subsection} mt-6`}>
                   <div className="text-center py-8 text-muted-foreground">
                     <p>{t("dashboard.roles.reviewer.review.comments.toPC.comingSoon")}</p>
-                    <p className="text-sm mt-2">{t("dashboard.roles.reviewer.review.comments.toPC.comingSoonDescription")}</p>
+                    <p className="text-sm mt-2">
+                      {t("dashboard.roles.reviewer.review.comments.toPC.comingSoonDescription")}
+                    </p>
                   </div>
                 </TabsContent>
               </Tabs>
@@ -632,25 +689,45 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
               <CardTitle>
                 {t("review.form.recommendation.title")} <span className="text-destructive">*</span>
               </CardTitle>
-              <CardDescription>
-                {t("review.form.recommendation.description")}
-              </CardDescription>
+              <CardDescription>{t("review.form.recommendation.description")}</CardDescription>
             </CardHeader>
             <CardContent>
-              <Select value={recommendation} onValueChange={(v) => setRecommendation(v as any)}>
-                <SelectTrigger className={!recommendation ? "border-destructive" : ""}>
-                  <SelectValue placeholder={t("review.form.recommendation.placeholder")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="strong_accept">{t("review.form.recommendation.options.strong_accept")}</SelectItem>
-                  <SelectItem value="accept">{t("review.form.recommendation.options.accept")}</SelectItem>
-                  <SelectItem value="weak_accept">{t("review.form.recommendation.options.weak_accept")}</SelectItem>
-                  <SelectItem value="borderline">{t("review.form.recommendation.options.borderline")}</SelectItem>
-                  <SelectItem value="weak_reject">{t("review.form.recommendation.options.weak_reject")}</SelectItem>
-                  <SelectItem value="reject">{t("review.form.recommendation.options.reject")}</SelectItem>
-                  <SelectItem value="strong_reject">{t("review.form.recommendation.options.strong_reject")}</SelectItem>
-                </SelectContent>
-              </Select>
+              {readOnly ? (
+                <div className="bg-muted/50 rounded px-3 py-2 min-h-[2.5rem] text-muted-foreground">
+                  {recommendation
+                    ? t(`review.form.recommendation.options.${recommendation}`)
+                    : <span className="italic">{t("review.form.recommendation.placeholder")}</span>}
+                </div>
+              ) : (
+                <Select value={recommendation} onValueChange={(v) => setRecommendation(v as any)}>
+                  <SelectTrigger className={!recommendation ? "border-destructive" : ""}>
+                    <SelectValue placeholder={t("review.form.recommendation.placeholder")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="strong_accept">
+                      {t("review.form.recommendation.options.strong_accept")}
+                    </SelectItem>
+                    <SelectItem value="accept">
+                      {t("review.form.recommendation.options.accept")}
+                    </SelectItem>
+                    <SelectItem value="weak_accept">
+                      {t("review.form.recommendation.options.weak_accept")}
+                    </SelectItem>
+                    <SelectItem value="borderline">
+                      {t("review.form.recommendation.options.borderline")}
+                    </SelectItem>
+                    <SelectItem value="weak_reject">
+                      {t("review.form.recommendation.options.weak_reject")}
+                    </SelectItem>
+                    <SelectItem value="reject">
+                      {t("review.form.recommendation.options.reject")}
+                    </SelectItem>
+                    <SelectItem value="strong_reject">
+                      {t("review.form.recommendation.options.strong_reject")}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </CardContent>
           </Card>
 
@@ -662,39 +739,64 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
               <CardDescription>{t("review.form.confidence.description")}</CardDescription>
             </CardHeader>
             <CardContent>
-              <Select value={confidence} onValueChange={(v) => setConfidence(v as any)}>
-                <SelectTrigger className={!confidence ? "border-destructive" : ""}>
-                  <SelectValue placeholder={t("review.form.confidence.placeholder")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="high">{t("review.form.confidence.options.high")}</SelectItem>
-                  <SelectItem value="medium">{t("review.form.confidence.options.medium")}</SelectItem>
-                  <SelectItem value="low">{t("review.form.confidence.options.low")}</SelectItem>
-                </SelectContent>
-              </Select>
+              {readOnly ? (
+                <div className="bg-muted/50 rounded px-3 py-2 min-h-[2.5rem] text-muted-foreground">
+                  {confidence
+                    ? t(`review.form.confidence.options.${confidence}`)
+                    : <span className="italic">{t("review.form.confidence.placeholder")}</span>}
+                </div>
+              ) : (
+                <Select value={confidence} onValueChange={(v) => setConfidence(v as any)}>
+                  <SelectTrigger className={!confidence ? "border-destructive" : ""}>
+                    <SelectValue placeholder={t("review.form.confidence.placeholder")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="high">{t("review.form.confidence.options.high")}</SelectItem>
+                    <SelectItem value="medium">
+                      {t("review.form.confidence.options.medium")}
+                    </SelectItem>
+                    <SelectItem value="low">{t("review.form.confidence.options.low")}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </CardContent>
           </Card>
 
-          <div className={`flex ${spacing.gap.md}`}>
-            {reviewStatus !== "submitted" && (
+          {!readOnly && (
+            <div className={`flex ${spacing.gap.md}`}>
+              {reviewStatus !== "submitted" && (
+                <Button
+                  variant="outline"
+                  className="flex-1 bg-transparent"
+                  onClick={handleSaveDraft}
+                  disabled={savingReview}
+                >
+                  {savingReview
+                    ? t("review.form.actions.saving")
+                    : t("review.form.actions.saveDraft")}
+                </Button>
+              )}
               <Button
-                variant="outline"
-                className="flex-1 bg-transparent"
-                onClick={handleSaveDraft}
-                disabled={savingReview}
+                className="flex-1"
+                size="lg"
+                onClick={handleSubmitReview}
+                disabled={
+                  savingReview ||
+                  !recommendation ||
+                  !confidence ||
+                  strengthsWordCount < 10 ||
+                  !weaknesses.trim() ||
+                  !questions.trim() ||
+                  reviewStatus === "submitted"
+                }
               >
-                {savingReview ? t("review.form.actions.saving") : t("review.form.actions.saveDraft")}
+                {savingReview
+                  ? t("review.form.actions.submitting")
+                  : t("review.form.actions.submitReview")}
               </Button>
-            )}
-            <Button
-              className="flex-1"
-              size="lg"
-              onClick={handleSubmitReview}
-              disabled={savingReview || !recommendation || !confidence || strengthsWordCount < 10 || !weaknesses.trim() || !questions.trim() || reviewStatus === "submitted"}
-            >
-              {savingReview ? t("review.form.actions.submitting") : t("review.form.actions.submitReview")}
-            </Button>
-          </div>
+            </div>
+          )}
         </TabsContent>
 
         {/* DISCUSSION TAB */}
@@ -702,9 +804,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
           <Card>
             <CardHeader>
               <CardTitle>{t("review.form.discussion.title")}</CardTitle>
-              <CardDescription>
-                {t("review.form.discussion.description")}
-              </CardDescription>
+              <CardDescription>{t("review.form.discussion.description")}</CardDescription>
             </CardHeader>
             <CardContent className={spacing.subsection}>
               <div className={spacing.subsection}>
@@ -747,9 +847,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
           <Card>
             <CardHeader>
               <CardTitle>{t("review.form.rebuttal.title")}</CardTitle>
-              <CardDescription>
-                {t("review.form.rebuttal.description")}
-              </CardDescription>
+              <CardDescription>{t("review.form.rebuttal.description")}</CardDescription>
             </CardHeader>
             <CardContent>
               {mockRebuttal ? (
@@ -776,9 +874,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                   </div>
                   <Alert>
                     <AlertCircle className="size-4" />
-                    <AlertTitle>
-                      {t("review.form.rebuttal.actionRequired")}
-                    </AlertTitle>
+                    <AlertTitle>{t("review.form.rebuttal.actionRequired")}</AlertTitle>
                     <AlertDescription>
                       {t("review.form.rebuttal.actionDescription")}
                     </AlertDescription>
@@ -789,9 +885,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted }: PaperReviewPro
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <p className="text-muted-foreground">
-                    {t("review.form.rebuttal.notAvailable")}
-                  </p>
+                  <p className="text-muted-foreground">{t("review.form.rebuttal.notAvailable")}</p>
                 </div>
               )}
             </CardContent>

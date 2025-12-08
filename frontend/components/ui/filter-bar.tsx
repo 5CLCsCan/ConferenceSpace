@@ -50,14 +50,14 @@ export function FilterBar({
         "transition-all duration-200 ease-in-out",
         "hover:border-primary/50 hover:shadow-sm",
         "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 focus-within:shadow-md",
-        className
+        className,
       )}
     >
       <Search
         className={cn(
           "absolute left-3.5 text-muted-foreground transition-colors duration-200",
           "group-focus-within:text-primary",
-          iconSizes.sm
+          iconSizes.sm,
         )}
       />
       <div className="flex flex-1 items-center gap-2 pl-10 pr-2 py-2.5">
@@ -72,16 +72,16 @@ export function FilterBar({
                   "bg-primary/10 text-primary border-primary/20",
                   "transition-all duration-200 ease-in-out",
                   "hover:bg-primary/15 hover:border-primary/30",
-                  "animate-in fade-in slide-in-from-left-2"
+                  "animate-in fade-in slide-in-from-left-2",
                 )}
               >
                 <span className="text-xs font-medium">{filter.label}</span>
                 <button
                   onClick={filter.onRemove}
                   className={cn(
-                    "ml-0.5 rounded-full p-0.5 transition-all duration-150",
+                    "ml-0.5 rounded-full p-0.5 transition-all duration-150 cursor-pointer",
                     "hover:bg-primary/20 hover:text-primary",
-                    "focus:outline-none focus:ring-1 focus:ring-primary/50 focus:ring-offset-1"
+                    "focus:outline-none focus:ring-1 focus:ring-primary/50 focus:ring-offset-1",
                   )}
                   type="button"
                   aria-label={`Remove filter ${filter.label}`}
@@ -100,7 +100,7 @@ export function FilterBar({
             "!border-0 !shadow-none h-auto p-0 flex-1 min-w-[120px]",
             "focus-visible:!ring-0 focus-visible:!border-0 focus-visible:!ring-offset-0",
             "placeholder:text-muted-foreground/60",
-            "bg-transparent"
+            "bg-transparent",
           )}
         />
       </div>
@@ -114,11 +114,17 @@ export function FilterBar({
                 "h-9 w-9 mr-2 rounded-md transition-all duration-200",
                 "hover:bg-primary/10 hover:text-primary",
                 "focus-visible:ring-2 focus-visible:ring-primary/50",
-                hasActiveFilters && "text-primary bg-primary/5"
+                hasActiveFilters && "text-primary bg-primary/5",
               )}
               onClick={onFilterButtonClick}
             >
-              <Filter className={cn(iconSizes.sm, "transition-transform duration-200", filterOpen && "rotate-90")} />
+              <Filter
+                className={cn(
+                  iconSizes.sm,
+                  "transition-transform duration-200",
+                  filterOpen && "rotate-90",
+                )}
+              />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-64" align="end">

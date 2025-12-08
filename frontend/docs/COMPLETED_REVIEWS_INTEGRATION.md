@@ -7,11 +7,13 @@ The "Completed Reviews" page has been implemented for the reviewer role. Current
 ## Files Created/Modified
 
 ### New Files
+
 1. **`frontend/components/reviewer/completed-reviews.tsx`** - Main component for displaying completed reviews
 2. **`frontend/hooks/use-completed-reviews.ts`** - SWR hook for fetching completed reviews data
 3. **`frontend/docs/COMPLETED_REVIEWS_INTEGRATION.md`** - This documentation file
 
 ### Modified Files
+
 1. **`frontend/components/reviewer/reviewer-sidebar.tsx`** - Added "Completed Reviews" navigation button
 2. **`frontend/components/reviewer/reviewer-dashboard.tsx`** - Integrated completed reviews view
 3. **`frontend/locales/en.json`** - Added English translations
@@ -20,6 +22,7 @@ The "Completed Reviews" page has been implemented for the reviewer role. Current
 ## Current Implementation
 
 ### Mock Data Structure
+
 The component currently displays mock data with the following structure:
 
 ```typescript
@@ -37,7 +40,7 @@ interface AssignedPaper {
   file_url?: string
   version: number
   reviews: any[]
-  assignment_status: string  // "completed" for finished reviews
+  assignment_status: string // "completed" for finished reviews
   due_date?: string
   assigned_at: string
   assignment_id: number
@@ -45,6 +48,7 @@ interface AssignedPaper {
 ```
 
 ### Features Implemented
+
 - ✅ Display list of completed reviews with paper details
 - ✅ Statistics cards (total completed, conferences, this month)
 - ✅ Search by title or keywords
@@ -65,12 +69,14 @@ Create a new endpoint in the backend to fetch completed reviews:
 **Endpoint:** `GET /api/v1/reviewer/:reviewerId/completed-reviews`
 
 **Query Parameters:**
+
 - `limit` (optional, default: 20) - Number of results per page
 - `offset` (optional, default: 0) - Pagination offset
 - `search` (optional) - Search by title or keywords
 - `conference_id` (optional) - Filter by conference
 
 **Expected Response:**
+
 ```json
 {
   "data": {
@@ -109,14 +115,14 @@ import { apiFetch } from "@/lib/api/client"
 
 const fetcher = async () => {
   if (!reviewerId) return []
-  
+
   const queryParams = new URLSearchParams()
   if (options.limit) queryParams.append("limit", options.limit.toString())
   if (options.offset) queryParams.append("offset", options.offset.toString())
-  
+
   const queryString = queryParams.toString()
   const url = `/api/v1/reviewer/${reviewerId}/completed-reviews${queryString ? `?${queryString}` : ""}`
-  
+
   try {
     const { data } = await apiFetch<{ data: { reviews: AssignedPaper[]; total: number } }>(url)
     return data.data.reviews
@@ -137,6 +143,7 @@ const { data, error, isLoading, mutate } = useSWR(key, fetcher, {
 If you want to implement infinite scroll with real pagination:
 
 1. Update the hook to return total count:
+
 ```typescript
 return {
   reviews: data?.reviews || [],
@@ -148,6 +155,7 @@ return {
 ```
 
 2. Update the dashboard component to handle pagination:
+
 ```typescript
 const [completedOffset, setCompletedOffset] = useState(0)
 
@@ -168,20 +176,22 @@ const [completedOffset, setCompletedOffset] = useState(0)
 ### Step 4: Backend Database Query
 
 The backend should query for papers where:
+
 - The reviewer has a completed review assignment
 - Join with papers table to get paper details
 - Filter by `assignment_status = 'completed'`
 
 Example SQL (adjust for your schema):
+
 ```sql
-SELECT 
+SELECT
   p.*,
   ra.id as assignment_id,
   ra.assigned_at,
   ra.status as assignment_status
 FROM papers p
 INNER JOIN review_assignments ra ON p.id = ra.paper_id
-WHERE ra.reviewer_id = $1 
+WHERE ra.reviewer_id = $1
   AND ra.status = 'completed'
 ORDER BY ra.updated_at DESC
 LIMIT $2 OFFSET $3
@@ -190,14 +200,18 @@ LIMIT $2 OFFSET $3
 ## Testing
 
 ### Test with Mock Data
+
 The page is already functional with mock data. Navigate to:
+
 1. Login as a reviewer
 2. Go to Reviewer Dashboard
 3. Click "Completed Reviews" (Phản biện đã hoàn thành) in the sidebar
 4. You should see 3 mock completed reviews
 
 ### Test with Real Backend
+
 Once the backend endpoint is implemented:
+
 1. Replace the mock fetcher in `use-completed-reviews.ts`
 2. Ensure the backend returns data in the expected format
 3. Test pagination, search, and filtering
@@ -206,6 +220,7 @@ Once the backend endpoint is implemented:
 ## Future Enhancements
 
 Potential improvements for the future:
+
 - Add export functionality (CSV/PDF)
 - Add review quality metrics
 - Add filtering by date range

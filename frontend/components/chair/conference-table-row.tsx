@@ -68,7 +68,9 @@ export function ConferenceCard({
   }
 
   return (
-    <div className={`mb-4 ${spacing.padding.card} bg-card border border-border rounded-lg shadow-sm`}>
+    <div
+      className={`mb-4 ${spacing.padding.card} bg-card border border-border rounded-lg shadow-sm`}
+    >
       <div className={`flex items-start justify-between mb-3`}>
         <div
           className="cursor-pointer hover:opacity-80 transition-opacity"

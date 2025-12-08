@@ -20,8 +20,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { FilterBar, type ActiveFilter } from "@/components/ui/filter-bar"
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { getAllCOIRelationships, type RelationshipWithDetails } from "@/lib/api/coi-mock"
-import type { Relationship } from "@/lib/mock-data/coi"
+import { getAllCOIRelationships, type COIRelationship } from "@/lib/api/coi"
 import { PaperCOIList } from "./paper-coi-list"
 import { COIDetailView } from "./coi-detail-view"
 
@@ -35,16 +34,29 @@ interface ExpandedRows {
   [key: string]: boolean
 }
 
-interface COIAnalysisDashboardProps {
-  conferenceId: string
+interface DashboardStats {
+  conference_id: string
+  total_reviewers: number
+  available_reviewers: number
+  total_papers: number
+  papers_under_review: number
+  coi_detected: number
+  total_relationships: number
+  total_assignments: number
+  completed_assignments: number
 }
 
-export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps) {
+interface COIAnalysisDashboardProps {
+  conferenceId: string
+  stats?: DashboardStats
+}
+
+export function COIAnalysisDashboard({ conferenceId, stats }: COIAnalysisDashboardProps) {
   const { t } = useTranslation()
   const router = useRouter()
 
   const [viewMode, setViewMode] = useState<"person" | "paper">("person")
-  const [relationships, setRelationships] = useState<RelationshipWithDetails[]>([])
+  const [relationships, setRelationships] = useState<COIRelationship[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [expandedRows, setExpandedRows] = useState<ExpandedRows>({})
@@ -55,9 +67,7 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
   })
   const [page, setPage] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
-  const [selectedRelationship, setSelectedRelationship] = useState<RelationshipWithDetails | null>(
-    null,
-  )
+  const [selectedRelationship, setSelectedRelationship] = useState<COIRelationship | null>(null)
   const itemsPerPage = 10
 
   useEffect(() => {
@@ -72,21 +82,18 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
       setError(null)
 
       const result = await getAllCOIRelationships({
+        conference_id: parseInt(conferenceId),
         severity:
           filters.severity === "all" ? undefined : (filters.severity as "high" | "medium" | "low"),
         relationship_type:
-          filters.type === "all" ? undefined : (filters.type as Relationship["type"]),
+          filters.type === "all" ? undefined : filters.type,
         search: filters.search || undefined,
         limit: itemsPerPage,
         page,
       })
 
-      if (result.data) {
-        setRelationships(result.data.relationships)
-        setTotalCount(result.data.total)
-      } else {
-        setError(result.error || "Failed to load relationships")
-      }
+      setRelationships(result.relationships)
+      setTotalCount(result.total)
     } catch (err) {
       setError("Failed to load relationships")
       console.error(err)
@@ -358,28 +365,26 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatsCard
             label={t("coi.allRelationships.title")}
-            value={totalCount}
-            trend="+5.2%"
+            value={stats?.total_relationships || totalCount}
+            trend={`${stats?.coi_detected || 0} detected`}
             icon={AlertTriangle}
           />
           <StatsCard
-            label="Critical Conflicts"
-            value="87"
-            trend="+12%"
-            icon={AlertTriangle}
-            highlight="destructive"
+            label="Total Reviewers"
+            value={stats?.total_reviewers || 0}
+            trend={`${stats?.available_reviewers || 0} available`}
+            icon={UsersIcon}
           />
           <StatsCard
-            label="Needs Review"
-            value="156"
-            trend="-2.1%"
-            icon={AlertCircle}
-            highlight="warning"
+            label="Papers Under Review"
+            value={stats?.papers_under_review || 0}
+            trend={`${stats?.total_papers || 0} total`}
+            icon={LayoutList}
           />
           <StatsCard
-            label="Informational"
-            value={Math.max(0, totalCount - 87 - 156)}
-            trend="+4.8%"
+            label="Assignments"
+            value={stats?.total_assignments || 0}
+            trend={`${stats?.completed_assignments || 0} completed`}
             icon={TrendingUp}
           />
         </div>
@@ -435,7 +440,10 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
 
         {/* Content Area */}
         {viewMode === "paper" ? (
-          <PaperCOIList filters={filters} />
+          <PaperCOIList
+            conferenceId={conferenceId}
+            filters={filters}
+          />
         ) : (
           /* Relationships List (Person View) */
           <div className="space-y-3">
@@ -474,7 +482,7 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
                   <Card
                     key={rel.id}
                     className={`border-l-4 ${colors.border} ${colors.bg} shadow-sm hover:shadow-md transition-all overflow-hidden cursor-pointer py-6`}
-                    onClick={() => toggleExpanded(rel.id)}
+                    onClick={() => toggleExpanded(rel.id.toString())}
                   >
                     {/* Collapsed View */}
                     <div className="p-4 flex flex-col md:flex-row md:items-center gap-4">
@@ -490,9 +498,11 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
                           <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-500/10 text-slate-600 dark:text-slate-300 text-xs font-semibold">
                             {getRelationshipTypeLabel(rel.type)}
                           </span>
-                          <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-500/10 text-slate-600 dark:text-slate-300 text-xs font-semibold">
-                            {new Date(rel.start_date).getFullYear()}
-                          </span>
+                          {rel.start_date && (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-500/10 text-slate-600 dark:text-slate-300 text-xs font-semibold">
+                              {new Date(rel.start_date).getFullYear()}
+                            </span>
+                          )}
                         </div>
 
                         {/* Names */}
@@ -699,8 +709,9 @@ export function COIAnalysisDashboard({ conferenceId }: COIAnalysisDashboardProps
           <SheetTitle className="sr-only">Conflict of Interest Details</SheetTitle>
           {selectedRelationship && (
             <COIDetailView
+              conferenceId={parseInt(conferenceId)}
               reviewerId={selectedRelationship.reviewer_id}
-              authorId={selectedRelationship.author_id}
+              authorEmail={selectedRelationship.author_email}
               onClose={() => setSelectedRelationship(null)}
             />
           )}

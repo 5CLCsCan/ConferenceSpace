@@ -58,9 +58,7 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
             value={data.acronym}
             onChange={(e) => updateData({ acronym: e.target.value })}
           />
-          <p className={typography.caption}>
-            {t("dashboard.chair.createConference.step1.acronymHint")}
-          </p>
+          <p className={typography.caption}>A short, unique identifier for your conference</p>
         </div>
 
         {/* Description */}

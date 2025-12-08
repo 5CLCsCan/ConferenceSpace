@@ -40,7 +40,10 @@
       "search": "Tìm kiếm",
       "filter": "Lọc",
       "close": "Đóng",
-      "download": "Tải xuống"
+      "download": "Tải xuống",
+      "viewDetail": "Xem chi tiết",
+      "expand": "Mở rộng",
+      "collapse": "Thu gọn"
     },
     "labels": {
       "email": "Email",
@@ -96,7 +99,9 @@
       "inProgress": "Đang xử lý",
       "completed": "Hoàn thành",
       "active": "Hoạt động",
-      "inactive": "Không hoạt động"
+      "inactive": "Không hoạt động",
+      "submitted": "Đã nộp",
+      "bookmarked": "Đã lưu"
     },
     "conferenceStatus": {
       "open": "Đang Nhận Bài",
@@ -211,6 +216,7 @@
           "dates": "Các mốc thời gian",
           "committee": "Ban tổ chức",
           "submissions": "Bài gửi",
+          "mySubmission": "Bài của tôi",
           "coiDemo": "COI Check"
         },
         "currentRole": "Vai trò hiện tại",
@@ -315,6 +321,34 @@
         "logout": "Đăng xuất"
       }
     },
+    "submissions": {
+      "pageTitle": "Bài nộp của tôi",
+      "pageDescription": "Xem và quản lý tất cả bài nộp của bạn",
+      "loading": "Đang tải...",
+      "error": "Lỗi",
+      "searchPlaceholder": "Tìm kiếm theo tiêu đề...",
+      "filterConference": "Lọc theo hội nghị",
+      "filterStatus": "Lọc theo trạng thái",
+      "allConferences": "Tất cả hội nghị",
+      "allStatuses": "Tất cả trạng thái",
+      "title": "Tiêu đề",
+      "conference": "Hội nghị",
+      "submittedDate": "Ngày nộp",
+      "noAbstract": "Không có tóm tắt",
+      "empty": "Bạn chưa có bài nộp nào",
+      "status": {
+        "label": "Trạng thái",
+        "draft": "Nháp",
+        "published": "Đã nộp",
+        "reviewing": "Đang đánh giá",
+        "accepted": "Đã chấp nhận",
+        "rejected": "Đã từ chối",
+        "submitted": "Đã gửi",
+        "underReview": "Đang được đánh giá",
+        "revisionRequested": "Yêu cầu sửa đổi",
+        "cameraReady": "Sẵn sàng in ấn"
+      }
+    },
     "submission": {
       "details": {
         "title": "Chi tiết bài nộp",
@@ -344,6 +378,7 @@
       },
       "tabs": {
         "overview": "Tổng quan",
+        "review": "Đánh giá",
         "preview": "Xem trước",
         "coi": "Xung đột lợi ích",
         "coverLetter": "Thư giới thiệu"
@@ -421,7 +456,6 @@
           "pendingReviews": "Chờ phản biện",
           "papersToDo": "Bài báo cần xử lý"
         },
-        
         "conferences": {
           "title": "Hội nghị của tôi",
           "description": "Danh sách các hội nghị bạn đang phản biện",
@@ -433,7 +467,9 @@
             "name": "Tên hội nghị",
             "role": "Vai trò",
             "progress": "Tiến độ",
-            "deadline": "Hạn chót"
+            "deadline": "Hạn chót",
+            "status": "Trạng thái",
+            "actions": "Hành động"
           },
           "status": {
             "active": "Đang diễn ra",
@@ -794,6 +830,112 @@
           "title": "Top phản biện nền tảng",
           "manageAllUsers": "Quản lý tất cả người dùng"
         }
+      },
+      "submissions": {
+        "quickView": "Xem nhanh",
+        "accept": "Chấp nhận",
+        "reject": "Từ chối",
+        "pending": "Chờ xử lý",
+        "title": "Bài Nộp",
+        "searchPlaceholder": "Tìm kiếm theo tiêu đề, abstract, keywords...",
+        "resultsCount": "Hiển thị",
+        "descriptionAuthor": "Danh sách các bài báo bạn đã nộp cho hội nghị",
+        "descriptionReviewer": "Danh sách các bài báo được phân công cho bạn review",
+        "descriptionChair": "Danh sách tất cả các bài báo đã nộp cho hội nghị",
+        "descriptionDefault": "Danh sách các bài báo",
+        "statusLabel": "Trạng Thái",
+        "trackLabel": "Track",
+        "allStatuses": "Tất Cả Trạng Thái",
+        "allTracks": "Tất Cả Tracks",
+        "submitted": "Đã Nộp",
+        "underReview": "Đang Review",
+        "accepted": "Chấp Nhận",
+        "rejected": "Từ Chối",
+        "revisionRequested": "Yêu Cầu Sửa",
+        "cameraReady": "Camera Ready",
+        "clear": "Xóa",
+        "apply": "Áp Dụng",
+        "decision": "Quyết Định",
+        "quickViewTitle": "Xem Nhanh Phân Tích",
+        "noAnalytics": "Không có phân tích cho bài nộp này.",
+        "noSubmissionsFound": "Không Tìm Thấy Bài Nộp",
+        "noSubmissionsAuthor": "Bạn chưa nộp bài nào cho hội nghị này",
+        "noSubmissionsReviewer": "Bạn chưa được phân công review bài nào",
+        "noSubmissionsFilter": "Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác",
+        "reviews": "đánh giá"
+      },
+      "review": {
+        "totalReviews": "Tổng số đánh giá",
+        "averageScore": "Điểm trung bình",
+        "criteriaAverages": "Điểm trung bình các tiêu chí",
+        "recommendationDistribution": "Phân bố đề xuất",
+        "confidenceDistribution": "Phân bố độ tin cậy",
+        "reviewList": "Danh sách đánh giá",
+        "viewOnlyTitle": "Chế độ chỉ xem",
+        "viewOnlyDescription": "Bạn đang xem đánh giá này với vai trò chủ tịch. Bạn không thể chỉnh sửa hoặc gửi đánh giá.",
+        "noAnalytics": "Không có dữ liệu phân tích đánh giá",
+        "noReviews": "Chưa có đánh giá nào",
+        "reviewNumber": "Đánh giá",
+        "score": "Điểm",
+        "submittedAt": "Nộp lúc",
+        "strengths": "Điểm mạnh",
+        "weaknesses": "Điểm yếu",
+        "questions": "Câu hỏi",
+        "criteriaScores": "Điểm các tiêu chí",
+        "analytics": {
+          "strongConsensus": "Đồng Thuận Mạnh",
+          "reviewersDisagree": "Reviewer Không Đồng Ý",
+          "mixedReviews": "Đánh Giá Hỗn Hợp",
+          "review": "đánh giá",
+          "reviews": "đánh giá",
+          "submitted": "đã nộp",
+          "accept": "Chấp Nhận",
+          "borderline": "Biên Giới",
+          "reject": "Từ Chối",
+          "qualityCriteria": "Tiêu Chí Chất Lượng",
+          "originality": "Tính Độc Đáo",
+          "technicalQuality": "Chất Lượng Kỹ Thuật",
+          "clarity": "Tính Rõ Ràng",
+          "significance": "Tính Quan Trọng",
+          "methodology": "Phương Pháp Luận",
+          "breakdown": "Phân Tích",
+          "qualityMetrics": "Chỉ Số Chất Lượng",
+          "recommendationBreakdown": "Phân Tích Đề Xuất",
+          "strongAccept": "Chấp Nhận Mạnh",
+          "weakAccept": "Chấp Nhận Yếu",
+          "weakReject": "Từ Chối Yếu",
+          "strongReject": "Từ Chối Mạnh",
+          "qualityCriteriaAnalysis": "Phân Tích Tiêu Chí Chất Lượng",
+          "averageScoresDescription": "Điểm trung bình của tất cả đánh giá (thang điểm 1-10)",
+          "reviewerConfidence": "Độ Tin Cậy Reviewer",
+          "confidenceDistributionDescription": "Phân bố mức độ tin cậy của reviewer",
+          "highConfidence": "Độ Tin Cậy Cao",
+          "mediumConfidence": "Độ Tin Cậy Trung Bình",
+          "lowConfidence": "Độ Tin Cậy Thấp",
+          "significantDisagreement": "Bất Đồng Đáng Kể",
+          "significantDisagreementDescription": "Các reviewer có ý kiến trái ngược. Cân nhắc thêm đánh giá hoặc meta-review.",
+          "strongAcceptRecommendation": "Đề Xuất Chấp Nhận Mạnh",
+          "strongAcceptDescription": "reviewer đề xuất chấp nhận. Bài báo chất lượng cao với sự ủng hộ rộng rãi.",
+          "strongRejectRecommendation": "Đề Xuất Từ Chối Mạnh",
+          "strongRejectDescription": "reviewer đề xuất từ chối. Cân nhắc sửa đổi lớn hoặc từ chối ngay.",
+          "showingReviews": "Hiển thị",
+          "to": "đến",
+          "of": "trong",
+          "previous": "Trước",
+          "next": "Tiếp"
+        },
+        "criteria": {
+          "originality": "Tính độc đáo",
+          "technicalQuality": "Chất lượng kỹ thuật",
+          "clarity": "Tính rõ ràng",
+          "significance": "Tính quan trọng",
+          "methodology": "Phương pháp luận"
+        },
+        "confidence": {
+          "high": "Cao",
+          "medium": "Trung bình",
+          "low": "Thấp"
+        }
       }
     },
     "author": {
@@ -929,6 +1071,22 @@
             "scopeMatch": "Khớp Phạm vi"
           }
         }
+      },
+      "submission": {
+        "description": "Xem và quản lý bài nộp của bạn cho hội nghị này",
+        "noSubmission": "Chưa có bài nộp",
+        "noSubmissionDescription": "Bạn chưa nộp bài cho hội nghị này. Bắt đầu nộp bài ngay để tham gia.",
+        "submitNow": "Nộp bài",
+        "submittedOn": "Đã nộp vào {date}",
+        "lastUpdated": "Cập nhật {date}",
+        "untitled": "Bài chưa có tiêu đề",
+        "continueDraft": "Tiếp tục bản nháp",
+        "viewDetails": "Xem chi tiết",
+        "editSubmission": "Chỉnh sửa bài nộp",
+        "versionHistory": "Lịch sử phiên bản",
+        "versionHistoryDescription": "Theo dõi các thay đổi và chỉnh sửa bài nộp của bạn",
+        "versionHistoryPlaceholder": "Lịch sử phiên bản sẽ khả dụng khi bạn chỉnh sửa bài báo của mình",
+        "comingSoon": "Sắp có"
       }
     },
     "reviewer": {

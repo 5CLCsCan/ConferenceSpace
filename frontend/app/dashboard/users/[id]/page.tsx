@@ -69,7 +69,7 @@ export default function UserProfilePage() {
   const [initialFormData, setInitialFormData] = useState<ProfileFormData>(EMPTY_FORM)
   const [domainInput, setDomainInput] = useState("")
   const [authChecked, setAuthChecked] = useState(false)
-  
+
   const userId = params.id as string
   const isOwnProfile = userId === "me" || Number(userId) === Number(authUser?.id)
 
@@ -79,7 +79,7 @@ export default function UserProfilePage() {
     const timer = setTimeout(() => {
       setAuthChecked(true)
     }, 100)
-    
+
     return () => clearTimeout(timer)
   }, [])
 
@@ -99,10 +99,11 @@ export default function UserProfilePage() {
     try {
       setIsLoading(true)
       // Use /me endpoint if viewing own profile
-      const endpoint = userId === "me" || Number(userId) === Number(authUser?.id)
-        ? "/api/v1/users/me"
-        : `/api/v1/users/${userId}`
-      
+      const endpoint =
+        userId === "me" || Number(userId) === Number(authUser?.id)
+          ? "/api/v1/users/me"
+          : `/api/v1/users/${userId}`
+
       const { data: response } = await apiFetch<{ data: User }>(endpoint)
 
       if (!response?.data) {
@@ -120,7 +121,7 @@ export default function UserProfilePage() {
           email: response.data.email || "",
           domain,
         }
-        
+
         setFormData(newFormData)
         setInitialFormData({ ...newFormData, domain: [...domain] })
       }
@@ -198,7 +199,7 @@ export default function UserProfilePage() {
         router.push("/login")
         return
       }
-      
+
       toast({
         title: t("profile.error.updateFailed"),
         description: error?.message || error?.body?.error || "Unknown error occurred",
@@ -259,7 +260,7 @@ export default function UserProfilePage() {
   if (!authChecked || !isAuthenticated || isLoading) {
     return (
       <div className="min-h-screen bg-neutral-50">
-        <DashboardHeader role={authUser?.roles?.[0] as any || "author"} />
+        <DashboardHeader role={(authUser?.roles?.[0] as any) || "author"} />
         <main className="container mx-auto px-4 py-8">
           <div className="flex h-[50vh] items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -272,7 +273,7 @@ export default function UserProfilePage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-neutral-50">
-        <DashboardHeader role={authUser?.roles?.[0] as any || "author"} />
+        <DashboardHeader role={(authUser?.roles?.[0] as any) || "author"} />
         <main className="container mx-auto px-4 py-8">
           <div className="flex h-[50vh] flex-col items-center justify-center gap-4">
             <p className="text-muted-foreground">{t("profile.error.notFound")}</p>
@@ -283,10 +284,13 @@ export default function UserProfilePage() {
     )
   }
 
-  const fullName = isOwnProfile 
-    ? `${formData.firstName || user?.first_name || ""} ${formData.lastName || user?.last_name || ""}`.trim() || "User"
+  const fullName = isOwnProfile
+    ? `${formData.firstName || user?.first_name || ""} ${formData.lastName || user?.last_name || ""}`.trim() ||
+      "User"
     : `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || "User"
-  const email = isOwnProfile ? (formData.email || user?.email || "No email") : (user?.email || "No email")
+  const email = isOwnProfile
+    ? formData.email || user?.email || "No email"
+    : user?.email || "No email"
   const roles = user?.roles?.length ? user.roles : []
   const displayRoles = roles.filter((role) => role.toLowerCase() !== "author")
   const domains = isOwnProfile ? formData.domain : normalizeDomains(user?.domain)
@@ -295,7 +299,7 @@ export default function UserProfilePage() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <DashboardHeader role={authUser?.roles?.[0] as any || "author"} />
+      <DashboardHeader role={(authUser?.roles?.[0] as any) || "author"} />
       <main className="container mx-auto px-4 py-8">
         <div className={spacing.section}>
           <div className="flex items-center justify-between">
@@ -319,7 +323,6 @@ export default function UserProfilePage() {
                   <ArrowLeft className={iconSizes.sm} />
                   {t("common.actions.back")}
                 </Button>
-
               </div>
               <h1 className={`${typography.h1} text-neutral-900`}>
                 {isOwnProfile ? t("profile.title") : t("profile.viewTitle")}
@@ -339,7 +342,9 @@ export default function UserProfilePage() {
                   </div>
                   <div className={spacing.tight}>
                     <h2 className={`${typography.h2} text-neutral-900`}>{fullName}</h2>
-                    <div className={`flex items-center ${spacing.gap.sm} ${typography.body} text-neutral-600`}>
+                    <div
+                      className={`flex items-center ${spacing.gap.sm} ${typography.body} text-neutral-600`}
+                    >
                       <Mail className={iconSizes.sm} />
                       <span>{email}</span>
                     </div>
@@ -348,7 +353,11 @@ export default function UserProfilePage() {
                 {displayRoles.length > 0 && (
                   <div className={`flex flex-wrap ${spacing.gap.sm}`}>
                     {displayRoles.map((role) => (
-                      <Badge key={role} variant="secondary" className={`flex items-center ${spacing.gap.sm} border border-primary/30 bg-white/80 px-3 py-1 ${typography.bodySmall} ${typography.semibold} uppercase tracking-wide`}>
+                      <Badge
+                        key={role}
+                        variant="secondary"
+                        className={`flex items-center ${spacing.gap.sm} border border-primary/30 bg-white/80 px-3 py-1 ${typography.bodySmall} ${typography.semibold} uppercase tracking-wide`}
+                      >
                         <Shield className={iconSizes.xs} />
                         {role}
                       </Badge>
@@ -359,7 +368,9 @@ export default function UserProfilePage() {
 
               <Separator className="bg-primary/20" />
 
-              <div className={`flex flex-wrap items-center ${spacing.gap.md} ${typography.bodySmall} text-neutral-600`}>
+              <div
+                className={`flex flex-wrap items-center ${spacing.gap.md} ${typography.bodySmall} text-neutral-600`}
+              >
                 {joinedAt && (
                   <span className="rounded-full border border-primary/10 bg-white px-3 py-1">
                     {t("profile.highlights.joined", { date: joinedAt })}
@@ -382,8 +393,12 @@ export default function UserProfilePage() {
           <div className="grid gap-6 lg:grid-cols-12">
             <Card className="lg:col-span-7 py-6">
               <CardHeader className="border-b pb-4">
-                <CardTitle className={typography.h4}>{t("profile.sections.personalInfo")}</CardTitle>
-                <CardDescription className={typography.body}>{t("profile.sections.personalInfoDescription")}</CardDescription>
+                <CardTitle className={typography.h4}>
+                  {t("profile.sections.personalInfo")}
+                </CardTitle>
+                <CardDescription className={typography.body}>
+                  {t("profile.sections.personalInfoDescription")}
+                </CardDescription>
               </CardHeader>
               <CardContent className={`${spacing.section} pt-6`}>
                 {isOwnProfile ? (
@@ -454,9 +469,7 @@ export default function UserProfilePage() {
                       <p className={`${typography.label} text-muted-foreground`}>
                         {t("common.labels.email")}
                       </p>
-                      <p className={`${typography.body} ${typography.medium}`}>
-                        {email}
-                      </p>
+                      <p className={`${typography.body} ${typography.medium}`}>{email}</p>
                     </div>
                   </>
                 )}
@@ -466,7 +479,9 @@ export default function UserProfilePage() {
             <Card className="lg:col-span-5 py-6">
               <CardHeader className="border-b pb-4">
                 <CardTitle className={typography.h4}>{t("profile.sections.expertise")}</CardTitle>
-                <CardDescription className={typography.body}>{t("profile.sections.expertiseDescription")}</CardDescription>
+                <CardDescription className={typography.body}>
+                  {t("profile.sections.expertiseDescription")}
+                </CardDescription>
               </CardHeader>
               <CardContent className={`${spacing.section} pt-6`}>
                 {isOwnProfile ? (
@@ -498,7 +513,11 @@ export default function UserProfilePage() {
                     {formData.domain.length > 0 ? (
                       <div className={`flex flex-wrap ${spacing.gap.sm}`}>
                         {formData.domain.map((domain, index) => (
-                          <Badge key={index} variant="secondary" className={`${spacing.gap.sm} bg-primary/10 pr-1 text-primary`}>
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className={`${spacing.gap.sm} bg-primary/10 pr-1 text-primary`}
+                          >
                             {domain}
                             <button
                               type="button"
@@ -512,7 +531,9 @@ export default function UserProfilePage() {
                         ))}
                       </div>
                     ) : (
-                      <p className={`${typography.body} text-neutral-600`}>{t("profile.highlights.domainsHint")}</p>
+                      <p className={`${typography.body} text-neutral-600`}>
+                        {t("profile.highlights.domainsHint")}
+                      </p>
                     )}
                   </>
                 ) : (
@@ -520,13 +541,19 @@ export default function UserProfilePage() {
                     {domains.length > 0 ? (
                       <div className={`flex flex-wrap ${spacing.gap.sm}`}>
                         {domains.map((domain, index) => (
-                          <Badge key={index} variant="secondary" className="bg-primary/10 text-primary">
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="bg-primary/10 text-primary"
+                          >
                             {domain}
                           </Badge>
                         ))}
                       </div>
                     ) : (
-                      <p className={`${typography.body} text-neutral-600`}>{t("profile.highlights.domainsHint")}</p>
+                      <p className={`${typography.body} text-neutral-600`}>
+                        {t("profile.highlights.domainsHint")}
+                      </p>
                     )}
                   </>
                 )}
@@ -535,12 +562,10 @@ export default function UserProfilePage() {
           </div>
 
           {isOwnProfile && isDirty && (
-            <div className={`sticky bottom-4 z-10 flex flex-col items-stretch ${spacing.gap.md} rounded-2xl border border-primary/20 bg-white/90 px-6 py-4 shadow-sm backdrop-blur lg:flex-row lg:justify-end`}>
-              <Button
-                variant="outline"
-                onClick={handleResetChanges}
-                disabled={isSaving}
-              >
+            <div
+              className={`sticky bottom-4 z-10 flex flex-col items-stretch ${spacing.gap.md} rounded-2xl border border-primary/20 bg-white/90 px-6 py-4 shadow-sm backdrop-blur lg:flex-row lg:justify-end`}
+            >
+              <Button variant="outline" onClick={handleResetChanges} disabled={isSaving}>
                 {t("common.actions.cancel")}
               </Button>
               <Button onClick={handleSave} disabled={isSaving} className="lg:min-w-[140px]">

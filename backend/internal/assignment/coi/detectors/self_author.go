@@ -2,6 +2,7 @@ package detectors
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/dcao/conferencespace/internal/assignment/coi/commons"
 )
@@ -51,6 +52,58 @@ func (d *SelfAuthorDetector) DetectConflicts(
 	}
 
 	return conflicts, nil
+}
+
+// DetectConflictsWithDetails returns detailed conflict information for self-authorship conflicts
+func (d *SelfAuthorDetector) DetectConflictsWithDetails(
+	ctx context.Context,
+	submissions []commons.Submission,
+	reviewers []commons.Reviewer,
+) ([]commons.ConflictDetail, error) {
+	var details []commons.ConflictDetail
+
+	// Build reviewer email map for O(1) lookup
+	reviewerByEmail := make(map[string]int64)
+	for _, r := range reviewers {
+		reviewerByEmail[r.UserEmail] = r.ID
+	}
+
+	// Check each submission
+	for _, sub := range submissions {
+		// Check if primary author is a reviewer
+		if reviewerID, exists := reviewerByEmail[sub.AuthorEmail]; exists {
+			details = append(details, commons.ConflictDetail{
+				SubmissionID: sub.ID,
+				ReviewerID:   reviewerID,
+				AuthorEmail:  sub.AuthorEmail,
+				Type:         "self_author",
+				Severity:     "high",
+				Description:  fmt.Sprintf("Reviewer is the primary author of this submission"),
+				Evidence:     []string{"Primary author match"},
+				StartDate:    nil,
+				EndDate:      nil,
+			})
+		}
+
+		// Check if any co-author is a reviewer
+		for _, coauthor := range sub.CoAuthors {
+			if reviewerID, exists := reviewerByEmail[coauthor]; exists {
+				details = append(details, commons.ConflictDetail{
+					SubmissionID: sub.ID,
+					ReviewerID:   reviewerID,
+					AuthorEmail:  coauthor,
+					Type:         "self_author",
+					Severity:     "high",
+					Description:  fmt.Sprintf("Reviewer is a co-author of this submission"),
+					Evidence:     []string{"Co-author match"},
+					StartDate:    nil,
+					EndDate:      nil,
+				})
+			}
+		}
+	}
+
+	return details, nil
 }
 
 // HasConflict checks if a specific submission-reviewer pair has self-authorship conflict

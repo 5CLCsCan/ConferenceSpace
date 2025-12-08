@@ -147,16 +147,15 @@ export function CoverLetterTab({
       {/* Existing Cover Letter */}
       {!coverLetter && existingCoverLetter && (
         <Card className="bg-blue-50 border-blue-200">
-        <div className={spacing.padding.card}>
+          <div className={spacing.padding.card}>
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3 flex-1">
                 <CheckCircle2 className="size-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div className={`${typography.bodySmall} text-gray-700 font-arial`}>
-                  <p className={`${typography.medium} text-blue-900 mb-1`}>
-                    Existing Cover Letter
-                  </p>
+                  <p className={`${typography.medium} text-blue-900 mb-1`}>Existing Cover Letter</p>
                   <p className="mb-2">
-                    <strong>{existingCoverLetter.name}</strong> ({formatFileSize(existingCoverLetter.size)})
+                    <strong>{existingCoverLetter.name}</strong> (
+                    {formatFileSize(existingCoverLetter.size)})
                   </p>
                   <p className="text-gray-600">
                     Upload a new file below to replace the existing cover letter.
@@ -172,9 +171,9 @@ export function CoverLetterTab({
                 <Download className="size-4 mr-2" />
                 Download
               </Button>
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
       )}
 
       {/* Upload Section */}

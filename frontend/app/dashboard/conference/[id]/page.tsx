@@ -9,6 +9,7 @@ import { ConferenceCallForPapers } from "@/components/conference/conference-call
 import { ConferenceImportantDates } from "@/components/conference/conference-important-dates"
 import { ConferenceCommittee } from "@/components/conference/conference-committee"
 import { ConferenceSubmissions } from "@/components/conference/conference-submissions"
+import { AuthorSubmission } from "@/components/conference/author-submission"
 import { COIDashboard } from "@/components/coi"
 import { useAuth } from "@/lib/auth-context"
 import { DashboardHeader } from "@/components/dashboard-header"
@@ -49,7 +50,7 @@ export default function ConferencePage() {
     const timer = setTimeout(() => {
       setAuthChecked(true)
     }, 100)
-    
+
     return () => clearTimeout(timer)
   }, [])
 
@@ -96,7 +97,13 @@ export default function ConferencePage() {
         label:
           currentRole === "chair" ? t("dashboard.conference.committee.reviewers.title") : t("dashboard.conference.details.tabs.committee"),
       },
-      { id: "submissions" as TabType, label: t("dashboard.conference.details.tabs.submissions") },
+      {
+        id: "submissions" as TabType,
+        label:
+          currentRole === "author"
+            ? t("dashboard.conference.details.tabs.mySubmission")
+            : t("dashboard.conference.details.tabs.submissions"),
+      },
       {
         id: "coi-demo" as TabType,
         label: t("dashboard.conference.details.tabs.coiDemo") || "COI Demo",
@@ -116,10 +123,16 @@ export default function ConferencePage() {
 
   const roleConfig = useMemo(
     () => ({
-      author: { label: t("dashboard.roles.author.name"), color: "bg-blue-100 text-blue-700" },
-      reviewer: { label: t("dashboard.roles.reviewer.name"), color: "bg-green-100 text-green-700" },
-      chair: { label: t("dashboard.roles.chair.name"), color: "bg-purple-100 text-purple-700" },
-      admin: { label: t("dashboard.roles.admin.name"), color: "bg-red-100 text-red-700" },
+      author: { label: t("dashboard.roles.author.name"), color: "bg-muted text-muted-foreground" },
+      reviewer: {
+        label: t("dashboard.roles.reviewer.name"),
+        color: "bg-secondary/10 text-secondary-foreground",
+      },
+      chair: { label: t("dashboard.roles.chair.name"), color: "bg-primary/10 text-primary" },
+      admin: {
+        label: t("dashboard.roles.admin.name"),
+        color: "bg-destructive/10 text-destructive",
+      },
     }),
     [t],
   )
@@ -232,7 +245,12 @@ export default function ConferencePage() {
             {activeTab === "call-for-papers" && <ConferenceCallForPapers conference={conference} />}
             {activeTab === "dates" && <ConferenceImportantDates conferenceId={conference.id} />}
             {activeTab === "committee" && <ConferenceCommittee conferenceId={conference.id} />}
-            {activeTab === "submissions" && <ConferenceSubmissions conferenceId={conference.id} />}
+            {activeTab === "submissions" &&
+              (currentRole === "author" ? (
+                <AuthorSubmission conferenceId={conference.id} />
+              ) : (
+                <ConferenceSubmissions conferenceId={conference.id} />
+              ))}
             {activeTab === "coi-demo" && <COIDashboard conferenceId={conference.id} />}
           </div>
         </main>

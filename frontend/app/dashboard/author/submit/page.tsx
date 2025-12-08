@@ -29,7 +29,7 @@ export default function SubmitPaperPage() {
     const timer = setTimeout(() => {
       setAuthChecked(true)
     }, 100)
-    
+
     return () => clearTimeout(timer)
   }, [])
 
@@ -48,7 +48,7 @@ export default function SubmitPaperPage() {
       }
 
       setLoading(true)
-      
+
       // Load conference
       const conferenceResponse = await getConferenceById(conferenceId)
       if (conferenceResponse.data) {

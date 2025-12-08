@@ -11,6 +11,10 @@ type ConflictDetector interface {
 	// DetectConflicts returns a map of (submission_id -> set of conflicted reviewer_ids)
 	DetectConflicts(ctx context.Context, submissions []commons.Submission, reviewers []commons.Reviewer) (commons.ConflictMap, error)
 
+	// DetectConflictsWithDetails returns detailed conflict information for all conflicts
+	// Returns a slice of ConflictDetail structs with rich metadata (type, severity, description, evidence)
+	DetectConflictsWithDetails(ctx context.Context, submissions []commons.Submission, reviewers []commons.Reviewer) ([]commons.ConflictDetail, error)
+
 	// HasConflict checks if a specific pair has conflict
 	HasConflict(ctx context.Context, submissionID, reviewerID int64) (bool, error)
 

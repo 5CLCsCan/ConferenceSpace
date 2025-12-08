@@ -104,7 +104,7 @@ export default function CreateConferencePage() {
     const timer = setTimeout(() => {
       setAuthChecked(true)
     }, 100)
-    
+
     return () => clearTimeout(timer)
   }, [])
 
@@ -188,6 +188,7 @@ export default function CreateConferencePage() {
         description: formData.description,
         domain: formData.topics, // Research domains/areas
         tracks: formData.tracks, // Conference tracks for submissions
+        venue: formData.venue, // Conference venue/location
         configurations: {
           start_date: formData.dateRange.from?.toISOString() || "",
           end_date: formData.dateRange.to?.toISOString() || "",
@@ -243,6 +244,8 @@ export default function CreateConferencePage() {
   }
 
   const progressPercentage = (currentStep / STEPS.length) * 100
+  const connectorProgress =
+    STEPS.length > 1 ? ((currentStep - 1) / (STEPS.length - 1)) * 100 : 0
 
   if (!authChecked || !isAuthenticated || !user) {
     return (
@@ -271,14 +274,19 @@ export default function CreateConferencePage() {
 
         {/* Progress Indicator */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            {STEPS.map((step, index) => (
-              <div key={step.number} className="flex items-center flex-1">
-                <div className="flex flex-col items-center flex-1">
+          <div className="relative mb-4">
+            <div className="absolute left-0 right-0 top-5 hidden h-0.5 bg-muted sm:block" />
+            <div
+              className="absolute left-0 top-5 hidden h-0.5 bg-primary transition-all sm:block"
+              style={{ width: `${connectorProgress}%` }}
+            />
+            <div className="relative grid grid-cols-1 gap-4 sm:grid-cols-5">
+              {STEPS.map((step) => (
+                <div key={step.number} className="flex flex-col items-center gap-2">
                   <button
                     type="button"
                     onClick={() => goToStep(step.number)}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-colors cursor-pointer hover:scale-110 ${
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-transform transition-colors cursor-pointer hover:scale-110 ${
                       currentStep >= step.number
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted text-muted-foreground"
@@ -286,29 +294,19 @@ export default function CreateConferencePage() {
                   >
                     {step.number}
                   </button>
-                  <div className="mt-2 text-center">
-                    <button
-                      type="button"
-                      onClick={() => goToStep(step.number)}
-                      className={`text-sm font-medium transition-colors cursor-pointer hover:text-foreground ${
-                        currentStep >= step.number ? "text-foreground" : "text-muted-foreground"
-                      }`}
-                    >
-                      {step.title}
-                    </button>
-                  </div>
-                </div>
-                {index < STEPS.length - 1 && (
-                  <div
-                    className={`h-0.5 flex-1 mx-2 transition-colors ${
-                      currentStep > step.number ? "bg-primary" : "bg-muted"
+                  <button
+                    type="button"
+                    onClick={() => goToStep(step.number)}
+                    className={`text-sm font-medium text-center leading-tight transition-colors cursor-pointer hover:text-foreground ${
+                      currentStep >= step.number ? "text-foreground" : "text-muted-foreground"
                     }`}
-                  />
-                )}
-              </div>
-            ))}
+                  >
+                    {step.title}
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
-          <Progress value={progressPercentage} className="h-2" />
         </div>
 
         {/* Form Content */}

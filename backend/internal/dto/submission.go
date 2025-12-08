@@ -6,6 +6,8 @@ const (
 	StatusDraft     = "draft"
 	StatusPublished = "published"
 	StatusReviewing = "reviewing"
+	StatusAccepted  = "accepted"
+	StatusRejected  = "rejected"
 )
 
 type ConflictDeclaration struct {
@@ -41,7 +43,7 @@ type Submission struct {
 	Link         string                  `json:"link"`
 	Domain       []string                `json:"domain"`
 	Track        string                  `json:"track"`                                                                // Must be one of the conference's tracks
-	Status       string                  `json:"status,omitempty" binding:"omitempty,oneof=draft published reviewing"` // Optional for updates
+	Status       string                  `json:"status,omitempty" binding:"omitempty,oneof=draft published reviewing accepted rejected"` // Optional for updates
 	Information  *SubmissionInformation  `json:"information"`
 	File         *SubmissionFileMetadata `json:"file,omitempty"`
 	CoverLetter  *SubmissionFileMetadata `json:"cover_letter,omitempty"` // Optional cover letter (PDF, DOCX, or TXT)
@@ -91,4 +93,10 @@ type SubmissionListRequest struct {
 type SubmissionListResponse struct {
 	Submissions []*Submission `json:"submissions"`
 	Total       int64         `json:"total"`
+}
+
+type UpdateStatusRequest struct {
+	ConferenceID int64  `uri:"conference_id" json:"conference_id"`
+	ID           int64  `uri:"id" json:"id"`
+	Status       string `json:"status" binding:"required,oneof=draft published reviewing accepted rejected"`
 }
