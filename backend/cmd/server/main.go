@@ -17,6 +17,7 @@ import (
 	"github.com/dcao/conferencespace/internal/orchestrator"
 	"github.com/dcao/conferencespace/internal/storage"
 	fileStorage "github.com/dcao/conferencespace/internal/storage/file"
+	"github.com/dcao/conferencespace/internal/websocket"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -54,14 +55,14 @@ func main() {
 	}
 
 	// Initialize dependencies using dependency injection
-	ctrl, cleanup, err := initializeApp(cfg)
+	appCtx, cleanup, err := initializeApp(cfg)
 	if err != nil {
 		log.Fatalf("Failed to initialize application: %v", err)
 	}
 	defer cleanup()
 
 	// Setup Gin router
-	router := setupRouter(ctrl, cfg)
+	router := setupRouter(appCtx, cfg)
 
 	// Create HTTP server
 	srv := &http.Server{
@@ -98,8 +99,14 @@ func main() {
 	log.Println("Server exited")
 }
 
+// AppContext holds application-level dependencies
+type AppContext struct {
+	Controller *controller.Controller
+	Hub        *websocket.Hub
+}
+
 // initializeApp sets up all dependencies using dependency injection pattern
-func initializeApp(cfg *config.Config) (*controller.Controller, func(), error) {
+func initializeApp(cfg *config.Config) (*AppContext, func(), error) {
 	// Initialize database connection
 	db, err := storage.NewDB(cfg.Database)
 	if err != nil {
@@ -122,8 +129,12 @@ func initializeApp(cfg *config.Config) (*controller.Controller, func(), error) {
 		return nil, nil, err
 	}
 
+	// Initialize WebSocket hub
+	hub := websocket.NewHub()
+	go hub.Run()
+
 	orch := orchestrator.NewOrchestrator(store, cfg.JWT.Secret, cfg.JWT.Expiry)
-	ctrl := controller.NewController(orch, store, fileStore, clients)
+	ctrl := controller.NewControllerWithHub(orch, store, fileStore, clients, hub)
 
 	cleanup := func() {
 		if err := db.Close(); err != nil {
@@ -135,11 +146,16 @@ func initializeApp(cfg *config.Config) (*controller.Controller, func(), error) {
 		}
 	}
 
-	return ctrl, cleanup, nil
+	appCtx := &AppContext{
+		Controller: ctrl,
+		Hub:        hub,
+	}
+
+	return appCtx, cleanup, nil
 }
 
 // setupRouter configures all routes
-func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
+func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
@@ -147,12 +163,15 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 	router.Use(gin.Recovery())
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:5173"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Authorization", "Content-Type"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
+		AllowHeaders:     []string{"Authorization", "Content-Type", "Upgrade", "Connection"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
+
+	ctrl := appCtx.Controller
+	hub := appCtx.Hub
 
 	// Swagger documentation
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -268,7 +287,39 @@ func setupRouter(ctrl *controller.Controller, cfg *config.Config) *gin.Engine {
 			// Rebuild COI relationships (admin/chair only)
 			coi.POST("/conferences/:conference_id/rebuild", handler.HandleRequestWithURI(ctrl.COI.RebuildCOI))
 		}
+
+		// Notification routes (authentication required)
+		notifications := v1.Group("/notifications")
+		notifications.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
+		{
+			notifications.GET("", handler.HandleRequestWithQuery(ctrl.Notification.List))
+			notifications.GET("/unread-count", handler.HandleNoRequest(ctrl.Notification.GetUnreadCount))
+			notifications.GET("/:id", handler.HandleNoRequest(ctrl.Notification.Get))
+			notifications.PATCH("/:id/read", handler.HandleNoRequest(ctrl.Notification.MarkAsRead))
+			notifications.PATCH("/read-all", handler.HandleNoRequest(ctrl.Notification.MarkAllAsRead))
+			notifications.DELETE("/:id", handler.HandleNoRequestWithMessage("notification deleted successfully", ctrl.Notification.Delete))
+		}
 	}
+
+	// WebSocket endpoint for real-time notifications (outside v1 group, uses custom auth)
+	router.GET("/ws/notifications", func(c *gin.Context) {
+		// Get token from query parameter (WebSocket doesn't support headers easily)
+		token := c.Query("token")
+		if token == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "token required"})
+			return
+		}
+
+		// Validate token and extract user email
+		userEmail, err := middleware.ValidateTokenAndGetEmail(token, cfg.JWT.Secret)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+			return
+		}
+
+		// Upgrade to WebSocket
+		websocket.ServeWs(hub, c.Writer, c.Request, userEmail)
+	})
 
 	return router
 }

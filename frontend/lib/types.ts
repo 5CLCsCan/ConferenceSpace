@@ -244,15 +244,27 @@ export interface ConferenceStats {
 }
 
 // Notification interface
+// Notification types
+export type NotificationType =
+  | "submission_received"
+  | "review_assigned"
+  | "review_submitted"
+  | "paper_accepted"
+  | "paper_rejected"
+  | "deadline_reminder"
+  | "status_change"
+
 export interface Notification {
   id: string
-  user_id: string
-  type: "info" | "success" | "warning" | "error"
+  user_email: string
+  type: NotificationType
   title: string
   message: string
+  metadata?: Record<string, unknown>
   read: boolean
-  created_at: string
   action_url?: string
+  conference_id?: number
+  created_at: string
 }
 
 export interface ReviewRequest {

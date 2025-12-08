@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -57,4 +58,14 @@ func AuthMiddleware(jwtSecret string, adminToken string) gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+// ValidateTokenAndGetEmail validates a JWT token and returns the user email
+// This is used for WebSocket authentication where we can't use middleware
+func ValidateTokenAndGetEmail(tokenString string, jwtSecret string) (string, error) {
+	claims, err := jwt.ValidateToken(tokenString, jwtSecret)
+	if err != nil {
+		return "", fmt.Errorf("invalid token: %w", err)
+	}
+	return claims.Email, nil
 }

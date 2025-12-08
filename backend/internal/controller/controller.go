@@ -8,23 +8,27 @@ import (
 	"github.com/dcao/conferencespace/internal/controller/auth"
 	coiController "github.com/dcao/conferencespace/internal/controller/coi"
 	"github.com/dcao/conferencespace/internal/controller/conference"
+	notificationController "github.com/dcao/conferencespace/internal/controller/notification"
 	"github.com/dcao/conferencespace/internal/controller/reviewer"
 	"github.com/dcao/conferencespace/internal/controller/submission"
 	"github.com/dcao/conferencespace/internal/controller/user"
 	"github.com/dcao/conferencespace/internal/orchestrator"
 	coiService "github.com/dcao/conferencespace/internal/service/coi"
+	notificationService "github.com/dcao/conferencespace/internal/service/notification"
 	"github.com/dcao/conferencespace/internal/storage"
 	fileStorage "github.com/dcao/conferencespace/internal/storage/file"
+	"github.com/dcao/conferencespace/internal/websocket"
 )
 
 type Controller struct {
-	Auth       *auth.Controller
-	User       *user.Controller
-	Conference *conference.Controller
-	Submission *submission.Controller
-	Reviewer   *reviewer.Controller
-	Assignment *assignmentController.Controller
-	COI        *coiController.Controller
+	Auth         *auth.Controller
+	User         *user.Controller
+	Conference   *conference.Controller
+	Submission   *submission.Controller
+	Reviewer     *reviewer.Controller
+	Assignment   *assignmentController.Controller
+	COI          *coiController.Controller
+	Notification *notificationController.Controller
 }
 
 func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, fileStore fileStorage.StorageInterface, clients *clients.Clients) *Controller {
@@ -46,13 +50,51 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 		store.User,
 	)
 
+	// Create notification service
+	notifSvc := notificationService.New(store.Notification)
+
 	return &Controller{
-		Auth:       auth.New(orch),
-		User:       user.New(store, assignmentService), // Pass assignment service for COI checks
-		Conference: conference.New(store, assignmentService), // Pass assignment service for auto-assign on status change
-		Submission: submission.New(store, fileStore, clients.Gemini),
-		Reviewer:   reviewer.New(store),
-		Assignment: assignmentController.New(store, assignmentService),
-		COI:        coiController.New(coiSvc),
+		Auth:         auth.New(orch),
+		User:         user.New(store, assignmentService), // Pass assignment service for COI checks
+		Conference:   conference.New(store, assignmentService), // Pass assignment service for auto-assign on status change
+		Submission:   submission.NewWithNotifications(store, fileStore, clients.Gemini, notifSvc),
+		Reviewer:     reviewer.New(store),
+		Assignment:   assignmentController.NewWithNotifications(store, assignmentService, notifSvc),
+		COI:          coiController.New(coiSvc),
+		Notification: notificationController.New(store),
+	}
+}
+
+// NewControllerWithHub creates a new controller with WebSocket hub support
+func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storage, fileStore fileStorage.StorageInterface, clients *clients.Clients, hub *websocket.Hub) *Controller {
+	assignmentService := assignment.NewService(store, clients)
+
+	// Create COI detector (composite of self-author and declared conflicts)
+	coiDetector := detectors.NewCompositeDetector(
+		detectors.NewSelfAuthorDetector(),
+		detectors.NewDeclaredConflictsDetector(),
+	)
+
+	// Create COI service
+	coiSvc := coiService.New(
+		coiDetector,
+		store.COI,
+		store.Submission,
+		store.Reviewer,
+		store.User,
+	)
+
+	// Create notification service with WebSocket support
+	notifSvc := notificationService.NewWithWebSocket(store.Notification, hub)
+
+	return &Controller{
+		Auth:         auth.New(orch),
+		User:         user.New(store, assignmentService),
+		Conference:   conference.New(store, assignmentService),
+		Submission:   submission.NewWithNotifications(store, fileStore, clients.Gemini, notifSvc),
+		Reviewer:     reviewer.New(store),
+		Assignment:   assignmentController.NewWithNotifications(store, assignmentService, notifSvc),
+		COI:          coiController.New(coiSvc),
+		Notification: notificationController.New(store),
 	}
 }
