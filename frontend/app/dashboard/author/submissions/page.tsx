@@ -53,9 +53,9 @@ export default function AuthorSubmissionsPage() {
       <main className="container mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {t("dashboard.submissions.pageTitle")}
+            {t("dashboard.author.submissions.pageTitle")}
           </h1>
-          <p className="text-gray-600">{t("dashboard.submissions.pageDescription")}</p>
+          <p className="text-gray-600">{t("dashboard.author.submissions.pageDescription")}</p>
         </div>
         <Suspense fallback={<div>{t("dashboard.submissions.loading")}</div>}>
           <AuthorSubmissionsList />

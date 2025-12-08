@@ -42,7 +42,8 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
     loadStats()
   }, [conference.id])
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("vi-VN", {
+    const locale = t("common.messages.languages.vietnamese") === "Tiếng Việt" ? "vi-VN" : "en-US"
+    return new Date(dateString).toLocaleDateString(locale, {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -126,9 +127,9 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
 
       {/* Conference Information */}
       <div>
-        <h2 className={`${typography.h2} pt-2`}>Thông Tin Hội Nghị</h2>
+        <h2 className={`${typography.h2} pt-2`}>{t("conference.overview.title")}</h2>
         <p className={`mt-1 ${typography.body} text-gray-600`}>
-          Chi tiết về thời gian, địa điểm và thông tin liên hệ
+          {t("conference.overview.description")}
         </p>
       </div>
 
@@ -140,7 +141,7 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
               <Calendar className={`${iconSizes.sm} text-primary`} />
             </div>
             <div>
-              <p className={`${typography.label} text-gray-500`}>Ngày Tổ Chức</p>
+              <p className={`${typography.label} text-gray-500`}>{t("conference.overview.conferenceDate")}</p>
               <p className={`mt-1 ${typography.body} ${typography.semibold} text-gray-900`}>
                 {formatDate(conference.conference_date)}
               </p>
@@ -154,7 +155,7 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
               <MapPin className={`${iconSizes.sm} text-primary`} />
             </div>
             <div>
-              <p className={`${typography.label} text-gray-500`}>Địa Điểm</p>
+              <p className={`${typography.label} text-gray-500`}>{t("conference.overview.location")}</p>
               <p className={`mt-1 ${typography.body} ${typography.semibold} text-gray-900`}>
                 {conference.location}
               </p>
@@ -169,14 +170,14 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
                 <Globe className={`${iconSizes.sm} text-primary`} />
               </div>
               <div>
-                <p className={`${typography.label} text-gray-500`}>Website</p>
+                <p className={`${typography.label} text-gray-500`}>{t("conference.overview.website")}</p>
                 <a
                   href={conference.website}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`mt-1 ${typography.body} ${typography.semibold} text-primary hover:underline`}
                 >
-                  Truy cập
+                  {t("conference.overview.visitWebsite")}
                 </a>
               </div>
             </div>
@@ -218,7 +219,7 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
           <div>
             <h2 className={`${typography.h2} pt-2`}>Tracks Nghiên Cứu</h2>
             <p className={`mt-1 ${typography.body} text-gray-600`}>
-              Các lĩnh vực nghiên cứu của hội nghị
+              {t("conference.overview.tracksDescription")}
             </p>
           </div>
 

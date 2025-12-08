@@ -16,6 +16,7 @@ import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import type { ConferenceFormData } from "@/app/dashboard/chair/create-conference/page"
 import { typography, spacing, iconSizes } from "@/lib/typography"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 type Props = {
   data: ConferenceFormData
@@ -23,6 +24,7 @@ type Props = {
 }
 
 export function TopicsSubmissionsStep({ data, updateData }: Props) {
+  const { t } = useTranslation()
   const [topicInput, setTopicInput] = useState("")
   const [trackInput, setTrackInput] = useState("")
 
@@ -76,22 +78,22 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
     <div className={spacing.subsection}>
       <div>
         <h2 className={`${typography.h2} ${typography.semibold} text-foreground mb-1`}>
-          Step 2: Topics & Submission Settings
+          {t("dashboard.chair.createConference.step2.heading")}
         </h2>
         <p className={`${typography.body} text-muted-foreground`}>
-          Configure submission deadlines and academic structure
+          {t("dashboard.chair.createConference.step2.subheading")}
         </p>
       </div>
 
       <div className={spacing.subsection}>
         {/* Key Deadlines */}
         <div className={spacing.subsection}>
-          <h3 className={`${typography.h4} ${typography.medium} text-foreground`}>Key Deadlines</h3>
+          <h3 className={`${typography.h4} ${typography.medium} text-foreground`}>{t("dashboard.chair.createConference.step2.keyDeadlines")}</h3>
 
           <div className={`grid ${spacing.gap.md} md:grid-cols-2`}>
             {/* Submissions Open */}
             <div className={spacing.item}>
-              <Label className={typography.label}>Submissions Open</Label>
+              <Label className={typography.label}>{t("dashboard.chair.createConference.step2.submissionsOpen")}</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -105,7 +107,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
                     {data.submissionsOpen ? (
                       format(data.submissionsOpen, "PPP")
                     ) : (
-                      <span>Pick a date</span>
+                      <span>{t("dashboard.chair.createConference.step2.pickDate")}</span>
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -123,7 +125,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
             {/* Submission Deadline */}
             <div className={spacing.item}>
               <Label className={typography.label}>
-                Submission Deadline <span className="text-destructive">*</span>
+                {t("dashboard.chair.createConference.step2.submissionDeadline")} <span className="text-destructive">*</span>
               </Label>
               <Popover>
                 <PopoverTrigger asChild>
@@ -138,7 +140,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
                     {data.submissionDeadline ? (
                       format(data.submissionDeadline, "PPP")
                     ) : (
-                      <span>Pick a date</span>
+                      <span>{t("dashboard.chair.createConference.step2.pickDate")}</span>
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -155,7 +157,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
 
             {/* Review Deadline */}
             <div className={spacing.item}>
-              <Label className={typography.label}>Review Deadline</Label>
+              <Label className={typography.label}>{t("dashboard.chair.createConference.step2.reviewDeadline")}</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -169,7 +171,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
                     {data.reviewDeadline ? (
                       format(data.reviewDeadline, "PPP")
                     ) : (
-                      <span>Pick a date</span>
+                      <span>{t("dashboard.chair.createConference.step2.pickDate")}</span>
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -186,7 +188,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
 
             {/* Author Notification */}
             <div className={spacing.item}>
-              <Label className={typography.label}>Author Notification</Label>
+              <Label className={typography.label}>{t("dashboard.chair.createConference.step2.authorNotification")}</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -200,7 +202,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
                     {data.authorNotification ? (
                       format(data.authorNotification, "PPP")
                     ) : (
-                      <span>Pick a date</span>
+                      <span>{t("dashboard.chair.createConference.step2.pickDate")}</span>
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -217,7 +219,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
 
             {/* Camera-Ready Deadline */}
             <div className={spacing.item}>
-              <Label className={typography.label}>Camera-Ready Deadline</Label>
+              <Label className={typography.label}>{t("dashboard.chair.createConference.step2.cameraReadyDeadline")}</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -231,7 +233,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
                     {data.cameraReadyDeadline ? (
                       format(data.cameraReadyDeadline, "PPP")
                     ) : (
-                      <span>Pick a date</span>
+                      <span>{t("dashboard.chair.createConference.step2.pickDate")}</span>
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -251,21 +253,21 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
         {/* Research Topics / Domains */}
         <div className={spacing.item}>
           <Label htmlFor="topics" className={typography.label}>
-            Research Topics / Domains
+            {t("dashboard.chair.createConference.step2.researchTopics")}
           </Label>
           <div className={`flex ${spacing.gap.sm}`}>
             <Input
               id="topics"
-              placeholder="e.g., Machine Learning, Computer Vision, Natural Language Processing"
+              placeholder={t("dashboard.chair.createConference.step2.researchTopicsPlaceholder")}
               value={topicInput}
               onChange={(e) => setTopicInput(e.target.value)}
               onKeyDown={handleTopicKeyDown}
             />
             <Button type="button" onClick={addTopic}>
-              Add
+              {t("dashboard.chair.createConference.step2.add")}
             </Button>
           </div>
-          <p className={typography.caption}>Research areas and domains covered by the conference</p>
+          <p className={typography.caption}>{t("dashboard.chair.createConference.step2.researchTopicsHint")}</p>
           {data.topics.length > 0 && (
             <div className={`flex flex-wrap ${spacing.gap.sm} mt-2`}>
               {data.topics.map((topic) => (
@@ -287,23 +289,22 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
         {/* Conference Tracks */}
         <div className={spacing.item}>
           <Label htmlFor="tracks" className={typography.label}>
-            Conference Tracks
+            {t("dashboard.chair.createConference.step2.conferenceTracks")}
           </Label>
           <div className={`flex ${spacing.gap.sm}`}>
             <Input
               id="tracks"
-              placeholder="e.g., AI & Ethics Track, Systems Track, Theory Track"
+              placeholder={t("dashboard.chair.createConference.step2.conferenceTracksPlaceholder")}
               value={trackInput}
               onChange={(e) => setTrackInput(e.target.value)}
               onKeyDown={handleTrackKeyDown}
             />
             <Button type="button" onClick={addTrack}>
-              Add
+              {t("dashboard.chair.createConference.step2.add")}
             </Button>
           </div>
           <p className={typography.caption}>
-            Submission tracks for organizing papers by theme (authors will select one when
-            submitting)
+            {t("dashboard.chair.createConference.step2.conferenceTracksHint")}
           </p>
           {data.tracks.length > 0 && (
             <div className={`flex flex-wrap ${spacing.gap.sm} mt-2`}>
@@ -326,7 +327,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
         {/* Submission Anonymity */}
         <div className={spacing.item}>
           <Label className={typography.label}>
-            Submission Anonymity <span className="text-destructive">*</span>
+            {t("dashboard.chair.createConference.step2.submissionAnonymity")} <span className="text-destructive">*</span>
           </Label>
           <RadioGroup
             value={data.anonymity}
@@ -337,13 +338,13 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
             <div className={`flex items-center ${spacing.gap.sm}`}>
               <RadioGroupItem value="single-blind" id="single-blind" />
               <Label htmlFor="single-blind" className={typography.normal}>
-                Single-Blind (reviewers are anonymous to authors)
+                {t("dashboard.chair.createConference.step2.singleBlind")}
               </Label>
             </div>
             <div className={`flex items-center ${spacing.gap.sm}`}>
               <RadioGroupItem value="double-blind" id="double-blind" />
               <Label htmlFor="double-blind" className={typography.normal}>
-                Double-Blind (both reviewers and authors are anonymous)
+                {t("dashboard.chair.createConference.step2.doubleBlind")}
               </Label>
             </div>
           </RadioGroup>
@@ -352,7 +353,7 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
         {/* Allowed File Formats */}
         <div className={spacing.item}>
           <Label className={typography.label}>
-            Allowed File Formats <span className="text-destructive">*</span>
+            {t("dashboard.chair.createConference.step2.allowedFileFormats")} <span className="text-destructive">*</span>
           </Label>
           <div className={spacing.item}>
             {["PDF", "DOCX", "ZIP"].map((format) => (
