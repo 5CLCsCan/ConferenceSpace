@@ -725,7 +725,74 @@
         "errorDescription": "Không thể tạo hội nghị. Vui lòng thử lại.",
         "saveDraft": "Hội nghị đã được lưu nháp!",
         "confirmLabel": "Tôi đã xem xét các chi tiết và sẵn sàng tạo hội nghị này",
-        "confirmDescription": "Bạn có thể chỉnh sửa cài đặt hội nghị sau khi tạo từ bảng điều khiển hội nghị"
+        "confirmDescription": "Bạn có thể chỉnh sửa cài đặt hội nghị sau khi tạo từ bảng điều khiển hội nghị",
+        "returnToDashboard": "Quay lại Bảng điều khiển",
+        "previousStep": "Bước trước",
+        "step1": {
+          "heading": "Bước 1: Chi Tiết Hội Nghị Cơ Bản",
+          "subheading": "Cung cấp thông tin cần thiết về hội nghị của bạn",
+          "conferenceTitle": "Tên Hội Nghị",
+          "conferenceTitlePlaceholder": "vd: Hội nghị Quốc tế về Trí tuệ Nhân tạo",
+          "acronym": "Từ viết tắt",
+          "acronymPlaceholder": "vd: ICAI 2026",
+          "acronymHint": "Mã định danh ngắn gọn, duy nhất cho hội nghị của bạn",
+          "description": "Mô tả",
+          "descriptionPlaceholder": "Tổng quan ngắn gọn về chủ đề và phạm vi hội nghị...",
+          "website": "Website Hội Nghị (Tùy chọn)",
+          "websitePlaceholder": "https://example.com",
+          "conferenceDates": "Ngày Diễn Ra Hội Nghị",
+          "startDate": "Ngày bắt đầu",
+          "endDate": "Ngày kết thúc",
+          "location": "Địa điểm",
+          "inPerson": "Trực tiếp",
+          "virtual": "Trực tuyến",
+          "hybrid": "Kết hợp",
+          "venue": "Địa điểm / Thành phố, Quốc gia",
+          "venuePlaceholder": "vd: Khách sạn Grand, Paris, Pháp",
+          "contactEmail": "Email Liên Hệ",
+          "contactEmailPlaceholder": "contact@conference.com",
+          "contactEmailHint": "Email liên hệ chính thức cho các câu hỏi"
+        },
+        "step2": {
+          "heading": "Bước 2: Chủ Đề & Cài Đặt Nộp Bài",
+          "subheading": "Cấu hình thời hạn nộp bài và cấu trúc học thuật",
+          "keyDeadlines": "Thời Hạn Quan Trọng",
+          "submissionsOpen": "Mở Nhận Bài",
+          "submissionDeadline": "Hạn Nộp Bài",
+          "reviewDeadline": "Hạn Phản Biện",
+          "authorNotification": "Thông Báo Tác Giả",
+          "cameraReadyDeadline": "Hạn Camera-Ready",
+          "pickDate": "Chọn ngày",
+          "researchTopics": "Chủ Đề Nghiên Cứu / Lĩnh Vực",
+          "researchTopicsPlaceholder": "vd: Học Máy, Thị Giác Máy Tính, Xử Lý Ngôn Ngữ Tự Nhiên",
+          "researchTopicsHint": "Các lĩnh vực và chủ đề nghiên cứu của hội nghị",
+          "conferenceTracks": "Track Hội Nghị",
+          "conferenceTracksPlaceholder": "vd: Track AI & Đạo Đức, Track Hệ Thống, Track Lý Thuyết",
+          "conferenceTracksHint": "Các track nộp bài để tổ chức bài báo theo chủ đề (tác giả sẽ chọn một track khi nộp bài)",
+          "add": "Thêm",
+          "submissionAnonymity": "Ẩn Danh Khi Nộp Bài",
+          "singleBlind": "Single-Blind (phản biện ẩn danh với tác giả)",
+          "doubleBlind": "Double-Blind (cả phản biện và tác giả đều ẩn danh)",
+          "allowedFileFormats": "Định Dạng File Cho Phép"
+        },
+        "dashboard": {
+          "title": "Thống Kê Hội Nghị",
+          "descriptionChair": "Tổng quan về số liệu và tiến độ của hội nghị",
+          "descriptionOther": "Thông tin cơ bản về hội nghị",
+          "loading": "Đang tải thống kê...",
+          "noData": "Không có dữ liệu thống kê",
+          "totalSubmissions": "Tổng Bài Nộp",
+          "totalReviews": "Tổng Reviews",
+          "acceptanceRate": "Tỷ Lệ Chấp Nhận",
+          "avgReviewsPerPaper": "TB Reviews/Bài",
+          "submissionsByTrack": "Bài Nộp Theo Track",
+          "submissionsByTrackDesc": "Phân bố bài nộp theo từng track nghiên cứu",
+          "reviewProgress": "Tiến Độ Review",
+          "reviewProgressDesc": "Trạng thái hiện tại của quá trình review",
+          "completed": "Hoàn Thành",
+          "inProgress": "Đang Thực Hiện",
+          "pending": "Chưa Bắt Đầu"
+        }
       },
       "dashboard": {
         "createNewConference": "+ Tạo hội nghị mới",
@@ -872,6 +939,18 @@
       }
     },
     "author": {
+      "submissions": {
+        "pageTitle": "Bài Nộp Của Tôi",
+        "pageDescription": "Xem và quản lý tất cả các bài báo bạn đã nộp",
+        "title": "Tiêu đề",
+        "conference": "Hội nghị",
+        "submissionDeadline": "Thời hạn nộp bài",
+        "status": "Trạng thái bài nộp",
+        "attachments": "Tệp đính kèm",
+        "draft": "Nháp",
+        "published": "Đã xuất bản",
+        "clearFilters": "Xóa"
+      },
       "dashboard": {
         "title": "Bài nộp của tôi",
         "noSubmissions": "Chưa có bài nộp nào",
@@ -1259,6 +1338,114 @@
         "notAvailable": "Chưa có phản hồi",
         "modifyReviewStarted": "Sửa đánh giá",
         "modifyReviewStartedDescription": "Bạn có thể cập nhật đánh giá dựa trên phản hồi"
+      }
+    }
+  },
+  "conference": {
+    "overview": {
+      "title": "Thông Tin Hội Nghị",
+      "description": "Chi tiết về thời gian, địa điểm và thông tin liên hệ",
+      "conferenceDate": "Ngày Tổ Chức",
+      "location": "Địa Điểm",
+      "website": "Website",
+      "visitWebsite": "Truy cập",
+      "keywordsTitle": "Từ Khóa / Chủ Đề",
+      "keywordsDescription": "Các lĩnh vực nghiên cứu của hội nghị",
+      "tracksTitle": "Tracks Nghiên Cứu",
+      "tracksDescription": "Các lĩnh vực nghiên cứu của hội nghị"
+    },
+    "callForPapers": {
+      "title": "Call for Papers",
+      "description": "Hướng dẫn và yêu cầu nộp bài cho {acronym}",
+      "submissionOpen": "Đang Nhận Bài",
+      "submissionClosed": "Đã Đóng Nhận Bài",
+      "deadline": "Deadline",
+      "editSubmission": "Chỉnh Sửa Bài Nộp",
+      "submitNow": "Nộp Bài Ngay",
+      "checking": "Đang kiểm tra...",
+      "guidelinesTitle": "Hướng Dẫn Nộp Bài",
+      "formatRequirements": "Yêu Cầu Định Dạng",
+      "paperContent": "Nội Dung Bài Báo",
+      "reviewProcess": "Quy Trình Review",
+      "requirements": {
+        "language": "Bài báo phải được viết bằng tiếng Anh",
+        "length": "Độ dài: 6-8 trang cho full paper, 4 trang cho short paper (không bao gồm tài liệu tham khảo)",
+        "template": "Sử dụng template ACM hoặc IEEE (tải về từ website chính thức)",
+        "fileFormat": "File PDF, không quá 10MB",
+        "originality": "Bài nộp phải là nghiên cứu gốc, chưa được công bố trước đây"
+      },
+      "content": {
+        "abstract": "Abstract: 150-250 từ, tóm tắt rõ ràng vấn đề, phương pháp và kết quả",
+        "keywords": "Keywords: 3-5 từ khóa phản ánh nội dung chính",
+        "introduction": "Introduction: Giới thiệu vấn đề nghiên cứu và đóng góp chính",
+        "relatedWork": "Related Work: Tổng quan các nghiên cứu liên quan",
+        "methodology": "Methodology: Mô tả chi tiết phương pháp nghiên cứu",
+        "results": "Results & Discussion: Trình bày và phân tích kết quả",
+        "conclusion": "Conclusion: Tóm tắt đóng góp và hướng phát triển"
+      },
+      "review": {
+        "doubleBlind": "Double-blind review: Tác giả và reviewer không biết danh tính của nhau",
+        "reviewers": "Mỗi bài sẽ được review bởi ít nhất 3 reviewers độc lập",
+        "criteria": "Tiêu chí đánh giá: Novelty, Technical Quality, Clarity, Relevance",
+        "outcomes": "Kết quả: Accept, Minor Revision, Major Revision, hoặc Reject"
+      }
+    },
+    "importantDates": {
+      "title": "Thời Gian Quan Trọng",
+      "description": "Timeline các mốc thời gian quan trọng của hội nghị",
+      "loading": "Đang tải...",
+      "noData": "Chưa Có Thông Tin Thời Gian",
+      "noDataDescription": "Các mốc thời gian quan trọng sẽ được cập nhật sớm nhất",
+      "typeLabels": {
+        "deadline": "Deadline",
+        "notification": "Thông Báo",
+        "event": "Sự Kiện"
+      },
+      "past": "Đã Qua",
+      "notesTitle": "Lưu Ý",
+      "notes": {
+        "timezone": "Tất cả thời gian đều theo múi giờ UTC",
+        "reminders": "Hệ thống sẽ gửi email nhắc nhở trước mỗi deadline 7 ngày và 1 ngày",
+        "lateSubmissions": "Không chấp nhận bài nộp muộn sau deadline"
+      }
+    },
+    "submissions": {
+      "title": "Bài Nộp",
+      "loading": "Đang tải...",
+      "searchPlaceholder": "Tìm kiếm theo tiêu đề, abstract, keywords...",
+      "showing": "Hiển thị",
+      "of": "/",
+      "papers": "bài",
+      "viewDetails": "Xem Chi Tiết",
+      "noSubmissionsFound": "Không Tìm Thấy Bài Nộp",
+      "filterButton": {
+        "clear": "Clear",
+        "apply": "Apply"
+      },
+      "roleDescriptions": {
+        "author": "Danh sách các bài báo bạn đã nộp cho hội nghị",
+        "reviewer": "Danh sách các bài báo được phân công cho bạn review",
+        "chair": "Danh sách tất cả các bài báo đã nộp cho hội nghị",
+        "default": "Danh sách các bài báo"
+      },
+      "emptyState": {
+        "author": "Bạn chưa nộp bài nào cho hội nghị này",
+        "reviewer": "Bạn chưa được phân công review bài nào",
+        "default": "Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác"
+      },
+      "status": {
+        "label": "Trạng Thái",
+        "all": "Tất Cả Trạng Thái",
+        "submitted": "Đã Nộp",
+        "underReview": "Đang Review",
+        "accepted": "Chấp Nhận",
+        "rejected": "Từ Chối",
+        "revisionRequested": "Yêu Cầu Sửa",
+        "cameraReady": "Camera Ready"
+      },
+      "track": {
+        "label": "Track",
+        "all": "Tất Cả Tracks"
       }
     }
   },

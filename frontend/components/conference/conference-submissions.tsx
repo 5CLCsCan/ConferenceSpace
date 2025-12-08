@@ -23,7 +23,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { FileText, Calendar, Users, X, Filter, Eye, Loader2 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Checkbox } from "@/components/ui/checkbox"
 import { FilterBar, type ActiveFilter } from "@/components/ui/filter-bar"
 import { typography, spacing, iconSizes } from "@/lib/typography"
@@ -49,6 +48,7 @@ interface ConferenceSubmissionsProps {
 }
 
 export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsProps) {
+  const { t } = useTranslation()
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user, currentRole } = useAuth()
@@ -175,7 +175,8 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("vi-VN", {
+    const locale = t("common.messages.languages.vietnamese") === "Tiếng Việt" ? "vi-VN" : "en-US"
+    return new Date(dateString).toLocaleDateString(locale, {
       year: "numeric",
       month: "short",
       day: "numeric",

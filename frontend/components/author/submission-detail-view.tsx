@@ -72,11 +72,11 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; className: string }> = {
       draft: {
-        label: t("dashboard.submissions.status.draft"),
+        label: t("draft"),
         className: "bg-yellow-100 text-yellow-800",
       },
       published: {
-        label: t("dashboard.submissions.status.published"),
+        label: t("published"),
         className: "bg-blue-100 text-blue-800",
       },
     }
