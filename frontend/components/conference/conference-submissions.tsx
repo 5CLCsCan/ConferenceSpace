@@ -52,7 +52,6 @@ export function ConferenceSubmissions({ conferenceId }: ConferenceSubmissionsPro
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user, currentRole } = useAuth()
-  const { t } = useTranslation()
   const [papers, setPapers] = useState<Paper[]>([])
   const [filteredPapers, setFilteredPapers] = useState<Paper[]>([])
   const [loading, setLoading] = useState(true)

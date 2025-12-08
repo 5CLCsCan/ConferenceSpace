@@ -156,7 +156,7 @@ export function ConferencePapers({
             </div>
           }
           getRowKey={(paper) => paper.id}
-          onRowClick={(paper) => onSelectPaper(paper.id)}
+          onRowClick={(paper) => onSelectPaper(paper.assignment_id.toString())}
           renderMobileCard={(paper) => (
             <div className={spacing.padding.card}>
               <div className={`${typography.medium} mb-2`}>{paper.title}</div>

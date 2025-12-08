@@ -553,11 +553,11 @@ func (s *Storage) GetReviewAnalytics(ctx context.Context, submissionID int64) (*
 			SUM(CASE WHEN (review_data->>'confidence') = 'high' THEN 1 ELSE 0 END) as confidence_high,
 			SUM(CASE WHEN (review_data->>'confidence') = 'medium' THEN 1 ELSE 0 END) as confidence_medium,
 			SUM(CASE WHEN (review_data->>'confidence') = 'low' THEN 1 ELSE 0 END) as confidence_low,
-			AVG(CAST(review_data->>'originality' AS FLOAT)) as avg_originality,
-			AVG(CAST(review_data->>'technical_quality' AS FLOAT)) as avg_technical_quality,
-			AVG(CAST(review_data->>'clarity' AS FLOAT)) as avg_clarity,
-			AVG(CAST(review_data->>'significance' AS FLOAT)) as avg_significance,
-			AVG(CAST(review_data->>'methodology' AS FLOAT)) as avg_methodology
+			AVG(CAST(review_data->'criteria'->>'originality' AS FLOAT)) as avg_originality,
+			AVG(CAST(review_data->'criteria'->>'technical_quality' AS FLOAT)) as avg_technical_quality,
+			AVG(CAST(review_data->'criteria'->>'clarity' AS FLOAT)) as avg_clarity,
+			AVG(CAST(review_data->'criteria'->>'significance' AS FLOAT)) as avg_significance,
+			AVG(CAST(review_data->'criteria'->>'methodology' AS FLOAT)) as avg_methodology
 		FROM paper_assignments
 		WHERE submission_id = $1 AND review_status = 'submitted'
 	`
@@ -565,20 +565,22 @@ func (s *Storage) GetReviewAnalytics(ctx context.Context, submissionID int64) (*
 	var analytics dto.ReviewAnalyticsResponse
 	var avgScore sql.NullFloat64
 	var avgOriginality, avgTechnicalQuality, avgClarity, avgSignificance, avgMethodology sql.NullFloat64
+	var strongAccept, accept, weakAccept, borderline, weakReject, reject, strongReject sql.NullInt64
+	var confidenceHigh, confidenceMedium, confidenceLow sql.NullInt64
 
 	err := s.db.QueryRowContext(ctx, query, submissionID).Scan(
 		&analytics.TotalReviews,
 		&avgScore,
-		&analytics.ScoreDistribution.StrongAccept,
-		&analytics.ScoreDistribution.Accept,
-		&analytics.ScoreDistribution.WeakAccept,
-		&analytics.ScoreDistribution.Borderline,
-		&analytics.ScoreDistribution.WeakReject,
-		&analytics.ScoreDistribution.Reject,
-		&analytics.ScoreDistribution.StrongReject,
-		&analytics.ConfidenceDistribution.High,
-		&analytics.ConfidenceDistribution.Medium,
-		&analytics.ConfidenceDistribution.Low,
+		&strongAccept,
+		&accept,
+		&weakAccept,
+		&borderline,
+		&weakReject,
+		&reject,
+		&strongReject,
+		&confidenceHigh,
+		&confidenceMedium,
+		&confidenceLow,
 		&avgOriginality,
 		&avgTechnicalQuality,
 		&avgClarity,
@@ -588,6 +590,40 @@ func (s *Storage) GetReviewAnalytics(ctx context.Context, submissionID int64) (*
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to get review analytics: %w", err)
+	}
+
+	// Handle nullable score distribution
+	if strongAccept.Valid {
+		analytics.ScoreDistribution.StrongAccept = int(strongAccept.Int64)
+	}
+	if accept.Valid {
+		analytics.ScoreDistribution.Accept = int(accept.Int64)
+	}
+	if weakAccept.Valid {
+		analytics.ScoreDistribution.WeakAccept = int(weakAccept.Int64)
+	}
+	if borderline.Valid {
+		analytics.ScoreDistribution.Borderline = int(borderline.Int64)
+	}
+	if weakReject.Valid {
+		analytics.ScoreDistribution.WeakReject = int(weakReject.Int64)
+	}
+	if reject.Valid {
+		analytics.ScoreDistribution.Reject = int(reject.Int64)
+	}
+	if strongReject.Valid {
+		analytics.ScoreDistribution.StrongReject = int(strongReject.Int64)
+	}
+
+	// Handle nullable confidence distribution
+	if confidenceHigh.Valid {
+		analytics.ConfidenceDistribution.High = int(confidenceHigh.Int64)
+	}
+	if confidenceMedium.Valid {
+		analytics.ConfidenceDistribution.Medium = int(confidenceMedium.Int64)
+	}
+	if confidenceLow.Valid {
+		analytics.ConfidenceDistribution.Low = int(confidenceLow.Int64)
 	}
 
 	// Handle nullable averages

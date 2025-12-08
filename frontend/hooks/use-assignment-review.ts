@@ -50,7 +50,8 @@ export default function useAssignmentReview(conferenceId: string, assignmentId: 
       setSaving(true)
       setError(null)
       try {
-        const method = review ? "PUT" : "POST"
+        // Backend only supports PUT method for saving reviews
+        const method = "PUT"
         const { data, error: e } = await saveAssignmentReview(
           conferenceId,
           assignmentId,
@@ -70,7 +71,7 @@ export default function useAssignmentReview(conferenceId: string, assignmentId: 
         setSaving(false)
       }
     },
-    [conferenceId, assignmentId, review],
+    [conferenceId, assignmentId],
   )
 
   return { review, loading, saving, error, fetchReview, saveReview }

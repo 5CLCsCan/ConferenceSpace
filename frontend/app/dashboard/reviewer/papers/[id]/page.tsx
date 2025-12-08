@@ -32,7 +32,25 @@ function PaperContent({ id }: { id: string }) {
           return
         }
 
-        const { data, error: fetchError } = await getPaperById(id, conferenceId)
+        // First, fetch assignment to get submission_id
+        // id in URL is assignment_id, we need to get submission_id from assignment
+        const { getAssignmentReview } = await import("@/lib/api/reviews")
+        const { data: assignmentData, error: assignmentError } = await getAssignmentReview(
+          conferenceId,
+          id,
+        )
+
+        if (assignmentError || !assignmentData) {
+          setError(assignmentError || t("dashboard.roles.reviewer.review.errors.fetchPaperFailed"))
+          setLoading(false)
+          return
+        }
+
+        // Now fetch paper using submission_id
+        const { data, error: fetchError } = await getPaperById(
+          assignmentData.submission_id.toString(),
+          conferenceId,
+        )
 
         if (fetchError || !data) {
           setError(fetchError || t("dashboard.roles.reviewer.review.errors.fetchPaperFailed"))
@@ -90,18 +108,17 @@ function PaperContent({ id }: { id: string }) {
   return (
     <PaperReview
       paper={paper}
+      assignmentId={id}
       onBack={() => {
         const from = searchParams.get("from")
         const conferenceId = searchParams.get("conference_id")
         const fromConferenceId = searchParams.get("from_conference_id")
+        console.log("[PaperReview onBack]", { from, conferenceId, fromConferenceId })
         if (from === "conference-papers" && fromConferenceId) {
-          // Go back to the conference-papers view for the same conference
           router.push(`/dashboard/reviewer?tab=conference-papers&conference_id=${fromConferenceId}`)
         } else if (from === "conferences" && conferenceId) {
-          // Go back to the conferences tab with the correct conference selected
           router.push(`/dashboard/reviewer?tab=conferences&conference_id=${conferenceId}`)
         } else if (from) {
-          // Go back to the originating tab
           router.push(`/dashboard/reviewer?tab=${from}`)
         } else {
           router.back()
