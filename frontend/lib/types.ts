@@ -60,6 +60,7 @@ export interface Conference {
   domain?: string[] // Research domains/keywords/topics
   call_for_paper_text?: string // Call for paper content
   chair?: string
+  co_chairs?: string[] // Co-chair email addresses
   primary_contact?: number
   area_chair?: number
   userRole?: string // "chair", "author", "reviewer", or undefined

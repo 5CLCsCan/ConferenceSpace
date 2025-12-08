@@ -19,9 +19,11 @@ import { Badge } from "@/components/ui/badge"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { typography, spacing } from "@/lib/typography"
 import { ConferenceDashboard } from "@/components/conference/conference-dashboard"
+import { ConferenceSettings } from "@/components/conference/conference-settings"
 
 type TabType =
   | "dashboard"
+  | "settings"
   | "overview"
   | "call-for-papers"
   | "dates"
@@ -77,9 +79,12 @@ export default function ConferencePage() {
     loadConference()
   }, [conferenceId])
 
-  // Redirect authors away from COI Demo tab and Dashboard tab
+  // Redirect authors away from COI Demo tab, Dashboard tab, and Settings tab
   useEffect(() => {
-    if (currentRole === "author" && (activeTab === "coi-demo" || activeTab === "dashboard")) {
+    if (
+      currentRole === "author" &&
+      (activeTab === "coi-demo" || activeTab === "dashboard" || activeTab === "settings")
+    ) {
       setActiveTab("overview")
     }
   }, [currentRole, activeTab])
@@ -95,7 +100,9 @@ export default function ConferencePage() {
       {
         id: "committee" as TabType,
         label:
-          currentRole === "chair" ? t("dashboard.conference.committee.reviewers.title") : t("dashboard.conference.details.tabs.committee"),
+          currentRole === "chair"
+            ? t("dashboard.conference.committee.reviewers.title")
+            : t("dashboard.conference.details.tabs.committee"),
       },
       {
         id: "submissions" as TabType,
@@ -108,17 +115,29 @@ export default function ConferencePage() {
         id: "coi-demo" as TabType,
         label: t("dashboard.conference.details.tabs.coiDemo") || "COI Demo",
       },
-      ...(currentRole === "chair"
-        ? [
-            {
-              id: "dashboard" as TabType,
-              label: t("dashboard.conference.details.tabs.dashboard"),
-            },
-          ]
-        : []),
     ]
     // Hide COI Demo tab for authors
     return currentRole === "author" ? allTabs.filter((tab) => tab.id !== "coi-demo") : allTabs
+  }, [t, currentRole])
+
+  const settingsTab = useMemo(() => {
+    if (currentRole === "chair") {
+      return {
+        id: "settings" as TabType,
+        label: t("dashboard.conference.details.tabs.settings") || "Settings",
+      }
+    }
+    return null
+  }, [t, currentRole])
+
+  const dashboardTab = useMemo(() => {
+    if (currentRole === "chair") {
+      return {
+        id: "dashboard" as TabType,
+        label: t("dashboard.conference.details.tabs.dashboard"),
+      }
+    }
+    return null
   }, [t, currentRole])
 
   const roleConfig = useMemo(
@@ -167,8 +186,8 @@ export default function ConferencePage() {
       )}
 
       <div className="flex flex-1 overflow-hidden">
-        <aside className="w-64 border-r border-gray-200 bg-white overflow-y-auto">
-          <div className="sticky top-0">
+        <aside className="w-64 border-r border-gray-200 bg-white flex flex-col">
+          <div className="flex-1 overflow-y-auto">
             <div className={`border-b border-gray-200 ${spacing.padding.card}`}>
               <h2 className={`${typography.h5} ${typography.bold} text-gray-900`}>
                 {conference.name}
@@ -188,7 +207,7 @@ export default function ConferencePage() {
                         url.searchParams.set("tab", tab.id)
                         window.history.replaceState({}, "", url)
                       }}
-                      className={`flex w-full items-center ${spacing.gap.sm} rounded-lg px-3 py-2 text-left ${typography.bodySmall} ${typography.medium} transition-colors ${
+                      className={`flex w-full items-center ${spacing.gap.sm} rounded-lg px-3 py-2 text-left ${typography.body} ${typography.medium} transition-colors ${
                         activeTab === tab.id
                           ? "bg-primary text-white"
                           : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
@@ -200,8 +219,50 @@ export default function ConferencePage() {
                 ))}
               </ul>
             </nav>
+          </div>
 
-            {user && (
+          {user && (
+            <div className="mt-auto">
+              {(settingsTab || dashboardTab) && (
+                <nav className={`${spacing.padding.card} ${spacing.tight}`}>
+                  {settingsTab && (
+                    <button
+                      onClick={() => {
+                        setActiveTab(settingsTab.id)
+                        const url = new URL(window.location.href)
+                        url.searchParams.set("tab", settingsTab.id)
+                        window.history.replaceState({}, "", url)
+                      }}
+                      className={`flex w-full items-center ${spacing.gap.sm} rounded-lg px-3 py-2 text-left ${typography.body} ${typography.medium} transition-colors ${
+                        activeTab === settingsTab.id
+                          ? "bg-primary text-white"
+                          : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                      }`}
+                    >
+                      <span>{settingsTab.label}</span>
+                    </button>
+                  )}
+
+                  {dashboardTab && (
+                    <button
+                      onClick={() => {
+                        setActiveTab(dashboardTab.id)
+                        const url = new URL(window.location.href)
+                        url.searchParams.set("tab", dashboardTab.id)
+                        window.history.replaceState({}, "", url)
+                      }}
+                      className={`flex w-full items-center ${spacing.gap.sm} rounded-lg px-3 py-2 text-left ${typography.body} ${typography.medium} transition-colors ${
+                        activeTab === dashboardTab.id
+                          ? "bg-primary text-white"
+                          : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                      }`}
+                    >
+                      <span>{dashboardTab.label}</span>
+                    </button>
+                  )}
+                </nav>
+              )}
+
               <div className={`border-t border-gray-200 ${spacing.padding.card}`}>
                 <div>
                   <p
@@ -218,9 +279,7 @@ export default function ConferencePage() {
                   )}
                 </div>
               </div>
-            )}
 
-            {user && (
               <div className={`border-t border-gray-200 ${spacing.padding.card}`}>
                 <div className={`rounded-lg bg-gray-50 p-2.5`}>
                   <p className={`${typography.bodySmall} ${typography.medium} text-gray-500`}>
@@ -234,13 +293,22 @@ export default function ConferencePage() {
                   <p className={`${typography.bodySmall} text-gray-600`}>{user.email}</p>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </aside>
 
         <main className="flex-1 overflow-y-auto relative">
           <div className="mx-auto max-w-7xl p-5">
             {activeTab === "dashboard" && <ConferenceDashboard conferenceId={conference.id} />}
+            {activeTab === "settings" && conference && (
+              <ConferenceSettings
+                conferenceId={conference.id}
+                initialConference={conference}
+                onUpdate={(updatedConference) => {
+                  setConference(updatedConference)
+                }}
+              />
+            )}
             {activeTab === "overview" && <ConferenceOverview conference={conference} />}
             {activeTab === "call-for-papers" && <ConferenceCallForPapers conference={conference} />}
             {activeTab === "dates" && <ConferenceImportantDates conferenceId={conference.id} />}

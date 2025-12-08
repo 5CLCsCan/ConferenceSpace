@@ -217,7 +217,8 @@
           "committee": "Organising Committee",
           "submissions": "Submissions",
           "mySubmission": "My Submission",
-          "coiDemo": "COI Demo"
+          "coiDemo": "COI Demo",
+          "settings": "Settings"
         },
         "currentRole": "Current role",
         "switchRole": "Switch role (Dev mode)",
@@ -291,6 +292,92 @@
           "inviteSuccessDescription": "The reviewer invitation has been sent successfully.",
           "removeSuccess": "Reviewer Removed",
           "removeSuccessDescription": "The reviewer has been removed from the conference."
+        }
+      },
+      "settings": {
+        "sections": {
+          "general": "General",
+          "dates": "Dates & Deadlines",
+          "cfp": "Call for Papers",
+          "coChairs": "Co-Chairs",
+          "tracksDomains": "Tracks & Domains",
+          "submission": "Submission Settings",
+          "advanced": "Advanced"
+        },
+        "general": {
+          "title": "General Information",
+          "description": "Basic information about your conference",
+          "conferenceName": "Conference Name",
+          "acronym": "Acronym",
+          "descriptionLabel": "Description",
+          "website": "Website URL",
+          "venue": "Venue / Location"
+        },
+        "dates": {
+          "title": "Dates & Deadlines",
+          "description": "Set important dates for your conference",
+          "startDate": "Conference Start Date",
+          "endDate": "Conference End Date",
+          "abstractDeadline": "Abstract Submission Deadline",
+          "submissionDeadline": "Paper Submission Deadline",
+          "cameraReadyDeadline": "Camera-Ready Deadline"
+        },
+        "cfp": {
+          "title": "Call for Papers",
+          "description": "Customize your call for papers content",
+          "text": "Call for Papers Text",
+          "markdownHint": "Supports Markdown formatting"
+        },
+        "coChairs": {
+          "title": "Co-Chairs",
+          "description": "Manage co-chairs for this conference",
+          "mainChair": "Main Chair",
+          "mainChairHint": "The main chair cannot be changed",
+          "addCoChair": "Add Co-Chair",
+          "currentCoChairs": "Current Co-Chairs",
+          "placeholder": "co-chair@example.com"
+        },
+        "tracksDomains": {
+          "title": "Tracks & Domains",
+          "description": "Manage conference tracks and research domains",
+          "tracks": "Tracks",
+          "domains": "Research Domains",
+          "trackPlaceholder": "e.g., Machine Learning",
+          "domainPlaceholder": "e.g., Artificial Intelligence"
+        },
+        "submission": {
+          "title": "Submission Settings",
+          "description": "Configure submission requirements and formats",
+          "reviewType": "Review Type",
+          "reviewTypeSingle": "Single-Blind",
+          "reviewTypeDouble": "Double-Blind",
+          "submissionFormat": "Submission Format",
+          "submissionFormatPlaceholder": "PDF, DOCX, etc.",
+          "maximumPages": "Maximum Pages",
+          "requireCompleteProfile": "Require Complete Author Profile",
+          "requireCompleteProfileHint": "Authors must complete their profile before submitting",
+          "allowWithdrawals": "Allow Paper Withdrawals",
+          "allowWithdrawalsHint": "Authors can withdraw their submissions"
+        },
+        "advanced": {
+          "title": "Advanced Settings",
+          "description": "Additional configuration options",
+          "status": "Conference Status",
+          "statusOpen": "Open",
+          "statusReviewing": "Reviewing",
+          "statusCompleted": "Completed",
+          "haveCOI": "Conflict of Interest (COI) Check",
+          "haveCOIHint": "Enable conflict of interest detection for reviewers"
+        },
+        "actions": {
+          "saveChanges": "Save changes",
+          "saving": "Saving...",
+          "cancel": "Cancel"
+        },
+        "messages": {
+          "saveSuccess": "Conference settings updated successfully",
+          "saveError": "Failed to update conference",
+          "statusUpdateWarning": "Settings saved but status update failed: {error}"
         }
       }
     },

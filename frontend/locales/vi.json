@@ -217,7 +217,8 @@
           "committee": "Ban tổ chức",
           "submissions": "Bài gửi",
           "mySubmission": "Bài của tôi",
-          "coiDemo": "COI Check"
+          "coiDemo": "COI Check",
+          "settings": "Cài đặt"
         },
         "currentRole": "Vai trò hiện tại",
         "switchRole": "Chuyển vai trò (chế độ Dev)",
@@ -291,6 +292,92 @@
           "inviteSuccessDescription": "Lời mời phản biện đã được gửi thành công.",
           "removeSuccess": "Đã xóa phản biện",
           "removeSuccessDescription": "Phản biện đã được xóa khỏi hội nghị."
+        }
+      },
+      "settings": {
+        "sections": {
+          "general": "Chung",
+          "dates": "Ngày & Thời hạn",
+          "cfp": "Lời mời gửi bài",
+          "coChairs": "Đồng chủ tịch",
+          "tracksDomains": "Lĩnh vực & Chủ đề",
+          "submission": "Cài đặt gửi bài",
+          "advanced": "Nâng cao"
+        },
+        "general": {
+          "title": "Thông tin chung",
+          "description": "Thông tin cơ bản về hội nghị của bạn",
+          "conferenceName": "Tên hội nghị",
+          "acronym": "Viết tắt",
+          "descriptionLabel": "Mô tả",
+          "website": "URL trang web",
+          "venue": "Địa điểm / Vị trí"
+        },
+        "dates": {
+          "title": "Ngày & Thời hạn",
+          "description": "Đặt các ngày quan trọng cho hội nghị của bạn",
+          "startDate": "Ngày bắt đầu hội nghị",
+          "endDate": "Ngày kết thúc hội nghị",
+          "abstractDeadline": "Hạn chót gửi tóm tắt",
+          "submissionDeadline": "Hạn chót gửi bài",
+          "cameraReadyDeadline": "Hạn chót gửi bản cuối cùng"
+        },
+        "cfp": {
+          "title": "Lời mời gửi bài",
+          "description": "Tùy chỉnh nội dung lời mời gửi bài",
+          "text": "Nội dung lời mời gửi bài",
+          "markdownHint": "Hỗ trợ định dạng Markdown"
+        },
+        "coChairs": {
+          "title": "Đồng chủ tịch",
+          "description": "Quản lý đồng chủ tịch cho hội nghị này",
+          "mainChair": "Chủ tịch chính",
+          "mainChairHint": "Chủ tịch chính không thể thay đổi",
+          "addCoChair": "Thêm đồng chủ tịch",
+          "currentCoChairs": "Đồng chủ tịch hiện tại",
+          "placeholder": "dong-chu-tich@example.com"
+        },
+        "tracksDomains": {
+          "title": "Lĩnh vực & Chủ đề",
+          "description": "Quản lý các lĩnh vực và chủ đề nghiên cứu của hội nghị",
+          "tracks": "Lĩnh vực",
+          "domains": "Chủ đề nghiên cứu",
+          "trackPlaceholder": "ví dụ: Học máy",
+          "domainPlaceholder": "ví dụ: Trí tuệ nhân tạo"
+        },
+        "submission": {
+          "title": "Cài đặt gửi bài",
+          "description": "Cấu hình yêu cầu và định dạng gửi bài",
+          "reviewType": "Loại phản biện",
+          "reviewTypeSingle": "Một lớp",
+          "reviewTypeDouble": "Hai lớp",
+          "submissionFormat": "Định dạng gửi bài",
+          "submissionFormatPlaceholder": "PDF, DOCX, v.v.",
+          "maximumPages": "Số trang tối đa",
+          "requireCompleteProfile": "Yêu cầu hoàn thiện hồ sơ tác giả",
+          "requireCompleteProfileHint": "Tác giả phải hoàn thiện hồ sơ trước khi gửi bài",
+          "allowWithdrawals": "Cho phép rút bài",
+          "allowWithdrawalsHint": "Tác giả có thể rút bài đã gửi"
+        },
+        "advanced": {
+          "title": "Cài đặt nâng cao",
+          "description": "Các tùy chọn cấu hình bổ sung",
+          "status": "Trạng thái hội nghị",
+          "statusOpen": "Mở",
+          "statusReviewing": "Đang phản biện",
+          "statusCompleted": "Hoàn thành",
+          "haveCOI": "Kiểm tra xung đột lợi ích (COI)",
+          "haveCOIHint": "Bật phát hiện xung đột lợi ích cho phản biện"
+        },
+        "actions": {
+          "saveChanges": "Lưu thay đổi",
+          "saving": "Đang lưu...",
+          "cancel": "Hủy"
+        },
+        "messages": {
+          "saveSuccess": "Cài đặt hội nghị đã được cập nhật thành công",
+          "saveError": "Không thể cập nhật hội nghị",
+          "statusUpdateWarning": "Đã lưu cài đặt nhưng cập nhật trạng thái thất bại: {error}"
         }
       }
     },

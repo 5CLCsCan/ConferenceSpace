@@ -137,7 +137,7 @@ export default function HomePage() {
         </div>
         <div className={`grid ${spacing.gap.lg} md:grid-cols-3`}>
           <Card className="bg-white border border-neutral-200 shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className={spacing.subsection}>
+            <CardHeader className={`${spacing.subsection} py-6`}>
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                 <FileText className={`${iconSizes.lg} text-primary`} />
               </div>
@@ -151,7 +151,7 @@ export default function HomePage() {
           </Card>
 
           <Card className="bg-white border border-neutral-200 shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className={spacing.subsection}>
+            <CardHeader className={`${spacing.subsection} py-6`}>
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Users className={`${iconSizes.lg} text-primary`} />
               </div>
@@ -165,7 +165,7 @@ export default function HomePage() {
           </Card>
 
           <Card className="bg-white border border-neutral-200 shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className={spacing.subsection}>
+            <CardHeader className={`${spacing.subsection} py-6`}>
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                 <BarChart3 className={`${iconSizes.lg} text-primary`} />
               </div>

@@ -42,8 +42,23 @@ export async function getConferenceById(conferenceId: string): Promise<ApiRespon
       domain: data.data.domain || [], // Research domains/keywords/topics
       call_for_paper_text: data.data.configurations?.call_for_paper_text || undefined,
       chair: data.data.chair,
+      co_chairs: data.data.co_chairs || [], // Include co-chairs
       primary_contact: data.data.primary_contact,
       area_chair: data.data.area_chair,
+      configurations: {
+        start_date: data.data.configurations?.start_date,
+        end_date: data.data.configurations?.end_date,
+        abstract_submission_deadline: data.data.configurations?.abstract_submission_deadline,
+        full_paper_submission_deadline: data.data.configurations?.full_paper_submission_deadline,
+        camera_ready_deadline: data.data.configurations?.camera_ready_deadline,
+        format: data.data.configurations?.format,
+        review_type: data.data.configurations?.review_type,
+        have_coi: data.data.configurations?.have_coi,
+        maximum_pages: data.data.configurations?.maximum_pages,
+        submission_format: data.data.configurations?.submission_format,
+        require_complete_author_profile: data.data.configurations?.require_complete_author_profile,
+        allow_paper_withdrawls: data.data.configurations?.allow_paper_withdrawls,
+      },
     }
 
     return {
@@ -324,11 +339,25 @@ export async function updateConference(
   conferenceId: string,
   updates: Partial<{
     title: string
+    acronym: string
     description: string
     domain: string[]
+    tracks: string[]
     venue: string
+    co_chairs: string[]
     configurations: Partial<{
-      maximum_pages: number
+      start_date?: string
+      end_date?: string
+      abstract_submission_deadline?: string
+      full_paper_submission_deadline?: string
+      camera_ready_deadline?: string
+      call_for_paper_text?: string
+      review_type?: string
+      submission_format?: string
+      maximum_pages?: number
+      have_coi?: boolean
+      require_complete_author_profile?: boolean
+      allow_paper_withdrawls?: boolean
     }>
   }>,
 ): Promise<ApiResponse<Conference>> {
@@ -358,12 +387,28 @@ export async function updateConference(
       notification_date: "",
       conference_date: data.data.configurations?.start_date || "",
       conference_end_date: data.data.configurations?.end_date || undefined,
-      location: "",
-      website: "",
+      location: data.data.venue || "",
+      website: data.data.website || "",
       status: (data.data.status || "open") as ConferenceStatus,
       tracks: data.data.tracks || [],
       domain: data.data.domain || [],
       call_for_paper_text: data.data.configurations?.call_for_paper_text || undefined,
+      chair: data.data.chair,
+      co_chairs: data.data.co_chairs || [],
+      configurations: {
+        start_date: data.data.configurations?.start_date,
+        end_date: data.data.configurations?.end_date,
+        abstract_submission_deadline: data.data.configurations?.abstract_submission_deadline,
+        full_paper_submission_deadline: data.data.configurations?.full_paper_submission_deadline,
+        camera_ready_deadline: data.data.configurations?.camera_ready_deadline,
+        format: data.data.configurations?.format,
+        review_type: data.data.configurations?.review_type,
+        have_coi: data.data.configurations?.have_coi,
+        maximum_pages: data.data.configurations?.maximum_pages,
+        submission_format: data.data.configurations?.submission_format,
+        require_complete_author_profile: data.data.configurations?.require_complete_author_profile,
+        allow_paper_withdrawls: data.data.configurations?.allow_paper_withdrawls,
+      },
     }
 
     return {

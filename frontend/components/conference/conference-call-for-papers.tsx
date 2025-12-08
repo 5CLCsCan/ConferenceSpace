@@ -35,6 +35,10 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
   const [checkingSubmission, setCheckingSubmission] = useState(true)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
+  // Check if submissions are open based on conference status
+  // "open" = accepting submissions, "reviewing" or "completed" = submissions closed
+  const isSubmissionOpen = conference.status === "open"
+
   // Check if user already has a submission for this conference
   useEffect(() => {
     async function checkUserSubmission() {
