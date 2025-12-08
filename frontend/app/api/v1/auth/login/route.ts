@@ -43,10 +43,24 @@ export async function POST(request: Request) {
     }
 
     const cookieStore = await cookies()
+    
+    // Set HTTP-only cookie for API requests (secure)
     cookieStore.set({
       name: AUTH_COOKIE_NAME,
       value: token,
       httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: COOKIE_MAX_AGE,
+    })
+    
+    // Set non-HTTP-only cookie for WebSocket authentication
+    // This allows the client-side JavaScript to read the token for WebSocket connections
+    cookieStore.set({
+      name: "conference_ws_token",
+      value: token,
+      httpOnly: false, // Allow JavaScript to read this for WebSocket
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",

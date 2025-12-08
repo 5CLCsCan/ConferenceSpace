@@ -102,9 +102,21 @@ func (h *Hub) BroadcastToUser(userEmail string, notification *dto.Notification) 
 		return err
 	}
 
-	h.broadcast <- &UserMessage{
-		UserEmail: userEmail,
-		Message:   data,
+	// Check if user is connected
+	h.mu.RLock()
+	clients, connected := h.clients[userEmail]
+	clientCount := len(clients)
+	h.mu.RUnlock()
+
+	if connected && clientCount > 0 {
+		h.broadcast <- &UserMessage{
+			UserEmail: userEmail,
+			Message:   data,
+		}
+		// Log with fmt to avoid import issues
+		println("[WebSocket] Broadcasting notification to", userEmail, "- connected clients:", clientCount)
+	} else {
+		println("[WebSocket] User", userEmail, "not connected, notification will be fetched on next refresh")
 	}
 
 	return nil

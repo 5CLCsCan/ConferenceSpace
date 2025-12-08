@@ -15,6 +15,8 @@ export class NotificationWebSocket {
   private handlers: Set<NotificationHandler> = new Set()
   private token: string
   private url: string
+  private intentionalDisconnect = false
+  private reconnectTimeout: NodeJS.Timeout | null = null
 
   constructor(token: string) {
     this.token = token
@@ -27,15 +29,26 @@ export class NotificationWebSocket {
   }
 
   connect(): void {
-    if (this.ws?.readyState === WebSocket.OPEN) {
+    // Reset intentional disconnect flag when connecting
+    this.intentionalDisconnect = false
+    
+    // Clear any pending reconnect
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout)
+      this.reconnectTimeout = null
+    }
+
+    if (this.ws?.readyState === WebSocket.OPEN || this.ws?.readyState === WebSocket.CONNECTING) {
+      console.log("[WebSocket] Already connected or connecting, skipping")
       return
     }
 
     try {
+      console.log("[WebSocket] Creating new connection...")
       this.ws = new WebSocket(this.url)
 
       this.ws.onopen = () => {
-        console.log("WebSocket connected")
+        console.log("[WebSocket] Connected successfully")
         this.reconnectAttempts = 0
       }
 
@@ -43,6 +56,7 @@ export class NotificationWebSocket {
         try {
           const data = JSON.parse(event.data) as WebSocketMessage
           if (data.type === "notification" && data.payload) {
+            console.log("[WebSocket] Received notification:", data.payload.title)
             this.handlers.forEach((handler) => {
               try {
                 handler(data.payload)
@@ -57,40 +71,62 @@ export class NotificationWebSocket {
       }
 
       this.ws.onclose = (event) => {
-        console.log("WebSocket closed:", event.code, event.reason)
-        this.attemptReconnect()
+        console.log("[WebSocket] Closed:", event.code, event.reason)
+        // Only reconnect if this wasn't an intentional disconnect
+        if (!this.intentionalDisconnect) {
+          this.attemptReconnect()
+        }
       }
 
       this.ws.onerror = (error) => {
-        console.error("WebSocket error:", error)
+        console.error("[WebSocket] Error:", error)
       }
     } catch (err) {
-      console.error("Failed to create WebSocket:", err)
-      this.attemptReconnect()
+      console.error("[WebSocket] Failed to create:", err)
+      if (!this.intentionalDisconnect) {
+        this.attemptReconnect()
+      }
     }
   }
 
   private attemptReconnect(): void {
+    if (this.intentionalDisconnect) {
+      console.log("[WebSocket] Intentional disconnect, not reconnecting")
+      return
+    }
+    
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.log("Max reconnect attempts reached")
+      console.log("[WebSocket] Max reconnect attempts reached")
       return
     }
 
     this.reconnectAttempts++
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1)
-    console.log(`Attempting to reconnect in ${delay}ms (attempt ${this.reconnectAttempts})`)
+    console.log(`[WebSocket] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`)
 
-    setTimeout(() => {
+    this.reconnectTimeout = setTimeout(() => {
       this.connect()
     }, delay)
   }
 
   disconnect(): void {
+    console.log("[WebSocket] Disconnect called")
+    this.intentionalDisconnect = true
+    
+    // Clear any pending reconnect
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout)
+      this.reconnectTimeout = null
+    }
+    
     if (this.ws) {
-      this.ws.close()
+      // Only close if actually open
+      if (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING) {
+        this.ws.close()
+      }
       this.ws = null
     }
-    this.reconnectAttempts = this.maxReconnectAttempts // Prevent reconnect
+    this.reconnectAttempts = 0
   }
 
   subscribe(handler: NotificationHandler): () => void {

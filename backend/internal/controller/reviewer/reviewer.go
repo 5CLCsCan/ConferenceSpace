@@ -215,6 +215,38 @@ func (c *Controller) UpdateStatus(ginCtx *gin.Context, req *dto.ReviewerUpdateSt
 		}
 	}
 
+	// Send notification to chair about reviewer's response
+	if c.notificationService != nil && (req.Status == model.ReviewerStatusAccepted || req.Status == model.ReviewerStatusRejected) {
+		conference, err := c.conferenceStorage.GetByID(ctx, req.ConferenceID)
+		if err == nil && conference != nil {
+			// Get reviewer's name from user storage
+			reviewerUser, err := c.userStorage.GetByEmail(ctx, result.Email)
+			reviewerName := result.Email // Default to email if we can't get the name
+			if err == nil && reviewerUser != nil {
+				reviewerName = reviewerUser.FirstName + " " + reviewerUser.LastName
+			}
+
+			conferenceID := req.ConferenceID
+			conferenceName := conference.Title
+			chairEmail := conference.Chair
+			reviewerEmail := result.Email
+
+			// Send notification asynchronously
+			go func() {
+				bgCtx := context.Background()
+				if req.Status == model.ReviewerStatusAccepted {
+					if err := c.notificationService.NotifyReviewerAccepted(bgCtx, chairEmail, reviewerName, reviewerEmail, conferenceName, conferenceID); err != nil {
+						fmt.Printf("Warning: Failed to send reviewer accepted notification: %v\n", err)
+					}
+				} else if req.Status == model.ReviewerStatusRejected {
+					if err := c.notificationService.NotifyReviewerRejected(bgCtx, chairEmail, reviewerName, reviewerEmail, conferenceName, conferenceID); err != nil {
+						fmt.Printf("Warning: Failed to send reviewer rejected notification: %v\n", err)
+					}
+				}
+			}()
+		}
+	}
+
 	return result, nil
 }
 

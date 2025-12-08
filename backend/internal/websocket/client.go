@@ -115,9 +115,11 @@ func (c *Client) writePump() {
 
 // ServeWs handles WebSocket requests from clients
 func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, userEmail string) {
+	log.Printf("[WebSocket] Connection request from user: %s", userEmail)
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Printf("WebSocket upgrade error: %v", err)
+		log.Printf("[WebSocket] Upgrade error for user %s: %v", userEmail, err)
 		return
 	}
 
@@ -129,6 +131,7 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, userEmail string)
 	}
 
 	client.hub.register <- client
+	log.Printf("[WebSocket] User %s connected successfully", userEmail)
 
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines

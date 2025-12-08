@@ -66,6 +66,56 @@ func (s *Service) NotifyReviewerInvited(ctx context.Context, reviewerEmail strin
 	return nil
 }
 
+// NotifyReviewerAccepted notifies chairs when a reviewer accepts their invitation
+func (s *Service) NotifyReviewerAccepted(ctx context.Context, chairEmail string, reviewerName string, reviewerEmail string, conferenceName string, conferenceID int64) error {
+	req := &dto.NotificationCreateRequest{
+		UserEmail: chairEmail,
+		Type:      model.NotificationTypeStatusChange,
+		Title:     "Reviewer Accepted Invitation",
+		Message:   fmt.Sprintf("%s (%s) has accepted the invitation to review for \"%s\".", reviewerName, reviewerEmail, conferenceName),
+		Metadata: map[string]interface{}{
+			"reviewer_name":   reviewerName,
+			"reviewer_email":  reviewerEmail,
+			"conference_name": conferenceName,
+		},
+		ActionURL:    fmt.Sprintf("/dashboard/conference/%d/reviewers", conferenceID),
+		ConferenceID: &conferenceID,
+	}
+
+	notification, err := s.storage.Create(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	s.broadcastNotification(notification)
+	return nil
+}
+
+// NotifyReviewerRejected notifies chairs when a reviewer rejects their invitation
+func (s *Service) NotifyReviewerRejected(ctx context.Context, chairEmail string, reviewerName string, reviewerEmail string, conferenceName string, conferenceID int64) error {
+	req := &dto.NotificationCreateRequest{
+		UserEmail: chairEmail,
+		Type:      model.NotificationTypeStatusChange,
+		Title:     "Reviewer Declined Invitation",
+		Message:   fmt.Sprintf("%s (%s) has declined the invitation to review for \"%s\".", reviewerName, reviewerEmail, conferenceName),
+		Metadata: map[string]interface{}{
+			"reviewer_name":   reviewerName,
+			"reviewer_email":  reviewerEmail,
+			"conference_name": conferenceName,
+		},
+		ActionURL:    fmt.Sprintf("/dashboard/conference/%d/reviewers", conferenceID),
+		ConferenceID: &conferenceID,
+	}
+
+	notification, err := s.storage.Create(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	s.broadcastNotification(notification)
+	return nil
+}
+
 // NotifySubmissionReceived notifies chairs when a new submission is created
 func (s *Service) NotifySubmissionReceived(ctx context.Context, chairEmail string, submissionTitle string, conferenceID int64, submissionID int64) error {
 	req := &dto.NotificationCreateRequest{

@@ -67,7 +67,6 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
   const fetchUnreadCount = useCallback(async () => {
     try {
       const count = await getUnreadCount()
-      console.log("[Notifications] Unread count fetched:", count)
       setUnreadCount(count)
     } catch (err) {
       console.error("Failed to fetch unread count:", err)
@@ -136,14 +135,30 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
     if (!autoConnect) return
 
     let unsubscribe: (() => void) | null = null
+    let isMounted = true
 
     const initializeWebSocket = async () => {
+      // Small delay to handle React Strict Mode double-invoke
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      
+      if (!isMounted) {
+        console.log("[WebSocket] Component unmounted during init, skipping")
+        return
+      }
+      
       try {
-        const token = await getAuthToken()
+        const token = getAuthToken()
+        console.log("[WebSocket] Token retrieved:", token ? "yes" : "no")
         if (token) {
           const ws = getNotificationWebSocket(token)
+          console.log("[WebSocket] Connecting...")
           ws.connect()
-          unsubscribe = ws.subscribe(handleWebSocketNotification)
+          unsubscribe = ws.subscribe((notification) => {
+            console.log("[WebSocket] Received notification:", notification)
+            handleWebSocketNotification(notification)
+          })
+        } else {
+          console.log("[WebSocket] No token available, skipping connection")
         }
       } catch (err) {
         console.error("Failed to initialize WebSocket:", err)
@@ -153,16 +168,25 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
     initializeWebSocket()
 
     return () => {
+      isMounted = false
       if (unsubscribe) {
         unsubscribe()
       }
+      // Note: Don't disconnect the WebSocket singleton here - it should persist
+      // across re-renders. Only disconnect on logout or when window closes.
     }
   }, [autoConnect, handleWebSocketNotification])
 
-  // Cleanup WebSocket on unmount
+  // Cleanup WebSocket only when the browser window/tab closes
   useEffect(() => {
-    return () => {
+    const handleBeforeUnload = () => {
       disconnectNotificationWebSocket()
+    }
+    
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload)
     }
   }, [])
 
