@@ -58,7 +58,7 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 		User:         user.New(store, assignmentService), // Pass assignment service for COI checks
 		Conference:   conference.New(store, assignmentService), // Pass assignment service for auto-assign on status change
 		Submission:   submission.NewWithNotifications(store, fileStore, clients.Gemini, notifSvc),
-		Reviewer:     reviewer.New(store),
+		Reviewer:     reviewer.NewWithNotifications(store, notifSvc),
 		Assignment:   assignmentController.NewWithNotifications(store, assignmentService, notifSvc),
 		COI:          coiController.New(coiSvc),
 		Notification: notificationController.New(store),
@@ -92,7 +92,7 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 		User:         user.New(store, assignmentService),
 		Conference:   conference.New(store, assignmentService),
 		Submission:   submission.NewWithNotifications(store, fileStore, clients.Gemini, notifSvc),
-		Reviewer:     reviewer.New(store),
+		Reviewer:     reviewer.NewWithNotifications(store, notifSvc),
 		Assignment:   assignmentController.NewWithNotifications(store, assignmentService, notifSvc),
 		COI:          coiController.New(coiSvc),
 		Notification: notificationController.New(store),

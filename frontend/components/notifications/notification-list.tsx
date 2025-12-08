@@ -10,9 +10,9 @@ interface NotificationListProps {
   notifications: Notification[]
   isLoading?: boolean
   error?: Error | null
-  onMarkAsRead?: (id: string) => void
+  onMarkAsRead?: (id: number) => void
   onMarkAllAsRead?: () => void
-  onDelete?: (id: string) => void
+  onDelete?: (id: number) => void
   onLoadMore?: () => void
   hasMore?: boolean
   showHeader?: boolean

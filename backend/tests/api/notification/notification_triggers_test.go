@@ -240,12 +240,16 @@ func TestNotificationOnReviewAssigned(t *testing.T) {
 	}
 	testutils.DecodeResponse(t, assignResp, &assignData)
 
-	if len(assignData.Data.Assignments) == 0 {
-		t.Logf("Warning: No assignments were created. Total submissions: %d, Total reviewers: %d",
-			assignData.Data.TotalSubmissions, assignData.Data.TotalReviewers)
+	// Note: Assignments slice is only populated when dry_run=true
+	// Use TotalAssignments to check if any assignments were made
+	if assignData.Data.TotalAssignments == 0 {
+		t.Logf("Warning: No assignments were created. Total submissions: %d, Total reviewers: %d, Unassigned: %v",
+			assignData.Data.TotalSubmissions, assignData.Data.TotalReviewers, assignData.Data.UnassignedPapers)
 		// Skip the rest of the test if no assignments were created
 		t.Skip("Skipping notification check - no assignments were created by auto-assign")
 	}
+
+	t.Logf("Auto-assignment created %d assignment(s)", assignData.Data.TotalAssignments)
 
 	// Wait for async notification to be created
 	time.Sleep(100 * time.Millisecond)
@@ -403,14 +407,35 @@ func TestNotificationOnReviewSubmitted(t *testing.T) {
 	}
 	testutils.DecodeResponse(t, assignResp, &assignData)
 
-	if len(assignData.Data.Assignments) == 0 {
-		t.Logf("Warning: No assignments were created. Total submissions: %d, Total reviewers: %d",
-			assignData.Data.TotalSubmissions, assignData.Data.TotalReviewers)
+	// Note: Assignments slice is only populated when dry_run=true
+	// Use TotalAssignments to check if any assignments were made
+	if assignData.Data.TotalAssignments == 0 {
+		t.Logf("Warning: No assignments were created. Total submissions: %d, Total reviewers: %d, Unassigned: %v",
+			assignData.Data.TotalSubmissions, assignData.Data.TotalReviewers, assignData.Data.UnassignedPapers)
 		t.Skip("Skipping notification check - no assignments were created by auto-assign")
 	}
 
-	// Get assignment ID
-	assignmentID := assignData.Data.Assignments[0].ID
+	t.Logf("Auto-assignment created %d assignment(s)", assignData.Data.TotalAssignments)
+
+	// Get assignment ID by querying reviewer's assigned papers
+	papersResp, err := ctx.MakeRequest("GET", fmt.Sprintf("/api/v1/reviewer/%s/conferences/%d/papers", reviewer.Email, conferenceID), nil, reviewerToken)
+	if err != nil {
+		t.Fatalf("Failed to get reviewer's papers: %v", err)
+	}
+	testutils.AssertStatusCode(t, papersResp, http.StatusOK)
+
+	var papersData struct {
+		Data struct {
+			Papers []*dto.AssignedPaperResponse `json:"papers"`
+		} `json:"data"`
+	}
+	testutils.DecodeResponse(t, papersResp, &papersData)
+
+	if len(papersData.Data.Papers) == 0 {
+		t.Skip("No papers found for reviewer - cannot test review submission notification")
+	}
+
+	assignmentID := papersData.Data.Papers[0].AssignmentID
 
 	// Get chair's initial unread notification count
 	initialCountResp, err := notificationClient.GetUnreadCount(chairToken)
@@ -426,8 +451,10 @@ func TestNotificationOnReviewSubmitted(t *testing.T) {
 	// Reviewer submits review
 	reviewScore := 8.0
 	reviewReq := map[string]interface{}{
-		"status":       "submitted",
-		"review_score": reviewScore,
+		"assignment_id": assignmentID,
+		"conference_id": conferenceID,
+		"status":        "submitted",
+		"review_score":  reviewScore,
 		"review_data": map[string]interface{}{
 			"criteria": map[string]interface{}{
 				"originality":       8,

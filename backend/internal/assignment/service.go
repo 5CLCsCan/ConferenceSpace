@@ -265,12 +265,10 @@ func (s *Service) AutoAssign(ctx context.Context, conferenceID int64, config Aut
 		ReviewerLoad:     matchResult.ReviewerLoadMap,
 	}
 
-	// Include assignments in response if dry run
-	if config.DryRun {
-		result.Assignments = make([]*dto.Assignment, len(assignmentDTOs))
-		for i := range assignmentDTOs {
-			result.Assignments[i] = &assignmentDTOs[i]
-		}
+	// Always include assignments in response (needed for notifications when DryRun=false)
+	result.Assignments = make([]*dto.Assignment, len(assignmentDTOs))
+	for i := range assignmentDTOs {
+		result.Assignments[i] = &assignmentDTOs[i]
 	}
 
 	return result, nil

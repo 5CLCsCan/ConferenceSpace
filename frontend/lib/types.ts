@@ -255,7 +255,7 @@ export type NotificationType =
   | "status_change"
 
 export interface Notification {
-  id: string
+  id: number
   user_email: string
   type: NotificationType
   title: string

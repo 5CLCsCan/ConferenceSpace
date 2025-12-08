@@ -28,9 +28,9 @@ interface UseNotificationsReturn {
   // Actions
   fetchNotifications: (params?: NotificationListRequest) => Promise<void>
   fetchUnreadCount: () => Promise<void>
-  markAsRead: (id: string) => Promise<void>
+  markAsRead: (id: number) => Promise<void>
   markAllAsRead: () => Promise<void>
-  deleteNotification: (id: string) => Promise<void>
+  deleteNotification: (id: number) => Promise<void>
   refresh: () => Promise<void>
 }
 
@@ -67,6 +67,7 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
   const fetchUnreadCount = useCallback(async () => {
     try {
       const count = await getUnreadCount()
+      console.log("[Notifications] Unread count fetched:", count)
       setUnreadCount(count)
     } catch (err) {
       console.error("Failed to fetch unread count:", err)
@@ -74,7 +75,7 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
   }, [])
 
   // Mark a notification as read
-  const markAsRead = useCallback(async (id: string) => {
+  const markAsRead = useCallback(async (id: number) => {
     try {
       await apiMarkAsRead(id)
       setNotifications((prev) =>
@@ -100,7 +101,7 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
   }, [])
 
   // Delete a notification
-  const deleteNotification = useCallback(async (id: string) => {
+  const deleteNotification = useCallback(async (id: number) => {
     try {
       const notificationToDelete = notifications.find((n) => n.id === id)
       await apiDeleteNotification(id)

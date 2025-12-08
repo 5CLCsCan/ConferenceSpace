@@ -47,13 +47,14 @@ export async function getNotifications(
  */
 export async function getUnreadCount(): Promise<number> {
   const { data } = await apiFetch<{ data: UnreadCountResponse }>("/api/v1/notifications/unread-count")
+  console.log("[API] Unread count response:", data)
   return data.data.count
 }
 
 /**
  * Get a specific notification by ID
  */
-export async function getNotification(id: string): Promise<Notification> {
+export async function getNotification(id: number): Promise<Notification> {
   const { data } = await apiFetch<{ data: Notification }>(`/api/v1/notifications/${id}`)
   return data.data
 }
@@ -61,7 +62,7 @@ export async function getNotification(id: string): Promise<Notification> {
 /**
  * Mark a notification as read
  */
-export async function markAsRead(id: string): Promise<Notification> {
+export async function markAsRead(id: number): Promise<Notification> {
   const { data } = await apiFetch<{ data: Notification }>(`/api/v1/notifications/${id}/read`, {
     method: "PATCH",
   })
@@ -81,7 +82,7 @@ export async function markAllAsRead(): Promise<number> {
 /**
  * Delete a notification
  */
-export async function deleteNotification(id: string): Promise<void> {
+export async function deleteNotification(id: number): Promise<void> {
   await apiFetch(`/api/v1/notifications/${id}`, {
     method: "DELETE",
   })

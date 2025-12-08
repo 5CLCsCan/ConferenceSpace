@@ -18,8 +18,8 @@ import { Button } from "@/components/ui/button"
 
 interface NotificationItemProps {
   notification: Notification
-  onMarkAsRead?: (id: string) => void
-  onDelete?: (id: string) => void
+  onMarkAsRead?: (id: number) => void
+  onDelete?: (id: number) => void
   compact?: boolean
 }
 

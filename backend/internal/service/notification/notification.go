@@ -43,6 +43,29 @@ func (s *Service) broadcastNotification(notification *dto.Notification) {
 	}
 }
 
+// NotifyReviewerInvited notifies a reviewer when they are invited to a conference
+func (s *Service) NotifyReviewerInvited(ctx context.Context, reviewerEmail string, conferenceName string, conferenceID int64) error {
+	req := &dto.NotificationCreateRequest{
+		UserEmail: reviewerEmail,
+		Type:      model.NotificationTypeReviewAssigned, // Using review_assigned type for invitations too
+		Title:     "Conference Reviewer Invitation",
+		Message:   fmt.Sprintf("You have been invited to be a reviewer for \"%s\".", conferenceName),
+		Metadata: map[string]interface{}{
+			"conference_name": conferenceName,
+		},
+		ActionURL:    fmt.Sprintf("/dashboard/conference/%d", conferenceID),
+		ConferenceID: &conferenceID,
+	}
+
+	notification, err := s.storage.Create(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	s.broadcastNotification(notification)
+	return nil
+}
+
 // NotifySubmissionReceived notifies chairs when a new submission is created
 func (s *Service) NotifySubmissionReceived(ctx context.Context, chairEmail string, submissionTitle string, conferenceID int64, submissionID int64) error {
 	req := &dto.NotificationCreateRequest{
@@ -76,9 +99,9 @@ func (s *Service) NotifyReviewAssigned(ctx context.Context, reviewerEmail string
 		Title:     "New Review Assignment",
 		Message:   fmt.Sprintf("You have been assigned to review the paper \"%s\".", paperTitle),
 		Metadata: map[string]interface{}{
-			"submission_id":  submissionID,
-			"assignment_id":  assignmentID,
-			"paper_title":    paperTitle,
+			"submission_id": submissionID,
+			"assignment_id": assignmentID,
+			"paper_title":   paperTitle,
 		},
 		ActionURL:    fmt.Sprintf("/dashboard/reviewer/papers/%d", submissionID),
 		ConferenceID: &conferenceID,
@@ -234,4 +257,3 @@ func (s *Service) CreateCustomNotification(ctx context.Context, req *dto.Notific
 	s.broadcastNotification(notification)
 	return notification, nil
 }
-

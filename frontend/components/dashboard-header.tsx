@@ -116,23 +116,23 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
                     style={{ width: "calc(7vh * 0.6 * 0.6)", height: "calc(7vh * 0.6 * 0.6)" }}
                   />
                   {unreadCount > 0 && (
-                    <Badge
-                      className="absolute -top-1 -right-1 flex items-center justify-center p-0 bg-error text-white"
+                    <span
+                      className="absolute -top-1 -right-1 flex items-center justify-center rounded-full bg-red-500 text-white font-medium"
                       style={{
-                        width: "calc(7vh * 0.6 * 0.6)",
-                        height: "calc(7vh * 0.6 * 0.6)",
-                        fontSize: "calc(7vh * 0.6 * 0.25)",
+                        width: "18px",
+                        height: "18px",
+                        fontSize: "11px",
                       }}
                     >
                       {unreadCount > 99 ? "99+" : unreadCount}
-                    </Badge>
+                    </span>
                   )}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-96 bg-white border-neutral-200 p-0">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
                   <span className={`${typography.semibold} text-neutral-900`}>
-                    {t("dashboard.header.notifications.title")}
+                  {t("dashboard.header.notifications.title")}
                   </span>
                   {unreadCount > 0 && (
                     <Button
