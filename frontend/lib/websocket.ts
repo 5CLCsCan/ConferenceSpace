@@ -21,7 +21,8 @@ export class NotificationWebSocket {
   constructor(token: string) {
     this.token = token
     // Determine WebSocket URL based on environment
-    const wsProtocol = typeof window !== "undefined" && window.location.protocol === "https:" ? "wss:" : "ws:"
+    const wsProtocol =
+      typeof window !== "undefined" && window.location.protocol === "https:" ? "wss:" : "ws:"
     const apiHost = process.env.NEXT_PUBLIC_API_BASE_URL
       ? new URL(process.env.NEXT_PUBLIC_API_BASE_URL).host
       : "localhost:8080"
@@ -31,7 +32,7 @@ export class NotificationWebSocket {
   connect(): void {
     // Reset intentional disconnect flag when connecting
     this.intentionalDisconnect = false
-    
+
     // Clear any pending reconnect
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout)
@@ -94,7 +95,7 @@ export class NotificationWebSocket {
       console.log("[WebSocket] Intentional disconnect, not reconnecting")
       return
     }
-    
+
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       console.log("[WebSocket] Max reconnect attempts reached")
       return
@@ -112,13 +113,13 @@ export class NotificationWebSocket {
   disconnect(): void {
     console.log("[WebSocket] Disconnect called")
     this.intentionalDisconnect = true
-    
+
     // Clear any pending reconnect
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout)
       this.reconnectTimeout = null
     }
-    
+
     if (this.ws) {
       // Only close if actually open
       if (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING) {
@@ -142,7 +143,8 @@ export class NotificationWebSocket {
 
   updateToken(token: string): void {
     this.token = token
-    const wsProtocol = typeof window !== "undefined" && window.location.protocol === "https:" ? "wss:" : "ws:"
+    const wsProtocol =
+      typeof window !== "undefined" && window.location.protocol === "https:" ? "wss:" : "ws:"
     const apiHost = process.env.NEXT_PUBLIC_API_BASE_URL
       ? new URL(process.env.NEXT_PUBLIC_API_BASE_URL).host
       : "localhost:8080"
@@ -176,4 +178,3 @@ export function disconnectNotificationWebSocket(): void {
     notificationWs = null
   }
 }
-

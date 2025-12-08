@@ -80,7 +80,13 @@ const mockRebuttal = {
     "Thank you for your valuable feedback. We'd like to address the concerns regarding novelty. Our work differs from prior art (e.g., NeurIPS 2024) in its unique application of cross-attention mechanisms, which results in a 15% efficiency gain on the benchmarked tasks. We have updated Section 3.2 to highlight this distinction more clearly and added a new ablation study in Appendix A.",
 }
 
-export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false, assignmentId }: PaperReviewProps) {
+export function PaperReview({
+  paper,
+  onBack,
+  onReviewSubmitted,
+  readOnly = false,
+  assignmentId,
+}: PaperReviewProps) {
   const { t } = useTranslation()
 
   // Use assignmentId prop if provided, otherwise fall back to paper.id
@@ -512,7 +518,13 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
                   {readOnly ? (
                     <Slider value={originality} min={1} max={10} step={1} disabled />
                   ) : (
-                    <Slider value={originality} onValueChange={setOriginality} min={1} max={10} step={1} />
+                    <Slider
+                      value={originality}
+                      onValueChange={setOriginality}
+                      min={1}
+                      max={10}
+                      step={1}
+                    />
                   )}
                 </div>
                 {/* Technical Quality */}
@@ -528,7 +540,13 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
                   {readOnly ? (
                     <Slider value={technicalQuality} min={1} max={10} step={1} disabled />
                   ) : (
-                    <Slider value={technicalQuality} onValueChange={setTechnicalQuality} min={1} max={10} step={1} />
+                    <Slider
+                      value={technicalQuality}
+                      onValueChange={setTechnicalQuality}
+                      min={1}
+                      max={10}
+                      step={1}
+                    />
                   )}
                 </div>
                 {/* Clarity */}
@@ -558,7 +576,13 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
                   {readOnly ? (
                     <Slider value={significance} min={1} max={10} step={1} disabled />
                   ) : (
-                    <Slider value={significance} onValueChange={setSignificance} min={1} max={10} step={1} />
+                    <Slider
+                      value={significance}
+                      onValueChange={setSignificance}
+                      min={1}
+                      max={10}
+                      step={1}
+                    />
                   )}
                 </div>
                 {/* Methodology */}
@@ -574,7 +598,13 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
                   {readOnly ? (
                     <Slider value={methodology} min={1} max={10} step={1} disabled />
                   ) : (
-                    <Slider value={methodology} onValueChange={setMethodology} min={1} max={10} step={1} />
+                    <Slider
+                      value={methodology}
+                      onValueChange={setMethodology}
+                      min={1}
+                      max={10}
+                      step={1}
+                    />
                   )}
                 </div>
               </div>
@@ -614,10 +644,13 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
                 <TabsContent value="authors" className={`${spacing.subsection} mt-6`}>
                   <div className={spacing.item}>
                     <Label htmlFor="strengths">
-                      {t("review.form.feedback.strengths")} <span className="text-destructive">*</span>
+                      {t("review.form.feedback.strengths")}{" "}
+                      <span className="text-destructive">*</span>
                     </Label>
                     {readOnly ? (
-                      <div className="bg-muted/50 rounded px-3 py-2 min-h-[3rem] text-muted-foreground whitespace-pre-line">{strengths}</div>
+                      <div className="bg-muted/50 rounded px-3 py-2 min-h-[3rem] text-muted-foreground whitespace-pre-line">
+                        {strengths}
+                      </div>
                     ) : (
                       <Textarea
                         id="strengths"
@@ -639,16 +672,20 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
                     </p>
                     {strengths.trim() && strengthsWordCount < 10 && !readOnly && (
                       <p className="text-destructive text-sm mt-2">
-                        {t("review.form.validation.strengthsTooShortDescription")} (Hiện tại: {strengthsWordCount} từ, yêu cầu tối thiểu 10 từ)
+                        {t("review.form.validation.strengthsTooShortDescription")} (Hiện tại:{" "}
+                        {strengthsWordCount} từ, yêu cầu tối thiểu 10 từ)
                       </p>
                     )}
                   </div>
                   <div className={spacing.item}>
                     <Label htmlFor="weaknesses">
-                      {t("review.form.feedback.weaknesses")} <span className="text-destructive">*</span>
+                      {t("review.form.feedback.weaknesses")}{" "}
+                      <span className="text-destructive">*</span>
                     </Label>
                     {readOnly ? (
-                      <div className="bg-muted/50 rounded px-3 py-2 min-h-[3rem] text-muted-foreground whitespace-pre-line">{weaknesses}</div>
+                      <div className="bg-muted/50 rounded px-3 py-2 min-h-[3rem] text-muted-foreground whitespace-pre-line">
+                        {weaknesses}
+                      </div>
                     ) : (
                       <Textarea
                         id="weaknesses"
@@ -661,10 +698,13 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
                   </div>
                   <div className={spacing.item}>
                     <Label htmlFor="questions">
-                      {t("review.form.feedback.questions")} <span className="text-destructive">*</span>
+                      {t("review.form.feedback.questions")}{" "}
+                      <span className="text-destructive">*</span>
                     </Label>
                     {readOnly ? (
-                      <div className="bg-muted/50 rounded px-3 py-2 min-h-[2.5rem] text-muted-foreground whitespace-pre-line">{questions}</div>
+                      <div className="bg-muted/50 rounded px-3 py-2 min-h-[2.5rem] text-muted-foreground whitespace-pre-line">
+                        {questions}
+                      </div>
                     ) : (
                       <Textarea
                         id="questions"
@@ -698,9 +738,11 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
             <CardContent>
               {readOnly ? (
                 <div className="bg-muted/50 rounded px-3 py-2 min-h-[2.5rem] text-muted-foreground">
-                  {recommendation
-                    ? t(`review.form.recommendation.options.${recommendation}`)
-                    : <span className="italic">{t("review.form.recommendation.placeholder")}</span>}
+                  {recommendation ? (
+                    t(`review.form.recommendation.options.${recommendation}`)
+                  ) : (
+                    <span className="italic">{t("review.form.recommendation.placeholder")}</span>
+                  )}
                 </div>
               ) : (
                 <Select value={recommendation} onValueChange={(v) => setRecommendation(v as any)}>
@@ -745,9 +787,11 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
             <CardContent>
               {readOnly ? (
                 <div className="bg-muted/50 rounded px-3 py-2 min-h-[2.5rem] text-muted-foreground">
-                  {confidence
-                    ? t(`review.form.confidence.options.${confidence}`)
-                    : <span className="italic">{t("review.form.confidence.placeholder")}</span>}
+                  {confidence ? (
+                    t(`review.form.confidence.options.${confidence}`)
+                  ) : (
+                    <span className="italic">{t("review.form.confidence.placeholder")}</span>
+                  )}
                 </div>
               ) : (
                 <Select value={confidence} onValueChange={(v) => setConfidence(v as any)}>
@@ -759,8 +803,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
                     <SelectItem value="medium">
                       {t("review.form.confidence.options.medium")}
                     </SelectItem>
-                    <SelectItem value="low">{t("review.form.confidence.options.low")}
-                    </SelectItem>
+                    <SelectItem value="low">{t("review.form.confidence.options.low")}</SelectItem>
                   </SelectContent>
                 </Select>
               )}

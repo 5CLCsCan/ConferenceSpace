@@ -186,13 +186,69 @@ describe("Notification Type Support", () => {
 
   it("should handle all notification types", async () => {
     const allTypes: Notification[] = [
-      { id: 1, user_email: "u@e.com", type: "submission_received", title: "T", message: "M", read: false, created_at: "2025-01-15T10:00:00Z" },
-      { id: 2, user_email: "u@e.com", type: "review_assigned", title: "T", message: "M", read: false, created_at: "2025-01-15T10:00:00Z" },
-      { id: 3, user_email: "u@e.com", type: "review_submitted", title: "T", message: "M", read: false, created_at: "2025-01-15T10:00:00Z" },
-      { id: 4, user_email: "u@e.com", type: "paper_accepted", title: "T", message: "M", read: false, created_at: "2025-01-15T10:00:00Z" },
-      { id: 5, user_email: "u@e.com", type: "paper_rejected", title: "T", message: "M", read: false, created_at: "2025-01-15T10:00:00Z" },
-      { id: 6, user_email: "u@e.com", type: "deadline_reminder", title: "T", message: "M", read: false, created_at: "2025-01-15T10:00:00Z" },
-      { id: 7, user_email: "u@e.com", type: "status_change", title: "T", message: "M", read: false, created_at: "2025-01-15T10:00:00Z" },
+      {
+        id: 1,
+        user_email: "u@e.com",
+        type: "submission_received",
+        title: "T",
+        message: "M",
+        read: false,
+        created_at: "2025-01-15T10:00:00Z",
+      },
+      {
+        id: 2,
+        user_email: "u@e.com",
+        type: "review_assigned",
+        title: "T",
+        message: "M",
+        read: false,
+        created_at: "2025-01-15T10:00:00Z",
+      },
+      {
+        id: 3,
+        user_email: "u@e.com",
+        type: "review_submitted",
+        title: "T",
+        message: "M",
+        read: false,
+        created_at: "2025-01-15T10:00:00Z",
+      },
+      {
+        id: 4,
+        user_email: "u@e.com",
+        type: "paper_accepted",
+        title: "T",
+        message: "M",
+        read: false,
+        created_at: "2025-01-15T10:00:00Z",
+      },
+      {
+        id: 5,
+        user_email: "u@e.com",
+        type: "paper_rejected",
+        title: "T",
+        message: "M",
+        read: false,
+        created_at: "2025-01-15T10:00:00Z",
+      },
+      {
+        id: 6,
+        user_email: "u@e.com",
+        type: "deadline_reminder",
+        title: "T",
+        message: "M",
+        read: false,
+        created_at: "2025-01-15T10:00:00Z",
+      },
+      {
+        id: 7,
+        user_email: "u@e.com",
+        type: "status_change",
+        title: "T",
+        message: "M",
+        read: false,
+        created_at: "2025-01-15T10:00:00Z",
+      },
     ]
 
     mockGetNotifications.mockResolvedValueOnce({
@@ -217,4 +273,3 @@ describe("Notification Type Support", () => {
     expect(types).toContain("status_change")
   })
 })
-

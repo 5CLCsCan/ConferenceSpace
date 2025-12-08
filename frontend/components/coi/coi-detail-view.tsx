@@ -22,7 +22,12 @@ interface COIDetailViewProps {
   onClose: () => void
 }
 
-export function COIDetailView({ conferenceId, reviewerId, authorEmail, onClose }: COIDetailViewProps) {
+export function COIDetailView({
+  conferenceId,
+  reviewerId,
+  authorEmail,
+  onClose,
+}: COIDetailViewProps) {
   const { t } = useTranslation()
   const [coiReport, setCoiReport] = useState<COIReport | null>(null)
   const [loading, setLoading] = useState(true)

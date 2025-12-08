@@ -1591,6 +1591,139 @@
         "notAvailable": "No rebuttal available yet",
         "modifyReviewStarted": "Review Modification",
         "modifyReviewStartedDescription": "You can now update your review based on the rebuttal"
+      },
+      "author": {
+        "submit": {
+          "paperTab": {
+            "title": "Paper Information",
+            "subtitle": "Provide the core details about your research paper",
+            "tipsTitle": "Quick Tips",
+            "tips": [
+              "Choose a clear, descriptive title that highlights your contribution",
+              "Write an abstract that summarizes your methods and key findings",
+              "Select subject areas that best match your research domain"
+            ],
+            "fields": {
+              "titleLabel": "Paper Title *",
+              "titleHelp": "Place key terms at the beginning and avoid abbreviations",
+              "abstractLabel": "Abstract *",
+              "abstractHelp": "Provide a clear summary of your research contribution",
+              "abstractCount": "{count} words",
+              "trackLabel": "Conference Track *",
+              "trackPlaceholder": "Select the conference track for your paper",
+              "trackHelp": "Choose the track that best matches your paper's theme",
+              "subjectLabel": "Subject Area *",
+              "subjectPlaceholder": "Select the most relevant topic area",
+              "subjectHelp": "Choose the research domain most relevant to your paper",
+              "keywordsLabel": "Keywords * (minimum 3)",
+              "keywordsPlaceholder": "Enter a keyword and press Enter or click +",
+              "keywordsHelp": "Add terms that researchers would use to find your work"
+            },
+            "authoringTipsTitle": "Authoring Best Practices",
+            "authoringTips": [
+              "Keep your title concise yet descriptive (10-15 words ideal)",
+              "Abstract should highlight novelty and key results",
+              "Choose keywords that balance specificity and discoverability",
+              "Avoid jargon and define technical terms when necessary",
+              "Use the conference template and respect page limits"
+            ]
+          },
+          "authorsTab": {
+            "title": "Authors & Affiliations",
+            "subtitle": "List all co-authors in the order they should appear",
+            "guidelinesTitle": "Author Guidelines:",
+            "guidelines": [
+              "Enter email addresses to search for registered users",
+              "Authors will be listed in the order shown below",
+              "The first author is typically the primary contributor",
+              "Mark yourself as corresponding author if applicable"
+            ],
+            "primaryLabel": "Primary Author",
+            "coAuthorLabel": "Co-Author {index}",
+            "emailLabel": "Email Address *",
+            "emailPlaceholder": "author@university.edu",
+            "namePreview": "Name:",
+            "addAuthor": "Add Co-Author",
+            "correspondingLabel": "I am the corresponding author for this submission",
+            "correspondingDescription": "The corresponding author will receive all communication regarding this submission"
+          },
+          "coiTab": {
+            "title": "Conflict of Interest Declaration",
+            "subtitle": "Identify individuals who should not review your submission",
+            "whatToDeclare": "What to declare:",
+            "declarations": [
+              "Current or recent collaborators (past 3 years)",
+              "Co-authors on recent publications",
+              "Colleagues from your institution",
+              "PhD advisors and students",
+              "Close personal or professional relationships"
+            ],
+            "conflictedLabel": "Conflicted Reviewers *",
+            "conflictedDescription": "Enter email addresses or full names of individuals with potential conflicts",
+            "conflictedPlaceholder": "e.g., jane.doe@university.edu or 'Dr. Jane Doe'",
+            "declaredLabel": "Declared Conflicts ({count})",
+            "clearAll": "Clear all",
+            "empty": "No conflicts declared yet. Add at least one conflicted reviewer above.",
+            "warningTitle": "Important Notice",
+            "warningDescription": "By submitting, you confirm that your conflict of interest declaration is accurate and complete. Failure to declare relevant conflicts may result in desk rejection or withdrawal of your submission.",
+            "bestPracticesTitle": "COI Declaration Best Practices",
+            "bestPractices": [
+              "Declare anyone you've collaborated with in the past 3 years",
+              "Include co-authors from recent publications",
+              "List colleagues from your current and recent institutions",
+              "When in doubt, declare the conflict—it's better to be safe",
+              "Use full names or email addresses for clarity"
+            ]
+          },
+          "coverLetterTab": {
+            "title": "Cover Letter",
+            "subtitle": "Optional document to provide additional context to reviewers",
+            "includeTitle": "What to include in your cover letter:",
+            "includeList": [
+              "Brief summary of your paper's significance and novelty",
+              "Why this work is suitable for this conference",
+              "Any special considerations for reviewers",
+              "Suggested reviewers (if applicable)",
+              "Previous submission history (if resubmitting)"
+            ],
+            "note": "Cover letter is optional but recommended. Maximum file size: 5MB. PDF format only.",
+            "existingTitle": "Existing Cover Letter",
+            "existingDescription": "Upload a new file below to replace the existing cover letter.",
+            "uploadLabel": "Upload Cover Letter (Optional)",
+            "uploadTitle": "Drop your PDF here or click to browse",
+            "uploadHint": "PDF format only, maximum 5MB",
+            "chooseFile": "Choose File",
+            "uploadedDescription": "{size} • PDF Document",
+            "replaceFile": "Replace File",
+            "remove": "Remove",
+            "tipsTitle": "Cover Letter Writing Tips",
+            "tips": [
+              "Keep it concise (1-2 pages maximum)",
+              "Be professional and respectful in tone",
+              "Highlight the novelty and impact of your work",
+              "Address any potential concerns proactively",
+              "Avoid repeating the abstract verbatim"
+            ]
+          },
+          "sidebar": {
+            "progressReady": "Ready to Submit!",
+            "progressInProgress": "Submission Progress",
+            "progressSummary": "{completed} of {total} complete",
+            "allComplete": "✓ All requirements met. You can now submit your paper!",
+            "checklistTitle": "Submission Checklist",
+            "checklistSubtitle": "Required before submitting",
+            "policyTitle": "Policy & Formatting",
+            "policySubtitle": "Quick reference guidelines",
+            "policyItems": [
+              "Double-blind: remove all identifying information",
+              "Maximum 10 pages (excluding references)",
+              "PDF ≤ 20MB with embedded fonts",
+              "Use the official conference template"
+            ],
+            "helpTitle": "Need Help?",
+            "helpDescription": "Save your work as a draft at any time. You can return to complete it later."
+          }
+        }
       }
     }
   },

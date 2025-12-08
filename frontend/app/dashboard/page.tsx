@@ -67,7 +67,7 @@ export default function DashboardPage() {
         title: t("dashboard.roles.author.name"),
         description: t("dashboard.roles.author.description"),
         icon: FileText,
-        color: "bg-blue-500",
+        color: "bg-primary text-primary-foreground",
         path: "/dashboard/author",
         features: tList("dashboard.roles.author.features"),
       },
@@ -75,7 +75,7 @@ export default function DashboardPage() {
         title: t("dashboard.roles.reviewer.name"),
         description: t("dashboard.roles.reviewer.description"),
         icon: Users,
-        color: "bg-green-500",
+        color: "bg-success text-success-foreground",
         path: "/dashboard/reviewer",
         features: tList("dashboard.roles.reviewer.features"),
       },
@@ -83,7 +83,7 @@ export default function DashboardPage() {
         title: t("dashboard.roles.chair.name"),
         description: t("dashboard.roles.chair.description"),
         icon: BarChart3,
-        color: "bg-purple-500",
+        color: "bg-secondary text-secondary-foreground",
         path: "/dashboard/chair",
         features: tList("dashboard.roles.chair.features"),
       },
@@ -92,7 +92,7 @@ export default function DashboardPage() {
         title: t("dashboard.roles.admin.name"),
         description: t("dashboard.roles.admin.description"),
         icon: BarChart3,
-        color: "bg-red-500",
+        color: "bg-destructive text-destructive-foreground",
         path: "/dashboard/admin",
         features: tList("dashboard.roles.admin.features"),
       },
@@ -124,44 +124,21 @@ export default function DashboardPage() {
   )
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      <header className="border-b border-neutral-200 bg-white shadow-sm h-[7vh]">
-        <div className="w-full px-4 h-full flex items-center justify-between">
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="border-b border-border bg-card/80 backdrop-blur">
+        <div className="w-full px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div
-              className="rounded-lg bg-primary flex items-center justify-center"
-              style={{ width: "calc(7vh * 0.6)", height: "calc(7vh * 0.6)" }}
-            >
-              <GraduationCap
-                className="text-white"
-                style={{ width: "calc(7vh * 0.6 * 0.6)", height: "calc(7vh * 0.6 * 0.6)" }}
-              />
+            <div className="rounded-lg bg-primary flex items-center justify-center size-10 shadow-sm">
+              <GraduationCap className="text-primary-foreground size-5" />
             </div>
-            <div className="flex flex-col">
-              <span
-                className="font-bold text-neutral-900 leading-none"
-                style={{ fontSize: "calc(7vh * 0.6 * 0.4)" }}
-              >
-                {t("app.name")}
-              </span>
+            <div className="flex flex-col leading-none">
+              <span className="font-bold text-lg">{t("app.name")}</span>
             </div>
           </Link>
           <div className="flex items-center gap-3">
-            <div style={{ fontSize: "calc(7vh * 0.6 * 0.35)" }}>
-              <LanguageSwitcher />
-            </div>
-            <Button
-              variant="outline"
-              onClick={handleLogout}
-              className="gap-2 bg-transparent leading-none"
-              style={{
-                height: "calc(7vh * 0.6)",
-                fontSize: "calc(7vh * 0.6 * 0.35)",
-                paddingLeft: "calc(7vh * 0.6 * 0.3)",
-                paddingRight: "calc(7vh * 0.6 * 0.3)",
-              }}
-            >
-              <LogOut style={{ width: "calc(7vh * 0.6 * 0.5)", height: "calc(7vh * 0.6 * 0.5)" }} />
+            <LanguageSwitcher />
+            <Button variant="outline" onClick={handleLogout} className="gap-2">
+              <LogOut className="size-4" />
               {t("common.actions.logout")}
             </Button>
           </div>
@@ -174,20 +151,18 @@ export default function DashboardPage() {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
               <Sparkles className={`${iconSizes.lg} text-primary`} />
             </div>
-            <h1 className={`${typography.h1} text-neutral-900 mb-2`}>
+            <h1 className={`${typography.h1} text-foreground mb-2`}>
               {t("dashboard.greeting", { name: user.name })}
             </h1>
             {user.affiliation ? (
-              <p className={`text-neutral-600 mb-1 ${typography.body}`}>{user.affiliation}</p>
+              <p className={`text-muted-foreground mb-1 ${typography.body}`}>{user.affiliation}</p>
             ) : null}
-            <p className={`${typography.body} text-neutral-500`}>{user.email}</p>
+            <p className={`${typography.body} text-muted-foreground`}>{user.email}</p>
           </div>
 
           <div className="mb-6">
-            <h2 className={`${typography.h2} text-neutral-900 mb-2`}>
-              {t("dashboard.selectRole")}
-            </h2>
-            <p className={`text-neutral-600 ${typography.body}`}>
+            <h2 className={`${typography.h2} text-foreground mb-2`}>{t("dashboard.selectRole")}</h2>
+            <p className={`text-muted-foreground ${typography.body}`}>
               {t("dashboard.selectRoleDescription")}
             </p>
           </div>
@@ -196,7 +171,6 @@ export default function DashboardPage() {
             {availableRoles.map((role) => {
               const config = roleConfig[role]
 
-              // Skip if config doesn't exist (shouldn't happen due to filter, but safety check)
               if (!config) {
                 return null
               }
@@ -206,30 +180,30 @@ export default function DashboardPage() {
               return (
                 <Card
                   key={role}
-                  className="bg-white border-2 border-neutral-200 hover:border-primary hover:shadow-lg transition-all cursor-pointer group py-6"
+                  className="bg-card border-2 border-border hover:border-primary hover:shadow-lg transition-all cursor-pointer group py-6"
                   onClick={() => handleRoleSelect(role)}
                 >
                   <CardHeader>
                     <div className={`flex items-start justify-between mb-4`}>
                       <div className={`flex items-center ${spacing.gap.md}`}>
                         <div
-                          className={`w-12 h-12 rounded-lg ${config.color} flex items-center justify-center`}
+                          className={`w-12 h-12 rounded-lg ${config.color} flex items-center justify-center shadow-sm`}
                         >
-                          <Icon className={`${iconSizes.lg} text-white`} />
+                          <Icon className={`${iconSizes.lg} text-primary-foreground`} />
                         </div>
                       </div>
                       <Button
                         variant="outline"
                         size="sm"
-                        className="group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-colors bg-transparent"
+                        className="group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors"
                       >
                         {t("common.actions.choose")}
                       </Button>
                     </div>
-                    <CardTitle className={`${typography.h4} text-neutral-900`}>
+                    <CardTitle className={`${typography.h4} text-foreground`}>
                       {config.title}
                     </CardTitle>
-                    <CardDescription className={`text-neutral-600 ${typography.body}`}>
+                    <CardDescription className={`text-muted-foreground ${typography.body}`}>
                       {config.description}
                     </CardDescription>
                   </CardHeader>
@@ -238,7 +212,7 @@ export default function DashboardPage() {
                       {config.features.map((feature, index) => (
                         <li
                           key={index}
-                          className={`flex items-center ${spacing.gap.sm} ${typography.body} text-neutral-700`}
+                          className={`flex items-center ${spacing.gap.sm} ${typography.body} text-foreground`}
                         >
                           <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                           {feature}
@@ -252,10 +226,10 @@ export default function DashboardPage() {
           </div>
 
           {availableRoles.length === 0 && (
-            <Card className="bg-white border border-neutral-200 mt-8">
+            <Card className="bg-card border border-border mt-8">
               <CardContent className="py-12 text-center">
-                <p className="text-neutral-600">{t("dashboard.noRoles.title")}</p>
-                <p className={`${typography.body} text-neutral-500 mt-2`}>
+                <p className="text-muted-foreground">{t("dashboard.noRoles.title")}</p>
+                <p className={`${typography.body} text-muted-foreground mt-2`}>
                   {t("dashboard.noRoles.description")}
                 </p>
               </CardContent>

@@ -28,13 +28,9 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
   const { user, logout } = useAuth()
   const { t } = useTranslation()
   const router = useRouter()
-  const {
-    notifications,
-    unreadCount,
-    isLoading,
-    markAsRead,
-    markAllAsRead,
-  } = useNotifications({ limit: 5 })
+  const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead } = useNotifications({
+    limit: 5,
+  })
 
   const roleLinks: Record<DashboardHeaderProps["role"], { href: string; label: string }[]> = {
     author: [
@@ -132,7 +128,7 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
               <DropdownMenuContent align="end" className="w-96 bg-white border-neutral-200 p-0">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
                   <span className={`${typography.semibold} text-neutral-900`}>
-                  {t("dashboard.header.notifications.title")}
+                    {t("dashboard.header.notifications.title")}
                   </span>
                   {unreadCount > 0 && (
                     <Button
@@ -161,14 +157,16 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
                       <p className="text-sm text-neutral-500">No notifications yet</p>
                     </div>
                   ) : (
-                    notifications.slice(0, 5).map((notification) => (
-                      <NotificationItem
-                        key={notification.id}
-                        notification={notification}
-                        onMarkAsRead={markAsRead}
-                        compact
-                      />
-                    ))
+                    notifications
+                      .slice(0, 5)
+                      .map((notification) => (
+                        <NotificationItem
+                          key={notification.id}
+                          notification={notification}
+                          onMarkAsRead={markAsRead}
+                          compact
+                        />
+                      ))
                   )}
                 </div>
                 <DropdownMenuSeparator className="m-0" />

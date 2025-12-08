@@ -51,15 +51,15 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
       const response = await updateSubmissionStatus(
         conferenceId,
         submission.id.toString(),
-        decision
+        decision,
       )
-      
+
       if (response.error) {
         console.error("Failed to update submission status:", response.error)
         // TODO: Show error toast
         return
       }
-      
+
       console.log(`Successfully updated submission ${submission.id} to ${decision}`)
       // TODO: Show success toast and refresh page
       window.location.reload()
@@ -123,7 +123,11 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
           {/* Chair Decision Dropdown */}
           {isChair && (
             <Select
-              value={["accepted", "rejected"].includes(submission.status) ? submission.status : "__current"}
+              value={
+                ["accepted", "rejected"].includes(submission.status)
+                  ? submission.status
+                  : "__current"
+              }
               onValueChange={(value) => handleDecision(value as "accepted" | "rejected")}
             >
               <SelectTrigger className="w-[180px]">
@@ -132,19 +136,25 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
               <SelectContent>
                 {!["accepted", "rejected"].includes(submission.status) && (
                   <SelectItem value="__current" disabled>
-                    {t(`dashboard.submissions.status.${submission.status}`, { defaultValue: submission.status })}
+                    {t(`dashboard.submissions.status.${submission.status}`, {
+                      defaultValue: submission.status,
+                    })}
                   </SelectItem>
                 )}
                 <SelectItem value="accepted">
-                  <span className="font-bold text-green-700">{t("common.actions.accept", { defaultValue: "Accept" })}</span>
+                  <span className="font-bold text-green-700">
+                    {t("common.actions.accept", { defaultValue: "Accept" })}
+                  </span>
                 </SelectItem>
                 <SelectItem value="rejected">
-                  <span className="font-bold text-red-700">{t("common.actions.decline", { defaultValue: "Reject" })}</span>
+                  <span className="font-bold text-red-700">
+                    {t("common.actions.decline", { defaultValue: "Reject" })}
+                  </span>
                 </SelectItem>
               </SelectContent>
             </Select>
           )}
-          
+
           {isAuthor && submission.status === "draft" && (
             <Button variant="outline" size="sm" asChild>
               <Link
@@ -168,7 +178,9 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className={`grid w-full ${isChair ? 'grid-cols-5' : 'grid-cols-4'} bg-muted/50 p-1 h-auto border border-border rounded-lg gap-1`}>
+        <TabsList
+          className={`grid w-full ${isChair ? "grid-cols-5" : "grid-cols-4"} bg-muted/50 p-1 h-auto border border-border rounded-lg gap-1`}
+        >
           <TabsTrigger
             value="overview"
             className="rounded-md border border-transparent data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all hover:bg-background/50 hover:text-foreground"
@@ -451,7 +463,10 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
         {/* Review Tab - Chair Only */}
         {isChair && (
           <TabsContent value="review" className="space-y-6 mt-4">
-            <SubmissionReviewTab conferenceId={conferenceId} submissionId={submission.id.toString()} />
+            <SubmissionReviewTab
+              conferenceId={conferenceId}
+              submissionId={submission.id.toString()}
+            />
           </TabsContent>
         )}
 

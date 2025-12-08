@@ -6,7 +6,7 @@ import { AUTH_COOKIE_NAME } from "@/lib/config"
 
 export async function POST() {
   const cookieStore = await cookies()
-  
+
   // Clear main auth cookie
   cookieStore.set({
     name: AUTH_COOKIE_NAME,
@@ -17,7 +17,7 @@ export async function POST() {
     path: "/",
     maxAge: 0,
   })
-  
+
   // Clear WebSocket token cookie
   cookieStore.set({
     name: "conference_ws_token",

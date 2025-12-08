@@ -163,7 +163,9 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
           )}
           <div className="flex-1">
             <h3 className={typography.h5}>
-              {isSubmissionOpen ? t("conference.callForPapers.submissionOpen") : t("conference.callForPapers.submissionClosed")}
+              {isSubmissionOpen
+                ? t("conference.callForPapers.submissionOpen")
+                : t("conference.callForPapers.submissionClosed")}
             </h3>
             <p className={`mt-1 ${typography.body} text-gray-600`}>
               {t("conference.callForPapers.deadline")}:{" "}

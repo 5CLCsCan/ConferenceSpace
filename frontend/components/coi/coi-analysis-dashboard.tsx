@@ -85,8 +85,7 @@ export function COIAnalysisDashboard({ conferenceId, stats }: COIAnalysisDashboa
         conference_id: parseInt(conferenceId),
         severity:
           filters.severity === "all" ? undefined : (filters.severity as "high" | "medium" | "low"),
-        relationship_type:
-          filters.type === "all" ? undefined : filters.type,
+        relationship_type: filters.type === "all" ? undefined : filters.type,
         search: filters.search || undefined,
         limit: itemsPerPage,
         page,
@@ -440,10 +439,7 @@ export function COIAnalysisDashboard({ conferenceId, stats }: COIAnalysisDashboa
 
         {/* Content Area */}
         {viewMode === "paper" ? (
-          <PaperCOIList
-            conferenceId={conferenceId}
-            filters={filters}
-          />
+          <PaperCOIList conferenceId={conferenceId} filters={filters} />
         ) : (
           /* Relationships List (Person View) */
           <div className="space-y-3">

@@ -371,7 +371,8 @@ export function AuthorSubmissionsList() {
                 {submission.conference.acronym})
               </div>
               <div>
-                {t("dashboard.author.submissions.submissionDeadline")}: {formatDate(submission.created_at)}
+                {t("dashboard.author.submissions.submissionDeadline")}:{" "}
+                {formatDate(submission.created_at)}
               </div>
               <div>
                 {t("dashboard.author.submissions.status")}: {renderStatusBadge(submission.status)}

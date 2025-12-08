@@ -34,13 +34,13 @@ const notificationIcons: Record<NotificationType, React.ComponentType<{ classNam
 }
 
 const notificationColors: Record<NotificationType, string> = {
-  submission_received: "text-blue-500",
-  review_assigned: "text-purple-500",
-  review_submitted: "text-amber-500",
-  paper_accepted: "text-green-500",
-  paper_rejected: "text-red-500",
-  deadline_reminder: "text-orange-500",
-  status_change: "text-slate-500",
+  submission_received: "text-primary",
+  review_assigned: "text-secondary",
+  review_submitted: "text-foreground",
+  paper_accepted: "text-success",
+  paper_rejected: "text-destructive",
+  deadline_reminder: "text-foreground",
+  status_change: "text-muted-foreground",
 }
 
 export function NotificationItem({
@@ -76,8 +76,8 @@ export function NotificationItem({
       <div
         onClick={handleClick}
         className={cn(
-          "flex items-start gap-3 p-3 cursor-pointer transition-colors hover:bg-slate-50",
-          !notification.read && "bg-blue-50/50",
+          "flex items-start gap-3 p-3 cursor-pointer transition-colors hover:bg-accent",
+          !notification.read && "bg-primary/5",
         )}
       >
         <div className={cn("mt-0.5", iconColor)}>
@@ -87,16 +87,16 @@ export function NotificationItem({
           <p
             className={cn(
               "text-sm truncate",
-              !notification.read ? "font-medium text-slate-900" : "text-slate-700",
+              !notification.read ? "font-medium text-foreground" : "text-muted-foreground",
             )}
           >
             {notification.title}
           </p>
-          <p className="text-xs text-slate-500 truncate">{notification.message}</p>
-          <p className="text-xs text-slate-400 mt-1">{timeAgo}</p>
+          <p className="text-xs text-muted-foreground truncate">{notification.message}</p>
+          <p className="text-xs text-muted-foreground mt-1">{timeAgo}</p>
         </div>
         {!notification.read && (
-          <div className="w-2 h-2 bg-blue-500 rounded-full mt-1.5 flex-shrink-0" />
+          <div className="w-2 h-2 bg-primary rounded-full mt-1.5 flex-shrink-0" />
         )}
       </div>
     )
@@ -106,20 +106,20 @@ export function NotificationItem({
     <div
       onClick={handleClick}
       className={cn(
-        "flex items-start gap-4 p-4 cursor-pointer transition-colors hover:bg-slate-50 border-b border-slate-100 last:border-b-0",
-        !notification.read && "bg-blue-50/30",
+        "flex items-start gap-4 p-4 cursor-pointer transition-colors hover:bg-accent border-b border-border last:border-b-0",
+        !notification.read && "bg-primary/5",
       )}
     >
       <div
         className={cn(
           "flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center",
-          notification.type === "paper_accepted" && "bg-green-100",
-          notification.type === "paper_rejected" && "bg-red-100",
-          notification.type === "review_assigned" && "bg-purple-100",
-          notification.type === "review_submitted" && "bg-amber-100",
-          notification.type === "submission_received" && "bg-blue-100",
-          notification.type === "deadline_reminder" && "bg-orange-100",
-          notification.type === "status_change" && "bg-slate-100",
+          notification.type === "paper_accepted" && "bg-success/10",
+          notification.type === "paper_rejected" && "bg-destructive/10",
+          notification.type === "review_assigned" && "bg-secondary/10",
+          notification.type === "review_submitted" && "bg-accent",
+          notification.type === "submission_received" && "bg-primary/10",
+          notification.type === "deadline_reminder" && "bg-accent",
+          notification.type === "status_change" && "bg-muted",
         )}
       >
         <Icon className={cn("h-5 w-5", iconColor)} />
@@ -130,23 +130,23 @@ export function NotificationItem({
             <p
               className={cn(
                 "text-sm",
-                !notification.read ? "font-semibold text-slate-900" : "font-medium text-slate-700",
+                !notification.read
+                  ? "font-semibold text-foreground"
+                  : "font-medium text-muted-foreground",
               )}
             >
               {notification.title}
             </p>
-            <p className="text-sm text-slate-600 mt-0.5">{notification.message}</p>
-            <p className="text-xs text-slate-400 mt-2">{timeAgo}</p>
+            <p className="text-sm text-muted-foreground mt-0.5">{notification.message}</p>
+            <p className="text-xs text-muted-foreground mt-2">{timeAgo}</p>
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
-            {!notification.read && (
-              <div className="w-2 h-2 bg-blue-500 rounded-full" />
-            )}
+            {!notification.read && <div className="w-2 h-2 bg-primary rounded-full" />}
             {onDelete && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 text-slate-400 hover:text-slate-600"
+                className="h-6 w-6 text-muted-foreground hover:text-foreground"
                 onClick={handleDelete}
               >
                 <X className="h-4 w-4" />
@@ -158,4 +158,3 @@ export function NotificationItem({
     </div>
   )
 }
-
