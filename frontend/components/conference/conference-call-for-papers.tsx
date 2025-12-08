@@ -19,12 +19,14 @@ import { useAuth } from "@/lib/auth-context"
 import { useRouter } from "next/navigation"
 import { typography, spacing, iconSizes } from "@/lib/typography"
 import { getConferenceSubmissions } from "@/lib/api/submissions"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ConferenceCallForPapersProps {
   conference: Conference
 }
 
 export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersProps) {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const router = useRouter()
   const [hasSubmission, setHasSubmission] = useState(false)
@@ -114,7 +116,8 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
   }, [user, conference])
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("vi-VN", {
+    const locale = t("common.messages.languages.vietnamese") === "Tiếng Việt" ? "vi-VN" : "en-US"
+    return new Date(dateString).toLocaleDateString(locale, {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -139,9 +142,9 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
     <div className={spacing.section}>
       {/* Header */}
       <div>
-        <h1 className={typography.h1}>Call for Papers</h1>
+        <h1 className={typography.h1}>{t("conference.callForPapers.title")}</h1>
         <p className={`mt-2 ${typography.body} leading-relaxed text-gray-600`}>
-          Hướng dẫn và yêu cầu nộp bài cho {conference.acronym}
+          {t("conference.callForPapers.description", { acronym: conference.acronym })}
         </p>
       </div>
 
@@ -157,10 +160,10 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
           )}
           <div className="flex-1">
             <h3 className={typography.h5}>
-              {isSubmissionOpen ? "Đang Nhận Bài" : "Đã Đóng Nhận Bài"}
+              {isSubmissionOpen ? t("conference.callForPapers.submissionOpen") : t("conference.callForPapers.submissionClosed")}
             </h3>
             <p className={`mt-1 ${typography.body} text-gray-600`}>
-              Deadline:{" "}
+              {t("conference.callForPapers.deadline")}:{" "}
               <span className={typography.semibold}>
                 {formatDate(conference.submission_deadline)}
               </span>
@@ -175,19 +178,19 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
                 {hasSubmission ? (
                   <>
                     <Edit className={`mr-1.5 ${iconSizes.xs}`} />
-                    Chỉnh Sửa Bài Nộp
+                    {t("conference.callForPapers.editSubmission")}
                   </>
                 ) : (
                   <>
                     <Upload className={`mr-1.5 ${iconSizes.xs}`} />
-                    Nộp Bài Ngay
+                    {t("conference.callForPapers.submitNow")}
                   </>
                 )}
               </Button>
             )}
             {checkingSubmission && user && (
               <Button className={`mt-3 ${typography.bodySmall}`} size="sm" disabled>
-                Đang kiểm tra...
+                {t("conference.callForPapers.checking")}
               </Button>
             )}
           </div>
@@ -196,7 +199,7 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
 
       {/* Submission Guidelines */}
       <div>
-        <h2 className={typography.h2}>Hướng Dẫn Nộp Bài</h2>
+        <h2 className={typography.h2}>{t("conference.callForPapers.guidelinesTitle")}</h2>
         <Card className={`mt-3 ${spacing.padding.card}`}>
           {conference.call_for_paper_text ? (
             <div className={`${typography.body} text-gray-600 whitespace-pre-wrap`}>
@@ -207,31 +210,28 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
               <div>
                 <h3 className={`flex items-center ${spacing.gap.sm} ${typography.h5}`}>
                   <FileText className={`${iconSizes.sm} text-primary`} />
-                  Yêu Cầu Định Dạng
+                  {t("conference.callForPapers.formatRequirements")}
                 </h3>
                 <ul className={`mt-2 ${spacing.item} ${typography.body} text-gray-600`}>
                   <li className="flex items-start gap-2">
                     <CheckCircle className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-success`} />
-                    <span>Bài báo phải được viết bằng tiếng Anh</span>
+                    <span>{t("conference.callForPapers.requirements.language")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-success`} />
-                    <span>
-                      Độ dài: 6-8 trang cho full paper, 4 trang cho short paper (không bao gồm tài
-                      liệu tham khảo)
-                    </span>
+                    <span>{t("conference.callForPapers.requirements.length")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-success`} />
-                    <span>Sử dụng template ACM hoặc IEEE (tải về từ website chính thức)</span>
+                    <span>{t("conference.callForPapers.requirements.template")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-success`} />
-                    <span>File PDF, không quá 10MB</span>
+                    <span>{t("conference.callForPapers.requirements.fileFormat")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-success`} />
-                    <span>Bài nộp phải là nghiên cứu gốc, chưa được công bố trước đây</span>
+                    <span>{t("conference.callForPapers.requirements.originality")}</span>
                   </li>
                 </ul>
               </div>
@@ -239,38 +239,36 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
               <div>
                 <h3 className={`flex items-center ${spacing.gap.sm} ${typography.h5}`}>
                   <FileText className={`${iconSizes.sm} text-primary`} />
-                  Nội Dung Bài Báo
+                  {t("conference.callForPapers.paperContent")}
                 </h3>
                 <ul className={`mt-2 ${spacing.item} ${typography.body} text-gray-600`}>
                   <li className="flex items-start gap-2">
                     <CheckCircle className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-success`} />
-                    <span>
-                      Abstract: 150-250 từ, tóm tắt rõ ràng vấn đề, phương pháp và kết quả
-                    </span>
+                    <span>{t("conference.callForPapers.content.abstract")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-success`} />
-                    <span>Keywords: 3-5 từ khóa phản ánh nội dung chính</span>
+                    <span>{t("conference.callForPapers.content.keywords")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-success`} />
-                    <span>Introduction: Giới thiệu vấn đề nghiên cứu và đóng góp chính</span>
+                    <span>{t("conference.callForPapers.content.introduction")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-success`} />
-                    <span>Related Work: Tổng quan các nghiên cứu liên quan</span>
+                    <span>{t("conference.callForPapers.content.relatedWork")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-success`} />
-                    <span>Methodology: Mô tả chi tiết phương pháp nghiên cứu</span>
+                    <span>{t("conference.callForPapers.content.methodology")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-success`} />
-                    <span>Results & Discussion: Trình bày và phân tích kết quả</span>
+                    <span>{t("conference.callForPapers.content.results")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-success`} />
-                    <span>Conclusion: Tóm tắt đóng góp và hướng phát triển</span>
+                    <span>{t("conference.callForPapers.content.conclusion")}</span>
                   </li>
                 </ul>
               </div>
@@ -278,26 +276,24 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
               <div>
                 <h3 className={`flex items-center ${spacing.gap.sm} ${typography.h5}`}>
                   <FileText className={`${iconSizes.sm} text-primary`} />
-                  Quy Trình Review
+                  {t("conference.callForPapers.reviewProcess")}
                 </h3>
                 <ul className={`mt-2 ${spacing.item} ${typography.body} text-gray-600`}>
                   <li className="flex items-start gap-2">
                     <CheckCircle className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-success`} />
-                    <span>
-                      Double-blind review: Tác giả và reviewer không biết danh tính của nhau
-                    </span>
+                    <span>{t("conference.callForPapers.review.doubleBlind")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-success`} />
-                    <span>Mỗi bài sẽ được review bởi ít nhất 3 reviewers độc lập</span>
+                    <span>{t("conference.callForPapers.review.reviewers")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-success`} />
-                    <span>Tiêu chí đánh giá: Novelty, Technical Quality, Clarity, Relevance</span>
+                    <span>{t("conference.callForPapers.review.criteria")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-success`} />
-                    <span>Kết quả: Accept, Minor Revision, Major Revision, hoặc Reject</span>
+                    <span>{t("conference.callForPapers.review.outcomes")}</span>
                   </li>
                 </ul>
               </div>

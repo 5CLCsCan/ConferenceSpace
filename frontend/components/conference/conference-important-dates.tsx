@@ -14,12 +14,14 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, CheckCircle2 } from "lucide-react"
 import { typography, spacing, iconSizes } from "@/lib/typography"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ConferenceImportantDatesProps {
   conferenceId: string
 }
 
 export function ConferenceImportantDates({ conferenceId }: ConferenceImportantDatesProps) {
+  const { t } = useTranslation()
   const [dates, setDates] = useState<ImportantDate[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -36,7 +38,8 @@ export function ConferenceImportantDates({ conferenceId }: ConferenceImportantDa
   }, [conferenceId])
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("vi-VN", {
+    const locale = t("common.messages.languages.vietnamese") === "Tiếng Việt" ? "vi-VN" : "en-US"
+    return new Date(dateString).toLocaleDateString(locale, {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -59,29 +62,21 @@ export function ConferenceImportantDates({ conferenceId }: ConferenceImportantDa
   }
 
   const getTypeLabel = (type: string) => {
-    switch (type) {
-      case "deadline":
-        return "Deadline"
-      case "notification":
-        return "Thông Báo"
-      case "event":
-        return "Sự Kiện"
-      default:
-        return type
-    }
+    const key = `conference.importantDates.typeLabels.${type}` as const
+    return t(key) || type
   }
 
   if (loading) {
-    return <div>Đang tải...</div>
+    return <div>{t("conference.importantDates.loading")}</div>
   }
 
   return (
     <div className={spacing.section}>
       {/* Header */}
       <div>
-        <h1 className={typography.h1}>Thời Gian Quan Trọng</h1>
+        <h1 className={typography.h1}>{t("conference.importantDates.title")}</h1>
         <p className={`mt-2 ${typography.body} leading-relaxed text-gray-600`}>
-          Timeline các mốc thời gian quan trọng của hội nghị
+          {t("conference.importantDates.description")}
         </p>
       </div>
 
@@ -89,9 +84,9 @@ export function ConferenceImportantDates({ conferenceId }: ConferenceImportantDa
       {dates.length === 0 ? (
         <Card className="p-8 text-center">
           <Calendar className={`mx-auto ${iconSizes.lg} text-gray-400`} />
-          <h3 className={`mt-3 ${typography.h5} text-gray-900`}>Chưa Có Thông Tin Thời Gian</h3>
+          <h3 className={`mt-3 ${typography.h5} text-gray-900`}>{t("conference.importantDates.noData")}</h3>
           <p className={`mt-1.5 ${typography.body} text-gray-600`}>
-            Các mốc thời gian quan trọng sẽ được cập nhật sớm nhất
+            {t("conference.importantDates.noDataDescription")}
           </p>
         </Card>
       ) : (
@@ -127,7 +122,7 @@ export function ConferenceImportantDates({ conferenceId }: ConferenceImportantDa
                         <Badge className={getTypeColor(date.type)}>{getTypeLabel(date.type)}</Badge>
                         {date.isPast && (
                           <Badge variant="outline" className={`border-gray-400 text-gray-600 ${typography.bodySmall}`}>
-                            Đã Qua
+                            {t("conference.importantDates.past")}
                           </Badge>
                         )}
                       </div>
@@ -147,19 +142,19 @@ export function ConferenceImportantDates({ conferenceId }: ConferenceImportantDa
 
       {/* Summary Card */}
       <Card className={`border-2 border-primary bg-primary/5 ${spacing.padding.card}`}>
-        <h3 className={typography.h5}>Lưu Ý</h3>
+        <h3 className={typography.h5}>{t("conference.importantDates.notesTitle")}</h3>
         <ul className={`mt-2.5 ${spacing.item} ${typography.body} text-gray-600`}>
           <li className="flex items-start gap-2">
             <CheckCircle2 className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-primary`} />
-            <span>Tất cả thời gian đều theo múi giờ UTC</span>
+            <span>{t("conference.importantDates.notes.timezone")}</span>
           </li>
           <li className="flex items-start gap-2">
             <CheckCircle2 className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-primary`} />
-            <span>Hệ thống sẽ gửi email nhắc nhở trước mỗi deadline 7 ngày và 1 ngày</span>
+            <span>{t("conference.importantDates.notes.reminders")}</span>
           </li>
           <li className="flex items-start gap-2">
             <CheckCircle2 className={`mt-0.5 ${iconSizes.xs} flex-shrink-0 text-primary`} />
-            <span>Không chấp nhận bài nộp muộn sau deadline</span>
+            <span>{t("conference.importantDates.notes.lateSubmissions")}</span>
           </li>
         </ul>
       </Card>

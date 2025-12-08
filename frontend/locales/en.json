@@ -704,7 +704,74 @@
         "errorDescription": "Failed to create conference. Please try again.",
         "saveDraft": "Conference saved as draft!",
         "confirmLabel": "I have reviewed the details and am ready to create this conference",
-        "confirmDescription": "You can edit conference settings after creation from the conference dashboard"
+        "confirmDescription": "You can edit conference settings after creation from the conference dashboard",
+        "returnToDashboard": "Return to Dashboard",
+        "previousStep": "Previous Step",
+        "step1": {
+          "heading": "Step 1: Core Conference Details",
+          "subheading": "Provide the essential information about your conference",
+          "conferenceTitle": "Conference Title",
+          "conferenceTitlePlaceholder": "e.g., International Conference on Artificial Intelligence",
+          "acronym": "Acronym",
+          "acronymPlaceholder": "e.g., ICAI 2026",
+          "acronymHint": "A short, unique identifier for your conference",
+          "description": "Description",
+          "descriptionPlaceholder": "A brief overview of the conference theme and scope...",
+          "website": "Conference Website (Optional)",
+          "websitePlaceholder": "https://example.com",
+          "conferenceDates": "Conference Dates",
+          "startDate": "Start date",
+          "endDate": "End date",
+          "location": "Location",
+          "inPerson": "In-Person",
+          "virtual": "Virtual",
+          "hybrid": "Hybrid",
+          "venue": "Venue / City, Country",
+          "venuePlaceholder": "e.g., Grand Hotel, Paris, France",
+          "contactEmail": "Contact Email",
+          "contactEmailPlaceholder": "contact@conference.com",
+          "contactEmailHint": "The primary public contact for inquiries"
+        },
+        "step2": {
+          "heading": "Step 2: Topics & Submission Settings",
+          "subheading": "Configure submission deadlines and academic structure",
+          "keyDeadlines": "Key Deadlines",
+          "submissionsOpen": "Submissions Open",
+          "submissionDeadline": "Submission Deadline",
+          "reviewDeadline": "Review Deadline",
+          "authorNotification": "Author Notification",
+          "cameraReadyDeadline": "Camera-Ready Deadline",
+          "pickDate": "Pick a date",
+          "researchTopics": "Research Topics / Domains",
+          "researchTopicsPlaceholder": "e.g., Machine Learning, Computer Vision, Natural Language Processing",
+          "researchTopicsHint": "Research areas and domains covered by the conference",
+          "conferenceTracks": "Conference Tracks",
+          "conferenceTracksPlaceholder": "e.g., AI & Ethics Track, Systems Track, Theory Track",
+          "conferenceTracksHint": "Submission tracks for organizing papers by theme (authors will select one when submitting)",
+          "add": "Add",
+          "submissionAnonymity": "Submission Anonymity",
+          "singleBlind": "Single-Blind (reviewers are anonymous to authors)",
+          "doubleBlind": "Double-Blind (both reviewers and authors are anonymous)",
+          "allowedFileFormats": "Allowed File Formats"
+        },
+        "dashboard": {
+          "title": "Conference Statistics",
+          "descriptionChair": "Overview of conference metrics and progress",
+          "descriptionOther": "Basic conference information",
+          "loading": "Loading statistics...",
+          "noData": "No statistics available",
+          "totalSubmissions": "Total Submissions",
+          "totalReviews": "Total Reviews",
+          "acceptanceRate": "Acceptance Rate",
+          "avgReviewsPerPaper": "Avg Reviews/Paper",
+          "submissionsByTrack": "Submissions by Track",
+          "submissionsByTrackDesc": "Distribution of submissions across research tracks",
+          "reviewProgress": "Review Progress",
+          "reviewProgressDesc": "Current status of the review process",
+          "completed": "Completed",
+          "inProgress": "In Progress",
+          "pending": "Pending"
+        }
       },
       "dashboard": {
         "createNewConference": "+ Create New Conference",
@@ -745,6 +812,18 @@
       }
     },
     "author": {
+      "submissions": {
+        "pageTitle": "My Submissions",
+        "pageDescription": "View and manage all your paper submissions",
+        "title": "Title",
+        "conference": "Conference",
+        "submissionDeadline": "Submission Deadline",
+        "status": "Status",
+        "attachments": "Attachments",
+        "draft": "Draft",
+        "published": "Published",
+        "clearFilters": "Clear"
+      },
       "dashboard": {
         "title": "My Submissions",
         "noSubmissions": "No submissions yet",
@@ -996,6 +1075,114 @@
           "totalRelationships": "Total Relationships",
           "showingResults": "Showing {start} to {end} of {total} results"
         }
+      }
+    }
+  },
+  "conference": {
+    "overview": {
+      "title": "Conference Information",
+      "description": "Details about dates, location, and contact information",
+      "conferenceDate": "Conference Date",
+      "location": "Location",
+      "website": "Website",
+      "visitWebsite": "Visit",
+      "keywordsTitle": "Keywords / Topics",
+      "keywordsDescription": "Research areas of the conference",
+      "tracksTitle": "Research Tracks",
+      "tracksDescription": "Research areas of the conference"
+    },
+    "callForPapers": {
+      "title": "Call for Papers",
+      "description": "Submission guidelines and requirements for {acronym}",
+      "submissionOpen": "Accepting Submissions",
+      "submissionClosed": "Submissions Closed",
+      "deadline": "Deadline",
+      "editSubmission": "Edit Submission",
+      "submitNow": "Submit Now",
+      "checking": "Checking...",
+      "guidelinesTitle": "Submission Guidelines",
+      "formatRequirements": "Format Requirements",
+      "paperContent": "Paper Content",
+      "reviewProcess": "Review Process",
+      "requirements": {
+        "language": "Papers must be written in English",
+        "length": "Length: 6-8 pages for full paper, 4 pages for short paper (excluding references)",
+        "template": "Use ACM or IEEE template (download from official website)",
+        "fileFormat": "PDF file, maximum 10MB",
+        "originality": "Submission must be original research, not previously published"
+      },
+      "content": {
+        "abstract": "Abstract: 150-250 words, clearly summarizing problem, method, and results",
+        "keywords": "Keywords: 3-5 keywords reflecting main content",
+        "introduction": "Introduction: Introduce research problem and main contributions",
+        "relatedWork": "Related Work: Overview of related research",
+        "methodology": "Methodology: Detailed description of research method",
+        "results": "Results & Discussion: Present and analyze results",
+        "conclusion": "Conclusion: Summarize contributions and future directions"
+      },
+      "review": {
+        "doubleBlind": "Double-blind review: Authors and reviewers do not know each other's identities",
+        "reviewers": "Each paper will be reviewed by at least 3 independent reviewers",
+        "criteria": "Evaluation criteria: Novelty, Technical Quality, Clarity, Relevance",
+        "outcomes": "Outcomes: Accept, Minor Revision, Major Revision, or Reject"
+      }
+    },
+    "importantDates": {
+      "title": "Important Dates",
+      "description": "Timeline of key conference milestones",
+      "loading": "Loading...",
+      "noData": "No Date Information Yet",
+      "noDataDescription": "Important dates will be updated soon",
+      "typeLabels": {
+        "deadline": "Deadline",
+        "notification": "Notification",
+        "event": "Event"
+      },
+      "past": "Past",
+      "notesTitle": "Notes",
+      "notes": {
+        "timezone": "All times are in UTC timezone",
+        "reminders": "System will send email reminders 7 days and 1 day before each deadline",
+        "lateSubmissions": "Late submissions after deadline will not be accepted"
+      }
+    },
+    "submissions": {
+      "title": "Submissions",
+      "loading": "Loading...",
+      "searchPlaceholder": "Search by title, abstract, keywords...",
+      "showing": "Showing",
+      "of": "of",
+      "papers": "papers",
+      "viewDetails": "View Details",
+      "noSubmissionsFound": "No Submissions Found",
+      "filterButton": {
+        "clear": "Clear",
+        "apply": "Apply"
+      },
+      "roleDescriptions": {
+        "author": "List of papers you have submitted to the conference",
+        "reviewer": "List of papers assigned to you for review",
+        "chair": "List of all papers submitted to the conference",
+        "default": "List of papers"
+      },
+      "emptyState": {
+        "author": "You have not submitted any papers to this conference yet",
+        "reviewer": "You have not been assigned any papers to review yet",
+        "default": "Try changing the filters or search with different keywords"
+      },
+      "status": {
+        "label": "Status",
+        "all": "All Status",
+        "submitted": "Submitted",
+        "underReview": "Under Review",
+        "accepted": "Accepted",
+        "rejected": "Rejected",
+        "revisionRequested": "Revision Requested",
+        "cameraReady": "Camera Ready"
+      },
+      "track": {
+        "label": "Track",
+        "all": "All Tracks"
       }
     }
   },

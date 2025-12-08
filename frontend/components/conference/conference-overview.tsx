@@ -37,7 +37,8 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
     loadStats()
   }, [conference.id])
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("vi-VN", {
+    const locale = t("common.messages.languages.vietnamese") === "Tiếng Việt" ? "vi-VN" : "en-US"
+    return new Date(dateString).toLocaleDateString(locale, {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -64,9 +65,9 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
 
       {/* Conference Information */}
       <div>
-        <h2 className={typography.h2}>Thông Tin Hội Nghị</h2>
+        <h2 className={typography.h2}>{t("conference.overview.title")}</h2>
         <p className={`mt-1 ${typography.body} text-gray-600`}>
-          Chi tiết về thời gian, địa điểm và thông tin liên hệ
+          {t("conference.overview.description")}
         </p>
       </div>
 
@@ -78,7 +79,7 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
               <Calendar className={`${iconSizes.sm} text-primary`} />
             </div>
             <div>
-              <p className={`${typography.label} text-gray-500`}>Ngày Tổ Chức</p>
+              <p className={`${typography.label} text-gray-500`}>{t("conference.overview.conferenceDate")}</p>
               <p className={`mt-1 ${typography.body} ${typography.semibold} text-gray-900`}>
                 {formatDate(conference.conference_date)}
               </p>
@@ -92,7 +93,7 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
               <MapPin className={`${iconSizes.sm} text-primary`} />
             </div>
             <div>
-              <p className={`${typography.label} text-gray-500`}>Địa Điểm</p>
+              <p className={`${typography.label} text-gray-500`}>{t("conference.overview.location")}</p>
               <p className={`mt-1 ${typography.body} ${typography.semibold} text-gray-900`}>
                 {conference.location}
               </p>
@@ -107,14 +108,14 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
                 <Globe className={`${iconSizes.sm} text-primary`} />
               </div>
               <div>
-                <p className={`${typography.label} text-gray-500`}>Website</p>
+                <p className={`${typography.label} text-gray-500`}>{t("conference.overview.website")}</p>
                 <a
                   href={conference.website}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`mt-1 ${typography.body} ${typography.semibold} text-primary hover:underline`}
                 >
-                  Truy cập
+                  {t("conference.overview.visitWebsite")}
                 </a>
               </div>
             </div>
@@ -125,8 +126,8 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
       {/* Keywords/Topics */}
       {conference.domain && conference.domain.length > 0 && (
         <Card className={spacing.padding.card}>
-          <h3 className={typography.h5}>Từ Khóa / Chủ Đề</h3>
-          <p className={`mt-1 ${typography.caption}`}>Các lĩnh vực nghiên cứu của hội nghị</p>
+          <h3 className={typography.h5}>{t("conference.overview.keywordsTitle")}</h3>
+          <p className={`mt-1 ${typography.caption}`}>{t("conference.overview.keywordsDescription")}</p>
           <div className={`mt-4 flex flex-wrap ${spacing.gap.sm}`}>
             {conference.domain.map((keyword, index) => (
               <Badge
@@ -149,9 +150,9 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
       {conference.tracks && conference.tracks.length > 0 && (
         <>
           <div>
-            <h2 className={typography.h2}>Tracks Nghiên Cứu</h2>
+            <h2 className={typography.h2}>{t("conference.overview.tracksTitle")}</h2>
             <p className={`mt-1 ${typography.body} text-gray-600`}>
-              Các lĩnh vực nghiên cứu của hội nghị
+              {t("conference.overview.tracksDescription")}
             </p>
           </div>
 

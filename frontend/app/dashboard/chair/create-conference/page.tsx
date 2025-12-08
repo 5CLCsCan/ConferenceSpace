@@ -260,7 +260,7 @@ export default function CreateConferencePage() {
           <div className="flex items-center gap-4 mb-4">
             <Button variant="outline" size="sm" onClick={handleReturn} className="gap-2">
               <ArrowLeft className="w-4 h-4" />
-              Return to Dashboard
+              {t("dashboard.chair.createConference.returnToDashboard")}
             </Button>
           </div>
           <h1 className="text-3xl font-semibold text-foreground mb-2">
@@ -360,8 +360,8 @@ export default function CreateConferencePage() {
             className="gap-2 shadow-lg text-xs sm:text-sm"
           >
             <ChevronLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Previous Step</span>
-            <span className="sm:hidden">Previous</span>
+            <span className="hidden sm:inline">{t("dashboard.chair.createConference.previousStep")}</span>
+            <span className="sm:hidden">{t("common.actions.previous")}</span>
           </Button>
         )}
 
@@ -383,7 +383,7 @@ export default function CreateConferencePage() {
                 ? t("common.actions.creating")
                 : t("dashboard.chair.createConference.confirmCreate")}
             </span>
-            <span className="sm:hidden">{isCreating ? "Creating..." : "Create"}</span>
+            <span className="sm:hidden">{isCreating ? t("common.actions.creating") : t("common.actions.create")}</span>
           </Button>
         )}
       </div>

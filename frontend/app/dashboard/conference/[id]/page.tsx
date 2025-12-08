@@ -94,7 +94,7 @@ export default function ConferencePage() {
       {
         id: "committee" as TabType,
         label:
-          currentRole === "chair" ? "Reviewers" : t("dashboard.conference.details.tabs.committee"),
+          currentRole === "chair" ? t("dashboard.conference.committee.reviewers.title") : t("dashboard.conference.details.tabs.committee"),
       },
       { id: "submissions" as TabType, label: t("dashboard.conference.details.tabs.submissions") },
       {
@@ -105,7 +105,7 @@ export default function ConferencePage() {
         ? [
             {
               id: "dashboard" as TabType,
-              label: "Statistics",
+              label: t("dashboard.conference.details.tabs.dashboard"),
             },
           ]
         : []),

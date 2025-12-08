@@ -111,7 +111,7 @@ export function PaperSubmissionForm({
     { id: "authors" as TabType, label: t("dashboard.author.submit.tabs.authors") },
     { id: "file" as TabType, label: t("dashboard.author.submit.tabs.file") },
     { id: "coi" as TabType, label: t("dashboard.author.submit.tabs.coi") },
-    { id: "cover-letter" as TabType, label: "Cover Letter" },
+    { id: "cover-letter" as TabType, label: t("dashboard.submission.tabs.coverLetter") },
   ]
 
   // Pre-fill form with submission data if in edit mode

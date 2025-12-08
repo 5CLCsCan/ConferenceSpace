@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
 import { FilterBar, type ActiveFilter } from "@/components/ui/filter-bar"
-import { FileText, FileCheck, Paperclip } from "lucide-react"
+import { FileText, FileCheck } from "lucide-react"
 import { getUserSubmissions } from "@/lib/api/submissions"
 import type { SubmissionWithConference } from "@/lib/api/submissions"
 import { formatDate } from "@/lib/utils"
@@ -119,7 +119,7 @@ export function AuthorSubmissionsList() {
     if (statusFilter !== "all") {
       filters.push({
         id: "status",
-        label: t(`dashboard.submissions.status.${statusFilter}`),
+        label: t(`${statusFilter}`),
         onRemove: handleRemoveStatusFilter,
       })
     }
@@ -155,14 +155,14 @@ export function AuthorSubmissionsList() {
               checked={statusFilter === "draft"}
               onCheckedChange={(checked) => setStatusFilter(checked ? "draft" : "all")}
             />
-            <span className={typography.body}>{t("dashboard.submissions.status.draft")}</span>
+            <span className={typography.body}>{t("dashboard.author.submissions.draft")}</span>
           </label>
           <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
             <Checkbox
               checked={statusFilter === "published"}
               onCheckedChange={(checked) => setStatusFilter(checked ? "published" : "all")}
             />
-            <span className={typography.body}>{t("dashboard.submissions.status.published")}</span>
+            <span className={typography.body}>{t("dashboard.author.submissions.published")}</span>
           </label>
         </div>
       </div>
@@ -200,7 +200,7 @@ export function AuthorSubmissionsList() {
             setConferenceFilter("all")
           }}
         >
-          Clear
+          {t("dashboard.author.submissions.clearFilters")}
         </Button>
       </div>
     </div>
@@ -210,11 +210,11 @@ export function AuthorSubmissionsList() {
     (status: string) => {
       const statusConfig = {
         draft: {
-          label: t("dashboard.submissions.status.draft"),
+          label: t("dashboard.author.submissions.draft"),
           className: "bg-yellow-100 text-yellow-800",
         },
         published: {
-          label: t("dashboard.submissions.status.published"),
+          label: t("dashboard.author.submissions.published"),
           className: "bg-blue-100 text-blue-800",
         },
       }
@@ -233,7 +233,7 @@ export function AuthorSubmissionsList() {
     () => [
       {
         key: "title",
-        label: t("dashboard.submissions.title"),
+        label: t("dashboard.author.submissions.title"),
         width: "w-[400px]",
         className: "min-w-0",
         render: (submission) => (
@@ -252,7 +252,7 @@ export function AuthorSubmissionsList() {
       },
       {
         key: "conference",
-        label: t("dashboard.submissions.conference"),
+        label: t("dashboard.author.submissions.conference"),
         width: "w-48",
         className: "min-w-0",
         render: (submission) => (
@@ -263,31 +263,31 @@ export function AuthorSubmissionsList() {
             </div>
           </div>
         ),
-        mobileLabel: t("dashboard.submissions.conference"),
+        mobileLabel: t("dashboard.author.submissions.conference"),
       },
       {
         key: "created_at",
-        label: t("dashboard.submissions.submittedDate"),
+        label: t("dashboard.author.submissions.submissionDeadline"),
         width: "w-32",
         className: "whitespace-nowrap",
         render: (submission) => (
           <div className="whitespace-nowrap">{formatDate(submission.created_at)}</div>
         ),
-        mobileLabel: t("dashboard.submissions.submittedDate"),
+        mobileLabel: t("dashboard.author.submissions.submissionDeadline"),
       },
       {
         key: "status",
-        label: t("dashboard.submissions.status.label"),
+        label: t("dashboard.author.submissions.status"),
         width: "w-28",
         className: "whitespace-nowrap",
         render: (submission) => (
           <div className="whitespace-nowrap">{renderStatusBadge(submission.status)}</div>
         ),
-        mobileLabel: t("dashboard.submissions.status.label"),
+        mobileLabel: t("dashboard.author.submissions.status"),
       },
       {
         key: "attachments",
-        label: t("dashboard.submissions.attachments", "Files"),
+        label: t("dashboard.author.submissions.attachments"),
         width: "w-24",
         className: "whitespace-nowrap",
         render: (submission) => (
@@ -309,7 +309,7 @@ export function AuthorSubmissionsList() {
             )}
           </div>
         ),
-        mobileLabel: t("dashboard.submissions.attachments", "Files"),
+        mobileLabel: t("dashboard.author.submissions.attachments"),
       },
     ],
     [t, renderStatusBadge],
@@ -364,14 +364,14 @@ export function AuthorSubmissionsList() {
               className={`flex flex-col ${spacing.gap.sm} ${typography.body} text-muted-foreground`}
             >
               <div>
-                {t("dashboard.submissions.conference")}: {submission.conference.name} (
+                {t("dashboard.author.submissions.conference")}: {submission.conference.name} (
                 {submission.conference.acronym})
               </div>
               <div>
-                {t("dashboard.submissions.submittedDate")}: {formatDate(submission.created_at)}
+                {t("dashboard.author.submissions.submissionDeadline")}: {formatDate(submission.created_at)}
               </div>
               <div>
-                {t("dashboard.submissions.status.label")}: {renderStatusBadge(submission.status)}
+                {t("dashboard.author.submissions.status")}: {renderStatusBadge(submission.status)}
               </div>
             </div>
           </div>

@@ -12,6 +12,7 @@ import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import type { ConferenceFormData } from "@/app/dashboard/chair/create-conference/page"
 import { typography, spacing, iconSizes } from "@/lib/typography"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 type Props = {
   data: ConferenceFormData
@@ -19,14 +20,16 @@ type Props = {
 }
 
 export function ConferenceDetailsStep({ data, updateData }: Props) {
+  const { t } = useTranslation()
+  
   return (
     <div className={spacing.subsection}>
       <div>
         <h2 className={`${typography.h2} ${typography.semibold} text-foreground mb-1`}>
-          Step 1: Core Conference Details
+          {t("dashboard.chair.createConference.step1.heading")}
         </h2>
         <p className={`${typography.body} text-muted-foreground`}>
-          Provide the essential information about your conference
+          {t("dashboard.chair.createConference.step1.subheading")}
         </p>
       </div>
 
@@ -34,11 +37,11 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
         {/* Conference Title */}
         <div className={spacing.item}>
           <Label htmlFor="title" className={typography.label}>
-            Conference Title <span className="text-destructive">*</span>
+            {t("dashboard.chair.createConference.step1.conferenceTitle")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="title"
-            placeholder="e.g., International Conference on Artificial Intelligence"
+            placeholder={t("dashboard.chair.createConference.step1.conferenceTitlePlaceholder")}
             value={data.title}
             onChange={(e) => updateData({ title: e.target.value })}
           />
@@ -47,27 +50,27 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
         {/* Acronym */}
         <div className={spacing.item}>
           <Label htmlFor="acronym" className={typography.label}>
-            Acronym <span className="text-destructive">*</span>
+            {t("dashboard.chair.createConference.step1.acronym")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="acronym"
-            placeholder="e.g., ICAI 2026"
+            placeholder={t("dashboard.chair.createConference.step1.acronymPlaceholder")}
             value={data.acronym}
             onChange={(e) => updateData({ acronym: e.target.value })}
           />
           <p className={typography.caption}>
-            A short, unique identifier for your conference
+            {t("dashboard.chair.createConference.step1.acronymHint")}
           </p>
         </div>
 
         {/* Description */}
         <div className={spacing.item}>
           <Label htmlFor="description" className={typography.label}>
-            Description <span className="text-destructive">*</span>
+            {t("dashboard.chair.createConference.step1.description")} <span className="text-destructive">*</span>
           </Label>
           <Textarea
             id="description"
-            placeholder="A brief overview of the conference theme and scope..."
+            placeholder={t("dashboard.chair.createConference.step1.descriptionPlaceholder")}
             rows={4}
             value={data.description}
             onChange={(e) => updateData({ description: e.target.value })}
@@ -77,12 +80,12 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
         {/* Conference Website */}
         <div className={spacing.item}>
           <Label htmlFor="website" className={typography.label}>
-            Conference Website (Optional)
+            {t("dashboard.chair.createConference.step1.website")}
           </Label>
           <Input
             id="website"
             type="url"
-            placeholder="https://example.com"
+            placeholder={t("dashboard.chair.createConference.step1.websitePlaceholder")}
             value={data.website}
             onChange={(e) => updateData({ website: e.target.value })}
           />
@@ -91,7 +94,7 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
         {/* Conference Dates */}
         <div className={spacing.item}>
           <Label className={typography.label}>
-            Conference Dates <span className="text-destructive">*</span>
+            {t("dashboard.chair.createConference.step1.conferenceDates")} <span className="text-destructive">*</span>
           </Label>
           <div className={`flex ${spacing.gap.sm}`}>
             <Popover>
@@ -107,7 +110,7 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
                   {data.dateRange.from ? (
                     format(data.dateRange.from, "PPP")
                   ) : (
-                    <span>Start date</span>
+                    <span>{t("dashboard.chair.createConference.step1.startDate")}</span>
                   )}
                 </Button>
               </PopoverTrigger>
@@ -135,7 +138,7 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
                   )}
                 >
                   <CalendarIcon className={`mr-2 ${iconSizes.sm}`} />
-                  {data.dateRange.to ? format(data.dateRange.to, "PPP") : <span>End date</span>}
+                  {data.dateRange.to ? format(data.dateRange.to, "PPP") : <span>{t("dashboard.chair.createConference.step1.endDate")}</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -157,7 +160,7 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
         {/* Location Type */}
         <div className={spacing.item}>
           <Label className={typography.label}>
-            Location <span className="text-destructive">*</span>
+            {t("dashboard.chair.createConference.step1.location")} <span className="text-destructive">*</span>
           </Label>
           <RadioGroup
             value={data.locationType}
@@ -168,19 +171,19 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
             <div className={`flex items-center ${spacing.gap.sm}`}>
               <RadioGroupItem value="in-person" id="in-person" />
               <Label htmlFor="in-person" className={typography.normal}>
-                In-Person
+                {t("dashboard.chair.createConference.step1.inPerson")}
               </Label>
             </div>
             <div className={`flex items-center ${spacing.gap.sm}`}>
               <RadioGroupItem value="virtual" id="virtual" />
               <Label htmlFor="virtual" className={typography.normal}>
-                Virtual
+                {t("dashboard.chair.createConference.step1.virtual")}
               </Label>
             </div>
             <div className={`flex items-center ${spacing.gap.sm}`}>
               <RadioGroupItem value="hybrid" id="hybrid" />
               <Label htmlFor="hybrid" className={typography.normal}>
-                Hybrid
+                {t("dashboard.chair.createConference.step1.hybrid")}
               </Label>
             </div>
           </RadioGroup>
@@ -190,11 +193,11 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
         {(data.locationType === "in-person" || data.locationType === "hybrid") && (
           <div className={spacing.item}>
             <Label htmlFor="venue" className={typography.label}>
-              Venue / City, Country <span className="text-destructive">*</span>
+              {t("dashboard.chair.createConference.step1.venue")} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="venue"
-              placeholder="e.g., Grand Hotel, Paris, France"
+              placeholder={t("dashboard.chair.createConference.step1.venuePlaceholder")}
               value={data.venue}
               onChange={(e) => updateData({ venue: e.target.value })}
             />
@@ -204,16 +207,16 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
         {/* Contact Email */}
         <div className={spacing.item}>
           <Label htmlFor="contactEmail" className={typography.label}>
-            Contact Email <span className="text-destructive">*</span>
+            {t("dashboard.chair.createConference.step1.contactEmail")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="contactEmail"
             type="email"
-            placeholder="contact@conference.com"
+            placeholder={t("dashboard.chair.createConference.step1.contactEmailPlaceholder")}
             value={data.contactEmail}
             onChange={(e) => updateData({ contactEmail: e.target.value })}
           />
-          <p className={typography.caption}>The primary public contact for inquiries</p>
+          <p className={typography.caption}>{t("dashboard.chair.createConference.step1.contactEmailHint")}</p>
         </div>
       </div>
     </div>
