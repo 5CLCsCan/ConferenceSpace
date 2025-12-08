@@ -565,20 +565,22 @@ func (s *Storage) GetReviewAnalytics(ctx context.Context, submissionID int64) (*
 	var analytics dto.ReviewAnalyticsResponse
 	var avgScore sql.NullFloat64
 	var avgOriginality, avgTechnicalQuality, avgClarity, avgSignificance, avgMethodology sql.NullFloat64
+	var strongAccept, accept, weakAccept, borderline, weakReject, reject, strongReject sql.NullInt64
+	var confidenceHigh, confidenceMedium, confidenceLow sql.NullInt64
 
 	err := s.db.QueryRowContext(ctx, query, submissionID).Scan(
 		&analytics.TotalReviews,
 		&avgScore,
-		&analytics.ScoreDistribution.StrongAccept,
-		&analytics.ScoreDistribution.Accept,
-		&analytics.ScoreDistribution.WeakAccept,
-		&analytics.ScoreDistribution.Borderline,
-		&analytics.ScoreDistribution.WeakReject,
-		&analytics.ScoreDistribution.Reject,
-		&analytics.ScoreDistribution.StrongReject,
-		&analytics.ConfidenceDistribution.High,
-		&analytics.ConfidenceDistribution.Medium,
-		&analytics.ConfidenceDistribution.Low,
+		&strongAccept,
+		&accept,
+		&weakAccept,
+		&borderline,
+		&weakReject,
+		&reject,
+		&strongReject,
+		&confidenceHigh,
+		&confidenceMedium,
+		&confidenceLow,
 		&avgOriginality,
 		&avgTechnicalQuality,
 		&avgClarity,
@@ -588,6 +590,40 @@ func (s *Storage) GetReviewAnalytics(ctx context.Context, submissionID int64) (*
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to get review analytics: %w", err)
+	}
+
+	// Handle nullable score distribution
+	if strongAccept.Valid {
+		analytics.ScoreDistribution.StrongAccept = int(strongAccept.Int64)
+	}
+	if accept.Valid {
+		analytics.ScoreDistribution.Accept = int(accept.Int64)
+	}
+	if weakAccept.Valid {
+		analytics.ScoreDistribution.WeakAccept = int(weakAccept.Int64)
+	}
+	if borderline.Valid {
+		analytics.ScoreDistribution.Borderline = int(borderline.Int64)
+	}
+	if weakReject.Valid {
+		analytics.ScoreDistribution.WeakReject = int(weakReject.Int64)
+	}
+	if reject.Valid {
+		analytics.ScoreDistribution.Reject = int(reject.Int64)
+	}
+	if strongReject.Valid {
+		analytics.ScoreDistribution.StrongReject = int(strongReject.Int64)
+	}
+
+	// Handle nullable confidence distribution
+	if confidenceHigh.Valid {
+		analytics.ConfidenceDistribution.High = int(confidenceHigh.Int64)
+	}
+	if confidenceMedium.Valid {
+		analytics.ConfidenceDistribution.Medium = int(confidenceMedium.Int64)
+	}
+	if confidenceLow.Valid {
+		analytics.ConfidenceDistribution.Low = int(confidenceLow.Int64)
 	}
 
 	// Handle nullable averages
