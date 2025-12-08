@@ -45,11 +45,12 @@ type MatchConfig struct {
 
 // MatchResult contains the results of the matching algorithm
 type MatchResult struct {
-	Assignments      []Assignment
-	UnassignedPapers []int64
-	ReviewerLoadMap  map[int64]int
-	TotalScore       float64
-	AverageScore     float64
+	Assignments         []Assignment
+	UnassignedPapers    []int64       // Papers that couldn't meet MinReviewersPerPaper (may still have 1+ reviewer)
+	FallbackAssignments []int64       // Paper IDs that were assigned via fallback (relaxed constraints)
+	ReviewerLoadMap     map[int64]int
+	TotalScore          float64
+	AverageScore        float64
 }
 
 // Assignment represents a reviewer assigned to a submission
