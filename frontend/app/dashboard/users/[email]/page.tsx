@@ -70,8 +70,8 @@ export default function UserProfilePage() {
   const [domainInput, setDomainInput] = useState("")
   const [authChecked, setAuthChecked] = useState(false)
 
-  const userId = params.id as string
-  const isOwnProfile = userId === "me" || Number(userId) === Number(authUser?.id)
+  const userEmail = params.email as string
+  const isOwnProfile = userEmail === "me" || userEmail === authUser?.email
 
   // Wait for auth to be checked before redirecting
   useEffect(() => {
@@ -94,15 +94,15 @@ export default function UserProfilePage() {
   }, [authChecked, isAuthenticated, router])
 
   const fetchUserProfile = useCallback(async () => {
-    if (!userId) return
+    if (!userEmail) return
 
     try {
       setIsLoading(true)
       // Use /me endpoint if viewing own profile
       const endpoint =
-        userId === "me" || Number(userId) === Number(authUser?.id)
+        userEmail === "me" || userEmail === authUser?.email
           ? "/api/v1/users/me"
-          : `/api/v1/users/${userId}`
+          : `/api/v1/users/${userEmail}`
 
       const { data: response } = await apiFetch<{ data: User }>(endpoint)
 
@@ -134,7 +134,7 @@ export default function UserProfilePage() {
     } finally {
       setIsLoading(false)
     }
-  }, [userId, authUser?.id, isOwnProfile, toast, t])
+  }, [userEmail, authUser?.email, isOwnProfile, toast, t])
 
   useEffect(() => {
     fetchUserProfile()
@@ -177,7 +177,7 @@ export default function UserProfilePage() {
         },
       }
 
-      await apiFetch(`/api/v1/users/${user?.id}`, {
+      await apiFetch(`/api/v1/users/${user?.email}`, {
         method: "PUT",
         body: JSON.stringify(updateData),
       })
