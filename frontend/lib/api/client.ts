@@ -1,30 +1,28 @@
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080"
 
-function getAuthToken(): string | null {
+export function getAuthToken(): string | null {
   if (typeof document === "undefined") return null
 
-  // Try different methods to get the token
+  // Try to get the WebSocket token cookie (non-httpOnly)
   const cookies = document.cookie.split(";")
+  
+  // Debug: log all available cookies
+  console.log("[Auth] Available cookies:", cookies.map((c) => c.trim().split("=")[0]))
+  
   for (const cookie of cookies) {
     const [name, value] = cookie.trim().split("=")
-    if (name === "conference_auth_token") {
-      console.log("Found auth token cookie:", { name, valueLength: value.length })
+    // Look for WebSocket token first, then fall back to regular auth token
+    if (name === "conference_ws_token" || name === "conference_auth_token") {
+      console.log("[Auth] Found token cookie:", name)
       try {
-        const decoded = decodeURIComponent(value)
-        console.log("Decoded token:", decoded.substring(0, 20) + "...")
-        return decoded
+        return decodeURIComponent(value)
       } catch (e) {
-        console.error("Failed to decode token:", e)
         return value // Return as-is if decode fails
       }
     }
   }
 
-  console.warn("No conference_auth_token cookie found")
-  console.log(
-    "Available cookies:",
-    cookies.map((c) => c.trim().split("=")[0]),
-  )
+  console.log("[Auth] No token cookie found")
   return null
 }
 

@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Bell, GraduationCap, User, LogOut, Home } from "lucide-react"
+import { Bell, GraduationCap, User, LogOut, Home, CheckCheck, Loader2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
@@ -13,11 +13,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { mockNotifications } from "@/lib/mock-data"
 import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { typography, spacing, iconSizes } from "@/lib/typography"
+import { useNotifications } from "@/hooks/use-notifications"
+import { NotificationItem } from "@/components/notifications/notification-item"
 
 interface DashboardHeaderProps {
   role: "author" | "reviewer" | "chair"
@@ -27,7 +28,13 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
   const { user, logout } = useAuth()
   const { t } = useTranslation()
   const router = useRouter()
-  const unreadNotifications = mockNotifications.filter((n) => !n.read).length
+  const {
+    notifications,
+    unreadCount,
+    isLoading,
+    markAsRead,
+    markAllAsRead,
+  } = useNotifications({ limit: 5 })
 
   const roleLinks: Record<DashboardHeaderProps["role"], { href: string; label: string }[]> = {
     author: [
@@ -108,41 +115,66 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
                     className="text-neutral-700"
                     style={{ width: "calc(7vh * 0.6 * 0.6)", height: "calc(7vh * 0.6 * 0.6)" }}
                   />
-                  {unreadNotifications > 0 && (
-                    <Badge
-                      className="absolute -top-1 -right-1 flex items-center justify-center p-0 bg-error text-white"
+                  {unreadCount > 0 && (
+                    <span
+                      className="absolute -top-1 -right-1 flex items-center justify-center rounded-full bg-red-500 text-white font-medium"
                       style={{
-                        width: "calc(7vh * 0.6 * 0.6)",
-                        height: "calc(7vh * 0.6 * 0.6)",
-                        fontSize: "calc(7vh * 0.6 * 0.25)",
+                        width: "18px",
+                        height: "18px",
+                        fontSize: "11px",
                       }}
                     >
-                      {unreadNotifications}
-                    </Badge>
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
                   )}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80 bg-white border-neutral-200">
-                <DropdownMenuLabel className={`${typography.semibold} text-neutral-900`}>
+              <DropdownMenuContent align="end" className="w-96 bg-white border-neutral-200 p-0">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
+                  <span className={`${typography.semibold} text-neutral-900`}>
                   {t("dashboard.header.notifications.title")}
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {mockNotifications.slice(0, 3).map((notification) => (
-                  <DropdownMenuItem
-                    key={notification.id}
-                    className={`flex flex-col items-start ${spacing.tight} ${spacing.padding.card} cursor-pointer`}
-                  >
-                    <div className={`${typography.medium} ${typography.body} text-neutral-900`}>
-                      {notification.title}
+                  </span>
+                  {unreadCount > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs text-primary hover:text-primary/80 h-auto py-1 px-2"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        markAllAsRead()
+                      }}
+                    >
+                      <CheckCheck className="h-3.5 w-3.5 mr-1" />
+                      Mark all read
+                    </Button>
+                  )}
+                </div>
+                <div className="max-h-80 overflow-y-auto">
+                  {isLoading && notifications.length === 0 ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-5 w-5 animate-spin text-neutral-400" />
                     </div>
-                    <div className={`${typography.bodySmall} text-neutral-600 leading-relaxed`}>
-                      {notification.message}
+                  ) : notifications.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <Bell className="h-8 w-8 text-neutral-300 mb-2" />
+                      <p className="text-sm text-neutral-500">No notifications yet</p>
                     </div>
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
+                  ) : (
+                    notifications.slice(0, 5).map((notification) => (
+                      <NotificationItem
+                        key={notification.id}
+                        notification={notification}
+                        onMarkAsRead={markAsRead}
+                        compact
+                      />
+                    ))
+                  )}
+                </div>
+                <DropdownMenuSeparator className="m-0" />
                 <DropdownMenuItem
-                  className={`text-center ${typography.body} text-primary ${typography.medium} cursor-pointer`}
+                  className={`text-center ${typography.body} text-primary ${typography.medium} cursor-pointer justify-center py-3`}
+                  onClick={() => router.push("/dashboard/notifications")}
                 >
                   {t("dashboard.header.notifications.seeAll")}
                 </DropdownMenuItem>

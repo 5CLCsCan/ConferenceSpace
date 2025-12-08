@@ -1,6 +1,7 @@
 package assignment
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -9,18 +10,24 @@ import (
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/model"
+	notificationService "github.com/dcao/conferencespace/internal/service/notification"
 	"github.com/dcao/conferencespace/internal/storage"
 	assignmentStorage "github.com/dcao/conferencespace/internal/storage/assignment"
+	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
 	reviewerStorage "github.com/dcao/conferencespace/internal/storage/reviewer"
+	submissionStorage "github.com/dcao/conferencespace/internal/storage/submission"
 	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
 // Controller handles assignment-related HTTP requests
 type Controller struct {
-	assignmentService *assignment.Service
-	assignmentStorage assignmentStorage.StorageInterface
-	reviewerStorage   reviewerStorage.StorageInterface
+	assignmentService   *assignment.Service
+	assignmentStorage   assignmentStorage.StorageInterface
+	reviewerStorage     reviewerStorage.StorageInterface
+	submissionStorage   submissionStorage.StorageInterface
+	conferenceStorage   conferenceStorage.StorageInterface
+	notificationService *notificationService.Service
 }
 
 // New creates a new assignment controller
@@ -29,6 +36,20 @@ func New(store *storage.Storage, assignmentService *assignment.Service) *Control
 		assignmentService: assignmentService,
 		assignmentStorage: store.Assignment,
 		reviewerStorage:   store.Reviewer,
+		submissionStorage: store.Submission,
+		conferenceStorage: store.Conference,
+	}
+}
+
+// NewWithNotifications creates a new assignment controller with notification support
+func NewWithNotifications(store *storage.Storage, assignmentService *assignment.Service, notifSvc *notificationService.Service) *Controller {
+	return &Controller{
+		assignmentService:   assignmentService,
+		assignmentStorage:   store.Assignment,
+		reviewerStorage:     store.Reviewer,
+		submissionStorage:   store.Submission,
+		conferenceStorage:   store.Conference,
+		notificationService: notifSvc,
 	}
 }
 
@@ -69,6 +90,46 @@ func (c *Controller) AutoAssign(ginCtx *gin.Context, req *dto.AutoAssignRequest)
 	})
 	if err != nil {
 		return nil, err
+	}
+
+	// Send notifications to assigned reviewers (only if not a dry run)
+	if c.notificationService != nil && !req.DryRun {
+		// Capture values for goroutine (use background context since request context will be cancelled)
+		assignments := result.Assignments
+		confID := conferenceID
+		revStorage := c.reviewerStorage
+		subStorage := c.submissionStorage
+		notifSvc := c.notificationService
+		go func() {
+			bgCtx := context.Background()
+			for _, assign := range assignments {
+				// Get reviewer email
+				reviewer, err := revStorage.GetByID(bgCtx, assign.ReviewerID)
+				if err != nil {
+					fmt.Printf("Warning: Failed to get reviewer for notification: %v\n", err)
+					continue
+				}
+
+				// Get submission title
+				submission, err := subStorage.GetByID(bgCtx, assign.SubmissionID)
+				if err != nil {
+					fmt.Printf("Warning: Failed to get submission for notification: %v\n", err)
+					continue
+				}
+
+				err = notifSvc.NotifyReviewAssigned(
+					bgCtx,
+					reviewer.Email,
+					submission.Title,
+					confID,
+					assign.SubmissionID,
+					assign.ID,
+				)
+				if err != nil {
+					fmt.Printf("Warning: Failed to notify reviewer about assignment: %v\n", err)
+				}
+			}
+		}()
 	}
 
 	// Convert to DTO response
@@ -153,6 +214,50 @@ func (c *Controller) SaveReview(ginCtx *gin.Context, req *dto.ReviewSaveRequest)
 	updatedAssignment, err := c.assignmentStorage.SaveReview(ctx, req.AssignmentID, req.ReviewScore, req.ReviewData, req.Status)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, fmt.Sprintf("failed to save review: %v", err))
+	}
+
+	// Send notification to chair when review is submitted
+	if c.notificationService != nil && req.Status == model.ReviewStatusSubmitted {
+		// Capture values for goroutine (use background context since request context will be cancelled)
+		subID := assignment.SubmissionID
+		confID := assignment.ConferenceID
+		revEmail := reviewer.Email
+		subStorage := c.submissionStorage
+		confStorage := c.conferenceStorage
+		notifSvc := c.notificationService
+		go func() {
+			bgCtx := context.Background()
+			// Get submission
+			submission, err := subStorage.GetByID(bgCtx, subID)
+			if err != nil {
+				fmt.Printf("Warning: Failed to get submission for notification: %v\n", err)
+				return
+			}
+
+			// Get conference to find chair
+			conference, err := confStorage.GetByID(bgCtx, confID)
+			if err != nil {
+				fmt.Printf("Warning: Failed to get conference for notification: %v\n", err)
+				return
+			}
+
+			// Notify chair
+			if conference.Chair != "" {
+				// Use email as reviewer name since Reviewer DTO doesn't have name fields
+				reviewerName := revEmail
+				err = notifSvc.NotifyReviewSubmitted(
+					bgCtx,
+					conference.Chair,
+					reviewerName,
+					submission.Title,
+					confID,
+					subID,
+				)
+				if err != nil {
+					fmt.Printf("Warning: Failed to notify chair about review submission: %v\n", err)
+				}
+			}
+		}()
 	}
 
 	return updatedAssignment, nil

@@ -1,13 +1,16 @@
 package reviewer
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/model"
+	notificationService "github.com/dcao/conferencespace/internal/service/notification"
 	"github.com/dcao/conferencespace/internal/storage"
+	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	reviewerStorage "github.com/dcao/conferencespace/internal/storage/reviewer"
 	userStorage "github.com/dcao/conferencespace/internal/storage/user"
@@ -15,16 +18,30 @@ import (
 )
 
 type Controller struct {
-	reviewerStorage reviewerStorage.StorageInterface
-	roleStorage     conferenceuserrole.StorageInterface
-	userStorage     userStorage.StorageInterface
+	reviewerStorage     reviewerStorage.StorageInterface
+	roleStorage         conferenceuserrole.StorageInterface
+	userStorage         userStorage.StorageInterface
+	conferenceStorage   conferenceStorage.StorageInterface
+	notificationService *notificationService.Service
 }
 
 func New(store *storage.Storage) *Controller {
 	return &Controller{
-		reviewerStorage: store.Reviewer,
-		roleStorage:     store.ConferenceUserRole,
-		userStorage:     store.User,
+		reviewerStorage:   store.Reviewer,
+		roleStorage:       store.ConferenceUserRole,
+		userStorage:       store.User,
+		conferenceStorage: store.Conference,
+	}
+}
+
+// NewWithNotifications creates a controller with notification support
+func NewWithNotifications(store *storage.Storage, notifService *notificationService.Service) *Controller {
+	return &Controller{
+		reviewerStorage:     store.Reviewer,
+		roleStorage:         store.ConferenceUserRole,
+		userStorage:         store.User,
+		conferenceStorage:   store.Conference,
+		notificationService: notifService,
 	}
 }
 
@@ -52,6 +69,26 @@ func (c *Controller) BatchInvite(ginCtx *gin.Context, req *dto.ReviewerBatchInvi
 	result, err := c.reviewerStorage.BatchCreate(ctx, req.ConferenceID, req.Reviewers)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	// Send notifications to successfully invited reviewers
+	if c.notificationService != nil && len(result.Success) > 0 {
+		// Get conference name for notification
+		conference, err := c.conferenceStorage.GetByID(ctx, req.ConferenceID)
+		if err == nil && conference != nil {
+			conferenceName := conference.Title
+			conferenceID := req.ConferenceID
+
+			// Send notifications asynchronously
+			go func() {
+				bgCtx := context.Background()
+				for _, reviewer := range result.Success {
+					if err := c.notificationService.NotifyReviewerInvited(bgCtx, reviewer.Email, conferenceName, conferenceID); err != nil {
+						fmt.Printf("Warning: Failed to send invitation notification to %s: %v\n", reviewer.Email, err)
+					}
+				}
+			}()
+		}
 	}
 
 	return result, nil
@@ -175,6 +212,38 @@ func (c *Controller) UpdateStatus(ginCtx *gin.Context, req *dto.ReviewerUpdateSt
 			// Log error but don't fail the status update
 			// (role might already exist or have other non-critical issues)
 			fmt.Printf("Warning: Failed to add reviewer role for %s in conference %d: %v\n", result.Email, req.ConferenceID, err)
+		}
+	}
+
+	// Send notification to chair about reviewer's response
+	if c.notificationService != nil && (req.Status == model.ReviewerStatusAccepted || req.Status == model.ReviewerStatusRejected) {
+		conference, err := c.conferenceStorage.GetByID(ctx, req.ConferenceID)
+		if err == nil && conference != nil {
+			// Get reviewer's name from user storage
+			reviewerUser, err := c.userStorage.GetByEmail(ctx, result.Email)
+			reviewerName := result.Email // Default to email if we can't get the name
+			if err == nil && reviewerUser != nil {
+				reviewerName = reviewerUser.FirstName + " " + reviewerUser.LastName
+			}
+
+			conferenceID := req.ConferenceID
+			conferenceName := conference.Title
+			chairEmail := conference.Chair
+			reviewerEmail := result.Email
+
+			// Send notification asynchronously
+			go func() {
+				bgCtx := context.Background()
+				if req.Status == model.ReviewerStatusAccepted {
+					if err := c.notificationService.NotifyReviewerAccepted(bgCtx, chairEmail, reviewerName, reviewerEmail, conferenceName, conferenceID); err != nil {
+						fmt.Printf("Warning: Failed to send reviewer accepted notification: %v\n", err)
+					}
+				} else if req.Status == model.ReviewerStatusRejected {
+					if err := c.notificationService.NotifyReviewerRejected(bgCtx, chairEmail, reviewerName, reviewerEmail, conferenceName, conferenceID); err != nil {
+						fmt.Printf("Warning: Failed to send reviewer rejected notification: %v\n", err)
+					}
+				}
+			}()
 		}
 	}
 

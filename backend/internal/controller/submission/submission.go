@@ -2,6 +2,7 @@ package submission
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -12,6 +13,7 @@ import (
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/model"
+	notificationService "github.com/dcao/conferencespace/internal/service/notification"
 	"github.com/dcao/conferencespace/internal/storage"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
@@ -22,11 +24,12 @@ import (
 )
 
 type Controller struct {
-	submissionStorage submissionStorage.StorageInterface
-	conferenceStorage conferenceStorage.StorageInterface
-	fileStorage       fileStorage.StorageInterface
-	roleStorage       conferenceuserrole.StorageInterface
-	geminiClient      interface{} // Store as interface to allow nil checks
+	submissionStorage   submissionStorage.StorageInterface
+	conferenceStorage   conferenceStorage.StorageInterface
+	fileStorage         fileStorage.StorageInterface
+	roleStorage         conferenceuserrole.StorageInterface
+	geminiClient        interface{} // Store as interface to allow nil checks
+	notificationService *notificationService.Service
 }
 
 func New(store *storage.Storage, fileStore fileStorage.StorageInterface, geminiClient interface{}) *Controller {
@@ -36,6 +39,18 @@ func New(store *storage.Storage, fileStore fileStorage.StorageInterface, geminiC
 		fileStorage:       fileStore,
 		roleStorage:       store.ConferenceUserRole,
 		geminiClient:      geminiClient,
+	}
+}
+
+// NewWithNotifications creates a new controller with notification support
+func NewWithNotifications(store *storage.Storage, fileStore fileStorage.StorageInterface, geminiClient interface{}, notifSvc *notificationService.Service) *Controller {
+	return &Controller{
+		submissionStorage:   store.Submission,
+		conferenceStorage:   store.Conference,
+		fileStorage:         fileStore,
+		roleStorage:         store.ConferenceUserRole,
+		geminiClient:        geminiClient,
+		notificationService: notifSvc,
 	}
 }
 
@@ -191,6 +206,31 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.SubmissionCreateReques
 
 		// Update the returned submission with cover letter info
 		submission.CoverLetter = coverLetterMetadata
+	}
+
+	// Send notification to chair about new submission (only for published submissions)
+	if c.notificationService != nil && req.Submission.Status == dto.StatusPublished {
+		// Capture values for goroutine (use background context since request context will be cancelled)
+		chairEmail := conference.Chair
+		submissionTitle := submission.Title
+		confID := conferenceID
+		subID := submission.ID
+		notifSvc := c.notificationService
+		go func() {
+			// Notify chair about the new submission
+			if chairEmail != "" {
+				err := notifSvc.NotifySubmissionReceived(
+					context.Background(),
+					chairEmail,
+					submissionTitle,
+					confID,
+					subID,
+				)
+				if err != nil {
+					fmt.Printf("Warning: Failed to notify chair about new submission: %v\n", err)
+				}
+			}
+		}()
 	}
 
 	return submission, nil
@@ -766,6 +806,44 @@ func (c *Controller) UpdateStatus(ginCtx *gin.Context, req *dto.UpdateStatusRequ
 	if err != nil {
 		return nil, err
 	}
+
+	// Send notification to author about paper decision
+	if c.notificationService != nil {
+		// Capture values for goroutine (use background context since request context will be cancelled)
+		status := req.Status
+		authorEmail := submission.Author
+		submissionTitle := submission.Title
+		confID := req.ConferenceID
+		subID := req.ID
+		notifSvc := c.notificationService
+		go func() {
+			switch status {
+			case dto.StatusAccepted:
+				err := notifSvc.NotifyPaperAccepted(
+					context.Background(),
+					authorEmail,
+					submissionTitle,
+					confID,
+					subID,
+				)
+				if err != nil {
+					fmt.Printf("Warning: Failed to notify author about paper acceptance: %v\n", err)
+				}
+			case dto.StatusRejected:
+				err := notifSvc.NotifyPaperRejected(
+					context.Background(),
+					authorEmail,
+					submissionTitle,
+					confID,
+					subID,
+				)
+				if err != nil {
+					fmt.Printf("Warning: Failed to notify author about paper rejection: %v\n", err)
+				}
+			}
+		}()
+	}
+
 	return updatedSubmission, nil
 }
 

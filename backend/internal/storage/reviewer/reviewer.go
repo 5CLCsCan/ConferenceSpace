@@ -190,11 +190,22 @@ func (s *Storage) BatchCreate(ctx context.Context, conferenceID int64, invites [
 			continue
 		}
 
-		response.Success = append(response.Success, *result.ToDTO())
+		// Convert to DTO (email will be populated after commit)
+		reviewerDTO := result.ToDTO()
+		response.Success = append(response.Success, *reviewerDTO)
 	}
 
 	if err := tx.Commit(); err != nil {
 		return nil, fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	// Look up emails for all successful invites (after transaction commits)
+	for i := range response.Success {
+		var userEmail string
+		emailQuery := fmt.Sprintf("SELECT %s FROM %s WHERE %s = $1", model.UserColEmail, model.UserTableName, model.UserColUserID)
+		if err := s.db.QueryRowContext(ctx, emailQuery, response.Success[i].UserID).Scan(&userEmail); err == nil {
+			response.Success[i].Email = userEmail
+		}
 	}
 
 	return response, nil
