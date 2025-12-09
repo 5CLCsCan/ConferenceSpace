@@ -197,6 +197,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
       setModalType("draft")
       setModalMessage(t("review.form.success.saveDraftDescription"))
       setModalOpen(true)
+      if (onReviewSubmitted) await onReviewSubmitted();
     } else {
       setModalType("error")
       setModalMessage(result.error || t("review.form.error.saveDraftDescription"))
@@ -275,7 +276,7 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
       setModalType("submit")
       setModalMessage(t("review.form.success.submitReviewDescription"))
       setModalOpen(true)
-      onReviewSubmitted?.()
+      if (onReviewSubmitted) await onReviewSubmitted();
     } else {
       setModalType("error")
       setModalMessage(result.error || t("review.form.error.submitReviewDescription"))

@@ -33,18 +33,20 @@ function ConferencePapersWithSWR({
   conferences,
   onBack,
   onSelectPaper,
+  onReviewSubmitted,
 }: {
   reviewerId: string
   conferenceId: string
   conferences: ReviewerConference[]
   onBack: () => void
   onSelectPaper: (paperId: string) => void
+  onReviewSubmitted?: () => void
 }) {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("")
   const debouncedSearch = useDebounce(searchQuery, 500)
 
-  const { papers, isLoading, error } = useConferencePapers(reviewerId, conferenceId, {
+  const { papers, isLoading, error, refresh: refreshPapers } = useConferencePapers(reviewerId, conferenceId, {
     search: debouncedSearch,
     status: statusFilter,
     limit: 20,
@@ -53,6 +55,13 @@ function ConferencePapersWithSWR({
   const selectedConference = conferences.find((c) => c.id === conferenceId)
 
   const { t } = useTranslation()
+
+  const handleReviewSubmitted = async () => {
+    // Refresh papers list first to get updated status
+    await refreshPapers()
+    // Then refresh dashboard data
+    if (onReviewSubmitted) await onReviewSubmitted()
+  }
 
   if (error) {
     return (
@@ -81,6 +90,7 @@ function ConferencePapersWithSWR({
       conferenceName={selectedConference?.name || ""}
       onBack={onBack}
       onSelectPaper={onSelectPaper}
+      onReviewSubmitted={handleReviewSubmitted}
     />
   )
 }
@@ -111,30 +121,12 @@ export function ReviewerDashboard() {
   const [allInvitations, setAllInvitations] = useState<any[]>([])
   const [allAssignments, setAllAssignments] = useState<any[]>([])
 
+
   // Debounce search to avoid excessive API calls
   const debouncedConferenceSearch = useDebounce(conferenceSearch, 500)
 
-  // Reset offsets when search/filter changes
-  useEffect(() => {
-    setConferenceOffset(0)
-    setAllConferences([])
-  }, [debouncedConferenceSearch])
-
-  useEffect(() => {
-    setInvitationOffset(0)
-    setAllInvitations([])
-  }, [invitationStatusFilter])
-
-  // Reset assignments when switching to overview (optional, for fresh data)
-  useEffect(() => {
-    if (activeNav === "overview") {
-      setAssignmentOffset(0)
-      setAllAssignments([])
-    }
-  }, [activeNav])
-
   // Use SWR hook with caching for dashboard data
-  const { dashboard, isLoading, error, refresh, updateOptimistic } = useReviewerDashboard(
+  const { dashboard, isLoading, error, refresh, updateOptimistic, isValidating } = useReviewerDashboard(
     currentReviewerEmail,
     {
       conferenceSearch: debouncedConferenceSearch,
@@ -147,6 +139,25 @@ export function ReviewerDashboard() {
       recentAssignmentOffset: assignmentOffset,
     },
   )
+
+  // Reset offsets when search/filter changes
+  useEffect(() => {
+    setConferenceOffset(0)
+    setAllConferences([])
+  }, [debouncedConferenceSearch])
+
+  useEffect(() => {
+    setInvitationOffset(0)
+    setAllInvitations([])
+  }, [invitationStatusFilter])
+
+  // Reset assignments only when switching to overview
+  useEffect(() => {
+    if (activeNav === "overview") {
+      setAssignmentOffset(0)
+      setAllAssignments([])
+    }
+  }, [activeNav])
 
   // Accumulate conferences for infinite scroll
   useEffect(() => {
@@ -368,6 +379,7 @@ export function ReviewerDashboard() {
             conferences={allConferences}
             onBack={handleBackToConferences}
             onSelectPaper={handleSelectPaper}
+            onReviewSubmitted={async () => await refresh()}
           />
         )
       default:
