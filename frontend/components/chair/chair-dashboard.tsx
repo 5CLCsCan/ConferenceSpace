@@ -127,9 +127,9 @@ export default function ChairDashboard() {
     setCurrentPage(1)
   }, [viewMode, debouncedSearchQuery, statusFilter])
 
-  const handleRemoveStatusFilter = () => {
+  const handleRemoveStatusFilter = useCallback(() => {
     setStatusFilter("")
-  }
+  }, [])
 
   const hasActiveFilters = statusFilter !== ""
 
@@ -142,12 +142,14 @@ export default function ChairDashboard() {
         onRemove: handleRemoveStatusFilter,
       },
     ]
-  }, [statusFilter])
+  }, [statusFilter, t, handleRemoveStatusFilter])
 
   const filterPopover = (
     <div className={spacing.subsection}>
       <div>
-        <h4 className={`${typography.semibold} ${typography.body} mb-3`}>Status</h4>
+        <h4 className={`${typography.semibold} ${typography.body} mb-3`}>
+          {t("common.labels.status")}
+        </h4>
         <div className={spacing.item}>
           <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
             <Checkbox
@@ -180,7 +182,7 @@ export default function ChairDashboard() {
             setStatusFilter("")
           }}
         >
-          Clear
+          {t("common.actions.clear")}
         </Button>
       </div>
     </div>
@@ -352,8 +354,12 @@ export default function ChairDashboard() {
           {!loading && totalPages > 1 && (
             <div className="mt-6 flex items-center justify-between">
               <div className={`${typography.body} text-muted-foreground`}>
-                Showing {(currentPage - 1) * limit + 1} to {Math.min(currentPage * limit, total)} of{" "}
-                {total} conferences
+                {t("common.pagination.showing", {
+                  from: (currentPage - 1) * limit + 1,
+                  to: Math.min(currentPage * limit, total),
+                  total: total,
+                  item: "conferences",
+                })}
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -362,7 +368,7 @@ export default function ChairDashboard() {
                   onClick={() => setCurrentPage(1)}
                   disabled={currentPage === 1}
                 >
-                  First
+                  {t("common.pagination.first")}
                 </Button>
                 <Button
                   variant="outline"
@@ -370,7 +376,7 @@ export default function ChairDashboard() {
                   onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
                 >
-                  Previous
+                  {t("common.pagination.previous")}
                 </Button>
 
                 {/* Page Numbers */}
@@ -407,7 +413,7 @@ export default function ChairDashboard() {
                   onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
                 >
-                  Next
+                  {t("common.pagination.next")}
                 </Button>
                 <Button
                   variant="outline"
@@ -415,7 +421,7 @@ export default function ChairDashboard() {
                   onClick={() => setCurrentPage(totalPages)}
                   disabled={currentPage === totalPages}
                 >
-                  Last
+                  {t("common.pagination.last")}
                 </Button>
               </div>
             </div>
@@ -429,18 +435,18 @@ export default function ChairDashboard() {
           <div
             className={`flex flex-col sm:flex-row items-center justify-center ${spacing.gap.md} ${typography.body} text-muted-foreground`}
           >
-            <span>© 2025 ConferenceHub</span>
+            <span>{t("app.footer")}</span>
             <span className="hidden sm:inline">•</span>
             <a href="#" className="hover:text-primary transition-colors">
-              Help
+              {t("common.footer.help")}
             </a>
             <span className="hidden sm:inline">•</span>
             <a href="#" className="hover:text-primary transition-colors">
-              Privacy
+              {t("common.footer.privacy")}
             </a>
             <span className="hidden sm:inline">•</span>
             <a href="#" className="hover:text-primary transition-colors">
-              Contact Support
+              {t("common.footer.contact")}
             </a>
           </div>
         </div>

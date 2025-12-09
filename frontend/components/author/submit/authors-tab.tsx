@@ -117,6 +117,7 @@ export function AuthorsTab({
     return () => {
       Object.values(timers).forEach((timer) => clearTimeout(timer))
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQueries])
 
   const handleSelectUser = (index: number, user: UserSearchResult) => {

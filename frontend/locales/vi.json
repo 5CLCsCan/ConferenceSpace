@@ -43,7 +43,8 @@
       "download": "Tải xuống",
       "viewDetail": "Xem chi tiết",
       "expand": "Mở rộng",
-      "collapse": "Thu gọn"
+      "collapse": "Thu gọn",
+      "clear": "Xóa"
     },
     "labels": {
       "email": "Email",
@@ -107,6 +108,18 @@
       "open": "Đang Nhận Bài",
       "reviewing": "Đang Review",
       "completed": "Đã Kết Thúc"
+    },
+    "pagination": {
+      "showing": "Hiển thị {{from}} đến {{to}} trong số {{total}} {{item}}",
+      "first": "Đầu",
+      "previous": "Trước",
+      "next": "Sau",
+      "last": "Cuối"
+    },
+    "footer": {
+      "help": "Trợ giúp",
+      "privacy": "Quyền riêng tư",
+      "contact": "Liên hệ hỗ trợ"
     }
   },
   "home": {
@@ -311,7 +324,14 @@
           "acronym": "Viết tắt",
           "descriptionLabel": "Mô tả",
           "website": "URL trang web",
-          "venue": "Địa điểm / Vị trí"
+          "venue": "Địa điểm / Vị trí",
+          "placeholders": {
+            "name": "Hội nghị Quốc tế về...",
+            "acronym": "ICAI",
+            "description": "Mô tả ngắn gọn về hội nghị...",
+            "website": "https://conference.example.com",
+            "venue": "Thành phố, Quốc gia hoặc Trực tuyến"
+          }
         },
         "dates": {
           "title": "Ngày & Thời hạn",
@@ -326,7 +346,8 @@
           "title": "Lời mời gửi bài",
           "description": "Tùy chỉnh nội dung lời mời gửi bài",
           "text": "Nội dung lời mời gửi bài",
-          "markdownHint": "Hỗ trợ định dạng Markdown"
+          "markdownHint": "Hỗ trợ định dạng Markdown",
+          "placeholder": "Nhập nội dung lời mời gửi bài..."
         },
         "coChairs": {
           "title": "Đồng chủ tịch",
@@ -461,7 +482,11 @@
         "previewNotAvailable": "Xem trước không khả dụng",
         "downloadToView": "Vui lòng tải xuống để xem file",
         "noFile": "Không có file đính kèm",
-        "viewExternalLink": "Xem liên kết ngoài"
+        "viewExternalLink": "Xem liên kết ngoài",
+        "coverLetterFile": "Thư giới thiệu",
+        "coverLetterDescription": "Tài liệu hỗ trợ cho bài nộp của bạn",
+        "noCoverLetter": "Không có thư giới thiệu đính kèm",
+        "coverLetterOptional": "Thư giới thiệu là tùy chọn cho bài nộp này"
       },
       "tabs": {
         "overview": "Tổng quan",

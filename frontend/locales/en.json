@@ -43,7 +43,8 @@
       "download": "Download",
       "viewDetail": "View Detail",
       "expand": "Expand",
-      "collapse": "Collapse"
+      "collapse": "Collapse",
+      "clear": "Clear"
     },
     "labels": {
       "email": "Email",
@@ -107,6 +108,18 @@
       "open": "Accepting Submissions",
       "reviewing": "Submission Closed",
       "completed": "Ended"
+    },
+    "pagination": {
+      "showing": "Showing {{from}} to {{to}} of {{total}} {{item}}",
+      "first": "First",
+      "previous": "Previous",
+      "next": "Next",
+      "last": "Last"
+    },
+    "footer": {
+      "help": "Help",
+      "privacy": "Privacy",
+      "contact": "Contact Support"
     }
   },
   "home": {
@@ -311,7 +324,14 @@
           "acronym": "Acronym",
           "descriptionLabel": "Description",
           "website": "Website URL",
-          "venue": "Venue / Location"
+          "venue": "Venue / Location",
+          "placeholders": {
+            "name": "International Conference on...",
+            "acronym": "ICAI",
+            "description": "A brief description of your conference...",
+            "website": "https://conference.example.com",
+            "venue": "City, Country or Virtual"
+          }
         },
         "dates": {
           "title": "Dates & Deadlines",
@@ -326,7 +346,8 @@
           "title": "Call for Papers",
           "description": "Customize your call for papers content",
           "text": "Call for Papers Text",
-          "markdownHint": "Supports Markdown formatting"
+          "markdownHint": "Supports Markdown formatting",
+          "placeholder": "Enter the call for papers content..."
         },
         "coChairs": {
           "title": "Co-Chairs",
@@ -461,7 +482,11 @@
         "previewNotAvailable": "Preview not available",
         "downloadToView": "Please download to view the file",
         "noFile": "No file attached",
-        "viewExternalLink": "View external link"
+        "viewExternalLink": "View external link",
+        "coverLetterFile": "Cover Letter",
+        "coverLetterDescription": "Supporting document for your submission",
+        "noCoverLetter": "No cover letter attached",
+        "coverLetterOptional": "Cover letter is optional for this submission"
       },
       "tabs": {
         "overview": "Overview",
@@ -543,7 +568,6 @@
           "pendingReviews": "Pending Reviews",
           "papersToDo": "Papers to do"
         },
-
         "conferences": {
           "title": "My Conferences",
           "description": "List of conferences you are reviewing for",

@@ -183,7 +183,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: message }
       }
     },
-    [persistSession, t],
+    [syncWithSessionManager, t],
   )
 
   const register = useCallback(

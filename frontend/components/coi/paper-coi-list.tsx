@@ -28,6 +28,7 @@ export function PaperCOIList({ conferenceId, filters }: PaperCOIListProps) {
 
   useEffect(() => {
     loadPapers()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, page])
 
   const loadPapers = async () => {

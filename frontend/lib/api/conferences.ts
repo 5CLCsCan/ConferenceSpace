@@ -3,6 +3,7 @@
 // Connected to backend API endpoints
 
 import type { Conference, ConferenceStats, ConferenceStatus, Paper, User, Track } from "@/lib/types"
+export type { Conference, ConferenceStats, ConferenceStatus, Paper, User, Track }
 import { apiFetch } from "@/lib/api/client"
 
 // API Response wrapper for type safety

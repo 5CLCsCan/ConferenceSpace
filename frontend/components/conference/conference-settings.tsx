@@ -140,6 +140,7 @@ export function ConferenceSettings({
     } else {
       loadConference()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conferenceId, initialConference])
 
   const loadConference = async () => {
@@ -400,7 +401,7 @@ function GeneralSection({ form }: { form: any }) {
             id="title"
             className="mt-2"
             {...form.register("title", { required: true })}
-            placeholder="International Conference on..."
+            placeholder={t("dashboard.conference.settings.general.placeholders.name")}
           />
         </div>
 
@@ -410,7 +411,7 @@ function GeneralSection({ form }: { form: any }) {
             id="acronym"
             className="mt-2"
             {...form.register("acronym", { required: true })}
-            placeholder="ICAI"
+            placeholder={t("dashboard.conference.settings.general.placeholders.acronym")}
           />
         </div>
 
@@ -422,7 +423,7 @@ function GeneralSection({ form }: { form: any }) {
             id="description"
             className="mt-2"
             {...form.register("description")}
-            placeholder="A brief description of your conference..."
+            placeholder={t("dashboard.conference.settings.general.placeholders.description")}
             rows={4}
           />
         </div>
@@ -434,7 +435,7 @@ function GeneralSection({ form }: { form: any }) {
             type="url"
             className="mt-2"
             {...form.register("website")}
-            placeholder="https://conference.example.com"
+            placeholder={t("dashboard.conference.settings.general.placeholders.website")}
           />
         </div>
 
@@ -444,7 +445,7 @@ function GeneralSection({ form }: { form: any }) {
             id="venue"
             className="mt-2"
             {...form.register("venue")}
-            placeholder="City, Country or Virtual"
+            placeholder={t("dashboard.conference.settings.general.placeholders.venue")}
           />
         </div>
       </div>
@@ -547,7 +548,7 @@ function CfPSection({ form }: { form: any }) {
           id="callForPaperText"
           className="mt-2 font-mono text-sm"
           {...form.register("callForPaperText")}
-          placeholder="Enter the call for papers content..."
+          placeholder={t("dashboard.conference.settings.cfp.placeholder")}
           rows={12}
         />
         <p className={`mt-1 ${typography.bodySmall} text-gray-500`}>

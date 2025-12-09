@@ -74,6 +74,7 @@ export function COIAnalysisDashboard({ conferenceId, stats }: COIAnalysisDashboa
     if (viewMode === "person") {
       loadRelationships()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, page, viewMode])
 
   const loadRelationships = async () => {
@@ -306,15 +307,15 @@ export function COIAnalysisDashboard({ conferenceId, stats }: COIAnalysisDashboa
         }
       case "low":
         return {
-          badge: "bg-blue-500/10 text-blue-700 dark:text-blue-400",
-          border: "border-l-blue-500",
-          bg: "bg-blue-50/50 dark:bg-blue-950/20",
+          badge: "bg-primary/10 text-primary dark:text-primary",
+          border: "border-l-primary",
+          bg: "bg-primary/5 dark:bg-primary/10",
         }
       default:
         return {
-          badge: "bg-slate-500/10 text-slate-700 dark:text-slate-400",
-          border: "border-l-slate-500",
-          bg: "bg-slate-50/50 dark:bg-slate-950/20",
+          badge: "bg-muted text-muted-foreground",
+          border: "border-l-muted-foreground",
+          bg: "bg-muted/50 dark:bg-muted/20",
         }
     }
   }
@@ -342,7 +343,7 @@ export function COIAnalysisDashboard({ conferenceId, stats }: COIAnalysisDashboa
   const totalPages = Math.ceil(totalCount / itemsPerPage)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-slate-50 dark:to-slate-900 px-4 py-6 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/30 dark:to-muted/10 px-4 py-6 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="space-y-4">
@@ -390,12 +391,12 @@ export function COIAnalysisDashboard({ conferenceId, stats }: COIAnalysisDashboa
 
         {/* View Toggle */}
         <div className="flex justify-center">
-          <div className="inline-flex p-1 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+          <div className="inline-flex p-1 bg-muted rounded-lg border border-border">
             <button
               onClick={() => setViewMode("person")}
               className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer ${
                 viewMode === "person"
-                  ? "bg-white dark:bg-slate-950 text-primary shadow-sm"
+                  ? "bg-background text-primary shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -406,7 +407,7 @@ export function COIAnalysisDashboard({ conferenceId, stats }: COIAnalysisDashboa
               onClick={() => setViewMode("paper")}
               className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer ${
                 viewMode === "paper"
-                  ? "bg-white dark:bg-slate-950 text-primary shadow-sm"
+                  ? "bg-background text-primary shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -491,11 +492,11 @@ export function COIAnalysisDashboard({ conferenceId, stats }: COIAnalysisDashboa
                             {getSeverityIcon(rel.severity)}
                             {t(`coi.severity.${rel.severity}`)}
                           </span>
-                          <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-500/10 text-slate-600 dark:text-slate-300 text-xs font-semibold">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full bg-muted text-muted-foreground text-xs font-semibold">
                             {getRelationshipTypeLabel(rel.type)}
                           </span>
                           {rel.start_date && (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-500/10 text-slate-600 dark:text-slate-300 text-xs font-semibold">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-muted text-muted-foreground text-xs font-semibold">
                               {new Date(rel.start_date).getFullYear()}
                             </span>
                           )}
@@ -515,7 +516,7 @@ export function COIAnalysisDashboard({ conferenceId, stats }: COIAnalysisDashboa
                       {/* Timeline Bar */}
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <span>Timeline</span>
-                        <div className="w-24 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
                           <div
                             className="h-full bg-primary"
                             style={{
@@ -536,8 +537,8 @@ export function COIAnalysisDashboard({ conferenceId, stats }: COIAnalysisDashboa
                     {/* Expanded View */}
                     {isExpanded && (
                       <>
-                        <div className="border-t border-slate-200 dark:border-slate-700"></div>
-                        <div className="p-6 bg-white dark:bg-slate-900/50 space-y-6">
+                        <div className="border-t border-border"></div>
+                        <div className="p-6 bg-background space-y-6">
                           {/* Reviewer and Author Info */}
                           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <div>
@@ -595,7 +596,7 @@ export function COIAnalysisDashboard({ conferenceId, stats }: COIAnalysisDashboa
                               <h4 className="font-semibold text-foreground mb-2">Related Papers</h4>
                               <ul className="space-y-1 text-sm">
                                 {rel.paper_titles.map((title, idx) => (
-                                  <li key={idx} className="text-slate-600 dark:text-slate-300">
+                                  <li key={idx} className="text-muted-foreground">
                                     • {title}
                                   </li>
                                 ))}
@@ -607,12 +608,9 @@ export function COIAnalysisDashboard({ conferenceId, stats }: COIAnalysisDashboa
                           {rel.evidence && rel.evidence.length > 0 && (
                             <div>
                               <h4 className="font-semibold text-foreground mb-3">Evidence</h4>
-                              <div className="space-y-2 border-l-2 border-slate-300 dark:border-slate-600 pl-4">
+                              <div className="space-y-2 border-l-2 border-border pl-4">
                                 {rel.evidence.map((evidence, idx) => (
-                                  <p
-                                    key={idx}
-                                    className="text-sm text-slate-600 dark:text-slate-300"
-                                  >
+                                  <p key={idx} className="text-sm text-muted-foreground">
                                     • {evidence}
                                   </p>
                                 ))}
@@ -621,7 +619,7 @@ export function COIAnalysisDashboard({ conferenceId, stats }: COIAnalysisDashboa
                           )}
 
                           {/* Action Buttons */}
-                          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                          <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
                             <Button
                               variant="outline"
                               size="sm"

@@ -25,11 +25,12 @@ export default function HomePage() {
   const router = useRouter()
   const { t } = useTranslation()
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/dashboard")
-    }
-  }, [isAuthenticated, router])
+  // Redirect removed to allow access to landing page
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     router.push("/dashboard")
+  //   }
+  // }, [isAuthenticated, router])
 
   return (
     <div className="min-h-screen bg-background text-foreground">

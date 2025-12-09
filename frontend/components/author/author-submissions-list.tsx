@@ -215,7 +215,7 @@ export function AuthorSubmissionsList() {
         },
         published: {
           label: t("dashboard.author.submissions.published"),
-          className: "bg-blue-100 text-blue-800",
+          className: "bg-primary/10 text-primary",
         },
       }
 
@@ -294,7 +294,7 @@ export function AuthorSubmissionsList() {
           <div className="flex items-center gap-2">
             {submission.file && (
               <div className="flex items-center gap-1 text-xs text-gray-600" title="Paper attached">
-                <FileText className="size-4 text-blue-600" />
+                <FileText className="size-4 text-primary" />
                 <span className="sr-only">Paper</span>
               </div>
             )}

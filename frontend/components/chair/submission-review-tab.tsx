@@ -102,15 +102,15 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
     const config: Record<string, { label: string; className: string }> = {
       high: {
         label: t("dashboard.chair.review.confidence.high"),
-        className: "bg-blue-600 text-white",
+        className: "bg-primary text-primary-foreground",
       },
       medium: {
         label: t("dashboard.chair.review.confidence.medium"),
-        className: "bg-blue-400 text-white",
+        className: "bg-primary/80 text-primary-foreground",
       },
       low: {
         label: t("dashboard.chair.review.confidence.low"),
-        className: "bg-blue-300 text-white",
+        className: "bg-primary/60 text-primary-foreground",
       },
     }
     const item = config[confidence] || { label: confidence, className: "bg-gray-500 text-white" }

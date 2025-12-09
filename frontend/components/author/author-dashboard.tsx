@@ -9,7 +9,7 @@ import { useDebounce } from "@/hooks/use-debounce"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import type { Conference, ConferenceStatus } from "@/lib/types"
 import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
@@ -147,9 +147,9 @@ export function AuthorDashboard() {
     setCurrentPage(1)
   }, [viewMode, debouncedSearchQuery, statusFilter])
 
-  const handleRemoveStatusFilter = () => {
+  const handleRemoveStatusFilter = useCallback(() => {
     setStatusFilter("")
-  }
+  }, [])
 
   const hasActiveFilters = statusFilter !== ""
 
@@ -162,7 +162,7 @@ export function AuthorDashboard() {
         onRemove: handleRemoveStatusFilter,
       },
     ]
-  }, [statusFilter])
+  }, [statusFilter, t, handleRemoveStatusFilter])
 
   const computeConferenceStatus = (conference: Conference): ConferenceStatus => {
     const parseDate = (value?: string | null) => (value ? new Date(value) : null)
@@ -182,52 +182,55 @@ export function AuthorDashboard() {
   }
 
   // Handle bookmark toggle
-  const handleBookmarkToggle = async (conference: Conference, e: React.MouseEvent) => {
-    e.stopPropagation() // Prevent row click
+  const handleBookmarkToggle = useCallback(
+    async (conference: Conference, e: React.MouseEvent) => {
+      e.stopPropagation() // Prevent row click
 
-    try {
-      const result = await toggleBookmark(conference.id)
+      try {
+        const result = await toggleBookmark(conference.id)
 
-      if (result.error) {
-        console.error("Failed to toggle bookmark:", result.error)
-        toast({
-          title: "Bookmark failed",
-          description: result.error,
-          variant: "destructive",
-        })
-        return
-      }
-
-      const isBookmarked = result.data?.isBookmarked ?? false
-
-      toast({
-        title: isBookmarked ? "Conference bookmarked" : "Bookmark removed",
-        description: conference.name,
-      })
-
-      setConferences((prev) => {
-        const updated = prev.map((conf) =>
-          conf.id === conference.id ? { ...conf, isBookmarked } : conf,
-        )
-
-        if (viewMode === "discover") {
-          return updated.filter((conf) => !conf.isBookmarked)
-        }
-
-        if (viewMode === "my") {
-          return updated.filter((conf) => {
-            if (conf.id !== conference.id) return true
-            if (conf.isBookmarked) return true
-            return conf.userRole === "author"
+        if (result.error) {
+          console.error("Failed to toggle bookmark:", result.error)
+          toast({
+            title: "Bookmark failed",
+            description: result.error,
+            variant: "destructive",
           })
+          return
         }
 
-        return updated
-      })
-    } catch (error) {
-      console.error("Error toggling bookmark:", error)
-    }
-  }
+        const isBookmarked = result.data?.isBookmarked ?? false
+
+        toast({
+          title: isBookmarked ? "Conference bookmarked" : "Bookmark removed",
+          description: conference.name,
+        })
+
+        setConferences((prev) => {
+          const updated = prev.map((conf) =>
+            conf.id === conference.id ? { ...conf, isBookmarked } : conf,
+          )
+
+          if (viewMode === "discover") {
+            return updated.filter((conf) => !conf.isBookmarked)
+          }
+
+          if (viewMode === "my") {
+            return updated.filter((conf) => {
+              if (conf.id !== conference.id) return true
+              if (conf.isBookmarked) return true
+              return conf.userRole === "author"
+            })
+          }
+
+          return updated
+        })
+      } catch (error) {
+        console.error("Error toggling bookmark:", error)
+      }
+    },
+    [toast, viewMode],
+  )
 
   const filterPopover = (
     <div className={spacing.subsection}>
@@ -378,7 +381,7 @@ export function AuthorDashboard() {
                           ? t("common.status.submitted")
                           : t("common.status.bookmarked")
                       const statusColors: Record<string, string> = {
-                        Submitted: "bg-blue-100 text-blue-800",
+                        Submitted: "bg-primary/10 text-primary",
                         Reviewing: "bg-yellow-100 text-yellow-800",
                         Accepted: "bg-green-100 text-green-800",
                         Rejected: "bg-red-100 text-red-800",
@@ -438,7 +441,7 @@ export function AuthorDashboard() {
               ]
 
               return baseColumns
-            }, [viewMode, t])}
+            }, [viewMode, t, handleBookmarkToggle])}
             data={conferences}
             loading={loading}
             error={error}

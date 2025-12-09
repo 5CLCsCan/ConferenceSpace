@@ -72,9 +72,9 @@ export function ReviewerConferences({
     return statusFilter ? conferences.filter((conf) => conf.status === statusFilter) : conferences
   }, [conferences, statusFilter])
 
-  const handleRemoveStatusFilter = () => {
+  const handleRemoveStatusFilter = useCallback(() => {
     setStatusFilter("")
-  }
+  }, [])
 
   const hasActiveFilters = statusFilter !== ""
 
@@ -87,7 +87,7 @@ export function ReviewerConferences({
         onRemove: handleRemoveStatusFilter,
       },
     ]
-  }, [statusFilter])
+  }, [statusFilter, t, handleRemoveStatusFilter])
 
   const filterPopover = (
     <div className="space-y-4">

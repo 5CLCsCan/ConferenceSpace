@@ -93,7 +93,7 @@ export function ConferenceCallForPapers({ conference }: ConferenceCallForPapersP
     }
 
     checkUserSubmission()
-  }, [conference?.id, user?.email, refreshTrigger])
+  }, [conference, user, refreshTrigger])
 
   // Re-check when page becomes visible (handles navigation back from submission form)
   useEffect(() => {

@@ -37,6 +37,7 @@ export function COIDetailView({
     if (conferenceId && reviewerId && authorEmail) {
       loadCOIDetails()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conferenceId, reviewerId, authorEmail])
 
   const loadCOIDetails = async () => {
@@ -81,9 +82,9 @@ export function COIDetailView({
       case "medium":
         return "border-l-amber-500 bg-amber-50/50 dark:bg-amber-950/20"
       case "low":
-        return "border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20"
+        return "border-l-primary bg-primary/5 dark:bg-primary/10"
       default:
-        return "border-l-slate-500 bg-slate-50/50 dark:bg-slate-950/20"
+        return "border-l-muted-foreground bg-muted/50 dark:bg-muted/20"
     }
   }
 
@@ -94,9 +95,9 @@ export function COIDetailView({
       case "medium":
         return "bg-amber-500/10 text-amber-700 dark:text-amber-400"
       case "low":
-        return "bg-blue-500/10 text-blue-700 dark:text-blue-400"
+        return "bg-primary/10 text-primary dark:text-primary"
       default:
-        return "bg-slate-500/10 text-slate-700 dark:text-slate-400"
+        return "bg-muted text-muted-foreground"
     }
   }
 
@@ -144,7 +145,7 @@ export function COIDetailView({
       <div className="grid grid-cols-2 gap-6 px-1">
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <Users className="h-4 w-4 text-blue-600" />
+            <Users className="h-4 w-4 text-primary" />
             {t("coi.common.reviewer")}
           </div>
           <div className="space-y-1 text-sm">
@@ -196,10 +197,10 @@ export function COIDetailView({
               {coiReport.relationships.map((rel, idx) => (
                 <div
                   key={idx}
-                  className="flex gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  className="flex gap-3 p-3 rounded-lg border border-border bg-background"
                 >
                   <div className="flex-shrink-0 pt-1">
-                    <CornerDownRight className="h-4 w-4 text-blue-500" />
+                    <CornerDownRight className="h-4 w-4 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm text-foreground mb-1">
@@ -210,7 +211,7 @@ export function COIDetailView({
                     </p>
                     <p className="text-xs text-muted-foreground mb-2">{rel.description}</p>
                     {rel.evidence && rel.evidence.length > 0 && (
-                      <div className="text-xs text-slate-600 dark:text-slate-400 space-y-1">
+                      <div className="text-xs text-muted-foreground space-y-1">
                         {rel.evidence.map((evidence, i) => (
                           <p key={i}>
                             <span className="font-medium">Evidence:</span> {evidence}

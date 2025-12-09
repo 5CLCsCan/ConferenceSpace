@@ -61,8 +61,8 @@ export function PaperTab({
       {/* Header */}
       <div className={spacing.item}>
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-50 rounded-lg">
-            <FileText className="size-6 text-blue-600" />
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <FileText className="size-6 text-primary" />
           </div>
           <div>
             <h2 className={`${typography.h2} text-foreground font-arial`}>
