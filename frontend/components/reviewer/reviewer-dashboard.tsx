@@ -46,7 +46,12 @@ function ConferencePapersWithSWR({
   const [statusFilter, setStatusFilter] = useState("")
   const debouncedSearch = useDebounce(searchQuery, 500)
 
-  const { papers, isLoading, error, refresh: refreshPapers } = useConferencePapers(reviewerId, conferenceId, {
+  const {
+    papers,
+    isLoading,
+    error,
+    refresh: refreshPapers,
+  } = useConferencePapers(reviewerId, conferenceId, {
     search: debouncedSearch,
     status: statusFilter,
     limit: 20,
@@ -121,14 +126,12 @@ export function ReviewerDashboard() {
   const [allInvitations, setAllInvitations] = useState<any[]>([])
   const [allAssignments, setAllAssignments] = useState<any[]>([])
 
-
   // Debounce search to avoid excessive API calls
   const debouncedConferenceSearch = useDebounce(conferenceSearch, 500)
 
   // Use SWR hook with caching for dashboard data
-  const { dashboard, isLoading, error, refresh, updateOptimistic, isValidating } = useReviewerDashboard(
-    currentReviewerEmail,
-    {
+  const { dashboard, isLoading, error, refresh, updateOptimistic, isValidating } =
+    useReviewerDashboard(currentReviewerEmail, {
       conferenceSearch: debouncedConferenceSearch,
       invitationStatus: invitationStatusFilter,
       conferenceLimit: 20, // Load 20 at a time for infinite scroll
@@ -137,8 +140,7 @@ export function ReviewerDashboard() {
       invitationOffset: invitationOffset,
       recentAssignmentLimit: 20, // Load 20 at a time for infinite scroll
       recentAssignmentOffset: assignmentOffset,
-    },
-  )
+    })
 
   // Reset offsets when search/filter changes
   useEffect(() => {

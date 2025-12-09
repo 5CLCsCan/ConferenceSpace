@@ -52,7 +52,8 @@ export function ConferenceDashboard({ conferenceId }: ConferenceDashboardProps) 
     loadStats()
   }, [conferenceId])
 
-  const COLORS = ["#0056A3", "#28A745", "#FFC107", "#DC3545"]
+  const chartColors = ["var(--chart-1)", "var(--chart-3)", "var(--chart-2)", "var(--chart-4)"]
+  const axisTick = { fill: "var(--muted-foreground)", fontSize: 12 }
 
   const isChair = currentRole === "chair"
   const showFullStats = isChair
@@ -62,7 +63,9 @@ export function ConferenceDashboard({ conferenceId }: ConferenceDashboardProps) 
     return (
       <div className={spacing.section}>
         <div className="flex items-center justify-center h-64">
-          <p className={`${typography.body} text-gray-500`}>{t("dashboard.chair.createConference.dashboard.loading")}</p>
+          <p className={`${typography.body} text-muted-foreground`}>
+            {t("dashboard.chair.createConference.dashboard.loading")}
+          </p>
         </div>
       </div>
     )
@@ -72,7 +75,9 @@ export function ConferenceDashboard({ conferenceId }: ConferenceDashboardProps) 
     return (
       <div className={spacing.section}>
         <div className="flex items-center justify-center h-64">
-          <p className={`${typography.body} text-gray-500`}>{t("dashboard.chair.createConference.dashboard.noData")}</p>
+          <p className={`${typography.body} text-muted-foreground`}>
+            {t("dashboard.chair.createConference.dashboard.noData")}
+          </p>
         </div>
       </div>
     )
@@ -83,7 +88,7 @@ export function ConferenceDashboard({ conferenceId }: ConferenceDashboardProps) 
       {/* Header */}
       <div>
         <h1 className={typography.h1}>{t("dashboard.chair.createConference.dashboard.title")}</h1>
-        <p className={`mt-1 ${typography.body} text-gray-600`}>
+        <p className={`mt-1 ${typography.body} text-muted-foreground`}>
           {isChair
             ? t("dashboard.chair.createConference.dashboard.descriptionChair")
             : t("dashboard.chair.createConference.dashboard.descriptionOther")}
@@ -95,8 +100,12 @@ export function ConferenceDashboard({ conferenceId }: ConferenceDashboardProps) 
         <Card className={spacing.padding.card}>
           <div className="flex items-center justify-between">
             <div>
-              <p className={`${typography.label} text-gray-500`}>{t("dashboard.chair.createConference.dashboard.totalSubmissions")}</p>
-              <p className={`mt-1 ${typography.stats} text-gray-900`}>{stats.total_submissions}</p>
+              <p className={`${typography.label} text-muted-foreground`}>
+                {t("dashboard.chair.createConference.dashboard.totalSubmissions")}
+              </p>
+              <p className={`mt-1 ${typography.stats} text-foreground`}>
+                {stats.total_submissions}
+              </p>
             </div>
             <div className="rounded-lg bg-primary/10 p-2">
               <FileText className={`${iconSizes.md} text-primary`} />
@@ -109,8 +118,12 @@ export function ConferenceDashboard({ conferenceId }: ConferenceDashboardProps) 
             <Card className={spacing.padding.card}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className={`${typography.label} text-gray-500`}>{t("dashboard.chair.createConference.dashboard.totalReviews")}</p>
-                  <p className={`mt-1 ${typography.stats} text-gray-900`}>{stats.total_reviews}</p>
+                  <p className={`${typography.label} text-muted-foreground`}>
+                    {t("dashboard.chair.createConference.dashboard.totalReviews")}
+                  </p>
+                  <p className={`mt-1 ${typography.stats} text-foreground`}>
+                    {stats.total_reviews}
+                  </p>
                 </div>
                 <div className="rounded-lg bg-primary/10 p-2">
                   <Users className={`${iconSizes.md} text-primary`} />
@@ -121,8 +134,10 @@ export function ConferenceDashboard({ conferenceId }: ConferenceDashboardProps) 
             <Card className={spacing.padding.card}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className={`${typography.label} text-gray-500`}>{t("dashboard.chair.createConference.dashboard.acceptanceRate")}</p>
-                  <p className={`mt-1 ${typography.stats} text-gray-900`}>
+                  <p className={`${typography.label} text-muted-foreground`}>
+                    {t("dashboard.chair.createConference.dashboard.acceptanceRate")}
+                  </p>
+                  <p className={`mt-1 ${typography.stats} text-foreground`}>
                     {stats.acceptance_rate}%
                   </p>
                 </div>
@@ -135,8 +150,10 @@ export function ConferenceDashboard({ conferenceId }: ConferenceDashboardProps) 
             <Card className={spacing.padding.card}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className={`${typography.label} text-gray-500`}>{t("dashboard.chair.createConference.dashboard.avgReviewsPerPaper")}</p>
-                  <p className={`mt-1 ${typography.stats} text-gray-900`}>
+                  <p className={`${typography.label} text-muted-foreground`}>
+                    {t("dashboard.chair.createConference.dashboard.avgReviewsPerPaper")}
+                  </p>
+                  <p className={`mt-1 ${typography.stats} text-foreground`}>
                     {stats.avg_reviews_per_paper.toFixed(1)}
                   </p>
                 </div>
@@ -154,24 +171,26 @@ export function ConferenceDashboard({ conferenceId }: ConferenceDashboardProps) 
         <div className={`grid ${spacing.gap.md} lg:grid-cols-2`}>
           {/* Submissions by Track */}
           <Card className={spacing.padding.card}>
-            <h3 className={typography.h5}>{t("dashboard.chair.createConference.dashboard.submissionsByTrack")}</h3>
+            <h3 className={typography.h5}>
+              {t("dashboard.chair.createConference.dashboard.submissionsByTrack")}
+            </h3>
             <p className={`mt-1 ${typography.caption}`}>
               {t("dashboard.chair.createConference.dashboard.submissionsByTrackDesc")}
             </p>
             <div className="mt-4 h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={stats.submissions_by_track}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                  <XAxis dataKey="track" tick={{ fill: "#6B7280", fontSize: 12 }} />
-                  <YAxis tick={{ fill: "#6B7280", fontSize: 12 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="track" tick={axisTick} />
+                  <YAxis tick={axisTick} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "#FFFFFF",
-                      border: "1px solid #E5E7EB",
+                      backgroundColor: "var(--card)",
+                      border: "1px solid var(--border)",
                       borderRadius: "8px",
                     }}
                   />
-                  <Bar dataKey="count" fill="#0056A3" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="count" fill="var(--chart-1)" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -179,8 +198,12 @@ export function ConferenceDashboard({ conferenceId }: ConferenceDashboardProps) 
 
           {/* Review Progress */}
           <Card className={spacing.padding.card}>
-            <h3 className={typography.h5}>{t("dashboard.chair.createConference.dashboard.reviewProgress")}</h3>
-            <p className={`mt-1 ${typography.caption}`}>{t("dashboard.chair.createConference.dashboard.reviewProgressDesc")}</p>
+            <h3 className={typography.h5}>
+              {t("dashboard.chair.createConference.dashboard.reviewProgress")}
+            </h3>
+            <p className={`mt-1 ${typography.caption}`}>
+              {t("dashboard.chair.createConference.dashboard.reviewProgressDesc")}
+            </p>
             <div className="mt-4 h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -207,11 +230,11 @@ export function ConferenceDashboard({ conferenceId }: ConferenceDashboardProps) 
                       return `${name}: ${(p * 100).toFixed(0)}%`
                     }}
                     outerRadius={100}
-                    fill="#8884d8"
+                    fill="var(--chart-1)"
                     dataKey="value"
                   >
                     {[0, 1, 2].map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
                     ))}
                   </Pie>
                   <Tooltip />

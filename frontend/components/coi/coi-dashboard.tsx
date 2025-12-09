@@ -28,6 +28,7 @@ export function COIDashboard({ conferenceId }: COIDashboardProps) {
 
   useEffect(() => {
     loadStats()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conferenceId])
 
   const loadStats = async () => {

@@ -5,10 +5,13 @@ export function getAuthToken(): string | null {
 
   // Try to get the WebSocket token cookie (non-httpOnly)
   const cookies = document.cookie.split(";")
-  
+
   // Debug: log all available cookies
-  console.log("[Auth] Available cookies:", cookies.map((c) => c.trim().split("=")[0]))
-  
+  console.log(
+    "[Auth] Available cookies:",
+    cookies.map((c) => c.trim().split("=")[0]),
+  )
+
   for (const cookie of cookies) {
     const [name, value] = cookie.trim().split("=")
     // Look for WebSocket token first, then fall back to regular auth token

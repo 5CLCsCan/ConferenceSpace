@@ -244,8 +244,7 @@ export default function CreateConferencePage() {
   }
 
   const progressPercentage = (currentStep / STEPS.length) * 100
-  const connectorProgress =
-    STEPS.length > 1 ? ((currentStep - 1) / (STEPS.length - 1)) * 100 : 0
+  const connectorProgress = STEPS.length > 1 ? ((currentStep - 1) / (STEPS.length - 1)) * 100 : 0
 
   if (!authChecked || !isAuthenticated || !user) {
     return (
@@ -358,7 +357,9 @@ export default function CreateConferencePage() {
             className="gap-2 shadow-lg text-xs sm:text-sm"
           >
             <ChevronLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">{t("dashboard.chair.createConference.previousStep")}</span>
+            <span className="hidden sm:inline">
+              {t("dashboard.chair.createConference.previousStep")}
+            </span>
             <span className="sm:hidden">{t("common.actions.previous")}</span>
           </Button>
         )}
@@ -381,7 +382,9 @@ export default function CreateConferencePage() {
                 ? t("common.actions.creating")
                 : t("dashboard.chair.createConference.confirmCreate")}
             </span>
-            <span className="sm:hidden">{isCreating ? t("common.actions.creating") : t("common.actions.create")}</span>
+            <span className="sm:hidden">
+              {isCreating ? t("common.actions.creating") : t("common.actions.create")}
+            </span>
           </Button>
         )}
       </div>

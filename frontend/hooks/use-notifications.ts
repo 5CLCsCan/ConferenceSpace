@@ -44,24 +44,27 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
   const [total, setTotal] = useState(0)
 
   // Fetch notifications
-  const fetchNotifications = useCallback(async (params?: NotificationListRequest) => {
-    try {
-      setIsLoading(true)
-      setError(null)
-      const response = await getNotifications({
-        limit: params?.limit ?? limit,
-        offset: params?.offset ?? 0,
-        unread: params?.unread ?? unreadOnly,
-        type: params?.type,
-      })
-      setNotifications(response.notifications || [])
-      setTotal(response.total)
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error("Failed to fetch notifications"))
-    } finally {
-      setIsLoading(false)
-    }
-  }, [limit, unreadOnly])
+  const fetchNotifications = useCallback(
+    async (params?: NotificationListRequest) => {
+      try {
+        setIsLoading(true)
+        setError(null)
+        const response = await getNotifications({
+          limit: params?.limit ?? limit,
+          offset: params?.offset ?? 0,
+          unread: params?.unread ?? unreadOnly,
+          type: params?.type,
+        })
+        setNotifications(response.notifications || [])
+        setTotal(response.total)
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error("Failed to fetch notifications"))
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [limit, unreadOnly],
+  )
 
   // Fetch unread count
   const fetchUnreadCount = useCallback(async () => {
@@ -77,9 +80,7 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
   const markAsRead = useCallback(async (id: number) => {
     try {
       await apiMarkAsRead(id)
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
-      )
+      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)))
       setUnreadCount((prev) => Math.max(0, prev - 1))
     } catch (err) {
       console.error("Failed to mark notification as read:", err)
@@ -100,20 +101,23 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
   }, [])
 
   // Delete a notification
-  const deleteNotification = useCallback(async (id: number) => {
-    try {
-      const notificationToDelete = notifications.find((n) => n.id === id)
-      await apiDeleteNotification(id)
-      setNotifications((prev) => prev.filter((n) => n.id !== id))
-      setTotal((prev) => prev - 1)
-      if (notificationToDelete && !notificationToDelete.read) {
-        setUnreadCount((prev) => Math.max(0, prev - 1))
+  const deleteNotification = useCallback(
+    async (id: number) => {
+      try {
+        const notificationToDelete = notifications.find((n) => n.id === id)
+        await apiDeleteNotification(id)
+        setNotifications((prev) => prev.filter((n) => n.id !== id))
+        setTotal((prev) => prev - 1)
+        if (notificationToDelete && !notificationToDelete.read) {
+          setUnreadCount((prev) => Math.max(0, prev - 1))
+        }
+      } catch (err) {
+        console.error("Failed to delete notification:", err)
+        throw err
       }
-    } catch (err) {
-      console.error("Failed to delete notification:", err)
-      throw err
-    }
-  }, [notifications])
+    },
+    [notifications],
+  )
 
   // Refresh notifications
   const refresh = useCallback(async () => {
@@ -140,12 +144,12 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
     const initializeWebSocket = async () => {
       // Small delay to handle React Strict Mode double-invoke
       await new Promise((resolve) => setTimeout(resolve, 100))
-      
+
       if (!isMounted) {
         console.log("[WebSocket] Component unmounted during init, skipping")
         return
       }
-      
+
       try {
         const token = getAuthToken()
         console.log("[WebSocket] Token retrieved:", token ? "yes" : "no")
@@ -182,9 +186,9 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
     const handleBeforeUnload = () => {
       disconnectNotificationWebSocket()
     }
-    
+
     window.addEventListener("beforeunload", handleBeforeUnload)
-    
+
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload)
     }
@@ -209,4 +213,3 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
     refresh,
   }
 }
-

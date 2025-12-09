@@ -114,7 +114,8 @@ export function ConferenceCommittee({ conferenceId }: ConferenceCommitteeProps) 
   const isChair = currentRole === "chair"
 
   // Get chair email - prioritize chair_email field, fallback to chair if it looks like email
-  const chairEmail = conference?.chair_email || (conference?.chair?.includes('@') ? conference.chair : null)
+  const chairEmail =
+    conference?.chair_email || (conference?.chair?.includes("@") ? conference.chair : null)
 
   const loadData = useCallback(async () => {
     setIsLoading(true)

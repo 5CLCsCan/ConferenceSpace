@@ -21,7 +21,7 @@ type Props = {
 
 export function ConferenceDetailsStep({ data, updateData }: Props) {
   const { t } = useTranslation()
-  
+
   return (
     <div className={spacing.subsection}>
       <div>
@@ -37,7 +37,8 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
         {/* Conference Title */}
         <div className={spacing.item}>
           <Label htmlFor="title" className={typography.label}>
-            {t("dashboard.chair.createConference.step1.conferenceTitle")} <span className="text-destructive">*</span>
+            {t("dashboard.chair.createConference.step1.conferenceTitle")}{" "}
+            <span className="text-destructive">*</span>
           </Label>
           <Input
             id="title"
@@ -50,7 +51,8 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
         {/* Acronym */}
         <div className={spacing.item}>
           <Label htmlFor="acronym" className={typography.label}>
-            {t("dashboard.chair.createConference.step1.acronym")} <span className="text-destructive">*</span>
+            {t("dashboard.chair.createConference.step1.acronym")}{" "}
+            <span className="text-destructive">*</span>
           </Label>
           <Input
             id="acronym"
@@ -64,7 +66,8 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
         {/* Description */}
         <div className={spacing.item}>
           <Label htmlFor="description" className={typography.label}>
-            {t("dashboard.chair.createConference.step1.description")} <span className="text-destructive">*</span>
+            {t("dashboard.chair.createConference.step1.description")}{" "}
+            <span className="text-destructive">*</span>
           </Label>
           <Textarea
             id="description"
@@ -92,7 +95,8 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
         {/* Conference Dates */}
         <div className={spacing.item}>
           <Label className={typography.label}>
-            {t("dashboard.chair.createConference.step1.conferenceDates")} <span className="text-destructive">*</span>
+            {t("dashboard.chair.createConference.step1.conferenceDates")}{" "}
+            <span className="text-destructive">*</span>
           </Label>
           <div className={`flex ${spacing.gap.sm}`}>
             <Popover>
@@ -136,7 +140,11 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
                   )}
                 >
                   <CalendarIcon className={`mr-2 ${iconSizes.sm}`} />
-                  {data.dateRange.to ? format(data.dateRange.to, "PPP") : <span>{t("dashboard.chair.createConference.step1.endDate")}</span>}
+                  {data.dateRange.to ? (
+                    format(data.dateRange.to, "PPP")
+                  ) : (
+                    <span>{t("dashboard.chair.createConference.step1.endDate")}</span>
+                  )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -158,7 +166,8 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
         {/* Location Type */}
         <div className={spacing.item}>
           <Label className={typography.label}>
-            {t("dashboard.chair.createConference.step1.location")} <span className="text-destructive">*</span>
+            {t("dashboard.chair.createConference.step1.location")}{" "}
+            <span className="text-destructive">*</span>
           </Label>
           <RadioGroup
             value={data.locationType}
@@ -191,7 +200,8 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
         {(data.locationType === "in-person" || data.locationType === "hybrid") && (
           <div className={spacing.item}>
             <Label htmlFor="venue" className={typography.label}>
-              {t("dashboard.chair.createConference.step1.venue")} <span className="text-destructive">*</span>
+              {t("dashboard.chair.createConference.step1.venue")}{" "}
+              <span className="text-destructive">*</span>
             </Label>
             <Input
               id="venue"
@@ -205,7 +215,8 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
         {/* Contact Email */}
         <div className={spacing.item}>
           <Label htmlFor="contactEmail" className={typography.label}>
-            {t("dashboard.chair.createConference.step1.contactEmail")} <span className="text-destructive">*</span>
+            {t("dashboard.chair.createConference.step1.contactEmail")}{" "}
+            <span className="text-destructive">*</span>
           </Label>
           <Input
             id="contactEmail"
@@ -214,7 +225,9 @@ export function ConferenceDetailsStep({ data, updateData }: Props) {
             value={data.contactEmail}
             onChange={(e) => updateData({ contactEmail: e.target.value })}
           />
-          <p className={typography.caption}>{t("dashboard.chair.createConference.step1.contactEmailHint")}</p>
+          <p className={typography.caption}>
+            {t("dashboard.chair.createConference.step1.contactEmailHint")}
+          </p>
         </div>
       </div>
     </div>

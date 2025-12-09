@@ -51,15 +51,15 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
       const response = await updateSubmissionStatus(
         conferenceId,
         submission.id.toString(),
-        decision
+        decision,
       )
-      
+
       if (response.error) {
         console.error("Failed to update submission status:", response.error)
         // TODO: Show error toast
         return
       }
-      
+
       console.log(`Successfully updated submission ${submission.id} to ${decision}`)
       // TODO: Show success toast and refresh page
       window.location.reload()
@@ -77,7 +77,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
       },
       published: {
         label: t("published"),
-        className: "bg-blue-100 text-blue-800",
+        className: "bg-primary/10 text-primary",
       },
     }
 
@@ -110,20 +110,24 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
               className="gap-2"
             >
               <ArrowLeft className="size-4" />
-              {t("common.actions.back", "Quay lại")}
+              {t("common.actions.back")}
             </Button>
           </div>
           <div className="flex items-center gap-3 mb-4">{getStatusBadge(submission.status)}</div>
           <h1 className="text-3xl font-bold mb-2">{submission.title}</h1>
           <p className="text-sm text-muted-foreground mb-4">
-            {t("dashboard.submission.details.author", "Author")}: {submission.author}
+            {t("dashboard.submission.details.author")}: {submission.author}
           </p>
         </div>
         <div className="flex gap-2">
           {/* Chair Decision Dropdown */}
           {isChair && (
             <Select
-              value={["accepted", "rejected"].includes(submission.status) ? submission.status : "__current"}
+              value={
+                ["accepted", "rejected"].includes(submission.status)
+                  ? submission.status
+                  : "__current"
+              }
               onValueChange={(value) => handleDecision(value as "accepted" | "rejected")}
             >
               <SelectTrigger className="w-[180px]">
@@ -132,26 +136,32 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
               <SelectContent>
                 {!["accepted", "rejected"].includes(submission.status) && (
                   <SelectItem value="__current" disabled>
-                    {t(`dashboard.submissions.status.${submission.status}`, { defaultValue: submission.status })}
+                    {t(`dashboard.submissions.status.${submission.status}`, {
+                      defaultValue: submission.status,
+                    })}
                   </SelectItem>
                 )}
                 <SelectItem value="accepted">
-                  <span className="font-bold text-green-700">{t("common.actions.accept", { defaultValue: "Accept" })}</span>
+                  <span className="font-bold text-green-700">
+                    {t("common.actions.accept", { defaultValue: "Accept" })}
+                  </span>
                 </SelectItem>
                 <SelectItem value="rejected">
-                  <span className="font-bold text-red-700">{t("common.actions.decline", { defaultValue: "Reject" })}</span>
+                  <span className="font-bold text-red-700">
+                    {t("common.actions.decline", { defaultValue: "Reject" })}
+                  </span>
                 </SelectItem>
               </SelectContent>
             </Select>
           )}
-          
+
           {isAuthor && submission.status === "draft" && (
             <Button variant="outline" size="sm" asChild>
               <Link
                 href={`/dashboard/author/submit?conference=${conferenceId}&edit=${submission.id}`}
               >
                 <Edit className="size-4 mr-2" />
-                {t("common.actions.edit", "Chỉnh sửa")}
+                {t("common.actions.edit")}
               </Link>
             </Button>
           )}
@@ -159,7 +169,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
             <Button variant="outline" size="sm" asChild>
               <a href={fileUrl || ""} download={submission.file.original_name}>
                 <Download className="size-4 mr-2" />
-                {t("common.actions.download", "Tải xuống")}
+                {t("common.actions.download")}
               </a>
             </Button>
           )}
@@ -168,12 +178,14 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className={`grid w-full ${isChair ? 'grid-cols-5' : 'grid-cols-4'} bg-muted/50 p-1 h-auto border border-border rounded-lg gap-1`}>
+        <TabsList
+          className={`grid w-full ${isChair ? "grid-cols-5" : "grid-cols-4"} bg-muted/50 p-1 h-auto border border-border rounded-lg gap-1`}
+        >
           <TabsTrigger
             value="overview"
             className="rounded-md border border-transparent data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all hover:bg-background/50 hover:text-foreground"
           >
-            {t("dashboard.submission.tabs.overview", "Overview")}
+            {t("dashboard.submission.tabs.overview")}
           </TabsTrigger>
           {isChair && (
             <TabsTrigger
@@ -181,7 +193,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
               className="rounded-md border border-transparent data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all hover:bg-background/50 hover:text-foreground"
             >
               <MessageSquare className="size-4 mr-2" />
-              {t("dashboard.submission.tabs.review", "Review")}
+              {t("dashboard.submission.tabs.review")}
             </TabsTrigger>
           )}
           <TabsTrigger
@@ -189,21 +201,21 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
             className="rounded-md border border-transparent data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all hover:bg-background/50 hover:text-foreground"
           >
             <Eye className="size-4 mr-2" />
-            {t("dashboard.submission.tabs.preview", "Preview")}
+            {t("dashboard.submission.tabs.preview")}
           </TabsTrigger>
           <TabsTrigger
             value="coi"
             className="rounded-md border border-transparent data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all hover:bg-background/50 hover:text-foreground"
           >
             <AlertTriangle className="size-4 mr-2" />
-            {t("dashboard.submission.tabs.coi", "COI")}
+            {t("dashboard.submission.tabs.coi")}
           </TabsTrigger>
           <TabsTrigger
             value="cover-letter"
             className="rounded-md border border-transparent data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all hover:bg-background/50 hover:text-foreground"
           >
             <FileCheck className="size-4 mr-2" />
-            {t("dashboard.submission.tabs.coverLetter", "Cover Letter")}
+            {t("dashboard.submission.tabs.coverLetter")}
           </TabsTrigger>
         </TabsList>
 
@@ -216,7 +228,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
               <Card className="py-6">
                 <CardHeader>
                   <CardTitle className="text-base">
-                    {t("dashboard.submission.details.abstract", "Tóm tắt")}
+                    {t("dashboard.submission.details.abstract")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -230,14 +242,14 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
             {/* Submission Details */}
             <Card className="py-6">
               <CardHeader>
-                <CardTitle>{t("dashboard.submission.details.title", "Chi tiết bài nộp")}</CardTitle>
+                <CardTitle>{t("dashboard.submission.details.title")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start gap-3">
                   <User className="size-4 text-gray-400 mt-0.5 flex-shrink-0" />
                   <div className="min-w-0 flex-1">
                     <div className="text-xs font-medium text-gray-500 mb-1">
-                      {t("dashboard.submission.details.author", "Tác giả")}
+                      {t("dashboard.submission.details.author")}
                     </div>
                     <div className="text-sm break-all">{submission.author}</div>
                   </div>
@@ -247,7 +259,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
                   <Calendar className="size-4 text-gray-400 mt-0.5 flex-shrink-0" />
                   <div className="min-w-0 flex-1">
                     <div className="text-xs font-medium text-gray-500 mb-1">
-                      {t("dashboard.submission.details.submittedDate", "Ngày nộp")}
+                      {t("dashboard.submission.details.submittedDate")}
                     </div>
                     <div className="text-sm">{formatDate(submission.created_at)}</div>
                   </div>
@@ -258,7 +270,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
                     <Calendar className="size-4 text-gray-400 mt-0.5 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
                       <div className="text-xs font-medium text-gray-500 mb-1">
-                        {t("dashboard.submission.details.lastUpdated", "Cập nhật lần cuối")}
+                        {t("dashboard.submission.details.lastUpdated")}
                       </div>
                       <div className="text-sm">{formatDate(submission.updated_at)}</div>
                     </div>
@@ -270,13 +282,13 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
                     <LinkIcon className="size-4 text-gray-400 mt-0.5 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
                       <div className="text-xs font-medium text-gray-500 mb-1">
-                        {t("dashboard.submission.details.link", "Liên kết")}
+                        {t("dashboard.submission.details.link")}
                       </div>
                       <a
                         href={submission.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline text-sm break-all block"
+                        className="text-primary hover:underline text-sm break-all block"
                       >
                         {submission.link}
                       </a>
@@ -292,19 +304,19 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2">
                     <FileText className="size-4" />
-                    {t("dashboard.submission.details.file", "File đính kèm")}
+                    {t("dashboard.submission.details.file")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div>
                     <div className="text-xs font-medium text-gray-500 mb-1">
-                      {t("dashboard.submission.details.fileName", "Tên file")}
+                      {t("dashboard.submission.details.fileName")}
                     </div>
                     <div className="text-sm break-all">{submission.file.original_name}</div>
                   </div>
                   <div>
                     <div className="text-xs font-medium text-gray-500 mb-1">
-                      {t("dashboard.submission.details.fileSize", "Kích thước")}
+                      {t("dashboard.submission.details.fileSize")}
                     </div>
                     <div className="text-sm">
                       {(submission.file.size / 1024 / 1024).toFixed(2)} MB
@@ -312,7 +324,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
                   </div>
                   <div>
                     <div className="text-xs font-medium text-gray-500 mb-1">
-                      {t("dashboard.submission.details.fileType", "Loại file")}
+                      {t("dashboard.submission.details.fileType")}
                     </div>
                     <div className="text-sm">{submission.file.mime_type}</div>
                   </div>
@@ -326,7 +338,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2">
                     <Tag className="size-4" />
-                    {t("dashboard.submission.details.domains", "Lĩnh vực")}
+                    {t("dashboard.submission.details.domains")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -346,7 +358,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
               <Card className="py-6">
                 <CardHeader>
                   <CardTitle className="text-base">
-                    {t("dashboard.submission.details.keywords", "Từ khóa")}
+                    {t("dashboard.submission.details.keywords")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -366,7 +378,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
               <Card className="py-6">
                 <CardHeader>
                   <CardTitle className="text-base">
-                    {t("dashboard.submission.details.coAuthors", "Đồng tác giả")}
+                    {t("dashboard.submission.details.coAuthors")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -386,14 +398,14 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
               <Card className="py-6">
                 <CardHeader>
                   <CardTitle className="text-base">
-                    {t("dashboard.submission.details.additionalInfo", "Thông tin bổ sung")}
+                    {t("dashboard.submission.details.additionalInfo")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {submission.information.track_name && (
                     <div>
                       <div className="text-xs font-medium text-gray-500 mb-1">
-                        {t("dashboard.submission.details.track", "Track")}
+                        {t("dashboard.submission.details.track")}
                       </div>
                       <div className="text-sm">{submission.information.track_name}</div>
                     </div>
@@ -402,7 +414,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
                   {submission.information.paper_type && (
                     <div>
                       <div className="text-xs font-medium text-gray-500 mb-1">
-                        {t("dashboard.submission.details.paperType", "Loại bài")}
+                        {t("dashboard.submission.details.paperType")}
                       </div>
                       <div className="text-sm">{submission.information.paper_type}</div>
                     </div>
@@ -411,7 +423,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
                   {submission.information.additional_notes && (
                     <div>
                       <div className="text-xs font-medium text-gray-500 mb-1">
-                        {t("dashboard.submission.details.notes", "Ghi chú bổ sung")}
+                        {t("dashboard.submission.details.notes")}
                       </div>
                       <div className="text-sm whitespace-pre-wrap max-h-40 overflow-y-auto">
                         {submission.information.additional_notes}
@@ -428,7 +440,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
                 <Card className="py-6">
                   <CardHeader>
                     <CardTitle className="text-base">
-                      {t("dashboard.submission.details.metadata", "Metadata")}
+                      {t("dashboard.submission.details.metadata")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -451,7 +463,10 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
         {/* Review Tab - Chair Only */}
         {isChair && (
           <TabsContent value="review" className="space-y-6 mt-4">
-            <SubmissionReviewTab conferenceId={conferenceId} submissionId={submission.id.toString()} />
+            <SubmissionReviewTab
+              conferenceId={conferenceId}
+              submissionId={submission.id.toString()}
+            />
           </TabsContent>
         )}
 
@@ -471,21 +486,15 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
                   <div className="flex flex-col items-center justify-center h-full p-8 text-center">
                     <FileText className="size-16 text-gray-400 mb-4" />
                     <p className="text-lg font-medium text-gray-700 mb-2">
-                      {t(
-                        "dashboard.submission.details.previewNotAvailable",
-                        "Xem trước không khả dụng",
-                      )}
+                      {t("dashboard.submission.details.previewNotAvailable")}
                     </p>
                     <p className="text-sm text-gray-500 mb-4">
-                      {t(
-                        "dashboard.submission.details.downloadToView",
-                        "Vui lòng tải xuống để xem file",
-                      )}
+                      {t("dashboard.submission.details.downloadToView")}
                     </p>
                     <Button variant="default" asChild>
                       <a href={fileUrl} download={submission.file?.original_name}>
                         <Download className="size-4 mr-2" />
-                        {t("common.actions.download", "Tải xuống")}
+                        {t("common.actions.download")}
                       </a>
                     </Button>
                   </div>
@@ -497,17 +506,17 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <FileText className="size-16 text-gray-400 mb-4" />
                 <p className="text-lg font-medium text-gray-700 mb-2">
-                  {t("dashboard.submission.details.noFile", "Không có file đính kèm")}
+                  {t("dashboard.submission.details.noFile")}
                 </p>
                 {submission.link && (
                   <a
                     href={submission.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline flex items-center gap-2 mt-4"
+                    className="text-primary hover:underline flex items-center gap-2 mt-4"
                   >
                     <LinkIcon className="size-4" />
-                    {t("dashboard.submission.details.viewExternalLink", "Xem liên kết ngoài")}
+                    {t("dashboard.submission.details.viewExternalLink")}
                   </a>
                 )}
               </CardContent>
@@ -521,19 +530,14 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <AlertTriangle className="size-5" />
-                {t("dashboard.submission.tabs.coi", "Conflict of Interest")}
+                {t("dashboard.submission.tabs.coi")}
               </CardTitle>
-              <CardDescription>
-                {t(
-                  "dashboard.submission.coi.description",
-                  "Conflicts of interest declared for this submission",
-                )}
-              </CardDescription>
+              <CardDescription>{t("dashboard.submission.coi.description")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  {t("dashboard.submission.coi.notAvailable", "COI information not available")}
+                  {t("dashboard.submission.coi.notAvailable")}
                 </p>
               </div>
             </CardContent>
@@ -549,26 +553,23 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2">
                     <FileCheck className="size-4" />
-                    {t("dashboard.submission.details.coverLetterFile", "Cover Letter")}
+                    {t("dashboard.submission.details.coverLetterFile")}
                   </CardTitle>
                   <CardDescription>
-                    {t(
-                      "dashboard.submission.details.coverLetterDescription",
-                      "Supporting document for your submission",
-                    )}
+                    {t("dashboard.submission.details.coverLetterDescription")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
                     <div className="text-xs font-medium text-gray-500 mb-1">
-                      {t("dashboard.submission.details.fileName", "File Name")}
+                      {t("dashboard.submission.details.fileName")}
                     </div>
                     <div className="text-sm break-all">{submission.cover_letter.original_name}</div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <div className="text-xs font-medium text-gray-500 mb-1">
-                        {t("dashboard.submission.details.fileSize", "File Size")}
+                        {t("dashboard.submission.details.fileSize")}
                       </div>
                       <div className="text-sm">
                         {(submission.cover_letter.size / 1024 / 1024).toFixed(2)} MB
@@ -576,7 +577,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
                     </div>
                     <div>
                       <div className="text-xs font-medium text-gray-500 mb-1">
-                        {t("dashboard.submission.details.fileType", "File Type")}
+                        {t("dashboard.submission.details.fileType")}
                       </div>
                       <div className="text-sm">{submission.cover_letter.mime_type}</div>
                     </div>
@@ -588,7 +589,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
                         download={submission.cover_letter.original_name}
                       >
                         <Download className="size-4 mr-2" />
-                        {t("common.actions.download", "Download")}
+                        {t("common.actions.download")}
                       </a>
                     </Button>
                   </div>
@@ -614,13 +615,10 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <FileCheck className="size-16 text-gray-400 mb-4" />
                 <p className="text-lg font-medium text-gray-700 mb-2">
-                  {t("dashboard.submission.details.noCoverLetter", "No cover letter attached")}
+                  {t("dashboard.submission.details.noCoverLetter")}
                 </p>
                 <p className="text-sm text-gray-500">
-                  {t(
-                    "dashboard.submission.details.coverLetterOptional",
-                    "Cover letter is optional for this submission",
-                  )}
+                  {t("dashboard.submission.details.coverLetterOptional")}
                 </p>
               </CardContent>
             </Card>

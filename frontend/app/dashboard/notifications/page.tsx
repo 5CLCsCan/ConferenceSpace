@@ -81,12 +81,7 @@ export default function NotificationsPage() {
       <main className="max-w-3xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9"
-            onClick={() => router.back()}
-          >
+          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => router.back()}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex-1">
@@ -150,4 +145,3 @@ export default function NotificationsPage() {
     </div>
   )
 }
-

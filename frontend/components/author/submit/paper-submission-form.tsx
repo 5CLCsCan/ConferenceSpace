@@ -419,31 +419,34 @@ export function PaperSubmissionForm({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="mb-8 flex items-start justify-between gap-6">
-        <div className="flex flex-col items-start gap-3">
+      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-start gap-4">
           <Button
             variant="outline"
             size="sm"
             onClick={() => router.back()}
-            className="border border-[#0056A3] text-[#0056A3] bg-transparent hover:bg-[#0056A3]/10 px-4 py-2 rounded-[4px] flex items-center gap-2"
+            className="border border-primary text-primary bg-transparent hover:bg-primary/10 px-4 py-2 rounded-[4px] flex items-center gap-2"
             title={t("dashboard.author.submit.backTooltip")}
           >
             <ArrowLeft className="size-6" />
             {t("dashboard.author.submit.backButton")}
           </Button>
           <div>
-            <h1 className={`${typography.h1} ${typography.bold} text-[#212529] font-arial`}>
+            <h1 className={`${typography.h1} ${typography.bold} text-foreground font-arial`}>
               {t("dashboard.author.submit.title")}
             </h1>
+            <p className={`text-muted-foreground mt-1 ${typography.bodyLarge} font-arial`}>
+              {t("dashboard.author.submit.subtitle")}
+            </p>
           </div>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
           <Button
             variant="outline"
             size="sm"
             onClick={handleSaveAsDraft}
             disabled={submitting}
-            className="border border-[#0056A3] text-[#0056A3] bg-transparent hover:bg-[#0056A3]/10 px-3 py-2 rounded-[4px] text-sm font-medium font-arial"
+            className={`border border-primary text-primary bg-transparent hover:bg-primary/10 px-4 py-2 rounded-[4px] ${typography.bodyLarge} ${typography.medium} font-arial`}
           >
             {t("dashboard.author.submit.saveDraft")}
           </Button>
@@ -451,7 +454,7 @@ export function PaperSubmissionForm({
             size="sm"
             onClick={handleSubmit}
             disabled={!canSubmit || submitting}
-            className="bg-[#0056A3] text-white hover:bg-[#0056A3]/90 px-3 py-2 rounded-[4px] text-sm font-medium font-arial"
+            className={`bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-[4px] ${typography.bodyLarge} ${typography.medium} font-arial`}
           >
             {submitting
               ? t("dashboard.author.submit.submitting")
@@ -459,24 +462,24 @@ export function PaperSubmissionForm({
           </Button>
         </div>
       </div>
-      <div className="flex gap-8">
-        <div className="flex-1">
-          <div className="bg-[#F8F9FA] rounded-lg p-1 mb-6 flex gap-1">
+      <div className="flex flex-col xl:flex-row gap-6 xl:gap-8">
+        <div className="flex-1 min-w-0">
+          <div className="bg-muted rounded-lg p-1 mb-6 flex gap-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex-1 px-6 py-3 rounded-[4px] ${typography.body} ${typography.medium} font-arial transition-colors ${
                   activeTab === tab.id
-                    ? "bg-white text-[#212529] shadow-sm"
-                    : "text-[#6C757D] hover:text-[#212529]"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {tab.label}
               </button>
             ))}
           </div>
-          <Card className="border border-[#DEE2E6] rounded-[8px] shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
+          <Card className="border border-border rounded-[8px] shadow-sm">
             <CardContent className="p-8">
               {activeTab === "paper" && (
                 <PaperTab
@@ -552,13 +555,15 @@ export function PaperSubmissionForm({
             </CardContent>
           </Card>
           <div
-            className={`mt-4 flex items-center ${spacing.gap.sm} ${typography.body} text-[#6C757D] font-arial`}
+            className={`mt-4 flex items-center ${spacing.gap.sm} ${typography.body} text-muted-foreground font-arial`}
           >
             <Info className="size-4" />
             <span>{t("dashboard.author.submit.draftAutoSave")}</span>
           </div>
         </div>
-        <SubmissionSidebar checklist={checklist} />
+        <div className="w-full xl:w-80 flex-shrink-0">
+          <SubmissionSidebar checklist={checklist} />
+        </div>
       </div>
 
       {/* Success Dialog */}

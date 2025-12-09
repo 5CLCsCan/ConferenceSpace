@@ -46,7 +46,9 @@ export async function getNotifications(
  * Get unread notification count for the authenticated user
  */
 export async function getUnreadCount(): Promise<number> {
-  const { data } = await apiFetch<{ data: UnreadCountResponse }>("/api/v1/notifications/unread-count")
+  const { data } = await apiFetch<{ data: UnreadCountResponse }>(
+    "/api/v1/notifications/unread-count",
+  )
   console.log("[API] Unread count response:", data)
   return data.data.count
 }
@@ -73,9 +75,12 @@ export async function markAsRead(id: number): Promise<Notification> {
  * Mark all notifications as read
  */
 export async function markAllAsRead(): Promise<number> {
-  const { data } = await apiFetch<{ data: MarkAllAsReadResponse }>("/api/v1/notifications/read-all", {
-    method: "PATCH",
-  })
+  const { data } = await apiFetch<{ data: MarkAllAsReadResponse }>(
+    "/api/v1/notifications/read-all",
+    {
+      method: "PATCH",
+    },
+  )
   return data.data.marked_count
 }
 
@@ -87,4 +92,3 @@ export async function deleteNotification(id: number): Promise<void> {
     method: "DELETE",
   })
 }
-

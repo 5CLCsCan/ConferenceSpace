@@ -12,13 +12,13 @@ export function ChecklistItem({ checked, label }: ChecklistItemProps) {
   return (
     <div className="flex items-center gap-2">
       {checked ? (
-        <CheckCircle2 className="size-5 text-green-600 flex-shrink-0" />
+        <CheckCircle2 className="size-5 text-success flex-shrink-0" />
       ) : (
-        <Circle className="size-5 text-[#ADB5BD] flex-shrink-0" />
+        <Circle className="size-5 text-muted-foreground flex-shrink-0" />
       )}
       <span
-        className={`${typography.bodySmall} font-arial ${
-          checked ? "text-[#212529]" : "text-[#6C757D]"
+        className={`${typography.body} font-arial ${
+          checked ? "text-foreground" : "text-muted-foreground"
         }`}
       >
         {label}

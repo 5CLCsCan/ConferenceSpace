@@ -16,6 +16,7 @@ import {
 import { Plus, X, FileText, Info, Lightbulb } from "lucide-react"
 import { mockTracks } from "@/lib/mock-data"
 import { typography, spacing } from "@/lib/typography"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface PaperTabProps {
   title: string
@@ -51,35 +52,44 @@ export function PaperTab({
   availableTracks,
 }: PaperTabProps) {
   const wordCount = abstract.split(" ").filter(Boolean).length
+  const { t, tList } = useTranslation()
+  const paperTips = tList("dashboard.author.submit.paperTab.tips")
+  const authoringTips = tList("dashboard.author.submit.paperTab.authoringTips")
 
   return (
     <div className={spacing.section}>
       {/* Header */}
       <div className={spacing.item}>
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-50 rounded-lg">
-            <FileText className="size-6 text-blue-600" />
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <FileText className="size-6 text-primary" />
           </div>
           <div>
-            <h2 className={`${typography.h2} text-[#212529] font-arial`}>Paper Information</h2>
-            <p className={`${typography.body} text-[#6C757D] font-arial ${spacing.margin.top.sm}`}>
-              Provide the core details about your research paper
+            <h2 className={`${typography.h2} text-foreground font-arial`}>
+              {t("dashboard.author.submit.paperTab.title")}
+            </h2>
+            <p
+              className={`${typography.body} text-muted-foreground font-arial ${spacing.margin.top.sm}`}
+            >
+              {t("dashboard.author.submit.paperTab.subtitle")}
             </p>
           </div>
         </div>
       </div>
 
       {/* Info Card */}
-      <Card className="bg-blue-50 border-blue-200">
+      <Card className="bg-primary/5 border-primary/20">
         <div className={spacing.padding.card}>
           <div className="flex items-start gap-3">
-            <Info className="size-5 text-blue-600 flex-shrink-0 mt-0.5" />
-            <div className={`${typography.bodySmall} text-gray-700`}>
-              <p className={`${typography.medium} text-blue-900 mb-2`}>Quick Tips:</p>
+            <Info className="size-5 text-primary flex-shrink-0 mt-0.5" />
+            <div className={`${typography.bodySmall} text-muted-foreground`}>
+              <p className={`${typography.medium} text-foreground mb-2`}>
+                {t("dashboard.author.submit.paperTab.tipsTitle")}
+              </p>
               <ul className="space-y-1 ml-4 list-disc">
-                <li>Choose a clear, descriptive title that highlights your contribution</li>
-                <li>Write an abstract that summarizes your methods and key findings</li>
-                <li>Select subject areas that best match your research domain</li>
+                {paperTips.map((tip) => (
+                  <li key={tip}>{tip}</li>
+                ))}
               </ul>
             </div>
           </div>
@@ -88,52 +98,54 @@ export function PaperTab({
 
       {/* Title Field */}
       <div className={spacing.item}>
-        <Label htmlFor="title" className={`${typography.label} text-[#212529] font-arial`}>
-          Paper Title *
+        <Label htmlFor="title" className={`${typography.label} text-foreground font-arial`}>
+          {t("dashboard.author.submit.paperTab.fields.titleLabel")}
         </Label>
         <Input
           id="title"
-          placeholder="Enter a concise, informative title for your paper"
+          placeholder={t("dashboard.author.submit.paperTab.fields.titleHelp")}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className={`${typography.bodyLarge} font-arial border-[#DEE2E6] focus:border-[#0056A3] focus:ring-[#0056A3]`}
+          className={`${typography.bodyLarge} font-arial border-border focus:border-primary focus:ring-primary`}
         />
-        <p className={`${typography.bodySmall} text-[#6C757D] font-arial`}>
-          Place key terms at the beginning and avoid abbreviations
+        <p className={`${typography.bodySmall} text-muted-foreground font-arial`}>
+          {t("dashboard.author.submit.paperTab.fields.titleHelp")}
         </p>
       </div>
 
       {/* Abstract Field */}
       <div className={spacing.item}>
         <div className="flex items-center justify-between">
-          <Label htmlFor="abstract" className={`${typography.label} text-[#212529] font-arial`}>
-            Abstract *
+          <Label htmlFor="abstract" className={`${typography.label} text-foreground font-arial`}>
+            {t("dashboard.author.submit.paperTab.fields.abstractLabel")}
           </Label>
-          <span className={`${typography.bodySmall} text-[#6C757D] font-arial`}>
-            {wordCount} {wordCount === 1 ? "word" : "words"}
+          <span className={`${typography.bodySmall} text-muted-foreground font-arial`}>
+            {t("dashboard.author.submit.paperTab.fields.abstractCount", { count: wordCount })}
           </span>
         </div>
         <Textarea
           id="abstract"
-          placeholder="Summarize your contribution, methodology, key results, and implications..."
+          placeholder={t("dashboard.author.submit.paperTab.fields.abstractHelp")}
           rows={10}
           value={abstract}
           onChange={(e) => setAbstract(e.target.value)}
-          className={`${typography.body} font-arial resize-none border-[#DEE2E6] focus:border-[#0056A3] focus:ring-[#0056A3]`}
+          className={`${typography.body} font-arial resize-none border-border focus:border-primary focus:ring-primary`}
         />
-        <p className={`${typography.bodySmall} text-[#6C757D] font-arial`}>
-          Provide a clear summary of your research contribution
+        <p className={`${typography.bodySmall} text-muted-foreground font-arial`}>
+          {t("dashboard.author.submit.paperTab.fields.abstractHelp")}
         </p>
       </div>
 
       {/* Conference Track Selection */}
       <div className={spacing.item}>
-        <Label htmlFor="track" className={`${typography.label} text-[#212529] font-arial`}>
-          Conference Track *
+        <Label htmlFor="track" className={`${typography.label} text-foreground font-arial`}>
+          {t("dashboard.author.submit.paperTab.fields.trackLabel")}
         </Label>
         <Select value={selectedTrack} onValueChange={setSelectedTrack}>
-          <SelectTrigger className={`${typography.body} font-arial border-[#DEE2E6]`}>
-            <SelectValue placeholder="Select the conference track for your paper" />
+          <SelectTrigger className={`${typography.body} font-arial border-border`}>
+            <SelectValue
+              placeholder={t("dashboard.author.submit.paperTab.fields.trackPlaceholder")}
+            />
           </SelectTrigger>
           <SelectContent>
             {availableTracks.length > 0 ? (
@@ -149,19 +161,21 @@ export function PaperTab({
             )}
           </SelectContent>
         </Select>
-        <p className={`${typography.bodySmall} text-[#6C757D] font-arial`}>
-          Choose the track that best matches your paper's theme
+        <p className={`${typography.bodySmall} text-muted-foreground font-arial`}>
+          {t("dashboard.author.submit.paperTab.fields.trackHelp")}
         </p>
       </div>
 
       {/* Subject Areas Field */}
       <div className={spacing.item}>
-        <Label htmlFor="subject-areas" className={`${typography.label} text-[#212529] font-arial`}>
-          Subject Area *
+        <Label htmlFor="subject-areas" className={`${typography.label} text-foreground font-arial`}>
+          {t("dashboard.author.submit.paperTab.fields.subjectLabel")}
         </Label>
         <Select value={subjectAreas[0]} onValueChange={(val) => setSubjectAreas([val])}>
-          <SelectTrigger className={`${typography.body} font-arial border-[#DEE2E6]`}>
-            <SelectValue placeholder="Select the most relevant topic area" />
+          <SelectTrigger className={`${typography.body} font-arial border-border`}>
+            <SelectValue
+              placeholder={t("dashboard.author.submit.paperTab.fields.subjectPlaceholder")}
+            />
           </SelectTrigger>
           <SelectContent>
             {mockTracks.map((track) => (
@@ -171,20 +185,20 @@ export function PaperTab({
             ))}
           </SelectContent>
         </Select>
-        <p className={`${typography.bodySmall} text-[#6C757D] font-arial`}>
-          Choose the research domain most relevant to your paper
+        <p className={`${typography.bodySmall} text-muted-foreground font-arial`}>
+          {t("dashboard.author.submit.paperTab.fields.subjectHelp")}
         </p>
       </div>
 
       {/* Keywords Field */}
       <div className={spacing.item}>
-        <Label htmlFor="keywords" className={`${typography.label} text-[#212529] font-arial`}>
-          Keywords * (minimum 3)
+        <Label htmlFor="keywords" className={`${typography.label} text-foreground font-arial`}>
+          {t("dashboard.author.submit.paperTab.fields.keywordsLabel")}
         </Label>
         <div className={`flex ${spacing.gap.sm}`}>
           <Input
             id="keywords"
-            placeholder="Enter a keyword and press Enter or click +"
+            placeholder={t("dashboard.author.submit.paperTab.fields.keywordsPlaceholder")}
             value={keywordInput}
             onChange={(e) => setKeywordInput(e.target.value)}
             onKeyDown={(e) => {
@@ -193,14 +207,14 @@ export function PaperTab({
                 handleAddKeyword()
               }
             }}
-            className={`${typography.body} font-arial border-[#DEE2E6] focus:border-[#0056A3] focus:ring-[#0056A3]`}
+            className={`${typography.body} font-arial border-border focus:border-primary focus:ring-primary`}
           />
           <Button
             type="button"
             variant="outline"
             onClick={handleAddKeyword}
             size="icon"
-            className="shrink-0 border-[#0056A3] text-[#0056A3] hover:bg-[#0056A3]/10"
+            className="shrink-0 border-primary text-primary hover:bg-primary/10"
           >
             <Plus className="size-4" />
           </Button>
@@ -211,7 +225,7 @@ export function PaperTab({
               <Badge
                 key={keyword}
                 variant="secondary"
-                className={`${spacing.gap.sm} px-3 py-1.5 ${typography.bodySmall} font-arial bg-[#E9ECEF] text-[#212529] hover:bg-[#DEE2E6]`}
+                className={`${spacing.gap.sm} px-3 py-1.5 ${typography.bodySmall} font-arial bg-muted text-foreground hover:bg-accent`}
               >
                 {keyword}
                 <button
@@ -225,27 +239,28 @@ export function PaperTab({
             ))}
           </div>
         )}
-        <p className={`${typography.bodySmall} text-[#6C757D] font-arial`}>
-          Add terms that researchers would use to find your work
+        <p className={`${typography.bodySmall} text-muted-foreground font-arial`}>
+          {t("dashboard.author.submit.paperTab.fields.keywordsHelp")}
         </p>
       </div>
 
       {/* Authoring Tips */}
-      <details className="border-t border-[#DEE2E6] pt-4">
+      <details className="border-t border-border pt-4">
         <summary
-          className={`cursor-pointer ${typography.label} text-[#495057] hover:text-[#212529] flex items-center ${spacing.gap.sm} font-arial`}
+          className={`cursor-pointer ${typography.label} text-muted-foreground hover:text-foreground flex items-center ${spacing.gap.sm} font-arial`}
         >
           <Lightbulb className="size-4 text-amber-500" />
-          <span>Authoring Best Practices</span>
+          <span>{t("dashboard.author.submit.paperTab.authoringTipsTitle")}</span>
         </summary>
         <div className="mt-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
           <div className={`${typography.bodySmall} text-gray-700 space-y-2 font-arial`}>
-            <p className={`${typography.medium} text-amber-900`}>Writing Tips:</p>
+            <p className={`${typography.medium} text-amber-900`}>
+              {t("dashboard.author.submit.paperTab.authoringTipsTitle")}
+            </p>
             <ul className="space-y-1 ml-4 list-disc">
-              <li>Keep your title concise yet descriptive (10-15 words ideal)</li>
-              <li>Abstract should be self-contained and highlight novelty</li>
-              <li>Choose keywords that balance specificity and discoverability</li>
-              <li>Avoid jargon and define technical terms when necessary</li>
+              {authoringTips.map((tip) => (
+                <li key={tip}>{tip}</li>
+              ))}
             </ul>
           </div>
         </div>

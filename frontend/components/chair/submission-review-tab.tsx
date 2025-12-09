@@ -4,14 +4,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { 
-  ChevronDown, 
-  ChevronUp, 
-  Eye,
-  Loader2,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react"
+import { ChevronDown, ChevronUp, Eye, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { useRouter } from "next/navigation"
 import {
@@ -98,15 +91,27 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
       reject: { label: "Reject", className: "bg-red-500 text-white" },
       strong_reject: { label: "Strong Reject", className: "bg-red-600 text-white" },
     }
-    const item = config[recommendation] || { label: recommendation, className: "bg-gray-500 text-white" }
+    const item = config[recommendation] || {
+      label: recommendation,
+      className: "bg-gray-500 text-white",
+    }
     return <Badge className={item.className}>{item.label}</Badge>
   }
 
   const getConfidenceBadge = (confidence: string) => {
     const config: Record<string, { label: string; className: string }> = {
-      high: { label: t("dashboard.chair.review.confidence.high"), className: "bg-blue-600 text-white" },
-      medium: { label: t("dashboard.chair.review.confidence.medium"), className: "bg-blue-400 text-white" },
-      low: { label: t("dashboard.chair.review.confidence.low"), className: "bg-blue-300 text-white" },
+      high: {
+        label: t("dashboard.chair.review.confidence.high"),
+        className: "bg-primary text-primary-foreground",
+      },
+      medium: {
+        label: t("dashboard.chair.review.confidence.medium"),
+        className: "bg-primary/80 text-primary-foreground",
+      },
+      low: {
+        label: t("dashboard.chair.review.confidence.low"),
+        className: "bg-primary/60 text-primary-foreground",
+      },
     }
     const item = config[confidence] || { label: confidence, className: "bg-gray-500 text-white" }
     return <Badge className={item.className}>{item.label}</Badge>
@@ -137,9 +142,7 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
     return (
       <Card>
         <CardContent className="py-12 text-center">
-          <p className="text-muted-foreground">
-            {t("dashboard.chair.review.noAnalytics")}
-          </p>
+          <p className="text-muted-foreground">{t("dashboard.chair.review.noAnalytics")}</p>
         </CardContent>
       </Card>
     )
@@ -154,14 +157,8 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
       <Card className="mt-2">
         <CardHeader className="px-4 pt-4 pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle>
-              {t("dashboard.chair.review.reviewList")}
-            </CardTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setReviewsExpanded(!reviewsExpanded)}
-            >
+            <CardTitle>{t("dashboard.chair.review.reviewList")}</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => setReviewsExpanded(!reviewsExpanded)}>
               {reviewsExpanded ? (
                 <>
                   <ChevronUp className="size-4 mr-2" />
@@ -201,7 +198,9 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
                                   {t("dashboard.chair.review.reviewNumber")} #{globalIndex + 1}
                                 </CardTitle>
                                 {review.reviewer_email && (
-                                  <span className="text-xs text-muted-foreground ml-2">{review.reviewer_email}</span>
+                                  <span className="text-xs text-muted-foreground ml-2">
+                                    {review.reviewer_email}
+                                  </span>
                                 )}
                                 {review.review_data?.recommendation &&
                                   getRecommendationBadge(review.review_data.recommendation)}
@@ -213,13 +212,18 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
                                   <span className="text-lg font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
                                     {review.review_score?.toFixed?.(1) ?? review.review_score}
                                   </span>
-                                  <span className="text-xs text-muted-foreground font-medium">/ 10</span>
-                                  <span className="ml-2 text-xs text-muted-foreground">{t("dashboard.chair.review.score")}</span>
+                                  <span className="text-xs text-muted-foreground font-medium">
+                                    / 10
+                                  </span>
+                                  <span className="ml-2 text-xs text-muted-foreground">
+                                    {t("dashboard.chair.review.score")}
+                                  </span>
                                 </div>
                               )}
                               {review.review_submitted_at && (
                                 <div className="text-sm text-muted-foreground">
-                                  {t("dashboard.chair.review.submittedAt")}: {formatDate(review.review_submitted_at)}
+                                  {t("dashboard.chair.review.submittedAt")}:{" "}
+                                  {formatDate(review.review_submitted_at)}
                                 </div>
                               )}
                             </div>
@@ -237,68 +241,74 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
                             </Button>
                           </div>
                         </CardHeader>
-                    {review.review_data?.feedback && (
-                      <CardContent className="space-y-3 px-4 pb-4">
-                        {review.review_data.feedback.strengths && (
-                          <div>
-                            <div className="text-sm font-semibold text-green-700 mb-1">
-                              {t("dashboard.chair.review.strengths")}
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                              {review.review_data.feedback.strengths}
-                            </p>
-                          </div>
-                        )}
-                        {review.review_data.feedback.weaknesses && (
-                          <div>
-                            <div className="text-sm font-semibold text-red-700 mb-1">
-                              {t("dashboard.chair.review.weaknesses")}
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                              {review.review_data.feedback.weaknesses}
-                            </p>
-                          </div>
-                        )}
-                        {review.review_data.feedback.questions && (
-                          <div>
-                            <div className="text-sm font-semibold text-blue-700 mb-1">
-                              {t("dashboard.chair.review.questions")}
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                              {review.review_data.feedback.questions}
-                            </p>
-                          </div>
-                        )}
-                        {review.review_data.criteria && (
-                          <div>
-                            <div className="text-sm font-semibold mb-2">
-                              {t("dashboard.chair.review.criteriaScores")}
-                            </div>
-                            <div className="grid grid-cols-2 gap-2 text-sm">
-                              {Object.entries(review.review_data.criteria).map(([key, value]) => (
-                                <div key={key} className="flex justify-between">
-                                  <span className="capitalize text-muted-foreground">
-                                    {key.replace(/_/g, " ")}:
-                                  </span>
-                                  <span className="font-semibold">{value}</span>
+                        {review.review_data?.feedback && (
+                          <CardContent className="space-y-3 px-4 pb-4">
+                            {review.review_data.feedback.strengths && (
+                              <div>
+                                <div className="text-sm font-semibold text-success mb-1">
+                                  {t("dashboard.chair.review.strengths")}
                                 </div>
-                              ))}
-                            </div>
-                          </div>
-                          )}
-                        </CardContent>
-                      )}
-                    </Card>
-                  )
-                })}
+                                <p className="text-sm text-muted-foreground">
+                                  {review.review_data.feedback.strengths}
+                                </p>
+                              </div>
+                            )}
+                            {review.review_data.feedback.weaknesses && (
+                              <div>
+                                <div className="text-sm font-semibold text-destructive mb-1">
+                                  {t("dashboard.chair.review.weaknesses")}
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  {review.review_data.feedback.weaknesses}
+                                </p>
+                              </div>
+                            )}
+                            {review.review_data.feedback.questions && (
+                              <div>
+                                <div className="text-sm font-semibold text-primary mb-1">
+                                  {t("dashboard.chair.review.questions")}
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  {review.review_data.feedback.questions}
+                                </p>
+                              </div>
+                            )}
+                            {review.review_data.criteria && (
+                              <div>
+                                <div className="text-sm font-semibold mb-2">
+                                  {t("dashboard.chair.review.criteriaScores")}
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                  {Object.entries(review.review_data.criteria).map(
+                                    ([key, value]) => (
+                                      <div key={key} className="flex justify-between">
+                                        <span className="capitalize text-muted-foreground">
+                                          {key.replace(/_/g, " ")}:
+                                        </span>
+                                        <span className="font-semibold">{value}</span>
+                                      </div>
+                                    ),
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </CardContent>
+                        )}
+                      </Card>
+                    )
+                  })}
                 </div>
 
                 {/* Pagination Controls */}
                 {totalPages > 1 && (
                   <div className="flex items-center justify-between pt-4 border-t">
                     <div className="text-sm text-muted-foreground">
-                      {t("dashboard.chair.review.analytics.showingReviews")} {(currentPage - 1) * REVIEWS_PER_PAGE + 1} {t("dashboard.chair.review.analytics.to")}{" "}
-                      {Math.min(currentPage * REVIEWS_PER_PAGE, totalReviews)} {t("dashboard.chair.review.analytics.of")} {totalReviews} {t("dashboard.chair.review.analytics.reviews")}
+                      {t("dashboard.chair.review.analytics.showingReviews")}{" "}
+                      {(currentPage - 1) * REVIEWS_PER_PAGE + 1}{" "}
+                      {t("dashboard.chair.review.analytics.to")}{" "}
+                      {Math.min(currentPage * REVIEWS_PER_PAGE, totalReviews)}{" "}
+                      {t("dashboard.chair.review.analytics.of")} {totalReviews}{" "}
+                      {t("dashboard.chair.review.analytics.reviews")}
                     </div>
                     <div className="flex items-center gap-2">
                       <Button
@@ -329,10 +339,7 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
                                 {page}
                               </Button>
                             )
-                          } else if (
-                            page === currentPage - 2 ||
-                            page === currentPage + 2
-                          ) {
+                          } else if (page === currentPage - 2 || page === currentPage + 2) {
                             return (
                               <span key={page} className="px-2 text-muted-foreground">
                                 ...

@@ -375,4 +375,3 @@ describe("API Response Schema Validation", () => {
     }
   })
 })
-
