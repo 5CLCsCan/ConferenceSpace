@@ -397,6 +397,11 @@ func (s *Storage) SaveReview(ctx context.Context, assignmentID int64, reviewScor
 		Set(model.ColReviewStatus, status).
 		Set(model.ColUpdatedAt, sq.Expr("NOW()"))
 
+	// Only set assignment status to completed if review is submitted
+	if status == model.ReviewStatusSubmitted {
+		updateBuilder = updateBuilder.Set("status", model.AssignmentStatusCompleted)
+	}
+
 	// Set review score if provided
 	if reviewScore != nil {
 		updateBuilder = updateBuilder.Set(model.ColReviewScore, *reviewScore)

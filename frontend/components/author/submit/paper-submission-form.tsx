@@ -443,7 +443,7 @@ export function PaperSubmissionForm({
         <div className="flex gap-3 flex-wrap">
           <Button
             variant="outline"
-            size="lg"
+            size="sm"
             onClick={handleSaveAsDraft}
             disabled={submitting}
             className={`border border-primary text-primary bg-transparent hover:bg-primary/10 px-4 py-2 rounded-[4px] ${typography.bodyLarge} ${typography.medium} font-arial`}
@@ -451,7 +451,7 @@ export function PaperSubmissionForm({
             {t("dashboard.author.submit.saveDraft")}
           </Button>
           <Button
-            size="lg"
+            size="sm"
             onClick={handleSubmit}
             disabled={!canSubmit || submitting}
             className={`bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-[4px] ${typography.bodyLarge} ${typography.medium} font-arial`}

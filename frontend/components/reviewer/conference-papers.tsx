@@ -22,6 +22,7 @@ interface ConferencePapersProps {
   conferenceName: string
   onBack: () => void
   onSelectPaper: (paperId: string) => void
+  onReviewSubmitted?: () => void // Thêm dòng này
 }
 
 export function ConferencePapers({
@@ -29,6 +30,7 @@ export function ConferencePapers({
   conferenceName,
   onBack,
   onSelectPaper,
+  onReviewSubmitted,
 }: ConferencePapersProps) {
   const { t } = useTranslation()
   const [searchQuery, setSearchQuery] = useState("")
