@@ -452,7 +452,7 @@ export function FileTab({
         <div className={`${spacing.item} ${typography.body} text-gray-600`}>
           <p className={`flex items-start ${spacing.gap.sm}`}>
             <Upload className={`${iconSizes.sm} mt-0.5 flex-shrink-0`} />
-            <span>
+            <span className={typography.bodySmall}>
               Checks: page limit ≤ 10; file size ≤ 20MB; embedded fonts; anonymized (no author
               names/affiliations); template compliance.
             </span>

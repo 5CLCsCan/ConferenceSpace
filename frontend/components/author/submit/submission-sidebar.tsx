@@ -29,49 +29,6 @@ export function SubmissionSidebar({ checklist }: SubmissionSidebarProps) {
 
   return (
     <div className="w-80 space-y-6">
-      {/* Progress Card */}
-      <Card className="border-[#DEE2E6] bg-gradient-to-br from-blue-50 to-white">
-        <CardContent className={spacing.padding.cardLarge}>
-          <div className="flex items-center gap-3 mb-4">
-            <div className={`p-2 rounded-lg ${allComplete ? "bg-success/10" : "bg-primary/10"}`}>
-              {allComplete ? (
-                <CheckCircle2 className="size-6 text-success" />
-              ) : (
-                <FileCheck className="size-6 text-primary" />
-              )}
-            </div>
-            <div>
-              <h3 className={`${typography.h4} text-[#212529] font-arial`}>
-                {allComplete ? "Ready to Submit!" : "Submission Progress"}
-              </h3>
-              <p className={`${typography.bodySmall} text-[#6C757D] font-arial`}>
-                {completedCount} of {totalCount} complete
-              </p>
-            </div>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="w-full bg-[#E9ECEF] rounded-full h-2 mb-4">
-            <div
-              className={`h-2 rounded-full transition-all duration-300 ${
-                allComplete ? "bg-success" : "bg-primary"
-              }`}
-              style={{ width: `${(completedCount / totalCount) * 100}%` }}
-            />
-          </div>
-
-          {allComplete && (
-            <div className="p-3 bg-success/10 border border-success/20 rounded-lg">
-              <p
-                className={`${typography.bodySmall} text-success-foreground font-arial text-center`}
-              >
-                ✓ All requirements met. You can now submit your paper!
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
       {/* Checklist Card */}
       <Card className="border-[#DEE2E6]">
         <CardContent className={spacing.padding.cardLarge}>

@@ -17,7 +17,9 @@ export function ChecklistItem({ checked, label }: ChecklistItemProps) {
         <Circle className="size-5 text-[#ADB5BD] flex-shrink-0" />
       )}
       <span
-        className={`${typography.body} font-arial ${checked ? "text-[#212529]" : "text-[#6C757D]"}`}
+        className={`${typography.bodySmall} font-arial ${
+          checked ? "text-[#212529]" : "text-[#6C757D]"
+        }`}
       >
         {label}
       </span>

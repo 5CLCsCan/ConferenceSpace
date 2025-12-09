@@ -419,8 +419,8 @@ export function PaperSubmissionForm({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="mb-8 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="mb-8 flex items-start justify-between gap-6">
+        <div className="flex flex-col items-start gap-3">
           <Button
             variant="outline"
             size="sm"
@@ -435,26 +435,23 @@ export function PaperSubmissionForm({
             <h1 className={`${typography.h1} ${typography.bold} text-[#212529] font-arial`}>
               {t("dashboard.author.submit.title")}
             </h1>
-            <p className={`text-[#6C757D] mt-1 ${typography.bodyLarge} font-arial`}>
-              {t("dashboard.author.submit.subtitle")}
-            </p>
           </div>
         </div>
         <div className="flex gap-3">
           <Button
             variant="outline"
-            size="lg"
+            size="sm"
             onClick={handleSaveAsDraft}
             disabled={submitting}
-            className={`border border-[#0056A3] text-[#0056A3] bg-transparent hover:bg-[#0056A3]/10 px-4 py-2 rounded-[4px] ${typography.bodyLarge} ${typography.medium} font-arial`}
+            className="border border-[#0056A3] text-[#0056A3] bg-transparent hover:bg-[#0056A3]/10 px-3 py-2 rounded-[4px] text-sm font-medium font-arial"
           >
             {t("dashboard.author.submit.saveDraft")}
           </Button>
           <Button
-            size="lg"
+            size="sm"
             onClick={handleSubmit}
             disabled={!canSubmit || submitting}
-            className={`bg-[#0056A3] text-white hover:bg-[#0056A3]/90 px-4 py-2 rounded-[4px] ${typography.bodyLarge} ${typography.medium} font-arial`}
+            className="bg-[#0056A3] text-white hover:bg-[#0056A3]/90 px-3 py-2 rounded-[4px] text-sm font-medium font-arial"
           >
             {submitting
               ? t("dashboard.author.submit.submitting")
