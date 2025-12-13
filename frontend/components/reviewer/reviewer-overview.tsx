@@ -142,7 +142,10 @@ export function ReviewerOverview({
                       variant="outline"
                       size="sm"
                       onClick={() =>
-                        onSelectPaper(String(assignment.assignment_id), String(assignment.conference_id))
+                        onSelectPaper(
+                          String(assignment.assignment_id),
+                          String(assignment.conference_id),
+                        )
                       }
                     >
                       {t("dashboard.roles.reviewer.todo.reviewNow")}

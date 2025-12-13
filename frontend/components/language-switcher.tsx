@@ -32,17 +32,20 @@ export function LanguageSwitcher() {
         <Button
           variant="ghost"
           size="sm"
-          className="bg-transparent hover:bg-neutral-100 flex items-center gap-2"
+          className="bg-transparent hover:bg-accent flex items-center gap-2 text-foreground"
         >
           <span aria-hidden="true">{currentOption.emoji}</span>
           <span>{t(currentOption.labelKey)}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="bg-white border border-neutral-200 min-w-[160px]">
+      <DropdownMenuContent
+        align="end"
+        className="bg-card border border-border text-foreground min-w-[180px] shadow-lg"
+      >
         {languageOptions.map((option) => (
           <DropdownMenuItem
             key={option.value}
-            className="cursor-pointer"
+            className="cursor-pointer focus:bg-accent focus:text-accent-foreground"
             onClick={() => setLocale(option.value)}
           >
             <span aria-hidden="true" className="mr-2">

@@ -88,12 +88,16 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
       <div className={spacing.subsection}>
         {/* Key Deadlines */}
         <div className={spacing.subsection}>
-          <h3 className={`${typography.h4} ${typography.medium} text-foreground`}>{t("dashboard.chair.createConference.step2.keyDeadlines")}</h3>
+          <h3 className={`${typography.h4} ${typography.medium} text-foreground`}>
+            {t("dashboard.chair.createConference.step2.keyDeadlines")}
+          </h3>
 
           <div className={`grid ${spacing.gap.md} md:grid-cols-2`}>
             {/* Submissions Open */}
             <div className={spacing.item}>
-              <Label className={typography.label}>{t("dashboard.chair.createConference.step2.submissionsOpen")}</Label>
+              <Label className={typography.label}>
+                {t("dashboard.chair.createConference.step2.submissionsOpen")}
+              </Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -125,7 +129,8 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
             {/* Submission Deadline */}
             <div className={spacing.item}>
               <Label className={typography.label}>
-                {t("dashboard.chair.createConference.step2.submissionDeadline")} <span className="text-destructive">*</span>
+                {t("dashboard.chair.createConference.step2.submissionDeadline")}{" "}
+                <span className="text-destructive">*</span>
               </Label>
               <Popover>
                 <PopoverTrigger asChild>
@@ -157,7 +162,9 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
 
             {/* Review Deadline */}
             <div className={spacing.item}>
-              <Label className={typography.label}>{t("dashboard.chair.createConference.step2.reviewDeadline")}</Label>
+              <Label className={typography.label}>
+                {t("dashboard.chair.createConference.step2.reviewDeadline")}
+              </Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -188,7 +195,9 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
 
             {/* Author Notification */}
             <div className={spacing.item}>
-              <Label className={typography.label}>{t("dashboard.chair.createConference.step2.authorNotification")}</Label>
+              <Label className={typography.label}>
+                {t("dashboard.chair.createConference.step2.authorNotification")}
+              </Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -219,7 +228,9 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
 
             {/* Camera-Ready Deadline */}
             <div className={spacing.item}>
-              <Label className={typography.label}>{t("dashboard.chair.createConference.step2.cameraReadyDeadline")}</Label>
+              <Label className={typography.label}>
+                {t("dashboard.chair.createConference.step2.cameraReadyDeadline")}
+              </Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -267,7 +278,9 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
               {t("dashboard.chair.createConference.step2.add")}
             </Button>
           </div>
-          <p className={typography.caption}>{t("dashboard.chair.createConference.step2.researchTopicsHint")}</p>
+          <p className={typography.caption}>
+            {t("dashboard.chair.createConference.step2.researchTopicsHint")}
+          </p>
           {data.topics.length > 0 && (
             <div className={`flex flex-wrap ${spacing.gap.sm} mt-2`}>
               {data.topics.map((topic) => (
@@ -327,7 +340,8 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
         {/* Submission Anonymity */}
         <div className={spacing.item}>
           <Label className={typography.label}>
-            {t("dashboard.chair.createConference.step2.submissionAnonymity")} <span className="text-destructive">*</span>
+            {t("dashboard.chair.createConference.step2.submissionAnonymity")}{" "}
+            <span className="text-destructive">*</span>
           </Label>
           <RadioGroup
             value={data.anonymity}
@@ -353,7 +367,8 @@ export function TopicsSubmissionsStep({ data, updateData }: Props) {
         {/* Allowed File Formats */}
         <div className={spacing.item}>
           <Label className={typography.label}>
-            {t("dashboard.chair.createConference.step2.allowedFileFormats")} <span className="text-destructive">*</span>
+            {t("dashboard.chair.createConference.step2.allowedFileFormats")}{" "}
+            <span className="text-destructive">*</span>
           </Label>
           <div className={spacing.item}>
             {["PDF", "DOCX", "ZIP"].map((format) => (

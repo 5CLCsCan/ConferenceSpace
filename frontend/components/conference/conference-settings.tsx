@@ -18,10 +18,23 @@ import {
 import { Loader2, X, Plus, Calendar, FileText, Users, Tag, Settings, Save } from "lucide-react"
 import { typography, spacing } from "@/lib/typography"
 import { Switch } from "@/components/ui/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
-type SettingsSection = "general" | "dates" | "cfp" | "co-chairs" | "tracks-domains" | "submission" | "advanced"
+type SettingsSection =
+  | "general"
+  | "dates"
+  | "cfp"
+  | "co-chairs"
+  | "tracks-domains"
+  | "submission"
+  | "advanced"
 
 // Helper to format date for datetime-local input
 function formatDateForInput(dateString?: string): string {
@@ -69,8 +82,12 @@ export function ConferenceSettings({
       venue: conference?.location || "",
       startDate: formatDateForInput(conference?.configurations?.start_date),
       endDate: formatDateForInput(conference?.configurations?.end_date),
-      abstractDeadline: formatDateForInput(conference?.configurations?.abstract_submission_deadline),
-      submissionDeadline: formatDateForInput(conference?.configurations?.full_paper_submission_deadline),
+      abstractDeadline: formatDateForInput(
+        conference?.configurations?.abstract_submission_deadline,
+      ),
+      submissionDeadline: formatDateForInput(
+        conference?.configurations?.full_paper_submission_deadline,
+      ),
       cameraReadyDeadline: formatDateForInput(conference?.configurations?.camera_ready_deadline),
       callForPaperText: conference?.call_for_paper_text || "",
       coChairs: conference?.co_chairs || [],
@@ -97,9 +114,15 @@ export function ConferenceSettings({
         venue: initialConference.location || "",
         startDate: formatDateForInput(initialConference.configurations?.start_date),
         endDate: formatDateForInput(initialConference.configurations?.end_date),
-        abstractDeadline: formatDateForInput(initialConference.configurations?.abstract_submission_deadline),
-        submissionDeadline: formatDateForInput(initialConference.configurations?.full_paper_submission_deadline),
-        cameraReadyDeadline: formatDateForInput(initialConference.configurations?.camera_ready_deadline),
+        abstractDeadline: formatDateForInput(
+          initialConference.configurations?.abstract_submission_deadline,
+        ),
+        submissionDeadline: formatDateForInput(
+          initialConference.configurations?.full_paper_submission_deadline,
+        ),
+        cameraReadyDeadline: formatDateForInput(
+          initialConference.configurations?.camera_ready_deadline,
+        ),
         callForPaperText: initialConference.call_for_paper_text || "",
         coChairs: initialConference.co_chairs || [],
         tracks: initialConference.tracks || [],
@@ -108,7 +131,8 @@ export function ConferenceSettings({
         submissionFormat: initialConference.configurations?.submission_format || "PDF",
         maximumPages: initialConference.configurations?.maximum_pages || 8,
         haveCOI: initialConference.configurations?.have_coi ?? true,
-        requireCompleteProfile: initialConference.configurations?.require_complete_author_profile ?? true,
+        requireCompleteProfile:
+          initialConference.configurations?.require_complete_author_profile ?? true,
         allowWithdrawals: initialConference.configurations?.allow_paper_withdrawls ?? true,
         status: initialConference.status || "open",
       })
@@ -116,6 +140,7 @@ export function ConferenceSettings({
     } else {
       loadConference()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conferenceId, initialConference])
 
   const loadConference = async () => {
@@ -131,9 +156,15 @@ export function ConferenceSettings({
         venue: response.data.location || "",
         startDate: formatDateForInput(response.data.configurations?.start_date),
         endDate: formatDateForInput(response.data.configurations?.end_date),
-        abstractDeadline: formatDateForInput(response.data.configurations?.abstract_submission_deadline),
-        submissionDeadline: formatDateForInput(response.data.configurations?.full_paper_submission_deadline),
-        cameraReadyDeadline: formatDateForInput(response.data.configurations?.camera_ready_deadline),
+        abstractDeadline: formatDateForInput(
+          response.data.configurations?.abstract_submission_deadline,
+        ),
+        submissionDeadline: formatDateForInput(
+          response.data.configurations?.full_paper_submission_deadline,
+        ),
+        cameraReadyDeadline: formatDateForInput(
+          response.data.configurations?.camera_ready_deadline,
+        ),
         callForPaperText: response.data.call_for_paper_text || "",
         coChairs: response.data.co_chairs || [],
         tracks: response.data.tracks || [],
@@ -142,7 +173,8 @@ export function ConferenceSettings({
         submissionFormat: response.data.configurations?.submission_format || "PDF",
         maximumPages: response.data.configurations?.maximum_pages || 8,
         haveCOI: response.data.configurations?.have_coi ?? true,
-        requireCompleteProfile: response.data.configurations?.require_complete_author_profile ?? true,
+        requireCompleteProfile:
+          response.data.configurations?.require_complete_author_profile ?? true,
         allowWithdrawals: response.data.configurations?.allow_paper_withdrawls ?? true,
         status: response.data.status || "open",
       })
@@ -227,7 +259,9 @@ export function ConferenceSettings({
       toast({
         title: t("common.messages.error"),
         description:
-          error instanceof Error ? error.message : t("dashboard.conference.settings.messages.saveError"),
+          error instanceof Error
+            ? error.message
+            : t("dashboard.conference.settings.messages.saveError"),
         variant: "destructive",
       })
     } finally {
@@ -236,13 +270,41 @@ export function ConferenceSettings({
   }
 
   const sections: Array<{ id: SettingsSection; labelKey: string; icon: React.ReactNode }> = [
-    { id: "general", labelKey: "dashboard.conference.settings.sections.general", icon: <Settings className="w-4 h-4" /> },
-    { id: "dates", labelKey: "dashboard.conference.settings.sections.dates", icon: <Calendar className="w-4 h-4" /> },
-    { id: "cfp", labelKey: "dashboard.conference.settings.sections.cfp", icon: <FileText className="w-4 h-4" /> },
-    { id: "co-chairs", labelKey: "dashboard.conference.settings.sections.coChairs", icon: <Users className="w-4 h-4" /> },
-    { id: "tracks-domains", labelKey: "dashboard.conference.settings.sections.tracksDomains", icon: <Tag className="w-4 h-4" /> },
-    { id: "submission", labelKey: "dashboard.conference.settings.sections.submission", icon: <FileText className="w-4 h-4" /> },
-    { id: "advanced", labelKey: "dashboard.conference.settings.sections.advanced", icon: <Settings className="w-4 h-4" /> },
+    {
+      id: "general",
+      labelKey: "dashboard.conference.settings.sections.general",
+      icon: <Settings className="w-4 h-4" />,
+    },
+    {
+      id: "dates",
+      labelKey: "dashboard.conference.settings.sections.dates",
+      icon: <Calendar className="w-4 h-4" />,
+    },
+    {
+      id: "cfp",
+      labelKey: "dashboard.conference.settings.sections.cfp",
+      icon: <FileText className="w-4 h-4" />,
+    },
+    {
+      id: "co-chairs",
+      labelKey: "dashboard.conference.settings.sections.coChairs",
+      icon: <Users className="w-4 h-4" />,
+    },
+    {
+      id: "tracks-domains",
+      labelKey: "dashboard.conference.settings.sections.tracksDomains",
+      icon: <Tag className="w-4 h-4" />,
+    },
+    {
+      id: "submission",
+      labelKey: "dashboard.conference.settings.sections.submission",
+      icon: <FileText className="w-4 h-4" />,
+    },
+    {
+      id: "advanced",
+      labelKey: "dashboard.conference.settings.sections.advanced",
+      icon: <Settings className="w-4 h-4" />,
+    },
   ]
 
   if (isLoading) {
@@ -258,20 +320,20 @@ export function ConferenceSettings({
       {/* Sidebar Navigation */}
       <aside className="w-64 flex-shrink-0">
         <nav className="space-y-1">
-              {sections.map((section) => (
-                <button
-                  key={section.id}
-                  onClick={() => setActiveSection(section.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-colors ${
-                    activeSection === section.id
-                      ? "bg-primary text-primary-foreground"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  {section.icon}
-                  <span>{t(section.labelKey)}</span>
-                </button>
-              ))}
+          {sections.map((section) => (
+            <button
+              key={section.id}
+              onClick={() => setActiveSection(section.id)}
+              className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-colors ${
+                activeSection === section.id
+                  ? "bg-primary text-primary-foreground"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              {section.icon}
+              <span>{t(section.labelKey)}</span>
+            </button>
+          ))}
         </nav>
       </aside>
 
@@ -339,7 +401,7 @@ function GeneralSection({ form }: { form: any }) {
             id="title"
             className="mt-2"
             {...form.register("title", { required: true })}
-            placeholder="International Conference on..."
+            placeholder={t("dashboard.conference.settings.general.placeholders.name")}
           />
         </div>
 
@@ -349,7 +411,7 @@ function GeneralSection({ form }: { form: any }) {
             id="acronym"
             className="mt-2"
             {...form.register("acronym", { required: true })}
-            placeholder="ICAI"
+            placeholder={t("dashboard.conference.settings.general.placeholders.acronym")}
           />
         </div>
 
@@ -361,7 +423,7 @@ function GeneralSection({ form }: { form: any }) {
             id="description"
             className="mt-2"
             {...form.register("description")}
-            placeholder="A brief description of your conference..."
+            placeholder={t("dashboard.conference.settings.general.placeholders.description")}
             rows={4}
           />
         </div>
@@ -373,7 +435,7 @@ function GeneralSection({ form }: { form: any }) {
             type="url"
             className="mt-2"
             {...form.register("website")}
-            placeholder="https://conference.example.com"
+            placeholder={t("dashboard.conference.settings.general.placeholders.website")}
           />
         </div>
 
@@ -383,7 +445,7 @@ function GeneralSection({ form }: { form: any }) {
             id="venue"
             className="mt-2"
             {...form.register("venue")}
-            placeholder="City, Country or Virtual"
+            placeholder={t("dashboard.conference.settings.general.placeholders.venue")}
           />
         </div>
       </div>
@@ -486,7 +548,7 @@ function CfPSection({ form }: { form: any }) {
           id="callForPaperText"
           className="mt-2 font-mono text-sm"
           {...form.register("callForPaperText")}
-          placeholder="Enter the call for papers content..."
+          placeholder={t("dashboard.conference.settings.cfp.placeholder")}
           rows={12}
         />
         <p className={`mt-1 ${typography.bodySmall} text-gray-500`}>
@@ -531,19 +593,16 @@ function CoChairsSection({ form, conference }: { form: any; conference: Conferen
       <div className="space-y-4">
         <div>
           <Label htmlFor="chair">{t("dashboard.conference.settings.coChairs.mainChair")}</Label>
-          <Input
-            id="chair"
-            value={conference?.chair || ""}
-            disabled
-            className="mt-2 bg-gray-50"
-          />
+          <Input id="chair" value={conference?.chair || ""} disabled className="mt-2 bg-gray-50" />
           <p className={`mt-1 ${typography.bodySmall} text-gray-500`}>
             {t("dashboard.conference.settings.coChairs.mainChairHint")}
           </p>
         </div>
 
         <div>
-          <Label htmlFor="newCoChair">{t("dashboard.conference.settings.coChairs.addCoChair")}</Label>
+          <Label htmlFor="newCoChair">
+            {t("dashboard.conference.settings.coChairs.addCoChair")}
+          </Label>
           <div className="flex gap-2 mt-2">
             <Input
               id="newCoChair"
@@ -608,7 +667,10 @@ function TracksDomainsSection({ form }: { form: any }) {
   }
 
   const removeTrack = (track: string) => {
-    form.setValue("tracks", tracks.filter((t: string) => t !== track))
+    form.setValue(
+      "tracks",
+      tracks.filter((t: string) => t !== track),
+    )
   }
 
   const addDomain = () => {
@@ -619,7 +681,10 @@ function TracksDomainsSection({ form }: { form: any }) {
   }
 
   const removeDomain = (domain: string) => {
-    form.setValue("domains", domains.filter((d: string) => d !== domain))
+    form.setValue(
+      "domains",
+      domains.filter((d: string) => d !== domain),
+    )
   }
 
   return (
@@ -635,7 +700,9 @@ function TracksDomainsSection({ form }: { form: any }) {
 
       <div className="space-y-6">
         <div>
-          <Label htmlFor="newTrack">{t("dashboard.conference.settings.tracksDomains.tracks")}</Label>
+          <Label htmlFor="newTrack">
+            {t("dashboard.conference.settings.tracksDomains.tracks")}
+          </Label>
           <div className="flex gap-2 mt-2">
             <Input
               id="newTrack"
@@ -736,7 +803,9 @@ function SubmissionSection({ form }: { form: any }) {
 
       <div className="space-y-4">
         <div>
-          <Label htmlFor="reviewType">{t("dashboard.conference.settings.submission.reviewType")}</Label>
+          <Label htmlFor="reviewType">
+            {t("dashboard.conference.settings.submission.reviewType")}
+          </Label>
           <Select
             value={form.watch("reviewType")}
             onValueChange={(value) => form.setValue("reviewType", value)}
@@ -842,7 +911,9 @@ function AdvancedSection({ form }: { form: any }) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="open">{t("dashboard.conference.settings.advanced.statusOpen")}</SelectItem>
+              <SelectItem value="open">
+                {t("dashboard.conference.settings.advanced.statusOpen")}
+              </SelectItem>
               <SelectItem value="reviewing">
                 {t("dashboard.conference.settings.advanced.statusReviewing")}
               </SelectItem>
@@ -870,4 +941,3 @@ function AdvancedSection({ form }: { form: any }) {
     </div>
   )
 }
-

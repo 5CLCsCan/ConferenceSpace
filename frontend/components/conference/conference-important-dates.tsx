@@ -84,7 +84,9 @@ export function ConferenceImportantDates({ conferenceId }: ConferenceImportantDa
       {dates.length === 0 ? (
         <Card className="p-8 text-center">
           <Calendar className={`mx-auto ${iconSizes.lg} text-gray-400`} />
-          <h3 className={`mt-3 ${typography.h5} text-gray-900`}>{t("conference.importantDates.noData")}</h3>
+          <h3 className={`mt-3 ${typography.h5} text-gray-900`}>
+            {t("conference.importantDates.noData")}
+          </h3>
           <p className={`mt-1.5 ${typography.body} text-gray-600`}>
             {t("conference.importantDates.noDataDescription")}
           </p>

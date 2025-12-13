@@ -10,6 +10,7 @@ import { Plus, Loader2, Check, Users, Info, Trash2 } from "lucide-react"
 import { apiFetch } from "@/lib/api/client"
 import { cn } from "@/lib/utils"
 import { typography, spacing, iconSizes } from "@/lib/typography"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface Author {
   name: string
@@ -42,6 +43,8 @@ export function AuthorsTab({
   const [isSearching, setIsSearching] = useState<Record<number, boolean>>({})
   const [openPopovers, setOpenPopovers] = useState<Record<number, boolean>>({})
   const inputRefs = useRef<Record<number, HTMLInputElement | null>>({})
+  const { t, tList } = useTranslation()
+  const authorGuidelines = tList("dashboard.author.submit.authorsTab.guidelines")
 
   const handleAddAuthor = () => {
     setAuthors([...authors, { name: "", email: "", affiliation: "" }])
@@ -114,6 +117,7 @@ export function AuthorsTab({
     return () => {
       Object.values(timers).forEach((timer) => clearTimeout(timer))
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQueries])
 
   const handleSelectUser = (index: number, user: UserSearchResult) => {
@@ -137,26 +141,31 @@ export function AuthorsTab({
             <Users className="size-6 text-purple-600" />
           </div>
           <div>
-            <h2 className={`${typography.h2} text-[#212529] font-arial`}>Authors & Affiliations</h2>
-            <p className={`${typography.body} text-[#6C757D] font-arial ${spacing.margin.top.sm}`}>
-              List all co-authors in the order they should appear
+            <h2 className={`${typography.h2} text-foreground font-arial`}>
+              {t("dashboard.author.submit.authorsTab.title")}
+            </h2>
+            <p
+              className={`${typography.body} text-muted-foreground font-arial ${spacing.margin.top.sm}`}
+            >
+              {t("dashboard.author.submit.authorsTab.subtitle")}
             </p>
           </div>
         </div>
       </div>
 
       {/* Info Card */}
-      <Card className="bg-purple-50 border-purple-200">
+      <Card className="bg-primary/5 border-primary/20">
         <div className={spacing.padding.card}>
           <div className="flex items-start gap-3">
-            <Info className="size-5 text-purple-600 flex-shrink-0 mt-0.5" />
-            <div className={`${typography.bodySmall} text-gray-700`}>
-              <p className={`${typography.medium} text-purple-900 mb-2`}>Author Guidelines:</p>
+            <Info className="size-5 text-primary flex-shrink-0 mt-0.5" />
+            <div className={`${typography.bodySmall} text-muted-foreground`}>
+              <p className={`${typography.medium} text-foreground mb-2`}>
+                {t("dashboard.author.submit.authorsTab.guidelinesTitle")}
+              </p>
               <ul className="space-y-1 ml-4 list-disc">
-                <li>Enter email addresses to search for registered users</li>
-                <li>Authors will be listed in the order shown below</li>
-                <li>The first author is typically the primary contributor</li>
-                <li>Mark yourself as corresponding author if applicable</li>
+                {authorGuidelines.map((tip) => (
+                  <li key={tip}>{tip}</li>
+                ))}
               </ul>
             </div>
           </div>
@@ -166,24 +175,26 @@ export function AuthorsTab({
       {/* Authors List */}
       <div className={spacing.subsection}>
         {authors.map((author, index) => (
-          <Card key={index} className="border-[#DEE2E6]">
+          <Card key={index} className="border-border">
             <div className={spacing.padding.card}>
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 space-y-3">
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#E9ECEF] text-[#495057] font-semibold text-sm">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted text-foreground font-semibold text-sm">
                       {index + 1}
                     </div>
-                    <Label className={`${typography.label} text-[#212529] font-arial`}>
-                      {index === 0 ? "Primary Author" : `Co-Author ${index}`}
+                    <Label className={`${typography.label} text-foreground font-arial`}>
+                      {index === 0
+                        ? t("dashboard.author.submit.authorsTab.primaryLabel")
+                        : t("dashboard.author.submit.authorsTab.coAuthorLabel", { index })}
                     </Label>
                   </div>
 
                   <div className="relative">
                     <Label
-                      className={`${typography.bodySmall} text-[#6C757D] font-arial mb-1.5 block`}
+                      className={`${typography.bodySmall} text-muted-foreground font-arial mb-1.5 block`}
                     >
-                      Email Address *
+                      {t("dashboard.author.submit.authorsTab.emailLabel")}
                     </Label>
                     <div className="relative">
                       <Input
@@ -191,7 +202,7 @@ export function AuthorsTab({
                           inputRefs.current[index] = el
                         }}
                         type="email"
-                        placeholder="author@university.edu"
+                        placeholder={t("dashboard.author.submit.authorsTab.emailPlaceholder")}
                         value={author.email}
                         onChange={(e) => handleUpdateEmail(index, e.target.value)}
                         onFocus={() => {
@@ -204,14 +215,14 @@ export function AuthorsTab({
                             setOpenPopovers({ ...openPopovers, [index]: false })
                           }, 200)
                         }}
-                        className={`${typography.body} font-arial border-[#DEE2E6] focus:border-[#0056A3] focus:ring-[#0056A3]`}
+                        className={`${typography.body} font-arial border-border focus:border-primary focus:ring-primary`}
                       />
                       {(searchResults[index]?.length > 0 || isSearching[index]) &&
                         openPopovers[index] && (
-                          <div className="absolute z-50 w-full mt-1 bg-white border border-[#DEE2E6] rounded-md shadow-lg max-h-[200px] overflow-y-auto">
+                          <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-[200px] overflow-y-auto">
                             {isSearching[index] ? (
                               <div className="flex items-center justify-center p-4">
-                                <Loader2 className="size-4 animate-spin text-[#6C757D]" />
+                                <Loader2 className="size-4 animate-spin text-muted-foreground" />
                               </div>
                             ) : searchResults[index]?.length > 0 ? (
                               <div className="p-1">
@@ -224,22 +235,24 @@ export function AuthorsTab({
                                       handleSelectUser(index, user)
                                     }}
                                     className={cn(
-                                      `w-full flex items-center ${spacing.gap.sm} px-3 py-2 ${typography.body} font-arial rounded-sm hover:bg-[#F8F9FA] cursor-pointer transition-colors`,
-                                      author.email === user.email && "bg-[#E9ECEF]",
+                                      `w-full flex items-center ${spacing.gap.sm} px-3 py-2 ${typography.body} font-arial rounded-sm hover:bg-muted cursor-pointer transition-colors`,
+                                      author.email === user.email && "bg-muted",
                                     )}
                                   >
                                     <div className="flex-1 text-left">
-                                      <div className={`${typography.medium} text-[#212529]`}>
+                                      <div className={`${typography.medium} text-foreground`}>
                                         {user.email}
                                       </div>
                                       {(user.first_name || user.last_name) && (
-                                        <div className={`${typography.bodySmall} text-[#6C757D]`}>
+                                        <div
+                                          className={`${typography.bodySmall} text-muted-foreground`}
+                                        >
                                           {`${user.first_name || ""} ${user.last_name || ""}`.trim()}
                                         </div>
                                       )}
                                     </div>
                                     {author.email === user.email && (
-                                      <Check className={`${iconSizes.sm} text-[#0056A3]`} />
+                                      <Check className={`${iconSizes.sm} text-primary`} />
                                     )}
                                   </button>
                                 ))}
@@ -251,8 +264,11 @@ export function AuthorsTab({
                   </div>
 
                   {author.name && (
-                    <div className={`${typography.body} text-[#495057] font-arial pl-1`}>
-                      <span className={typography.medium}>Name:</span> {author.name}
+                    <div className={`${typography.body} text-muted-foreground font-arial pl-1`}>
+                      <span className={typography.medium}>
+                        {t("dashboard.author.submit.authorsTab.namePreview")}
+                      </span>{" "}
+                      {author.name}
                     </div>
                   )}
                 </div>
@@ -279,31 +295,31 @@ export function AuthorsTab({
         type="button"
         variant="outline"
         onClick={handleAddAuthor}
-        className={`w-full border-[#0056A3] text-[#0056A3] hover:bg-[#0056A3]/10 ${typography.body} ${typography.medium} font-arial`}
+        className={`w-full border-primary text-primary hover:bg-primary/10 ${typography.body} ${typography.medium} font-arial`}
       >
         <Plus className={`${iconSizes.sm} mr-2`} />
-        Add Co-Author
+        {t("dashboard.author.submit.authorsTab.addAuthor")}
       </Button>
 
       {/* Corresponding Author Checkbox */}
-      <Card className="border-[#DEE2E6] bg-[#F8F9FA]">
+      <Card className="border-border bg-muted">
         <div className={spacing.padding.card}>
           <div className={`flex items-center ${spacing.gap.sm}`}>
             <Checkbox
               id="corresponding"
               checked={isCorresponding}
               onCheckedChange={(checked) => setIsCorresponding(checked === true)}
-              className="border-[#0056A3]"
+              className="border-primary"
             />
             <label
               htmlFor="corresponding"
-              className={`${typography.body} ${typography.medium} text-[#212529] font-arial leading-none cursor-pointer`}
+              className={`${typography.body} ${typography.medium} text-foreground font-arial leading-none cursor-pointer`}
             >
-              I am the corresponding author for this submission
+              {t("dashboard.author.submit.authorsTab.correspondingLabel")}
             </label>
           </div>
-          <p className={`${typography.bodySmall} text-[#6C757D] font-arial ml-6 mt-1`}>
-            The corresponding author will receive all communication regarding this submission
+          <p className={`${typography.bodySmall} text-muted-foreground font-arial ml-6 mt-1`}>
+            {t("dashboard.author.submit.authorsTab.correspondingDescription")}
           </p>
         </div>
       </Card>

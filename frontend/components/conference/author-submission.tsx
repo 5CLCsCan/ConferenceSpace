@@ -55,12 +55,12 @@ const statusConfig: Record<string, { label: string; icon: React.ElementType; cla
     published: {
       label: "Submitted",
       icon: CheckCircle2,
-      className: "bg-blue-100 text-blue-700 border-blue-300",
+      className: "bg-primary/10 text-primary border-primary/30",
     },
     submitted: {
       label: "Submitted",
       icon: CheckCircle2,
-      className: "bg-blue-100 text-blue-700 border-blue-300",
+      className: "bg-primary/10 text-primary border-primary/30",
     },
     under_review: {
       label: "Under Review",

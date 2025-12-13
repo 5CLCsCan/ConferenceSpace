@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { FileText, Upload, X, CheckCircle2, Info, Lightbulb, Download } from "lucide-react"
 import { typography, spacing } from "@/lib/typography"
+import { useTranslation } from "@/lib/i18n/translation-context"
 import { downloadCoverLetter } from "@/lib/api/papers"
 
 interface CoverLetterTabProps {
@@ -28,6 +29,9 @@ export function CoverLetterTab({
   existingCoverLetter,
 }: CoverLetterTabProps) {
   const [dragActive, setDragActive] = useState(false)
+  const { t, tList } = useTranslation()
+  const includeList = tList("dashboard.author.submit.coverLetterTab.includeList")
+  const tipsList = tList("dashboard.author.submit.coverLetterTab.tips")
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -111,33 +115,34 @@ export function CoverLetterTab({
             <FileText className="size-6 text-green-600" />
           </div>
           <div>
-            <h2 className={`${typography.h2} text-[#212529] font-arial`}>Cover Letter</h2>
-            <p className={`${typography.body} text-[#6C757D] font-arial ${spacing.margin.top.sm}`}>
-              Optional document to provide additional context to reviewers
+            <h2 className={`${typography.h2} text-foreground font-arial`}>
+              {t("dashboard.author.submit.coverLetterTab.title")}
+            </h2>
+            <p
+              className={`${typography.body} text-muted-foreground font-arial ${spacing.margin.top.sm}`}
+            >
+              {t("dashboard.author.submit.coverLetterTab.subtitle")}
             </p>
           </div>
         </div>
       </div>
 
       {/* Info Card */}
-      <Card className="bg-green-50 border-green-200">
+      <Card className="bg-success/10 border-success/25">
         <div className={spacing.padding.card}>
           <div className="flex items-start gap-3">
-            <Info className="size-5 text-green-600 flex-shrink-0 mt-0.5" />
-            <div className={`${typography.bodySmall} text-gray-700 font-arial`}>
-              <p className={`${typography.medium} text-green-900 mb-2`}>
-                What to include in your cover letter:
+            <Info className="size-5 text-success flex-shrink-0 mt-0.5" />
+            <div className={`${typography.bodySmall} text-muted-foreground font-arial`}>
+              <p className={`${typography.medium} text-foreground mb-2`}>
+                {t("dashboard.author.submit.coverLetterTab.includeTitle")}
               </p>
               <ul className="space-y-1 ml-4 list-disc">
-                <li>Brief summary of your paper's significance and novelty</li>
-                <li>Why this work is suitable for this conference</li>
-                <li>Any special considerations for reviewers</li>
-                <li>Suggested reviewers (if applicable)</li>
-                <li>Previous submission history (if resubmitting)</li>
+                {includeList.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
               </ul>
-              <p className={`${typography.bodySmall} text-gray-600 mt-2`}>
-                <strong>Note:</strong> Cover letter is optional but recommended. Maximum file size:
-                5MB. PDF format only.
+              <p className={`${typography.bodySmall} text-muted-foreground mt-2`}>
+                {t("dashboard.author.submit.coverLetterTab.note")}
               </p>
             </div>
           </div>
@@ -146,19 +151,21 @@ export function CoverLetterTab({
 
       {/* Existing Cover Letter */}
       {!coverLetter && existingCoverLetter && (
-        <Card className="bg-blue-50 border-blue-200">
+        <Card className="bg-primary/5 border-primary/20">
           <div className={spacing.padding.card}>
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3 flex-1">
-                <CheckCircle2 className="size-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                <div className={`${typography.bodySmall} text-gray-700 font-arial`}>
-                  <p className={`${typography.medium} text-blue-900 mb-1`}>Existing Cover Letter</p>
+                <CheckCircle2 className="size-5 text-primary flex-shrink-0 mt-0.5" />
+                <div className={`${typography.bodySmall} text-muted-foreground font-arial`}>
+                  <p className={`${typography.medium} text-foreground mb-1`}>
+                    {t("dashboard.author.submit.coverLetterTab.existingTitle")}
+                  </p>
                   <p className="mb-2">
                     <strong>{existingCoverLetter.name}</strong> (
                     {formatFileSize(existingCoverLetter.size)})
                   </p>
-                  <p className="text-gray-600">
-                    Upload a new file below to replace the existing cover letter.
+                  <p className="text-muted-foreground">
+                    {t("dashboard.author.submit.coverLetterTab.existingDescription")}
                   </p>
                 </div>
               </div>
@@ -169,7 +176,7 @@ export function CoverLetterTab({
                 className="flex-shrink-0"
               >
                 <Download className="size-4 mr-2" />
-                Download
+                {t("common.actions.download")}
               </Button>
             </div>
           </div>
@@ -178,14 +185,14 @@ export function CoverLetterTab({
 
       {/* Upload Section */}
       <div className={spacing.item}>
-        <Label className={`${typography.label} text-[#212529] font-arial`}>
-          Upload Cover Letter (Optional)
+        <Label className={`${typography.label} text-foreground font-arial`}>
+          {t("dashboard.author.submit.coverLetterTab.uploadLabel")}
         </Label>
 
         {!coverLetter ? (
           <div
             className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-all ${
-              dragActive ? "border-[#0056A3] bg-blue-50" : "border-[#DEE2E6] hover:border-[#ADB5BD]"
+              dragActive ? "border-primary bg-primary/5" : "border-border hover:border-accent"
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -200,47 +207,51 @@ export function CoverLetterTab({
               className="hidden"
             />
             <div className="space-y-4">
-              <div className="mx-auto w-16 h-16 bg-[#F8F9FA] rounded-full flex items-center justify-center">
-                <Upload className="size-8 text-[#6C757D]" />
+              <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+                <Upload className="size-8 text-muted-foreground" />
               </div>
               <div>
                 <p
-                  className={`${typography.bodyLarge} ${typography.medium} text-[#212529] font-arial mb-1`}
+                  className={`${typography.bodyLarge} ${typography.medium} text-foreground font-arial mb-1`}
                 >
-                  Drop your PDF here or click to browse
+                  {t("dashboard.author.submit.coverLetterTab.uploadTitle")}
                 </p>
-                <p className={`${typography.bodySmall} text-[#6C757D] font-arial`}>
-                  PDF format only, maximum 5MB
+                <p className={`${typography.bodySmall} text-muted-foreground font-arial`}>
+                  {t("dashboard.author.submit.coverLetterTab.uploadHint")}
                 </p>
               </div>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => document.getElementById("cover-letter-upload")?.click()}
-                className={`mx-auto border-[#0056A3] text-[#0056A3] hover:bg-[#0056A3]/10 ${typography.body} ${typography.medium} font-arial`}
+                className={`mx-auto border-primary text-primary hover:bg-primary/10 ${typography.body} ${typography.medium} font-arial`}
               >
                 <Upload className="size-4 mr-2" />
-                Choose File
+                {t("dashboard.author.submit.coverLetterTab.chooseFile")}
               </Button>
             </div>
           </div>
         ) : (
-          <Card className="border-green-200 bg-green-50">
+          <Card className="border-success/25 bg-success/10">
             <div className={spacing.padding.card}>
               <div className="flex items-start gap-4">
                 <div className="p-2 bg-green-100 rounded-lg">
-                  <CheckCircle2 className="size-6 text-green-600" />
+                  <CheckCircle2 className="size-6 text-success" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       <p
-                        className={`${typography.body} ${typography.semibold} text-[#212529] font-arial truncate`}
+                        className={`${typography.body} ${typography.semibold} text-foreground font-arial truncate`}
                       >
                         {coverLetter.name}
                       </p>
-                      <p className={`${typography.bodySmall} text-[#6C757D] font-arial mt-1`}>
-                        {formatFileSize(coverLetter.size)} • PDF Document
+                      <p
+                        className={`${typography.bodySmall} text-muted-foreground font-arial mt-1`}
+                      >
+                        {t("dashboard.author.submit.coverLetterTab.uploadedDescription", {
+                          size: formatFileSize(coverLetter.size),
+                        })}
                       </p>
                     </div>
                     <Button
@@ -251,7 +262,7 @@ export function CoverLetterTab({
                       className="shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
                       <X className="size-4 mr-1" />
-                      Remove
+                      {t("dashboard.author.submit.coverLetterTab.remove")}
                     </Button>
                   </div>
                   <div className="mt-3 flex gap-2">
@@ -260,9 +271,9 @@ export function CoverLetterTab({
                       variant="outline"
                       size="sm"
                       onClick={() => document.getElementById("cover-letter-upload")?.click()}
-                      className={`border-[#0056A3] text-[#0056A3] hover:bg-[#0056A3]/10 ${typography.bodySmall} font-arial`}
+                      className={`border-primary text-primary hover:bg-primary/10 ${typography.bodySmall} font-arial`}
                     >
-                      Replace File
+                      {t("dashboard.author.submit.coverLetterTab.replaceFile")}
                     </Button>
                   </div>
                   <input
@@ -280,23 +291,22 @@ export function CoverLetterTab({
       </div>
 
       {/* Tips Section */}
-      <details className="border-t border-[#DEE2E6] pt-4">
+      <details className="border-t border-border pt-4">
         <summary
-          className={`cursor-pointer ${typography.label} text-[#495057] hover:text-[#212529] flex items-center ${spacing.gap.sm} font-arial`}
+          className={`cursor-pointer ${typography.label} text-muted-foreground hover:text-foreground flex items-center ${spacing.gap.sm} font-arial`}
         >
           <Lightbulb className="size-4 text-amber-500" />
-          <span>Cover Letter Writing Tips</span>
+          <span>{t("dashboard.author.submit.coverLetterTab.tipsTitle")}</span>
         </summary>
         <div className="mt-3 p-4 bg-gray-50 rounded-lg">
           <div className={`${typography.bodySmall} text-gray-700 space-y-2 font-arial`}>
-            <p className={`${typography.medium} text-gray-900`}>Best Practices:</p>
+            <p className={`${typography.medium} text-gray-900`}>
+              {t("dashboard.author.submit.coverLetterTab.tipsTitle")}
+            </p>
             <ul className="space-y-1 ml-4 list-disc">
-              <li>Keep it concise (1-2 pages maximum)</li>
-              <li>Be professional and respectful in tone</li>
-              <li>Highlight the novelty and impact of your work</li>
-              <li>Address any potential concerns proactively</li>
-              <li>Avoid repeating the abstract verbatim</li>
-              <li>Suggest 3-5 qualified reviewers if the conference allows it</li>
+              {tipsList.map((tip) => (
+                <li key={tip}>{tip}</li>
+              ))}
             </ul>
           </div>
         </div>

@@ -221,6 +221,7 @@ export function Chatbot() {
     requestAnimationFrame(() => {
       setTimeout(() => setIsWindowAnimating(false), 50)
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleClose = React.useCallback(() => {
@@ -231,6 +232,7 @@ export function Chatbot() {
       setIsWindowAnimating(false)
       setSwipeDirection(null)
     }, 300)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleMinimize = React.useCallback(() => {

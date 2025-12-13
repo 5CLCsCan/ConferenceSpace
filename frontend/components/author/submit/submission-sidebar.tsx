@@ -21,7 +21,7 @@ interface SubmissionSidebarProps {
 }
 
 export function SubmissionSidebar({ checklist }: SubmissionSidebarProps) {
-  const { t } = useTranslation()
+  const { t, tList } = useTranslation()
 
   const allComplete = Object.values(checklist).every((v) => v === true)
   const completedCount = Object.values(checklist).filter((v) => v === true).length
@@ -30,7 +30,7 @@ export function SubmissionSidebar({ checklist }: SubmissionSidebarProps) {
   return (
     <div className="w-80 space-y-6">
       {/* Progress Card */}
-      <Card className="border-[#DEE2E6] bg-gradient-to-br from-blue-50 to-white">
+      <Card className="border-border bg-gradient-to-br from-primary/5 to-card">
         <CardContent className={spacing.padding.cardLarge}>
           <div className="flex items-center gap-3 mb-4">
             <div className={`p-2 rounded-lg ${allComplete ? "bg-success/10" : "bg-primary/10"}`}>
@@ -41,17 +41,22 @@ export function SubmissionSidebar({ checklist }: SubmissionSidebarProps) {
               )}
             </div>
             <div>
-              <h3 className={`${typography.h4} text-[#212529] font-arial`}>
-                {allComplete ? "Ready to Submit!" : "Submission Progress"}
+              <h3 className={`${typography.h4} text-foreground font-arial`}>
+                {allComplete
+                  ? t("dashboard.author.submit.sidebar.progressReady")
+                  : t("dashboard.author.submit.sidebar.progressInProgress")}
               </h3>
-              <p className={`${typography.bodySmall} text-[#6C757D] font-arial`}>
-                {completedCount} of {totalCount} complete
+              <p className={`${typography.bodySmall} text-muted-foreground font-arial`}>
+                {t("dashboard.author.submit.sidebar.progressSummary", {
+                  completed: completedCount,
+                  total: totalCount,
+                })}
               </p>
             </div>
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full bg-[#E9ECEF] rounded-full h-2 mb-4">
+          <div className="w-full bg-muted rounded-full h-2 mb-4">
             <div
               className={`h-2 rounded-full transition-all duration-300 ${
                 allComplete ? "bg-success" : "bg-primary"
@@ -65,7 +70,7 @@ export function SubmissionSidebar({ checklist }: SubmissionSidebarProps) {
               <p
                 className={`${typography.bodySmall} text-success-foreground font-arial text-center`}
               >
-                ✓ All requirements met. You can now submit your paper!
+                {t("dashboard.author.submit.sidebar.allComplete")}
               </p>
             </div>
           )}
@@ -73,12 +78,12 @@ export function SubmissionSidebar({ checklist }: SubmissionSidebarProps) {
       </Card>
 
       {/* Checklist Card */}
-      <Card className="border-[#DEE2E6]">
+      <Card className="border-border">
         <CardContent className={spacing.padding.cardLarge}>
-          <h3 className={`${typography.h4} text-[#212529] font-arial mb-1`}>
+          <h3 className={`${typography.h4} text-foreground font-arial mb-1`}>
             {t("dashboard.author.submit.checklist.title") || "Submission Checklist"}
           </h3>
-          <p className={`${typography.bodySmall} text-[#6C757D] font-arial mb-4`}>
+          <p className={`${typography.bodySmall} text-muted-foreground font-arial mb-4`}>
             {t("dashboard.author.submit.checklist.subtitle") || "Required before submitting"}
           </p>
           <div className="space-y-3">
@@ -117,32 +122,24 @@ export function SubmissionSidebar({ checklist }: SubmissionSidebarProps) {
       </Card>
 
       {/* Policy Card */}
-      <Card className="border-[#DEE2E6]">
+      <Card className="border-border">
         <CardContent className={spacing.padding.cardLarge}>
           <div className="flex items-center gap-2 mb-3">
             <Shield className="size-5 text-primary" />
-            <h3 className={`${typography.h5} text-[#212529] font-arial`}>Policy & Formatting</h3>
+            <h3 className={`${typography.h5} text-foreground font-arial`}>
+              {t("dashboard.author.submit.sidebar.policyTitle")}
+            </h3>
           </div>
-          <p className={`${typography.bodySmall} text-[#6C757D] font-arial mb-4`}>
-            Quick reference guidelines
+          <p className={`${typography.bodySmall} text-muted-foreground font-arial mb-4`}>
+            {t("dashboard.author.submit.sidebar.policySubtitle")}
           </p>
-          <ul className={`space-y-2 ${typography.bodySmall} text-[#495057] font-arial`}>
-            <li className="flex items-start gap-2">
-              <span className="text-primary mt-0.5">•</span>
-              <span>Double-blind: remove all identifying information</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary mt-0.5">•</span>
-              <span>Maximum 10 pages (excluding references)</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary mt-0.5">•</span>
-              <span>PDF ≤ 20MB with embedded fonts</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary mt-0.5">•</span>
-              <span>Use the official conference template</span>
-            </li>
+          <ul className={`space-y-2 ${typography.bodySmall} text-muted-foreground font-arial`}>
+            {tList("dashboard.author.submit.sidebar.policyItems").map((item) => (
+              <li key={item} className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">•</span>
+                <span>{item}</span>
+              </li>
+            ))}
           </ul>
         </CardContent>
       </Card>
@@ -156,10 +153,10 @@ export function SubmissionSidebar({ checklist }: SubmissionSidebarProps) {
               <p
                 className={`${typography.bodySmall} ${typography.medium} text-amber-900 font-arial mb-1`}
               >
-                Need Help?
+                {t("dashboard.author.submit.sidebar.helpTitle")}
               </p>
               <p className={`${typography.bodySmall} text-amber-800 font-arial`}>
-                Save your work as a draft at any time. You can return to complete it later.
+                {t("dashboard.author.submit.sidebar.helpDescription")}
               </p>
             </div>
           </div>

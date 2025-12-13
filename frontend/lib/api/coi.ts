@@ -89,9 +89,7 @@ export interface PaperCOISummary {
  * Get COI dashboard statistics for a conference
  * Endpoint: GET /api/v1/coi/dashboard/stats/:conference_id
  */
-export async function getCOIDashboardStats(
-  conferenceId: number,
-): Promise<COIDashboardStats> {
+export async function getCOIDashboardStats(conferenceId: number): Promise<COIDashboardStats> {
   const { data } = await apiFetch<{ data: COIDashboardStats }>(
     `/api/v1/coi/dashboard/stats/${conferenceId}`,
   )
@@ -123,13 +121,15 @@ export async function getAllCOIRelationships(params: {
   if (params.limit) queryParams.append("limit", params.limit.toString())
   if (params.page) queryParams.append("page", params.page.toString())
 
-  const { data } = await apiFetch<{ data: {
-    relationships: COIRelationship[]
-    total: number
-    page: number
-    limit: number
-  } }>(`/api/v1/coi/relationships?${queryParams.toString()}`)
-  
+  const { data } = await apiFetch<{
+    data: {
+      relationships: COIRelationship[]
+      total: number
+      page: number
+      limit: number
+    }
+  }>(`/api/v1/coi/relationships?${queryParams.toString()}`)
+
   return data.data
 }
 
@@ -172,13 +172,15 @@ export async function getAllPaperCOIs(params: {
   if (params.limit) queryParams.append("limit", params.limit.toString())
   if (params.page) queryParams.append("page", params.page.toString())
 
-  const { data } = await apiFetch<{ data: {
-    papers: PaperCOISummary[]
-    total: number
-    page: number
-    limit: number
-  } }>(`/api/v1/coi/papers?${queryParams.toString()}`)
-  
+  const { data } = await apiFetch<{
+    data: {
+      papers: PaperCOISummary[]
+      total: number
+      page: number
+      limit: number
+    }
+  }>(`/api/v1/coi/papers?${queryParams.toString()}`)
+
   return data.data
 }
 
@@ -187,9 +189,7 @@ export async function getAllPaperCOIs(params: {
  * Endpoint: POST /api/v1/coi/conferences/:conference_id/rebuild
  * Admin/Chair only
  */
-export async function rebuildCOIRelationships(
-  conferenceId: number,
-): Promise<{
+export async function rebuildCOIRelationships(conferenceId: number): Promise<{
   conference_id: number
   relationships_found: number
   relationships_stored: number
@@ -203,8 +203,3 @@ export async function rebuildCOIRelationships(
   )
   return data.data
 }
-
-
-
-
-

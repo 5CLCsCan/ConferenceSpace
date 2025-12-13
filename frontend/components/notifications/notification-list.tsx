@@ -43,8 +43,8 @@ export function NotificationList({
     return (
       <div className={cn("p-4", className)}>
         <div className="text-center py-8">
-          <p className="text-red-500 text-sm">Failed to load notifications</p>
-          <p className="text-slate-400 text-xs mt-1">{error.message}</p>
+          <p className="text-destructive text-sm">Failed to load notifications</p>
+          <p className="text-muted-foreground text-xs mt-1">{error.message}</p>
         </div>
       </div>
     )
@@ -53,12 +53,12 @@ export function NotificationList({
   return (
     <div className={cn("flex flex-col", className)}>
       {showHeader && (
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <div className="flex items-center gap-2">
-            <Bell className="h-4 w-4 text-slate-600" />
-            <h3 className="font-semibold text-slate-900">Notifications</h3>
+            <Bell className="h-4 w-4 text-muted-foreground" />
+            <h3 className="font-semibold text-foreground">Notifications</h3>
             {unreadCount > 0 && (
-              <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
+              <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
                 {unreadCount} new
               </span>
             )}
@@ -67,7 +67,7 @@ export function NotificationList({
             <Button
               variant="ghost"
               size="sm"
-              className="text-xs text-blue-600 hover:text-blue-700"
+              className="text-xs text-primary hover:text-primary"
               onClick={onMarkAllAsRead}
             >
               <CheckCheck className="h-3.5 w-3.5 mr-1" />
@@ -79,21 +79,21 @@ export function NotificationList({
 
       {isLoading && notifications.length === 0 ? (
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       ) : notifications.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-            <Bell className="h-8 w-8 text-slate-400" />
+          <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+            <Bell className="h-8 w-8 text-muted-foreground" />
           </div>
-          <p className="text-slate-500 text-sm">{emptyMessage}</p>
-          <p className="text-slate-400 text-xs mt-1">
+          <p className="text-muted-foreground text-sm">{emptyMessage}</p>
+          <p className="text-muted-foreground text-xs mt-1">
             You&apos;ll see notifications about submissions, reviews, and more here.
           </p>
         </div>
       ) : (
         <>
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-border">
             {notifications.map((notification) => (
               <NotificationItem
                 key={notification.id}
@@ -106,17 +106,15 @@ export function NotificationList({
           </div>
 
           {hasMore && onLoadMore && (
-            <div className="px-4 py-3 border-t border-slate-200">
+            <div className="px-4 py-3 border-t border-border">
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full text-blue-600 hover:text-blue-700"
+                className="w-full text-primary hover:text-primary"
                 onClick={onLoadMore}
                 disabled={isLoading}
               >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : null}
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                 Load more
               </Button>
             </div>
@@ -126,4 +124,3 @@ export function NotificationList({
     </div>
   )
 }
-

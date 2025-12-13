@@ -141,7 +141,9 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
               <Calendar className={`${iconSizes.sm} text-primary`} />
             </div>
             <div>
-              <p className={`${typography.label} text-gray-500`}>{t("conference.overview.conferenceDate")}</p>
+              <p className={`${typography.label} text-gray-500`}>
+                {t("conference.overview.conferenceDate")}
+              </p>
               <p className={`mt-1 ${typography.body} ${typography.semibold} text-gray-900`}>
                 {formatDate(conference.conference_date)}
               </p>
@@ -155,7 +157,9 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
               <MapPin className={`${iconSizes.sm} text-primary`} />
             </div>
             <div>
-              <p className={`${typography.label} text-gray-500`}>{t("conference.overview.location")}</p>
+              <p className={`${typography.label} text-gray-500`}>
+                {t("conference.overview.location")}
+              </p>
               <p className={`mt-1 ${typography.body} ${typography.semibold} text-gray-900`}>
                 {conference.location}
               </p>
@@ -170,7 +174,9 @@ export function ConferenceOverview({ conference }: ConferenceOverviewProps) {
                 <Globe className={`${iconSizes.sm} text-primary`} />
               </div>
               <div>
-                <p className={`${typography.label} text-gray-500`}>{t("conference.overview.website")}</p>
+                <p className={`${typography.label} text-gray-500`}>
+                  {t("conference.overview.website")}
+                </p>
                 <a
                   href={conference.website}
                   target="_blank"

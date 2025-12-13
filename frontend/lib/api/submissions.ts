@@ -153,8 +153,8 @@ export async function updateSubmissionStatus(
   try {
     const endpoint = `/api/v1/conferences/${conferenceId}/submissions/${submissionId}/status`
 
-    if (!status || status.trim() === '') {
-      console.error('Status is empty or invalid!');
+    if (!status || status.trim() === "") {
+      console.error("Status is empty or invalid!")
       // Handle error, ví dụ throw hoặc alert
       return {
         data: null,
@@ -162,7 +162,7 @@ export async function updateSubmissionStatus(
         status: 400,
       }
     }
-    console.log('Sending body:', JSON.stringify({ status }));
+    console.log("Sending body:", JSON.stringify({ status }))
     const { data, response } = await apiFetch<{ data: Submission }>(endpoint, {
       method: "PUT",
       body: JSON.stringify({ status }),
