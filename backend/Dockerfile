@@ -28,6 +28,7 @@ COPY --from=builder /app/main .
 
 # Copy migrations
 COPY --from=builder /app/migrations ./migrations
+COPY --from=builder /app/docs ./docs
 
 EXPOSE 8080
 

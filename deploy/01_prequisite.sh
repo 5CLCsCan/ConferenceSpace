@@ -1,50 +1,69 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Update package index (idempotent)
+echo "Start checking prerequisites..."
+
+# Update package index
 sudo apt-get update -y
 
-# Install core utilities (always safe)
-sudo apt-get install -y ca-certificates curl gnupg lsb-release make git
+# --- Swap Setup--------------------------------
+# Check if swap exists, if not create 2G swap
+if ! swapon --show | grep -q '/swapfile'; then
+  echo "Creating 2GB swap file for build stability..."
+  sudo fallocate -l 2G /swapfile
+  sudo chmod 600 /swapfile
+  sudo mkswap /swapfile
+  sudo swapon /swapfile
+  echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+  echo "Swap created."
+else
+  echo "Swap file already exists."
+fi
+
+# Install core utilities
+# build-essential is needed for some go tools or cgo if required
+sudo apt-get install -y ca-certificates curl gnupg lsb-release make git build-essential
 
 # --- Docker ---------------------------------------------------
-# Install Docker only if not already present (avoids containerd conflicts)
 if ! command -v docker >/dev/null 2>&1; then
-  echo "Docker not found – installing docker.io and docker-compose-plugin"
-
+  echo "Installing Docker..."
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-
   echo \
     "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] \
     https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | \
     sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-  sudo apt update && sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+  sudo apt-get update && sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+  
+  # Add user to docker group
+  sudo usermod -aG docker $USER || true
+  echo "Docker installed. You might need to re-login to use docker without sudo."
 else
-  echo "Docker already installed"
+  echo "Docker is already installed."
 fi
 
-# Add current user to docker group (no‑op if already a member)
-if groups $USER | grep -q docker; then
-  echo "User already in docker group"
+# --- Go -------------------------------------------------------
+if ! command -v go >/dev/null 2>&1; then
+  echo "Installing Go (via snap)..."
+  sudo snap install go --classic
 else
-  sudo usermod -aG docker $USER
-  echo "Added $USER to docker group – you may need to log out/in"
+  echo "Go is already installed: $(go version)"
 fi
 
 # --- Node.js -------------------------------------------------
-# Install Node.js (includes npm) only if missing
 if ! command -v node >/dev/null 2>&1; then
-  echo "Node.js not found – installing from nodesource"
+  echo "Installing Node.js..."
   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
   sudo apt-get install -y nodejs
 else
-  echo "Node.js already installed"
+  echo "Node.js is already installed: $(node -v)"
 fi
 
-# Verify installations
-docker version || { echo "Docker not installed correctly"; exit 1; }
-nginx -v || { echo "Nginx not installed correctly"; exit 1; }
-node -v || { echo "Node not installed correctly"; exit 1; }
+# --- Verify --------------------------------------------------
+echo "Verifying installations..."
+docker version >/dev/null 2>&1 || echo "Warning: User may need to re-login for Docker permissions"
+go version
+node -v
+npm -v
+make --version
 
-echo "✅ Prerequisite installation complete"
+echo "✅ Prerequisites check complete."

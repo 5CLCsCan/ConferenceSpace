@@ -1,21 +1,40 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Assumes prerequisite installed Node/NPM and nginx is present.
-# Run from the repository root.
+echo "Deploying Frontend..."
+
+if [ ! -d "frontend" ]; then
+    echo "Error: frontend directory not found. Please run from project root."
+    exit 1
+fi
 
 cd frontend
 
+echo "Installing dependencies..."
 npm ci
 
+echo "Building frontend (Static Export)..."
+# next.config.mjs should have output: 'export'
 npm run build
 
-npm run export
+# The output folder is 'out' by default for next export
+EXPORT_DIR="out"
+
+if [ ! -d "$EXPORT_DIR" ]; then
+    echo "Error: Build did not produce '$EXPORT_DIR' directory. Check next.config.mjs has output: 'export'."
+    exit 1
+fi
 
 NGINX_ROOT="/var/www/conferencespace"
 
-# Ensure the target directory exists and copy files (needs sudo for /var/www)
+echo "Deploying to $NGINX_ROOT..."
 sudo mkdir -p "$NGINX_ROOT"
-sudo cp -r out/* "$NGINX_ROOT/"
+# Remove old files to ensure clean deployment
+sudo rm -rf "$NGINX_ROOT"/*
+sudo cp -r "$EXPORT_DIR"/* "$NGINX_ROOT/"
 
-echo "✅ Frontend static assets built and copied to $NGINX_ROOT"
+# Permission fix if needed
+sudo chown -R www-data:www-data "$NGINX_ROOT" || true
+sudo chmod -R 755 "$NGINX_ROOT" || true
+
+echo "✅ Frontend deployed to $NGINX_ROOT"
