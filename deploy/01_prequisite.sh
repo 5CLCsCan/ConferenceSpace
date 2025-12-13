@@ -7,10 +7,10 @@ echo "Start checking prerequisites..."
 sudo apt-get update -y
 
 # --- Swap Setup--------------------------------
-# Check if swap exists, if not create 2G swap
+# Check if swap exists, if not create 8G swap
 if ! swapon --show | grep -q '/swapfile'; then
-  echo "Creating 2GB swap file for build stability..."
-  sudo fallocate -l 2G /swapfile
+  echo "Creating 8GB swap file for build stability..."
+  sudo fallocate -l 8G /swapfile
   sudo chmod 600 /swapfile
   sudo mkswap /swapfile
   sudo swapon /swapfile
