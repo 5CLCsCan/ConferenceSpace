@@ -22,7 +22,7 @@ interface ConferencePapersProps {
   conferenceName: string
   onBack: () => void
   onSelectPaper: (paperId: string) => void
-  onReviewSubmitted?: () => void // Thêm dòng này
+  onReviewSubmitted?: () => void
 }
 
 export function ConferencePapers({

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSWRConfig } from "swr"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -82,6 +83,7 @@ const mockRebuttal = {
 
 export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false, assignmentId }: PaperReviewProps) {
   const { t } = useTranslation()
+  const { mutate: globalMutate } = useSWRConfig()
 
   // Use assignmentId prop if provided, otherwise fall back to paper.id
   const actualAssignmentId = assignmentId || paper.id
@@ -197,6 +199,14 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
       setModalType("draft")
       setModalMessage(t("review.form.success.saveDraftDescription"))
       setModalOpen(true)
+      // Cập nhật cache SWR để UI tự động refresh cho tất cả các tab
+      await globalMutate((key) => 
+        Array.isArray(key) && (key[0] === "conference-papers" || key[0] === "reviewer-dashboard")
+      )
+      toast({
+        title: t("review.form.success.saveDraft"),
+        description: t("review.form.success.saveDraftDescription"),
+      })
       if (onReviewSubmitted) await onReviewSubmitted();
     } else {
       setModalType("error")
@@ -276,6 +286,14 @@ export function PaperReview({ paper, onBack, onReviewSubmitted, readOnly = false
       setModalType("submit")
       setModalMessage(t("review.form.success.submitReviewDescription"))
       setModalOpen(true)
+      // Cập nhật cache SWR để UI tự động refresh cho tất cả các tab
+      await globalMutate((key) => 
+        Array.isArray(key) && (key[0] === "conference-papers" || key[0] === "reviewer-dashboard")
+      )
+      toast({
+        title: t("review.form.success.submitReview"),
+        description: t("review.form.success.submitReviewDescription"),
+      })
       if (onReviewSubmitted) await onReviewSubmitted();
     } else {
       setModalType("error")
