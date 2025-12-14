@@ -170,6 +170,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return { success: false, error: t("auth.messages.invalidLogin") }
         }
 
+        // Manually set cookie if backend returns token but doesn't set Set-Cookie
+        const token = data?.token || data?.data?.token
+        if (token) {
+          document.cookie = `conference_auth_token=${token}; path=/; max-age=86400; SameSite=Lax`
+        }
+
         const normalizedUser = normalizeUser(apiUser)
         sessionManager.setUser(normalizedUser)
         syncWithSessionManager()
