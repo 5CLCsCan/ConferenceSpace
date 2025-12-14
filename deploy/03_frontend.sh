@@ -8,6 +8,8 @@ if [ ! -d "frontend" ]; then
     exit 1
 fi
 
+sudo systemctl stop conferencespace-frontend || true
+
 cd frontend
 
 echo "Installing dependencies..."
@@ -29,7 +31,8 @@ DEST_DIR="/opt/conferencespace-frontend"
 echo "Deploying to $DEST_DIR..."
 sudo mkdir -p "$DEST_DIR"
 sudo rm -rf "$DEST_DIR"/*
-sudo cp -r .next/standalone/* "$DEST_DIR/"
+# Copy everything including hidden files (.next)
+sudo cp -R .next/standalone/. "$DEST_DIR/"
 
 # Set permissions
 sudo chown -R www-data:www-data "$DEST_DIR"

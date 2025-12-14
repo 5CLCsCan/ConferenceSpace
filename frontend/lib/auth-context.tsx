@@ -165,7 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
 
-        const apiUser = data?.user
+        const apiUser = data?.user || data?.data?.user
         if (!apiUser) {
           return { success: false, error: t("auth.messages.invalidLogin") }
         }
