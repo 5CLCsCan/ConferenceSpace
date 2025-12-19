@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ConferenceSpace - Explore Conferences</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200..800&amp;family=Inter:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#141414", "background-light": "#f7f7f7", "background-dark": "#191919", "accent-navy": "#1e293b", "brand-green": "#16a34a", "brand-blue": "#2563eb", "brand-purple": "#9333ea", "sidebar-text": "#545F71", "sidebar-active-bg": "#F1F5F9", "sidebar-active-text": "#1E293B"}, fontFamily: {display: "Inter", body: ["Noto Sans", "sans-serif"]}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, boxShadow: {card: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)", "card-hover": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)"}}}};</script>
+<style>
+        .material-symbols-outlined {
+        font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display min-h-screen flex flex-col">
+<div class="flex flex-1 w-full max-w-[1600px] mx-auto overflow-hidden">
+<aside class="w-[280px] hidden md:flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-screen sticky top-0 overflow-y-auto flex-shrink-0 z-40">
+<div class="px-6 pt-8 pb-6">
+<div class="flex items-center gap-3">
+<div class="bg-accent-navy text-white w-10 h-10 rounded-lg flex items-center justify-center shadow-lg shadow-black/10 flex-shrink-0">
+<span class="material-symbols-outlined text-[24px]">school</span>
+</div>
+<h1 class="text-[19px] font-bold text-slate-800 dark:text-white tracking-tight">ConferenceSpace</h1>
+</div>
+</div>
+<div class="flex-1 px-4 space-y-8 mt-2">
+<div class="space-y-1">
+<h3 class="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 font-display">Menu</h3>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sidebar-text dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined text-[22px] text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300">grid_view</span>
+<span class="font-semibold text-[14px]">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-sidebar-active-bg dark:bg-slate-800 text-sidebar-active-text dark:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined text-[22px] text-slate-600 dark:text-slate-300">calendar_month</span>
+<span class="font-bold text-[14px]">Conferences</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sidebar-text dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined text-[22px] text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300">rate_review</span>
+<span class="font-semibold text-[14px]">Reviews</span>
+</a>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-sidebar-text dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors group" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[22px] text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300">notifications</span>
+<span class="font-semibold text-[14px]">Notifications</span>
+</div>
+<span class="flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold">3</span>
+</a>
+</div>
+<div>
+<h3 class="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-4 font-display">Recent Conferences</h3>
+<div class="space-y-4 px-3">
+<a class="block group cursor-pointer" href="#">
+<div class="font-bold text-[14px] text-slate-700 dark:text-slate-200 group-hover:text-brand-blue transition-colors">CVPR 2024</div>
+<div class="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">Reviewer</div>
+</a>
+<a class="block group cursor-pointer" href="#">
+<div class="font-bold text-[14px] text-slate-700 dark:text-slate-200 group-hover:text-brand-blue transition-colors">ICLR 2024</div>
+<div class="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">Area Chair</div>
+</a>
+<a class="block group cursor-pointer" href="#">
+<div class="font-bold text-[14px] text-slate-700 dark:text-slate-200 group-hover:text-brand-blue transition-colors">NeurIPS 2023</div>
+<div class="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">Author</div>
+</a>
+</div>
+</div>
+</div>
+<div class="mt-auto border-t border-slate-100 dark:border-slate-800">
+<button class="w-full flex items-center justify-between px-6 py-5 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-left">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden border border-slate-200 dark:border-slate-600 bg-cover bg-center flex-shrink-0" data-alt="Professional headshot of a woman" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA5iIJaVXGl0D1HRG3ULOT9C9PhH3RzOrp1kkDzHq0PPgJZA7JRRy8rzybBj0yFIbH5x3p1874q8ycWP2t2BVTvpiek9xtcV-_Qis1U-RgxUhh7KhKGqL35gKl8yCY5bslazmwRf3jQgFnlXqMOH_EOto3_Xmr4XznnGPFh0PVfLTEfGDK3tjF5LIS0hSWBTiEWnh6QbDfdZ1BjLYSoVjXYvNLLHkgb9M9Qcgn7K-SqRhiTfnd5rJ6HkUFewGdO61rtUSkm5rtu");'></div>
+<div class="flex flex-col min-w-0">
+<span class="text-[14px] font-bold text-slate-800 dark:text-white leading-tight truncate">Dr. Sarah Smith</span>
+<span class="text-[12px] text-slate-500 dark:text-slate-400 truncate mt-0.5">View Profile</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-[20px]">keyboard_arrow_down</span>
+</button>
+</div>
+</aside>
+<div class="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-black h-screen overflow-y-auto relative">
+<div class="sticky top-0 z-30 bg-slate-50/90 dark:bg-black/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+<div class="px-8 md:px-12 pt-6">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+<h2 class="text-2xl font-bold text-slate-900 dark:text-white">Conferences</h2>
+<div class="flex items-center gap-3 w-full md:w-auto justify-end">
+<div class="relative w-full md:w-80 group">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 group-focus-within:text-brand-blue transition-colors text-[20px]">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue transition-all shadow-sm" placeholder="Search available conferences..." type="text"/>
+</div>
+<button class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-sm font-medium shadow-sm">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+</button>
+</div>
+</div>
+<div class="flex items-center gap-8 mt-4">
+<button class="relative pb-3 text-sm font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors">
+                        My Conferences
+                    </button>
+<button class="relative pb-3 text-sm font-bold text-brand-blue after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-brand-blue">
+                        Explore
+                    </button>
+</div>
+</div>
+</div>
+<main class="flex-grow flex flex-col px-8 md:px-12 py-8 max-w-[1600px] w-full mx-auto">
+<div class="flex flex-col gap-4">
+<div class="group flex flex-col xl:flex-row xl:items-center p-5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-card hover:shadow-card-hover hover:border-brand-blue/30 dark:hover:border-brand-blue/30 transition-all duration-200 gap-6">
+<div class="flex items-center xl:w-[35%] min-w-[240px]">
+<div class="min-w-0">
+<div class="flex items-center gap-2.5 mb-0.5">
+<h3 class="font-bold text-lg text-slate-900 dark:text-white truncate">ICCV 2025</h3>
+<span class="px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] font-bold uppercase tracking-wide border border-blue-100 dark:border-blue-800">Upcoming</span>
+</div>
+<p class="text-xs text-slate-500 font-medium truncate">International Conference on Computer Vision</p>
+<div class="flex items-center gap-3 mt-2 text-xs text-slate-500">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">location_on</span> Paris, France</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">group</span> 2.4k Papers</span>
+</div>
+</div>
+</div>
+<div class="flex flex-row items-center gap-8 px-6 border-l border-r border-slate-100 dark:border-slate-800 xl:w-[35%] xl:justify-center">
+<div class="flex flex-col">
+<span class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Review Deadline</span>
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Oct 15, 2025</span>
+</div>
+<div class="w-px h-8 bg-slate-100 dark:bg-slate-800 hidden sm:block"></div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Topics</span>
+<div class="flex gap-1 flex-wrap">
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded text-[10px]">Computer Vision</span>
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded text-[10px]">ML</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between xl:justify-end gap-6 xl:w-[30%] mt-2 xl:mt-0">
+<div class="flex flex-col items-end gap-1">
+<span class="text-xs text-slate-400">Call for Reviewers open</span>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-blue text-white hover:bg-blue-700 text-sm font-bold transition-all group/btn whitespace-nowrap shadow-sm shadow-blue-500/20">
+                            Apply to Review
+                            <span class="material-symbols-outlined text-lg group-hover/btn:translate-x-0.5 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="group flex flex-col xl:flex-row xl:items-center p-5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-card hover:shadow-card-hover hover:border-brand-blue/30 dark:hover:border-brand-blue/30 transition-all duration-200 gap-6">
+<div class="flex items-center xl:w-[35%] min-w-[240px]">
+<div class="min-w-0">
+<div class="flex items-center gap-2.5 mb-0.5">
+<h3 class="font-bold text-lg text-slate-900 dark:text-white truncate">SIGGRAPH 2025</h3>
+<span class="px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wide border border-amber-100 dark:border-amber-800">Urgent</span>
+</div>
+<p class="text-xs text-slate-500 font-medium truncate">Special Interest Group on Computer Graphics</p>
+<div class="flex items-center gap-3 mt-2 text-xs text-slate-500">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">location_on</span> Vancouver, Canada</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">group</span> 1.8k Papers</span>
+</div>
+</div>
+</div>
+<div class="flex flex-row items-center gap-8 px-6 border-l border-r border-slate-100 dark:border-slate-800 xl:w-[35%] xl:justify-center">
+<div class="flex flex-col">
+<span class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Review Deadline</span>
+<span class="text-sm font-semibold text-amber-600 dark:text-amber-500">Aug 01, 2025</span>
+</div>
+<div class="w-px h-8 bg-slate-100 dark:bg-slate-800 hidden sm:block"></div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Topics</span>
+<div class="flex gap-1 flex-wrap">
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded text-[10px]">Graphics</span>
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded text-[10px]">Animation</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between xl:justify-end gap-6 xl:w-[30%] mt-2 xl:mt-0">
+<div class="flex flex-col items-end gap-1">
+<span class="text-xs text-amber-600 dark:text-amber-500 font-medium">Closing in 3 days</span>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-blue text-white hover:bg-blue-700 text-sm font-bold transition-all group/btn whitespace-nowrap shadow-sm shadow-blue-500/20">
+                            Apply to Review
+                            <span class="material-symbols-outlined text-lg group-hover/btn:translate-x-0.5 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="group flex flex-col xl:flex-row xl:items-center p-5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-card hover:shadow-card-hover hover:border-brand-blue/30 dark:hover:border-brand-blue/30 transition-all duration-200 gap-6">
+<div class="flex items-center xl:w-[35%] min-w-[240px]">
+<div class="min-w-0">
+<div class="flex items-center gap-2.5 mb-0.5">
+<h3 class="font-bold text-lg text-slate-900 dark:text-white truncate">KDD 2025</h3>
+<span class="px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-[10px] font-bold uppercase tracking-wide border border-purple-100 dark:border-purple-800">New</span>
+</div>
+<p class="text-xs text-slate-500 font-medium truncate">Knowledge Discovery and Data Mining</p>
+<div class="flex items-center gap-3 mt-2 text-xs text-slate-500">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">location_on</span> Long Beach, USA</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">group</span> 3.1k Papers</span>
+</div>
+</div>
+</div>
+<div class="flex flex-row items-center gap-8 px-6 border-l border-r border-slate-100 dark:border-slate-800 xl:w-[35%] xl:justify-center">
+<div class="flex flex-col">
+<span class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Review Deadline</span>
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Sep 10, 2025</span>
+</div>
+<div class="w-px h-8 bg-slate-100 dark:bg-slate-800 hidden sm:block"></div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Topics</span>
+<div class="flex gap-1 flex-wrap">
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded text-[10px]">Data Science</span>
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded text-[10px]">Big Data</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between xl:justify-end gap-6 xl:w-[30%] mt-2 xl:mt-0">
+<div class="flex flex-col items-end gap-1">
+<span class="text-xs text-slate-400">Just opened</span>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-brand-blue hover:text-white dark:hover:bg-brand-blue text-brand-blue dark:text-brand-blue dark:hover:text-white text-sm font-bold transition-all group/btn whitespace-nowrap border border-slate-200 dark:border-slate-700 hover:border-brand-blue dark:hover:border-brand-blue">
+                            View Details
+                            <span class="material-symbols-outlined text-lg group-hover/btn:translate-x-0.5 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="group flex flex-col xl:flex-row xl:items-center p-5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-card hover:shadow-card-hover hover:border-brand-blue/30 dark:hover:border-brand-blue/30 transition-all duration-200 gap-6">
+<div class="flex items-center xl:w-[35%] min-w-[240px]">
+<div class="min-w-0">
+<div class="flex items-center gap-2.5 mb-0.5">
+<h3 class="font-bold text-lg text-slate-900 dark:text-white truncate">ACL 2025</h3>
+<span class="px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] font-bold uppercase tracking-wide border border-blue-100 dark:border-blue-800">Upcoming</span>
+</div>
+<p class="text-xs text-slate-500 font-medium truncate">Association for Computational Linguistics</p>
+<div class="flex items-center gap-3 mt-2 text-xs text-slate-500">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">location_on</span> Dublin, Ireland</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">group</span> 4.2k Papers</span>
+</div>
+</div>
+</div>
+<div class="flex flex-row items-center gap-8 px-6 border-l border-r border-slate-100 dark:border-slate-800 xl:w-[35%] xl:justify-center">
+<div class="flex flex-col">
+<span class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Review Deadline</span>
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Jul 05, 2025</span>
+</div>
+<div class="w-px h-8 bg-slate-100 dark:bg-slate-800 hidden sm:block"></div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Topics</span>
+<div class="flex gap-1 flex-wrap">
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded text-[10px]">NLP</span>
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded text-[10px]">Linguistics</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between xl:justify-end gap-6 xl:w-[30%] mt-2 xl:mt-0">
+<div class="flex flex-col items-end gap-1">
+<span class="text-xs text-slate-400">Call for Reviewers open</span>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-blue text-white hover:bg-blue-700 text-sm font-bold transition-all group/btn whitespace-nowrap shadow-sm shadow-blue-500/20">
+                            Apply to Review
+                            <span class="material-symbols-outlined text-lg group-hover/btn:translate-x-0.5 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="group flex flex-col xl:flex-row xl:items-center p-5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-card hover:shadow-card-hover hover:border-brand-blue/30 dark:hover:border-brand-blue/30 transition-all duration-200 gap-6 opacity-75">
+<div class="flex items-center xl:w-[35%] min-w-[240px]">
+<div class="min-w-0">
+<div class="flex items-center gap-2.5 mb-0.5">
+<h3 class="font-bold text-lg text-slate-900 dark:text-white truncate">IROS 2025</h3>
+<span class="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-500 text-[10px] font-bold uppercase tracking-wide border border-slate-200 dark:border-slate-700">Closed</span>
+</div>
+<p class="text-xs text-slate-500 font-medium truncate">Intl. Conf. on Intelligent Robots and Systems</p>
+<div class="flex items-center gap-3 mt-2 text-xs text-slate-500">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">location_on</span> Detroit, USA</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">group</span> 2.1k Papers</span>
+</div>
+</div>
+</div>
+<div class="flex flex-row items-center gap-8 px-6 border-l border-r border-slate-100 dark:border-slate-800 xl:w-[35%] xl:justify-center">
+<div class="flex flex-col">
+<span class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Review Deadline</span>
+<span class="text-sm font-semibold text-slate-400 dark:text-slate-600">Jun 15, 2025</span>
+</div>
+<div class="w-px h-8 bg-slate-100 dark:bg-slate-800 hidden sm:block"></div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Topics</span>
+<div class="flex gap-1 flex-wrap">
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded text-[10px]">Robotics</span>
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded text-[10px]">Systems</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between xl:justify-end gap-6 xl:w-[30%] mt-2 xl:mt-0">
+<div class="flex flex-col items-end gap-1">
+<span class="text-xs text-slate-400">Applications closed</span>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-transparent text-slate-500 hover:text-brand-blue dark:text-slate-400 dark:hover:text-white text-sm font-bold transition-all group/btn whitespace-nowrap cursor-not-allowed opacity-50">
+                            Details
+                            <span class="material-symbols-outlined text-lg group-hover/btn:translate-x-0.5 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<div class="py-12 flex flex-col items-center justify-center text-center mt-8">
+<span class="material-symbols-outlined text-3xl text-slate-400 animate-spin mb-2">progress_activity</span>
+<p class="text-sm text-slate-500 dark:text-slate-400">Loading more conferences...</p>
+</div>
+<div class="w-full flex flex-col md:flex-row items-center justify-between pt-10 border-t border-slate-200 dark:border-slate-800 gap-4 mt-auto">
+<div class="flex items-center gap-6 text-sm text-slate-500 font-medium">
+<a class="hover:text-primary dark:hover:text-white transition-colors" href="#">Documentation</a>
+<a class="hover:text-primary dark:hover:text-white transition-colors" href="#">Support</a>
+<a class="hover:text-primary dark:hover:text-white transition-colors" href="#">Privacy Policy</a>
+</div>
+<div class="flex items-center gap-2 text-slate-400 text-sm">
+<span class="material-symbols-outlined text-lg">info</span>
+<span>Last login: Today at 09:42 AM</span>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

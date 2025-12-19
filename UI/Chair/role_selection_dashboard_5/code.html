@@ -1,0 +1,529 @@
+<html><head><meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Submission Discussion (Chair View)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200..800&amp;family=Noto+Sans:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#0f172a", // Navy-black
+              "secondary": "#334155",
+              "background-light": "#ffffff", // Pure white background
+              "background-dark": "#0f172a",
+              "navy-50": "#f8fafc", // More neutral/slate
+              "navy-100": "#f1f5f9", // More neutral/slate
+              "navy-600": "#0f172a", // Dark navy/black
+              "navy-700": "#1e293b", // Slate 800
+              "navy-800": "#0f172a", // Slate 900
+              "navy-900": "#020617", // Almost black
+              "brand-blue": "#0f172a",
+            },
+            fontFamily: {
+              "display": ["Plus Jakarta Sans", "sans-serif"],
+              "body": ["Noto Sans", "sans-serif"],
+            },
+            borderRadius: {
+              "DEFAULT": "0.375rem",
+              "lg": "0.5rem",
+              "xl": "0.75rem",
+              "2xl": "1rem",
+              "3xl": "1.5rem",
+              "full": "9999px"
+            },
+            boxShadow: {
+                'card': '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+                'card-hover': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+            }
+          },
+        },
+      }
+    </script>
+<style>
+    .material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24
+    }
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+</style>
+</head><body class="bg-white dark:bg-background-dark text-slate-900 dark:text-white font-display min-h-screen flex flex-col">
+<header class="w-full border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-50 md:hidden">
+<div class="px-6 py-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="bg-navy-900 text-white p-1.5 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">school</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight text-navy-900 dark:text-white">ConferenceSpace</h1>
+</div>
+<button class="text-slate-500">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<div class="flex flex-1 w-full max-w-[1920px] mx-auto">
+<aside class="w-72 hidden md:flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-screen sticky top-0 overflow-y-auto flex-shrink-0 z-40 justify-between">
+<div>
+<div class="px-6 py-8 mb-4">
+<div class="flex items-center gap-3">
+<div class="bg-navy-900 text-white p-2 rounded-lg flex items-center justify-center shadow-lg shadow-navy-900/20">
+<span class="material-symbols-outlined text-2xl">school</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight text-navy-900 dark:text-white">ConferenceSpace</h1>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-8">
+<div class="space-y-1">
+<h3 class="px-3 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Menu</h3>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-navy-900 dark:hover:text-white transition-colors font-medium" href="#">
+<span class="material-symbols-outlined text-[20px]">folder_open</span>
+                        Conferences
+                    </a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-navy-900 dark:hover:text-white transition-colors font-medium" href="#">
+<span class="material-symbols-outlined text-[20px]">calendar_month</span>
+                        Schedules
+                    </a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-navy-900 dark:hover:text-white transition-colors font-medium" href="#">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-0.5 right-0 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-slate-900"></span>
+</div>
+                        Notifications
+                    </a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-navy-900 dark:hover:text-white transition-colors font-medium" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+                        Dashboard
+                    </a>
+</div>
+<div>
+<h3 class="px-5 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 opacity-80">Recent Conferences</h3>
+<div class="space-y-4 px-2">
+<a class="group block px-3 py-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all" href="#">
+<div class="flex flex-col">
+<span class="font-bold text-slate-800 dark:text-slate-200 text-[15px] mb-0.5 group-hover:text-navy-900 dark:group-hover:text-white">CVPR 2024</span>
+<span class="text-[11px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">Reviewer</span>
+</div>
+</a>
+<a class="group block px-3 py-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all" href="#">
+<div class="flex flex-col">
+<span class="font-bold text-slate-800 dark:text-slate-200 text-[15px] mb-0.5 group-hover:text-navy-900 dark:group-hover:text-white">ICLR 2024</span>
+<span class="text-[11px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">Area Chair</span>
+</div>
+</a>
+<a class="group block px-3 py-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all" href="#">
+<div class="flex flex-col">
+<span class="font-bold text-slate-800 dark:text-slate-200 text-[15px] mb-0.5 group-hover:text-navy-900 dark:group-hover:text-white">NeurIPS 2023</span>
+<span class="text-[11px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">Author</span>
+</div>
+</a>
+<a class="group block px-5 py-3 rounded-xl bg-navy-50 dark:bg-slate-800 border-l-[3px] border-navy-900 dark:border-slate-400 transition-all ml-[-8px] mr-2" href="#">
+<div class="flex flex-col">
+<span class="font-bold text-navy-900 dark:text-white text-[15px] mb-0.5">AAAI 2024</span>
+<span class="text-[11px] uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400">Chair</span>
+</div>
+</a>
+</div>
+</div>
+</nav>
+</div>
+<div class="px-6 py-6 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden border border-slate-200 dark:border-slate-600 bg-cover bg-center flex-shrink-0" data-alt="Professional headshot of a woman" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA5iIJaVXGl0D1HRG3ULOT9C9PhH3RzOrp1kkDzHq0PPgJZA7JRRy8rzybBj0yFIbH5x3p1874q8ycWP2t2BVTvpiek9xtcV-_Qis1U-RgxUhh7KhKGqL35gKl8yCY5bslazmwRf3jQgFnlXqMOH_EOto3_Xmr4XznnGPFh0PVfLTEfGDK3tjF5LIS0hSWBTiEWnh6QbDfdZ1BjLYSoVjXYvNLLHkgb9M9Qcgn7K-SqRhiTfnd5rJ6HkUFewGdO61rtUSkm5rtu");'></div>
+<div class="flex flex-col min-w-0">
+<span class="text-sm font-bold text-navy-900 dark:text-white leading-tight truncate">Dr. Sarah Smith</span>
+<span class="text-xs text-slate-500 dark:text-slate-400 truncate">Chair Admin</span>
+</div>
+</div>
+</div>
+</aside>
+<div class="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-black h-screen overflow-y-auto relative">
+<header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30">
+<div class="px-8 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<div class="flex items-center gap-2 text-sm text-slate-500 mb-1">
+<span class="material-symbols-outlined text-lg">folder_open</span>
+<span>Conferences</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="font-medium text-navy-900 dark:text-white">AAAI 2024</span>
+</div>
+<h1 class="text-2xl font-bold text-navy-900 dark:text-white">38th AAAI Conference on Artificial Intelligence</h1>
+<p class="text-sm text-slate-500 mt-0.5 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">location_on</span> Vancouver, Canada
+                        <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+<span class="material-symbols-outlined text-[16px]">calendar_month</span> Feb 20 - Feb 27, 2024
+                    </p>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 bg-white border border-slate-200 text-slate-700 font-medium text-sm rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">settings</span>
+                        Settings
+                    </button>
+</div>
+</div>
+<div class="px-8 border-t border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar">
+<div class="flex space-x-8 min-w-max">
+<a class="py-4 border-b-2 border-transparent text-slate-500 hover:text-navy-900 dark:text-slate-400 dark:hover:text-white font-medium text-sm transition-colors flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-lg">analytics</span>
+                        Dashboard
+                    </a>
+<a class="py-4 border-b-2 border-transparent text-slate-500 hover:text-navy-900 dark:text-slate-400 dark:hover:text-white font-medium text-sm transition-colors flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-lg">info</span>
+                        Overview
+                    </a>
+<a class="py-4 border-b-2 border-transparent text-slate-500 hover:text-navy-900 dark:text-slate-400 dark:hover:text-white font-medium text-sm transition-colors flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-lg">campaign</span>
+                        Call for Papers
+                    </a>
+<a class="py-4 border-b-2 border-transparent text-slate-500 hover:text-navy-900 dark:text-slate-400 dark:hover:text-white font-medium text-sm transition-colors flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-lg">event</span>
+                        Important Dates
+                    </a>
+<a class="py-4 border-b-2 border-transparent text-slate-500 hover:text-navy-900 dark:text-slate-400 dark:hover:text-white font-medium text-sm transition-colors flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-lg">groups</span>
+                        Committee
+                    </a>
+<a class="py-4 border-b-2 border-navy-900 text-navy-900 dark:border-white dark:text-white font-semibold text-sm flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-lg">description</span>
+                        Submissions
+                        <span class="bg-navy-900 text-white dark:bg-white dark:text-navy-900 text-xs py-0.5 px-2 rounded-full ml-1">1,245</span>
+</a>
+<a class="py-4 border-b-2 border-transparent text-slate-500 hover:text-navy-900 dark:text-slate-400 dark:hover:text-white font-medium text-sm transition-colors flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-lg">warning</span>
+                        COI Demo
+                    </a>
+</div>
+</div>
+</header>
+<main class="flex-grow flex flex-col px-8 py-8 w-full max-w-[1600px] mx-auto">
+<div class="mb-6 flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+<div>
+<div class="flex items-center gap-2 text-sm text-slate-500 mb-2">
+<a class="hover:text-navy-900 transition-colors" href="#">Submissions</a>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="font-medium text-slate-700 dark:text-slate-300">Submission #4291</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center gap-3">
+<h2 class="text-3xl font-bold text-navy-900 dark:text-white leading-tight">Scalable Transformer Architectures for Sparse Data</h2>
+</div>
+<div class="flex flex-wrap items-center gap-3 mt-3 text-sm text-slate-500">
+<span>Track: <strong>Deep Learning</strong></span>
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-bold bg-yellow-50 text-yellow-700 border border-yellow-100 ml-2">
+<span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
+                            Under Review
+                        </span>
+<span class="text-xs text-slate-400">#4291</span>
+</div>
+</div>
+<div class="flex gap-3 self-start lg:self-center">
+</div>
+</div>
+<div class="border-b border-slate-200 dark:border-slate-800 mb-6">
+<div class="flex gap-8">
+<a class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-navy-900 transition-colors font-medium text-sm cursor-pointer" href="#">Overview</a>
+<a class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-navy-900 transition-colors font-medium text-sm cursor-pointer" href="#">Reviews &amp; Feedback</a>
+<a class="pb-3 border-b-2 border-navy-900 text-navy-900 dark:text-white dark:border-white font-semibold text-sm cursor-pointer" href="#">Discussion</a>
+<a class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-navy-900 transition-colors font-medium text-sm cursor-pointer" href="#">History</a>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-2 space-y-6">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<div class="flex items-center gap-2">
+<button class="bg-navy-900 text-white dark:bg-white dark:text-navy-900 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm transition-colors flex items-center gap-1.5 hover:bg-navy-800">
+<span class="material-symbols-outlined text-[16px]">filter_list</span>
+                    Filter
+                </button>
+<div class="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+<div class="relative group">
+<select class="bg-transparent border-none text-sm font-bold text-navy-900 dark:text-white focus:ring-0 cursor-pointer py-1 pl-1 pr-6 hover:text-navy-700">
+<option>Newest Activity</option>
+<option>Oldest First</option>
+</select>
+</div>
+</div>
+</div>
+<button class="w-full sm:w-auto bg-navy-900 hover:bg-navy-800 text-white dark:bg-white dark:text-navy-900 dark:hover:bg-slate-200 px-4 py-2 rounded-lg text-sm font-bold shadow-md shadow-navy-900/10 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_comment</span>
+            Start New Topic
+        </button>
+</div>
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden h-auto">
+<div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50 flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-xl">tag</span>
+<h3 class="font-bold text-navy-900 dark:text-white">Review Clarifications</h3>
+<span class="ml-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-green-200 dark:border-green-800">Open</span>
+</div>
+<div class="flex gap-1 text-slate-400">
+<button class="p-1 hover:text-navy-900 dark:hover:text-white transition-colors" title="Notifications">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="p-1 hover:text-navy-900 dark:hover:text-white transition-colors" title="Collapse">
+<span class="material-symbols-outlined text-[20px]">expand_less</span>
+</button>
+</div>
+</div>
+<div class="p-6 space-y-8 bg-slate-50/30 dark:bg-slate-900/30">
+<div class="flex gap-4 group">
+<div class="flex-shrink-0">
+<div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm shadow-sm border border-indigo-200">R2</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-none p-5 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<span class="font-bold text-navy-900 dark:text-white text-sm">Reviewer 2</span>
+<span class="text-xs text-slate-400">• May 15, 10:30 AM</span>
+</div>
+<span class="text-[10px] font-bold uppercase text-slate-500 border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded bg-slate-50 dark:bg-slate-700">Question</span>
+</div>
+<p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">The proposed sparsity-aware mechanism is interesting, but I'm worried about the implementation overhead on edge devices. Could the authors clarify the FLOPs comparison compared to MobileBERT?</p>
+<div class="mt-3 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-xs font-bold text-slate-500 hover:text-navy-900 dark:hover:text-white flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[14px]">reply</span> Reply
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<div class="flex gap-4 group ml-8 sm:ml-14 relative before:absolute before:-left-6 before:top-0 before:bottom-0 before:w-0.5 before:bg-slate-200 dark:before:bg-slate-700">
+<div class="absolute -left-6 top-5 w-4 h-4 border-b-2 border-l-2 border-slate-200 dark:border-slate-700 rounded-bl-xl"></div>
+<div class="flex-shrink-0">
+<div class="w-10 h-10 rounded-xl bg-blue-100 p-0.5 border border-blue-200 overflow-hidden shadow-sm">
+<img class="w-full h-full object-cover rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLDTQyjC_Z-Cx0cyLm9KBsVE29h-Qao4HwZMBFIrhBEPvQDf8YeoPBL9foAN4iVlBK-0DNmAjDI0VGFvmkTZMmgrt1c1dPLJ4mYRlvY_I4DQpESzD07GqZbfZsjb_kUYLFzzO87unZtqLqEG-0sbV4nksG67eo_Sli5Alw4VSOj4I1Wwlc9_T0JEjE7gvBH97PpY_ofXnhqSkAcVoBuAXuHMUNrWj9HYRd56y7yBQBBhwb_s_WSMCjSuchVYSwfFeJaiw69GIROdJe"/>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="bg-blue-50 dark:bg-slate-800/80 border border-blue-100 dark:border-slate-600 rounded-2xl rounded-tl-none p-5 shadow-sm relative">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<span class="font-bold text-navy-900 dark:text-white text-sm">Sarah Williams</span>
+<span class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 text-[10px] font-bold uppercase border border-blue-200">Author</span>
+<span class="text-xs text-slate-400">• May 16, 09:15 AM</span>
+</div>
+</div>
+<p class="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">Thank you for the question. In Section 4.2, we detail the FLOPs. Specifically, for standard edge GPUs, we see a 15% reduction in latency compared to MobileBERT. We have added a new table in the appendix to clarify this further.</p>
+<div class="mt-3 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-xs font-bold text-slate-500 hover:text-navy-900 dark:hover:text-white flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[14px]">reply</span> Reply
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<div class="flex gap-4 group ml-8 sm:ml-14 relative before:absolute before:-left-6 before:top-0 before:h-12 before:w-0.5 before:bg-slate-200 dark:before:bg-slate-700">
+<div class="absolute -left-6 top-5 w-4 h-4 border-b-2 border-l-2 border-slate-200 dark:border-slate-700 rounded-bl-xl"></div>
+<div class="flex-shrink-0">
+<div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm shadow-sm border border-emerald-200">AC</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/30 rounded-2xl rounded-tl-none p-5 shadow-sm relative overflow-hidden">
+<div class="absolute top-0 left-0 bottom-0 w-1 bg-yellow-400"></div>
+<div class="flex justify-between items-start mb-2 pl-2">
+<div class="flex items-center gap-2">
+<span class="font-bold text-navy-900 dark:text-white text-sm">Dr. Alex Chen</span>
+<span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 border border-emerald-200 text-[10px] font-bold uppercase">Area Chair</span>
+<span class="text-xs text-slate-400">• May 17, 02:20 PM</span>
+</div>
+<span class="flex items-center gap-1 text-[10px] font-bold uppercase text-yellow-700 bg-yellow-100/80 px-2 py-0.5 rounded-full border border-yellow-200">
+<span class="material-symbols-outlined text-[12px]">lock</span> Internal
+                            </span>
+</div>
+<p class="text-slate-700 dark:text-slate-300 text-sm pl-2 leading-relaxed">
+<span class="font-semibold text-blue-600 hover:underline cursor-pointer dark:text-blue-400">@Reviewers</span>, does the author's response regarding edge device latency satisfy your concerns? I'm inclined to keep the score as is unless this is a blocker for deployment.
+                        </p>
+<div class="mt-3 pl-2 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-xs font-bold text-slate-500 hover:text-navy-900 dark:hover:text-white flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[14px]">reply</span> Reply
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<div class="relative py-2 flex items-center justify-center">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-slate-200 dark:border-slate-800"></div>
+</div>
+<span class="relative bg-slate-50 dark:bg-slate-900 px-3 text-xs text-slate-400 font-medium">New Activity</span>
+</div>
+<div class="flex gap-4 group">
+<div class="flex-shrink-0">
+<div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm shadow-sm border border-purple-200">R1</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-none p-5 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<span class="font-bold text-navy-900 dark:text-white text-sm">Reviewer 1</span>
+<span class="text-xs text-slate-400">• 2 hours ago</span>
+</div>
+</div>
+<p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">I agree with the AC. The response is sufficient. The method is solid and the new table clarifies the confusion.</p>
+<div class="mt-3 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-xs font-bold text-slate-500 hover:text-navy-900 dark:hover:text-white flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[14px]">reply</span> Reply
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="p-6 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-navy-900/5 transition-all">
+<div class="flex items-center gap-1 border-b border-slate-100 dark:border-slate-700 p-1.5 bg-slate-50/50 dark:bg-slate-800/50">
+<button class="p-1.5 text-slate-400 hover:text-navy-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors">
+<span class="material-symbols-outlined text-[18px]">format_bold</span>
+</button>
+<button class="p-1.5 text-slate-400 hover:text-navy-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors">
+<span class="material-symbols-outlined text-[18px]">format_italic</span>
+</button>
+<button class="p-1.5 text-slate-400 hover:text-navy-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors">
+<span class="material-symbols-outlined text-[18px]">link</span>
+</button>
+<button class="p-1.5 text-slate-400 hover:text-navy-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors">
+<span class="material-symbols-outlined text-[18px]">list</span>
+</button>
+<div class="h-4 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+<div class="flex items-center gap-3 ml-1">
+<label class="flex items-center gap-1.5 cursor-pointer select-none group">
+<input checked="" class="w-3.5 h-3.5 text-navy-900 focus:ring-navy-900 border-slate-300" name="visibility" type="radio"/>
+<span class="text-xs font-bold text-navy-900 dark:text-white group-hover:text-navy-700">Internal</span>
+</label>
+<label class="flex items-center gap-1.5 cursor-pointer select-none group">
+<input class="w-3.5 h-3.5 text-navy-900 focus:ring-navy-900 border-slate-300" name="visibility" type="radio"/>
+<span class="text-xs font-medium text-slate-500 group-hover:text-navy-900 dark:group-hover:text-white transition-colors">Public</span>
+</label>
+</div>
+</div>
+<textarea class="w-full border-none bg-transparent p-4 min-h-[100px] text-sm text-slate-700 dark:text-white focus:ring-0 resize-none placeholder-slate-400" placeholder="Type your response... Use @ to mention participants."></textarea>
+<div class="flex justify-between items-center px-4 py-2.5 bg-slate-50/50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700">
+<button class="text-slate-400 hover:text-navy-900 dark:hover:text-white flex items-center gap-1.5 text-xs font-bold transition-colors py-1 px-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+<span class="material-symbols-outlined text-[18px]">attach_file</span> Attach File
+                    </button>
+<button class="px-5 py-1.5 bg-navy-900 hover:bg-navy-800 dark:bg-white dark:text-navy-900 text-white rounded-lg text-xs font-bold shadow-sm transition-colors flex items-center gap-2">
+                        Post Comment
+                        <span class="material-symbols-outlined text-[16px]">send</span>
+</button>
+</div>
+</div>
+<p class="text-xs text-slate-400 mt-2 text-center">Markdown shortcuts supported. Press <kbd class="font-sans px-1 py-0.5 rounded border border-slate-200 bg-white text-[10px]">Cmd</kbd> + <kbd class="font-sans px-1 py-0.5 rounded border border-slate-200 bg-white text-[10px]">Enter</kbd> to send.</p>
+</div>
+</div>
+</div>
+<div class="space-y-6">
+<div class="bg-blue-50 dark:bg-slate-800 rounded-xl border border-blue-100 dark:border-slate-700 p-5">
+<div class="flex items-start gap-3">
+<div class="bg-blue-100 dark:bg-slate-700 p-1.5 rounded-lg text-blue-600 dark:text-blue-300">
+<span class="material-symbols-outlined text-[20px]">forum</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-navy-900 dark:text-white mb-1">Discussion Phase</h4>
+<p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                            Active until <strong>May 20, 2024</strong>. Please ensure all reviewers have reached a consensus or clearly stated their disagreement.
+                        </p>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Participants (5)</h3>
+<button class="text-slate-400 hover:text-navy-900 dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between group cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 -mx-2 px-2 py-1.5 rounded-lg transition-colors">
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold border border-emerald-200">AC</div>
+<div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white dark:border-slate-900" title="Online"></div>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-navy-900 dark:text-white">Dr. Alex Chen</span>
+<span class="text-[10px] text-slate-500 uppercase font-medium">Area Chair</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-300 text-[18px] opacity-0 group-hover:opacity-100">chat</span>
+</div>
+<div class="flex items-center justify-between group cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 -mx-2 px-2 py-1.5 rounded-lg transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold border border-purple-200">R1</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-navy-900 dark:text-white">Reviewer 1</span>
+<span class="text-[10px] text-slate-500 uppercase font-medium">Reviewer</span>
+</div>
+</div>
+<span class="text-xs text-slate-400 group-hover:hidden">2h ago</span>
+<span class="material-symbols-outlined text-slate-300 text-[18px] opacity-0 group-hover:opacity-100 hidden group-hover:block">chat</span>
+</div>
+<div class="flex items-center justify-between group cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 -mx-2 px-2 py-1.5 rounded-lg transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold border border-indigo-200">R2</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-navy-900 dark:text-white">Reviewer 2</span>
+<span class="text-[10px] text-slate-500 uppercase font-medium">Reviewer</span>
+</div>
+</div>
+<span class="text-xs text-slate-400 group-hover:hidden">1d ago</span>
+<span class="material-symbols-outlined text-slate-300 text-[18px] opacity-0 group-hover:opacity-100 hidden group-hover:block">chat</span>
+</div>
+<div class="flex items-center justify-between group cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 -mx-2 px-2 py-1.5 rounded-lg transition-colors">
+<div class="flex items-center gap-3 opacity-60 group-hover:opacity-100 transition-opacity">
+<div class="w-8 h-8 rounded-full bg-pink-100 text-pink-700 flex items-center justify-center text-xs font-bold border border-pink-200">R3</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-navy-900 dark:text-white">Reviewer 3</span>
+<span class="text-[10px] text-slate-500 uppercase font-medium">Reviewer</span>
+</div>
+</div>
+<span class="text-xs text-slate-400 italic group-hover:hidden">No posts</span>
+<span class="material-symbols-outlined text-slate-300 text-[18px] opacity-0 group-hover:opacity-100 hidden group-hover:block">notifications</span>
+</div>
+</div>
+<button class="w-full mt-4 py-2 border border-dashed border-slate-300 rounded-lg text-slate-500 text-xs font-bold hover:border-navy-900 hover:text-navy-900 dark:hover:text-white dark:hover:border-white transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[16px]">add</span>
+                        Invite Participant
+                    </button>
+</div>
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
+<h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Chair Actions</h3>
+<div class="space-y-3">
+<button class="w-full py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+                            Accept Submission
+                        </button>
+<button class="w-full py-2.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+                            Reject Submission
+                        </button>
+</div>
+<div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+<div class="flex items-center justify-between text-xs text-slate-500">
+<span>Current Status:</span>
+<span class="font-bold text-yellow-600">Pending</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="w-full py-6 px-8 border-t border-slate-200 dark:border-slate-800 mt-auto bg-white dark:bg-slate-900">
+<div class="flex flex-col md:flex-row justify-between items-center gap-4 max-w-[1600px] mx-auto">
+<p class="text-sm text-slate-500">© 2024 ConferenceSpace System. All rights reserved.</p>
+<div class="flex items-center gap-6">
+<a class="text-sm text-slate-500 hover:text-navy-900" href="#">Documentation</a>
+<a class="text-sm text-slate-500 hover:text-navy-900" href="#">Support</a>
+<a class="text-sm text-slate-500 hover:text-navy-900" href="#">Privacy</a>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</body></html>

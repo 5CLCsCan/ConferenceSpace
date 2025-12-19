@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ConferenceSpace - Conflicts of Interest</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#141414", "primary-hover": "#2a2a2a", "background-light": "#f7f7f7", "background-dark": "#191919", "navy-accent": "#1e293b"}, fontFamily: {display: "Inter", body: ["Noto Sans", "sans-serif"]}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}}}};</script>
+<style>::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d4d4d4;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a3a3a3;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .icon-filled {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-primary dark:text-white flex flex-col h-screen overflow-hidden">
+<header class="flex-none z-20 w-full bg-white dark:bg-[#1e1e1e] border-b border-[#ededed] dark:border-neutral-800 px-6 py-3 shadow-sm">
+<div class="flex items-center justify-between max-w-[1600px] mx-auto">
+<div class="flex items-center gap-4 text-primary dark:text-white">
+<div class="size-8 flex items-center justify-center bg-primary text-white rounded-lg">
+<span class="material-symbols-outlined text-[20px]">description</span>
+</div>
+<h2 class="text-primary dark:text-white text-lg font-bold leading-tight tracking-tight">ConferenceSpace</h2>
+</div>
+<div class="flex items-center justify-end gap-6">
+<button class="relative flex items-center justify-center size-10 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-primary dark:text-white">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-white dark:border-[#1e1e1e]"></span>
+</button>
+<div class="flex items-center gap-3 pl-6 border-l border-[#ededed] dark:border-neutral-700">
+<div class="text-right hidden sm:block">
+<p class="text-sm font-bold text-primary dark:text-white">Dr. Sarah Connor</p>
+<p class="text-xs text-neutral-500">Author</p>
+</div>
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border border-neutral-200 dark:border-neutral-700" data-alt="Profile picture of a user" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAUtomt9s8ogmgPEn6GyRAMz1ID6gpDPoTImAuoiQG_Eny5CLEsch4RP65RVu-5G1hy_yvQu5qAWGyP9jaL3B8ZcotUpPyVbVyLlFiYXzFZUyWCF3JAOUlHblHKz8NuYnk48jjlGCnfIa3sMJe0Bf9n0mXgYewnhXAJ5ATp19zPHBvhUAR1RF491qLGfKO17EhKe0iny-PRbDqSgwFYD4TPnHISD2tw4S1uiwe3ZF4Rt7xCynPLeyfSLTdYovxjKoAAKen4WQXp");'>
+</div>
+</div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden relative">
+<aside class="hidden lg:flex w-[280px] flex-col border-r border-[#ededed] dark:border-neutral-800 bg-white dark:bg-[#1e1e1e] h-full overflow-y-auto z-10">
+<div class="p-6">
+<div class="flex flex-col mb-8">
+<h1 class="text-primary dark:text-white text-lg font-bold leading-normal">Submission Progress</h1>
+<p class="text-neutral-500 text-sm font-normal">ID: #4921</p>
+</div>
+<div class="relative flex flex-col gap-1">
+<div class="group flex items-start gap-4 p-3 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800/50 cursor-pointer transition-all">
+<div class="flex flex-col items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-green-600 dark:text-green-500 icon-filled text-[20px]">check_circle</span>
+<div class="w-px h-full bg-green-200 dark:bg-green-900 min-h-[24px]"></div>
+</div>
+<div class="pb-4">
+<p class="text-primary dark:text-white text-sm font-bold leading-tight">Paper Details</p>
+<p class="text-neutral-500 text-xs mt-1">Title, abstract, keywords</p>
+</div>
+</div>
+<div class="group flex items-start gap-4 p-3 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800/50 cursor-pointer transition-all">
+<div class="flex flex-col items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-green-600 dark:text-green-500 icon-filled text-[20px]">check_circle</span>
+<div class="w-px h-full bg-green-200 dark:bg-green-900 min-h-[24px]"></div>
+</div>
+<div class="pb-4">
+<p class="text-primary dark:text-white text-sm font-bold leading-tight">Authors &amp; Affiliations</p>
+<p class="text-neutral-500 text-xs mt-1">Add co-authors</p>
+</div>
+</div>
+<div class="group flex items-start gap-4 p-3 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800/50 cursor-pointer transition-all">
+<div class="flex flex-col items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-green-600 dark:text-green-500 icon-filled text-[20px]">check_circle</span>
+<div class="w-px h-full bg-neutral-200 dark:bg-neutral-700 min-h-[24px]"></div>
+</div>
+<div class="pb-4">
+<p class="text-primary dark:text-white text-sm font-bold leading-tight">File Upload</p>
+<p class="text-neutral-500 text-xs mt-1">PDF manuscript</p>
+</div>
+</div>
+<div class="group flex items-start gap-4 p-3 rounded-xl bg-primary/5 dark:bg-white/5 border border-transparent cursor-pointer transition-all">
+<div class="flex flex-col items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-primary dark:text-white icon-filled text-[20px]">radio_button_checked</span>
+<div class="w-px h-full bg-neutral-200 dark:bg-neutral-700 min-h-[24px]"></div>
+</div>
+<div class="pb-4">
+<p class="text-primary dark:text-white text-sm font-bold leading-tight">Conflicts of Interest</p>
+<p class="text-neutral-500 text-xs mt-1">Declare conflicts</p>
+</div>
+</div>
+<div class="group flex items-start gap-4 p-3 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800/50 cursor-pointer transition-all opacity-60 hover:opacity-100">
+<div class="flex flex-col items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-neutral-400 text-[20px]">radio_button_unchecked</span>
+</div>
+<div class="">
+<p class="text-primary dark:text-white text-sm font-medium leading-tight">Review &amp; Submit</p>
+<p class="text-neutral-500 text-xs mt-1">Final check</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-auto p-6 border-t border-[#ededed] dark:border-neutral-800">
+<div class="flex items-center gap-3 text-neutral-500 text-xs">
+<span class="material-symbols-outlined text-lg">help</span>
+<span>Need help? View Guidelines</span>
+</div>
+</div>
+</aside>
+<main class="flex-1 h-full overflow-y-auto bg-background-light dark:bg-black/20 scroll-smooth">
+<div class="max-w-4xl mx-auto p-6 md:p-10 pb-32">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2 text-sm font-medium text-neutral-500 mb-1">
+<span>Submissions</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span>New Paper</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-primary dark:text-white">Conflicts</span>
+</div>
+<h1 class="text-primary dark:text-white text-3xl font-bold tracking-tight">Conflicts of Interest</h1>
+<p class="text-neutral-500 dark:text-neutral-400">Please declare any potential conflicts of interest to ensure a fair review process.</p>
+</div>
+<div class="flex items-center gap-2 bg-white dark:bg-[#1e1e1e] px-3 py-1.5 rounded-full border border-neutral-200 dark:border-neutral-700 shadow-sm">
+<div class="size-2 rounded-full bg-green-500 animate-pulse"></div>
+<span class="text-xs font-medium text-neutral-600 dark:text-neutral-300">Draft auto-saved at 10:45 AM</span>
+</div>
+</div>
+<div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 rounded-xl p-4 mb-6 flex gap-3">
+<span class="material-symbols-outlined text-blue-600 dark:text-blue-400 mt-0.5">info</span>
+<div class="text-sm text-blue-900 dark:text-blue-100">
+<p class="font-bold mb-1">Policy Definition</p>
+<p class="leading-relaxed opacity-90">A conflict of interest exists if you have been a co-author with a PC member in the last 24 months, are from the same institution, or have a close personal or professional relationship (e.g., family member, Ph.D. advisor/advisee).</p>
+</div>
+</div>
+<form class="flex flex-col gap-6" onsubmit="event.preventDefault();">
+<div class="p-6 bg-white dark:bg-[#1e1e1e] rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<h3 class="text-primary dark:text-white text-lg font-bold">Institutional Conflicts</h3>
+<span class="material-symbols-outlined text-neutral-400 cursor-help" title="Domains of your current affiliation are automatically flagged.">help</span>
+</div>
+<label class="flex flex-col gap-2">
+<span class="text-neutral-600 dark:text-neutral-300 text-sm font-semibold uppercase tracking-wider">Conflict Domains</span>
+<div class="w-full min-h-[56px] px-2 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-primary dark:text-white focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all flex flex-wrap gap-2 items-center">
+<div class="flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 px-3 py-1.5 rounded-full border border-neutral-200 dark:border-neutral-700">
+<span class="text-sm font-medium text-neutral-800 dark:text-neutral-200">mit.edu</span>
+<button class="flex items-center justify-center size-4 rounded-full hover:bg-neutral-300 dark:hover:bg-neutral-600 text-neutral-500 transition-colors" type="button">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</div>
+<div class="flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 px-3 py-1.5 rounded-full border border-neutral-200 dark:border-neutral-700">
+<span class="text-sm font-medium text-neutral-800 dark:text-neutral-200">csail.mit.edu</span>
+<button class="flex items-center justify-center size-4 rounded-full hover:bg-neutral-300 dark:hover:bg-neutral-600 text-neutral-500 transition-colors" type="button">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</div>
+<input class="flex-1 min-w-[200px] h-8 border-none bg-transparent focus:ring-0 text-sm px-2" placeholder="Add domain (e.g. google.com) and press Enter..." type="text"/>
+</div>
+<p class="text-xs text-neutral-500">Reviewers with email addresses from these domains will be automatically marked as conflicted.</p>
+</label>
+</div>
+</div>
+<div class="p-6 bg-white dark:bg-[#1e1e1e] rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col gap-6">
+<div class="flex flex-col gap-1">
+<h3 class="text-primary dark:text-white text-lg font-bold">Individual Conflicts</h3>
+<p class="text-neutral-500 text-sm">Specify individual program committee members with whom you have a conflict.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end bg-neutral-50 dark:bg-neutral-800/30 p-4 rounded-lg border border-neutral-100 dark:border-neutral-800">
+<div class="md:col-span-4">
+<label class="block text-xs font-bold text-neutral-500 mb-1.5 uppercase">First Name</label>
+<input class="w-full h-10 px-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-sm focus:ring-2 focus:ring-primary" placeholder="John" type="text"/>
+</div>
+<div class="md:col-span-4">
+<label class="block text-xs font-bold text-neutral-500 mb-1.5 uppercase">Last Name</label>
+<input class="w-full h-10 px-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-sm focus:ring-2 focus:ring-primary" placeholder="Doe" type="text"/>
+</div>
+<div class="md:col-span-4">
+<label class="block text-xs font-bold text-neutral-500 mb-1.5 uppercase">Email (Optional)</label>
+<input class="w-full h-10 px-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-sm focus:ring-2 focus:ring-primary" placeholder="john.doe@example.com" type="email"/>
+</div>
+<div class="md:col-span-8">
+<label class="block text-xs font-bold text-neutral-500 mb-1.5 uppercase">Reason for Conflict</label>
+<select class="w-full h-10 px-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-sm focus:ring-2 focus:ring-primary">
+<option>Advisor / Advisee Relationship</option>
+<option>Recent Co-author (last 24 months)</option>
+<option>Family Member / Close Personal Relationship</option>
+<option>Financial Interest / Grant Collaboration</option>
+<option>Other (Please specify in comments)</option>
+</select>
+</div>
+<div class="md:col-span-4">
+<button class="w-full h-10 flex items-center justify-center gap-2 bg-navy-accent hover:bg-navy-accent/90 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm">
+<span class="material-symbols-outlined text-sm">add</span>
+                                Add Conflict
+                             </button>
+</div>
+</div>
+<div class="border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden">
+<table class="w-full text-left text-sm">
+<thead class="bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
+<tr>
+<th class="px-4 py-3 font-semibold text-neutral-600 dark:text-neutral-300">Name</th>
+<th class="px-4 py-3 font-semibold text-neutral-600 dark:text-neutral-300 hidden sm:table-cell">Email</th>
+<th class="px-4 py-3 font-semibold text-neutral-600 dark:text-neutral-300">Reason</th>
+<th class="px-4 py-3 text-right font-semibold text-neutral-600 dark:text-neutral-300">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-neutral-200 dark:divide-neutral-800 bg-white dark:bg-[#1e1e1e]">
+<tr class="group hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
+<td class="px-4 py-3 font-medium text-primary dark:text-white">Prof. Alan Turing</td>
+<td class="px-4 py-3 text-neutral-500 hidden sm:table-cell">aturing@princeton.edu</td>
+<td class="px-4 py-3 text-neutral-500">
+<span class="inline-flex items-center px-2 py-1 rounded bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs font-medium">
+                                            Advisor
+                                        </span>
+</td>
+<td class="px-4 py-3 text-right">
+<button class="text-neutral-400 hover:text-red-500 transition-colors" title="Remove">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</td>
+</tr>
+<tr class="group hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
+<td class="px-4 py-3 font-medium text-primary dark:text-white">Dr. Grace Hopper</td>
+<td class="px-4 py-3 text-neutral-500 hidden sm:table-cell">grace.hopper@navy.mil</td>
+<td class="px-4 py-3 text-neutral-500">
+<span class="inline-flex items-center px-2 py-1 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium">
+                                            Co-author
+                                        </span>
+</td>
+<td class="px-4 py-3 text-right">
+<button class="text-neutral-400 hover:text-red-500 transition-colors" title="Remove">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="px-4 py-3 bg-neutral-50 dark:bg-neutral-900/50 text-xs text-neutral-500 border-t border-neutral-200 dark:border-neutral-800 text-center italic">
+                            No other individual conflicts listed.
+                        </div>
+</div>
+</div>
+<div class="p-6 bg-white dark:bg-[#1e1e1e] rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
+<label class="flex items-start gap-3 cursor-pointer group">
+<input class="mt-1 size-5 rounded border-neutral-300 text-primary focus:ring-primary transition-all" type="checkbox"/>
+<div class="flex flex-col">
+<span class="text-primary dark:text-white text-sm font-bold">Confirm Declaration</span>
+<span class="text-sm text-neutral-500 mt-1">I certify that I have disclosed all potential conflicts of interest to the best of my knowledge according to the conference policy.</span>
+</div>
+</label>
+</div>
+</form>
+</div>
+</main>
+<div class="absolute bottom-0 left-0 lg:left-[280px] right-0 bg-white dark:bg-[#1e1e1e] border-t border-[#ededed] dark:border-neutral-800 p-4 z-30">
+<div class="max-w-4xl mx-auto flex items-center justify-between">
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">save</span>
+                Save Draft
+            </button>
+<div class="flex items-center gap-4">
+<button class="flex px-5 py-2.5 rounded-lg text-sm font-bold text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" type="button">
+                    Previous
+                </button>
+<button class="flex items-center gap-2 bg-primary hover:bg-primary-hover text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 transition-all transform hover:translate-y-px" type="button">
+                    Next: Review
+                    <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</body></html>

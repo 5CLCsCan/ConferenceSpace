@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ConferenceSpace - Notifications</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#141414",
+                        "background-light": "#f7f7f7",
+                        "background-dark": "#191919",
+                        "accent-blue": "#0f172a","highlight-blue": "#3b82f6",},
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-primary antialiased h-screen flex overflow-hidden">
+<aside class="w-[280px] bg-white border-r border-[#ededed] dark:bg-[#111] dark:border-neutral-800 flex flex-col shrink-0 transition-all hidden md:flex h-full">
+<div class="flex flex-col h-full p-6 relative">
+<div class="flex items-center gap-3 mb-10">
+<div class="bg-primary text-white rounded-lg p-1.5 flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-[24px]">school</span>
+</div>
+<h1 class="text-primary dark:text-white text-lg font-bold tracking-tight">ConferenceSpace</h1>
+</div>
+<div class="mb-8">
+<p class="text-[11px] font-bold text-neutral-400 uppercase tracking-widest mb-4 pl-1">MENU</p>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 group transition-colors text-neutral-600 hover:text-primary" href="#">
+<span class="material-symbols-outlined text-neutral-500 group-hover:text-primary dark:text-neutral-400 dark:group-hover:text-white text-[20px]">dashboard</span>
+<span class="text-[15px] font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 group transition-colors text-neutral-600 hover:text-primary" href="#">
+<span class="material-symbols-outlined text-neutral-500 group-hover:text-primary dark:text-neutral-400 dark:group-hover:text-white text-[20px]">folder</span>
+<span class="text-[15px] font-medium">My Submissions</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-primary bg-neutral-50 font-medium" href="#">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">notifications</span>
+<span class="text-[15px]">Notifications</span>
+</a>
+</nav>
+</div>
+<div class="flex-1 overflow-y-auto scrollbar-hide">
+<p class="text-[11px] font-bold text-neutral-400 uppercase tracking-widest mb-4 pl-1">RECENT CONFERENCES</p>
+<div class="flex flex-col gap-4 pl-1">
+<div class="flex flex-col gap-0.5 cursor-pointer hover:bg-neutral-50 p-2 -ml-2 rounded-lg transition-colors">
+<span class="text-[15px] font-bold text-primary dark:text-white">CVPR 2024</span>
+<span class="text-xs text-neutral-500 font-medium">Reviewer</span>
+</div>
+<div class="flex flex-col gap-0.5 cursor-pointer hover:bg-neutral-50 p-2 -ml-2 rounded-lg transition-colors">
+<span class="text-[15px] font-bold text-primary dark:text-white">ICML 2023</span>
+<span class="text-xs text-neutral-500 font-medium">Author</span>
+</div>
+<div class="flex flex-col gap-0.5 cursor-pointer hover:bg-neutral-50 p-2 -ml-2 rounded-lg transition-colors">
+<span class="text-[15px] font-bold text-primary dark:text-white">NeurIPS 2024</span>
+<span class="text-xs text-neutral-500 font-medium">Reviewer</span>
+</div>
+<div class="flex flex-col gap-0.5 cursor-pointer hover:bg-neutral-50 p-2 -ml-2 rounded-lg transition-colors">
+<span class="text-[15px] font-bold text-primary dark:text-white">AAAI 2024</span>
+<span class="text-xs text-neutral-500 font-medium">Chair</span>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-6 border-t border-[#ededed] dark:border-neutral-800">
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 ring-2 ring-white dark:ring-neutral-800 shadow-sm" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBtHoxsIjGafs9W9InULOaX0nZ2xpJFBMtKHJ1p0MvBFDGmswAfyMgMKMNnCw5ehHjUrw2wWaDlRKUHQoyzKUvioiYCktrGMmb4n1-T9ivZ9KuZnIYaTjgtBwbXV493RSIu16gM2aNiyqxIXWFZAGBsBsfj-n_uZjK_o7VMuFjQhH7z3Yuc67pDR-Z0ymYAeTb3umuTA0_A2i3VaDjrLJsFgJh6uHJeNwzZFdBJdgOhLXmLOd5GHnHr1D1NSOQLZPnfS1usbl62");'></div>
+<div class="flex flex-col">
+<p class="text-sm font-bold text-primary dark:text-white leading-none mb-1">Dr. Alex Chen</p>
+<p class="text-xs text-neutral-500 font-medium">Reviewer</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<div class="flex flex-col flex-1 h-full overflow-hidden relative">
+<main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark scrollbar-hide">
+<div class="max-w-[1000px] mx-auto w-full px-6 py-8 flex flex-col gap-6">
+<div class="flex flex-wrap items-end justify-between gap-4">
+<div class="flex flex-col gap-1">
+<h1 class="text-primary dark:text-white text-3xl font-extrabold tracking-tight">Notifications</h1>
+<p class="text-neutral-500 text-base">Stay updated on your submissions, reviews, and deadlines.</p>
+</div>
+<div class="flex items-center gap-2">
+<button class="flex items-center justify-center h-9 px-4 rounded-lg border border-[#ededed] dark:border-neutral-700 bg-white dark:bg-neutral-800 text-primary dark:text-white text-sm font-semibold hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors">
+<span class="material-symbols-outlined text-[18px] mr-2">done_all</span>
+                            Mark all as read
+                        </button>
+<button class="flex items-center justify-center size-9 rounded-lg border border-[#ededed] dark:border-neutral-700 bg-white dark:bg-neutral-800 text-primary dark:text-white hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-[#ededed] dark:border-neutral-800 pb-0">
+<div class="flex gap-6 overflow-x-auto w-full sm:w-auto scrollbar-hide">
+<button class="flex items-center gap-2 pb-3 border-b-2 border-primary dark:border-white text-primary dark:text-white px-1">
+<span class="text-sm font-bold">All</span>
+<span class="bg-primary/10 dark:bg-white/20 text-primary dark:text-white text-xs font-bold px-1.5 rounded-sm">12</span>
+</button>
+<button class="flex items-center gap-2 pb-3 border-b-2 border-transparent hover:border-neutral-300 text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors px-1">
+<span class="text-sm font-bold">Unread</span>
+<span class="bg-highlight-blue text-white text-xs font-bold px-1.5 rounded-sm">3</span>
+</button>
+<button class="flex items-center gap-2 pb-3 border-b-2 border-transparent hover:border-neutral-300 text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors px-1">
+<span class="text-sm font-bold">Mentions</span>
+</button>
+</div>
+</div>
+<div class="flex flex-wrap gap-2">
+<button class="flex items-center gap-2 h-8 px-3 rounded-full bg-primary text-white text-sm font-medium transition-colors">
+                        All Types
+                    </button>
+<button class="flex items-center gap-2 h-8 px-3 rounded-full bg-white border border-[#ededed] hover:bg-neutral-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-700 text-neutral-600 text-sm font-medium transition-colors">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+                        Deadlines
+                    </button>
+<button class="flex items-center gap-2 h-8 px-3 rounded-full bg-white border border-[#ededed] hover:bg-neutral-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-700 text-neutral-600 text-sm font-medium transition-colors">
+<span class="material-symbols-outlined text-[16px]">description</span>
+                        Submissions
+                    </button>
+<button class="flex items-center gap-2 h-8 px-3 rounded-full bg-white border border-[#ededed] hover:bg-neutral-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-700 text-neutral-600 text-sm font-medium transition-colors">
+<span class="material-symbols-outlined text-[16px]">rate_review</span>
+                        Reviews
+                    </button>
+<button class="flex items-center gap-2 h-8 px-3 rounded-full bg-white border border-[#ededed] hover:bg-neutral-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-700 text-neutral-600 text-sm font-medium transition-colors">
+<span class="material-symbols-outlined text-[16px]">dns</span>
+                        System
+                    </button>
+</div>
+<div class="flex flex-col gap-3 pb-10">
+<div class="group relative flex gap-4 p-4 rounded-xl bg-white dark:bg-[#1e1e1e] border border-transparent shadow-sm hover:shadow-md hover:border-primary/10 transition-all cursor-pointer">
+<div class="absolute left-0 top-6 w-1 h-8 bg-highlight-blue rounded-r-full"></div>
+<div class="flex-shrink-0 size-12 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-600 dark:text-red-400">
+<span class="material-symbols-outlined">warning</span>
+</div>
+<div class="flex flex-col flex-1 gap-1">
+<div class="flex justify-between items-start">
+<h3 class="text-primary dark:text-white font-bold text-sm leading-snug">Submission Deadline Approaching</h3>
+<span class="text-neutral-400 text-xs whitespace-nowrap ml-2">2 hours ago</span>
+</div>
+<p class="text-neutral-600 dark:text-neutral-300 text-sm leading-relaxed">
+                                The camera-ready deadline for <span class="font-semibold text-primary dark:text-white">Track B (AI &amp; ML)</span> is in 24 hours. Please ensure all metadata is correct.
+                            </p>
+<div class="mt-2 flex gap-3">
+<button class="text-xs font-bold text-highlight-blue hover:text-blue-700 dark:hover:text-blue-400">View Submission</button>
+</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity absolute top-4 right-4 p-1 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-400 hover:text-primary dark:hover:text-white" title="Mark as read">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+</button>
+</div>
+<div class="group relative flex gap-4 p-4 rounded-xl bg-white dark:bg-[#1e1e1e] border border-transparent shadow-sm hover:shadow-md hover:border-primary/10 transition-all cursor-pointer">
+<div class="absolute left-0 top-6 w-1 h-8 bg-highlight-blue rounded-r-full"></div>
+<div class="flex-shrink-0 size-12 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-accent-blue dark:text-blue-300">
+<span class="material-symbols-outlined">rate_review</span>
+</div>
+<div class="flex flex-col flex-1 gap-1">
+<div class="flex justify-between items-start">
+<h3 class="text-primary dark:text-white font-bold text-sm leading-snug">New Review Posted</h3>
+<span class="text-neutral-400 text-xs whitespace-nowrap ml-2">4 hours ago</span>
+</div>
+<p class="text-neutral-600 dark:text-neutral-300 text-sm leading-relaxed">
+<span class="font-semibold text-primary dark:text-white">Reviewer #3</span> has submitted their evaluation for Paper #1042: "Deep Learning in Resource-Constrained Environments".
+                            </p>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity absolute top-4 right-4 p-1 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-400 hover:text-primary dark:hover:text-white" title="Mark as read">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+</button>
+</div>
+<div class="group relative flex gap-4 p-4 rounded-xl bg-white dark:bg-[#1e1e1e] border border-transparent shadow-sm hover:shadow-md hover:border-primary/10 transition-all cursor-pointer">
+<div class="absolute left-0 top-6 w-1 h-8 bg-highlight-blue rounded-r-full"></div>
+<div class="flex-shrink-0 size-12 rounded-full bg-cover bg-center border border-neutral-100 dark:border-neutral-700" data-alt="Reviewer portrait" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAWl2qK02OQ0XI7z_80KoRaPVqC_o7rQR90jtHAjoAcRp-u6juED4SLXY7vh0e5Zzawx9GqTo4nFsY29kwEbCewh7m5wHnQ52cRZQdVAV-2bO8hx6gLAbMBqnxj4LnruvkilYti_Ccc701LdYOZwmsVSKrCXw9RyIg8vqM4P6-sH2ooLnDqLRTj2sxHCNAN_UCfTe3-zEr4zv6LYnZW7HfcZmEwgw2iVh-FD5VuuVHk5KbBNes9PJGzFPSQdw94jLroNNsl31r5");'></div>
+<div class="flex flex-col flex-1 gap-1">
+<div class="flex justify-between items-start">
+<h3 class="text-primary dark:text-white font-bold text-sm leading-snug">Mentioned in Discussion</h3>
+<span class="text-neutral-400 text-xs whitespace-nowrap ml-2">1 day ago</span>
+</div>
+<p class="text-neutral-600 dark:text-neutral-300 text-sm leading-relaxed">
+<span class="font-semibold text-primary dark:text-white">Dr. Sarah Jenkins</span> mentioned you in a comment on Paper #1042.
+                            </p>
+<div class="mt-2 bg-neutral-50 dark:bg-neutral-800 p-2 rounded-lg border-l-2 border-neutral-300 dark:border-neutral-600 text-xs text-neutral-500 italic">
+                                "@AlexChen could you verify the conflict of interest statement on this one?"
+                            </div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity absolute top-4 right-4 p-1 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-400 hover:text-primary dark:hover:text-white" title="Mark as read">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+</button>
+</div>
+<div class="flex items-center gap-4 py-2">
+<div class="h-px bg-[#ededed] dark:bg-neutral-800 flex-1"></div>
+<span class="text-xs font-bold text-neutral-400 uppercase tracking-wider">Yesterday</span>
+<div class="h-px bg-[#ededed] dark:bg-neutral-800 flex-1"></div>
+</div>
+<div class="group relative flex gap-4 p-4 rounded-xl bg-neutral-50 dark:bg-[#111] border border-transparent hover:bg-white dark:hover:bg-[#1e1e1e] hover:shadow-sm transition-all cursor-pointer opacity-80 hover:opacity-100">
+<div class="flex-shrink-0 size-12 rounded-full bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center text-neutral-600 dark:text-neutral-400">
+<span class="material-symbols-outlined">dns</span>
+</div>
+<div class="flex flex-col flex-1 gap-1">
+<div class="flex justify-between items-start">
+<h3 class="text-primary dark:text-white font-semibold text-sm leading-snug">System Maintenance Completed</h3>
+<span class="text-neutral-400 text-xs whitespace-nowrap ml-2">Yesterday, 10:00 AM</span>
+</div>
+<p class="text-neutral-500 dark:text-neutral-400 text-sm leading-relaxed">
+                                The scheduled maintenance for the submission portal has been completed successfully. All services are operational.
+                            </p>
+</div>
+</div>
+<div class="group relative flex gap-4 p-4 rounded-xl bg-neutral-50 dark:bg-[#111] border border-transparent hover:bg-white dark:hover:bg-[#1e1e1e] hover:shadow-sm transition-all cursor-pointer opacity-80 hover:opacity-100">
+<div class="flex-shrink-0 size-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center text-green-700 dark:text-green-400">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<div class="flex flex-col flex-1 gap-1">
+<div class="flex justify-between items-start">
+<h3 class="text-primary dark:text-white font-semibold text-sm leading-snug">Submission Accepted</h3>
+<span class="text-neutral-400 text-xs whitespace-nowrap ml-2">Yesterday, 9:15 AM</span>
+</div>
+<p class="text-neutral-500 dark:text-neutral-400 text-sm leading-relaxed">
+                                Paper #992: "Optimizing Neural Networks" has been successfully submitted to the review queue.
+                            </p>
+</div>
+</div>
+<div class="group relative flex gap-4 p-4 rounded-xl bg-neutral-50 dark:bg-[#111] border border-transparent hover:bg-white dark:hover:bg-[#1e1e1e] hover:shadow-sm transition-all cursor-pointer opacity-80 hover:opacity-100">
+<div class="flex-shrink-0 size-12 rounded-full bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center text-neutral-600 dark:text-neutral-400">
+<span class="material-symbols-outlined">rate_review</span>
+</div>
+<div class="flex flex-col flex-1 gap-1">
+<div class="flex justify-between items-start">
+<h3 class="text-primary dark:text-white font-semibold text-sm leading-snug">Review Assigned</h3>
+<span class="text-neutral-400 text-xs whitespace-nowrap ml-2">Yesterday, 8:30 AM</span>
+</div>
+<p class="text-neutral-500 dark:text-neutral-400 text-sm leading-relaxed">
+                                You have been assigned as a secondary reviewer for Paper #1105. Please accept or decline by Nov 12.
+                            </p>
+</div>
+</div>
+</div>
+<div class="hidden flex flex-col items-center justify-center py-20 text-center">
+<div class="size-20 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-4xl text-neutral-400">notifications_off</span>
+</div>
+<h3 class="text-lg font-bold text-primary dark:text-white mb-2">You're all caught up!</h3>
+<p class="text-neutral-500 max-w-xs mx-auto">No new notifications at the moment. Check back later for updates on your submissions.</p>
+</div>
+</div>
+</main>
+</div>
+</body></html>

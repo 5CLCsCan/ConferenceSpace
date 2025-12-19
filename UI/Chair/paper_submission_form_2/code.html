@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ConferenceSpace - Final Review</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class", 
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#141414", 
+                        "primary-hover": "#2a2a2a", 
+                        "background-light": "#f7f7f7", 
+                        "background-dark": "#191919", 
+                        "navy-accent": "#1e293b",
+                        "navy-light": "#334155"
+                    }, 
+                    fontFamily: {
+                        display: "Inter", 
+                        body: ["Noto Sans", "sans-serif"]
+                    }, 
+                    borderRadius: {
+                        DEFAULT: "0.25rem", 
+                        lg: "0.5rem", 
+                        xl: "0.75rem", 
+                        full: "9999px"
+                    }
+                }
+            }
+        };
+    </script>
+<style>
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d4d4d4;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a3a3a3;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .icon-filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        details summary::-webkit-details-marker {
+          display:none;
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-primary dark:text-white flex flex-col h-screen overflow-hidden">
+<div class="flex flex-1 overflow-hidden relative">
+<aside class="hidden lg:flex w-[280px] flex-col border-r border-[#ededed] dark:border-neutral-800 bg-white dark:bg-[#1e1e1e] h-full overflow-y-auto z-10 pt-6">
+<div class="px-6 mb-2">
+<div class="flex items-center gap-2 mb-6 text-primary dark:text-white">
+<div class="size-8 flex items-center justify-center bg-navy-accent text-white rounded-lg">
+<span class="material-symbols-outlined text-[20px]">domain</span>
+</div>
+<h2 class="text-primary dark:text-white text-lg font-bold leading-tight tracking-tight">ConferenceSpace</h2>
+</div>
+</div>
+<div class="px-6">
+<div class="flex flex-col mb-8">
+<h1 class="text-primary dark:text-white text-lg font-bold leading-normal">Creation Wizard</h1>
+<p class="text-neutral-500 text-sm font-normal">New Conference Setup</p>
+</div>
+<div class="relative flex flex-col gap-1">
+<div class="group flex items-start gap-4 p-3 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800/50 cursor-pointer transition-all">
+<div class="flex flex-col items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 icon-filled text-[20px]">check_circle</span>
+<div class="w-px h-full bg-green-600/30 dark:bg-green-400/30 min-h-[24px]"></div>
+</div>
+<div class="pb-4">
+<p class="text-neutral-600 dark:text-neutral-300 text-sm font-medium leading-tight">Basic Details</p>
+<p class="text-neutral-400 text-xs mt-1">Name, acronym, dates</p>
+</div>
+</div>
+<div class="group flex items-start gap-4 p-3 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800/50 cursor-pointer transition-all">
+<div class="flex flex-col items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 icon-filled text-[20px]">check_circle</span>
+<div class="w-px h-full bg-green-600/30 dark:bg-green-400/30 min-h-[24px]"></div>
+</div>
+<div class="pb-4">
+<p class="text-neutral-600 dark:text-neutral-300 text-sm font-medium leading-tight">Topics &amp; Tracks</p>
+<p class="text-neutral-400 text-xs mt-1">Define scope</p>
+</div>
+</div>
+<div class="group flex items-start gap-4 p-3 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800/50 cursor-pointer transition-all">
+<div class="flex flex-col items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 icon-filled text-[20px]">check_circle</span>
+<div class="w-px h-full bg-green-600/30 dark:bg-green-400/30 min-h-[24px]"></div>
+</div>
+<div class="pb-4">
+<p class="text-neutral-600 dark:text-neutral-300 text-sm font-medium leading-tight">Committees</p>
+<p class="text-neutral-400 text-xs mt-1">Add members</p>
+</div>
+</div>
+<div class="group flex items-start gap-4 p-3 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800/50 cursor-pointer transition-all">
+<div class="flex flex-col items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 icon-filled text-[20px]">check_circle</span>
+<div class="w-px h-full bg-neutral-200 dark:bg-neutral-700 min-h-[24px]"></div>
+</div>
+<div class="pb-4">
+<p class="text-neutral-600 dark:text-neutral-300 text-sm font-medium leading-tight">Review Policy</p>
+<p class="text-neutral-400 text-xs mt-1">Deadlines &amp; rules</p>
+</div>
+</div>
+<div class="group flex items-start gap-4 p-3 rounded-xl bg-navy-accent/5 dark:bg-white/5 border border-transparent cursor-pointer transition-all">
+<div class="flex flex-col items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-navy-accent dark:text-white icon-filled text-[20px]">radio_button_checked</span>
+</div>
+<div class="">
+<p class="text-navy-accent dark:text-white text-sm font-bold leading-tight">Final Review</p>
+<p class="text-neutral-500 text-xs mt-1">Publish conference</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-auto p-4 border-t border-[#ededed] dark:border-neutral-800 pb-20 lg:pb-20">
+<details class="group rounded-lg border border-neutral-200 dark:border-neutral-700 overflow-hidden">
+<summary class="flex items-center justify-between p-3 cursor-pointer list-none select-none text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
+<div class="flex items-center gap-2 text-xs font-semibold">
+<span class="material-symbols-outlined text-lg">help</span>
+<span>Chair Guide</span>
+</div>
+<span class="material-symbols-outlined text-sm transition-transform duration-200 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="px-3 pb-3 text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed border-t border-neutral-200 dark:border-neutral-700 pt-2">
+                        Ready to launch? Ensure all dates are correct. Once published, some settings cannot be changed.
+                        <a class="block mt-2 text-navy-accent dark:text-blue-400 hover:underline" href="#">Read launch guide →</a>
+</div>
+</details>
+</div>
+</aside>
+<main class="flex-1 h-full overflow-y-auto bg-background-light dark:bg-black/20 scroll-smooth pt-8">
+<div class="max-w-4xl mx-auto p-6 md:p-10 pb-32">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2 text-sm font-medium text-neutral-500 mb-1">
+<span>Conferences</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span>Create New</span>
+</div>
+<h1 class="text-primary dark:text-white text-3xl font-bold tracking-tight">Final Review</h1>
+<p class="text-neutral-500 dark:text-neutral-400">Please review all details before creating the conference.</p>
+</div>
+<div class="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-full border border-blue-100 dark:border-blue-800 shadow-sm">
+<span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-sm">info</span>
+<span class="text-xs font-medium text-blue-700 dark:text-blue-300">Ready to Publish</span>
+</div>
+</div>
+<div class="flex flex-col gap-6">
+<div class="bg-white dark:bg-[#1e1e1e] rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm overflow-hidden">
+<div class="flex items-center justify-between p-6 border-b border-neutral-100 dark:border-neutral-800">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-neutral-400">info</span>
+<h3 class="text-lg font-bold text-primary dark:text-white">Basic Details</h3>
+</div>
+<button class="text-sm font-medium text-navy-accent dark:text-blue-400 hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-base">edit</span> Edit
+                            </button>
+</div>
+<div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
+<div>
+<p class="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Conference Name</p>
+<p class="text-base text-primary dark:text-white font-medium">International Conference on Computer Vision</p>
+</div>
+<div>
+<p class="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Acronym</p>
+<p class="text-base text-primary dark:text-white font-medium">ICCV 2024</p>
+</div>
+<div class="md:col-span-2">
+<p class="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Location</p>
+<p class="text-base text-primary dark:text-white font-medium">Convention Center, Paris, France</p>
+</div>
+<div>
+<p class="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Start Date</p>
+<p class="text-base text-primary dark:text-white font-medium">Oct 15, 2024</p>
+</div>
+<div>
+<p class="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">End Date</p>
+<p class="text-base text-primary dark:text-white font-medium">Oct 18, 2024</p>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-[#1e1e1e] rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm overflow-hidden">
+<div class="flex items-center justify-between p-6 border-b border-neutral-100 dark:border-neutral-800">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-neutral-400">category</span>
+<h3 class="text-lg font-bold text-primary dark:text-white">Topics &amp; Tracks</h3>
+</div>
+<button class="text-sm font-medium text-navy-accent dark:text-blue-400 hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-base">edit</span> Edit
+                            </button>
+</div>
+<div class="p-6">
+<p class="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">Selected Topics</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-sm font-medium border border-neutral-200 dark:border-neutral-700">Computer Vision</span>
+<span class="px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-sm font-medium border border-neutral-200 dark:border-neutral-700">Machine Learning</span>
+<span class="px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-sm font-medium border border-neutral-200 dark:border-neutral-700">Image Processing</span>
+<span class="px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-sm font-medium border border-neutral-200 dark:border-neutral-700">Neural Networks</span>
+<span class="px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-sm font-medium border border-neutral-200 dark:border-neutral-700">+ 3 more</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="bg-white dark:bg-[#1e1e1e] rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm overflow-hidden flex flex-col">
+<div class="flex items-center justify-between p-6 border-b border-neutral-100 dark:border-neutral-800">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-neutral-400">group</span>
+<h3 class="text-lg font-bold text-primary dark:text-white">Committees</h3>
+</div>
+<button class="text-sm font-medium text-navy-accent dark:text-blue-400 hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-base">edit</span> Edit
+                                </button>
+</div>
+<div class="p-6 flex-1">
+<div class="space-y-4">
+<div class="flex justify-between items-center border-b border-neutral-50 dark:border-neutral-800 pb-2">
+<span class="text-sm text-neutral-600 dark:text-neutral-400">General Chairs</span>
+<span class="font-medium text-primary dark:text-white">2 Members</span>
+</div>
+<div class="flex justify-between items-center border-b border-neutral-50 dark:border-neutral-800 pb-2">
+<span class="text-sm text-neutral-600 dark:text-neutral-400">Program Chairs</span>
+<span class="font-medium text-primary dark:text-white">3 Members</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-sm text-neutral-600 dark:text-neutral-400">Reviewers</span>
+<span class="font-medium text-primary dark:text-white">Pending Invite</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-[#1e1e1e] rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm overflow-hidden flex flex-col">
+<div class="flex items-center justify-between p-6 border-b border-neutral-100 dark:border-neutral-800">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-neutral-400">policy</span>
+<h3 class="text-lg font-bold text-primary dark:text-white">Review Policy</h3>
+</div>
+<button class="text-sm font-medium text-navy-accent dark:text-blue-400 hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-base">edit</span> Edit
+                                </button>
+</div>
+<div class="p-6 flex-1">
+<div class="space-y-4">
+<div>
+<p class="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Review Mode</p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-neutral-400">visibility_off</span>
+<p class="text-base text-primary dark:text-white font-medium">Double Blind</p>
+</div>
+</div>
+<div>
+<p class="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Paper Submission Deadline</p>
+<p class="text-base text-primary dark:text-white font-medium">June 15, 2024</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<div class="absolute bottom-0 left-0 lg:left-[280px] right-0 bg-white dark:bg-[#1e1e1e] border-t border-[#ededed] dark:border-neutral-800 p-4 z-30">
+<div class="max-w-4xl mx-auto flex items-center justify-between">
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border border-transparent hover:border-red-100" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+                    Cancel
+                </button>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors border border-transparent hover:border-neutral-200 dark:hover:border-neutral-700" type="button">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+                        Previous
+                    </button>
+<button class="flex items-center gap-2 bg-navy-accent hover:bg-navy-light text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-navy-accent/20 transition-all transform hover:translate-y-px" type="button">
+<span class="material-symbols-outlined text-[20px]">rocket_launch</span>
+                        Create Conference
+                    </button>
+</div>
+</div>
+</div>
+</div>
+
+</body></html>

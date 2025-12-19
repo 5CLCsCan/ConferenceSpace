@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Paper Review Form - ConferenceSpace</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200..800&amp;family=Inter:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#141414",
+                        "background-light": "#f7f7f7",
+                        "background-dark": "#191919",
+                        "accent-navy": "#1e293b",
+                        "brand-green": "#16a34a",
+                        "brand-blue": "#2563eb",
+                        "brand-purple": "#9333ea"
+                    },
+                    fontFamily: {
+                        display: "Inter",
+                        body: ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px"
+                    },
+                    boxShadow: {
+                        card: "0 4px 20px -2px rgba(0, 0, 0, 0.05)",
+                        "card-hover": "0 10px 40px -5px rgba(0, 0, 0, 0.1)",
+                        input: "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
+                    }
+                }
+            }
+        };
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-primary dark:text-white font-body min-h-screen flex flex-col">
+<header class="w-full border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 sticky top-0 z-50 md:hidden">
+<div class="px-6 py-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="bg-primary text-white p-1.5 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">school</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight text-primary dark:text-white font-display">ConferenceSpace</h1>
+</div>
+<button class="text-neutral-500">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<div class="flex flex-1 w-full max-w-[1920px] mx-auto">
+<aside class="w-72 hidden md:flex flex-col border-r border-gray-200 bg-white h-screen sticky top-0 font-display z-40 flex-shrink-0">
+<div class="px-6 py-8">
+<div class="flex items-center gap-3">
+<div class="bg-slate-800 text-white p-2 rounded-lg flex items-center justify-center shadow-sm w-10 h-10">
+<span class="material-symbols-outlined text-[24px]">school</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight text-slate-800">ConferenceSpace</h1>
+</div>
+</div>
+<div class="flex-1 px-4 overflow-y-auto">
+<div class="mb-10">
+<h3 class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Menu</h3>
+<div class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 font-bold hover:bg-slate-50 hover:text-slate-900 transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]">grid_view</span>
+                            Dashboard
+                        </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 font-bold hover:bg-slate-50 hover:text-slate-900 transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]">calendar_month</span>
+                            Conferences
+                        </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-blue-50 text-slate-900 font-bold transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px] filled">rate_review</span>
+                            Reviews
+                        </a>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-slate-600 font-bold hover:bg-slate-50 hover:text-slate-900 transition-colors" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[22px]">notifications</span>
+                                Notifications
+                            </div>
+<span class="flex items-center justify-center w-5 h-5 text-[11px] leading-none text-white bg-red-500 rounded-full pt-[1px] font-bold">3</span>
+</a>
+</div>
+</div>
+<div class="mb-10">
+<h3 class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Recent Conferences</h3>
+<div class="px-3 space-y-6">
+<div class="group cursor-pointer">
+<div class="text-sm font-bold text-slate-800 group-hover:text-brand-blue transition-colors">CVPR 2024</div>
+<div class="text-xs text-slate-500 mt-0.5">Reviewer</div>
+</div>
+<div class="group cursor-pointer">
+<div class="text-sm font-bold text-slate-800 group-hover:text-brand-blue transition-colors">ICLR 2024</div>
+<div class="text-xs text-slate-500 mt-0.5">Area Chair</div>
+</div>
+<div class="group cursor-pointer">
+<div class="text-sm font-bold text-slate-800 group-hover:text-brand-blue transition-colors">NeurIPS 2023</div>
+<div class="text-xs text-slate-500 mt-0.5">Author</div>
+</div>
+</div>
+</div>
+</div>
+<div class="p-4 border-t border-gray-100 bg-gray-50/50 mt-auto">
+<div class="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-white transition-colors">
+<div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden bg-cover bg-center border border-gray-200" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA5iIJaVXGl0D1HRG3ULOT9C9PhH3RzOrp1kkDzHq0PPgJZA7JRRy8rzybBj0yFIbH5x3p1874q8ycWP2t2BVTvpiek9xtcV-_Qis1U-RgxUhh7KhKGqL35gKl8yCY5bslazmwRf3jQgFnlXqMOH_EOto3_Xmr4XznnGPFh0PVfLTEfGDK3tjF5LIS0hSWBTiEWnh6QbDfdZ1BjLYSoVjXYvNLLHkgb9M9Qcgn7K-SqRhiTfnd5rJ6HkUFewGdO61rtUSkm5rtu");'></div>
+<div class="flex-1 min-w-0">
+<div class="text-sm font-bold text-slate-800 truncate">Dr. Sarah Smith</div>
+<div class="text-xs text-slate-500 truncate">View Profile</div>
+</div>
+<span class="material-symbols-outlined text-slate-400">expand_more</span>
+</div>
+</div>
+</aside>
+<div class="flex-1 flex flex-col min-w-0 bg-neutral-50/50 dark:bg-neutral-950 h-screen overflow-y-auto relative">
+<div class="sticky top-0 z-30 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800 px-8 py-4 flex items-center justify-between">
+<div class="flex items-center gap-2 text-sm text-neutral-500">
+<a class="hover:text-brand-blue transition-colors" href="#">NeurIPS 2024</a>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<a class="hover:text-brand-blue transition-colors" href="#">My Reviews</a>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-primary dark:text-white font-medium">Paper #2491</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">
+<span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>
+                        Deadline: 2 Days Left
+                    </span>
+<div class="h-6 w-px bg-neutral-200 dark:bg-neutral-700 mx-1"></div>
+<button class="text-neutral-500 hover:text-primary dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</div>
+<main class="flex-grow flex flex-col px-4 md:px-8 xl:px-12 py-8 max-w-[1280px] mx-auto w-full">
+<div class="mb-8">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-6">
+<div class="space-y-3 max-w-4xl">
+<div class="flex flex-wrap items-center gap-3">
+<span class="text-sm font-bold tracking-wider text-neutral-500 uppercase">Paper #2491</span>
+<span class="px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 text-xs font-bold border border-blue-100 dark:border-blue-800">Under Review</span>
+<span class="px-2.5 py-0.5 rounded-md bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 text-xs font-bold border border-purple-100 dark:border-purple-800">Track: Deep Learning</span>
+</div>
+<h1 class="text-3xl md:text-4xl font-bold text-primary dark:text-white font-display leading-tight">
+                                Scalable Neural Architecture Search for Edge Devices via Differentiable Pruning
+                            </h1>
+<div class="flex items-center gap-2 text-neutral-500 dark:text-neutral-400 text-sm">
+<span class="material-symbols-outlined text-[18px]">person_off</span>
+<span>Anonymous Authors</span>
+</div>
+</div>
+<div class="flex-shrink-0 flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px] text-red-500">picture_as_pdf</span>
+                                Download PDF
+                            </button>
+</div>
+</div>
+</div>
+<div class="flex items-center border-b border-neutral-200 dark:border-neutral-800 mb-8 overflow-x-auto">
+<button class="flex items-center gap-2 px-6 py-3 text-sm font-medium text-neutral-500 hover:text-primary dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">rate_review</span>
+                        Review Form
+                    </button>
+<button class="flex items-center gap-2 px-6 py-3 text-sm font-medium text-neutral-500 hover:text-primary dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">forum</span>
+                        Discussion
+                        <span class="ml-1 px-1.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-600 dark:text-neutral-400">0</span>
+</button>
+<button class="flex items-center gap-2 px-6 py-3 text-sm font-bold text-brand-blue border-b-2 border-brand-blue bg-blue-50/50 dark:bg-blue-900/10">
+<span class="material-symbols-outlined text-[20px] filled">reply_all</span>
+                        Rebuttal
+                    </button>
+</div>
+<div class="mb-8 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+<div class="flex gap-4 items-start">
+<div class="p-2 bg-blue-100 dark:bg-blue-800 rounded-lg h-fit text-blue-600 dark:text-blue-200">
+<span class="material-symbols-outlined">mark_email_unread</span>
+</div>
+<div>
+<h3 class="font-bold text-primary dark:text-white text-sm">Author Rebuttal Submitted</h3>
+<p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-relaxed max-w-2xl">
+                                The authors have responded to the reviews. Please consider their arguments and update your scores or feedback if appropriate.
+                                <span class="font-medium text-brand-blue">Deadline: Aug 15 (3 days left)</span>
+</p>
+</div>
+</div>
+<button class="w-full md:w-auto px-5 py-2.5 rounded-lg bg-brand-blue hover:bg-blue-600 text-white font-bold text-sm shadow-md transition-all whitespace-nowrap">
+                        Update Assessment
+                    </button>
+</div>
+<div class="relative pl-6 sm:pl-10 space-y-12 before:absolute before:top-4 before:bottom-10 before:left-[11px] sm:before:left-[19px] before:w-0.5 before:bg-neutral-200 dark:before:bg-neutral-800">
+<div class="relative">
+<div class="absolute -left-[35px] sm:-left-[51px] top-1">
+<div class="w-6 h-6 rounded-full border-4 border-white dark:border-neutral-950 bg-brand-blue shadow-sm"></div>
+</div>
+<div class="flex items-center justify-between mb-4">
+<div>
+<h2 class="text-xl font-bold text-primary dark:text-white font-display">Round 2: Final Response</h2>
+<span class="text-sm text-neutral-500">Aug 12, 2024</span>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 text-xs font-bold border border-green-200 dark:border-green-800">
+                                Latest
+                            </span>
+</div>
+<div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-card mb-6">
+<div class="p-6 border-b border-neutral-100 dark:border-neutral-800 flex justify-between items-center bg-neutral-50/50 dark:bg-neutral-800/20 rounded-t-2xl">
+<h2 class="font-display font-bold text-lg text-primary dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-neutral-400">format_quote</span>
+                                    General Response
+                                </h2>
+<span class="text-xs font-medium px-2 py-1 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500">
+                                    724 Words
+                                </span>
+</div>
+<div class="p-6 md:p-8">
+<div class="prose prose-sm dark:prose-invert max-w-none text-neutral-600 dark:text-neutral-300">
+<p>We thank the reviewers for their insightful and constructive feedback. We are encouraged that they find our DP-NAS framework novel (R1, R3) and our results on edge devices significant (R2). In this revision, we have focused on clarifying the differentiability of our pruning method and adding the requested ablation studies.</p>
+<p class="mt-4">Specifically, we have addressing the following common concerns:</p>
+<ul class="list-disc pl-5 mt-2 space-y-1">
+<li><strong>Comparison with MobileNetV3:</strong> Added in Table 2.</li>
+<li><strong>Hyperparameter Sensitivity:</strong> Analysis added in Appendix B.</li>
+<li><strong>Training Stability:</strong> We provide loss curves in the supplementary material showing convergence.</li>
+</ul>
+</div>
+<div class="mt-6 pt-6 border-t border-neutral-100 dark:border-neutral-800 flex items-center gap-3">
+<div class="bg-red-50 dark:bg-red-900/10 p-2 rounded-lg text-red-600 dark:text-red-400">
+<span class="material-symbols-outlined text-xl">picture_as_pdf</span>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-bold text-sm text-primary dark:text-white truncate">Revised Manuscript (v2)</h3>
+<p class="text-xs text-neutral-500">2.4 MB • Aug 12, 2024</p>
+</div>
+<button class="px-3 py-1.5 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-primary dark:text-white text-xs font-bold rounded-lg transition-colors">
+                                        Download
+                                    </button>
+</div>
+</div>
+</div>
+<div class="space-y-6">
+<h3 class="text-sm font-bold text-neutral-500 uppercase tracking-wider ml-1">Specific Points Addressed</h3>
+<div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-card overflow-hidden">
+<div class="bg-neutral-50 dark:bg-neutral-950/50 p-4 border-b border-neutral-200 dark:border-neutral-800 flex justify-between items-start gap-4">
+<div class="flex items-start gap-3 w-full">
+<span class="material-symbols-outlined text-neutral-400 mt-0.5 text-lg">comment</span>
+<div class="w-full">
+<div class="flex items-center justify-between mb-1">
+<span class="text-xs font-bold text-neutral-500 uppercase">Your Comment (Weaknesses)</span>
+<span class="text-xs text-neutral-400">Reviewer #2</span>
+</div>
+<p class="text-sm text-neutral-700 dark:text-neutral-300 italic bg-white dark:bg-neutral-900 p-3 rounded-lg border border-neutral-100 dark:border-neutral-800">
+                                                "The ablation study is insufficient to support the claim about component X being the main driver of latency reduction."
+                                            </p>
+</div>
+</div>
+</div>
+<div class="p-6 md:p-8">
+<div class="flex gap-4">
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+<span class="text-xs font-bold">A</span>
+</div>
+<div class="space-y-3 w-full">
+<p class="text-sm text-neutral-800 dark:text-neutral-200 leading-relaxed">
+                                                We acknowledge this point. To address it, we performed a leave-one-out ablation study (New Table 5). The results demonstrate that removing Component X leads to a <span class="font-bold text-emerald-600 dark:text-emerald-400">14% increase in latency</span> without significant accuracy gain, isolating its contribution.
+                                            </p>
+<div class="flex gap-2 mt-2">
+<span class="text-xs bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 px-2 py-1 rounded border border-emerald-100 dark:border-emerald-800 flex items-center gap-1 w-fit">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                                    Addressed with New Data
+                                                </span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-card overflow-hidden">
+<div class="bg-neutral-50 dark:bg-neutral-950/50 p-4 border-b border-neutral-200 dark:border-neutral-800 flex justify-between items-start gap-4">
+<div class="flex items-start gap-3 w-full">
+<span class="material-symbols-outlined text-neutral-400 mt-0.5 text-lg">help</span>
+<div class="w-full">
+<div class="flex items-center justify-between mb-1">
+<span class="text-xs font-bold text-neutral-500 uppercase">Your Question</span>
+<span class="text-xs text-neutral-400">Reviewer #2</span>
+</div>
+<p class="text-sm text-neutral-700 dark:text-neutral-300 italic bg-white dark:bg-neutral-900 p-3 rounded-lg border border-neutral-100 dark:border-neutral-800">
+                                                "Can you clarify how the hyperparameter alpha was chosen?"
+                                            </p>
+</div>
+</div>
+</div>
+<div class="p-6 md:p-8">
+<div class="flex gap-4">
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+<span class="text-xs font-bold">A</span>
+</div>
+<div class="space-y-3 w-full">
+<p class="text-sm text-neutral-800 dark:text-neutral-200 leading-relaxed">
+                                                Alpha was selected using grid search on a validation set (10% split of training data). We tested values {0.1, 0.3, 0.5, 0.7, 0.9} and found 0.5 yielded the best trade-off. We have clarified this in Section 3.4.
+                                            </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="relative opacity-60 hover:opacity-100 transition-opacity">
+<div class="absolute -left-[35px] sm:-left-[51px] top-1">
+<div class="w-6 h-6 rounded-full border-4 border-white dark:border-neutral-950 bg-neutral-300 dark:bg-neutral-700"></div>
+</div>
+<div class="cursor-pointer group">
+<div class="flex items-center justify-between mb-2">
+<div>
+<h2 class="text-xl font-bold text-neutral-500 dark:text-neutral-400 font-display group-hover:text-primary dark:group-hover:text-white transition-colors">Round 1: Initial Response</h2>
+<span class="text-sm text-neutral-400">Aug 05, 2024</span>
+</div>
+<button class="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+<span class="material-symbols-outlined text-neutral-500">expand_more</span>
+</button>
+</div>
+<div class="h-px bg-neutral-200 dark:bg-neutral-800 w-full mt-4"></div>
+</div>
+</div>
+</div>
+<div class="sticky bottom-6 z-20 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4 rounded-xl shadow-card-hover mt-12 mx-auto w-full max-w-[1280px]">
+<div class="flex flex-col md:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<div class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 p-2 rounded-lg">
+<span class="material-symbols-outlined text-xl">check_circle</span>
+</div>
+<div class="text-sm">
+<span class="block font-bold text-primary dark:text-white">Review Submitted</span>
+<span class="text-neutral-500">Score: Strong Accept (8)</span>
+</div>
+</div>
+<div class="flex items-center gap-3 w-full md:w-auto">
+<button class="flex-1 md:flex-none px-4 py-2.5 rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 font-bold text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
+                                Discussion (0)
+                            </button>
+<button class="flex-1 md:flex-none px-6 py-2.5 rounded-lg bg-brand-blue hover:bg-blue-600 text-white font-bold text-sm shadow-lg shadow-blue-500/30 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">edit_square</span>
+                                Edit Review
+                            </button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+</body></html>

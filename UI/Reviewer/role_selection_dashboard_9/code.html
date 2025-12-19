@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Discussion - Paper Review Form - ConferenceSpace</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200..800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#141414", "background-light": "#f7f7f7", "background-dark": "#191919", "accent-navy": "#1e293b", "brand-green": "#16a34a", "brand-blue": "#2563eb", "brand-purple": "#9333ea", "navy-50": "#f0f4f8", "navy-100": "#d9e2ec", "navy-800": "#243b53", "navy-900": "#102a43"}, fontFamily: {display: "Inter", body: ["Inter", "sans-serif"]}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, boxShadow: {card: "0 4px 20px -2px rgba(0, 0, 0, 0.05)", "card-hover": "0 10px 40px -5px rgba(0, 0, 0, 0.1)", input: "0 1px 2px 0 rgba(0, 0, 0, 0.05)"}}}};</script>
+<style>
+    .material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24
+    }
+    .material-symbols-outlined.filled {
+    font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24
+    }
+    input[type=range] {
+      -webkit-appearance: none; 
+      background: transparent; 
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+    }
+    input[type=range]:focus {
+      outline: none; 
+    }
+    .thread-line {
+        position: absolute;
+        left: 20px;
+        top: 48px;
+        bottom: 0;
+        width: 2px;
+        background-color: #e5e7eb;
+    }
+    .dark .thread-line {
+        background-color: #374151;
+    }
+    .thread-curve {
+        position: absolute;
+        left: 20px;
+        top: -16px;
+        width: 24px;
+        height: 32px;
+        border-bottom-left-radius: 12px;
+        border-left: 2px solid #e5e7eb;
+        border-bottom: 2px solid #e5e7eb;
+    }
+    .dark .thread-curve {
+        border-color: #374151;
+    }.sidebar-scroll::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
+    }
+</style>
+</head>
+<body class="bg-white dark:bg-background-dark text-primary dark:text-white font-body min-h-screen flex flex-col md:flex-row overflow-hidden">
+<header class="w-full border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 sticky top-0 z-50 md:hidden flex-shrink-0">
+<div class="px-6 py-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="bg-[#1e293b] text-white p-1.5 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">school</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight text-[#1e293b] dark:text-white font-display">ConferenceSpace</h1>
+</div>
+<button class="text-neutral-500">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<aside class="w-[280px] hidden md:flex flex-col bg-white border-r border-neutral-100 h-screen flex-shrink-0 z-40 sidebar-scroll overflow-y-auto justify-between font-display">
+<div class="p-6">
+<div class="flex items-center gap-3 mb-10">
+<div class="w-10 h-10 bg-[#243b53] rounded-lg flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-white text-[24px]">school</span>
+</div>
+<span class="text-[19px] font-bold text-[#243b53]">ConferenceSpace</span>
+</div>
+<div class="mb-10">
+<h3 class="text-[11px] font-bold text-[#94a3b8] uppercase tracking-wider mb-2 pl-3">Menu</h3>
+<div class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#f0f4f8] text-[#334155] font-semibold text-[15px]" href="#">
+<span class="material-symbols-outlined text-[22px]">dashboard</span>
+                    Dashboard
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#64748b] hover:bg-neutral-50 hover:text-[#334155] font-medium text-[15px] transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]">calendar_today</span>
+                    Conferences
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#64748b] hover:bg-neutral-50 hover:text-[#334155] font-medium text-[15px] transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]">rate_review</span>
+                    Reviews
+                </a>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-[#64748b] hover:bg-neutral-50 hover:text-[#334155] font-medium text-[15px] transition-colors" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[22px]">notifications</span>
+                        Notifications
+                    </div>
+<span class="bg-[#ef4444] text-white text-[10px] font-bold px-1.5 h-5 min-w-[20px] rounded-full flex items-center justify-center">3</span>
+</a>
+</div>
+</div>
+<div>
+<h3 class="text-[11px] font-bold text-[#94a3b8] uppercase tracking-wider mb-4 pl-3">Recent Conferences</h3>
+<div class="space-y-6 pl-3">
+<div class="group cursor-pointer">
+<div class="flex flex-col">
+<span class="text-[#334155] font-bold text-[15px] mb-0.5">CVPR 2024</span>
+<span class="text-[#94a3b8] text-[13px] font-medium">Reviewer</span>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="flex flex-col">
+<span class="text-[#334155] font-bold text-[15px] mb-0.5">ICLR 2024</span>
+<span class="text-[#94a3b8] text-[13px] font-medium">Area Chair</span>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="flex flex-col">
+<span class="text-[#334155] font-bold text-[15px] mb-0.5">NeurIPS 2023</span>
+<span class="text-[#94a3b8] text-[13px] font-medium">Author</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-auto border-t border-neutral-100 p-4">
+<div class="flex items-center gap-3 cursor-pointer hover:bg-neutral-50 p-2 rounded-lg transition-colors">
+<div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-neutral-200">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5iIJaVXGl0D1HRG3ULOT9C9PhH3RzOrp1kkDzHq0PPgJZA7JRRy8rzybBj0yFIbH5x3p1874q8ycWP2t2BVTvpiek9xtcV-_Qis1U-RgxUhh7KhKGqL35gKl8yCY5bslazmwRf3jQgFnlXqMOH_EOto3_Xmr4XznnGPFh0PVfLTEfGDK3tjF5LIS0hSWBTiEWnh6QbDfdZ1BjLYSoVjXYvNLLHkgb9M9Qcgn7K-SqRhiTfnd5rJ6HkUFewGdO61rtUSkm5rtu"/>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="text-[#0f172a] font-bold text-[14px] leading-tight truncate">Dr. Sarah Smith</span>
+<span class="text-[#94a3b8] text-[12px] font-medium truncate">View Profile</span>
+</div>
+<span class="material-symbols-outlined text-[#cbd5e1] text-[20px]">expand_more</span>
+</div>
+</div>
+</aside>
+<div class="flex-1 flex flex-col min-w-0 bg-[#ffffff] h-screen overflow-y-auto relative">
+<div class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-neutral-100 px-8 py-3 flex items-center justify-between">
+<div class="flex items-center gap-2 text-[13px] text-neutral-500 font-medium">
+<a class="hover:text-brand-blue transition-colors" href="#">NeurIPS 2024</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<a class="hover:text-brand-blue transition-colors" href="#">My Reviews</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary font-semibold">Paper #2491</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                Deadline: 2 Days Left
+            </span>
+<button class="text-neutral-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px] filled">help</span>
+</button>
+</div>
+</div>
+<main class="flex-grow flex flex-col px-4 md:px-10 py-8 w-full max-w-6xl mx-auto">
+<div class="mb-6">
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-3">
+<span class="text-xs font-bold tracking-wide text-neutral-400 uppercase">Paper #2491</span>
+<span class="px-2 py-0.5 rounded bg-blue-50 text-blue-600 text-[11px] font-bold border border-blue-100">Under Review</span>
+<span class="px-2 py-0.5 rounded bg-purple-50 text-purple-600 text-[11px] font-bold border border-purple-100">Track: Deep Learning</span>
+</div>
+<div class="flex justify-between items-start gap-8">
+<h1 class="text-3xl font-bold text-[#111827] font-display leading-tight max-w-4xl">
+                        Scalable Neural Architecture Search for Edge Devices via Differentiable Pruning
+                    </h1>
+<button class="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm font-medium hover:bg-neutral-50 text-neutral-700 transition-colors shadow-sm h-fit">
+<span class="material-symbols-outlined text-[20px] text-red-500">picture_as_pdf</span>
+                        Download PDF
+                    </button>
+</div>
+<div class="flex items-center gap-2 text-neutral-500 text-sm">
+<span class="material-symbols-outlined text-[18px]">person_off</span>
+<span>Anonymous Authors</span>
+</div>
+</div>
+</div>
+<div class="flex items-center border-b border-neutral-200 mb-8 w-full">
+<button class="flex items-center gap-2 px-6 py-3 text-sm font-medium text-neutral-500 hover:text-primary transition-colors border-b-2 border-transparent">
+<span class="material-symbols-outlined text-[20px]">rate_review</span>
+                Review Form
+            </button>
+<button class="flex items-center gap-2 px-6 py-3 text-sm font-bold text-brand-blue border-b-2 border-brand-blue">
+<span class="material-symbols-outlined text-[20px] filled">forum</span>
+                Discussion
+                <span class="ml-1 px-1.5 py-0.5 rounded bg-blue-100 text-[11px] text-blue-700">3</span>
+</button>
+<button class="flex items-center gap-2 px-6 py-3 text-sm font-medium text-neutral-500 hover:text-primary transition-colors border-b-2 border-transparent">
+<span class="material-symbols-outlined text-[20px]">reply_all</span>
+                Rebuttal
+            </button>
+</div>
+<div class="w-full space-y-6">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
+<h2 class="font-display font-bold text-xl text-[#111827] flex items-center gap-2">
+                    Discussion Threads
+                    <span class="px-2 py-0.5 rounded-full bg-neutral-100 text-xs font-bold text-neutral-500">3</span>
+</h2>
+<div class="flex items-center gap-3">
+<div class="relative group">
+<select class="appearance-none pl-3 pr-9 py-2 text-sm font-medium bg-white border border-neutral-200 rounded-lg text-neutral-600 focus:outline-none focus:border-brand-blue hover:border-neutral-300 transition-colors cursor-pointer min-w-[140px]">
+<option>All Threads</option>
+<option>Committee Only</option>
+<option>Author Visible</option>
+</select>
+<span class="absolute right-2.5 top-2.5 pointer-events-none material-symbols-outlined text-sm text-neutral-400">expand_more</span>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 bg-brand-blue hover:bg-blue-600 text-white text-sm font-bold rounded-lg shadow-sm shadow-blue-500/20 transition-all">
+<span class="material-symbols-outlined text-[18px]">add_comment</span>
+                        Start New Topic
+                    </button>
+</div>
+</div>
+<div class="bg-white p-1 rounded-xl border border-neutral-200 flex items-center gap-4 cursor-text hover:border-neutral-300 transition-colors group shadow-sm">
+<div class="w-full relative">
+<div class="absolute left-4 top-3.5 w-8 h-8 rounded-full bg-blue-50 text-brand-blue flex items-center justify-center pointer-events-none">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</div>
+<input class="w-full pl-14 pr-4 py-4 text-sm text-neutral-700 placeholder-neutral-400 border-none rounded-xl focus:ring-0" placeholder="Draft a new discussion topic..." type="text"/>
+</div>
+</div>
+<div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
+<div class="bg-neutral-50/50 p-4 border-b border-neutral-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
+<div class="flex items-center gap-3">
+<h3 class="font-bold text-[15px] text-[#111827]">Methodology Validation Concerns</h3>
+<span class="px-2 py-0.5 rounded bg-red-50 text-red-600 text-[10px] font-bold uppercase tracking-wider border border-red-100 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] filled">lock</span>
+                            Committee Only
+                        </span>
+</div>
+<span class="text-xs text-neutral-400 font-medium">Last active: 2 hours ago</span>
+</div>
+<div class="p-6 space-y-8 relative">
+<div class="relative z-10 group">
+<div class="flex gap-4">
+<div class="flex-shrink-0">
+<div class="w-9 h-9 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">R2</div>
+</div>
+<div class="flex-grow min-w-0">
+<div class="flex items-center justify-between mb-1.5">
+<div class="flex items-center gap-2">
+<span class="font-bold text-sm text-[#111827]">Reviewer #2</span>
+<span class="text-xs text-neutral-400">Yesterday at 4:15 PM</span>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-neutral-300 hover:text-neutral-500 transition-colors">
+<span class="material-symbols-outlined text-[18px]">format_quote</span>
+</button>
+<button class="text-neutral-300 hover:text-neutral-500 transition-colors">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+</div>
+</div>
+<div class="text-[14px] text-neutral-600 leading-relaxed mb-2">
+                                    I'm concerned about the baseline comparisons in Table 2. The authors compare their pruned model against MobileNetV2, but they don't seem to account for the specialized hardware acceleration usually available for standard architectures. The speedup might be purely theoretical.
+                                </div>
+<button class="text-xs font-semibold text-brand-blue hover:text-blue-700 transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">reply</span> Reply
+                                </button>
+</div>
+</div>
+</div>
+<div class="relative z-10 pl-14 group">
+<div class="thread-curve"></div>
+<div class="flex gap-4">
+<div class="flex-shrink-0">
+<div class="w-9 h-9 rounded-full bg-cover bg-center shadow-sm border border-white" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA5iIJaVXGl0D1HRG3ULOT9C9PhH3RzOrp1kkDzHq0PPgJZA7JRRy8rzybBj0yFIbH5x3p1874q8ycWP2t2BVTvpiek9xtcV-_Qis1U-RgxUhh7KhKGqL35gKl8yCY5bslazmwRf3jQgFnlXqMOH_EOto3_Xmr4XznnGPFh0PVfLTEfGDK3tjF5LIS0hSWBTiEWnh6QbDfdZ1BjLYSoVjXYvNLLHkgb9M9Qcgn7K-SqRhiTfnd5rJ6HkUFewGdO61rtUSkm5rtu");'></div>
+</div>
+<div class="flex-grow min-w-0">
+<div class="flex items-center justify-between mb-1.5">
+<div class="flex items-center gap-2">
+<span class="font-bold text-sm text-[#111827]">You</span>
+<span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 text-[10px] font-bold border border-blue-100">Reviewer #1</span>
+<span class="text-xs text-neutral-400">Yesterday at 5:30 PM</span>
+</div>
+<button class="text-neutral-300 hover:text-neutral-500 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+</div>
+<div class="text-[14px] text-neutral-600 leading-relaxed mb-2">
+                                    That's a valid point. I checked the supplementary material and they do mention running on a Jetson Nano, but the setup details are sparse. We should probably ask for a breakdown of the FLOPs vs Latency correlation in the rebuttal.
+                                </div>
+<button class="text-xs font-semibold text-brand-blue hover:text-blue-700 transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">reply</span> Reply
+                                </button>
+</div>
+</div>
+</div>
+<div class="relative z-10 pl-14 group">
+<div class="thread-curve"></div>
+<div class="flex gap-4">
+<div class="flex-shrink-0">
+<div class="w-9 h-9 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-xs border border-white">AC</div>
+</div>
+<div class="flex-grow min-w-0">
+<div class="flex items-center justify-between mb-1.5">
+<div class="flex items-center gap-2">
+<span class="font-bold text-sm text-[#111827]">Area Chair</span>
+<span class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-600 text-[10px] font-bold uppercase border border-purple-100">Chair</span>
+<span class="text-xs text-neutral-400">2 hours ago</span>
+</div>
+<button class="text-neutral-300 hover:text-neutral-500 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+</div>
+<div class="text-[14px] text-neutral-600 leading-relaxed mb-2">
+                                    Agree. I will mark this as a point to be included in the consolidated feedback. Please draft a specific question regarding the hardware setup.
+                                </div>
+<button class="text-xs font-semibold text-brand-blue hover:text-blue-700 transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">reply</span> Reply
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
+<div class="bg-neutral-50/50 p-4 border-b border-neutral-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
+<div class="flex items-center gap-3">
+<h3 class="font-bold text-[15px] text-[#111827]">Clarification on Equation 3</h3>
+<span class="px-2 py-0.5 rounded bg-green-50 text-green-600 text-[10px] font-bold uppercase tracking-wider border border-green-100 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] filled">visibility</span>
+                            Author Visible
+                        </span>
+</div>
+<span class="text-xs text-neutral-400 font-medium">Last active: 1 day ago</span>
+</div>
+<div class="p-6 space-y-6">
+<div class="flex gap-4 group">
+<div class="flex-shrink-0">
+<div class="w-9 h-9 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center font-bold text-xs">R3</div>
+</div>
+<div class="flex-grow min-w-0">
+<div class="flex items-center justify-between mb-1.5">
+<div class="flex items-center gap-2">
+<span class="font-bold text-sm text-[#111827]">Reviewer #3</span>
+<span class="text-xs text-neutral-400">1 day ago</span>
+</div>
+<button class="text-neutral-300 hover:text-neutral-500 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+</div>
+<div class="text-[14px] text-neutral-600 leading-relaxed mb-2">
+                                There seems to be a typo in Eq. 3 regarding the regularization term lambda. It conflicts with the definition in the introduction. I assume this is just a notation error, but it should be clarified.
+                            </div>
+<button class="text-xs font-semibold text-brand-blue hover:text-blue-700 transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">reply</span> Reply
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-neutral-50 rounded-xl border border-neutral-200 p-4 flex items-center justify-between hover:bg-white hover:shadow-sm transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-neutral-400">check_circle</span>
+<div>
+<h3 class="font-bold text-sm text-neutral-600">Format Compliance Check</h3>
+<p class="text-xs text-neutral-400 mt-0.5">Started by Automated System • 3 replies</p>
+</div>
+</div>
+<button class="text-neutral-400 hover:text-neutral-600">
+<span class="material-symbols-outlined">expand_more</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

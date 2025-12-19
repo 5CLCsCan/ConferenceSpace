@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ConferenceSpace - Reviewer Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200..800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            50: '#f0f4fa',
+                            100: '#dce5f3',
+                            200: '#bfd1ea',
+                            300: '#95b5dd',
+                            400: '#6494cd',
+                            500: '#4176b6',
+                            600: '#305e96',
+                            700: '#274b79',
+                            800: '#234065', // Main Navy
+                            900: '#203653',
+                            950: '#152336',
+                        },
+                        neutral: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        },
+                        primary: "#234065", // Navy Blue
+                        "background-light": "#f8fafc",
+                        "background-dark": "#0f172a",
+                        "brand-blue": "#4176b6" // Lighter Navy/Blue
+                    },
+                    fontFamily: {
+                        display: "Inter",
+                        body: ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px"
+                    }
+                }
+            }
+        };
+    </script>
+<style>
+        .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
+        .material-symbols-filled { font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-body h-screen overflow-hidden flex">
+<header class="md:hidden fixed top-0 w-full z-50 bg-white dark:bg-navy-900 border-b border-slate-200 dark:border-navy-800 px-4 py-3 flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-2">
+<div class="bg-navy-800 text-white p-1 rounded-md">
+<span class="material-symbols-outlined text-xl">school</span>
+</div>
+<span class="font-bold text-lg font-display text-navy-900 dark:text-white">ConferenceSpace</span>
+</div>
+<button class="text-slate-500 hover:text-navy-700">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</header>
+<aside class="hidden md:flex flex-col w-64 bg-white dark:bg-navy-900 border-r border-slate-200 dark:border-navy-800 h-full flex-shrink-0 z-40 shadow-sm">
+<div class="p-6">
+<div class="flex items-center gap-3">
+<div class="bg-navy-800 text-white p-2 rounded-lg flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-2xl">school</span>
+</div>
+<h1 class="text-lg font-bold tracking-tight text-navy-900 dark:text-white font-display">ConferenceSpace</h1>
+</div>
+</div>
+<div class="flex-1 flex flex-col px-4 overflow-y-auto no-scrollbar">
+<div class="mb-8">
+<h3 class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Menu</h3>
+<div class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-navy-50 dark:bg-navy-800 text-navy-700 dark:text-navy-100 font-semibold transition-colors" href="#">
+<span class="material-symbols-outlined material-symbols-filled text-[20px]">dashboard</span>
+                        Dashboard
+                    </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-navy-800 hover:text-navy-700 dark:hover:text-white transition-colors font-medium" href="#">
+<span class="material-symbols-outlined text-[20px]">event</span>
+                        Conferences
+                    </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-navy-800 hover:text-navy-700 dark:hover:text-white transition-colors font-medium" href="#">
+<span class="material-symbols-outlined text-[20px]">rate_review</span>
+                        Reviews
+                    </a>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-navy-800 hover:text-navy-700 dark:hover:text-white transition-colors font-medium group" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+                            Notifications
+                        </div>
+<span class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-sm">3</span>
+</a>
+</div>
+</div>
+<div>
+<h3 class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Recent Conferences</h3>
+<div class="space-y-1">
+<a class="block px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-navy-800 transition-colors group cursor-pointer" href="#">
+<div class="flex flex-col">
+<span class="font-bold text-sm text-slate-700 dark:text-slate-200 group-hover:text-navy-600 dark:group-hover:text-white">CVPR 2024</span>
+<span class="text-xs text-slate-500 dark:text-slate-400 group-hover:text-slate-600">Reviewer</span>
+</div>
+</a>
+<a class="block px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-navy-800 transition-colors group cursor-pointer" href="#">
+<div class="flex flex-col">
+<span class="font-bold text-sm text-slate-700 dark:text-slate-200 group-hover:text-navy-600 dark:group-hover:text-white">ICLR 2024</span>
+<span class="text-xs text-slate-500 dark:text-slate-400 group-hover:text-slate-600">Area Chair</span>
+</div>
+</a>
+<a class="block px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-navy-800 transition-colors group cursor-pointer" href="#">
+<div class="flex flex-col">
+<span class="font-bold text-sm text-slate-700 dark:text-slate-200 group-hover:text-navy-600 dark:group-hover:text-white">NeurIPS 2023</span>
+<span class="text-xs text-slate-500 dark:text-slate-400 group-hover:text-slate-600">Author</span>
+</div>
+</a>
+</div>
+</div>
+</div>
+<div class="p-4 border-t border-slate-200 dark:border-navy-800 mt-auto bg-slate-50 dark:bg-navy-950/50">
+<a class="flex items-center gap-3 p-2 rounded-lg hover:bg-white dark:hover:bg-navy-800 hover:shadow-sm transition-all" href="#">
+<div class="w-9 h-9 rounded-full bg-slate-200 overflow-hidden bg-cover bg-center shrink-0 border border-slate-200 dark:border-navy-700" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA5iIJaVXGl0D1HRG3ULOT9C9PhH3RzOrp1kkDzHq0PPgJZA7JRRy8rzybBj0yFIbH5x3p1874q8ycWP2t2BVTvpiek9xtcV-_Qis1U-RgxUhh7KhKGqL35gKl8yCY5bslazmwRf3jQgFnlXqMOH_EOto3_Xmr4XznnGPFh0PVfLTEfGDK3tjF5LIS0hSWBTiEWnh6QbDfdZ1BjLYSoVjXYvNLLHkgb9M9Qcgn7K-SqRhiTfnd5rJ6HkUFewGdO61rtUSkm5rtu');"></div>
+<div class="flex flex-col min-w-0">
+<span class="text-sm font-bold text-navy-900 dark:text-white truncate">Dr. Sarah Smith</span>
+<span class="text-xs text-slate-500 truncate">View Profile</span>
+</div>
+<span class="material-symbols-outlined text-slate-400 ml-auto text-lg">expand_more</span>
+</a>
+</div>
+</aside>
+<main class="flex-1 flex flex-col h-full bg-slate-50 dark:bg-background-dark overflow-hidden relative pt-16 md:pt-0">
+<div class="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
+<div class="max-w-7xl mx-auto space-y-8">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h2 class="text-2xl md:text-3xl font-bold tracking-tight text-navy-900 dark:text-white font-display">Reviewer Dashboard</h2>
+<p class="text-slate-500 dark:text-slate-400 mt-1">Manage your paper reviews and track upcoming deadlines.</p>
+</div>
+<div class="relative w-full md:w-80">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[20px]">search</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-navy-500/20 focus:border-navy-500 transition-all shadow-sm" placeholder="Search papers, IDs, or tracks..." type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="bg-white dark:bg-navy-900 p-5 rounded-xl border border-slate-200 dark:border-navy-800 shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-navy-50 dark:bg-navy-800 text-navy-600 dark:text-navy-300 rounded-lg group-hover:bg-navy-100 dark:group-hover:bg-navy-700 transition-colors">
+<span class="material-symbols-outlined">assignment</span>
+</div>
+<span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pending</span>
+</div>
+<div>
+<span class="text-3xl font-bold text-navy-900 dark:text-white block">12</span>
+<span class="text-sm text-slate-500">Papers to review</span>
+</div>
+</div>
+<div class="bg-white dark:bg-navy-900 p-5 rounded-xl border border-slate-200 dark:border-navy-800 shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-lg group-hover:bg-red-100 dark:group-hover:bg-red-900/40 transition-colors">
+<span class="material-symbols-outlined">timer</span>
+</div>
+<span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Urgent</span>
+</div>
+<div>
+<span class="text-3xl font-bold text-navy-900 dark:text-white block">3</span>
+<span class="text-sm text-slate-500">Due &lt; 48 hours</span>
+</div>
+</div>
+<div class="bg-white dark:bg-navy-900 p-5 rounded-xl border border-slate-200 dark:border-navy-800 shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-lg group-hover:bg-amber-100 dark:group-hover:bg-amber-900/40 transition-colors">
+<span class="material-symbols-outlined">mail</span>
+</div>
+<span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Invites</span>
+</div>
+<div>
+<span class="text-3xl font-bold text-navy-900 dark:text-white block">2</span>
+<span class="text-sm text-slate-500">Waiting response</span>
+</div>
+</div>
+<div class="bg-white dark:bg-navy-900 p-5 rounded-xl border border-slate-200 dark:border-navy-800 shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-lg group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/40 transition-colors">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Completed</span>
+</div>
+<div>
+<span class="text-3xl font-bold text-navy-900 dark:text-white block">45</span>
+<span class="text-sm text-slate-500">Reviews submitted</span>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-2 text-red-600 dark:text-red-400">
+<span class="material-symbols-outlined text-[20px] material-symbols-filled">priority_high</span>
+<h3 class="text-sm font-bold uppercase tracking-wide">Urgent Attention Needed</h3>
+</div>
+<div class="bg-white dark:bg-navy-900 rounded-xl border border-red-100 dark:border-red-900/30 shadow-sm overflow-hidden hover:border-red-200 dark:hover:border-red-900/50 transition-colors">
+<div class="p-5 flex flex-col md:flex-row gap-5 items-start md:items-center">
+<div class="flex-1">
+<div class="flex flex-wrap items-center gap-2 mb-2">
+<span class="px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold border border-slate-200 dark:border-slate-700 tracking-wide">CVPR 2024</span>
+<span class="px-2.5 py-1 rounded bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-[11px] font-bold border border-red-100 dark:border-red-900/30 tracking-wide flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">timer</span>
+                                        Due Tomorrow
+                                    </span>
+</div>
+<h4 class="text-lg font-bold text-navy-900 dark:text-white leading-snug mb-1 hover:text-navy-600 dark:hover:text-navy-300 transition-colors cursor-pointer">
+                                    Generative Adversarial Networks for High-Fidelity Audio Synthesis in Low-Resource Environments
+                                </h4>
+<div class="flex items-center gap-4 text-xs text-slate-500 mt-2">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">tag</span> ID: #4492</span>
+<span class="w-1 h-1 rounded-full bg-slate-300"></span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">category</span> Computer Vision</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full md:w-auto gap-6 pl-0 md:pl-6 md:border-l border-slate-100 dark:border-navy-800">
+<div class="text-right shrink-0">
+<div class="text-[10px] uppercase text-slate-400 font-bold mb-1">Status</div>
+<div class="flex items-center gap-1.5 justify-end">
+<div class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+<span class="text-xs font-bold text-amber-600 dark:text-amber-500">In Progress</span>
+</div>
+</div>
+<button class="px-5 py-2.5 bg-navy-800 dark:bg-white text-white dark:text-navy-900 text-sm font-bold rounded-lg hover:shadow-lg hover:bg-navy-700 dark:hover:bg-slate-200 transition-all shrink-0">
+                                    Continue Review
+                                </button>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-navy-800 pb-2">
+<h3 class="text-lg font-bold text-navy-900 dark:text-white">Assigned Papers</h3>
+<div class="flex gap-3">
+<div class="relative">
+<select class="appearance-none pl-3 pr-8 py-2 bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 rounded-lg text-sm text-slate-600 dark:text-slate-300 focus:ring-navy-500 focus:border-navy-500 cursor-pointer shadow-sm">
+<option>Sort by: Deadline (Soonest)</option>
+<option>Sort by: ID</option>
+<option>Sort by: Status</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-lg">arrow_drop_down</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-4">
+<div class="group bg-white dark:bg-navy-900 p-5 rounded-xl border border-slate-200 dark:border-navy-800 shadow-sm hover:shadow-md hover:border-navy-200 dark:hover:border-navy-700 transition-all duration-300">
+<div class="flex flex-col md:flex-row gap-5">
+<div class="flex-1 space-y-2">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-navy-50 dark:bg-navy-800 text-navy-700 dark:text-navy-200 border border-navy-100 dark:border-navy-700">ICLR 2024</span>
+<span class="text-xs text-slate-400">•</span>
+<span class="text-xs text-slate-500">Assigned 3 days ago</span>
+</div>
+<h4 class="text-lg font-bold text-navy-900 dark:text-white group-hover:text-navy-600 dark:group-hover:text-navy-300 transition-colors cursor-pointer">
+                                        Efficient Transformer Architectures for Mobile Devices: A Comprehensive Benchmark Study
+                                    </h4>
+<p class="text-sm text-slate-500 line-clamp-2 leading-relaxed">
+                                        This paper proposes a novel lightweight attention mechanism that reduces computational complexity from O(n^2) to O(n log n) without significant accuracy loss on standard benchmarks including ImageNet and COCO...
+                                    </p>
+<div class="flex flex-wrap gap-2 pt-2">
+<span class="px-2.5 py-0.5 bg-slate-50 dark:bg-slate-800 rounded-full text-[11px] font-medium text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">Deep Learning</span>
+<span class="px-2.5 py-0.5 bg-slate-50 dark:bg-slate-800 rounded-full text-[11px] font-medium text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">Mobile AI</span>
+</div>
+</div>
+<div class="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-4 min-w-[140px] border-t md:border-t-0 md:border-l border-slate-100 dark:border-navy-800 pt-4 md:pt-0 md:pl-6">
+<div class="text-right shrink-0">
+<div class="text-[10px] uppercase text-slate-400 font-bold mb-0.5">Deadline</div>
+<div class="text-sm font-bold text-slate-700 dark:text-slate-200">Oct 24, 2024</div>
+</div>
+<div class="text-right shrink-0">
+<div class="text-[10px] uppercase text-slate-400 font-bold mb-0.5">Status</div>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">Not Started</span>
+</div>
+<button class="mt-auto w-full md:w-auto px-4 py-2 bg-white border border-slate-200 dark:border-navy-700 text-navy-800 dark:text-white hover:bg-slate-50 dark:hover:bg-navy-800 text-sm font-bold rounded-lg transition-colors shadow-sm">
+                                        Review
+                                    </button>
+</div>
+</div>
+</div>
+<div class="group bg-white dark:bg-navy-900 p-5 rounded-xl border border-slate-200 dark:border-navy-800 shadow-sm hover:shadow-md hover:border-navy-200 dark:hover:border-navy-700 transition-all duration-300">
+<div class="flex flex-col md:flex-row gap-5">
+<div class="flex-1 space-y-2">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-navy-50 dark:bg-navy-800 text-navy-700 dark:text-navy-200 border border-navy-100 dark:border-navy-700">CVPR 2024</span>
+<span class="text-xs text-slate-400">•</span>
+<span class="text-xs text-slate-500">Assigned 1 week ago</span>
+</div>
+<h4 class="text-lg font-bold text-navy-900 dark:text-white group-hover:text-navy-600 dark:group-hover:text-navy-300 transition-colors cursor-pointer">
+                                        Unsupervised Domain Adaptation via Feature Alignment and Pseudo-Labeling
+                                    </h4>
+<p class="text-sm text-slate-500 line-clamp-2 leading-relaxed">
+                                        We address the problem of unsupervised domain adaptation in semantic segmentation. Our approach leverages a dual-branch network structure to align features both globally and locally...
+                                    </p>
+<div class="flex flex-wrap gap-2 pt-2">
+<span class="px-2.5 py-0.5 bg-slate-50 dark:bg-slate-800 rounded-full text-[11px] font-medium text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">Computer Vision</span>
+<span class="px-2.5 py-0.5 bg-slate-50 dark:bg-slate-800 rounded-full text-[11px] font-medium text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">Unsupervised Learning</span>
+</div>
+</div>
+<div class="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-4 min-w-[140px] border-t md:border-t-0 md:border-l border-slate-100 dark:border-navy-800 pt-4 md:pt-0 md:pl-6">
+<div class="text-right shrink-0">
+<div class="text-[10px] uppercase text-slate-400 font-bold mb-0.5">Deadline</div>
+<div class="text-sm font-bold text-slate-700 dark:text-slate-200">Oct 28, 2024</div>
+</div>
+<div class="text-right shrink-0">
+<div class="text-[10px] uppercase text-slate-400 font-bold mb-0.5">Status</div>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100">Submitted</span>
+</div>
+<button class="mt-auto w-full md:w-auto px-4 py-2 border border-slate-200 dark:border-navy-700 text-slate-500 hover:text-navy-800 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-navy-800 text-sm font-bold rounded-lg transition-colors">
+                                        View Details
+                                    </button>
+</div>
+</div>
+</div>
+<div class="group bg-white dark:bg-navy-900 p-5 rounded-xl border border-slate-200 dark:border-navy-800 shadow-sm hover:shadow-md hover:border-navy-200 dark:hover:border-navy-700 transition-all duration-300">
+<div class="flex flex-col md:flex-row gap-5">
+<div class="flex-1 space-y-2">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-navy-50 dark:bg-navy-800 text-navy-700 dark:text-navy-200 border border-navy-100 dark:border-navy-700">NeurIPS 2024</span>
+<span class="text-xs text-slate-400">•</span>
+<span class="text-xs text-slate-500">Assigned 2 weeks ago</span>
+</div>
+<h4 class="text-lg font-bold text-navy-900 dark:text-white group-hover:text-navy-600 dark:group-hover:text-navy-300 transition-colors cursor-pointer">
+                                        Reinforcement Learning with Human Feedback for Robotic Manipulation
+                                    </h4>
+<p class="text-sm text-slate-500 line-clamp-2 leading-relaxed">
+                                        Robotic manipulation in unstructured environments remains a challenge. We introduce a human-in-the-loop reinforcement learning framework that significantly accelerates policy convergence...
+                                    </p>
+<div class="flex flex-wrap gap-2 pt-2">
+<span class="px-2.5 py-0.5 bg-slate-50 dark:bg-slate-800 rounded-full text-[11px] font-medium text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">Robotics</span>
+<span class="px-2.5 py-0.5 bg-slate-50 dark:bg-slate-800 rounded-full text-[11px] font-medium text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">RLHF</span>
+</div>
+</div>
+<div class="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-4 min-w-[140px] border-t md:border-t-0 md:border-l border-slate-100 dark:border-navy-800 pt-4 md:pt-0 md:pl-6">
+<div class="text-right shrink-0">
+<div class="text-[10px] uppercase text-slate-400 font-bold mb-0.5">Deadline</div>
+<div class="text-sm font-bold text-slate-700 dark:text-slate-200">Nov 05, 2024</div>
+</div>
+<div class="text-right shrink-0">
+<div class="text-[10px] uppercase text-slate-400 font-bold mb-0.5">Status</div>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">Not Started</span>
+</div>
+<button class="mt-auto w-full md:w-auto px-4 py-2 bg-white border border-slate-200 dark:border-navy-700 text-navy-800 dark:text-white hover:bg-slate-50 dark:hover:bg-navy-800 text-sm font-bold rounded-lg transition-colors shadow-sm">
+                                        Review
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="py-8 flex justify-center items-center">
+<div class="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-b-navy-600"></div>
+</div>
+</div>
+</div>
+</main>
+
+</body></html>
