@@ -6,6 +6,7 @@ import { AuthProvider } from "@/lib/auth-context"
 import { TranslationProvider } from "@/lib/i18n/translation-context"
 import { ChatbotProvider, Chatbot } from "@/components/chatbot"
 import { Toaster } from "@/components/ui/toaster"
+import Head from "next/head"
 
 const inter = Inter({
   variable: "--font-sans",
@@ -35,6 +36,12 @@ export default function RootLayout({
       className={`${inter.variable} ${merriweather.variable} h-full`}
       suppressHydrationWarning
     >
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        />
+      </head>
       <body className="antialiased overflow-hidden h-screen" suppressHydrationWarning>
         <TranslationProvider>
           <AuthProvider>

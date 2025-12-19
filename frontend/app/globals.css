@@ -6,40 +6,38 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Neo4j-inspired Theme */
-  --background: oklch(1 0 0);
-  /* Pure White */
-  --foreground: oklch(0.21 0.03 260);
-  /* Deep Blue-Black text */
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.21 0.03 260);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.21 0.03 260);
+  /* Final Professional Core Palette (Scholar-Compact) */
+  --background: #f8fafc;
+  --foreground: #141414;
 
-  /* Primary: #0b4c6c (User requested) */
-  --primary: #0b4c6c;
-  --primary-foreground: oklch(0.98 0 0);
+  --card: #ffffff;
+  --card-foreground: #141414;
 
-  /* Secondary: Deep Navy #0B2942 approx */
-  --secondary: oklch(0.28 0.05 245);
-  --secondary-foreground: oklch(0.98 0 0);
+  --popover: #ffffff;
+  --popover-foreground: #141414;
 
-  /* Muted: Soft cool gray */
-  --muted: oklch(0.96 0.01 260);
-  --muted-foreground: oklch(0.55 0.04 260);
+  --primary: #1b3c53;
+  --primary-foreground: #ffffff;
 
-  --accent: oklch(0.94 0.02 260);
-  --accent-foreground: oklch(0.35 0.1 260);
+  --secondary: #234c6a;
+  --secondary-foreground: #ffffff;
 
-  --success: oklch(0.65 0.18 150);
-  --success-foreground: oklch(0.98 0 0);
+  --muted: #e3e3e3;
+  --muted-foreground: #64748b;
 
-  --destructive: oklch(0.58 0.2 25);
-  --destructive-foreground: oklch(0.98 0 0);
+  --accent: #456882;
+  --accent-foreground: #ffffff;
 
-  --border: oklch(0.88 0.01 260);
-  --input: oklch(0.88 0.01 260);
-  --ring: var(--primary);
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border: #dbdbdb;
+  --input: #dbdbdb;
+  --ring: #1b3c53;
+  --radius: 0.5rem;
 
   /* Chart colors */
   --chart-1: var(--primary);
