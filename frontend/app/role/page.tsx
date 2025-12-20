@@ -101,7 +101,7 @@ export default function RoleSelectionPage() {
       <DashboardSidebar
         menuItems={[
           { label: "Dashboard", href: "/role", icon: "dashboard" },
-          { label: "Notifications", href: "#", icon: "notifications", badge: 1 },
+          { label: "Notifications", href: "/notifications", icon: "notifications", badge: 3 },
         ]}
       />
 
