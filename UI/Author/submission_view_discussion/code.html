@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ConferenceSpace - Submission Details</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0f172a", // Navy-ish black
+                        "secondary": "#1e293b", // Slate 800
+                        "navy": "#1e3a8a", // Blue 900
+                        "background-light": "#f8fafc",
+                        "background-dark": "#0f172a",
+                        "accent": "#3b82f6",
+                        "sidebar-bg": "#ffffff",
+                        "sidebar-hover": "#f1f5f9",
+                        "sidebar-active": "#f1f5f9",
+                    },
+                    fontFamily: {
+                        "sans": ["Inter", "sans-serif"],
+                        "display": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+    .sidebar-item {
+        @apply flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer;
+    }
+    .sidebar-item.active {
+        @apply bg-slate-100 text-slate-900 font-medium;
+    }
+    .recent-conf-item {
+        @apply block px-4 py-3 rounded-lg text-slate-900 hover:bg-slate-50 transition-colors cursor-pointer;
+    }
+    .recent-conf-item.active {
+        @apply bg-slate-100 border-l-4 border-slate-900 rounded-l-none pl-3;
+    }
+    .tab-link {
+        @apply border-transparent text-neutral-500 hover:text-navy hover:border-neutral-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors;
+    }
+    .tab-link.active {
+        @apply border-navy text-navy font-bold;
+    }
+</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-primary font-sans antialiased h-screen overflow-hidden flex flex-row">
+<aside class="w-[280px] bg-white border-r border-slate-100 flex flex-col h-full shrink-0 z-20 font-sans">
+<div class="p-6 pt-8 pb-8 flex items-center gap-3">
+<div class="bg-slate-900 rounded-xl size-10 flex items-center justify-center text-white shadow-lg shadow-slate-200">
+<span class="material-symbols-outlined text-[24px]">school</span>
+</div>
+<h1 class="text-slate-900 text-lg font-bold tracking-tight">ConferenceSpace</h1>
+</div>
+<nav class="flex-1 flex flex-col px-4 overflow-y-auto">
+<div class="mb-2 px-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Menu</div>
+<div class="space-y-1 mb-8">
+<a class="sidebar-item" href="#">
+<span class="material-symbols-outlined text-[22px]">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="sidebar-item active" href="#">
+<span class="material-symbols-outlined text-[22px]">article</span>
+<span class="text-sm font-bold">My Submissions</span>
+</a>
+<a class="sidebar-item" href="#">
+<span class="material-symbols-outlined text-[22px] relative">
+                    notifications
+                    <span class="absolute top-0 right-0 size-2 bg-red-500 rounded-full border border-white"></span>
+</span>
+<span class="text-sm font-medium">Notifications</span>
+</a>
+</div>
+<div class="mb-2 px-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Recent Conferences</div>
+<div class="space-y-2">
+<div class="recent-conf-item">
+<div class="text-sm font-bold text-slate-900">CVPR 2024</div>
+<div class="text-[11px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">Reviewer</div>
+</div>
+<div class="recent-conf-item">
+<div class="text-sm font-bold text-slate-900">ICLR 2024</div>
+<div class="text-[11px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">Area Chair</div>
+</div>
+<div class="recent-conf-item">
+<div class="text-sm font-bold text-slate-900">NeurIPS 2023</div>
+<div class="text-[11px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">Author</div>
+</div>
+<div class="recent-conf-item">
+<div class="text-sm font-bold text-slate-900">AAAI 2024</div>
+<div class="text-[11px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">Chair</div>
+</div>
+</div>
+</nav>
+<div class="p-6 border-t border-slate-100 mt-auto">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-200 bg-cover bg-center ring-2 ring-white shadow-sm" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB1gs18WnWIHCyzjqyKNtAQpXHG8hNEDwDMuvak8In9Pk4jSmb1utB77kSIiDllfcvquUh7-MhR2J8KSBZnUjF4oUal07oGxVwCbP98ufgKHOYsugEUUNZC8a6jM_j5LCX2ZwQPIAIesL_wQxwB94AAlNDRsDfL15W9tLZiuxw-D3WP5_2IOxo_tg2IHNqr8QO40OFB-f7jJ7H1Hq0Mfgtf9R8cDtkma0PcqrH6hzKHacVlw4TJHLO15EFOV-Bvxw9240_EQSmF');"></div>
+<div class="flex flex-col overflow-hidden">
+<p class="text-sm font-bold text-slate-900 truncate">Dr. Alex Chen</p>
+<p class="text-xs text-slate-400 truncate">Author Account</p>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 h-full overflow-y-auto bg-background-light relative">
+<div class="max-w-7xl mx-auto p-6 md:p-8 flex flex-col gap-6">
+<div class="flex items-center gap-2 text-sm text-neutral-500 font-medium">
+<a class="hover:text-navy hover:underline" href="#">My Submissions</a>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-primary font-semibold">Submission #4291</span>
+</div>
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div class="flex-1">
+<div class="flex items-center gap-3 mb-3">
+<span class="bg-blue-50 text-blue-700 text-xs font-bold px-2.5 py-1 rounded border border-blue-100">Under Review</span>
+<span class="text-sm font-mono text-neutral-400">#4291</span>
+</div>
+<h1 class="text-2xl md:text-3xl font-extrabold text-primary tracking-tight leading-tight">Scalable Transformer Architectures for Sparse Data</h1>
+<p class="text-neutral-500 mt-2 text-sm">Submitted to <span class="font-bold text-navy">ICML 2024</span> • Track: <span class="font-semibold text-neutral-700">Deep Learning</span></p>
+</div>
+<div class="flex gap-3 shrink-0">
+<button class="bg-white border border-neutral-300 text-neutral-700 hover:bg-neutral-50 hover:text-primary font-semibold py-2.5 px-4 rounded-lg transition-colors shadow-sm flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-[18px]">edit_document</span>
+<span>Edit Submission</span>
+</button>
+<button class="bg-navy hover:bg-blue-900 text-white font-bold py-2.5 px-4 rounded-lg transition-colors shadow-sm flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-[18px]">upload</span>
+<span>Upload Revision</span>
+</button>
+</div>
+</div>
+<div class="border-b border-neutral-200 mt-4">
+<nav aria-label="Tabs" class="-mb-px flex space-x-8">
+<a class="tab-link" href="#">Overview</a>
+<a aria-current="page" class="tab-link active" href="#">Discussion</a>
+<a class="tab-link" href="#">Rebuttal</a>
+</nav>
+</div>
+<div class="w-full pt-2">
+<div class="flex flex-col gap-6">
+<div class="bg-white rounded-xl shadow-sm border border-neutral-200 p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+<div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
+<span class="text-sm font-medium text-neutral-500 mr-2 whitespace-nowrap">Filter by:</span>
+<button class="px-3 py-1.5 rounded-full bg-navy text-white text-xs font-bold shadow-sm ring-1 ring-navy">All Messages</button>
+<button class="px-3 py-1.5 rounded-full bg-white text-neutral-600 text-xs font-bold border border-neutral-200 hover:bg-neutral-50 transition-colors">Reviewers</button>
+<button class="px-3 py-1.5 rounded-full bg-white text-neutral-600 text-xs font-bold border border-neutral-200 hover:bg-neutral-50 transition-colors">Chairs</button>
+</div>
+<button class="w-full sm:w-auto bg-navy hover:bg-blue-900 text-white text-sm font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add_comment</span>
+<span>Start New Topic</span>
+</button>
+</div>
+<div class="space-y-6">
+<div class="bg-white rounded-xl shadow-sm border border-neutral-200 overflow-hidden">
+<div class="p-4 border-b border-neutral-100 flex justify-between items-center bg-neutral-50/50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-neutral-400 text-[20px]">forum</span>
+<h3 class="font-bold text-primary text-sm">Clarification on Figure 3 Baseline</h3>
+</div>
+<span class="text-xs font-medium text-neutral-400">Thread ID: #9921</span>
+</div>
+<div class="p-6 space-y-6">
+<div class="flex gap-4">
+<div class="shrink-0 size-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-700 font-bold text-sm border border-orange-200">
+                                            R2
+                                        </div>
+<div class="flex-1">
+<div class="flex items-baseline justify-between mb-1">
+<h4 class="font-bold text-sm text-primary">Reviewer #2</h4>
+<span class="text-xs text-neutral-400">May 12, 10:30 AM</span>
+</div>
+<div class="bg-neutral-50 p-4 rounded-lg rounded-tl-none border border-neutral-100 text-sm text-neutral-700 leading-relaxed">
+                                            I noticed that the baseline comparison in Figure 3 seems to use the 2021 version of the algorithm. Could you clarify why the 2023 update wasn't included? It might significantly change the relative performance metrics.
+                                        </div>
+<div class="mt-2 flex items-center gap-4">
+<button class="text-xs font-medium text-neutral-500 hover:text-navy flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[14px]">reply</span> Reply
+                                            </button>
+</div>
+</div>
+</div>
+<div class="flex gap-4 pl-8 relative">
+<div class="absolute left-4 top-0 bottom-full w-px bg-neutral-200 -z-10 h-full"></div>
+<div class="absolute left-4 top-5 w-4 h-px bg-neutral-200"></div>
+<div class="shrink-0 size-10 rounded-full bg-slate-200 bg-cover bg-center ring-2 ring-white shadow-sm" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB1gs18WnWIHCyzjqyKNtAQpXHG8hNEDwDMuvak8In9Pk4jSmb1utB77kSIiDllfcvquUh7-MhR2J8KSBZnUjF4oUal07oGxVwCbP98ufgKHOYsugEUUNZC8a6jM_j5LCX2ZwQPIAIesL_wQxwB94AAlNDRsDfL15W9tLZiuxw-D3WP5_2IOxo_tg2IHNqr8QO40OFB-f7jJ7H1Hq0Mfgtf9R8cDtkma0PcqrH6hzKHacVlw4TJHLO15EFOV-Bvxw9240_EQSmF');"></div>
+<div class="flex-1">
+<div class="flex items-baseline justify-between mb-1">
+<div class="flex items-center gap-2">
+<h4 class="font-bold text-sm text-primary">Dr. Alex Chen</h4>
+<span class="bg-navy text-white text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide">Author</span>
+</div>
+<span class="text-xs text-neutral-400">May 12, 02:15 PM</span>
+</div>
+<div class="bg-blue-50/50 p-4 rounded-lg rounded-tl-none border border-blue-100 text-sm text-neutral-800 leading-relaxed">
+                                            Thank you for pointing this out. We actually ran the experiments with the 2023 version as well, but the results were statistically similar to the 2021 version due to the nature of our sparse dataset. We will include these additional results in the appendix of the revised paper.
+                                        </div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-sm border border-neutral-200 overflow-hidden">
+<div class="p-4 border-b border-neutral-100 flex justify-between items-center bg-neutral-50/50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-neutral-400 text-[20px]">forum</span>
+<h3 class="font-bold text-primary text-sm">Rebuttal Period Deadline</h3>
+</div>
+<span class="text-xs font-medium text-neutral-400">Thread ID: #9925</span>
+</div>
+<div class="p-6">
+<div class="flex gap-4">
+<div class="shrink-0 size-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-sm border border-purple-200">
+                                            AC
+                                        </div>
+<div class="flex-1">
+<div class="flex items-baseline justify-between mb-1">
+<h4 class="font-bold text-sm text-primary">Area Chair</h4>
+<span class="text-xs text-neutral-400">Yesterday, 09:00 AM</span>
+</div>
+<div class="bg-neutral-50 p-4 rounded-lg rounded-tl-none border border-neutral-100 text-sm text-neutral-700 leading-relaxed">
+                                            Just a reminder that the rebuttal period closes in 3 days. Please ensure all your responses to reviewers are finalized by then.
+                                        </div>
+<div class="mt-2 flex items-center gap-4">
+<button class="text-xs font-medium text-neutral-500 hover:text-navy flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[14px]">reply</span> Reply
+                                            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 relative">
+<h3 class="text-sm font-bold text-primary mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-navy">edit_note</span>
+                        Draft New Message
+                    </h3>
+<div class="relative">
+<div class="absolute top-0 left-0 right-0 h-10 bg-neutral-50 border-b border-neutral-200 rounded-t-lg flex items-center px-2 gap-1 text-neutral-500">
+<button class="p-1.5 hover:bg-neutral-200 rounded transition-colors" title="Bold"><span class="material-symbols-outlined text-[18px]">format_bold</span></button>
+<button class="p-1.5 hover:bg-neutral-200 rounded transition-colors" title="Italic"><span class="material-symbols-outlined text-[18px]">format_italic</span></button>
+<div class="w-px h-4 bg-neutral-300 mx-1"></div>
+<button class="p-1.5 hover:bg-neutral-200 rounded transition-colors" title="List"><span class="material-symbols-outlined text-[18px]">format_list_bulleted</span></button>
+<button class="p-1.5 hover:bg-neutral-200 rounded transition-colors" title="Link"><span class="material-symbols-outlined text-[18px]">link</span></button>
+</div>
+<textarea class="w-full rounded-lg border-neutral-300 shadow-sm focus:border-navy focus:ring-navy text-sm pt-12 p-4 h-32 resize-none font-sans" placeholder="Type your message here... select a recipient or thread above to reply."></textarea>
+</div>
+<div class="flex justify-between items-center mt-4">
+<div class="flex items-center gap-2 text-xs text-neutral-500">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span>Visible to Reviewers &amp; Chairs</span>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 text-sm font-semibold text-neutral-600 hover:text-primary transition-colors">Discard</button>
+<button class="px-5 py-2 text-sm font-bold bg-navy text-white rounded-lg hover:bg-blue-900 shadow-sm transition-colors flex items-center gap-2">
+<span>Send Message</span>
+<span class="material-symbols-outlined text-[16px]">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

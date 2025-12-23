@@ -78,12 +78,5 @@ export default function SubmitPaperPage() {
     )
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <DashboardHeader role="author" />
-      <main className="container mx-auto px-4 py-8">
-        <PaperSubmissionForm conference={conference} submission={submission} />
-      </main>
-    </div>
-  )
+  return <PaperSubmissionForm conference={conference} submission={submission} />
 }
