@@ -11,7 +11,8 @@ These colors constitute the primary visual identity for the internal dashboards 
 - **Deep Navy (Primary)**: `#1B3C53`
 - **Slate Navy (Secondary)**: `#234C6A`
 - **Muted Steel (Accent)**: `#456882`
-- **Cloud Gray (Surfaces)**: `#E3E3E3`
+- **Cloud Gray (Surfaces/Accents)**: `#E3E3E3`
+- **Pure White (Main Background)**: `#FFFFFF` (Avoid #F8FAFC/Slate-50 as it can appear "bland" or "greyish" in large areas)
 - **Onyx Black (Typography)**: `#141414`
 
 ### Transitional Role Colors (Selection only)
@@ -58,9 +59,11 @@ To ensure consistency across role dashboards, refer to these standardized stylin
 | **Strong Label**  | `text-xs font-black uppercase tracking-wider`                   | Primary buttons, active markers       |
 | **Main Body**     | `text-sm font-medium text-slate-600 leading-relaxed`            | Descriptions, list items              |
 | **Meta/Small**    | `text-[10px] font-medium text-slate-500`                        | Secondary descriptions, timestamps    |
+| **Filter Input**  | `h-10 text-sm py-2 px-3.5`                                      | Search bars, dropdown filters         |
 
 ### Common UI Patterns
 
+- **Main Screen Background**: Always use **Pure White (`#FFFFFF`)** for the main dashboard shell and background. Avoid using even light grays like `slate-50` as they degrade the premium feel.
 - **Standard Padding**:
   - `px-10 md:px-16 py-8 md:py-12` for main dashboard containers.
   - `p-6` for internal card padding.
@@ -72,10 +75,12 @@ To ensure consistency across role dashboards, refer to these standardized stylin
 
 ## 4. Implementation Log
 
-| Item                 | Status  | Notes                                                                  |
-| :------------------- | :------ | :--------------------------------------------------------------------- |
-| **Route Migration**  | ✅ Done | `/dashboard` now redirects to `/role`.                                 |
-| **Responsive Shell** | ✅ Done | Sidebar-to-Header transition for mobile.                               |
-| **Role Selection**   | ✅ Done | Implemented Scholar-Compact system at 75% scale.                       |
-| **Account Menu**     | ✅ Done | Professional dropdown with language and logout (minimalist/scholar).   |
-| **Author Dashboard** | 🚧 Next | Preparing the workspace for the Author-specific view in the new shell. |
+| Item                     | Status  | Notes                                                                                |
+| :----------------------- | :------ | :----------------------------------------------------------------------------------- |
+| **Route Migration**      | ✅ Done | `/dashboard` now redirects to `/role`.                                               |
+| **Responsive Shell**     | ✅ Done | Sidebar-to-Header transition for mobile.                                             |
+| **Role Selection**       | ✅ Done | Implemented Scholar-Compact system at 75% scale.                                     |
+| **Account Menu**         | ✅ Done | Professional dropdown with language and logout (minimalist/scholar).                 |
+| **Author Dashboard**     | ✅ Done | Expanded layout, standardized padding, dual-tab system, and high-density list items. |
+| **Filter Bar Polish**    | ✅ Done | Reduced component sizes (h-10) and font (text-sm) for higher precision.              |
+| **Standardized Padding** | ✅ Done | Consistent `px-10 md:px-16` shell applied across all author dashboard routes.        |

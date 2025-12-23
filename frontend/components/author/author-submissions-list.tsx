@@ -1,11 +1,4 @@
-"use client"
-
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
-import { FilterBar, type ActiveFilter } from "@/components/ui/filter-bar"
-import { FileText, FileCheck } from "lucide-react"
+import { FileText, Plus, Search, Filter, ChevronRight, MoreVertical } from "lucide-react"
 import { getUserSubmissions } from "@/lib/api/submissions"
 import type { SubmissionWithConference } from "@/lib/api/submissions"
 import { formatDate } from "@/lib/utils"
@@ -14,7 +7,7 @@ import { useRouter } from "next/navigation"
 import { useState, useEffect, useMemo, useCallback } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { typography, spacing } from "@/lib/typography"
+import { cn } from "@/lib/utils"
 
 export function AuthorSubmissionsList() {
   const { user } = useAuth()
@@ -96,7 +89,9 @@ export function AuthorSubmissionsList() {
   // Filter submissions
   const filteredSubmissions = useMemo(() => {
     return submissions.filter((sub) => {
-      const matchesSearch = sub.title.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesSearch =
+        sub.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        sub.id.toString().includes(searchQuery)
       const matchesStatus = statusFilter === "all" || sub.status === statusFilter
       const matchesConference = conferenceFilter === "all" || sub.conference.id === conferenceFilter
 
@@ -104,283 +99,220 @@ export function AuthorSubmissionsList() {
     })
   }, [submissions, searchQuery, statusFilter, conferenceFilter])
 
-  const handleRemoveStatusFilter = () => {
-    setStatusFilter("all")
-  }
-
-  const handleRemoveConferenceFilter = () => {
-    setConferenceFilter("all")
-  }
-
-  const hasActiveFilters = statusFilter !== "all" || conferenceFilter !== "all"
-
-  const activeFilters: ActiveFilter[] = useMemo(() => {
-    const filters: ActiveFilter[] = []
-    if (statusFilter !== "all") {
-      filters.push({
-        id: "status",
-        label: t(`${statusFilter}`),
-        onRemove: handleRemoveStatusFilter,
-      })
+  const renderStatusBadge = (status: string) => {
+    switch (status) {
+      case "under_review":
+      case "reviewing":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800">
+            <span className="size-1 rounded-full bg-amber-500"></span>
+            Under Review
+          </span>
+        )
+      case "accepted":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800">
+            <span className="size-1 rounded-full bg-emerald-500"></span>
+            Accepted
+          </span>
+        )
+      case "rejected":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-900/20 dark:text-rose-300 dark:border-rose-800">
+            <span className="size-1 rounded-full bg-rose-500"></span>
+            Rejected
+          </span>
+        )
+      case "draft":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-50 text-neutral-600 border border-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:border-neutral-700">
+            <span className="size-1 rounded-full bg-neutral-400"></span>
+            Draft
+          </span>
+        )
+      default:
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-50 text-slate-600 border border-slate-200">
+            {status}
+          </span>
+        )
     }
-    if (conferenceFilter !== "all") {
-      const conference = uniqueConferences.find((c) => c.id === conferenceFilter)
-      if (conference) {
-        filters.push({
-          id: "conference",
-          label: `${conference.name} (${conference.acronym})`,
-          onRemove: handleRemoveConferenceFilter,
-        })
-      }
-    }
-    return filters
-  }, [statusFilter, conferenceFilter, uniqueConferences, t])
-
-  const filterPopover = (
-    <div className={spacing.subsection}>
-      <div>
-        <h4 className={`${typography.semibold} ${typography.body} mb-3`}>
-          {t("dashboard.submissions.filterStatus")}
-        </h4>
-        <div className={spacing.item}>
-          <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
-            <Checkbox
-              checked={statusFilter === "all"}
-              onCheckedChange={(checked) => setStatusFilter(checked ? "all" : statusFilter)}
-            />
-            <span className={typography.body}>{t("dashboard.submissions.allStatuses")}</span>
-          </label>
-          <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
-            <Checkbox
-              checked={statusFilter === "draft"}
-              onCheckedChange={(checked) => setStatusFilter(checked ? "draft" : "all")}
-            />
-            <span className={typography.body}>{t("dashboard.author.submissions.draft")}</span>
-          </label>
-          <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
-            <Checkbox
-              checked={statusFilter === "published"}
-              onCheckedChange={(checked) => setStatusFilter(checked ? "published" : "all")}
-            />
-            <span className={typography.body}>{t("dashboard.author.submissions.published")}</span>
-          </label>
-        </div>
-      </div>
-      <div>
-        <h4 className={`${typography.semibold} ${typography.body} mb-3`}>
-          {t("dashboard.submissions.filterConference")}
-        </h4>
-        <div className={spacing.item}>
-          <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
-            <Checkbox
-              checked={conferenceFilter === "all"}
-              onCheckedChange={(checked) => setConferenceFilter(checked ? "all" : conferenceFilter)}
-            />
-            <span className={typography.body}>{t("dashboard.submissions.allConferences")}</span>
-          </label>
-          {uniqueConferences.map((conf) => (
-            <label key={conf.id} className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
-              <Checkbox
-                checked={conferenceFilter === conf.id}
-                onCheckedChange={(checked) => setConferenceFilter(checked ? conf.id : "all")}
-              />
-              <span className={typography.body}>
-                {conf.name} ({conf.acronym})
-              </span>
-            </label>
-          ))}
-        </div>
-      </div>
-      <div className={`flex justify-end ${spacing.gap.sm} pt-2 border-t`}>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            setStatusFilter("all")
-            setConferenceFilter("all")
-          }}
-        >
-          {t("dashboard.author.submissions.clearFilters")}
-        </Button>
-      </div>
-    </div>
-  )
-
-  const renderStatusBadge = useCallback(
-    (status: string) => {
-      const statusConfig = {
-        draft: {
-          label: t("dashboard.author.submissions.draft"),
-          className: "bg-yellow-100 text-yellow-800",
-        },
-        published: {
-          label: t("dashboard.author.submissions.published"),
-          className: "bg-primary/10 text-primary",
-        },
-      }
-
-      const config = statusConfig[status as keyof typeof statusConfig] || {
-        label: status,
-        className: "bg-gray-100 text-gray-800",
-      }
-
-      return <Badge className={config.className}>{config.label}</Badge>
-    },
-    [t],
-  )
-
-  const columns = useMemo<DataTableColumn<SubmissionWithConference>[]>(
-    () => [
-      {
-        key: "title",
-        label: t("dashboard.author.submissions.title"),
-        width: "w-[400px]",
-        className: "min-w-0",
-        render: (submission) => (
-          <div className="min-w-0 w-[40vw] max-w-[40vw]">
-            <Link
-              href={`/dashboard/conference/${submission.conference_id}/submission/${submission.id}`}
-              className="text-primary hover:underline block font-medium truncate"
-            >
-              {submission.title}
-            </Link>
-            <div className={`${typography.body} text-muted-foreground mt-1 line-clamp-2`}>
-              {submission.abstract || t("dashboard.submissions.noAbstract")}
-            </div>
-          </div>
-        ),
-      },
-      {
-        key: "conference",
-        label: t("dashboard.author.submissions.conference"),
-        width: "w-48",
-        className: "min-w-0",
-        render: (submission) => (
-          <div className="min-w-0">
-            <div className="font-medium truncate">{submission.conference.name}</div>
-            <div className={`${typography.bodySmall} text-muted-foreground truncate`}>
-              {submission.conference.acronym}
-            </div>
-          </div>
-        ),
-        mobileLabel: t("dashboard.author.submissions.conference"),
-      },
-      {
-        key: "created_at",
-        label: t("dashboard.author.submissions.submissionDeadline"),
-        width: "w-32",
-        className: "whitespace-nowrap",
-        render: (submission) => (
-          <div className="whitespace-nowrap">{formatDate(submission.created_at)}</div>
-        ),
-        mobileLabel: t("dashboard.author.submissions.submissionDeadline"),
-      },
-      {
-        key: "status",
-        label: t("dashboard.author.submissions.status"),
-        width: "w-28",
-        className: "whitespace-nowrap",
-        render: (submission) => (
-          <div className="whitespace-nowrap">{renderStatusBadge(submission.status)}</div>
-        ),
-        mobileLabel: t("dashboard.author.submissions.status"),
-      },
-      {
-        key: "attachments",
-        label: t("dashboard.author.submissions.attachments"),
-        width: "w-24",
-        className: "whitespace-nowrap",
-        render: (submission) => (
-          <div className="flex items-center gap-2">
-            {submission.file && (
-              <div className="flex items-center gap-1 text-xs text-gray-600" title="Paper attached">
-                <FileText className="size-4 text-primary" />
-                <span className="sr-only">Paper</span>
-              </div>
-            )}
-            {submission.cover_letter && (
-              <div
-                className="flex items-center gap-1 text-xs text-gray-600"
-                title="Cover letter attached"
-              >
-                <FileCheck className="size-4 text-green-600" />
-                <span className="sr-only">Cover Letter</span>
-              </div>
-            )}
-            {!submission.file && !submission.cover_letter && (
-              <span className="text-xs text-gray-400">-</span>
-            )}
-          </div>
-        ),
-        mobileLabel: t("dashboard.author.submissions.attachments"),
-      },
-    ],
-    [t, renderStatusBadge],
-  )
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Filters */}
-      <div className="mb-4">
-        <FilterBar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          searchPlaceholder={t("dashboard.submissions.searchPlaceholder")}
-          activeFilters={activeFilters}
-          filterPopover={filterPopover}
-          hasActiveFilters={hasActiveFilters}
-        />
+    <div className="flex flex-col gap-6">
+      {/* Filters & Search - Scaled down to match Author Dashboard */}
+      <div className="flex flex-col md:flex-row gap-3">
+        {/* Search Input */}
+        <div className="relative flex-1 h-10">
+          <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 text-[20px]">
+            search
+          </span>
+          <input
+            type="text"
+            placeholder="Search by title or ID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full h-full pl-11 pr-4 bg-white dark:bg-neutral-800 border border-[#dbdbdb] dark:border-neutral-700 rounded-lg text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 dark:focus:border-white transition-all font-medium text-primary dark:text-white shadow-sm"
+          />
+        </div>
+
+        <div className="flex gap-3">
+          {/* Conference Select */}
+          <div className="relative min-w-[180px] h-10">
+            <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 text-[20px]">
+              filter_list
+            </span>
+            <select
+              value={conferenceFilter}
+              onChange={(e) => setConferenceFilter(e.target.value)}
+              className="w-full h-full pl-11 pr-10 bg-white dark:bg-neutral-800 border border-[#dbdbdb] dark:border-neutral-700 rounded-lg text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 text-primary dark:text-white cursor-pointer font-medium shadow-sm max-w-[150px]"
+            >
+              <option value="all">All Conferences</option>
+              {uniqueConferences.map((conf) => (
+                <option key={conf.id} value={conf.id}>
+                  {conf.name} ({conf.acronym})
+                </option>
+              ))}
+            </select>
+            <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none text-[18px]">
+              expand_more
+            </span>
+          </div>
+
+          {/* Status Select */}
+          <div className="relative min-w-[150px] h-10">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full h-full pl-4 pr-10 bg-white dark:bg-neutral-800 border border-[#dbdbdb] dark:border-neutral-700 rounded-lg text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 text-primary dark:text-white cursor-pointer font-medium shadow-sm"
+            >
+              <option value="all">All Statuses</option>
+              <option value="under_review">Under Review</option>
+              <option value="accepted">Accepted</option>
+              <option value="rejected">Rejected</option>
+              <option value="draft">Drafts</option>
+            </select>
+            <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none text-[18px]">
+              expand_more
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Submissions Table */}
-      <DataTable<SubmissionWithConference>
-        columns={columns}
-        data={filteredSubmissions}
-        loading={loading}
-        error={error}
-        emptyMessage={
-          <div className="flex flex-col items-center justify-center py-12">
-            <FileText className="mx-auto size-12 text-muted-foreground mb-4" />
-            <p className={typography.muted}>{t("dashboard.submissions.empty")}</p>
+      {/* Submissions Table Container */}
+      <div className="bg-white dark:bg-neutral-900 rounded-xl border border-[#dbdbdb] dark:border-neutral-800 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto no-scrollbar">
+          <table className="w-full min-w-[900px] text-left border-collapse">
+            <thead>
+              <tr className="bg-[#f9fafb] dark:bg-neutral-800/50 border-b border-[#dbdbdb] dark:border-neutral-800">
+                <th className="py-4 px-6 text-[10px] font-black text-neutral-400 uppercase tracking-widest w-24">
+                  ID
+                </th>
+                <th className="py-4 px-6 text-[10px] font-black text-neutral-400 uppercase tracking-widest">
+                  Paper Title
+                </th>
+                <th className="py-4 px-6 text-[10px] font-black text-neutral-400 uppercase tracking-widest">
+                  Conference
+                </th>
+                <th className="py-4 px-6 text-[10px] font-black text-neutral-400 uppercase tracking-widest w-40">
+                  Date
+                </th>
+                <th className="py-4 px-6 text-[10px] font-black text-neutral-400 uppercase tracking-widest w-36">
+                  Status
+                </th>
+                <th className="py-4 px-6 text-[10px] font-black text-neutral-400 uppercase tracking-widest w-20 text-right">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#dbdbdb] dark:divide-neutral-800">
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td colSpan={6} className="py-4 px-6">
+                      <div className="h-10 bg-[#f3f4f6] dark:bg-neutral-800 rounded"></div>
+                    </td>
+                  </tr>
+                ))
+              ) : filteredSubmissions.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-20 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <span className="material-symbols-outlined text-4xl text-neutral-300">
+                        description
+                      </span>
+                      <p className="text-sm font-bold text-neutral-400">No submissions found</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredSubmissions.map((sub) => (
+                  <tr
+                    key={sub.id}
+                    className="group hover:bg-[#f9fafb] dark:hover:bg-neutral-800/30 transition-colors cursor-pointer"
+                    onClick={() =>
+                      router.push(`/dashboard/conference/${sub.conference_id}/submission/${sub.id}`)
+                    }
+                  >
+                    <td className="py-4 px-6 text-xs font-bold text-neutral-400">#{sub.id}</td>
+                    <td className="py-4 px-6">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-[#141414] dark:text-white group-hover:text-[#1B3C53] transition-colors leading-snug mb-0.5">
+                          {sub.title}
+                        </span>
+                        <span className="text-[11px] text-neutral-400 font-medium">
+                          Authors: {sub.abstract?.slice(0, 50)}...
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-neutral-600 dark:text-neutral-300">
+                          {sub.conference.acronym} {sub.conference.year}
+                        </span>
+                        <span className="text-[11px] text-neutral-400 font-medium truncate max-w-[200px]">
+                          {sub.conference.name}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase">
+                      {formatDate(sub.created_at)}
+                    </td>
+                    <td className="py-4 px-6">{renderStatusBadge(sub.status)}</td>
+                    <td className="py-4 px-6 text-right">
+                      <button className="text-neutral-400 hover:text-[#141414] dark:hover:text-white transition-colors p-1 rounded-md hover:bg-[#dbdbdb] dark:hover:bg-neutral-700">
+                        <span className="material-symbols-outlined text-[20px]">more_vert</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Improved Pagination */}
+        <div className="bg-[#f9fafb] dark:bg-neutral-800/30 border-t border-[#dbdbdb] dark:border-neutral-800 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-neutral-500 font-medium">
+            Showing <span className="font-bold text-[#141414] dark:text-white">1</span> to{" "}
+            <span className="font-bold text-[#141414] dark:text-white">
+              {filteredSubmissions.length}
+            </span>{" "}
+            of{" "}
+            <span className="font-bold text-[#141414] dark:text-white">{submissions.length}</span>{" "}
+            results
+          </p>
+          <div className="flex items-center gap-2">
+            <button className="h-8 px-3 rounded-lg border border-[#dbdbdb] dark:border-neutral-700 bg-white dark:bg-neutral-800 text-xs font-bold text-neutral-400 cursor-not-allowed">
+              Previous
+            </button>
+            <button className="h-8 px-4 rounded-lg border border-[#dbdbdb] dark:border-neutral-700 bg-white dark:bg-neutral-800 text-xs font-bold text-[#141414] dark:text-white hover:bg-[#f9fafb] dark:hover:bg-neutral-700 transition-colors">
+              Next
+            </button>
           </div>
-        }
-        loadingMessage={t("dashboard.submissions.loading")}
-        errorMessage={error ? `${t("dashboard.submissions.error")}: ${error}` : undefined}
-        getRowKey={(submission) => `${submission.conference_id}-${submission.id}`}
-        onRowClick={(submission) => {
-          router.push(
-            `/dashboard/conference/${submission.conference_id}/submission/${submission.id}`,
-          )
-        }}
-        renderMobileCard={(submission) => (
-          <div className={spacing.padding.card}>
-            <Link
-              href={`/dashboard/conference/${submission.conference_id}/submission/${submission.id}`}
-              className={`text-primary hover:underline block ${typography.medium} mb-2`}
-            >
-              {submission.title}
-            </Link>
-            <div className={`${typography.body} text-muted-foreground mb-2 line-clamp-2`}>
-              {submission.abstract || t("dashboard.submissions.noAbstract")}
-            </div>
-            <div
-              className={`flex flex-col ${spacing.gap.sm} ${typography.body} text-muted-foreground`}
-            >
-              <div>
-                {t("dashboard.author.submissions.conference")}: {submission.conference.name} (
-                {submission.conference.acronym})
-              </div>
-              <div>
-                {t("dashboard.author.submissions.submissionDeadline")}:{" "}
-                {formatDate(submission.created_at)}
-              </div>
-              <div>
-                {t("dashboard.author.submissions.status")}: {renderStatusBadge(submission.status)}
-              </div>
-            </div>
-          </div>
-        )}
-      />
+        </div>
+      </div>
     </div>
   )
 }

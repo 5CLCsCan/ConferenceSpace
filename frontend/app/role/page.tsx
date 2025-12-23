@@ -20,10 +20,15 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export default function RoleSelectionPage() {
-  const { user, isAuthenticated, logout, switchRole } = useAuth()
+  const { user, isAuthenticated, logout, switchRole, resetRole } = useAuth()
   const { t } = useTranslation()
   const router = useRouter()
   const [authChecked, setAuthChecked] = useState(false)
+
+  // Clear role when entering the selection screen
+  useEffect(() => {
+    resetRole()
+  }, [resetRole])
 
   // Injected design patterns from code.html
   const customStyles = `

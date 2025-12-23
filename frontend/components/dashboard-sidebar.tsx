@@ -27,8 +27,10 @@ interface DashboardSidebarProps {
 }
 
 export function DashboardSidebar({ menuItems, className }: DashboardSidebarProps) {
-  const { user, logout } = useAuth()
+  const { user, logout, currentRole } = useAuth()
   const pathname = usePathname()
+
+  const isRolePage = pathname === "/role"
 
   const mockConferences = [
     { name: "CVPR 2024", role: "Reviewer", color: "text-[#2563eb]" },
@@ -47,19 +49,34 @@ export function DashboardSidebar({ menuItems, className }: DashboardSidebarProps
       {/* Branding */}
       <div className="px-6 py-8">
         <div className="flex items-center gap-2.5">
-          <div className="bg-slate-900 text-white p-1.5 rounded-lg flex items-center justify-center shadow-lg shadow-slate-900/20">
-            <span className="material-symbols-outlined text-xl">school</span>
+          <div className="bg-[#141414] text-white p-2 rounded-lg flex items-center justify-center shadow-lg shadow-slate-900/10">
+            <span className="material-symbols-outlined text-[20px]">school</span>
           </div>
-          <h1 className="text-base font-bold tracking-tight text-slate-900 dark:text-white">
-            ConferenceSpace
-          </h1>
+          <div className="flex flex-col">
+            <h1 className="text-[17px] font-bold tracking-tight text-[#141414] dark:text-white">
+              ConferenceSpace
+            </h1>
+            {!isRolePage && currentRole && (
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-[12px] font-black text-[var(--accent)] uppercase tracking-[0.5px] leading-none">
+                  {currentRole.charAt(0).toUpperCase() + currentRole.slice(1)}
+                </span>
+                <Link
+                  href="/role"
+                  className="text-[8px] font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 px-1.5 py-0.5 rounded transition-all uppercase tracking-wider leading-none"
+                >
+                  Change
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 px-5 space-y-8 overflow-y-auto">
         <div>
-          <h3 className="px-2 text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3">
+          <h3 className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">
             Menu
           </h3>
           <div className="space-y-0.5">
@@ -70,16 +87,16 @@ export function DashboardSidebar({ menuItems, className }: DashboardSidebarProps
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors group",
+                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group",
                     isActive
-                      ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white"
-                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white",
+                      ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-bold"
+                      : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-neutral-800",
                   )}
                 >
                   <div className="relative flex items-center">
                     <span
                       className={cn(
-                        "material-symbols-outlined text-lg",
+                        "material-symbols-outlined text-[20px]",
                         !isActive &&
                           "text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white",
                       )}
@@ -87,10 +104,10 @@ export function DashboardSidebar({ menuItems, className }: DashboardSidebarProps
                       {item.icon}
                     </span>
                     {item.badge !== undefined && item.badge > 0 && (
-                      <span className="absolute top-0 right-0 w-1 h-1 bg-red-500 rounded-full border border-white dark:border-neutral-900"></span>
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-neutral-900"></span>
                     )}
                   </div>
-                  <span className="font-medium text-xs">{item.label}</span>
+                  <span className="text-[14px]">{item.label}</span>
                 </Link>
               )
             })}
@@ -99,44 +116,34 @@ export function DashboardSidebar({ menuItems, className }: DashboardSidebarProps
 
         {/* Recent Conferences */}
         <div>
-          <h3 className="px-2 text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3">
+          <h3 className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">
             Recent Conferences
           </h3>
-          <div className="space-y-3">
+          <nav className="space-y-5 px-3">
             {mockConferences.map((conf, i) => (
               <div
                 key={i}
-                className={cn(
-                  "px-2 group cursor-pointer relative transition-all duration-200",
-                  conf.active
-                    ? "bg-slate-100 dark:bg-slate-800 rounded-xl -mx-2 py-3 px-4 border-l-2 border-slate-900 dark:border-white shadow-sm"
-                    : "hover:translate-x-1",
-                )}
+                className="block group cursor-pointer relative transition-all duration-200"
               >
-                <h4 className="text-xs font-bold text-slate-800 dark:text-white mb-0.5">
+                <h4 className="font-bold text-[14px] text-[#141414] dark:text-white group-hover:text-blue-600 transition-colors">
                   {conf.name}
                 </h4>
-                <div className="flex items-center gap-1.5">
-                  <span
-                    className={cn(
-                      "text-[9px] font-bold uppercase tracking-wider transition-colors",
-                      conf.active
-                        ? "text-slate-500 dark:text-slate-300"
-                        : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200",
-                    )}
-                  >
+                <div className="flex items-center gap-1.5 mt-1">
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
                     {conf.role}
                   </span>
-                  {conf.active && <span className="w-0.5 h-0.5 rounded-full bg-slate-400"></span>}
                   {conf.active && (
-                    <span className="text-[9px] font-medium text-slate-400 uppercase italic">
-                      Active
-                    </span>
+                    <>
+                      <span className="w-1 h-1 rounded-full bg-slate-200"></span>
+                      <span className="text-[10px] font-medium text-slate-400 uppercase italic">
+                        Active
+                      </span>
+                    </>
                   )}
                 </div>
               </div>
             ))}
-          </div>
+          </nav>
         </div>
       </nav>
 

@@ -138,6 +138,11 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
 
+  --color-navy-900: #1b3c53;
+  --color-navy-800: #234c6a;
+  --color-navy-700: #456882;
+  --color-cloud-gray: #e3e3e3;
+
   /* Updated radius values to 4px base per style guide */
   --radius-sm: 0.125rem;
   /* 2px */
@@ -317,4 +322,14 @@
 * {
   scrollbar-width: thin;
   scrollbar-color: oklch(0.85 0 0) transparent;
+}
+
+/* No scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

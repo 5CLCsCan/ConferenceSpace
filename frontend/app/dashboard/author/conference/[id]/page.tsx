@@ -1,23 +1,23 @@
 "use client"
 
 import { Suspense, useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { AuthorDashboard } from "@/components/author/author-dashboard"
+import { useRouter, useParams } from "next/navigation"
+import { AuthorConferenceDetail } from "@/components/author/author-conference-detail"
 import { useAuth } from "@/lib/auth-context"
-import { useTranslation } from "@/lib/i18n/translation-context"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { useNotifications } from "@/hooks/use-notifications"
 
-export default function AuthorPage() {
+export default function AuthorConferenceDetailPage() {
   const { isAuthenticated, user } = useAuth()
   const { unreadCount } = useNotifications({ limit: 1 })
   const router = useRouter()
-  const { t } = useTranslation()
+  const params = useParams()
   const [authChecked, setAuthChecked] = useState(false)
+
+  const conferenceId = params?.id as string
 
   // Wait for auth to be checked before redirecting
   useEffect(() => {
-    // Give auth context time to initialize from localStorage
     const timer = setTimeout(() => {
       setAuthChecked(true)
     }, 100)
@@ -35,7 +35,7 @@ export default function AuthorPage() {
     }
   }, [authChecked, isAuthenticated, router])
 
-  if (!authChecked || !isAuthenticated || !user) {
+  if (!authChecked || !isAuthenticated || !user || !conferenceId) {
     return null
   }
 
@@ -49,19 +49,15 @@ export default function AuthorPage() {
     <div className="bg-[#f8fafc] dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
       <DashboardSidebar menuItems={authorMenuItems} />
 
-      <main className="flex-grow flex flex-col h-screen overflow-hidden">
-        <div className="flex-1 overflow-y-auto px-10 md:px-16 py-8 md:py-12 w-full">
-          <Suspense
-            fallback={
-              <div className="flex items-center justify-center h-full text-slate-400">
-                Loading Dashboard...
-              </div>
-            }
-          >
-            <AuthorDashboard />
-          </Suspense>
-        </div>
-      </main>
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center h-screen w-full text-slate-400">
+            Loading Conference Details...
+          </div>
+        }
+      >
+        <AuthorConferenceDetail conferenceId={conferenceId} />
+      </Suspense>
     </div>
   )
 }

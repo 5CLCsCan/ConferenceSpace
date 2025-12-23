@@ -15,6 +15,8 @@ import {
   History,
   Check,
 } from "lucide-react"
+import { useAuth } from "@/lib/auth-context"
+import { useNotifications } from "@/hooks/use-notifications"
 
 // Types
 type NotificationType = "deadline" | "review" | "mention" | "system" | "success"
@@ -33,10 +35,13 @@ interface Notification {
 }
 
 export default function NotificationsPage() {
+  const { isAuthenticated, user, currentRole } = useAuth()
+  const { unreadCount: apiUnreadCount } = useNotifications({ limit: 1 })
   const [activeTab, setActiveTab] = useState<"all" | "unread" | "mentions">("all")
   const [activeFilter, setActiveFilter] = useState("all")
 
   const notifications: Notification[] = [
+    // ... existing notifications ...
     {
       id: "1",
       type: "deadline",
@@ -106,19 +111,56 @@ export default function NotificationsPage() {
     return true
   })
 
-  return (
-    <div className="bg-[#f8fafc] dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
-      <DashboardSidebar
-        menuItems={[
-          { label: "Dashboard", href: "/role", icon: "dashboard" },
+  // Determine menu items based on currentRole
+  const getMenuItems = () => {
+    switch (currentRole) {
+      case "author":
+        return [
+          { label: "Dashboard", href: "/dashboard/author", icon: "dashboard" },
+          { label: "My Submissions", href: "/dashboard/author/submissions", icon: "description" },
           {
             label: "Notifications",
             href: "/notifications",
             icon: "notifications",
-            badge: unreadCount,
+            badge: apiUnreadCount,
           },
-        ]}
-      />
+        ]
+      case "reviewer":
+        return [
+          { label: "Dashboard", href: "/dashboard/reviewer", icon: "dashboard" },
+          {
+            label: "Notifications",
+            href: "/notifications",
+            icon: "notifications",
+            badge: apiUnreadCount,
+          },
+        ]
+      case "chair":
+        return [
+          { label: "Dashboard", href: "/dashboard/chair", icon: "dashboard" },
+          {
+            label: "Notifications",
+            href: "/notifications",
+            icon: "notifications",
+            badge: apiUnreadCount,
+          },
+        ]
+      default:
+        return [
+          { label: "Select Role", href: "/role", icon: "dashboard" },
+          {
+            label: "Notifications",
+            href: "/notifications",
+            icon: "notifications",
+            badge: apiUnreadCount,
+          },
+        ]
+    }
+  }
+
+  return (
+    <div className="bg-[#f8fafc] dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
+      <DashboardSidebar menuItems={getMenuItems()} />
 
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
         <div className="flex-1 overflow-y-auto px-10 md:px-16 py-8 md:py-12 w-full">
