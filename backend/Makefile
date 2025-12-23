@@ -222,7 +222,9 @@ docker-restart: docker-down docker-up ## Restart all Docker services
 
 migrate-up: ## Run database migrations
 	@echo "Running migrations..."
-	@docker-compose exec -T postgres bash -lc 'until pg_isready -U postgres -d conferencespace -q; do sleep 1; done'
+	@docker-compose exec -T postgres bash -lc 'until pg_isready -U postgres -q; do sleep 1; done'
+	@docker-compose exec -T postgres psql -U postgres -tc "SELECT 1 FROM pg_database WHERE datname = 'conferencespace'" | grep -q 1 || \
+		docker-compose exec -T postgres psql -U postgres -c "CREATE DATABASE conferencespace"
 	$(MIGRATE) -path migrations -database "postgresql://postgres:postgres@localhost:5432/conferencespace?sslmode=disable" up
 	@echo "Migrations completed!"
 

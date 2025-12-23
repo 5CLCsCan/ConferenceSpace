@@ -37,6 +37,12 @@ until docker compose exec -T postgres pg_isready -U "${POSTGRES_USER:-postgres}"
   sleep 2
 done
 
+# Ensure database exists (create if it doesn't)
+echo "Ensuring database exists..."
+docker compose exec -T postgres psql -U "${POSTGRES_USER:-postgres}" -tc "SELECT 1 FROM pg_database WHERE datname = 'conferencespace'" | grep -q 1 || \
+  docker compose exec -T postgres psql -U "${POSTGRES_USER:-postgres}" -c "CREATE DATABASE conferencespace"
+echo "✅ Database ready"
+
 # Wait for Neo4j (using curl to check 7474)
 until curl -s http://localhost:7474 > /dev/null; do
   echo "Waiting for Neo4j..."
