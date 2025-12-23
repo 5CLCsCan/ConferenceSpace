@@ -64,7 +64,7 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
       <div className="w-full px-4 h-full">
         <div className="flex items-center justify-between h-full">
           <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/dashboard" className="flex items-center gap-2">
               <div
                 className="rounded-lg bg-primary flex items-center justify-center"
                 style={{ width: "calc(7vh * 0.6)", height: "calc(7vh * 0.6)" }}

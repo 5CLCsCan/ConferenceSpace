@@ -34,12 +34,22 @@ type Controller struct {
 func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, fileStore fileStorage.StorageInterface, clients *clients.Clients) *Controller {
 	assignmentService := assignment.NewService(store, clients)
 
-	// Create COI detector (composite of self-author and declared conflicts)
-	// Note: RelationshipDetector would be added here if Neo4j client is available
-	coiDetector := detectors.NewCompositeDetector(
-		detectors.NewSelfAuthorDetector(),
-		detectors.NewDeclaredConflictsDetector(),
-	)
+	// Create COI detector - include RelationshipDetector if Neo4j is available
+	var coiDetector detectors.ConflictDetector
+	if clients != nil && clients.Neo4j != nil {
+		// Full detector with Neo4j graph-based COI detection
+		coiDetector = detectors.NewCompositeDetector(
+			detectors.NewSelfAuthorDetector(),
+			detectors.NewDeclaredConflictsDetector(),
+			detectors.NewRelationshipDetector(clients.Neo4j, detectors.DefaultCOIWindowYears),
+		)
+	} else {
+		// Fallback: basic detectors without graph-based COI
+		coiDetector = detectors.NewCompositeDetector(
+			detectors.NewSelfAuthorDetector(),
+			detectors.NewDeclaredConflictsDetector(),
+		)
+	}
 
 	// Create COI service
 	coiSvc := coiService.New(
@@ -59,7 +69,7 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 		Conference:   conference.New(store, assignmentService), // Pass assignment service for auto-assign on status change
 		Submission:   submission.NewWithNotifications(store, fileStore, clients.Gemini, notifSvc),
 		Reviewer:     reviewer.NewWithNotifications(store, notifSvc),
-		Assignment:   assignmentController.NewWithNotifications(store, assignmentService, notifSvc),
+		Assignment:   assignmentController.NewWithNotifications(store, assignmentService, notifSvc, coiSvc),
 		COI:          coiController.New(coiSvc),
 		Notification: notificationController.New(store),
 	}
@@ -69,11 +79,22 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storage, fileStore fileStorage.StorageInterface, clients *clients.Clients, hub *websocket.Hub) *Controller {
 	assignmentService := assignment.NewService(store, clients)
 
-	// Create COI detector (composite of self-author and declared conflicts)
-	coiDetector := detectors.NewCompositeDetector(
-		detectors.NewSelfAuthorDetector(),
-		detectors.NewDeclaredConflictsDetector(),
-	)
+	// Create COI detector - include RelationshipDetector if Neo4j is available
+	var coiDetector detectors.ConflictDetector
+	if clients != nil && clients.Neo4j != nil {
+		// Full detector with Neo4j graph-based COI detection
+		coiDetector = detectors.NewCompositeDetector(
+			detectors.NewSelfAuthorDetector(),
+			detectors.NewDeclaredConflictsDetector(),
+			detectors.NewRelationshipDetector(clients.Neo4j, detectors.DefaultCOIWindowYears),
+		)
+	} else {
+		// Fallback: basic detectors without graph-based COI
+		coiDetector = detectors.NewCompositeDetector(
+			detectors.NewSelfAuthorDetector(),
+			detectors.NewDeclaredConflictsDetector(),
+		)
+	}
 
 	// Create COI service
 	coiSvc := coiService.New(
@@ -93,7 +114,7 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 		Conference:   conference.New(store, assignmentService),
 		Submission:   submission.NewWithNotifications(store, fileStore, clients.Gemini, notifSvc),
 		Reviewer:     reviewer.NewWithNotifications(store, notifSvc),
-		Assignment:   assignmentController.NewWithNotifications(store, assignmentService, notifSvc),
+		Assignment:   assignmentController.NewWithNotifications(store, assignmentService, notifSvc, coiSvc),
 		COI:          coiController.New(coiSvc),
 		Notification: notificationController.New(store),
 	}

@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync"
+	"time"
 
 	"github.com/dcao/conferencespace/internal/assignment/coi/commons"
 	"github.com/dcao/conferencespace/internal/assignment/coi/detectors"
@@ -15,6 +17,9 @@ import (
 	userStorage "github.com/dcao/conferencespace/internal/storage/user"
 )
 
+// AutoRefreshInterval is the duration after which COI data is considered stale
+const AutoRefreshInterval = 5 * time.Minute
+
 // Service provides COI management functionality
 type Service struct {
 	detector          detectors.ConflictDetector
@@ -22,6 +27,10 @@ type Service struct {
 	submissionStorage submissionStorage.StorageInterface
 	reviewerStorage   reviewerStorage.StorageInterface
 	userStorage       userStorage.StorageInterface
+
+	// Track last rebuild time per conference
+	lastRebuildMu   sync.RWMutex
+	lastRebuildTime map[int64]time.Time
 }
 
 // New creates a new COI service
@@ -38,7 +47,44 @@ func New(
 		submissionStorage: submissionStor,
 		reviewerStorage:   reviewerStor,
 		userStorage:       userStor,
+		lastRebuildTime:   make(map[int64]time.Time),
 	}
+}
+
+// needsRefresh checks if a conference's COI data needs to be rebuilt
+func (s *Service) needsRefresh(conferenceID int64) bool {
+	s.lastRebuildMu.RLock()
+	lastTime, exists := s.lastRebuildTime[conferenceID]
+	s.lastRebuildMu.RUnlock()
+
+	if !exists {
+		return true
+	}
+
+	return time.Since(lastTime) > AutoRefreshInterval
+}
+
+// markRefreshed updates the last rebuild time for a conference
+func (s *Service) markRefreshed(conferenceID int64) {
+	s.lastRebuildMu.Lock()
+	s.lastRebuildTime[conferenceID] = time.Now()
+	s.lastRebuildMu.Unlock()
+}
+
+// AutoRefreshIfNeeded checks if COI data is stale and triggers rebuild if needed
+// Returns true if a refresh was triggered
+func (s *Service) AutoRefreshIfNeeded(ctx context.Context, conferenceID int64) (bool, error) {
+	if !s.needsRefresh(conferenceID) {
+		return false, nil
+	}
+
+	// Rebuild COI relationships
+	_, err := s.BuildAndStoreRelationships(ctx, conferenceID)
+	if err != nil {
+		return false, fmt.Errorf("auto-refresh failed: %w", err)
+	}
+
+	return true, nil
 }
 
 // BuildAndStoreRelationships detects and stores COI relationships for a conference
@@ -144,6 +190,9 @@ func (s *Service) BuildAndStoreRelationships(ctx context.Context, conferenceID i
 	if err := s.coiStorage.BatchCreate(ctx, relationships); err != nil {
 		return 0, fmt.Errorf("failed to store relationships: %w", err)
 	}
+
+	// Mark this conference as refreshed
+	s.markRefreshed(conferenceID)
 
 	return len(relationships), nil
 }

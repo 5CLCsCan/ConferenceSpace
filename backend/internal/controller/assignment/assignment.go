@@ -10,6 +10,7 @@ import (
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/model"
+	coiService "github.com/dcao/conferencespace/internal/service/coi"
 	notificationService "github.com/dcao/conferencespace/internal/service/notification"
 	"github.com/dcao/conferencespace/internal/storage"
 	assignmentStorage "github.com/dcao/conferencespace/internal/storage/assignment"
@@ -28,21 +29,23 @@ type Controller struct {
 	submissionStorage   submissionStorage.StorageInterface
 	conferenceStorage   conferenceStorage.StorageInterface
 	notificationService *notificationService.Service
+	coiService          *coiService.Service
 }
 
 // New creates a new assignment controller
-func New(store *storage.Storage, assignmentService *assignment.Service) *Controller {
+func New(store *storage.Storage, assignmentService *assignment.Service, coiSvc *coiService.Service) *Controller {
 	return &Controller{
 		assignmentService: assignmentService,
 		assignmentStorage: store.Assignment,
 		reviewerStorage:   store.Reviewer,
 		submissionStorage: store.Submission,
 		conferenceStorage: store.Conference,
+		coiService:        coiSvc,
 	}
 }
 
 // NewWithNotifications creates a new assignment controller with notification support
-func NewWithNotifications(store *storage.Storage, assignmentService *assignment.Service, notifSvc *notificationService.Service) *Controller {
+func NewWithNotifications(store *storage.Storage, assignmentService *assignment.Service, notifSvc *notificationService.Service, coiSvc *coiService.Service) *Controller {
 	return &Controller{
 		assignmentService:   assignmentService,
 		assignmentStorage:   store.Assignment,
@@ -50,6 +53,7 @@ func NewWithNotifications(store *storage.Storage, assignmentService *assignment.
 		submissionStorage:   store.Submission,
 		conferenceStorage:   store.Conference,
 		notificationService: notifSvc,
+		coiService:          coiSvc,
 	}
 }
 
@@ -90,6 +94,20 @@ func (c *Controller) AutoAssign(ginCtx *gin.Context, req *dto.AutoAssignRequest)
 	})
 	if err != nil {
 		return nil, err
+	}
+
+	// Store COI relationships in database (only if not a dry run)
+	// This enables the COI dashboard without manually calling rebuild
+	if !req.DryRun && c.coiService != nil {
+		go func() {
+			bgCtx := context.Background()
+			count, err := c.coiService.BuildAndStoreRelationships(bgCtx, conferenceID)
+			if err != nil {
+				fmt.Printf("Warning: Failed to store COI relationships: %v\n", err)
+			} else {
+				fmt.Printf("Stored %d COI relationships for conference %d\n", count, conferenceID)
+			}
+		}()
 	}
 
 	// Send notifications to assigned reviewers (only if not a dry run)
