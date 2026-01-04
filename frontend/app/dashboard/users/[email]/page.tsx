@@ -16,6 +16,8 @@ import { User, ProfileFormData, UpdateProfileRequest } from "@/lib/types"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Loader2, Save, X, User as UserIcon, Mail, Shield, ArrowLeft } from "lucide-react"
 import { typography, spacing, iconSizes } from "@/lib/typography"
+import { ProfileOnboardingModal } from "@/components/author/profile-onboarding-modal"
+import { BookOpen } from "lucide-react"
 
 const EMPTY_FORM: ProfileFormData = {
   firstName: "",
@@ -37,8 +39,8 @@ const validateProfileForm = (data: ProfileFormData): { valid: boolean; error?: s
 const normalizeDomains = (domains: any[] | undefined): string[] => {
   return Array.isArray(domains)
     ? domains
-        .map((item) => (typeof item === "string" ? item.trim() : String(item || "").trim()))
-        .filter((item) => item.length > 0)
+      .map((item) => (typeof item === "string" ? item.trim() : String(item || "").trim()))
+      .filter((item) => item.length > 0)
     : []
 }
 
@@ -69,6 +71,7 @@ export default function UserProfilePage() {
   const [initialFormData, setInitialFormData] = useState<ProfileFormData>(EMPTY_FORM)
   const [domainInput, setDomainInput] = useState("")
   const [authChecked, setAuthChecked] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
 
   const userEmail = params.email as string
   const isOwnProfile = userEmail === "me" || userEmail === authUser?.email
@@ -257,6 +260,17 @@ export default function UserProfilePage() {
     setDomainInput("")
   }
 
+  const handleOnboardingComplete = async (authorId?: string) => {
+    if (authorId) {
+      toast({
+        title: "Profile Linked",
+        description: "Your academic profile has been linked successfully.",
+      })
+      // Refresh profile to show new data (papers, etc - not implemented in detailed view yet)
+      fetchUserProfile()
+    }
+  }
+
   if (!authChecked || !isAuthenticated || isLoading) {
     return (
       <div className="min-h-screen bg-neutral-50">
@@ -286,7 +300,7 @@ export default function UserProfilePage() {
 
   const fullName = isOwnProfile
     ? `${formData.firstName || user?.first_name || ""} ${formData.lastName || user?.last_name || ""}`.trim() ||
-      "User"
+    "User"
     : `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || "User"
   const email = isOwnProfile
     ? formData.email || user?.email || "No email"
@@ -362,6 +376,17 @@ export default function UserProfilePage() {
                         {role}
                       </Badge>
                     ))}
+                  </div>
+                )}
+                {isOwnProfile && (
+                  <div className="mt-4 sm:mt-0">
+                    <Button
+                      onClick={() => setShowOnboarding(true)}
+                      className="gap-2 bg-white text-primary hover:bg-white/90 border border-primary/20 shadow-sm"
+                    >
+                      <BookOpen className="h-4 w-4" />
+                      Connect Academic Profile
+                    </Button>
                   </div>
                 )}
               </div>
@@ -585,6 +610,17 @@ export default function UserProfilePage() {
           )}
         </div>
       </main>
-    </div>
+
+      {isOwnProfile && (
+        <ProfileOnboardingModal
+          isOpen={showOnboarding}
+          onOpenChange={setShowOnboarding}
+          userEmail={userEmail}
+          userName={fullName}
+          onComplete={handleOnboardingComplete}
+        />
+      )
+      }
+    </div >
   )
 }

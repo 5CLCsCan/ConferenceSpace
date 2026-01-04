@@ -10,6 +10,7 @@ import (
 	"github.com/dcao/conferencespace/internal/controller/conference"
 	notificationController "github.com/dcao/conferencespace/internal/controller/notification"
 	"github.com/dcao/conferencespace/internal/controller/reviewer"
+	semanticscholarController "github.com/dcao/conferencespace/internal/controller/semantic_scholar"
 	"github.com/dcao/conferencespace/internal/controller/submission"
 	"github.com/dcao/conferencespace/internal/controller/user"
 	"github.com/dcao/conferencespace/internal/orchestrator"
@@ -21,14 +22,15 @@ import (
 )
 
 type Controller struct {
-	Auth         *auth.Controller
-	User         *user.Controller
-	Conference   *conference.Controller
-	Submission   *submission.Controller
-	Reviewer     *reviewer.Controller
-	Assignment   *assignmentController.Controller
-	COI          *coiController.Controller
-	Notification *notificationController.Controller
+	Auth            *auth.Controller
+	User            *user.Controller
+	Conference      *conference.Controller
+	Submission      *submission.Controller
+	Reviewer        *reviewer.Controller
+	Assignment      *assignmentController.Controller
+	COI             *coiController.Controller
+	Notification    *notificationController.Controller
+	SemanticScholar *semanticscholarController.Controller
 }
 
 func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, fileStore fileStorage.StorageInterface, clients *clients.Clients) *Controller {
@@ -63,6 +65,12 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 	// Create notification service
 	notifSvc := notificationService.New(store.Notification)
 
+	// Create Semantic Scholar controller (only if client is available)
+	var semanticScholarCtrl *semanticscholarController.Controller
+	if clients != nil && clients.SemanticScholar != nil {
+		semanticScholarCtrl = semanticscholarController.New(clients.SemanticScholar, store.Cache)
+	}
+
 	return &Controller{
 		Auth:         auth.New(orch),
 		User:         user.New(store, assignmentService), // Pass assignment service for COI checks
@@ -72,6 +80,7 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 		Assignment:   assignmentController.NewWithNotifications(store, assignmentService, notifSvc, coiSvc),
 		COI:          coiController.New(coiSvc),
 		Notification: notificationController.New(store),
+		SemanticScholar: semanticScholarCtrl,
 	}
 }
 
@@ -108,6 +117,12 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 	// Create notification service with WebSocket support
 	notifSvc := notificationService.NewWithWebSocket(store.Notification, hub)
 
+	// Create Semantic Scholar controller (only if client is available)
+	var semanticScholarCtrl *semanticscholarController.Controller
+	if clients != nil && clients.SemanticScholar != nil {
+		semanticScholarCtrl = semanticscholarController.New(clients.SemanticScholar, store.Cache)
+	}
+
 	return &Controller{
 		Auth:         auth.New(orch),
 		User:         user.New(store, assignmentService),
@@ -117,5 +132,6 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 		Assignment:   assignmentController.NewWithNotifications(store, assignmentService, notifSvc, coiSvc),
 		COI:          coiController.New(coiSvc),
 		Notification: notificationController.New(store),
+		SemanticScholar: semanticScholarCtrl,
 	}
 }

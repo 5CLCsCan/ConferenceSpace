@@ -9,11 +9,12 @@ import (
 
 // Config holds all application configuration
 type Config struct {
-	Server   ServerConfig
-	Database DatabaseConfig
-	Neo4j    Neo4jConfig
-	Gemini   GeminiConfig
-	JWT      JWTConfig
+	Server          ServerConfig
+	Database        DatabaseConfig
+	Neo4j           Neo4jConfig
+	Gemini          GeminiConfig
+	SemanticScholar SemanticScholarConfig
+	JWT             JWTConfig
 }
 
 // ServerConfig holds server-related configuration
@@ -49,8 +50,14 @@ type Neo4jConfig struct {
 
 // GeminiConfig holds Google Gemini API configuration
 type GeminiConfig struct {
-	APIKey string
-	Model  string // e.g., "gemini-pro" or "gemini-1.5-pro"
+	APIKey  string
+	Model   string // e.g., "gemini-pro" or "gemini-1.5-pro"
+	Enabled bool
+}
+
+// SemanticScholarConfig holds Semantic Scholar API configuration
+type SemanticScholarConfig struct {
+	APIKey  string
 	Enabled bool
 }
 
@@ -83,6 +90,10 @@ func Load() (*Config, error) {
 			APIKey:  getEnv("GEMINI_API_KEY", ""),
 			Model:   getEnv("GEMINI_MODEL", "gemini-1.5-pro"),
 			Enabled: getEnv("GEMINI_ENABLED", "false") == "true",
+		},
+		SemanticScholar: SemanticScholarConfig{
+			APIKey:  getEnv("SEMANTIC_SCHOLAR_API_KEY", ""),
+			Enabled: getEnv("SEMANTIC_SCHOLAR_ENABLED", "true") == "true",
 		},
 		JWT: JWTConfig{
 			Secret: getEnv("JWT_SECRET", "your-secret-key-change-this-in-production"),
