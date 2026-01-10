@@ -206,14 +206,15 @@ export function PaperReview({
       setModalMessage(t("review.form.success.saveDraftDescription"))
       setModalOpen(true)
       // Cập nhật cache SWR để UI tự động refresh cho tất cả các tab
-      await globalMutate((key) => 
-        Array.isArray(key) && (key[0] === "conference-papers" || key[0] === "reviewer-dashboard")
+      await globalMutate(
+        (key) =>
+          Array.isArray(key) && (key[0] === "conference-papers" || key[0] === "reviewer-dashboard"),
       )
       toast({
         title: t("review.form.success.saveDraft"),
         description: t("review.form.success.saveDraftDescription"),
       })
-      if (onReviewSubmitted) await onReviewSubmitted();
+      if (onReviewSubmitted) await onReviewSubmitted()
     } else {
       setModalType("error")
       setModalMessage(result.error || t("review.form.error.saveDraftDescription"))
@@ -293,14 +294,15 @@ export function PaperReview({
       setModalMessage(t("review.form.success.submitReviewDescription"))
       setModalOpen(true)
       // Cập nhật cache SWR để UI tự động refresh cho tất cả các tab
-      await globalMutate((key) => 
-        Array.isArray(key) && (key[0] === "conference-papers" || key[0] === "reviewer-dashboard")
+      await globalMutate(
+        (key) =>
+          Array.isArray(key) && (key[0] === "conference-papers" || key[0] === "reviewer-dashboard"),
       )
       toast({
         title: t("review.form.success.submitReview"),
         description: t("review.form.success.submitReviewDescription"),
       })
-      if (onReviewSubmitted) await onReviewSubmitted();
+      if (onReviewSubmitted) await onReviewSubmitted()
     } else {
       setModalType("error")
       setModalMessage(result.error || t("review.form.error.submitReviewDescription"))

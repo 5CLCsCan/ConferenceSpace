@@ -22,7 +22,7 @@ from itertools import combinations
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-try:
+try
     import requests
 except ImportError:
     print("Error: 'requests' library is required. Install with: pip install requests")
@@ -43,7 +43,7 @@ def normalize_name(name: str) -> str:
     name = re.sub(r"[^\w\s\-]", "", name)
     # Convert to lowercase and replace spaces with dots
     name = name.lower().strip()
-    name = re.sub(r"\s+", ".", name)
+    name = re.sub(r"\s+", ".", name)  
     # Remove consecutive dots
     name = re.sub(r"\.+", ".", name)
     return name

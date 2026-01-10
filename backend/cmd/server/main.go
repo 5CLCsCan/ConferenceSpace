@@ -199,6 +199,8 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 		users.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
 			users.GET("/me", handler.HandleNoRequest(ctrl.User.GetMe))
+			users.GET("/me/academic-profile", handler.HandleNoRequest(ctrl.User.GetAcademicProfile))
+			users.POST("/link-academic-profile", handler.HandleRequest(ctrl.User.LinkAcademicProfile))
 			users.GET("/search", handler.HandleNoRequest(ctrl.User.Search))
 			users.GET("", handler.HandleRequestWithQuery(ctrl.User.List))
 			users.GET("/:email", handler.HandleNoRequest(ctrl.User.Get))
@@ -298,6 +300,18 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			notifications.PATCH("/:id/read", handler.HandleNoRequest(ctrl.Notification.MarkAsRead))
 			notifications.PATCH("/read-all", handler.HandleNoRequest(ctrl.Notification.MarkAllAsRead))
 			notifications.DELETE("/:id", handler.HandleNoRequestWithMessage("notification deleted successfully", ctrl.Notification.Delete))
+		}
+
+		// Semantic Scholar routes (authentication required)
+		semanticScholar := v1.Group("/semantic-scholar")
+		semanticScholar.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
+		{
+			// Only register if controller is available (enabled in config)
+			if ctrl.SemanticScholar != nil {
+				semanticScholar.GET("/authors/search", handler.HandleNoRequest(ctrl.SemanticScholar.SearchAuthors))
+				semanticScholar.GET("/authors/:authorId", handler.HandleNoRequest(ctrl.SemanticScholar.GetAuthorDetails))
+				semanticScholar.GET("/authors/:authorId/papers", handler.HandleNoRequest(ctrl.SemanticScholar.GetAuthorPapers))
+			}
 		}
 	}
 

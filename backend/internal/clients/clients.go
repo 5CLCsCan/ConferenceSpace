@@ -6,13 +6,15 @@ import (
 
 	"github.com/dcao/conferencespace/internal/clients/gemini"
 	"github.com/dcao/conferencespace/internal/clients/neo4j"
+	"github.com/dcao/conferencespace/internal/clients/semantic_scholar"
 	"github.com/dcao/conferencespace/internal/config"
 )
 
 // Clients holds all external service clients
 type Clients struct {
-	Neo4j  *neo4j.Client
-	Gemini *gemini.Client
+	Neo4j           *neo4j.Client
+	Gemini          *gemini.Client
+	SemanticScholar *semantic_scholar.Client
 }
 
 // NewClients creates and initializes all external service clients
@@ -38,6 +40,13 @@ func NewClients(cfg *config.Config) (*Clients, error) {
 		clients.Gemini = gemini.NewClient(gemini.Config{
 			APIKey: cfg.Gemini.APIKey,
 			Model:  cfg.Gemini.Model,
+		})
+	}
+
+	// Initialize Semantic Scholar client if enabled
+	if cfg.SemanticScholar.Enabled {
+		clients.SemanticScholar = semantic_scholar.NewClient(semantic_scholar.Config{
+			APIKey: cfg.SemanticScholar.APIKey,
 		})
 	}
 

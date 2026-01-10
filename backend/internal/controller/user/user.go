@@ -8,10 +8,12 @@ import (
 
 	"github.com/dcao/conferencespace/internal/assignment"
 	"github.com/dcao/conferencespace/internal/assignment/coi/detectors"
+	"github.com/dcao/conferencespace/internal/controller/semantic_scholar"
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/storage"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
+	"github.com/dcao/conferencespace/internal/storage/scholar"
 	submissionStorage "github.com/dcao/conferencespace/internal/storage/submission"
 	userStorage "github.com/dcao/conferencespace/internal/storage/user"
 	"github.com/dcao/conferencespace/internal/utils"
@@ -19,18 +21,22 @@ import (
 )
 
 type Controller struct {
-	userStorage       userStorage.StorageInterface
-	submissionStorage submissionStorage.StorageInterface
-	conferenceStorage conferenceStorage.StorageInterface
-	assignmentService *assignment.Service
+	userStorage         userStorage.StorageInterface
+	submissionStorage   submissionStorage.StorageInterface
+	conferenceStorage   conferenceStorage.StorageInterface
+	assignmentService   *assignment.Service
+	scholarStorage      scholar.StorageInterface
+	semanticScholarCtrl *semantic_scholar.Controller
 }
 
-func New(store *storage.Storage, assignmentService *assignment.Service) *Controller {
+func New(store *storage.Storage, assignmentService *assignment.Service, semanticScholarCtrl *semantic_scholar.Controller) *Controller {
 	return &Controller{
-		userStorage:       store.User,
-		submissionStorage: store.Submission,
-		conferenceStorage: store.Conference,
-		assignmentService: assignmentService,
+		userStorage:         store.User,
+		submissionStorage:   store.Submission,
+		conferenceStorage:   store.Conference,
+		scholarStorage:      store.Scholar,
+		assignmentService:   assignmentService,
+		semanticScholarCtrl: semanticScholarCtrl,
 	}
 }
 
@@ -325,6 +331,81 @@ func (c *Controller) CheckCOI(ginCtx *gin.Context, req *dto.UserCOICheckRequest)
 		TotalAuthors:       len(authorMap),
 		ConflictingCount:   len(conflictingAuthors),
 		ConflictingAuthors: conflictingAuthors,
+	}, nil
+}
+
+// GetAcademicProfile godoc
+// @Summary      Get current user's academic profile
+// @Description  Get synced academic profile details and papers for the current user
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} dto.AcademicProfileResponse
+// @Failure      401 {object} handler.Response
+// @Failure      404 {object} handler.Response
+// @Router       /users/me/academic-profile [get]
+func (c *Controller) GetAcademicProfile(ginCtx *gin.Context) (*dto.AcademicProfileResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	// Auth check
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	user, err := c.userStorage.GetByEmail(ctx, userEmail)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "user not found")
+	}
+
+	// Fetch from scholar storage
+	if c.scholarStorage == nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "academic profile storage not initialized")
+	}
+
+	profile, err := c.scholarStorage.GetProfileByUserID(ctx, user.ID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to get academic profile")
+	}
+	if profile == nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "academic profile not linked")
+	}
+
+	// Fetch papers
+	papers, err := c.scholarStorage.GetPapersByProfileID(ctx, profile.ID)
+	if err != nil {
+		// Log error but maybe return profile without papers?
+		// For now fail since papers are important part of profile
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to get academic papers")
+	}
+
+	// Map to DTO
+	respPapers := make([]dto.AcademicPaper, len(papers))
+	for i, p := range papers {
+		respPapers[i] = dto.AcademicPaper{
+			PaperID:       p.SemanticScholarID,
+			Title:         p.Title,
+			Abstract:      p.Abstract,
+			Venue:         p.Venue,
+			Year:          p.Year,
+			CitationCount: p.CitationCount,
+			URL:           p.URL,
+			Authors:       p.Authors,
+		}
+	}
+
+	return &dto.AcademicProfileResponse{
+		UserID:            profile.UserID,
+		SemanticScholarID: profile.SemanticScholarID,
+		Name:              profile.Name,
+		Affiliations:      profile.Affiliations,
+		PaperCount:        profile.PaperCount,
+		CitationCount:     profile.CitationCount,
+		HIndex:            profile.HIndex,
+		URL:               profile.URL,
+		SyncedAt:          profile.UpdatedAt.Format("2006-01-02 15:04:05"),
+		Papers:            respPapers,
 	}, nil
 }
 

@@ -3,11 +3,13 @@ package dto
 import "time"
 
 type User struct {
-	ID        int64    `json:"id"`
-	Email     string   `json:"email" binding:"required,email"`
-	FirstName string   `json:"first_name" binding:"required"`
-	LastName  string   `json:"last_name" binding:"required"`
-	Domain    []string `json:"domain"`
+	ID                int64    `json:"id"`
+	Email             string   `json:"email" binding:"required,email"`
+	FirstName         string   `json:"first_name" binding:"required"`
+	LastName          string   `json:"last_name" binding:"required"`
+	Domain            []string `json:"domain"`
+	SemanticScholarID *string  `json:"semantic_scholar_id,omitempty"`
+	ProfileSyncStatus *string  `json:"profile_sync_status,omitempty"`
 }
 
 type UserResponse struct {

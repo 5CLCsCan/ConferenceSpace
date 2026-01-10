@@ -7,11 +7,13 @@ import (
 
 	"github.com/dcao/conferencespace/internal/config"
 	"github.com/dcao/conferencespace/internal/storage/assignment"
+	"github.com/dcao/conferencespace/internal/storage/cache"
 	"github.com/dcao/conferencespace/internal/storage/coi"
 	"github.com/dcao/conferencespace/internal/storage/conference"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	"github.com/dcao/conferencespace/internal/storage/notification"
 	"github.com/dcao/conferencespace/internal/storage/reviewer"
+	"github.com/dcao/conferencespace/internal/storage/scholar"
 	"github.com/dcao/conferencespace/internal/storage/submission"
 	"github.com/dcao/conferencespace/internal/storage/user"
 )
@@ -25,6 +27,8 @@ type Storage struct {
 	ConferenceUserRole conferenceuserrole.StorageInterface
 	COI                coi.StorageInterface
 	Notification       notification.StorageInterface
+	Cache              cache.StorageInterface
+	Scholar            scholar.StorageInterface
 }
 
 func NewStorage(db *sql.DB) *Storage {
@@ -37,6 +41,8 @@ func NewStorage(db *sql.DB) *Storage {
 		ConferenceUserRole: conferenceuserrole.New(db),
 		COI:                coi.New(db),
 		Notification:       notification.New(db),
+		Cache:              cache.New(db),
+		Scholar:            scholar.New(db),
 	}
 }
 
