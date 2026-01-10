@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"time"
 
 	"golang.org/x/time/rate"
@@ -135,12 +136,17 @@ func (c *Client) doRequest(ctx context.Context, method, path string, body interf
 }
 
 // SearchAuthors searches for authors by name
+// Includes additional fields for display: affiliations, paperCount, citationCount, hIndex
 func (c *Client) SearchAuthors(ctx context.Context, query string, limit int) (*SearchResponse, error) {
 	if limit <= 0 {
 		limit = 30
 	}
 
-	path := fmt.Sprintf("/author/search?query=%s&limit=%d", query, limit)
+	// Include additional fields so search results have enough info for display
+	fields := "authorId,name,affiliations,paperCount,citationCount,hIndex,url"
+	path := fmt.Sprintf("/author/search?query=%s&limit=%d&fields=%s", 
+		url.QueryEscape(query), limit, fields)
+	
 	respBody, err := c.doRequest(ctx, "GET", path, nil)
 	if err != nil {
 		return nil, err

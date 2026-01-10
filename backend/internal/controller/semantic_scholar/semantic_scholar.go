@@ -6,20 +6,23 @@ import (
 	"fmt"
 	"github.com/dcao/conferencespace/internal/clients/semantic_scholar"
 	"github.com/dcao/conferencespace/internal/storage/cache"
+	"github.com/dcao/conferencespace/internal/storage/scholar"
 	"github.com/gin-gonic/gin"
 )
 
 // Controller handles Semantic Scholar API requests
 type Controller struct {
-	client *semantic_scholar.Client
-	cache  cache.StorageInterface
+	client  *semantic_scholar.Client
+	cache   cache.StorageInterface
+	scholar scholar.StorageInterface
 }
 
 // New creates a new Semantic Scholar controller
-func New(client *semantic_scholar.Client, cacheStorage cache.StorageInterface) *Controller {
+func New(client *semantic_scholar.Client, cacheStorage cache.StorageInterface, scholarStorage scholar.StorageInterface) *Controller {
 	return &Controller{
-		client: client,
-		cache:  cacheStorage,
+		client:  client,
+		cache:   cacheStorage,
+		scholar: scholarStorage,
 	}
 }
 
@@ -93,7 +96,48 @@ func (c *Controller) GetAuthorDetails(ginCtx *gin.Context) (*semantic_scholar.Au
 		return nil, fmt.Errorf("author ID is required")
 	}
 
-	// Check cache first
+	// 1. Check Relational Storage (Scholar tables)
+	// This is the preferred source if we have synced data
+	if c.scholar != nil {
+		profile, err := c.scholar.GetProfileBySemanticID(ctx, authorID)
+		if err == nil && profile != nil {
+			// Map to AuthorWithPapers
+			result := &semantic_scholar.AuthorWithPapers{
+				Author: semantic_scholar.Author{
+					AuthorID:      profile.SemanticScholarID,
+					Name:          profile.Name,
+					Affiliations:  profile.Affiliations,
+					PaperCount:    profile.PaperCount,
+					CitationCount: profile.CitationCount,
+					HIndex:        profile.HIndex,
+					URL:           profile.URL,
+				},
+				Papers: []semantic_scholar.Paper{}, 
+			}
+
+			// Fetch papers from relational storage
+			papers, err := c.scholar.GetPapersByProfileID(ctx, profile.ID)
+			if err == nil && len(papers) > 0 {
+				mappedPapers := make([]semantic_scholar.Paper, len(papers))
+				for i, p := range papers {
+					mappedPapers[i] = semantic_scholar.Paper{
+						PaperID:       p.SemanticScholarID,
+						Title:         p.Title,
+						Abstract:      p.Abstract,
+						Venue:         p.Venue,
+						Year:          p.Year,
+						CitationCount: p.CitationCount,
+						URL:           p.URL,
+					}
+				}
+				result.Papers = mappedPapers
+			}
+			
+			return result, nil
+		}
+	}
+
+	// 2. Check JSON Cache (Legacy/Fallback)
 	cacheKey := cache.GenerateAuthorKey(authorID)
 	cachedData, found, err := c.cache.Get(ctx, cacheKey)
 	if err == nil && found {
@@ -103,13 +147,13 @@ func (c *Controller) GetAuthorDetails(ginCtx *gin.Context) (*semantic_scholar.Au
 		}
 	}
 
-	// Fetch from API
+	// 3. Fetch from API
 	result, err := c.client.GetAuthorDetails(ctx, authorID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get author details: %w", err)
 	}
 
-	// Cache the result
+	// Cache the result (we still cache JSON for quick access if sync hasn't happened)
 	if data, err := json.Marshal(result); err == nil {
 		_ = c.cache.Set(ctx, cacheKey, cache.CacheTypeAuthorDetails, data)
 	}

@@ -102,6 +102,8 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.UserResponse, err
 			model.UserColFirstName,
 			model.UserColLastName,
 			model.UserColDomain,
+			model.UserColSemanticScholarID,
+			model.UserColProfileSyncStatus,
 			model.UserColCreatedAt,
 			model.UserColUpdatedAt,
 		).
@@ -120,6 +122,8 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.UserResponse, err
 		&entity.FirstName,
 		&entity.LastName,
 		&entity.Domain,
+		&entity.SemanticScholarID,
+		&entity.ProfileSyncStatus,
 		&entity.CreatedAt,
 		&entity.UpdatedAt,
 	)
@@ -142,6 +146,8 @@ func (s *Storage) GetByEmail(ctx context.Context, email string) (*dto.UserRespon
 			model.UserColFirstName,
 			model.UserColLastName,
 			model.UserColDomain,
+			model.UserColSemanticScholarID,
+			model.UserColProfileSyncStatus,
 			model.UserColCreatedAt,
 			model.UserColUpdatedAt,
 		).
@@ -160,6 +166,8 @@ func (s *Storage) GetByEmail(ctx context.Context, email string) (*dto.UserRespon
 		&entity.FirstName,
 		&entity.LastName,
 		&entity.Domain,
+		&entity.SemanticScholarID,
+		&entity.ProfileSyncStatus,
 		&entity.CreatedAt,
 		&entity.UpdatedAt,
 	)
@@ -183,6 +191,8 @@ func (s *Storage) GetByEmailWithPassword(ctx context.Context, email string) (*dt
 			model.UserColLastName,
 			model.UserColPassword,
 			model.UserColDomain,
+			model.UserColSemanticScholarID,
+			model.UserColProfileSyncStatus,
 			model.UserColCreatedAt,
 			model.UserColUpdatedAt,
 		).
@@ -202,6 +212,8 @@ func (s *Storage) GetByEmailWithPassword(ctx context.Context, email string) (*dt
 		&entity.LastName,
 		&entity.HashedPassword,
 		&entity.Domain,
+		&entity.SemanticScholarID,
+		&entity.ProfileSyncStatus,
 		&entity.CreatedAt,
 		&entity.UpdatedAt,
 	)
@@ -223,6 +235,8 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.UserRes
 		model.UserColFirstName,
 		model.UserColLastName,
 		model.UserColDomain,
+		model.UserColSemanticScholarID,
+		model.UserColProfileSyncStatus,
 		model.UserColCreatedAt,
 		model.UserColUpdatedAt,
 	).From(model.UserTableName)
@@ -280,6 +294,8 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.UserRes
 			&entity.FirstName,
 			&entity.LastName,
 			&entity.Domain,
+			&entity.SemanticScholarID,
+			&entity.ProfileSyncStatus,
 			&entity.CreatedAt,
 			&entity.UpdatedAt,
 		)
@@ -301,6 +317,10 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.UserRes
 }
 
 func (s *Storage) Update(ctx context.Context, id int64, user *dto.User) (*dto.UserResponse, error) {
+	// If check to support partial updates for new fields if needed, but for now we stick to updating existing fields + timestamps.
+	// Actually, the storage Update method takes *dto.User, which now has the new fields.
+	// I should probably update them if they are set in the DTO?
+	// The interface uses *dto.User, let's look at the implementation.
 	updateMap := map[string]interface{}{
 		model.UserColEmail:     user.Email,
 		model.UserColFirstName: user.FirstName,
@@ -309,16 +329,25 @@ func (s *Storage) Update(ctx context.Context, id int64, user *dto.User) (*dto.Us
 		model.UserColUpdatedAt: time.Now(),
 	}
 
+	if user.SemanticScholarID != nil {
+		updateMap[model.UserColSemanticScholarID] = *user.SemanticScholarID
+	}
+	if user.ProfileSyncStatus != nil {
+		updateMap[model.UserColProfileSyncStatus] = *user.ProfileSyncStatus
+	}
+
 	query, args, err := s.qb.
 		Update(model.UserTableName).
 		SetMap(updateMap).
 		Where(sq.Eq{model.UserColUserID: id}).
-		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s",
+		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s",
 			model.UserColUserID,
 			model.UserColEmail,
 			model.UserColFirstName,
 			model.UserColLastName,
 			model.UserColDomain,
+			model.UserColSemanticScholarID,
+			model.UserColProfileSyncStatus,
 			model.UserColCreatedAt,
 			model.UserColUpdatedAt,
 		)).
@@ -335,6 +364,8 @@ func (s *Storage) Update(ctx context.Context, id int64, user *dto.User) (*dto.Us
 		&entity.FirstName,
 		&entity.LastName,
 		&entity.Domain,
+		&entity.SemanticScholarID,
+		&entity.ProfileSyncStatus,
 		&entity.CreatedAt,
 		&entity.UpdatedAt,
 	)
@@ -357,16 +388,25 @@ func (s *Storage) UpdateByEmail(ctx context.Context, email string, user *dto.Use
 		model.UserColUpdatedAt: time.Now(),
 	}
 
+	if user.SemanticScholarID != nil {
+		updateMap[model.UserColSemanticScholarID] = *user.SemanticScholarID
+	}
+	if user.ProfileSyncStatus != nil {
+		updateMap[model.UserColProfileSyncStatus] = *user.ProfileSyncStatus
+	}
+
 	query, args, err := s.qb.
 		Update(model.UserTableName).
 		SetMap(updateMap).
 		Where(sq.Eq{model.UserColEmail: email}).
-		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s",
+		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s",
 			model.UserColUserID,
 			model.UserColEmail,
 			model.UserColFirstName,
 			model.UserColLastName,
 			model.UserColDomain,
+			model.UserColSemanticScholarID,
+			model.UserColProfileSyncStatus,
 			model.UserColCreatedAt,
 			model.UserColUpdatedAt,
 		)).
@@ -383,6 +423,8 @@ func (s *Storage) UpdateByEmail(ctx context.Context, email string, user *dto.Use
 		&entity.FirstName,
 		&entity.LastName,
 		&entity.Domain,
+		&entity.SemanticScholarID,
+		&entity.ProfileSyncStatus,
 		&entity.CreatedAt,
 		&entity.UpdatedAt,
 	)

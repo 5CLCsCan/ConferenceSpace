@@ -13,11 +13,23 @@ import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/lib/auth-context"
 import { apiFetch, UnauthorizedError } from "@/lib/api/client"
 import { User, ProfileFormData, UpdateProfileRequest } from "@/lib/types"
+import { userApi, AcademicProfile } from "@/lib/api/user"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { Loader2, Save, X, User as UserIcon, Mail, Shield, ArrowLeft } from "lucide-react"
+import {
+  Loader2,
+  Save,
+  X,
+  User as UserIcon,
+  Mail,
+  Shield,
+  ArrowLeft,
+  ExternalLink,
+  BookOpen,
+  Quote,
+  FileText,
+} from "lucide-react"
 import { typography, spacing, iconSizes } from "@/lib/typography"
 import { ProfileOnboardingModal } from "@/components/author/profile-onboarding-modal"
-import { BookOpen } from "lucide-react"
 
 const EMPTY_FORM: ProfileFormData = {
   firstName: "",
@@ -39,8 +51,8 @@ const validateProfileForm = (data: ProfileFormData): { valid: boolean; error?: s
 const normalizeDomains = (domains: any[] | undefined): string[] => {
   return Array.isArray(domains)
     ? domains
-      .map((item) => (typeof item === "string" ? item.trim() : String(item || "").trim()))
-      .filter((item) => item.length > 0)
+        .map((item) => (typeof item === "string" ? item.trim() : String(item || "").trim()))
+        .filter((item) => item.length > 0)
     : []
 }
 
@@ -67,6 +79,7 @@ export default function UserProfilePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [user, setUser] = useState<User | null>(null)
+  const [academicProfile, setAcademicProfile] = useState<AcademicProfile | null>(null)
   const [formData, setFormData] = useState<ProfileFormData>(EMPTY_FORM)
   const [initialFormData, setInitialFormData] = useState<ProfileFormData>(EMPTY_FORM)
   const [domainInput, setDomainInput] = useState("")
@@ -107,7 +120,9 @@ export default function UserProfilePage() {
           ? "/api/v1/users/me"
           : `/api/v1/users/${userEmail}`
 
-      const { data: response } = await apiFetch<{ data: User }>(endpoint)
+      const { data: response } = await apiFetch<{ data: User & { semantic_scholar_id?: string } }>(
+        endpoint,
+      )
 
       if (!response?.data) {
         throw new Error("Missing user data in response")
@@ -127,6 +142,17 @@ export default function UserProfilePage() {
 
         setFormData(newFormData)
         setInitialFormData({ ...newFormData, domain: [...domain] })
+
+        if (response.data.semantic_scholar_id) {
+          try {
+            const { data: profileResult } = await userApi.getAcademicProfile()
+            if (profileResult && profileResult.data) {
+              setAcademicProfile(profileResult.data)
+            }
+          } catch (err) {
+            console.log("Academic profile fetch failed or empty", err)
+          }
+        }
       }
     } catch (error) {
       toast({
@@ -264,9 +290,9 @@ export default function UserProfilePage() {
     if (authorId) {
       toast({
         title: "Profile Linked",
-        description: "Your academic profile has been linked successfully.",
+        description: "Your academic profile has been linked successfully. Syncing data...",
       })
-      // Refresh profile to show new data (papers, etc - not implemented in detailed view yet)
+      // Refresh profile to show new data
       fetchUserProfile()
     }
   }
@@ -300,7 +326,7 @@ export default function UserProfilePage() {
 
   const fullName = isOwnProfile
     ? `${formData.firstName || user?.first_name || ""} ${formData.lastName || user?.last_name || ""}`.trim() ||
-    "User"
+      "User"
     : `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || "User"
   const email = isOwnProfile
     ? formData.email || user?.email || "No email"
@@ -323,12 +349,9 @@ export default function UserProfilePage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    // Use browser history API to go back
-                    // This preserves tab and dialog state from URL params
                     if (window.history.length > 1) {
                       router.back()
                     } else {
-                      // Fallback to dashboard if no history
                       router.push("/dashboard")
                     }
                   }}
@@ -378,7 +401,7 @@ export default function UserProfilePage() {
                     ))}
                   </div>
                 )}
-                {isOwnProfile && (
+                {isOwnProfile && !academicProfile && (
                   <div className="mt-4 sm:mt-0">
                     <Button
                       onClick={() => setShowOnboarding(true)}
@@ -411,97 +434,213 @@ export default function UserProfilePage() {
                     ? t("profile.highlights.domainsCount", { count: domains.length })
                     : t("profile.highlights.domainsNone")}
                 </span>
+                {academicProfile && (
+                  <Badge
+                    variant="outline"
+                    className="border-green-500 text-green-700 bg-green-50 gap-1 pl-2"
+                  >
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    Synced with Semantic Scholar
+                  </Badge>
+                )}
               </div>
             </CardContent>
           </Card>
 
           <div className="grid gap-6 lg:grid-cols-12">
-            <Card className="lg:col-span-7 py-6">
-              <CardHeader className="border-b pb-4">
-                <CardTitle className={typography.h4}>
-                  {t("profile.sections.personalInfo")}
-                </CardTitle>
-                <CardDescription className={typography.body}>
-                  {t("profile.sections.personalInfoDescription")}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className={`${spacing.section} pt-6`}>
-                {isOwnProfile ? (
-                  <>
-                    <div className={`grid ${spacing.gap.md} sm:grid-cols-2`}>
+            <div className="lg:col-span-7 flex flex-col gap-6">
+              <Card className="py-6">
+                <CardHeader className="border-b pb-4">
+                  <CardTitle className={typography.h4}>
+                    {t("profile.sections.personalInfo")}
+                  </CardTitle>
+                  <CardDescription className={typography.body}>
+                    {t("profile.sections.personalInfoDescription")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className={`${spacing.section} pt-6`}>
+                  {isOwnProfile ? (
+                    <>
+                      <div className={`grid ${spacing.gap.md} sm:grid-cols-2`}>
+                        <div className={spacing.item}>
+                          <Label htmlFor="firstName" className={typography.label}>
+                            {t("common.labels.firstName")}
+                          </Label>
+                          <Input
+                            id="firstName"
+                            value={formData.firstName}
+                            onChange={(e) =>
+                              setFormData({ ...formData, firstName: e.target.value })
+                            }
+                            placeholder={t("profile.placeholders.firstName")}
+                            disabled={isSaving}
+                          />
+                        </div>
+                        <div className={spacing.item}>
+                          <Label htmlFor="lastName" className={typography.label}>
+                            {t("common.labels.lastName")}
+                          </Label>
+                          <Input
+                            id="lastName"
+                            value={formData.lastName}
+                            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                            placeholder={t("profile.placeholders.lastName")}
+                            disabled={isSaving}
+                          />
+                        </div>
+                      </div>
+
                       <div className={spacing.item}>
-                        <Label htmlFor="firstName" className={typography.label}>
-                          {t("common.labels.firstName")}
+                        <Label htmlFor="email" className={typography.label}>
+                          {t("common.labels.email")}
                         </Label>
                         <Input
-                          id="firstName"
-                          value={formData.firstName}
-                          onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                          placeholder={t("profile.placeholders.firstName")}
+                          id="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          placeholder={t("profile.placeholders.email")}
                           disabled={isSaving}
                         />
                       </div>
-                      <div className={spacing.item}>
-                        <Label htmlFor="lastName" className={typography.label}>
-                          {t("common.labels.lastName")}
-                        </Label>
-                        <Input
-                          id="lastName"
-                          value={formData.lastName}
-                          onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                          placeholder={t("profile.placeholders.lastName")}
-                          disabled={isSaving}
-                        />
+                    </>
+                  ) : (
+                    <>
+                      <div className={`grid ${spacing.gap.md} sm:grid-cols-2`}>
+                        <div className={spacing.item}>
+                          <p className={`${typography.label} text-muted-foreground`}>
+                            {t("common.labels.firstName")}
+                          </p>
+                          <p className={`${typography.body} ${typography.medium}`}>
+                            {user?.first_name || "—"}
+                          </p>
+                        </div>
+                        <div className={spacing.item}>
+                          <p className={`${typography.label} text-muted-foreground`}>
+                            {t("common.labels.lastName")}
+                          </p>
+                          <p className={`${typography.body} ${typography.medium}`}>
+                            {user?.last_name || "—"}
+                          </p>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className={spacing.item}>
-                      <Label htmlFor="email" className={typography.label}>
-                        {t("common.labels.email")}
-                      </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        placeholder={t("profile.placeholders.email")}
-                        disabled={isSaving}
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className={`grid ${spacing.gap.md} sm:grid-cols-2`}>
                       <div className={spacing.item}>
                         <p className={`${typography.label} text-muted-foreground`}>
-                          {t("common.labels.firstName")}
+                          {t("common.labels.email")}
                         </p>
-                        <p className={`${typography.body} ${typography.medium}`}>
-                          {user?.first_name || "—"}
-                        </p>
+                        <p className={`${typography.body} ${typography.medium}`}>{email}</p>
                       </div>
-                      <div className={spacing.item}>
-                        <p className={`${typography.label} text-muted-foreground`}>
-                          {t("common.labels.lastName")}
-                        </p>
-                        <p className={`${typography.body} ${typography.medium}`}>
-                          {user?.last_name || "—"}
-                        </p>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+
+              {academicProfile && (
+                <Card className="py-6 border-blue-100 bg-blue-50/30">
+                  <CardHeader className="border-b pb-4 flex flex-row items-center justify-between">
+                    <div>
+                      <CardTitle className={typography.h4}>Academic Profile</CardTitle>
+                      <CardDescription className={typography.body}>
+                        Synced from Semantic Scholar
+                      </CardDescription>
+                    </div>
+                    <Button variant="outline" size="sm" asChild>
+                      <a
+                        href={academicProfile.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="gap-2"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        View on Semantic Scholar
+                      </a>
+                    </Button>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <div className="grid grid-cols-3 gap-4 mb-6">
+                      <div className="bg-white p-4 rounded-lg border border-neutral-200 shadow-sm text-center">
+                        <div className="text-2xl font-bold text-primary">
+                          {academicProfile.hIndex}
+                        </div>
+                        <div className="text-xs text-neutral-500 uppercase tracking-wide font-medium">
+                          H-Index
+                        </div>
+                      </div>
+                      <div className="bg-white p-4 rounded-lg border border-neutral-200 shadow-sm text-center">
+                        <div className="text-2xl font-bold text-primary">
+                          {academicProfile.citationCount}
+                        </div>
+                        <div className="text-xs text-neutral-500 uppercase tracking-wide font-medium">
+                          Citations
+                        </div>
+                      </div>
+                      <div className="bg-white p-4 rounded-lg border border-neutral-200 shadow-sm text-center">
+                        <div className="text-2xl font-bold text-primary">
+                          {academicProfile.paperCount}
+                        </div>
+                        <div className="text-xs text-neutral-500 uppercase tracking-wide font-medium">
+                          Papers
+                        </div>
                       </div>
                     </div>
 
-                    <div className={spacing.item}>
-                      <p className={`${typography.label} text-muted-foreground`}>
-                        {t("common.labels.email")}
-                      </p>
-                      <p className={`${typography.body} ${typography.medium}`}>{email}</p>
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-neutral-900 border-b pb-2">
+                        Recent Publications
+                      </h3>
+                      {academicProfile.papers && academicProfile.papers.length > 0 ? (
+                        <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+                          {academicProfile.papers.map((paper) => (
+                            <div
+                              key={paper.paperId}
+                              className="bg-white p-3 rounded border border-neutral-100 shadow-sm hover:border-primary/20 transition-colors"
+                            >
+                              <h4
+                                className="font-medium text-neutral-900 line-clamp-2"
+                                title={paper.title}
+                              >
+                                {paper.title}
+                              </h4>
+                              <div className="flex items-center gap-4 mt-2 text-xs text-neutral-500">
+                                <span className="flex items-center gap-1">
+                                  <Quote className="w-3 h-3" />
+                                  {paper.citationCount} citations
+                                </span>
+                                <span>•</span>
+                                <span>{paper.year}</span>
+                                {paper.venue && (
+                                  <>
+                                    <span>•</span>
+                                    <span className="line-clamp-1">{paper.venue}</span>
+                                  </>
+                                )}
+                              </div>
+                              {paper.url && (
+                                <a
+                                  href={paper.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-primary hover:underline mt-2 inline-block"
+                                >
+                                  Read Paper
+                                </a>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8 text-neutral-500">
+                          No papers synced yet.
+                        </div>
+                      )}
                     </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
 
-            <Card className="lg:col-span-5 py-6">
+            <Card className="lg:col-span-5 py-6 h-fit">
               <CardHeader className="border-b pb-4">
                 <CardTitle className={typography.h4}>{t("profile.sections.expertise")}</CardTitle>
                 <CardDescription className={typography.body}>
@@ -619,8 +758,7 @@ export default function UserProfilePage() {
           userName={fullName}
           onComplete={handleOnboardingComplete}
         />
-      )
-      }
-    </div >
+      )}
+    </div>
   )
 }

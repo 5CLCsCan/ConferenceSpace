@@ -199,6 +199,8 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 		users.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
 			users.GET("/me", handler.HandleNoRequest(ctrl.User.GetMe))
+			users.GET("/me/academic-profile", handler.HandleNoRequest(ctrl.User.GetAcademicProfile))
+			users.POST("/link-academic-profile", handler.HandleRequest(ctrl.User.LinkAcademicProfile))
 			users.GET("/search", handler.HandleNoRequest(ctrl.User.Search))
 			users.GET("", handler.HandleRequestWithQuery(ctrl.User.List))
 			users.GET("/:email", handler.HandleNoRequest(ctrl.User.Get))

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/dcao/conferencespace/internal/dto"
@@ -16,8 +17,10 @@ const (
 	UserColLastName  = "last_name"
 	UserColPassword  = "hashed_password"
 	UserColDomain    = "domain"
-	UserColCreatedAt = "created_at"
-	UserColUpdatedAt = "updated_at"
+	UserColCreatedAt          = "created_at"
+	UserColUpdatedAt          = "updated_at"
+	UserColSemanticScholarID  = "semantic_scholar_id"
+	UserColProfileSyncStatus  = "profile_sync_status"
 )
 
 type User struct {
@@ -26,9 +29,11 @@ type User struct {
 	FirstName      string         `db:"first_name"`
 	LastName       string         `db:"last_name"`
 	HashedPassword string         `db:"hashed_password"`
-	Domain         pq.StringArray `db:"domain"`
-	CreatedAt      time.Time      `db:"created_at"`
-	UpdatedAt      time.Time      `db:"updated_at"`
+	Domain            pq.StringArray `db:"domain"`
+	SemanticScholarID sql.NullString `db:"semantic_scholar_id"`
+	ProfileSyncStatus sql.NullString `db:"profile_sync_status"`
+	CreatedAt         time.Time      `db:"created_at"`
+	UpdatedAt         time.Time      `db:"updated_at"`
 }
 
 func (u *User) ToDTO() *dto.UserResponse {
@@ -37,13 +42,25 @@ func (u *User) ToDTO() *dto.UserResponse {
 		domain = []string{}
 	}
 
+	var ssid *string
+	if u.SemanticScholarID.Valid {
+		ssid = &u.SemanticScholarID.String
+	}
+
+	var syncStatus *string
+	if u.ProfileSyncStatus.Valid {
+		syncStatus = &u.ProfileSyncStatus.String
+	}
+
 	return &dto.UserResponse{
 		User: &dto.User{
-			ID:        u.UserID,
-			Email:     u.Email,
-			FirstName: u.FirstName,
-			LastName:  u.LastName,
-			Domain:    domain,
+			ID:                u.UserID,
+			Email:             u.Email,
+			FirstName:         u.FirstName,
+			LastName:          u.LastName,
+			Domain:            domain,
+			SemanticScholarID: ssid,
+			ProfileSyncStatus: syncStatus,
 		},
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
