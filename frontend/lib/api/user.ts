@@ -18,6 +18,10 @@ export const userApi = {
       method: "POST",
       body: JSON.stringify({ semanticScholarId }),
     }),
+  unlinkAcademicProfile: () =>
+    apiFetch<{ data: User }>("/users/unlink-academic-profile", {
+      method: "POST",
+    }),
 }
 
 export interface AcademicPaper {

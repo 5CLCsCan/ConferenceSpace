@@ -389,7 +389,7 @@ func (c *Controller) GetAcademicProfile(ginCtx *gin.Context) (*dto.AcademicProfi
 		if p.Authors != nil {
 			_ = json.Unmarshal(p.Authors, &authors)
 		}
-		
+
 		respPapers[i] = dto.AcademicPaper{
 			PaperID:       p.SemanticScholarID,
 			Title:         p.Title,

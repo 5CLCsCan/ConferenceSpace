@@ -200,15 +200,28 @@ export function ProfileOnboardingModal({
                             )}
                           </div>
 
-                          <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <BookOpen className="h-3 w-3" />
-                              {author.paperCount || 0} papers
+                          <div className="mt-3 flex items-center justify-between">
+                            <div className="flex gap-4 text-xs text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <BookOpen className="h-3 w-3" />
+                                {author.paperCount || 0} papers
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <ExternalLink className="h-3 w-3" />
+                                {author.citationCount || 0} citations
+                              </div>
                             </div>
-                            <div className="flex items-center gap-1">
-                              <ExternalLink className="h-3 w-3" />
-                              {author.citationCount || 0} citations
-                            </div>
+                            {author.url && (
+                              <a
+                                href={author.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="text-xs text-primary hover:underline flex items-center gap-1"
+                              >
+                                View Profile <ExternalLink className="h-3 w-3" />
+                              </a>
+                            )}
                           </div>
                         </CardContent>
                       </Card>

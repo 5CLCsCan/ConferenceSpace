@@ -27,6 +27,7 @@ import {
   BookOpen,
   Quote,
   FileText,
+  Unlink,
 } from "lucide-react"
 import { typography, spacing, iconSizes } from "@/lib/typography"
 import { ProfileOnboardingModal } from "@/components/author/profile-onboarding-modal"
@@ -85,6 +86,7 @@ export default function UserProfilePage() {
   const [domainInput, setDomainInput] = useState("")
   const [authChecked, setAuthChecked] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [isUnlinking, setIsUnlinking] = useState(false)
 
   const userEmail = params.email as string
   const isOwnProfile = userEmail === "me" || userEmail === authUser?.email
@@ -294,6 +296,37 @@ export default function UserProfilePage() {
       })
       // Refresh profile to show new data
       fetchUserProfile()
+    }
+  }
+
+  const handleUnlinkProfile = async () => {
+    if (!isOwnProfile) return
+
+    const confirmed = window.confirm(
+      "Are you sure you want to unlink your academic profile? This will remove all synced publication data.",
+    )
+    if (!confirmed) return
+
+    try {
+      setIsUnlinking(true)
+      await userApi.unlinkAcademicProfile()
+
+      toast({
+        title: "Profile Unlinked",
+        description: "Your academic profile has been disconnected.",
+      })
+
+      setAcademicProfile(null)
+      if (refreshUser) await refreshUser()
+      await fetchUserProfile()
+    } catch (error: any) {
+      toast({
+        title: "Unlink Failed",
+        description: error?.message || "Could not unlink profile. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsUnlinking(false)
     }
   }
 
@@ -545,17 +578,37 @@ export default function UserProfilePage() {
                         Synced from Semantic Scholar
                       </CardDescription>
                     </div>
-                    <Button variant="outline" size="sm" asChild>
-                      <a
-                        href={academicProfile.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="gap-2"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        View on Semantic Scholar
-                      </a>
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" asChild>
+                        <a
+                          href={academicProfile.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="gap-2"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          View Profile
+                        </a>
+                      </Button>
+                      {isOwnProfile && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleUnlinkProfile}
+                          disabled={isUnlinking}
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        >
+                          {isUnlinking ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <>
+                              <Unlink className="w-4 h-4 mr-1" />
+                              Unlink
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </div>
                   </CardHeader>
                   <CardContent className="pt-6">
                     <div className="grid grid-cols-3 gap-4 mb-6">

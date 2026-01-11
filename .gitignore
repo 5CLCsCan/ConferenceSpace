@@ -34,3 +34,5 @@ AGENTS.md
 !.vscode/settings.json
 
 backend/scripts/*.sh
+backend/scripts/coauthorships.csv
+backend/scripts/reduce_data_seeder.py
