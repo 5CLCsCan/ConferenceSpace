@@ -19,6 +19,7 @@ type StorageInterface interface {
 	LinkPaperToProfile(ctx context.Context, profileID, paperID int64) error
 	ClearProfilePapers(ctx context.Context, profileID int64) error
 	GetPapersByProfileID(ctx context.Context, profileID int64) ([]*model.ScholarPaper, error)
+	DeleteProfileByUserID(ctx context.Context, userID int64) error
 }
 
 type Storage struct {
@@ -215,4 +216,22 @@ func (s *Storage) GetPapersByProfileID(ctx context.Context, profileID int64) ([]
 	}
 
 	return papers, nil
+}
+
+func (s *Storage) DeleteProfileByUserID(ctx context.Context, userID int64) error {
+	// Due to CASCADE, deleting the profile will also delete scholar_profile_papers entries
+	query, args, err := s.qb.Delete(model.ScholarProfileTableName).
+		Where(squirrel.Eq{"user_id": userID}).
+		ToSql()
+
+	if err != nil {
+		return fmt.Errorf("failed to build delete profile query: %w", err)
+	}
+
+	_, err = s.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to delete profile: %w", err)
+	}
+
+	return nil
 }

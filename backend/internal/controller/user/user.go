@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -383,6 +384,12 @@ func (c *Controller) GetAcademicProfile(ginCtx *gin.Context) (*dto.AcademicProfi
 	// Map to DTO
 	respPapers := make([]dto.AcademicPaper, len(papers))
 	for i, p := range papers {
+		// Parse authors from JSON
+		var authors []dto.PaperAuthor
+		if p.Authors != nil {
+			_ = json.Unmarshal(p.Authors, &authors)
+		}
+		
 		respPapers[i] = dto.AcademicPaper{
 			PaperID:       p.SemanticScholarID,
 			Title:         p.Title,
@@ -391,7 +398,7 @@ func (c *Controller) GetAcademicProfile(ginCtx *gin.Context) (*dto.AcademicProfi
 			Year:          p.Year,
 			CitationCount: p.CitationCount,
 			URL:           p.URL,
-			Authors:       p.Authors,
+			Authors:       authors,
 		}
 	}
 

@@ -45,14 +45,14 @@ func NewClient(cfg Config) *Client {
 
 // Author represents a Semantic Scholar author
 type Author struct {
-	AuthorID       string   `json:"authorId"`
-	Name           string   `json:"name"`
-	Affiliations   []string `json:"affiliations,omitempty"`
-	Homepage       string   `json:"homepage,omitempty"`
-	PaperCount     int      `json:"paperCount,omitempty"`
-	CitationCount  int      `json:"citationCount,omitempty"`
-	HIndex         int      `json:"hIndex,omitempty"`
-	URL            string   `json:"url,omitempty"`
+	AuthorID      string   `json:"authorId"`
+	Name          string   `json:"name"`
+	Affiliations  []string `json:"affiliations,omitempty"`
+	Homepage      string   `json:"homepage,omitempty"`
+	PaperCount    int      `json:"paperCount,omitempty"`
+	CitationCount int      `json:"citationCount,omitempty"`
+	HIndex        int      `json:"hIndex,omitempty"`
+	URL           string   `json:"url,omitempty"`
 }
 
 // Paper represents a paper in Semantic Scholar
@@ -144,9 +144,9 @@ func (c *Client) SearchAuthors(ctx context.Context, query string, limit int) (*S
 
 	// Include additional fields so search results have enough info for display
 	fields := "authorId,name,affiliations,paperCount,citationCount,hIndex,url"
-	path := fmt.Sprintf("/author/search?query=%s&limit=%d&fields=%s", 
+	path := fmt.Sprintf("/author/search?query=%s&limit=%d&fields=%s",
 		url.QueryEscape(query), limit, fields)
-	
+
 	respBody, err := c.doRequest(ctx, "GET", path, nil)
 	if err != nil {
 		return nil, err

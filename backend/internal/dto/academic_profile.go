@@ -1,7 +1,5 @@
 package dto
 
-import "encoding/json"
-
 // AcademicProfileResponse represents the user's academic profile
 type AcademicProfileResponse struct {
 	UserID            int64           `json:"userId"`
@@ -16,14 +14,20 @@ type AcademicProfileResponse struct {
 	Papers            []AcademicPaper `json:"papers"`
 }
 
+// PaperAuthor represents an author of a paper
+type PaperAuthor struct {
+	AuthorID string `json:"authorId"`
+	Name     string `json:"name"`
+}
+
 // AcademicPaper represents a single paper in the academic profile
 type AcademicPaper struct {
-	PaperID       string          `json:"paperId"`
-	Title         string          `json:"title"`
-	Abstract      string          `json:"abstract,omitempty"`
-	Venue         string          `json:"venue,omitempty"`
-	Year          int             `json:"year,omitempty"`
-	CitationCount int             `json:"citationCount"`
-	URL           string          `json:"url,omitempty"`
-	Authors       json.RawMessage `json:"authors,omitempty"` // Keep as raw JSON for flexibility
+	PaperID       string        `json:"paperId"`
+	Title         string        `json:"title"`
+	Abstract      string        `json:"abstract,omitempty"`
+	Venue         string        `json:"venue,omitempty"`
+	Year          int           `json:"year,omitempty"`
+	CitationCount int           `json:"citationCount"`
+	URL           string        `json:"url,omitempty"`
+	Authors       []PaperAuthor `json:"authors,omitempty"`
 }

@@ -22,7 +22,7 @@ from itertools import combinations
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-try
+try:
     import requests
 except ImportError:
     print("Error: 'requests' library is required. Install with: pip install requests")

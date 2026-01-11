@@ -45,7 +45,7 @@ func (c *Controller) LinkAcademicProfile(ginCtx *gin.Context, req *LinkProfileRe
 	// 2. Add validation: Check if this semantic scholar ID is valid?
 	// We skip strict validation here to be fast, but ideally we should check if author exists.
 	// Since we are going to prefetch immediately, that serves as validation implicitly (though asynchronous).
-	
+
 	// 3. Update user profile
 	status := "pending"
 	user.SemanticScholarID = &req.SemanticScholarID
@@ -55,7 +55,7 @@ func (c *Controller) LinkAcademicProfile(ginCtx *gin.Context, req *LinkProfileRe
 	// Need to ensure the user object has the new fields set.
 	// We are modifying the response object `user` which is *dto.UserResponse.
 	// user.User is *dto.User.
-	
+
 	updatedUser, err := c.userStorage.UpdateByEmail(ctx, userEmail, user.User)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to update user profile")
@@ -65,17 +65,17 @@ func (c *Controller) LinkAcademicProfile(ginCtx *gin.Context, req *LinkProfileRe
 	if c.semanticScholarCtrl != nil {
 		go func(authorID string, userID int64) {
 			bgCtx := context.Background()
-			
+
 			// Fetch and sync to relational tables
 			err := c.semanticScholarCtrl.SyncAuthorProfile(bgCtx, userID, authorID)
-			
+
 			// Update status based on result
 			newStatus := "completed"
 			if err != nil {
 				fmt.Printf("Background sync failed for user %d: %v\n", userID, err)
 				newStatus = "failed"
 			}
-			
+
 			// Re-fetch user to get current state (using ID is safer/faster)
 			currentUser, err := c.userStorage.GetByID(bgCtx, userID)
 			if err == nil {
@@ -84,6 +84,58 @@ func (c *Controller) LinkAcademicProfile(ginCtx *gin.Context, req *LinkProfileRe
 				_, _ = c.userStorage.Update(bgCtx, userID, currentUser.User)
 			}
 		}(req.SemanticScholarID, user.ID)
+	}
+
+	return updatedUser, nil
+}
+
+// UnlinkAcademicProfile handles the unlinking of a Semantic Scholar profile
+// @Summary      Unlink academic profile
+// @Description  Remove the linked Semantic Scholar profile from user account
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} dto.UserResponse
+// @Failure      401 {object} handler.Response
+// @Failure      404 {object} handler.Response
+// @Failure      500 {object} handler.Response
+// @Router       /users/unlink-academic-profile [post]
+func (c *Controller) UnlinkAcademicProfile(ginCtx *gin.Context) (*dto.UserResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	// 1. Authenticate user
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	user, err := c.userStorage.GetByEmail(ctx, userEmail)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "user not found")
+	}
+
+	// 2. Check if user has a linked profile
+	if user.SemanticScholarID == nil || *user.SemanticScholarID == "" {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "no academic profile linked")
+	}
+
+	// 3. Delete scholar profile data
+	if c.scholarStorage != nil {
+		err = c.scholarStorage.DeleteProfileByUserID(ctx, user.ID)
+		if err != nil {
+			fmt.Printf("Warning: failed to delete scholar profile for user %d: %v\n", user.ID, err)
+			// Continue anyway - the main goal is to unlink from user record
+		}
+	}
+
+	// 4. Clear user's semantic scholar fields
+	user.SemanticScholarID = nil
+	user.ProfileSyncStatus = nil
+
+	updatedUser, err := c.userStorage.UpdateByEmail(ctx, userEmail, user.User)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to update user profile")
 	}
 
 	return updatedUser, nil
