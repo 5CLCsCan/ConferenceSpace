@@ -12,6 +12,7 @@ import (
 	"github.com/dcao/conferencespace/internal/clients"
 	"github.com/dcao/conferencespace/internal/config"
 	"github.com/dcao/conferencespace/internal/controller"
+	"github.com/dcao/conferencespace/internal/controller/auth"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/middleware"
 	"github.com/dcao/conferencespace/internal/orchestrator"
@@ -103,6 +104,7 @@ func main() {
 type AppContext struct {
 	Controller *controller.Controller
 	Hub        *websocket.Hub
+	Store      *storage.Storage
 }
 
 // initializeApp sets up all dependencies using dependency injection pattern
@@ -149,6 +151,7 @@ func initializeApp(cfg *config.Config) (*AppContext, func(), error) {
 	appCtx := &AppContext{
 		Controller: ctrl,
 		Hub:        hub,
+		Store:      store,
 	}
 
 	return appCtx, cleanup, nil
@@ -188,10 +191,21 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 	v1 := router.Group("/api/v1")
 	{
 		// Public auth routes (no authentication required)
-		auth := v1.Group("/auth")
+		authRoutes := v1.Group("/auth")
 		{
-			auth.POST("/register", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Auth.Register))
-			auth.POST("/login", handler.HandleRequest(ctrl.Auth.Login))
+			authRoutes.POST("/register", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Auth.Register))
+			authRoutes.POST("/login", handler.HandleRequest(ctrl.Auth.Login))
+
+			// Test endpoint for development - creates test user and returns token
+			if cfg.Server.Env == "" || cfg.Server.Env == "development" || cfg.Server.Env == "test" {
+				testCtrl := auth.NewTestController(
+					appCtx.Store,
+					cfg.JWT.Secret,
+					time.Duration(cfg.JWT.Expiry)*time.Hour,
+					cfg.Server.Env,
+				)
+				authRoutes.POST("/test-login", handler.HandleRequest(testCtrl.TestLogin))
+			}
 		}
 
 		// Protected user routes (authentication required)
