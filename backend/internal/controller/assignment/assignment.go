@@ -353,8 +353,8 @@ func (c *Controller) ListReviews(ginCtx *gin.Context, req *dto.ReviewListRequest
 		req.Offset = 0
 	}
 
-	// Use :id from path as submission ID
-	submissionIDStr := ginCtx.Param("id")
+	// Use :submission_id from path as submission ID
+	submissionIDStr := ginCtx.Param("submission_id")
 	submissionID, err := strconv.ParseInt(submissionIDStr, 10, 64)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid submission id")
@@ -392,7 +392,7 @@ func (c *Controller) GetReviewAnalytics(ginCtx *gin.Context) (*dto.ReviewAnalyti
 	ctx := ginCtx.Request.Context()
 
 	// Get submission ID from path
-	submissionIDStr := ginCtx.Param("id")
+	submissionIDStr := ginCtx.Param("submission_id")
 	submissionID, err := strconv.ParseInt(submissionIDStr, 10, 64)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid submission id")

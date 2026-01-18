@@ -32,6 +32,7 @@ import type { Submission } from "@/lib/api/submissions"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
 import { SubmissionReviewTab } from "@/components/chair/submission-review-tab"
+import { DiscussionThreadList } from "@/components/discussion"
 
 interface SubmissionDetailViewProps {
   submission: Submission
@@ -179,7 +180,7 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList
-          className={`grid w-full ${isChair ? "grid-cols-5" : "grid-cols-4"} bg-muted/50 p-1 h-auto border border-border rounded-lg gap-1`}
+          className={`grid w-full ${isChair ? "grid-cols-6" : "grid-cols-5"} bg-muted/50 p-1 h-auto border border-border rounded-lg gap-1`}
         >
           <TabsTrigger
             value="overview"
@@ -216,6 +217,13 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
           >
             <FileCheck className="size-4 mr-2" />
             {t("dashboard.submission.tabs.coverLetter")}
+          </TabsTrigger>
+          <TabsTrigger
+            value="discussion"
+            className="rounded-md border border-transparent data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-4 py-2.5 text-sm font-medium transition-all hover:bg-background/50 hover:text-foreground"
+          >
+            <MessageSquare className="size-4 mr-2" />
+            {t("dashboard.submission.tabs.discussion")}
           </TabsTrigger>
         </TabsList>
 
@@ -623,6 +631,16 @@ export function SubmissionDetailView({ submission, conferenceId }: SubmissionDet
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        {/* Discussion Tab */}
+        <TabsContent value="discussion" className="space-y-6 mt-4">
+          <DiscussionThreadList
+            conferenceId={Number(conferenceId)}
+            submissionId={Number(submission.id)}
+            canCreateThread={false}
+            userRole={isChair ? "chair" : "author"}
+          />
         </TabsContent>
       </Tabs>
     </div>

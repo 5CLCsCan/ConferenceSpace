@@ -24,13 +24,15 @@ const (
 
 // Notification types
 const (
-	NotificationTypeSubmissionReceived = "submission_received"
-	NotificationTypeReviewAssigned     = "review_assigned"
-	NotificationTypeReviewSubmitted    = "review_submitted"
-	NotificationTypePaperAccepted      = "paper_accepted"
-	NotificationTypePaperRejected      = "paper_rejected"
-	NotificationTypeDeadlineReminder   = "deadline_reminder"
-	NotificationTypeStatusChange       = "status_change"
+	NotificationTypeSubmissionReceived  = "submission_received"
+	NotificationTypeReviewAssigned      = "review_assigned"
+	NotificationTypeReviewSubmitted     = "review_submitted"
+	NotificationTypePaperAccepted       = "paper_accepted"
+	NotificationTypePaperRejected       = "paper_rejected"
+	NotificationTypeDeadlineReminder    = "deadline_reminder"
+	NotificationTypeStatusChange        = "status_change"
+	NotificationTypeDiscussionThread    = "discussion_thread"
+	NotificationTypeDiscussionMessage   = "discussion_message"
 )
 
 // Notification represents a notification in the database
