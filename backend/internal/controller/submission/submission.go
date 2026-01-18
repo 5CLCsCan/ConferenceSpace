@@ -324,7 +324,7 @@ func (c *Controller) Get(ginCtx *gin.Context) (*dto.Submission, error) {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
 	}
 
-	id, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
+	id, err := strconv.ParseInt(ginCtx.Param("submission_id"), 10, 64)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid submission ID")
 	}
@@ -382,7 +382,7 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.SubmissionUpdateReques
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
 	}
 
-	id, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
+	id, err := strconv.ParseInt(ginCtx.Param("submission_id"), 10, 64)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid submission ID")
 	}
@@ -516,7 +516,7 @@ func (c *Controller) Publish(ginCtx *gin.Context, req *dto.SubmissionPublishRequ
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
 	}
 
-	id, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
+	id, err := strconv.ParseInt(ginCtx.Param("submission_id"), 10, 64)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid submission ID")
 	}
@@ -649,7 +649,7 @@ func (c *Controller) Delete(ginCtx *gin.Context) error {
 		return handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
 	}
 
-	id, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
+	id, err := strconv.ParseInt(ginCtx.Param("submission_id"), 10, 64)
 	if err != nil {
 		return handler.NewErrorResponse(http.StatusBadRequest, "invalid submission ID")
 	}
@@ -702,7 +702,7 @@ func (c *Controller) GetFile(ginCtx *gin.Context) {
 		return
 	}
 
-	id, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
+	id, err := strconv.ParseInt(ginCtx.Param("submission_id"), 10, 64)
 	if err != nil {
 		ginCtx.JSON(http.StatusBadRequest, handler.Response{Error: "invalid submission ID"})
 		return
@@ -870,7 +870,7 @@ func (c *Controller) GetCoverLetter(ginCtx *gin.Context) {
 		return
 	}
 
-	id, err := strconv.ParseInt(ginCtx.Param("id"), 10, 64)
+	id, err := strconv.ParseInt(ginCtx.Param("submission_id"), 10, 64)
 	if err != nil {
 		ginCtx.JSON(http.StatusBadRequest, handler.Response{Error: "invalid submission ID"})
 		return

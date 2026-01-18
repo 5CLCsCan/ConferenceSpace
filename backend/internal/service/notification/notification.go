@@ -307,3 +307,55 @@ func (s *Service) CreateCustomNotification(ctx context.Context, req *dto.Notific
 	s.broadcastNotification(notification)
 	return notification, nil
 }
+
+// NotifyDiscussionThreadCreated notifies an author when a reviewer creates a discussion thread
+func (s *Service) NotifyDiscussionThreadCreated(ctx context.Context, authorEmail string, paperTitle string, threadTitle string, conferenceID int64, submissionID int64, threadID int64) error {
+	req := &dto.NotificationCreateRequest{
+		UserEmail: authorEmail,
+		Type:      model.NotificationTypeDiscussionThread,
+		Title:     "New Discussion Thread",
+		Message:   fmt.Sprintf("A reviewer has started a discussion \"%s\" on your paper \"%s\".", threadTitle, paperTitle),
+		Metadata: map[string]interface{}{
+			"thread_id":        threadID,
+			"thread_title":     threadTitle,
+			"submission_id":    submissionID,
+			"submission_title": paperTitle,
+		},
+		ActionURL:    fmt.Sprintf("/dashboard/conference/%d/submission/%d?tab=discussion&thread=%d", conferenceID, submissionID, threadID),
+		ConferenceID: &conferenceID,
+	}
+
+	notification, err := s.storage.Create(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	s.broadcastNotification(notification)
+	return nil
+}
+
+// NotifyDiscussionMessageCreated notifies a participant when a new message is added to a thread
+func (s *Service) NotifyDiscussionMessageCreated(ctx context.Context, recipientEmail string, paperTitle string, threadTitle string, conferenceID int64, submissionID int64, threadID int64) error {
+	req := &dto.NotificationCreateRequest{
+		UserEmail: recipientEmail,
+		Type:      model.NotificationTypeDiscussionMessage,
+		Title:     "New Discussion Message",
+		Message:   fmt.Sprintf("New message in discussion \"%s\" on paper \"%s\".", threadTitle, paperTitle),
+		Metadata: map[string]interface{}{
+			"thread_id":        threadID,
+			"thread_title":     threadTitle,
+			"submission_id":    submissionID,
+			"submission_title": paperTitle,
+		},
+		ActionURL:    fmt.Sprintf("/dashboard/conference/%d/submission/%d?tab=discussion&thread=%d", conferenceID, submissionID, threadID),
+		ConferenceID: &conferenceID,
+	}
+
+	notification, err := s.storage.Create(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	s.broadcastNotification(notification)
+	return nil
+}

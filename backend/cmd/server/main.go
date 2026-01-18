@@ -251,21 +251,25 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			{
 				submissions.POST("/precheck", handler.HandleNoRequest(ctrl.Submission.PreCheck))
 				submissions.GET("", handler.HandleRequestWithURIAndQuery(ctrl.Submission.List))
-				submissions.GET("/:id", handler.HandleNoRequest(ctrl.Submission.Get))
-				submissions.GET("/:id/file", ctrl.Submission.GetFile)
-				submissions.GET("/:id/cover_letter", ctrl.Submission.GetCoverLetter)
+				submissions.GET("/:submission_id", handler.HandleNoRequest(ctrl.Submission.Get))
+				submissions.GET("/:submission_id/file", ctrl.Submission.GetFile)
+				submissions.GET("/:submission_id/cover_letter", ctrl.Submission.GetCoverLetter)
 				submissions.POST("", handler.HandleSubmissionCreate(ctrl.Submission.Create))
-				submissions.PUT("/:id", handler.HandleSubmissionUpdate(ctrl.Submission.Update))
-				submissions.POST("/:id/publish", handler.HandleSubmissionPublish(ctrl.Submission.Publish))
-				submissions.PUT("/:id/status", handler.HandleRequestWithAll(ctrl.Submission.UpdateStatus))
-				submissions.DELETE("/:id", handler.HandleNoRequestWithMessage("submission deleted successfully", ctrl.Submission.Delete))
+				submissions.PUT("/:submission_id", handler.HandleSubmissionUpdate(ctrl.Submission.Update))
+				submissions.POST("/:submission_id/publish", handler.HandleSubmissionPublish(ctrl.Submission.Publish))
+				submissions.PUT("/:submission_id/status", handler.HandleRequestWithAll(ctrl.Submission.UpdateStatus))
+				submissions.DELETE("/:submission_id", handler.HandleNoRequestWithMessage("submission deleted successfully", ctrl.Submission.Delete))
 
 				// Auto-assignment endpoint - automatically sets submissions to "reviewing" status
 				submissions.POST("/auto-assign", handler.HandleRequest(ctrl.Assignment.AutoAssign))
 
 				// Review endpoints for chair (list reviews and analytics)
-				submissions.GET("/:id/reviews", handler.HandleRequestWithURIAndQuery(ctrl.Assignment.ListReviews))
-				submissions.GET("/:id/reviews/analytics", handler.HandleNoRequest(ctrl.Assignment.GetReviewAnalytics))
+				submissions.GET("/:submission_id/reviews", handler.HandleRequestWithURIAndQuery(ctrl.Assignment.ListReviews))
+				submissions.GET("/:submission_id/reviews/analytics", handler.HandleNoRequest(ctrl.Assignment.GetReviewAnalytics))
+
+				// Discussion threads for submissions
+				submissions.POST("/:submission_id/threads", handler.HandleNoRequestWithStatus(http.StatusCreated, ctrl.Discussion.CreateThread))
+				submissions.GET("/:submission_id/threads", handler.HandleNoRequest(ctrl.Discussion.GetThreads))
 			}
 		}
 
@@ -315,6 +319,15 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			notifications.PATCH("/:id/read", handler.HandleNoRequest(ctrl.Notification.MarkAsRead))
 			notifications.PATCH("/read-all", handler.HandleNoRequest(ctrl.Notification.MarkAllAsRead))
 			notifications.DELETE("/:id", handler.HandleNoRequestWithMessage("notification deleted successfully", ctrl.Notification.Delete))
+		}
+
+		// Discussion thread routes (authentication required)
+		threads := v1.Group("/threads")
+		threads.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
+		{
+			threads.GET("/:thread_id", handler.HandleNoRequest(ctrl.Discussion.GetThread))
+			threads.POST("/:thread_id/messages", handler.HandleNoRequestWithStatus(http.StatusCreated, ctrl.Discussion.CreateMessage))
+			threads.GET("/:thread_id/messages", handler.HandleNoRequest(ctrl.Discussion.GetMessages))
 		}
 
 		// Semantic Scholar routes (authentication required)

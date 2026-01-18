@@ -59,25 +59,25 @@ type SubmissionCreateRequest struct {
 
 type SubmissionGetRequest struct {
 	ConferenceID     int64 `uri:"conference_id" binding:"required"`
-	ID               int64 `uri:"id" binding:"required"`
+	ID               int64 `uri:"submission_id" binding:"required"`
 	IncludeReviewers bool  `form:"includeReviewers" json:"includeReviewers"`
 }
 
 type SubmissionUpdateRequest struct {
 	ConferenceID int64       `uri:"conference_id" binding:"required"`
-	ID           int64       `uri:"id" binding:"required"`
+	ID           int64       `uri:"submission_id" binding:"required"`
 	Submission   *Submission `json:"submission" form:"submission" binding:"required"`
 }
 
 type SubmissionPublishRequest struct {
 	ConferenceID int64       `uri:"conference_id" binding:"required"`
-	ID           int64       `uri:"id" binding:"required"`
+	ID           int64       `uri:"submission_id" binding:"required"`
 	Submission   *Submission `form:"submission"` // Contains File and CoverLetter if provided
 }
 
 type SubmissionDeleteRequest struct {
 	ConferenceID int64 `uri:"conference_id" binding:"required"`
-	ID           int64 `uri:"id" binding:"required"`
+	ID           int64 `uri:"submission_id" binding:"required"`
 }
 
 type SubmissionListRequest struct {
@@ -97,6 +97,6 @@ type SubmissionListResponse struct {
 
 type UpdateStatusRequest struct {
 	ConferenceID int64  `uri:"conference_id" json:"conference_id"`
-	ID           int64  `uri:"id" json:"id"`
+	ID           int64  `uri:"submission_id" json:"submission_id"`
 	Status       string `json:"status" binding:"required,oneof=draft published reviewing accepted rejected"`
 }

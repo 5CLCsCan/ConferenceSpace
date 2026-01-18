@@ -40,13 +40,13 @@ import {
 import type { Paper } from "@/lib/types"
 import { formatDate } from "@/lib/utils"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Input } from "@/components/ui/input"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { toast } from "@/hooks/use-toast"
 import { typography, spacing, iconSizes } from "@/lib/typography"
 import useAssignmentReview from "@/hooks/use-assignment-review"
 import { useSearchParams } from "next/navigation"
 import type { ReviewData } from "@/lib/api/reviews"
+import { DiscussionThreadList } from "@/components/discussion"
 
 interface PaperReviewProps {
   paper: Paper
@@ -56,24 +56,7 @@ interface PaperReviewProps {
   assignmentId?: string // Assignment ID for saving reviews
 }
 
-// Mock data for discussion and rebuttal (giữ nguyên)
-const mockDiscussion = [
-  {
-    id: 1,
-    user: { name: "Alex Ray", avatar: "/avatars/01.png" },
-    comment:
-      "I'm leaning towards acceptance, but the novelty is a bit borderline. The experimental setup is solid though. What are your thoughts?",
-    timestamp: "2 days ago",
-  },
-  {
-    id: 2,
-    user: { name: "Jordan Lee", avatar: "/avatars/02.png" },
-    comment:
-      "I agree, Alex. The technical quality is high, but I've seen similar approaches in last year's NeurIPS. I've asked the authors to clarify the key differences in my review.",
-    timestamp: "1 day ago",
-  },
-]
-
+// Mock data for rebuttal (to be replaced with real API)
 const mockRebuttal = {
   author: "Sam Author",
   timestamp: "4 hours ago",
@@ -130,7 +113,6 @@ export function PaperReview({
   >("")
   const [confidence, setConfidence] = useState<"high" | "medium" | "low" | "">("")
   const [showAIAnalysis, setShowAIAnalysis] = useState(false)
-  const [discussionMessage, setDiscussionMessage] = useState("")
 
   // Prefill form when review data is loaded
   useEffect(() => {
@@ -869,45 +851,12 @@ export function PaperReview({
 
         {/* DISCUSSION TAB */}
         <TabsContent value="discussion" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("review.form.discussion.title")}</CardTitle>
-              <CardDescription>{t("review.form.discussion.description")}</CardDescription>
-            </CardHeader>
-            <CardContent className={spacing.subsection}>
-              <div className={spacing.subsection}>
-                {mockDiscussion.map((msg) => (
-                  <div key={msg.id} className={`flex items-start ${spacing.gap.md}`}>
-                    <Avatar>
-                      <AvatarImage src={msg.user.avatar} />
-                      <AvatarFallback>{msg.user.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <p className={typography.semibold}>{msg.user.name}</p>
-                        <p className={`${typography.bodySmall} text-muted-foreground`}>
-                          {msg.timestamp}
-                        </p>
-                      </div>
-                      <p className={`${typography.body} text-muted-foreground`}>{msg.comment}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className={`flex items-center ${spacing.gap.sm} pt-4 border-t`}>
-                <Avatar>
-                  <AvatarImage src="/avatars/03.png" />
-                  <AvatarFallback>ME</AvatarFallback>
-                </Avatar>
-                <Input
-                  placeholder={t("review.form.discussion.placeholder")}
-                  value={discussionMessage}
-                  onChange={(e) => setDiscussionMessage(e.target.value)}
-                />
-                <Button>{t("review.form.discussion.send")}</Button>
-              </div>
-            </CardContent>
-          </Card>
+          <DiscussionThreadList
+            conferenceId={Number(paper.conference_id)}
+            submissionId={Number(paper.id)}
+            canCreateThread={true}
+            userRole="reviewer"
+          />
         </TabsContent>
 
         {/* REBUTTAL TAB */}

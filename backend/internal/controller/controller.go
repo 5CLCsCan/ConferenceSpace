@@ -8,6 +8,7 @@ import (
 	"github.com/dcao/conferencespace/internal/controller/auth"
 	coiController "github.com/dcao/conferencespace/internal/controller/coi"
 	"github.com/dcao/conferencespace/internal/controller/conference"
+	discussionController "github.com/dcao/conferencespace/internal/controller/discussion"
 	notificationController "github.com/dcao/conferencespace/internal/controller/notification"
 	"github.com/dcao/conferencespace/internal/controller/reviewer"
 	semanticscholarController "github.com/dcao/conferencespace/internal/controller/semantic_scholar"
@@ -15,6 +16,7 @@ import (
 	"github.com/dcao/conferencespace/internal/controller/user"
 	"github.com/dcao/conferencespace/internal/orchestrator"
 	coiService "github.com/dcao/conferencespace/internal/service/coi"
+	discussionService "github.com/dcao/conferencespace/internal/service/discussion"
 	notificationService "github.com/dcao/conferencespace/internal/service/notification"
 	"github.com/dcao/conferencespace/internal/storage"
 	fileStorage "github.com/dcao/conferencespace/internal/storage/file"
@@ -31,6 +33,7 @@ type Controller struct {
 	COI             *coiController.Controller
 	Notification    *notificationController.Controller
 	SemanticScholar *semanticscholarController.Controller
+	Discussion      *discussionController.Controller
 }
 
 func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, fileStore fileStorage.StorageInterface, clients *clients.Clients) *Controller {
@@ -65,6 +68,9 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 	// Create notification service
 	notifSvc := notificationService.New(store.Notification)
 
+	// Create discussion service
+	discSvc := discussionService.NewWithNotification(store.Discussion, notifSvc)
+
 	// Create Semantic Scholar controller (only if client is available)
 	var semanticScholarCtrl *semanticscholarController.Controller
 	if clients != nil && clients.SemanticScholar != nil {
@@ -81,6 +87,7 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 		COI:          coiController.New(coiSvc),
 		Notification: notificationController.New(store),
 		SemanticScholar: semanticScholarCtrl,
+		Discussion:   discussionController.New(discSvc),
 	}
 }
 
@@ -117,6 +124,9 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 	// Create notification service with WebSocket support
 	notifSvc := notificationService.NewWithWebSocket(store.Notification, hub)
 
+	// Create discussion service with notification support
+	discSvc := discussionService.NewWithNotification(store.Discussion, notifSvc)
+
 	// Create Semantic Scholar controller (only if client is available)
 	var semanticScholarCtrl *semanticscholarController.Controller
 	if clients != nil && clients.SemanticScholar != nil {
@@ -133,5 +143,6 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 		COI:          coiController.New(coiSvc),
 		Notification: notificationController.New(store),
 		SemanticScholar: semanticScholarCtrl,
+		Discussion:   discussionController.New(discSvc),
 	}
 }
