@@ -34,3 +34,5 @@ AGENTS.md
 !.vscode/settings.json
 
 backend/scripts/*.sh
+
+.agent
