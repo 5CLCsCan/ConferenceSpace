@@ -1,6 +1,15 @@
 "use client"
 
+import { useState, useEffect, useRef } from "react"
+import { apiFetch } from "@/lib/api/client"
 import type { Author } from "./types"
+
+interface UserSearchResult {
+  id: number
+  email: string
+  first_name: string
+  last_name: string
+}
 
 interface AuthorsStepProps {
   authors: Author[]
@@ -25,6 +34,79 @@ export function AuthorsStep({
   onRemoveAuthor,
   onToggleCorresponding,
 }: AuthorsStepProps) {
+  const [searchResults, setSearchResults] = useState<UserSearchResult[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [showDropdown, setShowDropdown] = useState(false)
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Debounced user search
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current)
+    }
+
+    if (newAuthor.email.length >= 2) {
+      searchTimeoutRef.current = setTimeout(() => {
+        searchUsers(newAuthor.email)
+      }, 300)
+    } else {
+      setSearchResults([])
+      setShowDropdown(false)
+    }
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current)
+      }
+    }
+  }, [newAuthor.email])
+
+  const searchUsers = async (query: string) => {
+    if (!query || query.length < 2) return
+
+    setIsSearching(true)
+    setShowDropdown(true)
+
+    try {
+      const { data } = await apiFetch<{
+        data: {
+          users: UserSearchResult[]
+          total: number
+        }
+      }>(`/api/v1/users/search?q=${encodeURIComponent(query)}&limit=10`)
+
+      setSearchResults(data.data?.users || [])
+    } catch {
+      setSearchResults([])
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  const handleSelectUser = (user: UserSearchResult) => {
+    onNewAuthorChange({
+      ...newAuthor,
+      firstName: user.first_name || "",
+      lastName: user.last_name || "",
+      email: user.email,
+    })
+    setShowDropdown(false)
+    setSearchResults([])
+  }
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
   return (
     <div className="flex flex-col gap-6">
       {/* Author List Card */}
@@ -158,7 +240,9 @@ export function AuthorsStep({
               className="w-full h-10 px-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all"
             />
           </label>
-          <label className="flex flex-col gap-1.5 md:col-span-2">
+
+          {/* Email with User Search */}
+          <div className="flex flex-col gap-1.5 md:col-span-2 relative" ref={dropdownRef}>
             <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">
               Email Address <span className="text-red-500">*</span>
             </span>
@@ -166,10 +250,59 @@ export function AuthorsStep({
               type="email"
               value={newAuthor.email}
               onChange={(e) => onNewAuthorChange({ ...newAuthor, email: e.target.value })}
-              placeholder="e.g. john.doe@university.edu"
+              onFocus={() => {
+                if (newAuthor.email.length >= 2 && searchResults.length > 0) {
+                  setShowDropdown(true)
+                }
+              }}
+              placeholder="e.g. john.doe@university.edu - Start typing to search existing users"
               className="w-full h-10 px-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all"
             />
-          </label>
+
+            {/* User Search Dropdown */}
+            {showDropdown && (isSearching || searchResults.length > 0) && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-lg max-h-[200px] overflow-y-auto z-50">
+                {isSearching ? (
+                  <div className="flex items-center justify-center p-4 gap-2">
+                    <span className="material-symbols-outlined animate-spin text-primary text-sm">
+                      sync
+                    </span>
+                    <span className="text-sm text-neutral-500">Searching...</span>
+                  </div>
+                ) : searchResults.length > 0 ? (
+                  <div className="p-1">
+                    {searchResults.map((user) => (
+                      <button
+                        key={user.id}
+                        type="button"
+                        onClick={() => handleSelectUser(user)}
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-left"
+                      >
+                        <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                          {user.first_name?.[0] || user.email[0].toUpperCase()}
+                          {user.last_name?.[0] || ""}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-primary dark:text-white truncate">
+                            {user.email}
+                          </p>
+                          {(user.first_name || user.last_name) && (
+                            <p className="text-xs text-neutral-500 truncate">
+                              {`${user.first_name || ""} ${user.last_name || ""}`.trim()}
+                            </p>
+                          )}
+                        </div>
+                        <span className="material-symbols-outlined text-neutral-400 text-lg">
+                          person_add
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            )}
+          </div>
+
           <label className="flex flex-col gap-1.5">
             <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">
               Affiliation / Institution <span className="text-red-500">*</span>
@@ -201,6 +334,10 @@ export function AuthorsStep({
                 <option value="Japan">Japan</option>
                 <option value="Australia">Australia</option>
                 <option value="Vietnam">Vietnam</option>
+                <option value="China">China</option>
+                <option value="Singapore">Singapore</option>
+                <option value="South Korea">South Korea</option>
+                <option value="India">India</option>
               </select>
               <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500">
                 <span className="material-symbols-outlined text-[18px]">expand_more</span>

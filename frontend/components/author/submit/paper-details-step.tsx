@@ -55,7 +55,7 @@ export function PaperDetailsStep({
               <select
                 value={selectedTrack}
                 onChange={(e) => onTrackChange(e.target.value)}
-                className="w-full h-12 pl-4 pr-10 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-primary dark:text-white focus:ring-2 focus:ring-primary focus:border-primary transition-all appearance-none cursor-pointer"
+                className="w-full h-9 text-sm pl-4 pr-10 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-primary dark:text-white focus:ring-2 focus:ring-primary focus:border-primary transition-all appearance-none cursor-pointer"
               >
                 <option value="">Select a track...</option>
                 {availableTracks.map((track) => (
@@ -87,7 +87,7 @@ export function PaperDetailsStep({
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
             placeholder="e.g., Optimizing Neural Networks for Edge Devices"
-            className="w-full h-12 px-4 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-primary dark:text-white placeholder:text-neutral-400 focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+            className="w-full h-9 text-sm px-4 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-primary dark:text-white placeholder:text-neutral-400 focus:ring-2 focus:ring-primary focus:border-primary transition-all"
           />
         </label>
 
@@ -123,13 +123,13 @@ export function PaperDetailsStep({
           <span className="text-primary dark:text-white text-sm font-bold uppercase tracking-wider">
             Keywords <span className="text-red-500">*</span>
           </span>
-          <div className="w-full min-h-[56px] px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-primary dark:text-white focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all flex flex-wrap gap-2 items-center">
+          <div className="w-full min-h-[24px] text-sm pl-2 pr-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-primary dark:text-white focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all flex flex-wrap gap-2 items-center">
             {keywords.map((keyword) => (
               <div
                 key={keyword}
-                className="flex items-center gap-1.5 bg-neutral-100 dark:bg-neutral-800 px-3 py-1.5 rounded-full border border-neutral-200 dark:border-neutral-700"
+                className="flex items-center gap-1.5 bg-neutral-100 dark:bg-neutral-800 px-3 py-1 rounded-md border border-neutral-200 dark:border-neutral-700 text-xs"
               >
-                <span className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                <span className="text-xs font-medium text-neutral-800 dark:text-neutral-200">
                   {keyword}
                 </span>
                 <button
@@ -138,7 +138,7 @@ export function PaperDetailsStep({
                   aria-label={`Remove keyword ${keyword}`}
                   className="flex items-center justify-center size-5 rounded-full hover:bg-neutral-300 dark:hover:bg-neutral-600 text-neutral-500 dark:text-neutral-400 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
                 >
-                  <span className="material-symbols-outlined text-[14px] leading-none">close</span>
+                  <span className="material-symbols-outlined text-[16px] leading-none">close</span>
                 </button>
               </div>
             ))}
@@ -148,7 +148,7 @@ export function PaperDetailsStep({
               onChange={(e) => onKeywordInputChange(e.target.value)}
               onKeyDown={onAddKeyword}
               placeholder={keywords.length === 0 ? "Type keyword and press Enter..." : ""}
-              className="flex-1 min-w-[200px] h-8 border-none bg-transparent focus:outline-none text-sm px-2 placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
+              className="flex-1 min-w-[200px] h-6 border-none bg-transparent focus:outline-none text-sm px-2 placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
             />
           </div>
           <p className="text-xs text-neutral-500 dark:text-neutral-400">
@@ -158,8 +158,8 @@ export function PaperDetailsStep({
       </div>
 
       {/* Additional Options */}
-      <div className="p-6 bg-white dark:bg-[#1e1e1e] rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
-        <label className="flex items-start gap-3 cursor-pointer group">
+      <div className="px-6 py-3 bg-white dark:bg-[#1e1e1e] rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
+        <label className="flex items-start justify-start gap-3 cursor-pointer group">
           <input
             type="checkbox"
             checked={isStudentPaper}

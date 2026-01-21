@@ -97,14 +97,18 @@ export function PaperSubmissionForm({
   const [coiConfirmed, setCoiConfirmed] = useState(false)
   const [submissionConfirmed, setSubmissionConfirmed] = useState(false)
 
-  const availableTracks: string[] = Array.isArray(conference?.tracks)
-    ? conference.tracks.map((t) => (typeof t === "string" ? t : (t as any).name || String(t)))
-    : [
-        "Artificial Intelligence & Machine Learning",
-        "Computer Systems & Networks",
-        "Software Engineering",
-        "Human-Computer Interaction",
-      ]
+  const defaultTracks = [
+    "Artificial Intelligence & Machine Learning",
+    "Computer Systems & Networks",
+    "Software Engineering",
+    "Human-Computer Interaction",
+  ]
+
+  const availableTracks: string[] = Array.isArray(conference?.tracks) && conference.tracks.length > 0
+    ? conference.tracks
+        .map((t) => (typeof t === "string" ? t : (t as any).name || String(t)))
+        .filter((t): t is string => Boolean(t))
+    : defaultTracks
 
   // Keyword handlers
   const handleAddKeyword = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -248,11 +252,7 @@ export function PaperSubmissionForm({
         track: selectedTrack,
         information: {
           keywords,
-          co_authors: authors.slice(1).map((a) => ({
-            name: `${a.firstName} ${a.lastName}`,
-            email: a.email,
-            affiliation: a.affiliation,
-          })),
+          co_authors: authors.slice(1).map((a) => a.email),
           declared_conflicts: [],
           paper_type: isStudentPaper ? "student" : "research",
           track_name: selectedTrack,
@@ -302,15 +302,11 @@ export function PaperSubmissionForm({
         abstract,
         link: "",
         domain: [],
-        status: "pending" as const,
+        status: "published" as const,
         track: selectedTrack,
         information: {
           keywords,
-          co_authors: authors.slice(1).map((a) => ({
-            name: `${a.firstName} ${a.lastName}`,
-            email: a.email,
-            affiliation: a.affiliation,
-          })),
+          co_authors: authors.slice(1).map((a) => a.email),
           declared_conflicts: [],
           paper_type: isStudentPaper ? "student" : "research",
           track_name: selectedTrack,
@@ -383,11 +379,19 @@ export function PaperSubmissionForm({
             {/* Page Header */}
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
               <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2 text-sm font-medium text-neutral-500 mb-1">
-                  <span>Submissions</span>
-                  <span className="material-symbols-outlined text-xs">chevron_right</span>
-                  <span>New Paper</span>
-                </div>
+                <button
+                  onClick={() => {
+                    if (conference?.id) {
+                      router.push(`/dashboard/conference/${conference.id}`)
+                    } else {
+                      router.push("/dashboard/author/submissions")
+                    }
+                  }}
+                  className="flex items-center gap-2 text-sm font-medium text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 mb-1 transition-colors w-fit"
+                >
+                  <span className="material-symbols-outlined text-base">arrow_back</span>
+                  <span>Return</span>
+                </button>
                 <h1 className="text-primary dark:text-white text-3xl font-bold tracking-tight">
                   {stepHeaders[currentStep].title}
                 </h1>
@@ -395,9 +399,9 @@ export function PaperSubmissionForm({
                   {stepHeaders[currentStep].description}
                 </p>
               </div>
-              <div className="flex items-center gap-2 bg-white dark:bg-[#1e1e1e] px-3 py-1.5 rounded-full border border-neutral-200 dark:border-neutral-700 shadow-sm">
+              <div className="flex items-center gap-2 bg-white dark:bg-[#1e1e1e] px-3 h-[30px] rounded-full border border-neutral-200 dark:border-neutral-700 shadow-sm">
                 <div className="size-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-xs font-medium text-neutral-600 dark:text-neutral-300">
+                <span className="text-xs font-medium text-neutral-600 dark:text-neutral-300 whitespace-nowrap">
                   Draft auto-saved at 10:42 AM
                 </span>
               </div>
@@ -439,6 +443,8 @@ export function PaperSubmissionForm({
                 uploadedFile={uploadedFile}
                 uploadProgress={uploadProgress}
                 fileValidation={fileValidation}
+                conference={conference}
+                submissionId={initialSubmission?.id?.toString()}
                 onFileUpload={handleFileUpload}
                 onRemoveFile={handleRemoveFile}
               />
