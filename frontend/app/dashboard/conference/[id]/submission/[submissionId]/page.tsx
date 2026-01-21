@@ -2,32 +2,35 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { DashboardHeader } from "@/components/dashboard-header"
-import { SubmissionDetailView } from "@/components/author/submission-detail-view"
+import { DashboardSidebar } from "@/components/dashboard-sidebar"
+import { SubmissionDetailView } from "@/components/author/submission-detail"
 import { useAuth } from "@/lib/auth-context"
 import { getSubmissionById } from "@/lib/api/submissions"
+import { getConferenceById } from "@/lib/api/conferences"
 import type { Submission } from "@/lib/api/submissions"
 import { Loader2 } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { useNotifications } from "@/hooks/use-notifications"
 
 export default function SubmissionDetailPage() {
   const params = useParams()
   const router = useRouter()
   const { isAuthenticated, user, currentRole } = useAuth()
   const { t } = useTranslation()
+  const { unreadCount } = useNotifications({ limit: 1 })
   const conferenceId = params.id as string
   const submissionId = params.submissionId as string
 
   const [submission, setSubmission] = useState<Submission | null>(null)
+  const [conferenceName, setConferenceName] = useState<string>("")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [authChecked, setAuthChecked] = useState(false)
 
   // Wait for auth to be checked before redirecting
   useEffect(() => {
-    // Give auth context time to initialize from localStorage
     const timer = setTimeout(() => {
       setAuthChecked(true)
     }, 100)
@@ -45,7 +48,6 @@ export default function SubmissionDetailPage() {
       return
     }
 
-    // Check if user has appropriate role (author or chair)
     if (!user || (!user.roles.includes("author") && !user.roles.includes("chair"))) {
       router.push("/dashboard")
       return
@@ -67,22 +69,20 @@ export default function SubmissionDetailPage() {
         if (response.error) {
           setError(response.error)
         } else if (response.data) {
-          // Check if user has permission to view this submission
-          // When viewing from conference dashboard:
-          // - Authors can view all submissions in the conference
-          // - Chairs can view all submissions
-          // - Users must have author or chair role
           const isChair = user?.roles.includes("chair")
           const isAuthorRole = user?.roles.includes("author")
 
-          // Since we're in the conference route, authors can view any submission in this conference
-          // Chairs can always view all submissions
-          // Users must have author or chair role
           if (!isAuthorRole && !isChair) {
             setError("You don't have permission to view this submission")
           } else {
             setSubmission(response.data)
           }
+        }
+
+        // Also fetch conference name
+        const confResponse = await getConferenceById(conferenceId)
+        if (confResponse.data) {
+          setConferenceName(confResponse.data.acronym || confResponse.data.name || "")
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load submission")
@@ -96,20 +96,25 @@ export default function SubmissionDetailPage() {
     }
   }, [conferenceId, submissionId, isAuthenticated, user])
 
-  if (!isAuthenticated || !user) {
+  if (!authChecked || !isAuthenticated || !user) {
     return null
   }
 
-  // Determine role for header
-  const headerRole = currentRole === "chair" ? "chair" : "author"
+  const authorMenuItems = [
+    { label: "Dashboard", href: "/dashboard/author", icon: "dashboard" },
+    { label: "My Submissions", href: "/dashboard/author/submissions", icon: "description" },
+    { label: "Notifications", href: "/notifications", icon: "notifications", badge: unreadCount },
+  ]
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-50">
-        <DashboardHeader role={headerRole} />
-        <main className="container mx-auto px-4 py-8">
-          <div className="flex h-64 items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="bg-white dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
+        <DashboardSidebar menuItems={authorMenuItems} />
+        <main className="flex-grow flex flex-col h-screen overflow-hidden">
+          <div className="flex-1 overflow-y-auto px-6 md:px-8 py-6 md:py-8 w-full max-w-7xl mx-auto">
+            <div className="flex h-64 items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-[#1e3a8a]" />
+            </div>
           </div>
         </main>
       </div>
@@ -118,22 +123,24 @@ export default function SubmissionDetailPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-neutral-50">
-        <DashboardHeader role={headerRole} />
-        <main className="container mx-auto px-4 py-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="text-center">
-                <h2 className="text-xl font-bold text-red-600 mb-2">
-                  {t("dashboard.submission.error.title", "Lỗi")}
-                </h2>
-                <p className="text-gray-600">{error}</p>
-                <Button variant="outline" onClick={() => router.back()} className="mt-4">
-                  {t("common.actions.back", "Quay lại")}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+      <div className="bg-white dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
+        <DashboardSidebar menuItems={authorMenuItems} />
+        <main className="flex-grow flex flex-col h-screen overflow-hidden">
+          <div className="flex-1 overflow-y-auto px-6 md:px-8 py-6 md:py-8 w-full max-w-7xl mx-auto">
+            <Card>
+              <CardContent className="p-6">
+                <div className="text-center">
+                  <h2 className="text-xl font-bold text-red-600 mb-2">
+                    {t("dashboard.submission.error.title", { defaultValue: "Error" })}
+                  </h2>
+                  <p className="text-gray-600">{error}</p>
+                  <Button variant="outline" onClick={() => router.back()} className="mt-4">
+                    {t("common.actions.back", { defaultValue: "Go Back" })}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </main>
       </div>
     )
@@ -141,31 +148,43 @@ export default function SubmissionDetailPage() {
 
   if (!submission) {
     return (
-      <div className="min-h-screen bg-neutral-50">
-        <DashboardHeader role={headerRole} />
-        <main className="container mx-auto px-4 py-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="text-center">
-                <h2 className="text-xl font-bold mb-2">
-                  {t("dashboard.submission.notFound.title", "Không tìm thấy")}
-                </h2>
-                <p className="text-gray-600">
-                  {t("dashboard.submission.notFound.message", "Bài nộp không tồn tại")}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+      <div className="bg-white dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
+        <DashboardSidebar menuItems={authorMenuItems} />
+        <main className="flex-grow flex flex-col h-screen overflow-hidden">
+          <div className="flex-1 overflow-y-auto px-6 md:px-8 py-6 md:py-8 w-full max-w-7xl mx-auto">
+            <Card>
+              <CardContent className="p-6">
+                <div className="text-center">
+                  <h2 className="text-xl font-bold mb-2">
+                    {t("dashboard.submission.notFound.title", { defaultValue: "Not Found" })}
+                  </h2>
+                  <p className="text-gray-600">
+                    {t("dashboard.submission.notFound.message", {
+                      defaultValue: "Submission does not exist",
+                    })}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </main>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      <DashboardHeader role={headerRole} />
-      <main className="container mx-auto px-4 py-8">
-        <SubmissionDetailView submission={submission} conferenceId={conferenceId} />
+    <div className="bg-white dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
+      <DashboardSidebar menuItems={authorMenuItems} />
+      <main className="flex-grow flex flex-col h-screen overflow-hidden">
+        <div className="flex-1 overflow-y-auto px-6 md:px-8 py-6 md:py-8 w-full">
+          <div className="max-w-7xl mx-auto">
+            <SubmissionDetailView
+              submission={submission}
+              conferenceId={conferenceId}
+              conferenceName={conferenceName}
+            />
+          </div>
+        </div>
       </main>
     </div>
   )

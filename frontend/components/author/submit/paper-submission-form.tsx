@@ -380,13 +380,7 @@ export function PaperSubmissionForm({
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
               <div className="flex flex-col gap-2">
                 <button
-                  onClick={() => {
-                    if (conference?.id) {
-                      router.push(`/dashboard/conference/${conference.id}`)
-                    } else {
-                      router.push("/dashboard/author/submissions")
-                    }
-                  }}
+                  onClick={() => router.back()}
                   className="flex items-center gap-2 text-sm font-medium text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 mb-1 transition-colors w-fit"
                 >
                   <span className="material-symbols-outlined text-base">arrow_back</span>
