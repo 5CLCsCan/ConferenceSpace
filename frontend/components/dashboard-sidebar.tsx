@@ -59,23 +59,24 @@ export function DashboardSidebar({ menuItems, className }: DashboardSidebarProps
   return (
     <aside
       className={cn(
-        "w-64 hidden md:flex flex-col border-r border-slate-200 bg-white dark:bg-neutral-900 h-screen overflow-hidden flex-shrink-0 z-40 relative shadow-[4px_0_24px_-2px_rgba(0,0,0,0.02)]",
+        "w-56 hidden md:flex flex-col border-r border-slate-200 bg-white dark:bg-neutral-900 h-screen overflow-hidden flex-shrink-0 z-40 relative shadow-[4px_0_24px_-2px_rgba(0,0,0,0.02)]",
         className,
       )}
+      style={{ height: "100vh" }}
     >
       {/* Branding */}
-      <div className="px-6 py-8">
+      <div className="px-5 py-8">
         <div className="flex items-center gap-2.5">
-          <div className="bg-[#141414] text-white p-2 rounded-lg flex items-center justify-center shadow-lg shadow-slate-900/10">
+          <div className="bg-[#141414] text-white rounded-lg flex items-center justify-center shadow-lg shadow-slate-900/10 w-9 h-9">
             <span className="material-symbols-outlined text-[20px]">school</span>
           </div>
           <div className="flex flex-col">
-            <h1 className="text-[17px] font-bold tracking-tight text-[#141414] dark:text-white">
+            <h1 className="text-[16px] font-bold tracking-tight text-[#141414] dark:text-white">
               ConferenceSpace
             </h1>
             {!isRolePage && currentRole && (
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-[12px] font-black text-[var(--accent)] uppercase tracking-[0.5px] leading-none">
+                <span className="text-[10px] font-bold text-[var(--accent)] uppercase tracking-[0.5px] leading-none">
                   {currentRole.charAt(0).toUpperCase() + currentRole.slice(1)}
                 </span>
                 <Link
@@ -93,7 +94,7 @@ export function DashboardSidebar({ menuItems, className }: DashboardSidebarProps
       {/* Navigation */}
       <nav className="flex-1 px-5 space-y-8 overflow-y-auto">
         <div>
-          <h3 className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">
+          <h3 className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3">
             Menu
           </h3>
           <div className="space-y-0.5">
@@ -104,7 +105,7 @@ export function DashboardSidebar({ menuItems, className }: DashboardSidebarProps
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group",
+                    "flex items-center gap-3 px-1.5 py-1.5 rounded-lg transition-colors group",
                     isActive
                       ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-bold"
                       : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-neutral-800",
@@ -113,10 +114,11 @@ export function DashboardSidebar({ menuItems, className }: DashboardSidebarProps
                   <div className="relative flex items-center">
                     <span
                       className={cn(
-                        "material-symbols-outlined text-[20px]",
+                        "material-symbols-outlined text-[18px]",
                         !isActive &&
                           "text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white",
                       )}
+                      style={{ fontSize: "18px" }}
                     >
                       {item.icon}
                     </span>
@@ -124,7 +126,7 @@ export function DashboardSidebar({ menuItems, className }: DashboardSidebarProps
                       <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-neutral-900"></span>
                     )}
                   </div>
-                  <span className="text-[14px]">{item.label}</span>
+                  <span className="text-[12px]">{item.label}</span>
                 </Link>
               )
             })}
@@ -133,20 +135,20 @@ export function DashboardSidebar({ menuItems, className }: DashboardSidebarProps
 
         {/* Recent Conferences */}
         <div>
-          <h3 className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">
+          <h3 className="px-0 text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-4">
             Recent Conferences
           </h3>
-          <nav className="space-y-5 px-3">
+          <nav className="space-y-5">
             {mockConferences.map((conf, i) => (
               <div
                 key={i}
-                className="block group cursor-pointer relative transition-all duration-200"
+                className="block group cursor-pointer relative transition-all duration-200 px-1.5"
               >
-                <h4 className="font-bold text-[14px] text-[#141414] dark:text-white group-hover:text-blue-600 transition-colors">
+                <h4 className="font-bold text-[12px] text-[#141414] dark:text-white group-hover:text-blue-600 transition-colors">
                   {conf.name}
                 </h4>
-                <div className="flex items-center gap-1.5 mt-1">
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
+                <div className="flex items-center gap-1.5 mt-0">
+                  <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wide">
                     {conf.role}
                   </span>
                   {conf.active && (
@@ -168,7 +170,7 @@ export function DashboardSidebar({ menuItems, className }: DashboardSidebarProps
       <div className="mt-auto border-t border-slate-100 dark:border-neutral-800">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="w-full flex items-center gap-3 px-6 py-4 hover:bg-slate-50 dark:hover:bg-neutral-800 transition-all duration-300 group outline-none border-none text-left">
+            <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-neutral-800 transition-all duration-300 group outline-none border-none text-left">
               <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-neutral-800 overflow-hidden border border-slate-200 dark:border-neutral-700 flex-shrink-0 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-300">
                 <span className="material-symbols-outlined text-slate-500 text-xl">person</span>
               </div>
@@ -181,14 +183,14 @@ export function DashboardSidebar({ menuItems, className }: DashboardSidebarProps
                 </span>
               </div>
               <div className="flex items-center justify-center text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-                <span className="material-symbols-outlined text-lg leading-none transition-transform duration-300 group-hover:translate-x-1">
+                <span className="material-symbols-outlined text-[18px] leading-none transition-transform duration-300 group-hover:translate-x-1">
                   chevron_right
                 </span>
               </div>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-56 p-1.5 rounded-lg shadow-xl border-slate-200 dark:border-neutral-800 ml-3"
+            className="w-56 py-1.5 rounded-lg shadow-xl border-slate-200 dark:border-neutral-800"
             align="start"
             side="right"
             sideOffset={8}

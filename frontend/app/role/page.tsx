@@ -111,14 +111,14 @@ export default function RoleSelectionPage() {
       />
 
       {/* Main Content */}
-      <main className="flex-grow flex flex-col px-10 md:px-16 py-8 md:py-12 max-w-[1400px] w-full mx-auto overflow-y-auto">
-        <div className="w-full flex flex-col gap-8 mt-4">
+      <main className="flex-grow flex flex-col px-10 md:px-12 py-8 md:py-8 max-w-[1400px] w-full mx-auto overflow-y-auto">
+        <div className="w-full flex flex-col gap-8 mt-0">
           <div className="flex flex-col items-start text-left space-y-2">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.1]">
+            <h2 className="text-[32px] font-black tracking-tight text-slate-900 dark:text-white leading-[1.1]">
               Welcome back, <br className="md:hidden" />
               <span className="text-[#16a34a]">{user.name.split(" ")[0]}</span>
             </h2>
-            <p className="text-base text-slate-500 dark:text-slate-400 max-w-xl font-light leading-relaxed">
+            <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xl font-light leading-relaxed">
               Please select the role you wish to operate as today. You can switch roles at any time
               from your account settings.
             </p>
