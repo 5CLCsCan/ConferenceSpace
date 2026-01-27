@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { Globe, Check } from "lucide-react"
@@ -29,8 +29,25 @@ interface DashboardSidebarProps {
 export function DashboardSidebar({ menuItems, className }: DashboardSidebarProps) {
   const { user, logout, currentRole } = useAuth()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   const isRolePage = pathname === "/role"
+
+  // Helper to check if a menu item is active (handles query params)
+  const isItemActive = (href: string) => {
+    const url = new URL(href, "http://localhost")
+    const hrefPathname = url.pathname
+    const hrefTab = url.searchParams.get("tab")
+    const currentTab = searchParams.get("tab")
+
+    // If href has no query params, just match pathname exactly
+    if (!hrefTab) {
+      return pathname === hrefPathname && !currentTab
+    }
+
+    // If href has tab query param, match both pathname and tab
+    return pathname === hrefPathname && currentTab === hrefTab
+  }
 
   const mockConferences = [
     { name: "CVPR 2024", role: "Reviewer", color: "text-[#2563eb]" },
@@ -81,7 +98,7 @@ export function DashboardSidebar({ menuItems, className }: DashboardSidebarProps
           </h3>
           <div className="space-y-0.5">
             {menuItems.map((item) => {
-              const isActive = pathname === item.href
+              const isActive = isItemActive(item.href)
               return (
                 <Link
                   key={item.href}

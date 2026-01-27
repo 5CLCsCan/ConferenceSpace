@@ -5,11 +5,17 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useReviewerDashboard } from "@/hooks/use-reviewer-dashboard"
 import { useConferencePapers } from "@/hooks/use-conference-papers"
 import { useDebounce } from "@/hooks/use-debounce"
-import { ReviewerSidebar } from "./reviewer-sidebar"
+
 import { ReviewerOverview } from "./reviewer-overview"
 import { ReviewerConferences } from "./reviewer-conferences"
 import { ReviewerInvitations } from "./reviewer-invitations"
 import { ConferencePapers } from "./conference-papers"
+import {
+  MOCK_MY_CONFERENCES,
+  MOCK_ASSIGNMENTS,
+  MOCK_STATS,
+  MOCK_EXPLORE_CONFERENCES,
+} from "./reviewer-mock-data"
 import {
   DashboardSkeleton,
   ConferencesSkeleton,
@@ -117,6 +123,21 @@ export function ReviewerDashboard() {
   )
   const [invitationStatusFilter, setInvitationStatusFilter] = useState<string>("")
   const [conferenceSearch, setConferenceSearch] = useState<string>("")
+
+  // Sync activeNav with URL tab parameter when it changes (e.g., sidebar navigation)
+  useEffect(() => {
+    const tabFromUrl = searchParams.get("tab") as View
+    if (tabFromUrl && tabFromUrl !== activeNav) {
+      setActiveNav(tabFromUrl)
+      // Reset selected conference when switching tabs via URL
+      if (tabFromUrl !== "conference-papers") {
+        setSelectedConferenceId(null)
+      }
+    } else if (!tabFromUrl && activeNav !== "overview") {
+      // Default to overview if no tab in URL
+      setActiveNav("overview")
+    }
+  }, [searchParams])
 
   // Pagination states for infinite scroll
   const [conferenceOffset, setConferenceOffset] = useState(0)
@@ -336,9 +357,12 @@ export function ReviewerDashboard() {
       case "overview":
         return (
           <ReviewerOverview
-            stats={stats}
-            assignments={allAssignments}
-            conferenceCount={dashboard?.total_conferences ?? allConferences.length}
+            stats={stats || MOCK_STATS}
+            assignments={allAssignments.length > 0 ? allAssignments : MOCK_ASSIGNMENTS}
+            conferenceCount={
+              dashboard?.total_conferences ??
+              (allConferences.length > 0 ? allConferences.length : MOCK_MY_CONFERENCES.length)
+            }
             onSelectPaper={handleSelectPaper}
             onLoadMore={loadMoreAssignments}
             hasMore={hasMoreAssignments}
@@ -348,7 +372,8 @@ export function ReviewerDashboard() {
       case "conferences":
         return (
           <ReviewerConferences
-            conferences={allConferences}
+            conferences={allConferences.length > 0 ? allConferences : MOCK_MY_CONFERENCES}
+            exploreConferences={MOCK_EXPLORE_CONFERENCES}
             onSelectConference={(id) => handleSelectConference(String(id))}
             onLoadMore={loadMoreConferences}
             hasMore={hasMoreConferences}
@@ -389,23 +414,5 @@ export function ReviewerDashboard() {
     }
   }
 
-  return (
-    <div className="flex min-h-screen bg-background">
-      <ReviewerSidebar
-        activeNav={activeNav}
-        setActiveNav={(nav) => {
-          setActiveNav(nav as View)
-          setSelectedConferenceId(null)
-          // Update URL for tab switch
-          const params = new URLSearchParams(searchParams.toString())
-          params.set("tab", nav)
-          params.delete("conference_id")
-          router.replace(`?${params.toString()}`)
-        }}
-      />
-      <div className={`flex-1 ${spacing.padding.cardLarge} ${spacing.section}`}>
-        {renderContent()}
-      </div>
-    </div>
-  )
+  return <div className="flex-1">{renderContent()}</div>
 }

@@ -37,8 +37,9 @@ export default function ReviewerPage() {
   }
 
   const reviewerMenuItems = [
-    { label: "Dashboard", href: "/dashboard/reviewer", icon: "dashboard" },
-    { label: "Completed Reviews", href: "/dashboard/reviewer/completed", icon: "task_alt" },
+    { label: "Dashboard", href: "/dashboard/reviewer", icon: "grid_view" },
+    { label: "Conferences", href: "/dashboard/reviewer?tab=conferences", icon: "calendar_month" },
+    { label: "Reviews", href: "/dashboard/reviewer?tab=overview", icon: "rate_review" },
     { label: "Notifications", href: "/notifications", icon: "notifications", badge: unreadCount },
   ]
 
