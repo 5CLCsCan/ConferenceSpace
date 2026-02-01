@@ -10,6 +10,8 @@ import { ReviewHeaderBar, PaperHeader, TabNavigation } from "./submission-review
 import { AbstractCard, AIAssistantCard } from "./submission-review/review-sidebar"
 import { DetailedFeedbackSection } from "./submission-review/detailed-feedback"
 import { FinalRecommendationCard } from "./submission-review/recommendation-selector"
+import { DiscussionTab } from "./submission-review/discussion-tab"
+import { RebuttalTab } from "./submission-review/rebuttal-tab"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 // =============================================================================
@@ -277,29 +279,11 @@ export function SubmissionReviewScreen({
           </form>
         )}
 
-        {/* Tab Content: Discussion (Placeholder) */}
-        {activeTab === "discussion" && (
-          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-            <span className="material-symbols-outlined text-6xl text-slate-300 mb-4">forum</span>
-            <h3 className="text-lg font-bold text-slate-700 mb-2">Discussion</h3>
-            <p className="text-sm text-slate-500">
-              Discussion functionality will be implemented in the next iteration.
-            </p>
-          </div>
-        )}
+        {/* Tab Content: Discussion */}
+        {activeTab === "discussion" && <DiscussionTab />}
 
-        {/* Tab Content: Rebuttal (Placeholder) */}
-        {activeTab === "rebuttal" && (
-          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-            <span className="material-symbols-outlined text-6xl text-slate-300 mb-4">
-              reply_all
-            </span>
-            <h3 className="text-lg font-bold text-slate-700 mb-2">Rebuttal</h3>
-            <p className="text-sm text-slate-500">
-              Rebuttal functionality will be implemented in the next iteration.
-            </p>
-          </div>
-        )}
+        {/* Tab Content: Rebuttal */}
+        {activeTab === "rebuttal" && <RebuttalTab />}
       </main>
     </div>
   )

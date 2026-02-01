@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 // =============================================================================
 // Feedback Field Configuration (Scholar-Compact)
@@ -73,7 +73,6 @@ interface FeedbackCardProps {
 }
 
 function FeedbackCard({ field, value, onChange, isLast = false }: FeedbackCardProps) {
-  const [showTips, setShowTips] = useState(false)
   const wordCount = value.trim() ? value.trim().split(/\s+/).length : 0
 
   return (
@@ -87,31 +86,32 @@ function FeedbackCard({ field, value, onChange, isLast = false }: FeedbackCardPr
           <span className="text-[8px] font-medium text-slate-400">
             {wordCount} {wordCount === 1 ? "word" : "words"}
           </span>
-          <button
-            type="button"
-            onClick={() => setShowTips(!showTips)}
-            className={`text-[8px] font-bold uppercase tracking-widest transition-colors ${
-              showTips ? "text-[#1B3C53]" : "text-slate-400 hover:text-slate-600"
-            }`}
-          >
-            {showTips ? "Hide Tips" : "Tips"}
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className="flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[14px] leading-none">info</span>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent
+              side="right"
+              className="bg-white text-slate-900 border border-slate-200 shadow-lg p-4 max-w-[280px]"
+              sideOffset={8}
+            >
+              <ul className="space-y-1">
+                {field.tips.map((tip, i) => (
+                  <li key={i} className="text-[10px] text-slate-500 flex items-start gap-1.5">
+                    <span className="text-slate-400 mt-0.5">-</span>
+                    {tip}
+                  </li>
+                ))}
+              </ul>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
-
-      {/* Tips Panel */}
-      {showTips && (
-        <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex-shrink-0">
-          <ul className="space-y-1">
-            {field.tips.map((tip, i) => (
-              <li key={i} className="text-[10px] text-slate-500 flex items-start gap-1.5">
-                <span className="text-slate-400 mt-0.5">-</span>
-                {tip}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
 
       {/* Textarea */}
       <textarea
