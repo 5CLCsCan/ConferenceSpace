@@ -251,25 +251,25 @@ export function SubmissionReviewScreen({
             />
 
             {/* Sticky Action Bar */}
-            <div className="sticky bottom-6 z-20 flex items-center justify-between bg-white border border-slate-200 p-4 rounded-xl shadow-lg mt-8">
-              <div className="text-xs text-slate-500 flex items-center gap-1">
+            <div className="sticky bottom-6 z-20 flex items-center justify-between bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-lg shadow-sm mt-8">
+              <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
                 <span className="material-symbols-outlined text-[14px]">schedule</span>
                 Last draft saved: {formData.lastSaved || "Not saved"}
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={handleSaveDraft}
-                  className="h-9 px-4 rounded-md border border-slate-300 text-slate-700 font-bold text-[11px] hover:bg-slate-50 transition-colors"
+                  className="h-8 px-3 rounded-md border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium text-[11px] hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 >
                   Save Draft
                 </button>
                 <button
                   type="button"
                   onClick={handleSubmitReview}
-                  className="h-9 px-4 rounded-md bg-[#1B3C53] hover:bg-[#234C6A] text-white font-bold text-[11px] shadow-sm transition-all flex items-center gap-2"
+                  className="h-8 px-3 rounded-md bg-[#1B3C53] dark:bg-white hover:bg-[#234C6A] dark:hover:bg-slate-200 text-white dark:text-[#1B3C53] font-medium text-[11px] shadow-sm transition-all flex items-center gap-2"
                 >
-                  <span className="material-symbols-outlined text-[16px]">send</span>
+                  <span className="material-symbols-outlined text-[14px]">send</span>
                   Submit Review
                 </button>
               </div>

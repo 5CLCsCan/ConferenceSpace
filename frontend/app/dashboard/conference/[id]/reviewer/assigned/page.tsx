@@ -40,7 +40,7 @@ export default function ConferenceAssignedPage() {
       <DashboardSidebar menuItems={reviewerMenuItems} />
 
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
-        <div className="flex-1 overflow-y-auto px-10 md:px-16 py-8 md:py-12 w-full">
+        <div className="flex-1 overflow-y-auto w-full">
           <Suspense
             fallback={
               <div className="flex items-center justify-center h-full gap-3 text-slate-400">

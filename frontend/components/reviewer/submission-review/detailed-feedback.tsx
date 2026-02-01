@@ -24,7 +24,7 @@ const FEEDBACK_FIELDS: FeedbackField[] = [
       "Summarize the proposed methodology",
       "Highlight primary experimental results",
     ],
-    minHeight: "min-h-[80px]",
+    minHeight: "min-h-[120px]",
   },
   {
     key: "strengths",
@@ -35,7 +35,7 @@ const FEEDBACK_FIELDS: FeedbackField[] = [
       "Highlight well-executed experiments or analyses",
       "Note clear writing and organization",
     ],
-    minHeight: "min-h-[120px]",
+    minHeight: "min-h-[140px]",
   },
   {
     key: "weaknesses",
@@ -46,7 +46,7 @@ const FEEDBACK_FIELDS: FeedbackField[] = [
       "Identify missing experiments or baselines",
       "Suggest concrete improvements",
     ],
-    minHeight: "min-h-[120px]",
+    minHeight: "min-h-[140px]",
   },
   {
     key: "questions",
@@ -57,7 +57,7 @@ const FEEDBACK_FIELDS: FeedbackField[] = [
       "Request missing experimental details",
       "Frame questions constructively",
     ],
-    minHeight: "min-h-[100px]",
+    minHeight: "min-h-[140px]",
   },
 ]
 
@@ -69,16 +69,17 @@ interface FeedbackCardProps {
   field: FeedbackField
   value: string
   onChange: (value: string) => void
+  isLast?: boolean
 }
 
-function FeedbackCard({ field, value, onChange }: FeedbackCardProps) {
+function FeedbackCard({ field, value, onChange, isLast = false }: FeedbackCardProps) {
   const [showTips, setShowTips] = useState(false)
   const wordCount = value.trim() ? value.trim().split(/\s+/).length : 0
 
   return (
-    <div className="space-y-2">
+    <div className={isLast ? "flex-1 flex flex-col min-h-0" : "space-y-2"}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-shrink-0 mb-2">
         <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">
           {field.label}
         </label>
@@ -100,7 +101,7 @@ function FeedbackCard({ field, value, onChange }: FeedbackCardProps) {
 
       {/* Tips Panel */}
       {showTips && (
-        <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+        <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex-shrink-0">
           <ul className="space-y-1">
             {field.tips.map((tip, i) => (
               <li key={i} className="text-[10px] text-slate-500 flex items-start gap-1.5">
@@ -119,7 +120,7 @@ function FeedbackCard({ field, value, onChange }: FeedbackCardProps) {
         placeholder={field.placeholder}
         className={`w-full rounded-lg border border-slate-200 bg-slate-50/50 text-[11px] leading-relaxed 
           focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] focus:bg-white
-          ${field.minHeight} px-3 py-2 resize-none placeholder:text-slate-400 font-medium`}
+          ${isLast ? "flex-1 min-h-0" : field.minHeight} px-3 py-2 resize-none placeholder:text-slate-400 font-medium`}
       />
     </div>
   )
@@ -161,9 +162,9 @@ export function DetailedFeedbackSection({
   const completedCount = [summary, strengths, weaknesses, questions].filter((v) => v.trim()).length
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 pt-4 pb-4">
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 pt-4 pb-4 h-[866px] flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3 mt-3 border-b border-slate-100 pb-2">
+      <div className="flex items-center justify-between mb-3 mt-3 border-b border-slate-100 pb-2 flex-shrink-0">
         <h2 className="font-bold text-sm text-[#1B3C53] tracking-tight uppercase">
           Review Synthesis
         </h2>
@@ -173,13 +174,14 @@ export function DetailedFeedbackSection({
       </div>
 
       {/* Feedback Fields */}
-      <div className="space-y-4">
-        {FEEDBACK_FIELDS.map((field) => (
+      <div className="flex-1 flex flex-col gap-4 min-h-0 overflow-hidden">
+        {FEEDBACK_FIELDS.map((field, index) => (
           <FeedbackCard
             key={field.key}
             field={field}
             value={values[field.key as keyof typeof values]}
             onChange={handlers[field.key as keyof typeof handlers]}
+            isLast={index === FEEDBACK_FIELDS.length - 1}
           />
         ))}
       </div>
