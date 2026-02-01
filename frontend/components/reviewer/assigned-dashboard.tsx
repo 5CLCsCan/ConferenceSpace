@@ -266,10 +266,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
   const conference = USE_MOCK_DATA ? MOCK_CONFERENCE : null
 
   const handleSelectPaper = (paperId: string) => {
-    const params = new URLSearchParams()
-    params.set("conference_id", conferenceId)
-    params.set("from", "conference-assigned")
-    router.push(`/dashboard/reviewer/papers/${paperId}?${params.toString()}`)
+    router.push(`/dashboard/conference/${conferenceId}/reviewer/submissions/${paperId}`)
   }
 
   const handleBack = () => {
