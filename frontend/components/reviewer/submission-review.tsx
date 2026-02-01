@@ -112,7 +112,9 @@ export function SubmissionReviewScreen({
                           type="button"
                           className="flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors"
                         >
-                          <span className="material-symbols-outlined text-[14px] leading-none">info</span>
+                          <span className="material-symbols-outlined text-[14px] leading-none">
+                            info
+                          </span>
                         </button>
                       </TooltipTrigger>
                       <TooltipContent
