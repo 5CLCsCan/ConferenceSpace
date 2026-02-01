@@ -15,6 +15,7 @@ import { ConferencesSkeleton, InvitationsSkeleton } from "@/components/reviewer/
 import {
   MOCK_MY_CONFERENCES,
   MOCK_EXPLORE_CONFERENCES,
+  MOCK_INVITATIONS,
 } from "@/components/reviewer/reviewer-mock-data"
 
 type TabView = "conferences" | "invitations"
@@ -156,12 +157,14 @@ export default function ReviewerPage() {
       }
       return (
         <ReviewerInvitations
-          invitations={allInvitations}
+          invitations={allInvitations.length > 0 ? allInvitations : (MOCK_INVITATIONS as any)}
           onInvitationHandled={async () => await refresh()}
           reviewerId={currentReviewerEmail}
-          onStatusFilterChange={(status) =>
+          onStatusFilterChange={(status) => {
             setInvitationStatusFilter(status === "all" ? "" : status)
-          }
+            setInvitationOffset(0)
+            setAllInvitations([])
+          }}
           currentStatusFilter={invitationStatusFilter || "all"}
           onLoadMore={() => {
             if (!isLoading && hasMoreInvitations) {
@@ -183,7 +186,7 @@ export default function ReviewerPage() {
       <DashboardSidebar menuItems={reviewerMenuItems} />
 
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
-        <div className="flex-1 overflow-y-auto px-10 md:px-16 py-8 md:py-12 w-full">
+        <div className="flex-1 overflow-y-auto px-8 md:px-12 py-6 md:py-8 w-full">
           <Suspense
             fallback={
               <div className="flex items-center justify-center h-full text-slate-400">

@@ -1,4 +1,9 @@
-import type { ReviewerConference, AssignmentWithPaper, ReviewerStats } from "@/lib/types"
+import type {
+  ReviewerConference,
+  AssignmentWithPaper,
+  ReviewerStats,
+  ReviewRequest,
+} from "@/lib/types"
 
 export const MOCK_MY_CONFERENCES: ReviewerConference[] = [
   {
@@ -218,3 +223,73 @@ export const MOCK_STATS: ReviewerStats = {
   completed: 1,
   pending_requests: 0,
 }
+
+export const MOCK_INVITATIONS: ReviewRequest[] = [
+  {
+    id: "inv_1",
+    conference_id: "conf_cvpr_2025",
+    conference_name: "IEEE Conference on Computer Vision and Pattern Recognition",
+    conference_acronym: "CVPR 2025",
+    requested_by: "chair@cvpr2025.org",
+    requested_by_name: "Program Committee",
+    requested_at: "2024-10-24T10:00:00Z",
+    status: "pending",
+    expertise_match: 95,
+    papers_count: 5,
+    estimated_hours: 15,
+    conflict_of_interest: false,
+    // @ts-ignore - Extra fields for the new design
+    track_name: "Computer Vision Track",
+    respond_by: "2024-10-31T23:59:59Z",
+  },
+  {
+    id: "inv_2",
+    conference_id: "conf_iclr_2025",
+    conference_name: "International Conference on Learning Representations",
+    conference_acronym: "ICLR 2025",
+    requested_by: "admin@iclr.cc",
+    requested_by_name: "Area Chair",
+    requested_at: "2024-10-22T14:30:00Z",
+    status: "pending",
+    expertise_match: 88,
+    papers_count: 4,
+    estimated_hours: 12,
+    conflict_of_interest: false,
+    // @ts-ignore
+    track_name: "Representation Learning",
+    respond_by: "2024-11-05T23:59:59Z",
+  },
+  {
+    id: "inv_3",
+    conference_id: "conf_wacv_2025",
+    conference_name: "Winter Conference on Applications of Computer Vision",
+    conference_acronym: "WACV 2025",
+    requested_by: "pc@wacv2025.org",
+    requested_by_name: "WACV PC",
+    requested_at: "2024-09-10T09:00:00Z",
+    status: "accepted",
+    expertise_match: 92,
+    papers_count: 6,
+    estimated_hours: 18,
+    conflict_of_interest: false,
+    // @ts-ignore
+    accepted_on: "2024-09-15T11:20:00Z",
+    assignments_count: 4,
+  },
+  {
+    id: "inv_4",
+    conference_id: "conf_eccv_2024",
+    conference_name: "European Conference on Computer Vision",
+    conference_acronym: "ECCV 2024",
+    requested_by: "contact@eccv2024.org",
+    requested_by_name: "ECCV Chairs",
+    requested_at: "2024-07-28T16:00:00Z",
+    status: "declined",
+    expertise_match: 85,
+    papers_count: 3,
+    estimated_hours: 10,
+    conflict_of_interest: true,
+    // @ts-ignore
+    declined_on: "2024-08-01T10:15:00Z",
+  },
+]

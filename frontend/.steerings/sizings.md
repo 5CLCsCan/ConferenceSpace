@@ -7,7 +7,9 @@
 
 ## Typography
 
-- **Header size**: 32px
+- **Header size**: `text-[32px]` (32px / 2rem)
+- **Status/Labels**: `text-[8px]` (8px / 0.5rem)
+- **Tabs/Navigation Labels**: `text-[11px]` (11px / 0.6875rem)
 
 ## Screen/Feature Description
 
@@ -45,10 +47,15 @@
 
 ## Actionable Buttons
 
-- **Height**: `h-8` (32px / 2rem)
-- **Horizontal padding**: `px-3` (12px / 0.75rem)
+- **Height**:
+  - **Actions**: `h-8` (32px / 2rem)
+  - **Navigation**: `h-9` (36px / 2.25rem)
+- **Horizontal padding**: `px-3` (Actions) or `px-4` (Navigation)
 - **Font size**: `text-[11px]` (11px / 0.6875rem)
 - **Font weight**: `font-medium` (500)
 - **Gap between icon and text**: `gap-2` (8px / 0.5rem)
-- **Border radius**: `rounded-full` (9999px)
+- **Icon Size**: `text-[14px]` or `text-[12px]` (Reduced from 16px/18px)
+- **Border radius**:
+  - **Actions**: `rounded-full` (9999px)
+  - **Navigation**: `rounded-md` (6px / 0.375rem)
 - **Border width**: `border` (1px)

@@ -32,11 +32,19 @@ Used ONLY on the `/role` screen to provide high-contrast distinction between fun
 
 ### Component Geometry
 
-- **Cards**: `rounded-2xl` (refined rounding), `shadow-card` with high-blur soft logic.
+- **Cards**: `rounded-2xl` (refined rounding), `shadow-card` with high-blur soft logic. **No decorative borders or status strips (minimal edges only).**
 - **Sidebar**: `w-64` (Compact version), edge-to-edge interaction zones.
-- **Interactive Elements**: `rounded-lg` for navigation items, `rounded-full` for primary CTAs.
+- **Interactive Elements**: `rounded-lg` for navigation items, `rounded-full` for toggleable actions, `rounded-md` for main entry buttons.
 
-## 2. Shared Interface Logic
+## 2. Shared Interface Logic: Scholar-Compact 2.0
+
+### Principles of Scholarly Minimalism
+
+- **Neutralization**: Prefer neutral slate (`bg-slate-100` / `text-slate-700`) for badges and secondary indicators over bright status colors (purple/blue/green).
+- **Icon Thinning**: Minimize icon usage. Remove icons from metadata lists (calendar, clock) and only use them for functional clarity (e.g., within buttons). Reduce sizes to `12px - 14px`.
+- **Information Density**: Use conference acronyms in badges; reserve full titles for main card headers. Reach `8px` for secondary status markers.
+- **Clean Shell**: Remove "Real-time updates active" badges or flashy decorative elements that distract from scholarly content.
+- **Professional Core Palette**: Strictly utilize the Deep Navy (#1B3C53) and Slate Navy (#234C6A) system from the Core Palette as the only major color accents.
 
 ### Finalized Configuration
 
@@ -51,24 +59,25 @@ To ensure consistency across role dashboards, refer to these standardized stylin
 
 ### Typography Classes
 
-| Level             | Tailwind Classes                                                | Usage Context                         |
-| :---------------- | :-------------------------------------------------------------- | :------------------------------------ |
-| **Hero Title**    | `text-3xl md:text-5xl font-black tracking-tight leading-[1.1]`  | Main page welcome/headers             |
-| **Section Title** | `text-xl font-bold tracking-tight text-slate-900`               | Card titles, dashboard module headers |
-| **Section Label** | `text-[9px] font-bold text-slate-400 uppercase tracking-widest` | Sidebar headers, grouping labels      |
-| **Strong Label**  | `text-xs font-black uppercase tracking-wider`                   | Primary buttons, active markers       |
-| **Main Body**     | `text-sm font-medium text-slate-600 leading-relaxed`            | Descriptions, list items              |
-| **Meta/Small**    | `text-[10px] font-medium text-slate-500`                        | Secondary descriptions, timestamps    |
-| **Filter Input**  | `h-10 text-sm py-2 px-3.5`                                      | Search bars, dropdown filters         |
+| Level              | Tailwind Classes                                               | Usage Context                       |
+| :----------------- | :------------------------------------------------------------- | :---------------------------------- |
+| **Hero Title**     | `text-3xl md:text-5xl font-black tracking-tight leading-[1.1]` | Main page welcome/headers           |
+| **Section Title**  | `text-sm font-bold tracking-tight text-[#1B3C53]`              | Card titles (reduced for density)   |
+| **Primary Body**   | `text-xs font-medium text-slate-500 leading-relaxed`           | Descriptions (12px)                 |
+| **Strong Label**   | `text-[11px] font-bold uppercase tracking-wider`               | Tabs/Navigation labels, Strong UI   |
+| **Compact Status** | `text-[8px] font-black uppercase tracking-widest`              | Small status tags, secondary meta   |
+| **Meta/Small**     | `text-[10px] font-medium text-slate-400`                       | Secondary timestamps, detailed meta |
+| **Filter Input**   | `h-10 text-sm py-2 px-3.5`                                     | Search bars, dropdown filters       |
 
 ### Common UI Patterns
 
-- **Main Screen Background**: Always use **Pure White (`#FFFFFF`)** for the main dashboard shell and background. Avoid using even light grays like `slate-50` as they degrade the premium feel.
+- **Main Screen Background**: Always use **Pure White (`#FFFFFF`)** for the main dashboard shell and background.
 - **Standard Padding**:
-  - `px-10 md:px-16 py-8 md:py-12` for main dashboard containers.
-  - `p-6` for internal card padding.
-- **Card Styling**: `bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 shadow-card`.
-- **Primary Action**: `rounded-full py-2.5 px-5 text-xs font-bold transition-all duration-200`.
+  - `px-8 md:px-12 py-6 md:py-8` for the main content shell within the sidebar.
+  - `px-4 pt-4 pb-3` for internal card padding to maximize density.
+- **Card Styling**: `bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm`.
+- **Navigation Action**: `rounded-md h-9 px-4 text-[11px] font-bold tracking-wider transition-all duration-200`.
+- **Toggle Action**: `rounded-full h-8 px-3 text-[11px] font-medium transition-all duration-200`.
 - **Navigation Item**: `rounded-lg px-3 py-2 text-xs font-medium`.
 
 ---
