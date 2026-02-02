@@ -49,7 +49,53 @@ export default function NotificationsPage() {
   })
 
   const getMenuItems = () => {
-    const baseItems = [
+    if (currentRole === "author") {
+      return [
+        { label: "Dashboard", href: "/dashboard/author", icon: "dashboard" },
+        { label: "My Submissions", href: "/dashboard/author/submissions", icon: "description" },
+        {
+          label: "Notifications",
+          href: "/notifications",
+          icon: "notifications",
+          badge: apiUnreadCount,
+        },
+      ]
+    }
+
+    if (currentRole === "chair") {
+      return [
+        { label: "Conferences", href: "/dashboard/conference", icon: "folder_open" },
+        { label: "Schedules", href: "/dashboard/schedules", icon: "calendar_month" },
+        {
+          label: "Notifications",
+          href: "/notifications",
+          icon: "notifications",
+          badge: apiUnreadCount,
+        },
+        { label: "Dashboard", href: "/dashboard/chair", icon: "dashboard" },
+      ]
+    }
+
+    if (currentRole === "reviewer") {
+      return [
+        { label: "Dashboard", href: "/dashboard/reviewer", icon: "grid_view" },
+        {
+          label: "Conferences",
+          href: "/dashboard/reviewer?tab=conferences",
+          icon: "calendar_month",
+        },
+        { label: "Invitations", href: "/dashboard/reviewer?tab=invitations", icon: "mail" },
+        {
+          label: "Notifications",
+          href: "/notifications",
+          icon: "notifications",
+          badge: apiUnreadCount,
+        },
+      ]
+    }
+
+    // Default fallback
+    return [
       { label: "Dashboard", href: `/dashboard/${currentRole || "author"}`, icon: "dashboard" },
       {
         label: "Notifications",
@@ -58,16 +104,6 @@ export default function NotificationsPage() {
         badge: apiUnreadCount,
       },
     ]
-
-    if (currentRole === "author") {
-      baseItems.splice(1, 0, {
-        label: "My Submissions",
-        href: "/dashboard/author/submissions",
-        icon: "description",
-      })
-    }
-
-    return baseItems
   }
 
   return (
@@ -99,7 +135,7 @@ export default function NotificationsPage() {
           </div>
 
           {/* Filters & Tabs */}
-          <div className="flex flex-col gap-8 mb-8">
+          <div className="flex flex-col gap-8 mb-4">
             <div className="flex items-center gap-8 border-b border-slate-100 dark:border-neutral-800">
               <TabButton
                 label="All"
@@ -159,7 +195,7 @@ export default function NotificationsPage() {
                     <NotificationCard key={n.id} notification={n} />
                   ))}
 
-                <SectionLabel label="Earlier" className="mt-6" />
+                <SectionLabel label="Earlier" />
                 {filteredNotifications
                   .filter((n) => n.time.includes("Yesterday") || n.time.includes("day ago"))
                   .map((n) => (

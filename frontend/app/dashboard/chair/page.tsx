@@ -37,9 +37,10 @@ export default function ChairPage() {
   }
 
   const chairMenuItems = [
-    { label: "Dashboard", href: "/dashboard/chair", icon: "dashboard" },
-    { label: "Create Conference", href: "/dashboard/chair/create-conference", icon: "add_circle" },
+    { label: "Conferences", href: "/dashboard/conference", icon: "folder_open" },
+    { label: "Schedules", href: "/dashboard/schedules", icon: "calendar_month" },
     { label: "Notifications", href: "/notifications", icon: "notifications", badge: unreadCount },
+    { label: "Dashboard", href: "/dashboard/chair", icon: "dashboard" },
   ]
 
   return (
@@ -47,7 +48,7 @@ export default function ChairPage() {
       <DashboardSidebar menuItems={chairMenuItems} />
 
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
-        <div className="flex-1 overflow-y-auto px-10 md:px-16 py-8 md:py-12 w-full">
+        <div className="flex-1 overflow-y-auto px-10 md:px-12 py-8 md:py-8 w-full">
           <Suspense
             fallback={
               <div className="flex items-center justify-center h-full text-slate-400">
