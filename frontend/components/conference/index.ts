@@ -12,6 +12,7 @@ export {
   DraftConferenceCard,
   CompletedConferenceCard,
 } from "./conference-cards"
+export { ConferenceList } from "./conference-list"
 export { CreateConferenceCard } from "./create-conference-card"
 export { EmptyState, NoResultsState } from "./empty-state"
 

@@ -37,7 +37,7 @@ export default function ConferencesPage() {
   ]
 
   return (
-    <div className="bg-white dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
+    <div className="bg-[#f8fafc] dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
       <DashboardSidebar menuItems={menuItems} />
 
       <main className="flex-grow flex flex-col h-screen overflow-hidden">

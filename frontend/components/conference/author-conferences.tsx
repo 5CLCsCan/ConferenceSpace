@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import type { TabType, ViewMode, Conference } from "./types"
 import { MOCK_MY_CONFERENCES } from "./mock-data"
 import { ConferenceCard } from "./conference-cards"
+import { ConferenceList } from "./conference-list"
 import { CreateConferenceCard } from "./create-conference-card"
 import { EmptyState, NoResultsState } from "./empty-state"
 
@@ -81,7 +82,13 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
           <EmptyState type={activeTab} />
         ) : conferences.length === 0 && searchQuery ? (
           <NoResultsState />
+        ) : viewMode === "list" ? (
+          /* List View */
+          <div className="flex flex-col gap-4">
+            <ConferenceList conferences={conferences} onNavigate={handleNavigate} />
+          </div>
         ) : (
+          /* Grid View */
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {conferences.map((conference) => (
               <ConferenceCard
