@@ -13,6 +13,8 @@ import {
   TopicsDeadlinesStep,
   PolicyGuidelinesStep,
   CallForPapersStep,
+  CommitteesStep,
+  FinalReviewStep,
   ConferenceFormData,
   initialFormData,
 } from "@/components/wizard/creation"
@@ -194,30 +196,14 @@ export default function CreateConferencePage() {
       case 4:
         return <CallForPapersStep data={formData} updateData={updateFormData} />
       case 5:
-        return (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="size-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 mb-3">
-              <span className="material-symbols-outlined text-[20px] text-slate-400">groups</span>
-            </div>
-            <p className="text-sm font-bold text-[#1B3C53] dark:text-white mb-0.5">Committees</p>
-            <p className="text-[10px] font-medium text-slate-400">
-              Add program committee members and reviewers
-            </p>
-          </div>
-        )
+        return <CommitteesStep data={formData} updateData={updateFormData} />
       case 6:
         return (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="size-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 mb-3">
-              <span className="material-symbols-outlined text-[20px] text-slate-400">
-                check_circle
-              </span>
-            </div>
-            <p className="text-sm font-bold text-[#1B3C53] dark:text-white mb-0.5">Final Review</p>
-            <p className="text-[10px] font-medium text-slate-400">
-              Review all details and publish conference
-            </p>
-          </div>
+          <FinalReviewStep
+            data={formData}
+            updateData={updateFormData}
+            onEditStep={handleStepClick}
+          />
         )
       default:
         return null

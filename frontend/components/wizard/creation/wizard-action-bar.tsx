@@ -38,7 +38,27 @@ export function WizardActionBar({
           onClick={onCancel}
           className="flex items-center gap-1.5 h-8 px-3 rounded-full text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors uppercase tracking-wider"
         >
-          <span className="material-symbols-outlined text-[14px]">arrow_back</span>
+          <span 
+            className="material-symbols-outlined" 
+            style={{ 
+              fontSize: '16px', 
+              width: '16px', 
+              height: '16px', 
+              maxWidth: '16px', 
+              maxHeight: '16px',
+              minWidth: '16px',
+              minHeight: '16px',
+              lineHeight: '1',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              transform: 'none',
+              boxSizing: 'border-box'
+            }}
+          >
+            arrow_back
+          </span>
           Return
         </button>
 
@@ -50,7 +70,27 @@ export function WizardActionBar({
             onClick={onSaveDraft}
             className="hidden sm:flex items-center gap-1.5 h-8 px-3 rounded-full text-[10px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors uppercase tracking-wider"
           >
-            <span className="material-symbols-outlined text-[14px]">save</span>
+            <span 
+              className="material-symbols-outlined" 
+              style={{ 
+                fontSize: '16px', 
+                width: '16px', 
+                height: '16px', 
+                maxWidth: '16px', 
+                maxHeight: '16px',
+                minWidth: '16px',
+                minHeight: '16px',
+                lineHeight: '1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                transform: 'none',
+                boxSizing: 'border-box'
+              }}
+            >
+              save
+            </span>
             Save Draft
           </button>
 
@@ -60,7 +100,7 @@ export function WizardActionBar({
               type="button"
               onClick={onSubmit}
               disabled={!canSubmit || isSubmitting}
-              className="flex items-center gap-1.5 h-9 px-4 bg-[#1B3C53] hover:bg-[#234C6A] text-white rounded-md text-[11px] font-bold shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider"
+              className="flex items-center gap-1.5 h-9 px-4 bg-[#1B3C53] hover:bg-[#234C6A] text-white rounded-md text-[10px] font-medium shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider"
             >
               {isSubmitting ? (
                 <>
@@ -70,7 +110,27 @@ export function WizardActionBar({
               ) : (
                 <>
                   Create Conference
-                  <span className="material-symbols-outlined text-[14px]">check</span>
+                  <span 
+                    className="material-symbols-outlined" 
+                    style={{ 
+                      fontSize: '16px', 
+                      width: '16px', 
+                      height: '16px', 
+                      maxWidth: '16px', 
+                      maxHeight: '16px',
+                      minWidth: '16px',
+                      minHeight: '16px',
+                      lineHeight: '1',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      transform: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    check
+                  </span>
                 </>
               )}
             </button>

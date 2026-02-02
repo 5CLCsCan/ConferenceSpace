@@ -21,9 +21,10 @@ interface WizardLayoutProps {
 
 const STEP_NEXT_LABELS: Record<number, string> = {
   1: "Next: Topics",
-  2: "Next: Committees",
-  3: "Next: Review Policy",
-  4: "Next: Final Review",
+  2: "Next: Policy",
+  3: "Next: CFP",
+  4: "Next: Committees",
+  5: "Next: Final Review",
 }
 
 export function WizardLayout({
@@ -40,7 +41,7 @@ export function WizardLayout({
   canSubmit = true,
 }: WizardLayoutProps) {
   return (
-    <div className="font-[Inter] bg-white dark:bg-slate-950 text-[#141414] dark:text-white flex flex-col h-screen overflow-hidden">
+    <div className="font-[Inter] bg-[#f8fafc] dark:bg-[#191919] text-[#141414] dark:text-white flex flex-col h-screen overflow-hidden">
       <div className="flex flex-1 overflow-hidden relative">
         {/* Sidebar */}
         <WizardSidebar
@@ -51,7 +52,7 @@ export function WizardLayout({
         />
 
         {/* Main Content */}
-        <main className="flex-1 h-full overflow-y-auto bg-white dark:bg-black/20 scroll-smooth py-6 md:py-8 px-8 md:px-12">
+        <main className="flex-1 h-full overflow-y-auto bg-[#f8fafc] dark:bg-[#191919] scroll-smooth py-6 md:py-8 px-8 md:px-12">
           <div className="w-full">{children}</div>
         </main>
 
