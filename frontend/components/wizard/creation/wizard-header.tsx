@@ -16,7 +16,7 @@ export function WizardHeader({
   autosaveStatus = "saving",
 }: WizardHeaderProps) {
   return (
-    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
+    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-2">
       <div className="flex flex-col gap-1">
         {/* Title */}
         <h1 className="text-[#141414] dark:text-white text-[32px] font-bold tracking-tight leading-[1.1]">

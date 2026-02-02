@@ -52,7 +52,7 @@ export function WizardLayout({
 
         {/* Main Content */}
         <main className="flex-1 h-full overflow-y-auto bg-white dark:bg-black/20 scroll-smooth py-6 md:py-8 px-8 md:px-12">
-          <div className="w-full pb-24">{children}</div>
+          <div className="w-full">{children}</div>
         </main>
 
         {/* Action Bar */}

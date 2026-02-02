@@ -10,6 +10,9 @@ import { useAuth } from "@/lib/auth-context"
 import {
   WizardLayout,
   BasicDetailsStep,
+  TopicsDeadlinesStep,
+  PolicyGuidelinesStep,
+  CallForPapersStep,
   ConferenceFormData,
   initialFormData,
 } from "@/components/wizard/creation"
@@ -68,7 +71,7 @@ export default function CreateConferencePage() {
   }, [authChecked, isAuthenticated, router])
 
   const handleNext = () => {
-    if (currentStep < 5) {
+    if (currentStep < 6) {
       const nextStep = currentStep + 1
       setCurrentStep(nextStep)
       setMaxStepReached(Math.max(maxStepReached, nextStep))
@@ -129,11 +132,13 @@ export default function CreateConferencePage() {
           abstract_submission_deadline:
             formData.abstractDeadline?.toISOString() || formData.submissionsOpen?.toISOString(),
           full_paper_submission_deadline:
-            formData.fullPaperDeadline?.toISOString() || formData.submissionDeadline?.toISOString(),
+            formData.fullPaperDeadline?.toISOString() ||
+            formData.submissionDeadline?.toISOString() ||
+            "",
           camera_ready_deadline: formData.cameraReadyDeadline?.toISOString(),
           format: formData.locationType,
           review_type: formData.anonymity === "double-blind" ? "double-blind" : "single-blind",
-          maximum_pages: 8,
+          maximum_pages: formData.maxPages || 8,
           have_coi: true,
           submission_format: formData.fileFormats.join(", "),
           require_complete_author_profile: true,
@@ -181,27 +186,14 @@ export default function CreateConferencePage() {
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
-        return (
-          <BasicDetailsStep
-            data={formData}
-            updateData={isStepEditable(1) ? updateFormData : () => {}}
-          />
-        )
+        return <BasicDetailsStep data={formData} updateData={updateFormData} />
       case 2:
-        return (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="size-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 mb-3">
-              <span className="material-symbols-outlined text-[20px] text-slate-400">category</span>
-            </div>
-            <p className="text-sm font-bold text-[#1B3C53] dark:text-white mb-0.5">
-              Topics & Tracks
-            </p>
-            <p className="text-[10px] font-medium text-slate-400">
-              Define research areas and submission tracks
-            </p>
-          </div>
-        )
+        return <TopicsDeadlinesStep data={formData} updateData={updateFormData} />
       case 3:
+        return <PolicyGuidelinesStep data={formData} updateData={updateFormData} />
+      case 4:
+        return <CallForPapersStep data={formData} updateData={updateFormData} />
+      case 5:
         return (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="size-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 mb-3">
@@ -213,19 +205,7 @@ export default function CreateConferencePage() {
             </p>
           </div>
         )
-      case 4:
-        return (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="size-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 mb-3">
-              <span className="material-symbols-outlined text-[20px] text-slate-400">gavel</span>
-            </div>
-            <p className="text-sm font-bold text-[#1B3C53] dark:text-white mb-0.5">Review Policy</p>
-            <p className="text-[10px] font-medium text-slate-400">
-              Configure submission deadlines and review process
-            </p>
-          </div>
-        )
-      case 5:
+      case 6:
         return (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="size-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 mb-3">

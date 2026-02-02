@@ -27,7 +27,6 @@ export function WizardActionBar({
   isSubmitting = false,
   canSubmit = true,
 }: WizardActionBarProps) {
-  const isFirstStep = currentStep === 1
   const isLastStep = currentStep === totalSteps
 
   return (
@@ -45,18 +44,6 @@ export function WizardActionBar({
 
         {/* Right Side Actions */}
         <div className="flex items-center gap-3">
-          {/* Previous Button */}
-          {!isFirstStep && (
-            <button
-              type="button"
-              onClick={onPrevious}
-              className="hidden sm:flex items-center gap-1.5 h-8 px-3 rounded-full text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors uppercase tracking-wider"
-            >
-              <span className="material-symbols-outlined text-[14px]">arrow_back</span>
-              Previous
-            </button>
-          )}
-
           {/* Save Draft Button */}
           <button
             type="button"

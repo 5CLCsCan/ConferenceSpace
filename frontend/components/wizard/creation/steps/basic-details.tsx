@@ -23,13 +23,13 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4 w-full min-w-0">
+    <div className="flex flex-col gap-4 w-full min-w-0 pt-0 pb-0">
       <WizardHeader
         title="Basic Details"
         description="Provide the fundamental information for your new conference. This includes the conference identity, venue, and event dates."
       />
 
-      <form className="flex flex-col gap-4 w-full" onSubmit={(e) => e.preventDefault()}>
+      <form className="flex flex-col gap-4 w-full pb-[64px]" onSubmit={(e) => e.preventDefault()}>
         {/* Conference Identity */}
         <WizardFormCard title="Conference Identity">
           <div className="flex flex-col gap-4">

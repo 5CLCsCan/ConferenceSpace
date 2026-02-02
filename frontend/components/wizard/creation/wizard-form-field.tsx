@@ -11,14 +11,14 @@ interface WizardFormFieldProps {
 
 export function WizardFormField({ label, required = false, hint, children }: WizardFormFieldProps) {
   return (
-    <label className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-1.5">
       <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </span>
       {children}
       {hint && <p className="text-[10px] text-slate-400 font-light">{hint}</p>}
-    </label>
+    </div>
   )
 }
 

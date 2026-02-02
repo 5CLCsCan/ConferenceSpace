@@ -23,11 +23,24 @@ export interface ConferenceFormData {
   conferenceStartDate: Date | undefined
   conferenceEndDate: Date | undefined
 
-  // Step 2: Topics & Tracks
+  // Step 2: Topics & Deadlines
   topics: string[]
   tracks: string[]
+  abstractDeadline: Date | undefined
+  fullPaperDeadline: Date | undefined
+  authorNotificationDate: Date | undefined
+  cameraReadyDeadline: Date | undefined
 
-  // Step 3: Committees
+  // Step 3: Call for Papers
+  maxPages: number
+  abstractMaxWords: number
+  minKeywords: number
+  maxKeywords: number
+  allowSupplementary: boolean
+  supplementaryTypes: string[]
+  strictDeadlines: boolean
+
+  // Step 4: Committees
   organizers: Array<{
     id: string
     name: string
@@ -35,28 +48,18 @@ export interface ConferenceFormData {
     role: string
   }>
 
-  // Step 4: Review Policy - Submission Deadlines
-  abstractDeadline: Date | undefined
-  fullPaperDeadline: Date | undefined
-  supplementaryDeadline: Date | undefined
-
-  // Step 4: Review Policy - Review Process
+  // Step 5: Review Policy - Review Process
   anonymity: "single-blind" | "double-blind"
-  authorNotificationDate: Date | undefined
   rebuttalStartDate: Date | undefined
   rebuttalEndDate: Date | undefined
   finalDecisionDate: Date | undefined
-
-  // Step 4: Review Policy - Post-Acceptance
-  cameraReadyDeadline: Date | undefined
+  supplementaryDeadline: Date | undefined
   copyrightFormDeadline: Date | undefined
-
-  // Step 4: Review Policy - Registration
   earlyBirdDeadline: Date | undefined
   regularRegistrationDeadline: Date | undefined
   authorRegistrationDeadline: Date | undefined
 
-  // Step 5: Final Review
+  // Step 6: Final Review
   confirmed: boolean
 
   // Legacy fields for API compatibility
@@ -66,17 +69,27 @@ export interface ConferenceFormData {
   submissionDeadline: Date | undefined
   reviewDeadline: Date | undefined
   authorNotification: Date | undefined
-  cameraReadyDeadline: Date | undefined
   fileFormats: string[]
   callForPaperText: string
 }
 
 export const WIZARD_STEPS: WizardStep[] = [
   { number: 1, id: "basic-details", title: "Basic Details", description: "Name, acronym, dates" },
-  { number: 2, id: "topics-tracks", title: "Topics & Tracks", description: "Define scope" },
-  { number: 3, id: "committees", title: "Committees", description: "Add members" },
-  { number: 4, id: "review-policy", title: "Review Policy", description: "Deadlines & rules" },
-  { number: 5, id: "final-review", title: "Final Review", description: "Publish conference" },
+  {
+    number: 2,
+    id: "topics-deadlines",
+    title: "Topics & Deadlines",
+    description: "Scope & timeline",
+  },
+  {
+    number: 3,
+    id: "policy-guidelines",
+    title: "Policy & Guidelines",
+    description: "Format & rules",
+  },
+  { number: 4, id: "call-for-papers", title: "Call for Papers", description: "CFP content" },
+  { number: 5, id: "committees", title: "Committees", description: "Add members" },
+  { number: 6, id: "final-review", title: "Final Review", description: "Publish conference" },
 ]
 
 export const initialFormData: ConferenceFormData = {
@@ -95,30 +108,33 @@ export const initialFormData: ConferenceFormData = {
   conferenceStartDate: undefined,
   conferenceEndDate: undefined,
 
-  // Topics & Tracks
+  // Topics & Deadlines
   topics: [],
   tracks: [],
+  abstractDeadline: undefined,
+  fullPaperDeadline: undefined,
+  authorNotificationDate: undefined,
+  cameraReadyDeadline: undefined,
+
+  // Call for Papers
+  maxPages: 8,
+  abstractMaxWords: 250,
+  minKeywords: 3,
+  maxKeywords: 5,
+  allowSupplementary: true,
+  supplementaryTypes: ["code", "data"],
+  strictDeadlines: false,
 
   // Committees
   organizers: [],
 
-  // Submission Deadlines
-  abstractDeadline: undefined,
-  fullPaperDeadline: undefined,
-  supplementaryDeadline: undefined,
-
-  // Review Process
+  // Review Policy
   anonymity: "double-blind",
-  authorNotificationDate: undefined,
   rebuttalStartDate: undefined,
   rebuttalEndDate: undefined,
   finalDecisionDate: undefined,
-
-  // Post-Acceptance
-  cameraReadyDeadline: undefined,
+  supplementaryDeadline: undefined,
   copyrightFormDeadline: undefined,
-
-  // Registration
   earlyBirdDeadline: undefined,
   regularRegistrationDeadline: undefined,
   authorRegistrationDeadline: undefined,
@@ -133,7 +149,6 @@ export const initialFormData: ConferenceFormData = {
   submissionDeadline: undefined,
   reviewDeadline: undefined,
   authorNotification: undefined,
-  cameraReadyDeadline: undefined,
   fileFormats: ["PDF"],
   callForPaperText: "",
 }
