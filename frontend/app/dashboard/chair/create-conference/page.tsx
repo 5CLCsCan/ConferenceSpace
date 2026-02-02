@@ -1,59 +1,18 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { ConferenceDetailsStep } from "@/components/wizard/conference-details-step"
-import { TopicsSubmissionsStep } from "@/components/wizard/topics-submissions-step"
-import { CfpConfigurationStep } from "@/components/wizard/cfp-configuration-step"
-import { OrganizersStep } from "@/components/wizard/organizers-step"
-import { ReviewStep } from "@/components/wizard/review-step"
-import { ChevronLeft, ChevronRight, ArrowLeft, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { Loader2 } from "lucide-react"
 import { createConference } from "@/lib/api/conferences"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { useAuth } from "@/lib/auth-context"
-
-export type ConferenceFormData = {
-  // Step 1: Conference Details
-  title: string
-  acronym: string
-  description: string
-  website: string
-  dateRange: { from: Date | undefined; to: Date | undefined }
-  locationType: "in-person" | "virtual" | "hybrid"
-  venue: string
-  contactEmail: string
-
-  // Step 2: Topics & Submissions
-  submissionsOpen: Date | undefined
-  submissionDeadline: Date | undefined
-  reviewDeadline: Date | undefined
-  authorNotification: Date | undefined
-  cameraReadyDeadline: Date | undefined
-  topics: string[] // Research domains/areas
-  tracks: string[] // Conference tracks for paper submission
-  anonymity: "single-blind" | "double-blind"
-  fileFormats: string[]
-
-  // Step 3: Call For Paper Configuration
-  callForPaperText: string
-
-  // Step 4: Organizers
-  organizers: Array<{
-    id: string
-    name: string
-    email: string
-    role: string
-  }>
-
-  // Step 5: Review
-  confirmed: boolean
-}
-
-// STEPS will be defined inside component to use translations
+import {
+  WizardLayout,
+  BasicDetailsStep,
+  ConferenceFormData,
+  initialFormData,
+} from "@/components/wizard/creation"
 
 export default function CreateConferencePage() {
   const router = useRouter()
@@ -64,95 +23,54 @@ export default function CreateConferencePage() {
   const [maxStepReached, setMaxStepReached] = useState(1)
   const [isCreating, setIsCreating] = useState(false)
   const [authChecked, setAuthChecked] = useState(false)
-  const [formData, setFormData] = useState<ConferenceFormData>({
-    title: "",
-    acronym: "",
-    description: "",
-    website: "",
-    dateRange: { from: undefined, to: undefined },
-    locationType: "in-person",
-    venue: "",
-    contactEmail: "",
-    submissionsOpen: undefined,
-    submissionDeadline: undefined,
-    reviewDeadline: undefined,
-    authorNotification: undefined,
-    cameraReadyDeadline: undefined,
-    topics: [],
-    tracks: [],
-    anonymity: "double-blind",
-    fileFormats: ["PDF"],
-    callForPaperText: "",
-    organizers: [
-      {
-        id: "1",
-        name: "Current Admin",
-        email: "admin@conferencehub.com",
-        role: "General Chair",
-      },
-    ],
-    confirmed: false,
-  })
+  const [formData, setFormData] = useState<ConferenceFormData>(initialFormData)
 
   const updateFormData = (data: Partial<ConferenceFormData>) => {
-    setFormData((prev) => ({ ...prev, ...data }))
+    setFormData((prev) => {
+      const updated = { ...prev, ...data }
+
+      // Sync new date fields with legacy fields for API compatibility
+      if (data.conferenceStartDate !== undefined || data.conferenceEndDate !== undefined) {
+        updated.dateRange = {
+          from: data.conferenceStartDate ?? prev.conferenceStartDate,
+          to: data.conferenceEndDate ?? prev.conferenceEndDate,
+        }
+      }
+      if (data.fullPaperDeadline !== undefined) {
+        updated.submissionDeadline = data.fullPaperDeadline
+      }
+      if (data.abstractDeadline !== undefined) {
+        updated.submissionsOpen = data.abstractDeadline
+      }
+      if (data.authorNotificationDate !== undefined) {
+        updated.authorNotification = data.authorNotificationDate
+      }
+      if (data.location !== undefined) {
+        updated.venue = data.location
+      }
+
+      return updated
+    })
   }
 
-  // Wait for auth to be checked before redirecting
   useEffect(() => {
-    // Give auth context time to initialize from localStorage
     const timer = setTimeout(() => {
       setAuthChecked(true)
     }, 100)
-
     return () => clearTimeout(timer)
   }, [])
 
   useEffect(() => {
-    if (!authChecked) {
-      return
-    }
-
+    if (!authChecked) return
     if (!isAuthenticated) {
       router.push("/login")
     }
-    // Note: Removed role check - users can select any role from dashboard
-    // The roles array represents backend-assigned roles, currentRole is the selected dashboard view
   }, [authChecked, isAuthenticated, router])
 
-  const STEPS = [
-    {
-      number: 1,
-      title: t("dashboard.chair.createConference.steps.1.title"),
-      description: t("dashboard.chair.createConference.steps.1.description"),
-    },
-    {
-      number: 2,
-      title: t("dashboard.chair.createConference.steps.2.title"),
-      description: t("dashboard.chair.createConference.steps.2.description"),
-    },
-    {
-      number: 3,
-      title: t("dashboard.chair.createConference.steps.3.title"),
-      description: t("dashboard.chair.createConference.steps.3.description"),
-    },
-    {
-      number: 4,
-      title: t("dashboard.chair.createConference.steps.4.title"),
-      description: t("dashboard.chair.createConference.steps.4.description"),
-    },
-    {
-      number: 5,
-      title: t("dashboard.chair.createConference.steps.5.title"),
-      description: t("dashboard.chair.createConference.steps.5.description"),
-    },
-  ]
-
   const handleNext = () => {
-    if (currentStep < STEPS.length) {
+    if (currentStep < 5) {
       const nextStep = currentStep + 1
       setCurrentStep(nextStep)
-      // Mark the next step as reached (and implicitly the current step too)
       setMaxStepReached(Math.max(maxStepReached, nextStep))
       window.scrollTo({ top: 0, behavior: "smooth" })
     }
@@ -165,15 +83,28 @@ export default function CreateConferencePage() {
     }
   }
 
-  const handleReturn = () => {
+  const handleCancel = () => {
     router.push("/dashboard/chair")
   }
 
+  const handleSaveDraft = () => {
+    toast({
+      title: "Draft saved",
+      description: "Your conference draft has been saved.",
+    })
+  }
+
+  const handleStepClick = (step: number) => {
+    setCurrentStep(step)
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
   const handleCreateConference = async () => {
-    if (!formData.title || !formData.acronym || !formData.submissionDeadline) {
+    // Validation
+    if (!formData.title || !formData.acronym) {
       toast({
-        title: t("dashboard.chair.createConference.validationError"),
-        description: t("dashboard.chair.createConference.validationDescription"),
+        title: "Missing required fields",
+        description: "Please provide at least the conference name and acronym.",
         variant: "destructive",
       })
       return
@@ -181,27 +112,32 @@ export default function CreateConferencePage() {
 
     setIsCreating(true)
     try {
-      // Transform form data to API format
       const conferenceData = {
         title: formData.title,
         acronym: formData.acronym,
         description: formData.description,
-        domain: formData.topics, // Research domains/areas
-        tracks: formData.tracks, // Conference tracks for submissions
-        venue: formData.venue, // Conference venue/location
+        domain: formData.topics,
+        tracks: formData.tracks,
+        venue: formData.venue || formData.location,
         configurations: {
-          start_date: formData.dateRange.from?.toISOString() || "",
-          end_date: formData.dateRange.to?.toISOString() || "",
-          abstract_submission_deadline: formData.submissionsOpen?.toISOString(),
-          full_paper_submission_deadline: formData.submissionDeadline.toISOString(),
+          start_date:
+            formData.conferenceStartDate?.toISOString() ||
+            formData.dateRange.from?.toISOString() ||
+            "",
+          end_date:
+            formData.conferenceEndDate?.toISOString() || formData.dateRange.to?.toISOString() || "",
+          abstract_submission_deadline:
+            formData.abstractDeadline?.toISOString() || formData.submissionsOpen?.toISOString(),
+          full_paper_submission_deadline:
+            formData.fullPaperDeadline?.toISOString() || formData.submissionDeadline?.toISOString(),
           camera_ready_deadline: formData.cameraReadyDeadline?.toISOString(),
           format: formData.locationType,
           review_type: formData.anonymity === "double-blind" ? "double-blind" : "single-blind",
-          maximum_pages: 8, // Default value
-          have_coi: true, // Default value
+          maximum_pages: 8,
+          have_coi: true,
           submission_format: formData.fileFormats.join(", "),
-          require_complete_author_profile: true, // Default value
-          allow_paper_withdrawls: true, // Default value
+          require_complete_author_profile: true,
+          allow_paper_withdrawls: true,
           call_for_paper_text: formData.callForPaperText || undefined,
         },
       }
@@ -221,7 +157,7 @@ export default function CreateConferencePage() {
         })
         router.push("/dashboard/chair")
       }
-    } catch (error) {
+    } catch {
       toast({
         title: t("dashboard.chair.createConference.error"),
         description: t("dashboard.chair.createConference.errorDescription"),
@@ -232,162 +168,96 @@ export default function CreateConferencePage() {
     }
   }
 
-  const goToStep = (step: number) => {
-    // Allow viewing any step (for preview), but editing is only allowed for reached steps
-    setCurrentStep(step)
-    window.scrollTo({ top: 0, behavior: "smooth" })
-  }
-
-  const isStepEditable = (step: number) => {
-    // Only allow editing steps that have been reached (not future steps being previewed)
-    return step <= maxStepReached
-  }
-
-  const progressPercentage = (currentStep / STEPS.length) * 100
-  const connectorProgress = STEPS.length > 1 ? ((currentStep - 1) / (STEPS.length - 1)) * 100 : 0
+  const isStepEditable = (step: number) => step <= maxStepReached
 
   if (!authChecked || !isAuthenticated || !user) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex h-screen items-center justify-center bg-white">
+        <Loader2 className="h-6 w-6 animate-spin text-[#1B3C53]" />
       </div>
     )
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-8 max-w-4xl pb-24">
-        {/* Page Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <Button variant="outline" size="sm" onClick={handleReturn} className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              {t("dashboard.chair.createConference.returnToDashboard")}
-            </Button>
-          </div>
-          <h1 className="text-3xl font-semibold text-foreground mb-2">
-            {t("dashboard.chair.createConference.title")}
-          </h1>
-          <p className="text-muted-foreground">{t("dashboard.chair.createConference.subtitle")}</p>
-        </div>
-
-        {/* Progress Indicator */}
-        <div className="mb-8">
-          <div className="relative mb-4">
-            <div className="absolute left-0 right-0 top-5 hidden h-0.5 bg-muted sm:block" />
-            <div
-              className="absolute left-0 top-5 hidden h-0.5 bg-primary transition-all sm:block"
-              style={{ width: `${connectorProgress}%` }}
-            />
-            <div className="relative grid grid-cols-1 gap-4 sm:grid-cols-5">
-              {STEPS.map((step) => (
-                <div key={step.number} className="flex flex-col items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => goToStep(step.number)}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-transform transition-colors cursor-pointer hover:scale-110 ${
-                      currentStep >= step.number
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {step.number}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => goToStep(step.number)}
-                    className={`text-sm font-medium text-center leading-tight transition-colors cursor-pointer hover:text-foreground ${
-                      currentStep >= step.number ? "text-foreground" : "text-muted-foreground"
-                    }`}
-                  >
-                    {step.title}
-                  </button>
-                </div>
-              ))}
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <BasicDetailsStep
+            data={formData}
+            updateData={isStepEditable(1) ? updateFormData : () => {}}
+          />
+        )
+      case 2:
+        return (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="size-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 mb-3">
+              <span className="material-symbols-outlined text-[20px] text-slate-400">category</span>
             </div>
+            <p className="text-sm font-bold text-[#1B3C53] dark:text-white mb-0.5">
+              Topics & Tracks
+            </p>
+            <p className="text-[10px] font-medium text-slate-400">
+              Define research areas and submission tracks
+            </p>
           </div>
-        </div>
+        )
+      case 3:
+        return (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="size-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 mb-3">
+              <span className="material-symbols-outlined text-[20px] text-slate-400">groups</span>
+            </div>
+            <p className="text-sm font-bold text-[#1B3C53] dark:text-white mb-0.5">Committees</p>
+            <p className="text-[10px] font-medium text-slate-400">
+              Add program committee members and reviewers
+            </p>
+          </div>
+        )
+      case 4:
+        return (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="size-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 mb-3">
+              <span className="material-symbols-outlined text-[20px] text-slate-400">gavel</span>
+            </div>
+            <p className="text-sm font-bold text-[#1B3C53] dark:text-white mb-0.5">Review Policy</p>
+            <p className="text-[10px] font-medium text-slate-400">
+              Configure submission deadlines and review process
+            </p>
+          </div>
+        )
+      case 5:
+        return (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="size-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 mb-3">
+              <span className="material-symbols-outlined text-[20px] text-slate-400">
+                check_circle
+              </span>
+            </div>
+            <p className="text-sm font-bold text-[#1B3C53] dark:text-white mb-0.5">Final Review</p>
+            <p className="text-[10px] font-medium text-slate-400">
+              Review all details and publish conference
+            </p>
+          </div>
+        )
+      default:
+        return null
+    }
+  }
 
-        {/* Form Content */}
-        <Card className="p-6 md:p-8 mb-6 relative">
-          {currentStep === 1 && (
-            <ConferenceDetailsStep
-              data={formData}
-              updateData={isStepEditable(1) ? updateFormData : () => {}}
-            />
-          )}
-          {currentStep === 2 && (
-            <TopicsSubmissionsStep
-              data={formData}
-              updateData={isStepEditable(2) ? updateFormData : () => {}}
-            />
-          )}
-          {currentStep === 3 && (
-            <CfpConfigurationStep
-              data={formData}
-              updateData={isStepEditable(3) ? updateFormData : () => {}}
-            />
-          )}
-          {currentStep === 4 && (
-            <OrganizersStep
-              data={formData}
-              updateData={isStepEditable(4) ? updateFormData : () => {}}
-            />
-          )}
-          {currentStep === 5 && (
-            <ReviewStep
-              data={formData}
-              updateData={isStepEditable(5) ? updateFormData : () => {}}
-              goToStep={goToStep}
-            />
-          )}
-          {/* Preview Veil - prevents interaction when viewing unreached steps */}
-          {!isStepEditable(currentStep) && (
-            <div className="absolute inset-0 bg-gray-300/40 backdrop-blur-[0.5px] z-50 rounded-lg pointer-events-auto" />
-          )}
-        </Card>
-      </main>
-
-      {/* Floating Navigation Buttons */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex gap-2 sm:gap-4 items-center max-w-[calc(100%-2rem)]">
-        {currentStep > 1 && (
-          <Button
-            variant="outline"
-            onClick={handlePrevious}
-            className="gap-2 shadow-lg text-xs sm:text-sm"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">
-              {t("dashboard.chair.createConference.previousStep")}
-            </span>
-            <span className="sm:hidden">{t("common.actions.previous")}</span>
-          </Button>
-        )}
-
-        {currentStep < STEPS.length ? (
-          <Button onClick={handleNext} className="gap-2 shadow-lg text-xs sm:text-sm">
-            <span className="hidden sm:inline">{t("common.actions.nextStep")}</span>
-            <span className="sm:hidden">Next</span>
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        ) : (
-          <Button
-            onClick={handleCreateConference}
-            disabled={!formData.confirmed || isCreating}
-            className="gap-2 shadow-lg text-xs sm:text-sm"
-          >
-            {isCreating && <Loader2 className="w-4 h-4 animate-spin" />}
-            <span className="hidden sm:inline">
-              {isCreating
-                ? t("common.actions.creating")
-                : t("dashboard.chair.createConference.confirmCreate")}
-            </span>
-            <span className="sm:hidden">
-              {isCreating ? t("common.actions.creating") : t("common.actions.create")}
-            </span>
-          </Button>
-        )}
-      </div>
-    </div>
+  return (
+    <WizardLayout
+      currentStep={currentStep}
+      maxStepReached={maxStepReached}
+      onStepClick={handleStepClick}
+      onCancel={handleCancel}
+      onSaveDraft={handleSaveDraft}
+      onNext={handleNext}
+      onPrevious={handlePrevious}
+      onSubmit={handleCreateConference}
+      isSubmitting={isCreating}
+      canSubmit={formData.confirmed}
+    >
+      {renderStepContent()}
+    </WizardLayout>
   )
 }
