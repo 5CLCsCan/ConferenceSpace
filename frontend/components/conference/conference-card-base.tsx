@@ -35,7 +35,7 @@ export function ConferenceCardBase({
       {/* Static Card Content */}
       <div className="px-4 pt-4 pb-3 flex-1">
         {/* Header */}
-        <div className="flex justify-between items-start mb-3">
+        <div className="flex justify-between items-start mb-1.5">
           <StatusBadge status={conference.status} />
           <button
             onClick={(e) => e.stopPropagation()}

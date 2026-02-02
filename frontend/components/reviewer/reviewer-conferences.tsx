@@ -213,7 +213,7 @@ function MyConferenceCard({
 
       <div className="px-4 pt-4 pb-3">
         {/* Header */}
-        <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex items-start justify-between gap-3 mb-1.5">
           <div className="min-w-0 flex-1">
             <h3 className="text-sm font-bold leading-tight tracking-tight text-[#1B3C53] dark:text-white truncate group-hover:text-[#234C6A] transition-colors">
               {conference.acronym || conference.name}
@@ -325,7 +325,7 @@ function ExploreConferenceCard({
 
       <div className="px-4 pt-4 pb-3">
         {/* Header */}
-        <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex items-start justify-between gap-3 mb-1.5">
           <div className="min-w-0 flex-1">
             <h3 className="text-sm font-bold leading-tight tracking-tight text-[#1B3C53] dark:text-white truncate">
               {conference.acronym || conference.name}

@@ -1,4 +1,4 @@
-import type { Conference } from "./types"
+import type { Conference, ExploreConference } from "./types"
 
 export const MOCK_MY_CONFERENCES: Conference[] = [
   {
@@ -51,5 +51,100 @@ export const MOCK_MY_CONFERENCES: Conference[] = [
   },
 ]
 
-export const MOCK_EXPLORE_CONFERENCES: Conference[] = []
-export const MOCK_ARCHIVED_CONFERENCES: Conference[] = []
+export const MOCK_EXPLORE_CONFERENCES: ExploreConference[] = [
+  {
+    id: "exp-1",
+    name: "SIGGRAPH 2025",
+    fullDescription: "Computer Graphics & Interactive Techniques",
+    location: "Los Angeles Convention Center, USA",
+    dates: "Aug 03 - Aug 07, 2025",
+    exploreStatus: "call-for-papers",
+    topics: ["Animation", "Rendering", "VR/AR"],
+  },
+  {
+    id: "exp-2",
+    name: "CHI 2025",
+    fullDescription: "Human Factors in Computing Systems",
+    location: "Hawaii Convention Center, Honolulu, USA",
+    dates: "Apr 26 - May 01, 2025",
+    exploreStatus: "registration-open",
+    topics: ["HCI", "UX", "Design"],
+  },
+  {
+    id: "exp-3",
+    name: "ICML 2025",
+    fullDescription: "International Conference on Machine Learning",
+    location: "Vancouver, Canada",
+    dates: "July 2025 (Tentative)",
+    exploreStatus: "upcoming",
+    topics: ["ML", "Deep Learning"],
+  },
+  {
+    id: "exp-4",
+    name: "WACV 2025",
+    fullDescription: "Winter Conf. on Applications of Computer Vision",
+    location: "Tucson, Arizona, USA",
+    dates: "Jan 04 - Jan 08, 2025",
+    exploreStatus: "workshop",
+    topics: ["Vision", "Biometrics"],
+  },
+]
+
+export const MOCK_ARCHIVED_CONFERENCES: ExploreConference[] = [
+  {
+    id: "arch-1",
+    name: "NeurIPS 2023",
+    fullDescription: "Neural Information Processing Systems",
+    location: "New Orleans, USA",
+    dates: "Dec 10 - Dec 16, 2023",
+    exploreStatus: "upcoming",
+    topics: [],
+  },
+  {
+    id: "arch-2",
+    name: "ICML 2023",
+    fullDescription: "International Conference on Machine Learning",
+    location: "Honolulu, Hawaii",
+    dates: "Jul 23 - Jul 29, 2023",
+    exploreStatus: "upcoming",
+    topics: [],
+  },
+  {
+    id: "arch-3",
+    name: "CVPR 2023",
+    fullDescription: "Computer Vision and Pattern Recognition",
+    location: "Vancouver, Canada",
+    dates: "Jun 18 - Jun 22, 2023",
+    exploreStatus: "upcoming",
+    topics: [],
+  },
+  {
+    id: "arch-4",
+    name: "ECCV 2022",
+    fullDescription: "European Conference on Computer Vision",
+    location: "Tel Aviv, Israel",
+    dates: "Oct 23 - Oct 27, 2022",
+    exploreStatus: "upcoming",
+    topics: [],
+  },
+  {
+    id: "arch-5",
+    name: "ICLR 2022",
+    fullDescription: "International Conference on Learning Representations",
+    location: "Virtual Event",
+    dates: "Apr 25 - Apr 29, 2022",
+    exploreStatus: "upcoming",
+    topics: [],
+    isVirtual: true,
+  },
+  {
+    id: "arch-6",
+    name: "AAAI 2022",
+    fullDescription: "Association for the Advancement of AI",
+    location: "Virtual Event",
+    dates: "Feb 22 - Mar 01, 2022",
+    exploreStatus: "upcoming",
+    topics: [],
+    isVirtual: true,
+  },
+]

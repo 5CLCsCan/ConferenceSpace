@@ -2,12 +2,22 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import type { TabType, ViewMode, Conference } from "./types"
-import { MOCK_MY_CONFERENCES } from "./mock-data"
+import type { TabType, ViewMode, Conference, ExploreConference } from "./types"
+import {
+  MOCK_MY_CONFERENCES,
+  MOCK_EXPLORE_CONFERENCES,
+  MOCK_ARCHIVED_CONFERENCES,
+} from "./mock-data"
 import { ConferenceCard } from "./conference-cards"
 import { ConferenceList } from "./conference-list"
 import { CreateConferenceCard } from "./create-conference-card"
 import { EmptyState, NoResultsState } from "./empty-state"
+import {
+  ExploreConferenceCard,
+  ArchivedConferenceCard,
+  ExploreConferenceList,
+  ArchivedConferenceList,
+} from "./explore-cards"
 
 interface AuthorConferencesProps {
   /** Initial conferences data - falls back to mock data */
@@ -21,28 +31,27 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState("date-newest")
 
-  // Use provided conferences or fall back to mock data
-  const allConferences = initialConferences || MOCK_MY_CONFERENCES
+  // Data sources for each tab
+  const myConferences = initialConferences || MOCK_MY_CONFERENCES
+  const exploreConferences = MOCK_EXPLORE_CONFERENCES
+  const archivedConferences = MOCK_ARCHIVED_CONFERENCES
 
   const handleNavigate = (id: string) => {
     router.push(`/dashboard/conference/${id}`)
+  }
+
+  const handleViewDetails = (id: string) => {
+    // For explore/archived, navigate to details page
+    router.push(`/conference/${id}`)
   }
 
   const handleCreateConference = () => {
     router.push("/dashboard/chair/create-conference")
   }
 
-  const getFilteredConferences = () => {
-    let filtered = [...allConferences]
-
-    // Filter by tab
-    if (activeTab === "archived") {
-      filtered = filtered.filter((c) => c.status === "completed")
-    } else if (activeTab === "my-conferences") {
-      filtered = filtered.filter((c) => c.status !== "completed")
-    }
-
-    // Filter by search
+  // Filter My Conferences (exclude completed)
+  const getFilteredMyConferences = (): Conference[] => {
+    let filtered = myConferences.filter((c) => c.status !== "completed")
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
       filtered = filtered.filter(
@@ -52,11 +61,122 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
           c.role.toLowerCase().includes(query),
       )
     }
-
     return filtered
   }
 
-  const conferences = getFilteredConferences()
+  // Filter Explore Conferences
+  const getFilteredExploreConferences = (): ExploreConference[] => {
+    let filtered = [...exploreConferences]
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(
+        (c) =>
+          c.name.toLowerCase().includes(query) ||
+          c.fullDescription.toLowerCase().includes(query) ||
+          c.topics.some((t) => t.toLowerCase().includes(query)),
+      )
+    }
+    return filtered
+  }
+
+  // Filter Archived Conferences
+  const getFilteredArchivedConferences = (): ExploreConference[] => {
+    let filtered = [...archivedConferences]
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(
+        (c) =>
+          c.name.toLowerCase().includes(query) ||
+          c.fullDescription.toLowerCase().includes(query) ||
+          c.location.toLowerCase().includes(query),
+      )
+    }
+    return filtered
+  }
+
+  // Get data and render based on active tab
+  const renderContent = () => {
+    if (activeTab === "my-conferences") {
+      const conferences = getFilteredMyConferences()
+      if (conferences.length === 0 && !searchQuery) return <EmptyState type={activeTab} />
+      if (conferences.length === 0 && searchQuery) return <NoResultsState />
+
+      if (viewMode === "list") {
+        return (
+          <div className="flex flex-col gap-4">
+            <ConferenceList conferences={conferences} onNavigate={handleNavigate} />
+          </div>
+        )
+      }
+
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {conferences.map((conference) => (
+            <ConferenceCard
+              key={conference.id}
+              conference={conference}
+              onNavigate={handleNavigate}
+            />
+          ))}
+          <CreateConferenceCard onClick={handleCreateConference} />
+        </div>
+      )
+    }
+
+    if (activeTab === "explore") {
+      const conferences = getFilteredExploreConferences()
+      if (conferences.length === 0 && !searchQuery) return <EmptyState type={activeTab} />
+      if (conferences.length === 0 && searchQuery) return <NoResultsState />
+
+      if (viewMode === "list") {
+        return (
+          <div className="flex flex-col gap-4">
+            <ExploreConferenceList conferences={conferences} onViewDetails={handleViewDetails} />
+          </div>
+        )
+      }
+
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {conferences.map((conference) => (
+            <ExploreConferenceCard
+              key={conference.id}
+              conference={conference}
+              onViewDetails={handleViewDetails}
+            />
+          ))}
+        </div>
+      )
+    }
+
+    if (activeTab === "archived") {
+      const conferences = getFilteredArchivedConferences()
+      if (conferences.length === 0 && !searchQuery) return <EmptyState type={activeTab} />
+      if (conferences.length === 0 && searchQuery) return <NoResultsState />
+
+      if (viewMode === "list") {
+        return (
+          <div className="flex flex-col gap-4">
+            <ArchivedConferenceList conferences={conferences} onViewDetails={handleViewDetails} />
+          </div>
+        )
+      }
+
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {conferences.map((conference) => (
+            <ArchivedConferenceCard
+              key={conference.id}
+              conference={conference}
+              onViewDetails={handleViewDetails}
+            />
+          ))}
+        </div>
+      )
+    }
+
+    return null
+  }
 
   return (
     <div className="flex flex-col">
@@ -68,6 +188,7 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
 
       {/* Toolbar */}
       <Toolbar
+        activeTab={activeTab}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         sortBy={sortBy}
@@ -77,32 +198,7 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
       />
 
       {/* Content */}
-      <div className="flex-1">
-        {conferences.length === 0 && !searchQuery ? (
-          <EmptyState type={activeTab} />
-        ) : conferences.length === 0 && searchQuery ? (
-          <NoResultsState />
-        ) : viewMode === "list" ? (
-          /* List View */
-          <div className="flex flex-col gap-4">
-            <ConferenceList conferences={conferences} onNavigate={handleNavigate} />
-          </div>
-        ) : (
-          /* Grid View */
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {conferences.map((conference) => (
-              <ConferenceCard
-                key={conference.id}
-                conference={conference}
-                onNavigate={handleNavigate}
-              />
-            ))}
-            {activeTab === "my-conferences" && (
-              <CreateConferenceCard onClick={handleCreateConference} />
-            )}
-          </div>
-        )}
-      </div>
+      <div className="flex-1">{renderContent()}</div>
     </div>
   )
 }
@@ -197,6 +293,7 @@ function Tabs({ activeTab, onTabChange }: TabsProps) {
 // -------------------------------------------------------------------------
 
 interface ToolbarProps {
+  activeTab: TabType
   searchQuery: string
   onSearchChange: (query: string) => void
   sortBy: string
@@ -206,6 +303,7 @@ interface ToolbarProps {
 }
 
 function Toolbar({
+  activeTab,
   searchQuery,
   onSearchChange,
   sortBy,
@@ -213,6 +311,29 @@ function Toolbar({
   viewMode,
   onViewModeChange,
 }: ToolbarProps) {
+  const placeholders: Record<TabType, string> = {
+    "my-conferences": "Search conferences...",
+    explore: "Search conferences...",
+    archived: "Search archived conferences...",
+  }
+
+  const sortOptions: Record<TabType, { value: string; label: string }[]> = {
+    "my-conferences": [
+      { value: "date-newest", label: "Date (Newest)" },
+      { value: "name-asc", label: "Name (A-Z)" },
+      { value: "submissions", label: "Submissions (High-Low)" },
+    ],
+    explore: [
+      { value: "popularity", label: "Popularity" },
+      { value: "date-upcoming", label: "Date (Upcoming)" },
+      { value: "name-asc", label: "Name (A-Z)" },
+    ],
+    archived: [
+      { value: "date-newest", label: "Date (Newest)" },
+      { value: "name-asc", label: "Name (A-Z)" },
+    ],
+  }
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
       {/* Search */}
@@ -240,7 +361,7 @@ function Toolbar({
         </span>
         <input
           className="w-full h-10 pl-9 pr-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1B3C53]/20 focus:border-[#1B3C53] transition-all"
-          placeholder="Search conferences..."
+          placeholder={placeholders[activeTab]}
           type="text"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
@@ -258,9 +379,11 @@ function Toolbar({
             onChange={(e) => onSortChange(e.target.value)}
             className="border-none bg-transparent text-[11px] font-bold text-[#1B3C53] dark:text-white focus:ring-0 cursor-pointer p-0 pr-5"
           >
-            <option value="date-newest">Date (Newest)</option>
-            <option value="name-asc">Name (A-Z)</option>
-            <option value="submissions">Submissions (High-Low)</option>
+            {sortOptions[activeTab].map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </select>
         </div>
 
