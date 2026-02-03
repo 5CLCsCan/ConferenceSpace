@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 // Types
 interface ConflictReason {
@@ -275,91 +276,91 @@ function COITableRow({ entry, onConfirm, onDismiss, onReassign }: COITableRowPro
           </button>
         </td>
 
-      {/* Source */}
-      <td className="px-3 py-3">
-        <span
-          className={cn(
-            "inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold border uppercase tracking-wider",
-            entry.source.type === "auto"
-              ? "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-900/30"
-              : "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-900/30",
-          )}
-          title={entry.source.type === "auto" ? "Detected by system" : "Declared by Reviewer"}
-        >
-          {entry.source.label}
-        </span>
-      </td>
+        {/* Source */}
+        <td className="px-3 py-3">
+          <span
+            className={cn(
+              "inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold border uppercase tracking-wider",
+              entry.source.type === "auto"
+                ? "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-900/30"
+                : "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-900/30",
+            )}
+            title={entry.source.type === "auto" ? "Detected by system" : "Declared by Reviewer"}
+          >
+            {entry.source.label}
+          </span>
+        </td>
 
-      {/* Actions */}
-      <td className="px-3 py-3 text-right">
-        <div className="flex items-center justify-end gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={() => onConfirm(entry.id)}
-            className="p-1 text-slate-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors"
-            title="Confirm Conflict"
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
-              check_circle
-            </span>
-          </button>
-          <button
-            onClick={() => onDismiss(entry.id)}
-            className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-            title="Dismiss as False Positive"
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
-              cancel
-            </span>
-          </button>
-          <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5" />
-          <button
-            onClick={() => onReassign(entry.id)}
-            className="p-1 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
-            title="Reassign Reviewer"
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
-              person_search
-            </span>
-          </button>
-        </div>
-      </td>
-    </tr>
+        {/* Actions */}
+        <td className="px-3 py-3 text-right">
+          <div className="flex items-center justify-end gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+            <button
+              onClick={() => onConfirm(entry.id)}
+              className="p-1 text-slate-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors"
+              title="Confirm Conflict"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+                check_circle
+              </span>
+            </button>
+            <button
+              onClick={() => onDismiss(entry.id)}
+              className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+              title="Dismiss as False Positive"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+                cancel
+              </span>
+            </button>
+            <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5" />
+            <button
+              onClick={() => onReassign(entry.id)}
+              className="p-1 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
+              title="Reassign Reviewer"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+                person_search
+              </span>
+            </button>
+          </div>
+        </td>
+      </tr>
 
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Conflict Reason Details</DialogTitle>
-          <DialogDescription>
-            Detailed information about the conflict of interest.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="py-4">
-          <div className="space-y-2">
-            <div>
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Type:{" "}
-              </span>
-              <span
-                className={cn(
-                  "inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border uppercase tracking-wider",
-                  getReasonVariant(entry.reason.type),
-                )}
-              >
-                {entry.reason.label}
-              </span>
-            </div>
-            <div>
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Details:{" "}
-              </span>
-              <span className="text-sm text-slate-600 dark:text-slate-400">
-                {entry.reason.detail}
-              </span>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Conflict Reason Details</DialogTitle>
+            <DialogDescription>
+              Detailed information about the conflict of interest.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="space-y-2">
+              <div>
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Type:{" "}
+                </span>
+                <span
+                  className={cn(
+                    "inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border uppercase tracking-wider",
+                    getReasonVariant(entry.reason.type),
+                  )}
+                >
+                  {entry.reason.label}
+                </span>
+              </div>
+              <div>
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Details:{" "}
+                </span>
+                <span className="text-sm text-slate-600 dark:text-slate-400">
+                  {entry.reason.detail}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
@@ -648,7 +649,24 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
                 <tr>
                   <th className="px-3 py-2.5">Reviewer</th>
                   <th className="px-3 py-2.5">Submission</th>
-                  <th className="px-3 py-2.5">Conflict Reason</th>
+                  <th className="px-3 py-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <span>Conflict Reason</span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span
+                            className="material-symbols-outlined text-slate-400 cursor-help"
+                            style={{ fontSize: "12px" }}
+                          >
+                            help
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="text-[8px] font-light">Clicks to view details</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </th>
                   <th className="px-3 py-2.5">Source</th>
                   <th className="px-3 py-2.5 text-right">Actions</th>
                 </tr>
@@ -668,18 +686,33 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
           </div>
 
           {/* Pagination */}
-          <div className="p-3 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900">
-            <span className="text-[10px] text-slate-500">
-              Showing 1-{filteredEntries.length} of 45 pending conflicts
-            </span>
-            <div className="flex gap-2">
+          <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div className="text-[11px] text-slate-500">
+              Showing{" "}
+              <span className="font-bold text-[#1B3C53] dark:text-white">
+                1-{filteredEntries.length}
+              </span>{" "}
+              of <span className="font-bold text-[#1B3C53] dark:text-white">45</span> pending
+              conflicts
+            </div>
+            <div className="flex gap-1">
               <button
                 disabled
-                className="px-2.5 py-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded text-slate-400 cursor-not-allowed"
+                className="px-2.5 py-1 border border-slate-200 rounded text-[10px] text-slate-500 hover:bg-slate-50 disabled:opacity-50"
               >
                 Previous
               </button>
-              <button className="px-2.5 py-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors">
+              <button className="px-2.5 py-1 bg-[#1B3C53] text-white rounded text-[10px] hover:bg-[#234C6A]">
+                1
+              </button>
+              <button className="px-2.5 py-1 border border-slate-200 rounded text-[10px] text-slate-500 hover:bg-slate-50">
+                2
+              </button>
+              <button className="px-2.5 py-1 border border-slate-200 rounded text-[10px] text-slate-500 hover:bg-slate-50">
+                3
+              </button>
+              <span className="px-1.5 text-slate-400 text-[10px]">...</span>
+              <button className="px-2.5 py-1 border border-slate-200 rounded text-[10px] text-slate-500 hover:bg-slate-50">
                 Next
               </button>
             </div>
