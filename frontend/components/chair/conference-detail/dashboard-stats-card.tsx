@@ -29,9 +29,7 @@ export function DashboardStatsCard({
         <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</h3>
         {icon && (
           <div className="w-7 h-7 flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-[#1B3C53] dark:text-slate-400 rounded-md">
-            <span className="material-symbols-outlined text-base leading-none">
-              {icon}
-            </span>
+            <span className="material-symbols-outlined text-base leading-none">{icon}</span>
           </div>
         )}
       </div>
@@ -61,9 +59,7 @@ export function DashboardStatsCard({
       )}
 
       {/* Subtext */}
-      {subtext && (
-        <p className="text-[10px] text-slate-400 mt-1.5">{subtext}</p>
-      )}
+      {subtext && <p className="text-[10px] text-slate-400 mt-1.5">{subtext}</p>}
     </div>
   )
 }

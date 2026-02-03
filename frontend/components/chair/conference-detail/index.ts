@@ -2,6 +2,8 @@
 export * from "./types"
 export { ConferenceDetailHeader } from "./conference-detail-header"
 export { ConferenceDetailDashboard } from "./conference-detail-dashboard"
+export { ConferenceOverview } from "./conference-overview"
+export { ConferenceCFP } from "./conference-cfp"
 export { DashboardStatsCard, DashboardStatsGrid } from "./dashboard-stats-card"
 export { SubmissionTimeline } from "./submission-timeline"
 export { PendingDecisionsTable } from "./pending-decisions-table"

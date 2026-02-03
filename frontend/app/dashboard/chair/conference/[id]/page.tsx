@@ -8,6 +8,8 @@ import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import {
   ConferenceDetailHeader,
   ConferenceDetailDashboard,
+  ConferenceOverview,
+  ConferenceCFP,
   type TabId,
   type ConferenceInfo,
 } from "@/components/chair/conference-detail"
@@ -75,17 +77,9 @@ export default function ChairConferenceDetailPage() {
       case "dashboard":
         return <ConferenceDetailDashboard conferenceId={conferenceId} />
       case "overview":
-        return (
-          <div className="flex items-center justify-center h-64 text-slate-400">
-            Overview tab - Coming soon
-          </div>
-        )
+        return <ConferenceOverview conferenceId={conferenceId} />
       case "cfp":
-        return (
-          <div className="flex items-center justify-center h-64 text-slate-400">
-            Call for Papers tab - Coming soon
-          </div>
-        )
+        return <ConferenceCFP conferenceId={conferenceId} />
       case "dates":
         return (
           <div className="flex items-center justify-center h-64 text-slate-400">
