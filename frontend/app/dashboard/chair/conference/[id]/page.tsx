@@ -10,6 +10,8 @@ import {
   ConferenceDetailDashboard,
   ConferenceOverview,
   ConferenceCFP,
+  ConferenceDates,
+  ConferenceCommittee,
   type TabId,
   type ConferenceInfo,
 } from "@/components/chair/conference-detail"
@@ -81,17 +83,9 @@ export default function ChairConferenceDetailPage() {
       case "cfp":
         return <ConferenceCFP conferenceId={conferenceId} />
       case "dates":
-        return (
-          <div className="flex items-center justify-center h-64 text-slate-400">
-            Important Dates tab - Coming soon
-          </div>
-        )
+        return <ConferenceDates conferenceId={conferenceId} />
       case "committee":
-        return (
-          <div className="flex items-center justify-center h-64 text-slate-400">
-            Committee tab - Coming soon
-          </div>
-        )
+        return <ConferenceCommittee conferenceId={conferenceId} />
       case "submissions":
         return (
           <div className="flex items-center justify-center h-64 text-slate-400">
