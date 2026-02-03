@@ -11,6 +11,8 @@ import {
   AuthorAvatar,
 } from "./submission-detail/components"
 import { ChairDiscussionTab } from "./submission-detail/chair-discussion-tab"
+import { ChairReviewsTab } from "./submission-detail/chair-reviews-tab"
+import { ChairHistoryTab } from "./submission-detail/chair-history-tab"
 
 interface SubmissionDetailContentProps {
   submission: SubmissionDetail
@@ -371,39 +373,11 @@ export function SubmissionDetailContent({
       )}
 
       {/* Other tabs - placeholder */}
-      {activeTab === "reviews" && (
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 text-center">
-          <span
-            className="material-symbols-outlined text-slate-300 dark:text-slate-600 mb-4"
-            style={{ fontSize: "48px" }}
-          >
-            rate_review
-          </span>
-          <h3 className="text-sm font-bold text-slate-600 dark:text-slate-400 mb-2">
-            Reviews & Feedback
-          </h3>
-          <p className="text-xs text-slate-400">
-            Detailed review comments and feedback will be displayed here.
-          </p>
-        </div>
-      )}
+      {activeTab === "reviews" && <ChairReviewsTab submission={submission} />}
 
       {activeTab === "discussion" && <ChairDiscussionTab />}
 
-      {activeTab === "history" && (
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 text-center">
-          <span
-            className="material-symbols-outlined text-slate-300 dark:text-slate-600 mb-4"
-            style={{ fontSize: "48px" }}
-          >
-            history
-          </span>
-          <h3 className="text-sm font-bold text-slate-600 dark:text-slate-400 mb-2">History</h3>
-          <p className="text-xs text-slate-400">
-            Submission history and status changes will be displayed here.
-          </p>
-        </div>
-      )}
+      {activeTab === "history" && <ChairHistoryTab />}
     </div>
   )
 }
