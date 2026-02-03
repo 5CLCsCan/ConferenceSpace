@@ -55,25 +55,27 @@ export function AbstractCard({ submission }: AbstractCardProps) {
                 href="#"
                 className="flex items-center gap-2 text-xs text-[#2563eb] hover:underline"
               >
-                <span 
-                  className="material-symbols-outlined" 
-                  style={{ 
-                    fontSize: '16px', 
-                    width: '16px', 
-                    height: '16px', 
-                    maxWidth: '16px', 
-                    maxHeight: '16px',
-                    minWidth: '16px',
-                    minHeight: '16px',
-                    lineHeight: '1',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                <span
+                  className="material-symbols-outlined"
+                  style={{
+                    fontSize: "16px",
+                    width: "16px",
+                    height: "16px",
+                    maxWidth: "16px",
+                    maxHeight: "16px",
+                    minWidth: "16px",
+                    minHeight: "16px",
+                    lineHeight: "1",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                     flexShrink: 0,
-                    transform: 'none',
-                    boxSizing: 'border-box'
+                    transform: "none",
+                    boxSizing: "border-box",
                   }}
-                >folder_zip</span>
+                >
+                  folder_zip
+                </span>
                 {submission.supplementaryMaterial.name} ({submission.supplementaryMaterial.size})
               </a>
             </div>
@@ -102,7 +104,7 @@ export function AIAssistantCard() {
         setShowViewAnalysis(true)
         // Mock analysis result - replace with actual API call
         setAnalysisResult(
-          `# Analysis Results\n\n## Key Contributions\n\n1. **Novel Methodology**: The paper introduces a new approach to solving the problem.\n2. **Experimental Validation**: Comprehensive experiments demonstrate the effectiveness.\n3. **Theoretical Analysis**: Strong theoretical foundation with proofs.\n\n## Potential Issues\n\n1. **Limited Dataset**: The evaluation uses a relatively small dataset.\n2. **Comparison**: Could benefit from more baseline comparisons.\n3. **Reproducibility**: Some implementation details are missing.\n\n## Overall Assessment\n\nThe paper presents a solid contribution with clear methodology and experimental validation. The main areas for improvement are dataset diversity and more comprehensive comparisons.`
+          `# Analysis Results\n\n## Key Contributions\n\n1. **Novel Methodology**: The paper introduces a new approach to solving the problem.\n2. **Experimental Validation**: Comprehensive experiments demonstrate the effectiveness.\n3. **Theoretical Analysis**: Strong theoretical foundation with proofs.\n\n## Potential Issues\n\n1. **Limited Dataset**: The evaluation uses a relatively small dataset.\n2. **Comparison**: Could benefit from more baseline comparisons.\n3. **Reproducibility**: Some implementation details are missing.\n\n## Overall Assessment\n\nThe paper presents a solid contribution with clear methodology and experimental validation. The main areas for improvement are dataset diversity and more comprehensive comparisons.`,
         )
       }, 5000)
 
@@ -148,22 +150,22 @@ export function AIAssistantCard() {
             <h3 className="font-bold text-[11px] text-indigo-900 flex items-center gap-1.5 uppercase tracking-wider">
               <span
                 className="material-symbols-outlined text-indigo-600"
-                style={{ 
+                style={{
                   fontVariationSettings: '"FILL" 1',
-                  fontSize: '16px', 
-                  width: '16px', 
-                  height: '16px', 
-                  maxWidth: '16px', 
-                  maxHeight: '16px',
-                  minWidth: '16px',
-                  minHeight: '16px',
-                  lineHeight: '1',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  fontSize: "16px",
+                  width: "16px",
+                  height: "16px",
+                  maxWidth: "16px",
+                  maxHeight: "16px",
+                  minWidth: "16px",
+                  minHeight: "16px",
+                  lineHeight: "1",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   flexShrink: 0,
-                  transform: 'none',
-                  boxSizing: 'border-box'
+                  transform: "none",
+                  boxSizing: "border-box",
                 }}
               >
                 auto_awesome
@@ -183,25 +185,27 @@ export function AIAssistantCard() {
                 onClick={() => setIsDialogOpen(true)}
                 className="w-full h-8 px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-md shadow-sm transition-all flex items-center justify-center gap-1.5"
               >
-                <span 
-                  className="material-symbols-outlined" 
-                  style={{ 
-                    fontSize: '16px', 
-                    width: '16px', 
-                    height: '16px', 
-                    maxWidth: '16px', 
-                    maxHeight: '16px',
-                    minWidth: '16px',
-                    minHeight: '16px',
-                    lineHeight: '1',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                <span
+                  className="material-symbols-outlined"
+                  style={{
+                    fontSize: "16px",
+                    width: "16px",
+                    height: "16px",
+                    maxWidth: "16px",
+                    maxHeight: "16px",
+                    minWidth: "16px",
+                    minHeight: "16px",
+                    lineHeight: "1",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                     flexShrink: 0,
-                    transform: 'none',
-                    boxSizing: 'border-box'
+                    transform: "none",
+                    boxSizing: "border-box",
                   }}
-                >analytics</span>
+                >
+                  analytics
+                </span>
                 Generate Analysis
               </button>
             </>
@@ -216,25 +220,27 @@ export function AIAssistantCard() {
                     onClick={() => setIsAnalysisDialogOpen(true)}
                     className="w-full h-8 px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-md shadow-sm transition-all flex items-center justify-center gap-1.5"
                   >
-                    <span 
-                      className="material-symbols-outlined" 
-                      style={{ 
-                        fontSize: '16px', 
-                        width: '16px', 
-                        height: '16px', 
-                        maxWidth: '16px', 
-                        maxHeight: '16px',
-                        minWidth: '16px',
-                        minHeight: '16px',
-                        lineHeight: '1',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                    <span
+                      className="material-symbols-outlined"
+                      style={{
+                        fontSize: "16px",
+                        width: "16px",
+                        height: "16px",
+                        maxWidth: "16px",
+                        maxHeight: "16px",
+                        minWidth: "16px",
+                        minHeight: "16px",
+                        lineHeight: "1",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                         flexShrink: 0,
-                        transform: 'none',
-                        boxSizing: 'border-box'
+                        transform: "none",
+                        boxSizing: "border-box",
                       }}
-                    >visibility</span>
+                    >
+                      visibility
+                    </span>
                     View analysis
                   </button>
                 ) : (
@@ -243,25 +249,27 @@ export function AIAssistantCard() {
                       onClick={handleCheckConfig}
                       className="w-full h-8 px-3 bg-indigo-300 hover:bg-indigo-400 text-white text-[10px] font-bold rounded-md shadow-sm transition-all flex items-center justify-center gap-1.5"
                     >
-                      <span 
-                        className="material-symbols-outlined" 
-                        style={{ 
-                          fontSize: '16px', 
-                          width: '16px', 
-                          height: '16px', 
-                          maxWidth: '16px', 
-                          maxHeight: '16px',
-                          minWidth: '16px',
-                          minHeight: '16px',
-                          lineHeight: '1',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
+                      <span
+                        className="material-symbols-outlined"
+                        style={{
+                          fontSize: "16px",
+                          width: "16px",
+                          height: "16px",
+                          maxWidth: "16px",
+                          maxHeight: "16px",
+                          minWidth: "16px",
+                          minHeight: "16px",
+                          lineHeight: "1",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
                           flexShrink: 0,
-                          transform: 'none',
-                          boxSizing: 'border-box'
+                          transform: "none",
+                          boxSizing: "border-box",
                         }}
-                      >settings</span>
+                      >
+                        settings
+                      </span>
                       Check config
                     </button>
                     <button
@@ -330,9 +338,7 @@ export function AIAssistantCard() {
         <DialogContent className="sm:max-w-[700px] max-h-[80vh]">
           <DialogHeader>
             <DialogTitle>AI Analysis Results</DialogTitle>
-            <DialogDescription>
-              Analysis based on your input: "{analysisInput}"
-            </DialogDescription>
+            <DialogDescription>Analysis based on your input: "{analysisInput}"</DialogDescription>
           </DialogHeader>
           <div className="py-4 overflow-y-auto max-h-[60vh]">
             {analysisResult ? (
@@ -365,25 +371,27 @@ export function ReviewGuidelinesCard() {
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4">
       <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-        <span 
-          className="material-symbols-outlined" 
-          style={{ 
-            fontSize: '16px', 
-            width: '16px', 
-            height: '16px', 
-            maxWidth: '16px', 
-            maxHeight: '16px',
-            minWidth: '16px',
-            minHeight: '16px',
-            lineHeight: '1',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+        <span
+          className="material-symbols-outlined"
+          style={{
+            fontSize: "16px",
+            width: "16px",
+            height: "16px",
+            maxWidth: "16px",
+            maxHeight: "16px",
+            minWidth: "16px",
+            minHeight: "16px",
+            lineHeight: "1",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             flexShrink: 0,
-            transform: 'none',
-            boxSizing: 'border-box'
+            transform: "none",
+            boxSizing: "border-box",
           }}
-        >info</span>
+        >
+          info
+        </span>
         Scoring Guide
       </h4>
       <div className="space-y-2">

@@ -77,23 +77,23 @@ export function DiscussionPanel({
         <div className="flex flex-wrap items-center gap-2">
           {/* Search */}
           <div className="relative flex-1 min-w-[200px] max-w-xs">
-            <span 
-              className="absolute left-3 top-1/2 material-symbols-outlined text-slate-400" 
-              style={{ 
-                fontSize: '16px', 
-                width: '16px', 
-                height: '16px', 
-                maxWidth: '16px', 
-                maxHeight: '16px',
-                minWidth: '16px',
-                minHeight: '16px',
-                lineHeight: '1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+            <span
+              className="absolute left-3 top-1/2 material-symbols-outlined text-slate-400"
+              style={{
+                fontSize: "16px",
+                width: "16px",
+                height: "16px",
+                maxWidth: "16px",
+                maxHeight: "16px",
+                minWidth: "16px",
+                minHeight: "16px",
+                lineHeight: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 flexShrink: 0,
-                transform: 'translateY(-50%)',
-                boxSizing: 'border-box'
+                transform: "translateY(-50%)",
+                boxSizing: "border-box",
               }}
             >
               search
@@ -119,23 +119,23 @@ export function DiscussionPanel({
               <option value="reviewers">Reviewers Only</option>
               <option value="authors">Visible to Authors</option>
             </select>
-            <span 
-              className="absolute right-2 top-2 pointer-events-none material-symbols-outlined text-slate-400" 
-              style={{ 
-                fontSize: '16px', 
-                width: '16px', 
-                height: '16px', 
-                maxWidth: '16px', 
-                maxHeight: '16px',
-                minWidth: '16px',
-                minHeight: '16px',
-                lineHeight: '1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+            <span
+              className="absolute right-2 top-2 pointer-events-none material-symbols-outlined text-slate-400"
+              style={{
+                fontSize: "16px",
+                width: "16px",
+                height: "16px",
+                maxWidth: "16px",
+                maxHeight: "16px",
+                minWidth: "16px",
+                minHeight: "16px",
+                lineHeight: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 flexShrink: 0,
-                transform: 'none',
-                boxSizing: 'border-box'
+                transform: "none",
+                boxSizing: "border-box",
               }}
             >
               expand_more
@@ -155,23 +155,23 @@ export function DiscussionPanel({
               <option value="resolved">Resolved</option>
               <option value="flagged">Flagged</option>
             </select>
-            <span 
-              className="absolute right-2 top-2 pointer-events-none material-symbols-outlined text-slate-400" 
-              style={{ 
-                fontSize: '16px', 
-                width: '16px', 
-                height: '16px', 
-                maxWidth: '16px', 
-                maxHeight: '16px',
-                minWidth: '16px',
-                minHeight: '16px',
-                lineHeight: '1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+            <span
+              className="absolute right-2 top-2 pointer-events-none material-symbols-outlined text-slate-400"
+              style={{
+                fontSize: "16px",
+                width: "16px",
+                height: "16px",
+                maxWidth: "16px",
+                maxHeight: "16px",
+                minWidth: "16px",
+                minHeight: "16px",
+                lineHeight: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 flexShrink: 0,
-                transform: 'none',
-                boxSizing: 'border-box'
+                transform: "none",
+                boxSizing: "border-box",
               }}
             >
               expand_more
@@ -187,25 +187,27 @@ export function DiscussionPanel({
               onClick={() => setShowNewThreadModal(true)}
               className="h-8 px-3 bg-[#1B3C53] hover:bg-[#234C6A] text-white text-[11px] font-bold rounded-md transition-colors flex items-center gap-1.5"
             >
-              <span 
-                className="material-symbols-outlined" 
-                style={{ 
-                  fontSize: '16px', 
-                  width: '16px', 
-                  height: '16px', 
-                  maxWidth: '16px', 
-                  maxHeight: '16px',
-                  minWidth: '16px',
-                  minHeight: '16px',
-                  lineHeight: '1',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+              <span
+                className="material-symbols-outlined"
+                style={{
+                  fontSize: "16px",
+                  width: "16px",
+                  height: "16px",
+                  maxWidth: "16px",
+                  maxHeight: "16px",
+                  minWidth: "16px",
+                  minHeight: "16px",
+                  lineHeight: "1",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   flexShrink: 0,
-                  transform: 'none',
-                  boxSizing: 'border-box'
+                  transform: "none",
+                  boxSizing: "border-box",
                 }}
-              >add</span>
+              >
+                add
+              </span>
               New Topic
             </button>
           )}
@@ -218,23 +220,23 @@ export function DiscussionPanel({
         {pinnedThreads.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center gap-2 px-1">
-              <span 
-                className="material-symbols-outlined text-amber-500 filled" 
-                style={{ 
-                  fontSize: '16px', 
-                  width: '16px', 
-                  height: '16px', 
-                  maxWidth: '16px', 
-                  maxHeight: '16px',
-                  minWidth: '16px',
-                  minHeight: '16px',
-                  lineHeight: '1',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+              <span
+                className="material-symbols-outlined text-amber-500 filled"
+                style={{
+                  fontSize: "16px",
+                  width: "16px",
+                  height: "16px",
+                  maxWidth: "16px",
+                  maxHeight: "16px",
+                  minWidth: "16px",
+                  minHeight: "16px",
+                  lineHeight: "1",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   flexShrink: 0,
-                  transform: 'none',
-                  boxSizing: 'border-box'
+                  transform: "none",
+                  boxSizing: "border-box",
                 }}
               >
                 push_pin
@@ -298,25 +300,27 @@ export function DiscussionPanel({
                 onClick={() => setShowNewThreadModal(true)}
                 className="mt-4 h-8 px-4 bg-[#1B3C53] hover:bg-[#234C6A] text-white text-[11px] font-bold rounded-md transition-colors inline-flex items-center gap-1.5"
               >
-                <span 
-                  className="material-symbols-outlined" 
-                  style={{ 
-                    fontSize: '16px', 
-                    width: '16px', 
-                    height: '16px', 
-                    maxWidth: '16px', 
-                    maxHeight: '16px',
-                    minWidth: '16px',
-                    minHeight: '16px',
-                    lineHeight: '1',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                <span
+                  className="material-symbols-outlined"
+                  style={{
+                    fontSize: "16px",
+                    width: "16px",
+                    height: "16px",
+                    maxWidth: "16px",
+                    maxHeight: "16px",
+                    minWidth: "16px",
+                    minHeight: "16px",
+                    lineHeight: "1",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                     flexShrink: 0,
-                    transform: 'none',
-                    boxSizing: 'border-box'
+                    transform: "none",
+                    boxSizing: "border-box",
                   }}
-                >add</span>
+                >
+                  add
+                </span>
                 Start Discussion
               </button>
             )}

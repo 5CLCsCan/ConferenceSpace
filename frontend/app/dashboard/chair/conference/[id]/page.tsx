@@ -12,6 +12,7 @@ import {
   ConferenceCFP,
   ConferenceDates,
   ConferenceCommittee,
+  ConferenceCOI,
   type TabId,
   type ConferenceInfo,
 } from "@/components/chair/conference-detail"
@@ -93,11 +94,7 @@ export default function ChairConferenceDetailPage() {
           </div>
         )
       case "coi":
-        return (
-          <div className="flex items-center justify-center h-64 text-slate-400">
-            COI Demo tab - Coming soon
-          </div>
-        )
+        return <ConferenceCOI conferenceId={conferenceId} />
       default:
         return null
     }

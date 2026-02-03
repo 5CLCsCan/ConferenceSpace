@@ -17,47 +17,51 @@ export function ReviewHeaderBar({ submission }: ReviewHeaderBarProps) {
         <a href="#" className="hover:text-[#2563eb] transition-colors">
           {submission.conference.acronym}
         </a>
-        <span 
-          className="material-symbols-outlined" 
-          style={{ 
-            fontSize: '16px', 
-            width: '16px', 
-            height: '16px', 
-            maxWidth: '16px', 
-            maxHeight: '16px',
-            minWidth: '16px',
-            minHeight: '16px',
-            lineHeight: '1',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+        <span
+          className="material-symbols-outlined"
+          style={{
+            fontSize: "16px",
+            width: "16px",
+            height: "16px",
+            maxWidth: "16px",
+            maxHeight: "16px",
+            minWidth: "16px",
+            minHeight: "16px",
+            lineHeight: "1",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             flexShrink: 0,
-            transform: 'none',
-            boxSizing: 'border-box'
+            transform: "none",
+            boxSizing: "border-box",
           }}
-        >chevron_right</span>
+        >
+          chevron_right
+        </span>
         <a href="#" className="hover:text-[#2563eb] transition-colors">
           My Reviews
         </a>
-        <span 
-          className="material-symbols-outlined" 
-          style={{ 
-            fontSize: '16px', 
-            width: '16px', 
-            height: '16px', 
-            maxWidth: '16px', 
-            maxHeight: '16px',
-            minWidth: '16px',
-            minHeight: '16px',
-            lineHeight: '1',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+        <span
+          className="material-symbols-outlined"
+          style={{
+            fontSize: "16px",
+            width: "16px",
+            height: "16px",
+            maxWidth: "16px",
+            maxHeight: "16px",
+            minWidth: "16px",
+            minHeight: "16px",
+            lineHeight: "1",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             flexShrink: 0,
-            transform: 'none',
-            boxSizing: 'border-box'
+            transform: "none",
+            boxSizing: "border-box",
           }}
-        >chevron_right</span>
+        >
+          chevron_right
+        </span>
         <span className="text-slate-900 font-medium">Paper #{submission.id}</span>
       </nav>
       <div className="flex items-center gap-4">
@@ -67,25 +71,27 @@ export function ReviewHeaderBar({ submission }: ReviewHeaderBarProps) {
         </span>
         <div className="h-6 w-px bg-slate-200" />
         <button className="text-slate-500 hover:text-slate-900 transition-colors">
-          <span 
-            className="material-symbols-outlined" 
-            style={{ 
-              fontSize: '16px', 
-              width: '16px', 
-              height: '16px', 
-              maxWidth: '16px', 
-              maxHeight: '16px',
-              minWidth: '16px',
-              minHeight: '16px',
-              lineHeight: '1',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+          <span
+            className="material-symbols-outlined"
+            style={{
+              fontSize: "16px",
+              width: "16px",
+              height: "16px",
+              maxWidth: "16px",
+              maxHeight: "16px",
+              minWidth: "16px",
+              minHeight: "16px",
+              lineHeight: "1",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               flexShrink: 0,
-              transform: 'none',
-              boxSizing: 'border-box'
+              transform: "none",
+              boxSizing: "border-box",
             }}
-          >help</span>
+          >
+            help
+          </span>
         </button>
       </div>
     </header>
@@ -120,49 +126,53 @@ export function PaperHeader({ submission }: PaperHeaderProps) {
             {submission.title}
           </h1>
           <div className="flex items-center gap-2 text-[10px] font-medium text-slate-400">
-            <span 
-              className="material-symbols-outlined" 
-              style={{ 
-                fontSize: '16px', 
-                width: '16px', 
-                height: '16px', 
-                maxWidth: '16px', 
-                maxHeight: '16px',
-                minWidth: '16px',
-                minHeight: '16px',
-                lineHeight: '1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+            <span
+              className="material-symbols-outlined"
+              style={{
+                fontSize: "16px",
+                width: "16px",
+                height: "16px",
+                maxWidth: "16px",
+                maxHeight: "16px",
+                minWidth: "16px",
+                minHeight: "16px",
+                lineHeight: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 flexShrink: 0,
-                transform: 'none',
-                boxSizing: 'border-box'
+                transform: "none",
+                boxSizing: "border-box",
               }}
-            >person_off</span>
+            >
+              person_off
+            </span>
             <span>Anonymous Authors</span>
           </div>
         </div>
         <div className="flex-shrink-0 flex gap-3">
           <button className="flex items-center gap-2 h-9 px-4 bg-white border border-slate-200 rounded-md text-[11px] font-bold tracking-wider hover:bg-slate-50 transition-all duration-200 shadow-sm">
-            <span 
-              className="material-symbols-outlined text-red-500" 
-              style={{ 
-                fontSize: '16px', 
-                width: '16px', 
-                height: '16px', 
-                maxWidth: '16px', 
-                maxHeight: '16px',
-                minWidth: '16px',
-                minHeight: '16px',
-                lineHeight: '1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+            <span
+              className="material-symbols-outlined text-red-500"
+              style={{
+                fontSize: "16px",
+                width: "16px",
+                height: "16px",
+                maxWidth: "16px",
+                maxHeight: "16px",
+                minWidth: "16px",
+                minHeight: "16px",
+                lineHeight: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 flexShrink: 0,
-                transform: 'none',
-                boxSizing: 'border-box'
+                transform: "none",
+                boxSizing: "border-box",
               }}
-            >picture_as_pdf</span>
+            >
+              picture_as_pdf
+            </span>
             Download PDF
           </button>
         </div>
@@ -193,24 +203,22 @@ export function TabNavigation({ activeTab, onTabChange, discussionCount }: TabNa
         }`}
       >
         <span
-          className={`material-symbols-outlined ${
-            activeTab === "review" ? "filled" : ""
-          }`}
-          style={{ 
-            fontSize: '16px', 
-            width: '16px', 
-            height: '16px', 
-            maxWidth: '16px', 
-            maxHeight: '16px',
-            minWidth: '16px',
-            minHeight: '16px',
-            lineHeight: '1',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+          className={`material-symbols-outlined ${activeTab === "review" ? "filled" : ""}`}
+          style={{
+            fontSize: "16px",
+            width: "16px",
+            height: "16px",
+            maxWidth: "16px",
+            maxHeight: "16px",
+            minWidth: "16px",
+            minHeight: "16px",
+            lineHeight: "1",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             flexShrink: 0,
-            transform: 'none',
-            boxSizing: 'border-box'
+            transform: "none",
+            boxSizing: "border-box",
           }}
         >
           rate_review
@@ -225,25 +233,27 @@ export function TabNavigation({ activeTab, onTabChange, discussionCount }: TabNa
             : "text-slate-500 hover:text-slate-900"
         }`}
       >
-        <span 
-          className="material-symbols-outlined" 
-          style={{ 
-            fontSize: '16px', 
-            width: '16px', 
-            height: '16px', 
-            maxWidth: '16px', 
-            maxHeight: '16px',
-            minWidth: '16px',
-            minHeight: '16px',
-            lineHeight: '1',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+        <span
+          className="material-symbols-outlined"
+          style={{
+            fontSize: "16px",
+            width: "16px",
+            height: "16px",
+            maxWidth: "16px",
+            maxHeight: "16px",
+            minWidth: "16px",
+            minHeight: "16px",
+            lineHeight: "1",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             flexShrink: 0,
-            transform: 'none',
-            boxSizing: 'border-box'
+            transform: "none",
+            boxSizing: "border-box",
           }}
-        >forum</span>
+        >
+          forum
+        </span>
         Discussion
         <span className="ml-1 px-1.5 py-0.5 rounded-full bg-slate-100 text-[8px] font-black uppercase tracking-widest text-slate-700">
           {discussionCount}
@@ -257,25 +267,27 @@ export function TabNavigation({ activeTab, onTabChange, discussionCount }: TabNa
             : "text-slate-500 hover:text-slate-900"
         }`}
       >
-        <span 
-          className="material-symbols-outlined" 
-          style={{ 
-            fontSize: '16px', 
-            width: '16px', 
-            height: '16px', 
-            maxWidth: '16px', 
-            maxHeight: '16px',
-            minWidth: '16px',
-            minHeight: '16px',
-            lineHeight: '1',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+        <span
+          className="material-symbols-outlined"
+          style={{
+            fontSize: "16px",
+            width: "16px",
+            height: "16px",
+            maxWidth: "16px",
+            maxHeight: "16px",
+            minWidth: "16px",
+            minHeight: "16px",
+            lineHeight: "1",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             flexShrink: 0,
-            transform: 'none',
-            boxSizing: 'border-box'
+            transform: "none",
+            boxSizing: "border-box",
           }}
-        >reply_all</span>
+        >
+          reply_all
+        </span>
         Rebuttal
       </button>
     </div>

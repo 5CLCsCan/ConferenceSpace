@@ -49,23 +49,23 @@ export function MessageItem({ message, isFirst, onReact, onQuote }: MessageItemP
                   key={att.id}
                   className="inline-flex items-center gap-1 px-2 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded text-[10px] font-medium text-slate-600 transition-colors"
                 >
-                  <span 
-                    className="material-symbols-outlined" 
-                    style={{ 
-                      fontSize: '16px', 
-                      width: '16px', 
-                      height: '16px', 
-                      maxWidth: '16px', 
-                      maxHeight: '16px',
-                      minWidth: '16px',
-                      minHeight: '16px',
-                      lineHeight: '1',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                  <span
+                    className="material-symbols-outlined"
+                    style={{
+                      fontSize: "16px",
+                      width: "16px",
+                      height: "16px",
+                      maxWidth: "16px",
+                      maxHeight: "16px",
+                      minWidth: "16px",
+                      minHeight: "16px",
+                      lineHeight: "1",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                       flexShrink: 0,
-                      transform: 'none',
-                      boxSizing: 'border-box'
+                      transform: "none",
+                      boxSizing: "border-box",
                     }}
                   >
                     {att.type === "equation" ? "function" : "article"}
@@ -91,46 +91,50 @@ export function MessageItem({ message, isFirst, onReact, onQuote }: MessageItemP
                   }`}
                 >
                   {reaction.emoji === "agree" && (
-                    <span 
-                      className="material-symbols-outlined" 
-                      style={{ 
-                        fontSize: '16px', 
-                        width: '16px', 
-                        height: '16px', 
-                        maxWidth: '16px', 
-                        maxHeight: '16px',
-                        minWidth: '16px',
-                        minHeight: '16px',
-                        lineHeight: '1',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                    <span
+                      className="material-symbols-outlined"
+                      style={{
+                        fontSize: "16px",
+                        width: "16px",
+                        height: "16px",
+                        maxWidth: "16px",
+                        maxHeight: "16px",
+                        minWidth: "16px",
+                        minHeight: "16px",
+                        lineHeight: "1",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                         flexShrink: 0,
-                        transform: 'none',
-                        boxSizing: 'border-box'
+                        transform: "none",
+                        boxSizing: "border-box",
                       }}
-                    >thumb_up</span>
+                    >
+                      thumb_up
+                    </span>
                   )}
                   {reaction.emoji === "thumbs_up" && (
-                    <span 
-                      className="material-symbols-outlined filled" 
-                      style={{ 
-                        fontSize: '16px', 
-                        width: '16px', 
-                        height: '16px', 
-                        maxWidth: '16px', 
-                        maxHeight: '16px',
-                        minWidth: '16px',
-                        minHeight: '16px',
-                        lineHeight: '1',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                    <span
+                      className="material-symbols-outlined filled"
+                      style={{
+                        fontSize: "16px",
+                        width: "16px",
+                        height: "16px",
+                        maxWidth: "16px",
+                        maxHeight: "16px",
+                        minWidth: "16px",
+                        minHeight: "16px",
+                        lineHeight: "1",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                         flexShrink: 0,
-                        transform: 'none',
-                        boxSizing: 'border-box'
+                        transform: "none",
+                        boxSizing: "border-box",
                       }}
-                    >thumb_up</span>
+                    >
+                      thumb_up
+                    </span>
                   )}
                   {reaction.count}
                 </button>
@@ -150,74 +154,80 @@ export function MessageItem({ message, isFirst, onReact, onQuote }: MessageItemP
             className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
             title="React"
           >
-            <span 
-              className="material-symbols-outlined" 
-              style={{ 
-                fontSize: '16px', 
-                width: '16px', 
-                height: '16px', 
-                maxWidth: '16px', 
-                maxHeight: '16px',
-                minWidth: '16px',
-                minHeight: '16px',
-                lineHeight: '1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+            <span
+              className="material-symbols-outlined"
+              style={{
+                fontSize: "16px",
+                width: "16px",
+                height: "16px",
+                maxWidth: "16px",
+                maxHeight: "16px",
+                minWidth: "16px",
+                minHeight: "16px",
+                lineHeight: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 flexShrink: 0,
-                transform: 'none',
-                boxSizing: 'border-box'
+                transform: "none",
+                boxSizing: "border-box",
               }}
-            >add_reaction</span>
+            >
+              add_reaction
+            </span>
           </button>
           <button
             onClick={() => onQuote?.(message.id)}
             className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
             title="Quote"
           >
-            <span 
-              className="material-symbols-outlined" 
-              style={{ 
-                fontSize: '16px', 
-                width: '16px', 
-                height: '16px', 
-                maxWidth: '16px', 
-                maxHeight: '16px',
-                minWidth: '16px',
-                minHeight: '16px',
-                lineHeight: '1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+            <span
+              className="material-symbols-outlined"
+              style={{
+                fontSize: "16px",
+                width: "16px",
+                height: "16px",
+                maxWidth: "16px",
+                maxHeight: "16px",
+                minWidth: "16px",
+                minHeight: "16px",
+                lineHeight: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 flexShrink: 0,
-                transform: 'none',
-                boxSizing: 'border-box'
+                transform: "none",
+                boxSizing: "border-box",
               }}
-            >format_quote</span>
+            >
+              format_quote
+            </span>
           </button>
           <button
             className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
             title="More"
           >
-            <span 
-              className="material-symbols-outlined" 
-              style={{ 
-                fontSize: '16px', 
-                width: '16px', 
-                height: '16px', 
-                maxWidth: '16px', 
-                maxHeight: '16px',
-                minWidth: '16px',
-                minHeight: '16px',
-                lineHeight: '1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+            <span
+              className="material-symbols-outlined"
+              style={{
+                fontSize: "16px",
+                width: "16px",
+                height: "16px",
+                maxWidth: "16px",
+                maxHeight: "16px",
+                minWidth: "16px",
+                minHeight: "16px",
+                lineHeight: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 flexShrink: 0,
-                transform: 'none',
-                boxSizing: 'border-box'
+                transform: "none",
+                boxSizing: "border-box",
               }}
-            >more_horiz</span>
+            >
+              more_horiz
+            </span>
           </button>
         </div>
       </div>

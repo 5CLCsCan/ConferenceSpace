@@ -17,25 +17,27 @@ export function VisibilityIndicator({ visibility, compact = false }: VisibilityI
       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded ${config.bgColor} ${config.color} border ${config.borderColor} text-[8px] font-bold uppercase tracking-widest`}
       title={config.description}
     >
-      <span 
-        className="material-symbols-outlined" 
-        style={{ 
-          fontSize: '16px', 
-          width: '16px', 
-          height: '16px', 
-          maxWidth: '16px', 
-          maxHeight: '16px',
-          minWidth: '16px',
-          minHeight: '16px',
-          lineHeight: '1',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+      <span
+        className="material-symbols-outlined"
+        style={{
+          fontSize: "16px",
+          width: "16px",
+          height: "16px",
+          maxWidth: "16px",
+          maxHeight: "16px",
+          minWidth: "16px",
+          minHeight: "16px",
+          lineHeight: "1",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           flexShrink: 0,
-          transform: 'none',
-          boxSizing: 'border-box'
+          transform: "none",
+          boxSizing: "border-box",
         }}
-      >{config.icon}</span>
+      >
+        {config.icon}
+      </span>
       {compact ? null : config.shortLabel}
     </span>
   )
@@ -55,25 +57,27 @@ export function StatusBadge({ status }: StatusBadgeProps) {
     <span
       className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded ${style.bg} ${style.text} text-[8px] font-bold uppercase tracking-wider`}
     >
-      <span 
-        className="material-symbols-outlined filled" 
-        style={{ 
-          fontSize: '16px', 
-          width: '16px', 
-          height: '16px', 
-          maxWidth: '16px', 
-          maxHeight: '16px',
-          minWidth: '16px',
-          minHeight: '16px',
-          lineHeight: '1',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+      <span
+        className="material-symbols-outlined filled"
+        style={{
+          fontSize: "16px",
+          width: "16px",
+          height: "16px",
+          maxWidth: "16px",
+          maxHeight: "16px",
+          minWidth: "16px",
+          minHeight: "16px",
+          lineHeight: "1",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           flexShrink: 0,
-          transform: 'none',
-          boxSizing: 'border-box'
+          transform: "none",
+          boxSizing: "border-box",
         }}
-      >{style.icon}</span>
+      >
+        {style.icon}
+      </span>
     </span>
   )
 }
@@ -93,25 +97,27 @@ export function CategoryTag({ category }: CategoryTagProps) {
       className={`inline-flex items-center gap-1 ${config.color} text-[9px] font-medium`}
       title={config.label}
     >
-      <span 
-        className="material-symbols-outlined" 
-        style={{ 
-          fontSize: '16px', 
-          width: '16px', 
-          height: '16px', 
-          maxWidth: '16px', 
-          maxHeight: '16px',
-          minWidth: '16px',
-          minHeight: '16px',
-          lineHeight: '1',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+      <span
+        className="material-symbols-outlined"
+        style={{
+          fontSize: "16px",
+          width: "16px",
+          height: "16px",
+          maxWidth: "16px",
+          maxHeight: "16px",
+          minWidth: "16px",
+          minHeight: "16px",
+          lineHeight: "1",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           flexShrink: 0,
-          transform: 'none',
-          boxSizing: 'border-box'
+          transform: "none",
+          boxSizing: "border-box",
         }}
-      >{config.icon}</span>
+      >
+        {config.icon}
+      </span>
       {config.label}
     </span>
   )
