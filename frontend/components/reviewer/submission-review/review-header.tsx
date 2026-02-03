@@ -17,21 +17,75 @@ export function ReviewHeaderBar({ submission }: ReviewHeaderBarProps) {
         <a href="#" className="hover:text-[#2563eb] transition-colors">
           {submission.conference.acronym}
         </a>
-        <span className="material-symbols-outlined text-[12px]">chevron_right</span>
+        <span 
+          className="material-symbols-outlined" 
+          style={{ 
+            fontSize: '16px', 
+            width: '16px', 
+            height: '16px', 
+            maxWidth: '16px', 
+            maxHeight: '16px',
+            minWidth: '16px',
+            minHeight: '16px',
+            lineHeight: '1',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            transform: 'none',
+            boxSizing: 'border-box'
+          }}
+        >chevron_right</span>
         <a href="#" className="hover:text-[#2563eb] transition-colors">
           My Reviews
         </a>
-        <span className="material-symbols-outlined text-[12px]">chevron_right</span>
+        <span 
+          className="material-symbols-outlined" 
+          style={{ 
+            fontSize: '16px', 
+            width: '16px', 
+            height: '16px', 
+            maxWidth: '16px', 
+            maxHeight: '16px',
+            minWidth: '16px',
+            minHeight: '16px',
+            lineHeight: '1',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            transform: 'none',
+            boxSizing: 'border-box'
+          }}
+        >chevron_right</span>
         <span className="text-slate-900 font-medium">Paper #{submission.id}</span>
       </nav>
       <div className="flex items-center gap-4">
-        <span className="flex items-center gap-2 text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full bg-slate-100 text-slate-700">
+        <span className="flex items-center gap-2 text-[8px] font-semibold uppercase tracking-widest px-3 py-1.5 rounded-full bg-slate-100 text-slate-700">
           <span className="w-2 h-2 rounded-full bg-slate-500 animate-pulse" />
           Deadline: {submission.daysLeft} Days Left
         </span>
         <div className="h-6 w-px bg-slate-200" />
         <button className="text-slate-500 hover:text-slate-900 transition-colors">
-          <span className="material-symbols-outlined text-[14px]">help</span>
+          <span 
+            className="material-symbols-outlined" 
+            style={{ 
+              fontSize: '16px', 
+              width: '16px', 
+              height: '16px', 
+              maxWidth: '16px', 
+              maxHeight: '16px',
+              minWidth: '16px',
+              minHeight: '16px',
+              lineHeight: '1',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              transform: 'none',
+              boxSizing: 'border-box'
+            }}
+          >help</span>
         </button>
       </div>
     </header>
@@ -55,10 +109,10 @@ export function PaperHeader({ submission }: PaperHeaderProps) {
             <span className="text-[11px] font-bold tracking-wider text-slate-500 uppercase">
               Paper #{submission.id}
             </span>
-            <span className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[8px] font-black uppercase tracking-widest border border-slate-200">
+            <span className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[9px] font-semibold uppercase tracking-widest border border-slate-200">
               Under Review
             </span>
-            <span className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[8px] font-black uppercase tracking-widest border border-slate-200">
+            <span className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[9px] font-semibold uppercase tracking-widest border border-slate-200">
               Track: {submission.track}
             </span>
           </div>
@@ -66,15 +120,49 @@ export function PaperHeader({ submission }: PaperHeaderProps) {
             {submission.title}
           </h1>
           <div className="flex items-center gap-2 text-[10px] font-medium text-slate-400">
-            <span className="material-symbols-outlined text-[12px]">person_off</span>
+            <span 
+              className="material-symbols-outlined" 
+              style={{ 
+                fontSize: '16px', 
+                width: '16px', 
+                height: '16px', 
+                maxWidth: '16px', 
+                maxHeight: '16px',
+                minWidth: '16px',
+                minHeight: '16px',
+                lineHeight: '1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                transform: 'none',
+                boxSizing: 'border-box'
+              }}
+            >person_off</span>
             <span>Anonymous Authors</span>
           </div>
         </div>
         <div className="flex-shrink-0 flex gap-3">
           <button className="flex items-center gap-2 h-9 px-4 bg-white border border-slate-200 rounded-md text-[11px] font-bold tracking-wider hover:bg-slate-50 transition-all duration-200 shadow-sm">
-            <span className="material-symbols-outlined text-[14px] text-red-500">
-              picture_as_pdf
-            </span>
+            <span 
+              className="material-symbols-outlined text-red-500" 
+              style={{ 
+                fontSize: '16px', 
+                width: '16px', 
+                height: '16px', 
+                maxWidth: '16px', 
+                maxHeight: '16px',
+                minWidth: '16px',
+                minHeight: '16px',
+                lineHeight: '1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                transform: 'none',
+                boxSizing: 'border-box'
+              }}
+            >picture_as_pdf</span>
             Download PDF
           </button>
         </div>
@@ -98,16 +186,32 @@ export function TabNavigation({ activeTab, onTabChange, discussionCount }: TabNa
     <div className="flex items-center border-b border-slate-200 mb-4 overflow-x-auto">
       <button
         onClick={() => onTabChange("review")}
-        className={`flex items-center gap-2 px-4 py-1.5 text-[11px] font-bold tracking-wider transition-all duration-200 ${
+        className={`flex items-center gap-2 px-4 py-1.5 text-[11px] font-semibold tracking-wider transition-all duration-200 ${
           activeTab === "review"
             ? "text-[#456882] border-b-2 border-[#456882] bg-[#f7f7f7]"
             : "text-slate-500 hover:text-slate-900"
         }`}
       >
         <span
-          className={`material-symbols-outlined text-[14px] ${
+          className={`material-symbols-outlined ${
             activeTab === "review" ? "filled" : ""
           }`}
+          style={{ 
+            fontSize: '16px', 
+            width: '16px', 
+            height: '16px', 
+            maxWidth: '16px', 
+            maxHeight: '16px',
+            minWidth: '16px',
+            minHeight: '16px',
+            lineHeight: '1',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            transform: 'none',
+            boxSizing: 'border-box'
+          }}
         >
           rate_review
         </span>
@@ -115,13 +219,31 @@ export function TabNavigation({ activeTab, onTabChange, discussionCount }: TabNa
       </button>
       <button
         onClick={() => onTabChange("discussion")}
-        className={`flex items-center gap-2 px-4 py-1.5 text-[11px] font-bold tracking-wider transition-all duration-200 ${
+        className={`flex items-center gap-2 px-4 py-1.5 text-[11px] font-semibold tracking-wider transition-all duration-200 ${
           activeTab === "discussion"
             ? "text-[#456882] border-b-2 border-[#456882] bg-[#f7f7f7]"
             : "text-slate-500 hover:text-slate-900"
         }`}
       >
-        <span className="material-symbols-outlined text-[14px]">forum</span>
+        <span 
+          className="material-symbols-outlined" 
+          style={{ 
+            fontSize: '16px', 
+            width: '16px', 
+            height: '16px', 
+            maxWidth: '16px', 
+            maxHeight: '16px',
+            minWidth: '16px',
+            minHeight: '16px',
+            lineHeight: '1',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            transform: 'none',
+            boxSizing: 'border-box'
+          }}
+        >forum</span>
         Discussion
         <span className="ml-1 px-1.5 py-0.5 rounded-full bg-slate-100 text-[8px] font-black uppercase tracking-widest text-slate-700">
           {discussionCount}
@@ -129,13 +251,31 @@ export function TabNavigation({ activeTab, onTabChange, discussionCount }: TabNa
       </button>
       <button
         onClick={() => onTabChange("rebuttal")}
-        className={`flex items-center gap-2 px-4 py-1.5 text-[11px] font-bold tracking-wider transition-all duration-200 ${
+        className={`flex items-center gap-2 px-4 py-1.5 text-[11px] font-semibold tracking-wider transition-all duration-200 ${
           activeTab === "rebuttal"
             ? "text-[#456882] border-b-2 border-[#456882] bg-[#f7f7f7]"
             : "text-slate-500 hover:text-slate-900"
         }`}
       >
-        <span className="material-symbols-outlined text-[14px]">reply_all</span>
+        <span 
+          className="material-symbols-outlined" 
+          style={{ 
+            fontSize: '16px', 
+            width: '16px', 
+            height: '16px', 
+            maxWidth: '16px', 
+            maxHeight: '16px',
+            minWidth: '16px',
+            minHeight: '16px',
+            lineHeight: '1',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            transform: 'none',
+            boxSizing: 'border-box'
+          }}
+        >reply_all</span>
         Rebuttal
       </button>
     </div>

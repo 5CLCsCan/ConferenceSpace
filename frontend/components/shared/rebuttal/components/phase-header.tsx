@@ -12,7 +12,25 @@ export function PhaseHeader({ settings, userRole = "reviewer" }: PhaseHeaderProp
       <div className="flex items-start justify-between gap-4 mb-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className={`material-symbols-outlined text-[16px] ${phase.color}`}>
+            <span 
+              className={`material-symbols-outlined ${phase.color}`}
+              style={{ 
+                fontSize: '16px', 
+                width: '16px', 
+                height: '16px', 
+                maxWidth: '16px', 
+                maxHeight: '16px',
+                minWidth: '16px',
+                minHeight: '16px',
+                lineHeight: '1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                transform: 'none',
+                boxSizing: 'border-box'
+              }}
+            >
               {phase.icon}
             </span>
             <h2 className="text-sm font-bold text-[#1B3C53] tracking-tight">{phase.label}</h2>
@@ -23,7 +41,25 @@ export function PhaseHeader({ settings, userRole = "reviewer" }: PhaseHeaderProp
         {/* Deadline Counter */}
         {settings.phase !== "finalized" && (
           <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
-            <span className="material-symbols-outlined text-[14px] text-amber-600">schedule</span>
+            <span 
+              className="material-symbols-outlined text-amber-600" 
+              style={{ 
+                fontSize: '16px', 
+                width: '16px', 
+                height: '16px', 
+                maxWidth: '16px', 
+                maxHeight: '16px',
+                minWidth: '16px',
+                minHeight: '16px',
+                lineHeight: '1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                transform: 'none',
+                boxSizing: 'border-box'
+              }}
+            >schedule</span>
             <div className="text-right">
               <div className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
                 Response Deadline

@@ -114,7 +114,25 @@ export function SubmissionReviewScreen({
                           type="button"
                           className="flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors"
                         >
-                          <span className="material-symbols-outlined text-[14px] leading-none">
+                          <span 
+                            className="material-symbols-outlined leading-none" 
+                            style={{ 
+                              fontSize: '16px', 
+                              width: '16px', 
+                              height: '16px', 
+                              maxWidth: '16px', 
+                              maxHeight: '16px',
+                              minWidth: '16px',
+                              minHeight: '16px',
+                              lineHeight: '1',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                              transform: 'none',
+                              boxSizing: 'border-box'
+                            }}
+                          >
                             info
                           </span>
                         </button>
@@ -255,7 +273,25 @@ export function SubmissionReviewScreen({
             {/* Sticky Action Bar */}
             <div className="sticky bottom-6 z-20 flex items-center justify-between bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-lg shadow-sm mt-8">
               <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
-                <span className="material-symbols-outlined text-[14px]">schedule</span>
+                <span 
+                  className="material-symbols-outlined" 
+                  style={{ 
+                    fontSize: '16px', 
+                    width: '16px', 
+                    height: '16px', 
+                    maxWidth: '16px', 
+                    maxHeight: '16px',
+                    minWidth: '16px',
+                    minHeight: '16px',
+                    lineHeight: '1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    transform: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                >schedule</span>
                 Last draft saved: {formData.lastSaved || "Not saved"}
               </div>
               <div className="flex items-center gap-3">
@@ -271,7 +307,25 @@ export function SubmissionReviewScreen({
                   onClick={handleSubmitReview}
                   className="h-8 px-3 rounded-md bg-[#1B3C53] dark:bg-white hover:bg-[#234C6A] dark:hover:bg-slate-200 text-white dark:text-[#1B3C53] font-medium text-[11px] shadow-sm transition-all flex items-center gap-2"
                 >
-                  <span className="material-symbols-outlined text-[14px]">send</span>
+                  <span 
+                    className="material-symbols-outlined" 
+                    style={{ 
+                      fontSize: '16px', 
+                      width: '16px', 
+                      height: '16px', 
+                      maxWidth: '16px', 
+                      maxHeight: '16px',
+                      minWidth: '16px',
+                      minHeight: '16px',
+                      lineHeight: '1',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      transform: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  >send</span>
                   Submit Review
                 </button>
               </div>

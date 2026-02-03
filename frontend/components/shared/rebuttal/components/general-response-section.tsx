@@ -20,13 +20,49 @@ export function GeneralResponseSection({
         className="w-full px-4 py-3 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between hover:bg-slate-50 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-[16px] text-slate-400">format_quote</span>
+          <span 
+            className="material-symbols-outlined text-slate-400" 
+            style={{ 
+              fontSize: '16px', 
+              width: '16px', 
+              height: '16px', 
+              maxWidth: '16px', 
+              maxHeight: '16px',
+              minWidth: '16px',
+              minHeight: '16px',
+              lineHeight: '1',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              transform: 'none',
+              boxSizing: 'border-box'
+            }}
+          >format_quote</span>
           <h3 className="text-sm font-bold text-[#141414] tracking-tight">General Response</h3>
           <span className="text-[9px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-500">
             {submission.generalResponse.wordCount} words
           </span>
         </div>
-        <span className="material-symbols-outlined text-[18px] text-slate-400">
+        <span 
+          className="material-symbols-outlined text-slate-400" 
+          style={{ 
+            fontSize: '16px', 
+            width: '16px', 
+            height: '16px', 
+            maxWidth: '16px', 
+            maxHeight: '16px',
+            minWidth: '16px',
+            minHeight: '16px',
+            lineHeight: '1',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            transform: 'none',
+            boxSizing: 'border-box'
+          }}
+        >
           {isExpanded ? "expand_less" : "expand_more"}
         </span>
       </button>
@@ -56,7 +92,25 @@ export function GeneralResponseSection({
                       <div
                         className={`p-1.5 rounded ${typeConfig.bgColor} ${typeConfig.textColor}`}
                       >
-                        <span className="material-symbols-outlined text-[14px]">
+                        <span 
+                          className="material-symbols-outlined" 
+                          style={{ 
+                            fontSize: '16px', 
+                            width: '16px', 
+                            height: '16px', 
+                            maxWidth: '16px', 
+                            maxHeight: '16px',
+                            minWidth: '16px',
+                            minHeight: '16px',
+                            lineHeight: '1',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0,
+                            transform: 'none',
+                            boxSizing: 'border-box'
+                          }}
+                        >
                           {typeConfig.icon}
                         </span>
                       </div>

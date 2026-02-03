@@ -52,7 +52,25 @@ export function ThreadCard({
             </div>
           </div>
         </div>
-        <span className="material-symbols-outlined text-[18px] text-slate-400 group-hover:text-[#1B3C53]">
+        <span 
+          className="material-symbols-outlined text-slate-400 group-hover:text-[#1B3C53]" 
+          style={{ 
+            fontSize: '16px', 
+            width: '16px', 
+            height: '16px', 
+            maxWidth: '16px', 
+            maxHeight: '16px',
+            minWidth: '16px',
+            minHeight: '16px',
+            lineHeight: '1',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            transform: 'none',
+            boxSizing: 'border-box'
+          }}
+        >
           expand_more
         </span>
       </div>
@@ -74,7 +92,25 @@ export function ThreadCard({
               <VisibilityIndicator visibility={thread.visibility} />
               {thread.linkedSection && (
                 <span className="text-[9px] text-slate-400 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[10px]">link</span>
+                  <span 
+                    className="material-symbols-outlined" 
+                    style={{ 
+                      fontSize: '16px', 
+                      width: '16px', 
+                      height: '16px', 
+                      maxWidth: '16px', 
+                      maxHeight: '16px',
+                      minWidth: '16px',
+                      minHeight: '16px',
+                      lineHeight: '1',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      transform: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  >link</span>
                   {thread.linkedSection}
                 </span>
               )}
@@ -86,7 +122,25 @@ export function ThreadCard({
               onClick={() => setIsExpanded(false)}
               className="p-1 rounded hover:bg-slate-200 transition-colors"
             >
-              <span className="material-symbols-outlined text-[16px]">unfold_less</span>
+              <span 
+                className="material-symbols-outlined" 
+                style={{ 
+                  fontSize: '16px', 
+                  width: '16px', 
+                  height: '16px', 
+                  maxWidth: '16px', 
+                  maxHeight: '16px',
+                  minWidth: '16px',
+                  minHeight: '16px',
+                  lineHeight: '1',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  transform: 'none',
+                  boxSizing: 'border-box'
+                }}
+              >unfold_less</span>
             </button>
           </div>
         </div>
@@ -120,10 +174,46 @@ export function ThreadCard({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <button className="p-1.5 rounded hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors">
-                    <span className="material-symbols-outlined text-[16px]">attach_file</span>
+                    <span 
+                      className="material-symbols-outlined" 
+                      style={{ 
+                        fontSize: '16px', 
+                        width: '16px', 
+                        height: '16px', 
+                        maxWidth: '16px', 
+                        maxHeight: '16px',
+                        minWidth: '16px',
+                        minHeight: '16px',
+                        lineHeight: '1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        transform: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    >attach_file</span>
                   </button>
                   <button className="p-1.5 rounded hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors">
-                    <span className="material-symbols-outlined text-[16px]">link</span>
+                    <span 
+                      className="material-symbols-outlined" 
+                      style={{ 
+                        fontSize: '16px', 
+                        width: '16px', 
+                        height: '16px', 
+                        maxWidth: '16px', 
+                        maxHeight: '16px',
+                        minWidth: '16px',
+                        minHeight: '16px',
+                        lineHeight: '1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        transform: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    >link</span>
                   </button>
                 </div>
                 <div className="flex items-center gap-2">
@@ -151,7 +241,25 @@ export function ThreadCard({
               onClick={() => setShowReplyBox(true)}
               className="flex items-center gap-2 text-[11px] font-medium text-[#1B3C53] hover:text-[#234C6A] transition-colors"
             >
-              <span className="material-symbols-outlined text-[14px]">reply</span>
+              <span 
+                className="material-symbols-outlined" 
+                style={{ 
+                  fontSize: '16px', 
+                  width: '16px', 
+                  height: '16px', 
+                  maxWidth: '16px', 
+                  maxHeight: '16px',
+                  minWidth: '16px',
+                  minHeight: '16px',
+                  lineHeight: '1',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  transform: 'none',
+                  boxSizing: 'border-box'
+                }}
+              >reply</span>
               Reply to thread
             </button>
           )}

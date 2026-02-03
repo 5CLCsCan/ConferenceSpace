@@ -38,7 +38,25 @@ export function ReviewerScoreCard({ reviewer }: ReviewerScoreCardProps) {
                   <span className="text-[10px] text-slate-400 line-through">
                     {reviewer.scores.original}
                   </span>
-                  <span className="material-symbols-outlined text-[10px] text-emerald-500">
+                  <span 
+                    className="material-symbols-outlined text-emerald-500" 
+                    style={{ 
+                      fontSize: '16px', 
+                      width: '16px', 
+                      height: '16px', 
+                      maxWidth: '16px', 
+                      maxHeight: '16px',
+                      minWidth: '16px',
+                      minHeight: '16px',
+                      lineHeight: '1',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      transform: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  >
                     arrow_forward
                   </span>
                 </>

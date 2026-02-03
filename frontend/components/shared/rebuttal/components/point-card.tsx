@@ -46,7 +46,25 @@ export function PointCard({
       <div className="px-4 py-3 bg-slate-50/80 border-b border-slate-100">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-2 flex-1 min-w-0">
-            <span className={`material-symbols-outlined text-[14px] mt-0.5 ${category.color}`}>
+            <span 
+              className={`material-symbols-outlined mt-0.5 ${category.color}`}
+              style={{ 
+                fontSize: '16px', 
+                width: '16px', 
+                height: '16px', 
+                maxWidth: '16px', 
+                maxHeight: '16px',
+                minWidth: '16px',
+                minHeight: '16px',
+                lineHeight: '1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                transform: 'none',
+                boxSizing: 'border-box'
+              }}
+            >
               {category.icon}
             </span>
             <div className="min-w-0 flex-1">
@@ -119,28 +137,100 @@ export function PointCard({
                     onClick={() => handleMarkStatus("addressed")}
                     className="h-7 px-2.5 text-[9px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-md transition-colors flex items-center gap-1"
                   >
-                    <span className="material-symbols-outlined text-[12px]">check</span>
+                    <span 
+                      className="material-symbols-outlined" 
+                      style={{ 
+                        fontSize: '16px', 
+                        width: '16px', 
+                        height: '16px', 
+                        maxWidth: '16px', 
+                        maxHeight: '16px',
+                        minWidth: '16px',
+                        minHeight: '16px',
+                        lineHeight: '1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        transform: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    >check</span>
                     Addressed
                   </button>
                   <button
                     onClick={() => handleMarkStatus("partially_addressed")}
                     className="h-7 px-2.5 text-[9px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-md transition-colors flex items-center gap-1"
                   >
-                    <span className="material-symbols-outlined text-[12px]">timelapse</span>
+                    <span 
+                      className="material-symbols-outlined" 
+                      style={{ 
+                        fontSize: '16px', 
+                        width: '16px', 
+                        height: '16px', 
+                        maxWidth: '16px', 
+                        maxHeight: '16px',
+                        minWidth: '16px',
+                        minHeight: '16px',
+                        lineHeight: '1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        transform: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    >timelapse</span>
                     Partial
                   </button>
                   <button
                     onClick={() => handleMarkStatus("not_addressed")}
                     className="h-7 px-2.5 text-[9px] font-bold uppercase tracking-wider bg-red-50 text-red-600 hover:bg-red-100 rounded-md transition-colors flex items-center gap-1"
                   >
-                    <span className="material-symbols-outlined text-[12px]">close</span>
+                    <span 
+                      className="material-symbols-outlined" 
+                      style={{ 
+                        fontSize: '16px', 
+                        width: '16px', 
+                        height: '16px', 
+                        maxWidth: '16px', 
+                        maxHeight: '16px',
+                        minWidth: '16px',
+                        minHeight: '16px',
+                        lineHeight: '1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        transform: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    >close</span>
                     Not Addressed
                   </button>
                   <button
                     onClick={() => setShowNoteInput(true)}
                     className="h-7 px-2.5 text-[9px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-md transition-colors flex items-center gap-1"
                   >
-                    <span className="material-symbols-outlined text-[12px]">add_comment</span>
+                    <span 
+                      className="material-symbols-outlined" 
+                      style={{ 
+                        fontSize: '16px', 
+                        width: '16px', 
+                        height: '16px', 
+                        maxWidth: '16px', 
+                        maxHeight: '16px',
+                        minWidth: '16px',
+                        minHeight: '16px',
+                        lineHeight: '1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        transform: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    >add_comment</span>
                     Add Note
                   </button>
                 </div>

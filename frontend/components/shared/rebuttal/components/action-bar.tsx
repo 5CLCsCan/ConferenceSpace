@@ -14,7 +14,25 @@ export function ActionBar({
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="bg-[#1B3C53]/10 text-[#1B3C53] p-2 rounded-lg">
-            <span className="material-symbols-outlined text-lg">rate_review</span>
+            <span 
+              className="material-symbols-outlined" 
+              style={{ 
+                fontSize: '16px', 
+                width: '16px', 
+                height: '16px', 
+                maxWidth: '16px', 
+                maxHeight: '16px',
+                minWidth: '16px',
+                minHeight: '16px',
+                lineHeight: '1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                transform: 'none',
+                boxSizing: 'border-box'
+              }}
+            >rate_review</span>
           </div>
           <div className="text-[12px]">
             <span className="block font-bold text-[#141414]">
@@ -44,7 +62,25 @@ export function ActionBar({
               onClick={onSubmitRebuttal}
               className="flex-1 md:flex-none h-8 px-4 rounded-md bg-[#1B3C53] hover:bg-[#234C6A] text-white font-bold text-[11px] transition-all flex items-center justify-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-[14px]">send</span>
+              <span 
+                className="material-symbols-outlined" 
+                style={{ 
+                  fontSize: '16px', 
+                  width: '16px', 
+                  height: '16px', 
+                  maxWidth: '16px', 
+                  maxHeight: '16px',
+                  minWidth: '16px',
+                  minHeight: '16px',
+                  lineHeight: '1',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  transform: 'none',
+                  boxSizing: 'border-box'
+                }}
+              >send</span>
               Submit Rebuttal
             </button>
           ) : (
@@ -52,7 +88,25 @@ export function ActionBar({
               onClick={onUpdateReview}
               className="flex-1 md:flex-none h-8 px-4 rounded-md bg-[#1B3C53] hover:bg-[#234C6A] text-white font-bold text-[11px] transition-all flex items-center justify-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-[14px]">edit</span>
+              <span 
+                className="material-symbols-outlined" 
+                style={{ 
+                  fontSize: '16px', 
+                  width: '16px', 
+                  height: '16px', 
+                  maxWidth: '16px', 
+                  maxHeight: '16px',
+                  minWidth: '16px',
+                  minHeight: '16px',
+                  lineHeight: '1',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  transform: 'none',
+                  boxSizing: 'border-box'
+                }}
+              >edit</span>
               Update Review
             </button>
           )}

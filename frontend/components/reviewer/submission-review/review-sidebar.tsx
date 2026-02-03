@@ -55,7 +55,25 @@ export function AbstractCard({ submission }: AbstractCardProps) {
                 href="#"
                 className="flex items-center gap-2 text-xs text-[#2563eb] hover:underline"
               >
-                <span className="material-symbols-outlined text-[16px]">folder_zip</span>
+                <span 
+                  className="material-symbols-outlined" 
+                  style={{ 
+                    fontSize: '16px', 
+                    width: '16px', 
+                    height: '16px', 
+                    maxWidth: '16px', 
+                    maxHeight: '16px',
+                    minWidth: '16px',
+                    minHeight: '16px',
+                    lineHeight: '1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    transform: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                >folder_zip</span>
                 {submission.supplementaryMaterial.name} ({submission.supplementaryMaterial.size})
               </a>
             </div>
@@ -129,8 +147,24 @@ export function AIAssistantCard() {
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-bold text-[11px] text-indigo-900 flex items-center gap-1.5 uppercase tracking-wider">
               <span
-                className="material-symbols-outlined text-indigo-600 text-[14px]"
-                style={{ fontVariationSettings: '"FILL" 1' }}
+                className="material-symbols-outlined text-indigo-600"
+                style={{ 
+                  fontVariationSettings: '"FILL" 1',
+                  fontSize: '16px', 
+                  width: '16px', 
+                  height: '16px', 
+                  maxWidth: '16px', 
+                  maxHeight: '16px',
+                  minWidth: '16px',
+                  minHeight: '16px',
+                  lineHeight: '1',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  transform: 'none',
+                  boxSizing: 'border-box'
+                }}
               >
                 auto_awesome
               </span>
@@ -149,7 +183,25 @@ export function AIAssistantCard() {
                 onClick={() => setIsDialogOpen(true)}
                 className="w-full h-8 px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-md shadow-sm transition-all flex items-center justify-center gap-1.5"
               >
-                <span className="material-symbols-outlined text-[14px]">analytics</span>
+                <span 
+                  className="material-symbols-outlined" 
+                  style={{ 
+                    fontSize: '16px', 
+                    width: '16px', 
+                    height: '16px', 
+                    maxWidth: '16px', 
+                    maxHeight: '16px',
+                    minWidth: '16px',
+                    minHeight: '16px',
+                    lineHeight: '1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    transform: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                >analytics</span>
                 Generate Analysis
               </button>
             </>
@@ -164,7 +216,25 @@ export function AIAssistantCard() {
                     onClick={() => setIsAnalysisDialogOpen(true)}
                     className="w-full h-8 px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-md shadow-sm transition-all flex items-center justify-center gap-1.5"
                   >
-                    <span className="material-symbols-outlined text-[14px]">visibility</span>
+                    <span 
+                      className="material-symbols-outlined" 
+                      style={{ 
+                        fontSize: '16px', 
+                        width: '16px', 
+                        height: '16px', 
+                        maxWidth: '16px', 
+                        maxHeight: '16px',
+                        minWidth: '16px',
+                        minHeight: '16px',
+                        lineHeight: '1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        transform: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    >visibility</span>
                     View analysis
                   </button>
                 ) : (
@@ -173,7 +243,25 @@ export function AIAssistantCard() {
                       onClick={handleCheckConfig}
                       className="w-full h-8 px-3 bg-indigo-300 hover:bg-indigo-400 text-white text-[10px] font-bold rounded-md shadow-sm transition-all flex items-center justify-center gap-1.5"
                     >
-                      <span className="material-symbols-outlined text-[14px]">settings</span>
+                      <span 
+                        className="material-symbols-outlined" 
+                        style={{ 
+                          fontSize: '16px', 
+                          width: '16px', 
+                          height: '16px', 
+                          maxWidth: '16px', 
+                          maxHeight: '16px',
+                          minWidth: '16px',
+                          minHeight: '16px',
+                          lineHeight: '1',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                          transform: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      >settings</span>
                       Check config
                     </button>
                     <button
@@ -277,7 +365,25 @@ export function ReviewGuidelinesCard() {
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4">
       <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-        <span className="material-symbols-outlined text-[14px]">info</span>
+        <span 
+          className="material-symbols-outlined" 
+          style={{ 
+            fontSize: '16px', 
+            width: '16px', 
+            height: '16px', 
+            maxWidth: '16px', 
+            maxHeight: '16px',
+            minWidth: '16px',
+            minHeight: '16px',
+            lineHeight: '1',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            transform: 'none',
+            boxSizing: 'border-box'
+          }}
+        >info</span>
         Scoring Guide
       </h4>
       <div className="space-y-2">

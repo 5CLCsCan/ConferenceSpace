@@ -55,7 +55,25 @@ export function ReviewerResponseGroup({
             </div>
           </div>
         </div>
-        <span className="material-symbols-outlined text-[18px] text-slate-400">
+        <span 
+          className="material-symbols-outlined text-slate-400" 
+          style={{ 
+            fontSize: '16px', 
+            width: '16px', 
+            height: '16px', 
+            maxWidth: '16px', 
+            maxHeight: '16px',
+            minWidth: '16px',
+            minHeight: '16px',
+            lineHeight: '1',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            transform: 'none',
+            boxSizing: 'border-box'
+          }}
+        >
           {isExpanded ? "expand_less" : "expand_more"}
         </span>
       </button>
