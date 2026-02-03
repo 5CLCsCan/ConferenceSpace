@@ -23,7 +23,7 @@ const priorityVariants = cva("", {
 })
 
 const priorityBadgeVariants = cva(
-  "text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border",
+  "text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border",
   {
     variants: {
       priority: {
@@ -115,7 +115,7 @@ export function ActionCard({
       onClick={onClick}
     >
       {/* Conference Badge */}
-      <div className="shrink-0 w-[140px] pr-3 border-r border-slate-200 dark:border-slate-700">
+      <div className="shrink-0 w-[180px] pr-3 border-r border-slate-200 dark:border-slate-700">
         <span className="text-[12px] font-bold text-[#1B3C53] dark:text-white tracking-tight block">
           {conference} {year}
         </span>
@@ -133,22 +133,22 @@ export function ActionCard({
             {priorityLabels[priority || "medium"]}
           </span>
         </div>
-        <h4 className="text-[13px] font-bold text-[#1B3C53] dark:text-white leading-[1.3] tracking-tight line-clamp-1 group-hover:text-[#234C6A] dark:group-hover:text-slate-300 transition-colors">
+        <h4 className="text-[12px] font-bold text-[#1B3C53] dark:text-white leading-[1.3] tracking-tight line-clamp-1 group-hover:text-[#234C6A] dark:group-hover:text-slate-300 transition-colors py-1">
           {title}
         </h4>
-        <p className="text-xs font-medium text-slate-500 leading-relaxed line-clamp-1 mt-0.5">
+        <p className="text-[10px] font-medium text-slate-500 leading-relaxed line-clamp-1">
           {description}
         </p>
       </div>
 
       {/* Due/Status - Fixed width for alignment */}
-      <div className="text-right shrink-0 w-[80px]">
-        <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block">
+      <div className="text-right shrink-0 w-[80px] -ml-5">
+        <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest block">
           {isOverdue ? "Status" : "Due In"}
         </span>
         <span
           className={cn(
-            "text-sm font-bold block",
+            "text-xs font-bold block",
             isOverdue ? "text-red-500 dark:text-red-400" : "text-[#1B3C53] dark:text-white",
           )}
         >

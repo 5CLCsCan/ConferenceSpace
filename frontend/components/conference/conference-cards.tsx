@@ -20,10 +20,24 @@ export function ActiveConferenceCard({ conference, onNavigate }: ConferenceCardP
   return (
     <ConferenceCardBase
       conference={conference}
+      onClick={() => onNavigate(conference.id)}
       footer={
         <div className="flex gap-2">
-          <ActionButton variant="secondary">Settings</ActionButton>
-          <ActionButton variant="primary" onClick={() => onNavigate(conference.id)}>
+          <ActionButton
+            variant="secondary"
+            onClick={(e) => {
+              e?.stopPropagation()
+            }}
+          >
+            Settings
+          </ActionButton>
+          <ActionButton
+            variant="primary"
+            onClick={(e) => {
+              e?.stopPropagation()
+              onNavigate(conference.id)
+            }}
+          >
             Dashboard
           </ActionButton>
         </div>
@@ -42,10 +56,24 @@ export function PlanningConferenceCard({ conference, onNavigate }: ConferenceCar
   return (
     <ConferenceCardBase
       conference={conference}
+      onClick={() => onNavigate(conference.id)}
       footer={
         <div className="flex gap-2">
-          <ActionButton variant="secondary">Edit Details</ActionButton>
-          <ActionButton variant="secondary" onClick={() => onNavigate(conference.id)}>
+          <ActionButton
+            variant="secondary"
+            onClick={(e) => {
+              e?.stopPropagation()
+            }}
+          >
+            Edit Details
+          </ActionButton>
+          <ActionButton
+            variant="secondary"
+            onClick={(e) => {
+              e?.stopPropagation()
+              onNavigate(conference.id)
+            }}
+          >
             Setup
           </ActionButton>
         </div>
@@ -64,10 +92,14 @@ export function DraftConferenceCard({ conference, onNavigate }: ConferenceCardPr
   return (
     <ConferenceCardBase
       conference={conference}
+      onClick={() => onNavigate(conference.id)}
       footer={
         <ActionButton
           variant="primary"
-          onClick={() => onNavigate(conference.id)}
+          onClick={(e) => {
+            e?.stopPropagation()
+            onNavigate(conference.id)
+          }}
           className="w-full"
         >
           Continue Editing
@@ -87,10 +119,14 @@ export function CompletedConferenceCard({ conference, onNavigate }: ConferenceCa
   return (
     <ConferenceCardBase
       conference={conference}
+      onClick={() => onNavigate(conference.id)}
       footer={
         <ActionButton
           variant="secondary"
-          onClick={() => onNavigate(conference.id)}
+          onClick={(e) => {
+            e?.stopPropagation()
+            onNavigate(conference.id)
+          }}
           className="w-full"
         >
           View Archive

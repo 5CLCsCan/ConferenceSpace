@@ -30,7 +30,7 @@ export function ConferenceCardBase({
   return (
     <div
       onClick={onClick}
-      className={`bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 group flex flex-col h-full ${isCompleted ? "opacity-80 hover:opacity-100" : ""} ${className}`}
+      className={`bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 group flex flex-col h-full ${onClick ? "cursor-pointer" : ""} ${isCompleted ? "opacity-80 hover:opacity-100" : ""} ${className}`}
     >
       {/* Static Card Content */}
       <div className="px-4 pt-4 pb-3 flex-1">
@@ -111,7 +111,7 @@ export function ConferenceCardBase({
 // -------------------------------------------------------------------------
 
 interface ActionButtonProps {
-  onClick?: () => void
+  onClick?: (e?: React.MouseEvent) => void
   children: ReactNode
   variant?: "primary" | "secondary"
   className?: string
@@ -133,7 +133,12 @@ export function ActionButton({
   }
 
   return (
-    <button onClick={onClick} className={`${baseClasses} ${variants[variant]} ${className}`}>
+    <button
+      onClick={(e) => {
+        onClick?.(e)
+      }}
+      className={`${baseClasses} ${variants[variant]} ${className}`}
+    >
       {children}
     </button>
   )

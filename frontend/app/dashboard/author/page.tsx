@@ -2,9 +2,8 @@
 
 import { Suspense, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { AuthorDashboard } from "@/components/author/author-dashboard"
+import { AuthorConferences } from "@/components/author/author-conferences"
 import { useAuth } from "@/lib/auth-context"
-import { useTranslation } from "@/lib/i18n/translation-context"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { useNotifications } from "@/hooks/use-notifications"
 
@@ -12,25 +11,16 @@ export default function AuthorPage() {
   const { isAuthenticated, user } = useAuth()
   const { unreadCount } = useNotifications({ limit: 1 })
   const router = useRouter()
-  const { t } = useTranslation()
   const [authChecked, setAuthChecked] = useState(false)
 
   // Wait for auth to be checked before redirecting
   useEffect(() => {
-    // Give auth context time to initialize from localStorage
-    const timer = setTimeout(() => {
-      setAuthChecked(true)
-    }, 100)
-
+    const timer = setTimeout(() => setAuthChecked(true), 100)
     return () => clearTimeout(timer)
   }, [])
 
   useEffect(() => {
-    if (!authChecked) {
-      return
-    }
-
-    if (!isAuthenticated) {
+    if (authChecked && !isAuthenticated) {
       router.push("/login")
     }
   }, [authChecked, isAuthenticated, router])
@@ -50,15 +40,15 @@ export default function AuthorPage() {
       <DashboardSidebar menuItems={authorMenuItems} />
 
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
-        <div className="flex-1 overflow-y-auto px-10 md:px-16 py-8 md:py-12 w-full">
+        <div className="flex-1 overflow-y-auto px-8 md:px-12 py-6 md:py-8 w-full">
           <Suspense
             fallback={
               <div className="flex items-center justify-center h-full text-slate-400">
-                Loading Dashboard...
+                Loading Conferences...
               </div>
             }
           >
-            <AuthorDashboard />
+            <AuthorConferences />
           </Suspense>
         </div>
       </main>

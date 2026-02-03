@@ -21,10 +21,10 @@ export function TabButton({
     <button
       onClick={onClick}
       className={cn(
-        "flex items-center gap-2 pb-1 pt-1 px-1.5 text-xs font-medium transition-all relative",
+        "py-3 text-[11px] font-bold uppercase tracking-wider border-b-2 transition-all duration-200 flex items-center gap-2",
         active
-          ? "text-slate-900 dark:text-white"
-          : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300",
+          ? "text-[#1B3C53] dark:text-white border-[#1B3C53] dark:border-white"
+          : "text-slate-500 dark:text-slate-400 border-transparent hover:text-[#1B3C53] dark:hover:text-slate-300 hover:border-slate-300",
       )}
     >
       {label}
@@ -40,9 +40,6 @@ export function TabButton({
         >
           {badge}
         </span>
-      )}
-      {active && (
-        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-slate-900 dark:bg-white rounded-t-full"></div>
       )}
     </button>
   )

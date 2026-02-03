@@ -2,70 +2,60 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/lib/auth-context"
-import type { TabType, ViewMode, Conference, ExploreConference } from "./types"
+import type { AuthorConference, AuthorTabType } from "./author-conference-cards"
+import { AuthorConferenceCard } from "./author-conference-cards"
+import { AuthorConferenceList } from "./author-conference-list"
 import {
-  MOCK_MY_CONFERENCES,
+  MOCK_AUTHOR_CONFERENCES,
   MOCK_EXPLORE_CONFERENCES,
   MOCK_ARCHIVED_CONFERENCES,
-} from "./mock-data"
-import { ConferenceCard } from "./conference-cards"
-import { ConferenceList } from "./conference-list"
-import { CreateConferenceCard } from "./create-conference-card"
-import { EmptyState, NoResultsState } from "./empty-state"
+  EMPTY_STATE_CONTENT,
+} from "./author-mock-data"
+import type { ExploreConference } from "@/components/conference/types"
 import {
   ExploreConferenceCard,
   ArchivedConferenceCard,
   ExploreConferenceList,
   ArchivedConferenceList,
-} from "./explore-cards"
+} from "@/components/conference/explore-cards"
+
+type ViewMode = "grid" | "list"
 
 interface AuthorConferencesProps {
   /** Initial conferences data - falls back to mock data */
-  conferences?: Conference[]
+  conferences?: AuthorConference[]
 }
 
 export function AuthorConferences({ conferences: initialConferences }: AuthorConferencesProps) {
   const router = useRouter()
-  const { currentRole } = useAuth()
-  const [activeTab, setActiveTab] = useState<TabType>("my-conferences")
+  const [activeTab, setActiveTab] = useState<AuthorTabType>("my-conferences")
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState("date-newest")
 
   // Data sources for each tab
-  const myConferences = initialConferences || MOCK_MY_CONFERENCES
+  const myConferences = initialConferences || MOCK_AUTHOR_CONFERENCES
   const exploreConferences = MOCK_EXPLORE_CONFERENCES
   const archivedConferences = MOCK_ARCHIVED_CONFERENCES
 
   const handleNavigate = (id: string) => {
-    // Navigate to role-specific conference detail page
-    if (currentRole === "chair") {
-      router.push(`/dashboard/chair/conference/${id}`)
-    } else {
-      router.push(`/dashboard/conference/${id}`)
-    }
+    router.push(`/dashboard/author/conference/${id}`)
   }
 
   const handleViewDetails = (id: string) => {
-    // For explore/archived, navigate to details page
     router.push(`/conference/${id}`)
   }
 
-  const handleCreateConference = () => {
-    router.push("/dashboard/chair/create-conference")
-  }
-
-  // Filter My Conferences (exclude completed)
-  const getFilteredMyConferences = (): Conference[] => {
-    let filtered = myConferences.filter((c) => c.status !== "completed")
+  // Filter My Conferences (exclude rejected from active view)
+  const getFilteredMyConferences = (): AuthorConference[] => {
+    let filtered = myConferences.filter((c) => c.status !== "rejected")
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
       filtered = filtered.filter(
         (c) =>
           c.name.toLowerCase().includes(query) ||
           c.acronym?.toLowerCase().includes(query) ||
-          c.role.toLowerCase().includes(query),
+          c.paperTitle?.toLowerCase().includes(query),
       )
     }
     return filtered
@@ -111,7 +101,7 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
       if (viewMode === "list") {
         return (
           <div className="flex flex-col gap-4">
-            <ConferenceList conferences={conferences} onNavigate={handleNavigate} />
+            <AuthorConferenceList conferences={conferences} onNavigate={handleNavigate} />
           </div>
         )
       }
@@ -119,13 +109,12 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {conferences.map((conference) => (
-            <ConferenceCard
+            <AuthorConferenceCard
               key={conference.id}
               conference={conference}
               onNavigate={handleNavigate}
             />
           ))}
-          <CreateConferenceCard onClick={handleCreateConference} />
         </div>
       )
     }
@@ -188,7 +177,7 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
   return (
     <div className="flex flex-col">
       {/* Header */}
-      <Header onCreateConference={handleCreateConference} />
+      <Header />
 
       {/* Tabs */}
       <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
@@ -214,46 +203,17 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
 // Header Component
 // -------------------------------------------------------------------------
 
-interface HeaderProps {
-  onCreateConference: () => void
-}
-
-function Header({ onCreateConference }: HeaderProps) {
+function Header() {
   return (
     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6">
       <div>
         <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white leading-none">
-          Conferences
+          My Conferences
         </h1>
         <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-2 max-w-xl">
-          Manage your conferences and discover new opportunities.
+          Track your paper submissions and discover new opportunities to publish your research.
         </p>
       </div>
-      <button
-        onClick={onCreateConference}
-        className="h-9 px-4 bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] text-[10px] font-medium uppercase tracking-wider rounded-md hover:bg-[#234C6A] dark:hover:bg-slate-100 transition-all duration-200 flex items-center gap-2"
-      >
-        <span
-          className="material-symbols-outlined"
-          style={{
-            fontSize: "16px",
-            width: "16px",
-            height: "16px",
-            maxWidth: "16px",
-            maxHeight: "16px",
-            minWidth: "16px",
-            minHeight: "16px",
-            lineHeight: "16px",
-            display: "inline-block",
-            flexShrink: 0,
-            transform: "none",
-            boxSizing: "border-box",
-          }}
-        >
-          add
-        </span>
-        Create Conference
-      </button>
     </div>
   )
 }
@@ -263,13 +223,13 @@ function Header({ onCreateConference }: HeaderProps) {
 // -------------------------------------------------------------------------
 
 interface TabsProps {
-  activeTab: TabType
-  onTabChange: (tab: TabType) => void
+  activeTab: AuthorTabType
+  onTabChange: (tab: AuthorTabType) => void
 }
 
 function Tabs({ activeTab, onTabChange }: TabsProps) {
-  const tabs: { key: TabType; label: string }[] = [
-    { key: "my-conferences", label: "My Conferences" },
+  const tabs: { key: AuthorTabType; label: string }[] = [
+    { key: "my-conferences", label: "My Submissions" },
     { key: "explore", label: "Explore" },
     { key: "archived", label: "Archived" },
   ]
@@ -300,7 +260,7 @@ function Tabs({ activeTab, onTabChange }: TabsProps) {
 // -------------------------------------------------------------------------
 
 interface ToolbarProps {
-  activeTab: TabType
+  activeTab: AuthorTabType
   searchQuery: string
   onSearchChange: (query: string) => void
   sortBy: string
@@ -318,20 +278,20 @@ function Toolbar({
   viewMode,
   onViewModeChange,
 }: ToolbarProps) {
-  const placeholders: Record<TabType, string> = {
-    "my-conferences": "Search conferences...",
+  const placeholders: Record<AuthorTabType, string> = {
+    "my-conferences": "Search submissions...",
     explore: "Search conferences...",
-    archived: "Search archived conferences...",
+    archived: "Search archived...",
   }
 
-  const sortOptions: Record<TabType, { value: string; label: string }[]> = {
+  const sortOptions: Record<AuthorTabType, { value: string; label: string }[]> = {
     "my-conferences": [
       { value: "date-newest", label: "Date (Newest)" },
       { value: "name-asc", label: "Name (A-Z)" },
-      { value: "submissions", label: "Submissions (High-Low)" },
+      { value: "status", label: "Status" },
     ],
     explore: [
-      { value: "popularity", label: "Popularity" },
+      { value: "deadline", label: "Deadline (Soon)" },
       { value: "date-upcoming", label: "Date (Upcoming)" },
       { value: "name-asc", label: "Name (A-Z)" },
     ],
@@ -459,6 +419,44 @@ function Toolbar({
           </button>
         </div>
       </div>
+    </div>
+  )
+}
+
+// -------------------------------------------------------------------------
+// Empty State Components
+// -------------------------------------------------------------------------
+
+interface EmptyStateProps {
+  type: AuthorTabType
+}
+
+function EmptyState({ type }: EmptyStateProps) {
+  const { icon, title, description } = EMPTY_STATE_CONTENT[type]
+
+  return (
+    <div className="flex flex-col items-center justify-center py-16 px-4">
+      <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
+        <span className="material-symbols-outlined text-[20px] text-slate-400">{icon}</span>
+      </div>
+      <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-1 tracking-tight">
+        {title}
+      </h3>
+      <p className="text-[10px] font-medium text-slate-400 text-center max-w-xs">{description}</p>
+    </div>
+  )
+}
+
+function NoResultsState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 px-4">
+      <span className="material-symbols-outlined text-[28px] text-slate-300 mb-2">search_off</span>
+      <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-1 tracking-tight">
+        No results found
+      </h3>
+      <p className="text-[10px] font-medium text-slate-400 text-center">
+        Try adjusting your search terms
+      </p>
     </div>
   )
 }

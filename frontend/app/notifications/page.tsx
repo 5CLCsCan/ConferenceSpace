@@ -113,12 +113,12 @@ export default function NotificationsPage() {
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
         <div className="flex-1 overflow-y-auto px-10 md:px-12 py-8 w-full relative">
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-10">
-            <div className="space-y-1.5">
-              <h1 className="text-3xl md:text-[32px] font-black tracking-tight text-slate-900 dark:text-white leading-[1.1]">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-4">
+            <div>
+              <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white leading-none">
                 Notifications
               </h1>
-              <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 max-w-xl">
+              <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-2 max-w-xl">
                 Stay updated on your submissions, reviews, and deadlines with real-time academic
                 alerts.
               </p>
@@ -135,26 +135,28 @@ export default function NotificationsPage() {
           </div>
 
           {/* Filters & Tabs */}
-          <div className="flex flex-col gap-8 mb-4">
-            <div className="flex items-center gap-8 border-b border-slate-100 dark:border-neutral-800">
-              <TabButton
-                label="All"
-                active={activeTab === "all"}
-                onClick={() => setActiveTab("all")}
-                badge={notifications.length}
-              />
-              <TabButton
-                label="Unread"
-                active={activeTab === "unread"}
-                onClick={() => setActiveTab("unread")}
-                badge={unreadCount}
-                badgeActiveBg="bg-blue-600"
-              />
-              <TabButton
-                label="Mentions"
-                active={activeTab === "mentions"}
-                onClick={() => setActiveTab("mentions")}
-              />
+          <div className="flex flex-col gap-0 mb-4">
+            <div className="border-b border-slate-200 dark:border-slate-700 mb-6">
+              <div className="flex gap-6">
+                <TabButton
+                  label="All"
+                  active={activeTab === "all"}
+                  onClick={() => setActiveTab("all")}
+                  badge={notifications.length}
+                />
+                <TabButton
+                  label="Unread"
+                  active={activeTab === "unread"}
+                  onClick={() => setActiveTab("unread")}
+                  badge={unreadCount}
+                  badgeActiveBg="bg-blue-600"
+                />
+                <TabButton
+                  label="Mentions"
+                  active={activeTab === "mentions"}
+                  onClick={() => setActiveTab("mentions")}
+                />
+              </div>
             </div>
 
             <div className="flex flex-wrap gap-2.5">

@@ -1,0 +1,10 @@
+// Conference Detail Components - Barrel Export
+export * from "./types"
+export { ConferenceDetailHeader } from "./conference-detail-header"
+export { ConferenceDetailDashboard } from "./conference-detail-dashboard"
+export { DashboardStatsCard, DashboardStatsGrid } from "./dashboard-stats-card"
+export { SubmissionTimeline } from "./submission-timeline"
+export { PendingDecisionsTable } from "./pending-decisions-table"
+export { ChairActionsPanel } from "./chair-actions-panel"
+export { TrackStatusCard } from "./track-status-card"
+export { RecentActivityCard } from "./recent-activity-card"
