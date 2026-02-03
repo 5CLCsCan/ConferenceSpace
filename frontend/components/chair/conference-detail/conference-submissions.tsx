@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 
 // --- Types ---
@@ -268,6 +269,7 @@ function SubmissionsPagination({
 // --- Main Component ---
 
 export function ConferenceSubmissions({ conferenceId, className }: ConferenceSubmissionsProps) {
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedTrack, setSelectedTrack] = useState(TRACKS[0])
   const [selectedStatus, setSelectedStatus] = useState(STATUSES[0])
@@ -279,6 +281,12 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
   const totalEntries = 1245 // Mock total
   const entriesPerPage = 5
   const totalPages = Math.ceil(totalEntries / entriesPerPage)
+
+  const handleSubmissionClick = (submissionId: string) => {
+    // Remove # from submission ID if present
+    const cleanId = submissionId.replace("#", "")
+    router.push(`/dashboard/chair/conference/${conferenceId}/submission/${cleanId}`)
+  }
 
   return (
     <div className={cn("space-y-4", className)}>
@@ -414,12 +422,12 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
                   </td>
                   <td className="px-3 py-3">
                     <div className="flex flex-col">
-                      <a
-                        href="#"
-                        className="text-[13px] font-semibold text-slate-900 dark:text-white hover:text-[#456882] transition-colors line-clamp-1 tracking-tight leading-[1.3]"
+                      <button
+                        onClick={() => handleSubmissionClick(submission.id)}
+                        className="text-[13px] font-semibold text-slate-900 dark:text-white hover:text-[#456882] transition-colors line-clamp-1 tracking-tight leading-[1.3] text-left"
                       >
                         {submission.title}
-                      </a>
+                      </button>
                       <span className="text-[10px] text-slate-500 mt-0.5 truncate max-w-[200px]">
                         {submission.authors}
                       </span>

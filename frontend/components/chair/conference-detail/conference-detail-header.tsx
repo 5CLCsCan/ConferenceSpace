@@ -36,6 +36,20 @@ export function ConferenceDetailHeader({
       {/* Title Section */}
       <div className="px-8 py-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mb-1">
+            <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+              folder_open
+            </span>
+            <span>Conferences</span>
+            <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
+              chevron_right
+            </span>
+            <span className="font-semibold text-[#1B3C53] dark:text-white">
+              {conference.acronym} {conference.year}
+            </span>
+          </div>
+
           {/* Title */}
           <div className="flex flex-col">
             <h1 className="text-xl font-bold text-[#1B3C53] dark:text-white tracking-tight">
