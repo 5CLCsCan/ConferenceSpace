@@ -1,123 +1,256 @@
+import { cn } from "@/lib/utils"
 import type { TabProps } from "./types"
 import { MemberAvatar } from "./components/member-avatar"
 
+// Consistent icon styling for 16px material symbols
+const iconStyle = {
+  fontSize: "14px",
+  width: "14px",
+  height: "14px",
+  maxWidth: "14px",
+  maxHeight: "14px",
+  minWidth: "14px",
+  minHeight: "14px",
+  lineHeight: "1",
+  display: "flex" as const,
+  alignItems: "center" as const,
+  justifyContent: "center" as const,
+  flexShrink: 0,
+  transform: "none",
+  boxSizing: "border-box" as const,
+}
+
+interface CommitteeMember {
+  name: string
+  role?: string
+  organization?: string
+  email?: string
+  track?: string
+}
+
+function MemberCard({
+  member,
+  variant = "default",
+}: {
+  member: CommitteeMember
+  variant?: "featured" | "default" | "compact"
+}) {
+  if (variant === "featured") {
+    return (
+      <div 
+        className="flex items-start gap-3 p-3 rounded-lg border border-slate-100 hover:border-slate-200 dark:border-slate-800 dark:hover:border-slate-700 transition-colors bg-slate-50/50 dark:bg-slate-800/50 cursor-pointer relative group"
+        onClick={(e) => {
+          e.preventDefault()
+          // No action - just visual feedback
+        }}
+      >
+        <MemberAvatar name={member.name} email={member.email || member.name} size="lg" />
+        <div className="flex-1">
+          <div className="font-bold text-[#1B3C53] dark:text-white text-sm tracking-tight">
+            {member.name}
+          </div>
+          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+            {member.organization || "Academic Institution"}
+          </div>
+          {member.email && (
+            <a
+              className="text-[10px] text-blue-600 hover:underline flex items-center gap-1 mt-1"
+              href={`mailto:${member.email}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <span className="material-symbols-outlined" style={iconStyle}>
+                mail
+              </span>
+              {member.email}
+            </a>
+          )}
+        </div>
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+            // No action - just visual feedback
+          }}
+          className="text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors opacity-0 group-hover:opacity-100"
+        >
+          <span className="material-symbols-outlined" style={iconStyle}>
+            open_in_new
+          </span>
+        </button>
+      </div>
+    )
+  }
+
+  if (variant === "compact") {
+    return (
+      <div 
+        className="p-2.5 rounded-lg border border-slate-100 hover:border-slate-200 dark:border-slate-800 hover:shadow-sm transition-all bg-white dark:bg-slate-900 cursor-pointer relative group"
+        onClick={(e) => {
+          e.preventDefault()
+          // No action - just visual feedback
+        }}
+      >
+        <div className="font-bold text-[#1B3C53] dark:text-white text-[12px] tracking-tight">
+          {member.name}
+        </div>
+        <div className="text-[10px] text-slate-500 truncate">
+          {member.organization || "Academic Committee"}
+        </div>
+        {member.track && (
+          <div className="mt-1.5 text-[9px] uppercase font-semibold text-slate-400 tracking-wider">
+            {member.track}
+          </div>
+        )}
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+            // No action - just visual feedback
+          }}
+          className="absolute top-2 right-2 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors opacity-0 group-hover:opacity-100"
+        >
+          <span className="material-symbols-outlined" style={iconStyle}>
+            open_in_new
+          </span>
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div 
+      className="flex items-center gap-3 p-2.5 rounded-lg border border-slate-100 hover:border-slate-200 dark:border-slate-800 dark:hover:border-slate-700 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/30 cursor-pointer relative group"
+      onClick={(e) => {
+        e.preventDefault()
+        // No action - just visual feedback
+      }}
+    >
+      <MemberAvatar name={member.name} email={member.email || member.name} />
+      <div className="flex-1">
+        <div className="font-bold text-[#1B3C53] dark:text-white text-[12px] tracking-tight">
+          {member.name}
+        </div>
+        <div className="text-[10px] text-slate-500 dark:text-slate-400">
+          {member.role || "Committee Member"}
+        </div>
+      </div>
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          e.preventDefault()
+          // No action - just visual feedback
+        }}
+        className="text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors opacity-0 group-hover:opacity-100"
+      >
+        <span className="material-symbols-outlined" style={iconStyle}>
+          open_in_new
+        </span>
+      </button>
+    </div>
+  )
+}
+
 export function CommitteeTab({ conference }: TabProps) {
   return (
-    <div className="w-full">
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-8">
-        <h2 className="text-lg font-bold text-navy-900 dark:text-white mb-2">
-          Organizing Committee
-        </h2>
-        <p className="text-slate-500 text-sm mb-8">Meet the team behind {conference.name}.</p>
+    <div className="w-full space-y-6">
+      {/* Header */}
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        {/* Card Header */}
+        <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+          <h2 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
+            Organizing Committee
+          </h2>
+          <p className="text-[10px] text-slate-500 mt-0.5">
+            Meet the team behind {conference.name}.
+          </p>
+        </div>
 
-        {/* General Chairs */}
-        <div className="mb-10">
-          <h3 className="text-xs uppercase tracking-wider text-slate-500 font-bold mb-4 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
-            General Chairs
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {conference.chair ? (
-              <div className="flex items-start gap-4 p-4 rounded-lg border border-slate-100 hover:border-slate-200 dark:border-slate-800 dark:hover:border-slate-700 transition-colors bg-slate-50/50 dark:bg-slate-800/50">
-                <MemberAvatar
-                  name={conference.chair}
-                  email={String(conference.primary_contact || conference.chair)}
-                  size="lg"
+        {/* Content */}
+        <div className="p-4 space-y-6">
+          {/* General Chairs */}
+          <div>
+            <h3 className="text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+              General Chairs
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {conference.chair && (
+                <MemberCard
+                  member={{
+                    name: conference.chair,
+                    email: `${conference.chair.toLowerCase().replace(/\s+/g, ".")}@conference.org`,
+                    organization: "Conference Organization",
+                  }}
+                  variant="featured"
                 />
-                <div>
-                  <div className="font-bold text-navy-900 dark:text-white text-lg">
-                    {conference.chair}
-                  </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
-                    No organization
-                  </div>
-                  <a
-                    className="text-xs text-blue-600 hover:underline flex items-center gap-1 mt-1"
-                    href={`mailto:${conference.chair || ""}`}
-                  >
-                    <span className="material-symbols-outlined text-[14px]">mail</span>{" "}
-                    {conference.chair || "contact@conference.org"}
-                  </a>
-                </div>
-              </div>
-            ) : null}
+              )}
 
-            {conference.co_chairs?.map((co, idx) => (
-              <div
-                key={idx}
-                className="flex items-start gap-4 p-4 rounded-lg border border-slate-100 hover:border-slate-200 dark:border-slate-800 dark:hover:border-slate-700 transition-colors bg-slate-50/50 dark:bg-slate-800/50"
-              >
-                <MemberAvatar name={co} email={`${co}@conf.org`} size="lg" />
-                <div>
-                  <div className="font-bold text-navy-900 dark:text-white text-lg">{co}</div>
-                  <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">
-                    Conference Co-Chair
-                  </div>
-                  <a
-                    className="text-xs text-blue-600 hover:underline flex items-center gap-1 mt-1"
-                    href="#"
-                  >
-                    <span className="material-symbols-outlined text-[14px]">mail</span>{" "}
-                    {co.toLowerCase().replace(" ", ".")}@conference.org
-                  </a>
-                </div>
-              </div>
-            ))}
+              {conference.co_chairs?.map((co, idx) => (
+                <MemberCard
+                  key={idx}
+                  member={{
+                    name: co,
+                    email: `${co.toLowerCase().replace(/\s+/g, ".")}@conference.org`,
+                    role: "Conference Co-Chair",
+                  }}
+                  variant="featured"
+                />
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Program Chairs */}
-        <div className="mb-10">
-          <h3 className="text-xs uppercase tracking-wider text-slate-500 font-bold mb-4 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
-            Program Chairs
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {["Alex Brown", "Emily Zhang", "Robert Klein"].map((name) => (
-              <div
-                key={name}
-                className="flex items-center gap-4 p-4 rounded-lg border border-slate-100 hover:border-slate-200 dark:border-slate-800 dark:hover:border-slate-700 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/30"
-              >
-                <MemberAvatar name={name} email={`${name}@ai.com`} />
-                <div>
-                  <div className="font-bold text-navy-900 dark:text-white">{name}</div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">
-                    Research & Peer Review
-                  </div>
-                </div>
-              </div>
-            ))}
+          {/* Program Chairs */}
+          <div>
+            <h3 className="text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+              Program Chairs
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {["Alex Brown", "Emily Zhang", "Robert Klein"].map((name) => (
+                <MemberCard
+                  key={name}
+                  member={{
+                    name,
+                    role: "Research & Peer Review",
+                  }}
+                  variant="default"
+                />
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Area Chairs */}
-        <div>
-          <h3 className="text-xs uppercase tracking-wider text-slate-500 font-bold mb-4 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
-            Area Chairs
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { name: "David Miller", track: "Reinforcement Learning" },
-              { name: "Sarah Jenkins", track: "Computer Vision" },
-              { name: "Wei Liu", track: "NLP & LLMs" },
-              { name: "Carlos Mendez", track: "Generative Models" },
-            ].map((chair) => (
-              <div
-                key={chair.name}
-                className="p-3 rounded-lg border border-slate-100 hover:border-slate-200 dark:border-slate-800 hover:shadow-sm transition-all bg-white dark:bg-slate-900"
-              >
-                <div className="font-bold text-navy-900 dark:text-white text-sm">{chair.name}</div>
-                <div className="text-xs text-slate-500 truncate">Academic Committee</div>
-                <div className="mt-2 text-[10px] uppercase font-semibold text-slate-400 tracking-wide">
-                  {chair.track}
+          {/* Area Chairs */}
+          <div>
+            <h3 className="text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+              Area Chairs
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
+              {[
+                { name: "David Miller", track: "Reinforcement Learning" },
+                { name: "Sarah Jenkins", track: "Computer Vision" },
+                { name: "Wei Liu", track: "NLP & LLMs" },
+                { name: "Carlos Mendez", track: "Generative Models" },
+              ].map((chair) => (
+                <MemberCard
+                  key={chair.name}
+                  member={{
+                    name: chair.name,
+                    track: chair.track,
+                  }}
+                  variant="compact"
+                />
+              ))}
+              <div className="p-2.5 rounded-lg border border-slate-100 hover:border-slate-200 dark:border-slate-800 hover:shadow-sm transition-all bg-white dark:bg-slate-900 flex flex-col justify-center cursor-pointer group">
+                <div className="font-bold text-[#1B3C53] dark:text-white text-[12px] tracking-tight group-hover:text-blue-600">
+                  More Members
                 </div>
-              </div>
-            ))}
-            <div className="p-3 rounded-lg border border-slate-100 hover:border-slate-200 dark:border-slate-800 hover:shadow-sm transition-all bg-white dark:bg-slate-900 flex flex-col justify-center">
-              <div className="font-bold text-navy-900 dark:text-white text-sm">More Members</div>
-              <div className="text-xs text-slate-500">View full list</div>
-              <div className="mt-2 flex">
-                <span className="material-symbols-outlined text-slate-400 text-lg">
-                  arrow_forward
-                </span>
+                <div className="text-[10px] text-slate-500">View full list</div>
+                <div className="mt-1.5 flex">
+                  <span
+                    className="material-symbols-outlined text-slate-400 group-hover:text-blue-600"
+                    style={iconStyle}
+                  >
+                    arrow_forward
+                  </span>
+                </div>
               </div>
             </div>
           </div>

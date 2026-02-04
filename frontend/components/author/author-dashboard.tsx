@@ -420,7 +420,7 @@ function ConferenceListCard({
   return (
     <div
       className="group bg-white dark:bg-neutral-800 border border-[#dbdbdb] dark:border-neutral-700 rounded-xl p-4 hover:shadow-lg hover:border-slate-900/30 dark:hover:border-white/20 transition-all duration-200 cursor-pointer"
-      onClick={() => router.push(`/dashboard/author/conference/${conference.id}`)}
+      onClick={() => router.push(`/author/conference/${conference.id}`)}
     >
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div className="flex-1">
@@ -491,7 +491,7 @@ function ConferenceListCard({
           </button>
 
           <button
-            onClick={() => router.push(`/dashboard/author/conference/${conference.id}`)}
+            onClick={() => router.push(`/author/conference/${conference.id}`)}
             className={cn(
               "text-sm font-bold py-2 px-4 rounded-lg transition-all shadow-sm w-full md:w-auto text-center border",
               statusInfo.btnVariant === "primary"

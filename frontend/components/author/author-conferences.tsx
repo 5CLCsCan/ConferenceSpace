@@ -42,11 +42,11 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
   const ITEMS_PER_PAGE = 5
 
   const handleNavigate = (id: string) => {
-    router.push(`/dashboard/author/conference/${id}`)
+    router.push(`/author/conference/${id}`)
   }
 
   const handleViewDetails = (id: string) => {
-    router.push(`/conference/${id}`)
+    router.push(`/author/conference/${id}`)
   }
 
   // Filter My Conferences (exclude rejected from active view)

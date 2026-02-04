@@ -1,23 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { sessionManager } from "@/lib/session-manager"
 import type { UserRole } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { LanguageSwitcher } from "@/components/language-switcher"
-import { LogOut, Globe, Check } from "lucide-react"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
 export default function RoleSelectionPage() {
   const { user, isAuthenticated, logout, switchRole, resetRole } = useAuth()
