@@ -38,8 +38,55 @@ export function AuthorConferenceList({
     }
   }
 
+  const handlePageClick = (page: number) => {
+    if (onPageChange && page >= 1 && page <= totalPages) {
+      onPageChange(page)
+    }
+  }
+
   const startItem = (currentPage - 1) * itemsPerPage + 1
   const endItem = Math.min(currentPage * itemsPerPage, totalItems || conferences.length)
+
+  // Generate page numbers with ellipsis
+  const getPageNumbers = () => {
+    const pages: (number | "ellipsis")[] = []
+    const maxVisible = 5
+
+    if (totalPages <= maxVisible) {
+      // Show all pages if total is small
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i)
+      }
+    } else {
+      // Always show first page
+      pages.push(1)
+
+      if (currentPage <= 3) {
+        // Near the start
+        for (let i = 2; i <= 4; i++) {
+          pages.push(i)
+        }
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      } else if (currentPage >= totalPages - 2) {
+        // Near the end
+        pages.push("ellipsis")
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i)
+        }
+      } else {
+        // In the middle
+        pages.push("ellipsis")
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(i)
+        }
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      }
+    }
+
+    return pages
+  }
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -78,54 +125,62 @@ export function AuthorConferenceList({
 
       {/* Pagination */}
       {showPagination && (
-        <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-          <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-            {totalItems !== undefined ? (
-              <>
-                Showing{" "}
-                <span className="font-bold text-slate-700 dark:text-slate-300">
-                  {startItem}-{endItem}
-                </span>{" "}
-                of{" "}
-                <span className="font-bold text-slate-700 dark:text-slate-300">{totalItems}</span>{" "}
-                submissions
-              </>
-            ) : (
-              <>{conferences.length} submissions</>
-            )}
+        <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          {/* Left: Item count */}
+          <div className="text-[11px] text-slate-500">
+            Showing{" "}
+            <span className="font-bold text-[#1B3C53] dark:text-white">
+              {startItem}-{endItem}
+            </span>{" "}
+            of{" "}
+            <span className="font-bold text-[#1B3C53] dark:text-white">
+              {(totalItems || conferences.length).toLocaleString()}
+            </span>{" "}
+            submissions
           </div>
 
+          {/* Right: Page navigation */}
           {totalPages > 1 && (
-            <div className="flex items-center gap-2">
+            <div className="flex gap-1">
               <button
                 onClick={handlePrevPage}
                 disabled={currentPage <= 1}
-                className="w-7 h-7 flex items-center justify-center rounded border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-[#1B3C53] dark:hover:text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-all"
+                className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span
-                  className="material-symbols-outlined"
-                  style={{ fontSize: "16px", width: "16px", height: "16px", lineHeight: "1" }}
-                >
-                  chevron_left
-                </span>
+                Previous
               </button>
 
-              <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400 min-w-[80px] text-center">
-                Page <span className="font-bold">{currentPage}</span> of{" "}
-                <span className="font-bold">{totalPages}</span>
-              </span>
+              {getPageNumbers().map((page, idx) => {
+                if (page === "ellipsis") {
+                  return (
+                    <span key={`ellipsis-${idx}`} className="px-1.5 text-slate-400 text-[10px]">
+                      ...
+                    </span>
+                  )
+                }
+
+                const isActive = page === currentPage
+                return (
+                  <button
+                    key={page}
+                    onClick={() => handlePageClick(page)}
+                    className={`px-2.5 py-1 rounded text-[10px] ${
+                      isActive
+                        ? "bg-[#1B3C53] text-white hover:bg-[#234C6A]"
+                        : "border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              })}
 
               <button
                 onClick={handleNextPage}
                 disabled={currentPage >= totalPages}
-                className="w-7 h-7 flex items-center justify-center rounded border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-[#1B3C53] dark:hover:text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-all"
+                className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span
-                  className="material-symbols-outlined"
-                  style={{ fontSize: "16px", width: "16px", height: "16px", lineHeight: "1" }}
-                >
-                  chevron_right
-                </span>
+                Next
               </button>
             </div>
           )}

@@ -32,11 +32,14 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState("date-newest")
+  const [currentPage, setCurrentPage] = useState(1)
 
   // Data sources for each tab
   const myConferences = initialConferences || MOCK_MY_CONFERENCES
   const exploreConferences = MOCK_EXPLORE_CONFERENCES
   const archivedConferences = MOCK_ARCHIVED_CONFERENCES
+
+  const ITEMS_PER_PAGE = 5
 
   const handleNavigate = (id: string) => {
     // Navigate to role-specific conference detail page
@@ -101,24 +104,47 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
     return filtered
   }
 
+  // Reset page when tab or search changes
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab)
+    setCurrentPage(1)
+  }
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query)
+    setCurrentPage(1)
+  }
+
   // Get data and render based on active tab
   const renderContent = () => {
     if (activeTab === "my-conferences") {
-      const conferences = getFilteredMyConferences()
-      if (conferences.length === 0 && !searchQuery) return <EmptyState type={activeTab} />
-      if (conferences.length === 0 && searchQuery) return <NoResultsState />
+      const allConferences = getFilteredMyConferences()
+      const totalPages = Math.ceil(allConferences.length / ITEMS_PER_PAGE)
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+      const paginatedConferences = allConferences.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+
+      if (allConferences.length === 0 && !searchQuery) return <EmptyState type={activeTab} />
+      if (allConferences.length === 0 && searchQuery) return <NoResultsState />
 
       if (viewMode === "list") {
         return (
           <div className="flex flex-col gap-4">
-            <ConferenceList conferences={conferences} onNavigate={handleNavigate} />
+            <ConferenceList
+              conferences={paginatedConferences}
+              onNavigate={handleNavigate}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={allConferences.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              onPageChange={setCurrentPage}
+            />
           </div>
         )
       }
 
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {conferences.map((conference) => (
+          {paginatedConferences.map((conference) => (
             <ConferenceCard
               key={conference.id}
               conference={conference}
@@ -131,21 +157,33 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
     }
 
     if (activeTab === "explore") {
-      const conferences = getFilteredExploreConferences()
-      if (conferences.length === 0 && !searchQuery) return <EmptyState type={activeTab} />
-      if (conferences.length === 0 && searchQuery) return <NoResultsState />
+      const allConferences = getFilteredExploreConferences()
+      const totalPages = Math.ceil(allConferences.length / ITEMS_PER_PAGE)
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+      const paginatedConferences = allConferences.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+
+      if (allConferences.length === 0 && !searchQuery) return <EmptyState type={activeTab} />
+      if (allConferences.length === 0 && searchQuery) return <NoResultsState />
 
       if (viewMode === "list") {
         return (
           <div className="flex flex-col gap-4">
-            <ExploreConferenceList conferences={conferences} onViewDetails={handleViewDetails} />
+            <ExploreConferenceList
+              conferences={paginatedConferences}
+              onViewDetails={handleViewDetails}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={allConferences.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              onPageChange={setCurrentPage}
+            />
           </div>
         )
       }
 
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {conferences.map((conference) => (
+          {paginatedConferences.map((conference) => (
             <ExploreConferenceCard
               key={conference.id}
               conference={conference}
@@ -157,21 +195,33 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
     }
 
     if (activeTab === "archived") {
-      const conferences = getFilteredArchivedConferences()
-      if (conferences.length === 0 && !searchQuery) return <EmptyState type={activeTab} />
-      if (conferences.length === 0 && searchQuery) return <NoResultsState />
+      const allConferences = getFilteredArchivedConferences()
+      const totalPages = Math.ceil(allConferences.length / ITEMS_PER_PAGE)
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+      const paginatedConferences = allConferences.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+
+      if (allConferences.length === 0 && !searchQuery) return <EmptyState type={activeTab} />
+      if (allConferences.length === 0 && searchQuery) return <NoResultsState />
 
       if (viewMode === "list") {
         return (
           <div className="flex flex-col gap-4">
-            <ArchivedConferenceList conferences={conferences} onViewDetails={handleViewDetails} />
+            <ArchivedConferenceList
+              conferences={paginatedConferences}
+              onViewDetails={handleViewDetails}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={allConferences.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              onPageChange={setCurrentPage}
+            />
           </div>
         )
       }
 
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {conferences.map((conference) => (
+          {paginatedConferences.map((conference) => (
             <ArchivedConferenceCard
               key={conference.id}
               conference={conference}
@@ -191,13 +241,13 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
       <Header onCreateConference={handleCreateConference} />
 
       {/* Tabs */}
-      <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
+      <Tabs activeTab={activeTab} onTabChange={handleTabChange} />
 
       {/* Toolbar */}
       <Toolbar
         activeTab={activeTab}
         searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+        onSearchChange={handleSearchChange}
         sortBy={sortBy}
         onSortChange={setSortBy}
         viewMode={viewMode}

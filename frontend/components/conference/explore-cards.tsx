@@ -197,9 +197,88 @@ export function ArchivedConferenceCard({ conference, onViewDetails }: ArchivedCo
 interface ExploreConferenceListProps {
   conferences: ExploreConference[]
   onViewDetails: (id: string) => void
+  /** Pagination props */
+  currentPage?: number
+  totalPages?: number
+  totalItems?: number
+  itemsPerPage?: number
+  onPageChange?: (page: number) => void
 }
 
-export function ExploreConferenceList({ conferences, onViewDetails }: ExploreConferenceListProps) {
+export function ExploreConferenceList({
+  conferences,
+  onViewDetails,
+  currentPage = 1,
+  totalPages = 1,
+  totalItems,
+  itemsPerPage = 5,
+  onPageChange,
+}: ExploreConferenceListProps) {
+  const showPagination = totalPages > 1 || totalItems !== undefined
+
+  const handlePrevPage = () => {
+    if (currentPage > 1 && onPageChange) {
+      onPageChange(currentPage - 1)
+    }
+  }
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages && onPageChange) {
+      onPageChange(currentPage + 1)
+    }
+  }
+
+  const handlePageClick = (page: number) => {
+    if (onPageChange && page >= 1 && page <= totalPages) {
+      onPageChange(page)
+    }
+  }
+
+  // Calculate display range
+  const startItem = (currentPage - 1) * itemsPerPage + 1
+  const endItem = Math.min(currentPage * itemsPerPage, totalItems || conferences.length)
+
+  // Generate page numbers with ellipsis
+  const getPageNumbers = () => {
+    const pages: (number | "ellipsis")[] = []
+    const maxVisible = 5
+
+    if (totalPages <= maxVisible) {
+      // Show all pages if total is small
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i)
+      }
+    } else {
+      // Always show first page
+      pages.push(1)
+
+      if (currentPage <= 3) {
+        // Near the start
+        for (let i = 2; i <= 4; i++) {
+          pages.push(i)
+        }
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      } else if (currentPage >= totalPages - 2) {
+        // Near the end
+        pages.push("ellipsis")
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i)
+        }
+      } else {
+        // In the middle
+        pages.push("ellipsis")
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(i)
+        }
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      }
+    }
+
+    return pages
+  }
+
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
       {/* Header Row */}
@@ -235,12 +314,75 @@ export function ExploreConferenceList({ conferences, onViewDetails }: ExploreCon
         ))}
       </div>
 
-      {/* Footer */}
-      <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-        <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-          {conferences.length} conferences found
+      {/* Pagination */}
+      {showPagination ? (
+        <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          {/* Left: Item count */}
+          <div className="text-[11px] text-slate-500">
+            Showing{" "}
+            <span className="font-bold text-[#1B3C53] dark:text-white">
+              {startItem}-{endItem}
+            </span>{" "}
+            of{" "}
+            <span className="font-bold text-[#1B3C53] dark:text-white">
+              {(totalItems || conferences.length).toLocaleString()}
+            </span>{" "}
+            conferences
+          </div>
+
+          {/* Right: Page navigation */}
+          {totalPages > 1 && (
+            <div className="flex gap-1">
+              <button
+                onClick={handlePrevPage}
+                disabled={currentPage <= 1}
+                className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+
+              {getPageNumbers().map((page, idx) => {
+                if (page === "ellipsis") {
+                  return (
+                    <span key={`ellipsis-${idx}`} className="px-1.5 text-slate-400 text-[10px]">
+                      ...
+                    </span>
+                  )
+                }
+
+                const isActive = page === currentPage
+                return (
+                  <button
+                    key={page}
+                    onClick={() => handlePageClick(page)}
+                    className={`px-2.5 py-1 rounded text-[10px] ${
+                      isActive
+                        ? "bg-[#1B3C53] text-white hover:bg-[#234C6A]"
+                        : "border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              })}
+
+              <button
+                onClick={handleNextPage}
+                disabled={currentPage >= totalPages}
+                className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
-      </div>
+      ) : (
+        <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+          <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+            {conferences.length} conferences found
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -396,12 +538,88 @@ function ExploreListRow({
 interface ArchivedConferenceListProps {
   conferences: ExploreConference[]
   onViewDetails: (id: string) => void
+  /** Pagination props */
+  currentPage?: number
+  totalPages?: number
+  totalItems?: number
+  itemsPerPage?: number
+  onPageChange?: (page: number) => void
 }
 
 export function ArchivedConferenceList({
   conferences,
   onViewDetails,
+  currentPage = 1,
+  totalPages = 1,
+  totalItems,
+  itemsPerPage = 5,
+  onPageChange,
 }: ArchivedConferenceListProps) {
+  const showPagination = totalPages > 1 || totalItems !== undefined
+
+  const handlePrevPage = () => {
+    if (currentPage > 1 && onPageChange) {
+      onPageChange(currentPage - 1)
+    }
+  }
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages && onPageChange) {
+      onPageChange(currentPage + 1)
+    }
+  }
+
+  const handlePageClick = (page: number) => {
+    if (onPageChange && page >= 1 && page <= totalPages) {
+      onPageChange(page)
+    }
+  }
+
+  // Calculate display range
+  const startItem = (currentPage - 1) * itemsPerPage + 1
+  const endItem = Math.min(currentPage * itemsPerPage, totalItems || conferences.length)
+
+  // Generate page numbers with ellipsis
+  const getPageNumbers = () => {
+    const pages: (number | "ellipsis")[] = []
+    const maxVisible = 5
+
+    if (totalPages <= maxVisible) {
+      // Show all pages if total is small
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i)
+      }
+    } else {
+      // Always show first page
+      pages.push(1)
+
+      if (currentPage <= 3) {
+        // Near the start
+        for (let i = 2; i <= 4; i++) {
+          pages.push(i)
+        }
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      } else if (currentPage >= totalPages - 2) {
+        // Near the end
+        pages.push("ellipsis")
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i)
+        }
+      } else {
+        // In the middle
+        pages.push("ellipsis")
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(i)
+        }
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      }
+    }
+
+    return pages
+  }
+
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
       {/* Header Row */}
@@ -431,12 +649,75 @@ export function ArchivedConferenceList({
         ))}
       </div>
 
-      {/* Footer */}
-      <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-        <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-          {conferences.length} archived conferences
+      {/* Pagination */}
+      {showPagination ? (
+        <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          {/* Left: Item count */}
+          <div className="text-[11px] text-slate-500">
+            Showing{" "}
+            <span className="font-bold text-[#1B3C53] dark:text-white">
+              {startItem}-{endItem}
+            </span>{" "}
+            of{" "}
+            <span className="font-bold text-[#1B3C53] dark:text-white">
+              {(totalItems || conferences.length).toLocaleString()}
+            </span>{" "}
+            archived conferences
+          </div>
+
+          {/* Right: Page navigation */}
+          {totalPages > 1 && (
+            <div className="flex gap-1">
+              <button
+                onClick={handlePrevPage}
+                disabled={currentPage <= 1}
+                className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+
+              {getPageNumbers().map((page, idx) => {
+                if (page === "ellipsis") {
+                  return (
+                    <span key={`ellipsis-${idx}`} className="px-1.5 text-slate-400 text-[10px]">
+                      ...
+                    </span>
+                  )
+                }
+
+                const isActive = page === currentPage
+                return (
+                  <button
+                    key={page}
+                    onClick={() => handlePageClick(page)}
+                    className={`px-2.5 py-1 rounded text-[10px] ${
+                      isActive
+                        ? "bg-[#1B3C53] text-white hover:bg-[#234C6A]"
+                        : "border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              })}
+
+              <button
+                onClick={handleNextPage}
+                disabled={currentPage >= totalPages}
+                className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
-      </div>
+      ) : (
+        <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+          <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+            {conferences.length} archived conferences
+          </div>
+        </div>
+      )}
     </div>
   )
 }

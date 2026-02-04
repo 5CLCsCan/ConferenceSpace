@@ -38,7 +38,7 @@ export default function ChairPage() {
 
   const chairMenuItems = [
     { label: "Conferences", href: "/dashboard/conference", icon: "folder_open" },
-    { label: "Schedules", href: "/dashboard/schedules", icon: "calendar_month" },
+    { label: "Schedules", href: "/dashboard/chair/schedules", icon: "calendar_month" },
     { label: "Notifications", href: "/notifications", icon: "notifications", badge: unreadCount },
     { label: "Dashboard", href: "/dashboard/chair", icon: "dashboard" },
   ]
