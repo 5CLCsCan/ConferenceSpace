@@ -4,14 +4,14 @@ import { useState } from "react"
 import { cn } from "@/lib/utils"
 import type { SubmissionDetail, SubmissionSubTab } from "./types"
 import { MOCK_SUBMISSION_DETAIL } from "./mock-data"
+import { SubmissionStatusBadge, FileTypeIcon, AuthorAvatar } from "./components"
 import {
-  SubmissionStatusBadge,
-  ReviewerDecisionLabel,
-  ConfidenceLabel,
-  AssignmentStatusBadge,
-  FileTypeIcon,
-  AuthorAvatar,
-} from "./components"
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
 
 interface SubmissionDetailViewProps {
   conferenceId: string
@@ -64,9 +64,7 @@ function AbstractCard({ abstract, keywords }: { abstract: string; keywords: stri
       <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-4 tracking-tight">
         Abstract
       </h3>
-      <p className="text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-        {abstract}
-      </p>
+      <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-6">{abstract}</p>
       <div className="flex flex-wrap gap-2">
         {keywords.map((keyword) => (
           <span
@@ -105,7 +103,7 @@ function SubmissionFilesCard({
           >
             <FileTypeIcon type={file.type} />
             <div className="flex-1 min-w-0 ml-4">
-              <h4 className="text-xs font-semibold text-[#1B3C53] dark:text-white truncate">
+              <h4 className="text-xs font-medium text-[#1B3C53] dark:text-white truncate">
                 {file.name}
               </h4>
               <p className="text-[10px] text-slate-500">
@@ -171,89 +169,6 @@ function CoverLetterCard({ content }: { content?: string }) {
   )
 }
 
-// --- Review Overview Card ---
-function ReviewOverviewCard({
-  reviewOverview,
-}: {
-  reviewOverview: SubmissionDetail["reviewOverview"]
-}) {
-  const { averageScore, maxScore, confidence, status, individualScores } = reviewOverview
-
-  const getStatusColor = (s: string) => {
-    if (s === "Pending") return "text-yellow-600"
-    if (s === "Completed") return "text-green-600"
-    return "text-slate-700"
-  }
-
-  return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
-      <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-4 tracking-tight">
-        Review Overview
-      </h3>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
-          <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-1">
-            Average Score
-          </span>
-          <span className="text-xl font-bold text-[#1B3C53] dark:text-white">
-            {averageScore.toFixed(1)}{" "}
-            <span className="text-xs text-slate-400 font-normal">/ {maxScore}</span>
-          </span>
-        </div>
-        <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
-          <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-1">
-            Confidence
-          </span>
-          <span className="text-xl font-bold text-[#1B3C53] dark:text-white capitalize">
-            {confidence}
-          </span>
-        </div>
-        <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
-          <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-1">
-            Status
-          </span>
-          <span className={cn("text-xl font-bold", getStatusColor(status))}>{status}</span>
-        </div>
-      </div>
-
-      {/* Individual Scores */}
-      <div className="space-y-4">
-        <h4 className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-          Individual Scores
-        </h4>
-        <div className="space-y-3">
-          {individualScores.map((score) => (
-            <div
-              key={score.reviewerId}
-              className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg"
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold",
-                    score.avatarColor,
-                  )}
-                >
-                  {score.reviewerId.toUpperCase()}
-                </div>
-                <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                  {score.reviewerName}
-                </span>
-              </div>
-              <div className="flex items-center gap-4">
-                <ReviewerDecisionLabel decision={score.decision} score={score.score} />
-                <ConfidenceLabel level={score.confidence} />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // --- Submission Meta Card (Sidebar) ---
 function SubmissionMetaCard({
   authors,
@@ -262,6 +177,13 @@ function SubmissionMetaCard({
   authors: SubmissionDetail["authors"]
   conflictsOfInterest: string[]
 }) {
+  const [selectedAffiliation, setSelectedAffiliation] = useState<string | null>(null)
+
+  const handleAuthorProfileClick = (authorId: string) => {
+    // TODO: Implement profile navigation
+    console.log("Navigate to author profile:", authorId)
+  }
+
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <h3 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-4">
@@ -275,14 +197,27 @@ function SubmissionMetaCard({
           </h4>
           <div className="space-y-3">
             {authors.map((author) => (
-              <div key={author.id} className="flex items-center gap-3">
+              <div
+                key={author.id}
+                className="flex items-center gap-3 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+              >
                 <AuthorAvatar name={author.name} avatar={author.avatar} />
-                <div className="flex flex-col min-w-0">
-                  <span className="text-xs font-medium text-[#1B3C53] dark:text-white truncate">
+                <div className="flex flex-col min-w-0 flex-1">
+                  <span className="text-[11px] font-medium text-[#1B3C53] dark:text-white truncate">
                     {author.name}
+                    {author.isCorresponding && " (Corr.)"}
                   </span>
-                  <span className="text-[10px] text-slate-500 truncate">{author.affiliation}</span>
+                  <span className="text-[9px] text-slate-500 truncate">{author.affiliation}</span>
                 </div>
+                <button
+                  onClick={() => handleAuthorProfileClick(author.id)}
+                  className="p-1.5 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors flex-shrink-0"
+                  title="View profile"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+                    open_in_new
+                  </span>
+                </button>
               </div>
             ))}
           </div>
@@ -293,87 +228,37 @@ function SubmissionMetaCard({
           <h4 className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-2">
             Conflicts of Interest
           </h4>
-          <p className="text-xs text-[#1B3C53] dark:text-white font-medium">
-            {conflictsOfInterest.join(", ")}
-          </p>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// --- Reviewer Assignments Card (Sidebar) ---
-function ReviewerAssignmentsCard({
-  assignments,
-}: {
-  assignments: SubmissionDetail["reviewerAssignments"]
-}) {
-  return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
-          Reviewer Assignments
-        </h3>
-        <button className="text-[10px] font-bold text-[#1B3C53] hover:text-[#456882] transition-colors">
-          Manage
-        </button>
-      </div>
-      <div className="space-y-3">
-        {assignments.map((assignment) => (
-          <div key={assignment.id} className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700" />
-              <span className="text-xs text-slate-700 dark:text-slate-300">{assignment.name}</span>
-            </div>
-            <AssignmentStatusBadge status={assignment.status} />
+          <div className="flex flex-wrap gap-2">
+            {conflictsOfInterest.map((affiliation, index) => (
+              <button
+                key={index}
+                onClick={() => setSelectedAffiliation(affiliation)}
+                className="px-3 py-1.5 text-[10px] text-[#1B3C53] dark:text-white font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors"
+              >
+                {affiliation}
+              </button>
+            ))}
           </div>
-        ))}
-        <button className="w-full mt-2 py-2 border border-dashed border-slate-300 dark:border-slate-600 rounded-lg text-slate-500 dark:text-slate-400 text-[11px] hover:border-[#1B3C53] hover:text-[#1B3C53] dark:hover:border-slate-400 dark:hover:text-white transition-colors flex items-center justify-center gap-1">
-          <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
-            add
-          </span>
-          Assign Additional Reviewer
-        </button>
+        </div>
       </div>
-    </div>
-  )
-}
 
-// --- Decision Tools Card (Sidebar) ---
-function DecisionToolsCard() {
-  return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
-      <h3 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-4">
-        Decision Tools
-      </h3>
-      <div className="space-y-3">
-        <button className="w-full py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-[11px] font-bold shadow-sm transition-colors flex items-center justify-center gap-2">
-          <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
-            check_circle
-          </span>
-          Accept Submission
-        </button>
-        <div className="grid grid-cols-2 gap-3">
-          <button className="py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-[11px] font-medium transition-colors">
-            Minor Revision
-          </button>
-          <button className="py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-[11px] font-medium transition-colors">
-            Major Revision
-          </button>
-        </div>
-        <button className="w-full py-2.5 bg-white dark:bg-slate-800 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-[11px] font-medium transition-colors flex items-center justify-center gap-2">
-          <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
-            cancel
-          </span>
-          Reject Submission
-        </button>
-      </div>
-      <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-        <div className="flex items-center justify-between text-[10px] text-slate-500">
-          <span>Current Phase:</span>
-          <span className="font-bold text-[#1B3C53] dark:text-white">Decision Pending</span>
-        </div>
-      </div>
+      {/* Affiliation Details Dialog */}
+      <Dialog
+        open={selectedAffiliation !== null}
+        onOpenChange={(open) => !open && setSelectedAffiliation(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Affiliation Details</DialogTitle>
+            <DialogDescription>{selectedAffiliation}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Additional details about this affiliation will be displayed here.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
@@ -439,7 +324,6 @@ export function SubmissionDetailView({
             <AbstractCard abstract={submission.abstract} keywords={submission.keywords} />
             <SubmissionFilesCard files={submission.files} lastUpdated={submission.lastUpdated} />
             <CoverLetterCard content={submission.coverLetter} />
-            <ReviewOverviewCard reviewOverview={submission.reviewOverview} />
           </div>
 
           {/* Sidebar (1/3) */}
@@ -448,8 +332,6 @@ export function SubmissionDetailView({
               authors={submission.authors}
               conflictsOfInterest={submission.conflictsOfInterest}
             />
-            <ReviewerAssignmentsCard assignments={submission.reviewerAssignments} />
-            <DecisionToolsCard />
           </div>
         </div>
       )}
