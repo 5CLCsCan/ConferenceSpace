@@ -1,166 +1,194 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/auth-context"
-import { useTranslation } from "@/lib/i18n/translation-context"
 import type { Submission } from "@/lib/api/submissions"
+
+// Scholar-Compact status badge matching chair role design
+const statusConfig: Record<string, { label: string; className: string }> = {
+  draft: {
+    label: "Draft",
+    className: "bg-slate-100 text-slate-600 border-slate-200",
+  },
+  published: {
+    label: "Published",
+    className: "bg-blue-50 text-blue-700 border-blue-100",
+  },
+  under_review: {
+    label: "Under Review",
+    className: "bg-yellow-50 text-yellow-700 border-yellow-100",
+  },
+  accepted: {
+    label: "Accepted",
+    className: "bg-green-50 text-green-700 border-green-100",
+  },
+  rejected: {
+    label: "Rejected",
+    className: "bg-red-50 text-red-700 border-red-100",
+  },
+  pending_decision: {
+    label: "Pending Decision",
+    className: "bg-purple-50 text-purple-700 border-purple-100",
+  },
+  withdrawn: {
+    label: "Withdrawn",
+    className: "bg-slate-100 text-slate-600 border-slate-200",
+  },
+  revision_requested: {
+    label: "Revision Requested",
+    className: "bg-amber-50 text-amber-700 border-amber-100",
+  },
+}
+
+function SubmissionStatusBadge({ status }: { status: string }) {
+  const config = statusConfig[status] || {
+    label: status,
+    className: "bg-slate-100 text-slate-600 border-slate-200",
+  }
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border",
+        config.className,
+      )}
+    >
+      {config.label}
+    </span>
+  )
+}
+
+type TabId = "overview" | "discussion" | "rebuttal"
+
+const TABS: { id: TabId; label: string }[] = [
+  { id: "overview", label: "Overview" },
+  { id: "discussion", label: "Discussion" },
+  { id: "rebuttal", label: "Rebuttal" },
+]
 
 interface SubmissionHeaderProps {
   submission: Submission
   conferenceId: string
   conferenceName?: string
-  onDecision?: (decision: "accepted" | "rejected") => void
+  activeTab: TabId
+  onTabChange: (tab: TabId) => void
+  className?: string
 }
 
 export function SubmissionHeader({
   submission,
   conferenceId,
   conferenceName,
-  onDecision,
+  activeTab,
+  onTabChange,
+  className,
 }: SubmissionHeaderProps) {
-  const { t } = useTranslation()
-  const { user, currentRole } = useAuth()
+  const router = useRouter()
+  const { user } = useAuth()
   const isAuthor = user?.email === submission.author
-  const isChair = currentRole === "chair"
-
-  const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { label: string; className: string }> = {
-      draft: {
-        label: t("draft"),
-        className: "bg-yellow-100 text-yellow-800 border-yellow-200",
-      },
-      published: {
-        label: t("published"),
-        className: "bg-blue-100 text-blue-800 border-blue-200",
-      },
-      under_review: {
-        label: "Under Review",
-        className: "bg-blue-100 text-blue-800 border-blue-200",
-      },
-      accepted: {
-        label: t("accepted", { defaultValue: "Accepted" }),
-        className: "bg-green-100 text-green-800 border-green-200",
-      },
-      rejected: {
-        label: t("rejected", { defaultValue: "Rejected" }),
-        className: "bg-red-100 text-red-800 border-red-200",
-      },
-    }
-
-    const config = statusConfig[status] || {
-      label: status,
-      className: "bg-slate-100 text-slate-800 border-slate-200",
-    }
-
-    return (
-      <span className={`text-xs font-bold px-2.5 py-0.5 rounded border ${config.className}`}>
-        {config.label}
-      </span>
-    )
-  }
 
   return (
-    <>
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-neutral-500">
-        <Link href="/dashboard/author/submissions" className="hover:text-[#1e3a8a] hover:underline">
-          My Submissions
-        </Link>
-        <span className="material-symbols-outlined text-[16px]">chevron_right</span>
-        <span className="text-[#141414] font-medium">Submission #{submission.id}</span>
-      </div>
-
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            {getStatusBadge(submission.status)}
-            <span className="text-sm font-mono text-neutral-400">#{submission.id}</span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[#141414] tracking-tight">
-            {submission.title}
-          </h1>
-          <p className="text-neutral-500 mt-1 text-sm">
-            Submitted to{" "}
-            <Link
-              href={`/dashboard/conference/${conferenceId}`}
-              className="font-semibold text-[#1e3a8a] hover:underline"
+    <header
+      className={cn(
+        "bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30",
+        className,
+      )}
+    >
+      {/* Title Section */}
+      <div className="px-8 py-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mb-1">
+            <button
+              onClick={() => router.push("/dashboard/author/submissions")}
+              className="hover:text-[#1B3C53] dark:hover:text-white transition-colors flex items-center gap-1.5"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                description
+              </span>
+              <span>My Submissions</span>
+            </button>
+            <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
+              chevron_right
+            </span>
+            <button
+              onClick={() => router.push(`/dashboard/conference/${conferenceId}`)}
+              className="font-semibold text-[#1B3C53] dark:text-white hover:underline"
             >
               {conferenceName || "Conference"}
-            </Link>
-            {submission.information?.track_name && (
-              <>
-                {" "}
-                • Track: <span className="font-medium">{submission.information.track_name}</span>
-              </>
-            )}
-          </p>
-        </div>
-        <div className="flex gap-3 shrink-0">
-          {/* Chair Decision Dropdown */}
-          {isChair && onDecision && (
-            <Select
-              value={
-                ["accepted", "rejected"].includes(submission.status)
-                  ? submission.status
-                  : "__current"
-              }
-              onValueChange={(value) => onDecision(value as "accepted" | "rejected")}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder={t("dashboard.chair.submissions.decision")} />
-              </SelectTrigger>
-              <SelectContent>
-                {!["accepted", "rejected"].includes(submission.status) && (
-                  <SelectItem value="__current" disabled>
-                    {t(`dashboard.submissions.status.${submission.status}`, {
-                      defaultValue: submission.status,
-                    })}
-                  </SelectItem>
-                )}
-                <SelectItem value="accepted">
-                  <span className="font-bold text-green-700">
-                    {t("common.actions.accept", { defaultValue: "Accept" })}
-                  </span>
-                </SelectItem>
-                <SelectItem value="rejected">
-                  <span className="font-bold text-red-700">
-                    {t("common.actions.decline", { defaultValue: "Reject" })}
-                  </span>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          )}
+            </button>
+            <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
+              chevron_right
+            </span>
+            <span className="font-semibold text-[#1B3C53] dark:text-white">
+              Submission #{submission.id}
+            </span>
+          </div>
 
+          {/* Title */}
+          <div className="flex flex-col">
+            <h1 className="text-xl font-bold text-[#1B3C53] dark:text-white tracking-tight truncate">
+              {submission.title}
+            </h1>
+            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
+              {submission.information?.track_name && (
+                <span>
+                  Track:{" "}
+                  <strong className="text-slate-700 dark:text-slate-300">
+                    {submission.information.track_name}
+                  </strong>
+                </span>
+              )}
+              <SubmissionStatusBadge status={submission.status} />
+              <span className="text-[10px] text-slate-400">#{submission.id}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-2">
           {isAuthor && submission.status === "draft" && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2 border-neutral-300 text-neutral-700 hover:bg-neutral-50 hover:text-[#141414] shadow-sm"
-              asChild
+            <Link
+              href={`/dashboard/author/submit?conference=${conferenceId}&edit=${submission.id}`}
+              className="h-8 px-3 bg-white border border-slate-200 text-slate-600 font-medium text-[11px] rounded-md hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center gap-1.5"
             >
-              <Link
-                href={`/dashboard/author/submit?conference=${conferenceId}&edit=${submission.id}`}
-              >
-                <span className="material-symbols-outlined text-[20px]">edit_document</span>
-                Edit Submission
-              </Link>
-            </Button>
+              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                edit_document
+              </span>
+              Edit
+            </Link>
           )}
-          <Button className="bg-[#1e3a8a] hover:bg-blue-900 text-white font-bold gap-2 shadow-sm">
-            <span className="material-symbols-outlined text-[20px]">upload</span>
+          <button className="h-8 px-3 bg-[#1B3C53] text-white font-medium text-[11px] rounded-md hover:bg-[#234C6A] transition-colors flex items-center gap-1.5">
+            <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+              upload
+            </span>
             Upload Revision
-          </Button>
+          </button>
         </div>
       </div>
-    </>
+
+      {/* Tabs */}
+      <div className="px-8 border-t border-slate-100 dark:border-slate-800 overflow-x-auto">
+        <div className="flex space-x-6 min-w-max">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className={cn(
+                "py-3 border-b-2 font-medium text-[11px] tracking-wider transition-colors",
+                activeTab === tab.id
+                  ? "border-[#1B3C53] text-[#1B3C53] dark:border-white dark:text-white"
+                  : "border-transparent text-slate-400 hover:text-[#1B3C53] dark:hover:text-white",
+              )}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </header>
   )
 }
+
+export type { TabId }

@@ -176,15 +176,11 @@ export default function SubmissionDetailPage() {
     <div className="bg-white dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
       <DashboardSidebar menuItems={authorMenuItems} />
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
-        <div className="flex-1 overflow-y-auto px-6 md:px-8 py-6 md:py-8 w-full">
-          <div className="max-w-7xl mx-auto">
-            <SubmissionDetailView
-              submission={submission}
-              conferenceId={conferenceId}
-              conferenceName={conferenceName}
-            />
-          </div>
-        </div>
+        <SubmissionDetailView
+          submission={submission}
+          conferenceId={conferenceId}
+          conferenceName={conferenceName}
+        />
       </main>
     </div>
   )

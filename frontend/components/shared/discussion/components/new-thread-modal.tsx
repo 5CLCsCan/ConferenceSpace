@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
+import { createPortal } from "react-dom"
 import type { NewThreadModalProps, MessageVisibility, ThreadCategory } from "../types"
 import { VISIBILITY_CONFIG, CATEGORY_CONFIG } from "../config"
 
@@ -40,13 +41,14 @@ export function NewThreadModal({
     }
   }
 
-  if (!isOpen) return null
+  // Don't render on server or when closed
+  if (!isOpen || typeof document === "undefined") return null
 
   const visibilities: MessageVisibility[] =
     availableVisibilities ||
     (reviewMode === "open" ? ["committee", "reviewers", "authors", "public"] : DEFAULT_VISIBILITIES)
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
@@ -185,6 +187,7 @@ export function NewThreadModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
