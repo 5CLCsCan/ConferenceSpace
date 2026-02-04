@@ -7,32 +7,18 @@ interface SubmissionProgressSidebarProps {
   onStepChange: (step: StepType) => void
 }
 
-const steps = [
-  {
-    id: "paper" as StepType,
-    label: "Paper Details",
-    description: "Title, abstract, keywords",
-  },
-  {
-    id: "authors" as StepType,
-    label: "Authors & Affiliations",
-    description: "Add co-authors",
-  },
-  {
-    id: "file" as StepType,
-    label: "Upload Manuscript",
-    description: "PDF and materials",
-  },
-  {
-    id: "coi" as StepType,
-    label: "Conflicts of Interest",
-    description: "Declare conflicts",
-  },
-  {
-    id: "review" as StepType,
-    label: "Review & Submit",
-    description: "Final check",
-  },
+interface SubmissionStep {
+  id: StepType
+  title: string
+  description: string
+}
+
+const SUBMISSION_STEPS: SubmissionStep[] = [
+  { id: "paper", title: "Paper Details", description: "Title, abstract, keywords" },
+  { id: "authors", title: "Authors & Affiliations", description: "Add co-authors" },
+  { id: "file", title: "Upload Manuscript", description: "PDF and materials" },
+  { id: "coi", title: "Conflicts of Interest", description: "Declare conflicts" },
+  { id: "review", title: "Review & Submit", description: "Final check" },
 ]
 
 export function SubmissionProgressSidebar({
@@ -40,71 +26,82 @@ export function SubmissionProgressSidebar({
   onStepChange,
 }: SubmissionProgressSidebarProps) {
   return (
-    <aside className="hidden lg:flex w-[280px] flex-col border-r border-[#ededed] dark:border-neutral-800 bg-white dark:bg-[#1e1e1e] h-full overflow-y-auto">
-      <div className="p-6">
-        {/* Logo in Sidebar */}
-        <div className="flex items-center gap-3 text-primary dark:text-white mb-10">
-          <div className="size-8 flex items-center justify-center bg-primary text-white rounded-lg">
-            <span className="material-symbols-outlined text-[20px]">description</span>
+    <aside className="hidden lg:flex w-[240px] flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-full overflow-y-auto z-10">
+      {/* Logo */}
+      <div className="px-5 pt-8 pb-8">
+        <div className="flex items-center gap-2.5">
+          <div className="bg-[#141414] text-white rounded-lg flex items-center justify-center shadow-lg shadow-slate-900/10 w-9 h-9">
+            <span className="material-symbols-outlined text-[20px]">school</span>
           </div>
-          <h2 className="text-primary dark:text-white text-lg font-bold leading-tight tracking-tight">
-            ConferenceSpace
-          </h2>
-        </div>
-
-        <div className="flex flex-col mb-8">
-          <h1 className="text-primary dark:text-white text-lg font-bold leading-normal">
-            Submission Progress
-          </h1>
-          <p className="text-neutral-500 text-sm font-normal">ID: #4921</p>
-        </div>
-
-        <div className="relative flex flex-col gap-1">
-          {steps.map((step, index) => (
-            <div
-              key={step.id}
-              className={`group flex items-start gap-4 p-3 rounded-xl cursor-pointer transition-all ${
-                currentStep === step.id
-                  ? "bg-primary/5 dark:bg-white/5 border border-transparent"
-                  : "hover:bg-neutral-50 dark:hover:bg-neutral-800/50 opacity-60 hover:opacity-100"
-              }`}
-              onClick={() => onStepChange(step.id)}
-            >
-              <div className="flex flex-col items-center gap-2 mt-1">
-                <span
-                  className={`material-symbols-outlined text-[20px] ${
-                    currentStep === step.id
-                      ? "text-primary dark:text-white icon-filled"
-                      : "text-neutral-400"
-                  }`}
-                >
-                  {currentStep === step.id ? "radio_button_checked" : "radio_button_unchecked"}
-                </span>
-                {index < steps.length - 1 && (
-                  <div className="w-px h-full bg-neutral-200 dark:bg-neutral-700 min-h-[24px]" />
-                )}
-              </div>
-              <div className={index < steps.length - 1 ? "pb-4" : ""}>
-                <p
-                  className={`text-sm leading-tight ${
-                    currentStep === step.id
-                      ? "text-primary dark:text-white font-bold"
-                      : "text-primary dark:text-white font-medium"
-                  }`}
-                >
-                  {step.label}
-                </p>
-                <p className="text-neutral-500 text-xs mt-1">{step.description}</p>
-              </div>
-            </div>
-          ))}
+          <div className="flex flex-col">
+            <h1 className="text-[16px] font-bold tracking-tight text-[#141414] dark:text-white">
+              ConferenceSpace
+            </h1>
+          </div>
         </div>
       </div>
 
-      <div className="mt-auto p-6 border-t border-[#ededed] dark:border-neutral-800">
-        <div className="flex items-center gap-3 text-neutral-500 text-xs">
-          <span className="material-symbols-outlined text-lg">help</span>
-          <span>Need help? View Guidelines</span>
+      {/* Wizard Header */}
+      <div className="px-4">
+        <div className="flex flex-col mb-6">
+          <h1 className="text-[#1B3C53] dark:text-white text-sm font-bold leading-[1.2] tracking-tight">
+            Submit New Paper
+          </h1>
+          <p className="text-slate-400 text-[10px] font-medium">
+            Complete all steps to submit your manuscript
+          </p>
+        </div>
+
+        {/* Steps */}
+        <div className="relative flex flex-col gap-0.5">
+          {SUBMISSION_STEPS.map((step, index) => {
+            const isActive = currentStep === step.id
+            const isLast = index === SUBMISSION_STEPS.length - 1
+
+            return (
+              <button
+                key={step.id}
+                type="button"
+                onClick={() => onStepChange(step.id)}
+                className={`group flex items-start gap-3 px-3 py-2.5 rounded-lg transition-all text-left ${
+                  isActive
+                    ? "bg-[#1B3C53]/5 dark:bg-white/5"
+                    : "hover:bg-slate-50 dark:hover:bg-slate-800/50 opacity-60 hover:opacity-100"
+                }`}
+              >
+                {/* Step indicator with connector line */}
+                <div className="flex flex-col items-center gap-1.5 mt-0.5">
+                  <span
+                    className={`material-symbols-outlined text-[16px] ${
+                      isActive ? "text-[#1B3C53] dark:text-white" : "text-slate-400"
+                    }`}
+                    style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                  >
+                    {isActive ? "radio_button_checked" : "radio_button_unchecked"}
+                  </span>
+                  {!isLast && (
+                    <div className="w-px h-full bg-slate-200 dark:bg-slate-700 min-h-[20px]" />
+                  )}
+                </div>
+
+                {/* Step content */}
+                <div className={isLast ? "" : "pb-3"}>
+                  <p
+                    className={`text-xs leading-tight tracking-tight ${
+                      isActive
+                        ? "font-bold text-[#1B3C53] dark:text-white"
+                        : "font-medium text-[#141414] dark:text-white"
+                    }`}
+                  >
+                    {step.title}
+                  </p>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 font-normal">
+                    {step.description}
+                  </p>
+                </div>
+              </button>
+            )
+          })}
         </div>
       </div>
     </aside>

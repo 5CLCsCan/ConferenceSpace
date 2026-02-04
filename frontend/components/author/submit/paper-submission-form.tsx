@@ -104,11 +104,12 @@ export function PaperSubmissionForm({
     "Human-Computer Interaction",
   ]
 
-  const availableTracks: string[] = Array.isArray(conference?.tracks) && conference.tracks.length > 0
-    ? conference.tracks
-        .map((t) => (typeof t === "string" ? t : (t as any).name || String(t)))
-        .filter((t): t is string => Boolean(t))
-    : defaultTracks
+  const availableTracks: string[] =
+    Array.isArray(conference?.tracks) && conference.tracks.length > 0
+      ? conference.tracks
+          .map((t) => (typeof t === "string" ? t : (t as any).name || String(t)))
+          .filter((t): t is string => Boolean(t))
+      : defaultTracks
 
   // Keyword handlers
   const handleAddKeyword = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -370,33 +371,26 @@ export function PaperSubmissionForm({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-white dark:bg-[#191919]">
+    <div className="font-[Inter] bg-[#f8fafc] dark:bg-[#191919] text-[#141414] dark:text-white flex flex-col h-screen overflow-hidden">
       <div className="flex flex-1 overflow-hidden relative">
         <SubmissionProgressSidebar currentStep={currentStep} onStepChange={setCurrentStep} />
 
-        <main className="flex-1 h-full overflow-y-auto bg-white dark:bg-black/20 scroll-smooth">
-          <div className="max-w-4xl mx-auto p-6 md:p-10">
+        <main className="flex-1 h-full overflow-y-auto bg-[#f8fafc] dark:bg-[#191919] scroll-smooth py-6 md:py-8 px-8 md:px-12">
+          <div className="w-full">
             {/* Page Header */}
-            <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={() => router.back()}
-                  className="flex items-center gap-2 text-sm font-medium text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 mb-1 transition-colors w-fit"
-                >
-                  <span className="material-symbols-outlined text-base">arrow_back</span>
-                  <span>Return</span>
-                </button>
-                <h1 className="text-primary dark:text-white text-3xl font-bold tracking-tight">
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-2">
+              <div className="flex flex-col gap-1">
+                <h1 className="text-[#141414] dark:text-white text-[32px] font-bold tracking-tight leading-[1.1]">
                   {stepHeaders[currentStep].title}
                 </h1>
-                <p className="text-neutral-500 dark:text-neutral-400">
+                <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 max-w-xl">
                   {stepHeaders[currentStep].description}
                 </p>
               </div>
-              <div className="flex items-center gap-2 bg-white dark:bg-[#1e1e1e] px-3 h-[30px] rounded-full border border-neutral-200 dark:border-neutral-700 shadow-sm">
-                <div className="size-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-xs font-medium text-neutral-600 dark:text-neutral-300 whitespace-nowrap">
-                  Draft auto-saved at 10:42 AM
+              <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div className="size-1.5 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                  Autosaving...
                 </span>
               </div>
             </div>
@@ -478,7 +472,7 @@ export function PaperSubmissionForm({
             )}
 
             {/* Spacer for bottom action bar */}
-            <div className="h-32" />
+            <div className="h-20" />
           </div>
         </main>
 
@@ -488,6 +482,7 @@ export function PaperSubmissionForm({
           onStepChange={setCurrentStep}
           onSaveDraft={handleSaveDraft}
           onSubmit={handleSubmit}
+          onCancel={() => router.back()}
         />
 
         {/* Success Dialog */}

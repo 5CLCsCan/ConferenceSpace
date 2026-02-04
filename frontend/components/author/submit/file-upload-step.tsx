@@ -116,16 +116,18 @@ export function FileUploadStep({
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 w-full">
       {/* Double-Blind Policy Alert */}
-      <div className="bg-blue-50 dark:bg-blue-900/10 border-l-4 border-primary p-4 rounded-r-lg">
+      <div className="bg-blue-50 dark:bg-blue-900/10 border-l-4 border-[#1B3C53] px-4 py-3 rounded-r-lg">
         <div className="flex gap-3">
-          <span className="material-symbols-outlined text-primary dark:text-blue-300">info</span>
+          <span className="material-symbols-outlined text-[#1B3C53] dark:text-blue-300 text-[18px]">
+            info
+          </span>
           <div>
-            <h3 className="text-sm font-bold text-primary dark:text-blue-200">
+            <h3 className="text-xs font-bold text-[#1B3C53] dark:text-blue-200">
               Double-Blind Review Policy
             </h3>
-            <p className="text-sm text-slate-600 dark:text-blue-300/80 mt-1">
+            <p className="text-[11px] text-slate-600 dark:text-blue-300/80 mt-0.5 leading-relaxed">
               This conference follows a double-blind review process. Your manuscript must not
               contain names, affiliations, or any other identifying information.
             </p>
@@ -134,14 +136,16 @@ export function FileUploadStep({
       </div>
 
       {/* Manuscript Upload */}
-      <div className="bg-white dark:bg-[#1e1e1e] rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm p-6">
-        <div className="flex justify-between items-center mb-4">
-          <label className="text-primary dark:text-white text-sm font-bold uppercase tracking-wider">
-            Manuscript PDF <span className="text-red-500">*</span>
-          </label>
-          <span className="text-xs text-neutral-500 bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded">
-            Max size: 20MB
-          </span>
+      <div className="px-4 pt-4 pb-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="border-b border-slate-100 dark:border-slate-700 pb-3 mb-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
+              Manuscript PDF
+            </h3>
+            <span className="text-[9px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded uppercase tracking-wider">
+              Max: 20MB
+            </span>
+          </div>
         </div>
         <div className="relative group cursor-pointer">
           <input
@@ -151,25 +155,25 @@ export function FileUploadStep({
             onChange={handleFileChange}
             className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer"
           />
-          <div className="border-2 border-dashed border-neutral-300 dark:border-neutral-600 hover:border-primary dark:hover:border-blue-400 rounded-xl p-10 flex flex-col items-center justify-center text-center bg-neutral-50/50 dark:bg-neutral-900/20 group-hover:bg-blue-50/50 dark:group-hover:bg-blue-900/10 transition-all duration-300">
-            <div className="size-16 bg-white dark:bg-neutral-800 rounded-full shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 text-primary dark:text-blue-400">
-              <span className="material-symbols-outlined text-3xl">cloud_upload</span>
+          <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-[#1B3C53] dark:hover:border-slate-400 rounded-xl p-8 flex flex-col items-center justify-center text-center bg-slate-50/50 dark:bg-slate-900/20 group-hover:bg-[#1B3C53]/5 dark:group-hover:bg-slate-800/50 transition-all duration-300">
+            <div className="size-14 bg-white dark:bg-slate-700 rounded-full shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 text-[#1B3C53] dark:text-slate-300">
+              <span className="material-symbols-outlined text-[28px]">cloud_upload</span>
             </div>
             {uploadedFile ? (
               <div>
-                <p className="text-lg font-bold text-primary dark:text-white">
+                <p className="text-sm font-bold text-[#1B3C53] dark:text-white">
                   {uploadedFile.name}
                 </p>
-                <p className="text-sm text-neutral-500 mt-1">
+                <p className="text-[11px] text-slate-500 mt-1">
                   {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB - Click to replace
                 </p>
               </div>
             ) : existingFile ? (
               <div>
-                <p className="text-lg font-bold text-primary dark:text-white">
+                <p className="text-sm font-bold text-[#1B3C53] dark:text-white">
                   {existingFile.name}
                 </p>
-                <p className="text-sm text-neutral-500 mt-1">
+                <p className="text-[11px] text-slate-500 mt-1">
                   {(existingFile.size / 1024 / 1024).toFixed(2)} MB - Existing file
                 </p>
                 <button
@@ -179,18 +183,18 @@ export function FileUploadStep({
                     handleDownloadExisting()
                   }}
                   disabled={isDownloading}
-                  className="mt-2 text-xs font-medium text-primary hover:underline flex items-center gap-1 mx-auto"
+                  className="mt-2 text-[10px] font-medium text-[#1B3C53] hover:underline flex items-center gap-1 mx-auto uppercase tracking-wider"
                 >
-                  <span className="material-symbols-outlined text-sm">download</span>
+                  <span className="material-symbols-outlined text-[14px]">download</span>
                   {isDownloading ? "Downloading..." : "Download existing"}
                 </button>
               </div>
             ) : (
               <>
-                <p className="text-lg font-bold text-primary dark:text-white group-hover:text-primary dark:group-hover:text-blue-400 transition-colors">
+                <p className="text-sm font-bold text-[#141414] dark:text-white group-hover:text-[#1B3C53] dark:group-hover:text-slate-300 transition-colors">
                   Click to upload or drag and drop
                 </p>
-                <p className="text-sm text-neutral-500 mt-2">Only PDF files are allowed</p>
+                <p className="text-[11px] text-slate-500 mt-1">Only PDF files are allowed</p>
               </>
             )}
           </div>
@@ -198,9 +202,11 @@ export function FileUploadStep({
 
         {/* Precheck Loading */}
         {isPrechecking && (
-          <div className="mt-4 flex items-center justify-center gap-2 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <span className="material-symbols-outlined animate-spin text-primary">sync</span>
-            <span className="text-sm font-medium text-primary">
+          <div className="mt-4 flex items-center justify-center gap-2 p-3 bg-[#1B3C53]/5 dark:bg-slate-700/50 rounded-lg">
+            <span className="material-symbols-outlined animate-spin text-[#1B3C53] text-[16px]">
+              sync
+            </span>
+            <span className="text-xs font-medium text-[#1B3C53] dark:text-slate-300">
               Running quality check on your paper...
             </span>
           </div>
@@ -208,55 +214,57 @@ export function FileUploadStep({
 
         {/* Precheck Error */}
         {precheckError && (
-          <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <p className="text-sm text-red-700 dark:text-red-300">{precheckError}</p>
+          <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <p className="text-xs text-red-700 dark:text-red-300">{precheckError}</p>
           </div>
         )}
 
         {/* Uploaded File Preview */}
         {uploadedFile && !isPrechecking && (
-          <div className="mt-6 flex flex-col gap-3">
-            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 flex items-center gap-4 shadow-sm relative overflow-hidden group">
+          <div className="mt-4 flex flex-col gap-3">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 flex items-center gap-3 shadow-sm relative overflow-hidden group">
               <div
                 className="absolute bottom-0 left-0 h-1 bg-green-500 transition-all duration-1000"
                 style={{ width: `${uploadProgress}%` }}
               />
-              <div className="size-10 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg flex items-center justify-center shrink-0">
-                <span className="material-symbols-outlined icon-filled">picture_as_pdf</span>
+              <div className="size-9 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg flex items-center justify-center shrink-0">
+                <span className="material-symbols-outlined icon-filled text-[20px]">
+                  picture_as_pdf
+                </span>
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-center mb-1">
-                  <p className="text-sm font-bold text-primary dark:text-white truncate">
+                <div className="flex justify-between items-center mb-0.5">
+                  <p className="text-xs font-bold text-[#141414] dark:text-white truncate">
                     {uploadedFile.name}
                   </p>
-                  <span className="text-xs font-medium text-green-600 flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[16px] icon-filled">
+                  <span className="text-[10px] font-bold text-green-600 flex items-center gap-1 uppercase tracking-wide">
+                    <span className="material-symbols-outlined text-[14px] icon-filled">
                       check_circle
                     </span>
                     Ready
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-neutral-500">
+                <div className="flex items-center gap-2 text-[10px] text-slate-500">
                   <span>{(uploadedFile.size / 1024 / 1024).toFixed(1)} MB</span>
                   <span>-</span>
                   <span>Uploaded just now</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <button
-                  className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg text-neutral-400 hover:text-primary dark:hover:text-white transition-colors"
+                  className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors"
                   title="Preview"
                   type="button"
                 >
-                  <span className="material-symbols-outlined">visibility</span>
+                  <span className="material-symbols-outlined text-[18px]">visibility</span>
                 </button>
                 <button
                   onClick={onRemoveFile}
-                  className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg text-neutral-400 hover:text-red-600 transition-colors"
+                  className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg text-slate-400 hover:text-red-600 transition-colors"
                   title="Delete"
                   type="button"
                 >
-                  <span className="material-symbols-outlined">delete</span>
+                  <span className="material-symbols-outlined text-[18px]">delete</span>
                 </button>
               </div>
             </div>
@@ -265,13 +273,13 @@ export function FileUploadStep({
 
         {/* Precheck Results */}
         {precheckResult && (
-          <div className="mt-6 p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="text-sm font-bold text-primary dark:text-white">
+          <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-xs font-bold text-[#1B3C53] dark:text-white uppercase tracking-wider">
                 Quality Check Results
               </h4>
               <span
-                className={`text-xs font-bold px-2 py-1 rounded ${
+                className={`text-[9px] font-bold px-2 py-1 rounded uppercase tracking-wide ${
                   precheckResult.decision === "accept"
                     ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
                     : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
@@ -280,11 +288,11 @@ export function FileUploadStep({
                 Score: {precheckResult.overall_score}%
               </span>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {precheckResult.detailed_results?.slice(0, 5).map((item) => (
-                <div key={item.item_id} className="flex items-center gap-2 text-sm">
+                <div key={item.item_id} className="flex items-center gap-2 text-xs">
                   <span
-                    className={`material-symbols-outlined text-lg ${
+                    className={`material-symbols-outlined text-[16px] ${
                       item.status === "pass"
                         ? "text-green-500"
                         : item.status === "warning"
@@ -298,7 +306,7 @@ export function FileUploadStep({
                         ? "warning"
                         : "cancel"}
                   </span>
-                  <span className="text-neutral-700 dark:text-neutral-300">{item.description}</span>
+                  <span className="text-slate-700 dark:text-slate-300">{item.description}</span>
                 </div>
               ))}
             </div>
@@ -307,24 +315,28 @@ export function FileUploadStep({
       </div>
 
       {/* Supplementary Material */}
-      <div className="bg-white dark:bg-[#1e1e1e] rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm p-6">
-        <div className="flex justify-between items-center mb-4">
-          <label className="text-primary dark:text-white text-sm font-bold uppercase tracking-wider">
-            Supplementary Material{" "}
-            <span className="text-neutral-400 font-normal normal-case">(Optional)</span>
-          </label>
-          <span className="text-xs text-neutral-500">ZIP, Code, or Data</span>
+      <div className="px-4 pt-4 pb-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="border-b border-slate-100 dark:border-slate-700 pb-3 mb-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
+              Supplementary Material{" "}
+              <span className="text-slate-400 font-normal text-xs">(Optional)</span>
+            </h3>
+            <span className="text-[9px] font-medium text-slate-500 uppercase tracking-wider">
+              ZIP, Code, Data
+            </span>
+          </div>
         </div>
         <div className="flex items-center gap-4">
           <button
             type="button"
-            className="flex-1 border border-dashed border-neutral-300 dark:border-neutral-700 hover:border-primary dark:hover:border-blue-400 rounded-lg h-24 flex flex-col items-center justify-center gap-2 bg-neutral-50/50 dark:bg-neutral-900/20 hover:bg-blue-50/30 transition-all text-neutral-500 hover:text-primary dark:hover:text-blue-400"
+            className="flex-1 border border-dashed border-slate-300 dark:border-slate-600 hover:border-[#1B3C53] dark:hover:border-slate-400 rounded-lg h-20 flex flex-col items-center justify-center gap-1.5 bg-slate-50/50 dark:bg-slate-900/20 hover:bg-[#1B3C53]/5 transition-all text-slate-500 hover:text-[#1B3C53] dark:hover:text-slate-300"
           >
-            <span className="material-symbols-outlined">upload_file</span>
-            <span className="text-sm font-medium">Add supplementary files</span>
+            <span className="material-symbols-outlined text-[20px]">upload_file</span>
+            <span className="text-[11px] font-medium">Add supplementary files</span>
           </button>
         </div>
-        <p className="text-xs text-neutral-500 mt-3">
+        <p className="text-[10px] text-slate-400 mt-3 font-light">
           Upload source code, datasets, or additional proofs that support your submission.
         </p>
       </div>
@@ -332,27 +344,25 @@ export function FileUploadStep({
       {/* Validation Status */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {fileValidation.format && (
-          <div className="bg-green-50 dark:bg-green-900/10 rounded-lg p-4 border border-green-100 dark:border-green-900/20 flex items-start gap-3">
-            <span className="material-symbols-outlined text-green-600 mt-0.5 text-lg">
-              verified
-            </span>
+          <div className="bg-green-50 dark:bg-green-900/10 rounded-lg px-4 py-3 border border-green-100 dark:border-green-900/20 flex items-start gap-3">
+            <span className="material-symbols-outlined text-green-600 text-[16px]">verified</span>
             <div>
-              <p className="text-sm font-bold text-green-800 dark:text-green-300">
+              <p className="text-xs font-bold text-green-800 dark:text-green-300">
                 Format Validated
               </p>
-              <p className="text-xs text-green-700/70 dark:text-green-400/70">
+              <p className="text-[10px] text-green-700/70 dark:text-green-400/70 font-light">
                 The uploaded PDF meets the conference formatting guidelines.
               </p>
             </div>
           </div>
         )}
-        <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-4 border border-neutral-100 dark:border-neutral-700 flex items-start gap-3">
-          <span className="material-symbols-outlined text-neutral-400 mt-0.5 text-lg">
+        <div className="bg-slate-50 dark:bg-slate-800 rounded-lg px-4 py-3 border border-slate-100 dark:border-slate-700 flex items-start gap-3">
+          <span className="material-symbols-outlined text-slate-400 text-[16px]">
             font_download
           </span>
           <div>
-            <p className="text-sm font-bold text-neutral-700 dark:text-neutral-300">Font Check</p>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Font Check</p>
+            <p className="text-[10px] text-slate-500 font-light">
               Fonts will be analyzed upon final submission.
             </p>
           </div>

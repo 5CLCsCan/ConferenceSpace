@@ -108,99 +108,99 @@ export function AuthorsStep({
   }, [])
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 w-full">
       {/* Author List Card */}
-      <div className="bg-white dark:bg-[#1e1e1e] rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-neutral-100 dark:border-neutral-800 flex justify-between items-center bg-neutral-50/50 dark:bg-neutral-800/30">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-primary dark:text-white">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
+          <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
             Author List ({authors.length})
           </h3>
-          <button className="text-xs font-medium text-primary dark:text-blue-400 hover:underline flex items-center gap-1">
-            <span className="material-symbols-outlined text-[16px]">info</span>
+          <button className="text-[10px] font-medium text-[#1B3C53] dark:text-slate-400 hover:underline flex items-center gap-1 uppercase tracking-wider">
+            <span className="material-symbols-outlined text-[14px]">info</span>
             Naming Guidelines
           </button>
         </div>
-        <div className="flex flex-col divide-y divide-neutral-100 dark:divide-neutral-800">
+        <div className="flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
           {authors.map((author, index) => (
             <div
               key={author.id}
-              className="group flex flex-col md:flex-row items-start md:items-center p-4 gap-4 bg-white dark:bg-[#1e1e1e] hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors"
+              className="group flex flex-col md:flex-row items-start md:items-center px-4 py-3 gap-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
             >
               <div
                 className={`hidden md:flex items-center justify-center ${
                   index === 0
-                    ? "text-neutral-300 cursor-not-allowed"
-                    : "text-neutral-400 hover:text-primary cursor-grab active:cursor-grabbing"
+                    ? "text-slate-300 cursor-not-allowed"
+                    : "text-slate-400 hover:text-[#1B3C53] cursor-grab active:cursor-grabbing"
                 }`}
                 title={index === 0 ? "Cannot reorder primary author" : "Drag to reorder"}
               >
-                <span className="material-symbols-outlined">drag_indicator</span>
+                <span className="material-symbols-outlined text-[18px]">drag_indicator</span>
               </div>
               <div className="flex-none">
                 <div
-                  className={`size-12 rounded-full ${
-                    index === 0 ? "bg-primary" : "bg-amber-600"
-                  } text-white flex items-center justify-center text-sm font-bold border-2 border-white dark:border-neutral-700 shadow-sm`}
+                  className={`size-10 rounded-full ${
+                    index === 0 ? "bg-[#1B3C53]" : "bg-amber-600"
+                  } text-white flex items-center justify-center text-xs font-bold border-2 border-white dark:border-slate-600 shadow-sm`}
                 >
                   {author.firstName[0]}
                   {author.lastName[0]}
                 </div>
               </div>
-              <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h4 className="font-bold text-primary dark:text-white truncate">
+                    <h4 className="text-xs font-bold text-[#141414] dark:text-white truncate">
                       {author.firstName} {author.lastName}
                     </h4>
                     {index === 0 && (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800 uppercase">
+                      <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 uppercase tracking-wide">
                         You
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-neutral-500 truncate">{author.email}</p>
+                  <p className="text-[11px] text-slate-500 truncate">{author.email}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-primary dark:text-white truncate">
+                  <p className="text-[11px] font-medium text-[#141414] dark:text-white truncate">
                     {author.affiliation}
                   </p>
-                  <p className="text-xs text-neutral-500 truncate">{author.country}</p>
+                  <p className="text-[10px] text-slate-400 truncate">{author.country}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 w-full md:w-auto mt-2 md:mt-0 justify-between md:justify-end">
-                <label className="flex items-center gap-2 cursor-pointer select-none">
+              <div className="flex items-center gap-2 w-full md:w-auto mt-2 md:mt-0 justify-between md:justify-end">
+                <label className="flex items-center gap-1.5 cursor-pointer select-none">
                   <div className="relative flex items-center">
                     <input
                       type="checkbox"
                       checked={author.isCorresponding}
                       onChange={() => onToggleCorresponding(author.id)}
                       disabled={index === 0}
-                      className={`peer appearance-none size-4 rounded border border-neutral-300 bg-white checked:bg-primary checked:border-primary transition-all ${
+                      className={`peer appearance-none size-4 rounded border border-slate-300 bg-white checked:bg-[#1B3C53] checked:border-[#1B3C53] transition-all ${
                         index === 0 ? "cursor-not-allowed opacity-60" : ""
                       }`}
                     />
                     <span className="absolute inset-0 flex items-center justify-center text-white opacity-0 peer-checked:opacity-100 pointer-events-none">
-                      <span className="material-symbols-outlined text-[14px] font-bold">check</span>
+                      <span className="material-symbols-outlined text-[12px] font-bold">check</span>
                     </span>
                   </div>
-                  <span className="text-xs font-medium text-neutral-600 dark:text-neutral-400">
+                  <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                     Correspondent
                   </span>
                 </label>
-                <div className="flex items-center border-l border-neutral-200 dark:border-neutral-700 pl-3 ml-1">
+                <div className="flex items-center border-l border-slate-200 dark:border-slate-600 pl-2 ml-1">
                   <button
-                    className="p-2 text-neutral-400 hover:text-primary dark:hover:text-white transition-colors rounded hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                    className="p-1.5 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors rounded hover:bg-slate-100 dark:hover:bg-slate-600"
                     title="Edit details"
                   >
-                    <span className="material-symbols-outlined text-[20px]">edit</span>
+                    <span className="material-symbols-outlined text-[16px]">edit</span>
                   </button>
                   {index > 0 && (
                     <button
                       onClick={() => onRemoveAuthor(author.id)}
-                      className="p-2 text-neutral-400 hover:text-red-600 transition-colors rounded hover:bg-red-50 dark:hover:bg-red-900/20"
+                      className="p-1.5 text-slate-400 hover:text-red-600 transition-colors rounded hover:bg-red-50 dark:hover:bg-red-900/20"
                       title="Remove author"
                     >
-                      <span className="material-symbols-outlined text-[20px]">delete</span>
+                      <span className="material-symbols-outlined text-[16px]">delete</span>
                     </button>
                   )}
                 </div>
@@ -211,40 +211,42 @@ export function AuthorsStep({
       </div>
 
       {/* Add Co-Author Form */}
-      <div className="p-6 bg-neutral-50 dark:bg-[#1e1e1e] rounded-xl border border-dashed border-neutral-300 dark:border-neutral-700">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-primary dark:text-white mb-4">
-          Add Co-Author
-        </h3>
+      <div className="px-4 pt-4 pb-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-300 dark:border-slate-600">
+        <div className="border-b border-slate-200 dark:border-slate-700 pb-3 mb-4">
+          <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
+            Add Co-Author
+          </h3>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">
-              First Name <span className="text-red-500">*</span>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
+              First Name <span className="text-red-500 ml-0.5">*</span>
             </span>
             <input
               type="text"
               value={newAuthor.firstName}
               onChange={(e) => onNewAuthorChange({ ...newAuthor, firstName: e.target.value })}
               placeholder="e.g. John"
-              className="w-full h-10 px-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              className="w-full h-10 text-xs font-normal py-2 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all"
             />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">
-              Last Name <span className="text-red-500">*</span>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
+              Last Name <span className="text-red-500 ml-0.5">*</span>
             </span>
             <input
               type="text"
               value={newAuthor.lastName}
               onChange={(e) => onNewAuthorChange({ ...newAuthor, lastName: e.target.value })}
               placeholder="e.g. Doe"
-              className="w-full h-10 px-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              className="w-full h-10 text-xs font-normal py-2 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all"
             />
-          </label>
+          </div>
 
           {/* Email with User Search */}
           <div className="flex flex-col gap-1.5 md:col-span-2 relative" ref={dropdownRef}>
-            <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">
-              Email Address <span className="text-red-500">*</span>
+            <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
+              Email Address <span className="text-red-500 ml-0.5">*</span>
             </span>
             <input
               type="email"
@@ -256,18 +258,18 @@ export function AuthorsStep({
                 }
               }}
               placeholder="e.g. john.doe@university.edu - Start typing to search existing users"
-              className="w-full h-10 px-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              className="w-full h-10 text-xs font-normal py-2 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all"
             />
 
             {/* User Search Dropdown */}
             {showDropdown && (isSearching || searchResults.length > 0) && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-lg max-h-[200px] overflow-y-auto z-50">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-[200px] overflow-y-auto z-50">
                 {isSearching ? (
-                  <div className="flex items-center justify-center p-4 gap-2">
-                    <span className="material-symbols-outlined animate-spin text-primary text-sm">
+                  <div className="flex items-center justify-center p-3 gap-2">
+                    <span className="material-symbols-outlined animate-spin text-[#1B3C53] text-[14px]">
                       sync
                     </span>
-                    <span className="text-sm text-neutral-500">Searching...</span>
+                    <span className="text-xs text-slate-500">Searching...</span>
                   </div>
                 ) : searchResults.length > 0 ? (
                   <div className="p-1">
@@ -276,23 +278,23 @@ export function AuthorsStep({
                         key={user.id}
                         type="button"
                         onClick={() => handleSelectUser(user)}
-                        className="w-full flex items-center gap-3 px-3 py-2 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-left"
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-left"
                       >
-                        <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                        <div className="size-7 rounded-full bg-[#1B3C53]/10 flex items-center justify-center text-[#1B3C53] font-bold text-[10px]">
                           {user.first_name?.[0] || user.email[0].toUpperCase()}
                           {user.last_name?.[0] || ""}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-primary dark:text-white truncate">
+                          <p className="text-xs font-medium text-[#141414] dark:text-white truncate">
                             {user.email}
                           </p>
                           {(user.first_name || user.last_name) && (
-                            <p className="text-xs text-neutral-500 truncate">
+                            <p className="text-[10px] text-slate-500 truncate">
                               {`${user.first_name || ""} ${user.last_name || ""}`.trim()}
                             </p>
                           )}
                         </div>
-                        <span className="material-symbols-outlined text-neutral-400 text-lg">
+                        <span className="material-symbols-outlined text-slate-400 text-[16px]">
                           person_add
                         </span>
                       </button>
@@ -303,27 +305,27 @@ export function AuthorsStep({
             )}
           </div>
 
-          <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">
-              Affiliation / Institution <span className="text-red-500">*</span>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
+              Affiliation <span className="text-red-500 ml-0.5">*</span>
             </span>
             <input
               type="text"
               value={newAuthor.affiliation}
               onChange={(e) => onNewAuthorChange({ ...newAuthor, affiliation: e.target.value })}
               placeholder="e.g. Stanford University"
-              className="w-full h-10 px-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              className="w-full h-10 text-xs font-normal py-2 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all"
             />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">
-              Country / Region <span className="text-red-500">*</span>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
+              Country <span className="text-red-500 ml-0.5">*</span>
             </span>
             <div className="relative">
               <select
                 value={newAuthor.country}
                 onChange={(e) => onNewAuthorChange({ ...newAuthor, country: e.target.value })}
-                className="w-full h-10 pl-3 pr-8 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-sm focus:ring-2 focus:ring-primary focus:border-primary appearance-none cursor-pointer"
+                className="w-full h-10 text-xs font-normal py-2 pl-3.5 pr-8 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] appearance-none cursor-pointer transition-all"
               >
                 <option value="">Select country...</option>
                 <option value="United States">United States</option>
@@ -339,11 +341,11 @@ export function AuthorsStep({
                 <option value="South Korea">South Korea</option>
                 <option value="India">India</option>
               </select>
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500">
-                <span className="material-symbols-outlined text-[18px]">expand_more</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                <span className="material-symbols-outlined text-[16px]">expand_more</span>
               </span>
             </div>
-          </label>
+          </div>
         </div>
         <div className="flex items-center justify-end gap-3 pt-2">
           <button
@@ -357,16 +359,16 @@ export function AuthorsStep({
                 country: "",
               })
             }
-            className="px-4 py-2 rounded-lg text-sm font-medium text-neutral-600 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-800 transition-colors"
+            className="h-8 px-3 rounded-full text-[10px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors uppercase tracking-wider"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={onAddAuthor}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold bg-primary hover:bg-primary-hover text-white shadow-md shadow-primary/20 transition-all"
+            className="flex items-center gap-1.5 h-9 px-4 rounded-md text-[10px] font-medium bg-[#1B3C53] hover:bg-[#234C6A] text-white shadow-md transition-all uppercase tracking-wider"
           >
-            <span className="material-symbols-outlined text-[18px]">person_add</span>
+            <span className="material-symbols-outlined text-[16px]">person_add</span>
             Add Author
           </button>
         </div>
