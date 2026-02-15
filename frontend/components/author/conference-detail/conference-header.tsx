@@ -41,7 +41,25 @@ export function ConferenceHeader({
         <div>
           {/* Breadcrumb */}
           <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mb-1">
-            <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+            <span
+              className="material-symbols-outlined"
+              style={{
+                fontSize: "17.5px",
+                width: "17.5px",
+                height: "17.5px",
+                maxWidth: "17.5px",
+                maxHeight: "17.5px",
+                minWidth: "17.5px",
+                minHeight: "17.5px",
+                lineHeight: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+                transform: "none",
+                boxSizing: "border-box",
+              }}
+            >
               folder_open
             </span>
             <span>Conferences</span>
@@ -102,7 +120,25 @@ export function ConferenceHeader({
             }}
             className="h-8 px-3 bg-[#1B3C53] text-white font-medium text-[11px] rounded-md hover:bg-[#234C6A] transition-colors flex items-center gap-1.5"
           >
-            <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+            <span
+              className="material-symbols-outlined"
+              style={{
+                fontSize: "17.5px",
+                width: "17.5px",
+                height: "17.5px",
+                maxWidth: "17.5px",
+                maxHeight: "17.5px",
+                minWidth: "17.5px",
+                minHeight: "17.5px",
+                lineHeight: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+                transform: "none",
+                boxSizing: "border-box",
+              }}
+            >
               {hasSubmission ? "description" : "add_circle"}
             </span>
             {hasSubmission ? "View Submission" : "Submit Paper"}
@@ -124,7 +160,25 @@ export function ConferenceHeader({
                   : "border-transparent text-slate-400 hover:text-[#1B3C53] dark:hover:text-white",
               )}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+              <span
+                className="material-symbols-outlined"
+                style={{
+                  fontSize: "17.5px",
+                  width: "17.5px",
+                  height: "17.5px",
+                  maxWidth: "17.5px",
+                  maxHeight: "17.5px",
+                  minWidth: "17.5px",
+                  minHeight: "17.5px",
+                  lineHeight: "1",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  transform: "none",
+                  boxSizing: "border-box",
+                }}
+              >
                 {tab.icon}
               </span>
               {tab.label}

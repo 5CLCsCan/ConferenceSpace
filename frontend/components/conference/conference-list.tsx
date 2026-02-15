@@ -106,7 +106,7 @@ export function ConferenceList({
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
       {/* Header Row */}
-      <div className="hidden lg:grid lg:grid-cols-[1fr_150px_90px_150px_minmax(120px,240px)_88px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
+      <div className="hidden lg:grid lg:grid-cols-[1fr_190px_130px_190px_minmax(120px,240px)_88px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
           Conference
         </div>
@@ -222,7 +222,7 @@ function ConferenceListRow({ conference, onNavigate }: ConferenceListRowProps) {
       }`}
     >
       {/* Desktop Layout */}
-      <div className="hidden lg:grid lg:grid-cols-[1fr_150px_90px_150px_minmax(120px,240px)_88px] items-center min-h-[60px]">
+      <div className="hidden lg:grid lg:grid-cols-[1fr_190px_130px_190px_minmax(120px,240px)_88px] items-center min-h-[60px]">
         {/* Conference (Acronym + Full Name) */}
         <div className="px-4 py-3">
           <h3

@@ -91,7 +91,7 @@ export function AuthorConferenceList({
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
       {/* Header Row */}
-      <div className="hidden lg:grid lg:grid-cols-[1fr_180px_140px_160px_minmax(120px,200px)_88px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
+      <div className="hidden lg:grid lg:grid-cols-[1fr_200px_190px_200px_minmax(120px,200px)_96px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
           Conference
         </div>
@@ -107,7 +107,7 @@ export function AuthorConferenceList({
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
           Deadline
         </div>
-        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">
+        <div className="px-4 py-3 pr-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">
           Actions
         </div>
       </div>
@@ -210,7 +210,7 @@ function AuthorConferenceListRow({ conference, onNavigate }: AuthorConferenceLis
       }`}
     >
       {/* Desktop Layout */}
-      <div className="hidden lg:grid lg:grid-cols-[1fr_180px_140px_160px_minmax(120px,200px)_88px] items-center min-h-[60px]">
+      <div className="hidden lg:grid lg:grid-cols-[1fr_200px_190px_200px_minmax(120px,200px)_96px] items-center min-h-[60px]">
         {/* Conference */}
         <div className="px-4 py-3">
           <h3
@@ -254,7 +254,7 @@ function AuthorConferenceListRow({ conference, onNavigate }: AuthorConferenceLis
         </div>
 
         {/* Actions */}
-        <div className="px-2 py-3 flex justify-center">
+        <div className="px-2 py-3 pr-4 flex justify-center">
           <button
             onClick={(e) => e.stopPropagation()}
             className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all"

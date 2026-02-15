@@ -267,7 +267,7 @@ export function AuthorSubmissionsList() {
       {/* Submissions Table Container */}
       <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
         {/* Desktop Grid Header - Expanded columns */}
-        <div className="hidden lg:grid lg:grid-cols-[50px_1fr_240px_110px_120px_44px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
+        <div className="hidden lg:grid lg:grid-cols-[50px_1fr_240px_110px_160px_44px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
           <div className="px-3 py-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
             #
           </div>
@@ -293,7 +293,7 @@ export function AuthorSubmissionsList() {
             Array.from({ length: 5 }).map((_, i) => (
               <div
                 key={i}
-                className="lg:grid lg:grid-cols-[50px_1fr_240px_110px_120px_44px] animate-pulse"
+                className="lg:grid lg:grid-cols-[50px_1fr_240px_110px_160px_44px] animate-pulse"
               >
                 <div className="px-3 py-4">
                   <div className="h-4 w-6 bg-slate-100 dark:bg-slate-700 rounded" />
@@ -485,7 +485,7 @@ function SubmissionRow({ submission, onClick }: SubmissionRowProps) {
       )}
     >
       {/* Desktop Layout - Expanded */}
-      <div className="hidden lg:grid lg:grid-cols-[50px_1fr_240px_110px_120px_44px] items-start min-h-[72px]">
+      <div className="hidden lg:grid lg:grid-cols-[50px_1fr_240px_110px_160px_44px] items-start min-h-[72px]">
         {/* ID */}
         <div className="px-3 py-3.5">
           <span className="text-[11px] font-mono font-medium text-slate-400 dark:text-slate-500">

@@ -282,7 +282,7 @@ export function ExploreConferenceList({
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
       {/* Header Row */}
-      <div className="hidden lg:grid lg:grid-cols-[1fr_180px_160px_160px_minmax(100px,180px)_80px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
+      <div className="hidden lg:grid lg:grid-cols-[1fr_200px_190px_210px_minmax(100px,180px)_96px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
           Conference
         </div>
@@ -298,7 +298,7 @@ export function ExploreConferenceList({
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
           Topics
         </div>
-        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">
+        <div className="px-4 py-3 pr-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">
           Actions
         </div>
       </div>
@@ -400,7 +400,7 @@ function ExploreListRow({
       className="group cursor-pointer transition-all duration-150 hover:bg-slate-50 dark:hover:bg-slate-700/50"
     >
       {/* Desktop Layout */}
-      <div className="hidden lg:grid lg:grid-cols-[1fr_180px_160px_160px_minmax(100px,180px)_80px] items-center min-h-[60px]">
+      <div className="hidden lg:grid lg:grid-cols-[1fr_200px_190px_210px_minmax(100px,180px)_96px] items-center min-h-[60px]">
         {/* Conference (Name + Full Description) */}
         <div className="px-4 py-3">
           <h3 className="text-[13px] font-bold leading-[1.3] tracking-tight text-[#1B3C53] dark:text-white group-hover:text-[#234C6A] dark:group-hover:text-slate-200 transition-colors line-clamp-1">
@@ -470,7 +470,7 @@ function ExploreListRow({
         </div>
 
         {/* Actions */}
-        <div className="px-2 py-3 flex justify-center">
+        <div className="px-2 py-3 pr-4 flex justify-center">
           <button
             onClick={(e) => e.stopPropagation()}
             className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all"
@@ -623,7 +623,7 @@ export function ArchivedConferenceList({
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
       {/* Header Row */}
-      <div className="hidden lg:grid lg:grid-cols-[1fr_200px_140px_80px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
+      <div className="hidden lg:grid lg:grid-cols-[1fr_200px_210px_96px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
           Conference
         </div>
@@ -633,7 +633,7 @@ export function ArchivedConferenceList({
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
           Dates
         </div>
-        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">
+        <div className="px-4 py-3 pr-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">
           Actions
         </div>
       </div>
@@ -735,13 +735,13 @@ function ArchivedListRow({
       className="group cursor-pointer transition-all duration-150 hover:bg-slate-50 dark:hover:bg-slate-700/50 opacity-80 hover:opacity-100"
     >
       {/* Desktop Layout */}
-      <div className="hidden lg:grid lg:grid-cols-[1fr_200px_140px_80px] items-center min-h-[56px]">
+      <div className="hidden lg:grid lg:grid-cols-[1fr_200px_210px_96px] items-center min-h-[56px]">
         {/* Conference (Name + Archived Badge) */}
         <div className="px-4 py-3 flex items-center gap-3">
           <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider bg-slate-100 text-slate-400 border border-slate-200 dark:bg-slate-700 dark:text-slate-500 dark:border-slate-600 shrink-0">
             <span
               className="material-symbols-outlined mr-0.5"
-              style={{ fontSize: "10px", width: "10px", height: "10px", lineHeight: "1" }}
+              style={{ fontSize: "12.5px", width: "12.5px", height: "12.5px", lineHeight: "1" }}
             >
               archive
             </span>
@@ -774,7 +774,7 @@ function ArchivedListRow({
         </div>
 
         {/* Actions */}
-        <div className="px-2 py-3 flex justify-center">
+        <div className="px-2 py-3 pr-4 flex justify-center">
           <button
             onClick={(e) => e.stopPropagation()}
             className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all"
@@ -795,7 +795,7 @@ function ArchivedListRow({
           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-700 dark:text-slate-400 dark:border-slate-600">
             <span
               className="material-symbols-outlined mr-1"
-              style={{ fontSize: "12px", width: "12px", height: "12px", lineHeight: "1" }}
+              style={{ fontSize: "15px", width: "15px", height: "15px", lineHeight: "1" }}
             >
               archive
             </span>

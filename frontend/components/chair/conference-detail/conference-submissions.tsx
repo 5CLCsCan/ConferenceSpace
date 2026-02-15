@@ -415,19 +415,19 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
               {filteredSubmissions.map((submission) => (
                 <tr
                   key={submission.id}
-                  className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
+                  onClick={() => handleSubmissionClick(submission.id)}
+                  className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group cursor-pointer"
                 >
                   <td className="px-3 py-3 font-mono text-[11px] text-slate-400">
                     {submission.id}
                   </td>
                   <td className="px-3 py-3">
                     <div className="flex flex-col">
-                      <button
-                        onClick={() => handleSubmissionClick(submission.id)}
-                        className="text-[13px] font-semibold text-slate-900 dark:text-white hover:text-[#456882] transition-colors line-clamp-1 tracking-tight leading-[1.3] text-left"
+                      <span
+                        className="text-[13px] font-semibold text-slate-900 dark:text-white group-hover:text-[#456882] transition-colors line-clamp-1 tracking-tight leading-[1.3]"
                       >
                         {submission.title}
-                      </button>
+                      </span>
                       <span className="text-[10px] text-slate-500 mt-0.5 truncate max-w-[200px]">
                         {submission.authors}
                       </span>
@@ -445,7 +445,7 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
                   <td className="px-3 py-3 text-center">
                     <ScoreBadge score={submission.score} status={submission.status} />
                   </td>
-                  <td className="px-3 py-3 text-right">
+                  <td className="px-3 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                     <button className="p-1.5 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors">
                       <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
                         more_vert

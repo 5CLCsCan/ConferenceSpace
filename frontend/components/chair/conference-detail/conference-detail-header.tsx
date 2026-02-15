@@ -38,7 +38,25 @@ export function ConferenceDetailHeader({
         <div>
           {/* Breadcrumb */}
           <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mb-1">
-            <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+            <span
+              className="material-symbols-outlined"
+              style={{
+                fontSize: "17.5px",
+                width: "17.5px",
+                height: "17.5px",
+                maxWidth: "17.5px",
+                maxHeight: "17.5px",
+                minWidth: "17.5px",
+                minHeight: "17.5px",
+                lineHeight: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+                transform: "none",
+                boxSizing: "border-box",
+              }}
+            >
               folder_open
             </span>
             <span>Conferences</span>
@@ -81,7 +99,25 @@ export function ConferenceDetailHeader({
         {/* Actions */}
         <div className="flex items-center gap-2">
           <button className="h-8 px-3 bg-white border border-slate-200 text-slate-600 font-medium text-[11px] rounded-md hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center gap-1.5">
-            <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+            <span
+              className="material-symbols-outlined"
+              style={{
+                fontSize: "17.5px",
+                width: "17.5px",
+                height: "17.5px",
+                maxWidth: "17.5px",
+                maxHeight: "17.5px",
+                minWidth: "17.5px",
+                minHeight: "17.5px",
+                lineHeight: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+                transform: "none",
+                boxSizing: "border-box",
+              }}
+            >
               settings
             </span>
             Settings
@@ -103,7 +139,25 @@ export function ConferenceDetailHeader({
                   : "border-transparent text-slate-400 hover:text-[#1B3C53] dark:hover:text-white",
               )}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+              <span
+                className="material-symbols-outlined"
+                style={{
+                  fontSize: "17.5px",
+                  width: "17.5px",
+                  height: "17.5px",
+                  maxWidth: "17.5px",
+                  maxHeight: "17.5px",
+                  minWidth: "17.5px",
+                  minHeight: "17.5px",
+                  lineHeight: "1",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  transform: "none",
+                  boxSizing: "border-box",
+                }}
+              >
                 {tab.icon}
               </span>
               {tab.label}

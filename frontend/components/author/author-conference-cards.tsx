@@ -99,7 +99,22 @@ export function AuthorStatusBadge({ status }: StatusBadgeProps) {
       {config.icon && (
         <span
           className="material-symbols-outlined"
-          style={{ fontSize: "10px", width: "10px", height: "10px", lineHeight: "1" }}
+          style={{
+            fontSize: "12.5px",
+            width: "12.5px",
+            height: "12.5px",
+            maxWidth: "12.5px",
+            maxHeight: "12.5px",
+            minWidth: "12.5px",
+            minHeight: "12.5px",
+            lineHeight: "1",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            transform: "none",
+            boxSizing: "border-box",
+          }}
         >
           {config.icon}
         </span>
@@ -272,7 +287,22 @@ export function DeadlineSection({ deadline, label, isUrgent }: DeadlineSectionPr
       <div className="flex items-center gap-2">
         <span
           className={cn("material-symbols-outlined", isUrgent ? "text-orange-500" : "text-slate-400")}
-          style={{ fontSize: "14px", width: "14px", height: "14px", lineHeight: "1" }}
+          style={{
+            fontSize: "17.5px",
+            width: "17.5px",
+            height: "17.5px",
+            maxWidth: "17.5px",
+            maxHeight: "17.5px",
+            minWidth: "17.5px",
+            minHeight: "17.5px",
+            lineHeight: "1",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            transform: "none",
+            boxSizing: "border-box",
+          }}
         >
           schedule
         </span>
