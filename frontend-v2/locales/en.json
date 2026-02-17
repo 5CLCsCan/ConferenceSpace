@@ -1,0 +1,1802 @@
+{
+  "app": {
+    "name": "ConferenceAI",
+    "tagline": "Academic conference management platform",
+    "footer": "© 2025 ConferenceAI. All rights reserved."
+  },
+  "common": {
+    "actions": {
+      "signIn": "Sign in",
+      "signUp": "Register",
+      "logout": "Log out",
+      "startNow": "Get started",
+      "choose": "Select",
+      "continue": "Continue",
+      "previous": "Previous",
+      "next": "Next",
+      "nextStep": "Next Step",
+      "save": "Save",
+      "saveAsDraft": "Save as Draft",
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "create": "Create",
+      "update": "Update",
+      "view": "View",
+      "back": "Back",
+      "confirm": "Confirm",
+      "loading": "Loading...",
+      "creating": "Creating...",
+      "saving": "Saving...",
+      "submitting": "Submitting...",
+      "add": "Add",
+      "remove": "Remove",
+      "accept": "Accept",
+      "decline": "Decline",
+      "complete": "Complete",
+      "goBack": "Go back",
+      "retry": "Retry",
+      "search": "Search",
+      "filter": "Filter",
+      "close": "Close",
+      "download": "Download",
+      "viewDetail": "View Detail",
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "clear": "Clear"
+    },
+    "labels": {
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "domains": "Domains of expertise",
+      "title": "Title",
+      "abstract": "Abstract",
+      "keywords": "Keywords",
+      "authors": "Authors",
+      "file": "File",
+      "paper": "Paper",
+      "conference": "Conference",
+      "status": "Status",
+      "date": "Date",
+      "details": "Details",
+      "deadline": "Deadline",
+      "acronym": "Acronym",
+      "description": "Description",
+      "website": "Website",
+      "dates": "Dates",
+      "location": "Location",
+      "contact": "Contact",
+      "submissionsOpen": "Submissions Open",
+      "submissionDeadline": "Submission Deadline",
+      "reviewDeadline": "Review Deadline",
+      "authorNotification": "Author Notification",
+      "cameraReady": "Camera-Ready",
+      "topics": "Topics",
+      "tracks": "Tracks",
+      "anonymity": "Anonymity",
+      "fileFormats": "File Formats",
+      "callForPaper": "Call For Paper"
+    },
+    "messages": {
+      "languages": {
+        "english": "English",
+        "vietnamese": "Vietnamese"
+      },
+      "loading": "Loading...",
+      "error": "An error occurred",
+      "success": "Operation completed successfully",
+      "noData": "No data available",
+      "notFound": "Not found",
+      "noContent": "No content provided",
+      "noTopics": "No topics added",
+      "noTracks": "No tracks added"
+    },
+    "status": {
+      "pending": "Pending",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "active": "Active",
+      "inactive": "Inactive",
+      "submitted": "Submitted",
+      "bookmarked": "Bookmarked"
+    },
+    "conferenceStatus": {
+      "open": "Accepting Submissions",
+      "reviewing": "Submission Closed",
+      "completed": "Ended"
+    },
+    "pagination": {
+      "showing": "Showing {{from}} to {{to}} of {{total}} {{item}}",
+      "first": "First",
+      "previous": "Previous",
+      "next": "Next",
+      "last": "Last"
+    },
+    "footer": {
+      "help": "Help",
+      "privacy": "Privacy",
+      "contact": "Contact Support"
+    }
+  },
+  "home": {
+    "nav": {
+      "features": "Features",
+      "about": "About"
+    },
+    "hero": {
+      "badge": "Digitalises the entire conference workflow",
+      "title": "Coordinate academic conferences efficiently with AI",
+      "subtitle": "ConferenceAI helps organisers, authors, and reviewers collaborate on a single platform. Automate routine tasks, track progress, and make data-driven decisions in real time."
+    },
+    "metrics": {
+      "accessibility": "WCAG 2.1 compliant",
+      "adoption": "Trusted by 50+ conferences",
+      "precision": "95% AI recommendation accuracy"
+    },
+    "features": {
+      "title": "Complete toolkit for every role",
+      "subtitle": "From submissions and reviews to programme coordination and post-event analytics—every workflow is transparent, customisable, and AI-assisted.",
+      "cards": {
+        "submission": {
+          "title": "Smart paper intake",
+          "description": "Track each submission, auto-validate formatting, suggest relevant topics, and notify authors in seconds."
+        },
+        "review": {
+          "title": "Accurate reviewer assignment",
+          "description": "Recommend reviewers based on expertise, history, and conflicts of interest. Automated reminders keep timelines on track."
+        },
+        "analytics": {
+          "title": "Real-time insights",
+          "description": "Visual dashboards covering review progress, acceptance rates, session metrics, and engagement help organisers act quickly."
+        }
+      }
+    },
+    "stats": {
+      "papers": "Papers in progress",
+      "reviews": "Completed reviews",
+      "acceptance": "Average acceptance rate",
+      "accuracy": "AI suggestion accuracy"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Use your email and password to access your workspace",
+      "noAccount": "Need an account?",
+      "registrationComplete": "Registration complete",
+      "registrationDetails": "You can now sign in with the credentials you just created.",
+      "errors": {
+        "failed": "Sign-in failed"
+      },
+      "cta": "Sign in to continue"
+    },
+    "register": {
+      "title": "Create a new account",
+      "subtitle": "Provide your details to set up an account",
+      "haveAccount": "Already have an account?",
+      "suggestions": {
+        "title": "Popular topics in computer science",
+        "subtitle": "Pick any that represent your expertise",
+        "empty": "No matching topics. Try a different keyword."
+      },
+      "errors": {
+        "passwordMismatch": "Passwords do not match",
+        "passwordStrength": "Please satisfy all password requirements",
+        "domainsRequired": "Please add at least one domain of expertise",
+        "failed": "Registration failed"
+      },
+      "passwordHints": {
+        "title": "Password must include",
+        "show": "Show password",
+        "hide": "Hide password",
+        "rules": {
+          "length": "At least 8 characters",
+          "lower": "A lowercase letter",
+          "upper": "An uppercase letter",
+          "number": "A number",
+          "special": "A special character"
+        }
+      }
+    },
+    "messages": {
+      "invalidLogin": "Invalid login response from server",
+      "genericLogin": "Unable to log in",
+      "fallbackLogin": "An unexpected error occurred while signing in",
+      "genericRegister": "Unable to register",
+      "fallbackRegister": "An unexpected error occurred while registering"
+    }
+  },
+  "dashboard": {
+    "greeting": "Welcome, {name}!",
+    "selectRole": "Choose a role to continue",
+    "selectRoleDescription": "Access the following features based on the permissions associated with your profile.",
+    "noRoles": {
+      "title": "Your account has not been assigned any roles yet.",
+      "description": "Please contact the system administrator for assistance."
+    },
+    "conference": {
+      "details": {
+        "notFoundTitle": "Conference Not Found",
+        "notFound": "The conference you are looking for does not exist.",
+        "tabs": {
+          "dashboard": "Dashboard",
+          "overview": "Overview",
+          "callForPapers": "Call for Papers",
+          "dates": "Key Dates",
+          "committee": "Organising Committee",
+          "submissions": "Submissions",
+          "mySubmission": "My Submission",
+          "coiDemo": "COI Demo",
+          "settings": "Settings"
+        },
+        "currentRole": "Current role",
+        "switchRole": "Switch role (Dev mode)",
+        "loggedInAs": "Signed in as"
+      },
+      "committee": {
+        "chairInfo": {
+          "title": "Conference Chair",
+          "description": "Information about the conference chair",
+          "chair": "Chair",
+          "contact": "Primary Contact",
+          "viewProfile": "View profile"
+        },
+        "reviewers": {
+          "title": "Reviewers",
+          "description": "Manage conference reviewers",
+          "count": "reviewers",
+          "unknown": "Unknown reviewer"
+        },
+        "actions": {
+          "invite": "Invite Reviewer",
+          "sendInvite": "Send Invitation",
+          "viewProfile": "View profile",
+          "loadMore": "Load more"
+        },
+        "dialog": {
+          "inviteTitle": "Invite Reviewer",
+          "inviteDescription": "Search and select a user by email to invite as a reviewer to this conference.",
+          "inviteSuccessBannerTitle": "Invitations sent",
+          "inviteSuccessAutoClose": "This dialog will close automatically.",
+          "removeTitle": "Remove Reviewer",
+          "removeDescription": "Are you sure you want to remove this reviewer from the conference?",
+          "userId": "User ID",
+          "userIdHint": "Enter the numeric user ID of the reviewer",
+          "userEmail": "Email Address",
+          "userEmailHint": "Start typing to search for users by email address",
+          "userSelected": "User selected",
+          "noUserFound": "No user found with this email"
+        },
+        "status": {
+          "pending": "Pending",
+          "accepted": "Accepted",
+          "rejected": "Rejected"
+        },
+        "search": {
+          "placeholder": "Search by email or ID..."
+        },
+        "filter": {
+          "placeholder": "Filter by status",
+          "all": "All Reviewers",
+          "pending": "Pending",
+          "accepted": "Accepted",
+          "rejected": "Rejected"
+        },
+        "empty": {
+          "title": "No Reviewers Found",
+          "description": "No reviewers match your search criteria. Try adjusting your filters or invite new reviewers to this conference."
+        },
+        "errors": {
+          "loadFailed": "Failed to load committee data",
+          "invalidUserId": "Invalid User ID",
+          "userIdRequired": "User ID is required",
+          "inviteFailed": "Failed to send invitation",
+          "inviteIssues": "Some invitations could not be sent",
+          "inviteFix": "Review the messages below and try again.",
+          "inviteUnknown": "Unknown error",
+          "removeFailed": "Failed to remove reviewer"
+        },
+        "toast": {
+          "inviteSuccess": "Invitation Sent",
+          "inviteSuccessDescription": "The reviewer invitation has been sent successfully.",
+          "removeSuccess": "Reviewer Removed",
+          "removeSuccessDescription": "The reviewer has been removed from the conference."
+        }
+      },
+      "settings": {
+        "sections": {
+          "general": "General",
+          "dates": "Dates & Deadlines",
+          "cfp": "Call for Papers",
+          "coChairs": "Co-Chairs",
+          "tracksDomains": "Tracks & Domains",
+          "submission": "Submission Settings",
+          "advanced": "Advanced"
+        },
+        "general": {
+          "title": "General Information",
+          "description": "Basic information about your conference",
+          "conferenceName": "Conference Name",
+          "acronym": "Acronym",
+          "descriptionLabel": "Description",
+          "website": "Website URL",
+          "venue": "Venue / Location",
+          "placeholders": {
+            "name": "International Conference on...",
+            "acronym": "ICAI",
+            "description": "A brief description of your conference...",
+            "website": "https://conference.example.com",
+            "venue": "City, Country or Virtual"
+          }
+        },
+        "dates": {
+          "title": "Dates & Deadlines",
+          "description": "Set important dates for your conference",
+          "startDate": "Conference Start Date",
+          "endDate": "Conference End Date",
+          "abstractDeadline": "Abstract Submission Deadline",
+          "submissionDeadline": "Paper Submission Deadline",
+          "cameraReadyDeadline": "Camera-Ready Deadline"
+        },
+        "cfp": {
+          "title": "Call for Papers",
+          "description": "Customize your call for papers content",
+          "text": "Call for Papers Text",
+          "markdownHint": "Supports Markdown formatting",
+          "placeholder": "Enter the call for papers content..."
+        },
+        "coChairs": {
+          "title": "Co-Chairs",
+          "description": "Manage co-chairs for this conference",
+          "mainChair": "Main Chair",
+          "mainChairHint": "The main chair cannot be changed",
+          "addCoChair": "Add Co-Chair",
+          "currentCoChairs": "Current Co-Chairs",
+          "placeholder": "co-chair@example.com"
+        },
+        "tracksDomains": {
+          "title": "Tracks & Domains",
+          "description": "Manage conference tracks and research domains",
+          "tracks": "Tracks",
+          "domains": "Research Domains",
+          "trackPlaceholder": "e.g., Machine Learning",
+          "domainPlaceholder": "e.g., Artificial Intelligence"
+        },
+        "submission": {
+          "title": "Submission Settings",
+          "description": "Configure submission requirements and formats",
+          "reviewType": "Review Type",
+          "reviewTypeSingle": "Single-Blind",
+          "reviewTypeDouble": "Double-Blind",
+          "submissionFormat": "Submission Format",
+          "submissionFormatPlaceholder": "PDF, DOCX, etc.",
+          "maximumPages": "Maximum Pages",
+          "requireCompleteProfile": "Require Complete Author Profile",
+          "requireCompleteProfileHint": "Authors must complete their profile before submitting",
+          "allowWithdrawals": "Allow Paper Withdrawals",
+          "allowWithdrawalsHint": "Authors can withdraw their submissions"
+        },
+        "advanced": {
+          "title": "Advanced Settings",
+          "description": "Additional configuration options",
+          "status": "Conference Status",
+          "statusOpen": "Open",
+          "statusReviewing": "Reviewing",
+          "statusCompleted": "Completed",
+          "haveCOI": "Conflict of Interest (COI) Check",
+          "haveCOIHint": "Enable conflict of interest detection for reviewers"
+        },
+        "actions": {
+          "saveChanges": "Save changes",
+          "saving": "Saving...",
+          "cancel": "Cancel"
+        },
+        "messages": {
+          "saveSuccess": "Conference settings updated successfully",
+          "saveError": "Failed to update conference",
+          "statusUpdateWarning": "Settings saved but status update failed: {error}"
+        }
+      }
+    },
+    "header": {
+      "links": {
+        "author": {
+          "dashboard": "Dashboard",
+          "myPapers": "My submissions",
+          "newSubmission": "Submit a paper"
+        },
+        "reviewer": {
+          "assignments": "Assigned papers",
+          "completed": "Completed reviews"
+        },
+        "chair": {
+          "overview": "Dashboard",
+          "papers": "All papers",
+          "reviewers": "Reviewers"
+        }
+      },
+      "notifications": {
+        "title": "Notifications",
+        "seeAll": "View all notifications"
+      },
+      "profile": {
+        "switchRole": "Switch role",
+        "profile": "Profile",
+        "logout": "Log out"
+      }
+    },
+    "submissions": {
+      "pageTitle": "My Submissions",
+      "pageDescription": "View and manage all your submissions",
+      "loading": "Loading...",
+      "error": "Error",
+      "searchPlaceholder": "Search by title...",
+      "filterConference": "Filter by conference",
+      "filterStatus": "Filter by status",
+      "allConferences": "All conferences",
+      "allStatuses": "All statuses",
+      "title": "Title",
+      "conference": "Conference",
+      "submittedDate": "Submitted",
+      "noAbstract": "No abstract",
+      "empty": "You have no submissions yet",
+      "status": {
+        "label": "Status",
+        "draft": "Draft",
+        "published": "Published",
+        "reviewing": "Reviewing",
+        "accepted": "Accepted",
+        "rejected": "Rejected",
+        "submitted": "Submitted",
+        "underReview": "Under Review",
+        "revisionRequested": "Revision Requested",
+        "cameraReady": "Camera Ready"
+      }
+    },
+    "submission": {
+      "details": {
+        "title": "Submission Details",
+        "description": "Detailed information about the submission",
+        "author": "Author",
+        "submittedDate": "Submitted Date",
+        "lastUpdated": "Last Updated",
+        "link": "Link",
+        "domains": "Domains",
+        "additionalInfo": "Additional Information",
+        "keywords": "Keywords",
+        "coAuthors": "Co-authors",
+        "track": "Track",
+        "paperType": "Paper Type",
+        "notes": "Additional Notes",
+        "file": "Attached File",
+        "fileName": "File Name",
+        "fileSize": "File Size",
+        "fileType": "File Type",
+        "metadata": "Metadata",
+        "abstract": "Abstract",
+        "documentPreview": "Document Preview",
+        "previewNotAvailable": "Preview not available",
+        "downloadToView": "Please download to view the file",
+        "noFile": "No file attached",
+        "viewExternalLink": "View external link",
+        "coverLetterFile": "Cover Letter",
+        "coverLetterDescription": "Supporting document for your submission",
+        "noCoverLetter": "No cover letter attached",
+        "coverLetterOptional": "Cover letter is optional for this submission"
+      },
+      "tabs": {
+        "overview": "Overview",
+        "review": "Review",
+        "preview": "Preview",
+        "coi": "COI",
+        "coverLetter": "Cover Letter"
+      },
+      "coi": {
+        "description": "Conflicts of interest declared for this submission",
+        "notAvailable": "COI information not available"
+      },
+      "error": {
+        "title": "Error"
+      },
+      "notFound": {
+        "title": "Not Found",
+        "message": "Submission does not exist"
+      }
+    },
+    "roles": {
+      "assigned": "Assigned",
+      "author": {
+        "name": "Author",
+        "description": "Submit and monitor your papers",
+        "features": [
+          "Create new submissions",
+          "Track review progress in real time",
+          "Read reviewer feedback",
+          "Upload camera-ready versions"
+        ]
+      },
+      "chair": {
+        "name": "Conference Chair",
+        "description": "Coordinate the entire conference workflow",
+        "features": [
+          "Assign reviewers automatically",
+          "Monitor conference analytics",
+          "Manage submissions and decisions",
+          "Leverage AI recommendations"
+        ]
+      },
+      "pc_member": {
+        "name": "Programme Committee",
+        "description": "Collaborate with the programme board",
+        "features": [
+          "View delegated submissions",
+          "Recommend suitable reviewers",
+          "Discuss privately within the committee",
+          "Track conference-wide progress"
+        ]
+      },
+      "reviewer": {
+        "name": "Reviewer",
+        "description": "Evaluate and comment on assigned papers",
+        "todo": {
+          "status": {
+            "submitted": "Submitted",
+            "draft": "Draft"
+          },
+          "title": "To-Do List",
+          "description": "Tasks that require your immediate attention",
+          "deadline": "Deadline",
+          "daysLeft": "{{count}} days left",
+          "reviewNow": "Review Now",
+          "noAssignments": "No pending assignments"
+        },
+        "nav": {
+          "overview": "Overview",
+          "myConferences": "My Conferences",
+          "invitations": "Invitations",
+          "completedReviews": "Completed Reviews"
+        },
+        "stats": {
+          "totalConferences": "Total Conferences",
+          "activeReviewing": "Actively reviewing",
+          "completedReviews": "Completed Reviews",
+          "papersCompleted": "Papers completed",
+          "pendingReviews": "Pending Reviews",
+          "papersToDo": "Papers to do"
+        },
+        "conferences": {
+          "title": "My Conferences",
+          "description": "List of conferences you are reviewing for",
+          "search": {
+            "placeholder": "Search conferences by name, acronym, or domain...",
+            "noResults": "No conferences match your search criteria"
+          },
+          "table": {
+            "name": "Conference Name",
+            "role": "Role",
+            "progress": "Progress",
+            "deadline": "Review Deadline",
+            "status": "Status",
+            "actions": "Actions"
+          },
+          "status": {
+            "active": "Active",
+            "upcoming": "Upcoming",
+            "completed": "Completed",
+            "unknown": "Unknown"
+          },
+          "noConferences": "No conferences assigned yet"
+        },
+        "invitations": {
+          "title": "Review Invitations",
+          "description": "Manage your review invitations",
+          "empty": {
+            "title": "No Invitations",
+            "description": "You don't have any review invitations. When conference chairs invite you to review papers, they will appear here."
+          },
+          "invitedBy": "Invited by",
+          "papersToReview": "Papers to review",
+          "requestedAt": "Requested at",
+          "responseDeadline": "Response deadline",
+          "status": {
+            "pending": "Pending",
+            "accepted": "Accepted",
+            "rejected": "Rejected"
+          },
+          "filter": {
+            "placeholder": "Filter by status",
+            "all": "All Invitations",
+            "pending": "Pending",
+            "accepted": "Accepted",
+            "rejected": "Rejected"
+          },
+          "toast": {
+            "successTitle": "Response Sent",
+            "successDescription": "You have {{action}} the invitation.",
+            "errorTitle": "Response Failed",
+            "errorDescription": "An error occurred. Please try again."
+          }
+        },
+        "papers": {
+          "description": "{{count}} papers assigned to you in this conference.",
+          "search": {
+            "placeholder": "Search papers by title...",
+            "noResults": "No papers match your search criteria",
+            "noResultsDescription": "Try adjusting your search or filter to find what you're looking for."
+          },
+          "filter": {
+            "status": "Filter by status",
+            "all": "All Status"
+          },
+          "table": {
+            "title": "Paper Title",
+            "status": "Status",
+            "deadline": "Review Deadline"
+          },
+          "statusValues": {
+            "pending": "Pending",
+            "in_progress": "In Progress",
+            "completed": "Completed"
+          },
+          "empty": {
+            "title": "No Papers Assigned Yet",
+            "description": "You haven't been assigned any papers for this conference yet. Papers will appear here once the conference chair assigns them to you."
+          }
+        },
+        "completedReviews": {
+          "description": "View all your completed reviews and track your contribution history",
+          "totalCompleted": "Total Completed",
+          "allTime": "All time",
+          "conferences": "Conferences",
+          "uniqueConferences": "Unique conferences",
+          "thisMonth": "This Month",
+          "currentMonth": "Current month",
+          "filters": "Filters & Search",
+          "searchPlaceholder": "Search by title or keywords...",
+          "allConferences": "All Conferences",
+          "filterByDate": "Filter by date range",
+          "sortByDate": "Sort by Date",
+          "sortByTitle": "Sort by Title",
+          "noResults": "No reviews match your search criteria",
+          "noCompletedReviews": "You haven't completed any reviews yet",
+          "completed": "Completed",
+          "completedOn": "Completed on",
+          "version": "Version",
+          "viewReview": "View Review"
+        },
+        "review": {
+          "reviewing": "Reviewing",
+          "submittedOn": "Submitted on {{date}}",
+          "version": "Version {{version}}",
+          "downloadPDF": "Download PDF",
+          "loading": "Loading...",
+          "errors": {
+            "loadFailed": "Error loading dashboard data",
+            "paperNotFound": "Paper not found",
+            "conferenceIdRequired": "Conference ID is required",
+            "fetchPaperFailed": "Failed to fetch paper",
+            "unknownError": "An error occurred",
+            "noData": "No data available"
+          },
+          "loadingPaper": "Loading paper...",
+          "tabs": {
+            "review": "Review",
+            "discussion": "Discussion",
+            "rebuttal": "Rebuttal"
+          },
+          "ai": {
+            "getAssistance": "Get AI-Powered Review Assistance",
+            "title": "AI Analysis & Suggestions",
+            "description": "AI-generated insights to help you write a comprehensive review",
+            "keyStrengths": "Key Strengths",
+            "areasForImprovement": "Areas for Improvement",
+            "suggestedQuestions": "Suggested Questions for Authors",
+            "strengths": {
+              "strength1": "Novel approach to transformer architecture optimization",
+              "strength2": "Comprehensive experimental evaluation across multiple datasets",
+              "strength3": "Clear presentation of methodology and results"
+            },
+            "weaknesses": {
+              "weakness1": "Limited discussion of computational overhead in real-world scenarios",
+              "weakness2": "Comparison with recent baseline methods could be more thorough",
+              "weakness3": "Scalability concerns for larger models not fully addressed"
+            },
+            "questions": {
+              "question1": "How does the approach perform on languages with different linguistic properties?",
+              "question2": "What is the training time comparison with baseline methods?",
+              "question3": "Can the method be extended to other transformer-based architectures?"
+            },
+            "consistencyCheck": "Consistency Check",
+            "consistencyAligned": "Your scores are well-aligned with typical reviews. Good job!",
+            "consistencyInconsistent": "Your scores are somewhat inconsistent with typical reviews. Consider if your ratings match your written feedback."
+          },
+          "scores": {
+            "title": "Review Scores",
+            "description": "Rate the paper on various criteria (1 = Poor, 5 = Excellent)",
+            "overallScore": "Overall Score",
+            "confidence": "Confidence in Review",
+            "novelty": "Novelty",
+            "technicalQuality": "Technical Quality",
+            "clarity": "Clarity of Presentation",
+            "relevance": "Relevance to Conference"
+          },
+          "comments": {
+            "title": "Review Comments",
+            "description": "Provide detailed feedback for the authors and program committee",
+            "toAuthors": {
+              "title": "Comments to Authors",
+              "label": "Detailed Feedback for Authors",
+              "placeholder": "Provide constructive feedback on strengths, weaknesses, and suggestions for improvement..."
+            },
+            "toPC": {
+              "title": "Comments to PC",
+              "label": "Confidential Comments to Program Committee",
+              "placeholder": "Share any concerns or additional context that should not be visible to authors..."
+            },
+            "wordCount": "{{count}} words"
+          },
+          "recommendation": {
+            "title": "Final Recommendation",
+            "description": "Your recommendation for this paper",
+            "placeholder": "Select your recommendation",
+            "options": {
+              "accept": "Accept",
+              "minor": "Accept with Minor Revisions",
+              "major": "Major Revisions Required",
+              "reject": "Reject"
+            }
+          },
+          "saveDraft": "Save Draft",
+          "submitReview": "Submit Review",
+          "saving": "Saving...",
+          "submitting": "Submitting...",
+          "saveDraftSuccess": "Draft saved",
+          "saveDraftDescription": "Your review draft has been saved successfully.",
+          "saveDraftFailed": "Failed to save draft",
+          "saveDraftFailedDescription": "Could not save your review draft. Please try again.",
+          "recommendationRequired": "Recommendation required",
+          "recommendationRequiredDescription": "Please select a recommendation before submitting.",
+          "commentsTooShort": "Comments too short",
+          "commentsTooShortDescription": "Please provide at least 50 words of feedback for authors.",
+          "submitSuccess": "Review submitted",
+          "submitSuccessDescription": "Your review has been submitted successfully.",
+          "submitFailed": "Failed to submit review",
+          "submitFailedDescription": "Could not submit your review. Please try again.",
+          "discussion": {
+            "title": "Private Discussion",
+            "description": "Discuss this paper with other assigned reviewers. This section is not visible to authors.",
+            "placeholder": "Write a message...",
+            "send": "Send"
+          },
+          "rebuttal": {
+            "title": "Author Rebuttal",
+            "description": "The author's response to the reviews.",
+            "author": "Author",
+            "actionRequired": "Action Required",
+            "actionDescription": "The author has submitted a rebuttal. Please read it and modify your review if necessary.",
+            "modifyReview": "Modify Your Review",
+            "notAvailable": "The author has not submitted a rebuttal yet.",
+            "modifyReviewStarted": "Review modification started",
+            "modifyReviewStartedDescription": "You can now edit your review based on the author's rebuttal."
+          }
+        }
+      },
+      "admin": {
+        "name": "Administrator",
+        "description": "Manage system configuration",
+        "features": [
+          "Manage users",
+          "Adjust system settings",
+          "Review activity logs",
+          "Configure roles and permissions"
+        ]
+      }
+    },
+    "chair": {
+      "createConference": {
+        "title": "Create New Conference",
+        "subtitle": "Follow the steps below to set up your academic conference",
+        "steps": {
+          "1": {
+            "title": "Details",
+            "description": "Core Conference Details"
+          },
+          "2": {
+            "title": "Topics & Submissions",
+            "description": "Topics & Submission Settings"
+          },
+          "3": {
+            "title": "CFP Configuration",
+            "description": "Call For Paper Details"
+          },
+          "4": {
+            "title": "Organizers",
+            "description": "Assign Conference Chairs"
+          },
+          "5": {
+            "title": "Review",
+            "description": "Review and Confirm"
+          }
+        },
+        "confirmCreate": "Confirm & Create Conference",
+        "validationError": "Validation Error",
+        "validationDescription": "Please fill in all required fields.",
+        "error": "Error",
+        "success": "Success",
+        "successDescription": "Conference created successfully!",
+        "errorDescription": "Failed to create conference. Please try again.",
+        "saveDraft": "Conference saved as draft!",
+        "confirmLabel": "I have reviewed the details and am ready to create this conference",
+        "confirmDescription": "You can edit conference settings after creation from the conference dashboard",
+        "returnToDashboard": "Return to Dashboard",
+        "previousStep": "Previous Step",
+        "step1": {
+          "heading": "Step 1: Core Conference Details",
+          "subheading": "Provide the essential information about your conference",
+          "conferenceTitle": "Conference Title",
+          "conferenceTitlePlaceholder": "e.g., International Conference on Artificial Intelligence",
+          "acronym": "Acronym",
+          "acronymPlaceholder": "e.g., ICAI 2026",
+          "acronymHint": "A short, unique identifier for your conference",
+          "description": "Description",
+          "descriptionPlaceholder": "A brief overview of the conference theme and scope...",
+          "website": "Conference Website (Optional)",
+          "websitePlaceholder": "https://example.com",
+          "conferenceDates": "Conference Dates",
+          "startDate": "Start date",
+          "endDate": "End date",
+          "location": "Location",
+          "inPerson": "In-Person",
+          "virtual": "Virtual",
+          "hybrid": "Hybrid",
+          "venue": "Venue / City, Country",
+          "venuePlaceholder": "e.g., Grand Hotel, Paris, France",
+          "contactEmail": "Contact Email",
+          "contactEmailPlaceholder": "contact@conference.com",
+          "contactEmailHint": "The primary public contact for inquiries"
+        },
+        "step2": {
+          "heading": "Step 2: Topics & Submission Settings",
+          "subheading": "Configure submission deadlines and academic structure",
+          "keyDeadlines": "Key Deadlines",
+          "submissionsOpen": "Submissions Open",
+          "submissionDeadline": "Submission Deadline",
+          "reviewDeadline": "Review Deadline",
+          "authorNotification": "Author Notification",
+          "cameraReadyDeadline": "Camera-Ready Deadline",
+          "pickDate": "Pick a date",
+          "researchTopics": "Research Topics / Domains",
+          "researchTopicsPlaceholder": "e.g., Machine Learning, Computer Vision, Natural Language Processing",
+          "researchTopicsHint": "Research areas and domains covered by the conference",
+          "conferenceTracks": "Conference Tracks",
+          "conferenceTracksPlaceholder": "e.g., AI & Ethics Track, Systems Track, Theory Track",
+          "conferenceTracksHint": "Submission tracks for organizing papers by theme (authors will select one when submitting)",
+          "add": "Add",
+          "submissionAnonymity": "Submission Anonymity",
+          "singleBlind": "Single-Blind (reviewers are anonymous to authors)",
+          "doubleBlind": "Double-Blind (both reviewers and authors are anonymous)",
+          "allowedFileFormats": "Allowed File Formats"
+        },
+        "dashboard": {
+          "title": "Conference Statistics",
+          "descriptionChair": "Overview of conference metrics and progress",
+          "descriptionOther": "Basic conference information",
+          "loading": "Loading statistics...",
+          "noData": "No statistics available",
+          "totalSubmissions": "Total Submissions",
+          "totalReviews": "Total Reviews",
+          "acceptanceRate": "Acceptance Rate",
+          "avgReviewsPerPaper": "Avg Reviews/Paper",
+          "submissionsByTrack": "Submissions by Track",
+          "submissionsByTrackDesc": "Distribution of submissions across research tracks",
+          "reviewProgress": "Review Progress",
+          "reviewProgressDesc": "Current status of the review process",
+          "completed": "Completed",
+          "inProgress": "In Progress",
+          "pending": "Pending"
+        }
+      },
+      "dashboard": {
+        "createNewConference": "+ Create New Conference",
+        "manageUsers": "Manage Users",
+        "viewSystemLogs": "View System Logs",
+        "platformOverview": "Platform Overview",
+        "activeConferences": "Active Conferences",
+        "totalUsers": "Total Users",
+        "submissionsThisMonth": "Submissions this Month",
+        "actionItems": "Action Items",
+        "conferenceManagement": "Conference Management",
+        "yourConferences": "Your Conferences",
+        "discoverConferences": "Discover Conferences",
+        "searchPlaceholder": "Search conferences...",
+        "filterByStatus": "Filter by Status",
+        "tableHeaders": {
+          "conferenceName": "Conference Name",
+          "dates": "Dates",
+          "status": "Status",
+          "submissions": "Submissions",
+          "actions": "Actions"
+        },
+        "messages": {
+          "loading": "Loading conferences...",
+          "error": "Error",
+          "noConferencesFound": "No conferences found."
+        },
+        "platformUpdates": {
+          "title": "Platform Updates",
+          "announcements": "Announcements",
+          "recentActivity": "Recent Activity",
+          "createAnnouncement": "Create Announcement"
+        },
+        "topReviewers": {
+          "title": "Platform Top Reviewers",
+          "manageAllUsers": "Manage All Users"
+        }
+      },
+      "submissions": {
+        "quickView": "Quick View",
+        "accept": "Accept",
+        "reject": "Reject",
+        "pending": "Pending",
+        "title": "Submissions",
+        "searchPlaceholder": "Search by title, abstract, keywords...",
+        "resultsCount": "Showing",
+        "descriptionAuthor": "List of papers you have submitted to the conference",
+        "descriptionReviewer": "List of papers assigned to you for review",
+        "descriptionChair": "List of all papers submitted to the conference",
+        "descriptionDefault": "List of papers",
+        "statusLabel": "Status",
+        "trackLabel": "Track",
+        "allStatuses": "All Statuses",
+        "allTracks": "All Tracks",
+        "submitted": "Submitted",
+        "underReview": "Under Review",
+        "accepted": "Accepted",
+        "rejected": "Rejected",
+        "revisionRequested": "Revision Requested",
+        "cameraReady": "Camera Ready",
+        "clear": "Clear",
+        "apply": "Apply",
+        "decision": "Decision",
+        "quickViewTitle": "Quick View Analytics",
+        "noAnalytics": "No analytics available for this submission.",
+        "noSubmissionsFound": "No Submissions Found",
+        "noSubmissionsAuthor": "You have not submitted any papers to this conference yet",
+        "noSubmissionsReviewer": "You have not been assigned any papers to review yet",
+        "noSubmissionsFilter": "Try changing filters or searching with different keywords",
+        "reviews": "reviews"
+      },
+      "review": {
+        "totalReviews": "Total Reviews",
+        "averageScore": "Average Score",
+        "criteriaAverages": "Criteria Averages",
+        "recommendationDistribution": "Recommendation Distribution",
+        "confidenceDistribution": "Confidence Distribution",
+        "reviewList": "Review List",
+        "viewOnlyTitle": "View Only Mode",
+        "viewOnlyDescription": "You are viewing this review as a chair. You cannot edit or submit reviews.",
+        "noAnalytics": "No review analytics available",
+        "noReviews": "No reviews available yet",
+        "reviewNumber": "Review",
+        "score": "Score",
+        "submittedAt": "Submitted",
+        "strengths": "Strengths",
+        "weaknesses": "Weaknesses",
+        "questions": "Questions",
+        "criteriaScores": "Criteria Scores",
+        "analytics": {
+          "strongConsensus": "Strong Consensus",
+          "reviewersDisagree": "Reviewers Disagree",
+          "mixedReviews": "Mixed Reviews",
+          "review": "review",
+          "reviews": "reviews",
+          "submitted": "submitted",
+          "accept": "Accept",
+          "borderline": "Borderline",
+          "reject": "Reject",
+          "qualityCriteria": "Quality Criteria",
+          "originality": "Originality",
+          "technicalQuality": "Technical Quality",
+          "clarity": "Clarity",
+          "significance": "Significance",
+          "methodology": "Methodology",
+          "breakdown": "Breakdown",
+          "qualityMetrics": "Quality Metrics",
+          "recommendationBreakdown": "Recommendation Breakdown",
+          "strongAccept": "Strong Accept",
+          "weakAccept": "Weak Accept",
+          "weakReject": "Weak Reject",
+          "strongReject": "Strong Reject",
+          "qualityCriteriaAnalysis": "Quality Criteria Analysis",
+          "averageScoresDescription": "Average scores across all reviews (1-10 scale)",
+          "reviewerConfidence": "Reviewer Confidence",
+          "confidenceDistributionDescription": "Distribution of reviewer confidence levels",
+          "highConfidence": "High Confidence",
+          "mediumConfidence": "Medium Confidence",
+          "lowConfidence": "Low Confidence",
+          "significantDisagreement": "Significant Disagreement",
+          "significantDisagreementDescription": "Reviewers have conflicting opinions. Consider additional reviews or meta-review.",
+          "strongAcceptRecommendation": "Strong Accept Recommendation",
+          "strongAcceptDescription": "of reviewers recommend acceptance. High-quality paper with broad support.",
+          "strongRejectRecommendation": "Strong Reject Recommendation",
+          "strongRejectDescription": "of reviewers recommend rejection. Consider major revisions or desk rejection.",
+          "showingReviews": "Showing",
+          "to": "to",
+          "of": "of",
+          "previous": "Previous",
+          "next": "Next"
+        },
+        "criteria": {
+          "originality": "Originality",
+          "technicalQuality": "Technical Quality",
+          "clarity": "Clarity",
+          "significance": "Significance",
+          "methodology": "Methodology"
+        },
+        "confidence": {
+          "high": "High",
+          "medium": "Medium",
+          "low": "Low"
+        }
+      }
+    },
+    "author": {
+      "submissions": {
+        "pageTitle": "My Submissions",
+        "pageDescription": "View and manage all your paper submissions",
+        "title": "Title",
+        "conference": "Conference",
+        "submissionDeadline": "Submission Deadline",
+        "status": "Status",
+        "attachments": "Attachments",
+        "draft": "Draft",
+        "published": "Published",
+        "clearFilters": "Clear"
+      },
+      "dashboard": {
+        "title": "My Submissions",
+        "noSubmissions": "No submissions yet",
+        "createSubmission": "Create your first submission",
+        "myConferences": "My Conferences",
+        "exploreConferences": "Explore Conferences",
+        "searchPlaceholder": "Search conferences...",
+        "selectCategory": "Select category",
+        "categories": {
+          "all": "All",
+          "technology": "Technology",
+          "healthcare": "Healthcare",
+          "education": "Education"
+        },
+        "tableHeaders": {
+          "conferenceName": "Conference Name",
+          "date": "Date",
+          "location": "Location",
+          "submissionDeadline": "Submission Deadline",
+          "status": "Status"
+        },
+        "statuses": {
+          "accepted": "Accepted",
+          "rejected": "Rejected",
+          "submitted": "Submitted",
+          "underReview": "Under Review"
+        },
+        "messages": {
+          "loading": "Loading...",
+          "error": "Error",
+          "noConferencesFound": "No matching conferences found",
+          "failedToLoad": "Failed to load conferences"
+        },
+        "roles": {
+          "chair": "Chair",
+          "committee": "Committee",
+          "reviewer": "Reviewer"
+        }
+      },
+      "submit": {
+        "title": "Submit Paper",
+        "subtitle": "Enter details, add co-authors, upload your PDF, and declare conflicts (COI). Save as draft anytime.",
+        "tabs": {
+          "paper": "Paper",
+          "authors": "Authors",
+          "file": "File",
+          "coi": "COI"
+        },
+        "backButton": "Back",
+        "backTooltip": "Back to previous page",
+        "saveDraft": "Save as Draft",
+        "submit": "Submit",
+        "submitting": "Submitting...",
+        "draftAutoSave": "Draft auto-saves every few seconds",
+        "submissionFailed": "Submission failed",
+        "submissionSuccess": "Paper submitted successfully!",
+        "submissionError": "Submission failed. Please try again.",
+        "checklist": {
+          "title": "Submission Checklist",
+          "subtitle": "What you need before submitting",
+          "titleProvided": "Title provided",
+          "abstractLength": "Abstract provided",
+          "subjectAreas": "Track topic selected",
+          "keywords": "At least 3 keywords added",
+          "coAuthorsListed": "All co-authors listed",
+          "pdfUploaded": "PDF uploaded & validated",
+          "coiDeclared": "COI declared"
+        },
+        "paperTab": {
+          "titlePlaceholder": "Concise, informative title of your paper",
+          "selectTopic": "Select a topic"
+        },
+        "authorsTab": {
+          "namePlaceholder": "Full name",
+          "emailPlaceholder": "Email",
+          "orgPlaceholder": "Organization / Institution"
+        },
+        "fileTab": {
+          "mustBePdf": "File must be a PDF",
+          "manuscriptFile": "Manuscript File",
+          "uploadDescription": "Upload anonymized PDF following the conference template",
+          "uploadPdf": "Upload PDF",
+          "noFileSelected": "No file selected",
+          "validationResults": "Validation Results",
+          "checking": "Checking...",
+          "precheckRunning": "Running quality check on your paper...",
+          "precheckError": "Failed to run precheck"
+        },
+        "precheck": {
+          "title": "Paper Quality Check",
+          "extractedTitle": "Extracted from PDF",
+          "summary": {
+            "passed": "Passed",
+            "warnings": "Warnings",
+            "failed": "Failed",
+            "passRate": "Pass Rate"
+          },
+          "categoryScores": "Category Breakdown",
+          "whatsGood": "What's Good",
+          "needsAttention": "Needs Attention",
+          "whatsFixed": "What Needs to be Fixed",
+          "confidence": "Confidence",
+          "status": {
+            "pass": "Pass",
+            "fail": "Fail",
+            "warning": "Warning"
+          },
+          "decision": {
+            "acceptForReview": "Ready for Review"
+          },
+          "categories": {
+            "titleAbstract": "Title & Abstract",
+            "introduction": "Introduction",
+            "method": "Method",
+            "experiments": "Experiments",
+            "writingQuality": "Writing Quality",
+            "preSubmission": "Pre-Submission",
+            "scopeMatch": "Scope Match"
+          }
+        }
+      },
+      "submission": {
+        "description": "View and manage your submission for this conference",
+        "noSubmission": "No Submission Yet",
+        "noSubmissionDescription": "You haven't submitted a paper to this conference yet. Start your submission now to participate.",
+        "submitNow": "Submit Paper",
+        "submittedOn": "Submitted on {date}",
+        "lastUpdated": "Updated {date}",
+        "untitled": "Untitled Submission",
+        "continueDraft": "Continue Draft",
+        "viewDetails": "View Details",
+        "editSubmission": "Edit Submission",
+        "versionHistory": "Version History",
+        "versionHistoryDescription": "Track changes and revisions to your submission",
+        "versionHistoryPlaceholder": "Version history will be available when you make revisions to your paper",
+        "comingSoon": "Coming Soon"
+      }
+    },
+    "reviewer": {
+      "dashboard": {
+        "title": "Assigned Papers",
+        "deadlineApproaching": "Review Deadline Approaching",
+        "completeBefore": "Complete your reviews before",
+        "daysRemaining": "days remaining",
+        "reviewsCompleted": "Reviews Completed",
+        "assignments": "Assignments",
+        "statistics": "Statistics",
+        "total": "Total",
+        "totalAssigned": "Total Assigned",
+        "pending": "Pending",
+        "inProgress": "In Progress",
+        "completed": "Completed",
+        "completionRate": "Completion Rate",
+        "overallProgress": "Overall Progress",
+        "trackCompletion": "Track your review completion status",
+        "completedReviews": "Completed Reviews",
+        "assignedPapers": "Assigned Papers",
+        "papersWaiting": "Papers waiting for your review",
+        "due": "Due",
+        "daysLeft": "days left",
+        "match": "match",
+        "notStarted": "Not Started",
+        "viewReview": "View Review",
+        "startReview": "Start Review",
+        "messages": {
+          "loading": "Loading conferences...",
+          "error": "Error"
+        }
+      }
+    },
+    "coi": {
+      "dashboard": {
+        "title": "Conflict of Interest (COI) Analysis",
+        "description": "Manage reviewer assignments with comprehensive COI checking and relationship analysis",
+        "stats": {
+          "totalReviewers": "Total Reviewers",
+          "available": "4 available",
+          "totalPapers": "Total Papers",
+          "underReview": "3 under review",
+          "coiDetected": "COI Detected",
+          "relationships": "12 relationships",
+          "assignments": "Assignments",
+          "completed": "8 completed",
+          "viewAll": "Click to view all"
+        }
+      },
+      "recommendation": {
+        "assign": "ASSIGN",
+        "review": "REVIEW",
+        "avoid": "AVOID"
+      },
+      "common": {
+        "reviewer": "Reviewer:",
+        "author": "Author:",
+        "paper": "Paper:",
+        "authors": "Authors ({count}):",
+        "from": "From",
+        "to": "to"
+      },
+      "severity": {
+        "high": "HIGH",
+        "medium": "MEDIUM",
+        "low": "LOW",
+        "none": "NONE"
+      },
+      "relationshipTypes": {
+        "co_author": "Co Author",
+        "same_organization": "Same Organization",
+        "advisor_advisee": "Advisor Advisee",
+        "collaborator": "Collaborator",
+        "competitor": "Competitor",
+        "citation": "Citation",
+        "review_history": "Review History"
+      },
+      "timeline": {
+        "noHistory": "No relationship history available",
+        "active": "Active",
+        "started": "Started:",
+        "ended": "Ended:",
+        "ongoing": "Ongoing",
+        "evidence": "Evidence:"
+      },
+      "reviewer": {
+        "hIndex": "H-index:",
+        "overloaded": "Overloaded",
+        "relationshipsDetected": "{count} relationship(s) detected",
+        "recommendation": "Recommendation"
+      },
+      "allRelationships": {
+        "title": "All COI Relationships",
+        "description": "View and filter all detected conflict of interest relationships",
+        "searchPlaceholder": "Search by reviewer, author, or description...",
+        "filterSeverity": "Filter by severity",
+        "filterType": "Filter by type",
+        "allSeverities": "All severities",
+        "allTypes": "All types",
+        "clearFilters": "Clear filters",
+        "totalFound": "{count} relationship(s) found",
+        "noRelationships": "No relationships found matching your filters",
+        "reviewer": "Reviewer",
+        "author": "Author",
+        "relatedPapers": "Related Papers"
+      },
+      "detail": {
+        "title": "COI Detail",
+        "reviewerInfo": "Reviewer Information",
+        "authorInfo": "Author Information",
+        "evidenceTimeline": "Evidence Timeline",
+        "coiAnalysisReport": "COI Analysis Report",
+        "relationshipsDetected": "relationships detected",
+        "noConflict": "No conflict detected",
+        "actions": {
+          "disqualifyReviewer": "Disqualify Reviewer",
+          "reassignPaper": "Reassign Paper"
+        }
+      },
+      "analysis": {
+        "dashboard": {
+          "title": "Conflict of Interest (COI) Analysis Dashboard",
+          "description": "Manage and analyze conflict of interest relationships across reviewers and papers",
+          "exportReport": "Export Report",
+          "criticalConflicts": "Critical Conflicts",
+          "needsReview": "Needs Review",
+          "informational": "Informational",
+          "totalRelationships": "Total Relationships",
+          "showingResults": "Showing {start} to {end} of {total} results"
+        }
+      }
+    }
+  },
+  "conference": {
+    "overview": {
+      "title": "Conference Information",
+      "description": "Details about dates, location, and contact information",
+      "conferenceDate": "Conference Date",
+      "location": "Location",
+      "website": "Website",
+      "visitWebsite": "Visit",
+      "keywordsTitle": "Keywords / Topics",
+      "keywordsDescription": "Research areas of the conference",
+      "tracksTitle": "Research Tracks",
+      "tracksDescription": "Research areas of the conference"
+    },
+    "callForPapers": {
+      "title": "Call for Papers",
+      "description": "Submission guidelines and requirements for {acronym}",
+      "submissionOpen": "Accepting Submissions",
+      "submissionClosed": "Submissions Closed",
+      "deadline": "Deadline",
+      "editSubmission": "Edit Submission",
+      "submitNow": "Submit Now",
+      "checking": "Checking...",
+      "guidelinesTitle": "Submission Guidelines",
+      "formatRequirements": "Format Requirements",
+      "paperContent": "Paper Content",
+      "reviewProcess": "Review Process",
+      "requirements": {
+        "language": "Papers must be written in English",
+        "length": "Length: 6-8 pages for full paper, 4 pages for short paper (excluding references)",
+        "template": "Use ACM or IEEE template (download from official website)",
+        "fileFormat": "PDF file, maximum 10MB",
+        "originality": "Submission must be original research, not previously published"
+      },
+      "content": {
+        "abstract": "Abstract: 150-250 words, clearly summarizing problem, method, and results",
+        "keywords": "Keywords: 3-5 keywords reflecting main content",
+        "introduction": "Introduction: Introduce research problem and main contributions",
+        "relatedWork": "Related Work: Overview of related research",
+        "methodology": "Methodology: Detailed description of research method",
+        "results": "Results & Discussion: Present and analyze results",
+        "conclusion": "Conclusion: Summarize contributions and future directions"
+      },
+      "review": {
+        "doubleBlind": "Double-blind review: Authors and reviewers do not know each other's identities",
+        "reviewers": "Each paper will be reviewed by at least 3 independent reviewers",
+        "criteria": "Evaluation criteria: Novelty, Technical Quality, Clarity, Relevance",
+        "outcomes": "Outcomes: Accept, Minor Revision, Major Revision, or Reject"
+      }
+    },
+    "importantDates": {
+      "title": "Important Dates",
+      "description": "Timeline of key conference milestones",
+      "loading": "Loading...",
+      "noData": "No Date Information Yet",
+      "noDataDescription": "Important dates will be updated soon",
+      "typeLabels": {
+        "deadline": "Deadline",
+        "notification": "Notification",
+        "event": "Event"
+      },
+      "past": "Past",
+      "notesTitle": "Notes",
+      "notes": {
+        "timezone": "All times are in UTC timezone",
+        "reminders": "System will send email reminders 7 days and 1 day before each deadline",
+        "lateSubmissions": "Late submissions after deadline will not be accepted"
+      }
+    },
+    "submissions": {
+      "title": "Submissions",
+      "loading": "Loading...",
+      "searchPlaceholder": "Search by title, abstract, keywords...",
+      "showing": "Showing",
+      "of": "of",
+      "papers": "papers",
+      "viewDetails": "View Details",
+      "noSubmissionsFound": "No Submissions Found",
+      "filterButton": {
+        "clear": "Clear",
+        "apply": "Apply"
+      },
+      "roleDescriptions": {
+        "author": "List of papers you have submitted to the conference",
+        "reviewer": "List of papers assigned to you for review",
+        "chair": "List of all papers submitted to the conference",
+        "default": "List of papers"
+      },
+      "emptyState": {
+        "author": "You have not submitted any papers to this conference yet",
+        "reviewer": "You have not been assigned any papers to review yet",
+        "default": "Try changing the filters or search with different keywords"
+      },
+      "status": {
+        "label": "Status",
+        "all": "All Status",
+        "submitted": "Submitted",
+        "underReview": "Under Review",
+        "accepted": "Accepted",
+        "rejected": "Rejected",
+        "revisionRequested": "Revision Requested",
+        "cameraReady": "Camera Ready"
+      },
+      "track": {
+        "label": "Track",
+        "all": "All Tracks"
+      }
+    }
+  },
+  "submissions": {
+    "pageTitle": "My Submissions",
+    "pageDescription": "View and manage all your submissions",
+    "loading": "Loading...",
+    "error": "Error",
+    "searchPlaceholder": "Search by title...",
+    "filterConference": "Filter by conference",
+    "filterStatus": "Filter by status",
+    "allConferences": "All conferences",
+    "allStatuses": "All statuses",
+    "title": "Title",
+    "conference": "Conference",
+    "submittedDate": "Submitted",
+    "noAbstract": "No abstract",
+    "empty": "You have no submissions yet",
+    "status": {
+      "label": "Status",
+      "draft": "Draft",
+      "published": "Published",
+      "reviewing": "Reviewing",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "submitted": "Submitted",
+      "underReview": "Under Review",
+      "revisionRequested": "Revision Requested",
+      "cameraReady": "Camera Ready"
+    }
+  },
+  "submission": {
+    "details": {
+      "title": "Submission Details",
+      "description": "Detailed information about the submission",
+      "author": "Author",
+      "submittedDate": "Submitted Date",
+      "lastUpdated": "Last Updated",
+      "link": "Link",
+      "domains": "Domains",
+      "additionalInfo": "Additional Information",
+      "keywords": "Keywords",
+      "coAuthors": "Co-authors",
+      "track": "Track",
+      "paperType": "Paper Type",
+      "notes": "Additional Notes",
+      "file": "Attached File",
+      "fileName": "File Name",
+      "fileSize": "File Size",
+      "fileType": "File Type",
+      "metadata": "Metadata",
+      "abstract": "Abstract",
+      "documentPreview": "Document Preview",
+      "previewNotAvailable": "Preview not available",
+      "downloadToView": "Please download to view the file",
+      "noFile": "No file attached",
+      "viewExternalLink": "View external link"
+    },
+    "error": {
+      "title": "Error"
+    },
+    "notFound": {
+      "title": "Not Found",
+      "message": "Submission does not exist"
+    }
+  },
+  "review": {
+    "role": {
+      "reviewer": "Reviewer"
+    },
+    "conferences": {
+      "columns": {
+        "domain": "Domain",
+        "timeline": "Conference Date"
+      },
+      "submission": "Deadline",
+      "noConferences": "No conferences assigned yet",
+      "complete": "complete"
+    },
+    "form": {
+      "title": "Review Paper",
+      "reviewing": "Reviewing",
+      "submittedOn": "Submitted on {date}",
+      "version": "Version {version}",
+      "downloadPDF": "Download PDF",
+      "scores": {
+        "title": "Review Scores",
+        "description": "Rate the paper on multiple criteria (1 = Poor, 10 = Excellent)",
+        "originality": "Originality",
+        "technicalQuality": "Technical Quality",
+        "clarity": "Clarity & Presentation",
+        "significance": "Significance",
+        "methodology": "Methodology"
+      },
+      "feedback": {
+        "title": "Detailed Feedback",
+        "description": "Provide constructive feedback for authors and program committee",
+        "strengths": "Strengths",
+        "strengthsPlaceholder": "What are the main strengths of this paper? (minimum 50 characters)",
+        "weaknesses": "Weaknesses",
+        "weaknessesPlaceholder": "What are the main weaknesses or areas for improvement?",
+        "questions": "Questions for Authors",
+        "questionsPlaceholder": "Any questions or clarifications needed from the authors?"
+      },
+      "recommendation": {
+        "title": "Overall Recommendation",
+        "description": "Your final recommendation for this paper",
+        "placeholder": "Select your recommendation",
+        "options": {
+          "strong_accept": "Strong Accept",
+          "accept": "Accept",
+          "weak_accept": "Weak Accept",
+          "borderline": "Borderline",
+          "weak_reject": "Weak Reject",
+          "reject": "Reject",
+          "strong_reject": "Strong Reject"
+        }
+      },
+      "confidence": {
+        "title": "Confidence Level",
+        "description": "How confident are you in your assessment?",
+        "placeholder": "Select confidence level",
+        "options": {
+          "high": "High - Expert in this area",
+          "medium": "Medium - Knowledgeable",
+          "low": "Low - Limited expertise"
+        }
+      },
+      "ai": {
+        "getAssistance": "Get AI Assistance",
+        "title": "AI-Powered Review Assistant",
+        "description": "AI analysis to help guide your review (for reference only)"
+      },
+      "actions": {
+        "saveDraft": "Save Draft",
+        "submitReview": "Submit Review",
+        "saving": "Saving...",
+        "submitting": "Submitting..."
+      },
+      "validation": {
+        "recommendationRequired": "Recommendation Required",
+        "recommendationRequiredDescription": "Please select your overall recommendation",
+        "confidenceRequired": "Confidence Required",
+        "confidenceRequiredDescription": "Please select your confidence level",
+        "strengthsTooShort": "Strengths Too Short",
+        "strengthsTooShortDescription": "Strengths section must be at least 50 characters",
+        "missingAssignment": "Missing Assignment ID",
+        "missingAssignmentDescription": "assignment_id is required in URL to save/submit review",
+        "requiredField": "Required field"
+      },
+      "success": {
+        "saveDraft": "Draft Saved",
+        "saveDraftDescription": "Your review draft has been saved successfully",
+        "submitReview": "Review Submitted",
+        "submitReviewDescription": "Your review has been submitted successfully"
+      },
+      "error": {
+        "saveDraft": "Failed to Save Draft",
+        "saveDraftDescription": "Unable to save your review draft. Please try again",
+        "submitReview": "Failed to Submit Review",
+        "submitReviewDescription": "Unable to submit your review. Please try again"
+      },
+      "tabs": {
+        "review": "Review",
+        "discussion": "Discussion",
+        "rebuttal": "Rebuttal"
+      },
+      "discussion": {
+        "title": "Discussion with Reviewers",
+        "description": "Discuss this paper with other reviewers (anonymous)",
+        "placeholder": "Type your message...",
+        "send": "Send"
+      },
+      "rebuttal": {
+        "title": "Author Rebuttal",
+        "description": "Review the author's response to reviewer feedback",
+        "author": "Author",
+        "actionRequired": "Action Required",
+        "actionDescription": "Please review the author's rebuttal and consider updating your review if needed",
+        "modifyReview": "Modify Review",
+        "notAvailable": "No rebuttal available yet",
+        "modifyReviewStarted": "Review Modification",
+        "modifyReviewStartedDescription": "You can now update your review based on the rebuttal"
+      },
+      "author": {
+        "submit": {
+          "paperTab": {
+            "title": "Paper Information",
+            "subtitle": "Provide the core details about your research paper",
+            "tipsTitle": "Quick Tips",
+            "tips": [
+              "Choose a clear, descriptive title that highlights your contribution",
+              "Write an abstract that summarizes your methods and key findings",
+              "Select subject areas that best match your research domain"
+            ],
+            "fields": {
+              "titleLabel": "Paper Title *",
+              "titleHelp": "Place key terms at the beginning and avoid abbreviations",
+              "abstractLabel": "Abstract *",
+              "abstractHelp": "Provide a clear summary of your research contribution",
+              "abstractCount": "{count} words",
+              "trackLabel": "Conference Track *",
+              "trackPlaceholder": "Select the conference track for your paper",
+              "trackHelp": "Choose the track that best matches your paper's theme",
+              "subjectLabel": "Subject Area *",
+              "subjectPlaceholder": "Select the most relevant topic area",
+              "subjectHelp": "Choose the research domain most relevant to your paper",
+              "keywordsLabel": "Keywords * (minimum 3)",
+              "keywordsPlaceholder": "Enter a keyword and press Enter or click +",
+              "keywordsHelp": "Add terms that researchers would use to find your work"
+            },
+            "authoringTipsTitle": "Authoring Best Practices",
+            "authoringTips": [
+              "Keep your title concise yet descriptive (10-15 words ideal)",
+              "Abstract should highlight novelty and key results",
+              "Choose keywords that balance specificity and discoverability",
+              "Avoid jargon and define technical terms when necessary",
+              "Use the conference template and respect page limits"
+            ]
+          },
+          "authorsTab": {
+            "title": "Authors & Affiliations",
+            "subtitle": "List all co-authors in the order they should appear",
+            "guidelinesTitle": "Author Guidelines:",
+            "guidelines": [
+              "Enter email addresses to search for registered users",
+              "Authors will be listed in the order shown below",
+              "The first author is typically the primary contributor",
+              "Mark yourself as corresponding author if applicable"
+            ],
+            "primaryLabel": "Primary Author",
+            "coAuthorLabel": "Co-Author {index}",
+            "emailLabel": "Email Address *",
+            "emailPlaceholder": "author@university.edu",
+            "namePreview": "Name:",
+            "addAuthor": "Add Co-Author",
+            "correspondingLabel": "I am the corresponding author for this submission",
+            "correspondingDescription": "The corresponding author will receive all communication regarding this submission"
+          },
+          "coiTab": {
+            "title": "Conflict of Interest Declaration",
+            "subtitle": "Identify individuals who should not review your submission",
+            "whatToDeclare": "What to declare:",
+            "declarations": [
+              "Current or recent collaborators (past 3 years)",
+              "Co-authors on recent publications",
+              "Colleagues from your institution",
+              "PhD advisors and students",
+              "Close personal or professional relationships"
+            ],
+            "conflictedLabel": "Conflicted Reviewers *",
+            "conflictedDescription": "Enter email addresses or full names of individuals with potential conflicts",
+            "conflictedPlaceholder": "e.g., jane.doe@university.edu or 'Dr. Jane Doe'",
+            "declaredLabel": "Declared Conflicts ({count})",
+            "clearAll": "Clear all",
+            "empty": "No conflicts declared yet. Add at least one conflicted reviewer above.",
+            "warningTitle": "Important Notice",
+            "warningDescription": "By submitting, you confirm that your conflict of interest declaration is accurate and complete. Failure to declare relevant conflicts may result in desk rejection or withdrawal of your submission.",
+            "bestPracticesTitle": "COI Declaration Best Practices",
+            "bestPractices": [
+              "Declare anyone you've collaborated with in the past 3 years",
+              "Include co-authors from recent publications",
+              "List colleagues from your current and recent institutions",
+              "When in doubt, declare the conflict—it's better to be safe",
+              "Use full names or email addresses for clarity"
+            ]
+          },
+          "coverLetterTab": {
+            "title": "Cover Letter",
+            "subtitle": "Optional document to provide additional context to reviewers",
+            "includeTitle": "What to include in your cover letter:",
+            "includeList": [
+              "Brief summary of your paper's significance and novelty",
+              "Why this work is suitable for this conference",
+              "Any special considerations for reviewers",
+              "Suggested reviewers (if applicable)",
+              "Previous submission history (if resubmitting)"
+            ],
+            "note": "Cover letter is optional but recommended. Maximum file size: 5MB. PDF format only.",
+            "existingTitle": "Existing Cover Letter",
+            "existingDescription": "Upload a new file below to replace the existing cover letter.",
+            "uploadLabel": "Upload Cover Letter (Optional)",
+            "uploadTitle": "Drop your PDF here or click to browse",
+            "uploadHint": "PDF format only, maximum 5MB",
+            "chooseFile": "Choose File",
+            "uploadedDescription": "{size} • PDF Document",
+            "replaceFile": "Replace File",
+            "remove": "Remove",
+            "tipsTitle": "Cover Letter Writing Tips",
+            "tips": [
+              "Keep it concise (1-2 pages maximum)",
+              "Be professional and respectful in tone",
+              "Highlight the novelty and impact of your work",
+              "Address any potential concerns proactively",
+              "Avoid repeating the abstract verbatim"
+            ]
+          },
+          "sidebar": {
+            "progressReady": "Ready to Submit!",
+            "progressInProgress": "Submission Progress",
+            "progressSummary": "{completed} of {total} complete",
+            "allComplete": "✓ All requirements met. You can now submit your paper!",
+            "checklistTitle": "Submission Checklist",
+            "checklistSubtitle": "Required before submitting",
+            "policyTitle": "Policy & Formatting",
+            "policySubtitle": "Quick reference guidelines",
+            "policyItems": [
+              "Double-blind: remove all identifying information",
+              "Maximum 10 pages (excluding references)",
+              "PDF ≤ 20MB with embedded fonts",
+              "Use the official conference template"
+            ],
+            "helpTitle": "Need Help?",
+            "helpDescription": "Save your work as a draft at any time. You can return to complete it later."
+          }
+        }
+      }
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "description": "Manage your personal information and account settings",
+    "viewTitle": "Profile",
+    "viewDescription": "View user information and expertise",
+    "sections": {
+      "personalInfo": "Personal Information",
+      "personalInfoDescription": "Update your name and email address",
+      "expertise": "Expertise",
+      "expertiseDescription": "Add your domains of expertise for better paper matching",
+      "accountInfo": "Account Information",
+      "accountInfoDescription": "View your account details and roles"
+    },
+    "fields": {
+      "userId": "User ID",
+      "roles": "Roles",
+      "createdAt": "Account Created",
+      "updatedAt": "Last Updated"
+    },
+    "highlights": {
+      "joined": "Joined {date}",
+      "updated": "Updated {date}",
+      "domainsNone": "No domains added yet",
+      "domainsCount": "{count} domains tracked",
+      "domainsHint": "Add domains to improve reviewer matching and recommendations."
+    },
+    "placeholders": {
+      "firstName": "Enter your first name",
+      "lastName": "Enter your last name",
+      "email": "Enter your email address",
+      "domain": "e.g., Machine Learning, Natural Language Processing"
+    },
+    "success": {
+      "updated": "Profile Updated",
+      "updatedDescription": "Your profile has been successfully updated"
+    },
+    "error": {
+      "fetchFailed": "Failed to Load Profile",
+      "fetchDescription": "Unable to retrieve your profile information",
+      "updateFailed": "Update Failed",
+      "updateDescription": "Unable to update your profile. Please try again",
+      "validationFailed": "Validation Error",
+      "notFound": "Profile not found",
+      "missingId": "Unable to determine your user ID. Please refresh and try again.",
+      "unauthorized": "Session expired",
+      "unauthorizedDescription": "Please sign in again to save your changes."
+    }
+  }
+}
