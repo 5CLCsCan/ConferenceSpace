@@ -65,13 +65,14 @@ export default function NotificationsPage() {
     if (currentRole === "chair") {
       return [
         { label: "Dashboard", href: "/role/chair", icon: "dashboard" },
+        { label: "Conferences", href: "/role/chair/conferences", icon: "folder_open" },
+        { label: "Schedules", href: "/role/chair/schedules", icon: "calendar_month" },
         {
           label: "Notifications",
           href: "/notifications",
           icon: "notifications",
           badge: apiUnreadCount,
         },
-        { label: "Switch Role", href: "/role", icon: "swap_horiz" },
       ]
     }
 
@@ -84,7 +85,6 @@ export default function NotificationsPage() {
           icon: "notifications",
           badge: apiUnreadCount,
         },
-        { label: "Switch Role", href: "/role", icon: "swap_horiz" },
       ]
     }
 

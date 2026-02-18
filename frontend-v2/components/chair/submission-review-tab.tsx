@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ChevronDown, ChevronUp, Eye, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { useRouter } from "next/navigation"
 import {
   getSubmissionReviews,
   getSubmissionReviewAnalytics,
@@ -23,7 +22,6 @@ interface SubmissionReviewTabProps {
 
 export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionReviewTabProps) {
   const { t } = useTranslation()
-  const router = useRouter()
   const [analytics, setAnalytics] = useState<ReviewAnalytics | null>(null)
   const [reviews, setReviews] = useState<AssignmentReview[]>([])
   const [totalReviews, setTotalReviews] = useState(0)
@@ -230,7 +228,7 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => router.push("/role/chair")}
+                              onClick={(event) => event.preventDefault()}
                             >
                               <Eye className="size-4 mr-2" />
                               {t("common.actions.viewDetail")}

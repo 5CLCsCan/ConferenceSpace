@@ -1,5 +1,8 @@
 import type { User, UserRole } from "./types"
 import { USER_STORAGE_KEY, ROLE_STORAGE_KEY } from "./config"
+import { canAccessRole } from "./role-access"
+
+const VALID_USER_ROLES: UserRole[] = ["author", "reviewer", "chair", "admin"]
 
 class SessionManager {
   private static instance: SessionManager | null = null
@@ -22,6 +25,52 @@ class SessionManager {
     return typeof window !== "undefined" && typeof localStorage !== "undefined"
   }
 
+  private normalizeRoles(rawRoles: unknown): UserRole[] {
+    if (!Array.isArray(rawRoles)) {
+      return []
+    }
+
+    const roles: UserRole[] = []
+
+    for (const rawRole of rawRoles) {
+      if (typeof rawRole !== "string") {
+        continue
+      }
+
+      const normalizedRole = rawRole.trim().toLowerCase() as UserRole
+
+      if (VALID_USER_ROLES.includes(normalizedRole) && !roles.includes(normalizedRole)) {
+        roles.push(normalizedRole)
+      }
+    }
+
+    return roles
+  }
+
+  private normalizeSessionUser(user: User): User {
+    const normalizedRoles = this.normalizeRoles(user.roles)
+
+    return {
+      ...user,
+      roles: normalizedRoles.length > 0 ? normalizedRoles : ["author"],
+    }
+  }
+
+  private hasRole(role: UserRole): boolean {
+    return canAccessRole(this.user, role)
+  }
+
+  private reconcileRoleWithUser(): void {
+    if (!this.currentRole) {
+      return
+    }
+
+    if (!this.hasRole(this.currentRole)) {
+      this.currentRole = null
+      this.clearRole()
+    }
+  }
+
   private loadFromStorage(): void {
     if (!this.isBrowser()) {
       return
@@ -30,17 +79,20 @@ class SessionManager {
     try {
       const storedUser = localStorage.getItem(USER_STORAGE_KEY)
       if (storedUser) {
-        this.user = JSON.parse(storedUser) as User
+        const parsedUser = JSON.parse(storedUser) as User
+        this.user = this.normalizeSessionUser(parsedUser)
+        this.persistUser()
       }
 
       const storedRole = localStorage.getItem(ROLE_STORAGE_KEY) as UserRole | null
-      const VALID_USER_ROLES: UserRole[] = ["author", "reviewer", "chair", "admin"]
 
       if (storedRole && VALID_USER_ROLES.includes(storedRole)) {
         this.currentRole = storedRole
       } else {
         this.currentRole = null
       }
+
+      this.reconcileRoleWithUser()
     } catch (error) {
       this.user = null
       this.currentRole = null
@@ -60,10 +112,17 @@ class SessionManager {
   }
 
   setUser(user: User, preserveRole: boolean = true): void {
-    this.user = user
+    this.user = this.normalizeSessionUser(user)
     this.persistUser()
 
-    if (preserveRole && this.currentRole) {
+    if (!preserveRole) {
+      this.resetRole()
+      return
+    }
+
+    this.reconcileRoleWithUser()
+
+    if (this.currentRole) {
       this.persistRole()
     }
   }
@@ -77,8 +136,11 @@ class SessionManager {
       return false
     }
 
-    const VALID_USER_ROLES: UserRole[] = ["author", "reviewer", "chair", "admin"]
     if (!VALID_USER_ROLES.includes(role)) {
+      return false
+    }
+
+    if (!this.hasRole(role)) {
       return false
     }
 
@@ -154,13 +216,17 @@ class SessionManager {
   }
 
   refreshUser(newUser: User): void {
-    const currentRole = this.currentRole
-    this.setUser(newUser, true)
+    const previousRole = this.currentRole
+    this.user = this.normalizeSessionUser(newUser)
+    this.persistUser()
 
-    if (currentRole && this.currentRole !== currentRole) {
-      this.currentRole = currentRole
+    if (previousRole && this.hasRole(previousRole)) {
+      this.currentRole = previousRole
       this.persistRole()
+      return
     }
+
+    this.reconcileRoleWithUser()
   }
 }
 

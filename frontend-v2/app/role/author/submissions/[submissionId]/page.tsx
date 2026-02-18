@@ -19,7 +19,7 @@ function SubmissionDetailPageContent() {
   const params = useParams()
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated, user, currentRole } = useAuth()
   const { t } = useTranslation()
   const { unreadCount } = useNotifications({ limit: 1 })
 
@@ -51,10 +51,10 @@ function SubmissionDetailPageContent() {
       return
     }
 
-    if (!user || (!user.roles.includes("author") && !user.roles.includes("chair"))) {
+    if (!user || !user.roles.includes("author") || currentRole !== "author") {
       router.push("/role")
     }
-  }, [authChecked, isAuthenticated, user, router])
+  }, [authChecked, currentRole, isAuthenticated, user, router])
 
   useEffect(() => {
     async function resolveConference() {
@@ -96,10 +96,7 @@ function SubmissionDetailPageContent() {
         if (response.error) {
           setError(response.error)
         } else if (response.data) {
-          const isChair = user?.roles.includes("chair")
-          const isAuthorRole = user?.roles.includes("author")
-
-          if (!isAuthorRole && !isChair) {
+          if (!user?.roles.includes("author") || currentRole !== "author") {
             setError("You don't have permission to view this submission")
           } else {
             setSubmission(response.data)
@@ -120,9 +117,15 @@ function SubmissionDetailPageContent() {
     if (isAuthenticated && user && conferenceId && submissionId) {
       loadSubmission()
     }
-  }, [conferenceId, submissionId, isAuthenticated, user])
+  }, [conferenceId, submissionId, currentRole, isAuthenticated, user])
 
-  if (!authChecked || !isAuthenticated || !user) {
+  if (
+    !authChecked ||
+    !isAuthenticated ||
+    !user ||
+    !user.roles.includes("author") ||
+    currentRole !== "author"
+  ) {
     return null
   }
 

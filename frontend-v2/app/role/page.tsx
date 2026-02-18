@@ -1,23 +1,15 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
-import { sessionManager } from "@/lib/session-manager"
 import type { UserRole } from "@/lib/types"
-import { useTranslation } from "@/lib/i18n/translation-context"
+import { canAccessRole } from "@/lib/role-access"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 
 export default function RoleSelectionPage() {
-  const { user, isAuthenticated, logout, switchRole, resetRole } = useAuth()
-  const { t } = useTranslation()
+  const { user, isAuthenticated, isAuthLoading, switchRole } = useAuth()
   const router = useRouter()
-  const [authChecked, setAuthChecked] = useState(false)
-
-  // Clear role when entering the selection screen
-  useEffect(() => {
-    resetRole()
-  }, [resetRole])
 
   // Injected design patterns from code.html
   const customStyles = `
@@ -33,29 +25,25 @@ export default function RoleSelectionPage() {
   `
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setAuthChecked(true)
-    }, 100)
-    return () => clearTimeout(timer)
-  }, [])
-
-  useEffect(() => {
-    sessionManager.enableRoleChange()
-    return () => sessionManager.disableRoleChange()
-  }, [])
-
-  useEffect(() => {
-    if (authChecked && !isAuthenticated) {
+    if (!isAuthLoading && !isAuthenticated) {
       router.push("/login")
     }
-  }, [authChecked, isAuthenticated, router])
+  }, [isAuthLoading, isAuthenticated, router])
 
-  if (!authChecked || !isAuthenticated || !user) {
+  if (isAuthLoading || !isAuthenticated || !user) {
     return null
   }
 
   const handleRoleSelect = (role: UserRole) => {
-    switchRole(role)
+    if (!canAccessRole(user, role)) {
+      return
+    }
+
+    const didSwitchRole = switchRole(role)
+    if (!didSwitchRole) {
+      return
+    }
+
     const roleRouteMap: Record<UserRole, string> = {
       author: "/role/author",
       reviewer: "/role/reviewer",
@@ -64,18 +52,6 @@ export default function RoleSelectionPage() {
     }
     router.push(roleRouteMap[role] ?? "/role")
   }
-
-  const handleLogout = () => {
-    logout()
-    router.push("/")
-  }
-
-  const mockConferences = [
-    { name: "CVPR 2024", role: "Reviewer", color: "text-[#2563eb]" },
-    { name: "ICML 2023", role: "Author", color: "text-[#16a34a]" },
-    { name: "NeurIPS 2024", role: "Reviewer", color: "text-[#2563eb]" },
-    { name: "AAAI 2024", role: "Chair", color: "text-[#9333ea]", active: true },
-  ]
 
   return (
     <div className="bg-[#f8fafc] dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
@@ -120,109 +96,114 @@ export default function RoleSelectionPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 w-full pb-10">
-            {/* Author Card */}
-            <div className="group relative flex flex-col bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden h-full">
-              <div className="h-24 w-full bg-gradient-to-br from-green-600 to-green-700 relative overflow-hidden">
-                <div className="absolute top-4 left-5 z-20 flex flex-col gap-2">
-                  <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg">
-                    <span className="material-symbols-outlined text-green-700 text-xl font-bold">
-                      edit_document
-                    </span>
+            {canAccessRole(user, "author") && (
+              <div className="group relative flex flex-col bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden h-full">
+                <div className="h-24 w-full bg-gradient-to-br from-green-600 to-green-700 relative overflow-hidden">
+                  <div className="absolute top-4 left-5 z-20 flex flex-col gap-2">
+                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg">
+                      <span className="material-symbols-outlined text-green-700 text-xl font-bold">
+                        edit_document
+                      </span>
+                    </div>
+                    <h4 className="text-[9px] font-bold text-white uppercase tracking-[0.2em] opacity-90 mt-1 ml-0.5">
+                      Submissions
+                    </h4>
                   </div>
-                  <h4 className="text-[9px] font-bold text-white uppercase tracking-[0.2em] opacity-90 mt-1 ml-0.5">
-                    Submissions
-                  </h4>
+                  <div className="absolute -right-8 -bottom-16 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
                 </div>
-                <div className="absolute -right-8 -bottom-16 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-              </div>
-              <div className="p-6 flex flex-col flex-1">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Author</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-xs mb-6 leading-relaxed">
-                  Manage submissions, view reviews, and upload camera-ready papers for upcoming
-                  conferences.
-                </p>
-                <div className="mt-auto">
-                  <button
-                    onClick={() => handleRoleSelect("author")}
-                    className="w-full py-2.5 px-5 rounded-full bg-green-600 text-white text-xs font-bold hover:bg-green-700 transition-all duration-200 flex items-center justify-center gap-2 group/btn shadow-lg shadow-green-600/20"
-                  >
-                    Enter Dashboard
-                    <span className="material-symbols-outlined text-base group-hover/btn:translate-x-1 transition-transform">
-                      arrow_forward
-                    </span>
-                  </button>
+                <div className="p-6 flex flex-col flex-1">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Author</h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-xs mb-6 leading-relaxed">
+                    Manage submissions, view reviews, and upload camera-ready papers for upcoming
+                    conferences.
+                  </p>
+                  <div className="mt-auto">
+                    <button
+                      onClick={() => handleRoleSelect("author")}
+                      className="w-full py-2.5 px-5 rounded-full bg-green-600 text-white text-xs font-bold hover:bg-green-700 transition-all duration-200 flex items-center justify-center gap-2 group/btn shadow-lg shadow-green-600/20"
+                    >
+                      Enter Dashboard
+                      <span className="material-symbols-outlined text-base group-hover/btn:translate-x-1 transition-transform">
+                        arrow_forward
+                      </span>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Reviewer Card */}
-            <div className="group relative flex flex-col bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden h-full">
-              <div className="h-24 w-full bg-gradient-to-br from-blue-600 to-blue-700 relative overflow-hidden">
-                <div className="absolute top-4 left-5 z-20 flex flex-col gap-2">
-                  <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg">
-                    <span className="material-symbols-outlined text-blue-700 text-xl font-bold">
-                      rate_review
-                    </span>
+            {canAccessRole(user, "reviewer") && (
+              <div className="group relative flex flex-col bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden h-full">
+                <div className="h-24 w-full bg-gradient-to-br from-blue-600 to-blue-700 relative overflow-hidden">
+                  <div className="absolute top-4 left-5 z-20 flex flex-col gap-2">
+                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg">
+                      <span className="material-symbols-outlined text-blue-700 text-xl font-bold">
+                        rate_review
+                      </span>
+                    </div>
+                    <h4 className="text-[9px] font-bold text-white uppercase tracking-[0.2em] opacity-90 mt-1 ml-0.5">
+                      Evaluations
+                    </h4>
                   </div>
-                  <h4 className="text-[9px] font-bold text-white uppercase tracking-[0.2em] opacity-90 mt-1 ml-0.5">
-                    Evaluations
-                  </h4>
+                  <div className="absolute -right-8 -bottom-16 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
                 </div>
-                <div className="absolute -right-8 -bottom-16 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-              </div>
-              <div className="p-6 flex flex-col flex-1">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Reviewer</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-xs mb-6 leading-relaxed">
-                  Evaluate assigned papers, submit scores, and provide constructive feedback to
-                  authors.
-                </p>
-                <div className="mt-auto">
-                  <button
-                    onClick={() => handleRoleSelect("reviewer")}
-                    className="w-full py-2.5 px-5 rounded-full bg-white border-2 border-blue-600 text-blue-600 text-xs font-bold hover:bg-blue-50 dark:bg-transparent dark:text-blue-400 dark:border-blue-500 dark:hover:bg-blue-900/20 transition-all duration-200 flex items-center justify-center gap-2 group/btn"
-                  >
-                    Enter Dashboard
-                    <span className="material-symbols-outlined text-base group-hover/btn:translate-x-1 transition-transform">
-                      arrow_forward
-                    </span>
-                  </button>
+                <div className="p-6 flex flex-col flex-1">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                    Reviewer
+                  </h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-xs mb-6 leading-relaxed">
+                    Evaluate assigned papers, submit scores, and provide constructive feedback to
+                    authors.
+                  </p>
+                  <div className="mt-auto">
+                    <button
+                      onClick={() => handleRoleSelect("reviewer")}
+                      className="w-full py-2.5 px-5 rounded-full bg-white border-2 border-blue-600 text-blue-600 text-xs font-bold hover:bg-blue-50 dark:bg-transparent dark:text-blue-400 dark:border-blue-500 dark:hover:bg-blue-900/20 transition-all duration-200 flex items-center justify-center gap-2 group/btn"
+                    >
+                      Enter Dashboard
+                      <span className="material-symbols-outlined text-base group-hover/btn:translate-x-1 transition-transform">
+                        arrow_forward
+                      </span>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Chair Card */}
-            <div className="group relative flex flex-col bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden h-full">
-              <div className="h-24 w-full bg-gradient-to-br from-purple-700 to-purple-800 relative overflow-hidden">
-                <div className="absolute top-4 left-5 z-20 flex flex-col gap-2">
-                  <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg">
-                    <span className="material-symbols-outlined text-purple-700 text-xl font-bold">
-                      gavel
-                    </span>
+            {canAccessRole(user, "chair") && (
+              <div className="group relative flex flex-col bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden h-full">
+                <div className="h-24 w-full bg-gradient-to-br from-purple-700 to-purple-800 relative overflow-hidden">
+                  <div className="absolute top-4 left-5 z-20 flex flex-col gap-2">
+                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg">
+                      <span className="material-symbols-outlined text-purple-700 text-xl font-bold">
+                        gavel
+                      </span>
+                    </div>
+                    <h4 className="text-[9px] font-bold text-white uppercase tracking-[0.2em] opacity-90 mt-1 ml-0.5">
+                      Management
+                    </h4>
                   </div>
-                  <h4 className="text-[9px] font-bold text-white uppercase tracking-[0.2em] opacity-90 mt-1 ml-0.5">
-                    Management
-                  </h4>
+                  <div className="absolute -right-8 -bottom-16 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
                 </div>
-                <div className="absolute -right-8 -bottom-16 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-              </div>
-              <div className="p-6 flex flex-col flex-1">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Chair</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-xs mb-6 leading-relaxed">
-                  Oversee conference tracks, manage committees, and set schedules for the event.
-                </p>
-                <div className="mt-auto">
-                  <button
-                    onClick={() => handleRoleSelect("chair")}
-                    className="w-full py-2.5 px-5 rounded-full bg-white border-2 border-purple-600 text-purple-600 text-xs font-bold hover:bg-purple-50 dark:bg-transparent dark:text-purple-400 dark:border-purple-500 dark:hover:bg-purple-900/20 transition-all duration-200 flex items-center justify-center gap-2 group/btn"
-                  >
-                    Enter Dashboard
-                    <span className="material-symbols-outlined text-base group-hover/btn:translate-x-1 transition-transform">
-                      arrow_forward
-                    </span>
-                  </button>
+                <div className="p-6 flex flex-col flex-1">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Chair</h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-xs mb-6 leading-relaxed">
+                    Oversee conference tracks, manage committees, and set schedules for the event.
+                  </p>
+                  <div className="mt-auto">
+                    <button
+                      onClick={() => handleRoleSelect("chair")}
+                      className="w-full py-2.5 px-5 rounded-full bg-white border-2 border-purple-600 text-purple-600 text-xs font-bold hover:bg-purple-50 dark:bg-transparent dark:text-purple-400 dark:border-purple-500 dark:hover:bg-purple-900/20 transition-all duration-200 flex items-center justify-center gap-2 group/btn"
+                    >
+                      Enter Dashboard
+                      <span className="material-symbols-outlined text-base group-hover/btn:translate-x-1 transition-transform">
+                        arrow_forward
+                      </span>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </main>

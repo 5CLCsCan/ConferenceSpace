@@ -1,12 +1,12 @@
 "use client"
 
 import { Suspense } from "react"
-import ChairDashboard from "@/components/chair/chair-dashboard"
+import { ChairConferences } from "@/components/chair/chair-conferences"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { useNotifications } from "@/hooks/use-notifications"
 import { getChairMenuItems } from "@/components/chair/menu-items"
 
-export default function ChairPage() {
+export default function ChairConferencesPage() {
   const { unreadCount } = useNotifications({ limit: 1 })
 
   return (
@@ -14,15 +14,15 @@ export default function ChairPage() {
       <DashboardSidebar menuItems={getChairMenuItems(unreadCount)} />
 
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
-        <div className="flex-1 overflow-y-auto px-10 md:px-12 py-8 md:py-8 w-full">
+        <div className="flex-1 overflow-y-auto px-8 md:px-12 py-6 md:py-8 w-full">
           <Suspense
             fallback={
               <div className="flex items-center justify-center h-full text-slate-400">
-                Loading Chair Dashboard...
+                Loading Conferences...
               </div>
             }
           >
-            <ChairDashboard />
+            <ChairConferences />
           </Suspense>
         </div>
       </main>

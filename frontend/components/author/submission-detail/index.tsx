@@ -1,9 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useAuth } from "@/lib/auth-context"
 import type { Submission } from "@/lib/api/submissions"
-import { SubmissionReviewTab } from "@/components/chair/submission-review-tab"
 import { SubmissionHeader, type TabId } from "./submission-header"
 import { OverviewTab } from "./overview-tab"
 import { DiscussionTab } from "./discussion-tab"
@@ -20,8 +18,6 @@ export function SubmissionDetailView({
   conferenceId,
   conferenceName,
 }: SubmissionDetailViewProps) {
-  const { currentRole } = useAuth()
-  const isChair = currentRole === "chair"
   const [activeTab, setActiveTab] = useState<TabId>("overview")
 
   return (
@@ -46,14 +42,7 @@ export function SubmissionDetailView({
           {/* Discussion Tab */}
           {activeTab === "discussion" && (
             <div className="animate-in fade-in duration-200">
-              {isChair ? (
-                <SubmissionReviewTab
-                  conferenceId={conferenceId}
-                  submissionId={submission.id.toString()}
-                />
-              ) : (
-                <DiscussionTab />
-              )}
+              <DiscussionTab />
             </div>
           )}
 

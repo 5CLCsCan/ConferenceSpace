@@ -2,7 +2,6 @@
 export * from "./types"
 
 // Components
-export { AuthorConferences } from "./author-conferences"
 export { StatusBadge } from "./status-badge"
 export { ConferenceCardBase, ActionButton } from "./conference-card-base"
 export {

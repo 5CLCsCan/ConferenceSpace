@@ -9,11 +9,12 @@ import { sessionManager } from "./session-manager"
 interface AuthContextType {
   user: User | null
   isAuthenticated: boolean
+  isAuthLoading: boolean
   currentRole: UserRole | null
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>
   logout: () => void
-  switchRole: (role: UserRole) => void
+  switchRole: (role: UserRole) => boolean
   resetRole: () => void
   refreshUser: () => Promise<void>
 }
@@ -31,19 +32,46 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 // Valid user roles - used for validation
 const VALID_USER_ROLES: UserRole[] = ["author", "reviewer", "chair", "admin"]
 
+function extractRoles(rawRoles: unknown): UserRole[] {
+  if (!Array.isArray(rawRoles)) {
+    return []
+  }
+
+  const roles: UserRole[] = []
+
+  for (const rawRole of rawRoles) {
+    let candidate: unknown = rawRole
+
+    if (rawRole && typeof rawRole === "object") {
+      const roleObject = rawRole as Record<string, unknown>
+      candidate = roleObject.role ?? roleObject.name ?? roleObject.value
+    }
+
+    if (typeof candidate !== "string") {
+      continue
+    }
+
+    const normalized = candidate.trim().toLowerCase() as UserRole
+
+    if (VALID_USER_ROLES.includes(normalized) && !roles.includes(normalized)) {
+      roles.push(normalized)
+    }
+  }
+
+  return roles
+}
+
+function mergeRoles(primary: UserRole[], secondary: UserRole[]): UserRole[] {
+  return [...new Set<UserRole>([...primary, ...secondary])]
+}
+
 function normalizeUser(apiUser: any): User {
   const firstName = apiUser?.first_name ?? ""
   const lastName = apiUser?.last_name ?? ""
   const fullName = `${firstName} ${lastName}`.trim() || apiUser?.name || apiUser?.email || "User"
 
-  // Validate and filter roles to only include valid UserRole values
-  let roles: UserRole[] = []
-  if (Array.isArray(apiUser?.roles) && apiUser.roles.length > 0) {
-    roles = apiUser.roles.filter(
-      (role: any): role is UserRole =>
-        typeof role === "string" && VALID_USER_ROLES.includes(role as UserRole),
-    )
-  }
+  // Normalize roles from API and tolerate case/shape differences.
+  let roles = extractRoles(apiUser?.roles)
 
   // Default to author if no valid roles found
   if (roles.length === 0) {
@@ -74,6 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [currentRole, setCurrentRole] = useState<UserRole | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthLoading, setIsAuthLoading] = useState(true)
   const { t } = useTranslation()
 
   // Sync state with SessionManager
@@ -86,11 +115,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setCurrentRole(sessionRole)
     setIsAuthenticated(sessionAuth)
   }, [])
-
-  // Initialize from SessionManager on mount
-  useEffect(() => {
-    syncWithSessionManager()
-  }, [syncWithSessionManager])
 
   const persistSession = useCallback(
     (nextUser: User) => {
@@ -112,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshSession = useCallback(async () => {
     try {
       const existingUser = sessionManager.getUser()
-      const existingRoles = existingUser?.roles || ["author"]
+      const existingRoles = extractRoles(existingUser?.roles)
 
       const response = await apiFetch<{ data: any }>("/api/v1/users/me", {
         method: "GET",
@@ -124,7 +148,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return
       }
 
-      userData.roles = existingRoles
+      const apiRoles = extractRoles(userData?.roles)
+      userData.roles = mergeRoles(apiRoles, existingRoles)
+
+      if (userData.roles.length === 0) {
+        userData.roles = ["author"]
+      }
 
       const normalizedUser = normalizeUser(userData)
 
@@ -142,8 +171,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [clearSession, persistSession])
 
   useEffect(() => {
-    syncWithSessionManager()
-    void refreshSession()
+    let isActive = true
+
+    const initializeAuth = async () => {
+      syncWithSessionManager()
+      const hasStoredSession = sessionManager.isAuthenticated()
+
+      if (hasStoredSession) {
+        if (isActive) {
+          setIsAuthLoading(false)
+        }
+
+        void refreshSession()
+        return
+      }
+
+      await refreshSession()
+
+      if (isActive) {
+        syncWithSessionManager()
+        setIsAuthLoading(false)
+      }
+    }
+
+    void initializeAuth()
+
+    return () => {
+      isActive = false
+    }
   }, [refreshSession, syncWithSessionManager])
 
   const login = useCallback(
@@ -174,6 +229,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const normalizedUser = normalizeUser(apiUser)
         sessionManager.setUser(normalizedUser)
         syncWithSessionManager()
+        setIsAuthLoading(false)
 
         return { success: true }
       } catch (error) {
@@ -218,15 +274,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     clearSession()
+    setIsAuthLoading(false)
     void fetch("/api/v1/auth/logout", { method: "POST" }).catch(() => undefined)
   }, [clearSession])
 
   const switchRole = useCallback(
     (role: UserRole) => {
-      const success = sessionManager.setRole(role, false)
+      const success = sessionManager.setRole(role, true)
       if (success) {
         syncWithSessionManager()
       }
+      return success
     },
     [syncWithSessionManager],
   )
@@ -243,6 +301,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value: AuthContextType = {
     user,
     isAuthenticated,
+    isAuthLoading,
     currentRole,
     login,
     register,
