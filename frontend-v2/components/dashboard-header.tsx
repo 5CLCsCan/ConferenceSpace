@@ -39,11 +39,13 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
       // { href: "/role/author/submissions/new", label: t("dashboard.header.links.author.newSubmission") },
     ],
     reviewer: [
-      { href: "/role/reviewer", label: t("dashboard.header.links.reviewer.assignments") },
+      { href: "/role/reviewer", label: t("dashboard.header.links.reviewer.dashboard") },
       {
-        href: "/role/reviewer",
-        label: t("dashboard.header.links.reviewer.completed"),
+        href: "/role/reviewer/conferences",
+        label: t("dashboard.header.links.reviewer.conferences"),
       },
+      { href: "/role/reviewer/invitations", label: t("dashboard.header.links.reviewer.invitations") },
+      { href: "/role/reviewer/completed", label: t("dashboard.header.links.reviewer.completed") },
     ],
     chair: [{ href: "/role/chair", label: t("dashboard.header.links.chair.overview") }],
   }

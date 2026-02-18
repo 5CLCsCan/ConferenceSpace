@@ -410,6 +410,9 @@
           "newSubmission": "Gửi bài mới"
         },
         "reviewer": {
+          "dashboard": "Tổng quan",
+          "conferences": "Hội nghị",
+          "invitations": "Lời mời",
           "assignments": "Bài được giao",
           "completed": "Phản biện đã hoàn thành"
         },

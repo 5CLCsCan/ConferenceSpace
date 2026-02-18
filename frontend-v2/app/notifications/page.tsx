@@ -79,6 +79,9 @@ export default function NotificationsPage() {
     if (currentRole === "reviewer") {
       return [
         { label: "Dashboard", href: "/role/reviewer", icon: "dashboard" },
+        { label: "Conferences", href: "/role/reviewer/conferences", icon: "calendar_month" },
+        { label: "Invitations", href: "/role/reviewer/invitations", icon: "mail" },
+        { label: "Completed", href: "/role/reviewer/completed", icon: "task_alt" },
         {
           label: "Notifications",
           href: "/notifications",

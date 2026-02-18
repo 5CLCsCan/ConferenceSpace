@@ -1,12 +1,13 @@
 "use client"
 
-import { Suspense } from "react"
+import { useParams } from "next/navigation"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
+import { AssignedDashboard } from "@/components/reviewer/assigned-dashboard"
 import { useNotifications } from "@/hooks/use-notifications"
-import { ReviewerDashboard } from "@/components/reviewer/reviewer-dashboard"
 import { getReviewerMenuItems } from "@/components/reviewer/menu-items"
 
-export default function ReviewerPage() {
+export default function ReviewerConferenceSubmissionsPage() {
+  const params = useParams() as { conferenceId: string }
   const { unreadCount } = useNotifications({ limit: 1 })
 
   return (
@@ -14,16 +15,8 @@ export default function ReviewerPage() {
       <DashboardSidebar menuItems={getReviewerMenuItems(unreadCount)} />
 
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
-        <div className="flex-1 overflow-y-auto py-8 px-12 w-full">
-          <Suspense
-            fallback={
-              <div className="flex items-center justify-center h-full text-slate-400">
-                Loading...
-              </div>
-            }
-          >
-            <ReviewerDashboard />
-          </Suspense>
+        <div className="flex-1 overflow-y-auto w-full">
+          <AssignedDashboard conferenceId={params.conferenceId} />
         </div>
       </main>
     </div>
