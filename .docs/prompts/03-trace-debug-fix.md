@@ -1,134 +1,66 @@
-# 03 - Trace, Debug, and Fix Prompt
+# Prompt 03: Trace-Debug-Fix (Parity-Guided)
 
-Use this prompt when a migrated feature behaves incorrectly (visual issue, technical issue, navigation issue, state issue, data issue).
+You are triaging and fixing a specific functional/API regression in `frontend-v2`.
 
-## Fill These Inputs
+## Objective
+Reproduce the issue, trace root cause, apply frontend-only fix, and update parity/delta evidence.
 
-- `ROLE`: `author` or `reviewer` or `chair`
-- `ROLE_DOC_DIR`: e.g. `frontend/.docs/author`
-- `LEGACY_DIR`: `frontend`
-- `TARGET_DIR`: `frontend-v2`
-- `BUG_REPORT`: concise issue statement from QA/user
-- `EXPECTED_BEHAVIOR`: optional explicit expected behavior if known
+## Required Context
+Load:
+- `.docs/.legacy/functional-parity-matrix.md`
+- `.docs/.legacy/api-contract-deltas.md`
+- Relevant route/API files in `frontend-v2/**`
+- Legacy reference files in `frontend/**`
 
-## Copy-Paste Prompt
+## Constraints
+1. Frontend only; do not modify backend.
+2. If backend dependency blocks resolution, emit exact `BACKEND REQUEST` text.
+3. Tie every diagnosis and fix to explicit `PAR-*` and `AD-*` IDs.
 
-```text
-You are a migration incident engineer. Diagnose and fix a regression for ROLE=`<ROLE>`.
+## Debug Procedure
+1. Reproduce:
+   - Identify scenario ID(s) impacted.
+   - Provide minimal reproducible path (route, role, action).
+2. Trace:
+   - Locate failing contract boundary (route mapping, API adapter, mock leakage, auth/session, state sync).
+   - Compare legacy behavior vs v2 behavior.
+3. Fix:
+   - Implement smallest safe patch in `frontend-v2`.
+   - Avoid introducing new mocks unless explicitly transitional and documented.
+4. Validate:
+   - Re-run impacted scenario(s).
+   - Confirm no adjacent regressions in same domain.
 
-Inputs:
-- Role: <ROLE>
-- Role docs: <ROLE_DOC_DIR>
-- Legacy project: <LEGACY_DIR>
-- Target project: <TARGET_DIR>
-- Bug report: <BUG_REPORT>
-- Expected behavior (if provided): <EXPECTED_BEHAVIOR>
+## Classification Tags
+Use one primary root-cause tag:
+- `contract-missing`
+- `contract-mismatch`
+- `mock-leakage`
+- `route-mapping`
+- `auth-session`
+- `state-sync`
+- `blocked-backend`
 
-Context rule:
-Assume no prior context. Rebuild context from role docs + code.
-
-Objective:
-Reproduce the issue, find root cause, patch it safely in `<TARGET_DIR>`, and verify that behavior now matches migration contract (and legacy behavior where contract allows).
-
-Hard constraints:
-1) Contract in role docs is authoritative.
-2) No backend API changes.
-3) Fix root cause, not symptom masking.
-4) Keep patch minimal and role-scoped.
-5) Do not break canonical route conventions.
-
-Required debugging workflow:
-
-Step 1 - Scope and reproduction
-- Parse bug report into:
-  - affected flow
-  - affected route(s)
-  - expected vs actual
-  - severity/user impact
-- Identify exact reproduction steps.
-- Reproduce issue in `<TARGET_DIR>` and record observed behavior.
-
-Step 2 - Contract grounding
-- Read relevant docs from `<ROLE_DOC_DIR>`.
-- Identify the exact contract clauses related to this flow.
-- If expected behavior is unclear, derive expected behavior from contract first.
-
-Step 3 - Legacy parity tracing
-- Locate equivalent implementation in `<LEGACY_DIR>`.
-- Compare:
-  - route construction
-  - guards/auth checks
-  - data-fetch sequence
-  - UI state transitions
-  - action handlers/navigation
-- Build a short "Delta Map" (legacy vs target vs contract).
-
-Step 4 - Root cause isolation
-- Trace from user action to failure point:
-  - wrong route mapping?
-  - missing param?
-  - stale query naming?
-  - incorrect role guard?
-  - missing state initialization?
-  - visual style regression from missing class/component?
-- Confirm root cause with concrete evidence before editing.
-
-Step 5 - Patch implementation
-- Apply targeted fix in `<TARGET_DIR>`.
-- If needed, add/adjust helper utilities to avoid repeated mistakes.
-- Keep behavior aligned with canonical docs.
-- Avoid touching unrelated roles/features.
-
-Step 6 - Verification
-- Re-run reproduction scenario.
-- Run relevant lint/type checks.
-- Run role grep checks for forbidden legacy paths.
-- Run adjacent smoke checks to guard against collateral regressions.
-
-Step 7 - Document outcome
-- Provide:
-  - root cause summary
-  - exact files changed
-  - before/after behavior
-  - validation evidence
-  - any remaining risks
-
-Output format (must follow):
-
-1) Incident Summary
-- bug statement
-- impact
-- affected routes/components
-
-2) Reproduction
-- exact steps
-- observed result
-
-3) Contract and Legacy Comparison
-- relevant contract clauses
-- legacy behavior reference
-- target divergence
-
-4) Root Cause
-- precise technical cause with file refs
-
-5) Fix Applied
-- files changed with purpose
-- key logic changes
-
-6) Verification
-- reproduction retest result
-- checks run + outcomes
-- regression checks run + outcomes
-
-7) Residual Risk
-- explicit list (or "None identified")
-
-Escalation rule:
-If root cause cannot be proven from available evidence, stop and report:
-- what was checked
-- what remains uncertain
-- smallest additional info required.
-Do not guess.
+## Required Output Format
+```yaml
+changed_files:
+  - <path>
+parity_items_resolved:
+  - <PAR-ID>
+backend_requests_added:
+  - <BR-ID>
+verification_results:
+  - scenario_id: <SCN-ID>
+    status: pass|fail|blocked
+    evidence: <repro/validation summary>
+residual_risks:
+  - <remaining risk>
+trace_report:
+  issue: <one-line issue>
+  root_cause_tag: <tag>
+  parity_items: [PAR-###]
+  api_deltas: [AD-###]
+  legacy_reference: [<path>]
+  v2_targets: [<path>]
+  fix_summary: <what changed and why>
 ```
-

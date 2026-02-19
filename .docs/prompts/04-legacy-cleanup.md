@@ -1,108 +1,57 @@
-# 04 - Post-Completion Legacy Cleanup Prompt
+# Prompt 04: Post-Parity Legacy Cleanup
 
-Use this prompt after a role migration passes validation and you want to clean legacy files safely.
+You are cleaning migration leftovers after functional/API parity is already achieved for targeted items.
 
-## Fill These Inputs
+## Objective
+Remove obsolete frontend-v2 migration scaffolding (unused mocks, dead adapters, temporary compatibility code) without breaking required parity, including dev/test parity commitments.
 
-- `ROLE`: `author` or `reviewer` or `chair`
-- `ROLE_DOC_DIR`: e.g. `frontend/.docs/author`
-- `LEGACY_DIR`: `frontend`
-- `TARGET_DIR`: `frontend-v2`
+## Required Context
+Load:
+- `.docs/.legacy/functional-parity-matrix.md`
+- `.docs/.legacy/api-contract-deltas.md`
+- Latest execution/audit outputs
 
-## Copy-Paste Prompt
+## Preconditions
+Cleanup is allowed only when targeted parity IDs are not `missing` or `blocked-backend`.
 
-```text
-You are performing post-migration legacy cleanup for ROLE=`<ROLE>`.
+## Cleanup Rules
+1. Do not delete assets still required for:
+   - active parity items
+   - approved additive v2 behavior
+   - required dev/test parity routes/utilities
+2. Remove only if all are true:
+   - replacement path is API-backed and verified
+   - no unresolved parity item references the artifact
+   - no prompt or docs workflow depends on it
+3. For each deletion, provide explicit dependency check evidence.
 
-Inputs:
-- Role docs: <ROLE_DOC_DIR>
-- Legacy project: <LEGACY_DIR>
-- Target project: <TARGET_DIR>
+## Candidate Cleanup Targets
+- Mock data files no longer referenced by active parity items.
+- Transitional route-mapping shims replaced by stable contracts.
+- Temporary TODO adapters superseded by real API modules.
 
-Objective:
-Delete or prune obsolete legacy files/routes/components related to `<ROLE>` migration, with strict safety gates and traceability.
+## Safety Verification
+Run scenario checks for impacted domains after cleanup. If any fail, rollback cleanup candidate and record residual risk.
 
-Rules:
-1) Do not delete anything unless deletion gates are satisfied.
-2) Use role docs as the authority for cleanup scope.
-3) Keep cleanup scoped to migrated role and shared pieces already verified.
-4) Preserve anything still required by unfinished role phases.
-5) Avoid destructive shortcuts.
-
-Required workflow:
-
-Step 1 - Build cleanup candidate list
-- Read cleanup sections in role docs.
-- Produce a candidate table:
-  - file path
-  - why obsolete
-  - replacement in `<TARGET_DIR>`
-  - deletion gate status (Pass/Fail)
-
-Step 2 - Prove replacement readiness (for each file)
-- Verify replacement feature exists in `<TARGET_DIR>`.
-- Verify route/component behavior is validated in prior checks.
-- Verify no target references point to removed legacy routes.
-
-Step 3 - Dependency safety scan
-- Scan `<LEGACY_DIR>` and `<TARGET_DIR>` for references to each candidate.
-- If references remain:
-  - either migrate/update references
-  - or defer deletion with explicit reason
-
-Step 4 - Execute cleanup
-- Delete only candidates with all gates passing.
-- Keep deletions grouped logically (shared cleanup vs role cleanup).
-- If needed, perform small supporting edits to remove dangling imports/references.
-
-Step 5 - Post-cleanup verification
-- Run lint/type checks for affected projects.
-- Run grep checks for forbidden legacy route strings in `<TARGET_DIR>`.
-- Run targeted smoke checks for `<ROLE>` and shared flows.
-
-Step 6 - Cleanup report
-- Produce a complete report of:
-  - deleted files
-  - deferred files
-  - validation evidence
-  - rollback notes
-
-Deletion gates (must all pass for each file):
-1) Equivalent behavior is working in `<TARGET_DIR>`.
-2) No active references in `<TARGET_DIR>` to this legacy artifact.
-3) Deletion does not break unfinished scopes.
-4) Role docs allow cleanup at this phase.
-
-Output format (must follow):
-
-1) Cleanup Scope
-- role and boundaries
-- doc sections used as authority
-
-2) Candidate Matrix
-- one line per candidate:
-  - path
-  - gate status
-  - action (Delete/Defer)
-  - reason
-
-3) Applied Deletions
-- exact files deleted
-- any supporting edits performed
-
-4) Deferred Items
-- path
-- blocker
-- condition for future deletion
-
-5) Validation Results
-- checks run + outcomes
-- smoke flow outcomes
-
-6) Rollback Guidance
-- smallest rollback unit for this cleanup batch
-
-If cleanup cannot proceed:
-- return a "No-Safe-Deletion" report with explicit blockers.
+## Required Output Format
+```yaml
+changed_files:
+  - <path>
+parity_items_resolved:
+  - <PAR-ID>
+backend_requests_added: []
+verification_results:
+  - scenario_id: <SCN-ID>
+    status: pass|fail|blocked
+    evidence: <post-cleanup check>
+residual_risks:
+  - <risk>
+cleanup_report:
+  removed_artifacts:
+    - path: <path>
+      justification: <why safe>
+      linked_parity_items: [PAR-###]
+  retained_artifacts:
+    - path: <path>
+      reason: <why cannot remove yet>
 ```
-
