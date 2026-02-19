@@ -20,6 +20,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { useAuth } from "@/lib/auth-context"
 import { Loader2, GraduationCap, CheckCircle } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { ROUTES } from "@/lib/routes"
 import { typography, spacing, iconSizes } from "@/lib/typography"
 
 function LoginForm() {
@@ -39,7 +40,7 @@ function LoginForm() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/role")
+      router.push(ROUTES.ROLE_SELECT)
     }
   }, [isAuthenticated, router])
 
@@ -57,7 +58,7 @@ function LoginForm() {
     const result = await login(email.trim(), password)
 
     if (result.success) {
-      router.push("/role")
+      router.push(ROUTES.ROLE_SELECT)
     } else {
       setError(result.error || t("auth.login.errors.failed"))
       setIsLoading(false)
@@ -69,13 +70,13 @@ function LoginForm() {
       <div className="w-full max-w-md">
         <div className={`text-center mb-8`}>
           <Link
-            href="/"
+            href={ROUTES.HOME}
             className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-lg mb-4"
           >
             <GraduationCap className={`${iconSizes.lg} text-white`} />
           </Link>
           <h1 className={`${typography.h1} text-neutral-900 mb-2`}>
-            <Link href="/">{t("auth.login.cta")}</Link>
+            <Link href={ROUTES.HOME}>{t("auth.login.cta")}</Link>
           </h1>
           <p className={`text-neutral-600 ${typography.body}`}>{t("auth.login.subtitle")}</p>
         </div>
@@ -149,7 +150,7 @@ function LoginForm() {
             <div className={`${typography.body} text-center text-neutral-600`}>
               {t("auth.login.noAccount")}{" "}
               <Link
-                href="/register"
+                href={ROUTES.REGISTER}
                 className={`text-primary hover:underline ${typography.medium}`}
               >
                 {t("common.actions.signUp")}

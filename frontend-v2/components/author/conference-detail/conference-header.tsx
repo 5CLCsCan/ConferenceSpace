@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { ROUTES } from "@/lib/routes"
 import type { Conference, TabType } from "./types"
 import { formatDateRange, getConferenceStatus } from "./utils"
 
@@ -113,9 +114,9 @@ export function ConferenceHeader({
           <button
             onClick={() => {
               if (hasSubmission) {
-                router.push(`/role/author/submissions?conferenceId=${conferenceId}`)
+                router.push(`${ROUTES.AUTHOR.SUBMISSIONS}?conferenceId=${conferenceId}`)
               } else {
-                router.push(`/role/author/submissions/new?conferenceId=${conferenceId}`)
+                router.push(`${ROUTES.AUTHOR.NEW_SUBMISSION}?conferenceId=${conferenceId}`)
               }
             }}
             className="h-8 px-3 bg-[#1B3C53] text-white font-medium text-[11px] rounded-md hover:bg-[#234C6A] transition-colors flex items-center gap-1.5"

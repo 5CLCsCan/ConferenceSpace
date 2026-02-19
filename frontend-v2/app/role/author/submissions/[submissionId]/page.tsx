@@ -14,12 +14,14 @@ import { useTranslation } from "@/lib/i18n/translation-context"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useNotifications } from "@/hooks/use-notifications"
+import { getSidebarMenuItems } from "@/lib/navigation"
+import { ROUTES } from "@/lib/routes"
 
 function SubmissionDetailPageContent() {
   const params = useParams()
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { isAuthenticated, user, currentRole } = useAuth()
+  const { user } = useAuth()
   const { t } = useTranslation()
   const { unreadCount } = useNotifications({ limit: 1 })
 
@@ -31,30 +33,6 @@ function SubmissionDetailPageContent() {
   const [conferenceId, setConferenceId] = useState<string | null>(conferenceIdQuery)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [authChecked, setAuthChecked] = useState(false)
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setAuthChecked(true)
-    }, 100)
-
-    return () => clearTimeout(timer)
-  }, [])
-
-  useEffect(() => {
-    if (!authChecked) {
-      return
-    }
-
-    if (!isAuthenticated) {
-      router.push("/login")
-      return
-    }
-
-    if (!user || !user.roles.includes("author") || currentRole !== "author") {
-      router.push("/role")
-    }
-  }, [authChecked, currentRole, isAuthenticated, user, router])
 
   useEffect(() => {
     async function resolveConference() {
@@ -77,10 +55,10 @@ function SubmissionDetailPageContent() {
       setConferenceId(resolution.conferenceId)
     }
 
-    if (authChecked && isAuthenticated && user) {
+    if (user) {
       resolveConference()
     }
-  }, [authChecked, conferenceIdQuery, isAuthenticated, submissionId, user])
+  }, [conferenceIdQuery, submissionId, user])
 
   useEffect(() => {
     async function loadSubmission() {
@@ -96,11 +74,7 @@ function SubmissionDetailPageContent() {
         if (response.error) {
           setError(response.error)
         } else if (response.data) {
-          if (!user?.roles.includes("author") || currentRole !== "author") {
-            setError("You don't have permission to view this submission")
-          } else {
-            setSubmission(response.data)
-          }
+          setSubmission(response.data)
         }
 
         const confResponse = await getConferenceById(conferenceId)
@@ -114,31 +88,17 @@ function SubmissionDetailPageContent() {
       }
     }
 
-    if (isAuthenticated && user && conferenceId && submissionId) {
+    if (user && conferenceId && submissionId) {
       loadSubmission()
     }
-  }, [conferenceId, submissionId, currentRole, isAuthenticated, user])
+  }, [conferenceId, submissionId, user])
 
-  if (
-    !authChecked ||
-    !isAuthenticated ||
-    !user ||
-    !user.roles.includes("author") ||
-    currentRole !== "author"
-  ) {
-    return null
-  }
-
-  const authorMenuItems = [
-    { label: "Dashboard", href: "/role/author", icon: "dashboard" },
-    { label: "My Submissions", href: "/role/author/submissions", icon: "description" },
-    { label: "Notifications", href: "/notifications", icon: "notifications", badge: unreadCount },
-  ]
+  const menuItems = getSidebarMenuItems("author", unreadCount)
 
   if (loading) {
     return (
       <div className="bg-white dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
-        <DashboardSidebar menuItems={authorMenuItems} />
+        <DashboardSidebar menuItems={menuItems} />
         <main className="flex-grow flex flex-col h-screen overflow-hidden">
           <div className="flex-1 overflow-y-auto px-6 md:px-8 py-6 md:py-8 w-full max-w-7xl mx-auto">
             <div className="flex h-64 items-center justify-center">
@@ -153,7 +113,7 @@ function SubmissionDetailPageContent() {
   if (error) {
     return (
       <div className="bg-white dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
-        <DashboardSidebar menuItems={authorMenuItems} />
+        <DashboardSidebar menuItems={menuItems} />
         <main className="flex-grow flex flex-col h-screen overflow-hidden">
           <div className="flex-1 overflow-y-auto px-6 md:px-8 py-6 md:py-8 w-full max-w-7xl mx-auto">
             <Card>
@@ -165,7 +125,7 @@ function SubmissionDetailPageContent() {
                   <p className="text-gray-600">{error}</p>
                   <Button
                     variant="outline"
-                    onClick={() => router.push("/role/author/submissions")}
+                    onClick={() => router.push(ROUTES.AUTHOR.SUBMISSIONS)}
                     className="mt-4"
                   >
                     {t("common.actions.back", { defaultValue: "Go Back" })}
@@ -182,7 +142,7 @@ function SubmissionDetailPageContent() {
   if (!submission || !conferenceId) {
     return (
       <div className="bg-white dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
-        <DashboardSidebar menuItems={authorMenuItems} />
+        <DashboardSidebar menuItems={menuItems} />
         <main className="flex-grow flex flex-col h-screen overflow-hidden">
           <div className="flex-1 overflow-y-auto px-6 md:px-8 py-6 md:py-8 w-full max-w-7xl mx-auto">
             <Card>
@@ -198,7 +158,7 @@ function SubmissionDetailPageContent() {
                   </p>
                   <Button
                     variant="outline"
-                    onClick={() => router.push("/role/author/submissions")}
+                    onClick={() => router.push(ROUTES.AUTHOR.SUBMISSIONS)}
                     className="mt-4"
                   >
                     Back To Submissions
@@ -214,7 +174,7 @@ function SubmissionDetailPageContent() {
 
   return (
     <div className="bg-white dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
-      <DashboardSidebar menuItems={authorMenuItems} />
+      <DashboardSidebar menuItems={menuItems} />
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
         <SubmissionDetailView
           submission={submission}

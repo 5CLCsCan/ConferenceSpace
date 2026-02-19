@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { formatDate } from "@/lib/utils"
 import { useCompletedReviews } from "@/hooks/use-completed-reviews"
+import { ROUTES } from "@/lib/routes"
 import { useDebounce } from "@/hooks/use-debounce"
 
 interface CompletedReviewsProps {
@@ -70,7 +71,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
   const handleSelect = (paperId: string, conferenceId: string) => {
     if (onSelectPaper) return onSelectPaper(paperId, conferenceId)
     const conferenceParam = conferenceId ? `?conferenceId=${conferenceId}` : ""
-    router.push(`/role/reviewer/assignments/${paperId}${conferenceParam}`)
+    router.push(`${ROUTES.REVIEWER.ASSIGNMENT(paperId)}${conferenceParam}`)
   }
 
   return (

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { submitPaper, updatePaper } from "@/lib/api/papers"
 import { useAuth } from "@/lib/auth-context"
+import { ROUTES } from "@/lib/routes"
 import type { Conference } from "@/lib/types"
 import type { Submission } from "@/lib/api/submissions"
 import { useToast } from "@/components/ui/use-toast"
@@ -494,7 +495,7 @@ export function PaperSubmissionForm({
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogAction
-                onClick={() => router.push(`/role/author/conferences/${conference?.id}`)}
+                onClick={() => router.push(ROUTES.AUTHOR.CONFERENCE_DETAIL(conference?.id ?? ""))}
               >
                 Continue to Conference
               </AlertDialogAction>

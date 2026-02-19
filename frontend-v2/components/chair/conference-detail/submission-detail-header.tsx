@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { ROUTES } from "@/lib/routes"
 import type { ConferenceInfo } from "./types"
 import type { SubmissionSubTab, SubmissionDetailStatus } from "./submission-detail/types"
 import { SubmissionStatusBadge } from "./submission-detail/components"
@@ -51,7 +52,7 @@ export function SubmissionDetailHeader({
           {/* Breadcrumb */}
           <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mb-1">
             <button
-              onClick={() => router.push("/role/chair/conferences")}
+              onClick={() => router.push(ROUTES.CHAIR.CONFERENCES)}
               className="hover:text-[#1B3C53] dark:hover:text-white transition-colors flex items-center gap-1.5"
             >
               <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
@@ -63,7 +64,7 @@ export function SubmissionDetailHeader({
               chevron_right
             </span>
             <button
-              onClick={() => router.push(`/role/chair/conferences/${conferenceId}`)}
+              onClick={() => router.push(ROUTES.CHAIR.CONFERENCE_DETAIL(conferenceId))}
               className="font-semibold text-[#1B3C53] dark:text-white hover:underline"
             >
               {conference.acronym} {conference.year}
@@ -72,7 +73,7 @@ export function SubmissionDetailHeader({
               chevron_right
             </span>
             <button
-              onClick={() => router.push(`/role/chair/conferences/${conferenceId}/submissions`)}
+              onClick={() => router.push(ROUTES.CHAIR.CONFERENCE_SUBMISSIONS(conferenceId))}
               className="hover:text-[#1B3C53] dark:hover:text-white transition-colors"
             >
               Submissions

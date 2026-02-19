@@ -5,6 +5,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/auth-context"
 import type { Submission } from "@/lib/api/submissions"
+import { ROUTES } from "@/lib/routes"
 
 // Scholar-Compact status badge matching chair role design
 const statusConfig: Record<string, { label: string; className: string }> = {
@@ -101,7 +102,7 @@ export function SubmissionHeader({
           {/* Breadcrumb */}
           <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mb-1">
             <button
-              onClick={() => router.push("/role/author/submissions")}
+              onClick={() => router.push(ROUTES.AUTHOR.SUBMISSIONS)}
               className="hover:text-[#1B3C53] dark:hover:text-white transition-colors flex items-center gap-1.5"
             >
               <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
@@ -113,7 +114,7 @@ export function SubmissionHeader({
               chevron_right
             </span>
             <button
-              onClick={() => router.push(`/role/author/conferences/${conferenceId}`)}
+              onClick={() => router.push(ROUTES.AUTHOR.CONFERENCE_DETAIL(conferenceId))}
               className="font-semibold text-[#1B3C53] dark:text-white hover:underline"
             >
               {conferenceName || "Conference"}
@@ -150,7 +151,7 @@ export function SubmissionHeader({
         <div className="flex items-center gap-2">
           {isAuthor && submission.status === "draft" && (
             <Link
-              href={`/role/author/submissions/${submission.id}/edit?conferenceId=${conferenceId}`}
+              href={`${ROUTES.AUTHOR.SUBMISSION_EDIT(String(submission.id))}?conferenceId=${conferenceId}`}
               className="h-8 px-3 bg-white border border-slate-200 text-slate-600 font-medium text-[11px] rounded-md hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center gap-1.5"
             >
               <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>

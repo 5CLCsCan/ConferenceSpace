@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { createConference } from "@/lib/api/conferences"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { ROUTES } from "@/lib/routes"
 import {
   WizardLayout,
   BasicDetailsStep,
@@ -71,7 +72,7 @@ export default function CreateConferencePage() {
   }
 
   const handleCancel = () => {
-    router.push("/role/chair/conferences")
+    router.push(ROUTES.CHAIR.CONFERENCES)
   }
 
   const handleSaveDraft = () => {
@@ -144,7 +145,7 @@ export default function CreateConferencePage() {
           title: t("dashboard.chair.createConference.success"),
           description: t("dashboard.chair.createConference.successDescription"),
         })
-        router.push("/role/chair/conferences")
+        router.push(ROUTES.CHAIR.CONFERENCES)
       }
     } catch {
       toast({
@@ -199,4 +200,3 @@ export default function CreateConferencePage() {
     </WizardLayout>
   )
 }
-

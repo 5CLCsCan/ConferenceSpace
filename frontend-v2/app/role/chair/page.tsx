@@ -4,14 +4,14 @@ import { Suspense } from "react"
 import ChairDashboard from "@/components/chair/chair-dashboard"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { useNotifications } from "@/hooks/use-notifications"
-import { getChairMenuItems } from "@/components/chair/menu-items"
+import { getSidebarMenuItems } from "@/lib/navigation"
 
 export default function ChairPage() {
   const { unreadCount } = useNotifications({ limit: 1 })
 
   return (
     <div className="bg-[#f8fafc] dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
-      <DashboardSidebar menuItems={getChairMenuItems(unreadCount)} />
+      <DashboardSidebar menuItems={getSidebarMenuItems("chair", unreadCount)} />
 
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
         <div className="flex-1 overflow-y-auto px-10 md:px-12 py-8 md:py-8 w-full">

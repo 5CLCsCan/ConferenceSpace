@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import type { UserRole } from "@/lib/types"
 import { canAccessRole } from "@/lib/role-access"
+import { ROUTES } from "@/lib/routes"
 
 interface RoleRouteGuardResult {
   canRender: boolean
@@ -20,12 +21,12 @@ export function useRoleRouteGuard(requiredRole: UserRole): RoleRouteGuardResult 
     }
 
     if (!isAuthenticated || !user) {
-      router.replace("/login")
+      router.replace(ROUTES.LOGIN)
       return
     }
 
     if (!canAccessRole(user, requiredRole)) {
-      router.replace("/role")
+      router.replace(ROUTES.ROLE_SELECT)
       return
     }
 
@@ -33,7 +34,7 @@ export function useRoleRouteGuard(requiredRole: UserRole): RoleRouteGuardResult 
       const didSwitchRole = switchRole(requiredRole)
 
       if (!didSwitchRole) {
-        router.replace("/role")
+        router.replace(ROUTES.ROLE_SELECT)
       }
     }
   }, [currentRole, isAuthenticated, isAuthLoading, requiredRole, router, switchRole, user])

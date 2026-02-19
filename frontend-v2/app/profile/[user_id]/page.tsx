@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, ArrowLeft } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { ROUTES } from "@/lib/routes"
 
 const EMPTY_FORM: ProfileFormData = {
   firstName: "",
@@ -30,12 +31,6 @@ const normalizeDomains = (domains: unknown): string[] => {
   return domains
     .map((item) => (typeof item === "string" ? item.trim() : String(item || "").trim()))
     .filter((item) => item.length > 0)
-}
-
-const resolveHeaderRole = (roles: string[] | undefined): "author" | "reviewer" | "chair" => {
-  if (roles?.includes("chair")) return "chair"
-  if (roles?.includes("reviewer")) return "reviewer"
-  return "author"
 }
 
 export default function UserProfilePage() {
@@ -62,7 +57,7 @@ export default function UserProfilePage() {
 
   useEffect(() => {
     if (authChecked && !isAuthenticated) {
-      router.push("/login")
+      router.push(ROUTES.LOGIN)
     }
   }, [authChecked, isAuthenticated, router])
 
@@ -126,7 +121,9 @@ export default function UserProfilePage() {
   const isDirty = useMemo(() => {
     const sameDomains =
       formData.domain.length === initialFormData.domain.length &&
-      formData.domain.every((value, index) => value.trim() === (initialFormData.domain[index] || "").trim())
+      formData.domain.every(
+        (value, index) => value.trim() === (initialFormData.domain[index] || "").trim(),
+      )
 
     return (
       formData.firstName.trim() !== initialFormData.firstName.trim() ||
@@ -187,7 +184,7 @@ export default function UserProfilePage() {
       setInitialFormData({ ...formData, domain: [...formData.domain] })
     } catch (error) {
       if (error instanceof UnauthorizedError) {
-        router.push("/login")
+        router.push(ROUTES.LOGIN)
         return
       }
 
@@ -221,7 +218,7 @@ export default function UserProfilePage() {
   if (!authChecked || !isAuthenticated || loading) {
     return (
       <div className="min-h-screen bg-neutral-50">
-        <DashboardHeader role={resolveHeaderRole(authUser?.roles)} />
+        <DashboardHeader />
         <main className="container mx-auto px-4 py-10">
           <div className="flex items-center justify-center h-[50vh]">
             <Loader2 className="h-8 w-8 animate-spin text-neutral-500" />
@@ -234,7 +231,7 @@ export default function UserProfilePage() {
   if (notFound || !profile) {
     return (
       <div className="min-h-screen bg-neutral-50">
-        <DashboardHeader role={resolveHeaderRole(authUser?.roles)} />
+        <DashboardHeader />
         <main className="container mx-auto px-4 py-10">
           <div className="max-w-xl mx-auto bg-white border rounded-xl p-8 text-center space-y-4">
             <h1 className="text-2xl font-bold text-neutral-900">Profile Not Found</h1>
@@ -250,9 +247,15 @@ export default function UserProfilePage() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <DashboardHeader role={resolveHeaderRole(authUser?.roles)} />
+      <DashboardHeader />
       <main className="container mx-auto px-4 py-8 space-y-6">
-        <Button variant="ghost" size="sm" onClick={() => (window.history.length > 1 ? router.back() : router.push("/role"))}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() =>
+            window.history.length > 1 ? router.back() : router.push(ROUTES.ROLE_SELECT)
+          }
+        >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
@@ -312,7 +315,12 @@ export default function UserProfilePage() {
                     }}
                     placeholder="Add a domain"
                   />
-                  <Button type="button" variant="secondary" onClick={addDomain} disabled={saving || !domainInput.trim()}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={addDomain}
+                    disabled={saving || !domainInput.trim()}
+                  >
                     Add
                   </Button>
                 </div>
@@ -324,7 +332,11 @@ export default function UserProfilePage() {
                     <Badge key={domain} variant="secondary" className="gap-2">
                       {domain}
                       {isOwnProfile && (
-                        <button type="button" onClick={() => removeDomain(domain)} disabled={saving}>
+                        <button
+                          type="button"
+                          onClick={() => removeDomain(domain)}
+                          disabled={saving}
+                        >
                           ×
                         </button>
                       )}
@@ -338,7 +350,13 @@ export default function UserProfilePage() {
 
             {isOwnProfile && isDirty && (
               <div className="flex gap-2 justify-end">
-                <Button variant="outline" onClick={() => setFormData({ ...initialFormData, domain: [...initialFormData.domain] })} disabled={saving}>
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    setFormData({ ...initialFormData, domain: [...initialFormData.domain] })
+                  }
+                  disabled={saving}
+                >
                   Reset
                 </Button>
                 <Button onClick={handleSave} disabled={saving}>

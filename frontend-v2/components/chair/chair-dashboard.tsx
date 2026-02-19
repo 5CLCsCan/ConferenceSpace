@@ -8,6 +8,7 @@ import {
   SectionHeader,
   type ActionPriority,
 } from "./action-card"
+import { ROUTES } from "@/lib/routes"
 
 // Mock data for dashboard metrics
 const MOCK_STATS = {
@@ -108,21 +109,21 @@ export default function ChairDashboard() {
             Last updated: Today, 9:41 AM
           </span>
           <button className="p-1.5 h-7 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center">
-            <span 
-              className="material-symbols-outlined" 
-              style={{ 
-                fontSize: '16px', 
-                width: '16px', 
-                height: '16px', 
-                maxWidth: '16px', 
-                maxHeight: '16px',
-                minWidth: '16px',
-                minHeight: '16px',
-                lineHeight: '16px',
-                display: 'inline-block',
+            <span
+              className="material-symbols-outlined"
+              style={{
+                fontSize: "16px",
+                width: "16px",
+                height: "16px",
+                maxWidth: "16px",
+                maxHeight: "16px",
+                minWidth: "16px",
+                minHeight: "16px",
+                lineHeight: "16px",
+                display: "inline-block",
                 flexShrink: 0,
-                transform: 'none',
-                boxSizing: 'border-box'
+                transform: "none",
+                boxSizing: "border-box",
               }}
             >
               refresh
@@ -152,7 +153,7 @@ export default function ChairDashboard() {
         <SectionHeader
           title="Actions Required"
           actionLabel="View all"
-          onAction={() => router.push("/role/chair/conferences")}
+          onAction={() => router.push(ROUTES.CHAIR.CONFERENCES)}
         />
 
         <ActionCardList>

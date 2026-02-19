@@ -9,7 +9,7 @@ import { SubmissionDetailContent } from "@/components/chair/conference-detail/su
 import { MOCK_SUBMISSION_DETAIL } from "@/components/chair/conference-detail/submission-detail/mock-data"
 import type { ConferenceInfo } from "@/components/chair/conference-detail/types"
 import type { SubmissionSubTab } from "@/components/chair/conference-detail/submission-detail/types"
-import { getChairMenuItems } from "@/components/chair/menu-items"
+import { getSidebarMenuItems } from "@/lib/navigation"
 
 export default function ChairSubmissionDetailPage() {
   const params = useParams()
@@ -36,7 +36,7 @@ export default function ChairSubmissionDetailPage() {
 
   return (
     <div className="bg-white dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
-      <DashboardSidebar menuItems={getChairMenuItems(unreadCount)} />
+      <DashboardSidebar menuItems={getSidebarMenuItems("chair", unreadCount)} />
 
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
         <SubmissionDetailHeader

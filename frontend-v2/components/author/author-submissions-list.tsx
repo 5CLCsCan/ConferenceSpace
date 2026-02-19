@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { useState, useEffect, useMemo } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
+import { ROUTES } from "@/lib/routes"
 
 // -------------------------------------------------------------------------
 // Status Configuration (Scholar-Compact - Neutralized Colors)
@@ -342,7 +343,9 @@ export function AuthorSubmissionsList() {
                 key={sub.id}
                 submission={sub}
                 onClick={() =>
-                  router.push(`/role/author/submissions/${sub.id}?conferenceId=${sub.conference_id}`)
+                  router.push(
+                    `${ROUTES.AUTHOR.SUBMISSION_DETAIL(String(sub.id))}?conferenceId=${sub.conference_id}`,
+                  )
                 }
               />
             ))
@@ -364,87 +367,91 @@ export function AuthorSubmissionsList() {
               </span>
             </div>
 
-            {totalPages > 1 && (() => {
-              const getPageNumbers = () => {
-                const pages: (number | "ellipsis")[] = []
-                const maxVisible = 5
+            {totalPages > 1 &&
+              (() => {
+                const getPageNumbers = () => {
+                  const pages: (number | "ellipsis")[] = []
+                  const maxVisible = 5
 
-                if (totalPages <= maxVisible) {
-                  for (let i = 1; i <= totalPages; i++) {
-                    pages.push(i)
-                  }
-                } else {
-                  pages.push(1)
-
-                  if (currentPage <= 3) {
-                    for (let i = 2; i <= 4; i++) {
-                      pages.push(i)
-                    }
-                    pages.push("ellipsis")
-                    pages.push(totalPages)
-                  } else if (currentPage >= totalPages - 2) {
-                    pages.push("ellipsis")
-                    for (let i = totalPages - 3; i <= totalPages; i++) {
+                  if (totalPages <= maxVisible) {
+                    for (let i = 1; i <= totalPages; i++) {
                       pages.push(i)
                     }
                   } else {
-                    pages.push("ellipsis")
-                    for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-                      pages.push(i)
+                    pages.push(1)
+
+                    if (currentPage <= 3) {
+                      for (let i = 2; i <= 4; i++) {
+                        pages.push(i)
+                      }
+                      pages.push("ellipsis")
+                      pages.push(totalPages)
+                    } else if (currentPage >= totalPages - 2) {
+                      pages.push("ellipsis")
+                      for (let i = totalPages - 3; i <= totalPages; i++) {
+                        pages.push(i)
+                      }
+                    } else {
+                      pages.push("ellipsis")
+                      for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                        pages.push(i)
+                      }
+                      pages.push("ellipsis")
+                      pages.push(totalPages)
                     }
-                    pages.push("ellipsis")
-                    pages.push(totalPages)
                   }
+
+                  return pages
                 }
 
-                return pages
-              }
+                return (
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage <= 1}
+                      className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Previous
+                    </button>
 
-              return (
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage <= 1}
-                    className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Previous
-                  </button>
+                    {getPageNumbers().map((page, idx) => {
+                      if (page === "ellipsis") {
+                        return (
+                          <span
+                            key={`ellipsis-${idx}`}
+                            className="px-1.5 text-slate-400 text-[10px]"
+                          >
+                            ...
+                          </span>
+                        )
+                      }
 
-                  {getPageNumbers().map((page, idx) => {
-                    if (page === "ellipsis") {
+                      const isActive = page === currentPage
                       return (
-                        <span key={`ellipsis-${idx}`} className="px-1.5 text-slate-400 text-[10px]">
-                          ...
-                        </span>
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className={`px-2.5 py-1 rounded text-[10px] ${
+                            isActive
+                              ? "bg-[#1B3C53] text-white hover:bg-[#234C6A]"
+                              : "border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
+                          }`}
+                        >
+                          {page}
+                        </button>
                       )
-                    }
+                    })}
 
-                    const isActive = page === currentPage
-                    return (
-                      <button
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        className={`px-2.5 py-1 rounded text-[10px] ${
-                          isActive
-                            ? "bg-[#1B3C53] text-white hover:bg-[#234C6A]"
-                            : "border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    )
-                  })}
-
-                  <button
-                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={currentPage >= totalPages}
-                    className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Next
-                  </button>
-                </div>
-              )
-            })()}
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage >= totalPages}
+                      className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )
+              })()}
           </div>
         )}
       </div>

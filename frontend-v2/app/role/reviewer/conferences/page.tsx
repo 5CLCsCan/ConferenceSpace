@@ -8,8 +8,9 @@ import { useNotifications } from "@/hooks/use-notifications"
 import { useReviewerDashboard } from "@/hooks/use-reviewer-dashboard"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useAuth } from "@/lib/auth-context"
+import { ROUTES } from "@/lib/routes"
 import { ConferencesSkeleton } from "@/components/reviewer/loading-skeletons"
-import { getReviewerMenuItems } from "@/components/reviewer/menu-items"
+import { getSidebarMenuItems } from "@/lib/navigation"
 import type { ReviewerConference } from "@/lib/types"
 
 export default function ReviewerConferencesPage() {
@@ -63,7 +64,7 @@ export default function ReviewerConferencesPage() {
 
   return (
     <div className="bg-[#f8fafc] dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
-      <DashboardSidebar menuItems={getReviewerMenuItems(unreadCount)} />
+      <DashboardSidebar menuItems={getSidebarMenuItems("reviewer", unreadCount)} />
 
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
         <div className="flex-1 overflow-y-auto py-8 px-12 w-full">
@@ -73,7 +74,7 @@ export default function ReviewerConferencesPage() {
             <ReviewerConferences
               conferences={allConferences}
               onSelectConference={(conferenceId) =>
-                router.push(`/role/reviewer/conferences/${conferenceId}/submissions`)
+                router.push(ROUTES.REVIEWER.CONFERENCE_SUBMISSIONS(String(conferenceId)))
               }
               onLoadMore={() => {
                 if (!isLoading && hasMoreConferences) {

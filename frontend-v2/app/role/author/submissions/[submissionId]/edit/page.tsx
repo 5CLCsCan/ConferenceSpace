@@ -11,9 +11,10 @@ import type { Conference } from "@/lib/types"
 import type { Submission } from "@/lib/api/submissions"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
+import { ROUTES } from "@/lib/routes"
 
 function EditSubmissionPageContent() {
-  const { isAuthenticated, user } = useAuth()
+  const { user } = useAuth()
   const router = useRouter()
   const params = useParams()
   const searchParams = useSearchParams()
@@ -25,22 +26,7 @@ function EditSubmissionPageContent() {
   const [submission, setSubmission] = useState<Submission | null>(null)
   const [resolvedConferenceId, setResolvedConferenceId] = useState<string | null>(conferenceIdQuery)
   const [loading, setLoading] = useState(true)
-  const [authChecked, setAuthChecked] = useState(false)
   const [notFound, setNotFound] = useState(false)
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setAuthChecked(true)
-    }, 100)
-
-    return () => clearTimeout(timer)
-  }, [])
-
-  useEffect(() => {
-    if (authChecked && !isAuthenticated) {
-      router.push("/login")
-    }
-  }, [authChecked, isAuthenticated, router])
 
   useEffect(() => {
     async function resolveConferenceContext() {
@@ -65,10 +51,10 @@ function EditSubmissionPageContent() {
       setResolvedConferenceId(resolution.conferenceId)
     }
 
-    if (authChecked && isAuthenticated && user) {
+    if (user) {
       resolveConferenceContext()
     }
-  }, [authChecked, conferenceIdQuery, isAuthenticated, submissionId, user])
+  }, [conferenceIdQuery, submissionId, user])
 
   useEffect(() => {
     async function loadData() {
@@ -100,7 +86,7 @@ function EditSubmissionPageContent() {
     }
   }, [resolvedConferenceId, submissionId])
 
-  if (!authChecked || !isAuthenticated || !user || loading) {
+  if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -116,7 +102,9 @@ function EditSubmissionPageContent() {
           <p className="text-neutral-600">
             We could not resolve this submission link. Please return to your submissions list.
           </p>
-          <Button onClick={() => router.push("/role/author/submissions")}>Back To Submissions</Button>
+          <Button onClick={() => router.push(ROUTES.AUTHOR.SUBMISSIONS)}>
+            Back To Submissions
+          </Button>
         </div>
       </main>
     )

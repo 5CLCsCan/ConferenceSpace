@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth-context"
 import type { UserRole } from "@/lib/types"
 import { canAccessRole } from "@/lib/role-access"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
+import { ROUTES } from "@/lib/routes"
 
 export default function RoleSelectionPage() {
   const { user, isAuthenticated, isAuthLoading, switchRole } = useAuth()
@@ -26,7 +27,7 @@ export default function RoleSelectionPage() {
 
   useEffect(() => {
     if (!isAuthLoading && !isAuthenticated) {
-      router.push("/login")
+      router.push(ROUTES.LOGIN)
     }
   }, [isAuthLoading, isAuthenticated, router])
 
@@ -44,13 +45,7 @@ export default function RoleSelectionPage() {
       return
     }
 
-    const roleRouteMap: Record<UserRole, string> = {
-      author: "/role/author",
-      reviewer: "/role/reviewer",
-      chair: "/role/chair",
-      admin: "/role",
-    }
-    router.push(roleRouteMap[role] ?? "/role")
+    router.push(ROUTES.ROLE_ROUTE_MAP[role] ?? ROUTES.ROLE_SELECT)
   }
 
   return (
@@ -76,8 +71,8 @@ export default function RoleSelectionPage() {
       {/* Desktop Sidebar */}
       <DashboardSidebar
         menuItems={[
-          { label: "Dashboard", href: "/role", icon: "dashboard" },
-          { label: "Notifications", href: "/notifications", icon: "notifications", badge: 3 },
+          { label: "Dashboard", href: ROUTES.ROLE_SELECT, icon: "dashboard" },
+          { label: "Notifications", href: ROUTES.NOTIFICATIONS, icon: "notifications", badge: 3 },
         ]}
       />
 

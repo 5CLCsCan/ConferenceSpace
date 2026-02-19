@@ -10,7 +10,8 @@ import {
   type TabId,
   type ConferenceInfo,
 } from "@/components/chair/conference-detail"
-import { getChairMenuItems } from "@/components/chair/menu-items"
+import { getSidebarMenuItems } from "@/lib/navigation"
+import { ROUTES } from "@/lib/routes"
 
 export default function ChairConferenceSubmissionsPage() {
   const params = useParams()
@@ -39,12 +40,12 @@ export default function ChairConferenceSubmissionsPage() {
       return
     }
 
-    router.push(`/role/chair/conferences/${conferenceId}`)
+    router.push(ROUTES.CHAIR.CONFERENCE_DETAIL(conferenceId))
   }
 
   return (
     <div className="bg-white dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
-      <DashboardSidebar menuItems={getChairMenuItems(unreadCount)} />
+      <DashboardSidebar menuItems={getSidebarMenuItems("chair", unreadCount)} />
 
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
         <ConferenceDetailHeader
@@ -70,4 +71,3 @@ export default function ChairConferenceSubmissionsPage() {
     </div>
   )
 }
-

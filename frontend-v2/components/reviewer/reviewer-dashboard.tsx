@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Loader2 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { useReviewerDashboard } from "@/hooks/use-reviewer-dashboard"
+import { ROUTES } from "@/lib/routes"
 
 function StatCard({ label, value }: { label: string; value: number | string }) {
   return (
@@ -91,7 +92,7 @@ export function ReviewerDashboard() {
                   </div>
                 </div>
                 <Link
-                  href={`/role/reviewer/assignments/${assignment.assignment_id}?conferenceId=${assignment.conference_id}`}
+                  href={`${ROUTES.REVIEWER.ASSIGNMENT(String(assignment.assignment_id))}?conferenceId=${assignment.conference_id}`}
                   className="inline-flex items-center h-8 px-3 rounded-md bg-[#1B3C53] hover:bg-[#234C6A] text-white text-xs font-semibold whitespace-nowrap"
                 >
                   Open

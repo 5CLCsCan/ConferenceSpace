@@ -14,13 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
-
-export interface NavItem {
-  label: string
-  href: string
-  icon: string
-  badge?: number
-}
+import { ROUTES } from "@/lib/routes"
+import type { NavItem } from "@/lib/navigation"
 
 interface DashboardSidebarProps {
   menuItems: NavItem[]
@@ -32,7 +27,7 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const isRolePage = pathname === "/role"
+  const isRolePage = pathname === ROUTES.ROLE_SELECT
 
   // Helper to check if a menu item is active (handles query params)
   const isItemActive = (href: string) => {
@@ -81,7 +76,7 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
                   {currentRole.charAt(0).toUpperCase() + currentRole.slice(1)}
                 </span>
                 <Link
-                  href="/role"
+                  href={ROUTES.ROLE_SELECT}
                   className="text-[8px] font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 px-1.5 py-0.5 rounded transition-all uppercase tracking-wider leading-none"
                 >
                   Change

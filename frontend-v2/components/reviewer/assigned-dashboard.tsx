@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { ArrowLeft, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ROUTES } from "@/lib/routes"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { PapersSkeleton } from "./loading-skeletons"
 import { setAssignmentConferenceContext } from "@/lib/reviewer/assignment-context-cache"
@@ -89,7 +90,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
 
   const handleOpenAssignment = (assignmentId: number) => {
     setAssignmentConferenceContext(String(assignmentId), String(conferenceId))
-    router.push(`/role/reviewer/assignments/${assignmentId}?conferenceId=${conferenceId}`)
+    router.push(`${ROUTES.REVIEWER.ASSIGNMENT(String(assignmentId))}?conferenceId=${conferenceId}`)
   }
 
   if (isLoading) {
@@ -104,7 +105,11 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
           <AlertTitle>{t("dashboard.roles.reviewer.review.errors.loadFailed")}</AlertTitle>
           <AlertDescription className="space-y-3">
             <p>{error}</p>
-            <Button variant="outline" size="sm" onClick={() => router.push("/role/reviewer/conferences")}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push(ROUTES.REVIEWER.CONFERENCES)}
+            >
               {t("common.actions.goBack")}
             </Button>
           </AlertDescription>
@@ -118,11 +123,13 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
       <div className="flex items-center justify-between gap-4">
         <button
           type="button"
-          onClick={() => router.push("/role/reviewer/conferences")}
+          onClick={() => router.push(ROUTES.REVIEWER.CONFERENCES)}
           className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900"
         >
           <ArrowLeft className="size-4" />
-          <span className="text-xs font-semibold uppercase tracking-wide">{t("common.actions.goBack")}</span>
+          <span className="text-xs font-semibold uppercase tracking-wide">
+            {t("common.actions.goBack")}
+          </span>
         </button>
       </div>
 
@@ -212,7 +219,10 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
             </thead>
             <tbody>
               {sortedPapers.map((paper, index) => (
-                <tr key={paper.assignment_id} className="border-b border-slate-100 dark:border-slate-700/50">
+                <tr
+                  key={paper.assignment_id}
+                  className="border-b border-slate-100 dark:border-slate-700/50"
+                >
                   <td className="py-3 pl-4 pr-2 text-[11px] text-slate-400">{index + 1}</td>
                   <td className="py-3 px-3">
                     <div className="text-[13px] font-semibold text-slate-800 dark:text-slate-200">

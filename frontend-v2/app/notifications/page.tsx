@@ -18,6 +18,7 @@ import { TabButton, FilterPill } from "@/components/notifications/notification-c
 import { EmptyState } from "@/components/notifications/empty-state"
 import { MOCK_NOTIFICATIONS } from "@/lib/mock/notifications"
 import { cn } from "@/lib/utils"
+import { getSidebarMenuItems } from "@/lib/navigation"
 
 export default function NotificationsPage() {
   const { currentRole } = useAuth()
@@ -48,64 +49,11 @@ export default function NotificationsPage() {
     return tabMatch && filterMatch
   })
 
-  const getMenuItems = () => {
-    if (currentRole === "author") {
-      return [
-        { label: "Dashboard", href: "/role/author", icon: "dashboard" },
-        { label: "My Submissions", href: "/role/author/submissions", icon: "description" },
-        {
-          label: "Notifications",
-          href: "/notifications",
-          icon: "notifications",
-          badge: apiUnreadCount,
-        },
-      ]
-    }
-
-    if (currentRole === "chair") {
-      return [
-        { label: "Dashboard", href: "/role/chair", icon: "dashboard" },
-        { label: "Conferences", href: "/role/chair/conferences", icon: "folder_open" },
-        { label: "Schedules", href: "/role/chair/schedules", icon: "calendar_month" },
-        {
-          label: "Notifications",
-          href: "/notifications",
-          icon: "notifications",
-          badge: apiUnreadCount,
-        },
-      ]
-    }
-
-    if (currentRole === "reviewer") {
-      return [
-        { label: "Dashboard", href: "/role/reviewer", icon: "dashboard" },
-        { label: "Conferences", href: "/role/reviewer/conferences", icon: "calendar_month" },
-        { label: "Invitations", href: "/role/reviewer/invitations", icon: "mail" },
-        { label: "Completed", href: "/role/reviewer/completed", icon: "task_alt" },
-        {
-          label: "Notifications",
-          href: "/notifications",
-          icon: "notifications",
-          badge: apiUnreadCount,
-        },
-      ]
-    }
-
-    // Default fallback
-    return [
-      { label: "Role Selection", href: "/role", icon: "dashboard" },
-      {
-        label: "Notifications",
-        href: "/notifications",
-        icon: "notifications",
-        badge: apiUnreadCount,
-      },
-    ]
-  }
+  const menuItems = getSidebarMenuItems(currentRole, apiUnreadCount)
 
   return (
     <div className="text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
-      <DashboardSidebar menuItems={getMenuItems()} />
+      <DashboardSidebar menuItems={menuItems} />
 
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
         <div className="flex-1 overflow-y-auto px-10 md:px-12 py-8 w-full relative">

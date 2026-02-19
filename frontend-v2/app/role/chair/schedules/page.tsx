@@ -6,7 +6,7 @@ import { useNotifications } from "@/hooks/use-notifications"
 import { Calendar } from "@/components/ui/calendar"
 import { cn } from "@/lib/utils"
 import { cva } from "class-variance-authority"
-import { getChairMenuItems } from "@/components/chair/menu-items"
+import { getSidebarMenuItems } from "@/lib/navigation"
 
 // ============================================================================
 // TYPES
@@ -717,7 +717,7 @@ export default function ChairSchedulesPage() {
 
   return (
     <div className="bg-[#f8fafc] dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
-      <DashboardSidebar menuItems={getChairMenuItems(unreadCount)} />
+      <DashboardSidebar menuItems={getSidebarMenuItems("chair", unreadCount)} />
 
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
         <div className="flex-1 overflow-y-auto px-8 md:px-12 py-6 md:py-8 w-full">

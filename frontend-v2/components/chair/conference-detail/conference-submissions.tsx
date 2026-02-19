@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { ROUTES } from "@/lib/routes"
 
 // --- Types ---
 
@@ -285,7 +286,7 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
   const handleSubmissionClick = (submissionId: string) => {
     // Remove # from submission ID if present
     const cleanId = submissionId.replace("#", "")
-    router.push(`/role/chair/conferences/${conferenceId}/submissions/${cleanId}`)
+    router.push(ROUTES.CHAIR.SUBMISSION_DETAIL(conferenceId, cleanId))
   }
 
   return (
@@ -423,9 +424,7 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
                   </td>
                   <td className="px-3 py-3">
                     <div className="flex flex-col">
-                      <span
-                        className="text-[13px] font-semibold text-slate-900 dark:text-white group-hover:text-[#456882] transition-colors line-clamp-1 tracking-tight leading-[1.3]"
-                      >
+                      <span className="text-[13px] font-semibold text-slate-900 dark:text-white group-hover:text-[#456882] transition-colors line-clamp-1 tracking-tight leading-[1.3]">
                         {submission.title}
                       </span>
                       <span className="text-[10px] text-slate-500 mt-0.5 truncate max-w-[200px]">

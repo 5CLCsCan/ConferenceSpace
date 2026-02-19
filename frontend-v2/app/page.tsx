@@ -16,6 +16,7 @@ import {
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { typography, spacing, iconSizes } from "@/lib/typography"
+import { ROUTES } from "@/lib/routes"
 
 export default function HomePage() {
   const { t } = useTranslation()
@@ -24,7 +25,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href={ROUTES.HOME} className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shadow-sm">
               <GraduationCap className="w-5 h-5 text-primary-foreground" />
             </div>
@@ -48,7 +49,7 @@ export default function HomePage() {
               {t("home.nav.about")}
             </a>
             <LanguageSwitcher />
-            <Link href="/login">
+            <Link href={ROUTES.LOGIN}>
               <Button
                 variant="outline"
                 size="sm"
@@ -57,7 +58,7 @@ export default function HomePage() {
                 {t("common.actions.signIn")}
               </Button>
             </Link>
-            <Link href="/register">
+            <Link href={ROUTES.REGISTER}>
               <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground">
                 {t("common.actions.signUp")}
               </Button>
@@ -83,12 +84,12 @@ export default function HomePage() {
             {t("home.hero.subtitle")}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-            <Link href="/register">
+            <Link href={ROUTES.REGISTER}>
               <Button size="lg" className="px-8">
                 {t("common.actions.startNow")}
               </Button>
             </Link>
-            <Link href="/login">
+            <Link href={ROUTES.LOGIN}>
               <Button
                 size="lg"
                 variant="outline"
@@ -210,7 +211,7 @@ export default function HomePage() {
       <footer className="border-t border-border bg-card">
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <Link href="/" className={`flex items-center ${spacing.gap.sm}`}>
+            <Link href={ROUTES.HOME} className={`flex items-center ${spacing.gap.sm}`}>
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
                 <GraduationCap className={`${iconSizes.md} text-primary-foreground`} />
               </div>

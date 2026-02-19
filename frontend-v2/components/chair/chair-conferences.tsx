@@ -2,7 +2,13 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import type { TabType, ViewMode, Conference, ExploreConference } from "@/components/conference/types"
+import { ROUTES } from "@/lib/routes"
+import type {
+  TabType,
+  ViewMode,
+  Conference,
+  ExploreConference,
+} from "@/components/conference/types"
 import {
   MOCK_MY_CONFERENCES,
   MOCK_EXPLORE_CONFERENCES,
@@ -40,15 +46,15 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
   const ITEMS_PER_PAGE = 5
 
   const handleNavigate = (id: string) => {
-    router.push(`/role/chair/conferences/${id}`)
+    router.push(ROUTES.CHAIR.CONFERENCE_DETAIL(id))
   }
 
   const handleViewDetails = (id: string) => {
-    router.push(`/role/chair/conferences/${id}`)
+    router.push(ROUTES.CHAIR.CONFERENCE_DETAIL(id))
   }
 
   const handleCreateConference = () => {
-    router.push("/role/chair/conferences/new")
+    router.push(ROUTES.CHAIR.NEW_CONFERENCE)
   }
 
   // Filter My Conferences (exclude completed)

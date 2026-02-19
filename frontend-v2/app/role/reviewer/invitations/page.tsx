@@ -7,7 +7,7 @@ import { useNotifications } from "@/hooks/use-notifications"
 import { useReviewerDashboard } from "@/hooks/use-reviewer-dashboard"
 import { useAuth } from "@/lib/auth-context"
 import { InvitationsSkeleton } from "@/components/reviewer/loading-skeletons"
-import { getReviewerMenuItems } from "@/components/reviewer/menu-items"
+import { getSidebarMenuItems } from "@/lib/navigation"
 
 export default function ReviewerInvitationsPage() {
   const { user } = useAuth()
@@ -58,7 +58,7 @@ export default function ReviewerInvitationsPage() {
 
   return (
     <div className="bg-[#f8fafc] dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
-      <DashboardSidebar menuItems={getReviewerMenuItems(unreadCount)} />
+      <DashboardSidebar menuItems={getSidebarMenuItems("reviewer", unreadCount)} />
 
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
         <div className="flex-1 overflow-y-auto py-8 px-12 w-full">

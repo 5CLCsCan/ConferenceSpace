@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { ROUTES } from "@/lib/routes"
 import type { AuthorConference, AuthorTabType } from "./author-conference-cards"
 import { AuthorConferenceCard } from "./author-conference-cards"
 import { AuthorConferenceList } from "./author-conference-list"
@@ -42,11 +43,11 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
   const ITEMS_PER_PAGE = 5
 
   const handleNavigate = (id: string) => {
-    router.push(`/role/author/conferences/${id}`)
+    router.push(ROUTES.AUTHOR.CONFERENCE_DETAIL(id))
   }
 
   const handleViewDetails = (id: string) => {
-    router.push(`/role/author/conferences/${id}`)
+    router.push(ROUTES.AUTHOR.CONFERENCE_DETAIL(id))
   }
 
   // Filter My Conferences (exclude rejected from active view)
@@ -258,7 +259,7 @@ function Header() {
     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6">
       <div>
         <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white leading-none">
-          My Conferences
+          Conferences
         </h1>
         <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-2 max-w-xl">
           Track your paper submissions and discover new opportunities to publish your research.
