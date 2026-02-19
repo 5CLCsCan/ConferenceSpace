@@ -54,7 +54,7 @@ const SIDEBAR_NAV_TEMPLATES: Record<SidebarRole, NavTemplateItem[]> = {
 }
 
 const FALLBACK_NAV_TEMPLATE: NavTemplateItem[] = [
-  { label: "Role Selection", href: ROUTES.ROLE_SELECT, icon: "dashboard" },
+  { label: "Dashboard", href: ROUTES.ROLE_SELECT, icon: "dashboard" },
   {
     label: "Notifications",
     href: ROUTES.NOTIFICATIONS,

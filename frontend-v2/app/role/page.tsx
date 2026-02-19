@@ -9,7 +9,7 @@ import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { ROUTES } from "@/lib/routes"
 
 export default function RoleSelectionPage() {
-  const { user, isAuthenticated, isAuthLoading, switchRole } = useAuth()
+  const { user, isAuthenticated, isAuthLoading, switchRole, resetRole } = useAuth()
   const router = useRouter()
 
   // Injected design patterns from code.html
@@ -30,6 +30,13 @@ export default function RoleSelectionPage() {
       router.push(ROUTES.LOGIN)
     }
   }, [isAuthLoading, isAuthenticated, router])
+
+  useEffect(() => {
+    if (!isAuthLoading && isAuthenticated) {
+      // Role selection page should be a neutral context.
+      resetRole()
+    }
+  }, [isAuthLoading, isAuthenticated, resetRole])
 
   if (isAuthLoading || !isAuthenticated || !user) {
     return null
