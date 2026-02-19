@@ -1,313 +1,410 @@
 "use client"
 
-import { useTranslation } from "@/lib/i18n/translation-context"
+import { useState, useEffect, useCallback } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useReviewerDashboard } from "@/hooks/use-reviewer-dashboard"
+import { useConferencePapers } from "@/hooks/use-conference-papers"
+import { useDebounce } from "@/hooks/use-debounce"
+import { ReviewerSidebar } from "./reviewer-sidebar"
+import { ReviewerOverview } from "./reviewer-overview"
+import { ReviewerConferences } from "./reviewer-conferences"
+import { ReviewerInvitations } from "./reviewer-invitations"
+import { ConferencePapers } from "./conference-papers"
+import {
+  DashboardSkeleton,
+  ConferencesSkeleton,
+  InvitationsSkeleton,
+  PapersSkeleton,
+} from "./loading-skeletons"
 import { useAuth } from "@/lib/auth-context"
-import { useState } from "react"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { Button } from "@/components/ui/button"
+import { AlertCircle } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import type { ReviewerConference } from "@/lib/types"
+import { typography, spacing, iconSizes } from "@/lib/typography"
 
-// Mock data for the dashboard
-const MOCK_STATS = {
-  pending: 12,
-  urgent: 3,
-  invites: 2,
-  completed: 45,
+type View = "overview" | "conferences" | "invitations" | "conference-papers"
+
+// Wrapper component to handle papers with SWR
+function ConferencePapersWithSWR({
+  reviewerId,
+  conferenceId,
+  conferences,
+  onBack,
+  onSelectPaper,
+  onReviewSubmitted,
+}: {
+  reviewerId: string
+  conferenceId: string
+  conferences: ReviewerConference[]
+  onBack: () => void
+  onSelectPaper: (paperId: string) => void
+  onReviewSubmitted?: () => void
+}) {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [statusFilter, setStatusFilter] = useState("")
+  const debouncedSearch = useDebounce(searchQuery, 500)
+
+  const {
+    papers,
+    isLoading,
+    error,
+    refresh: refreshPapers,
+  } = useConferencePapers(reviewerId, conferenceId, {
+    search: debouncedSearch,
+    status: statusFilter,
+    limit: 20,
+  })
+
+  const selectedConference = conferences.find((c) => c.id === conferenceId)
+
+  const { t } = useTranslation()
+
+  const handleReviewSubmitted = async () => {
+    // Refresh papers list first to get updated status
+    await refreshPapers()
+    // Then refresh dashboard data
+    if (onReviewSubmitted) await onReviewSubmitted()
+  }
+
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className={iconSizes.sm} />
+        <AlertTitle className={typography.h6}>
+          {t("dashboard.roles.reviewer.review.errors.loadFailed")}
+        </AlertTitle>
+        <AlertDescription>
+          <p className={`mb-4 ${typography.body}`}>{error}</p>
+          <Button onClick={onBack} variant="outline" size="sm">
+            {t("common.actions.goBack")}
+          </Button>
+        </AlertDescription>
+      </Alert>
+    )
+  }
+
+  if (isLoading) {
+    return <PapersSkeleton />
+  }
+
+  return (
+    <ConferencePapers
+      papers={papers}
+      conferenceName={selectedConference?.name || ""}
+      onBack={onBack}
+      onSelectPaper={onSelectPaper}
+      onReviewSubmitted={handleReviewSubmitted}
+    />
+  )
 }
-
-const MOCK_URGENT_PAPER = {
-  id: "#4492",
-  conference: "CVPR 2024",
-  title:
-    "Generative Adversarial Networks for High-Fidelity Audio Synthesis in Low-Resource Environments",
-  track: "Computer Vision",
-  status: "In Progress" as const,
-  dueLabel: "Due Tomorrow",
-}
-
-const MOCK_ASSIGNED_PAPERS = [
-  {
-    id: 1,
-    conference: "ICLR 2024",
-    assignedAgo: "3 days ago",
-    title:
-      "Efficient Transformer Architectures for Mobile Devices: A Comprehensive Benchmark Study",
-    abstract:
-      "This paper proposes a novel lightweight attention mechanism that reduces computational complexity from O(n^2) to O(n log n) without significant accuracy loss on standard benchmarks including ImageNet and COCO...",
-    tags: ["Deep Learning", "Mobile AI"],
-    deadline: "Oct 24, 2024",
-    status: "Not Started" as const,
-    actionLabel: "Review",
-  },
-  {
-    id: 2,
-    conference: "CVPR 2024",
-    assignedAgo: "1 week ago",
-    title: "Unsupervised Domain Adaptation via Feature Alignment and Pseudo-Labeling",
-    abstract:
-      "We address the problem of unsupervised domain adaptation in semantic segmentation. Our approach leverages a dual-branch network structure to align features both globally and locally...",
-    tags: ["Computer Vision", "Unsupervised Learning"],
-    deadline: "Oct 28, 2024",
-    status: "Submitted" as const,
-    actionLabel: "View Details",
-  },
-]
-
-/**
- * Reviewer Dashboard - Main overview page
- * Shows stats, urgent papers, and assigned papers list
- */
 export function ReviewerDashboard() {
   const { t } = useTranslation()
   const { user } = useAuth()
-  const [searchQuery, setSearchQuery] = useState("")
-  const [sortBy, setSortBy] = useState("deadline")
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  // Use email for reviewer endpoints
+  const currentReviewerEmail = user?.email || ""
+
+  // Read initial state from URL
+  const initialTab = (searchParams.get("tab") as View) || "overview"
+  const initialConferenceId = searchParams.get("conference_id") || null
+
+  const [activeNav, setActiveNav] = useState<View>(initialTab)
+  const [selectedConferenceId, setSelectedConferenceId] = useState<string | null>(
+    initialConferenceId,
+  )
+  const [invitationStatusFilter, setInvitationStatusFilter] = useState<string>("")
+  const [conferenceSearch, setConferenceSearch] = useState<string>("")
+
+  // Pagination states for infinite scroll
+  const [conferenceOffset, setConferenceOffset] = useState(0)
+  const [invitationOffset, setInvitationOffset] = useState(0)
+  const [assignmentOffset, setAssignmentOffset] = useState(0)
+  const [allConferences, setAllConferences] = useState<any[]>([])
+  const [allInvitations, setAllInvitations] = useState<any[]>([])
+  const [allAssignments, setAllAssignments] = useState<any[]>([])
+
+  // Debounce search to avoid excessive API calls
+  const debouncedConferenceSearch = useDebounce(conferenceSearch, 500)
+
+  // Use SWR hook with caching for dashboard data
+  const { dashboard, isLoading, error, refresh, updateOptimistic, isValidating } =
+    useReviewerDashboard(currentReviewerEmail, {
+      conferenceSearch: debouncedConferenceSearch,
+      invitationStatus: invitationStatusFilter,
+      conferenceLimit: 20, // Load 20 at a time for infinite scroll
+      conferenceOffset: conferenceOffset,
+      invitationLimit: 20, // Load 20 at a time for infinite scroll
+      invitationOffset: invitationOffset,
+      recentAssignmentLimit: 20, // Load 20 at a time for infinite scroll
+      recentAssignmentOffset: assignmentOffset,
+    })
+
+  // Reset offsets when search/filter changes
+  useEffect(() => {
+    setConferenceOffset(0)
+    setAllConferences([])
+  }, [debouncedConferenceSearch])
+
+  useEffect(() => {
+    setInvitationOffset(0)
+    setAllInvitations([])
+  }, [invitationStatusFilter])
+
+  // Reset assignments only when switching to overview
+  useEffect(() => {
+    if (activeNav === "overview") {
+      setAssignmentOffset(0)
+      setAllAssignments([])
+    }
+  }, [activeNav])
+
+  // Accumulate conferences for infinite scroll
+  useEffect(() => {
+    if (dashboard?.conferences) {
+      if (conferenceOffset === 0) {
+        // First load or reset
+        setAllConferences(dashboard.conferences)
+      } else {
+        // Append new items, filter out duplicates by ID
+        setAllConferences((prev) => {
+          const existingIds = new Set(prev.map((c) => c.id))
+          const newItems = dashboard.conferences.filter((c: any) => !existingIds.has(c.id))
+          return [...prev, ...newItems]
+        })
+      }
+    }
+  }, [dashboard?.conferences, conferenceOffset])
+
+  // Accumulate invitations for infinite scroll
+  useEffect(() => {
+    if (dashboard?.invitations) {
+      if (invitationOffset === 0) {
+        // First load or reset
+        setAllInvitations(dashboard.invitations)
+      } else {
+        // Append new items, filter out duplicates by ID
+        setAllInvitations((prev) => {
+          const existingIds = new Set(prev.map((inv) => inv.id))
+          const newItems = dashboard.invitations.filter((inv: any) => !existingIds.has(inv.id))
+          return [...prev, ...newItems]
+        })
+      }
+    }
+  }, [dashboard?.invitations, invitationOffset])
+
+  // Accumulate assignments for infinite scroll
+  useEffect(() => {
+    if (dashboard?.recent_assignments) {
+      if (assignmentOffset === 0) {
+        // First load or reset
+        setAllAssignments(dashboard.recent_assignments)
+      } else {
+        // Append new items, filter out duplicates by assignment ID
+        setAllAssignments((prev) => {
+          const existingIds = new Set(prev.map((a) => a.assignment_id))
+          const newItems = dashboard.recent_assignments.filter(
+            (a: any) => !existingIds.has(a.assignment_id),
+          )
+          return [...prev, ...newItems]
+        })
+      }
+    }
+  }, [dashboard?.recent_assignments, assignmentOffset])
+
+  // Calculate if there's more data to load based on total counts
+  const hasMoreConferences = dashboard?.total_conferences
+    ? allConferences.length < dashboard.total_conferences
+    : false
+  const hasMoreInvitations = dashboard?.total_invitations
+    ? allInvitations.length < dashboard.total_invitations
+    : false
+  const hasMoreAssignments = dashboard?.total_assignments
+    ? allAssignments.length < dashboard.total_assignments
+    : false
+
+  // Load more functions
+  const loadMoreConferences = useCallback(() => {
+    if (!isLoading && hasMoreConferences) {
+      setConferenceOffset((prev) => prev + 20)
+    }
+  }, [isLoading, hasMoreConferences])
+
+  const loadMoreInvitations = useCallback(() => {
+    if (!isLoading && hasMoreInvitations) {
+      setInvitationOffset((prev) => prev + 20)
+    }
+  }, [isLoading, hasMoreInvitations])
+
+  const loadMoreAssignments = useCallback(() => {
+    if (!isLoading && hasMoreAssignments) {
+      setAssignmentOffset((prev) => prev + 20)
+    }
+  }, [isLoading, hasMoreAssignments])
+
+  const handleSelectConference = (conferenceId: string) => {
+    setSelectedConferenceId(conferenceId)
+    setActiveNav("conference-papers")
+    // Update URL for back/refresh
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("tab", "conference-papers")
+    params.set("conference_id", conferenceId)
+    router.replace(`?${params.toString()}`)
+  }
+
+  const handleSelectPaper = (paperId: string, conferenceId?: string) => {
+    // Use provided conferenceId or fall back to selectedConferenceId
+    const cid = conferenceId || selectedConferenceId
+    // Track the current tab and conference context for back navigation
+    const params = new URLSearchParams()
+    if (cid) params.set("conference_id", cid)
+    // If currently viewing conference-papers, set from=conference-papers, else from=activeNav
+    if (activeNav === "conference-papers" && cid) {
+      params.set("from", "conference-papers")
+      params.set("from_conference_id", cid)
+    } else {
+      params.set("from", activeNav)
+    }
+    router.push(`/dashboard/reviewer/papers/${paperId}?${params.toString()}`)
+  }
+
+  const handleBackToConferences = () => {
+    setSelectedConferenceId(null)
+    setActiveNav("conferences")
+    // Update URL for back/refresh
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("tab", "conferences")
+    params.delete("conference_id")
+    router.replace(`?${params.toString()}`)
+  }
+
+  // Optimistic update for invitation response
+  const handleInvitationResponse = async () => {
+    // Revalidate after API call completes in the child component
+    await refresh()
+  }
+
+  const renderContent = () => {
+    // Error state with retry button
+    if (error) {
+      return (
+        <Alert variant="destructive">
+          <AlertCircle className={iconSizes.sm} />
+          <AlertTitle className={typography.h6}>
+            {t("dashboard.roles.reviewer.review.errors.loadFailed")}
+          </AlertTitle>
+          <AlertDescription className="mt-2">
+            <p className={`mb-4 ${typography.body}`}>{error}</p>
+            <Button onClick={() => refresh()} variant="outline" size="sm">
+              {t("common.actions.retry")}
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )
+    }
+
+    // Loading state with skeleton
+    if (isLoading) {
+      switch (activeNav) {
+        case "conferences":
+          return <ConferencesSkeleton />
+        case "invitations":
+          return <InvitationsSkeleton />
+        default:
+          return <DashboardSkeleton />
+      }
+    }
+
+    // No data
+    if (!dashboard) {
+      return (
+        <Alert>
+          <AlertCircle className={iconSizes.sm} />
+          <AlertTitle className={typography.h6}>{t("common.messages.noData")}</AlertTitle>
+          <AlertDescription className={typography.body}>
+            {t("common.messages.noData")}
+          </AlertDescription>
+        </Alert>
+      )
+    }
+
+    const { stats, recent_assignments } = dashboard
+
+    switch (activeNav) {
+      case "overview":
+        return (
+          <ReviewerOverview
+            stats={stats}
+            assignments={allAssignments}
+            conferenceCount={dashboard?.total_conferences ?? allConferences.length}
+            onSelectPaper={handleSelectPaper}
+            onLoadMore={loadMoreAssignments}
+            hasMore={hasMoreAssignments}
+            isLoadingMore={isLoading && assignmentOffset > 0}
+          />
+        )
+      case "conferences":
+        return (
+          <ReviewerConferences
+            conferences={allConferences}
+            onSelectConference={(id) => handleSelectConference(String(id))}
+            onLoadMore={loadMoreConferences}
+            hasMore={hasMoreConferences}
+            isLoadingMore={isLoading && conferenceOffset > 0}
+            searchQuery={conferenceSearch}
+            onSearchChange={setConferenceSearch}
+          />
+        )
+      case "invitations":
+        return (
+          <ReviewerInvitations
+            invitations={allInvitations}
+            onInvitationHandled={handleInvitationResponse}
+            reviewerId={currentReviewerEmail}
+            onStatusFilterChange={(status) =>
+              setInvitationStatusFilter(status === "all" ? "" : status)
+            }
+            currentStatusFilter={invitationStatusFilter || "all"}
+            onLoadMore={loadMoreInvitations}
+            hasMore={hasMoreInvitations}
+            isLoadingMore={isLoading && invitationOffset > 0}
+          />
+        )
+      case "conference-papers":
+        if (!selectedConferenceId) return null
+        return (
+          <ConferencePapersWithSWR
+            reviewerId={currentReviewerEmail}
+            conferenceId={selectedConferenceId}
+            conferences={allConferences}
+            onBack={handleBackToConferences}
+            onSelectPaper={handleSelectPaper}
+            onReviewSubmitted={async () => await refresh()}
+          />
+        )
+      default:
+        return null
+    }
+  }
 
   return (
-    <div className="flex flex-col gap-8">
-      {/* Header with Search */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white">
-            Reviewer Dashboard
-          </h1>
-          <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
-            Manage your paper reviews and track upcoming deadlines.
-          </p>
-        </div>
-        <div className="relative w-full md:w-80">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[20px]">
-            search
-          </span>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search papers, IDs, or tracks..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#234C6A]/20 focus:border-[#234C6A] transition-all shadow-sm"
-          />
-        </div>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Pending */}
-        <div className="bg-white dark:bg-slate-800 px-4 pt-4 pb-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow group">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-2 bg-[#1B3C53]/5 dark:bg-[#1B3C53]/20 text-[#1B3C53] dark:text-slate-300 rounded-lg group-hover:bg-[#1B3C53]/10 dark:group-hover:bg-[#1B3C53]/30 transition-colors">
-              <span className="material-symbols-outlined">assignment</span>
-            </div>
-            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-              Pending
-            </span>
-          </div>
-          <div>
-            <span className="text-3xl font-bold text-[#1B3C53] dark:text-white block">
-              {MOCK_STATS.pending}
-            </span>
-            <span className="text-xs font-medium text-slate-500">Papers to review</span>
-          </div>
-        </div>
-
-        {/* Urgent */}
-        <div className="bg-white dark:bg-slate-800 px-4 pt-4 pb-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow group">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-lg group-hover:bg-red-100 dark:group-hover:bg-red-900/40 transition-colors">
-              <span className="material-symbols-outlined">timer</span>
-            </div>
-            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-              Urgent
-            </span>
-          </div>
-          <div>
-            <span className="text-3xl font-bold text-[#1B3C53] dark:text-white block">
-              {MOCK_STATS.urgent}
-            </span>
-            <span className="text-xs font-medium text-slate-500">Due &lt; 48 hours</span>
-          </div>
-        </div>
-
-        {/* Invites */}
-        <div className="bg-white dark:bg-slate-800 px-4 pt-4 pb-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow group">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-lg group-hover:bg-amber-100 dark:group-hover:bg-amber-900/40 transition-colors">
-              <span className="material-symbols-outlined">mail</span>
-            </div>
-            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-              Invites
-            </span>
-          </div>
-          <div>
-            <span className="text-3xl font-bold text-[#1B3C53] dark:text-white block">
-              {MOCK_STATS.invites}
-            </span>
-            <span className="text-xs font-medium text-slate-500">Waiting response</span>
-          </div>
-        </div>
-
-        {/* Completed */}
-        <div className="bg-white dark:bg-slate-800 px-4 pt-4 pb-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow group">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-lg group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/40 transition-colors">
-              <span className="material-symbols-outlined">check_circle</span>
-            </div>
-            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-              Completed
-            </span>
-          </div>
-          <div>
-            <span className="text-3xl font-bold text-[#1B3C53] dark:text-white block">
-              {MOCK_STATS.completed}
-            </span>
-            <span className="text-xs font-medium text-slate-500">Reviews submitted</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Urgent Attention Needed */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
-          <span
-            className="material-symbols-outlined text-[20px]"
-            style={{ fontVariationSettings: '"FILL" 1' }}
-          >
-            priority_high
-          </span>
-          <h3 className="text-sm font-bold uppercase tracking-wide">Urgent Attention Needed</h3>
-        </div>
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-red-100 dark:border-red-900/30 shadow-sm overflow-hidden hover:border-red-200 dark:hover:border-red-900/50 transition-colors">
-          <div className="px-4 pt-4 pb-3 flex flex-col md:flex-row gap-4 items-start md:items-center">
-            <div className="flex-1">
-              <div className="flex flex-wrap items-center gap-2 mb-2">
-                <span className="px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-[11px] font-bold border border-slate-200 dark:border-slate-600 tracking-wide">
-                  {MOCK_URGENT_PAPER.conference}
-                </span>
-                <span className="px-2.5 py-1 rounded bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-[11px] font-bold border border-red-100 dark:border-red-900/30 tracking-wide flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[12px]">timer</span>
-                  {MOCK_URGENT_PAPER.dueLabel}
-                </span>
-              </div>
-              <h4 className="text-sm font-bold leading-[1.2] tracking-tight text-[#1B3C53] dark:text-white mb-1 hover:text-[#234C6A] dark:hover:text-slate-300 transition-colors cursor-pointer">
-                {MOCK_URGENT_PAPER.title}
-              </h4>
-              <div className="flex items-center gap-4 text-xs text-slate-500 mt-2">
-                <span className="flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[14px]">tag</span>
-                  ID: {MOCK_URGENT_PAPER.id}
-                </span>
-                <span className="w-1 h-1 rounded-full bg-slate-300" />
-                <span className="flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[14px]">category</span>
-                  {MOCK_URGENT_PAPER.track}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between w-full md:w-auto gap-6 pl-0 md:pl-6 md:border-l border-slate-100 dark:border-slate-700">
-              <div className="text-right shrink-0">
-                <div className="text-[10px] uppercase text-slate-400 font-bold mb-1">Status</div>
-                <div className="flex items-center gap-1.5 justify-end">
-                  <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                  <span className="text-xs font-bold text-amber-600 dark:text-amber-500">
-                    {MOCK_URGENT_PAPER.status}
-                  </span>
-                </div>
-              </div>
-              <button className="h-8 px-3 text-[11px] font-medium bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] rounded-full hover:shadow-lg hover:bg-[#234C6A] dark:hover:bg-slate-200 transition-all shrink-0 border">
-                Continue Review
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Assigned Papers */}
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-700 pb-2">
-          <h3 className="text-xl font-bold tracking-tight text-[#1B3C53] dark:text-white">
-            Assigned Papers
-          </h3>
-          <div className="relative">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="appearance-none pl-3 pr-8 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-600 dark:text-slate-300 focus:ring-[#234C6A] focus:border-[#234C6A] cursor-pointer shadow-sm"
-            >
-              <option value="deadline">Sort by: Deadline (Soonest)</option>
-              <option value="id">Sort by: ID</option>
-              <option value="status">Sort by: Status</option>
-            </select>
-            <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-lg">
-              arrow_drop_down
-            </span>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-4">
-          {MOCK_ASSIGNED_PAPERS.map((paper) => (
-            <div
-              key={paper.id}
-              className="group bg-white dark:bg-slate-800 px-4 pt-4 pb-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-[#234C6A]/30 dark:hover:border-slate-600 transition-all duration-300"
-            >
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#1B3C53]/5 dark:bg-slate-700 text-[#1B3C53] dark:text-slate-200 border border-[#1B3C53]/10 dark:border-slate-600">
-                      {paper.conference}
-                    </span>
-                    <span className="text-xs text-slate-400">-</span>
-                    <span className="text-xs text-slate-500">Assigned {paper.assignedAgo}</span>
-                  </div>
-                  <h4 className="text-sm font-bold leading-[1.2] tracking-tight text-[#1B3C53] dark:text-white group-hover:text-[#234C6A] dark:group-hover:text-slate-300 transition-colors cursor-pointer">
-                    {paper.title}
-                  </h4>
-                  <p className="text-xs font-medium text-slate-500 line-clamp-2 leading-relaxed max-w-2xl">
-                    {paper.abstract}
-                  </p>
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {paper.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2.5 py-0.5 bg-slate-50 dark:bg-slate-700 rounded-full text-[11px] font-medium text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-600"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-4 min-w-[140px] border-t md:border-t-0 md:border-l border-slate-100 dark:border-slate-700 pt-4 md:pt-0 md:pl-6">
-                  <div className="text-right shrink-0">
-                    <div className="text-[10px] uppercase text-slate-400 font-bold mb-0.5">
-                      Deadline
-                    </div>
-                    <div className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                      {paper.deadline}
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="text-[10px] uppercase text-slate-400 font-bold mb-0.5">
-                      Status
-                    </div>
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                        paper.status === "Submitted"
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-900/30"
-                          : "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-400 dark:border-slate-600"
-                      }`}
-                    >
-                      {paper.status}
-                    </span>
-                  </div>
-                  <button
-                    className={`mt-auto w-full md:w-auto h-8 px-3 text-[11px] font-medium rounded-full transition-colors shadow-sm border ${
-                      paper.status === "Submitted"
-                        ? "border-slate-200 dark:border-slate-600 text-slate-500 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700"
-                        : "bg-white border-slate-200 dark:border-slate-600 text-[#1B3C53] dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700"
-                    }`}
-                  >
-                    {paper.actionLabel}
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+    <div className="flex min-h-screen bg-background">
+      <ReviewerSidebar
+        activeNav={activeNav}
+        setActiveNav={(nav) => {
+          setActiveNav(nav as View)
+          setSelectedConferenceId(null)
+          // Update URL for tab switch
+          const params = new URLSearchParams(searchParams.toString())
+          params.set("tab", nav)
+          params.delete("conference_id")
+          router.replace(`?${params.toString()}`)
+        }}
+      />
+      <div className={`flex-1 ${spacing.padding.cardLarge} ${spacing.section}`}>
+        {renderContent()}
       </div>
     </div>
   )

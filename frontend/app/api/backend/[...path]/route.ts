@@ -1,5 +1,3 @@
-"use server"
-
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { AUTH_COOKIE_NAME } from "@/lib/config"
@@ -16,12 +14,25 @@ async function handler(req: NextRequest) {
   const pathname = req.nextUrl.pathname.replace(/^\/api\/backend/, "")
   const normalizedPath = pathname.startsWith("/") ? pathname : `/${pathname}`
   const targetPath = normalizedPath === "/" ? "" : normalizedPath
-  const url = `${BACKEND_API_BASE_URL}${targetPath}${req.nextUrl.search}`
+
+  let baseUrl = BACKEND_API_BASE_URL
+  if (baseUrl.endsWith("/")) baseUrl = baseUrl.slice(0, -1)
+
+  const pathHasPrefix = targetPath.startsWith("/api/v1")
+  const baseHasPrefix = baseUrl.endsWith("/api/v1")
+
+  let finalUrl = baseUrl
+  if (!baseHasPrefix && !pathHasPrefix) {
+    finalUrl = `${baseUrl}/api/v1`
+  }
+
+  const url = `${finalUrl}${targetPath}${req.nextUrl.search}`
 
   const headers = new Headers(req.headers)
   headers.delete("host")
   headers.delete("connection")
   headers.delete("cookie")
+  headers.delete("content-length") // Let fetch calculate this
 
   if (token) {
     headers.set("Authorization", `Bearer ${token}`)
@@ -32,11 +43,14 @@ async function handler(req: NextRequest) {
   let body: BodyInit | undefined
   if (req.method !== "GET" && req.method !== "HEAD") {
     const contentType = headers.get("content-type") ?? ""
+    console.log("[Proxy] Processing request:", { method: req.method, url, contentType })
+
     if (contentType.includes("multipart/form-data")) {
-      // For FormData, we need to read the body as ArrayBuffer and pass it to fetch
       body = await req.arrayBuffer()
     } else if (contentType.includes("application/json") || contentType.includes("text/")) {
-      body = await req.text()
+      const textBody = await req.text()
+      console.log("[Proxy] Text body:", textBody.substring(0, 200)) // Log first 200 chars
+      body = textBody
     } else {
       const arrayBuffer = await req.arrayBuffer()
       body = arrayBuffer.byteLength ? arrayBuffer : undefined

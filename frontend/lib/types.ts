@@ -35,6 +35,8 @@ export interface User {
   domain?: string[]
   created_at?: string
   updated_at?: string
+  semantic_scholar_id?: string
+  profile_sync_status?: string
 }
 
 // Conference status type - matches backend enum

@@ -1,6 +1,0 @@
-export { ConferenceHeader } from "./conference-header"
-export { OverviewTab } from "./overview-tab"
-export { CallForPapersTab } from "./call-for-papers-tab"
-export { ImportantDatesTab } from "./important-dates-tab"
-export { CommitteeTab } from "./committee-tab"
-export type { TabType, AuthorConferenceDetailProps } from "./types"

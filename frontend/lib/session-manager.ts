@@ -39,7 +39,8 @@ class SessionManager {
       if (storedRole && VALID_USER_ROLES.includes(storedRole)) {
         this.currentRole = storedRole
       } else {
-        this.currentRole = null
+        this.currentRole = "author"
+        this.persistRole()
       }
     } catch (error) {
       this.user = null
@@ -64,6 +65,9 @@ class SessionManager {
     this.persistUser()
 
     if (preserveRole && this.currentRole) {
+      this.persistRole()
+    } else if (!this.currentRole) {
+      this.currentRole = "author"
       this.persistRole()
     }
   }
@@ -93,11 +97,6 @@ class SessionManager {
 
   disableRoleChange(): void {
     this.allowRoleChange = false
-  }
-
-  resetRole(): void {
-    this.currentRole = null
-    this.clearRole()
   }
 
   private persistUser(): void {

@@ -1132,13 +1132,133 @@
           "coiDeclared": "Đã khai báo xung đột (COI)"
         },
         "paperTab": {
-          "titlePlaceholder": "Tiêu đề ngắn gọn, cung cấp thông tin của bài báo",
-          "selectTopic": "Chọn chủ đề"
+          "title": "Thông tin bài báo",
+          "subtitle": "Cung cấp các thông tin chính cho bài nộp của bạn",
+          "tipsTitle": "Mẹo nhanh",
+          "tips": [
+            "Chọn tiêu đề rõ ràng, mô tả và nêu bật đóng góp",
+            "Viết tóm tắt nêu phương pháp và kết quả chính",
+            "Chọn lĩnh vực phù hợp nhất với bài nghiên cứu của bạn"
+          ],
+          "fields": {
+            "titleLabel": "Tiêu đề bài báo *",
+            "titleHelp": "Đưa từ khóa quan trọng lên đầu, tránh viết tắt",
+            "abstractLabel": "Tóm tắt *",
+            "abstractHelp": "Tóm tắt rõ ràng đóng góp nghiên cứu",
+            "abstractCount": "{count} từ",
+            "trackLabel": "Chủ đề hội nghị *",
+            "trackPlaceholder": "Chọn chủ đề phù hợp cho bài báo",
+            "trackHelp": "Chọn chủ đề khớp nhất với nội dung bài",
+            "subjectLabel": "Lĩnh vực *",
+            "subjectPlaceholder": "Chọn lĩnh vực phù hợp nhất",
+            "subjectHelp": "Chọn lĩnh vực nghiên cứu liên quan nhất",
+            "keywordsLabel": "Từ khóa * (tối thiểu 3)",
+            "keywordsPlaceholder": "Nhập từ khóa và nhấn Enter hoặc dấu +",
+            "keywordsHelp": "Thêm từ khóa mà người đọc sẽ tìm kiếm"
+          },
+          "authoringTipsTitle": "Thực hành tốt khi viết",
+          "authoringTips": [
+            "Tiêu đề ngắn gọn nhưng đủ nghĩa (10-15 từ)",
+            "Tóm tắt cần nêu bật tính mới và kết quả chính",
+            "Chọn từ khóa cân bằng giữa cụ thể và dễ tìm",
+            "Hạn chế thuật ngữ chuyên môn, giải thích khi cần",
+            "Dùng đúng mẫu hội nghị và tuân thủ giới hạn trang"
+          ]
         },
         "authorsTab": {
-          "namePlaceholder": "Họ và tên đầy đủ",
-          "emailPlaceholder": "Email",
-          "orgPlaceholder": "Tổ chức / Cơ quan"
+          "title": "Tác giả & đơn vị",
+          "subtitle": "Liệt kê tất cả đồng tác giả theo thứ tự hiển thị",
+          "guidelinesTitle": "Hướng dẫn tác giả:",
+          "guidelines": [
+            "Nhập email để tìm người dùng đã đăng ký",
+            "Tác giả sẽ được hiển thị theo thứ tự bên dưới",
+            "Tác giả đầu tiên thường là người đóng góp chính",
+            "Đánh dấu là tác giả liên hệ nếu phù hợp"
+          ],
+          "primaryLabel": "Tác giả chính",
+          "coAuthorLabel": "Đồng tác giả {index}",
+          "emailLabel": "Địa chỉ email *",
+          "emailPlaceholder": "author@university.edu",
+          "namePreview": "Tên:",
+          "addAuthor": "Thêm đồng tác giả",
+          "correspondingLabel": "Tôi là tác giả liên hệ cho bài nộp này",
+          "correspondingDescription": "Tác giả liên hệ sẽ nhận mọi thông báo về bài nộp"
+        },
+        "coiTab": {
+          "title": "Khai báo xung đột lợi ích",
+          "subtitle": "Xác định những người không nên phản biện bài của bạn",
+          "whatToDeclare": "Cần khai báo:",
+          "declarations": [
+            "Cộng tác viên hiện tại hoặc 3 năm gần đây",
+            "Đồng tác giả của các bài báo gần đây",
+            "Đồng nghiệp tại cơ quan của bạn",
+            "Người hướng dẫn hoặc nghiên cứu sinh",
+            "Quan hệ cá nhân hoặc nghề nghiệp thân thiết"
+          ],
+          "conflictedLabel": "Người có xung đột *",
+          "conflictedDescription": "Nhập email hoặc họ tên của người có khả năng xung đột",
+          "conflictedPlaceholder": "ví dụ: jane.doe@university.edu hoặc 'TS. Jane Doe'",
+          "declaredLabel": "Đã khai báo ({count})",
+          "clearAll": "Xóa tất cả",
+          "empty": "Chưa có xung đột nào. Thêm ít nhất một người có xung đột ở trên.",
+          "warningTitle": "Lưu ý quan trọng",
+          "warningDescription": "Bằng việc gửi, bạn xác nhận khai báo xung đột lợi ích là chính xác và đầy đủ. Không khai báo có thể dẫn đến từ chối hoặc rút bài.",
+          "bestPracticesTitle": "Thực hành tốt khi khai báo COI",
+          "bestPractices": [
+            "Khai báo bất kỳ ai bạn đã cộng tác trong 3 năm qua",
+            "Bao gồm đồng tác giả của các bài báo gần đây",
+            "Liệt kê đồng nghiệp tại cơ quan hiện tại hoặc gần đây",
+            "Khi không chắc chắn, hãy khai báo để an toàn",
+            "Dùng họ tên đầy đủ hoặc email để rõ ràng"
+          ]
+        },
+        "coverLetterTab": {
+          "title": "Thư ngỏ",
+          "subtitle": "Tài liệu tùy chọn để cung cấp thêm ngữ cảnh cho phản biện",
+          "includeTitle": "Nên có trong thư ngỏ:",
+          "includeList": [
+            "Tóm tắt ngắn về ý nghĩa và tính mới của bài",
+            "Lý do bài phù hợp với hội nghị này",
+            "Lưu ý đặc biệt cho phản biện",
+            "Đề xuất phản biện (nếu có)",
+            "Lịch sử nộp trước đây (nếu có)"
+          ],
+          "note": "Thư ngỏ là tùy chọn nhưng nên có. Kích thước tối đa 5MB, chỉ chấp nhận PDF.",
+          "existingTitle": "Thư ngỏ hiện có",
+          "existingDescription": "Tải tệp mới bên dưới để thay thế thư ngỏ hiện tại.",
+          "uploadLabel": "Tải thư ngỏ (tùy chọn)",
+          "uploadTitle": "Thả PDF vào đây hoặc nhấn để chọn",
+          "uploadHint": "Chỉ PDF, tối đa 5MB",
+          "chooseFile": "Chọn tệp",
+          "uploadedDescription": "{size} • Tài liệu PDF",
+          "replaceFile": "Thay thế tệp",
+          "remove": "Xóa",
+          "tipsTitle": "Mẹo viết thư ngỏ",
+          "tips": [
+            "Ngắn gọn (tối đa 1-2 trang)",
+            "Giữ giọng văn chuyên nghiệp, tôn trọng",
+            "Nêu bật tính mới và tác động của bài",
+            "Chủ động giải thích các điểm còn băn khoăn",
+            "Không lặp lại toàn bộ phần tóm tắt"
+          ]
+        },
+        "sidebar": {
+          "progressReady": "Sẵn sàng gửi!",
+          "progressInProgress": "Tiến độ bài nộp",
+          "progressSummary": "{completed}/{total} mục đã hoàn thành",
+          "allComplete": "✓ Đã đủ yêu cầu. Bạn có thể gửi bài ngay!",
+          "checklistTitle": "Danh sách kiểm tra",
+          "checklistSubtitle": "Bắt buộc trước khi gửi",
+          "policyTitle": "Chính sách & định dạng",
+          "policySubtitle": "Hướng dẫn nhanh",
+          "policyItems": [
+            "Ẩn danh hai chiều: xóa mọi thông tin nhận dạng",
+            "Tối đa 10 trang (không tính tài liệu tham khảo)",
+            "PDF ≤ 20MB với phông nhúng",
+            "Dùng mẫu hội nghị chính thức"
+          ],
+          "helpTitle": "Cần hỗ trợ?",
+          "helpDescription": "Lưu bản nháp bất cứ lúc nào. Bạn có thể quay lại hoàn thành sau."
         },
         "fileTab": {
           "mustBePdf": "File phải là PDF",
@@ -1628,7 +1748,7 @@
           ],
           "conflictedLabel": "Người có xung đột *",
           "conflictedDescription": "Nhập email hoặc họ tên của người có khả năng xung đột",
-          "conflictedPlaceholder": "ví dụ: jane.doe@university.edu hoặc “TS. Jane Doe”",
+          "conflictedPlaceholder": "ví dụ: jane.doe@university.edu hoặc 'TS. Jane Doe'",
           "declaredLabel": "Đã khai báo ({count})",
           "clearAll": "Xóa tất cả",
           "empty": "Chưa có xung đột nào. Thêm ít nhất một người có xung đột ở trên.",

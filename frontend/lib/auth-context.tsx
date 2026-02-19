@@ -14,7 +14,6 @@ interface AuthContextType {
   register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>
   logout: () => void
   switchRole: (role: UserRole) => void
-  resetRole: () => void
   refreshUser: () => Promise<void>
 }
 
@@ -231,11 +230,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [syncWithSessionManager],
   )
 
-  const resetRole = useCallback(() => {
-    sessionManager.resetRole()
-    syncWithSessionManager()
-  }, [syncWithSessionManager])
-
   const refreshUser = useCallback(async () => {
     await refreshSession()
   }, [refreshSession])
@@ -248,7 +242,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     register,
     logout,
     switchRole,
-    resetRole,
     refreshUser,
   }
 
