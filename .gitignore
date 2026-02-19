@@ -36,3 +36,5 @@ AGENTS.md
 backend/scripts/*.sh
 
 .agent
+backend/scripts/coauthorships.csv
+backend/scripts/reduce_data_seeder.py

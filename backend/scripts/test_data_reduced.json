@@ -1,0 +1,1689 @@
+{
+    "total": 50,
+    "offset": 0,
+    "next": 50,
+    "data": [
+        {
+            "paperId": "f636a3910515a0dc56c4d0bbf462b9a80237cadd",
+            "url": "https://www.semanticscholar.org/paper/f636a3910515a0dc56c4d0bbf462b9a80237cadd",
+            "title": "[Pseudotumor of an actinomycotic nature].",
+            "venue": "Vestnik khirurgii imeni I. I. Grekova",
+            "year": 1966,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": null,
+            "journal": {
+                "name": "Vestnik khirurgii imeni I. I. Grekova",
+                "pages": "117-9",
+                "volume": "97 10"
+            },
+            "authors": [
+                {
+                    "authorId": "14177951",
+                    "name": "B. L. Ospovat"
+                },
+                {
+                    "authorId": "16981256",
+                    "name": "G. M. Dianova"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "d2b592ddfcf85b787a373ef23b6a3c69f11c5185",
+            "url": "https://www.semanticscholar.org/paper/d2b592ddfcf85b787a373ef23b6a3c69f11c5185",
+            "title": "World Perspective Case Descriptions on Educational Programs for Adults: Israel.",
+            "venue": "",
+            "year": 1989,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": "1989-08-01",
+            "journal": {
+                "name": "",
+                "pages": null,
+                "volume": ""
+            },
+            "authors": [
+                {
+                    "authorId": "31922484",
+                    "name": "E. Israeli"
+                },
+                {
+                    "authorId": "83235376",
+                    "name": "R. Tokatli"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "1de40ddcb535cbc4639d0a479f65930e6a6c38cc",
+            "url": "https://www.semanticscholar.org/paper/1de40ddcb535cbc4639d0a479f65930e6a6c38cc",
+            "title": "Análisis de operaciones cross docking directas e indirectas en Colombia",
+            "venue": "",
+            "year": 2015,
+            "citationCount": 2,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": "2015-03-04",
+            "journal": {
+                "name": "",
+                "pages": null,
+                "volume": ""
+            },
+            "authors": [
+                {
+                    "authorId": "96319558",
+                    "name": "Gómez Chocontá"
+                },
+                {
+                    "authorId": "2076074990",
+                    "name": "Javier Hernando"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "d79fb5668c33fb749dd862e9cb27b878bc1c543f",
+            "url": "https://www.semanticscholar.org/paper/d79fb5668c33fb749dd862e9cb27b878bc1c543f",
+            "title": "Optimal Calibration of the LIBOR Market Model",
+            "venue": "",
+            "year": 2009,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": null,
+            "journal": {
+                "name": "",
+                "pages": null,
+                "volume": ""
+            },
+            "authors": [
+                {
+                    "authorId": "49279476",
+                    "name": "Lixin Wu"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "4d46a973a7d670516aead045280d7fac59162863",
+            "url": "https://www.semanticscholar.org/paper/4d46a973a7d670516aead045280d7fac59162863",
+            "title": "Catalysts Intercalated in Layered Double Hydroxides",
+            "venue": "",
+            "year": 2017,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1016/B978-0-12-803836-9.00013-4?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1016/B978-0-12-803836-9.00013-4, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": null,
+            "journal": {
+                "name": "",
+                "pages": "443-476",
+                "volume": ""
+            },
+            "authors": [
+                {
+                    "authorId": "34358661",
+                    "name": "S. Sadjadi"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "2c8c8d27e9020b9bb286d7e57a5b814c12a1e408",
+            "url": "https://www.semanticscholar.org/paper/2c8c8d27e9020b9bb286d7e57a5b814c12a1e408",
+            "title": "Évaluation d'impact environnemental de la production des poules pondeuses au Québec",
+            "venue": "",
+            "year": 2018,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": "2018-11-01",
+            "journal": {
+                "name": "",
+                "pages": null,
+                "volume": ""
+            },
+            "authors": [
+                {
+                    "authorId": "118727847",
+                    "name": "J. Burbano"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "207a607ca094107e10388f0fa8abf07a1fd0d7a2",
+            "url": "https://www.semanticscholar.org/paper/207a607ca094107e10388f0fa8abf07a1fd0d7a2",
+            "title": "12马力淡水渔船及WYG-0．2／40型液压充气滚轮起网机通过技术鉴定",
+            "venue": "",
+            "year": 1984,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": null,
+            "journal": {
+                "name": "",
+                "pages": "45-45",
+                "volume": ""
+            },
+            "authors": [
+                {
+                    "authorId": "102566303",
+                    "name": "胡伯成"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "8cdc55dc7cacdb162feb410396fbe1313f16bec0",
+            "url": "https://www.semanticscholar.org/paper/8cdc55dc7cacdb162feb410396fbe1313f16bec0",
+            "title": "Bernardo Bertolucci : l’Orson Welles de Parme s’est éteint (deuxième partie)",
+            "venue": "",
+            "year": 2019,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": null,
+            "journal": {
+                "name": "",
+                "pages": "42-45",
+                "volume": ""
+            },
+            "authors": [
+                {
+                    "authorId": "97203769",
+                    "name": "M. Patry"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "6c8d1689475803a09ec379db8d42cbf7fd2ec773",
+            "url": "https://www.semanticscholar.org/paper/6c8d1689475803a09ec379db8d42cbf7fd2ec773",
+            "title": "Rapid titer assay of adenovirus containing green fluorescent protein gene using flow cytometric analysis",
+            "venue": "",
+            "year": 2000,
+            "citationCount": 8,
+            "influentialCitationCount": 1,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1007/S004490050751?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1007/S004490050751, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "2000-05-04",
+            "journal": {
+                "name": "Bioprocess Engineering",
+                "pages": "403-406",
+                "volume": "22"
+            },
+            "authors": [
+                {
+                    "authorId": "49360088",
+                    "name": "Min Tae Park"
+                },
+                {
+                    "authorId": "145674648",
+                    "name": "G. Lee"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "6415a4c760fa6e5c34fc3a5fe3f63928a7149947",
+            "url": "https://www.semanticscholar.org/paper/6415a4c760fa6e5c34fc3a5fe3f63928a7149947",
+            "title": "Association between rs12742784 polymorphism and hip fracture, bone mineral density, and EPHB2 mRNA expression levels in elderly Chinese women",
+            "venue": "Climacteric",
+            "year": 2020,
+            "citationCount": 2,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1080/13697137.2019.1640195?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1080/13697137.2019.1640195, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "2020-01-02",
+            "journal": {
+                "name": "Climacteric",
+                "pages": "93 - 98",
+                "volume": "23"
+            },
+            "authors": [
+                {
+                    "authorId": "73545945",
+                    "name": "Z. Ruan"
+                },
+                {
+                    "authorId": "143756110",
+                    "name": "Y. Zhu"
+                },
+                {
+                    "authorId": "2219900024",
+                    "name": "Z. Lin"
+                },
+                {
+                    "authorId": "5403363",
+                    "name": "H. Long"
+                },
+                {
+                    "authorId": "49832770",
+                    "name": "R. Zhao"
+                },
+                {
+                    "authorId": "2107474653",
+                    "name": "B. Sun"
+                },
+                {
+                    "authorId": "2272004089",
+                    "name": "L. Cheng"
+                },
+                {
+                    "authorId": "2107548606",
+                    "name": "S. Zhao"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "71e74a0a133934d2af9c0a6bbd703353bd670a48",
+            "url": "https://www.semanticscholar.org/paper/71e74a0a133934d2af9c0a6bbd703353bd670a48",
+            "title": "Erratum: “Polarization switching pathways of ferroelectric Zr-doped HfO2 based on the first-principles calculation” [Appl. Phys. Lett. 124, 092901 (2024)]",
+            "venue": "Applied Physics Letters",
+            "year": 2024,
+            "citationCount": 1,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1063/5.0224201?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1063/5.0224201, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "2024-07-08",
+            "journal": {
+                "name": "Applied Physics Letters",
+                "pages": null,
+                "volume": null
+            },
+            "authors": [
+                {
+                    "authorId": "2260499053",
+                    "name": "Xiaoyu Dou"
+                },
+                {
+                    "authorId": "2293815622",
+                    "name": "Wei Wei"
+                },
+                {
+                    "authorId": "3825529",
+                    "name": "Pengpeng Sang"
+                },
+                {
+                    "authorId": "2183595632",
+                    "name": "Lu Tai"
+                },
+                {
+                    "authorId": "2186395702",
+                    "name": "Xiaopeng Li"
+                },
+                {
+                    "authorId": "13779193",
+                    "name": "Xuepeng Zhan"
+                },
+                {
+                    "authorId": "2243368825",
+                    "name": "Jixuan Wu"
+                },
+                {
+                    "authorId": "1687246",
+                    "name": "Jiezhi Chen"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "52771fd7567b3c95ff34f3b0a798b13aa20ddb91",
+            "url": "https://www.semanticscholar.org/paper/52771fd7567b3c95ff34f3b0a798b13aa20ddb91",
+            "title": "Quantitative method for determination of urobilinogen in stool and of urobilinogen and bilirubin in urine.",
+            "venue": "American Journal of Clinical Pathology",
+            "year": 1948,
+            "citationCount": 4,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1093/AJCP/18.11_TS.887?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1093/AJCP/18.11_TS.887, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "1948-11-01",
+            "journal": {
+                "name": "American journal of clinical pathology",
+                "pages": "887-90",
+                "volume": "18 11"
+            },
+            "authors": [
+                {
+                    "authorId": "153905145",
+                    "name": "H. Brereton"
+                },
+                {
+                    "authorId": "5483376",
+                    "name": "S. P. Lucia"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "b16c301ffd4cdb1dd2240ec3516036fbff8b5a7a",
+            "url": "https://www.semanticscholar.org/paper/b16c301ffd4cdb1dd2240ec3516036fbff8b5a7a",
+            "title": "Meer macht voor lokale overheden? Een Europese vergelijking",
+            "venue": "",
+            "year": 2007,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": null,
+            "journal": {
+                "name": "",
+                "pages": "4-13",
+                "volume": "12"
+            },
+            "authors": [
+                {
+                    "authorId": "84085406",
+                    "name": "S. V. D. Walle"
+                },
+                {
+                    "authorId": "2055952808",
+                    "name": "Keith Baker"
+                },
+                {
+                    "authorId": "2081404198",
+                    "name": "Chris Skelcher"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "56079bab404e35c66ed465d4b38b1276ef768d5b",
+            "url": "https://www.semanticscholar.org/paper/56079bab404e35c66ed465d4b38b1276ef768d5b",
+            "title": "Saving Women: Retrieving Evangelistic Theology and Practice – By Laceye Ç. Warner",
+            "venue": "",
+            "year": 2010,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1111/J.1467-9809.2010.00925.X?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1111/J.1467-9809.2010.00925.X, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "2010-12-01",
+            "journal": {
+                "name": "Journal of Religious History",
+                "pages": "480-481",
+                "volume": "34"
+            },
+            "authors": [
+                {
+                    "authorId": "116185685",
+                    "name": "Joanna Bowen Gillespie"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "24ae63f7669853b270e1dd08342f58ab7136ed2e",
+            "url": "https://www.semanticscholar.org/paper/24ae63f7669853b270e1dd08342f58ab7136ed2e",
+            "title": "Fenología reproductiva y anatomía floral de las plantas Aloe vera y Aloe saponaria (Aloaceae) en Cumaná, Venezuela",
+            "venue": "",
+            "year": 2008,
+            "citationCount": 3,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": "2008-09-01",
+            "journal": {
+                "name": "Revista De Biologia Tropical",
+                "pages": "1109-1125",
+                "volume": "56"
+            },
+            "authors": [
+                {
+                    "authorId": "1422530516",
+                    "name": "Róger Velásquez-Arenas"
+                },
+                {
+                    "authorId": "2086494513",
+                    "name": "José Imery-Buiza"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "9b07e0a95bd5fd26019466be4393b0a3d6b8f4da",
+            "url": "https://www.semanticscholar.org/paper/9b07e0a95bd5fd26019466be4393b0a3d6b8f4da",
+            "title": "The -EM Algorithm: Surrogate Likelihood Maximization Using -Logarithmic Information Measures",
+            "venue": "",
+            "year": 2001,
+            "citationCount": 51,
+            "influentialCitationCount": 2,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": null,
+            "journal": null,
+            "authors": [
+                {
+                    "authorId": "2233956",
+                    "name": "Y. Matsuyama"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "7c52c3995b0403a6a64fa113b8f47029a852781c",
+            "url": "https://www.semanticscholar.org/paper/7c52c3995b0403a6a64fa113b8f47029a852781c",
+            "title": "The effectiveness of nurse-led interventions for preventing urinary tract infections in older adults in residential aged care facilities: A systematic review.",
+            "venue": "Journal of Clinical Nursing",
+            "year": 2020,
+            "citationCount": 14,
+            "influentialCitationCount": 1,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1111/jocn.15198?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1111/jocn.15198, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "2020-01-23",
+            "journal": {
+                "name": "Journal of clinical nursing",
+                "pages": null,
+                "volume": null
+            },
+            "authors": [
+                {
+                    "authorId": "2163066852",
+                    "name": "M. Wu"
+                },
+                {
+                    "authorId": "32744238",
+                    "name": "Lihui Pu"
+                },
+                {
+                    "authorId": "5504369",
+                    "name": "L. Grealish"
+                },
+                {
+                    "authorId": "2109349579",
+                    "name": "Cindy Jones"
+                },
+                {
+                    "authorId": "3481695",
+                    "name": "W. Moyle"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "e841a350679744379bca4989c04ffae201dab91f",
+            "url": "https://www.semanticscholar.org/paper/e841a350679744379bca4989c04ffae201dab91f",
+            "title": "CaFE: a tool for binding affinity prediction using end-point free energy methods",
+            "venue": "Bioinform.",
+            "year": 2016,
+            "citationCount": 138,
+            "influentialCitationCount": 10,
+            "openAccessPdf": {
+                "url": "",
+                "status": "OPEN",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1093/bioinformatics/btw215?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1093/bioinformatics/btw215, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "2016-07-15",
+            "journal": {
+                "name": "Bioinformatics",
+                "pages": "2216-8",
+                "volume": "32 14"
+            },
+            "authors": [
+                {
+                    "authorId": "2146673204",
+                    "name": "Hui Liu"
+                },
+                {
+                    "authorId": "143824804",
+                    "name": "Tingjun Hou"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "dfca2a744be73aea62850b5ac0c918d0364e84ad",
+            "url": "https://www.semanticscholar.org/paper/dfca2a744be73aea62850b5ac0c918d0364e84ad",
+            "title": "INVESTIGATION OF FRACTURE PROCESSES USING MOMENT TENSOR INVERSION TECHNIQUE",
+            "venue": "",
+            "year": 2004,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": null,
+            "journal": {
+                "name": "",
+                "pages": null,
+                "volume": ""
+            },
+            "authors": [
+                {
+                    "authorId": "92068345",
+                    "name": "F. Finck"
+                },
+                {
+                    "authorId": "23687868",
+                    "name": "C. Grosse"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "2e9ee59e38bbdfed35c56e36c1da5cce19341f53",
+            "url": "https://www.semanticscholar.org/paper/2e9ee59e38bbdfed35c56e36c1da5cce19341f53",
+            "title": "[Considerations on the first arterial protheses with teflon. Apropos of 20 cases].",
+            "venue": "Marseille chirurgical",
+            "year": 1959,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": null,
+            "journal": {
+                "name": "Marseille chirurgical",
+                "pages": "416-22",
+                "volume": "11"
+            },
+            "authors": [
+                {
+                    "authorId": "17082982",
+                    "name": "E. Bourdoncle"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "95d7c80558ff502a77c316085b125c8c236f7df4",
+            "url": "https://www.semanticscholar.org/paper/95d7c80558ff502a77c316085b125c8c236f7df4",
+            "title": "[Apparatus for contrast study of the large intestine].",
+            "venue": "Journal of radiology and nuclear medicine",
+            "year": 1959,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": null,
+            "journal": {
+                "name": "Vestnik rentgenologii i radiologii",
+                "pages": "72-3",
+                "volume": "34 1"
+            },
+            "authors": [
+                {
+                    "authorId": "4082937",
+                    "name": "F. A. Astrakhantsev"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "fed72d80eadb3a9b99b5498a50ca9ddf4591a8ce",
+            "url": "https://www.semanticscholar.org/paper/fed72d80eadb3a9b99b5498a50ca9ddf4591a8ce",
+            "title": "High-pressure photoacoustic calorimetry of chromium hexacarbonyl: volumes of heptane displacement from chromium pentacarbonyl heptane",
+            "venue": "",
+            "year": 2000,
+            "citationCount": 6,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1016/S1010-6030(00)00371-3?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1016/S1010-6030(00)00371-3, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "2000-12-04",
+            "journal": {
+                "name": "Journal of Photochemistry and Photobiology A-chemistry",
+                "pages": "135-139",
+                "volume": "137"
+            },
+            "authors": [
+                {
+                    "authorId": "40263369",
+                    "name": "G. Farrell"
+                },
+                {
+                    "authorId": "40147495",
+                    "name": "T. Burkey"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "a2664565ec249a7cb426f4f965a81a22c8c8ca40",
+            "url": "https://www.semanticscholar.org/paper/a2664565ec249a7cb426f4f965a81a22c8c8ca40",
+            "title": "Optimisation of a cross-flow floating wave energy converter",
+            "venue": "",
+            "year": 2012,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": "2012-06-01",
+            "journal": null,
+            "authors": [
+                {
+                    "authorId": "145736233",
+                    "name": "Byung-Ha Kim"
+                },
+                {
+                    "authorId": "40416677",
+                    "name": "M. Faizal"
+                },
+                {
+                    "authorId": "49380444",
+                    "name": "Young-Ho Lee"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "6ceabaa40136fa8033a378479681fe46bfca4ffa",
+            "url": "https://www.semanticscholar.org/paper/6ceabaa40136fa8033a378479681fe46bfca4ffa",
+            "title": "Expression of Recombinant Chemokine-Like Factor 1 with a Cell-Free Protein Biosynthesis System",
+            "venue": "",
+            "year": 2003,
+            "citationCount": 1,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1007/978-3-642-59337-6_20?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1007/978-3-642-59337-6_20, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": null,
+            "journal": {
+                "name": "",
+                "pages": "165-171",
+                "volume": ""
+            },
+            "authors": [
+                {
+                    "authorId": "2144467561",
+                    "name": "Yanan Liu"
+                },
+                {
+                    "authorId": "34586560",
+                    "name": "D. Ma"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "93a810df99088f633c782f9bf08bce56e0d9624d",
+            "url": "https://www.semanticscholar.org/paper/93a810df99088f633c782f9bf08bce56e0d9624d",
+            "title": "Field Notes on the Arabic Literature of the Western Sudan",
+            "venue": "Journal of the Royal Asiatic Society",
+            "year": 1956,
+            "citationCount": 1,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1017/S0035869X00114480?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1017/S0035869X00114480, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "1956-04-01",
+            "journal": {
+                "name": "Journal of the Royal Asiatic Society",
+                "pages": "78 - 80",
+                "volume": "88"
+            },
+            "authors": [
+                {
+                    "authorId": "82843686",
+                    "name": "Western Sudan"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "84bdc99de76d3c8722f84e614669fe710f6bc577",
+            "url": "https://www.semanticscholar.org/paper/84bdc99de76d3c8722f84e614669fe710f6bc577",
+            "title": "Consumer behavior in a fitness gym and Health Club: study of frequency, satisfaction and retention",
+            "venue": "",
+            "year": 2014,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": null,
+            "journal": {
+                "name": "",
+                "pages": null,
+                "volume": "4"
+            },
+            "authors": [
+                {
+                    "authorId": "102644999",
+                    "name": "Pedro M. S. Meireles"
+                },
+                {
+                    "authorId": "40567669",
+                    "name": "Celina Gonçalves"
+                },
+                {
+                    "authorId": "144356215",
+                    "name": "M. Carvalho"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "62c2047ffa587f6710d9c7a4d7b91d51c37e0198",
+            "url": "https://www.semanticscholar.org/paper/62c2047ffa587f6710d9c7a4d7b91d51c37e0198",
+            "title": "8. Material Uniformity and Inhomogeneity",
+            "venue": "Geometry of Incompatible Deformations",
+            "year": 2018,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1515/9783110563214-008?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1515/9783110563214-008, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "2018-11-05",
+            "journal": {
+                "name": "Geometry of Incompatible Deformations",
+                "pages": null,
+                "volume": null
+            },
+            "authors": [],
+            "abstract": null
+        },
+        {
+            "paperId": "8e16cafd69d6a77299adf39a47ec0a33b7a41fad",
+            "url": "https://www.semanticscholar.org/paper/8e16cafd69d6a77299adf39a47ec0a33b7a41fad",
+            "title": "On the problem of foundations of category theory",
+            "venue": "",
+            "year": 1969,
+            "citationCount": 6,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1111/J.1746-8361.1969.TB01179.X?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1111/J.1746-8361.1969.TB01179.X, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "1969-03-01",
+            "journal": {
+                "name": "Dialectica",
+                "pages": "58-66",
+                "volume": "23"
+            },
+            "authors": [
+                {
+                    "authorId": "1782133",
+                    "name": "E. Engeler"
+                },
+                {
+                    "authorId": "2669176",
+                    "name": "H. Röhrl"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "59a5221904e4a3c62609c851c2d1278537585ee8",
+            "url": "https://www.semanticscholar.org/paper/59a5221904e4a3c62609c851c2d1278537585ee8",
+            "title": "Antiretroviral therapy for pre-exposure prophylaxis of HIV in men who have sex with men",
+            "venue": "",
+            "year": 2013,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.3760/CMA.J.ISSN.1673-4149.2013.06.016?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.3760/CMA.J.ISSN.1673-4149.2013.06.016, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "2013-12-25",
+            "journal": {
+                "name": "",
+                "pages": "414-416",
+                "volume": "40"
+            },
+            "authors": [
+                {
+                    "authorId": "2152994633",
+                    "name": "Hongpeng Sun"
+                },
+                {
+                    "authorId": "2145946936",
+                    "name": "Qian Zhang"
+                },
+                {
+                    "authorId": "2087380515",
+                    "name": "F. Huang"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "543e6934039e8e7f1a497c2ac9d869c29127dfcf",
+            "url": "https://www.semanticscholar.org/paper/543e6934039e8e7f1a497c2ac9d869c29127dfcf",
+            "title": "The role of rotation shift settlements for the sustainable development of Russia’s Far North urbanization",
+            "venue": "R-Economy",
+            "year": 2024,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.15826/recon.2024.10.2.012?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.15826/recon.2024.10.2.012, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": null,
+            "journal": {
+                "name": "R-Economy",
+                "pages": null,
+                "volume": null
+            },
+            "authors": [
+                {
+                    "authorId": "2087479758",
+                    "name": "Ulyana V. Mizerovskaya"
+                },
+                {
+                    "authorId": "2088120004",
+                    "name": "Egor E. Chaika"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "d1caacfed8ea8b3bbcab09b4a0d7151d0ccbfe0b",
+            "url": "https://www.semanticscholar.org/paper/d1caacfed8ea8b3bbcab09b4a0d7151d0ccbfe0b",
+            "title": "Inhibition of the 26S proteasome as a possible mechanism for toxicity of heavy metal species.",
+            "venue": "Journal of Inorganic Biochemistry",
+            "year": 2014,
+            "citationCount": 5,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1016/j.jinorgbio.2013.12.012?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1016/j.jinorgbio.2013.12.012, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "2014-03-01",
+            "journal": {
+                "name": "Journal of inorganic biochemistry",
+                "pages": "96-103",
+                "volume": "132"
+            },
+            "authors": [
+                {
+                    "authorId": "11428617",
+                    "name": "Dajena Tomco"
+                },
+                {
+                    "authorId": "3544362",
+                    "name": "Sara M. Schmitt"
+                },
+                {
+                    "authorId": "4973788",
+                    "name": "M. Heeg"
+                },
+                {
+                    "authorId": "143705902",
+                    "name": "Q. Dou"
+                },
+                {
+                    "authorId": "10768345",
+                    "name": "Cláudio N. Verani"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "64d9e704e3681874da3858c10d33659311711dd8",
+            "url": "https://www.semanticscholar.org/paper/64d9e704e3681874da3858c10d33659311711dd8",
+            "title": "Designing spherical cementite in bainitic matrix (SCBM) microstructures in high carbon powder metal steels to improve dry sliding wear resistance",
+            "venue": "Materials letters (General ed.)",
+            "year": 2019,
+            "citationCount": 13,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1016/J.MATLET.2019.04.095?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1016/J.MATLET.2019.04.095, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "2019-08-15",
+            "journal": {
+                "name": "Materials Letters",
+                "pages": null,
+                "volume": null
+            },
+            "authors": [
+                {
+                    "authorId": "2089982439",
+                    "name": "O. Altuntaş"
+                },
+                {
+                    "authorId": "102500709",
+                    "name": "A. Güral"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "33c3fa9b12c0ec14976367557c5b7a3c2744520b",
+            "url": "https://www.semanticscholar.org/paper/33c3fa9b12c0ec14976367557c5b7a3c2744520b",
+            "title": "Cancer stem cells and nodal status in oral squamous cell carcinoma",
+            "venue": "",
+            "year": 2011,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": null,
+            "journal": {
+                "name": "",
+                "pages": null,
+                "volume": ""
+            },
+            "authors": [
+                {
+                    "authorId": "152223371",
+                    "name": "R. Sibson"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "f5d9094afd40eea0cc82569bca3fa30ba1f65029",
+            "url": "https://www.semanticscholar.org/paper/f5d9094afd40eea0cc82569bca3fa30ba1f65029",
+            "title": "Interaction of aluminum with zinc and copper and its effects on pituitary-testicular axis: a histological study.",
+            "venue": "",
+            "year": 1990,
+            "citationCount": 5,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": "1990-03-01",
+            "journal": {
+                "name": "Biomedical and Environmental Sciences",
+                "pages": "1-10",
+                "volume": "3"
+            },
+            "authors": [
+                {
+                    "authorId": "67231947",
+                    "name": "Liu Jy"
+                },
+                {
+                    "authorId": "88071880",
+                    "name": "Stemmer Kl"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "eb69168158e5d7e404235da19145b0f1219baa27",
+            "url": "https://www.semanticscholar.org/paper/eb69168158e5d7e404235da19145b0f1219baa27",
+            "title": "Brokering knowledge in a policy world [presentation]",
+            "venue": "",
+            "year": 2011,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": "2011-02-11",
+            "journal": {
+                "name": "",
+                "pages": null,
+                "volume": ""
+            },
+            "authors": [
+                {
+                    "authorId": "145743170",
+                    "name": "S. Hanafin"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "17b1b0fa5b2d5b92e3ef3ff29f87ac6df155dd6d",
+            "url": "https://www.semanticscholar.org/paper/17b1b0fa5b2d5b92e3ef3ff29f87ac6df155dd6d",
+            "title": "on recent, early-stage startups",
+            "venue": "",
+            "year": 2022,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": null,
+            "journal": null,
+            "authors": [],
+            "abstract": null
+        },
+        {
+            "paperId": "c984bcd8e21da1eaf4fdbf5141117a176fd35eb5",
+            "url": "https://www.semanticscholar.org/paper/c984bcd8e21da1eaf4fdbf5141117a176fd35eb5",
+            "title": "Enhanced induction of interleukin-12(p40) secretion by human macrophages infected with Mycobacterium avium complex isolates from disseminated infection in AIDS patients.",
+            "venue": "Journal of Infectious Diseases",
+            "year": 1998,
+            "citationCount": 15,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "OPEN",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1086/515687?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1086/515687, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "1998-10-01",
+            "journal": {
+                "name": "The Journal of infectious diseases",
+                "pages": "1209-12",
+                "volume": "178 4"
+            },
+            "authors": [
+                {
+                    "authorId": "14807853",
+                    "name": "P. W. V. von Grünberg"
+                },
+                {
+                    "authorId": "5712198",
+                    "name": "G. Plum"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "fd3574586678080ec095a1e57ba18d3f10aa0053",
+            "url": "https://www.semanticscholar.org/paper/fd3574586678080ec095a1e57ba18d3f10aa0053",
+            "title": "끊임없는 업무 프로세스 개선의 도구로서 BPM",
+            "venue": "",
+            "year": 2006,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": "2006-09-01",
+            "journal": null,
+            "authors": [
+                {
+                    "authorId": "71860445",
+                    "name": "채명신"
+                },
+                {
+                    "authorId": "101312555",
+                    "name": "박송미"
+                },
+                {
+                    "authorId": "122123503",
+                    "name": "전켄트"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "c287a19fd4d3d320ccab24f1679216032e0ec76a",
+            "url": "https://www.semanticscholar.org/paper/c287a19fd4d3d320ccab24f1679216032e0ec76a",
+            "title": "The separation of sea-ice types in radar imagery",
+            "venue": "",
+            "year": 1987,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "OPEN",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1017/S0260305500000860?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1017/S0260305500000860, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": null,
+            "journal": {
+                "name": "",
+                "pages": null,
+                "volume": ""
+            },
+            "authors": [
+                {
+                    "authorId": "39548830",
+                    "name": "B. Holt"
+                },
+                {
+                    "authorId": "47250554",
+                    "name": "F. Carsey"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "69c255ed2183d5ec5cf2c1f2bfb25836d5b1ccf4",
+            "url": "https://www.semanticscholar.org/paper/69c255ed2183d5ec5cf2c1f2bfb25836d5b1ccf4",
+            "title": "A bright carbonate future",
+            "venue": "",
+            "year": 2007,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": null
+            },
+            "publicationDate": null,
+            "journal": null,
+            "authors": [
+                {
+                    "authorId": "94760305",
+                    "name": "Mike O´Driscoll"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "0cacdbd3c99ce265680149b01f758982f6feec18",
+            "url": "https://www.semanticscholar.org/paper/0cacdbd3c99ce265680149b01f758982f6feec18",
+            "title": "Influence of Plane of Nutrition on Seasonal Changes in Food Intake and Reproduction in Grazing Red Deer",
+            "venue": "",
+            "year": 1992,
+            "citationCount": 11,
+            "influentialCitationCount": 1,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1007/978-1-4612-2782-3_62?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1007/978-1-4612-2782-3_62, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": null,
+            "journal": {
+                "name": "",
+                "pages": "279-284",
+                "volume": ""
+            },
+            "authors": [
+                {
+                    "authorId": "89728666",
+                    "name": "M. Heydon"
+                },
+                {
+                    "authorId": "3872545",
+                    "name": "A. Loudon"
+                },
+                {
+                    "authorId": "144953360",
+                    "name": "J. Milne"
+                },
+                {
+                    "authorId": "7971538",
+                    "name": "B. R. Brinklow"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "d5846e5ad5066266b329652684404cbf3d4c03f0",
+            "url": "https://www.semanticscholar.org/paper/d5846e5ad5066266b329652684404cbf3d4c03f0",
+            "title": "A Novel Experimental Strategy for In situ SR-CT Mechanical Loading Test",
+            "venue": "Experimental mechanics",
+            "year": 2021,
+            "citationCount": 2,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1007/s11340-021-00707-8?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1007/s11340-021-00707-8, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "2021-05-04",
+            "journal": {
+                "name": "Experimental Mechanics",
+                "pages": "1217 - 1226",
+                "volume": "61"
+            },
+            "authors": [
+                {
+                    "authorId": "47787254",
+                    "name": "J. Li"
+                },
+                {
+                    "authorId": "2157740083",
+                    "name": "Y. Xiao"
+                },
+                {
+                    "authorId": "2107651630",
+                    "name": "F. Xu"
+                },
+                {
+                    "authorId": "2157380038",
+                    "name": "Y. X. Wang"
+                },
+                {
+                    "authorId": "2217743642",
+                    "name": "X. Hu"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "01367315c51216050c81df5921d0a419747fd225",
+            "url": "https://www.semanticscholar.org/paper/01367315c51216050c81df5921d0a419747fd225",
+            "title": "Kicked drops",
+            "venue": "Physical Review Fluids",
+            "year": 2018,
+            "citationCount": 3,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "OPEN",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1103/physrevfluids.3.100503?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1103/physrevfluids.3.100503, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "2018-10-17",
+            "journal": {
+                "name": "Physical Review Fluids",
+                "pages": null,
+                "volume": null
+            },
+            "authors": [
+                {
+                    "authorId": "35676368",
+                    "name": "P. Chantelot"
+                },
+                {
+                    "authorId": "103106519",
+                    "name": "M. Coux"
+                },
+                {
+                    "authorId": "102502081",
+                    "name": "Lucie Domino"
+                },
+                {
+                    "authorId": "2135799197",
+                    "name": "Benoît Pype"
+                },
+                {
+                    "authorId": "3543212",
+                    "name": "C. Clanet"
+                },
+                {
+                    "authorId": "4097761",
+                    "name": "A. Eddi"
+                },
+                {
+                    "authorId": "4705982",
+                    "name": "D. Quéré"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "04b0c4d5fb19c910f577ded12acdbd3245e92624",
+            "url": "https://www.semanticscholar.org/paper/04b0c4d5fb19c910f577ded12acdbd3245e92624",
+            "title": "Understanding of signal conversion using magnetic photonic structure for optical communication system",
+            "venue": "Journal of Optics",
+            "year": 2024,
+            "citationCount": 3,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1007/s12596-024-02151-y?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1007/s12596-024-02151-y, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "2024-08-20",
+            "journal": {
+                "name": "Journal of Optics",
+                "pages": null,
+                "volume": null
+            },
+            "authors": [
+                {
+                    "authorId": "2289984043",
+                    "name": "Archana Rath"
+                },
+                {
+                    "authorId": "2286816441",
+                    "name": "Gopinath Palai"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "d586a34da6bd74e136ad8f6354b8c771352e6e5b",
+            "url": "https://www.semanticscholar.org/paper/d586a34da6bd74e136ad8f6354b8c771352e6e5b",
+            "title": "Authors’ response to interactive comments by Referee #1",
+            "venue": "",
+            "year": 2019,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "OPEN",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.5194/hess-2018-436-ac2?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.5194/hess-2018-436-ac2, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "2019-03-10",
+            "journal": null,
+            "authors": [
+                {
+                    "authorId": "27577728",
+                    "name": "L. Zhuo"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "3b9f11bc8f03fac3439faaac039895e9caf4d6ed",
+            "url": "https://www.semanticscholar.org/paper/3b9f11bc8f03fac3439faaac039895e9caf4d6ed",
+            "title": "A time and a place: A framework for caffeine periodization throughout the sporting year.",
+            "venue": "Nutrition (Burbank, Los Angeles County, Calif.)",
+            "year": 2020,
+            "citationCount": 6,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1016/j.nut.2020.111046?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1016/j.nut.2020.111046, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "2020-11-05",
+            "journal": {
+                "name": "Nutrition",
+                "pages": "111046",
+                "volume": null
+            },
+            "authors": [
+                {
+                    "authorId": "23625114",
+                    "name": "C. Pickering"
+                },
+                {
+                    "authorId": "35168203",
+                    "name": "J. Grgic"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "57a0aaf11c019cd2e38aeca32f6d76fe31d3fa5e",
+            "url": "https://www.semanticscholar.org/paper/57a0aaf11c019cd2e38aeca32f6d76fe31d3fa5e",
+            "title": "Computer-aided video angiometry in isolated rabbit hearts: a new method assessing epicardial coronary selectivity.",
+            "venue": "Journal of pharmacological and toxicological methods",
+            "year": 1997,
+            "citationCount": 0,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1016/S1056-8719(97)00096-8?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1016/S1056-8719(97)00096-8, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "1997-12-01",
+            "journal": {
+                "name": "Journal of pharmacological and toxicological methods",
+                "pages": "173-9",
+                "volume": "38 4"
+            },
+            "authors": [
+                {
+                    "authorId": "2056989852",
+                    "name": "G. Joseph"
+                },
+                {
+                    "authorId": "87271317",
+                    "name": "F. Strassberger"
+                },
+                {
+                    "authorId": "1914770",
+                    "name": "W. Klaus"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "1b5dabacafa4bb9a0bd0d7d20801f4b46c021c13",
+            "url": "https://www.semanticscholar.org/paper/1b5dabacafa4bb9a0bd0d7d20801f4b46c021c13",
+            "title": "Cyclostationary modeling, analysis, and optimal compensation of quantization errors in subband codecs",
+            "venue": "IEEE Transactions on Signal Processing",
+            "year": 1995,
+            "citationCount": 34,
+            "influentialCitationCount": 1,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1109/78.414773?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1109/78.414773, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "1995-09-01",
+            "journal": {
+                "name": "IEEE Trans. Signal Process.",
+                "pages": "2109-2119",
+                "volume": "43"
+            },
+            "authors": [
+                {
+                    "authorId": "2068250815",
+                    "name": "Necdet Uzun"
+                },
+                {
+                    "authorId": "33763227",
+                    "name": "R. Haddad"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "723134698eb6d39b274cb626f76d87b90ba7887f",
+            "url": "https://www.semanticscholar.org/paper/723134698eb6d39b274cb626f76d87b90ba7887f",
+            "title": "A community-driven hypertension treatment group in rural Honduras",
+            "venue": "Global Health Action",
+            "year": 2015,
+            "citationCount": 7,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "OPEN",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.3402/gha.v8.28041?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.3402/gha.v8.28041, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "2015-09-10",
+            "journal": {
+                "name": "Global Health Action",
+                "pages": null,
+                "volume": "8"
+            },
+            "authors": [
+                {
+                    "authorId": "6167060",
+                    "name": "Sheridan Reiger"
+                },
+                {
+                    "authorId": "143897581",
+                    "name": "Jeffrey R. Harris"
+                },
+                {
+                    "authorId": "8306925",
+                    "name": "K. C. G. Chan"
+                },
+                {
+                    "authorId": "3754740",
+                    "name": "Hector Lopez Oqueli"
+                },
+                {
+                    "authorId": "145513066",
+                    "name": "M. Kohn"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "64193b550cfb4fef24c097cf5c823d8801dd60de",
+            "url": "https://www.semanticscholar.org/paper/64193b550cfb4fef24c097cf5c823d8801dd60de",
+            "title": "Integrating textual reviews into neighbor-based recommender systems",
+            "venue": "Expert systems with applications",
+            "year": 2024,
+            "citationCount": 3,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1016/j.eswa.2024.123648?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1016/j.eswa.2024.123648, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": "2024-03-01",
+            "journal": {
+                "name": "Expert Syst. Appl.",
+                "pages": "123648",
+                "volume": "249"
+            },
+            "authors": [
+                {
+                    "authorId": "2904748",
+                    "name": "Ho Thi Hoang Vy"
+                },
+                {
+                    "authorId": "150062801",
+                    "name": "Cuong Pham-Nguyen"
+                },
+                {
+                    "authorId": "144080862",
+                    "name": "Le Nguyen Hoai Nam"
+                }
+            ],
+            "abstract": null
+        },
+        {
+            "paperId": "0e7dcd67cbc31f4713b4bffcb070fe4c5653ab23",
+            "url": "https://www.semanticscholar.org/paper/0e7dcd67cbc31f4713b4bffcb070fe4c5653ab23",
+            "title": "Evolutionary Strategies for Building Risk-Optimal Portfolios",
+            "venue": "Natural Computing in Computational Finance",
+            "year": 2008,
+            "citationCount": 11,
+            "influentialCitationCount": 0,
+            "openAccessPdf": {
+                "url": "",
+                "status": "CLOSED",
+                "license": null,
+                "disclaimer": "Notice: Paper or abstract available at https://api.unpaywall.org/v2/10.1007/978-3-540-77477-8_4?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1007/978-3-540-77477-8_4, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            },
+            "publicationDate": null,
+            "journal": {
+                "name": null,
+                "pages": "53-65",
+                "volume": null
+            },
+            "authors": [
+                {
+                    "authorId": "144992052",
+                    "name": "Piotr Lipiński"
+                }
+            ],
+            "abstract": null
+        }
+    ]
+}

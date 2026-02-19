@@ -26,7 +26,7 @@ func New(coiSvc *coiService.Service) *Controller {
 
 // GetDashboardStats godoc
 // @Summary      Get COI dashboard statistics
-// @Description  Retrieves COI dashboard statistics for a specific conference including reviewers, papers, and detected conflicts
+// @Description  Retrieves COI dashboard statistics for a specific conference including reviewers, papers, and detected conflicts. Auto-refreshes if data is older than 5 minutes.
 // @Tags         coi
 // @Accept       json
 // @Produce      json
@@ -40,6 +40,12 @@ func New(coiSvc *coiService.Service) *Controller {
 func (c *Controller) GetDashboardStats(ginCtx *gin.Context, req *dto.COIDashboardStatsRequest) (*dto.COIDashboardStats, error) {
 	ctx := ginCtx.Request.Context()
 
+	// Auto-refresh COI data if stale (older than 5 minutes)
+	if _, err := c.coiService.AutoRefreshIfNeeded(ctx, req.ConferenceID); err != nil {
+		// Log but don't fail - we can still return stale data
+		fmt.Printf("Warning: COI auto-refresh failed: %v\n", err)
+	}
+
 	stats, err := c.coiService.GetDashboardStats(ctx, req.ConferenceID)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, fmt.Sprintf("failed to get dashboard stats: %v", err))
@@ -50,7 +56,7 @@ func (c *Controller) GetDashboardStats(ginCtx *gin.Context, req *dto.COIDashboar
 
 // GetAllRelationships godoc
 // @Summary      Get all COI relationships
-// @Description  Retrieves all COI relationships for a conference with pagination, filtering by severity, type, and search
+// @Description  Retrieves all COI relationships for a conference with pagination, filtering by severity, type, and search. Auto-refreshes if data is older than 5 minutes.
 // @Tags         coi
 // @Accept       json
 // @Produce      json
@@ -71,6 +77,12 @@ func (c *Controller) GetAllRelationships(ginCtx *gin.Context, req *dto.COIRelati
 
 	if req.ConferenceID == 0 {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "conference_id is required")
+	}
+
+	// Auto-refresh COI data if stale (older than 5 minutes)
+	if _, err := c.coiService.AutoRefreshIfNeeded(ctx, req.ConferenceID); err != nil {
+		// Log but don't fail - we can still return stale data
+		fmt.Printf("Warning: COI auto-refresh failed: %v\n", err)
 	}
 
 	response, err := c.coiService.GetAllRelationships(ctx, req)
@@ -121,7 +133,7 @@ func (c *Controller) CheckReviewerAuthorCOI(ginCtx *gin.Context, req *dto.COIChe
 
 // GetPaperCOIs godoc
 // @Summary      Get COI summaries for all papers
-// @Description  Retrieves COI summaries grouped by paper, showing which reviewers have conflicts with each paper
+// @Description  Retrieves COI summaries grouped by paper, showing which reviewers have conflicts with each paper. Auto-refreshes if data is older than 5 minutes.
 // @Tags         coi
 // @Accept       json
 // @Produce      json
@@ -141,6 +153,12 @@ func (c *Controller) GetPaperCOIs(ginCtx *gin.Context, req *dto.PaperCOIListRequ
 
 	if req.ConferenceID == 0 {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "conference_id is required")
+	}
+
+	// Auto-refresh COI data if stale (older than 5 minutes)
+	if _, err := c.coiService.AutoRefreshIfNeeded(ctx, req.ConferenceID); err != nil {
+		// Log but don't fail - we can still return stale data
+		fmt.Printf("Warning: COI auto-refresh failed: %v\n", err)
 	}
 
 	response, err := c.coiService.GetPaperCOISummaries(ctx, req)

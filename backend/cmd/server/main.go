@@ -12,6 +12,7 @@ import (
 	"github.com/dcao/conferencespace/internal/clients"
 	"github.com/dcao/conferencespace/internal/config"
 	"github.com/dcao/conferencespace/internal/controller"
+	"github.com/dcao/conferencespace/internal/controller/auth"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/middleware"
 	"github.com/dcao/conferencespace/internal/orchestrator"
@@ -103,6 +104,7 @@ func main() {
 type AppContext struct {
 	Controller *controller.Controller
 	Hub        *websocket.Hub
+	Store      *storage.Storage
 }
 
 // initializeApp sets up all dependencies using dependency injection pattern
@@ -149,6 +151,7 @@ func initializeApp(cfg *config.Config) (*AppContext, func(), error) {
 	appCtx := &AppContext{
 		Controller: ctrl,
 		Hub:        hub,
+		Store:      store,
 	}
 
 	return appCtx, cleanup, nil
@@ -188,10 +191,21 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 	v1 := router.Group("/api/v1")
 	{
 		// Public auth routes (no authentication required)
-		auth := v1.Group("/auth")
+		authRoutes := v1.Group("/auth")
 		{
-			auth.POST("/register", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Auth.Register))
-			auth.POST("/login", handler.HandleRequest(ctrl.Auth.Login))
+			authRoutes.POST("/register", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Auth.Register))
+			authRoutes.POST("/login", handler.HandleRequest(ctrl.Auth.Login))
+
+			// Test endpoint for development - creates test user and returns token
+			if cfg.Server.Env == "" || cfg.Server.Env == "development" || cfg.Server.Env == "test" {
+				testCtrl := auth.NewTestController(
+					appCtx.Store,
+					cfg.JWT.Secret,
+					time.Duration(cfg.JWT.Expiry)*time.Hour,
+					cfg.Server.Env,
+				)
+				authRoutes.POST("/test-login", handler.HandleRequest(testCtrl.TestLogin))
+			}
 		}
 
 		// Protected user routes (authentication required)
@@ -199,6 +213,9 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 		users.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
 			users.GET("/me", handler.HandleNoRequest(ctrl.User.GetMe))
+			users.GET("/me/academic-profile", handler.HandleNoRequest(ctrl.User.GetAcademicProfile))
+			users.POST("/link-academic-profile", handler.HandleRequest(ctrl.User.LinkAcademicProfile))
+			users.POST("/unlink-academic-profile", handler.HandleNoRequest(ctrl.User.UnlinkAcademicProfile))
 			users.GET("/search", handler.HandleNoRequest(ctrl.User.Search))
 			users.GET("", handler.HandleRequestWithQuery(ctrl.User.List))
 			users.GET("/:email", handler.HandleNoRequest(ctrl.User.Get))
@@ -234,21 +251,25 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			{
 				submissions.POST("/precheck", handler.HandleNoRequest(ctrl.Submission.PreCheck))
 				submissions.GET("", handler.HandleRequestWithURIAndQuery(ctrl.Submission.List))
-				submissions.GET("/:id", handler.HandleNoRequest(ctrl.Submission.Get))
-				submissions.GET("/:id/file", ctrl.Submission.GetFile)
-				submissions.GET("/:id/cover_letter", ctrl.Submission.GetCoverLetter)
+				submissions.GET("/:submission_id", handler.HandleNoRequest(ctrl.Submission.Get))
+				submissions.GET("/:submission_id/file", ctrl.Submission.GetFile)
+				submissions.GET("/:submission_id/cover_letter", ctrl.Submission.GetCoverLetter)
 				submissions.POST("", handler.HandleSubmissionCreate(ctrl.Submission.Create))
-				submissions.PUT("/:id", handler.HandleSubmissionUpdate(ctrl.Submission.Update))
-				submissions.POST("/:id/publish", handler.HandleSubmissionPublish(ctrl.Submission.Publish))
-				submissions.PUT("/:id/status", handler.HandleRequestWithAll(ctrl.Submission.UpdateStatus))
-				submissions.DELETE("/:id", handler.HandleNoRequestWithMessage("submission deleted successfully", ctrl.Submission.Delete))
+				submissions.PUT("/:submission_id", handler.HandleSubmissionUpdate(ctrl.Submission.Update))
+				submissions.POST("/:submission_id/publish", handler.HandleSubmissionPublish(ctrl.Submission.Publish))
+				submissions.PUT("/:submission_id/status", handler.HandleRequestWithAll(ctrl.Submission.UpdateStatus))
+				submissions.DELETE("/:submission_id", handler.HandleNoRequestWithMessage("submission deleted successfully", ctrl.Submission.Delete))
 
 				// Auto-assignment endpoint - automatically sets submissions to "reviewing" status
 				submissions.POST("/auto-assign", handler.HandleRequest(ctrl.Assignment.AutoAssign))
 
 				// Review endpoints for chair (list reviews and analytics)
-				submissions.GET("/:id/reviews", handler.HandleRequestWithURIAndQuery(ctrl.Assignment.ListReviews))
-				submissions.GET("/:id/reviews/analytics", handler.HandleNoRequest(ctrl.Assignment.GetReviewAnalytics))
+				submissions.GET("/:submission_id/reviews", handler.HandleRequestWithURIAndQuery(ctrl.Assignment.ListReviews))
+				submissions.GET("/:submission_id/reviews/analytics", handler.HandleNoRequest(ctrl.Assignment.GetReviewAnalytics))
+
+				// Discussion threads for submissions
+				submissions.POST("/:submission_id/threads", handler.HandleNoRequestWithStatus(http.StatusCreated, ctrl.Discussion.CreateThread))
+				submissions.GET("/:submission_id/threads", handler.HandleNoRequest(ctrl.Discussion.GetThreads))
 			}
 		}
 
@@ -298,6 +319,27 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			notifications.PATCH("/:id/read", handler.HandleNoRequest(ctrl.Notification.MarkAsRead))
 			notifications.PATCH("/read-all", handler.HandleNoRequest(ctrl.Notification.MarkAllAsRead))
 			notifications.DELETE("/:id", handler.HandleNoRequestWithMessage("notification deleted successfully", ctrl.Notification.Delete))
+		}
+
+		// Discussion thread routes (authentication required)
+		threads := v1.Group("/threads")
+		threads.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
+		{
+			threads.GET("/:thread_id", handler.HandleNoRequest(ctrl.Discussion.GetThread))
+			threads.POST("/:thread_id/messages", handler.HandleNoRequestWithStatus(http.StatusCreated, ctrl.Discussion.CreateMessage))
+			threads.GET("/:thread_id/messages", handler.HandleNoRequest(ctrl.Discussion.GetMessages))
+		}
+
+		// Semantic Scholar routes (authentication required)
+		semanticScholar := v1.Group("/semantic-scholar")
+		semanticScholar.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
+		{
+			// Only register if controller is available (enabled in config)
+			if ctrl.SemanticScholar != nil {
+				semanticScholar.GET("/authors/search", handler.HandleNoRequest(ctrl.SemanticScholar.SearchAuthors))
+				semanticScholar.GET("/authors/:authorId", handler.HandleNoRequest(ctrl.SemanticScholar.GetAuthorDetails))
+				semanticScholar.GET("/authors/:authorId/papers", handler.HandleNoRequest(ctrl.SemanticScholar.GetAuthorPapers))
+			}
 		}
 	}
 

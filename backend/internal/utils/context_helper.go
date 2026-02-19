@@ -9,3 +9,11 @@ func GetEmail(c *gin.Context) (string, bool) {
 	}
 	return email.(string), true
 }
+
+func GetUserID(c *gin.Context) (int64, bool) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		return 0, false
+	}
+	return userID.(int64), true
+}
