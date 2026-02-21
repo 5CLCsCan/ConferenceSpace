@@ -31,6 +31,8 @@ const notificationIcons: Record<NotificationType, React.ComponentType<{ classNam
   paper_rejected: XCircle,
   deadline_reminder: Clock,
   status_change: AlertCircle,
+  discussion_thread: MessageSquare,
+  discussion_message: MessageSquare,
 }
 
 const notificationColors: Record<NotificationType, string> = {
@@ -41,6 +43,8 @@ const notificationColors: Record<NotificationType, string> = {
   paper_rejected: "text-destructive",
   deadline_reminder: "text-foreground",
   status_change: "text-muted-foreground",
+  discussion_thread: "text-foreground",
+  discussion_message: "text-foreground",
 }
 
 export function NotificationItem({
@@ -120,6 +124,8 @@ export function NotificationItem({
           notification.type === "submission_received" && "bg-primary/10",
           notification.type === "deadline_reminder" && "bg-accent",
           notification.type === "status_change" && "bg-muted",
+          notification.type === "discussion_thread" && "bg-accent",
+          notification.type === "discussion_message" && "bg-accent",
         )}
       >
         <Icon className={cn("h-5 w-5", iconColor)} />

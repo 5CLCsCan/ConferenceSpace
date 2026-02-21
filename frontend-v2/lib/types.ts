@@ -254,6 +254,8 @@ export type NotificationType =
   | "paper_rejected"
   | "deadline_reminder"
   | "status_change"
+  | "discussion_thread"
+  | "discussion_message"
 
 export interface Notification {
   id: number

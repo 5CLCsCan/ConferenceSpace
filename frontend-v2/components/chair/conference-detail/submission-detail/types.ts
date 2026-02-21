@@ -71,3 +71,45 @@ export interface SubmissionDetail {
 }
 
 export type SubmissionSubTab = "overview" | "reviews" | "discussion" | "history"
+
+export type HistoryEventCategory =
+  | "review"
+  | "assignment"
+  | "submission"
+  | "status"
+  | "decision"
+  | "coi"
+  | "discussion"
+
+export type HistoryEventType =
+  | "review_submitted"
+  | "review_saved"
+  | "reviewers_assigned"
+  | "coi_updated"
+  | "submission_uploaded"
+  | "submission_created"
+  | "submission_updated"
+  | "status_changed"
+  | "decision_made"
+  | "discussion_thread_created"
+  | "discussion_message_added"
+
+export interface SubmissionHistoryActor {
+  id: string
+  name: string
+  role: string
+  avatar?: string
+  initials?: string
+}
+
+export interface SubmissionHistoryEvent {
+  id: string
+  type: HistoryEventType
+  category: HistoryEventCategory
+  title: string
+  description: string
+  actor: SubmissionHistoryActor
+  timestamp: string
+  relativeTime?: string
+  metadata?: Record<string, string>
+}

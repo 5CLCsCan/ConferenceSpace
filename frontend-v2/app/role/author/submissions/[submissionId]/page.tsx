@@ -27,6 +27,8 @@ function SubmissionDetailPageContent() {
 
   const submissionId = params.submissionId as string
   const conferenceIdQuery = searchParams.get("conferenceId")
+  const tabQuery = searchParams.get("tab")
+  const initialTab = tabQuery === "discussion" || tabQuery === "rebuttal" ? tabQuery : "overview"
 
   const [submission, setSubmission] = useState<Submission | null>(null)
   const [conferenceName, setConferenceName] = useState<string>("")
@@ -180,6 +182,7 @@ function SubmissionDetailPageContent() {
           submission={submission}
           conferenceId={conferenceId}
           conferenceName={conferenceName}
+          initialTab={initialTab}
         />
       </main>
     </div>

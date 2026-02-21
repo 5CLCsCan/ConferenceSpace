@@ -11,14 +11,16 @@ interface SubmissionDetailViewProps {
   submission: Submission
   conferenceId: string
   conferenceName?: string
+  initialTab?: TabId
 }
 
 export function SubmissionDetailView({
   submission,
   conferenceId,
   conferenceName,
+  initialTab = "overview",
 }: SubmissionDetailViewProps) {
-  const [activeTab, setActiveTab] = useState<TabId>("overview")
+  const [activeTab, setActiveTab] = useState<TabId>(initialTab)
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -42,14 +44,14 @@ export function SubmissionDetailView({
           {/* Discussion Tab */}
           {activeTab === "discussion" && (
             <div className="animate-in fade-in duration-200">
-              <DiscussionTab />
+              <DiscussionTab conferenceId={conferenceId} submissionId={String(submission.id)} />
             </div>
           )}
 
           {/* Rebuttal Tab */}
           {activeTab === "rebuttal" && (
             <div className="animate-in fade-in duration-200 pb-24">
-              <RebuttalTab />
+              <RebuttalTab conferenceId={conferenceId} submissionId={String(submission.id)} />
             </div>
           )}
         </div>

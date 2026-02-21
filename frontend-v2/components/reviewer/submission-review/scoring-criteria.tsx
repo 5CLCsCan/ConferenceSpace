@@ -1,6 +1,6 @@
 "use client"
 
-import { SCORE_DESCRIPTORS, CRITERIA_META } from "./types"
+import { SCORE_DESCRIPTORS, CRITERIA_META, getScoreDescriptor, normalizeReviewScore } from "./types"
 
 // =============================================================================
 // Criterion Score Card Component
@@ -20,7 +20,8 @@ export function CriterionScoreCard({
   onChange,
 }: CriterionScoreCardProps) {
   const meta = CRITERIA_META[criterionKey] || { icon: "grade", hint: "" }
-  const descriptor = SCORE_DESCRIPTORS[value]
+  const normalizedValue = normalizeReviewScore(value)
+  const descriptor = getScoreDescriptor(normalizedValue)
 
   return (
     <div className="group relative">
@@ -42,7 +43,7 @@ export function CriterionScoreCard({
               border: `1px solid ${descriptor.color}30`,
             }}
           >
-            <span className="text-sm font-black">{value}</span>
+            <span className="text-sm font-black">{normalizedValue}</span>
             <span className="opacity-70">/10</span>
           </div>
         </div>
@@ -50,7 +51,7 @@ export function CriterionScoreCard({
         {/* Score Buttons Row */}
         <div className="flex gap-1 mb-2">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((score) => {
-            const isSelected = value === score
+            const isSelected = normalizedValue === score
             const scoreDesc = SCORE_DESCRIPTORS[score]
             return (
               <button
@@ -110,10 +111,10 @@ interface ScoreSummaryProps {
 }
 
 export function ScoreSummary({ scores }: ScoreSummaryProps) {
-  const values = Object.values(scores)
+  const values = Object.values(scores).map((value) => normalizeReviewScore(value))
   const average = values.reduce((a, b) => a + b, 0) / values.length
   const roundedAvg = Math.round(average * 10) / 10
-  const descriptor = SCORE_DESCRIPTORS[Math.round(average)] || SCORE_DESCRIPTORS[5]
+  const descriptor = getScoreDescriptor(Math.round(average))
 
   // Calculate score distribution
   const distribution = {
@@ -152,7 +153,7 @@ export function ScoreSummary({ scores }: ScoreSummaryProps) {
                 className="w-2 rounded-full transition-all duration-300"
                 style={{
                   height: `${v * 3 + 8}px`,
-                  backgroundColor: SCORE_DESCRIPTORS[v].color,
+                  backgroundColor: getScoreDescriptor(v).color,
                 }}
                 title={`${Object.keys(scores)[i]}: ${v}`}
               />

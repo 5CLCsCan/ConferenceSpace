@@ -1,8 +1,13 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import type { SubmissionDetail, SubmissionSubTab } from "./submission-detail/types"
+import type {
+  SubmissionDetail,
+  SubmissionHistoryEvent,
+  SubmissionSubTab,
+} from "./submission-detail/types"
 import { FileTypeIcon, AuthorAvatar } from "./submission-detail/components"
 import { ChairDiscussionTab } from "./submission-detail/chair-discussion-tab"
 import { ChairHistoryTab } from "./submission-detail/chair-history-tab"
@@ -14,12 +19,15 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
+import { ROUTES } from "@/lib/routes"
 
 interface SubmissionDetailContentProps {
   submission: SubmissionDetail
   activeTab: SubmissionSubTab
   conferenceId: string
   submissionId: string
+  historyEvents: SubmissionHistoryEvent[]
+  historyLoading?: boolean
   className?: string
 }
 
@@ -143,11 +151,14 @@ function SubmissionMetaCard({
   authors: SubmissionDetail["authors"]
   conflictsOfInterest: string[]
 }) {
+  const router = useRouter()
   const [selectedAffiliation, setSelectedAffiliation] = useState<string | null>(null)
 
-  const handleAuthorProfileClick = (authorId: string) => {
-    // TODO: Implement profile navigation
-    console.log("Navigate to author profile:", authorId)
+  const handleAuthorProfileClick = (authorIdOrEmail?: string) => {
+    if (!authorIdOrEmail) {
+      return
+    }
+    router.push(ROUTES.PROFILE(authorIdOrEmail))
   }
 
   return (
@@ -176,7 +187,7 @@ function SubmissionMetaCard({
                   <span className="text-[9px] text-slate-500 truncate">{author.affiliation}</span>
                 </div>
                 <button
-                  onClick={() => handleAuthorProfileClick(author.id)}
+                  onClick={() => handleAuthorProfileClick(author.email || author.id)}
                   className="p-1.5 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors flex-shrink-0"
                   title="View profile"
                 >
@@ -235,6 +246,8 @@ export function SubmissionDetailContent({
   activeTab,
   conferenceId,
   submissionId,
+  historyEvents,
+  historyLoading = false,
   className,
 }: SubmissionDetailContentProps) {
   return (
@@ -264,9 +277,13 @@ export function SubmissionDetailContent({
         <SubmissionReviewTab conferenceId={conferenceId} submissionId={submissionId} />
       )}
 
-      {activeTab === "discussion" && <ChairDiscussionTab />}
+      {activeTab === "discussion" && (
+        <ChairDiscussionTab conferenceId={conferenceId} submissionId={submissionId} />
+      )}
 
-      {activeTab === "history" && <ChairHistoryTab />}
+      {activeTab === "history" && (
+        <ChairHistoryTab events={historyEvents} loading={historyLoading} />
+      )}
     </div>
   )
 }

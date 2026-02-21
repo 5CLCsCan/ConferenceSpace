@@ -13,6 +13,7 @@ import { getPaperById } from "@/lib/api/papers"
 import { setAssignmentConferenceContext } from "@/lib/reviewer/assignment-context-cache"
 import { ROUTES } from "@/lib/routes"
 import type { Paper } from "@/lib/types"
+import type { TabType } from "@/components/reviewer/submission-review/types"
 
 export default function ReviewerAssignmentPage() {
   const params = useParams() as { assignmentId: string }
@@ -27,6 +28,9 @@ export default function ReviewerAssignmentPage() {
   const [isUnresolved, setIsUnresolved] = useState(false)
   const [loading, setLoading] = useState(true)
   const queryConferenceId = searchParams.get("conferenceId")
+  const tabQuery = searchParams.get("tab")
+  const initialTab: TabType =
+    tabQuery === "discussion" || tabQuery === "rebuttal" ? tabQuery : "review"
 
   useEffect(() => {
     const run = async () => {
@@ -144,6 +148,7 @@ export default function ReviewerAssignmentPage() {
               assignmentId={params.assignmentId}
               submissionId={submissionId}
               submission={submission}
+              initialTab={initialTab}
               onBack={() => router.push(ROUTES.REVIEWER.CONFERENCE_SUBMISSIONS(conferenceId))}
             />
           )}

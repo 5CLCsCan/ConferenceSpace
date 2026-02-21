@@ -9,8 +9,8 @@ const TABS: TabItem[] = [
   { id: "cfp", label: "Call for Papers", icon: "campaign" },
   { id: "dates", label: "Important Dates", icon: "event" },
   { id: "committee", label: "Committee", icon: "groups" },
-  { id: "submissions", label: "Submissions", icon: "description", badge: 1245 },
-  { id: "coi", label: "COI Demo", icon: "warning" },
+  { id: "submissions", label: "Submissions", icon: "description" },
+  { id: "coi", label: "COI", icon: "warning" },
 ]
 
 interface ConferenceDetailHeaderProps {

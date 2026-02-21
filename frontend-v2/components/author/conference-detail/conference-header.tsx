@@ -30,6 +30,8 @@ export function ConferenceHeader({
 }: ConferenceHeaderProps) {
   const router = useRouter()
   const status = getConferenceStatus(conference)
+  const canSubmit = conference.status === "open"
+  const showSubmitBlocked = !hasSubmission && !canSubmit
 
   return (
     <header
@@ -110,16 +112,28 @@ export function ConferenceHeader({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col items-end gap-1">
           <button
+            type="button"
+            disabled={showSubmitBlocked}
             onClick={() => {
               if (hasSubmission) {
                 router.push(`${ROUTES.AUTHOR.SUBMISSIONS}?conferenceId=${conferenceId}`)
-              } else {
+              } else if (canSubmit) {
                 router.push(`${ROUTES.AUTHOR.NEW_SUBMISSION}?conferenceId=${conferenceId}`)
               }
             }}
-            className="h-8 px-3 bg-[#1B3C53] text-white font-medium text-[11px] rounded-md hover:bg-[#234C6A] transition-colors flex items-center gap-1.5"
+            className={cn(
+              "h-8 px-3 font-medium text-[11px] rounded-md transition-colors flex items-center gap-1.5",
+              showSubmitBlocked
+                ? "bg-slate-200 text-slate-500 cursor-not-allowed"
+                : "bg-[#1B3C53] text-white hover:bg-[#234C6A]",
+            )}
+            title={
+              showSubmitBlocked
+                ? `Submissions are closed. Conference status is '${conference.status}'.`
+                : undefined
+            }
           >
             <span
               className="material-symbols-outlined"
@@ -144,6 +158,11 @@ export function ConferenceHeader({
             </span>
             {hasSubmission ? "View Submission" : "Submit Paper"}
           </button>
+          {showSubmitBlocked && (
+            <span className="text-[10px] text-slate-500">
+              Submissions are closed for this conference.
+            </span>
+          )}
         </div>
       </div>
 

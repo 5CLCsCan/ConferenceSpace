@@ -112,6 +112,26 @@ export function PaperSubmissionForm({
           .filter((t): t is string => Boolean(t))
       : defaultTracks
 
+  const isNewSubmissionBlocked = !initialSubmission && conference?.status !== "open"
+
+  const mapSubmissionError = (errorMessage: string | null): string => {
+    if (!errorMessage) {
+      return "Unable to submit due to an unknown error."
+    }
+
+    const normalized = errorMessage.toLowerCase()
+    if (
+      normalized.includes("submissions are not allowed") ||
+      normalized.includes("status is") ||
+      normalized.includes("forbidden") ||
+      normalized.includes("403")
+    ) {
+      return "This conference is not currently accepting submissions. Please submit during the open phase."
+    }
+
+    return errorMessage
+  }
+
   // Keyword handlers
   const handleAddKeyword = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && keywordInput.trim() && !keywords.includes(keywordInput.trim())) {
@@ -242,6 +262,14 @@ export function PaperSubmissionForm({
   // Save draft handler
   const handleSaveDraft = async () => {
     if (!user || !conference) return
+    if (isNewSubmissionBlocked) {
+      toast({
+        title: "Submissions are closed",
+        description: "Draft creation is disabled because this conference is not in open status.",
+        variant: "destructive",
+      })
+      return
+    }
     setSubmitting(true)
 
     try {
@@ -273,7 +301,7 @@ export function PaperSubmissionForm({
       if (response.error) {
         toast({
           title: "Failed to save draft",
-          description: response.error,
+          description: mapSubmissionError(response.error),
           variant: "destructive",
         })
       } else {
@@ -296,6 +324,15 @@ export function PaperSubmissionForm({
   // Submit handler
   const handleSubmit = async () => {
     if (!user || !conference) return
+    if (isNewSubmissionBlocked) {
+      toast({
+        title: "Submissions are closed",
+        description:
+          "This conference is not currently accepting submissions. Please submit during the open phase.",
+        variant: "destructive",
+      })
+      return
+    }
     setSubmitting(true)
 
     try {
@@ -327,7 +364,7 @@ export function PaperSubmissionForm({
       if (response.error) {
         toast({
           title: "Submission failed",
-          description: response.error,
+          description: mapSubmissionError(response.error),
           variant: "destructive",
         })
       } else {

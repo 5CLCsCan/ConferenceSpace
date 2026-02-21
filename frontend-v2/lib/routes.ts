@@ -7,6 +7,11 @@ const BASE_ROUTES = {
   NOTIFICATIONS: "/notifications",
   ROLE_SELECT: "/role",
   PROFILE: (userId: string) => `/profile/${userId}`,
+  TEST: {
+    LOGIN: "/test/login",
+    DISCUSSION: "/test/discussion",
+    PROFILE_LINK: "/test/profile-link",
+  },
 
   AUTHOR: {
     DASHBOARD: "/role/author",

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { ROUTES } from "@/lib/routes"
 import type {
@@ -9,11 +9,6 @@ import type {
   Conference,
   ExploreConference,
 } from "@/components/conference/types"
-import {
-  MOCK_MY_CONFERENCES,
-  MOCK_EXPLORE_CONFERENCES,
-  MOCK_ARCHIVED_CONFERENCES,
-} from "@/components/conference/mock-data"
 import { ConferenceCard } from "@/components/conference/conference-cards"
 import { ConferenceList } from "@/components/conference/conference-list"
 import { CreateConferenceCard } from "@/components/conference/create-conference-card"
@@ -24,10 +19,65 @@ import {
   ExploreConferenceList,
   ArchivedConferenceList,
 } from "@/components/conference/explore-cards"
+import { listConferences } from "@/lib/api/conferences"
+import type { Conference as ApiConference } from "@/lib/types"
 
 interface ChairConferencesProps {
-  /** Initial conferences data - falls back to mock data */
+  /** Initial conferences data */
   conferences?: Conference[]
+}
+
+function formatConferenceDates(conference: ApiConference): string {
+  const start = conference.conference_date ? new Date(conference.conference_date) : null
+  const end = conference.conference_end_date ? new Date(conference.conference_end_date) : null
+  if (!start || Number.isNaN(start.getTime())) {
+    return "Dates TBD"
+  }
+  const startLabel = start.toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  })
+  if (!end || Number.isNaN(end.getTime())) {
+    return startLabel
+  }
+  const endLabel = end.toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  })
+  return `${startLabel} - ${endLabel}`
+}
+
+function mapConferenceStatus(status: ApiConference["status"]): Conference["status"] {
+  if (status === "completed") return "completed"
+  if (status === "reviewing") return "active"
+  return "planning"
+}
+
+function mapToChairConference(conference: ApiConference): Conference {
+  return {
+    id: conference.id,
+    name: conference.name,
+    acronym: conference.acronym,
+    role: conference.userRole || "Chair",
+    location: conference.location || "TBD",
+    dates: formatConferenceDates(conference),
+    status: mapConferenceStatus(conference.status),
+    acceptedPapers: undefined,
+  }
+}
+
+function mapToExploreConference(conference: ApiConference): ExploreConference {
+  return {
+    id: conference.id,
+    name: conference.acronym || conference.name,
+    fullDescription: conference.description || conference.name,
+    location: conference.location || "TBD",
+    dates: formatConferenceDates(conference),
+    exploreStatus: conference.status === "open" ? "call-for-papers" : "upcoming",
+    topics: conference.domain?.slice(0, 3) || conference.tracks.slice(0, 3) || [],
+  }
 }
 
 export function ChairConferences({ conferences: initialConferences }: ChairConferencesProps) {
@@ -37,11 +87,49 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState("date-newest")
   const [currentPage, setCurrentPage] = useState(1)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [myConferences, setMyConferences] = useState<Conference[]>(initialConferences || [])
+  const [exploreConferences, setExploreConferences] = useState<ExploreConference[]>([])
+  const [archivedConferences, setArchivedConferences] = useState<ExploreConference[]>([])
 
-  // Data sources for each tab
-  const myConferences = initialConferences || MOCK_MY_CONFERENCES
-  const exploreConferences = MOCK_EXPLORE_CONFERENCES
-  const archivedConferences = MOCK_ARCHIVED_CONFERENCES
+  useEffect(() => {
+    async function loadChairConferences() {
+      setLoading(true)
+      setError(null)
+      try {
+        const [myResponse, allResponse] = await Promise.all([
+          listConferences({ limit: 300, role: "chair", myConferences: true }),
+          listConferences({ limit: 300 }),
+        ])
+
+        const myApi = myResponse.data?.conferences || []
+        const allApi = allResponse.data?.conferences || []
+        const myIds = new Set(myApi.map((conference) => conference.id))
+
+        setMyConferences(myApi.map(mapToChairConference))
+        setExploreConferences(
+          allApi
+            .filter((conference) => !myIds.has(conference.id) && conference.status !== "completed")
+            .map(mapToExploreConference),
+        )
+        setArchivedConferences(
+          allApi
+            .filter((conference) => conference.status === "completed")
+            .map(mapToExploreConference),
+        )
+      } catch (loadError) {
+        setError(loadError instanceof Error ? loadError.message : "Failed to load conferences")
+        setMyConferences(initialConferences || [])
+        setExploreConferences([])
+        setArchivedConferences([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    void loadChairConferences()
+  }, [initialConferences])
 
   const ITEMS_PER_PAGE = 5
 
@@ -115,6 +203,22 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
 
   // Get data and render based on active tab
   const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center py-16 text-xs text-slate-500">
+          Loading conferences...
+        </div>
+      )
+    }
+
+    if (error) {
+      return (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">
+          Failed to load conferences: {error}
+        </div>
+      )
+    }
+
     if (activeTab === "my-conferences") {
       const allConferences = getFilteredMyConferences()
       const totalPages = Math.ceil(allConferences.length / ITEMS_PER_PAGE)
