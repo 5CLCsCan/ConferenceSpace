@@ -3,7 +3,11 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import type { SubmissionDetail, SubmissionSubTab } from "./submission-detail/types"
+import type {
+  SubmissionDetail,
+  SubmissionHistoryEvent,
+  SubmissionSubTab,
+} from "./submission-detail/types"
 import { FileTypeIcon, AuthorAvatar } from "./submission-detail/components"
 import { ChairDiscussionTab } from "./submission-detail/chair-discussion-tab"
 import { ChairHistoryTab } from "./submission-detail/chair-history-tab"
@@ -22,6 +26,8 @@ interface SubmissionDetailContentProps {
   activeTab: SubmissionSubTab
   conferenceId: string
   submissionId: string
+  historyEvents: SubmissionHistoryEvent[]
+  historyLoading?: boolean
   className?: string
 }
 
@@ -240,6 +246,8 @@ export function SubmissionDetailContent({
   activeTab,
   conferenceId,
   submissionId,
+  historyEvents,
+  historyLoading = false,
   className,
 }: SubmissionDetailContentProps) {
   return (
@@ -273,7 +281,9 @@ export function SubmissionDetailContent({
         <ChairDiscussionTab conferenceId={conferenceId} submissionId={submissionId} />
       )}
 
-      {activeTab === "history" && <ChairHistoryTab />}
+      {activeTab === "history" && (
+        <ChairHistoryTab events={historyEvents} loading={historyLoading} />
+      )}
     </div>
   )
 }

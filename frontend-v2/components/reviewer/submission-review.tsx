@@ -3,8 +3,12 @@
 import { useEffect, useMemo, useState } from "react"
 
 // Import from extracted modules
-import { type ReviewFormData, type TabType, INITIAL_FORM_DATA } from "./submission-review/types"
-import { MOCK_SUBMISSION } from "./submission-review/mock-data"
+import {
+  type ReviewFormData,
+  type TabType,
+  INITIAL_FORM_DATA,
+  normalizeReviewScore,
+} from "./submission-review/types"
 import { CriterionScoreCard, ScoreSummary } from "./submission-review/scoring-criteria"
 import { ReviewHeaderBar, PaperHeader, TabNavigation } from "./submission-review/review-header"
 import { AbstractCard, AIAssistantCard } from "./submission-review/review-sidebar"
@@ -49,39 +53,52 @@ export function SubmissionReviewScreen({
     }
 
     const reviewData = review.review_data
+    const criteria = reviewData.criteria || {}
+    const feedback = reviewData.feedback || {}
     setFormData((prev) => ({
       ...prev,
-      originality: reviewData.criteria.originality ?? prev.originality,
-      technicalQuality: reviewData.criteria.technical_quality ?? prev.technicalQuality,
-      clarity: reviewData.criteria.clarity ?? prev.clarity,
-      significance: reviewData.criteria.significance ?? prev.significance,
-      methodology: reviewData.criteria.methodology ?? prev.methodology,
-      strengths: reviewData.feedback.strengths ?? prev.strengths,
-      weaknesses: reviewData.feedback.weaknesses ?? prev.weaknesses,
-      questions: reviewData.feedback.questions ?? prev.questions,
+      originality: normalizeReviewScore(criteria.originality, prev.originality),
+      technicalQuality: normalizeReviewScore(criteria.technical_quality, prev.technicalQuality),
+      clarity: normalizeReviewScore(criteria.clarity, prev.clarity),
+      significance: normalizeReviewScore(criteria.significance, prev.significance),
+      methodology: normalizeReviewScore(criteria.methodology, prev.methodology),
+      strengths: feedback.strengths ?? prev.strengths,
+      weaknesses: feedback.weaknesses ?? prev.weaknesses,
+      questions: feedback.questions ?? prev.questions,
       recommendation: reviewData.recommendation ?? prev.recommendation,
       confidence:
         reviewData.confidence === "high" ? 5 : reviewData.confidence === "medium" ? 3 : 1,
-      summary: reviewData.feedback.strengths ?? prev.summary,
+      summary: feedback.strengths ?? prev.summary,
     }))
   }, [review?.review_data])
 
-  const submission = useMemo(
-    () => ({
-      ...MOCK_SUBMISSION,
+  const submission = useMemo(() => {
+    return {
       id: assignmentId,
       submissionId,
-      title: submissionFromApi?.title || MOCK_SUBMISSION.title,
-      abstract: submissionFromApi?.abstract || MOCK_SUBMISSION.abstract,
-      keywords: submissionFromApi?.keywords || MOCK_SUBMISSION.keywords,
-      track: submissionFromApi?.track_id || MOCK_SUBMISSION.track,
+      title: submissionFromApi?.title || `Submission #${submissionId}`,
+      abstract: submissionFromApi?.abstract || "No abstract available.",
+      keywords: submissionFromApi?.keywords || [],
+      track: submissionFromApi?.track_id || "Unassigned",
+      status: "under_review" as const,
+      dueDate: "",
+      daysLeft: 0,
+      supplementaryMaterial: undefined,
       conference: {
-        ...MOCK_SUBMISSION.conference,
         id: conferenceId,
+        acronym: `CONF-${conferenceId}`,
+        name: "Conference",
       },
-    }),
-    [assignmentId, conferenceId, submissionFromApi?.abstract, submissionFromApi?.keywords, submissionFromApi?.title, submissionFromApi?.track_id, submissionId],
-  )
+    }
+  }, [
+    assignmentId,
+    conferenceId,
+    submissionFromApi?.abstract,
+    submissionFromApi?.keywords,
+    submissionFromApi?.title,
+    submissionFromApi?.track_id,
+    submissionId,
+  ])
 
   const updateFormField = <K extends keyof ReviewFormData>(field: K, value: ReviewFormData[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }))

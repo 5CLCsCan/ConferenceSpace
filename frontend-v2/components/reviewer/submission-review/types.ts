@@ -51,6 +51,25 @@ export const SCORE_DESCRIPTORS: Record<number, { label: string; color: string }>
   10: { label: "Outstanding", color: "#0d9488" },
 }
 
+export const DEFAULT_REVIEW_SCORE = 5
+
+export function normalizeReviewScore(raw: unknown, fallback = DEFAULT_REVIEW_SCORE): number {
+  const value = typeof raw === "number" ? raw : Number(raw)
+  if (!Number.isFinite(value)) {
+    return fallback
+  }
+
+  const rounded = Math.round(value)
+  if (rounded < 1) return 1
+  if (rounded > 10) return 10
+  return rounded
+}
+
+export function getScoreDescriptor(raw: unknown) {
+  const normalized = normalizeReviewScore(raw)
+  return SCORE_DESCRIPTORS[normalized] || SCORE_DESCRIPTORS[DEFAULT_REVIEW_SCORE]
+}
+
 /** Criterion metadata with icons and descriptions */
 export const CRITERIA_META: Record<string, { icon: string; hint: string }> = {
   originality: {

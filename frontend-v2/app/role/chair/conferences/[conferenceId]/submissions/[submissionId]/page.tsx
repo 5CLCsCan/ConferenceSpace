@@ -8,16 +8,30 @@ import { SubmissionDetailHeader } from "@/components/chair/conference-detail/sub
 import { SubmissionDetailContent } from "@/components/chair/conference-detail/submission-detail-content"
 import type { ConferenceInfo } from "@/components/chair/conference-detail/types"
 import type {
+  ConfidenceLevel,
+  HistoryEventCategory,
+  HistoryEventType,
+  ReviewerDecision,
   SubmissionDetail,
   SubmissionDetailStatus,
+  SubmissionHistoryActor,
+  SubmissionHistoryEvent,
   SubmissionSubTab,
-  ReviewerDecision,
-  ConfidenceLevel,
 } from "@/components/chair/conference-detail/submission-detail/types"
 import { getSidebarMenuItems } from "@/lib/navigation"
 import { getConferenceById } from "@/lib/api/conferences"
-import { getSubmissionById } from "@/lib/api/submissions"
-import { getSubmissionReviewAnalytics, getSubmissionReviews } from "@/lib/api/reviews"
+import { getSubmissionById, type Submission } from "@/lib/api/submissions"
+import {
+  getSubmissionReviewAnalytics,
+  getSubmissionReviews,
+  type AssignmentReview,
+} from "@/lib/api/reviews"
+import {
+  getMessages,
+  getThreads,
+  type DiscussionMessage,
+  type DiscussionThread,
+} from "@/lib/api/discussions"
 
 const REVIEWER_COLORS = [
   "bg-indigo-100 text-indigo-700",
@@ -35,6 +49,19 @@ function formatDate(value?: string): string {
     month: "short",
     day: "2-digit",
     year: "numeric",
+  })
+}
+
+function formatDateTime(value?: string): string {
+  if (!value) return "-"
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return "-"
+  return parsed.toLocaleString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   })
 }
 
@@ -62,7 +89,13 @@ function mapSubmissionStatus(status: string): SubmissionDetailStatus {
 }
 
 function mapRecommendation(value?: string): ReviewerDecision {
-  if (value === "accept" || value === "weak_accept" || value === "borderline" || value === "weak_reject" || value === "reject") {
+  if (
+    value === "accept" ||
+    value === "weak_accept" ||
+    value === "borderline" ||
+    value === "weak_reject" ||
+    value === "reject"
+  ) {
     return value
   }
   if (value === "strong_accept") return "accept"
@@ -73,6 +106,198 @@ function mapRecommendation(value?: string): ReviewerDecision {
 function mapConfidence(value?: string): ConfidenceLevel {
   if (value === "high" || value === "medium" || value === "low") return value
   return "medium"
+}
+
+function buildActor(name: string, role: string, id?: string): SubmissionHistoryActor {
+  const actorName = name.trim() || "System"
+  return {
+    id: id || actorName.toLowerCase().replace(/\s+/g, "-"),
+    name: actorName,
+    role,
+  }
+}
+
+function roleFromEmail(email: string | undefined, authorEmail: string): string {
+  if (!email) return "system"
+  if (email === authorEmail) return "author"
+  if (email.includes("chair")) return "chair"
+  if (email.includes("reviewer")) return "reviewer"
+  return "reviewer"
+}
+
+function pushHistoryEvent(
+  events: SubmissionHistoryEvent[],
+  payload: {
+    id: string
+    type: HistoryEventType
+    category: HistoryEventCategory
+    title: string
+    description: string
+    actor: SubmissionHistoryActor
+    timestamp?: string
+    metadata?: Record<string, string>
+  },
+) {
+  if (!payload.timestamp) return
+
+  events.push({
+    id: payload.id,
+    type: payload.type,
+    category: payload.category,
+    title: payload.title,
+    description: payload.description,
+    actor: payload.actor,
+    timestamp: payload.timestamp,
+    relativeTime: formatDateTime(payload.timestamp),
+    metadata: payload.metadata,
+  })
+}
+
+function buildHistoryEvents(
+  submissionData: Submission,
+  reviews: AssignmentReview[],
+  threads: DiscussionThread[],
+  messagesByThread: Record<number, DiscussionMessage[]>,
+): SubmissionHistoryEvent[] {
+  const events: SubmissionHistoryEvent[] = []
+  const authorActor = buildActor(
+    normalizePersonLabel(submissionData.author),
+    "author",
+    submissionData.author,
+  )
+
+  pushHistoryEvent(events, {
+    id: `submission-created-${submissionData.id}`,
+    type: "submission_created",
+    category: "submission",
+    title: "Submission Created",
+    description: "Initial submission was created",
+    actor: authorActor,
+    timestamp: submissionData.created_at,
+  })
+
+  if (submissionData.file) {
+    pushHistoryEvent(events, {
+      id: `submission-file-${submissionData.id}`,
+      type: "submission_uploaded",
+      category: "submission",
+      title: "File Uploaded",
+      description: `Uploaded ${submissionData.file.original_name || submissionData.file.filename}`,
+      actor: authorActor,
+      timestamp: submissionData.updated_at || submissionData.created_at,
+      metadata: {
+        fileName: submissionData.file.original_name || submissionData.file.filename,
+      },
+    })
+  }
+
+  if (submissionData.updated_at && submissionData.updated_at !== submissionData.created_at) {
+    pushHistoryEvent(events, {
+      id: `submission-updated-${submissionData.id}`,
+      type: "submission_updated",
+      category: "submission",
+      title: "Submission Updated",
+      description: "Submission metadata was updated",
+      actor: authorActor,
+      timestamp: submissionData.updated_at,
+    })
+  }
+
+  pushHistoryEvent(events, {
+    id: `submission-status-${submissionData.id}`,
+    type:
+      submissionData.status === "accepted" || submissionData.status === "rejected"
+        ? "decision_made"
+        : "status_changed",
+    category:
+      submissionData.status === "accepted" || submissionData.status === "rejected"
+        ? "decision"
+        : "status",
+    title: "Status Updated",
+    description: `Submission status is ${submissionData.status}`,
+    actor: buildActor("System", "system"),
+    timestamp: submissionData.updated_at || submissionData.created_at,
+  })
+
+  reviews.forEach((review, index) => {
+    const reviewerName = review.reviewer_email || `Reviewer #${index + 1}`
+    const reviewerActor = buildActor(reviewerName, "reviewer", reviewerName)
+
+    pushHistoryEvent(events, {
+      id: `review-assigned-${review.id}`,
+      type: "reviewers_assigned",
+      category: "assignment",
+      title: "Reviewer Assigned",
+      description: `${reviewerName} assigned to this submission`,
+      actor: buildActor("Chair", "chair"),
+      timestamp: review.created_at,
+    })
+
+    if (review.review_status === "draft") {
+      pushHistoryEvent(events, {
+        id: `review-draft-${review.id}`,
+        type: "review_saved",
+        category: "review",
+        title: "Draft Review Saved",
+        description: `${reviewerName} saved a draft review`,
+        actor: reviewerActor,
+        timestamp: review.updated_at,
+      })
+    }
+
+    if (review.review_status === "submitted") {
+      const recommendation = review.review_data?.recommendation || "submitted"
+      const scoreValue =
+        typeof review.review_score === "number" ? review.review_score.toFixed(1) : undefined
+      const scoreLabel = scoreValue ? `${recommendation} (${scoreValue})` : recommendation
+      pushHistoryEvent(events, {
+        id: `review-submitted-${review.id}`,
+        type: "review_submitted",
+        category: "review",
+        title: "Review Submitted",
+        description: `${reviewerName} submitted a review`,
+        actor: reviewerActor,
+        timestamp: review.review_submitted_at || review.updated_at,
+        metadata: { score: scoreLabel },
+      })
+    }
+  })
+
+  threads.forEach((thread) => {
+    const reviewerEmail = thread.reviewer_email || `reviewer-${thread.reviewer_id}`
+    const threadActor = buildActor(normalizePersonLabel(reviewerEmail), "reviewer", reviewerEmail)
+    pushHistoryEvent(events, {
+      id: `thread-created-${thread.id}`,
+      type: "discussion_thread_created",
+      category: "discussion",
+      title: "Discussion Thread Created",
+      description: `${threadActor.name} opened thread: ${thread.title}`,
+      actor: threadActor,
+      timestamp: thread.created_at,
+    })
+
+    const threadMessages = messagesByThread[thread.id] || []
+    threadMessages.forEach((message) => {
+      const actorEmail = message.author_email || `user-${message.author_id}`
+      pushHistoryEvent(events, {
+        id: `thread-message-${message.id}`,
+        type: "discussion_message_added",
+        category: "discussion",
+        title: "Discussion Message Added",
+        description: `${normalizePersonLabel(actorEmail)} posted a message in "${thread.title}"`,
+        actor: buildActor(
+          normalizePersonLabel(actorEmail),
+          roleFromEmail(message.author_email, submissionData.author),
+          actorEmail,
+        ),
+        timestamp: message.created_at,
+      })
+    })
+  })
+
+  return events.sort((left, right) => {
+    return new Date(right.timestamp).getTime() - new Date(left.timestamp).getTime()
+  })
 }
 
 export default function ChairSubmissionDetailPage() {
@@ -98,13 +323,24 @@ export default function ChairSubmissionDetailPage() {
     year: "2026",
   })
   const [submission, setSubmission] = useState<SubmissionDetail | null>(null)
+  const [historyEvents, setHistoryEvents] = useState<SubmissionHistoryEvent[]>([])
+  const [historyLoading, setHistoryLoading] = useState(true)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadData() {
       setLoading(true)
+      setHistoryLoading(true)
       setError(null)
+
+      const conferenceNumericId = Number(conferenceId)
+      const submissionNumericId = Number(submissionId)
+      const canLoadDiscussion =
+        Number.isFinite(conferenceNumericId) &&
+        conferenceNumericId > 0 &&
+        Number.isFinite(submissionNumericId) &&
+        submissionNumericId > 0
 
       const [conferenceResponse, submissionResponse, reviewsResponse, analyticsResponse] =
         await Promise.all([
@@ -117,12 +353,14 @@ export default function ChairSubmissionDetailPage() {
       if (conferenceResponse.error || !conferenceResponse.data) {
         setError(conferenceResponse.error || "Failed to load conference")
         setLoading(false)
+        setHistoryLoading(false)
         return
       }
 
       if (submissionResponse.error || !submissionResponse.data) {
         setError(submissionResponse.error || "Failed to load submission")
         setLoading(false)
+        setHistoryLoading(false)
         return
       }
 
@@ -143,6 +381,30 @@ export default function ChairSubmissionDetailPage() {
       const conflicts = (submissionData.information?.declared_conflicts || []).map((item) => item.email)
       const reviews = reviewsResponse.data || []
       const analytics = analyticsResponse.data
+
+      let threads: DiscussionThread[] = []
+      let messagesByThread: Record<number, DiscussionMessage[]> = {}
+
+      if (canLoadDiscussion) {
+        try {
+          const threadsResponse = await getThreads(conferenceNumericId, submissionNumericId)
+          threads = threadsResponse.threads || []
+          const messageEntries = await Promise.all(
+            threads.map(async (thread) => {
+              try {
+                const messagesResponse = await getMessages(thread.id)
+                return [thread.id, messagesResponse.messages || []] as const
+              } catch {
+                return [thread.id, []] as const
+              }
+            }),
+          )
+          messagesByThread = Object.fromEntries(messageEntries)
+        } catch {
+          threads = []
+          messagesByThread = {}
+        }
+      }
 
       const files: SubmissionDetail["files"] = []
       if (submissionData.file) {
@@ -193,7 +455,8 @@ export default function ChairSubmissionDetailPage() {
           averageScore: analytics?.average_score || 0,
           maxScore: 10,
           confidence:
-            analytics && analytics.confidence_distribution.high >= analytics.confidence_distribution.medium
+            analytics &&
+            analytics.confidence_distribution.high >= analytics.confidence_distribution.medium
               ? "high"
               : analytics && analytics.confidence_distribution.low > analytics.confidence_distribution.medium
                 ? "low"
@@ -221,6 +484,8 @@ export default function ChairSubmissionDetailPage() {
       }
 
       setSubmission(mappedSubmission)
+      setHistoryEvents(buildHistoryEvents(submissionData, reviews, threads, messagesByThread))
+      setHistoryLoading(false)
       setLoading(false)
     }
 
@@ -268,6 +533,8 @@ export default function ChairSubmissionDetailPage() {
                   activeTab={activeTab}
                   conferenceId={conferenceId}
                   submissionId={submissionId}
+                  historyEvents={historyEvents}
+                  historyLoading={historyLoading}
                 />
               </Suspense>
             )}
