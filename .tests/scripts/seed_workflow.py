@@ -158,6 +158,7 @@ def seed_dataset(
     users = SeedUsers()
     stamp = int(time.time() * 1000)
     acronym = f"{prefix.upper()[:6]}{stamp % 1_000_000:06d}"
+    open_acronym = f"{acronym}O"
 
     chair_login = client.login_test_user(users.chair)
     reviewer_login = client.login_test_user(users.reviewer)
@@ -188,6 +189,24 @@ def seed_dataset(
         expected_status=(200, 201),
     )
     conference_id = _extract_conference_id(conference_resp)
+
+    open_conference_payload = {
+        "conference": {
+            "title": f"{prefix.upper()} Open Conference {stamp}",
+            "acronym": open_acronym,
+            "description": "Seeded open conference used for author new-submission E2E checks.",
+            "chair": users.chair.email,
+            "domain": ["AI", "ML"],
+        }
+    }
+    open_conference_resp, _ = client.request(
+        "POST",
+        "/api/v1/conferences",
+        token=chair_token,
+        json_body=open_conference_payload,
+        expected_status=(200, 201),
+    )
+    open_conference_id = _extract_conference_id(open_conference_resp)
 
     invite_payload = {
         "reviewers": [
@@ -380,10 +399,16 @@ def seed_dataset(
         },
         "entities": {
             "conference_id": conference_id,
+            "open_conference_id": open_conference_id,
+            "conference_ids": [conference_id, open_conference_id],
             "submission_id": submission_id,
             "reviewer_record_id": reviewer_record_id,
             "assignment_id": assignment_id,
             "thread_id": thread_id,
+        },
+        "cleanup_targets": {
+            "prefix": prefix,
+            "conference_ids": [conference_id, open_conference_id],
         },
         "frontend_urls": {
             "author_submission_discussion": f"/role/author/submissions/{submission_id}?conferenceId={conference_id}&tab=discussion",
@@ -397,6 +422,14 @@ def seed_dataset(
             ),
             "conference_detail_chair": f"/role/chair/conferences/{conference_id}",
             "conference_detail_author": f"/role/author/conferences/{conference_id}",
+            "conference_detail_author_open": f"/role/author/conferences/{open_conference_id}",
+            "author_new_submission_open": (
+                f"/role/author/submissions/new?conferenceId={open_conference_id}"
+            ),
+            "test_login_author": "/test/login?role=author",
+            "test_login_reviewer": "/test/login?role=reviewer",
+            "test_login_chair": "/test/login?role=chair",
+            "test_login_profile": "/test/login?role=profile",
         },
         "known_backend_blockers": [
             "BR-001: /api/v1/conferences/:conference_id/stats missing authoritative analytics contract",

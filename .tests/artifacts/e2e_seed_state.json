@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-02-21T06:37:23+00:00",
+  "generated_at": "2026-02-21T07:59:10+00:00",
   "base_url": "http://localhost:8080",
   "seed_options": {
-    "prefix": "migration-e2e",
+    "prefix": "focused-rerun",
     "include_discussion_seed": true,
     "include_draft_review_seed": true,
     "chair_decision": null
@@ -34,18 +34,36 @@
     }
   },
   "entities": {
-    "conference_id": 38,
-    "submission_id": 8,
-    "reviewer_record_id": 3,
-    "assignment_id": 1,
-    "thread_id": 1
+    "conference_id": 40,
+    "open_conference_id": 41,
+    "conference_ids": [
+      40,
+      41
+    ],
+    "submission_id": 10,
+    "reviewer_record_id": 5,
+    "assignment_id": 3,
+    "thread_id": 3
+  },
+  "cleanup_targets": {
+    "prefix": "focused-rerun",
+    "conference_ids": [
+      40,
+      41
+    ]
   },
   "frontend_urls": {
-    "author_submission_discussion": "/role/author/submissions/8?conferenceId=38&tab=discussion",
-    "reviewer_assignment_discussion": "/role/reviewer/assignments/1?conferenceId=38&tab=discussion",
-    "chair_submission_detail": "/role/chair/conferences/38/submissions/8",
-    "conference_detail_chair": "/role/chair/conferences/38",
-    "conference_detail_author": "/role/author/conferences/38"
+    "author_submission_discussion": "/role/author/submissions/10?conferenceId=40&tab=discussion",
+    "reviewer_assignment_discussion": "/role/reviewer/assignments/3?conferenceId=40&tab=discussion",
+    "chair_submission_detail": "/role/chair/conferences/40/submissions/10",
+    "conference_detail_chair": "/role/chair/conferences/40",
+    "conference_detail_author": "/role/author/conferences/40",
+    "conference_detail_author_open": "/role/author/conferences/41",
+    "author_new_submission_open": "/role/author/submissions/new?conferenceId=41",
+    "test_login_author": "/test/login?role=author",
+    "test_login_reviewer": "/test/login?role=reviewer",
+    "test_login_chair": "/test/login?role=chair",
+    "test_login_profile": "/test/login?role=profile"
   },
   "known_backend_blockers": [
     "BR-001: /api/v1/conferences/:conference_id/stats missing authoritative analytics contract",
@@ -54,6 +72,7 @@
   ],
   "artifacts": {
     "state_file": "E:\\HCMUS\\Graduate-Project\\ConferenceSpace\\.tests\\artifacts\\e2e_seed_state.json",
-    "upload_pdf": "E:\\HCMUS\\Graduate-Project\\ConferenceSpace\\.tests\\artifacts\\uploads\\seed_submission.pdf"
+    "upload_pdf": "E:\\HCMUS\\Graduate-Project\\ConferenceSpace\\.tests\\artifacts\\uploads\\seed_submission.pdf",
+    "cleanup_report": "E:\\HCMUS\\Graduate-Project\\ConferenceSpace\\.tests\\artifacts\\e2e_cleanup_report.json"
   }
 }

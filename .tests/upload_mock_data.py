@@ -98,6 +98,7 @@ def main() -> int:
     print("Seed completed successfully.")
     print(f"State file: {output_path}")
     print(f"Conference ID: {entities.get('conference_id')}")
+    print(f"Open Conference ID: {entities.get('open_conference_id')}")
     print(f"Submission ID: {entities.get('submission_id')}")
     print(f"Assignment ID: {entities.get('assignment_id')}")
     print(f"Thread ID: {entities.get('thread_id')}")
