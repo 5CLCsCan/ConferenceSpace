@@ -68,7 +68,7 @@ def _parse_body(body: str | None) -> Any:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Observability tooling for ConferenceSpace frontend-v2 migration E2E validation."
+        description="Observability tooling for ConferenceSpace frontend migration E2E validation."
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 

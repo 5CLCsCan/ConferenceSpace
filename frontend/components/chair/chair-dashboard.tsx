@@ -67,8 +67,11 @@ function daysUntil(value?: string): number | null {
 function buildAction(conference: Conference, submissionTotal: number): DashboardAction {
   const dueInDays = daysUntil(conference.submission_deadline)
   const isOverdue = typeof dueInDays === "number" && dueInDays < 0
-  const priority: ActionPriority =
-    isOverdue ? "urgent" : typeof dueInDays === "number" && dueInDays <= 3 ? "high" : "medium"
+  const priority: ActionPriority = isOverdue
+    ? "urgent"
+    : typeof dueInDays === "number" && dueInDays <= 3
+      ? "high"
+      : "medium"
 
   return {
     id: conference.id,
@@ -134,7 +137,7 @@ export default function ChairDashboard() {
           totalSubmissions > 0 ? Number(((totalAccepted / totalSubmissions) * 100).toFixed(1)) : 0
 
         /*
-        BACKEND REQUEST: <Implement GET /api/v1/conferences/:conference_id/stats; chair dashboard and conference analytics in frontend-v2 currently require synthetic/derived fallback metrics without an authoritative stats contract; return stable aggregates (submission totals, review progress, acceptance metrics, track/time breakdowns) with explicit field schema and empty-state behavior for new conferences.>
+        BACKEND REQUEST: <Implement GET /api/v1/conferences/:conference_id/stats; chair dashboard and conference analytics in frontend currently require synthetic/derived fallback metrics without an authoritative stats contract; return stable aggregates (submission totals, review progress, acceptance metrics, track/time breakdowns) with explicit field schema and empty-state behavior for new conferences.>
         */
         setMetrics({
           totalSubmissions,

@@ -86,7 +86,7 @@ export async function getConferenceStats(
 ): Promise<ApiResponse<ConferenceStats>> {
   try {
     /*
-    BACKEND REQUEST: <Implement GET /api/v1/conferences/:conference_id/stats; chair dashboard and conference analytics in frontend-v2 currently require synthetic/derived fallback metrics without an authoritative stats contract; return stable aggregates (submission totals, review progress, acceptance metrics, track/time breakdowns) with explicit field schema and empty-state behavior for new conferences.>
+    BACKEND REQUEST: <Implement GET /api/v1/conferences/:conference_id/stats; chair dashboard and conference analytics in frontend currently require synthetic/derived fallback metrics without an authoritative stats contract; return stable aggregates (submission totals, review progress, acceptance metrics, track/time breakdowns) with explicit field schema and empty-state behavior for new conferences.>
     */
     // TODO: Implement when backend stats endpoint is available
     // const { data, response } = await apiFetch<{ data: ConferenceStats }>(`/api/v1/conferences/${conferenceId}/stats`)
@@ -495,9 +495,7 @@ export async function getConferenceReviewers(
 
     const { data, response } = await apiFetch<
       ReviewerListResponse | { data: ReviewerListResponse }
-    >(
-      `/api/v1/conferences/${conferenceId}/reviewers?${queryParams.toString()}`,
-    )
+    >(`/api/v1/conferences/${conferenceId}/reviewers?${queryParams.toString()}`)
 
     const payload =
       (data as { data?: ReviewerListResponse })?.data || (data as ReviewerListResponse)

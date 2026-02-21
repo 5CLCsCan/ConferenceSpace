@@ -176,7 +176,7 @@ def seed_dataset(
         "conference": {
             "title": f"{prefix.upper()} Conference {stamp}",
             "acronym": acronym,
-            "description": "Seeded by .tests/upload_mock_data.py for full frontend-v2 E2E runs.",
+            "description": "Seeded by .tests/upload_mock_data.py for full frontend E2E runs.",
             "chair": users.chair.email,
             "domain": ["AI", "ML", "NLP"],
         }
@@ -236,7 +236,7 @@ def seed_dataset(
     draft_submission = {
         "submission": {
             "title": f"{prefix.upper()} Submission {stamp}",
-            "abstract": "Seed submission for frontend-v2 E2E validation, including multipart upload.",
+            "abstract": "Seed submission for frontend E2E validation, including multipart upload.",
             "domain": ["AI"],
             "status": "draft",
             "information": {

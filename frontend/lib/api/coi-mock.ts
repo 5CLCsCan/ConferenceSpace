@@ -1,5 +1,5 @@
 // COI mock shim for local/dev parity.
-// Kept intentionally lightweight for frontend-v2 test/dev flows.
+// Kept intentionally lightweight for frontend test/dev flows.
 
 export interface COIDashboardStats {
   conference_id: number
@@ -97,9 +97,7 @@ const STATS: COIDashboardStats = {
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export async function getCOIDashboardStats(
-  conferenceId: number,
-): Promise<COIDashboardStats> {
+export async function getCOIDashboardStats(conferenceId: number): Promise<COIDashboardStats> {
   await delay(50)
   return { ...STATS, conference_id: conferenceId }
 }
