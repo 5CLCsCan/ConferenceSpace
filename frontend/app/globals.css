@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -6,40 +7,40 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Neo4j-inspired Theme */
-  --background: oklch(1 0 0);
-  /* Pure White */
-  --foreground: oklch(0.21 0.03 260);
-  /* Deep Blue-Black text */
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.21 0.03 260);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.21 0.03 260);
+  --ui-scale: 1.25;
 
-  /* Primary: #0b4c6c (User requested) */
-  --primary: #0b4c6c;
-  --primary-foreground: oklch(0.98 0 0);
+  /* Final Professional Core Palette (Scholar-Compact) */
+  --background: #f8fafc;
+  --foreground: #141414;
 
-  /* Secondary: Deep Navy #0B2942 approx */
-  --secondary: oklch(0.28 0.05 245);
-  --secondary-foreground: oklch(0.98 0 0);
+  --card: #ffffff;
+  --card-foreground: #141414;
 
-  /* Muted: Soft cool gray */
-  --muted: oklch(0.96 0.01 260);
-  --muted-foreground: oklch(0.55 0.04 260);
+  --popover: #ffffff;
+  --popover-foreground: #141414;
 
-  --accent: oklch(0.94 0.02 260);
-  --accent-foreground: oklch(0.35 0.1 260);
+  --primary: #1b3c53;
+  --primary-foreground: #ffffff;
 
-  --success: oklch(0.65 0.18 150);
-  --success-foreground: oklch(0.98 0 0);
+  --secondary: #234c6a;
+  --secondary-foreground: #ffffff;
 
-  --destructive: oklch(0.58 0.2 25);
-  --destructive-foreground: oklch(0.98 0 0);
+  --muted: #e3e3e3;
+  --muted-foreground: #64748b;
 
-  --border: oklch(0.88 0.01 260);
-  --input: oklch(0.88 0.01 260);
-  --ring: var(--primary);
+  --accent: #456882;
+  --accent-foreground: #ffffff;
+
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border: #dbdbdb;
+  --input: #dbdbdb;
+  --ring: #1b3c53;
+  --radius: 0.5rem;
 
   /* Chart colors */
   --chart-1: var(--primary);
@@ -111,8 +112,9 @@
 
 @theme inline {
   /* Added font configuration per style guide (Arial/Roboto) */
-  --font-sans: var(--font-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans:
+    var(--font-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-serif: var(--font-serif), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 
   --color-background: var(--background);
@@ -139,6 +141,11 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
+  --color-navy-900: #1b3c53;
+  --color-navy-800: #234c6a;
+  --color-navy-700: #456882;
+  --color-cloud-gray: #e3e3e3;
 
   /* Updated radius values to 4px base per style guide */
   --radius-sm: 0.125rem;
@@ -167,6 +174,10 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+
+  html {
+    font-size: calc(16px * var(--ui-scale));
   }
 
   body {
@@ -287,6 +298,376 @@
   }
 }
 
+@layer utilities {
+  /* Scale arbitrary pixel utilities used throughout the app */
+  [class~="text-[7px]"] {
+    font-size: calc(7px * var(--ui-scale)) !important;
+  }
+
+  [class~="text-[8px]"] {
+    font-size: calc(8px * var(--ui-scale)) !important;
+  }
+
+  [class~="text-[9px]"] {
+    font-size: calc(9px * var(--ui-scale)) !important;
+  }
+
+  [class~="text-[10px]"] {
+    font-size: calc(10px * var(--ui-scale)) !important;
+  }
+
+  [class~="text-[11px]"] {
+    font-size: calc(11px * var(--ui-scale)) !important;
+  }
+
+  [class~="text-[12px]"] {
+    font-size: calc(12px * var(--ui-scale)) !important;
+  }
+
+  [class~="text-[13px]"] {
+    font-size: calc(13px * var(--ui-scale)) !important;
+  }
+
+  [class~="text-[14px]"] {
+    font-size: calc(14px * var(--ui-scale)) !important;
+  }
+
+  [class~="text-[16px]"] {
+    font-size: calc(16px * var(--ui-scale)) !important;
+  }
+
+  [class~="text-[18px]"] {
+    font-size: calc(18px * var(--ui-scale)) !important;
+  }
+
+  [class~="text-[20px]"] {
+    font-size: calc(20px * var(--ui-scale)) !important;
+  }
+
+  [class~="text-[24px]"] {
+    font-size: calc(24px * var(--ui-scale)) !important;
+  }
+
+  [class~="text-[28px]"] {
+    font-size: calc(28px * var(--ui-scale)) !important;
+  }
+
+  [class~="text-[32px]"] {
+    font-size: calc(32px * var(--ui-scale)) !important;
+  }
+
+  [class~="text-[40px]"] {
+    font-size: calc(40px * var(--ui-scale)) !important;
+  }
+
+  [class~="h-[1px]"] {
+    height: calc(1px * var(--ui-scale)) !important;
+  }
+
+  [class~="h-[5px]"] {
+    height: calc(5px * var(--ui-scale)) !important;
+  }
+
+  [class~="h-[12px]"] {
+    height: calc(12px * var(--ui-scale)) !important;
+  }
+
+  [class~="h-[80px]"] {
+    height: calc(80px * var(--ui-scale)) !important;
+  }
+
+  [class~="h-[200px]"] {
+    height: calc(200px * var(--ui-scale)) !important;
+  }
+
+  [class~="h-[866px]"] {
+    height: calc(866px * var(--ui-scale)) !important;
+  }
+
+  [class~="w-[2px]"] {
+    width: calc(2px * var(--ui-scale)) !important;
+  }
+
+  [class~="w-[5px]"] {
+    width: calc(5px * var(--ui-scale)) !important;
+  }
+
+  [class~="w-[12px]"] {
+    width: calc(12px * var(--ui-scale)) !important;
+  }
+
+  [class~="w-[62px]"] {
+    width: calc(62px * var(--ui-scale)) !important;
+  }
+
+  [class~="w-[80px]"] {
+    width: calc(80px * var(--ui-scale)) !important;
+  }
+
+  [class~="w-[90px]"] {
+    width: calc(90px * var(--ui-scale)) !important;
+  }
+
+  [class~="w-[100px]"] {
+    width: calc(100px * var(--ui-scale)) !important;
+  }
+
+  [class~="w-[168px]"] {
+    width: calc(168px * var(--ui-scale)) !important;
+  }
+
+  [class~="w-[180px]"] {
+    width: calc(180px * var(--ui-scale)) !important;
+  }
+
+  [class~="w-[200px]"] {
+    width: calc(200px * var(--ui-scale)) !important;
+  }
+
+  [class~="w-[240px]"] {
+    width: calc(240px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-h-[20px]"] {
+    min-height: calc(20px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-h-[40px]"] {
+    min-height: calc(40px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-h-[44px]"] {
+    min-height: calc(44px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-h-[56px]"] {
+    min-height: calc(56px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-h-[60px]"] {
+    min-height: calc(60px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-h-[72px]"] {
+    min-height: calc(72px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-h-[100px]"] {
+    min-height: calc(100px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-h-[112px]"] {
+    min-height: calc(112px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-h-[120px]"] {
+    min-height: calc(120px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-h-[140px]"] {
+    min-height: calc(140px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-h-[180px]"] {
+    min-height: calc(180px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-h-[300px]"] {
+    min-height: calc(300px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-h-[340px]"] {
+    min-height: calc(340px * var(--ui-scale)) !important;
+  }
+
+  [class~="max-h-[112px]"] {
+    max-height: calc(112px * var(--ui-scale)) !important;
+  }
+
+  [class~="max-h-[120px]"] {
+    max-height: calc(120px * var(--ui-scale)) !important;
+  }
+
+  [class~="max-h-[200px]"] {
+    max-height: calc(200px * var(--ui-scale)) !important;
+  }
+
+  [class~="max-h-[300px]"] {
+    max-height: calc(300px * var(--ui-scale)) !important;
+  }
+
+  [class~="max-h-[1000px]"] {
+    max-height: calc(1000px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-w-[30px]"] {
+    min-width: calc(30px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-w-[80px]"] {
+    min-width: calc(80px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-w-[100px]"] {
+    min-width: calc(100px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-w-[110px]"] {
+    min-width: calc(110px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-w-[120px]"] {
+    min-width: calc(120px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-w-[140px]"] {
+    min-width: calc(140px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-w-[160px]"] {
+    min-width: calc(160px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-w-[180px]"] {
+    min-width: calc(180px * var(--ui-scale)) !important;
+  }
+
+  [class~="min-w-[200px]"] {
+    min-width: calc(200px * var(--ui-scale)) !important;
+  }
+
+  [class~="max-w-[80px]"] {
+    max-width: calc(80px * var(--ui-scale)) !important;
+  }
+
+  [class~="max-w-[120px]"] {
+    max-width: calc(120px * var(--ui-scale)) !important;
+  }
+
+  [class~="max-w-[150px]"] {
+    max-width: calc(150px * var(--ui-scale)) !important;
+  }
+
+  [class~="max-w-[160px]"] {
+    max-width: calc(160px * var(--ui-scale)) !important;
+  }
+
+  [class~="max-w-[180px]"] {
+    max-width: calc(180px * var(--ui-scale)) !important;
+  }
+
+  [class~="max-w-[200px]"] {
+    max-width: calc(200px * var(--ui-scale)) !important;
+  }
+
+  [class~="max-w-[280px]"] {
+    max-width: calc(280px * var(--ui-scale)) !important;
+  }
+
+  [class~="max-w-[320px]"] {
+    max-width: calc(320px * var(--ui-scale)) !important;
+  }
+
+  [class~="max-w-[420px]"] {
+    max-width: calc(420px * var(--ui-scale)) !important;
+  }
+
+  [class~="max-w-[500px]"] {
+    max-width: calc(500px * var(--ui-scale)) !important;
+  }
+
+  [class~="max-w-[700px]"] {
+    max-width: calc(700px * var(--ui-scale)) !important;
+  }
+
+  [class~="max-w-[1400px]"] {
+    max-width: calc(1400px * var(--ui-scale)) !important;
+  }
+
+  [class~="max-w-[1600px]"] {
+    max-width: calc(1600px * var(--ui-scale)) !important;
+  }
+
+  [class~="rounded-[2px]"] {
+    border-radius: calc(2px * var(--ui-scale)) !important;
+  }
+
+  [class~="rounded-[4px]"] {
+    border-radius: calc(4px * var(--ui-scale)) !important;
+  }
+
+  [class~="p-[3px]"] {
+    padding: calc(3px * var(--ui-scale)) !important;
+  }
+
+  [class~="py-[7px]"] {
+    padding-top: calc(7px * var(--ui-scale)) !important;
+    padding-bottom: calc(7px * var(--ui-scale)) !important;
+  }
+
+  [class~="pb-[64px]"] {
+    padding-bottom: calc(64px * var(--ui-scale)) !important;
+  }
+
+  [class~="pl-[34px]"] {
+    padding-left: calc(34px * var(--ui-scale)) !important;
+  }
+
+  [class~="leading-[12px]"] {
+    line-height: calc(12px * var(--ui-scale)) !important;
+  }
+
+  [class~="top-[1px]"] {
+    top: calc(1px * var(--ui-scale)) !important;
+  }
+
+  [class~="left-[9px]"] {
+    left: calc(9px * var(--ui-scale)) !important;
+  }
+
+  [class~="left-[11px]"] {
+    left: calc(11px * var(--ui-scale)) !important;
+  }
+
+  [class~="-left-[9px]"] {
+    left: calc(-9px * var(--ui-scale)) !important;
+  }
+
+  [class~="border-b-[3px]"] {
+    border-bottom-width: calc(3px * var(--ui-scale)) !important;
+  }
+
+  [class~="border-l-[3px]"] {
+    border-left-width: calc(3px * var(--ui-scale)) !important;
+  }
+
+  [class~="translate-y-[2px]"] {
+    --tw-translate-y: calc(2px * var(--ui-scale)) !important;
+  }
+
+  [class~="ring-[3px]"] {
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
+      calc(calc(3px * var(--ui-scale)) + var(--tw-ring-offset-width))
+      var(--tw-ring-color, currentColor) !important;
+  }
+
+  /* Scale hard-locked 16px Material Symbols inline styles */
+  .material-symbols-outlined[style*="font-size:16px"],
+  .material-symbols-outlined[style*="font-size: 16px"],
+  .material-symbols-rounded[style*="font-size:16px"],
+  .material-symbols-rounded[style*="font-size: 16px"],
+  .material-symbols-sharp[style*="font-size:16px"],
+  .material-symbols-sharp[style*="font-size: 16px"] {
+    font-size: calc(16px * var(--ui-scale)) !important;
+    width: calc(16px * var(--ui-scale)) !important;
+    height: calc(16px * var(--ui-scale)) !important;
+    max-width: calc(16px * var(--ui-scale)) !important;
+    max-height: calc(16px * var(--ui-scale)) !important;
+    min-width: calc(16px * var(--ui-scale)) !important;
+    min-height: calc(16px * var(--ui-scale)) !important;
+  }
+}
+
 /* Modern custom scrollbar styling */
 ::-webkit-scrollbar {
   width: 10px;
@@ -319,4 +700,14 @@
 * {
   scrollbar-width: thin;
   scrollbar-color: oklch(0.85 0 0) transparent;
+}
+
+/* No scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

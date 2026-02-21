@@ -11,15 +11,16 @@ export interface User {
 }
 
 export const userApi = {
-  getMe: () => apiFetch<{ data: User }>("/users/me"),
-  getAcademicProfile: () => apiFetch<{ data: AcademicProfile }>("/users/me/academic-profile"),
+  getMe: () => apiFetch<{ data: User }>("/api/v1/users/me"),
+  getAcademicProfile: () =>
+    apiFetch<{ data: AcademicProfile }>("/api/v1/users/me/academic-profile"),
   linkAcademicProfile: (semanticScholarId: string) =>
-    apiFetch<{ data: User }>("/users/link-academic-profile", {
+    apiFetch<{ data: User }>("/api/v1/users/link-academic-profile", {
       method: "POST",
       body: JSON.stringify({ semanticScholarId }),
     }),
   unlinkAcademicProfile: () =>
-    apiFetch<{ data: User }>("/users/unlink-academic-profile", {
+    apiFetch<{ data: User }>("/api/v1/users/unlink-academic-profile", {
       method: "POST",
     }),
 }

@@ -1,22 +1,12 @@
 "use client"
-import type React from "react"
-import { useState, useEffect } from "react"
+
+import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, Info } from "lucide-react"
 import { submitPaper, updatePaper } from "@/lib/api/papers"
 import { useAuth } from "@/lib/auth-context"
+import { ROUTES } from "@/lib/routes"
 import type { Conference } from "@/lib/types"
-import { PaperTab } from "./paper-tab"
-import { AuthorsTab } from "./authors-tab"
-import { FileTab } from "./file-tab"
-import { COITab } from "./coi-tab"
-import { CoverLetterTab } from "./cover-letter-tab"
-import { SubmissionSidebar } from "./submission-sidebar"
-import { useTranslation } from "@/lib/i18n/translation-context"
-import { getConferenceSubmissions, type Submission } from "@/lib/api/submissions"
-import { typography, spacing } from "@/lib/typography"
+import type { Submission } from "@/lib/api/submissions"
 import { useToast } from "@/components/ui/use-toast"
 import {
   AlertDialog,
@@ -28,27 +18,18 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
+import type { StepType, Author } from "./types"
+import { SubmissionProgressSidebar } from "./submission-progress-sidebar"
+import { SubmissionActionBar } from "./submission-action-bar"
+import { PaperDetailsStep } from "./paper-details-step"
+import { AuthorsStep } from "./authors-step"
+import { FileUploadStep } from "./file-upload-step"
+import { ConflictsStep, type Conflict } from "./conflicts-step"
+import { ReviewStep } from "./review-step"
+
 interface PaperSubmissionFormProps {
   conference?: Conference | null
   submission?: Submission | null
-}
-
-type TabType = "paper" | "authors" | "file" | "coi" | "cover-letter"
-
-interface Author {
-  name: string
-  email: string
-  affiliation: string
-}
-
-interface Checklist {
-  titleProvided: boolean
-  abstractLength: boolean
-  subjectAreas: boolean
-  keywords: boolean
-  pdfUploaded: boolean
-  coAuthorsListed: boolean
-  coiDeclared: boolean
 }
 
 export function PaperSubmissionForm({
@@ -57,218 +38,253 @@ export function PaperSubmissionForm({
 }: PaperSubmissionFormProps) {
   const router = useRouter()
   const { user } = useAuth()
-  const { t } = useTranslation()
   const { toast } = useToast()
-  const [activeTab, setActiveTab] = useState<TabType>("paper")
+
+  const [currentStep, setCurrentStep] = useState<StepType>("paper")
   const [submitting, setSubmitting] = useState(false)
-  const [isEditMode, setIsEditMode] = useState(!!initialSubmission)
   const [showSuccessDialog, setShowSuccessDialog] = useState(false)
   const [successMessage, setSuccessMessage] = useState("")
-  const [redirectPath, setRedirectPath] = useState("")
-  // Paper tab state
-  const [title, setTitle] = useState("")
-  const [abstract, setAbstract] = useState("")
-  const [subjectAreas, setSubjectAreas] = useState<string[]>([])
-  const [keywords, setKeywords] = useState<string[]>([])
-  const [keywordInput, setKeywordInput] = useState("")
-  // Authors tab state
-  const [authors, setAuthors] = useState<Author[]>([
-    { name: "", email: "", affiliation: "" },
-    { name: "", email: "", affiliation: "" },
-    { name: "", email: "", affiliation: "" },
-  ])
-  const [isCorresponding, setIsCorresponding] = useState(false)
-  // File tab state
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
-  const [validationStatus, setValidationStatus] = useState<
-    "pending" | "validating" | "success" | "error"
-  >("pending")
-  // COI tab state
-  const [coiPeople, setCoiPeople] = useState<string[]>([])
-  const [coiPersonInput, setCoiPersonInput] = useState("")
-  // Cover letter tab state
-  const [coverLetter, setCoverLetter] = useState<File | null>(null)
-  // Track selection state
-  const [selectedTrack, setSelectedTrack] = useState<string>("")
-  // Extract track names from conference tracks (backend returns array of strings)
-  const availableTracks: string[] = Array.isArray(conference?.tracks)
-    ? conference.tracks.map((t) => (typeof t === "string" ? t : (t as any).name || String(t)))
-    : []
-  // Checklist state
-  const checklist: Checklist = {
-    titleProvided: title.trim().length > 0,
-    abstractLength: abstract.trim().length > 0,
-    subjectAreas: subjectAreas.length >= 1,
-    keywords: keywords.length >= 3,
-    // In edit mode, allow submission if original submission has a file OR new file is uploaded
-    pdfUploaded: uploadedFile !== null || (isEditMode && initialSubmission?.file !== undefined),
-    coAuthorsListed: authors.some((a) => a.name.trim().length > 0),
-    coiDeclared: coiPeople.length > 0,
-  }
 
-  const tabs = [
-    { id: "paper" as TabType, label: t("dashboard.author.submit.tabs.paper") },
-    { id: "authors" as TabType, label: t("dashboard.author.submit.tabs.authors") },
-    { id: "file" as TabType, label: t("dashboard.author.submit.tabs.file") },
-    { id: "coi" as TabType, label: t("dashboard.author.submit.tabs.coi") },
-    { id: "cover-letter" as TabType, label: t("dashboard.submission.tabs.coverLetter") },
+  // Paper Details state
+  const [title, setTitle] = useState(initialSubmission?.title || "")
+  const [abstract, setAbstract] = useState(initialSubmission?.abstract || "")
+  const [keywords, setKeywords] = useState<string[]>(
+    initialSubmission?.information?.keywords || ["Machine Learning", "Neural Networks"],
+  )
+  const [keywordInput, setKeywordInput] = useState("")
+  const [selectedTrack, setSelectedTrack] = useState<string>(
+    initialSubmission?.information?.track_name || "",
+  )
+  const [isStudentPaper, setIsStudentPaper] = useState(false)
+
+  // Authors state
+  const [authors, setAuthors] = useState<Author[]>([
+    {
+      id: "1",
+      firstName: user?.name?.split(" ")[0] || "Sarah",
+      lastName: user?.name?.split(" ").slice(1).join(" ") || "Connor",
+      email: user?.email || "sarah.connor@skynet.edu",
+      affiliation: "Massachusetts Institute of Technology",
+      country: "United States",
+      isCorresponding: true,
+    },
+  ])
+  const [newAuthor, setNewAuthor] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    affiliation: "",
+    country: "",
+  })
+
+  // File Upload state
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [fileValidation, setFileValidation] = useState<{
+    format: boolean
+    fonts: boolean
+  }>({ format: true, fonts: false })
+
+  // Conflicts of Interest state
+  const [conflictDomains, setConflictDomains] = useState<string[]>(["mit.edu", "csail.mit.edu"])
+  const [domainInput, setDomainInput] = useState("")
+  const [conflicts, setConflicts] = useState<Conflict[]>([])
+  const [newConflict, setNewConflict] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    reason: "advisor",
+  })
+  const [coiConfirmed, setCoiConfirmed] = useState(false)
+  const [submissionConfirmed, setSubmissionConfirmed] = useState(false)
+
+  const defaultTracks = [
+    "Artificial Intelligence & Machine Learning",
+    "Computer Systems & Networks",
+    "Software Engineering",
+    "Human-Computer Interaction",
   ]
 
-  // Pre-fill form with submission data if in edit mode
-  useEffect(() => {
-    if (!initialSubmission) return
+  const availableTracks: string[] =
+    Array.isArray(conference?.tracks) && conference.tracks.length > 0
+      ? conference.tracks
+          .map((t) => (typeof t === "string" ? t : (t as any).name || String(t)))
+          .filter((t): t is string => Boolean(t))
+      : defaultTracks
 
-    // Pre-fill paper tab data immediately (doesn't depend on user)
-    setTitle(initialSubmission.title || "")
-    setAbstract(initialSubmission.abstract || "")
-    setSubjectAreas(initialSubmission.domain || [])
-    setKeywords(initialSubmission.information?.keywords || [])
-    setSelectedTrack(initialSubmission.information?.track_name || "")
+  const isNewSubmissionBlocked = !initialSubmission && conference?.status !== "open"
 
-    // Pre-fill authors
-    // Load co-authors from submission first
-    const coAuthors: Author[] = []
+  const mapSubmissionError = (errorMessage: string | null): string => {
+    if (!errorMessage) {
+      return "Unable to submit due to an unknown error."
+    }
+
+    const normalized = errorMessage.toLowerCase()
     if (
-      initialSubmission.information?.co_authors &&
-      initialSubmission.information.co_authors.length > 0
+      normalized.includes("submissions are not allowed") ||
+      normalized.includes("status is") ||
+      normalized.includes("forbidden") ||
+      normalized.includes("403")
     ) {
-      initialSubmission.information.co_authors.forEach((email) => {
-        coAuthors.push({
-          name: "", // Name not stored in submission, only email
-          email: email,
-          affiliation: "", // Affiliation not stored in submission
-        })
-      })
+      return "This conference is not currently accepting submissions. Please submit during the open phase."
     }
 
-    // First author: use user info if available, otherwise use submission author email
-    if (user) {
-      const firstAuthor = {
-        name: user.name || "",
-        email: user.email || initialSubmission.author || "",
-        affiliation: user.affiliation || "",
-      }
-      // Set authors array: first author (current user) + co-authors + one empty slot
-      setAuthors([firstAuthor, ...coAuthors, { name: "", email: "", affiliation: "" }])
-    } else {
-      // Fallback: at least set the email from submission
-      const firstAuthor = {
-        name: "",
-        email: initialSubmission.author || "",
-        affiliation: "",
-      }
-      setAuthors([firstAuthor, ...coAuthors, { name: "", email: "", affiliation: "" }])
-    }
+    return errorMessage
+  }
 
-    // Pre-fill COI data from declared_conflicts
-    // Note: Backend stores conflicts as {email, reason}, but frontend has separate arrays for people/orgs/domains
-    // For now, we'll map all declared conflicts to the people array
-    // Users can manually reorganize if needed
-    if (initialSubmission.information?.declared_conflicts) {
-      const people: string[] = []
-
-      initialSubmission.information.declared_conflicts.forEach((conflict) => {
-        // Add the email/identifier to people list
-        people.push(conflict.email)
-      })
-
-      setCoiPeople(people)
-      // Note: Orgs and domains would need to be stored separately in the backend
-      // For now, they remain empty and user needs to re-enter them
-    }
-
-    // Note: File cannot be pre-loaded from URL, user needs to re-upload if they want to change it
-  }, [initialSubmission, user])
-
-  // Auto-load existing draft on component mount (only if not in edit mode)
-  useEffect(() => {
-    if (isEditMode) return // Skip draft loading in edit mode
-
-    const loadDraft = async () => {
-      if (!user || !conference) return
-
-      try {
-        const response = await getConferenceSubmissions(conference.id, {
-          author: user.email,
-          status: "draft",
-          limit: 1,
-        })
-
-        if (response.data && response.data.submissions.length > 0) {
-          const draft = response.data.submissions[0]
-          // Don't load draft if we're editing a different submission
-          if (!initialSubmission || draft.id !== initialSubmission.id) {
-            console.log("[PaperSubmissionForm] Auto-loading existing draft:", draft)
-
-            // Auto-populate form fields with draft data
-            setTitle(draft.title || "")
-            setAbstract(draft.abstract || "")
-            setSubjectAreas(draft.domain || [])
-            setKeywords(draft.information?.keywords || [])
-
-            // Load co-authors if available
-            if (draft.information?.co_authors && draft.information.co_authors.length > 0) {
-              const coAuthors = draft.information.co_authors.map((email) => ({
-                name: "",
-                email: email,
-                affiliation: "",
-              }))
-              // Keep the first author slot empty and add co-authors
-              setAuthors([
-                { name: "", email: "", affiliation: "" },
-                ...coAuthors,
-                { name: "", email: "", affiliation: "" },
-              ])
-            }
-
-            // Redirect to edit mode for the draft
-            router.push(`/dashboard/author/submit?conference=${conference.id}&edit=${draft.id}`)
-          }
-        }
-      } catch (error) {
-        console.error("[PaperSubmissionForm] Error loading draft:", error)
-      }
-    }
-
-    loadDraft()
-  }, [user, conference, isEditMode, initialSubmission, router])
-
-  const handleAddKeyword = () => {
-    if (keywordInput.trim() && !keywords.includes(keywordInput.trim())) {
+  // Keyword handlers
+  const handleAddKeyword = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && keywordInput.trim() && !keywords.includes(keywordInput.trim())) {
+      e.preventDefault()
       setKeywords([...keywords, keywordInput.trim()])
       setKeywordInput("")
     }
   }
 
-  const handleSaveAsDraft = async () => {
+  const handleRemoveKeyword = (keyword: string) => {
+    setKeywords(keywords.filter((k) => k !== keyword))
+  }
+
+  // Author handlers
+  const handleAddAuthor = () => {
+    if (!newAuthor.firstName || !newAuthor.lastName || !newAuthor.email) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all required fields for the author.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const author: Author = {
+      id: Date.now().toString(),
+      ...newAuthor,
+      isCorresponding: false,
+    }
+
+    setAuthors([...authors, author])
+    setNewAuthor({
+      firstName: "",
+      lastName: "",
+      email: "",
+      affiliation: "",
+      country: "",
+    })
+  }
+
+  const handleRemoveAuthor = (id: string) => {
+    setAuthors(authors.filter((a) => a.id !== id))
+  }
+
+  const handleToggleCorresponding = (id: string) => {
+    setAuthors(
+      authors.map((a) => ({
+        ...a,
+        isCorresponding: a.id === id,
+      })),
+    )
+  }
+
+  // File upload handlers
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.type !== "application/pdf") {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a PDF file.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (file.size > 20 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Maximum file size is 20MB.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setUploadedFile(file)
+    setUploadProgress(100)
+    setFileValidation({ format: true, fonts: false })
+  }
+
+  const handleRemoveFile = () => {
+    setUploadedFile(null)
+    setUploadProgress(0)
+  }
+
+  // Conflict handlers
+  const handleAddDomain = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && domainInput.trim() && !conflictDomains.includes(domainInput.trim())) {
+      e.preventDefault()
+      setConflictDomains([...conflictDomains, domainInput.trim()])
+      setDomainInput("")
+    }
+  }
+
+  const handleRemoveDomain = (domain: string) => {
+    setConflictDomains(conflictDomains.filter((d) => d !== domain))
+  }
+
+  const handleAddConflict = () => {
+    if (!newConflict.firstName || !newConflict.lastName) {
+      toast({
+        title: "Missing information",
+        description: "Please provide at least first and last name.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const conflict: Conflict = {
+      id: Date.now().toString(),
+      ...newConflict,
+    }
+
+    setConflicts([...conflicts, conflict])
+    setNewConflict({
+      firstName: "",
+      lastName: "",
+      email: "",
+      reason: "advisor",
+    })
+  }
+
+  const handleRemoveConflict = (id: string) => {
+    setConflicts(conflicts.filter((c) => c.id !== id))
+  }
+
+  // Save draft handler
+  const handleSaveDraft = async () => {
     if (!user || !conference) return
-
+    if (isNewSubmissionBlocked) {
+      toast({
+        title: "Submissions are closed",
+        description: "Draft creation is disabled because this conference is not in open status.",
+        variant: "destructive",
+      })
+      return
+    }
     setSubmitting(true)
-    try {
-      // Build COI declarations from coiPeople array
-      const declaredConflicts = coiPeople
-        .filter((person) => person.trim())
-        .map((person) => ({
-          email: person.trim(),
-          reason: "Declared conflict of interest",
-        }))
 
+    try {
       const submissionData = {
         title,
         abstract,
         link: "",
-        domain: subjectAreas,
-        file: uploadedFile || undefined, // Include uploaded file
-        cover_letter: coverLetter || undefined, // Include cover letter
-        status: "draft" as const, // Explicitly set status to draft
+        domain: [],
+        status: "draft" as const,
         track: selectedTrack,
         information: {
           keywords,
-          co_authors: authors
-            .filter((a, index) => index > 0 && a.email.trim()) // Skip first author, filter by email
-            .map((a) => a.email.trim()),
-          declared_conflicts: declaredConflicts, // Include COI declarations
-          paper_type: "research",
+          co_authors: authors.slice(1).map((a) => a.email),
+          declared_conflicts: [],
+          paper_type: isStudentPaper ? "student" : "research",
           track_name: selectedTrack,
           additional_notes: "",
           metadata: {
@@ -278,49 +294,25 @@ export function PaperSubmissionForm({
         },
       }
 
-      let response
-      if (isEditMode && initialSubmission) {
-        // Update existing submission as draft
-        response = await updatePaper(initialSubmission.id.toString(), conference.id, submissionData)
-        if (response.error) {
-          toast({
-            title: t("dashboard.author.submit.draftSaveFailed") || "Failed to save draft",
-            description: response.error,
-            variant: "destructive",
-          })
-        } else {
-          toast({
-            title: t("dashboard.author.submit.draftSaveSuccess") || "Draft saved successfully",
-            description: "Your draft has been saved. You can continue editing anytime.",
-          })
-          // Stay on the same page - no redirect
-        }
-      } else {
-        // Create new draft
-        response = await submitPaper({
-          conference_id: conference.id,
-          ...submissionData,
+      const response = initialSubmission
+        ? await updatePaper(initialSubmission.id.toString(), conference.id, submissionData)
+        : await submitPaper({ conference_id: conference.id, ...submissionData })
+
+      if (response.error) {
+        toast({
+          title: "Failed to save draft",
+          description: mapSubmissionError(response.error),
+          variant: "destructive",
         })
-        if (response.error) {
-          toast({
-            title: t("dashboard.author.submit.draftSaveFailed") || "Failed to save draft",
-            description: response.error,
-            variant: "destructive",
-          })
-        } else if (response.data) {
-          toast({
-            title: t("dashboard.author.submit.draftSaveSuccess") || "Draft saved successfully",
-            description: "Your draft has been saved. You can continue editing anytime.",
-          })
-          // Redirect to edit mode for the newly created draft
-          router.push(
-            `/dashboard/author/submit?conference=${conference.id}&edit=${response.data.id}`,
-          )
-        }
+      } else {
+        toast({
+          title: "Draft saved successfully",
+          description: "Your draft has been saved. You can continue editing anytime.",
+        })
       }
     } catch (error) {
       toast({
-        title: t("dashboard.author.submit.draftSaveError") || "Error saving draft",
+        title: "Error saving draft",
         description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       })
@@ -329,35 +321,33 @@ export function PaperSubmissionForm({
     }
   }
 
+  // Submit handler
   const handleSubmit = async () => {
     if (!user || !conference) return
-
+    if (isNewSubmissionBlocked) {
+      toast({
+        title: "Submissions are closed",
+        description:
+          "This conference is not currently accepting submissions. Please submit during the open phase.",
+        variant: "destructive",
+      })
+      return
+    }
     setSubmitting(true)
-    try {
-      // Build COI declarations from coiPeople array
-      const declaredConflicts = coiPeople
-        .filter((person) => person.trim())
-        .map((person) => ({
-          email: person.trim(),
-          reason: "Declared conflict of interest",
-        }))
 
+    try {
       const submissionData = {
         title,
         abstract,
         link: "",
-        domain: subjectAreas,
-        file: uploadedFile || undefined,
-        cover_letter: coverLetter || undefined,
+        domain: [],
         status: "published" as const,
         track: selectedTrack,
         information: {
           keywords,
-          co_authors: authors
-            .filter((a, index) => index > 0 && a.email.trim())
-            .map((a) => a.email.trim()),
-          declared_conflicts: declaredConflicts,
-          paper_type: "research",
+          co_authors: authors.slice(1).map((a) => a.email),
+          declared_conflicts: [],
+          paper_type: isStudentPaper ? "student" : "research",
           track_name: selectedTrack,
           additional_notes: "",
           metadata: {
@@ -367,46 +357,23 @@ export function PaperSubmissionForm({
         },
       }
 
-      let response
-      if (isEditMode && initialSubmission) {
-        response = await updatePaper(initialSubmission.id.toString(), conference.id, submissionData)
-        if (response.error) {
-          toast({
-            title: t("dashboard.author.submit.updateFailed") || "Update failed",
-            description: response.error,
-            variant: "destructive",
-          })
-        } else if (response.data) {
-          setSuccessMessage(
-            t("dashboard.author.submit.updateSuccess") ||
-              "Your submission has been updated successfully!",
-          )
-          setRedirectPath(`/dashboard/conference/${conference.id}`)
-          setShowSuccessDialog(true)
-        }
-      } else {
-        response = await submitPaper({
-          conference_id: conference.id,
-          ...submissionData,
+      const response = initialSubmission
+        ? await updatePaper(initialSubmission.id.toString(), conference.id, submissionData)
+        : await submitPaper({ conference_id: conference.id, ...submissionData })
+
+      if (response.error) {
+        toast({
+          title: "Submission failed",
+          description: mapSubmissionError(response.error),
+          variant: "destructive",
         })
-        if (response.error) {
-          toast({
-            title: t("dashboard.author.submit.submissionFailed") || "Submission failed",
-            description: response.error,
-            variant: "destructive",
-          })
-        } else if (response.data) {
-          setSuccessMessage(
-            t("dashboard.author.submit.submissionSuccess") ||
-              "Your paper has been submitted successfully!",
-          )
-          setRedirectPath(`/dashboard/conference/${conference.id}`)
-          setShowSuccessDialog(true)
-        }
+      } else {
+        setSuccessMessage("Your paper has been submitted successfully!")
+        setShowSuccessDialog(true)
       }
     } catch (error) {
       toast({
-        title: t("dashboard.author.submit.submissionError") || "Submission error",
+        title: "Error submitting paper",
         description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       })
@@ -415,176 +382,178 @@ export function PaperSubmissionForm({
     }
   }
 
-  const canSubmit = Object.values(checklist).every((v) => v === true)
+  // Step header info
+  const stepHeaders: Record<StepType, { title: string; description: string }> = {
+    paper: {
+      title: "Paper Details",
+      description: "Please provide the core information about your research paper.",
+    },
+    authors: {
+      title: "Authors & Affiliations",
+      description:
+        "Add all contributing authors. Use the drag handles to order them according to their contribution. Ensure one author is marked as the corresponding contact.",
+    },
+    file: {
+      title: "Upload Manuscript",
+      description:
+        "Please upload your research paper in PDF format. Ensure all personal information is removed for double-blind review.",
+    },
+    coi: {
+      title: "Conflicts of Interest",
+      description: "Declare any potential conflicts of interest with reviewers or institutions.",
+    },
+    review: {
+      title: "Review & Submit",
+      description: "Review all information before final submission.",
+    },
+  }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-start gap-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.back()}
-            className="border border-primary text-primary bg-transparent hover:bg-primary/10 px-4 py-2 rounded-[4px] flex items-center gap-2"
-            title={t("dashboard.author.submit.backTooltip")}
-          >
-            <ArrowLeft className="size-6" />
-            {t("dashboard.author.submit.backButton")}
-          </Button>
-          <div>
-            <h1 className={`${typography.h1} ${typography.bold} text-foreground font-arial`}>
-              {t("dashboard.author.submit.title")}
-            </h1>
-            <p className={`text-muted-foreground mt-1 ${typography.bodyLarge} font-arial`}>
-              {t("dashboard.author.submit.subtitle")}
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-3 flex-wrap">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleSaveAsDraft}
-            disabled={submitting}
-            className={`border border-primary text-primary bg-transparent hover:bg-primary/10 px-4 py-2 rounded-[4px] ${typography.bodyLarge} ${typography.medium} font-arial`}
-          >
-            {t("dashboard.author.submit.saveDraft")}
-          </Button>
-          <Button
-            size="sm"
-            onClick={handleSubmit}
-            disabled={!canSubmit || submitting}
-            className={`bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-[4px] ${typography.bodyLarge} ${typography.medium} font-arial`}
-          >
-            {submitting
-              ? t("dashboard.author.submit.submitting")
-              : t("dashboard.author.submit.submit")}
-          </Button>
-        </div>
-      </div>
-      <div className="flex flex-col xl:flex-row gap-6 xl:gap-8">
-        <div className="flex-1 min-w-0">
-          <div className="bg-muted rounded-lg p-1 mb-6 flex gap-1">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 px-6 py-3 rounded-[4px] ${typography.body} ${typography.medium} font-arial transition-colors ${
-                  activeTab === tab.id
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-          <Card className="border border-border rounded-[8px] shadow-sm">
-            <CardContent className="p-8">
-              {activeTab === "paper" && (
-                <PaperTab
-                  title={title}
-                  setTitle={setTitle}
-                  abstract={abstract}
-                  setAbstract={setAbstract}
-                  subjectAreas={subjectAreas}
-                  setSubjectAreas={setSubjectAreas}
-                  keywords={keywords}
-                  setKeywords={setKeywords}
-                  keywordInput={keywordInput}
-                  setKeywordInput={setKeywordInput}
-                  handleAddKeyword={handleAddKeyword}
-                  selectedTrack={selectedTrack}
-                  setSelectedTrack={setSelectedTrack}
-                  availableTracks={availableTracks}
-                />
-              )}
-              {activeTab === "authors" && (
-                <AuthorsTab
-                  authors={authors}
-                  setAuthors={setAuthors}
-                  isCorresponding={isCorresponding}
-                  setIsCorresponding={setIsCorresponding}
-                />
-              )}
-              {activeTab === "file" && (
-                <FileTab
-                  uploadedFile={uploadedFile}
-                  setUploadedFile={setUploadedFile}
-                  validationStatus={validationStatus}
-                  setValidationStatus={setValidationStatus}
-                  conference={conference}
-                  submissionId={initialSubmission?.id?.toString()}
-                  conferenceId={conference?.id}
-                  existingFile={
-                    isEditMode && initialSubmission?.file
-                      ? {
-                          name: initialSubmission.file.original_name,
-                          size: initialSubmission.file.size,
-                          type: initialSubmission.file.mime_type,
-                        }
-                      : undefined
-                  }
-                />
-              )}
-              {activeTab === "coi" && (
-                <COITab
-                  coiPeople={coiPeople}
-                  setCoiPeople={setCoiPeople}
-                  coiPersonInput={coiPersonInput}
-                  setCoiPersonInput={setCoiPersonInput}
-                />
-              )}
-              {activeTab === "cover-letter" && (
-                <CoverLetterTab
-                  coverLetter={coverLetter}
-                  setCoverLetter={setCoverLetter}
-                  submissionId={initialSubmission?.id?.toString()}
-                  conferenceId={conference?.id}
-                  existingCoverLetter={
-                    isEditMode && initialSubmission?.cover_letter
-                      ? {
-                          name: initialSubmission.cover_letter.original_name,
-                          size: initialSubmission.cover_letter.size,
-                          type: initialSubmission.cover_letter.mime_type,
-                        }
-                      : undefined
-                  }
-                />
-              )}
-            </CardContent>
-          </Card>
-          <div
-            className={`mt-4 flex items-center ${spacing.gap.sm} ${typography.body} text-muted-foreground font-arial`}
-          >
-            <Info className="size-4" />
-            <span>{t("dashboard.author.submit.draftAutoSave")}</span>
-          </div>
-        </div>
-        <div className="w-full xl:w-80 flex-shrink-0">
-          <SubmissionSidebar checklist={checklist} />
-        </div>
-      </div>
+    <div className="font-[Inter] bg-[#f8fafc] dark:bg-[#191919] text-[#141414] dark:text-white flex flex-col h-screen overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
+        <SubmissionProgressSidebar currentStep={currentStep} onStepChange={setCurrentStep} />
 
-      {/* Success Dialog */}
-      <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Success!</AlertDialogTitle>
-            <AlertDialogDescription>{successMessage}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction
-              onClick={() => {
-                setShowSuccessDialog(false)
-                router.push(redirectPath)
-              }}
-            >
-              Continue to Conference
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        <main className="flex-1 h-full overflow-y-auto bg-[#f8fafc] dark:bg-[#191919] scroll-smooth py-6 md:py-8 px-8 md:px-12">
+          <div className="w-full">
+            {/* Page Header */}
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-2">
+              <div className="flex flex-col gap-1">
+                <h1 className="text-[#141414] dark:text-white text-[32px] font-bold tracking-tight leading-[1.1]">
+                  {stepHeaders[currentStep].title}
+                </h1>
+                <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 max-w-xl">
+                  {stepHeaders[currentStep].description}
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div className="size-1.5 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                  Autosaving...
+                </span>
+              </div>
+            </div>
+
+            {/* Step Content */}
+            {currentStep === "paper" && (
+              <PaperDetailsStep
+                title={title}
+                abstract={abstract}
+                keywords={keywords}
+                keywordInput={keywordInput}
+                selectedTrack={selectedTrack}
+                isStudentPaper={isStudentPaper}
+                availableTracks={availableTracks}
+                onTitleChange={setTitle}
+                onAbstractChange={setAbstract}
+                onKeywordInputChange={setKeywordInput}
+                onAddKeyword={handleAddKeyword}
+                onRemoveKeyword={handleRemoveKeyword}
+                onTrackChange={setSelectedTrack}
+                onStudentPaperChange={setIsStudentPaper}
+              />
+            )}
+
+            {currentStep === "authors" && (
+              <AuthorsStep
+                authors={authors}
+                newAuthor={newAuthor}
+                onNewAuthorChange={setNewAuthor}
+                onAddAuthor={handleAddAuthor}
+                onRemoveAuthor={handleRemoveAuthor}
+                onToggleCorresponding={handleToggleCorresponding}
+              />
+            )}
+
+            {currentStep === "file" && (
+              <FileUploadStep
+                uploadedFile={uploadedFile}
+                uploadProgress={uploadProgress}
+                fileValidation={fileValidation}
+                conference={conference}
+                submissionId={initialSubmission?.id?.toString()}
+                onFileUpload={handleFileUpload}
+                onRemoveFile={handleRemoveFile}
+              />
+            )}
+
+            {currentStep === "coi" && (
+              <ConflictsStep
+                conflictDomains={conflictDomains}
+                domainInput={domainInput}
+                conflicts={conflicts}
+                newConflict={newConflict}
+                coiConfirmed={coiConfirmed}
+                onDomainInputChange={setDomainInput}
+                onAddDomain={handleAddDomain}
+                onRemoveDomain={handleRemoveDomain}
+                onNewConflictChange={setNewConflict}
+                onAddConflict={handleAddConflict}
+                onRemoveConflict={handleRemoveConflict}
+                onCoiConfirmedChange={setCoiConfirmed}
+              />
+            )}
+
+            {currentStep === "review" && (
+              <ReviewStep
+                title={title}
+                abstract={abstract}
+                selectedTrack={selectedTrack}
+                keywords={keywords}
+                authors={authors}
+                uploadedFile={uploadedFile}
+                conflicts={conflicts}
+                coiConfirmed={coiConfirmed}
+                submissionConfirmed={submissionConfirmed}
+                onStepChange={setCurrentStep}
+                onSubmissionConfirmedChange={setSubmissionConfirmed}
+              />
+            )}
+
+            {/* Spacer for bottom action bar */}
+            <div className="h-20" />
+          </div>
+        </main>
+
+        <SubmissionActionBar
+          currentStep={currentStep}
+          submitting={submitting}
+          onStepChange={setCurrentStep}
+          onSaveDraft={handleSaveDraft}
+          onSubmit={handleSubmit}
+          onCancel={() => router.back()}
+        />
+
+        {/* Success Dialog */}
+        <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Success!</AlertDialogTitle>
+              <AlertDialogDescription>{successMessage}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction
+                onClick={() => router.push(ROUTES.AUTHOR.CONFERENCE_DETAIL(conference?.id ?? ""))}
+              >
+                Continue to Conference
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <style jsx global>{`
+          .material-symbols-outlined {
+            font-variation-settings:
+              "FILL" 0,
+              "wght" 400,
+              "GRAD" 0,
+              "opsz" 24;
+            vertical-align: middle;
+          }
+          .icon-filled {
+            font-variation-settings: "FILL" 1;
+          }
+        `}</style>
+      </div>
     </div>
   )
 }

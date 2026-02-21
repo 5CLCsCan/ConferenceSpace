@@ -85,6 +85,9 @@ export async function getConferenceStats(
   conferenceId: string,
 ): Promise<ApiResponse<ConferenceStats>> {
   try {
+    /*
+    BACKEND REQUEST: <Implement GET /api/v1/conferences/:conference_id/stats; chair dashboard and conference analytics in frontend currently require synthetic/derived fallback metrics without an authoritative stats contract; return stable aggregates (submission totals, review progress, acceptance metrics, track/time breakdowns) with explicit field schema and empty-state behavior for new conferences.>
+    */
     // TODO: Implement when backend stats endpoint is available
     // const { data, response } = await apiFetch<{ data: ConferenceStats }>(`/api/v1/conferences/${conferenceId}/stats`)
     // return {
@@ -490,12 +493,21 @@ export async function getConferenceReviewers(
     if (params?.offset) queryParams.append("offset", params.offset.toString())
     if (params?.status) queryParams.append("status", params.status)
 
-    const { data, response } = await apiFetch<ReviewerListResponse>(
-      `/api/v1/conferences/${conferenceId}/reviewers?${queryParams.toString()}`,
-    )
+    const { data, response } = await apiFetch<
+      ReviewerListResponse | { data: ReviewerListResponse }
+    >(`/api/v1/conferences/${conferenceId}/reviewers?${queryParams.toString()}`)
+
+    const payload =
+      (data as { data?: ReviewerListResponse })?.data || (data as ReviewerListResponse)
+    const reviewers = Array.isArray(payload?.reviewers) ? payload.reviewers : []
 
     return {
-      data: data,
+      data: {
+        reviewers,
+        total: payload?.total ?? reviewers.length,
+        limit: payload?.limit ?? params?.limit ?? reviewers.length,
+        offset: payload?.offset ?? params?.offset ?? 0,
+      },
       error: null,
       status: response.status,
     }
@@ -575,11 +587,37 @@ export async function removeReviewer(
 export async function getConferenceCommittee(conferenceId: string): Promise<ApiResponse<User[]>> {
   try {
     const response = await getConferenceReviewers(conferenceId, { limit: 100 })
-    // Convert reviewers to User format if needed
+    if (response.error || !response.data) {
+      return {
+        data: null,
+        error: response.error || "Failed to fetch committee members",
+        status: response.status,
+      }
+    }
+
+    const users: User[] = response.data.reviewers.map((reviewer) => {
+      const email = reviewer.email || `user-${reviewer.user_id}@unknown.local`
+      const localPart = email.split("@")[0] || `User ${reviewer.user_id}`
+      const name = localPart
+        .split(/[._-]/g)
+        .filter(Boolean)
+        .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+        .join(" ")
+
+      return {
+        id: String(reviewer.user_id),
+        name: name || `User ${reviewer.user_id}`,
+        email,
+        roles: ["reviewer"],
+        expertise: reviewer.domain || [],
+        domain: reviewer.domain || [],
+      }
+    })
+
     return {
-      data: [],
+      data: users,
       error: null,
-      status: 200,
+      status: response.status,
     }
   } catch (error) {
     return {
@@ -597,9 +635,38 @@ export async function getConferenceCommittee(conferenceId: string): Promise<ApiR
  */
 export async function getConferenceTracks(conferenceId: string): Promise<ApiResponse<Track[]>> {
   try {
-    // TODO: Implement when backend tracks endpoint is available
+    const conference = await getConferenceById(conferenceId)
+    if (conference.error || !conference.data) {
+      return {
+        data: null,
+        error: conference.error || "Failed to fetch conference tracks",
+        status: conference.status,
+      }
+    }
+
+    const rawTracks = Array.isArray(conference.data.tracks) ? conference.data.tracks : []
+    const tracks: Track[] = rawTracks.map((rawTrack: any, index) => {
+      if (typeof rawTrack === "string") {
+        return {
+          id: String(index + 1),
+          name: rawTrack,
+          description: "",
+          chairs: [],
+        }
+      }
+
+      return {
+        id: String(rawTrack?.id ?? index + 1),
+        name: String(rawTrack?.name ?? rawTrack?.title ?? `Track ${index + 1}`),
+        description: String(rawTrack?.description ?? ""),
+        chairs: Array.isArray(rawTrack?.chairs)
+          ? rawTrack.chairs.map((chair: any) => String(chair))
+          : [],
+      }
+    })
+
     return {
-      data: [],
+      data: tracks,
       error: null,
       status: 200,
     }

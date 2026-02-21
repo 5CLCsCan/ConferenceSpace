@@ -1,490 +1,255 @@
-/**
- * ============================================================================
- * COI (Conflict of Interest) API - Minimum Required Implementation
- * ============================================================================
- *
- * This file contains the 3 core APIs needed for the COI Dashboard:
- * 1. getCOIDashboardStats() - Dashboard statistics for a conference
- * 2. getAllCOIRelationships() - List and filter all COI relationships
- * 3. checkReviewerToAuthorCOI() - Detailed COI check for reviewer-author pair
- *
- * All other APIs are removed (searchReviewers, getReviewerById, etc.)
- * These can be added later if needed for future features.
- */
+// COI mock shim for local/dev parity.
+// Kept intentionally lightweight for frontend test/dev flows.
 
-import type { Reviewer, Author, Paper, COIReport, Relationship } from "@/lib/mock-data/coi"
-import {
-  mockReviewers,
-  mockAuthors,
-  mockPapers,
-  mockRelationships,
-  generateReviewerToAuthorCOIReport,
-  getRelationshipHistory,
-} from "@/lib/mock-data/coi"
-
-// Simulate API delay (remove in production - real API will be slower)
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
-// ============================================================================
-// RESPONSE TYPES
-// ============================================================================
-
-interface ApiResponse<T> {
-  data: T
-  error: string | null
+export interface COIDashboardStats {
+  conference_id: number
+  total_reviewers: number
+  available_reviewers: number
+  total_papers: number
+  papers_under_review: number
+  coi_detected: number
+  total_relationships: number
+  total_assignments: number
+  completed_assignments: number
 }
 
-// ============================================================================
-// API #1: GET /api/v1/coi/dashboard/stats/:conferenceId
-// ============================================================================
-/**
- * ENDPOINT: GET /api/v1/coi/dashboard/stats/:conferenceId
- *
- * PURPOSE:
- * Get COI statistics and overview metrics for a specific conference.
- * Used by the main dashboard to display quick stat cards.
- *
- * INPUT:
- * - conferenceId (path parameter): string - The conference to analyze
- *
- * RETURNS: ApiResponse with stats object containing:
- * - conference_id: string - The conference ID requested
- * - total_reviewers: number - Total reviewers in the system
- * - available_reviewers: number - Reviewers below workload capacity
- * - total_papers: number - Papers in this conference
- * - papers_under_review: number - Papers currently under review
- * - coi_detected: number - Count of COI relationships found
- * - total_relationships: number - Total reviewer-author relationships
- * - total_assignments: number - Total reviewer assignments made
- * - completed_assignments: number - Completed assignments
- *
- * FILTERING:
- * - Only includes papers from the specified conference_id
- * - Only counts relationships between reviewers and authors in those papers
- * - Available reviewers = current_workload < max_capacity
- *
- * EXAMPLE RESPONSE:
- * {
- *   data: {
- *     conference_id: "conf-2024",
- *     total_reviewers: 50,
- *     available_reviewers: 35,
- *     total_papers: 120,
- *     papers_under_review: 85,
- *     coi_detected: 42,
- *     total_relationships: 215,
- *     total_assignments: 180,
- *     completed_assignments: 150
- *   },
- *   error: null
- * }
- */
-export async function getCOIDashboardStats(conferenceId: string): Promise<
-  ApiResponse<{
-    conference_id: string
-    total_reviewers: number
-    available_reviewers: number
-    total_papers: number
-    papers_under_review: number
-    coi_detected: number
-    total_relationships: number
-    total_assignments: number
-    completed_assignments: number
-  }>
-> {
-  await delay(250)
-
-  // Note: In the mock data, papers don't have conference_id field.
-  // In the real backend, you would filter by conference_id here.
-  // For now, we return stats for all papers/relationships.
-  const conferencePapers = mockPapers // Would be: mockPapers.filter((p) => p.conference_id === conferenceId)
-  const conferenceAuthors = mockAuthors.filter((a) =>
-    conferencePapers.some((p) => p.authors.some((pa) => pa.id === a.id)),
-  )
-  const conferenceRelationships = mockRelationships.filter((r) =>
-    conferenceAuthors.some((a) => a.id === r.author_id),
-  )
-
-  const availableReviewers = mockReviewers.filter((r) => r.current_workload < r.max_capacity).length
-  const coiDetected = conferenceRelationships.filter((r) => r.severity !== "none").length
-
-  return {
-    data: {
-      conference_id: conferenceId,
-      total_reviewers: mockReviewers.length,
-      available_reviewers: availableReviewers,
-      total_papers: conferencePapers.length,
-      papers_under_review: conferencePapers.filter((p) => p.status === "under_review").length,
-      coi_detected: coiDetected,
-      total_relationships: conferenceRelationships.length,
-      total_assignments: 8,
-      completed_assignments: 8,
-    },
-    error: null,
-  }
-}
-
-// ============================================================================
-// API #2: GET /api/v1/coi/relationships
-// ============================================================================
-/**
- * ENDPOINT: GET /api/v1/coi/relationships
- *
- * PURPOSE:
- * Get all COI relationships between reviewers and authors with full filtering,
- * searching, and pagination. This is the main data source for the analysis dashboard.
- *
- * INPUT: Query parameters (all optional)
- * - severity?: "high" | "medium" | "low" - Filter by severity level
- * - relationship_type?: string - Filter by relationship type
- *   Types: "co_author" | "same_organization" | "advisor_advisee" |
- *          "collaborator" | "competitor" | "citation" | "review_history"
- * - search?: string - Full-text search across names/emails/descriptions
- * - limit?: number - Results per page (default: 100, max: 500)
- * - page?: number - Page number for pagination (default: 1)
- *
- * RETURNS: ApiResponse with object containing:
- * - relationships: RelationshipWithDetails[] - Array of COI relationships
- * - total: number - Total count of relationships matching filters (for pagination)
- * - page: number - Current page number
- * - limit: number - Results per page
- *
- * RELATIONSHIP DETAILS (enriched data):
- * - id: string - Unique relationship ID
- * - reviewer_id: string - Reviewer ID
- * - reviewer_name: string - Reviewer full name
- * - reviewer_email: string - Reviewer email address
- * - author_id: string - Author ID
- * - author_name: string - Author full name
- * - author_email: string - Author email
- * - author_affiliation: string - Author's organization
- * - type: string - Relationship type (co_author, etc.)
- * - severity: "high" | "medium" | "low" - COI severity level
- * - start_date: string - When relationship began (ISO 8601)
- * - end_date?: string - When relationship ended (if applicable)
- * - description: string - Human-readable description
- * - evidence?: string[] - Supporting evidence/notes
- * - paper_titles?: string[] - Papers this author has written
- *
- * FILTERING BEHAVIOR:
- * - Multiple filters combine with AND logic (all must match)
- * - Search is case-insensitive substring matching
- * - Pagination: (page-1) * limit to (page*limit)
- *
- * EXAMPLE REQUEST:
- * GET /api/v1/coi/relationships?severity=high&search=john&page=1&limit=50
- *
- * EXAMPLE RESPONSE:
- * {
- *   data: {
- *     relationships: [
- *       {
- *         id: "rel-1",
- *         reviewer_id: "rev-1",
- *         reviewer_name: "Dr. John Smith",
- *         reviewer_email: "john@example.com",
- *         author_id: "auth-1",
- *         author_name: "Jane Doe",
- *         author_email: "jane@example.com",
- *         author_affiliation: "MIT",
- *         type: "co_author",
- *         severity: "high",
- *         start_date: "2021-01-15",
- *         description: "Co-authored 3 papers 2021-2023",
- *         paper_titles: ["Paper A", "Paper B"]
- *       }
- *     ],
- *     total: 245,
- *     page: 1,
- *     limit: 50
- *   },
- *   error: null
- * }
- */
-export interface RelationshipWithDetails extends Relationship {
+export interface COIRelationship {
+  id: number
+  conference_id: number
+  reviewer_id: number
   reviewer_name: string
   reviewer_email: string
-  author_name: string
   author_email: string
+  author_name: string
+  author_affiliation?: string
+  submission_id?: number
+  type: string
+  severity: "high" | "medium" | "low"
+  description: string
+  evidence?: string[]
+  created_at: string
+  updated_at: string
+}
+
+export interface COIReport {
+  reviewer_id: number
+  reviewer_name: string
+  reviewer_email: string
+  reviewer_affiliation: string
+  author_email: string
+  author_name: string
   author_affiliation: string
-  paper_titles?: string[]
+  coi_type: string
+  severity: "high" | "medium" | "low" | "none"
+  relationships: COIRelationship[]
+  summary: string
+  recommendation: "assign" | "review" | "avoid"
 }
 
-export async function getAllCOIRelationships(params?: {
+export interface PaperCOISummary {
+  paper_id: string
+  paper_title: string
+  authors: Array<{ email: string; name: string; affiliation?: string }>
+  total_conflicts: number
+  high_severity_count: number
+  medium_severity_count: number
+  low_severity_count: number
+  conflicted_reviewers: Array<{
+    reviewer_id: number
+    reviewer_name: string
+    reviewer_email: string
+    severity: string
+    reasons: string[]
+  }>
+}
+
+const now = new Date().toISOString()
+
+const RELATIONSHIPS: COIRelationship[] = [
+  {
+    id: 1,
+    conference_id: 1,
+    reviewer_id: 101,
+    reviewer_name: "Reviewer One",
+    reviewer_email: "reviewer.one@example.com",
+    author_email: "author.one@example.com",
+    author_name: "Author One",
+    type: "co_author",
+    severity: "high",
+    description: "Co-authored multiple papers in the last 3 years",
+    evidence: ["Semantic Scholar overlap", "Declared COI"],
+    created_at: now,
+    updated_at: now,
+  },
+]
+
+const STATS: COIDashboardStats = {
+  conference_id: 1,
+  total_reviewers: 120,
+  available_reviewers: 98,
+  total_papers: 320,
+  papers_under_review: 280,
+  coi_detected: 42,
+  total_relationships: 42,
+  total_assignments: 900,
+  completed_assignments: 640,
+}
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+export async function getCOIDashboardStats(conferenceId: number): Promise<COIDashboardStats> {
+  await delay(50)
+  return { ...STATS, conference_id: conferenceId }
+}
+
+export async function getAllCOIRelationships(params: {
+  conference_id: number
   severity?: "high" | "medium" | "low"
-  relationship_type?: Relationship["type"]
+  relationship_type?: string
   search?: string
   limit?: number
   page?: number
-}): Promise<
-  ApiResponse<{
-    relationships: RelationshipWithDetails[]
-    total: number
-    page: number
-    limit: number
-  }>
-> {
-  await delay(300)
+}): Promise<{ relationships: COIRelationship[]; total: number; page: number; limit: number }> {
+  await delay(60)
+  const severity = params.severity
+  const search = params.search?.toLowerCase()
 
-  let relationships = [...mockRelationships]
+  let relationships = RELATIONSHIPS.filter((item) => item.conference_id === params.conference_id)
 
-  // Filter by severity
-  if (params?.severity) {
-    relationships = relationships.filter((r) => r.severity === params.severity)
+  if (severity) {
+    relationships = relationships.filter((item) => item.severity === severity)
   }
 
-  // Filter by relationship type
-  if (params?.relationship_type) {
-    relationships = relationships.filter((r) => r.type === params.relationship_type)
+  if (params.relationship_type) {
+    relationships = relationships.filter((item) => item.type === params.relationship_type)
   }
 
-  // Search filter (case-insensitive)
-  if (params?.search) {
-    const searchLower = params.search.toLowerCase()
-    relationships = relationships.filter((rel) => {
-      const reviewer = mockReviewers.find((r) => r.id === rel.reviewer_id)
-      const author = mockAuthors.find((a) => a.id === rel.author_id)
-      return (
-        reviewer?.name.toLowerCase().includes(searchLower) ||
-        reviewer?.email.toLowerCase().includes(searchLower) ||
-        author?.name.toLowerCase().includes(searchLower) ||
-        author?.email.toLowerCase().includes(searchLower) ||
-        rel.description.toLowerCase().includes(searchLower)
-      )
-    })
-  }
-
-  // Enrich relationships with reviewer and author details
-  const relationshipsWithDetails: RelationshipWithDetails[] = relationships.map((rel) => {
-    const reviewer = mockReviewers.find((r) => r.id === rel.reviewer_id)
-    const author = mockAuthors.find((a) => a.id === rel.author_id)
-    const papersWithAuthor = mockPapers.filter((p) => p.authors.some((a) => a.id === rel.author_id))
-
-    return {
-      ...rel,
-      reviewer_name: reviewer?.name || "Unknown",
-      reviewer_email: reviewer?.email || "",
-      author_name: author?.name || "Unknown",
-      author_email: author?.email || "",
-      author_affiliation: author?.affiliation || "",
-      paper_titles: papersWithAuthor.map((p) => p.title),
-    }
-  })
-
-  // Pagination
-  const limit = params?.limit || 100
-  const page = params?.page || 1
-  const start = (page - 1) * limit
-  const end = start + limit
-
-  return {
-    data: {
-      relationships: relationshipsWithDetails.slice(start, end),
-      total: relationshipsWithDetails.length,
-      page,
-      limit,
-    },
-    error: null,
-  }
-}
-
-// ============================================================================
-// API #3: GET /api/v1/coi/check/reviewer/:reviewerId/author/:authorId
-// ============================================================================
-/**
- * ENDPOINT: GET /api/v1/coi/check/reviewer/:reviewerId/author/:authorId
- *
- * PURPOSE:
- * Perform detailed COI analysis for a specific reviewer-author pair.
- * Returns comprehensive report with all relationships and timeline.
- * Used by the COI detail page to show full relationship history.
- *
- * INPUT:
- * - reviewerId (path parameter): string - The reviewer to check
- * - authorId (path parameter): string - The author to check against
- *
- * RETURNS: ApiResponse<COIReport | null> containing:
- * - reviewer_id: string - Reviewer ID
- * - reviewer_name: string - Reviewer full name
- * - reviewer_email: string - Reviewer email
- * - reviewer_affiliation: string - Reviewer's organization
- * - author_id: string - Author ID
- * - author_name: string - Author full name
- * - author_email: string - Author email
- * - author_affiliation: string - Author's organization
- * - coi_type: "author" - Always "author" for this endpoint
- * - severity: "high" | "medium" | "low" | "none" - Overall COI severity
- * - relationships: Relationship[] - All detected relationships between them
- * - summary: string - Human-readable COI summary
- * - recommendation: "assign" | "review" | "avoid" - Assignment recommendation
- *
- * SEVERITY LEVELS:
- * - high: Direct, recent, significant conflict (co-author, same org, advisor)
- * - medium: Indirect or older conflict (collaborator, citation)
- * - low: Minimal or very old conflict
- * - none: No conflict detected
- *
- * RECOMMENDATIONS:
- * - assign: Safe to assign as reviewer (no COI)
- * - review: Can assign with caution/disclosure (medium COI)
- * - avoid: Should not assign (high COI)
- *
- * ERROR CASES:
- * - Returns null data if reviewer or author ID is invalid
- * - error field contains error message
- *
- * EXAMPLE REQUEST:
- * GET /api/v1/coi/check/reviewer/rev-1/author/auth-5
- *
- * EXAMPLE RESPONSE (with COI):
- * {
- *   data: {
- *     reviewer_id: "rev-1",
- *     reviewer_name: "Dr. John Smith",
- *     reviewer_email: "john@example.com",
- *     reviewer_affiliation: "Harvard",
- *     author_id: "auth-5",
- *     author_name: "Jane Doe",
- *     author_email: "jane@example.com",
- *     author_affiliation: "MIT",
- *     coi_type: "author",
- *     severity: "high",
- *     relationships: [
- *       {
- *         id: "rel-1",
- *         type: "co_author",
- *         severity: "high",
- *         description: "Co-authored 5 papers (2019-2023)",
- *         start_date: "2019-03-15",
- *         end_date: "2023-11-20"
- *       }
- *     ],
- *     summary: "High COI detected: Co-authored multiple papers recently.",
- *     recommendation: "avoid"
- *   },
- *   error: null
- * }
- *
- * EXAMPLE RESPONSE (no COI):
- * {
- *   data: {
- *     ...same structure...
- *     severity: "none",
- *     relationships: [],
- *     summary: "No conflict of interest detected.",
- *     recommendation: "assign"
- *   },
- *   error: null
- * }
- */
-export async function checkReviewerToAuthorCOI(
-  reviewerId: string,
-  authorId: string,
-): Promise<ApiResponse<COIReport | null>> {
-  await delay(400)
-
-  const report = generateReviewerToAuthorCOIReport(reviewerId, authorId)
-  return {
-    data: report,
-    error: report ? null : "Invalid reviewer or author ID",
-  }
-}
-
-// ============================================================================
-// API #4: GET /api/v1/coi/papers
-// ============================================================================
-/**
- * ENDPOINT: GET /api/v1/coi/papers
- *
- * PURPOSE:
- * Get COI summaries for all papers in the conference.
- * Used for the "Paper View" in the dashboard.
- */
-import { PaperCOISummary, generatePaperCOISummary } from "@/lib/mock-data/coi"
-
-export async function getAllPaperCOIs(params?: {
-  search?: string
-  severity?: "high" | "medium" | "low"
-  limit?: number
-  page?: number
-}): Promise<
-  ApiResponse<{
-    papers: PaperCOISummary[]
-    total: number
-    page: number
-    limit: number
-  }>
-> {
-  await delay(300)
-
-  let summaries: PaperCOISummary[] = []
-
-  // Generate summaries for all papers
-  mockPapers.forEach((paper) => {
-    const summary = generatePaperCOISummary(paper.id)
-    if (summary) {
-      summaries.push(summary)
-    }
-  })
-
-  // Filter by search (Paper title or Author name)
-  if (params?.search) {
-    const searchLower = params.search.toLowerCase()
-    summaries = summaries.filter(
-      (s) =>
-        s.paper_title.toLowerCase().includes(searchLower) ||
-        s.authors.some((a) => a.name.toLowerCase().includes(searchLower)),
+  if (search) {
+    relationships = relationships.filter(
+      (item) =>
+        item.reviewer_name.toLowerCase().includes(search) ||
+        item.author_name.toLowerCase().includes(search) ||
+        item.description.toLowerCase().includes(search),
     )
   }
 
-  // Filter by severity (Show papers that have AT LEAST one conflict of this severity)
-  if (params?.severity) {
-    if (params.severity === "high") {
-      summaries = summaries.filter((s) => s.high_severity_count > 0)
-    } else if (params.severity === "medium") {
-      summaries = summaries.filter((s) => s.medium_severity_count > 0)
-    } else if (params.severity === "low") {
-      summaries = summaries.filter((s) => s.low_severity_count > 0)
+  const limit = params.limit || 20
+  const page = params.page || 1
+  const offset = (page - 1) * limit
+
+  return {
+    relationships: relationships.slice(offset, offset + limit),
+    total: relationships.length,
+    page,
+    limit,
+  }
+}
+
+export async function checkReviewerToAuthorCOI(
+  conferenceId: number,
+  reviewerId: number,
+  authorEmail: string,
+): Promise<COIReport> {
+  await delay(50)
+
+  const rels = RELATIONSHIPS.filter(
+    (item) =>
+      item.conference_id === conferenceId &&
+      item.reviewer_id === reviewerId &&
+      item.author_email === authorEmail,
+  )
+
+  if (rels.length === 0) {
+    return {
+      reviewer_id: reviewerId,
+      reviewer_name: "Unknown Reviewer",
+      reviewer_email: "",
+      reviewer_affiliation: "",
+      author_email: authorEmail,
+      author_name: "Unknown Author",
+      author_affiliation: "",
+      coi_type: "author",
+      severity: "none",
+      relationships: [],
+      summary: "No COI relationships found",
+      recommendation: "assign",
     }
   }
 
-  // Pagination
-  const limit = params?.limit || 10
-  const page = params?.page || 1
-  const start = (page - 1) * limit
-  const end = start + limit
-
+  const first = rels[0]
   return {
-    data: {
-      papers: summaries.slice(start, end),
-      total: summaries.length,
-      page,
-      limit,
-    },
-    error: null,
+    reviewer_id: reviewerId,
+    reviewer_name: first.reviewer_name,
+    reviewer_email: first.reviewer_email,
+    reviewer_affiliation: first.author_affiliation || "",
+    author_email: authorEmail,
+    author_name: first.author_name,
+    author_affiliation: first.author_affiliation || "",
+    coi_type: "author",
+    severity: rels.some((r) => r.severity === "high")
+      ? "high"
+      : rels.some((r) => r.severity === "medium")
+        ? "medium"
+        : "low",
+    relationships: rels,
+    summary: "Potential conflict detected in local mock dataset",
+    recommendation: rels.some((r) => r.severity === "high") ? "avoid" : "review",
   }
 }
-// ============================================================================
-// API #5: GET /api/v1/coi/check/reviewer/:reviewerId/paper/:paperId
-// ============================================================================
-/**
- * ENDPOINT: GET /api/v1/coi/check/reviewer/:reviewerId/paper/:paperId
- *
- * PURPOSE:
- * Perform detailed COI analysis for a specific reviewer-paper pair.
- * Checks the reviewer against ALL authors of the paper.
- */
-import { generateReviewerToPaperCOIReport } from "@/lib/mock-data/coi"
 
-export async function checkReviewerToPaperCOI(
-  reviewerId: string,
-  paperId: string,
-): Promise<ApiResponse<COIReport | null>> {
-  await delay(400)
+export async function getAllPaperCOIs(params: {
+  conference_id: number
+  severity?: "high" | "medium" | "low"
+  search?: string
+  limit?: number
+  page?: number
+}): Promise<{ papers: PaperCOISummary[]; total: number; page: number; limit: number }> {
+  await delay(50)
 
-  const report = generateReviewerToPaperCOIReport(reviewerId, paperId)
+  const papers: PaperCOISummary[] = [
+    {
+      paper_id: "1",
+      paper_title: "Example paper",
+      authors: [{ email: "author.one@example.com", name: "Author One" }],
+      total_conflicts: 1,
+      high_severity_count: 1,
+      medium_severity_count: 0,
+      low_severity_count: 0,
+      conflicted_reviewers: [
+        {
+          reviewer_id: 101,
+          reviewer_name: "Reviewer One",
+          reviewer_email: "reviewer.one@example.com",
+          severity: "high",
+          reasons: ["Recent co-author relation"],
+        },
+      ],
+    },
+  ]
+
+  const limit = params.limit || 20
+  const page = params.page || 1
+  const offset = (page - 1) * limit
+
   return {
-    data: report,
-    error: report ? null : "Invalid reviewer or paper ID",
+    papers: papers.slice(offset, offset + limit),
+    total: papers.length,
+    page,
+    limit,
+  }
+}
+
+export async function rebuildCOIRelationships(conferenceId: number): Promise<{
+  conference_id: number
+  relationships_found: number
+  relationships_stored: number
+  detection_time_ms: number
+}> {
+  await delay(100)
+  return {
+    conference_id: conferenceId,
+    relationships_found: RELATIONSHIPS.length,
+    relationships_stored: RELATIONSHIPS.length,
+    detection_time_ms: 100,
   }
 }

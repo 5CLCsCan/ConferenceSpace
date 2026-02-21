@@ -21,14 +21,10 @@
         "id": 40,
         "title": "FOCUSED-RERUN Conference 1771660749564",
         "acronym": "FOCUSE749564",
-        "description": "Seeded by .tests/upload_mock_data.py for full frontend-v2 E2E runs.",
+        "description": "Seeded by .tests/upload_mock_data.py for full frontend E2E runs.",
         "chair": "test.discussion.chair@example.com",
         "co_chairs": [],
-        "domain": [
-          "AI",
-          "ML",
-          "NLP"
-        ],
+        "domain": ["AI", "ML", "NLP"],
         "tracks": [],
         "venue": "",
         "configurations": {},
@@ -49,10 +45,7 @@
             "conference_id": 40,
             "email": "test.discussion.reviewer@example.com",
             "status": "accepted",
-            "domain": [
-              "AI",
-              "ML"
-            ],
+            "domain": ["AI", "ML"],
             "created_at": "2026-02-21T07:59:13.330592Z",
             "updated_at": "2026-02-21T07:59:13.384237Z"
           }
@@ -71,19 +64,13 @@
         "conference_id": 40,
         "author": "test.discussion.author@example.com",
         "title": "FOCUSED-RERUN Submission 1771660749564",
-        "abstract": "Seed submission for frontend-v2 E2E validation, including multipart upload.",
+        "abstract": "Seed submission for frontend E2E validation, including multipart upload.",
         "link": "",
-        "domain": [
-          "AI"
-        ],
+        "domain": ["AI"],
         "track": "",
         "status": "reviewing",
         "information": {
-          "keywords": [
-            "AI",
-            "migration",
-            "e2e"
-          ],
+          "keywords": ["AI", "migration", "e2e"],
           "paper_type": "research"
         },
         "file": {
@@ -117,7 +104,7 @@
               "id": 40,
               "title": "FOCUSED-RERUN Conference 1771660749564",
               "acronym": "FOCUSE749564",
-              "description": "Seeded by .tests/upload_mock_data.py for full frontend-v2 E2E runs.",
+              "description": "Seeded by .tests/upload_mock_data.py for full frontend E2E runs.",
               "chair": "test.discussion.chair@example.com",
               "co_chairs": [],
               "tracks": [],

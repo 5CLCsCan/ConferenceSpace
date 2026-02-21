@@ -1,410 +1,106 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { useReviewerDashboard } from "@/hooks/use-reviewer-dashboard"
-import { useConferencePapers } from "@/hooks/use-conference-papers"
-import { useDebounce } from "@/hooks/use-debounce"
-import { ReviewerSidebar } from "./reviewer-sidebar"
-import { ReviewerOverview } from "./reviewer-overview"
-import { ReviewerConferences } from "./reviewer-conferences"
-import { ReviewerInvitations } from "./reviewer-invitations"
-import { ConferencePapers } from "./conference-papers"
-import {
-  DashboardSkeleton,
-  ConferencesSkeleton,
-  InvitationsSkeleton,
-  PapersSkeleton,
-} from "./loading-skeletons"
+import Link from "next/link"
+import { Loader2 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
-import { useTranslation } from "@/lib/i18n/translation-context"
-import { Button } from "@/components/ui/button"
-import { AlertCircle } from "lucide-react"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import type { ReviewerConference } from "@/lib/types"
-import { typography, spacing, iconSizes } from "@/lib/typography"
+import { useReviewerDashboard } from "@/hooks/use-reviewer-dashboard"
+import { ROUTES } from "@/lib/routes"
 
-type View = "overview" | "conferences" | "invitations" | "conference-papers"
+function StatCard({ label, value }: { label: string; value: number | string }) {
+  return (
+    <div className="bg-white dark:bg-slate-800 px-4 py-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</div>
+      <div className="text-3xl font-bold text-[#1B3C53] dark:text-white mt-2">{value}</div>
+    </div>
+  )
+}
 
-// Wrapper component to handle papers with SWR
-function ConferencePapersWithSWR({
-  reviewerId,
-  conferenceId,
-  conferences,
-  onBack,
-  onSelectPaper,
-  onReviewSubmitted,
-}: {
-  reviewerId: string
-  conferenceId: string
-  conferences: ReviewerConference[]
-  onBack: () => void
-  onSelectPaper: (paperId: string) => void
-  onReviewSubmitted?: () => void
-}) {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState("")
-  const debouncedSearch = useDebounce(searchQuery, 500)
-
-  const {
-    papers,
-    isLoading,
-    error,
-    refresh: refreshPapers,
-  } = useConferencePapers(reviewerId, conferenceId, {
-    search: debouncedSearch,
-    status: statusFilter,
-    limit: 20,
+export function ReviewerDashboard() {
+  const { user } = useAuth()
+  const reviewerEmail = user?.email || null
+  const { dashboard, isLoading, error } = useReviewerDashboard(reviewerEmail, {
+    conferenceLimit: 10,
+    conferenceOffset: 0,
+    invitationLimit: 10,
+    invitationOffset: 0,
+    recentAssignmentLimit: 10,
+    recentAssignmentOffset: 0,
   })
 
-  const selectedConference = conferences.find((c) => c.id === conferenceId)
+  if (!user) {
+    return null
+  }
 
-  const { t } = useTranslation()
-
-  const handleReviewSubmitted = async () => {
-    // Refresh papers list first to get updated status
-    await refreshPapers()
-    // Then refresh dashboard data
-    if (onReviewSubmitted) await onReviewSubmitted()
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64 text-slate-400 gap-2">
+        <Loader2 className="size-5 animate-spin" />
+        Loading reviewer dashboard...
+      </div>
+    )
   }
 
   if (error) {
     return (
-      <Alert variant="destructive">
-        <AlertCircle className={iconSizes.sm} />
-        <AlertTitle className={typography.h6}>
-          {t("dashboard.roles.reviewer.review.errors.loadFailed")}
-        </AlertTitle>
-        <AlertDescription>
-          <p className={`mb-4 ${typography.body}`}>{error}</p>
-          <Button onClick={onBack} variant="outline" size="sm">
-            {t("common.actions.goBack")}
-          </Button>
-        </AlertDescription>
-      </Alert>
+      <div className="rounded-xl border border-red-200 bg-red-50 text-red-700 px-4 py-3 text-sm">
+        Failed to load reviewer dashboard: {error}
+      </div>
     )
   }
 
-  if (isLoading) {
-    return <PapersSkeleton />
-  }
+  const stats = dashboard?.stats
+  const recentAssignments = dashboard?.recent_assignments || []
 
   return (
-    <ConferencePapers
-      papers={papers}
-      conferenceName={selectedConference?.name || ""}
-      onBack={onBack}
-      onSelectPaper={onSelectPaper}
-      onReviewSubmitted={handleReviewSubmitted}
-    />
-  )
-}
-export function ReviewerDashboard() {
-  const { t } = useTranslation()
-  const { user } = useAuth()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  // Use email for reviewer endpoints
-  const currentReviewerEmail = user?.email || ""
+    <div className="flex flex-col gap-8">
+      <div>
+        <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white">
+          Reviewer Dashboard
+        </h1>
+        <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
+          Track your review workload and quickly continue active assignments.
+        </p>
+      </div>
 
-  // Read initial state from URL
-  const initialTab = (searchParams.get("tab") as View) || "overview"
-  const initialConferenceId = searchParams.get("conference_id") || null
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard label="Total Assigned" value={stats?.total_assigned || 0} />
+        <StatCard label="Pending" value={stats?.pending || 0} />
+        <StatCard label="In Progress" value={stats?.in_progress || 0} />
+        <StatCard label="Completed" value={stats?.completed || 0} />
+      </div>
 
-  const [activeNav, setActiveNav] = useState<View>(initialTab)
-  const [selectedConferenceId, setSelectedConferenceId] = useState<string | null>(
-    initialConferenceId,
-  )
-  const [invitationStatusFilter, setInvitationStatusFilter] = useState<string>("")
-  const [conferenceSearch, setConferenceSearch] = useState<string>("")
-
-  // Pagination states for infinite scroll
-  const [conferenceOffset, setConferenceOffset] = useState(0)
-  const [invitationOffset, setInvitationOffset] = useState(0)
-  const [assignmentOffset, setAssignmentOffset] = useState(0)
-  const [allConferences, setAllConferences] = useState<any[]>([])
-  const [allInvitations, setAllInvitations] = useState<any[]>([])
-  const [allAssignments, setAllAssignments] = useState<any[]>([])
-
-  // Debounce search to avoid excessive API calls
-  const debouncedConferenceSearch = useDebounce(conferenceSearch, 500)
-
-  // Use SWR hook with caching for dashboard data
-  const { dashboard, isLoading, error, refresh, updateOptimistic, isValidating } =
-    useReviewerDashboard(currentReviewerEmail, {
-      conferenceSearch: debouncedConferenceSearch,
-      invitationStatus: invitationStatusFilter,
-      conferenceLimit: 20, // Load 20 at a time for infinite scroll
-      conferenceOffset: conferenceOffset,
-      invitationLimit: 20, // Load 20 at a time for infinite scroll
-      invitationOffset: invitationOffset,
-      recentAssignmentLimit: 20, // Load 20 at a time for infinite scroll
-      recentAssignmentOffset: assignmentOffset,
-    })
-
-  // Reset offsets when search/filter changes
-  useEffect(() => {
-    setConferenceOffset(0)
-    setAllConferences([])
-  }, [debouncedConferenceSearch])
-
-  useEffect(() => {
-    setInvitationOffset(0)
-    setAllInvitations([])
-  }, [invitationStatusFilter])
-
-  // Reset assignments only when switching to overview
-  useEffect(() => {
-    if (activeNav === "overview") {
-      setAssignmentOffset(0)
-      setAllAssignments([])
-    }
-  }, [activeNav])
-
-  // Accumulate conferences for infinite scroll
-  useEffect(() => {
-    if (dashboard?.conferences) {
-      if (conferenceOffset === 0) {
-        // First load or reset
-        setAllConferences(dashboard.conferences)
-      } else {
-        // Append new items, filter out duplicates by ID
-        setAllConferences((prev) => {
-          const existingIds = new Set(prev.map((c) => c.id))
-          const newItems = dashboard.conferences.filter((c: any) => !existingIds.has(c.id))
-          return [...prev, ...newItems]
-        })
-      }
-    }
-  }, [dashboard?.conferences, conferenceOffset])
-
-  // Accumulate invitations for infinite scroll
-  useEffect(() => {
-    if (dashboard?.invitations) {
-      if (invitationOffset === 0) {
-        // First load or reset
-        setAllInvitations(dashboard.invitations)
-      } else {
-        // Append new items, filter out duplicates by ID
-        setAllInvitations((prev) => {
-          const existingIds = new Set(prev.map((inv) => inv.id))
-          const newItems = dashboard.invitations.filter((inv: any) => !existingIds.has(inv.id))
-          return [...prev, ...newItems]
-        })
-      }
-    }
-  }, [dashboard?.invitations, invitationOffset])
-
-  // Accumulate assignments for infinite scroll
-  useEffect(() => {
-    if (dashboard?.recent_assignments) {
-      if (assignmentOffset === 0) {
-        // First load or reset
-        setAllAssignments(dashboard.recent_assignments)
-      } else {
-        // Append new items, filter out duplicates by assignment ID
-        setAllAssignments((prev) => {
-          const existingIds = new Set(prev.map((a) => a.assignment_id))
-          const newItems = dashboard.recent_assignments.filter(
-            (a: any) => !existingIds.has(a.assignment_id),
-          )
-          return [...prev, ...newItems]
-        })
-      }
-    }
-  }, [dashboard?.recent_assignments, assignmentOffset])
-
-  // Calculate if there's more data to load based on total counts
-  const hasMoreConferences = dashboard?.total_conferences
-    ? allConferences.length < dashboard.total_conferences
-    : false
-  const hasMoreInvitations = dashboard?.total_invitations
-    ? allInvitations.length < dashboard.total_invitations
-    : false
-  const hasMoreAssignments = dashboard?.total_assignments
-    ? allAssignments.length < dashboard.total_assignments
-    : false
-
-  // Load more functions
-  const loadMoreConferences = useCallback(() => {
-    if (!isLoading && hasMoreConferences) {
-      setConferenceOffset((prev) => prev + 20)
-    }
-  }, [isLoading, hasMoreConferences])
-
-  const loadMoreInvitations = useCallback(() => {
-    if (!isLoading && hasMoreInvitations) {
-      setInvitationOffset((prev) => prev + 20)
-    }
-  }, [isLoading, hasMoreInvitations])
-
-  const loadMoreAssignments = useCallback(() => {
-    if (!isLoading && hasMoreAssignments) {
-      setAssignmentOffset((prev) => prev + 20)
-    }
-  }, [isLoading, hasMoreAssignments])
-
-  const handleSelectConference = (conferenceId: string) => {
-    setSelectedConferenceId(conferenceId)
-    setActiveNav("conference-papers")
-    // Update URL for back/refresh
-    const params = new URLSearchParams(searchParams.toString())
-    params.set("tab", "conference-papers")
-    params.set("conference_id", conferenceId)
-    router.replace(`?${params.toString()}`)
-  }
-
-  const handleSelectPaper = (paperId: string, conferenceId?: string) => {
-    // Use provided conferenceId or fall back to selectedConferenceId
-    const cid = conferenceId || selectedConferenceId
-    // Track the current tab and conference context for back navigation
-    const params = new URLSearchParams()
-    if (cid) params.set("conference_id", cid)
-    // If currently viewing conference-papers, set from=conference-papers, else from=activeNav
-    if (activeNav === "conference-papers" && cid) {
-      params.set("from", "conference-papers")
-      params.set("from_conference_id", cid)
-    } else {
-      params.set("from", activeNav)
-    }
-    router.push(`/dashboard/reviewer/papers/${paperId}?${params.toString()}`)
-  }
-
-  const handleBackToConferences = () => {
-    setSelectedConferenceId(null)
-    setActiveNav("conferences")
-    // Update URL for back/refresh
-    const params = new URLSearchParams(searchParams.toString())
-    params.set("tab", "conferences")
-    params.delete("conference_id")
-    router.replace(`?${params.toString()}`)
-  }
-
-  // Optimistic update for invitation response
-  const handleInvitationResponse = async () => {
-    // Revalidate after API call completes in the child component
-    await refresh()
-  }
-
-  const renderContent = () => {
-    // Error state with retry button
-    if (error) {
-      return (
-        <Alert variant="destructive">
-          <AlertCircle className={iconSizes.sm} />
-          <AlertTitle className={typography.h6}>
-            {t("dashboard.roles.reviewer.review.errors.loadFailed")}
-          </AlertTitle>
-          <AlertDescription className="mt-2">
-            <p className={`mb-4 ${typography.body}`}>{error}</p>
-            <Button onClick={() => refresh()} variant="outline" size="sm">
-              {t("common.actions.retry")}
-            </Button>
-          </AlertDescription>
-        </Alert>
-      )
-    }
-
-    // Loading state with skeleton
-    if (isLoading) {
-      switch (activeNav) {
-        case "conferences":
-          return <ConferencesSkeleton />
-        case "invitations":
-          return <InvitationsSkeleton />
-        default:
-          return <DashboardSkeleton />
-      }
-    }
-
-    // No data
-    if (!dashboard) {
-      return (
-        <Alert>
-          <AlertCircle className={iconSizes.sm} />
-          <AlertTitle className={typography.h6}>{t("common.messages.noData")}</AlertTitle>
-          <AlertDescription className={typography.body}>
-            {t("common.messages.noData")}
-          </AlertDescription>
-        </Alert>
-      )
-    }
-
-    const { stats, recent_assignments } = dashboard
-
-    switch (activeNav) {
-      case "overview":
-        return (
-          <ReviewerOverview
-            stats={stats}
-            assignments={allAssignments}
-            conferenceCount={dashboard?.total_conferences ?? allConferences.length}
-            onSelectPaper={handleSelectPaper}
-            onLoadMore={loadMoreAssignments}
-            hasMore={hasMoreAssignments}
-            isLoadingMore={isLoading && assignmentOffset > 0}
-          />
-        )
-      case "conferences":
-        return (
-          <ReviewerConferences
-            conferences={allConferences}
-            onSelectConference={(id) => handleSelectConference(String(id))}
-            onLoadMore={loadMoreConferences}
-            hasMore={hasMoreConferences}
-            isLoadingMore={isLoading && conferenceOffset > 0}
-            searchQuery={conferenceSearch}
-            onSearchChange={setConferenceSearch}
-          />
-        )
-      case "invitations":
-        return (
-          <ReviewerInvitations
-            invitations={allInvitations}
-            onInvitationHandled={handleInvitationResponse}
-            reviewerId={currentReviewerEmail}
-            onStatusFilterChange={(status) =>
-              setInvitationStatusFilter(status === "all" ? "" : status)
-            }
-            currentStatusFilter={invitationStatusFilter || "all"}
-            onLoadMore={loadMoreInvitations}
-            hasMore={hasMoreInvitations}
-            isLoadingMore={isLoading && invitationOffset > 0}
-          />
-        )
-      case "conference-papers":
-        if (!selectedConferenceId) return null
-        return (
-          <ConferencePapersWithSWR
-            reviewerId={currentReviewerEmail}
-            conferenceId={selectedConferenceId}
-            conferences={allConferences}
-            onBack={handleBackToConferences}
-            onSelectPaper={handleSelectPaper}
-            onReviewSubmitted={async () => await refresh()}
-          />
-        )
-      default:
-        return null
-    }
-  }
-
-  return (
-    <div className="flex min-h-screen bg-background">
-      <ReviewerSidebar
-        activeNav={activeNav}
-        setActiveNav={(nav) => {
-          setActiveNav(nav as View)
-          setSelectedConferenceId(null)
-          // Update URL for tab switch
-          const params = new URLSearchParams(searchParams.toString())
-          params.set("tab", nav)
-          params.delete("conference_id")
-          router.replace(`?${params.toString()}`)
-        }}
-      />
-      <div className={`flex-1 ${spacing.padding.cardLarge} ${spacing.section}`}>
-        {renderContent()}
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">
+          <h2 className="text-sm font-bold tracking-wide text-[#1B3C53] dark:text-white uppercase">
+            Recent Assignments
+          </h2>
+        </div>
+        {recentAssignments.length === 0 ? (
+          <div className="px-4 py-6 text-sm text-slate-500 dark:text-slate-400">
+            No recent assignments.
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100 dark:divide-slate-700">
+            {recentAssignments.map((assignment) => (
+              <div key={assignment.assignment_id} className="px-4 py-3 flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">
+                    {assignment.paper_title}
+                  </div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    {assignment.conference_name} • Status: {assignment.status}
+                  </div>
+                </div>
+                <Link
+                  href={`${ROUTES.REVIEWER.ASSIGNMENT(String(assignment.assignment_id))}?conferenceId=${assignment.conference_id}`}
+                  className="inline-flex items-center h-8 px-3 rounded-md bg-[#1B3C53] hover:bg-[#234C6A] text-white text-xs font-semibold whitespace-nowrap"
+                >
+                  Open
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

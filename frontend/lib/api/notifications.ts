@@ -23,6 +23,28 @@ export interface NotificationListRequest {
   type?: string
 }
 
+interface BackendNotification extends Partial<Notification> {
+  is_read?: boolean
+  actionUrl?: string
+  conferenceId?: number
+  createdAt?: string
+}
+
+function normalizeNotification(item: BackendNotification): Notification {
+  return {
+    id: Number(item.id || 0),
+    user_email: item.user_email || "",
+    type: (item.type || "status_change") as Notification["type"],
+    title: item.title || "",
+    message: item.message || "",
+    metadata: item.metadata || undefined,
+    read: typeof item.read === "boolean" ? item.read : Boolean(item.is_read),
+    action_url: item.action_url || item.actionUrl || undefined,
+    conference_id: item.conference_id || item.conferenceId || undefined,
+    created_at: item.created_at || item.createdAt || new Date().toISOString(),
+  }
+}
+
 /**
  * Get list of notifications for the authenticated user
  */
@@ -38,8 +60,11 @@ export async function getNotifications(
   const queryString = searchParams.toString()
   const path = queryString ? `/api/v1/notifications?${queryString}` : "/api/v1/notifications"
 
-  const { data } = await apiFetch<{ data: NotificationListResponse }>(path)
-  return data.data
+  const { data } = await apiFetch<{ data: { notifications: BackendNotification[]; total: number } }>(path)
+  return {
+    notifications: (data.data.notifications || []).map(normalizeNotification),
+    total: data.data.total || 0,
+  }
 }
 
 /**
@@ -57,18 +82,18 @@ export async function getUnreadCount(): Promise<number> {
  * Get a specific notification by ID
  */
 export async function getNotification(id: number): Promise<Notification> {
-  const { data } = await apiFetch<{ data: Notification }>(`/api/v1/notifications/${id}`)
-  return data.data
+  const { data } = await apiFetch<{ data: BackendNotification }>(`/api/v1/notifications/${id}`)
+  return normalizeNotification(data.data)
 }
 
 /**
  * Mark a notification as read
  */
 export async function markAsRead(id: number): Promise<Notification> {
-  const { data } = await apiFetch<{ data: Notification }>(`/api/v1/notifications/${id}/read`, {
+  const { data } = await apiFetch<{ data: BackendNotification }>(`/api/v1/notifications/${id}/read`, {
     method: "PATCH",
   })
-  return data.data
+  return normalizeNotification(data.data)
 }
 
 /**

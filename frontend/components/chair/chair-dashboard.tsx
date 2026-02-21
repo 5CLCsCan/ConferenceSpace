@@ -1,456 +1,255 @@
-import { ConferenceCard } from "@/components/chair/conference-table-row"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
-import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
-import { FilterBar, type ActiveFilter } from "@/components/ui/filter-bar"
-import { useRouter } from "next/navigation"
-import { useEffect, useState, useMemo, useCallback } from "react"
-import { listConferences } from "@/lib/api/conferences"
-import { useTranslation } from "@/lib/i18n/translation-context"
-import { useAuth } from "@/lib/auth-context"
-import { useDebounce } from "@/hooks/use-debounce"
-import { typography, spacing } from "@/lib/typography"
-import Link from "next/link"
+"use client"
 
-type ViewMode = "your" | "discover"
-type StatusFilter = "open" | "reviewing" | "completed" | ""
+import { useEffect, useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
+import {
+  ActionCard,
+  ActionCardList,
+  MetricCard,
+  SectionHeader,
+  type ActionPriority,
+} from "./action-card"
+import { ROUTES } from "@/lib/routes"
+import { listConferences } from "@/lib/api/conferences"
+import { getConferenceSubmissions } from "@/lib/api/submissions"
+import type { Conference } from "@/lib/types"
+
+interface DashboardMetrics {
+  totalSubmissions: number
+  reviewsCompleted: number
+  reviewsConferences: number
+  avgAcceptance: number
+  activeConferences: number
+  totalConferences: number
+}
+
+interface DashboardAction {
+  id: string
+  conference: string
+  conferenceName: string
+  year: string
+  priority: ActionPriority
+  title: string
+  description: string
+  dueLabel?: string
+  dueDate?: string
+  statusLabel?: string
+  statusDate?: string
+  buttonLabel: string
+  isOverdue?: boolean
+}
+
+const EMPTY_METRICS: DashboardMetrics = {
+  totalSubmissions: 0,
+  reviewsCompleted: 0,
+  reviewsConferences: 0,
+  avgAcceptance: 0,
+  activeConferences: 0,
+  totalConferences: 0,
+}
+
+function formatDueDate(value?: string): string | undefined {
+  if (!value) return undefined
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return undefined
+  return parsed.toLocaleDateString("en-US", { month: "short", day: "2-digit" })
+}
+
+function daysUntil(value?: string): number | null {
+  if (!value) return null
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return null
+  const now = new Date()
+  const delta = parsed.getTime() - now.getTime()
+  return Math.ceil(delta / (1000 * 60 * 60 * 24))
+}
+
+function buildAction(conference: Conference, submissionTotal: number): DashboardAction {
+  const dueInDays = daysUntil(conference.submission_deadline)
+  const isOverdue = typeof dueInDays === "number" && dueInDays < 0
+  const priority: ActionPriority = isOverdue
+    ? "urgent"
+    : typeof dueInDays === "number" && dueInDays <= 3
+      ? "high"
+      : "medium"
+
+  return {
+    id: conference.id,
+    conference: conference.acronym || conference.name,
+    conferenceName: conference.name,
+    year: String(conference.year),
+    priority,
+    title: "Monitor Submissions & Reviews",
+    description: `${submissionTotal} submission${submissionTotal === 1 ? "" : "s"} in this conference.`,
+    dueLabel:
+      dueInDays === null
+        ? undefined
+        : isOverdue
+          ? `${Math.abs(dueInDays)} days late`
+          : `${dueInDays} days`,
+    dueDate: formatDueDate(conference.submission_deadline),
+    statusLabel: isOverdue ? "Overdue" : undefined,
+    statusDate: isOverdue ? formatDueDate(conference.submission_deadline) : undefined,
+    buttonLabel: "Open Conference",
+    isOverdue,
+  }
+}
 
 export default function ChairDashboard() {
   const router = useRouter()
-  const { t } = useTranslation()
-  const { user } = useAuth()
-  const [viewMode, setViewMode] = useState<ViewMode>("your")
-  const [conferences, setConferences] = useState<
-    Array<{
-      id: string
-      name: string
-      acronym: string
-      dates: string
-      status: "open" | "reviewing" | "completed"
-      submissions: number
-    }>
-  >([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [total, setTotal] = useState(0)
-  const limit = 20 // Items per page
-
-  const totalPages = Math.ceil(total / limit)
-
-  // Debounce search query to avoid excessive API calls
-  const debouncedSearchQuery = useDebounce(searchQuery, 500)
+  const [metrics, setMetrics] = useState<DashboardMetrics>(EMPTY_METRICS)
+  const [actions, setActions] = useState<DashboardAction[]>([])
 
   useEffect(() => {
-    const fetchConferences = async () => {
+    async function loadDashboard() {
+      setLoading(true)
+      setError(null)
+
       try {
-        setLoading(true)
+        const conferencesResponse = await listConferences({
+          limit: 200,
+          role: "chair",
+          myConferences: true,
+        })
+        const conferences = conferencesResponse.data?.conferences || []
 
-        const offset = (currentPage - 1) * limit
+        const totals = await Promise.all(
+          conferences.map(async (conference) => {
+            const [allSubmissions, acceptedSubmissions] = await Promise.all([
+              getConferenceSubmissions(conference.id, { limit: 1, offset: 0 }),
+              getConferenceSubmissions(conference.id, { status: "accepted", limit: 1, offset: 0 }),
+            ])
 
-        // Use backend query parameters to filter conferences
-        const filters: any = {
-          limit,
-          offset,
-        }
+            return {
+              conference,
+              total: allSubmissions.data?.total || 0,
+              accepted: acceptedSubmissions.data?.total || 0,
+            }
+          }),
+        )
 
-        // Add view mode filter
-        if (viewMode === "your") {
-          filters.myConferences = true
-          filters.role = "chair"
-        }
+        const totalSubmissions = totals.reduce((sum, item) => sum + item.total, 0)
+        const totalAccepted = totals.reduce((sum, item) => sum + item.accepted, 0)
+        const activeConferences = conferences.filter((conf) => conf.status !== "completed").length
+        const avgAcceptance =
+          totalSubmissions > 0 ? Number(((totalAccepted / totalSubmissions) * 100).toFixed(1)) : 0
 
-        // Add search filter (pass to backend as 'title' parameter)
-        if (debouncedSearchQuery.trim()) {
-          filters.title = debouncedSearchQuery.trim()
-        }
+        /*
+        BACKEND REQUEST: <Implement GET /api/v1/conferences/:conference_id/stats; chair dashboard and conference analytics in frontend currently require synthetic/derived fallback metrics without an authoritative stats contract; return stable aggregates (submission totals, review progress, acceptance metrics, track/time breakdowns) with explicit field schema and empty-state behavior for new conferences.>
+        */
+        setMetrics({
+          totalSubmissions,
+          reviewsCompleted: 0,
+          reviewsConferences: conferences.length,
+          avgAcceptance,
+          activeConferences,
+          totalConferences: conferences.length,
+        })
 
-        // Add status filter (pass to backend)
-        if (statusFilter) {
-          filters.status = statusFilter
-        }
-
-        const response = await listConferences(filters)
-
-        if (response.error) {
-          setError(response.error)
-        } else if (response.data) {
-          // Transform API data to component format
-          let transformedConferences = response.data.conferences.map((conf) => ({
-            id: conf.id,
-            name: conf.name,
-            acronym: conf.acronym,
-            dates: conf.conference_date
-              ? new Date(conf.conference_date).toLocaleDateString()
-              : "TBD",
-            status: conf.status as "open" | "reviewing" | "completed",
-            submissions: 0, // TODO: Get actual submission count
-            chair: conf.chair,
-            primary_contact: conf.primary_contact,
-            area_chair: conf.area_chair,
-          }))
-
-          // In "discover" mode, filter out conferences created by the current user
-          if (viewMode === "discover" && user) {
-            transformedConferences = transformedConferences.filter((conf) => {
-              const isCreatedByUser =
-                conf.chair === user.email ||
-                (user.id &&
-                  (conf.primary_contact?.toString() === user.id ||
-                    conf.area_chair?.toString() === user.id))
-              return !isCreatedByUser
+        setActions(
+          totals
+            .map((item) => buildAction(item.conference, item.total))
+            .sort((a, b) => {
+              const aOverdue = a.isOverdue ? 0 : 1
+              const bOverdue = b.isOverdue ? 0 : 1
+              if (aOverdue !== bOverdue) return aOverdue - bOverdue
+              return (a.dueDate || "").localeCompare(b.dueDate || "")
             })
-          }
-
-          // Remove the extra fields before setting state
-          const finalConferences = transformedConferences.map(
-            ({ chair, primary_contact, area_chair, ...rest }) => rest,
-          )
-          setConferences(finalConferences)
-          setTotal(response.data.total || 0)
-        }
-      } catch (err) {
-        setError(t("dashboard.chair.dashboard.messages.error"))
+            .slice(0, 5),
+        )
+      } catch (loadError) {
+        setError(loadError instanceof Error ? loadError.message : "Failed to load dashboard")
       } finally {
         setLoading(false)
       }
     }
 
-    fetchConferences()
-  }, [viewMode, t, user, currentPage, debouncedSearchQuery, statusFilter, limit])
-
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [viewMode, debouncedSearchQuery, statusFilter])
-
-  const handleRemoveStatusFilter = useCallback(() => {
-    setStatusFilter("")
+    void loadDashboard()
   }, [])
 
-  const hasActiveFilters = statusFilter !== ""
+  const lastUpdated = useMemo(() => new Date().toLocaleTimeString(), [])
 
-  const activeFilters: ActiveFilter[] = useMemo(() => {
-    if (!statusFilter) return []
-    return [
-      {
-        id: "status",
-        label: t(`common.conferenceStatus.${statusFilter}`),
-        onRemove: handleRemoveStatusFilter,
-      },
-    ]
-  }, [statusFilter, t, handleRemoveStatusFilter])
-
-  const filterPopover = (
-    <div className={spacing.subsection}>
-      <div>
-        <h4 className={`${typography.semibold} ${typography.body} mb-3`}>
-          {t("common.labels.status")}
-        </h4>
-        <div className={spacing.item}>
-          <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
-            <Checkbox
-              checked={statusFilter === "open"}
-              onCheckedChange={(checked) => setStatusFilter(checked ? "open" : "")}
-            />
-            <span className={typography.body}>{t("common.conferenceStatus.open")}</span>
-          </label>
-          <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
-            <Checkbox
-              checked={statusFilter === "reviewing"}
-              onCheckedChange={(checked) => setStatusFilter(checked ? "reviewing" : "")}
-            />
-            <span className={typography.body}>{t("common.conferenceStatus.reviewing")}</span>
-          </label>
-          <label className={`flex items-center ${spacing.gap.sm} cursor-pointer`}>
-            <Checkbox
-              checked={statusFilter === "completed"}
-              onCheckedChange={(checked) => setStatusFilter(checked ? "completed" : "")}
-            />
-            <span className={typography.body}>{t("common.conferenceStatus.completed")}</span>
-          </label>
-        </div>
-      </div>
-      <div className={`flex justify-end ${spacing.gap.sm} pt-2 border-t`}>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            setStatusFilter("")
-          }}
-        >
-          {t("common.actions.clear")}
-        </Button>
-      </div>
-    </div>
-  )
-
-  const renderStatusBadge = useCallback(
-    (status: "open" | "reviewing" | "completed") => {
-      const statusStyles = {
-        open: "bg-success/10 text-success",
-        reviewing: "bg-primary/10 text-primary",
-        completed: "bg-secondary/10 text-secondary",
-      }
-
-      const statusLabel = t(`common.conferenceStatus.${status}`)
-
-      return (
-        <span
-          className={`inline-flex items-center px-3 py-1 rounded-full ${typography.bodySmall} ${typography.medium} ${statusStyles[status]}`}
-        >
-          {statusLabel}
-        </span>
-      )
-    },
-    [t],
-  )
-
-  type ConferenceData = {
-    id: string
-    name: string
-    acronym: string
-    dates: string
-    status: "open" | "reviewing" | "completed"
-    submissions: number
-  }
-
-  const columns = useMemo<DataTableColumn<ConferenceData>[]>(
-    () => [
-      {
-        key: "name",
-        label: t("dashboard.chair.dashboard.tableHeaders.conferenceName"),
-        render: (conference) => (
-          <div
-            className="cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={(e) => {
-              e.stopPropagation()
-              router.push(`/dashboard/conference/${conference.id}?tab=overview`)
-            }}
-          >
-            <div className={`${typography.semibold} text-foreground`}>{conference.name}</div>
-            <div className={`${typography.body} text-muted-foreground`}>{conference.acronym}</div>
-          </div>
-        ),
-      },
-      {
-        key: "dates",
-        label: t("dashboard.chair.dashboard.tableHeaders.dates"),
-        width: "w-32",
-        render: (conference) => (
-          <span className={`${typography.body} text-foreground`}>{conference.dates}</span>
-        ),
-        mobileLabel: t("dashboard.chair.dashboard.tableHeaders.dates"),
-      },
-      {
-        key: "status",
-        label: t("dashboard.chair.dashboard.tableHeaders.status"),
-        width: "w-40",
-        render: (conference) => renderStatusBadge(conference.status),
-        mobileLabel: t("dashboard.chair.dashboard.tableHeaders.status"),
-      },
-      {
-        key: "submissions",
-        label: t("dashboard.chair.dashboard.tableHeaders.submissions"),
-        width: "w-32",
-        render: (conference) => (
-          <span className={`${typography.body} text-foreground`}>{conference.submissions}</span>
-        ),
-        mobileLabel: t("dashboard.chair.dashboard.tableHeaders.submissions"),
-      },
-    ],
-    [t, renderStatusBadge, router],
-  )
   return (
-    <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-8">
-        {/* Hero Section */}
-        <section className="mb-12">
-          {/* <h1 className="text-3xl font-bold text-foreground mb-2">
-            Welcome, Administrator.
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+        <div>
+          <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white leading-[1.1]">
+            Chair Dashboard
           </h1>
-          <p className="text-base text-muted-foreground mb-6">
-            Your central hub for managing all academic conferences.
-          </p> */}
+          <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
+            Overview &amp; management across your conferences.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">
+            Last updated: {lastUpdated}
+          </span>
+        </div>
+      </div>
 
-          <div className="flex flex-wrap gap-4">
-            <Button
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
-              onClick={() => router.push(`/dashboard/chair/create-conference`)}
-            >
-              {t("dashboard.chair.dashboard.createNewConference")}
-            </Button>
-          </div>
-        </section>
-
-        {/* Conference Management List */}
-        <section className="mb-12">
-          <div className={`flex items-center ${spacing.gap.md} mb-4`}>
-            <h2
-              className={`${typography.h2} ${typography.semibold} cursor-pointer transition-all px-4 py-2 rounded-md ${
-                viewMode === "your"
-                  ? "text-foreground bg-muted"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              }`}
-              onClick={() => {
-                setViewMode("your")
-                setSearchQuery("")
-                setStatusFilter("")
-              }}
-            >
-              {t("dashboard.chair.dashboard.yourConferences")}
-            </h2>
-            <span className="text-muted-foreground">/</span>
-            <h2
-              className={`${typography.h2} ${typography.semibold} cursor-pointer transition-all px-4 py-2 rounded-md ${
-                viewMode === "discover"
-                  ? "text-foreground bg-muted"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              }`}
-              onClick={() => {
-                setViewMode("discover")
-                setSearchQuery("")
-                setStatusFilter("")
-              }}
-            >
-              {t("dashboard.chair.dashboard.discoverConferences")}
-            </h2>
-          </div>
-
-          {/* Search and Filter Controls */}
-          <div className="mb-4">
-            <FilterBar
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              searchPlaceholder={t("dashboard.chair.dashboard.searchPlaceholder")}
-              activeFilters={activeFilters}
-              filterPopover={filterPopover}
-              hasActiveFilters={hasActiveFilters}
+      {loading ? (
+        <div className="text-sm text-slate-500">Loading dashboard...</div>
+      ) : error ? (
+        <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+          Failed to load dashboard: {error}
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+            <MetricCard label="Total Submissions" value={metrics.totalSubmissions} />
+            <MetricCard
+              label="Reviews Completed"
+              value={metrics.reviewsCompleted}
+              subtext={`Across ${metrics.reviewsConferences} conferences`}
+            />
+            <MetricCard label="Avg. Acceptance" value={`${metrics.avgAcceptance}%`} />
+            <MetricCard
+              label="Active Conferences"
+              value={metrics.activeConferences}
+              suffix={`/ ${metrics.totalConferences}`}
             />
           </div>
 
-          {/* Data Table */}
-          <DataTable<ConferenceData>
-            columns={columns}
-            data={conferences}
-            loading={loading}
-            error={error}
-            emptyMessage={t("dashboard.chair.dashboard.messages.noConferencesFound")}
-            loadingMessage={t("dashboard.chair.dashboard.messages.loading")}
-            errorMessage={
-              error ? `${t("dashboard.chair.dashboard.messages.error")}: ${error}` : undefined
-            }
-            getRowKey={(conference) => conference.id}
-            onRowClick={(conference) => {
-              router.push(`/dashboard/conference/${conference.id}?tab=overview`)
-            }}
-            renderMobileCard={(conference) => <ConferenceCard {...conference} />}
-          />
+          <div className="flex flex-col gap-2">
+            <SectionHeader
+              title="Actions Required"
+              actionLabel="View all"
+              onAction={() => router.push(ROUTES.CHAIR.CONFERENCES)}
+            />
 
-          {/* Pagination Controls */}
-          {!loading && totalPages > 1 && (
-            <div className="mt-6 flex items-center justify-between">
-              <div className={`${typography.body} text-muted-foreground`}>
-                {t("common.pagination.showing", {
-                  from: (currentPage - 1) * limit + 1,
-                  to: Math.min(currentPage * limit, total),
-                  total: total,
-                  item: "conferences",
-                })}
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(1)}
-                  disabled={currentPage === 1}
-                >
-                  {t("common.pagination.first")}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}
-                >
-                  {t("common.pagination.previous")}
-                </Button>
-
-                {/* Page Numbers */}
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    let pageNum: number
-                    if (totalPages <= 5) {
-                      pageNum = i + 1
-                    } else if (currentPage <= 3) {
-                      pageNum = i + 1
-                    } else if (currentPage >= totalPages - 2) {
-                      pageNum = totalPages - 4 + i
-                    } else {
-                      pageNum = currentPage - 2 + i
-                    }
-
-                    return (
-                      <Button
-                        key={pageNum}
-                        variant={currentPage === pageNum ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setCurrentPage(pageNum)}
-                        className="min-w-[40px]"
-                      >
-                        {pageNum}
-                      </Button>
-                    )
-                  })}
+            <ActionCardList>
+              {actions.length === 0 ? (
+                <div className="rounded-lg border border-slate-200 bg-white p-4 text-xs text-slate-500">
+                  No conference actions found.
                 </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                  disabled={currentPage === totalPages}
-                >
-                  {t("common.pagination.next")}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(totalPages)}
-                  disabled={currentPage === totalPages}
-                >
-                  {t("common.pagination.last")}
-                </Button>
-              </div>
-            </div>
-          )}
-        </section>
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-border bg-muted py-6 mt-16">
-        <div className="container mx-auto px-4">
-          <div
-            className={`flex flex-col sm:flex-row items-center justify-center ${spacing.gap.md} ${typography.body} text-muted-foreground`}
-          >
-            <span>{t("app.footer")}</span>
-            <span className="hidden sm:inline">•</span>
-            <a href="#" className="hover:text-primary transition-colors">
-              {t("common.footer.help")}
-            </a>
-            <span className="hidden sm:inline">•</span>
-            <a href="#" className="hover:text-primary transition-colors">
-              {t("common.footer.privacy")}
-            </a>
-            <span className="hidden sm:inline">•</span>
-            <a href="#" className="hover:text-primary transition-colors">
-              {t("common.footer.contact")}
-            </a>
+              ) : (
+                actions.map((action) => (
+                  <ActionCard
+                    key={action.id}
+                    id={Number(action.id)}
+                    conference={action.conference}
+                    conferenceName={action.conferenceName}
+                    year={action.year}
+                    priority={action.priority}
+                    title={action.title}
+                    description={action.description}
+                    dueLabel={action.dueLabel}
+                    dueDate={action.dueDate}
+                    statusLabel={action.statusLabel}
+                    statusDate={action.statusDate}
+                    isOverdue={action.isOverdue}
+                    buttonLabel={action.buttonLabel}
+                    onAction={() => router.push(ROUTES.CHAIR.CONFERENCE_DETAIL(action.id))}
+                    onClick={() => router.push(ROUTES.CHAIR.CONFERENCE_DETAIL(action.id))}
+                  />
+                ))
+              )}
+            </ActionCardList>
           </div>
-        </div>
-      </footer>
+        </>
+      )}
     </div>
   )
 }

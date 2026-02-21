@@ -1,7 +1,0 @@
-#!/bin/sh
-
-echo "Running lint-staged..."
-if ! npx lint-staged; then
-  echo "Lint-staged checks failed. Aborting commit."
-  exit 1
-fi

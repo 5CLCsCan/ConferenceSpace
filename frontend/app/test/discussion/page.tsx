@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import { sessionManager } from "@/lib/session-manager"
@@ -24,7 +24,7 @@ function normalizeUser(apiUser: any): User {
   }
 }
 
-export default function DiscussionTestPage() {
+function DiscussionTestPageContent() {
   const searchParams = useSearchParams()
   const [status, setStatus] = useState("Initializing...")
   const [error, setError] = useState("")
@@ -66,10 +66,10 @@ export default function DiscussionTestPage() {
 
         // Redirect based on role
         if (role === "author") {
-          window.location.href = `/dashboard/conference/${conferenceId}/submission/${submissionId}?tab=discussion`
+          window.location.href = `/role/author/submissions/${submissionId}?conferenceId=${conferenceId}&tab=discussion`
         } else {
           // Reviewer page uses assignment_id in URL and conference_id as query param
-          window.location.href = `/dashboard/reviewer/papers/${assignmentId}?conference_id=${conferenceId}&tab=discussion`
+          window.location.href = `/role/reviewer/assignments/${assignmentId}?conferenceId=${conferenceId}&tab=discussion`
         }
       } catch (err) {
         console.error("Setup error:", err)
@@ -115,5 +115,19 @@ export default function DiscussionTestPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function DiscussionTestPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      }
+    >
+      <DiscussionTestPageContent />
+    </Suspense>
   )
 }

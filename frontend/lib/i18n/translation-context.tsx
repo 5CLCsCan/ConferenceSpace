@@ -40,7 +40,7 @@ const LOCALE_STORAGE_KEY = "conference_locale"
 
 const locales: Record<Locale, Messages> = {
   en,
-  vi,
+  vi: vi as unknown as Messages,
 }
 
 const keyAliases: Record<string, string> = {

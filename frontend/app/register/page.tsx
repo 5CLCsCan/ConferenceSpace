@@ -23,6 +23,7 @@ import { useTranslation } from "@/lib/i18n/translation-context"
 import { computerScienceKeywords, searchKeywords } from "@/lib/data/domain-keywords"
 import { Check, Circle, Eye, EyeOff, GraduationCap, Loader2, Plus, X } from "lucide-react"
 import { typography, spacing, iconSizes } from "@/lib/typography"
+import { ROUTES } from "@/lib/routes"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -111,7 +112,7 @@ export default function RegisterPage() {
     })
 
     if (result.success) {
-      router.push("/login?registered=1")
+      router.push(`${ROUTES.LOGIN}?registered=1`)
     } else {
       setError(result.error || t("auth.register.errors.failed"))
       setIsLoading(false)
@@ -123,7 +124,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         <div className={`text-center mb-8`}>
           <Link
-            href="/"
+            href={ROUTES.HOME}
             className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-lg mb-4"
           >
             <GraduationCap className={`${iconSizes.lg} text-white`} />
@@ -375,7 +376,10 @@ export default function RegisterPage() {
           <CardFooter>
             <div className={`${typography.body} text-center text-neutral-600 w-full`}>
               {t("auth.register.haveAccount")}{" "}
-              <Link href="/login" className={`text-primary hover:underline ${typography.medium}`}>
+              <Link
+                href={ROUTES.LOGIN}
+                className={`text-primary hover:underline ${typography.medium}`}
+              >
                 {t("common.actions.signIn")}
               </Link>
             </div>

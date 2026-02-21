@@ -4,8 +4,8 @@
 /node_modules
 
 # next.js
-/.next/
-/out/
+/.next
+/out
 
 # production
 /build
@@ -15,9 +15,14 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+smoke-start*.log
 
 # env files
 .env
+.env.local
+
+# local temp artifacts
+_tmp_*
 
 # vercel
 .vercel

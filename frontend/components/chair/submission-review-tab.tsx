@@ -1,20 +1,22 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ChevronDown, ChevronUp, Eye, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { useRouter } from "next/navigation"
 import {
   getSubmissionReviews,
   getSubmissionReviewAnalytics,
   type AssignmentReview,
   type ReviewAnalytics,
 } from "@/lib/api/reviews"
+import { updateSubmissionStatus } from "@/lib/api/submissions"
 import { formatDate } from "@/lib/utils"
 import { SubmissionAnalytics } from "@/components/chair/submission-analytics"
+import { ROUTES } from "@/lib/routes"
 
 interface SubmissionReviewTabProps {
   conferenceId: string
@@ -32,6 +34,11 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
   const [reviewsExpanded, setReviewsExpanded] = useState(false)
   const [loadingReviews, setLoadingReviews] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [selectedDecision, setSelectedDecision] = useState<
+    "accepted" | "rejected" | "minor" | "major" | null
+  >(null)
+  const [decisionSaving, setDecisionSaving] = useState(false)
+  const [decisionMessage, setDecisionMessage] = useState<string | null>(null)
 
   const REVIEWS_PER_PAGE = 10
 
@@ -150,6 +157,75 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
 
   return (
     <div className="space-y-2">
+      <Card>
+        <CardHeader className="px-4 pt-4 pb-2">
+          <CardTitle>Final Decision</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 px-4 pb-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <Button
+              type="button"
+              variant={selectedDecision === "accepted" ? "default" : "outline"}
+              onClick={() => setSelectedDecision("accepted")}
+            >
+              Accept
+            </Button>
+            <Button
+              type="button"
+              variant={selectedDecision === "rejected" ? "destructive" : "outline"}
+              onClick={() => setSelectedDecision("rejected")}
+            >
+              Reject
+            </Button>
+            <Button type="button" variant="outline" disabled title="Backend only supports accepted/rejected statuses right now.">
+              Minor Revision
+            </Button>
+            <Button type="button" variant="outline" disabled title="Backend only supports accepted/rejected statuses right now.">
+              Major Revision
+            </Button>
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            Only <code>accepted</code> and <code>rejected</code> can be persisted with the current backend contract. Revision decisions are intentionally disabled.
+          </p>
+
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              disabled={
+                decisionSaving || !(selectedDecision === "accepted" || selectedDecision === "rejected")
+              }
+              onClick={async () => {
+                if (selectedDecision !== "accepted" && selectedDecision !== "rejected") {
+                  return
+                }
+
+                setDecisionSaving(true)
+                setDecisionMessage(null)
+                const result = await updateSubmissionStatus(conferenceId, submissionId, selectedDecision)
+                if (result.error) {
+                  setDecisionMessage(`Failed to save decision: ${result.error}`)
+                } else {
+                  setDecisionMessage(`Decision saved: ${selectedDecision}`)
+                }
+                setDecisionSaving(false)
+              }}
+            >
+              {decisionSaving ? (
+                <>
+                  <Loader2 className="size-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Decision"
+              )}
+            </Button>
+
+            {decisionMessage && <p className="text-xs text-muted-foreground">{decisionMessage}</p>}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Use SubmissionAnalytics Component */}
       <SubmissionAnalytics analytics={analytics} />
 
@@ -198,9 +274,13 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
                                   {t("dashboard.chair.review.reviewNumber")} #{globalIndex + 1}
                                 </CardTitle>
                                 {review.reviewer_email && (
-                                  <span className="text-xs text-muted-foreground ml-2">
+                                  <button
+                                    type="button"
+                                    className="text-xs text-muted-foreground ml-2 hover:underline"
+                                    onClick={() => router.push(ROUTES.PROFILE(review.reviewer_email || ""))}
+                                  >
                                     {review.reviewer_email}
-                                  </span>
+                                  </button>
                                 )}
                                 {review.review_data?.recommendation &&
                                   getRecommendationBadge(review.review_data.recommendation)}
@@ -230,11 +310,7 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() =>
-                                router.push(
-                                  `/dashboard/conference/${conferenceId}/review/${review.id}`,
-                                )
-                              }
+                              onClick={(event) => event.preventDefault()}
                             >
                               <Eye className="size-4 mr-2" />
                               {t("common.actions.viewDetail")}

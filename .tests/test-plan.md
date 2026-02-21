@@ -1,4 +1,4 @@
-# ConferenceSpace Frontend-v2 E2E Test Script
+# ConferenceSpace frontend E2E Test Script
 
 ## 1) Objective
 
@@ -7,7 +7,7 @@ Run end-to-end UI + API validation across shared, author, reviewer, chair, and c
 ## 2) Preconditions
 
 - Backend running at `http://localhost:8080` (or your target URL).
-- Frontend-v2 running (example: `http://localhost:3000`).
+- frontend running (example: `http://localhost:3000`).
 - Backend test-login enabled.
 - Python 3.10+.
 
@@ -39,6 +39,7 @@ python .tests/manage_test_data.py cleanup \
 ```
 
 Artifacts:
+
 - `.tests/artifacts/e2e_seed_state.json`
 - `.tests/artifacts/e2e_cleanup_report.json`
 - `.tests/artifacts/uploads/seed_submission.pdf`
@@ -53,12 +54,14 @@ Use these routes for role setup:
 - `/test/login?role=profile&redirect=%2Fprofile%2Fme`
 
 Supported params:
+
 - `role=author|reviewer|chair|profile`
 - optional `redirect=<url-encoded-relative-path>`
 
 ## 5) Full UI Test Checklist
 
 Set test-agent vars:
+
 - `FRONTEND_BASE_URL` (for example `http://localhost:3000`)
 - `STATE_FILE=.tests/artifacts/e2e_seed_state.json`
 - `UPLOAD_FILE=.tests/artifacts/uploads/seed_submission.pdf`

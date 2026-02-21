@@ -2,38 +2,19 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
-  Search,
-  FileText,
-  Eye,
-  Filter,
-  Loader2,
-  CheckCircle2,
-  Calendar,
-  ArrowUpDown,
-} from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { formatDate } from "@/lib/utils"
-import type { AssignedPaper } from "@/lib/types"
 import { useCompletedReviews } from "@/hooks/use-completed-reviews"
+import { ROUTES } from "@/lib/routes"
 import { useDebounce } from "@/hooks/use-debounce"
-import { typography, spacing, iconSizes } from "@/lib/typography"
 
 interface CompletedReviewsProps {
   reviewerId?: string
   onSelectPaper?: (paperId: string, conferenceId: string) => void
 }
+
+type SortOption = "date" | "title"
 
 export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviewsProps) {
   const { t } = useTranslation()
@@ -42,21 +23,17 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
   const currentReviewerId = reviewerId || "1"
 
   const [searchQuery, setSearchQuery] = useState("")
-  const [sortBy, setSortBy] = useState<"date" | "title">("date")
+  const [sortBy, setSortBy] = useState<SortOption>("date")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
-  // Debounce search to avoid excessive API calls
   const debouncedSearch = useDebounce(searchQuery, 500)
 
-  const { reviews, isLoading, isLoadingMore, hasMore, loadMore, refresh } = useCompletedReviews(
+  const { reviews, isLoading, isLoadingMore, hasMore, loadMore } = useCompletedReviews(
     currentReviewerId,
-    {
-      search: debouncedSearch,
-    },
+    { search: debouncedSearch },
   )
 
-  // Sort reviews client-side (only for current page)
   const sortedReviews = [...reviews].sort((a, b) => {
     if (sortBy === "date") {
       const comparison = new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
@@ -93,186 +70,237 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
 
   const handleSelect = (paperId: string, conferenceId: string) => {
     if (onSelectPaper) return onSelectPaper(paperId, conferenceId)
-    const conferenceParam = conferenceId ? `?conference_id=${conferenceId}` : ""
-    router.push(`/dashboard/reviewer/papers/${paperId}${conferenceParam}`)
+    const conferenceParam = conferenceId ? `?conferenceId=${conferenceId}` : ""
+    router.push(`${ROUTES.REVIEWER.ASSIGNMENT(paperId)}${conferenceParam}`)
   }
 
   return (
-    <div className={spacing.subsection}>
+    <div className="flex flex-col gap-6">
       {/* Header */}
       <div>
-        <h1 className={`${typography.h1} ${typography.bold} tracking-tight`}>
+        <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white leading-none">
           {t("dashboard.roles.reviewer.nav.completedReviews")}
         </h1>
-        <p className={`${typography.muted} mt-2`}>
+        <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-2 max-w-xl">
           {t("dashboard.roles.reviewer.completedReviews.description")}
         </p>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className={`${typography.h4} flex items-center ${spacing.gap.sm}`}>
-            <Filter className={iconSizes.sm} />
-            {t("dashboard.roles.reviewer.completedReviews.filters")}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className={spacing.subsection}>
-          <div className={`flex items-center ${spacing.gap.md}`}>
-            <div className="relative flex-1">
-              <Search
-                className={`absolute left-3 top-1/2 -translate-y-1/2 ${iconSizes.sm} text-muted-foreground`}
-              />
-              <Input
-                placeholder={t("dashboard.roles.reviewer.completedReviews.searchPlaceholder")}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        {/* Search */}
+        <div className="relative group">
+          <span
+            className="material-symbols-outlined absolute left-2.5 top-1/2 text-slate-400 group-focus-within:text-[#1B3C53] transition-colors"
+            style={{
+              fontSize: "14px",
+              width: "14px",
+              height: "14px",
+              lineHeight: "1",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transform: "translateY(-50%)",
+            }}
+          >
+            search
+          </span>
+          <input
+            type="text"
+            placeholder={t("dashboard.roles.reviewer.completedReviews.searchPlaceholder")}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full sm:w-64 h-8 pl-8 pr-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#1B3C53]"
+          />
+        </div>
+
+        {/* Sort */}
+        <div className="flex items-center gap-2">
+          <select
+            value={`${sortBy}-${sortOrder}`}
+            onChange={(e) => {
+              const [s, o] = e.target.value.split("-") as [SortOption, "asc" | "desc"]
+              setSortBy(s)
+              setSortOrder(o)
+            }}
+            className="h-8 px-3 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none text-slate-700 dark:text-slate-300"
+          >
+            <option value="date-desc">
+              {t("dashboard.roles.reviewer.completedReviews.sortByDate")} (Newest)
+            </option>
+            <option value="date-asc">
+              {t("dashboard.roles.reviewer.completedReviews.sortByDate")} (Oldest)
+            </option>
+            <option value="title-asc">
+              {t("dashboard.roles.reviewer.completedReviews.sortByTitle")} (A-Z)
+            </option>
+            <option value="title-desc">
+              {t("dashboard.roles.reviewer.completedReviews.sortByTitle")} (Z-A)
+            </option>
+          </select>
+
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="h-8 px-3 rounded-md border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Reviews Table */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16 gap-2 text-slate-400">
+            <Loader2 className="size-5 animate-spin" />
+            <span className="text-xs font-medium">Loading completed reviews...</span>
+          </div>
+        ) : sortedReviews.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4">
+            <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mb-4">
+              <span className="material-symbols-outlined text-[24px] text-slate-400 dark:text-slate-500">
+                task_alt
+              </span>
+            </div>
+            <p className="text-sm font-bold text-[#1B3C53] dark:text-white mb-1">
+              {debouncedSearch
+                ? t("dashboard.roles.reviewer.completedReviews.noResults")
+                : t("dashboard.roles.reviewer.completedReviews.noCompletedReviews")}
+            </p>
+            <p className="text-[10px] font-medium text-slate-400 text-center max-w-xs">
+              {debouncedSearch
+                ? "Try adjusting your search query."
+                : "Reviews you have completed will appear here."}
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Table Header */}
+            <div className="border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+              <table className="w-full">
+                <thead>
+                  <tr>
+                    <th className="py-2.5 pl-4 pr-2 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400 w-10">
+                      #
+                    </th>
+                    <th className="py-2.5 px-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                      Paper
+                    </th>
+                    <th className="py-2.5 px-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400 w-28">
+                      Version
+                    </th>
+                    <th className="py-2.5 px-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400 w-36">
+                      {t("dashboard.roles.reviewer.completedReviews.completedOn")}
+                    </th>
+                    <th className="py-2.5 px-3 text-right text-[10px] font-bold uppercase tracking-widest text-slate-400 w-24">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+              </table>
             </div>
 
-            <Select value={sortBy} onValueChange={(value) => setSortBy(value as "date" | "title")}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="date">
-                  {t("dashboard.roles.reviewer.completedReviews.sortByDate")}
-                </SelectItem>
-                <SelectItem value="title">
-                  {t("dashboard.roles.reviewer.completedReviews.sortByTitle")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))}
-              title={sortOrder === "asc" ? "Ascending" : "Descending"}
-            >
-              <ArrowUpDown className="size-4" />
-            </Button>
-
-            {searchQuery && (
-              <Button variant="ghost" onClick={() => setSearchQuery("")}>
-                Clear
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Reviews List */}
-      <div className={spacing.subsection}>
-        {isLoading ? (
-          <Card>
-            <CardContent className="flex items-center justify-center py-12">
-              <Loader2
-                className="animate-spin text-muted-foreground"
-                style={{ width: "2rem", height: "2rem" }}
-              />
-            </CardContent>
-          </Card>
-        ) : sortedReviews.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <CheckCircle2
-                className="text-muted-foreground mb-4"
-                style={{ width: "3rem", height: "3rem" }}
-              />
-              <p className={`${typography.h4} ${typography.medium} text-muted-foreground`}>
-                {debouncedSearch
-                  ? t("dashboard.roles.reviewer.completedReviews.noResults")
-                  : t("dashboard.roles.reviewer.completedReviews.noCompletedReviews")}
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          sortedReviews.map((review) => (
-            <Card key={review.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className={`${typography.h4} mb-2`}>{review.title}</CardTitle>
-                    <CardDescription className="line-clamp-2">{review.abstract}</CardDescription>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className="ml-4 bg-green-50 text-green-700 border-green-200"
+            {/* Table Body */}
+            <table className="w-full">
+              <tbody>
+                {sortedReviews.map((review, index) => (
+                  <tr
+                    key={review.id}
+                    className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-slate-750 transition-colors group cursor-pointer"
+                    onClick={() => handleSelect(review.id, review.conference_id)}
                   >
-                    <CheckCircle2 className={`${iconSizes.xs} mr-1`} />
-                    {t("dashboard.roles.reviewer.completedReviews.completed")}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className={spacing.subsection}>
-                  {/* Keywords */}
-                  {review.keywords && review.keywords.length > 0 && (
-                    <div className={`flex flex-wrap ${spacing.gap.sm}`}>
-                      {review.keywords.slice(0, 5).map((keyword, idx) => (
-                        <Badge key={idx} variant="secondary" className={typography.bodySmall}>
-                          {keyword}
-                        </Badge>
-                      ))}
-                      {review.keywords.length > 5 && (
-                        <Badge variant="secondary" className={typography.bodySmall}>
-                          +{review.keywords.length - 5}
-                        </Badge>
-                      )}
-                    </div>
-                  )}
+                    {/* Index */}
+                    <td className="py-3 pl-4 pr-2 text-[11px] font-mono font-medium text-slate-400 dark:text-slate-500 w-10">
+                      {index + 1}
+                    </td>
 
-                  {/* Metadata */}
-                  <div
-                    className={`flex items-center ${spacing.gap.lg} ${typography.body} text-muted-foreground`}
-                  >
-                    <div className={`flex items-center ${spacing.gap.sm}`}>
-                      <Calendar className={iconSizes.sm} />
-                      <span>
-                        {t("dashboard.roles.reviewer.completedReviews.completedOn")}:{" "}
-                        {formatDate(review.updated_at)}
-                      </span>
-                    </div>
-                    <div className={`flex items-center ${spacing.gap.sm}`}>
-                      <FileText className={iconSizes.sm} />
-                      <span>
-                        {t("dashboard.roles.reviewer.completedReviews.version")} {review.version}
-                      </span>
-                    </div>
-                  </div>
+                    {/* Paper Info */}
+                    <td className="py-3 px-3">
+                      <div className="flex items-start gap-3">
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-[13px] font-bold leading-[1.3] tracking-tight text-slate-800 dark:text-slate-200 line-clamp-2 group-hover:text-[#1B3C53] dark:group-hover:text-white transition-colors">
+                            {review.title}
+                          </h4>
+                          {review.keywords && review.keywords.length > 0 && (
+                            <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 mt-1 line-clamp-1">
+                              {review.keywords.slice(0, 5).join(" / ")}
+                              {review.keywords.length > 5 && ` +${review.keywords.length - 5}`}
+                            </p>
+                          )}
+                        </div>
+                        {/* Completed badge */}
+                        <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-[9px] font-bold uppercase tracking-wider">
+                          Done
+                        </span>
+                      </div>
+                    </td>
 
-                  {/* Actions */}
-                  <div className={`flex ${spacing.gap.sm} pt-2`}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleSelect(review.id, review.conference_id)}
-                      className={spacing.gap.sm}
-                    >
-                      <Eye className={iconSizes.sm} />
-                      {t("dashboard.roles.reviewer.completedReviews.viewReview")}
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
+                    {/* Version */}
+                    <td className="py-3 px-3 text-[11px] font-medium text-slate-500 dark:text-slate-400 w-28">
+                      v{review.version}
+                    </td>
 
-        {/* Load More Trigger */}
-        {hasMore && (
-          <div ref={loadMoreRef} className="flex justify-center py-4">
-            {isLoadingMore && (
-              <div className={`flex items-center ${spacing.gap.sm} text-muted-foreground`}>
-                <Loader2 className={`${iconSizes.sm} animate-spin`} />
-                <span className={typography.body}>{t("common.messages.loading")}</span>
-              </div>
-            )}
-          </div>
+                    {/* Completed On */}
+                    <td className="py-3 px-3 text-[11px] font-medium text-slate-500 dark:text-slate-400 w-36">
+                      {formatDate(review.updated_at)}
+                    </td>
+
+                    {/* Action */}
+                    <td className="py-3 px-3 text-right w-24">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleSelect(review.id, review.conference_id)
+                        }}
+                        className="inline-flex items-center gap-1 h-7 px-2.5 rounded-md bg-[#1B3C53] hover:bg-[#234C6A] text-white text-[9px] font-bold uppercase tracking-wider transition-colors"
+                      >
+                        View
+                        <span
+                          className="material-symbols-outlined"
+                          style={{ fontSize: "12px", lineHeight: "1" }}
+                        >
+                          chevron_right
+                        </span>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
         )}
       </div>
+
+      {/* Load More Trigger */}
+      {hasMore && (
+        <div ref={loadMoreRef} className="py-6 flex items-center justify-center">
+          {isLoadingMore && (
+            <div className="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-500">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#1B3C53] dark:border-white" />
+              <span className="text-[10px] font-bold uppercase tracking-wider">Loading...</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Results count */}
+      {!isLoading && sortedReviews.length > 0 && (
+        <div className="text-[11px] text-slate-500">
+          Showing{" "}
+          <span className="font-bold text-[#1B3C53] dark:text-white">{sortedReviews.length}</span>{" "}
+          completed
+          {sortedReviews.length === 1 ? " review" : " reviews"}
+          {debouncedSearch && (
+            <>
+              {" "}
+              for &ldquo;<span className="font-medium">{debouncedSearch}</span>&rdquo;
+            </>
+          )}
+        </div>
+      )}
     </div>
   )
 }

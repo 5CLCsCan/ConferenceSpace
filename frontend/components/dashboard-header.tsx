@@ -4,7 +4,6 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Bell, GraduationCap, User, LogOut, Home, CheckCheck, Loader2 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,12 +18,9 @@ import { LanguageSwitcher } from "@/components/language-switcher"
 import { typography, spacing, iconSizes } from "@/lib/typography"
 import { useNotifications } from "@/hooks/use-notifications"
 import { NotificationItem } from "@/components/notifications/notification-item"
+import { ROUTES } from "@/lib/routes"
 
-interface DashboardHeaderProps {
-  role: "author" | "reviewer" | "chair"
-}
-
-export function DashboardHeader({ role }: DashboardHeaderProps) {
+export function DashboardHeader() {
   const { user, logout } = useAuth()
   const { t } = useTranslation()
   const router = useRouter()
@@ -32,29 +28,13 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
     limit: 5,
   })
 
-  const roleLinks: Record<DashboardHeaderProps["role"], { href: string; label: string }[]> = {
-    author: [
-      { href: "/dashboard/author", label: t("dashboard.header.links.author.dashboard") },
-      { href: "/dashboard/author/submissions", label: t("dashboard.header.links.author.myPapers") },
-      // { href: "/dashboard/author/submit", label: t("dashboard.header.links.author.newSubmission") },
-    ],
-    reviewer: [
-      { href: "/dashboard/reviewer", label: t("dashboard.header.links.reviewer.assignments") },
-      {
-        href: "/dashboard/reviewer/completed",
-        label: t("dashboard.header.links.reviewer.completed"),
-      },
-    ],
-    chair: [{ href: "/dashboard/chair", label: t("dashboard.header.links.chair.overview") }],
-  }
-
   const handleLogout = () => {
     logout()
-    router.push("/")
+    router.push(ROUTES.HOME)
   }
 
-  const handleBackToDashboard = () => {
-    router.push("/dashboard")
+  const handleSwitchRole = () => {
+    router.push(ROUTES.ROLE_SELECT)
   }
 
   if (!user) return null
@@ -63,8 +43,8 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
     <header className="border-b border-neutral-200 bg-white shadow-sm sticky top-0 z-50 h-[7vh]">
       <div className="w-full px-4 h-full">
         <div className="flex items-center justify-between h-full">
-          <div className="flex items-center gap-8">
-            <Link href="/dashboard" className="flex items-center gap-2">
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center gap-2">
               <div
                 className="rounded-lg bg-primary flex items-center justify-center"
                 style={{ width: "calc(7vh * 0.6)", height: "calc(7vh * 0.6)" }}
@@ -81,18 +61,6 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
                 {t("app.name")}
               </span>
             </Link>
-            <nav className="flex items-center gap-6">
-              {roleLinks[role].map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="font-medium text-neutral-700 hover:text-primary transition-colors leading-none"
-                  style={{ fontSize: "calc(7vh * 0.6 * 0.35)" }}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
           </div>
 
           <div className="flex items-center gap-3">
@@ -172,7 +140,7 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
                 <DropdownMenuSeparator className="m-0" />
                 <DropdownMenuItem
                   className={`text-center ${typography.body} text-primary ${typography.medium} cursor-pointer justify-center py-3`}
-                  onClick={() => router.push("/dashboard/notifications")}
+                  onClick={() => router.push(ROUTES.NOTIFICATIONS)}
                 >
                   {t("dashboard.header.notifications.seeAll")}
                 </DropdownMenuItem>
@@ -205,13 +173,13 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer" onClick={handleBackToDashboard}>
+                <DropdownMenuItem className="cursor-pointer" onClick={handleSwitchRole}>
                   <Home className={`${iconSizes.sm} mr-2`} />
                   {t("dashboard.header.profile.switchRole")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="cursor-pointer"
-                  onClick={() => router.push("/dashboard/users/me")}
+                  onClick={() => router.push(ROUTES.PROFILE(user.id || "me"))}
                 >
                   <User className={`${iconSizes.sm} mr-2`} />
                   {t("dashboard.header.profile.profile")}

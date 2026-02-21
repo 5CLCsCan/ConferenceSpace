@@ -1,10 +1,11 @@
-import { openrouter } from "@openrouter/ai-sdk-provider"
-import { convertToModelMessages, streamText } from "ai"
+import { createOpenRouter } from "@openrouter/ai-sdk-provider"
+import { convertToModelMessages, stepCountIs, streamText } from "ai"
 import type { UIMessage } from "ai"
 import { z } from "zod"
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
 const MODEL = "google/gemini-2.5-flash-lite-preview-09-2025"
+const openrouter = createOpenRouter({ apiKey: OPENROUTER_API_KEY })
 
 if (!OPENROUTER_API_KEY) {
   console.warn("OPENROUTER_API_KEY is not set. Chat functionality will not work.")
@@ -107,19 +108,15 @@ export async function POST(req: Request) {
     const modelMessages = convertToModelMessages(messages)
 
     const result = streamText({
-      model: openrouter(MODEL, {
-        apiKey: OPENROUTER_API_KEY,
-      }),
+      model: openrouter(MODEL),
       system: SYSTEM_PROMPT,
       messages: modelMessages,
       tools,
-      maxSteps: 10,
+      stopWhen: stepCountIs(10),
       ...(!hasReasoning && {
-        experimental_providerMetadata: {
+        providerOptions: {
           openrouter: {
-            body: {
-              reasoning: { enabled: true },
-            },
+            reasoning: { enabled: true, effort: "low" },
           },
         },
       }),
