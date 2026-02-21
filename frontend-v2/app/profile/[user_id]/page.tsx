@@ -4,15 +4,17 @@ import { useEffect, useMemo, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { apiFetch, UnauthorizedError } from "@/lib/api/client"
+import { userApi, type AcademicProfile } from "@/lib/api/user"
 import { resolveUserEmail } from "@/lib/profile/resolve-user-email"
 import type { User, ProfileFormData, UpdateProfileRequest } from "@/lib/types"
+import { ProfileOnboardingModal } from "@/components/profile/profile-onboarding-modal"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, ArrowLeft } from "lucide-react"
+import { Loader2, ArrowLeft, BookOpen, ExternalLink, Unlink } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { ROUTES } from "@/lib/routes"
 
@@ -49,6 +51,9 @@ export default function UserProfilePage() {
   const [formData, setFormData] = useState<ProfileFormData>(EMPTY_FORM)
   const [initialFormData, setInitialFormData] = useState<ProfileFormData>(EMPTY_FORM)
   const [domainInput, setDomainInput] = useState("")
+  const [academicProfile, setAcademicProfile] = useState<AcademicProfile | null>(null)
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const [isUnlinking, setIsUnlinking] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => setAuthChecked(true), 100)
@@ -101,6 +106,20 @@ export default function UserProfilePage() {
 
         setFormData(nextForm)
         setInitialFormData({ ...nextForm, domain: [...nextForm.domain] })
+
+        const shouldLoadAcademicProfile =
+          resolved.mode === "me" || (authUser?.email && user.email === authUser.email)
+
+        if (shouldLoadAcademicProfile) {
+          try {
+            const academic = await userApi.getAcademicProfile()
+            setAcademicProfile(academic.data?.data ?? null)
+          } catch {
+            setAcademicProfile(null)
+          }
+        } else {
+          setAcademicProfile(null)
+        }
       } catch {
         setNotFound(true)
       } finally {
@@ -215,6 +234,60 @@ export default function UserProfilePage() {
     }))
   }
 
+  const refreshAcademicProfile = async () => {
+    try {
+      const academic = await userApi.getAcademicProfile()
+      setAcademicProfile(academic.data?.data ?? null)
+    } catch {
+      setAcademicProfile(null)
+    }
+  }
+
+  const handleOnboardingComplete = async (authorId?: string) => {
+    if (!authorId) {
+      return
+    }
+    await refreshAcademicProfile()
+    await refreshUser()
+  }
+
+  const handleUnlinkAcademicProfile = async () => {
+    if (!isOwnProfile || isUnlinking) {
+      return
+    }
+
+    const confirmed = window.confirm(
+      "Are you sure you want to unlink your academic profile? This will remove synced publication data.",
+    )
+    if (!confirmed) {
+      return
+    }
+
+    try {
+      setIsUnlinking(true)
+      await userApi.unlinkAcademicProfile()
+      await refreshAcademicProfile()
+      await refreshUser()
+      toast({
+        title: "Academic profile unlinked",
+        description: "Your Semantic Scholar profile has been disconnected.",
+      })
+    } catch (error) {
+      if (error instanceof UnauthorizedError) {
+        router.push(ROUTES.LOGIN)
+        return
+      }
+
+      toast({
+        title: "Unable to unlink",
+        description: "Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsUnlinking(false)
+    }
+  }
+
   if (!authChecked || !isAuthenticated || loading) {
     return (
       <div className="min-h-screen bg-neutral-50">
@@ -298,6 +371,99 @@ export default function UserProfilePage() {
               />
             </div>
 
+            <div className="space-y-3 rounded-lg border bg-neutral-50 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-neutral-600" />
+                  <span className="text-sm font-medium">Academic Profile</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {academicProfile?.url && (
+                    <Button variant="outline" size="sm" asChild>
+                      <a
+                        href={academicProfile.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="gap-1.5"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        View
+                      </a>
+                    </Button>
+                  )}
+
+                  {isOwnProfile && !academicProfile && (
+                    <Button size="sm" onClick={() => setShowOnboarding(true)}>
+                      Connect
+                    </Button>
+                  )}
+
+                  {isOwnProfile && academicProfile && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleUnlinkAcademicProfile}
+                      disabled={isUnlinking}
+                    >
+                      {isUnlinking ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Unlink className="h-3.5 w-3.5" />
+                      )}
+                      Unlink
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {academicProfile ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="rounded-md border bg-white p-2 text-center">
+                      <p className="text-lg font-semibold">{academicProfile.hIndex}</p>
+                      <p className="text-[10px] text-neutral-500 uppercase">h-index</p>
+                    </div>
+                    <div className="rounded-md border bg-white p-2 text-center">
+                      <p className="text-lg font-semibold">{academicProfile.citationCount}</p>
+                      <p className="text-[10px] text-neutral-500 uppercase">citations</p>
+                    </div>
+                    <div className="rounded-md border bg-white p-2 text-center">
+                      <p className="text-lg font-semibold">{academicProfile.paperCount}</p>
+                      <p className="text-[10px] text-neutral-500 uppercase">papers</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-neutral-600">Synced Publications</p>
+                    {academicProfile.papers?.length ? (
+                      <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
+                        {academicProfile.papers.slice(0, 20).map((paper) => (
+                          <div key={paper.paperId} className="rounded-md border bg-white p-3">
+                            <p className="text-sm font-medium">{paper.title}</p>
+                            <p className="text-xs text-neutral-500 mt-1">
+                              {paper.year || "N/A"} • {paper.citationCount || 0} citations
+                              {paper.venue ? ` • ${paper.venue}` : ""}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-neutral-500">
+                        Profile linked, but no publications are currently available.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-neutral-500">
+                  {isOwnProfile
+                    ? "Connect your Semantic Scholar profile to sync citations and publications."
+                    : "No academic profile linked."}
+                </p>
+              )}
+            </div>
+
             <div className="space-y-3">
               <Label>Domains</Label>
 
@@ -367,6 +533,15 @@ export default function UserProfilePage() {
           </CardContent>
         </Card>
       </main>
+
+      {isOwnProfile && (
+        <ProfileOnboardingModal
+          isOpen={showOnboarding}
+          onOpenChange={setShowOnboarding}
+          userName={`${formData.firstName} ${formData.lastName}`.trim() || profile.email}
+          onComplete={handleOnboardingComplete}
+        />
+      )}
     </div>
   )
 }

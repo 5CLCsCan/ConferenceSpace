@@ -459,6 +459,9 @@ export async function submitCameraReady(
   file: File,
 ): Promise<{ data: boolean; error: string | null }> {
   try {
+    /*
+    BACKEND REQUEST: <Implement camera-ready upload contract for conference submissions; frontend-v2 papers API contains placeholder logic because backend upload endpoint is unavailable; provide authenticated multipart upload endpoint, validation/error schema, and final artifact metadata response compatible with current submission model.>
+    */
     // TODO: Implement when backend supports file uploads
     // const formData = new FormData()
     // formData.append('file', file)

@@ -26,6 +26,7 @@ interface SubmissionReviewScreenProps {
   assignmentId: string
   submissionId: string
   submission?: Paper | null
+  initialTab?: TabType
   onBack?: () => void
 }
 
@@ -34,11 +35,12 @@ export function SubmissionReviewScreen({
   assignmentId,
   submissionId,
   submission: submissionFromApi,
+  initialTab = "review",
   onBack,
 }: SubmissionReviewScreenProps) {
-  const [activeTab, setActiveTab] = useState<TabType>("review")
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab)
   const [formData, setFormData] = useState<ReviewFormData>(INITIAL_FORM_DATA)
-  const [discussionCount] = useState(0)
+  const [discussionCount, setDiscussionCount] = useState(0)
   const { review, saving, saveReview } = useAssignmentReview(conferenceId, assignmentId)
 
   useEffect(() => {
@@ -452,10 +454,23 @@ export function SubmissionReviewScreen({
         )}
 
         {/* Tab Content: Discussion */}
-        {activeTab === "discussion" && <DiscussionTab />}
+        {activeTab === "discussion" && (
+          <DiscussionTab
+            conferenceId={conferenceId}
+            submissionId={submissionId}
+            assignmentId={assignmentId}
+            onThreadCountChange={setDiscussionCount}
+          />
+        )}
 
         {/* Tab Content: Rebuttal */}
-        {activeTab === "rebuttal" && <RebuttalTab />}
+        {activeTab === "rebuttal" && (
+          <RebuttalTab
+            conferenceId={conferenceId}
+            submissionId={submissionId}
+            assignmentId={assignmentId}
+          />
+        )}
       </main>
     </div>
   )

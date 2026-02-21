@@ -1,0 +1,59 @@
+{
+  "generated_at": "2026-02-21T06:37:23+00:00",
+  "base_url": "http://localhost:8080",
+  "seed_options": {
+    "prefix": "migration-e2e",
+    "include_discussion_seed": true,
+    "include_draft_review_seed": true,
+    "chair_decision": null
+  },
+  "users": {
+    "chair": {
+      "email": "test.discussion.chair@example.com",
+      "first_name": "Test",
+      "last_name": "Chair",
+      "id": 164
+    },
+    "reviewer": {
+      "email": "test.discussion.reviewer@example.com",
+      "first_name": "Test",
+      "last_name": "Reviewer",
+      "id": 165
+    },
+    "author": {
+      "email": "test.discussion.author@example.com",
+      "first_name": "Test",
+      "last_name": "Author",
+      "id": 166
+    },
+    "profile": {
+      "email": "test.profile@example.com",
+      "first_name": "Test",
+      "last_name": "ProfileUser",
+      "id": 167
+    }
+  },
+  "entities": {
+    "conference_id": 38,
+    "submission_id": 8,
+    "reviewer_record_id": 3,
+    "assignment_id": 1,
+    "thread_id": 1
+  },
+  "frontend_urls": {
+    "author_submission_discussion": "/role/author/submissions/8?conferenceId=38&tab=discussion",
+    "reviewer_assignment_discussion": "/role/reviewer/assignments/1?conferenceId=38&tab=discussion",
+    "chair_submission_detail": "/role/chair/conferences/38/submissions/8",
+    "conference_detail_chair": "/role/chair/conferences/38",
+    "conference_detail_author": "/role/author/conferences/38"
+  },
+  "known_backend_blockers": [
+    "BR-001: /api/v1/conferences/:conference_id/stats missing authoritative analytics contract",
+    "BR-003: camera-ready upload contract missing",
+    "BR-004: rebuttal persistence write APIs missing for author/reviewer"
+  ],
+  "artifacts": {
+    "state_file": "E:\\HCMUS\\Graduate-Project\\ConferenceSpace\\.tests\\artifacts\\e2e_seed_state.json",
+    "upload_pdf": "E:\\HCMUS\\Graduate-Project\\ConferenceSpace\\.tests\\artifacts\\uploads\\seed_submission.pdf"
+  }
+}

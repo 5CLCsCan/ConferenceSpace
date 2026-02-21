@@ -1,14 +1,11 @@
 "use client"
 
-import { useState } from "react"
-
 import {
   MOCK_POINTS,
   MOCK_REVIEWERS,
   MOCK_SETTINGS,
   MOCK_SUBMISSION,
   RebuttalPanel,
-  type ResponseStatus,
 } from "@/components/shared/rebuttal"
 
 /**
@@ -21,45 +18,32 @@ import {
  * The shared RebuttalPanel component in @/components/shared/rebuttal can be used
  * directly by other roles (author, chair) with their specific configurations.
  */
-export function RebuttalTab() {
-  const [settings] = useState(MOCK_SETTINGS)
-  const [reviewers] = useState(MOCK_REVIEWERS)
-  const [points, setPoints] = useState(MOCK_POINTS)
-  const [submission] = useState(MOCK_SUBMISSION)
+interface RebuttalTabProps {
+  conferenceId: string
+  submissionId: string
+  assignmentId: string
+}
 
-  const handlePointStatusChange = (pointId: string, status: ResponseStatus, note?: string) => {
-    setPoints((prev) =>
-      prev.map((p) =>
-        p.id === pointId
-          ? {
-              ...p,
-              status,
-              reviewerAcknowledgment: {
-                acknowledged: true,
-                satisfactory: status === "addressed",
-                note,
-              },
-            }
-          : p,
-      ),
-    )
-    // TODO: API call to persist status change
-  }
-
-  const handleUpdateReview = () => {
-    console.log("[Update review]")
-    // TODO: Navigate to review update form or trigger modal
-  }
-
+export function RebuttalTab({ conferenceId, submissionId, assignmentId }: RebuttalTabProps) {
   return (
-    <RebuttalPanel
-      settings={settings}
-      reviewers={reviewers}
-      points={points}
-      submission={submission}
-      userRole="reviewer"
-      onPointStatusChange={handlePointStatusChange}
-      onUpdateReview={handleUpdateReview}
-    />
+    <div className="space-y-3">
+      {/*
+      BACKEND REQUEST: <Implement rebuttal persistence APIs for reviewer acknowledgment and author rebuttal state transitions; frontend-v2 rebuttal actions are now explicitly disabled because backend write contract is unavailable; expose idempotent role-aware endpoints with allowed status enums, audit metadata, and reload-consistent state across author/reviewer/chair views.>
+      */}
+      <div className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+        Rebuttal write actions are currently unavailable because the backend persistence API is not
+        implemented yet. You can review rebuttal content here, but acknowledgments cannot be saved
+        (conference {conferenceId}, submission {submissionId}, assignment {assignmentId}).
+      </div>
+
+      <RebuttalPanel
+        settings={MOCK_SETTINGS}
+        reviewers={MOCK_REVIEWERS}
+        points={MOCK_POINTS}
+        submission={MOCK_SUBMISSION}
+        userRole="reviewer"
+        readOnly
+      />
+    </div>
   )
 }

@@ -1,17 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { ROUTES } from "@/lib/routes"
 import type { AuthorConference, AuthorTabType } from "./author-conference-cards"
 import { AuthorConferenceCard } from "./author-conference-cards"
 import { AuthorConferenceList } from "./author-conference-list"
-import {
-  MOCK_AUTHOR_CONFERENCES,
-  MOCK_EXPLORE_CONFERENCES,
-  MOCK_ARCHIVED_CONFERENCES,
-  EMPTY_STATE_CONTENT,
-} from "./author-mock-data"
+import { EMPTY_STATE_CONTENT } from "./author-mock-data"
 import type { ExploreConference } from "@/components/conference/types"
 import {
   ExploreConferenceCard,
@@ -19,6 +14,10 @@ import {
   ExploreConferenceList,
   ArchivedConferenceList,
 } from "@/components/conference/explore-cards"
+import { useAuth } from "@/lib/auth-context"
+import { listConferences } from "@/lib/api/conferences"
+import { getConferenceSubmissions, type Submission } from "@/lib/api/submissions"
+import type { Conference } from "@/lib/types"
 
 type ViewMode = "grid" | "list"
 
@@ -27,18 +26,137 @@ interface AuthorConferencesProps {
   conferences?: AuthorConference[]
 }
 
+function formatConferenceDates(conference: Conference): string {
+  const start = conference.conference_date ? new Date(conference.conference_date) : null
+  const end = conference.conference_end_date ? new Date(conference.conference_end_date) : null
+  if (!start || Number.isNaN(start.getTime())) {
+    return "Dates TBD"
+  }
+  const startLabel = start.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
+  if (!end || Number.isNaN(end.getTime())) {
+    return startLabel
+  }
+  const endLabel = end.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
+  return `${startLabel} - ${endLabel}`
+}
+
+function mapSubmissionStatus(status: Submission["status"]): AuthorConference["status"] {
+  if (status === "accepted") return "accepted"
+  if (status === "rejected") return "rejected"
+  if (status === "reviewing") return "under-review"
+  if (status === "draft" || status === "published") return "submitted"
+  return "submitted"
+}
+
+function mapConferenceToExplore(conference: Conference): ExploreConference {
+  return {
+    id: conference.id,
+    name: conference.acronym || conference.name,
+    fullDescription: conference.description || conference.name,
+    location: conference.location || "TBD",
+    dates: formatConferenceDates(conference),
+    exploreStatus: conference.status === "open" ? "call-for-papers" : "upcoming",
+    topics: conference.domain?.slice(0, 3) || conference.tracks.slice(0, 3) || [],
+  }
+}
+
 export function AuthorConferences({ conferences: initialConferences }: AuthorConferencesProps) {
   const router = useRouter()
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState<AuthorTabType>("my-conferences")
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState("date-newest")
   const [currentPage, setCurrentPage] = useState(1)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [myConferences, setMyConferences] = useState<AuthorConference[]>(initialConferences || [])
+  const [exploreConferences, setExploreConferences] = useState<ExploreConference[]>([])
+  const [archivedConferences, setArchivedConferences] = useState<ExploreConference[]>([])
 
-  // Data sources for each tab
-  const myConferences = initialConferences || MOCK_AUTHOR_CONFERENCES
-  const exploreConferences = MOCK_EXPLORE_CONFERENCES
-  const archivedConferences = MOCK_ARCHIVED_CONFERENCES
+  useEffect(() => {
+    async function loadAuthorConferences() {
+      if (!user?.email) {
+        setLoading(false)
+        setMyConferences(initialConferences || [])
+        return
+      }
+
+      setLoading(true)
+      setError(null)
+
+      try {
+        const conferenceResponse = await listConferences({ limit: 200 })
+        const conferences = conferenceResponse.data?.conferences || []
+
+        const conferenceWithSubmissions = await Promise.all(
+          conferences.map(async (conference) => {
+            const submissionsResponse = await getConferenceSubmissions(conference.id, {
+              author: user.email,
+              limit: 10,
+              offset: 0,
+            })
+
+            return {
+              conference,
+              submissions: submissionsResponse.data?.submissions || [],
+            }
+          }),
+        )
+
+        const nextMy: AuthorConference[] = []
+        const nextExplore: ExploreConference[] = []
+        const nextArchived: ExploreConference[] = []
+
+        for (const { conference, submissions } of conferenceWithSubmissions) {
+          if (submissions.length > 0) {
+            const primarySubmission = [...submissions].sort((a, b) => {
+              return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+            })[0]
+
+            nextMy.push({
+              id: conference.id,
+              name: conference.name,
+              acronym: conference.acronym,
+              location: conference.location || "TBD",
+              dates: formatConferenceDates(conference),
+              status: mapSubmissionStatus(primarySubmission.status),
+              paperTitle: primarySubmission.title,
+              trackName: primarySubmission.information?.track_name || "",
+              submissionDate: new Date(primarySubmission.created_at).toLocaleDateString("en-US", {
+                month: "short",
+                day: "2-digit",
+                year: "numeric",
+              }),
+              submissionDeadline: conference.submission_deadline || "",
+              fullPaperDeadline: conference.camera_ready_deadline || "",
+            })
+            continue
+          }
+
+          const mappedConference = mapConferenceToExplore(conference)
+          if (conference.status === "completed") {
+            nextArchived.push(mappedConference)
+          } else {
+            nextExplore.push(mappedConference)
+          }
+        }
+
+        setMyConferences(nextMy)
+        setExploreConferences(nextExplore)
+        setArchivedConferences(nextArchived)
+      } catch (loadError) {
+        setError(loadError instanceof Error ? loadError.message : "Failed to load conferences")
+        setMyConferences(initialConferences || [])
+        setExploreConferences([])
+        setArchivedConferences([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    void loadAuthorConferences()
+  }, [user?.email, initialConferences])
 
   const ITEMS_PER_PAGE = 5
 
@@ -108,6 +226,22 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
 
   // Get data and render based on active tab
   const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center py-16 text-xs text-slate-500">
+          Loading conferences...
+        </div>
+      )
+    }
+
+    if (error) {
+      return (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">
+          Failed to load conferences: {error}
+        </div>
+      )
+    }
+
     if (activeTab === "my-conferences") {
       const allConferences = getFilteredMyConferences()
       const totalPages = Math.ceil(allConferences.length / ITEMS_PER_PAGE)

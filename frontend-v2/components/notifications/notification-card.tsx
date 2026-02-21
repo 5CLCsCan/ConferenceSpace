@@ -30,9 +30,10 @@ export interface Notification {
 interface NotificationCardProps {
   notification: Notification
   onMarkAsRead?: (id: string) => void
+  onAction?: (href?: string, id?: string) => void
 }
 
-export function NotificationCard({ notification, onMarkAsRead }: NotificationCardProps) {
+export function NotificationCard({ notification, onMarkAsRead, onAction }: NotificationCardProps) {
   const getIcon = () => {
     switch (notification.type) {
       case "deadline":
@@ -134,7 +135,13 @@ export function NotificationCard({ notification, onMarkAsRead }: NotificationCar
 
         {notification.actionLabel && (
           <div className="mt-1">
-            <button className="text-[10px] font-semibold text-[#234c6a] dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors uppercase tracking-widest">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onAction?.(notification.actionHref, notification.id)
+              }}
+              className="text-[10px] font-semibold text-[#234c6a] dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors uppercase tracking-widest"
+            >
               {notification.actionLabel}
             </button>
           </div>
