@@ -1,0 +1,25 @@
+{
+  "generated_at": "2026-02-21T07:59:09+00:00",
+  "base_url": "http://localhost:8080",
+  "status": "pass",
+  "input": {
+    "prefix": "focused-rerun",
+    "state_conference_ids": [
+      38
+    ],
+    "prefix_conference_ids": []
+  },
+  "summary": {
+    "target_count": 1,
+    "deleted_count": 1,
+    "already_absent_count": 0,
+    "failure_count": 0
+  },
+  "results": {
+    "deleted_conference_ids": [
+      38
+    ],
+    "already_absent_conference_ids": [],
+    "failed": []
+  }
+}

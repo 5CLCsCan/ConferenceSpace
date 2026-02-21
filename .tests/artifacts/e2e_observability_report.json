@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-02-21T06:37:35+00:00",
+  "generated_at": "2026-02-21T07:59:19+00:00",
   "base_url": "http://localhost:8080",
   "entities": {
-    "conference_id": 38,
-    "submission_id": 8,
-    "assignment_id": 1
+    "conference_id": 40,
+    "submission_id": 10,
+    "assignment_id": 3
   },
   "summary": {
     "total": 15,
@@ -18,9 +18,9 @@
       "status": "pass",
       "message": "Chair can load conference detail",
       "evidence": {
-        "id": 38,
-        "title": "MIGRATION-E2E Conference 1771655838860",
-        "acronym": "MIGRAT838860",
+        "id": 40,
+        "title": "FOCUSED-RERUN Conference 1771660749564",
+        "acronym": "FOCUSE749564",
         "description": "Seeded by .tests/upload_mock_data.py for full frontend-v2 E2E runs.",
         "chair": "test.discussion.chair@example.com",
         "co_chairs": [],
@@ -33,8 +33,8 @@
         "venue": "",
         "configurations": {},
         "status": "reviewing",
-        "created_at": "2026-02-21T13:37:22.734282Z",
-        "updated_at": "2026-02-21T13:37:23.054999Z"
+        "created_at": "2026-02-21T14:59:13.222363Z",
+        "updated_at": "2026-02-21T14:59:13.560149Z"
       }
     },
     {
@@ -44,17 +44,17 @@
       "evidence": {
         "reviewers": [
           {
-            "id": 3,
+            "id": 5,
             "user_id": 165,
-            "conference_id": 38,
+            "conference_id": 40,
             "email": "test.discussion.reviewer@example.com",
             "status": "accepted",
             "domain": [
               "AI",
               "ML"
             ],
-            "created_at": "2026-02-21T06:37:22.801904Z",
-            "updated_at": "2026-02-21T06:37:22.861203Z"
+            "created_at": "2026-02-21T07:59:13.330592Z",
+            "updated_at": "2026-02-21T07:59:13.384237Z"
           }
         ],
         "total": 1,
@@ -67,10 +67,10 @@
       "status": "pass",
       "message": "Chair can load submission detail",
       "evidence": {
-        "id": 8,
-        "conference_id": 38,
+        "id": 10,
+        "conference_id": 40,
         "author": "test.discussion.author@example.com",
-        "title": "MIGRATION-E2E Submission 1771655838860",
+        "title": "FOCUSED-RERUN Submission 1771660749564",
         "abstract": "Seed submission for frontend-v2 E2E validation, including multipart upload.",
         "link": "",
         "domain": [
@@ -87,14 +87,14 @@
           "paper_type": "research"
         },
         "file": {
-          "filename": "1771655842_seed_submission.pdf",
+          "filename": "1771660753_seed_submission.pdf",
           "original_name": "seed_submission.pdf",
           "size": 475,
           "mime_type": "application/pdf",
-          "path": "uploads/submissions/38/8/1771655842_seed_submission.pdf"
+          "path": "uploads/submissions/40/10/1771660753_seed_submission.pdf"
         },
-        "created_at": "2026-02-21T13:37:22.915367Z",
-        "updated_at": "2026-02-21T13:37:27.07124Z"
+        "created_at": "2026-02-21T14:59:13.435796Z",
+        "updated_at": "2026-02-21T14:59:13.626366Z"
       }
     },
     {
@@ -102,7 +102,7 @@
       "status": "pass",
       "message": "Submission status check",
       "evidence": {
-        "submission_id": 8,
+        "submission_id": 10,
         "status": "reviewing"
       }
     },
@@ -114,30 +114,47 @@
         "conferences": {
           "data": [
             {
-              "id": 38,
-              "title": "MIGRATION-E2E Conference 1771655838860",
-              "acronym": "MIGRAT838860",
+              "id": 40,
+              "title": "FOCUSED-RERUN Conference 1771660749564",
+              "acronym": "FOCUSE749564",
               "description": "Seeded by .tests/upload_mock_data.py for full frontend-v2 E2E runs.",
               "chair": "test.discussion.chair@example.com",
               "co_chairs": [],
               "tracks": [],
               "venue": "",
               "configurations": {},
-              "created_at": "2026-02-21T13:37:22.734282Z",
-              "updated_at": "2026-02-21T13:37:23.054999Z",
+              "created_at": "2026-02-21T14:59:13.222363Z",
+              "updated_at": "2026-02-21T14:59:13.560149Z",
+              "reviewed_papers": 0,
+              "total_papers": 1,
+              "domain": "AI",
+              "status": "active"
+            },
+            {
+              "id": 39,
+              "title": "Discussion Test Conference",
+              "acronym": "DTC1771656400821",
+              "description": "",
+              "chair": "test.discussion.chair@example.com",
+              "co_chairs": [],
+              "tracks": [],
+              "venue": "",
+              "configurations": {},
+              "created_at": "2026-02-21T13:46:44.292183Z",
+              "updated_at": "2026-02-21T13:46:44.561459Z",
               "reviewed_papers": 0,
               "total_papers": 1,
               "domain": "AI",
               "status": "active"
             }
           ],
-          "total": 1,
+          "total": 2,
           "limit": 10,
           "offset": 0
         },
         "stats": {
-          "total_assigned": 1,
-          "pending": 1,
+          "total_assigned": 2,
+          "pending": 2,
           "in_progress": 0,
           "completed": 0,
           "pending_requests": 0
@@ -145,36 +162,58 @@
         "invitations": {
           "data": [
             {
-              "id": 3,
-              "conference_id": 38,
-              "conference_name": "MIGRATION-E2E Conference 1771655838860",
-              "conference_acronym": "MIGRAT838860",
+              "id": 5,
+              "conference_id": 40,
+              "conference_name": "FOCUSED-RERUN Conference 1771660749564",
+              "conference_acronym": "FOCUSE749564",
               "requested_by": "test.discussion.chair@example.com",
               "requested_by_name": "Unknown",
-              "requested_at": "2026-02-21T06:37:22.801904Z",
+              "requested_at": "2026-02-21T07:59:13.330592Z",
+              "status": "accepted",
+              "expertise_match": 0.85,
+              "estimated_papers": 1
+            },
+            {
+              "id": 4,
+              "conference_id": 39,
+              "conference_name": "Discussion Test Conference",
+              "conference_acronym": "DTC1771656400821",
+              "requested_by": "test.discussion.chair@example.com",
+              "requested_by_name": "Unknown",
+              "requested_at": "2026-02-21T06:46:44.313607Z",
               "status": "accepted",
               "expertise_match": 0.85,
               "estimated_papers": 1
             }
           ],
-          "total": 1,
+          "total": 3,
           "limit": 10,
           "offset": 0
         },
         "recent_assignments": {
           "data": [
             {
-              "assignment_id": 1,
-              "paper_id": 8,
-              "paper_title": "MIGRATION-E2E Submission 1771655838860",
-              "conference_id": 38,
-              "conference_name": "MIGRATION-E2E Conference 1771655838860",
+              "assignment_id": 3,
+              "paper_id": 10,
+              "paper_title": "FOCUSED-RERUN Submission 1771660749564",
+              "conference_id": 40,
+              "conference_name": "FOCUSED-RERUN Conference 1771660749564",
               "status": "pending",
-              "due_date": "2026-02-21T06:37:27.059256Z",
+              "due_date": "2026-02-21T07:59:13.622523Z",
+              "days_left": 13
+            },
+            {
+              "assignment_id": 2,
+              "paper_id": 9,
+              "paper_title": "Test Paper for Discussion",
+              "conference_id": 39,
+              "conference_name": "Discussion Test Conference",
+              "status": "pending",
+              "due_date": "2026-02-21T06:46:44.995267Z",
               "days_left": 13
             }
           ],
-          "total": 1,
+          "total": 2,
           "limit": 5,
           "offset": 0
         }
@@ -185,9 +224,9 @@
       "status": "pass",
       "message": "Reviewer assignment for seeded submission exists",
       "evidence": {
-        "assignment_id": 1,
-        "assignment_for_submission": 1,
-        "assignment_count": 1
+        "assignment_id": 3,
+        "assignment_for_submission": 3,
+        "assignment_count": 2
       }
     },
     {
@@ -195,13 +234,13 @@
       "status": "pass",
       "message": "Reviewer can load assignment review detail",
       "evidence": {
-        "id": 1,
-        "conference_id": 38,
-        "submission_id": 8,
-        "reviewer_id": 3,
+        "id": 3,
+        "conference_id": 40,
+        "submission_id": 10,
+        "reviewer_id": 5,
         "score": 0.25,
         "status": "pending",
-        "assigned_at": "2026-02-21T06:37:27.059256Z",
+        "assigned_at": "2026-02-21T07:59:13.622523Z",
         "review_status": "draft",
         "review_data": {
           "criteria": {
@@ -219,8 +258,8 @@
           "recommendation": "accept",
           "confidence": "high"
         },
-        "created_at": "2026-02-21T06:37:27.059256Z",
-        "updated_at": "2026-02-21T06:37:27.263958Z"
+        "created_at": "2026-02-21T07:59:13.622523Z",
+        "updated_at": "2026-02-21T07:59:13.796448Z"
       }
     },
     {
@@ -230,19 +269,19 @@
       "evidence": {
         "threads": [
           {
-            "id": 1,
-            "submission_id": 8,
+            "id": 3,
+            "submission_id": 10,
             "reviewer_id": 165,
-            "conference_id": 38,
+            "conference_id": 40,
             "title": "Seeded reviewer discussion thread",
-            "created_at": "2026-02-21T13:37:27.148035Z",
+            "created_at": "2026-02-21T14:59:13.692598Z",
             "reviewer_email": "test.discussion.reviewer@example.com",
             "reviewer_first_name": "Test",
             "reviewer_last_name": "Reviewer",
             "author_email": "test.discussion.author@example.com",
-            "submission_title": "MIGRATION-E2E Submission 1771655838860",
+            "submission_title": "FOCUSED-RERUN Submission 1771660749564",
             "message_count": 2,
-            "last_message_at": "2026-02-21T13:37:27.211497Z"
+            "last_message_at": "2026-02-21T14:59:13.748444Z"
           }
         ],
         "total": 1
@@ -255,36 +294,36 @@
       "evidence": {
         "author_threads": [
           {
-            "id": 1,
-            "submission_id": 8,
+            "id": 3,
+            "submission_id": 10,
             "reviewer_id": 165,
-            "conference_id": 38,
+            "conference_id": 40,
             "title": "Seeded reviewer discussion thread",
-            "created_at": "2026-02-21T13:37:27.148035Z",
+            "created_at": "2026-02-21T14:59:13.692598Z",
             "reviewer_email": "test.discussion.reviewer@example.com",
             "reviewer_first_name": "Test",
             "reviewer_last_name": "Reviewer",
             "author_email": "test.discussion.author@example.com",
-            "submission_title": "MIGRATION-E2E Submission 1771655838860",
+            "submission_title": "FOCUSED-RERUN Submission 1771660749564",
             "message_count": 2,
-            "last_message_at": "2026-02-21T13:37:27.211497Z"
+            "last_message_at": "2026-02-21T14:59:13.748444Z"
           }
         ],
         "chair_threads": [
           {
-            "id": 1,
-            "submission_id": 8,
+            "id": 3,
+            "submission_id": 10,
             "reviewer_id": 165,
-            "conference_id": 38,
+            "conference_id": 40,
             "title": "Seeded reviewer discussion thread",
-            "created_at": "2026-02-21T13:37:27.148035Z",
+            "created_at": "2026-02-21T14:59:13.692598Z",
             "reviewer_email": "test.discussion.reviewer@example.com",
             "reviewer_first_name": "Test",
             "reviewer_last_name": "Reviewer",
             "author_email": "test.discussion.author@example.com",
-            "submission_title": "MIGRATION-E2E Submission 1771655838860",
+            "submission_title": "FOCUSED-RERUN Submission 1771660749564",
             "message_count": 2,
-            "last_message_at": "2026-02-21T13:37:27.211497Z"
+            "last_message_at": "2026-02-21T14:59:13.748444Z"
           }
         ]
       }
@@ -294,7 +333,7 @@
       "status": "pass",
       "message": "Discussion thread contains messages",
       "evidence": {
-        "thread_id": 1,
+        "thread_id": 3,
         "message_count": 2
       }
     },
@@ -303,8 +342,8 @@
       "status": "pass",
       "message": "Author notifications API check",
       "evidence": {
-        "unread_count": 1,
-        "sample_notification_count": 1
+        "unread_count": 3,
+        "sample_notification_count": 3
       }
     },
     {
@@ -312,8 +351,8 @@
       "status": "pass",
       "message": "Reviewer notifications API check",
       "evidence": {
-        "unread_count": 2,
-        "sample_notification_count": 2
+        "unread_count": 5,
+        "sample_notification_count": 5
       }
     },
     {
@@ -321,8 +360,8 @@
       "status": "pass",
       "message": "Chair notifications API check",
       "evidence": {
-        "unread_count": 1,
-        "sample_notification_count": 1
+        "unread_count": 3,
+        "sample_notification_count": 3
       }
     },
     {
@@ -330,7 +369,7 @@
       "status": "pass",
       "message": "Chair COI dashboard endpoint check",
       "evidence": {
-        "conference_id": 38,
+        "conference_id": 40,
         "total_reviewers": 1,
         "available_reviewers": 1,
         "total_papers": 1,
