@@ -160,3 +160,87 @@ type ReviewCriteriaAverages struct {
 	Significance     float64 `json:"significance"`
 	Methodology      float64 `json:"methodology"`
 }
+
+// ================== Suggestion DTOs ==================
+
+// SuggestedReviewer represents a suggested reviewer for a paper
+type SuggestedReviewer struct {
+	AssignmentID  int64   `json:"assignment_id"`
+	ReviewerID    int64   `json:"reviewer_id"`
+	ReviewerEmail string  `json:"reviewer_email"`
+	Score         float64 `json:"score"`
+}
+
+// SuggestionGroup represents suggestions grouped by submission
+type SuggestionGroup struct {
+	SubmissionID    int64               `json:"submission_id"`
+	SubmissionTitle string              `json:"submission_title"`
+	Reviewers       []SuggestedReviewer `json:"reviewers"`
+}
+
+// SuggestionsListResponse is the response for listing suggestions
+type SuggestionsListResponse struct {
+	Suggestions      []*SuggestionGroup `json:"suggestions"`
+	TotalPapers      int                `json:"total_papers"`
+	TotalSuggestions int64              `json:"total_suggestions"`
+}
+
+// ConfirmSuggestionsRequest is the request to confirm suggestions
+type ConfirmSuggestionsRequest struct {
+	AssignmentIDs []int64 `json:"assignment_ids,omitempty"`
+}
+
+// ConfirmSuggestionsResponse is the response for confirming suggestions
+type ConfirmSuggestionsResponse struct {
+	ConfirmedCount int64  `json:"confirmed_count"`
+	Message        string `json:"message"`
+}
+
+// AddSuggestionRequest is the request to manually add a suggested reviewer
+type AddSuggestionRequest struct {
+	SubmissionID int64 `json:"submission_id" binding:"required"`
+	ReviewerID   int64 `json:"reviewer_id" binding:"required"`
+}
+
+// AddSuggestionResponse is the response for adding a suggestion
+type AddSuggestionResponse struct {
+	Assignment *Assignment `json:"assignment"`
+	COIWarning *COIWarning `json:"coi_warning,omitempty"`
+}
+
+// COIWarning represents a conflict of interest warning
+type COIWarning struct {
+	HasConflict bool     `json:"has_conflict"`
+	Reasons     []string `json:"reasons"`
+}
+
+// COICheckResponse is the response for checking COI
+type COICheckResponse struct {
+	ReviewerID  int64    `json:"reviewer_id"`
+	HasConflict bool     `json:"has_conflict"`
+	Reasons     []string `json:"reasons"`
+}
+
+// ConfirmedReviewer represents a reviewer with confirmed assignment
+type ConfirmedReviewer struct {
+	AssignmentID  int64   `json:"assignment_id"`
+	ReviewerID    int64   `json:"reviewer_id"`
+	ReviewerEmail string  `json:"reviewer_email"`
+	Score         float64 `json:"score"`
+	Status        string  `json:"status"`        // pending, accepted, declined, completed
+	ReviewStatus  string  `json:"review_status"` // not_started, in_progress, submitted
+}
+
+// ConfirmedAssignmentGroup represents confirmed assignments grouped by submission
+type ConfirmedAssignmentGroup struct {
+	SubmissionID    int64               `json:"submission_id"`
+	SubmissionTitle string              `json:"submission_title"`
+	Reviewers       []ConfirmedReviewer `json:"reviewers"`
+}
+
+// ConfirmedAssignmentsListResponse is the response for listing confirmed assignments
+type ConfirmedAssignmentsListResponse struct {
+	Assignments       []*ConfirmedAssignmentGroup `json:"assignments"`
+	TotalPapers       int                         `json:"total_papers"`
+	TotalAssignments  int64                       `json:"total_assignments"`
+}

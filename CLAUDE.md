@@ -106,6 +106,14 @@ Frontend (`.env.local` in `/frontend`):
 - `BACKEND_API_BASE_URL` - Server-side API URL
 - `OPENROUTER_API_KEY` - Chatbot functionality
 
+## Frontend Styling Conventions
+
+When creating or modifying frontend components, always reference the styling convention files:
+- `frontend/.steerings/insights.md` - Design insights and patterns
+- `frontend/.steerings/sizings.md` - Sizing conventions (font sizes, spacing, etc.)
+
+Explore existing components in the platform to understand the styling patterns, then apply similar styling and sizing based on these convention files.
+
 ## OpenSpec
 
 This project uses OpenSpec for change proposals. When working on proposals, specs, architecture changes, or breaking changes, reference the OpenSpec documentation.

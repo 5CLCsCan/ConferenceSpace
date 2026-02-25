@@ -41,6 +41,7 @@ type Assignment struct {
 
 // Assignment status constants
 const (
+	AssignmentStatusSuggested = "suggested"
 	AssignmentStatusPending   = "pending"
 	AssignmentStatusAccepted  = "accepted"
 	AssignmentStatusDeclined  = "declined"

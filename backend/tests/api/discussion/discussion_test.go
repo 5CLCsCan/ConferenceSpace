@@ -93,6 +93,13 @@ func setupReviewingConference(t *testing.T, ctx *testutils.TestContext) (confere
 	}
 	testutils.AssertStatusCode(t, transitionResp, http.StatusOK)
 
+	// Confirm all suggestions (auto-assign creates suggestions, not confirmed assignments)
+	confirmResp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/assignments/suggestions/confirm", conferenceID), map[string]interface{}{}, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to confirm suggestions: %v", err)
+	}
+	testutils.AssertStatusCode(t, confirmResp, http.StatusOK)
+
 	return
 }
 

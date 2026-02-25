@@ -1,12 +1,15 @@
 "use client"
 
+import { useState } from "react"
 import { cn } from "@/lib/utils"
+import { apiFetch } from "@/lib/api/client"
 
 interface ChairAction {
   id: string
   label: string
   icon: string
   onClick?: () => void
+  loading?: boolean
 }
 
 interface NextMilestone {
@@ -15,16 +18,12 @@ interface NextMilestone {
 }
 
 interface ChairActionsPanelProps {
+  conferenceId: string
+  onNavigateToAssignments?: () => void
   actions?: ChairAction[]
   nextMilestone?: NextMilestone
   className?: string
 }
-
-const DEFAULT_ACTIONS: ChairAction[] = [
-  { id: "assign", label: "Assign Reviewers", icon: "person_add" },
-  { id: "cfp", label: "Edit CFP Details", icon: "edit_note" },
-  { id: "tracks", label: "Manage Tracks", icon: "alt_route" },
-]
 
 const DEFAULT_MILESTONE: NextMilestone = {
   label: "Author Notification",
@@ -32,10 +31,73 @@ const DEFAULT_MILESTONE: NextMilestone = {
 }
 
 export function ChairActionsPanel({
-  actions = DEFAULT_ACTIONS,
+  conferenceId,
+  onNavigateToAssignments,
+  actions,
   nextMilestone = DEFAULT_MILESTONE,
   className,
 }: ChairActionsPanelProps) {
+  const [autoAssignLoading, setAutoAssignLoading] = useState(false)
+  const [autoAssignError, setAutoAssignError] = useState<string | null>(null)
+  const [autoAssignSuccess, setAutoAssignSuccess] = useState<string | null>(null)
+
+  const handleAutoAssign = async () => {
+    setAutoAssignLoading(true)
+    setAutoAssignError(null)
+    setAutoAssignSuccess(null)
+
+    try {
+      const { data } = await apiFetch<{
+        data: {
+          total_assignments: number
+          total_submissions: number
+        }
+      }>(`/api/v1/conferences/${conferenceId}/submissions/auto-assign`, {
+        method: "POST",
+        body: JSON.stringify({
+          min_reviewers_per_paper: 2,
+          max_reviewers_per_paper: 3,
+          min_score_threshold: 0.0,
+          dry_run: false,
+        }),
+      })
+
+      setAutoAssignSuccess(
+        `Created ${data.data.total_assignments} suggestions for ${data.data.total_submissions} papers`,
+      )
+
+      // Navigate to assignments tab after success
+      if (onNavigateToAssignments) {
+        setTimeout(() => {
+          onNavigateToAssignments()
+        }, 1500)
+      }
+    } catch (error: any) {
+      setAutoAssignError(error.message || "Failed to run auto-assignment")
+    } finally {
+      setAutoAssignLoading(false)
+    }
+  }
+
+  const defaultActions: ChairAction[] = [
+    {
+      id: "auto-assign",
+      label: autoAssignLoading ? "Running..." : "Auto-Assign Reviewers",
+      icon: "auto_awesome",
+      onClick: handleAutoAssign,
+      loading: autoAssignLoading,
+    },
+    {
+      id: "view-assignments",
+      label: "View Assignments",
+      icon: "assignment_ind",
+      onClick: onNavigateToAssignments,
+    },
+    { id: "cfp", label: "Edit CFP Details", icon: "edit_note" },
+  ]
+
+  const displayActions = actions || defaultActions
+
   return (
     <div
       className={cn(
@@ -49,17 +111,33 @@ export function ChairActionsPanel({
       <div className="relative z-10">
         <h3 className="text-sm font-bold mb-3 tracking-tight">Chair Actions</h3>
 
+        {/* Status messages */}
+        {autoAssignError && (
+          <div className="mb-2 px-2 py-1.5 bg-red-500/20 border border-red-400/30 rounded text-[10px] text-red-200">
+            {autoAssignError}
+          </div>
+        )}
+        {autoAssignSuccess && (
+          <div className="mb-2 px-2 py-1.5 bg-green-500/20 border border-green-400/30 rounded text-[10px] text-green-200">
+            {autoAssignSuccess}
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="space-y-2">
-          {actions.map((action) => (
+          {displayActions.map((action) => (
             <button
               key={action.id}
               onClick={action.onClick}
-              className="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-left px-3 py-2.5 rounded-lg flex items-center justify-between transition-all"
+              disabled={action.loading}
+              className={cn(
+                "w-full bg-white/10 hover:bg-white/20 border border-white/20 text-left px-3 py-2.5 rounded-lg flex items-center justify-between transition-all",
+                action.loading && "opacity-50 cursor-not-allowed",
+              )}
             >
               <span className="text-[11px] font-medium">{action.label}</span>
               <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
-                {action.icon}
+                {action.loading ? "sync" : action.icon}
               </span>
             </button>
           ))}
