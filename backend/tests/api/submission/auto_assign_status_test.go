@@ -204,6 +204,15 @@ func TestAutoAssignUpdatesSubmissionStatus(t *testing.T) {
 
 		t.Logf("Auto-assignment created %d assignments", assignmentResult.Data.TotalAssignments)
 
+		// Confirm all suggestions (auto-assign creates suggestions, status updates on confirm)
+		confirmResp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/assignments/suggestions/confirm", conferenceID), map[string]interface{}{}, chairToken)
+		if err != nil {
+			t.Fatalf("Failed to confirm suggestions: %v", err)
+		}
+		if confirmResp.StatusCode != 200 {
+			t.Fatalf("Failed to confirm suggestions, status code: %d", confirmResp.StatusCode)
+		}
+
 		// Verify that assigned submissions now have "reviewing" status
 		// We need to check which submissions were assigned
 		sub1After, err := submissionClient.GetSuccess(conferenceID, created1.ID, chairToken)
@@ -371,6 +380,15 @@ func TestAutoAssignBulkStatusUpdate(t *testing.T) {
 
 	if autoAssignResp.StatusCode != 200 {
 		t.Fatalf("Auto-assignment failed with status code: %d", autoAssignResp.StatusCode)
+	}
+
+	// Confirm all suggestions (auto-assign creates suggestions, status updates on confirm)
+	confirmResp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/assignments/suggestions/confirm", conferenceID), map[string]interface{}{}, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to confirm suggestions: %v", err)
+	}
+	if confirmResp.StatusCode != 200 {
+		t.Fatalf("Failed to confirm suggestions, status code: %d", confirmResp.StatusCode)
 	}
 
 	// Verify all assigned submissions have "reviewing" status

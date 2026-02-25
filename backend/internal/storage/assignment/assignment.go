@@ -25,6 +25,12 @@ type StorageInterface interface {
 	GetReview(ctx context.Context, assignmentID int64) (*dto.Assignment, error)
 	GetReviewsBySubmission(ctx context.Context, submissionID int64, limit, offset int) ([]*dto.Assignment, int64, error)
 	GetReviewAnalytics(ctx context.Context, submissionID int64) (*dto.ReviewAnalyticsResponse, error)
+	// Suggestion methods
+	GetSuggestionsByConference(ctx context.Context, conferenceID int64) ([]*dto.SuggestionGroup, int64, error)
+	GetConfirmedAssignmentsByConference(ctx context.Context, conferenceID int64) ([]*dto.ConfirmedAssignmentGroup, int64, error)
+	ConfirmSuggestions(ctx context.Context, conferenceID int64, assignmentIDs []int64) (int64, error)
+	DeleteSuggestion(ctx context.Context, assignmentID int64) error
+	DeleteSuggestionsByConference(ctx context.Context, conferenceID int64) error
 }
 
 type ListParams struct {
@@ -652,4 +658,238 @@ func (s *Storage) GetReviewAnalytics(ctx context.Context, submissionID int64) (*
 	}
 
 	return &analytics, nil
+}
+
+// GetSuggestionsByConference retrieves all suggested assignments grouped by submission
+func (s *Storage) GetSuggestionsByConference(ctx context.Context, conferenceID int64) ([]*dto.SuggestionGroup, int64, error) {
+	query := `
+		SELECT
+			pa.id, pa.submission_id, pa.reviewer_id, pa.score,
+			cs.title as submission_title,
+			u.email as reviewer_email
+		FROM paper_assignments pa
+		JOIN conference_submissions cs ON pa.submission_id = cs.submission_id
+		JOIN conference_reviewers cr ON pa.reviewer_id = cr.id
+		JOIN users u ON cr.user_id = u.user_id
+		WHERE pa.conference_id = $1 AND pa.status = 'suggested'
+		ORDER BY pa.submission_id, pa.score DESC
+	`
+
+	rows, err := s.db.QueryContext(ctx, query, conferenceID)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to query suggestions: %w", err)
+	}
+	defer rows.Close()
+
+	// Group by submission
+	groupMap := make(map[int64]*dto.SuggestionGroup)
+	var totalSuggestions int64
+
+	for rows.Next() {
+		var (
+			id, subID, revID                 int64
+			score                            float64
+			submissionTitle, reviewerEmail   string
+		)
+
+		err := rows.Scan(&id, &subID, &revID, &score, &submissionTitle, &reviewerEmail)
+		if err != nil {
+			return nil, 0, fmt.Errorf("failed to scan suggestion: %w", err)
+		}
+
+		group, exists := groupMap[subID]
+		if !exists {
+			group = &dto.SuggestionGroup{
+				SubmissionID:    subID,
+				SubmissionTitle: submissionTitle,
+				Reviewers:       []dto.SuggestedReviewer{},
+			}
+			groupMap[subID] = group
+		}
+
+		group.Reviewers = append(group.Reviewers, dto.SuggestedReviewer{
+			AssignmentID:  id,
+			ReviewerID:    revID,
+			ReviewerEmail: reviewerEmail,
+			Score:         score,
+		})
+		totalSuggestions++
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, 0, fmt.Errorf("error iterating suggestions: %w", err)
+	}
+
+	// Convert map to slice
+	groups := make([]*dto.SuggestionGroup, 0, len(groupMap))
+	for _, g := range groupMap {
+		groups = append(groups, g)
+	}
+
+	return groups, totalSuggestions, nil
+}
+
+// GetConfirmedAssignmentsByConference retrieves all confirmed assignments grouped by submission
+// Confirmed means status is not 'suggested' (i.e., pending, accepted, declined, or completed)
+func (s *Storage) GetConfirmedAssignmentsByConference(ctx context.Context, conferenceID int64) ([]*dto.ConfirmedAssignmentGroup, int64, error) {
+	query := `
+		SELECT
+			pa.id, pa.submission_id, pa.reviewer_id, pa.score, pa.status,
+			COALESCE(pa.review_status, 'not_started') as review_status,
+			cs.title as submission_title,
+			u.email as reviewer_email
+		FROM paper_assignments pa
+		JOIN conference_submissions cs ON pa.submission_id = cs.submission_id
+		JOIN conference_reviewers cr ON pa.reviewer_id = cr.id
+		JOIN users u ON cr.user_id = u.user_id
+		WHERE pa.conference_id = $1 AND pa.status != 'suggested'
+		ORDER BY pa.submission_id, pa.status, pa.score DESC
+	`
+
+	rows, err := s.db.QueryContext(ctx, query, conferenceID)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to query confirmed assignments: %w", err)
+	}
+	defer rows.Close()
+
+	// Group by submission
+	groupMap := make(map[int64]*dto.ConfirmedAssignmentGroup)
+	var totalAssignments int64
+
+	for rows.Next() {
+		var (
+			id, subID, revID               int64
+			score                          float64
+			status, reviewStatus           string
+			submissionTitle, reviewerEmail string
+		)
+
+		err := rows.Scan(&id, &subID, &revID, &score, &status, &reviewStatus, &submissionTitle, &reviewerEmail)
+		if err != nil {
+			return nil, 0, fmt.Errorf("failed to scan confirmed assignment: %w", err)
+		}
+
+		group, exists := groupMap[subID]
+		if !exists {
+			group = &dto.ConfirmedAssignmentGroup{
+				SubmissionID:    subID,
+				SubmissionTitle: submissionTitle,
+				Reviewers:       []dto.ConfirmedReviewer{},
+			}
+			groupMap[subID] = group
+		}
+
+		group.Reviewers = append(group.Reviewers, dto.ConfirmedReviewer{
+			AssignmentID:  id,
+			ReviewerID:    revID,
+			ReviewerEmail: reviewerEmail,
+			Score:         score,
+			Status:        status,
+			ReviewStatus:  reviewStatus,
+		})
+		totalAssignments++
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, 0, fmt.Errorf("error iterating confirmed assignments: %w", err)
+	}
+
+	// Convert map to slice
+	groups := make([]*dto.ConfirmedAssignmentGroup, 0, len(groupMap))
+	for _, g := range groupMap {
+		groups = append(groups, g)
+	}
+
+	return groups, totalAssignments, nil
+}
+
+// ConfirmSuggestions updates status from 'suggested' to 'pending' for given IDs
+func (s *Storage) ConfirmSuggestions(ctx context.Context, conferenceID int64, assignmentIDs []int64) (int64, error) {
+	if len(assignmentIDs) == 0 {
+		// Confirm all suggestions for this conference
+		query, args, err := s.qb.
+			Update(model.AssignmentTableName).
+			Set(model.ColStatus, model.AssignmentStatusPending).
+			Set(model.ColUpdatedAt, sq.Expr("NOW()")).
+			Where(sq.Eq{model.ColConferenceID: conferenceID}).
+			Where(sq.Eq{model.ColStatus: model.AssignmentStatusSuggested}).
+			ToSql()
+		if err != nil {
+			return 0, fmt.Errorf("failed to build update query: %w", err)
+		}
+
+		result, err := s.db.ExecContext(ctx, query, args...)
+		if err != nil {
+			return 0, fmt.Errorf("failed to confirm suggestions: %w", err)
+		}
+
+		return result.RowsAffected()
+	}
+
+	// Confirm specific IDs
+	query, args, err := s.qb.
+		Update(model.AssignmentTableName).
+		Set(model.ColStatus, model.AssignmentStatusPending).
+		Set(model.ColUpdatedAt, sq.Expr("NOW()")).
+		Where(sq.Eq{model.ColConferenceID: conferenceID}).
+		Where(sq.Eq{"id": assignmentIDs}).
+		Where(sq.Eq{model.ColStatus: model.AssignmentStatusSuggested}).
+		ToSql()
+	if err != nil {
+		return 0, fmt.Errorf("failed to build update query: %w", err)
+	}
+
+	result, err := s.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return 0, fmt.Errorf("failed to confirm suggestions: %w", err)
+	}
+
+	return result.RowsAffected()
+}
+
+// DeleteSuggestion deletes a single suggested assignment
+func (s *Storage) DeleteSuggestion(ctx context.Context, assignmentID int64) error {
+	query, args, err := s.qb.
+		Delete(model.AssignmentTableName).
+		Where(sq.Eq{"id": assignmentID}).
+		Where(sq.Eq{model.ColStatus: model.AssignmentStatusSuggested}).
+		ToSql()
+	if err != nil {
+		return fmt.Errorf("failed to build delete query: %w", err)
+	}
+
+	result, err := s.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to delete suggestion: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to get rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("suggestion not found or already confirmed")
+	}
+
+	return nil
+}
+
+// DeleteSuggestionsByConference deletes all suggested assignments for a conference
+func (s *Storage) DeleteSuggestionsByConference(ctx context.Context, conferenceID int64) error {
+	query, args, err := s.qb.
+		Delete(model.AssignmentTableName).
+		Where(sq.Eq{model.ColConferenceID: conferenceID}).
+		Where(sq.Eq{model.ColStatus: model.AssignmentStatusSuggested}).
+		ToSql()
+	if err != nil {
+		return fmt.Errorf("failed to build delete query: %w", err)
+	}
+
+	_, err = s.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to delete suggestions: %w", err)
+	}
+
+	return nil
 }

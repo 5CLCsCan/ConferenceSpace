@@ -5,14 +5,17 @@ import { cn } from "@/lib/utils"
 import { getConferenceSubmissions } from "@/lib/api/submissions"
 import { getConferenceById } from "@/lib/api/conferences"
 import { DashboardStatsCard, DashboardStatsGrid } from "./dashboard-stats-card"
+import { ChairActionsPanel } from "./chair-actions-panel"
 
 interface ConferenceDetailDashboardProps {
   conferenceId: string
+  onNavigateToAssignments?: () => void
   className?: string
 }
 
 export function ConferenceDetailDashboard({
   conferenceId,
+  onNavigateToAssignments,
   className,
 }: ConferenceDetailDashboardProps) {
   const [loading, setLoading] = useState(true)
@@ -83,32 +86,43 @@ export function ConferenceDetailDashboard({
 
   return (
     <div className={cn("space-y-4", className)}>
-      <DashboardStatsGrid>
-        <DashboardStatsCard
-          label="Total Submissions"
-          value={String(stats.totalSubmissions)}
-          icon="description"
-          subtext="Live submissions count"
-        />
-        <DashboardStatsCard
-          label="Under Review"
-          value={String(stats.reviewingSubmissions)}
-          icon="rate_review"
-          subtext="Current reviewing workload"
-        />
-        <DashboardStatsCard
-          label="Acceptance Rate"
-          value={`${acceptanceRate}%`}
-          icon="verified"
-          subtext={`${stats.acceptedSubmissions} accepted`}
-        />
-        <DashboardStatsCard
-          label="Days to Deadline"
-          value={String(stats.daysToSubmissionDeadline)}
-          icon="event"
-          subtext="Until submission deadline"
-        />
-      </DashboardStatsGrid>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div className="lg:col-span-3">
+          <DashboardStatsGrid>
+            <DashboardStatsCard
+              label="Total Submissions"
+              value={String(stats.totalSubmissions)}
+              icon="description"
+              subtext="Live submissions count"
+            />
+            <DashboardStatsCard
+              label="Under Review"
+              value={String(stats.reviewingSubmissions)}
+              icon="rate_review"
+              subtext="Current reviewing workload"
+            />
+            <DashboardStatsCard
+              label="Acceptance Rate"
+              value={`${acceptanceRate}%`}
+              icon="verified"
+              subtext={`${stats.acceptedSubmissions} accepted`}
+            />
+            <DashboardStatsCard
+              label="Days to Deadline"
+              value={String(stats.daysToSubmissionDeadline)}
+              icon="event"
+              subtext="Until submission deadline"
+            />
+          </DashboardStatsGrid>
+        </div>
+
+        <div className="lg:col-span-1">
+          <ChairActionsPanel
+            conferenceId={conferenceId}
+            onNavigateToAssignments={onNavigateToAssignments}
+          />
+        </div>
+      </div>
 
       {/*
       BACKEND REQUEST: <Implement GET /api/v1/conferences/:conference_id/stats; chair dashboard and conference analytics in frontend currently require synthetic/derived fallback metrics without an authoritative stats contract; return stable aggregates (submission totals, review progress, acceptance metrics, track/time breakdowns) with explicit field schema and empty-state behavior for new conferences.>

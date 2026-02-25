@@ -97,6 +97,13 @@ func TestSaveReviewAsDraft(t *testing.T) {
 	testutils.DecodeResponse(t, transitionResp, &transitionData)
 	t.Logf("Status transition: %s", transitionData.Data.Message)
 
+	// Confirm all suggestions (auto-assign creates suggestions, not confirmed assignments)
+	confirmResp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/assignments/suggestions/confirm", conferenceID), map[string]interface{}{}, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to confirm suggestions: %v", err)
+	}
+	testutils.AssertStatusCode(t, confirmResp, http.StatusOK)
+
 	// Get the assignment ID by calling the reviewer's papers endpoint (proper API flow)
 	papersResp, err := ctx.MakeRequest("GET", fmt.Sprintf("/api/v1/reviewer/%s/conferences/%d/papers", reviewer.Email, conferenceID), nil, reviewerToken)
 	if err != nil {

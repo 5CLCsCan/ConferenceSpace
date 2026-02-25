@@ -251,6 +251,13 @@ func TestNotificationOnReviewAssigned(t *testing.T) {
 
 	t.Logf("Auto-assignment created %d assignment(s)", assignData.Data.TotalAssignments)
 
+	// Confirm all suggestions (auto-assign creates suggestions, notifications are sent on confirm)
+	confirmResp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/assignments/suggestions/confirm", conferenceID), map[string]interface{}{}, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to confirm suggestions: %v", err)
+	}
+	testutils.AssertStatusCode(t, confirmResp, http.StatusOK)
+
 	// Wait for async notification to be created
 	time.Sleep(100 * time.Millisecond)
 

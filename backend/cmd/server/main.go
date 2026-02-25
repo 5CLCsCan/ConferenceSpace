@@ -287,6 +287,18 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 		{
 			assignments.PUT("/:assignment_id/review", handler.HandleRequestWithAll(ctrl.Assignment.SaveReview))
 			assignments.GET("/:assignment_id/review", handler.HandleRequestWithURI(ctrl.Assignment.GetReview))
+
+			// Suggestion routes (chair only)
+			suggestions := assignments.Group("/suggestions")
+			{
+				suggestions.GET("", handler.HandleNoRequest(ctrl.Assignment.GetSuggestions))
+				suggestions.POST("", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Assignment.AddSuggestion))
+				suggestions.POST("/confirm", handler.HandleRequest(ctrl.Assignment.ConfirmSuggestions))
+				suggestions.DELETE("/:assignment_id", handler.HandleNoRequestWithMessage("suggestion deleted successfully", ctrl.Assignment.DeleteSuggestion))
+			}
+
+			// Confirmed assignments route (chair only)
+			assignments.GET("/confirmed", handler.HandleNoRequest(ctrl.Assignment.GetConfirmedAssignments))
 		}
 
 		// COI (Conflict of Interest) routes (authentication required)
