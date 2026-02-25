@@ -3,7 +3,8 @@
 import { useState, useMemo } from "react"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { useNotifications } from "@/hooks/use-notifications"
-import { Calendar } from "@/components/ui/calendar"
+import { Calendar, CalendarDayButton } from "@/components/ui/calendar"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { cva } from "class-variance-authority"
 import { getSidebarMenuItems } from "@/lib/navigation"
@@ -734,48 +735,83 @@ export default function ChairSchedulesPage() {
 
             <div className="flex items-center gap-3">
               {/* Conference Filter */}
-              <select
-                value={selectedConference}
-                onChange={(e) => setSelectedConference(e.target.value)}
-                className="h-8 px-3 text-[11px] font-medium rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[#1B3C53] dark:text-white focus:ring-1 focus:ring-[#1B3C53] cursor-pointer"
-              >
-                {conferences.map((conf) => (
-                  <option key={conf} value={conf}>
-                    {conf === "all" ? "All Conferences" : conf}
-                  </option>
-                ))}
-              </select>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <select
+                    value={selectedConference}
+                    onChange={(e) => setSelectedConference(e.target.value)}
+                    className="h-8 px-3 text-[11px] font-medium rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[#1B3C53] dark:text-white focus:ring-1 focus:ring-[#1B3C53] cursor-pointer"
+                  >
+                    {conferences.map((conf) => (
+                      <option key={conf} value={conf}>
+                        {conf === "all" ? "All Conferences" : conf}
+                      </option>
+                    ))}
+                  </select>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="bottom"
+                  sideOffset={8}
+                  className="border-0 rounded-xl text-[10px] text-slate-500 dark:text-slate-300"
+                >
+                  Filter events by conference
+                </TooltipContent>
+              </Tooltip>
 
               {/* View Toggle */}
               <div className="bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg flex gap-0.5">
-                <button
-                  onClick={() => setViewMode("calendar")}
-                  className={cn(
-                    "w-8 h-8 rounded flex items-center justify-center transition-all",
-                    viewMode === "calendar"
-                      ? "bg-white dark:bg-slate-700 shadow-sm text-[#1B3C53] dark:text-white"
-                      : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300",
-                  )}
-                  title="Calendar View"
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
-                    calendar_month
-                  </span>
-                </button>
-                <button
-                  onClick={() => setViewMode("timeline")}
-                  className={cn(
-                    "w-8 h-8 rounded flex items-center justify-center transition-all",
-                    viewMode === "timeline"
-                      ? "bg-white dark:bg-slate-700 shadow-sm text-[#1B3C53] dark:text-white"
-                      : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300",
-                  )}
-                  title="Timeline View"
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
-                    view_timeline
-                  </span>
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => setViewMode("calendar")}
+                      className={cn(
+                        "w-8 h-8 rounded flex items-center justify-center transition-all",
+                        viewMode === "calendar"
+                          ? "bg-white dark:bg-slate-700 shadow-sm text-[#1B3C53] dark:text-white"
+                          : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300",
+                      )}
+                      aria-label="Switch to calendar view"
+                      title="Calendar View"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+                        calendar_month
+                      </span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="bottom"
+                    sideOffset={8}
+                    className="border-0 rounded-xl text-[10px] text-slate-500 dark:text-slate-300"
+                  >
+                    Calendar view
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => setViewMode("timeline")}
+                      className={cn(
+                        "w-8 h-8 rounded flex items-center justify-center transition-all",
+                        viewMode === "timeline"
+                          ? "bg-white dark:bg-slate-700 shadow-sm text-[#1B3C53] dark:text-white"
+                          : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300",
+                      )}
+                      aria-label="Switch to timeline view"
+                      title="Timeline View"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+                        view_timeline
+                      </span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="bottom"
+                    sideOffset={8}
+                    className="border-0 rounded-xl text-[10px] text-slate-500 dark:text-slate-300"
+                  >
+                    Timeline view
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
           </div>
@@ -841,59 +877,30 @@ export default function ChairSchedulesPage() {
                     mode="single"
                     selected={selectedDate}
                     onSelect={(date) => date && setSelectedDate(date)}
-                    className="w-full"
-                    modifiers={{
-                      hasDeadline: (date) => {
-                        const types = eventDates.get(date.toDateString())
-                        return types?.includes("deadline") || false
-                      },
-                      hasMeeting: (date) => {
-                        const types = eventDates.get(date.toDateString())
-                        return types?.includes("meeting") || false
-                      },
-                      hasMilestone: (date) => {
-                        const types = eventDates.get(date.toDateString())
-                        return types?.includes("milestone") || false
-                      },
-                    }}
-                    modifiersStyles={{
-                      hasDeadline: {
-                        position: "relative",
-                      },
-                      hasMeeting: {
-                        position: "relative",
-                      },
-                      hasMilestone: {
-                        position: "relative",
-                      },
+                    className="w-full [--cell-size:clamp(3.1rem,6.5vw,5rem)]"
+                    classNames={{
+                      today:
+                        "text-amber-500 font-semibold rounded-md data-[selected=true]:rounded-none dark:text-amber-300",
                     }}
                     components={{
-                      DayButton: ({ day, modifiers, ...props }) => {
+                      DayButton: ({ day, modifiers, className, ...props }) => {
                         const types = eventDates.get(day.date.toDateString())
                         const hasEvents = types && types.length > 0
 
                         return (
-                          <button
-                            {...(props as React.ButtonHTMLAttributes<HTMLButtonElement>)}
+                          <CalendarDayButton
+                            day={day}
+                            modifiers={modifiers}
                             className={cn(
-                              "flex flex-col items-center justify-center w-full h-full min-h-[40px] rounded-md transition-colors relative",
-                              modifiers.selected && "bg-[#1B3C53] text-white",
-                              modifiers.today &&
-                                !modifiers.selected &&
-                                "bg-slate-100 dark:bg-slate-800",
-                              !modifiers.selected && "hover:bg-slate-50 dark:hover:bg-slate-800",
+                              className,
+                              "relative mx-0 w-full min-w-0 max-w-none h-[calc(var(--cell-size)*1.05)]",
+                              modifiers.selected && "bg-[#1B3C53] text-white hover:bg-[#1B3C53] hover:text-white",
                             )}
+                            {...props}
                           >
-                            <span
-                              className={cn(
-                                "text-xs font-medium",
-                                modifiers.outside && "text-slate-300 dark:text-slate-600",
-                              )}
-                            >
-                              {day.date.getDate()}
-                            </span>
+                            <span>{day.date.getDate()}</span>
                             {hasEvents && (
-                              <div className="flex gap-0.5 mt-0.5">
+                              <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex items-center gap-0.5">
                                 {types.includes("deadline") && (
                                   <span className="w-1 h-1 rounded-full bg-red-500" />
                                 )}
@@ -905,7 +912,7 @@ export default function ChairSchedulesPage() {
                                 )}
                               </div>
                             )}
-                          </button>
+                          </CalendarDayButton>
                         )
                       },
                     }}
@@ -946,4 +953,3 @@ export default function ChairSchedulesPage() {
     </div>
   )
 }
-

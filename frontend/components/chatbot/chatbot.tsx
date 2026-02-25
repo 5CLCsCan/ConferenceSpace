@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { MessageCircle, X, ArrowLeft } from "lucide-react"
+import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ChatView } from "./chat-view"
@@ -119,6 +120,7 @@ function loadConversationsFromChatStorage(): ChatConversation[] {
 }
 
 export function Chatbot() {
+  const pathname = usePathname()
   const { isOpen, setIsOpen, width, setWidth } = useChatbot()
   const [isResizing, setIsResizing] = React.useState(false)
   const sidebarRef = React.useRef<HTMLDivElement>(null)
@@ -128,6 +130,8 @@ export function Chatbot() {
   const [isAnimating, setIsAnimating] = React.useState(false)
   const [isWindowAnimating, setIsWindowAnimating] = React.useState(false)
   const [swipeDirection, setSwipeDirection] = React.useState<"forward" | "back" | null>(null)
+
+  const shouldHideOnRoute = pathname === "/login" || pathname === "/register"
 
   // Load conversations on mount
   React.useEffect(() => {
@@ -446,6 +450,10 @@ export function Chatbot() {
       document.body.style.userSelect = ""
     }
   }, [isResizing, setWidth])
+
+  if (shouldHideOnRoute) {
+    return null
+  }
 
   return (
     <>
