@@ -277,13 +277,14 @@ export function PaperSubmissionForm({
         title,
         abstract,
         link: "",
-        domain: [],
+        domain: conflictDomains,
         status: "draft" as const,
         track: selectedTrack,
+        file: uploadedFile ?? undefined,
         information: {
           keywords,
           co_authors: authors.slice(1).map((a) => a.email),
-          declared_conflicts: [],
+          declared_conflicts: conflicts.map((c) => ({ email: c.email, reason: c.reason })),
           paper_type: isStudentPaper ? "student" : "research",
           track_name: selectedTrack,
           additional_notes: "",
@@ -340,13 +341,14 @@ export function PaperSubmissionForm({
         title,
         abstract,
         link: "",
-        domain: [],
+        domain: conflictDomains,
         status: "published" as const,
         track: selectedTrack,
+        file: uploadedFile ?? undefined,
         information: {
           keywords,
           co_authors: authors.slice(1).map((a) => a.email),
-          declared_conflicts: [],
+          declared_conflicts: conflicts.map((c) => ({ email: c.email, reason: c.reason })),
           paper_type: isStudentPaper ? "student" : "research",
           track_name: selectedTrack,
           additional_notes: "",
@@ -471,6 +473,17 @@ export function PaperSubmissionForm({
                 fileValidation={fileValidation}
                 conference={conference}
                 submissionId={initialSubmission?.id?.toString()}
+                existingFile={
+                  uploadedFile
+                    ? undefined
+                    : initialSubmission?.file
+                      ? {
+                          name: initialSubmission.file.original_name,
+                          size: initialSubmission.file.size,
+                          type: "application/pdf",
+                        }
+                      : undefined
+                }
                 onFileUpload={handleFileUpload}
                 onRemoveFile={handleRemoveFile}
               />
