@@ -133,6 +133,7 @@ function SubmissionFilesCard({
               <button
                 className="p-2 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors"
                 title="Preview"
+                onClick={() => window.open(fileUrl!, '_blank')}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
                   visibility

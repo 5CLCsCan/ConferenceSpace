@@ -255,6 +255,10 @@ export function FileUploadStep({
                   className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors"
                   title="Preview"
                   type="button"
+                  onClick={() => {
+                    const url = URL.createObjectURL(uploadedFile)
+                    window.open(url, '_blank')
+                  }}
                 >
                   <span className="material-symbols-outlined text-[18px]">visibility</span>
                 </button>
