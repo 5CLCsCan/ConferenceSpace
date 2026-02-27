@@ -180,6 +180,26 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
           c.paperTitle?.toLowerCase().includes(query),
       )
     }
+    const statusOrder: Record<string, number> = {
+      accepted: 0,
+      "under-review": 1,
+      submitted: 2,
+      rejected: 3,
+    }
+    if (sortBy === "name-asc") {
+      filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name))
+    } else if (sortBy === "status") {
+      filtered = [...filtered].sort(
+        (a, b) => (statusOrder[a.status] ?? 9) - (statusOrder[b.status] ?? 9),
+      )
+    } else {
+      // date-newest: sort by submissionDeadline descending
+      filtered = [...filtered].sort((a, b) => {
+        const da = a.submissionDeadline ? new Date(a.submissionDeadline).getTime() : 0
+        const db = b.submissionDeadline ? new Date(b.submissionDeadline).getTime() : 0
+        return db - da
+      })
+    }
     return filtered
   }
 
@@ -195,6 +215,18 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
           c.topics.some((t) => t.toLowerCase().includes(query)),
       )
     }
+    if (sortBy === "name-asc") {
+      filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name))
+    } else if (sortBy === "date-upcoming") {
+      filtered = [...filtered].sort((a, b) => a.dates.localeCompare(b.dates))
+    } else {
+      // deadline: call-for-papers first, then upcoming, then name
+      filtered = [...filtered].sort((a, b) => {
+        const order: Record<string, number> = { "call-for-papers": 0, upcoming: 1 }
+        const diff = (order[a.exploreStatus] ?? 9) - (order[b.exploreStatus] ?? 9)
+        return diff !== 0 ? diff : a.name.localeCompare(b.name)
+      })
+    }
     return filtered
   }
 
@@ -209,6 +241,12 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
           c.fullDescription.toLowerCase().includes(query) ||
           c.location.toLowerCase().includes(query),
       )
+    }
+    if (sortBy === "name-asc") {
+      filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name))
+    } else {
+      // date-newest: sort by dates string descending
+      filtered = [...filtered].sort((a, b) => b.dates.localeCompare(a.dates))
     }
     return filtered
   }

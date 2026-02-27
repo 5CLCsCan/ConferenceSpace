@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { submitPaper, updatePaper } from "@/lib/api/papers"
+import { submitPaper, updatePaper, publishPaper } from "@/lib/api/papers"
 import { useAuth } from "@/lib/auth-context"
 import { ROUTES } from "@/lib/routes"
 import type { Conference } from "@/lib/types"
@@ -61,11 +61,11 @@ export function PaperSubmissionForm({
   const [authors, setAuthors] = useState<Author[]>([
     {
       id: "1",
-      firstName: user?.name?.split(" ")[0] || "Sarah",
-      lastName: user?.name?.split(" ").slice(1).join(" ") || "Connor",
-      email: user?.email || "sarah.connor@skynet.edu",
-      affiliation: "Massachusetts Institute of Technology",
-      country: "United States",
+      firstName: user?.first_name || user?.name?.split(" ")[0] || "",
+      lastName: user?.last_name || user?.name?.split(" ").slice(1).join(" ") || "",
+      email: user?.email || "",
+      affiliation: user?.affiliation || "",
+      country: "",
       isCorresponding: true,
     },
   ])
@@ -359,9 +359,19 @@ export function PaperSubmissionForm({
         },
       }
 
-      const response = initialSubmission
-        ? await updatePaper(initialSubmission.id.toString(), conference.id, submissionData)
-        : await submitPaper({ conference_id: conference.id, ...submissionData })
+      let response: { data: any; error: string | null }
+      if (initialSubmission) {
+        // First update metadata/file, then publish
+        response = await updatePaper(initialSubmission.id.toString(), conference.id, submissionData)
+        if (!response.error && initialSubmission.status === "draft") {
+          const publishRes = await publishPaper(initialSubmission.id.toString(), conference.id)
+          if (publishRes.error) {
+            response = { data: null, error: publishRes.error }
+          }
+        }
+      } else {
+        response = await submitPaper({ conference_id: conference.id, ...submissionData })
+      }
 
       if (response.error) {
         toast({
