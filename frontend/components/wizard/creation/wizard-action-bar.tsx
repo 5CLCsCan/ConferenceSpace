@@ -6,6 +6,7 @@ interface WizardActionBarProps {
   currentStep: number
   totalSteps: number
   nextStepLabel?: string
+  previousStepLabel?: string
   onCancel: () => void
   onSaveDraft: () => void
   onNext: () => void
@@ -19,6 +20,7 @@ export function WizardActionBar({
   currentStep,
   totalSteps,
   nextStepLabel,
+  previousStepLabel,
   onCancel,
   onSaveDraft,
   onNext,
@@ -30,7 +32,7 @@ export function WizardActionBar({
   const isLastStep = currentStep === totalSteps
 
   return (
-    <div className="absolute bottom-0 left-0 lg:left-64 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-3 px-4 z-30">
+    <div className="absolute bottom-0 left-0 lg:left-[240px] right-0 bg-white dark:bg-slate-900 py-3 px-4 z-30">
       <div className="max-w-4xl mx-auto flex items-center justify-between">
         {/* Return Button */}
         <button
@@ -59,7 +61,7 @@ export function WizardActionBar({
           >
             arrow_back
           </span>
-          Return
+          Back
         </button>
 
         {/* Right Side Actions */}
@@ -93,6 +95,18 @@ export function WizardActionBar({
             </span>
             Save Draft
           </button>
+
+          {/* Previous Step Button */}
+          {currentStep > 1 && (
+            <button
+              type="button"
+              onClick={onPrevious}
+              className="flex items-center gap-1.5 h-9 px-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-md text-[10px] font-medium shadow-sm transition-all uppercase tracking-wider"
+            >
+              <span className="material-symbols-outlined text-[14px]">arrow_back</span>
+              {previousStepLabel || "Previous"}
+            </button>
+          )}
 
           {/* Next / Submit Button */}
           {isLastStep ? (

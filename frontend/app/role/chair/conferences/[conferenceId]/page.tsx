@@ -13,6 +13,7 @@ import {
   ConferenceCommittee,
   ConferenceCOI,
   ConferenceSubmissions,
+  ConferenceAssignments,
   type TabId,
   type ConferenceInfo,
 } from "@/components/chair/conference-detail"
@@ -74,7 +75,12 @@ export default function ChairConferenceDetailPage() {
   const renderTabContent = () => {
     switch (activeTab) {
       case "dashboard":
-        return <ConferenceDetailDashboard conferenceId={conferenceId} />
+        return (
+          <ConferenceDetailDashboard
+            conferenceId={conferenceId}
+            onNavigateToAssignments={() => setActiveTab("assignments")}
+          />
+        )
       case "overview":
         return <ConferenceOverview conferenceId={conferenceId} />
       case "cfp":
@@ -85,6 +91,8 @@ export default function ChairConferenceDetailPage() {
         return <ConferenceCommittee conferenceId={conferenceId} />
       case "submissions":
         return <ConferenceSubmissions conferenceId={conferenceId} />
+      case "assignments":
+        return <ConferenceAssignments conferenceId={conferenceId} />
       case "coi":
         return <ConferenceCOI conferenceId={conferenceId} />
       default:

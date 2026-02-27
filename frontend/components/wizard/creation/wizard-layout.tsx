@@ -27,6 +27,14 @@ const STEP_NEXT_LABELS: Record<number, string> = {
   5: "Next: Final Review",
 }
 
+const STEP_PREVIOUS_LABELS: Partial<Record<number, string>> = {
+  2: "Previous: Basic",
+  3: "Previous: Topics",
+  4: "Previous: Policy",
+  5: "Previous: CFP",
+  6: "Previous: Committees",
+}
+
 export function WizardLayout({
   children,
   currentStep,
@@ -61,6 +69,7 @@ export function WizardLayout({
           currentStep={currentStep}
           totalSteps={WIZARD_STEPS.length}
           nextStepLabel={STEP_NEXT_LABELS[currentStep]}
+          previousStepLabel={STEP_PREVIOUS_LABELS[currentStep]}
           onCancel={onCancel}
           onSaveDraft={onSaveDraft}
           onNext={onNext}

@@ -10,5 +10,5 @@ export default function ChairRoleLayout({ children }: { children: ReactNode }) {
     return null
   }
 
-  return <>{children}</>
+  return <div className="chair-ui">{children}</div>
 }

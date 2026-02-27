@@ -72,6 +72,10 @@ export default function CreateConferencePage() {
   }
 
   const handleCancel = () => {
+    if (window.history.length > 1) {
+      router.back()
+      return
+    }
     router.push(ROUTES.CHAIR.CONFERENCES)
   }
 

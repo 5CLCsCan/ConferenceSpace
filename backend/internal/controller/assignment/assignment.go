@@ -96,9 +96,9 @@ func (c *Controller) AutoAssign(ginCtx *gin.Context, req *dto.AutoAssignRequest)
 		return nil, err
 	}
 
-	// Store COI relationships in database (only if not a dry run)
+	// Store COI relationships in database
 	// This enables the COI dashboard without manually calling rebuild
-	if !req.DryRun && c.coiService != nil {
+	if c.coiService != nil {
 		go func() {
 			bgCtx := context.Background()
 			count, err := c.coiService.BuildAndStoreRelationships(bgCtx, conferenceID)
@@ -110,45 +110,9 @@ func (c *Controller) AutoAssign(ginCtx *gin.Context, req *dto.AutoAssignRequest)
 		}()
 	}
 
-	// Send notifications to assigned reviewers (only if not a dry run)
-	if c.notificationService != nil && !req.DryRun {
-		// Capture values for goroutine (use background context since request context will be cancelled)
-		assignments := result.Assignments
-		confID := conferenceID
-		revStorage := c.reviewerStorage
-		subStorage := c.submissionStorage
-		notifSvc := c.notificationService
-		go func() {
-			bgCtx := context.Background()
-			for _, assign := range assignments {
-				// Get reviewer email
-				reviewer, err := revStorage.GetByID(bgCtx, assign.ReviewerID)
-				if err != nil {
-					fmt.Printf("Warning: Failed to get reviewer for notification: %v\n", err)
-					continue
-				}
-
-				// Get submission title
-				submission, err := subStorage.GetByID(bgCtx, assign.SubmissionID)
-				if err != nil {
-					fmt.Printf("Warning: Failed to get submission for notification: %v\n", err)
-					continue
-				}
-
-				err = notifSvc.NotifyReviewAssigned(
-					bgCtx,
-					reviewer.Email,
-					submission.Title,
-					confID,
-					assign.SubmissionID,
-					assign.ID,
-				)
-				if err != nil {
-					fmt.Printf("Warning: Failed to notify reviewer about assignment: %v\n", err)
-				}
-			}
-		}()
-	}
+	// NOTE: Notifications are NOT sent here anymore.
+	// Assignments are now created as "suggested" status.
+	// Notifications are sent when the chair confirms the suggestions via ConfirmSuggestions endpoint.
 
 	// Convert to DTO response
 	return &dto.AutoAssignResponse{
@@ -405,4 +369,305 @@ func (c *Controller) GetReviewAnalytics(ginCtx *gin.Context) (*dto.ReviewAnalyti
 	}
 
 	return analytics, nil
+}
+
+// ================== Suggestion Endpoints ==================
+
+// GetSuggestions retrieves all suggested assignments for a conference
+// @Summary Get assignment suggestions
+// @Description Get all suggested reviewer assignments for a conference, grouped by paper
+// @Tags assignments
+// @Accept json
+// @Produce json
+// @Param conference_id path int true "Conference ID"
+// @Success 200 {object} dto.SuggestionsListResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /v1/conferences/{conference_id}/assignments/suggestions [get]
+func (c *Controller) GetSuggestions(ginCtx *gin.Context) (*dto.SuggestionsListResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	conferenceIDStr := ginCtx.Param("conference_id")
+	conferenceID, err := strconv.ParseInt(conferenceIDStr, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("invalid conference_id")
+	}
+
+	suggestions, total, err := c.assignmentStorage.GetSuggestionsByConference(ctx, conferenceID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get suggestions: %w", err)
+	}
+
+	return &dto.SuggestionsListResponse{
+		Suggestions:      suggestions,
+		TotalPapers:      len(suggestions),
+		TotalSuggestions: total,
+	}, nil
+}
+
+// GetConfirmedAssignments lists all confirmed assignments for a conference
+// @Summary List confirmed assignments
+// @Description Get all confirmed (non-suggested) assignments grouped by submission
+// @Tags assignments
+// @Produce json
+// @Param conference_id path int true "Conference ID"
+// @Success 200 {object} dto.ConfirmedAssignmentsListResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /v1/conferences/{conference_id}/assignments/confirmed [get]
+func (c *Controller) GetConfirmedAssignments(ginCtx *gin.Context) (*dto.ConfirmedAssignmentsListResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	conferenceIDStr := ginCtx.Param("conference_id")
+	conferenceID, err := strconv.ParseInt(conferenceIDStr, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("invalid conference_id")
+	}
+
+	assignments, total, err := c.assignmentStorage.GetConfirmedAssignmentsByConference(ctx, conferenceID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get confirmed assignments: %w", err)
+	}
+
+	return &dto.ConfirmedAssignmentsListResponse{
+		Assignments:      assignments,
+		TotalPapers:      len(assignments),
+		TotalAssignments: total,
+	}, nil
+}
+
+// ConfirmSuggestions confirms suggested assignments
+// @Summary Confirm assignment suggestions
+// @Description Confirm suggested assignments, changing status from 'suggested' to 'pending' and notifying reviewers
+// @Tags assignments
+// @Accept json
+// @Produce json
+// @Param conference_id path int true "Conference ID"
+// @Param request body dto.ConfirmSuggestionsRequest true "Assignment IDs to confirm (empty for all)"
+// @Success 200 {object} dto.ConfirmSuggestionsResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /v1/conferences/{conference_id}/assignments/suggestions/confirm [post]
+func (c *Controller) ConfirmSuggestions(ginCtx *gin.Context, req *dto.ConfirmSuggestionsRequest) (*dto.ConfirmSuggestionsResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	conferenceIDStr := ginCtx.Param("conference_id")
+	conferenceID, err := strconv.ParseInt(conferenceIDStr, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("invalid conference_id")
+	}
+
+	// Get suggestions before confirming (for notifications)
+	suggestions, _, err := c.assignmentStorage.GetSuggestionsByConference(ctx, conferenceID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get suggestions: %w", err)
+	}
+
+	// Confirm suggestions
+	count, err := c.assignmentStorage.ConfirmSuggestions(ctx, conferenceID, req.AssignmentIDs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to confirm suggestions: %w", err)
+	}
+
+	// Update submission status to "reviewing" for confirmed papers
+	submissionIDs := make(map[int64]bool)
+	for _, sg := range suggestions {
+		submissionIDs[sg.SubmissionID] = true
+	}
+	submissionIDList := make([]int64, 0, len(submissionIDs))
+	for id := range submissionIDs {
+		submissionIDList = append(submissionIDList, id)
+	}
+	if len(submissionIDList) > 0 {
+		err = c.submissionStorage.BulkUpdateStatus(ctx, submissionIDList, dto.StatusReviewing)
+		if err != nil {
+			fmt.Printf("Warning: failed to update submission status: %v\n", err)
+		}
+	}
+
+	// Send notifications to reviewers (async)
+	if c.notificationService != nil {
+		confID := conferenceID
+		assignmentIDs := req.AssignmentIDs
+		revStorage := c.reviewerStorage
+		subStorage := c.submissionStorage
+		notifSvc := c.notificationService
+		go func() {
+			bgCtx := context.Background()
+			for _, sg := range suggestions {
+				for _, rev := range sg.Reviewers {
+					// Skip if not in the confirmed list (when specific IDs provided)
+					if len(assignmentIDs) > 0 {
+						found := false
+						for _, id := range assignmentIDs {
+							if id == rev.AssignmentID {
+								found = true
+								break
+							}
+						}
+						if !found {
+							continue
+						}
+					}
+
+					// Get reviewer details
+					reviewer, err := revStorage.GetByID(bgCtx, rev.ReviewerID)
+					if err != nil {
+						fmt.Printf("Warning: failed to get reviewer %d: %v\n", rev.ReviewerID, err)
+						continue
+					}
+
+					// Get submission for title
+					submission, err := subStorage.GetByID(bgCtx, sg.SubmissionID)
+					if err != nil {
+						fmt.Printf("Warning: failed to get submission %d: %v\n", sg.SubmissionID, err)
+						continue
+					}
+
+					err = notifSvc.NotifyReviewAssigned(
+						bgCtx,
+						reviewer.Email,
+						submission.Title,
+						confID,
+						sg.SubmissionID,
+						rev.AssignmentID,
+					)
+					if err != nil {
+						fmt.Printf("Warning: failed to notify reviewer %s: %v\n", reviewer.Email, err)
+					}
+				}
+			}
+		}()
+	}
+
+	return &dto.ConfirmSuggestionsResponse{
+		ConfirmedCount: count,
+		Message:        fmt.Sprintf("Confirmed %d assignments", count),
+	}, nil
+}
+
+// DeleteSuggestion removes a single suggested assignment
+// @Summary Delete a suggestion
+// @Description Remove a single suggested reviewer assignment
+// @Tags assignments
+// @Accept json
+// @Produce json
+// @Param conference_id path int true "Conference ID"
+// @Param assignment_id path int true "Assignment ID"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /v1/conferences/{conference_id}/assignments/suggestions/{assignment_id} [delete]
+func (c *Controller) DeleteSuggestion(ginCtx *gin.Context) error {
+	ctx := ginCtx.Request.Context()
+
+	assignmentIDStr := ginCtx.Param("assignment_id")
+	assignmentID, err := strconv.ParseInt(assignmentIDStr, 10, 64)
+	if err != nil {
+		return fmt.Errorf("invalid assignment_id")
+	}
+
+	err = c.assignmentStorage.DeleteSuggestion(ctx, assignmentID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// AddSuggestion manually adds a suggested reviewer with COI check
+// @Summary Add a suggestion
+// @Description Manually add a suggested reviewer to a paper with COI warning
+// @Tags assignments
+// @Accept json
+// @Produce json
+// @Param conference_id path int true "Conference ID"
+// @Param request body dto.AddSuggestionRequest true "Reviewer and submission"
+// @Success 200 {object} dto.AddSuggestionResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /v1/conferences/{conference_id}/assignments/suggestions [post]
+func (c *Controller) AddSuggestion(ginCtx *gin.Context, req *dto.AddSuggestionRequest) (*dto.AddSuggestionResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	conferenceIDStr := ginCtx.Param("conference_id")
+	conferenceID, err := strconv.ParseInt(conferenceIDStr, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("invalid conference_id")
+	}
+
+	// Check for COI - directly check for self-author conflict
+	var coiWarning *dto.COIWarning
+	var coiReasons []string
+
+	// Get submission to check author
+	submission, err := c.submissionStorage.GetByID(ctx, req.SubmissionID)
+	if err == nil && submission != nil {
+		// Get reviewer to check email
+		reviewer, err := c.reviewerStorage.GetByID(ctx, req.ReviewerID)
+		if err == nil && reviewer != nil {
+			// Check for self-author COI (reviewer is the paper's author)
+			if reviewer.Email == submission.Author {
+				coiReasons = append(coiReasons, "Self-author conflict: reviewer is the paper's author")
+			}
+
+			// Check for co-author COI
+			if submission.Information != nil {
+				for _, coAuthor := range submission.Information.CoAuthors {
+					if reviewer.Email == coAuthor {
+						coiReasons = append(coiReasons, "Co-author conflict: reviewer is a co-author of the paper")
+						break
+					}
+				}
+
+				// Check for declared conflicts
+				for _, declared := range submission.Information.DeclaredConflicts {
+					if reviewer.Email == declared.Email {
+						reason := "Declared conflict"
+						if declared.Reason != "" {
+							reason += ": " + declared.Reason
+						}
+						coiReasons = append(coiReasons, reason)
+						break
+					}
+				}
+			}
+		}
+	}
+
+	// Also check assignment service's COI cache if available
+	if c.assignmentService != nil {
+		coiSvc := c.assignmentService.GetCOIService()
+		if coiSvc != nil {
+			hasConflict := coiSvc.HasConflict(conferenceID, req.SubmissionID, req.ReviewerID)
+			if hasConflict && len(coiReasons) == 0 {
+				coiReasons = append(coiReasons, "Conflict of interest detected")
+			}
+		}
+	}
+
+	if len(coiReasons) > 0 {
+		coiWarning = &dto.COIWarning{
+			HasConflict: true,
+			Reasons:     coiReasons,
+		}
+	}
+
+	// Create assignment with suggested status
+	assignmentDTO := &dto.Assignment{
+		SubmissionID: req.SubmissionID,
+		ReviewerID:   req.ReviewerID,
+		Status:       model.AssignmentStatusSuggested,
+		Score:        0, // Manual suggestion has no computed score
+	}
+
+	created, err := c.assignmentStorage.Create(ctx, conferenceID, assignmentDTO)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create suggestion: %w", err)
+	}
+
+	return &dto.AddSuggestionResponse{
+		Assignment: created,
+		COIWarning: coiWarning,
+	}, nil
 }

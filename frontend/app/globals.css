@@ -711,3 +711,32 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Chair UI: ensure actionable controls consistently show pointer cursor */
+.chair-ui :is(
+    button,
+    [data-slot="button"],
+    [role="button"],
+    a[href],
+    select,
+    summary,
+    input[type="button"],
+    input[type="submit"],
+    input[type="reset"]
+  ) {
+  cursor: pointer;
+}
+
+.chair-ui :is(
+    button,
+    [data-slot="button"],
+    [role="button"],
+    a[href],
+    select,
+    summary,
+    input[type="button"],
+    input[type="submit"],
+    input[type="reset"]
+  ):is(:disabled, [aria-disabled="true"], [data-disabled]) {
+  cursor: not-allowed;
+}

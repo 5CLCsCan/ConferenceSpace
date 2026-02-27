@@ -55,7 +55,7 @@ export interface ActivityItem {
   timestamp: string
 }
 
-export type TabId = "dashboard" | "overview" | "cfp" | "dates" | "committee" | "submissions" | "coi"
+export type TabId = "dashboard" | "overview" | "cfp" | "dates" | "committee" | "submissions" | "assignments" | "coi"
 
 export interface TabItem {
   id: TabId

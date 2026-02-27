@@ -11,6 +11,7 @@ import (
 	"github.com/dcao/conferencespace/internal/clients"
 	"github.com/dcao/conferencespace/internal/clients/neo4j"
 	"github.com/dcao/conferencespace/internal/dto"
+	"github.com/dcao/conferencespace/internal/model"
 	"github.com/dcao/conferencespace/internal/storage"
 	"github.com/dcao/conferencespace/internal/storage/assignment"
 	"github.com/dcao/conferencespace/internal/storage/conference"
@@ -152,6 +153,29 @@ func (s *Service) AutoAssign(ctx context.Context, conferenceID int64, config Aut
 		return nil, fmt.Errorf("no submissions found")
 	}
 
+	// 2.1. Filter submissions to only those without confirmed assignments
+	var unassignedSubmissions []*dto.Submission
+	for _, sub := range submissions {
+		hasConfirmed, err := s.HasConfirmedAssignments(ctx, conferenceID, sub.ID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to check existing assignments for submission %d: %w", sub.ID, err)
+		}
+		if !hasConfirmed {
+			unassignedSubmissions = append(unassignedSubmissions, sub)
+		}
+	}
+	submissions = unassignedSubmissions
+
+	if len(submissions) == 0 {
+		return nil, fmt.Errorf("all submissions already have confirmed assignments")
+	}
+
+	// 2.2. Delete any existing suggestions for this conference before creating new ones
+	err = s.assignmentStorage.DeleteSuggestionsByConference(ctx, conferenceID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to clear existing suggestions: %w", err)
+	}
+
 	// 3. Build COI map
 	conflicts, err := s.coiService.BuildConflictMap(ctx, conferenceID, submissions, reviewers)
 	if err != nil {
@@ -214,45 +238,23 @@ func (s *Service) AutoAssign(ctx context.Context, conferenceID int64, config Aut
 		return nil, fmt.Errorf("matching failed: %w", err)
 	}
 
-	// 6. Convert to DTOs
+	// 6. Convert to DTOs - use "suggested" status so chair can review before confirming
 	assignmentDTOs := make([]dto.Assignment, len(matchResult.Assignments))
 	for i, assignment := range matchResult.Assignments {
 		assignmentDTOs[i] = dto.Assignment{
 			SubmissionID: assignment.SubmissionID,
 			ReviewerID:   assignment.ReviewerID,
 			Score:        assignment.Score,
-			Status:       "pending",
+			Status:       model.AssignmentStatusSuggested,
 		}
 	}
 
-	// 7. Save assignments if not dry run
-	if !config.DryRun {
-		_, err = s.assignmentStorage.BatchCreate(ctx, conferenceID, assignmentDTOs)
-		if err != nil {
-			return nil, fmt.Errorf("failed to save assignments: %w", err)
-		}
-
-		// 7.1. Bulk update submission status to "reviewing" for all assigned submissions
-		assignedSubmissionIDs := make(map[int64]bool)
-		for _, assignment := range matchResult.Assignments {
-			assignedSubmissionIDs[assignment.SubmissionID] = true
-		}
-
-		// Convert map to slice for bulk update
-		submissionIDsToUpdate := make([]int64, 0, len(assignedSubmissionIDs))
-		for submissionID := range assignedSubmissionIDs {
-			submissionIDsToUpdate = append(submissionIDsToUpdate, submissionID)
-		}
-
-		// Bulk update all assigned submissions' status to "reviewing" in a single query
-		if len(submissionIDsToUpdate) > 0 {
-			err = s.submissionStorage.BulkUpdateStatus(ctx, submissionIDsToUpdate, dto.StatusReviewing)
-			if err != nil {
-				// Log error but don't fail the whole operation
-				// Assignment was successful, status update is secondary
-				fmt.Printf("Warning: failed to bulk update submission status to reviewing: %v\n", err)
-			}
-		}
+	// 7. Save assignments as suggestions (always save, DryRun is deprecated)
+	// The suggestions are saved with "suggested" status so the chair can review them
+	// Status update to "reviewing" happens when chair confirms the suggestions
+	_, err = s.assignmentStorage.BatchCreate(ctx, conferenceID, assignmentDTOs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to save assignment suggestions: %w", err)
 	}
 
 	// 8. Build result
@@ -278,4 +280,26 @@ func (s *Service) AutoAssign(ctx context.Context, conferenceID int64, config Aut
 // This is used by other services to check COI before inviting reviewers
 func (s *Service) GetRelationshipDetector() *detectors.RelationshipDetector {
 	return s.relationshipDetector
+}
+
+// HasConfirmedAssignments checks if a submission has any non-suggested assignments
+func (s *Service) HasConfirmedAssignments(ctx context.Context, conferenceID int64, submissionID int64) (bool, error) {
+	assignments, _, err := s.assignmentStorage.List(ctx, conferenceID, &assignment.ListParams{
+		SubmissionID: submissionID,
+	})
+	if err != nil {
+		return false, err
+	}
+
+	for _, a := range assignments {
+		if a.Status != model.AssignmentStatusSuggested {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+// GetCOIService returns the COI service for external COI checks
+func (s *Service) GetCOIService() *coi.Service {
+	return s.coiService
 }

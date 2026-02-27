@@ -10,6 +10,7 @@ const TABS: TabItem[] = [
   { id: "dates", label: "Important Dates", icon: "event" },
   { id: "committee", label: "Committee", icon: "groups" },
   { id: "submissions", label: "Submissions", icon: "description" },
+  { id: "assignments", label: "Assignments", icon: "assignment_ind" },
   { id: "coi", label: "COI", icon: "warning" },
 ]
 
