@@ -255,11 +255,20 @@ export function FileUploadStep({
                   className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors"
                   title="Preview"
                   type="button"
+                  onClick={() => {
+                    const url = URL.createObjectURL(uploadedFile)
+                    window.open(url, '_blank')
+                  }}
                 >
                   <span className="material-symbols-outlined text-[18px]">visibility</span>
                 </button>
                 <button
-                  onClick={onRemoveFile}
+                  onClick={() => {
+                    onRemoveFile()
+                    setPrecheckResult(null)
+                    setPrecheckError(null)
+                    if (fileInputRef.current) fileInputRef.current.value = ""
+                  }}
                   className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg text-slate-400 hover:text-red-600 transition-colors"
                   title="Delete"
                   type="button"
@@ -343,7 +352,7 @@ export function FileUploadStep({
 
       {/* Validation Status */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {fileValidation.format && (
+        {(fileValidation.format || (precheckResult && precheckResult.overall_score >= 60)) && (
           <div className="bg-green-50 dark:bg-green-900/10 rounded-lg px-4 py-3 border border-green-100 dark:border-green-900/20 flex items-start gap-3">
             <span className="material-symbols-outlined text-green-600 text-[16px]">verified</span>
             <div>

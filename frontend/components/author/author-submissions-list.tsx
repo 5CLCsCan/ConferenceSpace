@@ -4,10 +4,12 @@ import { getUserSubmissions } from "@/lib/api/submissions"
 import type { SubmissionWithConference } from "@/lib/api/submissions"
 import { formatDate } from "@/lib/utils"
 import { useRouter } from "next/navigation"
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
+import { createPortal } from "react-dom"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
 import { ROUTES } from "@/lib/routes"
+import { deletePaper } from "@/lib/api/papers"
 
 // -------------------------------------------------------------------------
 // Status Configuration (Scholar-Compact - Neutralized Colors)
@@ -347,6 +349,7 @@ export function AuthorSubmissionsList() {
                     `${ROUTES.AUTHOR.SUBMISSION_DETAIL(String(sub.id))}?conferenceId=${sub.conference_id}`,
                   )
                 }
+                onDelete={() => setSubmissions((prev) => prev.filter((s) => s.id !== sub.id))}
               />
             ))
           )}
@@ -466,9 +469,63 @@ export function AuthorSubmissionsList() {
 interface SubmissionRowProps {
   submission: SubmissionWithConference
   onClick: () => void
+  onDelete: () => void
 }
 
-function SubmissionRow({ submission, onClick }: SubmissionRowProps) {
+function SubmissionRow({ submission, onClick, onDelete }: SubmissionRowProps) {
+  const router = useRouter()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  // Close menu on outside click / scroll
+  useEffect(() => {
+    if (!menuOpen) return
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    const onScroll = () => setMenuOpen(false)
+    document.addEventListener("mousedown", handler)
+    document.addEventListener("scroll", onScroll, true)
+    return () => {
+      document.removeEventListener("mousedown", handler)
+      document.removeEventListener("scroll", onScroll, true)
+    }
+  }, [menuOpen])
+
+  const openMenu = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    const rect = (e.currentTarget as HTMLButtonElement).getBoundingClientRect()
+    setMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+    setMenuOpen((prev) => !prev)
+  }
+
+  const handleMenuClick = (e: React.MouseEvent, action: () => void) => {
+    e.stopPropagation()
+    setMenuOpen(false)
+    action()
+  }
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setMenuOpen(false)
+    setDeleteConfirmOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    setIsDeleting(true)
+    const result = await deletePaper(String(submission.id), String(submission.conference_id))
+    setIsDeleting(false)
+    if (!result.error) {
+      setDeleteConfirmOpen(false)
+      onDelete()
+    }
+  }
+  const isDraft = submission.status === "draft"
   const isCompleted = submission.status === "accepted" || submission.status === "rejected"
   const trackName = submission.information?.track_name || null
   const keywords = submission.information?.keywords || []
@@ -482,6 +539,102 @@ function SubmissionRow({ submission, onClick }: SubmissionRowProps) {
       ? submission.abstract.slice(0, 120) + "..."
       : submission.abstract
     : null
+
+  // Portal dropdown JSX (shared between desktop & mobile)
+  const dropdownMenu = menuOpen && menuPos ? createPortal(
+    <div
+      ref={menuRef}
+      style={{ position: "fixed", top: menuPos.top, right: menuPos.right, zIndex: 9999 }}
+      className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl py-1 min-w-[168px]"
+    >
+      <button
+        type="button"
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => handleMenuClick(e, () => router.push(`${ROUTES.AUTHOR.SUBMISSION_DETAIL(String(submission.id))}?conferenceId=${submission.conference_id}`))}
+        className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+      >
+        <span className="material-symbols-outlined text-[14px] text-slate-400">visibility</span>
+        View Details
+      </button>
+      {isDraft && (
+        <button
+          type="button"
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => handleMenuClick(e, () => router.push(ROUTES.AUTHOR.SUBMISSION_EDIT(String(submission.id))))}
+          className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+        >
+          <span className="material-symbols-outlined text-[14px] text-slate-400">edit</span>
+          Edit Draft
+        </button>
+      )}
+      {isDraft && (
+        <>
+          <div className="border-t border-slate-100 dark:border-slate-700 my-0.5" />
+          <button
+            type="button"
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={handleDelete}
+            className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+          >
+            <span className="material-symbols-outlined text-[14px]">delete</span>
+            Delete Draft
+          </button>
+        </>
+      )}
+    </div>,
+    document.body,
+  ) : null
+
+  // Delete confirm dialog portal
+  const deleteDialog = deleteConfirmOpen ? createPortal(
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50"
+      onClick={() => !isDeleting && setDeleteConfirmOpen(false)}
+    >
+      <div
+        className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xl w-full max-w-sm"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="px-5 pt-5 pb-4 flex flex-col gap-4">
+          <div className="flex items-start gap-3">
+            <div className="p-2.5 rounded-full bg-red-50 dark:bg-red-900/20 shrink-0">
+              <span className="material-symbols-outlined text-red-500 text-[22px]">delete_forever</span>
+            </div>
+            <div className="pt-0.5">
+              <h3 className="text-sm font-bold text-[#141414] dark:text-white">Delete Draft</h3>
+              <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                Are you sure you want to permanently delete the draft
+                <strong className="text-slate-700 dark:text-slate-200">&ldquo;{submission.title}&rdquo;</strong>?
+                This action cannot be undone and all draft data will be lost.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setDeleteConfirmOpen(false)}
+              disabled={isDeleting}
+              className="h-8 px-4 rounded-md text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              className="h-8 px-4 rounded-md text-[11px] font-medium bg-red-600 text-white hover:bg-red-700 transition-colors flex items-center gap-1.5 disabled:opacity-60"
+            >
+              {isDeleting && (
+                <span className="material-symbols-outlined animate-spin text-[13px]">sync</span>
+              )}
+              Delete Permanently
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body,
+  ) : null
 
   return (
     <div
@@ -637,7 +790,7 @@ function SubmissionRow({ submission, onClick }: SubmissionRowProps) {
         {/* Actions */}
         <div className="px-2 py-3.5 flex justify-center">
           <button
-            onClick={(e) => e.stopPropagation()}
+            onClick={openMenu}
             className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all"
           >
             <span
@@ -647,6 +800,7 @@ function SubmissionRow({ submission, onClick }: SubmissionRowProps) {
               more_horiz
             </span>
           </button>
+          {dropdownMenu}
         </div>
       </div>
 
@@ -659,17 +813,20 @@ function SubmissionRow({ submission, onClick }: SubmissionRowProps) {
             </span>
             <SubmissionStatusBadge status={submission.status} />
           </div>
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all shrink-0"
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: "18px", width: "18px", height: "18px", lineHeight: "1" }}
+          <div className="relative">
+            <button
+              onClick={openMenu}
+              className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all shrink-0"
             >
-              more_horiz
-            </span>
-          </button>
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: "18px", width: "18px", height: "18px", lineHeight: "1" }}
+              >
+                more_horiz
+              </span>
+            </button>
+            {dropdownMenu}
+          </div>
         </div>
 
         {/* Title */}
@@ -721,6 +878,7 @@ function SubmissionRow({ submission, onClick }: SubmissionRowProps) {
           <span>{formatDate(submission.created_at)}</span>
         </div>
       </div>
+      {deleteDialog}
     </div>
   )
 }
