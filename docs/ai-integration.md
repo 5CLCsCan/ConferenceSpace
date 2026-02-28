@@ -13,10 +13,6 @@
 
 This revision applies your requested boundary consistently.
 
-### Removed Per Latest Review
-
-- **AI-004 (Reviewer Assignment & Invitation Prioritization Copilot):** Removed from AI build scope. Current platform already implements reviewer assignment/invitation operations, and additional AI prioritization is not justified at this stage.
-
 ---
 
 ## Final Integration Scope
