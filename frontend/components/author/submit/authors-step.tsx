@@ -24,6 +24,9 @@ interface AuthorsStepProps {
   onAddAuthor: () => void
   onRemoveAuthor: (id: string) => void
   onToggleCorresponding: (id: string) => void
+  onUpdateAuthor: (id: string, updates: Partial<Omit<Author, "id" | "isCorresponding">>) => void
+  onReorder: (fromIndex: number, toIndex: number) => void
+  currentUserEmail?: string
 }
 
 export function AuthorsStep({
@@ -33,12 +36,69 @@ export function AuthorsStep({
   onAddAuthor,
   onRemoveAuthor,
   onToggleCorresponding,
+  onUpdateAuthor,
+  onReorder,
+  currentUserEmail,
 }: AuthorsStepProps) {
   const [searchResults, setSearchResults] = useState<UserSearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // A9: Inline edit state
+  const [editingAuthorId, setEditingAuthorId] = useState<string | null>(null)
+  const [editValues, setEditValues] = useState<{
+    firstName: string; lastName: string; email: string; affiliation: string; country: string
+  }>({ firstName: "", lastName: "", email: "", affiliation: "", country: "" })
+
+  // A10: Drag state
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+
+  // A11: Naming guidelines modal state
+  const [showGuidelines, setShowGuidelines] = useState(false)
+
+  const startEditing = (author: Author) => {
+    setEditingAuthorId(author.id)
+    setEditValues({
+      firstName: author.firstName,
+      lastName: author.lastName,
+      email: author.email,
+      affiliation: author.affiliation,
+      country: author.country,
+    })
+  }
+
+  const saveEditing = () => {
+    if (editingAuthorId) {
+      onUpdateAuthor(editingAuthorId, editValues)
+      setEditingAuthorId(null)
+    }
+  }
+
+  // A10: Drag handlers
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index)
+    e.dataTransfer.effectAllowed = "move"
+  }
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "move"
+    setDragOverIndex(index)
+  }
+  const handleDrop = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    if (draggedIndex !== null && draggedIndex !== index) {
+      onReorder(draggedIndex, index)
+    }
+    setDraggedIndex(null)
+    setDragOverIndex(null)
+  }
+  const handleDragEnd = () => {
+    setDraggedIndex(null)
+    setDragOverIndex(null)
+  }
 
   // Debounced user search
   useEffect(() => {
@@ -115,7 +175,9 @@ export function AuthorsStep({
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
             Author List ({authors.length})
           </h3>
-          <button className="text-[10px] font-medium text-[#1B3C53] dark:text-slate-400 hover:underline flex items-center gap-1 uppercase tracking-wider">
+          <button
+            onClick={() => setShowGuidelines(true)}
+            className="text-[10px] font-medium text-[#1B3C53] dark:text-slate-400 hover:underline flex items-center gap-1 uppercase tracking-wider">
             <span className="material-symbols-outlined text-[14px]">info</span>
             Naming Guidelines
           </button>
@@ -124,8 +186,20 @@ export function AuthorsStep({
           {authors.map((author, index) => (
             <div
               key={author.id}
-              className="group flex flex-col md:flex-row items-start md:items-center px-4 py-3 gap-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+              draggable={index !== 0}
+              onDragStart={(e) => index !== 0 && handleDragStart(e, index)}
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDrop={(e) => handleDrop(e, index)}
+              onDragEnd={handleDragEnd}
+              className={`group flex flex-col md:flex-row items-start md:items-center px-4 py-3 gap-3 transition-colors ${
+                dragOverIndex === index && draggedIndex !== index
+                  ? "bg-[#1B3C53]/5 border-t-2 border-[#1B3C53]"
+                  : draggedIndex === index
+                  ? "opacity-40"
+                  : "hover:bg-slate-50 dark:hover:bg-slate-700/50"
+              }`}
             >
+              {/* A10: Drag handle */}
               <div
                 className={`hidden md:flex items-center justify-center ${
                   index === 0
@@ -146,13 +220,71 @@ export function AuthorsStep({
                   {author.lastName[0]}
                 </div>
               </div>
+              {/* Author info – display or inline edit (A9) */}
+              {editingAuthorId === author.id ? (
+                <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    value={editValues.firstName}
+                    onChange={(e) => setEditValues((v) => ({ ...v, firstName: e.target.value }))}
+                    placeholder="First name"
+                    className="h-8 text-xs px-2.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus:ring-1 focus:ring-[#1B3C53]"
+                  />
+                  <input
+                    type="text"
+                    value={editValues.lastName}
+                    onChange={(e) => setEditValues((v) => ({ ...v, lastName: e.target.value }))}
+                    placeholder="Last name"
+                    className="h-8 text-xs px-2.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus:ring-1 focus:ring-[#1B3C53]"
+                  />
+                  <input
+                    type="email"
+                    value={editValues.email}
+                    onChange={(e) => setEditValues((v) => ({ ...v, email: e.target.value }))}
+                    placeholder="Email"
+                    className="h-8 text-xs px-2.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus:ring-1 focus:ring-[#1B3C53]"
+                  />
+                  <input
+                    type="text"
+                    value={editValues.affiliation}
+                    onChange={(e) => setEditValues((v) => ({ ...v, affiliation: e.target.value }))}
+                    placeholder="Affiliation"
+                    className="h-8 text-xs px-2.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus:ring-1 focus:ring-[#1B3C53]"
+                  />
+                  {/* A9: Country in edit form */}
+                  <div className="relative">
+                    <select
+                      value={editValues.country}
+                      onChange={(e) => setEditValues((v) => ({ ...v, country: e.target.value }))}
+                      className="w-full h-8 text-xs pl-2.5 pr-7 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus:ring-1 focus:ring-[#1B3C53] appearance-none"
+                    >
+                      <option value="">Country...</option>
+                      <option value="United States">United States</option>
+                      <option value="United Kingdom">United Kingdom</option>
+                      <option value="Canada">Canada</option>
+                      <option value="Germany">Germany</option>
+                      <option value="France">France</option>
+                      <option value="Japan">Japan</option>
+                      <option value="Australia">Australia</option>
+                      <option value="Vietnam">Vietnam</option>
+                      <option value="China">China</option>
+                      <option value="Singapore">Singapore</option>
+                      <option value="South Korea">South Korea</option>
+                      <option value="India">India</option>
+                    </select>
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                      <span className="material-symbols-outlined text-[14px]">expand_more</span>
+                    </span>
+                  </div>
+                </div>
+              ) : (
               <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div>
                   <div className="flex items-center gap-2">
                     <h4 className="text-xs font-bold text-[#141414] dark:text-white truncate">
                       {author.firstName} {author.lastName}
                     </h4>
-                    {index === 0 && (
+                    {currentUserEmail && author.email === currentUserEmail && (
                       <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 uppercase tracking-wide">
                         You
                       </span>
@@ -167,43 +299,65 @@ export function AuthorsStep({
                   <p className="text-[10px] text-slate-400 truncate">{author.country}</p>
                 </div>
               </div>
+              )}
               <div className="flex items-center gap-2 w-full md:w-auto mt-2 md:mt-0 justify-between md:justify-end">
-                <label className="flex items-center gap-1.5 cursor-pointer select-none">
-                  <div className="relative flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={author.isCorresponding}
-                      onChange={() => onToggleCorresponding(author.id)}
-                      disabled={index === 0}
-                      className={`peer appearance-none size-4 rounded border border-slate-300 bg-white checked:bg-[#1B3C53] checked:border-[#1B3C53] transition-all ${
-                        index === 0 ? "cursor-not-allowed opacity-60" : ""
-                      }`}
-                    />
-                    <span className="absolute inset-0 flex items-center justify-center text-white opacity-0 peer-checked:opacity-100 pointer-events-none">
-                      <span className="material-symbols-outlined text-[12px] font-bold">check</span>
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-                    Correspondent
-                  </span>
-                </label>
-                <div className="flex items-center border-l border-slate-200 dark:border-slate-600 pl-2 ml-1">
-                  <button
-                    className="p-1.5 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors rounded hover:bg-slate-100 dark:hover:bg-slate-600"
-                    title="Edit details"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">edit</span>
-                  </button>
-                  {index > 0 && (
+                {editingAuthorId === author.id ? (
+                  /* A9: Save / Cancel when editing */
+                  <div className="flex items-center gap-1.5">
                     <button
-                      onClick={() => onRemoveAuthor(author.id)}
-                      className="p-1.5 text-slate-400 hover:text-red-600 transition-colors rounded hover:bg-red-50 dark:hover:bg-red-900/20"
-                      title="Remove author"
+                      type="button"
+                      onClick={saveEditing}
+                      className="h-7 px-3 rounded-md text-[10px] font-medium bg-[#1B3C53] text-white hover:bg-[#234C6A] transition-colors"
                     >
-                      <span className="material-symbols-outlined text-[16px]">delete</span>
+                      Save
                     </button>
-                  )}
-                </div>
+                    <button
+                      type="button"
+                      onClick={() => setEditingAuthorId(null)}
+                      className="h-7 px-3 rounded-md text-[10px] font-medium text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                      <div className="relative flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={author.isCorresponding}
+                          onChange={() => onToggleCorresponding(author.id)}
+                          className="peer appearance-none size-4 rounded border border-slate-300 bg-white checked:bg-[#1B3C53] checked:border-[#1B3C53] transition-all"
+                        />
+                        <span className="absolute inset-0 flex items-center justify-center text-white opacity-0 peer-checked:opacity-100 pointer-events-none">
+                          <span className="material-symbols-outlined text-[12px] font-bold">check</span>
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                        Correspondent
+                      </span>
+                    </label>
+                    <div className="flex items-center border-l border-slate-200 dark:border-slate-600 pl-2 ml-1">
+                      <button
+                        type="button"
+                        onClick={() => startEditing(author)}
+                        className="p-1.5 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors rounded hover:bg-slate-100 dark:hover:bg-slate-600"
+                        title="Edit details"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">edit</span>
+                      </button>
+                      {index > 0 && (
+                        <button
+                          onClick={() => onRemoveAuthor(author.id)}
+                          className="p-1.5 text-slate-400 hover:text-red-600 transition-colors rounded hover:bg-red-50 dark:hover:bg-red-900/20"
+                          title="Remove author"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">delete</span>
+                        </button>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           ))}
@@ -373,6 +527,30 @@ export function AuthorsStep({
           </button>
         </div>
       </div>
+
+      {/* A11: Naming Guidelines Modal (compact) */}
+      {showGuidelines && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" onClick={() => setShowGuidelines(false)}>
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 shadow-xl w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
+            <div className="px-3 py-2.5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+              <h3 className="text-xs font-bold text-[#1B3C53] dark:text-white tracking-tight">Author Naming Guidelines</h3>
+              <button type="button" onClick={() => setShowGuidelines(false)} className="p-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400">
+                <span className="material-symbols-outlined text-[16px]">close</span>
+              </button>
+            </div>
+            <ul className="px-3 py-2.5 space-y-2 text-[10px] text-slate-600 dark:text-slate-300">
+              <li className="flex gap-1.5"><span className="material-symbols-outlined text-[12px] text-[#1B3C53] mt-px shrink-0">check_circle</span><span><strong className="text-[#1B3C53] dark:text-white">Full legal names only</strong> — use your complete given and family name as it appears on official documents; avoid initials or shortened forms.</span></li>
+              <li className="flex gap-1.5"><span className="material-symbols-outlined text-[12px] text-[#1B3C53] mt-px shrink-0">check_circle</span><span><strong className="text-[#1B3C53] dark:text-white">Consistent spelling</strong> — ensure your name matches exactly across all your previous publications and your profile to maintain a unified author identity.</span></li>
+              <li className="flex gap-1.5"><span className="material-symbols-outlined text-[12px] text-[#1B3C53] mt-px shrink-0">check_circle</span><span><strong className="text-[#1B3C53] dark:text-white">Affiliation accuracy</strong> — list the institution where the research was primarily conducted, not your current institution if you have since moved.</span></li>
+              <li className="flex gap-1.5"><span className="material-symbols-outlined text-[12px] text-[#1B3C53] mt-px shrink-0">check_circle</span><span><strong className="text-[#1B3C53] dark:text-white">One corresponding author</strong> — designate a single author responsible for all correspondence during review and post-acceptance communications.</span></li>
+              <li className="flex gap-1.5"><span className="material-symbols-outlined text-[12px] text-amber-500 mt-px shrink-0">warning</span><span><strong className="text-amber-700 dark:text-amber-400">Double-blind review</strong> — do not include any author names, affiliations, or identifying information inside the submitted PDF manuscript.</span></li>
+            </ul>
+            <div className="px-3 py-2 border-t border-slate-100 dark:border-slate-700 flex justify-end">
+              <button type="button" onClick={() => setShowGuidelines(false)} className="h-7 px-3 rounded text-[10px] font-medium bg-[#1B3C53] text-white hover:bg-[#234C6A] transition-colors">Got it</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

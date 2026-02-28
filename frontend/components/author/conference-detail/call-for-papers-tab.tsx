@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { useState, useRef } from "react"
 import type { TabProps } from "./types"
 
 // Consistent icon styling for 16px material symbols
@@ -72,11 +73,20 @@ For more details, please refer to the submission guidelines.
 const MOCK_RESOURCES = [
   {
     name: "LaTeX Template",
-    description: "Official style file",
+    description: "IEEE style file (.tex)",
     type: "latex",
     icon: "description",
+    url: "/templates/ieee-latex-template.tex",
+    filename: "ieee-latex-template.tex",
   },
-  { name: "Word Template", description: ".docx format", type: "word", icon: "picture_as_pdf" },
+  {
+    name: "Word Template",
+    description: "IEEE conference (.docx)",
+    type: "word",
+    icon: "picture_as_pdf",
+    url: "/templates/ieee-word-template.docx",
+    filename: "ieee-word-template.docx",
+  },
 ]
 
 /**
@@ -198,6 +208,68 @@ function CFPMarkdownRenderer({ content }: { content: string }) {
 
 function CFPContentCard({ conference }: TabProps) {
   const cfpContent = conference.call_for_paper_text || MOCK_CFP_CONTENT
+  const [copied, setCopied] = useState(false)
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  const handlePrint = () => {
+    const el = contentRef.current
+    if (!el) return
+    const popup = window.open("", "_blank", "width=900,height=700,scrollbars=yes")
+    if (!popup) return
+    const title = conference.name || "Call for Papers"
+    popup.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>${title} — Call for Papers</title>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { font-family: 'Inter', sans-serif; font-size: 13px; color: #1a1a1a; line-height: 1.6;
+              max-width: 800px; margin: 40px auto; padding: 0 32px; }
+            h1 { font-size: 24px; font-weight: 700; color: #1B3C53; margin-bottom: 6px; }
+            .meta { font-size: 11px; color: #888; margin-bottom: 24px; }
+            h2 { font-size: 17px; font-weight: 700; color: #1B3C53; margin: 20px 0 8px; }
+            h3 { font-size: 14px; font-weight: 600; color: #234C6A; margin: 16px 0 6px; }
+            p { margin: 8px 0; }
+            ul, ol { padding-left: 20px; margin: 8px 0; }
+            li { margin: 4px 0; }
+            strong { font-weight: 600; }
+            em { font-style: italic; }
+            blockquote { border-left: 3px solid #1B3C53; padding-left: 12px; color: #555; margin: 10px 0; }
+            hr { border: none; border-top: 1px solid #e2e8f0; margin: 16px 0; }
+            code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-size: 12px; font-family: monospace; }
+            pre { background: #f1f5f9; padding: 12px; border-radius: 6px; overflow-x: auto; }
+            a { color: #1B3C53; }
+            table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+            th { background: #1B3C53; color: white; padding: 6px 10px; text-align: left; font-weight: 600; }
+            td { padding: 5px 10px; border-bottom: 1px solid #e2e8f0; }
+            @media print {
+              body { margin: 20px; }
+              @page { margin: 15mm; }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>${title}</h1>
+          <p class="meta">Call for Papers${conference.submission_deadline ? ` &nbsp;·&nbsp; Submission Deadline: ${new Date(conference.submission_deadline).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}` : ""}</p>
+          <hr />
+          ${el.innerHTML}
+        </body>
+      </html>
+    `)
+    popup.document.close()
+    popup.focus()
+    // Give fonts/images time to load then print
+    setTimeout(() => popup.print(), 600)
+  }
+
+  const handleShare = async () => {
+    await navigator.clipboard.writeText(window.location.href)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
@@ -220,6 +292,7 @@ function CFPContentCard({ conference }: TabProps) {
         </div>
         <div className="flex gap-1">
           <button
+            onClick={handlePrint}
             className="text-slate-400 hover:text-[#1B3C53] p-1.5 rounded hover:bg-slate-50 transition-colors"
             title="Print"
           >
@@ -228,26 +301,19 @@ function CFPContentCard({ conference }: TabProps) {
             </span>
           </button>
           <button
-            className="text-slate-400 hover:text-[#1B3C53] p-1.5 rounded hover:bg-slate-50 transition-colors"
-            title="Download PDF"
+            onClick={handleShare}
+            className="relative text-slate-400 hover:text-[#1B3C53] p-1.5 rounded hover:bg-slate-50 transition-colors"
+            title={copied ? "Link copied!" : "Share"}
           >
             <span className="material-symbols-outlined" style={iconStyle}>
-              picture_as_pdf
-            </span>
-          </button>
-          <button
-            className="text-slate-400 hover:text-[#1B3C53] p-1.5 rounded hover:bg-slate-50 transition-colors"
-            title="Share"
-          >
-            <span className="material-symbols-outlined" style={iconStyle}>
-              share
+              {copied ? "check" : "share"}
             </span>
           </button>
         </div>
       </div>
 
       {/* Markdown Content */}
-      <div className="p-4">
+      <div className="p-4" ref={contentRef}>
         <CFPMarkdownRenderer content={cfpContent} />
       </div>
     </div>
@@ -255,6 +321,19 @@ function CFPContentCard({ conference }: TabProps) {
 }
 
 function ImportantDatesCard({ conference }: TabProps) {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const calcDaysLeft = (dateStr?: string): number | null => {
+    if (!dateStr) return null
+    const d = new Date(dateStr)
+    d.setHours(0, 0, 0, 0)
+    const diff = Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+    return diff > 0 ? diff : null
+  }
+
+  const submissionDaysLeft = calcDaysLeft(conference.submission_deadline)
+
   const dates = [
     {
       label: "Abstract Deadline",
@@ -265,7 +344,7 @@ function ImportantDatesCard({ conference }: TabProps) {
       label: "Full Paper Deadline",
       date: conference.submission_deadline,
       status: "current" as const,
-      daysLeft: 5,
+      daysLeft: submissionDaysLeft,
     },
     { label: "Notification", date: conference.notification_date, status: "upcoming" as const },
     {
@@ -348,9 +427,9 @@ function ImportantDatesCard({ conference }: TabProps) {
                     year: "numeric",
                   })}
               </p>
-              {item.daysLeft && (
+              {item.daysLeft != null && item.daysLeft > 0 && (
                 <p className="text-[8px] text-red-500 font-medium mt-0.5">
-                  {item.daysLeft} days left
+                  {item.daysLeft} day{item.daysLeft !== 1 ? "s" : ""} left
                 </p>
               )}
             </div>
@@ -379,7 +458,8 @@ function AuthorResourcesCard() {
           return (
             <li key={idx}>
               <a
-                href="#"
+                href={resource.url}
+                download={resource.filename}
                 className="flex items-center gap-2 p-2 rounded-lg border border-slate-100 hover:border-slate-300 hover:bg-slate-50 transition-all group"
               >
                 <div className={cn("p-1 rounded-md", colors.bg, colors.text)}>

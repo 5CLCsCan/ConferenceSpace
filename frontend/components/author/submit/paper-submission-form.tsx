@@ -43,6 +43,7 @@ export function PaperSubmissionForm({
   const [currentStep, setCurrentStep] = useState<StepType>("paper")
   const [submitting, setSubmitting] = useState(false)
   const [showSuccessDialog, setShowSuccessDialog] = useState(false)
+  const [showDraftSavedDialog, setShowDraftSavedDialog] = useState(false)
   const [successMessage, setSuccessMessage] = useState("")
 
   // Paper Details state
@@ -83,7 +84,7 @@ export function PaperSubmissionForm({
   const [fileValidation, setFileValidation] = useState<{
     format: boolean
     fonts: boolean
-  }>({ format: true, fonts: false })
+  }>({ format: false, fonts: false })
 
   // Conflicts of Interest state
   const [conflictDomains, setConflictDomains] = useState<string[]>(["mit.edu", "csail.mit.edu"])
@@ -210,7 +211,7 @@ export function PaperSubmissionForm({
 
     setUploadedFile(file)
     setUploadProgress(100)
-    setFileValidation({ format: true, fonts: false })
+    setFileValidation({ format: false, fonts: false })
   }
 
   const handleRemoveFile = () => {
@@ -306,10 +307,7 @@ export function PaperSubmissionForm({
           variant: "destructive",
         })
       } else {
-        toast({
-          title: "Draft saved successfully",
-          description: "Your draft has been saved. You can continue editing anytime.",
-        })
+        setShowDraftSavedDialog(true)
       }
     } catch (error) {
       toast({
@@ -473,6 +471,20 @@ export function PaperSubmissionForm({
                 onAddAuthor={handleAddAuthor}
                 onRemoveAuthor={handleRemoveAuthor}
                 onToggleCorresponding={handleToggleCorresponding}
+                onUpdateAuthor={(id, updates) => {
+                  setAuthors((prev) =>
+                    prev.map((a) => (a.id === id ? { ...a, ...updates } : a))
+                  )
+                }}
+                onReorder={(from, to) => {
+                  setAuthors((prev) => {
+                    const next = [...prev]
+                    const [moved] = next.splice(from, 1)
+                    next.splice(to, 0, moved)
+                    return next
+                  })
+                }}
+                currentUserEmail={user?.email}
               />
             )}
 
@@ -545,6 +557,47 @@ export function PaperSubmissionForm({
           onSubmit={handleSubmit}
           onCancel={() => router.back()}
         />
+
+        {/* Draft Saved Dialog */}
+        {showDraftSavedDialog && (
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50"
+            onClick={() => setShowDraftSavedDialog(false)}
+          >
+            <div
+              className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xl w-full max-w-sm"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-6 pt-6 pb-5 flex flex-col items-center text-center gap-4">
+                <div className="p-3 rounded-full bg-emerald-50 dark:bg-emerald-900/20">
+                  <span className="material-symbols-outlined text-emerald-500 text-[28px] icon-filled">check_circle</span>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">Draft Saved</h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                    Your draft has been saved successfully. You can return to edit it anytime from your submissions dashboard.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 w-full pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowDraftSavedDialog(false)}
+                    className="flex-1 h-9 rounded-lg text-[11px] font-medium border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    Continue Editing
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => router.push(ROUTES.AUTHOR.CONFERENCE_DETAIL(conference?.id ?? ""))}
+                    className="flex-1 h-9 rounded-lg text-[11px] font-bold bg-[#1B3C53] hover:bg-[#234C6A] text-white transition-colors"
+                  >
+                    Back to Conference
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Success Dialog */}
         <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
