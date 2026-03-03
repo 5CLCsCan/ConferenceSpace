@@ -1,0 +1,100 @@
+/* Modern custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(0.85 0 0);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.7 0 0);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: oklch(0.6 0 0);
+  background-clip: padding-box;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.85 0 0) transparent;
+}
+
+/* No scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Chair UI: ensure actionable controls consistently show pointer cursor */
+.chair-ui
+  :is(
+    button,
+    [data-slot="button"],
+    [role="button"],
+    a[href],
+    select,
+    summary,
+    input[type="button"],
+    input[type="submit"],
+    input[type="reset"]
+  ) {
+  cursor: pointer;
+}
+
+.chair-ui
+  :is(
+    button,
+    [data-slot="button"],
+    [role="button"],
+    a[href],
+    select,
+    summary,
+    input[type="button"],
+    input[type="submit"],
+    input[type="reset"]
+  ):is(:disabled, [aria-disabled="true"], [data-disabled]) {
+  cursor: not-allowed;
+}
+
+/* Chatbot thinking dots typing effect: . -> .. -> ... -> repeat */
+@keyframes typing-dots {
+  0% {
+    width: 0;
+  }
+  25% {
+    width: 1ch;
+  }
+  50% {
+    width: 2ch;
+  }
+  75% {
+    width: 3ch;
+  }
+  100% {
+    width: 0;
+  }
+}
+
+.typing-dots {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  animation: typing-dots 0.9s steps(4) infinite;
+}

@@ -1,130 +1,421 @@
-import { createOpenRouter } from "@openrouter/ai-sdk-provider"
-import { convertToModelMessages, stepCountIs, streamText } from "ai"
-import type { UIMessage } from "ai"
-import { z } from "zod"
+import { cookies } from "next/headers"
+import { NextRequest, NextResponse } from "next/server"
+import { AUTH_COOKIE_NAME } from "@/lib/config"
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
-const MODEL = "google/gemini-2.5-flash-lite-preview-09-2025"
-const openrouter = createOpenRouter({ apiKey: OPENROUTER_API_KEY })
+export const runtime = "nodejs"
+export const dynamic = "force-dynamic"
 
-if (!OPENROUTER_API_KEY) {
-  console.warn("OPENROUTER_API_KEY is not set. Chat functionality will not work.")
+const AI_SERVICE_BASE_URL = process.env.AI_SERVICE_BASE_URL ?? "http://localhost:8090"
+const AI_SERVICE_ENABLED = process.env.AI_SERVICE_ENABLED !== "false"
+const AGENT_CHAT_ENDPOINT = `${AI_SERVICE_BASE_URL}/api/v1/agent/chat`
+const AGENT_TOOL_RESULT_ENDPOINT = `${AI_SERVICE_BASE_URL}/api/v1/agent/tool-result`
+
+type ChatTransportRequest = {
+  id?: string
+  messages?: unknown[]
+  trigger?: "submit-message" | "regenerate-message"
+  messageId?: string
 }
 
-// System prompt with Tree-of-Thoughts routing
-const SYSTEM_PROMPT = `You are an AI assistant with browser automation capabilities for a conference management system.
-
-## Task Classification (Tree-of-Thoughts)
-
-When receiving a user request, follow this reasoning path:
-
-**THOUGHT 1**: Is this a knowledge/QnA question or an action request?
-- **QnA**: Questions about concepts, explanations, how things work, general help
-- **ACTION**: Requests to interact with the page (click, fill forms, navigate, find elements, perform tasks)
-
-**THOUGHT 2**: If QnA → Respond directly with your knowledge about the conference system.
-
-**THOUGHT 3**: If ACTION → Execute this multi-step plan:
-  a) Call \`getPageContext\` to understand the current page structure
-  b) Analyze the accessibility tree to locate target elements
-  c) Plan the sequence of actions needed to fulfill the request
-  d) Execute actions one at a time using \`performAction\`
-  e) Verify results and report back to the user
-
-## Action Guidelines
-
-- **Always** call \`getPageContext\` before performing any actions
-- Use element refs from the context tree (e.g., "btn-1", "input-text-3", "link-2")
-- For form submissions: type into inputs first, then click the submit button
-- For navigation: identify and click the appropriate link or button
-- **VERIFY ACTIONS**: After each action, check the result message. If it says "verified: false" or mentions React state, the action may not have taken effect. In that case, re-capture page context to verify the change, or try the action again.
-- Report success/failure clearly with context about what was done
-- If an action fails, explain why and suggest alternatives
-
-## Available Actions
-
-- \`click\` - Click buttons, links, or interactive elements
-- \`type\` - Enter text into input fields or textareas
-- \`select\` - Choose options from dropdowns
-- \`clear\` - Clear text from input fields
-- \`press\` - Send keyboard events (Enter, Escape, etc.)
-
-## Response Style
-
-- Be concise and conversational
-- For QnA: Provide helpful explanations about the conference system
-- For actions: Describe what you're doing and confirm completion
-- If uncertain, ask for clarification before acting`
-
-// Tool definitions (client-side execution only - no server execute)
-const tools = {
-  getPageContext: {
-    description: `Capture the current page's accessibility tree snapshot. Returns a hierarchical structure of all interactive elements with unique refs. Use this before performing any actions to understand what's on the page.`,
-    inputSchema: z.object({}),
-  },
-  performAction: {
-    description: `Perform a browser action on an element. Available actions:
-- click: Click an element (requires ref)
-- type: Type text into an input (requires ref and text)
-- select: Select a dropdown option (requires ref and value)
-- clear: Clear an input field (requires ref)
-- press: Send a keyboard event (requires key)`,
-    inputSchema: z.object({
-      action: z
-        .enum(["click", "type", "press", "select", "clear"])
-        .describe("The action to perform"),
-      ref: z
-        .string()
-        .optional()
-        .describe('Element ref from page context (e.g., "btn-1", "input-text-2")'),
-      text: z.string().optional().describe("Text to type (for type action)"),
-      key: z
-        .string()
-        .optional()
-        .describe('Keyboard key to press (for press action, e.g., "Enter", "Escape")'),
-      value: z.string().optional().describe("Option value to select (for select action)"),
-    }),
-  },
+type ToolSubmissionCandidate = {
+  thread_id: string
+  tool_call_id: string
+  result: {
+    tool_name: string
+    status: "output-available" | "output-error" | "timeout"
+    output?: unknown
+    error_text?: string
+  }
 }
 
-export async function POST(req: Request) {
-  try {
-    if (!OPENROUTER_API_KEY) {
-      return new Response("OpenRouter API key is not configured", { status: 500 })
-    }
+type InternalAgentEvent = {
+  type:
+    | "start"
+    | "reasoning_start"
+    | "reasoning_token"
+    | "reasoning_end"
+    | "tool_start"
+    | "tool_end"
+    | "token"
+    | "done"
+    | "error"
+  [key: string]: unknown
+}
 
-    const { messages }: { messages: UIMessage[] } = await req.json()
-
-    if (!Array.isArray(messages) || messages.length === 0) {
-      return new Response("Messages array is required", { status: 400 })
-    }
-
-    // Check if this is the first message (no assistant messages with reasoning)
-    const hasReasoning = messages.some((msg) =>
-      msg.parts?.some((part) => part.type === "reasoning"),
+export async function POST(req: NextRequest) {
+  if (!AI_SERVICE_ENABLED) {
+    return NextResponse.json(
+      {
+        error: "Chat service is temporarily unavailable (maintenance mode).",
+      },
+      { status: 503 },
     )
+  }
 
-    // Convert UI messages to model messages
-    const modelMessages = convertToModelMessages(messages)
+  const cookieStore = await cookies()
+  const token = cookieStore.get(AUTH_COOKIE_NAME)?.value
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
 
-    const result = streamText({
-      model: openrouter(MODEL),
-      system: SYSTEM_PROMPT,
-      messages: modelMessages,
-      tools,
-      stopWhen: stepCountIs(10),
-      ...(!hasReasoning && {
-        providerOptions: {
-          openrouter: {
-            reasoning: { enabled: true, effort: "low" },
-          },
-        },
-      }),
+  let body: ChatTransportRequest
+  try {
+    body = (await req.json()) as ChatTransportRequest
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON request body" }, { status: 400 })
+  }
+
+  const threadId = String(body.id ?? "").trim()
+  const messages = Array.isArray(body.messages) ? body.messages : []
+  if (!threadId) {
+    return NextResponse.json({ error: "Missing chat thread id" }, { status: 400 })
+  }
+
+  const toolSubmission = findLatestCompletedToolResult(threadId, messages)
+  if (toolSubmission) {
+    const toolResultResponse = await fetch(AGENT_TOOL_RESULT_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(toolSubmission),
+      cache: "no-store",
     })
 
-    return result.toUIMessageStreamResponse()
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unexpected error"
-    return new Response(message, { status: 500 })
+    if (!toolResultResponse.ok && ![404, 409, 422].includes(toolResultResponse.status)) {
+      const errorText = await safeResponseText(toolResultResponse)
+      return NextResponse.json(
+        {
+          error: "Failed to submit tool result to ai-service",
+          details: errorText || toolResultResponse.statusText,
+        },
+        { status: toolResultResponse.status },
+      )
+    }
+  }
+
+  const requestMetadata = {
+    client: "frontend-next",
+    path: parsePathname(req),
+    user_agent: req.headers.get("user-agent") ?? undefined,
+  }
+
+  const upstreamResponse = await fetch(AGENT_CHAT_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      thread_id: threadId,
+      messages,
+      trigger: body.trigger,
+      message_id: body.messageId,
+      request_metadata: requestMetadata,
+    }),
+    cache: "no-store",
+  })
+
+  if (!upstreamResponse.ok || !upstreamResponse.body) {
+    const errorText = await safeResponseText(upstreamResponse)
+    return NextResponse.json(
+      {
+        error: "ai-service chat request failed",
+        details: errorText || upstreamResponse.statusText || "Unknown upstream error",
+      },
+      { status: upstreamResponse.status || 502 },
+    )
+  }
+
+  const mappedStream = mapInternalEventsToUiStream(upstreamResponse.body)
+  return new Response(mappedStream, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/event-stream; charset=utf-8",
+      "Cache-Control": "no-cache, no-transform",
+      Connection: "keep-alive",
+      "x-vercel-ai-ui-message-stream": "v1",
+    },
+  })
+}
+
+function mapInternalEventsToUiStream(upstream: ReadableStream<Uint8Array>) {
+  const encoder = new TextEncoder()
+
+  return new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const state = {
+        started: false,
+        stepStarted: false,
+        textBlockId: "",
+        reasoningOpenId: "",
+        hasError: false,
+        finishEmitted: false,
+      }
+
+      const emit = (chunk: Record<string, unknown>) => {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`))
+      }
+
+      const ensureStart = (event: InternalAgentEvent) => {
+        if (!state.started) {
+          const messageId =
+            typeof event.message_id === "string" && event.message_id.trim().length > 0
+              ? event.message_id
+              : undefined
+          emit({ type: "start", messageId })
+          state.started = true
+        }
+        if (!state.stepStarted) {
+          emit({ type: "start-step" })
+          state.stepStarted = true
+        }
+      }
+
+      const closeOpenBlocks = () => {
+        if (state.textBlockId) {
+          emit({ type: "text-end", id: state.textBlockId })
+          state.textBlockId = ""
+        }
+        if (state.reasoningOpenId) {
+          emit({ type: "reasoning-end", id: state.reasoningOpenId })
+          state.reasoningOpenId = ""
+        }
+      }
+
+      const emitFinish = () => {
+        if (state.finishEmitted) return
+        closeOpenBlocks()
+        if (state.stepStarted) {
+          emit({ type: "finish-step" })
+          state.stepStarted = false
+        }
+        emit({ type: "finish", finishReason: state.hasError ? "error" : "stop" })
+        state.finishEmitted = true
+      }
+
+      try {
+        for await (const event of parseSseJsonEvents(upstream)) {
+          switch (event.type) {
+            case "start": {
+              ensureStart(event)
+              break
+            }
+            case "token": {
+              ensureStart(event)
+              if (!state.textBlockId) {
+                state.textBlockId = `txt_${crypto.randomUUID()}`
+                emit({ type: "text-start", id: state.textBlockId })
+              }
+              const delta = String(event.content ?? "")
+              if (delta) emit({ type: "text-delta", id: state.textBlockId, delta })
+              break
+            }
+            case "reasoning_start": {
+              ensureStart(event)
+              const id =
+                typeof event.id === "string" && event.id.trim().length > 0
+                  ? event.id
+                  : `reasoning_${crypto.randomUUID()}`
+              state.reasoningOpenId = id
+              emit({ type: "reasoning-start", id })
+              break
+            }
+            case "reasoning_token": {
+              ensureStart(event)
+              if (!state.reasoningOpenId) {
+                state.reasoningOpenId = `reasoning_${crypto.randomUUID()}`
+                emit({ type: "reasoning-start", id: state.reasoningOpenId })
+              }
+              const delta = String(event.content ?? "")
+              if (delta) emit({ type: "reasoning-delta", id: state.reasoningOpenId, delta })
+              break
+            }
+            case "reasoning_end": {
+              if (state.reasoningOpenId) {
+                emit({ type: "reasoning-end", id: state.reasoningOpenId })
+                state.reasoningOpenId = ""
+              }
+              break
+            }
+            case "tool_start": {
+              ensureStart(event)
+              const toolCallId = String(event.tool_call_id ?? "")
+              const toolName = String(event.tool ?? "")
+              if (!toolCallId || !toolName) break
+              emit({
+                type: "tool-input-start",
+                toolCallId,
+                toolName,
+              })
+              emit({
+                type: "tool-input-available",
+                toolCallId,
+                toolName,
+                input: event.input ?? {},
+              })
+              break
+            }
+            case "tool_end": {
+              ensureStart(event)
+              const toolCallId = String(event.tool_call_id ?? "")
+              if (!toolCallId) break
+              const status = String(event.status ?? "")
+              if (status === "output-available") {
+                emit({
+                  type: "tool-output-available",
+                  toolCallId,
+                  output: event.result ?? null,
+                })
+              } else {
+                emit({
+                  type: "tool-output-error",
+                  toolCallId,
+                  errorText: String(event.error ?? "Tool execution failed"),
+                })
+              }
+              break
+            }
+            case "error": {
+              ensureStart(event)
+              state.hasError = true
+              emit({
+                type: "error",
+                errorText: String(event.message ?? "ai-service runtime error"),
+              })
+              break
+            }
+            case "done": {
+              ensureStart(event)
+              emitFinish()
+              break
+            }
+            default:
+              break
+          }
+        }
+      } catch (error) {
+        state.hasError = true
+        emit({
+          type: "error",
+          errorText: error instanceof Error ? error.message : "Stream processing failed",
+        })
+      } finally {
+        emitFinish()
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"))
+        controller.close()
+      }
+    },
+  })
+}
+
+async function* parseSseJsonEvents(stream: ReadableStream<Uint8Array>): AsyncGenerator<InternalAgentEvent> {
+  const reader = stream.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ""
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+
+    while (true) {
+      const separatorIndex = buffer.indexOf("\n\n")
+      if (separatorIndex === -1) break
+
+      const rawEvent = buffer.slice(0, separatorIndex)
+      buffer = buffer.slice(separatorIndex + 2)
+
+      const dataLines = rawEvent
+        .split(/\r?\n/)
+        .filter((line) => line.startsWith("data:"))
+        .map((line) => line.slice(5).trimStart())
+
+      if (dataLines.length === 0) continue
+      const data = dataLines.join("\n").trim()
+      if (!data || data === "[DONE]") continue
+
+      try {
+        const payload = JSON.parse(data) as InternalAgentEvent
+        if (payload && typeof payload.type === "string") {
+          yield payload
+        }
+      } catch {
+        continue
+      }
+    }
+  }
+}
+
+function findLatestCompletedToolResult(
+  threadId: string,
+  messages: unknown[],
+): ToolSubmissionCandidate | null {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const message = messages[i]
+    if (!message || typeof message !== "object") continue
+    const parts = (message as { parts?: unknown[] }).parts
+    if (!Array.isArray(parts)) continue
+
+    for (let partIndex = parts.length - 1; partIndex >= 0; partIndex--) {
+      const part = parts[partIndex]
+      if (!part || typeof part !== "object") continue
+
+      const state = (part as { state?: string }).state
+      if (state !== "output-available" && state !== "output-error" && state !== "timeout") continue
+
+      const toolCallId = String(
+        (part as { toolCallId?: string; id?: string }).toolCallId ??
+          (part as { id?: string }).id ??
+          "",
+      ).trim()
+      if (!toolCallId) continue
+
+      const partType = String((part as { type?: string }).type ?? "")
+      const toolName = String(
+        (part as { toolName?: string }).toolName ??
+          (partType.startsWith("tool-") ? partType.slice("tool-".length) : ""),
+      ).trim()
+      if (!toolName) continue
+
+      const output = (part as { output?: unknown; result?: unknown }).output ?? (part as { result?: unknown }).result
+      const errorText = (part as { errorText?: string }).errorText
+
+      const result: ToolSubmissionCandidate["result"] = {
+        tool_name: toolName,
+        status: state,
+      }
+      if (state === "output-available") {
+        result.output = output
+      } else {
+        result.error_text = errorText || "Tool execution failed"
+      }
+
+      return {
+        thread_id: threadId,
+        tool_call_id: toolCallId,
+        result,
+      }
+    }
+  }
+  return null
+}
+
+function parsePathname(req: NextRequest): string | undefined {
+  const referer = req.headers.get("referer")
+  if (!referer) return undefined
+  try {
+    return new URL(referer).pathname
+  } catch {
+    return undefined
+  }
+}
+
+async function safeResponseText(response: Response): Promise<string> {
+  try {
+    return await response.text()
+  } catch {
+    return ""
   }
 }

@@ -1,4 +1,4 @@
-.PHONY: help dev db-up db-down db-reset neo4j-up neo4j-down neo4j-init neo4j-shell neo4j-logs server build run test clean docker-build docker-up docker-down migrate-up migrate-down test-api test-api-coverage
+.PHONY: help dev db-up db-down db-reset redis-up redis-down redis-logs neo4j-up neo4j-down neo4j-init neo4j-shell neo4j-logs server build run test clean docker-build docker-up docker-down docker-logs-redis migrate-up migrate-down test-api test-api-coverage
 
 # Go binary path
 GOBIN := $(shell go env GOPATH)/bin
@@ -19,7 +19,7 @@ help: ## Show this help message
 # Development Workflow
 # ============================================================================
 
-dev: db-up neo4j-up migrate-up neo4j-init swagger server ## Start all databases, run migrations, init Neo4j, generate swagger docs, and start server (recommended for development)
+dev: db-up redis-up neo4j-up migrate-up neo4j-init swagger server ## Start all databases, run migrations, init Neo4j, generate swagger docs, and start server (recommended for development)
 
 restart: ## Restart all services (kill current server, stop databases, and run make dev)
 	@echo "Stopping existing server..."
@@ -44,6 +44,23 @@ db-down: ## Stop PostgreSQL database
 
 db-reset: db-down db-up migrate-up ## Reset database (down, up, migrate)
 	@echo "Database reset complete!"
+
+redis-up: ## Start Redis cache
+	@echo "Starting Redis cache..."
+	docker-compose up -d redis
+	@echo "Waiting for Redis to be ready..."
+	@until docker-compose exec -T redis redis-cli ping 2>/dev/null | grep -q PONG; do \
+		echo "Waiting for Redis..."; \
+		sleep 1; \
+	done
+	@echo "Redis is ready!"
+
+redis-down: ## Stop Redis cache
+	@echo "Stopping Redis cache..."
+	docker-compose stop redis
+
+redis-logs: ## View Redis logs
+	docker-compose logs -f redis
 
 server: ## Run the server locally (requires DB to be running)
 	@echo "Starting server..."
@@ -213,6 +230,9 @@ docker-logs-db: ## View logs from PostgreSQL service only
 
 docker-logs-neo4j: ## View logs from Neo4j service only
 	docker-compose logs -f neo4j
+
+docker-logs-redis: ## View logs from Redis service only
+	docker-compose logs -f redis
 
 docker-restart: docker-down docker-up ## Restart all Docker services
 
@@ -386,6 +406,9 @@ status: ## Check status of services
 	@echo ""
 	@echo "=== Neo4j Connection ==="
 	@docker-compose exec -T neo4j cypher-shell -u $(NEO4J_USER) -p $(NEO4J_PASS) -d neo4j "RETURN 'Connected!' as status" 2>/dev/null || echo "Neo4j not accessible"
+	@echo ""
+	@echo "=== Redis Connection ==="
+	@docker-compose exec -T redis redis-cli ping 2>/dev/null | grep -q PONG && echo "Redis is accessible!" || echo "Redis not accessible"
 	@echo ""
 	@echo "=== API Health Check ==="
 	@curl -s http://localhost:8080/health 2>/dev/null | grep -q "healthy" && echo "API is healthy!" || echo "API not accessible"
