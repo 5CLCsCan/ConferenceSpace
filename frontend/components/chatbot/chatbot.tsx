@@ -95,7 +95,7 @@ export function Chatbot() {
   const [isWindowAnimating, setIsWindowAnimating] = React.useState(false)
   const [swipeDirection, setSwipeDirection] = React.useState<"forward" | "back" | null>(null)
 
-  const shouldHideOnRoute = pathname === "/login" || pathname === "/register"
+  const shouldHideOnRoute = pathname === "/login" || pathname === "/register" || pathname === "/"
 
   React.useEffect(() => {
     const fromChat = loadConversationsFromChatStorage()
