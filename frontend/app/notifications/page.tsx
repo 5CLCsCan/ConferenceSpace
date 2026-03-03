@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useCallback, useMemo, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { formatDistanceToNow } from "date-fns"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
@@ -66,20 +66,82 @@ function mapNotification(notification: Notification): CardNotification {
   }
 }
 
+const PAGE_SIZE = 5
+
+
 export default function NotificationsPage() {
   const router = useRouter()
-  const { currentRole } = useAuth()
+  const { currentRole, isAuthenticated, isAuthLoading } = useAuth()
   const {
     notifications,
     unreadCount,
+    total,
     markAsRead,
     markAllAsRead,
+    fetchNotifications,
     isLoading,
     error,
-  } = useNotifications({ limit: 100 })
+  } = useNotifications({ limit: PAGE_SIZE })
 
+  const [currentPage, setCurrentPage] = useState(1)
   const [activeTab, setActiveTab] = useState<"all" | "unread" | "mentions">("all")
   const [activeFilter, setActiveFilter] = useState("all")
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+
+  const handleTabChange = useCallback(
+    (tab: "all" | "unread" | "mentions") => {
+      setActiveTab(tab)
+      setCurrentPage(1)
+      const params: { limit: number; offset: number; unread?: boolean } = {
+        limit: PAGE_SIZE,
+        offset: 0,
+      }
+      if (tab === "unread") params.unread = true
+      fetchNotifications(params)
+    },
+    [fetchNotifications],
+  )
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      if (page >= 1 && page <= totalPages) {
+        setCurrentPage(page)
+        const params: { limit: number; offset: number; unread?: boolean } = {
+          limit: PAGE_SIZE,
+          offset: (page - 1) * PAGE_SIZE,
+        }
+        if (activeTab === "unread") params.unread = true
+        fetchNotifications(params)
+      }
+    },
+    [totalPages, activeTab, fetchNotifications],
+  )
+
+  // Generate page numbers with ellipsis
+  const getPageNumbers = () => {
+    const pages: (number | "ellipsis")[] = []
+    const maxVisible = 5
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
+    } else {
+      pages.push(1)
+      if (currentPage <= 3) {
+        for (let i = 2; i <= 4; i++) pages.push(i)
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      } else if (currentPage >= totalPages - 2) {
+        pages.push("ellipsis")
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i)
+      } else {
+        pages.push("ellipsis")
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i)
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      }
+    }
+    return pages
+  }
 
   const cardNotifications = useMemo(() => notifications.map(mapNotification), [notifications])
 
@@ -161,20 +223,20 @@ export default function NotificationsPage() {
                 <TabButton
                   label="All"
                   active={activeTab === "all"}
-                  onClick={() => setActiveTab("all")}
+                  onClick={() => handleTabChange("all")}
                   badge={cardNotifications.length}
                 />
                 <TabButton
                   label="Unread"
                   active={activeTab === "unread"}
-                  onClick={() => setActiveTab("unread")}
+                  onClick={() => handleTabChange("unread")}
                   badge={unreadCount}
                   badgeActiveBg="bg-blue-600"
                 />
                 <TabButton
                   label="Mentions"
                   active={activeTab === "mentions"}
-                  onClick={() => setActiveTab("mentions")}
+                  onClick={() => handleTabChange("mentions")}
                 />
               </div>
             </div>
@@ -225,6 +287,67 @@ export default function NotificationsPage() {
               </>
             ) : (
               <EmptyState />
+            )}
+
+            {/* Pagination */}
+            {!isLoading && !error && total > 0 && (
+              <div className="flex items-center justify-between pt-2">
+                <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Showing{" "}
+                  <span className="font-bold text-[#1B3C53] dark:text-white">
+                    {Math.min((currentPage - 1) * PAGE_SIZE + 1, total)}-
+                    {Math.min(currentPage * PAGE_SIZE, total)}
+                  </span>{" "}
+                  of{" "}
+                  <span className="font-bold text-[#1B3C53] dark:text-white">
+                    {total.toLocaleString()}
+                  </span>{" "}
+                  notifications
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage <= 1}
+                      className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Previous
+                    </button>
+
+                    {getPageNumbers().map((page, idx) =>
+                      page === "ellipsis" ? (
+                        <span
+                          key={`ellipsis-${idx}`}
+                          className="px-1.5 text-slate-400 text-[10px] flex items-center"
+                        >
+                          ...
+                        </span>
+                      ) : (
+                        <button
+                          key={page}
+                          onClick={() => handlePageChange(page)}
+                          className={`px-2.5 py-1 rounded text-[10px] ${
+                            page === currentPage
+                              ? "bg-[#1B3C53] text-white hover:bg-[#234C6A]"
+                              : "border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ),
+                    )}
+
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage >= totalPages}
+                      className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>

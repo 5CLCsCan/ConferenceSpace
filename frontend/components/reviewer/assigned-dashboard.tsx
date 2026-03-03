@@ -14,6 +14,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { PapersSkeleton } from "./loading-skeletons"
 import { setAssignmentConferenceContext } from "@/lib/reviewer/assignment-context-cache"
 
+const PAGE_SIZE = 8
+
 type StatusFilter = "all" | "not_started" | "in_progress" | "completed"
 type SortOption = "deadline" | "title" | "status"
 
@@ -44,14 +46,57 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
   const [sortBy, setSortBy] = useState<SortOption>("deadline")
+  const [currentPage, setCurrentPage] = useState(1)
   const debouncedSearch = useDebounce(searchQuery, 300)
 
-  const { papers, isLoading, error } = useConferencePapers(reviewerEmail, conferenceId, {
-    limit: 100,
-    offset: 0,
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value)
+    setCurrentPage(1)
+  }
+
+  const handleStatusChange = (status: StatusFilter) => {
+    setStatusFilter(status)
+    setCurrentPage(1)
+  }
+
+  const { papers, total, isLoading, error } = useConferencePapers(reviewerEmail, conferenceId, {
+    limit: PAGE_SIZE,
+    offset: (currentPage - 1) * PAGE_SIZE,
     search: debouncedSearch || undefined,
     status: statusFilter === "all" ? undefined : statusFilter,
   })
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page)
+    }
+  }
+
+  const getPageNumbers = () => {
+    const pages: (number | "ellipsis")[] = []
+    const maxVisible = 5
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
+    } else {
+      pages.push(1)
+      if (currentPage <= 3) {
+        for (let i = 2; i <= 4; i++) pages.push(i)
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      } else if (currentPage >= totalPages - 2) {
+        pages.push("ellipsis")
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i)
+      } else {
+        pages.push("ellipsis")
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i)
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      }
+    }
+    return pages
+  }
 
   const { dashboard } = useReviewerDashboard(reviewerEmail, {
     conferenceLimit: 100,
@@ -80,13 +125,6 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
     })
     return next
   }, [papers, sortBy])
-
-  const statusCounts = {
-    all: papers.length,
-    not_started: papers.filter((paper) => paper.assignment_status === "not_started").length,
-    in_progress: papers.filter((paper) => paper.assignment_status === "in_progress").length,
-    completed: papers.filter((paper) => paper.assignment_status === "completed").length,
-  }
 
   const handleOpenAssignment = (assignmentId: number) => {
     setAssignmentConferenceContext(String(assignmentId), String(conferenceId))
@@ -138,7 +176,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
           {conference?.acronym || conference?.name || `Conference ${conferenceId}`}
         </h1>
         <p className="text-sm font-light text-slate-500 dark:text-slate-400 mt-2">
-          {t("dashboard.roles.reviewer.papers.description", { count: papers.length })}
+          {t("dashboard.roles.reviewer.papers.description", { count: total })}
         </p>
       </div>
 
@@ -147,7 +185,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
           {(["all", "not_started", "in_progress", "completed"] as StatusFilter[]).map((status) => (
             <button
               key={status}
-              onClick={() => setStatusFilter(status)}
+              onClick={() => handleStatusChange(status)}
               className={`px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${
                 statusFilter === status
                   ? "bg-white dark:bg-slate-700 shadow-sm text-[#1B3C53] dark:text-white"
@@ -161,7 +199,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
                   : status === "in_progress"
                     ? "Draft"
                     : "Done"}
-              <span className="ml-1 opacity-60">{statusCounts[status]}</span>
+              {statusFilter === "all" && status === "all" && <span className="ml-1 opacity-60">{total}</span>}
             </button>
           ))}
         </div>
@@ -171,7 +209,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
             type="text"
             placeholder={t("dashboard.roles.reviewer.papers.search.placeholder")}
             value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
+            onChange={(event) => handleSearchChange(event.target.value)}
             className="h-8 w-56 px-3 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#1B3C53]"
           />
           <select
@@ -223,7 +261,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
                   key={paper.assignment_id}
                   className="border-b border-slate-100 dark:border-slate-700/50"
                 >
-                  <td className="py-3 pl-4 pr-2 text-[11px] text-slate-400">{index + 1}</td>
+                  <td className="py-3 pl-4 pr-2 text-[11px] text-slate-400">{(currentPage - 1) * PAGE_SIZE + index + 1}</td>
                   <td className="py-3 px-3">
                     <div className="text-[13px] font-semibold text-slate-800 dark:text-slate-200">
                       {paper.title}
@@ -250,6 +288,58 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
           </table>
         )}
       </div>
+
+      {/* Pagination */}
+      {!isLoading && total > 0 && (
+        <div className="flex items-center justify-between">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            Showing{" "}
+            <span className="font-bold text-[#1B3C53] dark:text-white">
+              {Math.min((currentPage - 1) * PAGE_SIZE + 1, total)}–{Math.min(currentPage * PAGE_SIZE, total)}
+            </span>{" "}
+            of <span className="font-bold text-[#1B3C53] dark:text-white">{total}</span>{" "}
+            {total === 1 ? "paper" : "papers"}
+          </p>
+
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="h-8 px-2.5 rounded-md border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+              >
+                Previous
+              </button>
+              {getPageNumbers().map((page, idx) =>
+                page === "ellipsis" ? (
+                  <span key={`e-${idx}`} className="px-1 text-slate-400 text-xs">
+                    ...
+                  </span>
+                ) : (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`h-8 min-w-[32px] rounded-md text-[11px] font-bold transition-colors ${
+                      currentPage === page
+                        ? "bg-[#1B3C53] text-white"
+                        : "border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ),
+              )}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="h-8 px-2.5 rounded-md border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
