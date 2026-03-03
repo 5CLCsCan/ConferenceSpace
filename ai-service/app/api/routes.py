@@ -8,7 +8,7 @@ from typing import Any
 from uuid import uuid4
 
 import orjson
-from fastapi import APIRouter, HTTPException, Request, Response, status
+from fastapi import APIRouter, HTTPException, Query, Request, Response, status
 from fastapi.responses import JSONResponse, StreamingResponse
 from sqlalchemy import text
 
@@ -17,6 +17,8 @@ from app.api.schemas import (
     HealthResponse,
     HistoryResponse,
     HistorySessionMeta,
+    SessionListItem,
+    SessionListResponse,
     ToolResultAcceptedResponse,
     ToolResultRequest,
 )
@@ -216,6 +218,46 @@ async def submit_tool_result(request: Request, body: ToolResultRequest) -> ToolR
     return ToolResultAcceptedResponse(status="accepted")
 
 
+@agent_router.get("/sessions", response_model=SessionListResponse)
+async def list_sessions(
+    request: Request,
+    limit: int = Query(default=20, ge=1, le=100),
+    cursor: str | None = Query(default=None),
+) -> SessionListResponse:
+    container = _get_container(request)
+    identity = await _require_identity(request)
+
+    checks = await _dependency_checks(container, include_identity_backend=False)
+    if not checks["db"]:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="database is unavailable",
+        )
+
+    async with container.session_factory() as db:
+        sessions = SessionRepository(db)
+        try:
+            rows, next_cursor = await sessions.list_owned_sessions(identity.user_id, limit=limit, cursor=cursor)
+        except ValueError as exc:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+
+    return SessionListResponse(
+        items=[
+            SessionListItem(
+                thread_id=row.thread_id,
+                title=row.title,
+                started_at=_to_iso(row.started_at),
+                last_activity_at=_to_iso(row.last_activity_at),
+                turn_count=int(row.turn_count),
+                model=row.model,
+                status=row.status,
+            )
+            for row in rows
+        ],
+        next_cursor=next_cursor,
+    )
+
+
 @agent_router.get("/sessions/{thread_id}/history", response_model=HistoryResponse)
 async def get_history(thread_id: str, request: Request) -> HistoryResponse:
     container = _get_container(request)
@@ -242,6 +284,7 @@ async def get_history(thread_id: str, request: Request) -> HistoryResponse:
         messages=messages,
         rolling_summary=session.rolling_summary,
         session_meta=HistorySessionMeta(
+            title=session.title,
             started_at=_to_iso(session.started_at),
             last_activity_at=_to_iso(session.last_activity_at),
             turn_count=int(session.turn_count),

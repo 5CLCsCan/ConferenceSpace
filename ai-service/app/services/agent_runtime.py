@@ -44,6 +44,7 @@ class AgentRuntime:
     ) -> None:
         self.metrics.inc("chat_requests_total")
         stream_started_at = _utc_now()
+        initial_title = _derive_conversation_title(incoming_messages)
 
         async with self.session_factory() as db:
             sessions = SessionRepository(db)
@@ -54,14 +55,20 @@ class AgentRuntime:
                 user_id=identity.user_id,
                 user_email=identity.user_email,
                 model=self.settings.agent_model,
+                initial_title=initial_title,
             )
-            await db.commit()
-
-            persisted_messages = await message_repo.list_ui_messages(thread_id)
+            await message_repo.append_unseen_messages(thread_id, incoming_messages)
+            persisted_messages = await message_repo.list_recent_ui_messages(
+                thread_id,
+                limit=_context_message_limit(self.settings.keep_recent_exchanges),
+            )
             rolling_summary = session.rolling_summary
             pending_tool_call = session.pending_tool_call
+            await db.commit()
 
-        messages = incoming_messages if len(incoming_messages) >= len(persisted_messages) else persisted_messages
+        messages = persisted_messages
+        if pending_tool_call and len(incoming_messages) > len(messages):
+            messages = incoming_messages
 
         if pending_tool_call:
             self.metrics.inc("resume_attempts_total")
@@ -419,7 +426,7 @@ class AgentRuntime:
             if not session:
                 raise PermissionError("thread not owned by current user")
 
-            await message_repo.replace_thread_messages(thread_id, messages)
+            await message_repo.append_unseen_messages(thread_id, messages)
             await sessions.update_runtime(
                 thread_id,
                 rolling_summary=rolling_summary,
@@ -437,6 +444,7 @@ class AgentRuntime:
         messages: list[dict[str, Any]],
         rolling_summary: str | None,
     ) -> None:
+        updated_summary = rolling_summary
         policy = CompactionPolicy(
             threshold_ratio=self.settings.context_compaction_threshold,
             keep_recent_exchanges=self.settings.keep_recent_exchanges,
@@ -444,16 +452,17 @@ class AgentRuntime:
         estimated_tokens = estimate_tokens_from_messages(messages)
         context_window = _model_context_window(self.settings.agent_model)
 
-        compacted_messages = messages
         if policy.should_compact(estimated_tokens, context_window):
-            older, recent = policy.split(messages)
+            older, _ = policy.split(messages)
             if older:
-                summary_prompt = _summary_prompt(existing_summary=rolling_summary, history_to_summarize=_flatten_for_summary(older))
+                summary_prompt = _summary_prompt(
+                    existing_summary=updated_summary,
+                    history_to_summarize=_flatten_for_summary(older),
+                )
                 try:
                     new_summary = await self.llm_client.summarize(prompt=summary_prompt)
                     if new_summary:
-                        rolling_summary = new_summary
-                        compacted_messages = recent
+                        updated_summary = new_summary
                 except Exception as exc:  # noqa: BLE001
                     logger.exception("runtime.compaction_failed thread_id=%s error=%s", thread_id, str(exc))
 
@@ -464,10 +473,10 @@ class AgentRuntime:
             if not session:
                 raise PermissionError("thread not owned by current user")
 
-            await message_repo.replace_thread_messages(thread_id, compacted_messages)
+            await message_repo.append_unseen_messages(thread_id, messages)
             await sessions.update_runtime(
                 thread_id,
-                rolling_summary=rolling_summary,
+                rolling_summary=updated_summary,
                 status="active",
                 pending_tool_call=None,
                 turn_count=int(session.turn_count) + 1,
@@ -495,6 +504,27 @@ def _model_context_window(model_name: str) -> int:
     if "gemini-2.5" in model_name or "gemini-3" in model_name:
         return 1_000_000
     return 128_000
+
+
+def _context_message_limit(keep_recent_exchanges: int) -> int:
+    # One exchange is user + assistant, but tool interactions add extra messages.
+    return max(20, int(keep_recent_exchanges) * 4)
+
+
+def _derive_conversation_title(messages: list[dict[str, Any]]) -> str:
+    for message in messages:
+        if str(message.get("role", "")).strip() != "user":
+            continue
+        parts = message.get("parts", [])
+        if not isinstance(parts, list):
+            continue
+        for part in parts:
+            if not isinstance(part, dict) or part.get("type") != "text":
+                continue
+            text = " ".join(str(part.get("text", "")).split()).strip()
+            if text:
+                return text[:80]
+    return "New Conversation"
 
 
 def _system_prompt() -> str:

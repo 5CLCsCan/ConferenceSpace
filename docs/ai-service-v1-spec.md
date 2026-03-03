@@ -49,8 +49,11 @@ Request:
 - `tool_call_id: string`
 - `result: { tool_name: string; status: "output-available" | "output-error" | "timeout"; output?: any; error_text?: string }`
 
+### `GET /sessions?limit=<int>&cursor=<opaque>`
+Returns paginated session summaries for the authenticated user (newest first by `last_activity_at`, then `thread_id`).
+
 ### `GET /sessions/{thread_id}/history`
-Returns session metadata and persisted messages.
+Returns session metadata and persisted messages (`session_meta.title` + per-message `createdAt` included).
 
 ### `DELETE /sessions/{thread_id}`
 Deletes session runtime and persisted session artifacts.
@@ -85,7 +88,8 @@ AI service internal event -> AI SDK UI message stream events:
 
 Indexes include:
 - Session last activity and status
-- Message thread chronology
+- Session listing index by user and recency (`user_id`, `last_activity_at`, `thread_id`)
+- Message thread chronology and idempotency (`(thread_id, message_id)`)
 - Tool audit idempotency by `(thread_id, tool_call_id)`
 
 ## Runtime Limits

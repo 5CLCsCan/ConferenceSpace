@@ -32,12 +32,14 @@ class AiSession(Base):
         CheckConstraint("status IN ('active', 'waiting_tool', 'closed', 'expired')", name="ck_ai_sessions_status"),
         Index("idx_ai_sessions_last_activity", "last_activity_at"),
         Index("idx_ai_sessions_status", "status"),
+        Index("idx_ai_sessions_user_last_activity_thread", "user_id", "last_activity_at", "thread_id"),
         {"schema": SCHEMA},
     )
 
     thread_id: Mapped[str] = mapped_column(Text, primary_key=True)
     user_id: Mapped[int] = mapped_column(BIGINT, nullable=False, index=True)
     user_email: Mapped[str] = mapped_column(Text, nullable=False)
+    title: Mapped[str] = mapped_column(Text, nullable=False, default="New Conversation", server_default="New Conversation")
     model: Mapped[str] = mapped_column(VARCHAR(128), nullable=False)
     trace_id: Mapped[str] = mapped_column(UUID(as_uuid=False), nullable=False, default=lambda: str(uuid4()))
     rolling_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -58,6 +60,7 @@ class AiMessage(Base):
     __tablename__ = "ai_messages"
     __table_args__ = (
         UniqueConstraint("thread_id", "sequence_no", name="uq_ai_messages_thread_seq"),
+        UniqueConstraint("thread_id", "message_id", name="uq_ai_messages_thread_message_id"),
         CheckConstraint("role IN ('system', 'user', 'assistant', 'tool')", name="ck_ai_messages_role"),
         Index("idx_ai_messages_thread_created", "thread_id", "created_at"),
         {"schema": SCHEMA},

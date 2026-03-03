@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Paperclip, X, Loader2, Copy, ThumbsUp, ThumbsDown, Info } from "lucide-react"
+import { X, Loader2, Copy, Check, ChevronDown, ThumbsUp, ThumbsDown, Info } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Textarea } from "@/components/ui/textarea"
@@ -32,17 +32,15 @@ import { executeAction, type ActionType, type ActionParams } from "@/lib/chatbot
 interface ChatViewProps {
   conversation: ChatConversation
   onSendMessage?: (message: string, attachments?: ChatAttachment[]) => void
+  onMessagesChange?: (messages: UIMessage[]) => void
+  onConversationSynced?: () => void
 }
 
-function loadMessagesFromStorage(conversationId: string): UIMessage[] {
-  if (typeof window === "undefined") return []
+function toMessageSignature(messages: UIMessage[]): string {
   try {
-    const stored = localStorage.getItem(`ai-chat-${conversationId}`)
-    if (!stored) return []
-    const messages = JSON.parse(stored)
-    return Array.isArray(messages) ? messages : []
+    return JSON.stringify(messages)
   } catch {
-    return []
+    return String(messages.length)
   }
 }
 
@@ -67,12 +65,15 @@ const iconBtn =
 function MessageActions({ msg, isUser }: { msg: UIMessage; isUser: boolean }) {
   const text = getMessageText(msg)
   const charCount = text.length
+  const [copied, setCopied] = React.useState(false)
   const timestamp = (msg as { createdAt?: Date }).createdAt
     ? format(new Date((msg as { createdAt?: Date }).createdAt!), "HH:mm")
     : format(new Date(), "HH:mm")
 
   const handleCopy = () => {
     navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1200)
   }
 
   return (
@@ -82,9 +83,26 @@ function MessageActions({ msg, isUser }: { msg: UIMessage; isUser: boolean }) {
         isUser ? "flex-row-reverse" : "flex-row",
       )}
     >
-      <button type="button" onClick={handleCopy} className={iconBtn} aria-label="Copy">
-        <Copy className="size-2" />
-      </button>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={handleCopy}
+          className={cn(iconBtn, copied && "text-green-600 dark:text-green-400")}
+          aria-label="Copy"
+        >
+          {copied ? <Check className="size-2" /> : <Copy className="size-2" />}
+        </button>
+        {copied && (
+          <div
+            className={cn(
+              "absolute z-50 rounded-md border bg-popover px-2 py-1 text-[9px] text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95",
+              isUser ? "right-0 bottom-full mb-1" : "left-0 bottom-full mb-1",
+            )}
+          >
+            Copied
+          </div>
+        )}
+      </div>
       <div className="flex items-center gap-1">
         <button type="button" className={iconBtn} aria-label="Like">
           <ThumbsUp className="size-2" />
@@ -136,35 +154,36 @@ function ToolBlock({
   return (
     <details
       className={cn(
-        "mt-2 rounded-md border text-[10px]",
+        "group mt-2 rounded-md border text-[9px]",
         isError
           ? "border-red-200 dark:border-red-800/50 bg-red-50/60 dark:bg-red-950/20"
           : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50",
       )}
-      open={open}
+      defaultOpen={open}
     >
       <summary
         className={cn(
           "flex items-center gap-1.5 px-2.5 py-1.5 cursor-pointer select-none list-none",
-          "font-medium tracking-wide text-[10px] uppercase",
+          "font-medium tracking-wide text-[9px] uppercase",
           isError ? "text-red-500" : "text-[#456882] dark:text-slate-400",
         )}
       >
         {isLoading ? (
-          <Loader2 className="h-3 w-3 animate-spin" />
+          <Loader2 className="h-2.5 w-2.5 animate-spin shrink-0" />
         ) : (
           <span
-            className="material-symbols-outlined"
-            style={{ fontSize: "11px", fontVariationSettings: '"FILL" 0, "wght" 400' }}
+            className="material-symbols-outlined shrink-0"
+            style={{ fontSize: "10px", fontVariationSettings: '"FILL" 0, "wght" 400' }}
           >
             {isError ? "error" : "settings"}
           </span>
         )}
-        {label}
-        {statusIcon && <span className={cn("ml-auto font-bold", statusColor)}>{statusIcon}</span>}
+        <span className="min-w-0 flex-1 truncate">{label}</span>
+        {statusIcon && <span className={cn("shrink-0 font-bold", statusColor)}>{statusIcon}</span>}
+        <ChevronDown className="h-3 w-3 shrink-0 transition-transform duration-200 group-open:rotate-180" />
       </summary>
       {children && (
-        <div className="px-2.5 pb-2.5 space-y-1.5 border-t border-slate-200 dark:border-slate-700 mt-0 pt-2">
+        <div className="px-2 pb-2 space-y-1 border-t border-slate-200 dark:border-slate-700 mt-0 pt-1.5 text-[9px]">
           {children}
         </div>
       )}
@@ -175,7 +194,7 @@ function ToolBlock({
 function ToolField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+      <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
         {label}
       </span>
       <div className="mt-0.5">{children}</div>
@@ -185,28 +204,30 @@ function ToolField({ label, children }: { label: string; children: React.ReactNo
 
 function ToolPre({ children }: { children: React.ReactNode }) {
   return (
-    <pre className="text-[10px] font-mono bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-1.5 whitespace-pre-wrap break-words overflow-wrap-anywhere max-h-36 overflow-auto leading-relaxed">
+    <pre className="text-[9px] font-mono bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-1 whitespace-pre-wrap break-words overflow-wrap-anywhere max-h-28 overflow-auto leading-relaxed">
       {children}
     </pre>
   )
 }
 
-export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
+export function ChatView({
+  conversation,
+  onSendMessage,
+  onMessagesChange,
+  onConversationSynced,
+}: ChatViewProps) {
   const [input, setInput] = React.useState("")
   const [attachments, setAttachments] = React.useState<ChatAttachment[]>([])
   const [mode, setMode] = React.useState<"agentic" | "standard">("agentic")
   const scrollAreaRef = React.useRef<HTMLDivElement>(null)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const refMapRef = React.useRef<Map<string, Element>>(new Map())
-
-  const initialMessages = React.useMemo(
-    () => loadMessagesFromStorage(conversation.id),
-    [conversation.id],
-  )
+  const previousStatusRef = React.useRef<string>("ready")
+  const lastEmittedMessagesSignatureRef = React.useRef<string>("")
 
   const { messages, sendMessage, status, addToolOutput } = useChat({
     id: conversation.id,
-    messages: initialMessages,
+    messages: conversation.messages,
     transport: new DefaultChatTransport({ api: "/api/chat" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
@@ -254,6 +275,31 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
   React.useEffect(() => {
     scrollToBottom()
   }, [messages, scrollToBottom])
+
+  const messagesSignature = React.useMemo(() => toMessageSignature(messages), [messages])
+
+  React.useEffect(() => {
+    if (!onMessagesChange) {
+      return
+    }
+    if (lastEmittedMessagesSignatureRef.current === messagesSignature) {
+      return
+    }
+    lastEmittedMessagesSignatureRef.current = messagesSignature
+    onMessagesChange(messages)
+  }, [messages, messagesSignature, onMessagesChange])
+
+  React.useEffect(() => {
+    const previousStatus = previousStatusRef.current
+    if (
+      onConversationSynced &&
+      status === "ready" &&
+      (previousStatus === "submitted" || previousStatus === "streaming")
+    ) {
+      onConversationSynced()
+    }
+    previousStatusRef.current = status
+  }, [status, onConversationSynced])
 
   const handleFileSelect = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
@@ -412,7 +458,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                               open={false}
                             >
                               <ToolField label="Tool">
-                                <span className="text-[10px] font-mono text-slate-600 dark:text-slate-300">
+                                <span className="text-[9px] font-mono text-slate-600 dark:text-slate-300">
                                   {toolName}
                                 </span>
                               </ToolField>
@@ -449,14 +495,14 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                                 open={true}
                               >
                                 <ToolField label="Tool">
-                                  <span className="text-[10px] font-mono text-slate-600 dark:text-slate-300">
+                                  <span className="text-[9px] font-mono text-slate-600 dark:text-slate-300">
                                     {toolName}
                                   </span>
                                 </ToolField>
                                 <ToolField label="Input">
                                   <ToolPre>{JSON.stringify(toolInput, null, 2)}</ToolPre>
                                 </ToolField>
-                                <p className="text-[10px] text-slate-400 italic">Executing...</p>
+                                <p className="text-[9px] text-slate-400 italic">Executing...</p>
                               </ToolBlock>
                             )
                           }
@@ -516,7 +562,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                                 open={true}
                               >
                                 <ToolField label="Tool">
-                                  <span className="text-[10px] font-mono text-slate-600 dark:text-slate-300">
+                                  <span className="text-[9px] font-mono text-slate-600 dark:text-slate-300">
                                     {toolName}
                                   </span>
                                 </ToolField>
@@ -539,7 +585,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                                 open={true}
                               >
                                 <ToolField label="Tool">
-                                  <span className="text-[10px] font-mono text-slate-600 dark:text-slate-300">
+                                  <span className="text-[9px] font-mono text-slate-600 dark:text-slate-300">
                                     {toolName}
                                   </span>
                                 </ToolField>
@@ -547,7 +593,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                                   <ToolPre>{JSON.stringify(toolInput, null, 2)}</ToolPre>
                                 </ToolField>
                                 <ToolField label="Error">
-                                  <span className="text-[10px] text-red-500 font-mono">
+                                  <span className="text-[9px] text-red-500 font-mono">
                                     {toolError}
                                   </span>
                                 </ToolField>
@@ -574,7 +620,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                                 open={false}
                               >
                                 <ToolField label="Tool">
-                                  <span className="text-[10px] font-mono text-slate-600 dark:text-slate-300">
+                                  <span className="text-[9px] font-mono text-slate-600 dark:text-slate-300">
                                     {toolName}
                                   </span>
                                 </ToolField>

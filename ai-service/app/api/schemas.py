@@ -63,6 +63,7 @@ class ToolResultAcceptedResponse(BaseModel):
 
 
 class HistorySessionMeta(BaseModel):
+    title: str
     started_at: str
     last_activity_at: str
     turn_count: int
@@ -75,6 +76,21 @@ class HistoryResponse(BaseModel):
     messages: list[dict[str, Any]]
     rolling_summary: str | None
     session_meta: HistorySessionMeta
+
+
+class SessionListItem(BaseModel):
+    thread_id: str
+    title: str
+    started_at: str
+    last_activity_at: str
+    turn_count: int
+    model: str
+    status: str
+
+
+class SessionListResponse(BaseModel):
+    items: list[SessionListItem]
+    next_cursor: str | None = None
 
 
 class HealthResponse(BaseModel):

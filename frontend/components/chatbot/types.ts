@@ -1,11 +1,4 @@
-export interface ChatMessage {
-  id: string
-  role: "user" | "assistant"
-  content: string
-  timestamp: Date
-  attachments?: ChatAttachment[]
-  reasoning_details?: unknown // Preserved from OpenRouter API
-}
+import type { UIMessage } from "ai"
 
 export interface ChatAttachment {
   id: string
@@ -19,7 +12,10 @@ export interface ChatAttachment {
 export interface ChatConversation {
   id: string
   title: string
-  messages: ChatMessage[]
+  messages: UIMessage[]
   createdAt: Date
   updatedAt: Date
+  turnCount?: number
+  model?: string
+  status?: string
 }

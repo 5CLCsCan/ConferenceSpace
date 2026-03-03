@@ -28,6 +28,7 @@ FastAPI-based AI service for ConferenceSpace with deterministic loop orchestrati
 
 - `POST /api/v1/agent/chat`
 - `POST /api/v1/agent/tool-result`
+- `GET /api/v1/agent/sessions`
 - `GET /api/v1/agent/sessions/{thread_id}/history`
 - `DELETE /api/v1/agent/sessions/{thread_id}`
 - `GET /health`
