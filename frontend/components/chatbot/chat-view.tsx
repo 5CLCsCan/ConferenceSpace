@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Paperclip, X, Loader2 } from "lucide-react"
+import { Paperclip, X, Loader2, Copy, ThumbsUp, ThumbsDown, Info } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Textarea } from "@/components/ui/textarea"
@@ -13,6 +13,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useChat } from "@ai-sdk/react"
 import {
   DefaultChatTransport,
@@ -47,6 +52,67 @@ function getToolDisplayName(toolName: string): string {
     performAction: "Perform Action",
   }
   return aliases[toolName] || toolName
+}
+
+function getMessageText(msg: UIMessage): string {
+  return msg.parts
+    .filter((p): p is { type: "text"; text: string } => p.type === "text")
+    .map((p) => p.text)
+    .join("")
+}
+
+const iconBtn =
+  "h-4 w-4 flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+
+function MessageActions({ msg, isUser }: { msg: UIMessage; isUser: boolean }) {
+  const text = getMessageText(msg)
+  const charCount = text.length
+  const timestamp = (msg as { createdAt?: Date }).createdAt
+    ? format(new Date((msg as { createdAt?: Date }).createdAt!), "HH:mm")
+    : format(new Date(), "HH:mm")
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text)
+  }
+
+  return (
+    <div
+      className={cn(
+        "flex items-center justify-between gap-2 py-[3px] px-[15px]",
+        isUser ? "flex-row-reverse" : "flex-row",
+      )}
+    >
+      <button type="button" onClick={handleCopy} className={iconBtn} aria-label="Copy">
+        <Copy className="size-2" />
+      </button>
+      <div className="flex items-center gap-1">
+        <button type="button" className={iconBtn} aria-label="Like">
+          <ThumbsUp className="size-2" />
+        </button>
+        <button type="button" className={iconBtn} aria-label="Dislike">
+          <ThumbsDown className="size-2" />
+        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button type="button" className={iconBtn} aria-label="Message info">
+              <Info className="size-2" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align={isUser ? "end" : "start"}
+            className="min-w-[60px] mr-[26px] -mt-[5px] [&_p]:text-[9px] [&_p]:text-slate-600 dark:[&_p]:text-slate-400"
+          >
+            <div className="px-1 py-1 space-y-0.5">
+              <p className="text-[8px] text-slate-600 dark:text-slate-400">Time: {timestamp}</p>
+              <p className="text-[8px] text-slate-600 dark:text-slate-400">
+                Characters: {charCount}
+              </p>
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
+  )
 }
 
 // Tool call collapsible block
@@ -260,18 +326,19 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
             messages.map((msg) => (
               <div
                 key={msg.id}
-                className={cn("flex", msg.role === "user" ? "justify-end" : "justify-start")}
+                className={cn("flex mb-1", msg.role === "user" ? "justify-end" : "justify-start")}
               >
                 <div
                   className={cn(
-                    "flex flex-col gap-1 max-w-[82%]",
-                    msg.role === "user" && "items-end",
+                    "flex flex-col gap-1 py-1.5",
+                    msg.role === "user" ? "max-w-[82%] items-end" : "w-full",
                   )}
+                  style={{ paddingTop: "12px", paddingBottom: 0 }}
                 >
                   {/* Message bubble */}
                   <div
                     className={cn(
-                      "rounded-xl px-3 py-2",
+                      "rounded-xl px-3 py-0",
                       msg.role === "user"
                         ? "bg-[#1B3C53] text-white rounded-tr-sm"
                         : "text-[#141414] dark:text-slate-100",
@@ -529,10 +596,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                     })}
                   </div>
 
-                  {/* Timestamp */}
-                  <p className="text-[9px] text-slate-400 dark:text-slate-500 px-1">
-                    {format(new Date(), "HH:mm")}
-                  </p>
+                  {msg.role !== "user" && <MessageActions msg={msg} isUser={false} />}
                 </div>
               </div>
             ))

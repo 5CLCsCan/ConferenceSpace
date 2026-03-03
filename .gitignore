@@ -41,5 +41,6 @@ backend/scripts/reduce_data_seeder.py
 
 .env
 __pycache__
+.pytest_cache
 chatbot-architecture
 .venv
