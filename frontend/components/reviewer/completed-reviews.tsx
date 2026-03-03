@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
@@ -8,6 +8,8 @@ import { formatDate } from "@/lib/utils"
 import { useCompletedReviews } from "@/hooks/use-completed-reviews"
 import { ROUTES } from "@/lib/routes"
 import { useDebounce } from "@/hooks/use-debounce"
+
+const PAGE_SIZE = 8
 
 interface CompletedReviewsProps {
   reviewerId?: string
@@ -25,14 +27,26 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState<SortOption>("date")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
-  const loadMoreRef = useRef<HTMLDivElement>(null)
+  const [currentPage, setCurrentPage] = useState(1)
 
   const debouncedSearch = useDebounce(searchQuery, 500)
 
-  const { reviews, isLoading, isLoadingMore, hasMore, loadMore } = useCompletedReviews(
+  // Reset page when search changes
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value)
+    setCurrentPage(1)
+  }
+
+  const { reviews, total, isLoading } = useCompletedReviews(
     currentReviewerId,
-    { search: debouncedSearch },
+    {
+      search: debouncedSearch,
+      limit: PAGE_SIZE,
+      offset: (currentPage - 1) * PAGE_SIZE,
+    },
   )
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   const sortedReviews = [...reviews].sort((a, b) => {
     if (sortBy === "date") {
@@ -43,30 +57,35 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
     return sortOrder === "asc" ? comparison : -comparison
   })
 
-  // Infinite scroll observer
-  useEffect(() => {
-    if (!loadMore || !hasMore || isLoadingMore) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMore()
-        }
-      },
-      { threshold: 0.1 },
-    )
-
-    const currentRef = loadMoreRef.current
-    if (currentRef) {
-      observer.observe(currentRef)
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page)
     }
+  }
 
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef)
+  const getPageNumbers = () => {
+    const pages: (number | "ellipsis")[] = []
+    const maxVisible = 5
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
+    } else {
+      pages.push(1)
+      if (currentPage <= 3) {
+        for (let i = 2; i <= 4; i++) pages.push(i)
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      } else if (currentPage >= totalPages - 2) {
+        pages.push("ellipsis")
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i)
+      } else {
+        pages.push("ellipsis")
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i)
+        pages.push("ellipsis")
+        pages.push(totalPages)
       }
     }
-  }, [loadMore, hasMore, isLoadingMore])
+    return pages
+  }
 
   const handleSelect = (paperId: string, conferenceId: string) => {
     if (onSelectPaper) return onSelectPaper(paperId, conferenceId)
@@ -109,7 +128,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
             type="text"
             placeholder={t("dashboard.roles.reviewer.completedReviews.searchPlaceholder")}
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full sm:w-64 h-8 pl-8 pr-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#1B3C53]"
           />
         </div>
@@ -213,7 +232,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
                   >
                     {/* Index */}
                     <td className="py-3 pl-4 pr-2 text-[11px] font-mono font-medium text-slate-400 dark:text-slate-500 w-10">
-                      {index + 1}
+                      {(currentPage - 1) * PAGE_SIZE + index + 1}
                     </td>
 
                     {/* Paper Info */}
@@ -274,30 +293,60 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
         )}
       </div>
 
-      {/* Load More Trigger */}
-      {hasMore && (
-        <div ref={loadMoreRef} className="py-6 flex items-center justify-center">
-          {isLoadingMore && (
-            <div className="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-500">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#1B3C53] dark:border-white" />
-              <span className="text-[10px] font-bold uppercase tracking-wider">Loading...</span>
-            </div>
-          )}
-        </div>
-      )}
+      {/* Pagination */}
+      {!isLoading && total > 0 && (
+        <div className="flex items-center justify-between">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            Showing{" "}
+            <span className="font-bold text-[#1B3C53] dark:text-white">
+              {Math.min((currentPage - 1) * PAGE_SIZE + 1, total)}–{Math.min(currentPage * PAGE_SIZE, total)}
+            </span>{" "}
+            of <span className="font-bold text-[#1B3C53] dark:text-white">{total}</span> completed
+            {total === 1 ? " review" : " reviews"}
+            {debouncedSearch && (
+              <>
+                {" "}
+                for &ldquo;<span className="font-medium">{debouncedSearch}</span>&rdquo;
+              </>
+            )}
+          </p>
 
-      {/* Results count */}
-      {!isLoading && sortedReviews.length > 0 && (
-        <div className="text-[11px] text-slate-500">
-          Showing{" "}
-          <span className="font-bold text-[#1B3C53] dark:text-white">{sortedReviews.length}</span>{" "}
-          completed
-          {sortedReviews.length === 1 ? " review" : " reviews"}
-          {debouncedSearch && (
-            <>
-              {" "}
-              for &ldquo;<span className="font-medium">{debouncedSearch}</span>&rdquo;
-            </>
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="h-8 px-2.5 rounded-md border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+              >
+                Previous
+              </button>
+              {getPageNumbers().map((page, idx) =>
+                page === "ellipsis" ? (
+                  <span key={`e-${idx}`} className="px-1 text-slate-400 text-xs">
+                    ...
+                  </span>
+                ) : (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`h-8 min-w-[32px] rounded-md text-[11px] font-bold transition-colors ${
+                      currentPage === page
+                        ? "bg-[#1B3C53] text-white"
+                        : "border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ),
+              )}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="h-8 px-2.5 rounded-md border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+              >
+                Next
+              </button>
+            </div>
           )}
         </div>
       )}

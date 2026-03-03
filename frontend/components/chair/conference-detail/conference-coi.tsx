@@ -31,9 +31,13 @@ function StatCard({
   )
 }
 
+const PAGE_SIZE = 8
+
 export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [total, setTotal] = useState(0)
   const [stats, setStats] = useState<{
     totalConflicts: number
     pendingReview: number
@@ -48,6 +52,42 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
   const [relationships, setRelationships] = useState<COIRelationship[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [severity, setSeverity] = useState<"" | "high" | "medium" | "low">("")
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+
+  const handleSeverityChange = (value: "" | "high" | "medium" | "low") => {
+    setSeverity(value)
+    setCurrentPage(1)
+  }
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value)
+    setCurrentPage(1)
+  }
+
+  const getPageNumbers = () => {
+    const pages: (number | "ellipsis")[] = []
+    const maxVisible = 5
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
+    } else {
+      pages.push(1)
+      if (currentPage <= 3) {
+        for (let i = 2; i <= 4; i++) pages.push(i)
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      } else if (currentPage >= totalPages - 2) {
+        pages.push("ellipsis")
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i)
+      } else {
+        pages.push("ellipsis")
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i)
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      }
+    }
+    return pages
+  }
   const [rebuilding, setRebuilding] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
 
@@ -71,8 +111,8 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
             conference_id: numericConferenceId,
             severity: severity || undefined,
             search: searchQuery || undefined,
-            limit: 100,
-            page: 1,
+            limit: PAGE_SIZE,
+            page: currentPage,
           }),
         ])
 
@@ -83,6 +123,7 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
           orphanedPapers: 0,
         })
         setRelationships(relationshipsResponse.relationships || [])
+        setTotal(relationshipsResponse.total || 0)
       } catch (loadError) {
         setError(loadError instanceof Error ? loadError.message : "Failed to load COI data")
       } finally {
@@ -91,7 +132,7 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
     }
 
     void loadCOI()
-  }, [numericConferenceId, searchQuery, severity])
+  }, [numericConferenceId, searchQuery, severity, currentPage])
 
   return (
     <div className={cn("space-y-6", className)}>
@@ -156,7 +197,7 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <select
               value={severity}
-              onChange={(event) => setSeverity(event.target.value as "" | "high" | "medium" | "low")}
+              onChange={(event) => handleSeverityChange(event.target.value as "" | "high" | "medium" | "low")}
               className="bg-white border border-slate-200 text-slate-600 text-[11px] rounded-md py-1.5 pl-2.5 pr-6 focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none cursor-pointer"
             >
               <option value="">All severities</option>
@@ -177,7 +218,7 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
               type="text"
               placeholder="Search reviewer, author..."
               value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
+              onChange={(event) => handleSearchChange(event.target.value)}
               className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] placeholder-slate-400 transition-shadow"
             />
           </div>
@@ -243,6 +284,55 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
                 )}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {!loading && !error && total > 0 && (
+          <div className="flex items-center justify-between px-3 py-3 border-t border-slate-200 dark:border-slate-800">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Showing{" "}
+              <span className="font-bold text-[#1B3C53] dark:text-white">
+                {Math.min((currentPage - 1) * PAGE_SIZE + 1, total)}–{Math.min(currentPage * PAGE_SIZE, total)}
+              </span>{" "}
+              of <span className="font-bold text-[#1B3C53] dark:text-white">{total}</span> conflicts
+            </p>
+
+            {totalPages > 1 && (
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="h-7 px-2.5 rounded border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                >
+                  Previous
+                </button>
+                {getPageNumbers().map((page, idx) =>
+                  page === "ellipsis" ? (
+                    <span key={`e-${idx}`} className="px-1 text-slate-400 text-xs">...</span>
+                  ) : (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`h-7 min-w-[28px] rounded text-[11px] font-bold transition-colors ${
+                        currentPage === page
+                          ? "bg-[#1B3C53] text-white"
+                          : "border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="h-7 px-2.5 rounded border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

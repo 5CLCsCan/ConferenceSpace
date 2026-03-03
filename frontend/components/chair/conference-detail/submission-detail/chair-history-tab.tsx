@@ -268,7 +268,7 @@ interface ChairHistoryTabProps {
 export function ChairHistoryTab({ events, loading = false }: ChairHistoryTabProps) {
   const [activeFilter, setActiveFilter] = useState<FilterOption>("all")
   const [currentPage, setCurrentPage] = useState(1)
-  const ITEMS_PER_PAGE = 10
+  const ITEMS_PER_PAGE = 5
 
   const orderedEvents = useMemo(() => {
     return [...events].sort((left, right) => {

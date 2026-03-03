@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useEffect, useState } from "react"
+import { useState } from "react"
 import { Loader2 } from "lucide-react"
 import type { ReviewRequest } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
@@ -22,9 +22,12 @@ interface ReviewerInvitationsProps {
   reviewerId: string
   onStatusFilterChange?: (status: string) => void
   currentStatusFilter?: string
-  onLoadMore?: () => void
-  hasMore?: boolean
-  isLoadingMore?: boolean
+  currentPage?: number
+  totalPages?: number
+  totalItems?: number
+  pageSize?: number
+  onPageChange?: (page: number) => void
+  statusCounts?: { all: number; pending: number; accepted: number; declined: number }
 }
 
 type StatusFilter = "all" | "pending" | "accepted" | "declined"
@@ -36,52 +39,49 @@ export function ReviewerInvitations({
   reviewerId,
   onStatusFilterChange,
   currentStatusFilter = "all",
-  onLoadMore,
-  hasMore = false,
-  isLoadingMore = false,
+  currentPage = 1,
+  totalPages = 1,
+  totalItems,
+  pageSize = 5,
+  onPageChange,
+  statusCounts: externalStatusCounts,
 }: ReviewerInvitationsProps) {
   const { t } = useTranslation()
   const { toast } = useToast()
   const [handling, setHandling] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<SortOption>("deadline")
-  const observerRef = useRef<IntersectionObserver | null>(null)
-  const loadMoreRef = useRef<HTMLDivElement | null>(null)
-
-  // Calculate counts for tabs
-  const counts = {
-    all: invitations.length,
+  // Use DB-accurate counts from parent when available; fall back to current page counts
+  const counts = externalStatusCounts ?? {
+    all: totalItems ?? invitations.length,
     pending: invitations.filter((i) => i.status === "pending").length,
     accepted: invitations.filter((i) => i.status === "accepted").length,
     declined: invitations.filter((i) => i.status === "declined").length,
   }
 
-  // Setup intersection observer for infinite scroll
-  useEffect(() => {
-    if (!onLoadMore || !hasMore || isLoadingMore) return
-
-    const options = {
-      root: null,
-      rootMargin: "100px",
-      threshold: 0.1,
-    }
-
-    observerRef.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        onLoadMore()
-      }
-    }, options)
-
-    const currentRef = loadMoreRef.current
-    if (currentRef) {
-      observerRef.current.observe(currentRef)
-    }
-
-    return () => {
-      if (observerRef.current && currentRef) {
-        observerRef.current.unobserve(currentRef)
+  // Generate page numbers with ellipsis
+  const getPageNumbers = () => {
+    const pages: (number | "ellipsis")[] = []
+    const maxVisible = 5
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
+    } else {
+      pages.push(1)
+      if (currentPage <= 3) {
+        for (let i = 2; i <= 4; i++) pages.push(i)
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      } else if (currentPage >= totalPages - 2) {
+        pages.push("ellipsis")
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i)
+      } else {
+        pages.push("ellipsis")
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i)
+        pages.push("ellipsis")
+        pages.push(totalPages)
       }
     }
-  }, [onLoadMore, hasMore, isLoadingMore])
+    return pages
+  }
 
   const handleResponse = async (
     conferenceId: string,
@@ -428,13 +428,62 @@ export function ReviewerInvitations({
           ? renderEmptyState()
           : invitations.map((invitation) => renderInvitationCard(invitation))}
 
-        {/* Infinite scroll sentinel and loading indicator */}
-        {hasMore && (
-          <div ref={loadMoreRef} className="py-8 flex items-center justify-center">
-            {isLoadingMore && (
-              <div className="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-500">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1B3C53] dark:border-white" />
-                <span className="text-[11px] font-bold uppercase tracking-wider">Loading...</span>
+        {/* Pagination */}
+        {totalItems !== undefined && totalItems > 0 && (
+          <div className="flex items-center justify-between pt-4">
+            <div className="text-[11px] text-slate-500 dark:text-slate-400">
+              Showing{" "}
+              <span className="font-bold text-[#1B3C53] dark:text-white">
+                {Math.min((currentPage - 1) * pageSize + 1, totalItems)}-
+                {Math.min(currentPage * pageSize, totalItems)}
+              </span>{" "}
+              of{" "}
+              <span className="font-bold text-[#1B3C53] dark:text-white">
+                {totalItems.toLocaleString()}
+              </span>{" "}
+              invitations
+            </div>
+
+            {totalPages > 1 && (
+              <div className="flex gap-1">
+                <button
+                  onClick={() => onPageChange?.(currentPage - 1)}
+                  disabled={currentPage <= 1}
+                  className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+
+                {getPageNumbers().map((page, idx) =>
+                  page === "ellipsis" ? (
+                    <span
+                      key={`ellipsis-${idx}`}
+                      className="px-1.5 text-slate-400 text-[10px] flex items-center"
+                    >
+                      ...
+                    </span>
+                  ) : (
+                    <button
+                      key={page}
+                      onClick={() => onPageChange?.(page)}
+                      className={`px-2.5 py-1 rounded text-[10px] ${
+                        page === currentPage
+                          ? "bg-[#1B3C53] text-white hover:bg-[#234C6A]"
+                          : "border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
+
+                <button
+                  onClick={() => onPageChange?.(currentPage + 1)}
+                  disabled={currentPage >= totalPages}
+                  className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
               </div>
             )}
           </div>

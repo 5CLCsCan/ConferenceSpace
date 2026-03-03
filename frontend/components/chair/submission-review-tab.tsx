@@ -40,7 +40,7 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
   const [decisionSaving, setDecisionSaving] = useState(false)
   const [decisionMessage, setDecisionMessage] = useState<string | null>(null)
 
-  const REVIEWS_PER_PAGE = 10
+  const REVIEWS_PER_PAGE = 5
 
   const loadAnalytics = async () => {
     setLoading(true)

@@ -1,7 +1,6 @@
 "use client"
 
-import { useRef, useEffect, useState } from "react"
-import { Loader2 } from "lucide-react"
+import { useState } from "react"
 import type { ReviewerConference } from "@/lib/types"
 
 type TabType = "my-conferences" | "explore"
@@ -11,11 +10,13 @@ interface ReviewerConferencesProps {
   conferences: ReviewerConference[]
   exploreConferences?: ReviewerConference[]
   onSelectConference: (conferenceId: number) => void
-  onLoadMore?: () => void
-  hasMore?: boolean
-  isLoadingMore?: boolean
   searchQuery?: string
   onSearchChange?: (query: string) => void
+  currentPage?: number
+  totalPages?: number
+  totalItems?: number
+  pageSize?: number
+  onPageChange?: (page: number) => void
 }
 
 // Progress ring component for visual stats
@@ -413,13 +414,14 @@ export function ReviewerConferences({
   conferences,
   exploreConferences,
   onSelectConference,
-  onLoadMore,
-  hasMore = false,
-  isLoadingMore = false,
   searchQuery = "",
   onSearchChange,
+  currentPage = 1,
+  totalPages = 1,
+  totalItems = 0,
+  pageSize = 10,
+  onPageChange,
 }: ReviewerConferencesProps) {
-  const loadMoreRef = useRef<HTMLDivElement | null>(null)
   const [activeTab, setActiveTab] = useState<TabType>("my-conferences")
   const [viewMode, setViewMode] = useState<ViewMode>("list")
 
@@ -429,34 +431,31 @@ export function ReviewerConferences({
     0,
   )
   const totalReviewed = conferences.reduce((acc, c) => acc + (c.reviewed_papers || 0), 0)
-  const activeConferences = conferences.filter(
-    (c) => c.status === "active" || c.status === "open" || c.status === "upcoming",
-  ).length
+  const activeConferences = totalItems
 
-  // Intersection observer for infinite scroll
-  useEffect(() => {
-    if (!onLoadMore || !hasMore || isLoadingMore) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          onLoadMore()
-        }
-      },
-      { threshold: 0.1, rootMargin: "100px" },
-    )
-
-    const currentRef = loadMoreRef.current
-    if (currentRef) {
-      observer.observe(currentRef)
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef)
+  const getPageNumbers = () => {
+    const pages: (number | "ellipsis")[] = []
+    const maxVisible = 5
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
+    } else {
+      pages.push(1)
+      if (currentPage <= 3) {
+        for (let i = 2; i <= 4; i++) pages.push(i)
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      } else if (currentPage >= totalPages - 2) {
+        pages.push("ellipsis")
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i)
+      } else {
+        pages.push("ellipsis")
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i)
+        pages.push("ellipsis")
+        pages.push(totalPages)
       }
     }
-  }, [onLoadMore, hasMore, isLoadingMore])
+    return pages
+  }
 
   return (
     <div className="flex flex-col">
@@ -480,7 +479,7 @@ export function ReviewerConferences({
                   {activeConferences}
                 </div>
                 <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">
-                  Active
+                  Total
                 </div>
               </div>
               <div className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
@@ -640,18 +639,52 @@ export function ReviewerConferences({
           </div>
         )}
 
-        {/* Infinite scroll sentinel */}
-        {hasMore && (
-          <div
-            ref={loadMoreRef}
-            className="py-8 flex flex-col items-center justify-center text-center"
-          >
-            {isLoadingMore && (
-              <>
-                <Loader2 className="size-5 text-slate-300 animate-spin mb-2" />
-                <p className="text-[10px] font-medium text-slate-400">Loading more...</p>
-              </>
-            )}
+        {/* Pagination */}
+        {activeTab === "my-conferences" && totalItems > 0 && totalPages > 1 && (
+          <div className="flex items-center justify-between mt-6">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Showing{" "}
+              <span className="font-bold text-[#1B3C53] dark:text-white">
+                {Math.min((currentPage - 1) * pageSize + 1, totalItems)}–{Math.min(currentPage * pageSize, totalItems)}
+              </span>{" "}
+              of <span className="font-bold text-[#1B3C53] dark:text-white">{totalItems}</span> conferences
+            </p>
+
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => onPageChange?.(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="h-8 px-2.5 rounded-md border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+              >
+                Previous
+              </button>
+              {getPageNumbers().map((page, idx) =>
+                page === "ellipsis" ? (
+                  <span key={`e-${idx}`} className="px-1 text-slate-400 text-xs">
+                    ...
+                  </span>
+                ) : (
+                  <button
+                    key={page}
+                    onClick={() => onPageChange?.(page)}
+                    className={`h-8 min-w-[32px] rounded-md text-[11px] font-bold transition-colors ${
+                      currentPage === page
+                        ? "bg-[#1B3C53] text-white"
+                        : "border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ),
+              )}
+              <button
+                onClick={() => onPageChange?.(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="h-8 px-2.5 rounded-md border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </div>

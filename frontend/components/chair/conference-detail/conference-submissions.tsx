@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { ROUTES } from "@/lib/routes"
 import { getConferenceSubmissions, type Submission } from "@/lib/api/submissions"
 import { getSubmissionReviews } from "@/lib/api/reviews"
+import { useDebounce } from "@/hooks/use-debounce"
 
 type SubmissionStatus = "under_review" | "accepted" | "pending" | "rejected" | "withdrawn"
 
@@ -100,7 +101,8 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
   const [currentPage, setCurrentPage] = useState(1)
   const [totalEntries, setTotalEntries] = useState(0)
 
-  const entriesPerPage = 10
+  const entriesPerPage = 8
+  const debouncedSearch = useDebounce(searchQuery, 400)
 
   useEffect(() => {
     async function loadSubmissions() {
@@ -108,7 +110,7 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
       setError(null)
 
       const response = await getConferenceSubmissions(conferenceId, {
-        title: searchQuery || undefined,
+        title: debouncedSearch || undefined,
         status: selectedStatus === "all" ? undefined : selectedStatus,
         limit: entriesPerPage,
         offset: (currentPage - 1) * entriesPerPage,
@@ -157,7 +159,7 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
     }
 
     void loadSubmissions()
-  }, [conferenceId, currentPage, searchQuery, selectedStatus])
+  }, [conferenceId, currentPage, debouncedSearch, selectedStatus])
 
   const totalPages = useMemo(() => {
     return Math.max(1, Math.ceil(totalEntries / entriesPerPage))
