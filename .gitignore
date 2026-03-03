@@ -38,3 +38,8 @@ backend/scripts/*.sh
 .agent
 backend/scripts/coauthorships.csv
 backend/scripts/reduce_data_seeder.py
+
+.env
+__pycache__
+chatbot-architecture
+.venv

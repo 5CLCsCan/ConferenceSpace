@@ -181,7 +181,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply text-foreground font-sans;
     /* Added line-height 1.5 per style guide for readability */
     line-height: 1.5;
   }
@@ -248,7 +248,7 @@
   }
 
   .chatbot-markdown p {
-    @apply my-1 leading-relaxed;
+    @apply my-1 leading-relaxed text-[13px];
   }
 
   .chatbot-markdown li {
@@ -713,7 +713,8 @@
 }
 
 /* Chair UI: ensure actionable controls consistently show pointer cursor */
-.chair-ui :is(
+.chair-ui
+  :is(
     button,
     [data-slot="button"],
     [role="button"],
@@ -727,7 +728,8 @@
   cursor: pointer;
 }
 
-.chair-ui :is(
+.chair-ui
+  :is(
     button,
     [data-slot="button"],
     [role="button"],
@@ -739,4 +741,30 @@
     input[type="reset"]
   ):is(:disabled, [aria-disabled="true"], [data-disabled]) {
   cursor: not-allowed;
+}
+
+/* Chatbot thinking dots typing effect: . -> .. -> ... -> repeat */
+@keyframes typing-dots {
+  0% {
+    width: 0;
+  }
+  25% {
+    width: 1ch;
+  }
+  50% {
+    width: 2ch;
+  }
+  75% {
+    width: 3ch;
+  }
+  100% {
+    width: 0;
+  }
+}
+
+.typing-dots {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  animation: typing-dots 0.9s steps(4) infinite;
 }

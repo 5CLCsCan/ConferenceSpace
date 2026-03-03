@@ -1,130 +1,191 @@
-import { createOpenRouter } from "@openrouter/ai-sdk-provider"
-import { convertToModelMessages, stepCountIs, streamText } from "ai"
+import { NextResponse } from "next/server"
+import { cookies } from "next/headers"
 import type { UIMessage } from "ai"
-import { z } from "zod"
+import { AUTH_COOKIE_NAME } from "@/lib/config"
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
-const MODEL = "google/gemini-2.5-flash-lite-preview-09-2025"
-const openrouter = createOpenRouter({ apiKey: OPENROUTER_API_KEY })
+const AI_SERVICE_BASE_URL = process.env.AI_SERVICE_BASE_URL ?? "http://localhost:8090"
 
-if (!OPENROUTER_API_KEY) {
-  console.warn("OPENROUTER_API_KEY is not set. Chat functionality will not work.")
+type ChatRequestBody = {
+  id?: string
+  messages?: UIMessage[]
+  trigger?: "submit-message" | "regenerate-message" | string
+  messageId?: string
 }
 
-// System prompt with Tree-of-Thoughts routing
-const SYSTEM_PROMPT = `You are an AI assistant with browser automation capabilities for a conference management system.
+type ToolResultCandidate = {
+  toolCallId: string
+  toolName: string
+  status: "output-available" | "output-error"
+  output: unknown
+  errorText: string | null
+}
 
-## Task Classification (Tree-of-Thoughts)
+function extractLatestToolResult(messages: UIMessage[]): ToolResultCandidate | null {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const msg = messages[i]
+    if (msg.role !== "assistant") continue
 
-When receiving a user request, follow this reasoning path:
+    for (let j = msg.parts.length - 1; j >= 0; j--) {
+      const part = msg.parts[j] as any
 
-**THOUGHT 1**: Is this a knowledge/QnA question or an action request?
-- **QnA**: Questions about concepts, explanations, how things work, general help
-- **ACTION**: Requests to interact with the page (click, fill forms, navigate, find elements, perform tasks)
+      if (part.type === "dynamic-tool") {
+        const state = part.state as string | undefined
+        if (state === "output-available" || state === "output-error") {
+          const toolCallId = part.toolCallId as string | undefined
+          const toolName = part.toolName as string | undefined
+          if (!toolCallId || !toolName) continue
+          return {
+            toolCallId,
+            toolName,
+            status: state,
+            output: part.output ?? null,
+            errorText: (part.errorText as string | undefined) ?? null,
+          }
+        }
+      }
 
-**THOUGHT 2**: If QnA → Respond directly with your knowledge about the conference system.
+      if (typeof part.type === "string" && part.type.startsWith("tool-")) {
+        const state = part.state as string | undefined
+        if (state !== "output-available" && state !== "output-error") continue
+        const toolName = part.type.replace("tool-", "")
+        const toolCallId =
+          (part.toolCallId as string | undefined) ||
+          (part.id as string | undefined) ||
+          (part.toolInvocation?.toolCallId as string | undefined)
+        if (!toolCallId || !toolName) continue
+        return {
+          toolCallId,
+          toolName,
+          status: state,
+          output: part.output ?? part.result ?? null,
+          errorText: (part.errorText as string | undefined) ?? null,
+        }
+      }
+    }
+  }
 
-**THOUGHT 3**: If ACTION → Execute this multi-step plan:
-  a) Call \`getPageContext\` to understand the current page structure
-  b) Analyze the accessibility tree to locate target elements
-  c) Plan the sequence of actions needed to fulfill the request
-  d) Execute actions one at a time using \`performAction\`
-  e) Verify results and report back to the user
+  return null
+}
 
-## Action Guidelines
-
-- **Always** call \`getPageContext\` before performing any actions
-- Use element refs from the context tree (e.g., "btn-1", "input-text-3", "link-2")
-- For form submissions: type into inputs first, then click the submit button
-- For navigation: identify and click the appropriate link or button
-- **VERIFY ACTIONS**: After each action, check the result message. If it says "verified: false" or mentions React state, the action may not have taken effect. In that case, re-capture page context to verify the change, or try the action again.
-- Report success/failure clearly with context about what was done
-- If an action fails, explain why and suggest alternatives
-
-## Available Actions
-
-- \`click\` - Click buttons, links, or interactive elements
-- \`type\` - Enter text into input fields or textareas
-- \`select\` - Choose options from dropdowns
-- \`clear\` - Clear text from input fields
-- \`press\` - Send keyboard events (Enter, Escape, etc.)
-
-## Response Style
-
-- Be concise and conversational
-- For QnA: Provide helpful explanations about the conference system
-- For actions: Describe what you're doing and confirm completion
-- If uncertain, ask for clarification before acting`
-
-// Tool definitions (client-side execution only - no server execute)
-const tools = {
-  getPageContext: {
-    description: `Capture the current page's accessibility tree snapshot. Returns a hierarchical structure of all interactive elements with unique refs. Use this before performing any actions to understand what's on the page.`,
-    inputSchema: z.object({}),
-  },
-  performAction: {
-    description: `Perform a browser action on an element. Available actions:
-- click: Click an element (requires ref)
-- type: Type text into an input (requires ref and text)
-- select: Select a dropdown option (requires ref and value)
-- clear: Clear an input field (requires ref)
-- press: Send a keyboard event (requires key)`,
-    inputSchema: z.object({
-      action: z
-        .enum(["click", "type", "press", "select", "clear"])
-        .describe("The action to perform"),
-      ref: z
-        .string()
-        .optional()
-        .describe('Element ref from page context (e.g., "btn-1", "input-text-2")'),
-      text: z.string().optional().describe("Text to type (for type action)"),
-      key: z
-        .string()
-        .optional()
-        .describe('Keyboard key to press (for press action, e.g., "Enter", "Escape")'),
-      value: z.string().optional().describe("Option value to select (for select action)"),
-    }),
-  },
+function hasToolParts(messages: UIMessage[]): boolean {
+  return messages.some((msg) =>
+    msg.parts.some((part: any) => part.type === "dynamic-tool" || String(part.type).startsWith("tool-")),
+  )
 }
 
 export async function POST(req: Request) {
   try {
-    if (!OPENROUTER_API_KEY) {
-      return new Response("OpenRouter API key is not configured", { status: 500 })
+    const cookieStore = await cookies()
+    const token = cookieStore.get(AUTH_COOKIE_NAME)?.value
+    if (!token) {
+      console.warn("[chat-adapter] missing auth cookie")
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { messages }: { messages: UIMessage[] } = await req.json()
+    const body = (await req.json()) as ChatRequestBody
+    const threadId = body.id
+    const messages = body.messages
 
-    if (!Array.isArray(messages) || messages.length === 0) {
-      return new Response("Messages array is required", { status: 400 })
+    if (!threadId || !Array.isArray(messages)) {
+      console.warn("[chat-adapter] invalid payload", { hasThreadId: Boolean(threadId) })
+      return NextResponse.json({ error: "id and messages are required" }, { status: 400 })
     }
 
-    // Check if this is the first message (no assistant messages with reasoning)
-    const hasReasoning = messages.some((msg) =>
-      msg.parts?.some((part) => part.type === "reasoning"),
-    )
-
-    // Convert UI messages to model messages
-    const modelMessages = convertToModelMessages(messages)
-
-    const result = streamText({
-      model: openrouter(MODEL),
-      system: SYSTEM_PROMPT,
-      messages: modelMessages,
-      tools,
-      stopWhen: stepCountIs(10),
-      ...(!hasReasoning && {
-        providerOptions: {
-          openrouter: {
-            reasoning: { enabled: true, effort: "low" },
-          },
-        },
-      }),
+    console.info("[chat-adapter] start", {
+      threadId,
+      messageCount: messages.length,
+      trigger: body.trigger ?? "submit-message",
     })
 
-    return result.toUIMessageStreamResponse()
+    const toolResult = extractLatestToolResult(messages)
+    if (toolResult) {
+      console.info("[chat-adapter] forwarding tool-result", {
+        threadId,
+        toolCallId: toolResult.toolCallId,
+        toolName: toolResult.toolName,
+        status: toolResult.status,
+      })
+      const toolResultResponse = await fetch(`${AI_SERVICE_BASE_URL}/api/v1/agent/tool-result`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "x-conferencespace-proxy": "next-chat-adapter",
+        },
+        body: JSON.stringify({
+          thread_id: threadId,
+          tool_call_id: toolResult.toolCallId,
+          result: {
+            tool_name: toolResult.toolName,
+            status: toolResult.status,
+            output: toolResult.output,
+            error_text: toolResult.errorText,
+          },
+        }),
+        cache: "no-store",
+      })
+
+      if (!toolResultResponse.ok) {
+        const errText = await toolResultResponse.text().catch(() => "Failed to submit tool result")
+        console.error("[chat-adapter] tool-result failed", {
+          threadId,
+          status: toolResultResponse.status,
+          body: errText,
+        })
+        return new Response(errText, { status: toolResultResponse.status })
+      }
+    }
+
+    const requestMetadata =
+      hasToolParts(messages) || toolResult
+        ? {
+            client: "web",
+            path: req.headers.get("x-pathname") ?? undefined,
+            user_agent: req.headers.get("user-agent") ?? undefined,
+          }
+        : undefined
+
+    const chatResponse = await fetch(`${AI_SERVICE_BASE_URL}/api/v1/agent/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        thread_id: threadId,
+        messages,
+        trigger: body.trigger ?? "submit-message",
+        message_id: body.messageId ?? null,
+        request_metadata: requestMetadata,
+      }),
+      cache: "no-store",
+    })
+
+    if (!chatResponse.ok || !chatResponse.body) {
+      const errText = await chatResponse.text().catch(() => "Failed to connect to AI service")
+      console.error("[chat-adapter] ai-service chat failed", {
+        threadId,
+        status: chatResponse.status,
+        body: errText,
+      })
+      return new Response(errText, { status: chatResponse.status || 502 })
+    }
+
+    console.info("[chat-adapter] stream open", { threadId, status: chatResponse.status })
+
+    const headers = new Headers(chatResponse.headers)
+    headers.set("x-vercel-ai-ui-message-stream", "v1")
+    headers.set("Cache-Control", "no-cache")
+    headers.set("Connection", "keep-alive")
+    headers.set("Content-Type", "text/event-stream")
+
+    return new Response(chatResponse.body, {
+      status: chatResponse.status,
+      headers,
+    })
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unexpected error"
+    console.error("[chat-adapter] unexpected error", message)
     return new Response(message, { status: 500 })
   }
 }
