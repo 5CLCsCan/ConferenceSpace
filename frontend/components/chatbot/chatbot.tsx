@@ -101,7 +101,11 @@ export function Chatbot() {
   const [isWindowAnimating, setIsWindowAnimating] = React.useState(false)
   const [swipeDirection, setSwipeDirection] = React.useState<"forward" | "back" | null>(null)
 
-  const shouldHideOnRoute = pathname === "/login" || pathname === "/register" || pathname === "/"
+  const shouldHideOnRoute =
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/forgot-password" ||
+    pathname === "/"
 
   const refreshConversations = React.useCallback(async () => {
     try {
@@ -333,6 +337,7 @@ export function Chatbot() {
     <>
       <button
         onClick={handleOpen}
+        data-chatbot-ui="true"
         className={cn(
           "fixed bottom-6 right-6 z-50 h-12 w-12 rounded-full shadow-lg transition-all duration-300",
           "bg-[#1B3C53] text-white hover:bg-[#234C6A] active:scale-95",
@@ -352,6 +357,7 @@ export function Chatbot() {
 
       <div
         ref={sidebarRef}
+        data-chatbot-ui="true"
         className={cn(
           "h-screen bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-700",
           "overflow-hidden flex-shrink-0 flex flex-col relative shadow-xl",

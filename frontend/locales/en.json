@@ -167,12 +167,51 @@
       "title": "Sign in",
       "subtitle": "Use your email and password to access your workspace",
       "noAccount": "Need an account?",
+      "forgotPassword": "Forgot password?",
+      "rememberMe": "Remember me",
       "registrationComplete": "Registration complete",
       "registrationDetails": "You can now sign in with the credentials you just created.",
+      "resetSuccess": "Password updated successfully. Please sign in with your new password.",
       "errors": {
         "failed": "Sign-in failed"
       },
       "cta": "Sign in to continue"
+    },
+    "forgotPassword": {
+      "brandTitle": "Recover your account access.",
+      "brandSubtitle": "This staged flow simulates email verification and lets you set a new password.",
+      "features": {
+        "email": "Submit your account email",
+        "verify": "Verification screen (auto skip)",
+        "reset": "Set a new password"
+      },
+      "steps": {
+        "email": {
+          "title": "Forgot password",
+          "subtitle": "Enter your account email to continue"
+        },
+        "verify": {
+          "title": "Email verification code",
+          "subtitle": "We are simulating verification for this stage"
+        },
+        "reset": {
+          "title": "Set a new password",
+          "subtitle": "Create a secure password for your account"
+        }
+      },
+      "verification": {
+        "label": "Verification code",
+        "autoSkip": "This stage auto-skips in {seconds}s."
+      },
+      "reset": {
+        "newPassword": "New password",
+        "submit": "Change password",
+        "submitting": "Updating password..."
+      },
+      "errors": {
+        "emailRequired": "Please enter your email"
+      },
+      "backToLogin": "Back to login?"
     },
     "register": {
       "title": "Create a new account",

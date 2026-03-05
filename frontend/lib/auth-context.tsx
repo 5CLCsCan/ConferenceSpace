@@ -11,7 +11,11 @@ interface AuthContextType {
   isAuthenticated: boolean
   isAuthLoading: boolean
   currentRole: UserRole | null
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  login: (
+    email: string,
+    password: string,
+    options?: { rememberMe?: boolean },
+  ) => Promise<{ success: boolean; error?: string }>
   register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>
   logout: () => void
   switchRole: (role: UserRole) => boolean
@@ -202,14 +206,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [refreshSession, syncWithSessionManager])
 
   const login = useCallback(
-    async (email: string, password: string) => {
+    async (email: string, password: string, options?: { rememberMe?: boolean }) => {
+      const rememberMe = options?.rememberMe ?? false
+
       try {
         const response = await fetch("/api/v1/auth/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email, password, rememberMe }),
         })
 
         const data = await response.json()
@@ -227,7 +233,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         const normalizedUser = normalizeUser(apiUser)
-        sessionManager.setUser(normalizedUser)
+        sessionManager.setUser(normalizedUser, true, rememberMe)
         syncWithSessionManager()
         setIsAuthLoading(false)
 

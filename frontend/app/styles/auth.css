@@ -258,6 +258,19 @@ body:has(.auth-shell) {
   justify-content: space-between;
 }
 
+.auth-password-link {
+  font-size: calc(10px * var(--ui-scale));
+  font-weight: 600;
+  color: #1b3c53;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+
+.auth-password-link:hover {
+  border-bottom-color: #1b3c53;
+}
+
 .auth-input {
   height: calc(36px * var(--ui-scale));
   width: 100%;
@@ -527,6 +540,40 @@ body:has(.auth-shell) {
 
 .auth-rule--met .material-symbols-outlined {
   color: #16a34a;
+}
+
+.auth-check-row {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(8px * var(--ui-scale));
+  color: #475569;
+  font-size: calc(12px * var(--ui-scale));
+  cursor: pointer;
+  user-select: none;
+}
+
+.auth-check-input {
+  width: calc(14px * var(--ui-scale));
+  height: calc(14px * var(--ui-scale));
+  accent-color: #1b3c53;
+  cursor: pointer;
+}
+
+.auth-check-label {
+  color: #475569;
+  font-size: calc(12px * var(--ui-scale));
+  font-weight: 500;
+}
+
+.auth-stage-note {
+  margin-top: calc(6px * var(--ui-scale));
+  border: 1px solid #dbeafe;
+  border-radius: calc(6px * var(--ui-scale));
+  background: #eff6ff;
+  color: #1e3a8a;
+  font-size: calc(12px * var(--ui-scale));
+  line-height: 1.5;
+  padding: calc(10px * var(--ui-scale)) calc(12px * var(--ui-scale));
 }
 
 /* ---- Field error ---- */

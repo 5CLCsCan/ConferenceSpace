@@ -3,6 +3,7 @@ import type { UserRole } from "@/lib/types"
 const BASE_ROUTES = {
   HOME: "/",
   LOGIN: "/login",
+  FORGOT_PASSWORD: "/forgot-password",
   REGISTER: "/register",
   NOTIFICATIONS: "/notifications",
   ROLE_SELECT: "/role",

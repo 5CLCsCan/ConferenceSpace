@@ -167,12 +167,51 @@
       "title": "Đăng nhập",
       "subtitle": "Sử dụng email và mật khẩu để truy cập không gian làm việc của bạn",
       "noAccount": "Chưa có tài khoản?",
+      "forgotPassword": "Quên mật khẩu?",
+      "rememberMe": "Ghi nhớ đăng nhập",
       "registrationComplete": "Đăng ký thành công",
       "registrationDetails": "Bạn có thể đăng nhập bằng thông tin vừa tạo.",
+      "resetSuccess": "Cập nhật mật khẩu thành công. Vui lòng đăng nhập lại bằng mật khẩu mới.",
       "errors": {
         "failed": "Đăng nhập thất bại"
       },
       "cta": "Đăng nhập để tiếp tục"
+    },
+    "forgotPassword": {
+      "brandTitle": "Khôi phục quyền truy cập tài khoản.",
+      "brandSubtitle": "Luồng tạm thời này mô phỏng bước xác minh email và cho phép bạn đặt mật khẩu mới.",
+      "features": {
+        "email": "Nhập email tài khoản",
+        "verify": "Màn hình mã xác minh (tự bỏ qua)",
+        "reset": "Đặt mật khẩu mới"
+      },
+      "steps": {
+        "email": {
+          "title": "Quên mật khẩu",
+          "subtitle": "Nhập email tài khoản để tiếp tục"
+        },
+        "verify": {
+          "title": "Mã xác minh email",
+          "subtitle": "Bước xác minh đang được mô phỏng trong giai đoạn này"
+        },
+        "reset": {
+          "title": "Đặt mật khẩu mới",
+          "subtitle": "Tạo mật khẩu bảo mật cho tài khoản của bạn"
+        }
+      },
+      "verification": {
+        "label": "Mã xác minh",
+        "autoSkip": "Bước này sẽ tự bỏ qua sau {seconds} giây."
+      },
+      "reset": {
+        "newPassword": "Mật khẩu mới",
+        "submit": "Đổi mật khẩu",
+        "submitting": "Đang cập nhật mật khẩu..."
+      },
+      "errors": {
+        "emailRequired": "Vui lòng nhập email"
+      },
+      "backToLogin": "Quay về đăng nhập?"
     },
     "register": {
       "title": "Tạo tài khoản mới",

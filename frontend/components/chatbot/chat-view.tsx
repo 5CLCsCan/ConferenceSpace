@@ -159,7 +159,7 @@ function ToolBlock({
           ? "border-red-200 dark:border-red-800/50 bg-red-50/60 dark:bg-red-950/20"
           : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50",
       )}
-      defaultOpen={open}
+      open={open || undefined}
     >
       <summary
         className={cn(

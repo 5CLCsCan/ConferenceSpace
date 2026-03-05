@@ -14,17 +14,20 @@ function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const registrationIndicator = searchParams.get("registered")
+  const resetIndicator = searchParams.get("reset")
   const { login, isAuthenticated } = useAuth()
   const { t } = useTranslation()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [rememberMe, setRememberMe] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [showRegistrationMessage, setShowRegistrationMessage] = useState(
     registrationIndicator === "1",
   )
+  const [showResetMessage, setShowResetMessage] = useState(resetIndicator === "1")
 
   useEffect(() => {
     if (isAuthenticated) router.push(ROUTES.ROLE_SELECT)
@@ -34,11 +37,15 @@ function LoginForm() {
     if (registrationIndicator === "1") setShowRegistrationMessage(true)
   }, [registrationIndicator])
 
+  useEffect(() => {
+    if (resetIndicator === "1") setShowResetMessage(true)
+  }, [resetIndicator])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     setIsLoading(true)
-    const result = await login(email.trim(), password)
+    const result = await login(email.trim(), password, { rememberMe })
     if (result.success) {
       router.push(ROUTES.ROLE_SELECT)
     } else {
@@ -107,6 +114,15 @@ function LoginForm() {
             </div>
           )}
 
+          {showResetMessage && (
+            <div className="auth-notice auth-notice--success">
+              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                check_circle
+              </span>
+              <span>{t("auth.login.resetSuccess")}</span>
+            </div>
+          )}
+
           {error && (
             <div className="auth-notice auth-notice--error">
               <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
@@ -139,6 +155,9 @@ function LoginForm() {
                 <label htmlFor="password" className="auth-label">
                   {t("common.labels.password")}
                 </label>
+                <Link href={ROUTES.FORGOT_PASSWORD} className="auth-password-link">
+                  {t("auth.login.forgotPassword")}
+                </Link>
               </div>
               <div className="auth-input-wrap">
                 <input
@@ -165,6 +184,18 @@ function LoginForm() {
                 </button>
               </div>
             </div>
+
+            <label htmlFor="rememberMe" className="auth-check-row">
+              <input
+                id="rememberMe"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                disabled={isLoading}
+                className="auth-check-input"
+              />
+              <span className="auth-check-label">{t("auth.login.rememberMe")}</span>
+            </label>
 
             <button type="submit" disabled={isLoading} className="auth-submit-btn">
               {isLoading ? (

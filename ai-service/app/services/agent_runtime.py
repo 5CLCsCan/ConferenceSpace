@@ -589,11 +589,72 @@ def _ui_to_openai_messages(messages: list[dict[str, Any]]) -> list[dict[str, Any
         role = str(msg.get("role", "user"))
         if role not in {"system", "user", "assistant", "tool"}:
             role = "user"
-        content = _flatten_ui_parts(msg.get("parts", []))
+        parts = msg.get("parts", [])
+
+        if role == "tool":
+            out.extend(_tool_parts_to_openai_messages(parts=parts))
+            continue
+
+        content = _flatten_ui_parts(parts)
         if not content:
             continue
         out.append({"role": role, "content": content})
     return out
+
+
+def _tool_parts_to_openai_messages(*, parts: Any) -> list[dict[str, Any]]:
+    if not isinstance(parts, list):
+        return []
+
+    out: list[dict[str, Any]] = []
+    for part in parts:
+        if not isinstance(part, dict):
+            continue
+
+        content = _tool_part_content(part)
+        if not content:
+            continue
+
+        tool_call_id = str(part.get("toolCallId") or part.get("id") or "").strip()
+        tool_name = str(part.get("toolName") or _tool_name_from_part_type(str(part.get("type", ""))) or "").strip()
+
+        if not tool_call_id and not tool_name:
+            # Providers reject role=tool without metadata; keep context as assistant text instead.
+            out.append({"role": "assistant", "content": f"Tool output: {content}"})
+            continue
+
+        payload: dict[str, Any] = {"role": "tool", "content": content}
+        if tool_call_id:
+            payload["tool_call_id"] = tool_call_id
+        if tool_name:
+            payload["name"] = tool_name
+        out.append(payload)
+
+    return out
+
+
+def _tool_part_content(part: dict[str, Any]) -> str:
+    state = str(part.get("state") or "")
+    if state == "output-available":
+        return _safe_json_dumps(part.get("output", part.get("result")))
+    if state in {"output-error", "timeout"}:
+        error_text = str(part.get("errorText") or "").strip()
+        if error_text:
+            return error_text
+    return _flatten_ui_parts([part])
+
+
+def _tool_name_from_part_type(part_type: str) -> str:
+    if part_type.startswith("tool-") and len(part_type) > 5:
+        return part_type[5:]
+    return ""
+
+
+def _safe_json_dumps(value: Any) -> str:
+    try:
+        return json.dumps(value, ensure_ascii=True)
+    except TypeError:
+        return str(value)
 
 
 def _pick_tool_call(tool_buffers: dict[int, dict[str, Any]]) -> dict[str, Any] | None:
