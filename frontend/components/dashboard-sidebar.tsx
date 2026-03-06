@@ -23,6 +23,7 @@ interface DashboardSidebarProps {
 }
 
 function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps) {
+  const { t } = useTranslation()
   const { user, logout, currentRole } = useAuth()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -68,8 +69,7 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
           </div>
           <div className="flex flex-col">
             <h1 className="text-[16px] font-bold tracking-tight text-[#141414] dark:text-white">
-              ConferenceSpace
-            </h1>
+              {t("runtime.components.dashboard-sidebar.text_conferencespace")}{" "}</h1>
             {!isRolePage && currentRole && (
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-[10px] font-bold text-[var(--accent)] uppercase tracking-[0.5px] leading-none">
@@ -79,8 +79,7 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
                   href={ROUTES.ROLE_SELECT}
                   className="text-[8px] font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 px-1.5 py-0.5 rounded transition-all uppercase tracking-wider leading-none"
                 >
-                  Change
-                </Link>
+                  {t("runtime.components.dashboard-sidebar.text_change")}{" "}</Link>
               </div>
             )}
           </div>
@@ -91,8 +90,7 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
       <nav className="flex-1 px-5 space-y-8 overflow-y-auto">
         <div>
           <h3 className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3">
-            Menu
-          </h3>
+            {t("runtime.components.dashboard-sidebar.text_menu")}{" "}</h3>
           <div className="space-y-0.5">
             {menuItems.map((item) => {
               const isActive = isItemActive(item.href)
@@ -122,7 +120,7 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
                       <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-neutral-900"></span>
                     )}
                   </div>
-                  <span className="text-[12px]">{item.label}</span>
+                  <span className="text-[12px]">{t(item.labelKey)}</span>
                 </Link>
               )
             })}
@@ -132,8 +130,7 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
         {/* Recent Conferences */}
         <div>
           <h3 className="px-0 text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-4">
-            Recent Conferences
-          </h3>
+            {t("runtime.components.dashboard-sidebar.text_recent_conferences")}{" "}</h3>
           <nav className="space-y-5">
             {mockConferences.map((conf, i) => (
               <div
@@ -151,8 +148,7 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
                     <>
                       <span className="w-1 h-1 rounded-full bg-slate-200"></span>
                       <span className="text-[10px] font-medium text-slate-400 uppercase italic">
-                        Active
-                      </span>
+                        {t("runtime.components.dashboard-sidebar.text_active")}{" "}</span>
                     </>
                   )}
                 </div>
@@ -172,10 +168,12 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
               </div>
               <div className="flex flex-col min-w-0 flex-1">
                 <span className="text-xs font-black text-slate-900 dark:text-white leading-tight truncate tracking-tight">
-                  {user?.name || "Guest"}
+                  {user?.name || t("runtime.components.dashboard-sidebar.text_guest")}
                 </span>
                 <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                  {user?.affiliation || user?.email || "Account Settings"}
+                  {user?.affiliation ||
+                    user?.email ||
+                    t("runtime.components.dashboard-sidebar.text_account_settings")}
                 </span>
               </div>
               <div className="flex items-center justify-center text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
@@ -193,16 +191,14 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
           >
             <div className="px-2.5 py-1.5 border-b border-slate-50 dark:border-neutral-800/50 mb-1">
               <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                Account Settings
-              </span>
+                {t("runtime.components.dashboard-sidebar.text_account_settings")}{" "}</span>
             </div>
 
             <DropdownMenuItem className="flex items-center gap-2.5 px-2.5 py-2 rounded-md text-slate-600 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-neutral-800 cursor-pointer transition-colors">
               <Globe className="w-3.5 h-3.5" />
-              <span className="text-xs font-medium">Change Language</span>
+              <span className="text-xs font-medium">{t("runtime.components.dashboard-sidebar.text_change_language")}</span>
               <span className="text-[9px] font-bold text-slate-400 ml-auto uppercase tracking-tighter">
-                EN
-              </span>
+                {t("runtime.components.dashboard-sidebar.text_en")}{" "}</span>
             </DropdownMenuItem>
 
             <DropdownMenuSeparator className="bg-slate-50 dark:bg-neutral-800 my-1" />
@@ -212,7 +208,7 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
               className="flex items-center gap-2.5 px-2.5 py-2 rounded-md text-red-600 focus:bg-red-50 dark:focus:bg-red-900/10 cursor-pointer transition-colors"
             >
               <span className="material-symbols-outlined text-lg">logout</span>
-              <span className="text-xs font-semibold">Sign Out</span>
+              <span className="text-xs font-semibold">{t("runtime.components.dashboard-sidebar.text_sign_out")}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

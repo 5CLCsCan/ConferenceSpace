@@ -1,3 +1,5 @@
+"use client"
+
 import type { Conference } from "./types"
 import { ConferenceCardBase, ActionButton } from "./conference-card-base"
 import {
@@ -6,6 +8,7 @@ import {
   DraftStatusSection,
   CompletedStatsSection,
 } from "./event-sections"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ConferenceCardProps {
   conference: Conference
@@ -17,6 +20,7 @@ interface ConferenceCardProps {
 // -------------------------------------------------------------------------
 
 export function ActiveConferenceCard({ conference, onNavigate }: ConferenceCardProps) {
+  const { t } = useTranslation()
   return (
     <ConferenceCardBase
       conference={conference}
@@ -29,8 +33,7 @@ export function ActiveConferenceCard({ conference, onNavigate }: ConferenceCardP
               e?.stopPropagation()
             }}
           >
-            Settings
-          </ActionButton>
+            {t("runtime.components.conference.conference-cards.text_settings")}{" "}</ActionButton>
           <ActionButton
             variant="primary"
             onClick={(e) => {
@@ -38,8 +41,7 @@ export function ActiveConferenceCard({ conference, onNavigate }: ConferenceCardP
               onNavigate(conference.id)
             }}
           >
-            Dashboard
-          </ActionButton>
+            {t("runtime.components.conference.conference-cards.text_dashboard")}{" "}</ActionButton>
         </div>
       }
     >
@@ -53,6 +55,7 @@ export function ActiveConferenceCard({ conference, onNavigate }: ConferenceCardP
 // -------------------------------------------------------------------------
 
 export function PlanningConferenceCard({ conference, onNavigate }: ConferenceCardProps) {
+  const { t } = useTranslation()
   return (
     <ConferenceCardBase
       conference={conference}
@@ -65,8 +68,7 @@ export function PlanningConferenceCard({ conference, onNavigate }: ConferenceCar
               e?.stopPropagation()
             }}
           >
-            Edit Details
-          </ActionButton>
+            {t("runtime.components.conference.conference-cards.text_edit_details")}{" "}</ActionButton>
           <ActionButton
             variant="secondary"
             onClick={(e) => {
@@ -74,8 +76,7 @@ export function PlanningConferenceCard({ conference, onNavigate }: ConferenceCar
               onNavigate(conference.id)
             }}
           >
-            Setup
-          </ActionButton>
+            {t("runtime.components.conference.conference-cards.text_setup")}{" "}</ActionButton>
         </div>
       }
     >
@@ -89,6 +90,7 @@ export function PlanningConferenceCard({ conference, onNavigate }: ConferenceCar
 // -------------------------------------------------------------------------
 
 export function DraftConferenceCard({ conference, onNavigate }: ConferenceCardProps) {
+  const { t } = useTranslation()
   return (
     <ConferenceCardBase
       conference={conference}
@@ -102,8 +104,7 @@ export function DraftConferenceCard({ conference, onNavigate }: ConferenceCardPr
           }}
           className="w-full"
         >
-          Continue Editing
-        </ActionButton>
+          {t("runtime.components.conference.conference-cards.text_continue_editing")}{" "}</ActionButton>
       }
     >
       <DraftStatusSection daysAgo={conference.draftSavedDaysAgo || 0} />
@@ -116,6 +117,7 @@ export function DraftConferenceCard({ conference, onNavigate }: ConferenceCardPr
 // -------------------------------------------------------------------------
 
 export function CompletedConferenceCard({ conference, onNavigate }: ConferenceCardProps) {
+  const { t } = useTranslation()
   return (
     <ConferenceCardBase
       conference={conference}
@@ -129,8 +131,7 @@ export function CompletedConferenceCard({ conference, onNavigate }: ConferenceCa
           }}
           className="w-full"
         >
-          View Archive
-        </ActionButton>
+          {t("runtime.components.conference.conference-cards.text_view_archive")}{" "}</ActionButton>
       }
     >
       <CompletedStatsSection acceptedPapers={conference.acceptedPapers || 0} />

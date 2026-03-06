@@ -5,6 +5,8 @@ import { WizardHeader } from "../wizard-header"
 import { WizardFormCard } from "../wizard-form-card"
 import { WizardFormField, WizardInput } from "../wizard-form-field"
 import { ConferenceFormData } from "../types"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { tStatic as t } from "@/lib/i18n/static-translate"
 
 interface CommitteesStepProps {
   data: ConferenceFormData
@@ -21,10 +23,10 @@ interface Organizer {
 }
 
 const ROLE_OPTIONS = [
-  { value: "co-chair", label: "Co-Chair", icon: "workspace_premium" },
-  { value: "pc-member", label: "PC Member", icon: "groups" },
-  { value: "track-chair", label: "Track Chair", icon: "category" },
-  { value: "reviewer", label: "Reviewer", icon: "rate_review" },
+  { value: "co-chair", label: t("runtime.components.wizard.creation.steps.committees.prop_label_co_chair"), icon: "workspace_premium" },
+  { value: "pc-member", label: t("runtime.components.wizard.creation.steps.committees.prop_label_pc_member"), icon: "groups" },
+  { value: "track-chair", label: t("runtime.components.wizard.creation.steps.committees.prop_label_track_chair"), icon: "category" },
+  { value: "reviewer", label: t("runtime.components.wizard.creation.steps.committees.prop_label_reviewer"), icon: "rate_review" },
 ] as const
 
 // Mock current user as general chair
@@ -38,6 +40,7 @@ const CURRENT_USER: Organizer = {
 }
 
 export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
+  const { t } = useTranslation()
   const [newEmail, setNewEmail] = useState("")
   const [newRole, setNewRole] = useState("co-chair")
   const [newAffiliation, setNewAffiliation] = useState("")
@@ -135,7 +138,7 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
   return (
     <div className="flex flex-col gap-4 w-full min-w-0">
       <WizardHeader
-        title="Committees"
+        title={t("runtime.components.wizard.creation.steps.committees.title_committees")}
         description="Build your organizing committee by inviting collaborators."
       />
 
@@ -146,11 +149,11 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
         {/* Quick Stats Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { label: "Chairs", count: roleGroups.chairs.length, icon: "workspace_premium" },
-            { label: "PC Members", count: roleGroups.pcMembers.length, icon: "groups" },
-            { label: "Track Chairs", count: roleGroups.trackChairs.length, icon: "category" },
+            { label: t("runtime.components.wizard.creation.steps.committees.prop_label_chairs"), count: roleGroups.chairs.length, icon: "workspace_premium" },
+            { label: t("runtime.components.wizard.creation.steps.committees.prop_label_pc_members"), count: roleGroups.pcMembers.length, icon: "groups" },
+            { label: t("runtime.components.wizard.creation.steps.committees.prop_label_track_chairs"), count: roleGroups.trackChairs.length, icon: "category" },
             {
-              label: "Pending",
+              label: t("runtime.components.wizard.creation.steps.committees.prop_label_pending"),
               count: pendingCount,
               icon: "schedule",
               highlight: pendingCount > 0,
@@ -191,14 +194,14 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
         </div>
 
         {/* Invite Form - Compact inline design */}
-        <WizardFormCard title="Invite Member">
+        <WizardFormCard title={t("runtime.components.wizard.creation.steps.committees.title_invite_member")}>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col md:flex-row gap-2 items-end">
               <div className="flex-1 min-w-0">
                 <WizardFormField label="Email" required>
                   <WizardInput
                     type="email"
-                    placeholder="colleague@university.edu"
+                    placeholder={t("runtime.components.wizard.creation.steps.committees.placeholder_colleague_university_edu")}
                     value={newEmail}
                     onChange={(e) => setNewEmail(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleAddOrganizer()}
@@ -224,7 +227,7 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
                 <WizardFormField label="Affiliation">
                   <WizardInput
                     type="text"
-                    placeholder="Institution"
+                    placeholder={t("runtime.components.wizard.creation.steps.committees.placeholder_institution")}
                     value={newAffiliation}
                     onChange={(e) => setNewAffiliation(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleAddOrganizer()}
@@ -243,17 +246,15 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
                 >
                   person_add
                 </span>
-                Invite
-              </button>
+                {t("runtime.components.wizard.creation.steps.committees.text_invite")}{" "}</button>
             </div>
             <p className="text-[10px] text-slate-400 font-light">
-              Press Enter to quickly add. Invitations will be sent when the conference is published.
-            </p>
+              {t("runtime.components.wizard.creation.steps.committees.text_press_enter_to_quickly_add_invitations")}{" "}</p>
           </div>
         </WizardFormCard>
 
         {/* Committee Members - Compact List */}
-        <WizardFormCard title="Committee Members">
+        <WizardFormCard title={t("runtime.components.wizard.creation.steps.committees.title_committee_members")}>
           <div className="flex flex-col -mt-1">
             {/* List of members */}
             <div className="divide-y divide-slate-100 dark:divide-slate-700/50">
@@ -275,13 +276,11 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
                       </span>
                       {member.id === CURRENT_USER.id && (
                         <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400 bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded flex-shrink-0">
-                          You
-                        </span>
+                          {t("runtime.components.wizard.creation.steps.committees.text_you")}{" "}</span>
                       )}
                       {member.status === "pending" && (
                         <span className="text-[8px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/20 px-1.5 py-0.5 rounded flex-shrink-0">
-                          Pending
-                        </span>
+                          {t("runtime.components.wizard.creation.steps.committees.text_pending")}{" "}</span>
                       )}
                     </div>
                     <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
@@ -306,15 +305,14 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
                   <div className="flex items-center justify-end gap-0.5">
                     {member.id === CURRENT_USER.id ? (
                       <span className="text-[9px] text-slate-300 dark:text-slate-600 italic">
-                        Owner
-                      </span>
+                        {t("runtime.components.wizard.creation.steps.committees.text_owner")}{" "}</span>
                     ) : (
                       <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                         {member.status === "pending" && (
                           <button
                             type="button"
                             className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-600 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-                            title="Resend"
+                            title={t("runtime.components.wizard.creation.steps.committees.title_resend")}
                           >
                             <span
                               className="material-symbols-outlined"
@@ -328,7 +326,7 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
                           type="button"
                           onClick={() => handleRemoveOrganizer(member.id)}
                           className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/20 rounded text-slate-400 hover:text-red-500 transition-colors"
-                          title="Remove"
+                          title={t("runtime.components.wizard.creation.steps.committees.title_remove")}
                         >
                           <span
                             className="material-symbols-outlined"
@@ -354,8 +352,7 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
                   group_add
                 </span>
                 <p className="text-xs text-slate-400">
-                  Start building your committee by inviting collaborators above.
-                </p>
+                  {t("runtime.components.wizard.creation.steps.committees.text_start_building_your_committee_by_inviting")}{" "}</p>
               </div>
             )}
           </div>
@@ -371,12 +368,9 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
           </span>
           <div className="flex flex-col gap-0.5">
             <span className="text-[10px] font-bold uppercase tracking-widest text-[#1B3C53] dark:text-slate-300">
-              Academic Best Practice
-            </span>
+              {t("runtime.components.wizard.creation.steps.committees.text_academic_best_practice")}{" "}</span>
             <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
-              For top-tier conferences, aim for 20-30 PC members per 100 expected submissions. Track
-              chairs should have domain expertise in their assigned areas.
-            </p>
+              {t("runtime.components.wizard.creation.steps.committees.text_for_top_tier_conferences_aim_for")}{" "}</p>
           </div>
         </div>
       </form>

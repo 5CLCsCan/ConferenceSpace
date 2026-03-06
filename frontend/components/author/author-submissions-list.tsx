@@ -9,6 +9,8 @@ import { createPortal } from "react-dom"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
 import { ROUTES } from "@/lib/routes"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { tStatic as t } from "@/lib/i18n/static-translate"
 import { deletePaper } from "@/lib/api/papers"
 
 // -------------------------------------------------------------------------
@@ -17,32 +19,32 @@ import { deletePaper } from "@/lib/api/papers"
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   under_review: {
-    label: "Under Review",
+    label: t("runtime.components.author.author-submissions-list.prop_label_under_review"),
     className:
       "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800",
   },
   reviewing: {
-    label: "Under Review",
+    label: t("runtime.components.author.author-submissions-list.prop_label_under_review"),
     className:
       "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800",
   },
   accepted: {
-    label: "Accepted",
+    label: t("runtime.components.author.author-submissions-list.prop_label_accepted"),
     className:
       "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800",
   },
   rejected: {
-    label: "Rejected",
+    label: t("runtime.components.author.author-submissions-list.prop_label_rejected"),
     className:
       "bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
   },
   draft: {
-    label: "Draft",
+    label: t("runtime.components.author.author-submissions-list.prop_label_draft"),
     className:
       "bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
   },
   published: {
-    label: "Submitted",
+    label: t("runtime.components.author.author-submissions-list.prop_label_submitted"),
     className:
       "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800",
   },
@@ -53,6 +55,7 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
 // -------------------------------------------------------------------------
 
 function SubmissionStatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation()
   const config = STATUS_CONFIG[status] || {
     label: status,
     className: "bg-slate-100 text-slate-600 border-slate-200",
@@ -193,12 +196,27 @@ export function AuthorSubmissionsList() {
   }, [searchQuery, statusFilter, conferenceFilter])
 
   const statusOptions = [
-    { value: "all", label: "All" },
-    { value: "draft", label: "Draft" },
-    { value: "published", label: "Submitted" },
-    { value: "reviewing", label: "Review" },
-    { value: "accepted", label: "Accepted" },
-    { value: "rejected", label: "Rejected" },
+    { value: "all", label: t("runtime.components.author.author-submissions-list.prop_label_all") },
+    {
+      value: "draft",
+      label: t("runtime.components.author.author-submissions-list.prop_label_draft"),
+    },
+    {
+      value: "published",
+      label: t("runtime.components.author.author-submissions-list.prop_label_submitted"),
+    },
+    {
+      value: "reviewing",
+      label: t("runtime.components.author.author-submissions-list.prop_label_review"),
+    },
+    {
+      value: "accepted",
+      label: t("runtime.components.author.author-submissions-list.prop_label_accepted"),
+    },
+    {
+      value: "rejected",
+      label: t("runtime.components.author.author-submissions-list.prop_label_rejected"),
+    },
   ]
 
   return (
@@ -230,7 +248,9 @@ export function AuthorSubmissionsList() {
           </span>
           <input
             type="text"
-            placeholder="Search papers or conferences..."
+            placeholder={t(
+              "runtime.components.author.author-submissions-list.placeholder_search_papers_or_conferences",
+            )}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full h-9 pl-10 pr-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-[12px] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1B3C53]/10 focus:border-[#1B3C53] dark:focus:border-white transition-all font-normal text-[#141414] dark:text-white"
@@ -253,7 +273,9 @@ export function AuthorSubmissionsList() {
               onChange={(e) => setConferenceFilter(e.target.value)}
               className="w-full h-9 pl-3 pr-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-[13px] appearance-none focus:outline-none focus:ring-2 focus:ring-[#1B3C53]/10 focus:border-[#1B3C53] text-[#141414] dark:text-white cursor-pointer font-medium"
             >
-              <option value="all">All Conferences</option>
+              <option value="all">
+                {t("runtime.components.author.author-submissions-list.text_all_conferences")}
+              </option>
               {uniqueConferences.map((conf) => (
                 <option key={conf.id} value={conf.id}>
                   {conf.acronym}
@@ -275,16 +297,16 @@ export function AuthorSubmissionsList() {
             #
           </div>
           <div className="px-3 py-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-            Submission Details
+            {t("runtime.components.author.author-submissions-list.text_submission_details")}{" "}
           </div>
           <div className="px-3 py-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-            Conference
+            {t("runtime.components.author.author-submissions-list.text_conference")}{" "}
           </div>
           <div className="px-3 py-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-            Status
+            {t("runtime.components.author.author-submissions-list.text_status")}{" "}
           </div>
           <div className="px-3 py-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-            Submitted
+            {t("runtime.components.author.author-submissions-list.text_submitted")}{" "}
           </div>
           <div className="px-3 py-2.5" />
         </div>
@@ -328,7 +350,9 @@ export function AuthorSubmissionsList() {
                 </span>
                 <div>
                   <p className="text-[13px] font-bold text-slate-500 dark:text-slate-400">
-                    No submissions found
+                    {t(
+                      "runtime.components.author.author-submissions-list.text_no_submissions_found",
+                    )}{" "}
                   </p>
                   <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
                     {searchQuery || statusFilter !== "all"
@@ -359,7 +383,7 @@ export function AuthorSubmissionsList() {
         {filteredSubmissions.length > 0 && (
           <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
             <div className="text-[11px] text-slate-500">
-              Showing{" "}
+              {t("runtime.components.author.author-submissions-list.text_showing")}{" "}
               <span className="font-bold text-[#1B3C53] dark:text-white">
                 {(currentPage - 1) * itemsPerPage + 1}-
                 {Math.min(currentPage * itemsPerPage, filteredSubmissions.length)}
@@ -414,7 +438,7 @@ export function AuthorSubmissionsList() {
                       disabled={currentPage <= 1}
                       className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Previous
+                      {t("runtime.components.author.author-submissions-list.text_previous")}{" "}
                     </button>
 
                     {getPageNumbers().map((page, idx) => {
@@ -450,7 +474,7 @@ export function AuthorSubmissionsList() {
                       disabled={currentPage >= totalPages}
                       className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Next
+                      {t("runtime.components.author.author-submissions-list.text_next")}{" "}
                     </button>
                   </div>
                 )
@@ -541,100 +565,121 @@ function SubmissionRow({ submission, onClick, onDelete }: SubmissionRowProps) {
     : null
 
   // Portal dropdown JSX (shared between desktop & mobile)
-  const dropdownMenu = menuOpen && menuPos ? createPortal(
-    <div
-      ref={menuRef}
-      style={{ position: "fixed", top: menuPos.top, right: menuPos.right, zIndex: 9999 }}
-      className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl py-1 min-w-[168px]"
-    >
-      <button
-        type="button"
-        onMouseDown={(e) => e.stopPropagation()}
-        onClick={(e) => handleMenuClick(e, () => router.push(`${ROUTES.AUTHOR.SUBMISSION_DETAIL(String(submission.id))}?conferenceId=${submission.conference_id}`))}
-        className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-      >
-        <span className="material-symbols-outlined text-[14px] text-slate-400">visibility</span>
-        View Details
-      </button>
-      {isDraft && (
-        <button
-          type="button"
-          onMouseDown={(e) => e.stopPropagation()}
-          onClick={(e) => handleMenuClick(e, () => router.push(ROUTES.AUTHOR.SUBMISSION_EDIT(String(submission.id))))}
-          className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-        >
-          <span className="material-symbols-outlined text-[14px] text-slate-400">edit</span>
-          Edit Draft
-        </button>
-      )}
-      {isDraft && (
-        <>
-          <div className="border-t border-slate-100 dark:border-slate-700 my-0.5" />
-          <button
-            type="button"
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={handleDelete}
-            className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+  const dropdownMenu =
+    menuOpen && menuPos
+      ? createPortal(
+          <div
+            ref={menuRef}
+            style={{ position: "fixed", top: menuPos.top, right: menuPos.right, zIndex: 9999 }}
+            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl py-1 min-w-[168px]"
           >
-            <span className="material-symbols-outlined text-[14px]">delete</span>
-            Delete Draft
-          </button>
-        </>
-      )}
-    </div>,
-    document.body,
-  ) : null
+            <button
+              type="button"
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) =>
+                handleMenuClick(e, () =>
+                  router.push(
+                    `${ROUTES.AUTHOR.SUBMISSION_DETAIL(String(submission.id))}?conferenceId=${submission.conference_id}`,
+                  ),
+                )
+              }
+              className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[14px] text-slate-400">
+                visibility
+              </span>
+              View Details
+            </button>
+            {isDraft && (
+              <button
+                type="button"
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) =>
+                  handleMenuClick(e, () =>
+                    router.push(ROUTES.AUTHOR.SUBMISSION_EDIT(String(submission.id))),
+                  )
+                }
+                className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[14px] text-slate-400">edit</span>
+                Edit Draft
+              </button>
+            )}
+            {isDraft && (
+              <>
+                <div className="border-t border-slate-100 dark:border-slate-700 my-0.5" />
+                <button
+                  type="button"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={handleDelete}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[14px]">delete</span>
+                  Delete Draft
+                </button>
+              </>
+            )}
+          </div>,
+          document.body,
+        )
+      : null
 
   // Delete confirm dialog portal
-  const deleteDialog = deleteConfirmOpen ? createPortal(
-    <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50"
-      onClick={() => !isDeleting && setDeleteConfirmOpen(false)}
-    >
-      <div
-        className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xl w-full max-w-sm"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="px-5 pt-5 pb-4 flex flex-col gap-4">
-          <div className="flex items-start gap-3">
-            <div className="p-2.5 rounded-full bg-red-50 dark:bg-red-900/20 shrink-0">
-              <span className="material-symbols-outlined text-red-500 text-[22px]">delete_forever</span>
-            </div>
-            <div className="pt-0.5">
-              <h3 className="text-sm font-bold text-[#141414] dark:text-white">Delete Draft</h3>
-              <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
-                Are you sure you want to permanently delete the draft
-                <strong className="text-slate-700 dark:text-slate-200">&ldquo;{submission.title}&rdquo;</strong>?
-                This action cannot be undone and all draft data will be lost.
-              </p>
+  const deleteDialog = deleteConfirmOpen
+    ? createPortal(
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50"
+          onClick={() => !isDeleting && setDeleteConfirmOpen(false)}
+        >
+          <div
+            className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xl w-full max-w-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-5 pt-5 pb-4 flex flex-col gap-4">
+              <div className="flex items-start gap-3">
+                <div className="p-2.5 rounded-full bg-red-50 dark:bg-red-900/20 shrink-0">
+                  <span className="material-symbols-outlined text-red-500 text-[22px]">
+                    delete_forever
+                  </span>
+                </div>
+                <div className="pt-0.5">
+                  <h3 className="text-sm font-bold text-[#141414] dark:text-white">Delete Draft</h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                    Are you sure you want to permanently delete the draft
+                    <strong className="text-slate-700 dark:text-slate-200">
+                      &ldquo;{submission.title}&rdquo;
+                    </strong>
+                    ? This action cannot be undone and all draft data will be lost.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setDeleteConfirmOpen(false)}
+                  disabled={isDeleting}
+                  className="h-8 px-4 rounded-md text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmDelete}
+                  disabled={isDeleting}
+                  className="h-8 px-4 rounded-md text-[11px] font-medium bg-red-600 text-white hover:bg-red-700 transition-colors flex items-center gap-1.5 disabled:opacity-60"
+                >
+                  {isDeleting && (
+                    <span className="material-symbols-outlined animate-spin text-[13px]">sync</span>
+                  )}
+                  Delete Permanently
+                </button>
+              </div>
             </div>
           </div>
-          <div className="flex items-center justify-end gap-2">
-            <button
-              type="button"
-              onClick={() => setDeleteConfirmOpen(false)}
-              disabled={isDeleting}
-              className="h-8 px-4 rounded-md text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={confirmDelete}
-              disabled={isDeleting}
-              className="h-8 px-4 rounded-md text-[11px] font-medium bg-red-600 text-white hover:bg-red-700 transition-colors flex items-center gap-1.5 disabled:opacity-60"
-            >
-              {isDeleting && (
-                <span className="material-symbols-outlined animate-spin text-[13px]">sync</span>
-              )}
-              Delete Permanently
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>,
-    document.body,
-  ) : null
+        </div>,
+        document.body,
+      )
+    : null
 
   return (
     <div
@@ -671,7 +716,7 @@ function SubmissionRow({ submission, onClick, onDelete }: SubmissionRowProps) {
               <span
                 className="material-symbols-outlined text-emerald-500 shrink-0"
                 style={{ fontSize: "14px" }}
-                title="Paper uploaded"
+                title={t("runtime.components.author.author-submissions-list.title_paper_uploaded")}
               >
                 attach_file
               </span>
@@ -771,7 +816,9 @@ function SubmissionRow({ submission, onClick, onDelete }: SubmissionRowProps) {
         <div className="px-3 py-3.5">
           <SubmissionStatusBadge status={submission.status} />
           {submission.status === "draft" && (
-            <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-1">Not submitted</p>
+            <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-1">
+              {t("runtime.components.author.author-submissions-list.text_not_submitted")}
+            </p>
           )}
         </div>
 
@@ -782,7 +829,8 @@ function SubmissionRow({ submission, onClick, onDelete }: SubmissionRowProps) {
           </span>
           {submission.updated_at !== submission.created_at && (
             <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-0.5">
-              Updated {formatDate(submission.updated_at)}
+              {t("runtime.components.author.author-submissions-list.text_updated")}{" "}
+              {formatDate(submission.updated_at)}
             </p>
           )}
         </div>
@@ -872,7 +920,9 @@ function SubmissionRow({ submission, onClick, onDelete }: SubmissionRowProps) {
               <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
                 group
               </span>
-              {coAuthors.length} co-author{coAuthors.length > 1 ? "s" : ""}
+              {coAuthors.length}{" "}
+              {t("runtime.components.author.author-submissions-list.text_co_author")}
+              {coAuthors.length > 1 ? "s" : ""}
             </span>
           )}
           <span>{formatDate(submission.created_at)}</span>

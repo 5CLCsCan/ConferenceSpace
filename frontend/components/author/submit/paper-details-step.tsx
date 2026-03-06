@@ -4,6 +4,7 @@ import dynamic from "next/dynamic"
 import { useTheme } from "next-themes"
 import "@uiw/react-md-editor/markdown-editor.css"
 import "@uiw/react-markdown-preview/markdown.css"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false })
 
@@ -40,6 +41,7 @@ export function PaperDetailsStep({
   onTrackChange,
   onStudentPaperChange,
 }: PaperDetailsStepProps) {
+  const { t } = useTranslation()
   const { resolvedTheme } = useTheme()
 
   return (
@@ -48,12 +50,11 @@ export function PaperDetailsStep({
       <div className="px-4 pt-4 pb-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-4">
         <div className="border-b border-slate-100 dark:border-slate-700 pb-3">
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
-            Conference Track
-          </h3>
+            {t("runtime.components.author.submit.paper-details-step.text_conference_track")}{" "}</h3>
         </div>
         <div className="flex flex-col gap-1.5">
           <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-            Select Track <span className="text-red-500 ml-0.5">*</span>
+            {t("runtime.components.author.submit.paper-details-step.text_select_track")}{" "}<span className="text-red-500 ml-0.5">*</span>
           </span>
           <div className="relative">
             <select
@@ -61,7 +62,7 @@ export function PaperDetailsStep({
               onChange={(e) => onTrackChange(e.target.value)}
               className="w-full h-10 text-xs font-normal py-2 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all appearance-none cursor-pointer"
             >
-              <option value="">Select a track...</option>
+              <option value="">{t("runtime.components.author.submit.paper-details-step.text_select_a_track")}</option>
               {availableTracks.map((track) => (
                 <option key={track} value={track}>
                   {track}
@@ -73,8 +74,7 @@ export function PaperDetailsStep({
             </span>
           </div>
           <p className="text-[10px] text-slate-400 font-light">
-            Select the most relevant track for your research to ensure proper reviewer assignment.
-          </p>
+            {t("runtime.components.author.submit.paper-details-step.text_select_the_most_relevant_track_for")}{" "}</p>
         </div>
       </div>
 
@@ -82,20 +82,19 @@ export function PaperDetailsStep({
       <div className="px-4 pt-4 pb-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-4">
         <div className="border-b border-slate-100 dark:border-slate-700 pb-3">
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
-            Paper Information
-          </h3>
+            {t("runtime.components.author.submit.paper-details-step.text_paper_information")}{" "}</h3>
         </div>
 
         {/* Title Field */}
         <div className="flex flex-col gap-1.5">
           <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-            Paper Title <span className="text-red-500 ml-0.5">*</span>
+            {t("runtime.components.author.submit.paper-details-step.text_paper_title")}{" "}<span className="text-red-500 ml-0.5">*</span>
           </span>
           <input
             type="text"
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
-            placeholder="e.g., Optimizing Neural Networks for Edge Devices"
+            placeholder={t("runtime.components.author.submit.paper-details-step.placeholder_e_g_optimizing_neural_networks_for")}
             className="w-full h-10 text-xs font-normal py-2 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all"
           />
         </div>
@@ -104,11 +103,10 @@ export function PaperDetailsStep({
         <div className="flex flex-col gap-1.5">
           <div className="flex justify-between items-end">
             <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-              Abstract <span className="text-red-500 ml-0.5">*</span>
+              {t("runtime.components.author.submit.paper-details-step.text_abstract")}{" "}<span className="text-red-500 ml-0.5">*</span>
             </span>
             <span className="text-[9px] font-light text-slate-400 uppercase tracking-wider">
-              {abstract.split(/\s+/).filter(Boolean).length} / 500 words
-            </span>
+              {abstract.split(/\s+/).filter(Boolean).length} {t("runtime.components.author.submit.paper-details-step.text_500_words")}{" "}</span>
           </div>
           <div
             data-color-mode={resolvedTheme === "dark" ? "dark" : "light"}
@@ -130,7 +128,7 @@ export function PaperDetailsStep({
         {/* Keywords Field */}
         <div className="flex flex-col gap-1.5">
           <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-            Keywords <span className="text-red-500 ml-0.5">*</span>
+            {t("runtime.components.author.submit.paper-details-step.text_keywords")}{" "}<span className="text-red-500 ml-0.5">*</span>
           </span>
           <div className="w-full min-h-10 text-xs pl-2 pr-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus-within:ring-2 focus-within:ring-[#1B3C53] focus-within:border-[#1B3C53] transition-all flex flex-wrap gap-2 items-center">
             {keywords.map((keyword) => (
@@ -161,8 +159,7 @@ export function PaperDetailsStep({
             />
           </div>
           <p className="text-[10px] text-slate-400 font-light">
-            Provide 3-5 keywords separated by Enter.
-          </p>
+            {t("runtime.components.author.submit.paper-details-step.text_provide_3_5_keywords_separated_by")}{" "}</p>
         </div>
       </div>
 
@@ -176,10 +173,9 @@ export function PaperDetailsStep({
             className="mt-0.5 size-4 rounded border-slate-300 text-[#1B3C53] focus:ring-[#1B3C53] transition-all"
           />
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs font-bold text-[#141414] dark:text-white">Student Paper</span>
+            <span className="text-xs font-bold text-[#141414] dark:text-white">{t("runtime.components.author.submit.paper-details-step.text_student_paper")}</span>
             <span className="text-[10px] text-slate-400 font-light">
-              Check this box if the primary author is a student.
-            </span>
+              {t("runtime.components.author.submit.paper-details-step.text_check_this_box_if_the_primary")}{" "}</span>
           </div>
         </label>
       </div>

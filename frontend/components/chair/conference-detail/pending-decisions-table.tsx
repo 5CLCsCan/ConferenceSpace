@@ -2,6 +2,8 @@
 
 import { cn } from "@/lib/utils"
 import type { PendingDecision } from "./types"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { tStatic as t } from "@/lib/i18n/static-translate"
 
 interface PendingDecisionsTableProps {
   decisions?: PendingDecision[]
@@ -14,21 +16,21 @@ interface PendingDecisionsTableProps {
 const DEFAULT_DECISIONS: PendingDecision[] = [
   {
     id: "#1024",
-    title: "Deep Learning for Autonomous Navigation in...",
+    title: t("runtime.components.chair.conference-detail.pending-decisions-table.prop_title_deep_learning_for_autonomous_navigation_in"),
     score: 4.8,
     status: "Reviews Done",
     scoreVariant: "high",
   },
   {
     id: "#1056",
-    title: "Generative Adversarial Networks for Image...",
+    title: t("runtime.components.chair.conference-detail.pending-decisions-table.prop_title_generative_adversarial_networks_for_image"),
     score: 3.2,
     status: "Borderline",
     scoreVariant: "medium",
   },
   {
     id: "#1089",
-    title: "Reinforcement Learning in Robotics: A Survey",
+    title: t("runtime.components.chair.conference-detail.pending-decisions-table.prop_title_reinforcement_learning_in_robotics_a_survey"),
     score: 1.5,
     status: "Low Confidence",
     scoreVariant: "low",
@@ -47,6 +49,7 @@ export function PendingDecisionsTable({
   onDecide,
   className,
 }: PendingDecisionsTableProps) {
+  const { t } = useTranslation()
   return (
     <div
       className={cn(
@@ -63,15 +66,13 @@ export function PendingDecisionsTable({
             </span>
           </div>
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            Pending Decisions
-          </h3>
+            {t("runtime.components.chair.conference-detail.pending-decisions-table.text_pending_decisions")}{" "}</h3>
         </div>
         <button
           onClick={onViewAll}
           className="text-[10px] text-[#1B3C53] dark:text-sky-400 font-bold hover:underline uppercase tracking-wider"
         >
-          View All Submissions
-        </button>
+          {t("runtime.components.chair.conference-detail.pending-decisions-table.text_view_all_submissions")}{" "}</button>
       </div>
 
       {/* Table */}
@@ -79,11 +80,11 @@ export function PendingDecisionsTable({
         <table className="w-full text-left border-collapse">
           <thead className="bg-slate-50 dark:bg-slate-900/50 text-[9px] uppercase text-slate-400 font-bold tracking-widest">
             <tr>
-              <th className="px-4 py-2.5">ID</th>
-              <th className="px-4 py-2.5">Title</th>
-              <th className="px-4 py-2.5">Score</th>
-              <th className="px-4 py-2.5">Status</th>
-              <th className="px-4 py-2.5 text-right">Action</th>
+              <th className="px-4 py-2.5">{t("runtime.components.chair.conference-detail.pending-decisions-table.text_id")}</th>
+              <th className="px-4 py-2.5">{t("runtime.components.chair.conference-detail.pending-decisions-table.text_title")}</th>
+              <th className="px-4 py-2.5">{t("runtime.components.chair.conference-detail.pending-decisions-table.text_score")}</th>
+              <th className="px-4 py-2.5">{t("runtime.components.chair.conference-detail.pending-decisions-table.text_status")}</th>
+              <th className="px-4 py-2.5 text-right">{t("runtime.components.chair.conference-detail.pending-decisions-table.text_action")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
@@ -112,8 +113,7 @@ export function PendingDecisionsTable({
                     onClick={() => onDecide?.(decision.id)}
                     className="text-slate-500 hover:text-[#1B3C53] font-medium text-[10px] uppercase tracking-wider"
                   >
-                    Decide
-                  </button>
+                    {t("runtime.components.chair.conference-detail.pending-decisions-table.text_decide")}{" "}</button>
                 </td>
               </tr>
             ))}

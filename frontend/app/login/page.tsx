@@ -14,17 +14,20 @@ function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const registrationIndicator = searchParams.get("registered")
+  const resetIndicator = searchParams.get("reset")
   const { login, isAuthenticated } = useAuth()
   const { t } = useTranslation()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [rememberMe, setRememberMe] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [showRegistrationMessage, setShowRegistrationMessage] = useState(
     registrationIndicator === "1",
   )
+  const [showResetMessage, setShowResetMessage] = useState(resetIndicator === "1")
 
   useEffect(() => {
     if (isAuthenticated) router.push(ROUTES.ROLE_SELECT)
@@ -34,11 +37,15 @@ function LoginForm() {
     if (registrationIndicator === "1") setShowRegistrationMessage(true)
   }, [registrationIndicator])
 
+  useEffect(() => {
+    if (resetIndicator === "1") setShowResetMessage(true)
+  }, [resetIndicator])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     setIsLoading(true)
-    const result = await login(email.trim(), password)
+    const result = await login(email.trim(), password, { rememberMe })
     if (result.success) {
       router.push(ROUTES.ROLE_SELECT)
     } else {
@@ -61,20 +68,17 @@ function LoginForm() {
             </span>
           </div>
           <div className="auth-brand-content">
-            <p className="auth-brand-label">CONFERENCESPACE</p>
+            <p className="auth-brand-label">{t("runtime.app.login.page.text_conferencespace")}</p>
             <h1 className="auth-brand-headline">
-              The scholarly platform for academic conferences.
-            </h1>
+              {t("runtime.app.login.page.text_the_scholarly_platform_for_academic_conferences")}{" "}</h1>
             <p className="auth-brand-sub">
-              Submit research, coordinate reviews, and chair conferences — all within one unified
-              system.
-            </p>
+              {t("runtime.app.login.page.text_submit_research_coordinate_reviews_and_chair")}{" "}</p>
           </div>
           <div className="auth-brand-features">
             {[
-              { icon: "edit_document", text: "Paper submission & tracking" },
-              { icon: "rate_review", text: "Structured peer review" },
-              { icon: "diversity_3", text: "Conference management" },
+              { icon: "edit_document", text: t("runtime.app.login.page.prop_text_paper_submission_tracking") },
+              { icon: "rate_review", text: t("runtime.app.login.page.prop_text_structured_peer_review") },
+              { icon: "diversity_3", text: t("runtime.app.login.page.prop_text_conference_management") },
             ].map(({ icon, text }) => (
               <div key={text} className="auth-feature-row">
                 <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
@@ -107,6 +111,15 @@ function LoginForm() {
             </div>
           )}
 
+          {showResetMessage && (
+            <div className="auth-notice auth-notice--success">
+              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                check_circle
+              </span>
+              <span>{t("auth.login.resetSuccess")}</span>
+            </div>
+          )}
+
           {error && (
             <div className="auth-notice auth-notice--error">
               <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
@@ -124,7 +137,7 @@ function LoginForm() {
               <input
                 id="email"
                 type="email"
-                placeholder="ada.lovelace@example.com"
+                placeholder={t("runtime.app.login.page.placeholder_ada_lovelace_example_com")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -139,6 +152,9 @@ function LoginForm() {
                 <label htmlFor="password" className="auth-label">
                   {t("common.labels.password")}
                 </label>
+                <Link href={ROUTES.FORGOT_PASSWORD} className="auth-password-link">
+                  {t("auth.login.forgotPassword")}
+                </Link>
               </div>
               <div className="auth-input-wrap">
                 <input
@@ -166,11 +182,23 @@ function LoginForm() {
               </div>
             </div>
 
+            <label htmlFor="rememberMe" className="auth-check-row">
+              <input
+                id="rememberMe"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                disabled={isLoading}
+                className="auth-check-input"
+              />
+              <span className="auth-check-label">{t("auth.login.rememberMe")}</span>
+            </label>
+
             <button type="submit" disabled={isLoading} className="auth-submit-btn">
               {isLoading ? (
                 <>
                   <Loader2 className="h-3 w-3 animate-spin" />
-                  <span>Signing in...</span>
+                  <span>{t("runtime.app.login.page.text_signing_in")}</span>
                 </>
               ) : (
                 t("common.actions.signIn")

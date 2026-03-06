@@ -163,8 +163,7 @@ function SubmissionDetailPageContent() {
                     onClick={() => router.push(ROUTES.AUTHOR.SUBMISSIONS)}
                     className="mt-4"
                   >
-                    Back To Submissions
-                  </Button>
+                    {t("runtime.app.role.author.submissions.submissionId.page.text_back_to_submissions")}{" "}</Button>
                 </div>
               </CardContent>
             </Card>

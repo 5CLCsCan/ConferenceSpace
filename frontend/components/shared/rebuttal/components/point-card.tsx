@@ -5,6 +5,7 @@ import { useState } from "react"
 import { CATEGORY_CONFIG } from "../config"
 import type { PointCardProps, ResponseStatus } from "../types"
 import { StatusBadge } from "./status-badge"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export function PointCard({
   point,
@@ -14,6 +15,7 @@ export function PointCard({
   onAddNote,
   readOnly = false,
 }: PointCardProps) {
+  const { t } = useTranslation()
   const [acknowledgmentNote, setAcknowledgmentNote] = useState("")
   const [showNoteInput, setShowNoteInput] = useState(false)
   const category = CATEGORY_CONFIG[point.category]
@@ -86,11 +88,11 @@ export function PointCard({
         <div className="px-4 py-4">
           <div className="flex gap-3">
             <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
-              <span className="text-[9px] font-bold">A</span>
+              <span className="text-[9px] font-bold">{t("runtime.components.shared.rebuttal.components.point-card.text_a")}</span>
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-bold text-slate-500">Author Response</span>
+                <span className="text-[10px] font-bold text-slate-500">{t("runtime.components.shared.rebuttal.components.point-card.text_author_response")}</span>
                 <span className="text-[9px] text-slate-400">
                   {point.characterCount?.toLocaleString()} chars
                 </span>
@@ -112,12 +114,10 @@ export function PointCard({
             <div className="mt-3 ml-9 pl-3 border-l-2 border-slate-200">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
-                  Reviewer Response
-                </span>
+                  {t("runtime.components.shared.rebuttal.components.point-card.text_reviewer_response")}{" "}</span>
                 {point.reviewerAcknowledgment.satisfactory && (
                   <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
-                    Satisfied
-                  </span>
+                    {t("runtime.components.shared.rebuttal.components.point-card.text_satisfied")}{" "}</span>
                 )}
               </div>
               {point.reviewerAcknowledgment.note && (
@@ -156,8 +156,7 @@ export function PointCard({
                         boxSizing: 'border-box'
                       }}
                     >check</span>
-                    Addressed
-                  </button>
+                    {t("runtime.components.shared.rebuttal.components.point-card.text_addressed")}{" "}</button>
                   <button
                     onClick={() => handleMarkStatus("partially_addressed")}
                     className="h-7 px-2.5 text-[9px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-md transition-colors flex items-center gap-1"
@@ -181,8 +180,7 @@ export function PointCard({
                         boxSizing: 'border-box'
                       }}
                     >timelapse</span>
-                    Partial
-                  </button>
+                    {t("runtime.components.shared.rebuttal.components.point-card.text_partial")}{" "}</button>
                   <button
                     onClick={() => handleMarkStatus("not_addressed")}
                     className="h-7 px-2.5 text-[9px] font-bold uppercase tracking-wider bg-red-50 text-red-600 hover:bg-red-100 rounded-md transition-colors flex items-center gap-1"
@@ -206,8 +204,7 @@ export function PointCard({
                         boxSizing: 'border-box'
                       }}
                     >close</span>
-                    Not Addressed
-                  </button>
+                    {t("runtime.components.shared.rebuttal.components.point-card.text_not_addressed")}{" "}</button>
                   <button
                     onClick={() => setShowNoteInput(true)}
                     className="h-7 px-2.5 text-[9px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-md transition-colors flex items-center gap-1"
@@ -231,15 +228,14 @@ export function PointCard({
                         boxSizing: 'border-box'
                       }}
                     >add_comment</span>
-                    Add Note
-                  </button>
+                    {t("runtime.components.shared.rebuttal.components.point-card.text_add_note")}{" "}</button>
                 </div>
               ) : (
                 <div className="space-y-2">
                   <textarea
                     value={acknowledgmentNote}
                     onChange={(e) => setAcknowledgmentNote(e.target.value)}
-                    placeholder="Add a note to your response..."
+                    placeholder={t("runtime.components.shared.rebuttal.components.point-card.placeholder_add_a_note_to_your_response")}
                     className="w-full px-3 py-2 text-xs text-slate-700 placeholder-slate-400 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1B3C53] resize-none"
                     rows={2}
                   />
@@ -248,14 +244,12 @@ export function PointCard({
                       onClick={() => setShowNoteInput(false)}
                       className="h-7 px-3 text-[10px] font-medium text-slate-600 hover:text-slate-800"
                     >
-                      Cancel
-                    </button>
+                      {t("runtime.components.shared.rebuttal.components.point-card.text_cancel")}{" "}</button>
                     <button
                       onClick={() => handleMarkStatus("addressed")}
                       className="h-7 px-3 text-[10px] font-medium bg-[#1B3C53] text-white rounded-md hover:bg-[#234C6A]"
                     >
-                      Save Note
-                    </button>
+                      {t("runtime.components.shared.rebuttal.components.point-card.text_save_note")}{" "}</button>
                   </div>
                 </div>
               )}

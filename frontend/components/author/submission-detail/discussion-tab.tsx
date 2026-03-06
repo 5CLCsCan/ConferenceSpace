@@ -12,6 +12,7 @@ import {
   buildDiscussionSettings,
   buildDiscussionThreads,
 } from "@/components/shared/discussion/api-adapter"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface DiscussionTabProps {
   conferenceId: string
@@ -38,6 +39,7 @@ function toNumericId(value: string): number | null {
  * - Cannot see reviewer identities in double-blind reviews
  */
 export function DiscussionTab({ conferenceId, submissionId, onThreadCountChange }: DiscussionTabProps) {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -133,13 +135,13 @@ export function DiscussionTab({ conferenceId, submissionId, onThreadCountChange 
   }, [])
 
   if (loading) {
-    return <div className="text-xs text-slate-500">Loading discussions...</div>
+    return <div className="text-xs text-slate-500">{t("runtime.components.author.submission-detail.discussion-tab.text_loading_discussions")}</div>
   }
 
   if (error) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-        Failed to load discussions: {error}
+        {t("runtime.components.author.submission-detail.discussion-tab.text_failed_to_load_discussions")}{" "}{error}
       </div>
     )
   }

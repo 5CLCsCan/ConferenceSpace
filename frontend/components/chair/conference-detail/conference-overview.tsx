@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import { getConferenceById, getConferenceTracks } from "@/lib/api/conferences"
 import type { Conference, Track } from "@/lib/types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ConferenceOverviewProps {
   conferenceId: string
@@ -18,6 +19,7 @@ function formatDate(value?: string) {
 }
 
 export function ConferenceOverview({ conferenceId, className }: ConferenceOverviewProps) {
+  const { t } = useTranslation()
   const [conference, setConference] = useState<Conference | null>(null)
   const [tracks, setTracks] = useState<Track[]>([])
   const [loading, setLoading] = useState(true)
@@ -47,7 +49,7 @@ export function ConferenceOverview({ conferenceId, className }: ConferenceOvervi
   }, [conferenceId])
 
   if (loading) {
-    return <div className="text-xs text-slate-500">Loading overview...</div>
+    return <div className="text-xs text-slate-500">{t("runtime.components.chair.conference-detail.conference-overview.text_loading_overview")}</div>
   }
 
   if (error || !conference) {
@@ -63,7 +65,7 @@ export function ConferenceOverview({ conferenceId, className }: ConferenceOvervi
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         <section className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-4 py-3 border-b border-slate-100">
-            <h2 className="text-sm font-bold text-[#1B3C53] tracking-tight">About the Conference</h2>
+            <h2 className="text-sm font-bold text-[#1B3C53] tracking-tight">{t("runtime.components.chair.conference-detail.conference-overview.text_about_the_conference")}</h2>
           </div>
           <div className="p-4">
             <p className="text-xs text-slate-600 leading-relaxed">
@@ -74,25 +76,25 @@ export function ConferenceOverview({ conferenceId, className }: ConferenceOvervi
 
         <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-4 py-3 border-b border-slate-100">
-            <h2 className="text-sm font-bold text-[#1B3C53] tracking-tight">Details</h2>
+            <h2 className="text-sm font-bold text-[#1B3C53] tracking-tight">{t("runtime.components.chair.conference-detail.conference-overview.text_details")}</h2>
           </div>
           <div className="p-4 space-y-3 text-[11px] text-slate-600">
             <div>
-              <p className="text-[9px] uppercase tracking-wider text-slate-400">Acronym</p>
+              <p className="text-[9px] uppercase tracking-wider text-slate-400">{t("runtime.components.chair.conference-detail.conference-overview.text_acronym")}</p>
               <p className="font-semibold text-slate-800">{conference.acronym || "N/A"}</p>
             </div>
             <div>
-              <p className="text-[9px] uppercase tracking-wider text-slate-400">Location</p>
+              <p className="text-[9px] uppercase tracking-wider text-slate-400">{t("runtime.components.chair.conference-detail.conference-overview.text_location")}</p>
               <p className="font-semibold text-slate-800">{conference.location || "TBD"}</p>
             </div>
             <div>
-              <p className="text-[9px] uppercase tracking-wider text-slate-400">Conference Dates</p>
+              <p className="text-[9px] uppercase tracking-wider text-slate-400">{t("runtime.components.chair.conference-detail.conference-overview.text_conference_dates")}</p>
               <p className="font-semibold text-slate-800">
                 {formatDate(conference.conference_date)} - {formatDate(conference.conference_end_date)}
               </p>
             </div>
             <div>
-              <p className="text-[9px] uppercase tracking-wider text-slate-400">Status</p>
+              <p className="text-[9px] uppercase tracking-wider text-slate-400">{t("runtime.components.chair.conference-detail.conference-overview.text_status")}</p>
               <p className="font-semibold text-slate-800 capitalize">{conference.status}</p>
             </div>
           </div>
@@ -101,7 +103,7 @@ export function ConferenceOverview({ conferenceId, className }: ConferenceOvervi
 
       <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="text-sm font-bold text-[#1B3C53] tracking-tight">Conference Tracks</h2>
+          <h2 className="text-sm font-bold text-[#1B3C53] tracking-tight">{t("runtime.components.chair.conference-detail.conference-overview.text_conference_tracks")}</h2>
           <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
             {tracks.length}
           </span>
@@ -119,14 +121,14 @@ export function ConferenceOverview({ conferenceId, className }: ConferenceOvervi
               ))}
             </div>
           ) : (
-            <p className="text-xs text-slate-500">No tracks configured.</p>
+            <p className="text-xs text-slate-500">{t("runtime.components.chair.conference-detail.conference-overview.text_no_tracks_configured")}</p>
           )}
         </div>
       </section>
 
       <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100">
-          <h2 className="text-sm font-bold text-[#1B3C53] tracking-tight">Research Domains</h2>
+          <h2 className="text-sm font-bold text-[#1B3C53] tracking-tight">{t("runtime.components.chair.conference-detail.conference-overview.text_research_domains")}</h2>
         </div>
         <div className="p-4 flex flex-wrap gap-2">
           {conference.domain && conference.domain.length > 0 ? (
@@ -139,7 +141,7 @@ export function ConferenceOverview({ conferenceId, className }: ConferenceOvervi
               </span>
             ))
           ) : (
-            <p className="text-xs text-slate-500">No domains specified.</p>
+            <p className="text-xs text-slate-500">{t("runtime.components.chair.conference-detail.conference-overview.text_no_domains_specified")}</p>
           )}
         </div>
       </section>

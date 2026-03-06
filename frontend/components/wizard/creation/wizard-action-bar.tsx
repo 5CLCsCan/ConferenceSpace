@@ -1,6 +1,7 @@
 "use client"
 
 import { Loader2 } from "lucide-react"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface WizardActionBarProps {
   currentStep: number
@@ -29,6 +30,7 @@ export function WizardActionBar({
   isSubmitting = false,
   canSubmit = true,
 }: WizardActionBarProps) {
+  const { t } = useTranslation()
   const isLastStep = currentStep === totalSteps
 
   return (
@@ -61,8 +63,7 @@ export function WizardActionBar({
           >
             arrow_back
           </span>
-          Back
-        </button>
+          {t("runtime.components.wizard.creation.wizard-action-bar.text_back")}{" "}</button>
 
         {/* Right Side Actions */}
         <div className="flex items-center gap-3">
@@ -93,8 +94,7 @@ export function WizardActionBar({
             >
               save
             </span>
-            Save Draft
-          </button>
+            {t("runtime.components.wizard.creation.wizard-action-bar.text_save_draft")}{" "}</button>
 
           {/* Previous Step Button */}
           {currentStep > 1 && (
@@ -119,12 +119,10 @@ export function WizardActionBar({
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  Creating...
-                </>
+                  {t("runtime.components.wizard.creation.wizard-action-bar.text_creating")}{" "}</>
               ) : (
                 <>
-                  Create Conference
-                  <span 
+                  {t("runtime.components.wizard.creation.wizard-action-bar.text_create_conference")}{" "}<span 
                     className="material-symbols-outlined" 
                     style={{ 
                       fontSize: '16px', 

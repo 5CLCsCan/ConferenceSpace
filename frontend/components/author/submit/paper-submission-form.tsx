@@ -26,6 +26,7 @@ import { AuthorsStep } from "./authors-step"
 import { FileUploadStep } from "./file-upload-step"
 import { ConflictsStep, type Conflict } from "./conflicts-step"
 import { ReviewStep } from "./review-step"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface PaperSubmissionFormProps {
   conference?: Conference | null
@@ -36,6 +37,7 @@ export function PaperSubmissionForm({
   conference,
   submission: initialSubmission,
 }: PaperSubmissionFormProps) {
+  const { t } = useTranslation()
   const router = useRouter()
   const { user } = useAuth()
   const { toast } = useToast()
@@ -150,8 +152,12 @@ export function PaperSubmissionForm({
   const handleAddAuthor = () => {
     if (!newAuthor.firstName || !newAuthor.lastName || !newAuthor.email) {
       toast({
-        title: "Missing information",
-        description: "Please fill in all required fields for the author.",
+        title: t(
+          "runtime.components.author.submit.paper-submission-form.prop_title_missing_information",
+        ),
+        description: t(
+          "runtime.components.author.submit.paper-submission-form.prop_description_please_fill_in_all_required_fields",
+        ),
         variant: "destructive",
       })
       return
@@ -193,8 +199,12 @@ export function PaperSubmissionForm({
 
     if (file.type !== "application/pdf") {
       toast({
-        title: "Invalid file type",
-        description: "Please upload a PDF file.",
+        title: t(
+          "runtime.components.author.submit.paper-submission-form.prop_title_invalid_file_type",
+        ),
+        description: t(
+          "runtime.components.author.submit.paper-submission-form.prop_description_please_upload_a_pdf_file",
+        ),
         variant: "destructive",
       })
       return
@@ -202,8 +212,12 @@ export function PaperSubmissionForm({
 
     if (file.size > 20 * 1024 * 1024) {
       toast({
-        title: "File too large",
-        description: "Maximum file size is 20MB.",
+        title: t(
+          "runtime.components.author.submit.paper-submission-form.prop_title_file_too_large",
+        ),
+        description: t(
+          "runtime.components.author.submit.paper-submission-form.prop_description_maximum_file_size_is_20mb",
+        ),
         variant: "destructive",
       })
       return
@@ -235,8 +249,12 @@ export function PaperSubmissionForm({
   const handleAddConflict = () => {
     if (!newConflict.firstName || !newConflict.lastName) {
       toast({
-        title: "Missing information",
-        description: "Please provide at least first and last name.",
+        title: t(
+          "runtime.components.author.submit.paper-submission-form.prop_title_missing_information",
+        ),
+        description: t(
+          "runtime.components.author.submit.paper-submission-form.prop_description_please_provide_at_least_first_and",
+        ),
         variant: "destructive",
       })
       return
@@ -265,8 +283,12 @@ export function PaperSubmissionForm({
     if (!user || !conference) return
     if (isNewSubmissionBlocked) {
       toast({
-        title: "Submissions are closed",
-        description: "Draft creation is disabled because this conference is not in open status.",
+        title: t(
+          "runtime.components.author.submit.paper-submission-form.prop_title_submissions_are_closed",
+        ),
+        description: t(
+          "runtime.components.author.submit.paper-submission-form.prop_description_draft_creation_is_disabled_because_this",
+        ),
         variant: "destructive",
       })
       return
@@ -302,17 +324,31 @@ export function PaperSubmissionForm({
 
       if (response.error) {
         toast({
-          title: "Failed to save draft",
+          title: t(
+            "runtime.components.author.submit.paper-submission-form.prop_title_failed_to_save_draft",
+          ),
           description: mapSubmissionError(response.error),
           variant: "destructive",
         })
       } else {
+        toast({
+          title: t(
+            "runtime.components.author.submit.paper-submission-form.prop_title_draft_saved_successfully",
+          ),
+          description: t(
+            "runtime.components.author.submit.paper-submission-form.prop_description_your_draft_has_been_saved_you",
+          ),
+        })
         setShowDraftSavedDialog(true)
       }
     } catch (error) {
       toast({
-        title: "Error saving draft",
-        description: "An unexpected error occurred. Please try again.",
+        title: t(
+          "runtime.components.author.submit.paper-submission-form.prop_title_error_saving_draft",
+        ),
+        description: t(
+          "runtime.components.author.submit.paper-submission-form.prop_description_an_unexpected_error_occurred_please_try",
+        ),
         variant: "destructive",
       })
     } finally {
@@ -325,9 +361,12 @@ export function PaperSubmissionForm({
     if (!user || !conference) return
     if (isNewSubmissionBlocked) {
       toast({
-        title: "Submissions are closed",
-        description:
-          "This conference is not currently accepting submissions. Please submit during the open phase.",
+        title: t(
+          "runtime.components.author.submit.paper-submission-form.prop_title_submissions_are_closed",
+        ),
+        description: t(
+          "runtime.components.author.submit.paper-submission-form.prop_description_this_conference_is_not_currently_accepting",
+        ),
         variant: "destructive",
       })
       return
@@ -373,7 +412,9 @@ export function PaperSubmissionForm({
 
       if (response.error) {
         toast({
-          title: "Submission failed",
+          title: t(
+            "runtime.components.author.submit.paper-submission-form.prop_title_submission_failed",
+          ),
           description: mapSubmissionError(response.error),
           variant: "destructive",
         })
@@ -383,8 +424,12 @@ export function PaperSubmissionForm({
       }
     } catch (error) {
       toast({
-        title: "Error submitting paper",
-        description: "An unexpected error occurred. Please try again.",
+        title: t(
+          "runtime.components.author.submit.paper-submission-form.prop_title_error_submitting_paper",
+        ),
+        description: t(
+          "runtime.components.author.submit.paper-submission-form.prop_description_an_unexpected_error_occurred_please_try",
+        ),
         variant: "destructive",
       })
     } finally {
@@ -395,26 +440,40 @@ export function PaperSubmissionForm({
   // Step header info
   const stepHeaders: Record<StepType, { title: string; description: string }> = {
     paper: {
-      title: "Paper Details",
-      description: "Please provide the core information about your research paper.",
+      title: t("runtime.components.author.submit.paper-submission-form.prop_title_paper_details"),
+      description: t(
+        "runtime.components.author.submit.paper-submission-form.prop_description_please_provide_the_core_information_about",
+      ),
     },
     authors: {
-      title: "Authors & Affiliations",
-      description:
-        "Add all contributing authors. Use the drag handles to order them according to their contribution. Ensure one author is marked as the corresponding contact.",
+      title: t(
+        "runtime.components.author.submit.paper-submission-form.prop_title_authors_affiliations",
+      ),
+      description: t(
+        "runtime.components.author.submit.paper-submission-form.prop_description_add_all_contributing_authors_use_the",
+      ),
     },
     file: {
-      title: "Upload Manuscript",
-      description:
-        "Please upload your research paper in PDF format. Ensure all personal information is removed for double-blind review.",
+      title: t(
+        "runtime.components.author.submit.paper-submission-form.prop_title_upload_manuscript",
+      ),
+      description: t(
+        "runtime.components.author.submit.paper-submission-form.prop_description_please_upload_your_research_paper_in",
+      ),
     },
     coi: {
-      title: "Conflicts of Interest",
-      description: "Declare any potential conflicts of interest with reviewers or institutions.",
+      title: t(
+        "runtime.components.author.submit.paper-submission-form.prop_title_conflicts_of_interest",
+      ),
+      description: t(
+        "runtime.components.author.submit.paper-submission-form.prop_description_declare_any_potential_conflicts_of_interest",
+      ),
     },
     review: {
-      title: "Review & Submit",
-      description: "Review all information before final submission.",
+      title: t("runtime.components.author.submit.paper-submission-form.prop_title_review_submit"),
+      description: t(
+        "runtime.components.author.submit.paper-submission-form.prop_description_review_all_information_before_final_submission",
+      ),
     },
   }
 
@@ -438,7 +497,7 @@ export function PaperSubmissionForm({
               <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm">
                 <div className="size-1.5 rounded-full bg-green-500 animate-pulse" />
                 <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">
-                  Autosaving...
+                  {t("runtime.components.author.submit.paper-submission-form.text_autosaving")}{" "}
                 </span>
               </div>
             </div>
@@ -472,9 +531,7 @@ export function PaperSubmissionForm({
                 onRemoveAuthor={handleRemoveAuthor}
                 onToggleCorresponding={handleToggleCorresponding}
                 onUpdateAuthor={(id, updates) => {
-                  setAuthors((prev) =>
-                    prev.map((a) => (a.id === id ? { ...a, ...updates } : a))
-                  )
+                  setAuthors((prev) => prev.map((a) => (a.id === id ? { ...a, ...updates } : a)))
                 }}
                 onReorder={(from, to) => {
                   setAuthors((prev) => {
@@ -570,12 +627,17 @@ export function PaperSubmissionForm({
             >
               <div className="px-6 pt-6 pb-5 flex flex-col items-center text-center gap-4">
                 <div className="p-3 rounded-full bg-emerald-50 dark:bg-emerald-900/20">
-                  <span className="material-symbols-outlined text-emerald-500 text-[28px] icon-filled">check_circle</span>
+                  <span className="material-symbols-outlined text-emerald-500 text-[28px] icon-filled">
+                    check_circle
+                  </span>
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">Draft Saved</h3>
+                  <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
+                    Draft Saved
+                  </h3>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                    Your draft has been saved successfully. You can return to edit it anytime from your submissions dashboard.
+                    Your draft has been saved successfully. You can return to edit it anytime from
+                    your submissions dashboard.
                   </p>
                 </div>
                 <div className="flex items-center gap-2 w-full pt-1">
@@ -588,7 +650,9 @@ export function PaperSubmissionForm({
                   </button>
                   <button
                     type="button"
-                    onClick={() => router.push(ROUTES.AUTHOR.CONFERENCE_DETAIL(conference?.id ?? ""))}
+                    onClick={() =>
+                      router.push(ROUTES.AUTHOR.CONFERENCE_DETAIL(conference?.id ?? ""))
+                    }
                     className="flex-1 h-9 rounded-lg text-[11px] font-bold bg-[#1B3C53] hover:bg-[#234C6A] text-white transition-colors"
                   >
                     Back to Conference
@@ -603,14 +667,18 @@ export function PaperSubmissionForm({
         <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Success!</AlertDialogTitle>
+              <AlertDialogTitle>
+                {t("runtime.components.author.submit.paper-submission-form.text_success")}
+              </AlertDialogTitle>
               <AlertDialogDescription>{successMessage}</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogAction
                 onClick={() => router.push(ROUTES.AUTHOR.CONFERENCE_DETAIL(conference?.id ?? ""))}
               >
-                Continue to Conference
+                {t(
+                  "runtime.components.author.submit.paper-submission-form.text_continue_to_conference",
+                )}{" "}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

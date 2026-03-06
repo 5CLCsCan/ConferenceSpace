@@ -1,8 +1,10 @@
 "use client"
 
 import type { ReviewerScoreCardProps } from "../types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export function ReviewerScoreCard({ reviewer }: ReviewerScoreCardProps) {
+  const { t } = useTranslation()
   const scoreChanged = reviewer.scores.updated
   const recChanged = reviewer.recommendation.updated
 
@@ -30,8 +32,7 @@ export function ReviewerScoreCard({ reviewer }: ReviewerScoreCardProps) {
           {/* Score */}
           <div className="text-right">
             <div className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">
-              Score
-            </div>
+              {t("runtime.components.shared.rebuttal.components.reviewer-score-card.text_score")}{" "}</div>
             <div className="flex items-center gap-1">
               {scoreChanged && (
                 <>
@@ -73,7 +74,7 @@ export function ReviewerScoreCard({ reviewer }: ReviewerScoreCardProps) {
 
           {/* Recommendation */}
           <div className="text-right min-w-[80px]">
-            <div className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">Rec.</div>
+            <div className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">{t("runtime.components.shared.rebuttal.components.reviewer-score-card.text_rec")}</div>
             <span
               className={`text-[10px] font-medium ${
                 recChanged ? "text-emerald-600" : "text-slate-600"

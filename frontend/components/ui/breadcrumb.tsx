@@ -1,10 +1,14 @@
+"use client"
+
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { ChevronRight, MoreHorizontal } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 function Breadcrumb({ ...props }: React.ComponentProps<"nav">) {
+  const { t } = useTranslation()
   return <nav aria-label="breadcrumb" data-slot="breadcrumb" {...props} />
 }
 
@@ -77,6 +81,7 @@ function BreadcrumbSeparator({ children, className, ...props }: React.ComponentP
 }
 
 function BreadcrumbEllipsis({ className, ...props }: React.ComponentProps<"span">) {
+  const { t } = useTranslation()
   return (
     <span
       data-slot="breadcrumb-ellipsis"
@@ -86,7 +91,7 @@ function BreadcrumbEllipsis({ className, ...props }: React.ComponentProps<"span"
       {...props}
     >
       <MoreHorizontal className="size-4" />
-      <span className="sr-only">More</span>
+      <span className="sr-only">{t("runtime.components.ui.breadcrumb.text_more")}</span>
     </span>
   )
 }

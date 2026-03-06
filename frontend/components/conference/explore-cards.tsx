@@ -1,5 +1,9 @@
+"use client"
+
 import type { ExploreConference, ExploreStatus } from "./types"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { tStatic as t } from "@/lib/i18n/static-translate"
 
 // -------------------------------------------------------------------------
 // Explore Status Badge
@@ -10,23 +14,23 @@ const EXPLORE_STATUS_CONFIG: Record<
   { label: string; className: string; hasPulse?: boolean }
 > = {
   "call-for-papers": {
-    label: "Call for Papers",
+    label: t("runtime.components.conference.explore-cards.prop_label_call_for_papers"),
     className:
       "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
   },
   "registration-open": {
-    label: "Registration Open",
+    label: t("runtime.components.conference.explore-cards.prop_label_registration_open"),
     className:
       "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700",
     hasPulse: true,
   },
   upcoming: {
-    label: "Upcoming",
+    label: t("runtime.components.conference.explore-cards.prop_label_upcoming"),
     className:
       "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600",
   },
   workshop: {
-    label: "Workshop",
+    label: t("runtime.components.conference.explore-cards.prop_label_workshop"),
     className:
       "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700",
   },
@@ -37,6 +41,7 @@ interface ExploreStatusBadgeProps {
 }
 
 function ExploreStatusBadge({ status }: ExploreStatusBadgeProps) {
+  const { t } = useTranslation()
   const config = EXPLORE_STATUS_CONFIG[status]
   return (
     <span
@@ -113,8 +118,7 @@ export function ExploreConferenceCard({ conference, onViewDetails }: ExploreConf
           onClick={() => onViewDetails(conference.id)}
           className="w-full h-8 px-3 text-[11px] font-medium rounded-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 hover:text-[#1B3C53] dark:hover:text-white hover:border-slate-300 transition-all duration-200"
         >
-          View Details
-        </button>
+          {t("runtime.components.conference.explore-cards.text_view_details")}{" "}</button>
       </div>
     </div>
   )
@@ -143,8 +147,7 @@ export function ArchivedConferenceCard({ conference, onViewDetails }: ArchivedCo
             >
               archive
             </span>
-            Archived
-          </span>
+            {t("runtime.components.conference.explore-cards.text_archived")}{" "}</span>
           <button
             onClick={(e) => e.stopPropagation()}
             className="text-slate-300 hover:text-[#1B3C53] dark:hover:text-white transition-colors"
@@ -183,8 +186,7 @@ export function ArchivedConferenceCard({ conference, onViewDetails }: ArchivedCo
           onClick={() => onViewDetails(conference.id)}
           className="w-full h-8 px-3 text-[11px] font-medium rounded-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 hover:text-[#1B3C53] dark:hover:text-white hover:border-slate-300 transition-all duration-200"
         >
-          View Details
-        </button>
+          {t("runtime.components.conference.explore-cards.text_view_details")}{" "}</button>
       </div>
     </div>
   )
@@ -284,23 +286,17 @@ export function ExploreConferenceList({
       {/* Header Row */}
       <div className="hidden lg:grid lg:grid-cols-[1fr_200px_190px_210px_minmax(100px,180px)_96px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          Conference
-        </div>
+          {t("runtime.components.conference.explore-cards.text_conference")}{" "}</div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          Location
-        </div>
+          {t("runtime.components.conference.explore-cards.text_location")}{" "}</div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          Status
-        </div>
+          {t("runtime.components.conference.explore-cards.text_status")}{" "}</div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          Dates
-        </div>
+          {t("runtime.components.conference.explore-cards.text_dates")}{" "}</div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          Topics
-        </div>
+          {t("runtime.components.conference.explore-cards.text_topics")}{" "}</div>
         <div className="px-4 py-3 pr-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">
-          Actions
-        </div>
+          {t("runtime.components.conference.explore-cards.text_actions")}{" "}</div>
       </div>
 
       {/* List Rows */}
@@ -319,7 +315,7 @@ export function ExploreConferenceList({
         <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
           {/* Left: Item count */}
           <div className="text-[11px] text-slate-500">
-            Showing{" "}
+            {t("runtime.components.conference.explore-cards.text_showing")}{" "}
             <span className="font-bold text-[#1B3C53] dark:text-white">
               {startItem}-{endItem}
             </span>{" "}
@@ -338,8 +334,7 @@ export function ExploreConferenceList({
                 disabled={currentPage <= 1}
                 className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Previous
-              </button>
+                {t("runtime.components.conference.explore-cards.text_previous")}{" "}</button>
 
               {getPageNumbers().map((page, idx) => {
                 if (page === "ellipsis") {
@@ -371,16 +366,14 @@ export function ExploreConferenceList({
                 disabled={currentPage >= totalPages}
                 className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Next
-              </button>
+                {t("runtime.components.conference.explore-cards.text_next")}{" "}</button>
             </div>
           )}
         </div>
       ) : (
         <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
           <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-            {conferences.length} conferences found
-          </div>
+            {conferences.length} {t("runtime.components.conference.explore-cards.text_conferences_found")}{" "}</div>
         </div>
       )}
     </div>
@@ -625,17 +618,13 @@ export function ArchivedConferenceList({
       {/* Header Row */}
       <div className="hidden lg:grid lg:grid-cols-[1fr_200px_210px_96px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          Conference
-        </div>
+          {t("runtime.components.conference.explore-cards.text_conference")}{" "}</div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          Location
-        </div>
+          {t("runtime.components.conference.explore-cards.text_location")}{" "}</div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          Dates
-        </div>
+          {t("runtime.components.conference.explore-cards.text_dates")}{" "}</div>
         <div className="px-4 py-3 pr-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">
-          Actions
-        </div>
+          {t("runtime.components.conference.explore-cards.text_actions")}{" "}</div>
       </div>
 
       {/* List Rows */}
@@ -654,7 +643,7 @@ export function ArchivedConferenceList({
         <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
           {/* Left: Item count */}
           <div className="text-[11px] text-slate-500">
-            Showing{" "}
+            {t("runtime.components.conference.explore-cards.text_showing")}{" "}
             <span className="font-bold text-[#1B3C53] dark:text-white">
               {startItem}-{endItem}
             </span>{" "}
@@ -662,8 +651,7 @@ export function ArchivedConferenceList({
             <span className="font-bold text-[#1B3C53] dark:text-white">
               {(totalItems || conferences.length).toLocaleString()}
             </span>{" "}
-            archived conferences
-          </div>
+            {t("runtime.components.conference.explore-cards.text_archived_conferences")}{" "}</div>
 
           {/* Right: Page navigation */}
           {totalPages > 1 && (
@@ -673,8 +661,7 @@ export function ArchivedConferenceList({
                 disabled={currentPage <= 1}
                 className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Previous
-              </button>
+                {t("runtime.components.conference.explore-cards.text_previous")}{" "}</button>
 
               {getPageNumbers().map((page, idx) => {
                 if (page === "ellipsis") {
@@ -706,16 +693,14 @@ export function ArchivedConferenceList({
                 disabled={currentPage >= totalPages}
                 className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Next
-              </button>
+                {t("runtime.components.conference.explore-cards.text_next")}{" "}</button>
             </div>
           )}
         </div>
       ) : (
         <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
           <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-            {conferences.length} archived conferences
-          </div>
+            {conferences.length} {t("runtime.components.conference.explore-cards.text_archived_conferences")}{" "}</div>
         </div>
       )}
     </div>
@@ -799,8 +784,7 @@ function ArchivedListRow({
             >
               archive
             </span>
-            Archived
-          </span>
+            {t("runtime.components.conference.explore-cards.text_archived")}{" "}</span>
           <button
             onClick={(e) => e.stopPropagation()}
             className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all shrink-0"

@@ -2,7 +2,7 @@ import { ROUTES } from "@/lib/routes"
 import type { UserRole } from "@/lib/types"
 
 export interface NavItem {
-  label: string
+  labelKey: string
   href: string
   icon: string
   badge?: number
@@ -11,7 +11,7 @@ export interface NavItem {
 type SidebarRole = Extract<UserRole, "author" | "reviewer" | "chair">
 
 interface NavTemplateItem {
-  label: string
+  labelKey: string
   href: string
   icon: string
   withUnreadBadge?: boolean
@@ -19,33 +19,69 @@ interface NavTemplateItem {
 
 const SIDEBAR_NAV_TEMPLATES: Record<SidebarRole, NavTemplateItem[]> = {
   author: [
-    { label: "Conferences", href: ROUTES.AUTHOR.DASHBOARD, icon: "folder_open" },
-    { label: "My Submissions", href: ROUTES.AUTHOR.SUBMISSIONS, icon: "description" },
     {
-      label: "Notifications",
+      labelKey: "dashboard.sidebar.nav.author.conferences",
+      href: ROUTES.AUTHOR.DASHBOARD,
+      icon: "folder_open",
+    },
+    {
+      labelKey: "dashboard.sidebar.nav.author.mySubmissions",
+      href: ROUTES.AUTHOR.SUBMISSIONS,
+      icon: "description",
+    },
+    {
+      labelKey: "dashboard.sidebar.nav.common.notifications",
       href: ROUTES.NOTIFICATIONS,
       icon: "notifications",
       withUnreadBadge: true,
     },
   ],
   reviewer: [
-    { label: "Dashboard", href: ROUTES.REVIEWER.DASHBOARD, icon: "dashboard" },
-    { label: "Conferences", href: ROUTES.REVIEWER.CONFERENCES, icon: "folder_open" },
-    { label: "Invitations", href: ROUTES.REVIEWER.INVITATIONS, icon: "mail" },
-    { label: "Completed", href: ROUTES.REVIEWER.COMPLETED, icon: "task_alt" },
     {
-      label: "Notifications",
+      labelKey: "dashboard.sidebar.nav.reviewer.dashboard",
+      href: ROUTES.REVIEWER.DASHBOARD,
+      icon: "dashboard",
+    },
+    {
+      labelKey: "dashboard.sidebar.nav.reviewer.conferences",
+      href: ROUTES.REVIEWER.CONFERENCES,
+      icon: "folder_open",
+    },
+    {
+      labelKey: "dashboard.sidebar.nav.reviewer.invitations",
+      href: ROUTES.REVIEWER.INVITATIONS,
+      icon: "mail",
+    },
+    {
+      labelKey: "dashboard.sidebar.nav.reviewer.completed",
+      href: ROUTES.REVIEWER.COMPLETED,
+      icon: "task_alt",
+    },
+    {
+      labelKey: "dashboard.sidebar.nav.common.notifications",
       href: ROUTES.NOTIFICATIONS,
       icon: "notifications",
       withUnreadBadge: true,
     },
   ],
   chair: [
-    { label: "Dashboard", href: ROUTES.CHAIR.DASHBOARD, icon: "dashboard" },
-    { label: "Conferences", href: ROUTES.CHAIR.CONFERENCES, icon: "folder_open" },
-    { label: "Schedules", href: ROUTES.CHAIR.SCHEDULES, icon: "calendar_month" },
     {
-      label: "Notifications",
+      labelKey: "dashboard.sidebar.nav.chair.dashboard",
+      href: ROUTES.CHAIR.DASHBOARD,
+      icon: "dashboard",
+    },
+    {
+      labelKey: "dashboard.sidebar.nav.chair.conferences",
+      href: ROUTES.CHAIR.CONFERENCES,
+      icon: "folder_open",
+    },
+    {
+      labelKey: "dashboard.sidebar.nav.chair.schedules",
+      href: ROUTES.CHAIR.SCHEDULES,
+      icon: "calendar_month",
+    },
+    {
+      labelKey: "dashboard.sidebar.nav.common.notifications",
       href: ROUTES.NOTIFICATIONS,
       icon: "notifications",
       withUnreadBadge: true,
@@ -54,9 +90,13 @@ const SIDEBAR_NAV_TEMPLATES: Record<SidebarRole, NavTemplateItem[]> = {
 }
 
 const FALLBACK_NAV_TEMPLATE: NavTemplateItem[] = [
-  { label: "Dashboard", href: ROUTES.ROLE_SELECT, icon: "dashboard" },
   {
-    label: "Notifications",
+    labelKey: "dashboard.sidebar.nav.common.dashboard",
+    href: ROUTES.ROLE_SELECT,
+    icon: "dashboard",
+  },
+  {
+    labelKey: "dashboard.sidebar.nav.common.notifications",
     href: ROUTES.NOTIFICATIONS,
     icon: "notifications",
     withUnreadBadge: true,
@@ -73,7 +113,7 @@ export function getSidebarMenuItems(
   const template = isSidebarRole(role) ? SIDEBAR_NAV_TEMPLATES[role] : FALLBACK_NAV_TEMPLATE
 
   return template.map((item) => ({
-    label: item.label,
+    labelKey: item.labelKey,
     href: item.href,
     icon: item.icon,
     ...(item.withUnreadBadge ? { badge: unreadCount } : {}),

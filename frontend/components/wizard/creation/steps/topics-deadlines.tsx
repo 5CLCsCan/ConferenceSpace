@@ -6,6 +6,7 @@ import { WizardFormCard } from "../wizard-form-card"
 import { WizardFormField } from "../wizard-form-field"
 import { DateTimePicker } from "../date-time-picker"
 import { ConferenceFormData } from "../types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface TopicsDeadlinesStepProps {
   data: ConferenceFormData
@@ -13,6 +14,7 @@ interface TopicsDeadlinesStepProps {
 }
 
 export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepProps) {
+  const { t } = useTranslation()
   const [topicInput, setTopicInput] = useState("")
   const [trackInput, setTrackInput] = useState("")
 
@@ -73,7 +75,7 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
   return (
     <div className="flex flex-col gap-4 w-full min-w-0">
       <WizardHeader
-        title="Topics & Deadlines"
+        title={t("runtime.components.wizard.creation.steps.topics-deadlines.title_topics_deadlines")}
         description="Define the thematic scope and critical submission dates for your conference."
       />
 
@@ -88,7 +90,7 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
       >
         {/* Research Topics */}
         <WizardFormCard
-          title="Research Topics"
+          title={t("runtime.components.wizard.creation.steps.topics-deadlines.title_research_topics")}
           tooltip="Topics are used to tag submissions and match reviewers. They help authors categorize their work and assist in assigning qualified reviewers."
         >
           <WizardFormField label="Subject Areas" required hint="Press Enter to add a topic.">
@@ -102,7 +104,7 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
                   id="topic-input"
                   type="text"
                   className="flex-1 bg-transparent border-none outline-none focus:ring-0 text-xs text-[#141414] dark:text-white placeholder:text-slate-400"
-                  placeholder="Enter topic and press Enter..."
+                  placeholder={t("runtime.components.wizard.creation.steps.topics-deadlines.placeholder_enter_topic_and_press_enter")}
                   value={topicInput}
                   onChange={(e) => setTopicInput(e.target.value)}
                   onKeyDown={handleTopicInputKeyDown}
@@ -114,8 +116,7 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
                 />
                 {topicInput.trim() && (
                   <span className="text-[9px] font-medium text-[#1B3C53] dark:text-slate-400 uppercase tracking-wider">
-                    Press Enter
-                  </span>
+                    {t("runtime.components.wizard.creation.steps.topics-deadlines.text_press_enter")}{" "}</span>
                 )}
               </div>
 
@@ -123,8 +124,7 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
               {data.topics.length > 0 && (
                 <div className="flex flex-col gap-1.5">
                   <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                    {data.topics.length} Topic{data.topics.length !== 1 ? "s" : ""} Added
-                  </span>
+                    {data.topics.length} {t("runtime.components.wizard.creation.steps.topics-deadlines.text_topic")}{data.topics.length !== 1 ? "s" : ""} {t("runtime.components.wizard.creation.steps.topics-deadlines.text_added")}{" "}</span>
                   <div className="flex flex-wrap gap-2">
                     {data.topics.map((topic) => (
                       <div
@@ -157,11 +157,9 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
                 <div className="flex items-center gap-3 py-3 px-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-dashed border-slate-200 dark:border-slate-700">
                   <div className="flex flex-col">
                     <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                      No topics added yet
-                    </span>
+                      {t("runtime.components.wizard.creation.steps.topics-deadlines.text_no_topics_added_yet")}{" "}</span>
                     <span className="text-[9px] text-slate-400 dark:text-slate-500">
-                      e.g., Machine Learning, NLP, Computer Vision
-                    </span>
+                      {t("runtime.components.wizard.creation.steps.topics-deadlines.text_e_g_machine_learning_nlp_computer")}{" "}</span>
                   </div>
                 </div>
               )}
@@ -171,7 +169,7 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
 
         {/* Conference Tracks */}
         <WizardFormCard
-          title="Conference Tracks"
+          title={t("runtime.components.wizard.creation.steps.topics-deadlines.title_conference_tracks")}
           tooltip="Tracks represent distinct thematic streams within your conference. Authors will select a track when submitting their papers, and submissions will be reviewed within their assigned track."
         >
           <WizardFormField label="Track Names" hint="Press Enter to add a track.">
@@ -185,7 +183,7 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
                   id="track-input"
                   type="text"
                   className="flex-1 bg-transparent border-none outline-none focus:ring-0 text-xs text-[#141414] dark:text-white placeholder:text-slate-400"
-                  placeholder="Enter track name and press Enter..."
+                  placeholder={t("runtime.components.wizard.creation.steps.topics-deadlines.placeholder_enter_track_name_and_press_enter")}
                   value={trackInput}
                   onChange={(e) => setTrackInput(e.target.value)}
                   onKeyDown={handleTrackInputKeyDown}
@@ -197,8 +195,7 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
                 />
                 {trackInput.trim() && (
                   <span className="text-[9px] font-medium text-[#1B3C53] dark:text-slate-400 uppercase tracking-wider">
-                    Press Enter
-                  </span>
+                    {t("runtime.components.wizard.creation.steps.topics-deadlines.text_press_enter")}{" "}</span>
                 )}
               </div>
 
@@ -206,8 +203,7 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
               {data.tracks.length > 0 && (
                 <div className="flex flex-col gap-1.5">
                   <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                    {data.tracks.length} Track{data.tracks.length !== 1 ? "s" : ""} Added
-                  </span>
+                    {data.tracks.length} {t("runtime.components.wizard.creation.steps.topics-deadlines.text_track")}{data.tracks.length !== 1 ? "s" : ""} {t("runtime.components.wizard.creation.steps.topics-deadlines.text_added")}{" "}</span>
                   <div className="flex flex-wrap gap-2">
                     {data.tracks.map((track) => (
                       <div
@@ -240,11 +236,9 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
                 <div className="flex items-center gap-3 py-3 px-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-dashed border-slate-200 dark:border-slate-700">
                   <div className="flex flex-col">
                     <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                      No tracks added yet
-                    </span>
+                      {t("runtime.components.wizard.creation.steps.topics-deadlines.text_no_tracks_added_yet")}{" "}</span>
                     <span className="text-[9px] text-slate-400 dark:text-slate-500">
-                      e.g., Main Track, Workshop, Demo, Industry
-                    </span>
+                      {t("runtime.components.wizard.creation.steps.topics-deadlines.text_e_g_main_track_workshop_demo")}{" "}</span>
                   </div>
                 </div>
               )}
@@ -254,7 +248,7 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
 
         {/* Submission Timeline */}
         <WizardFormCard
-          title="Submission Timeline"
+          title={t("runtime.components.wizard.creation.steps.topics-deadlines.title_submission_timeline")}
           tooltip="Set the key dates for the review process. All times are 23:59 AoE (Anywhere on Earth) by default."
         >
           <div className="flex flex-col gap-4">
@@ -265,11 +259,10 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
                   <DateTimePicker
                     date={data.abstractDeadline}
                     onDateChange={(date) => handleDateChange("abstractDeadline", date)}
-                    placeholder="Pick abstract deadline"
+                    placeholder={t("runtime.components.wizard.creation.steps.topics-deadlines.placeholder_pick_abstract_deadline")}
                   />
                   <span className="text-[9px] text-slate-400 font-light">
-                    Deadline for initial abstract registration
-                  </span>
+                    {t("runtime.components.wizard.creation.steps.topics-deadlines.text_deadline_for_initial_abstract_registration")}{" "}</span>
                 </div>
               </WizardFormField>
 
@@ -278,12 +271,11 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
                   <DateTimePicker
                     date={data.fullPaperDeadline}
                     onDateChange={(date) => handleDateChange("fullPaperDeadline", date)}
-                    placeholder="Pick paper deadline"
+                    placeholder={t("runtime.components.wizard.creation.steps.topics-deadlines.placeholder_pick_paper_deadline")}
                     minDate={data.abstractDeadline}
                   />
                   <span className="text-[9px] text-slate-400 font-light">
-                    Final deadline for PDF upload
-                  </span>
+                    {t("runtime.components.wizard.creation.steps.topics-deadlines.text_final_deadline_for_pdf_upload")}{" "}</span>
                 </div>
               </WizardFormField>
 
@@ -292,12 +284,11 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
                   <DateTimePicker
                     date={data.authorNotificationDate}
                     onDateChange={(date) => handleDateChange("authorNotificationDate", date)}
-                    placeholder="Pick notification date"
+                    placeholder={t("runtime.components.wizard.creation.steps.topics-deadlines.placeholder_pick_notification_date")}
                     minDate={data.fullPaperDeadline}
                   />
                   <span className="text-[9px] text-slate-400 font-light">
-                    When authors will receive decisions
-                  </span>
+                    {t("runtime.components.wizard.creation.steps.topics-deadlines.text_when_authors_will_receive_decisions")}{" "}</span>
                 </div>
               </WizardFormField>
 
@@ -306,12 +297,11 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
                   <DateTimePicker
                     date={data.cameraReadyDeadline}
                     onDateChange={(date) => handleDateChange("cameraReadyDeadline", date)}
-                    placeholder="Pick camera-ready deadline"
+                    placeholder={t("runtime.components.wizard.creation.steps.topics-deadlines.placeholder_pick_camera_ready_deadline")}
                     minDate={data.authorNotificationDate}
                   />
                   <span className="text-[9px] text-slate-400 font-light">
-                    Deadline for final version
-                  </span>
+                    {t("runtime.components.wizard.creation.steps.topics-deadlines.text_deadline_for_final_version")}{" "}</span>
                 </div>
               </WizardFormField>
             </div>
@@ -327,11 +317,9 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
                 />
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-[#141414] dark:text-white">
-                    Strict Deadlines
-                  </span>
+                    {t("runtime.components.wizard.creation.steps.topics-deadlines.text_strict_deadlines")}{" "}</span>
                   <span className="text-[10px] text-slate-400 font-light">
-                    Automatically prevent submissions after the deadline passes.
-                  </span>
+                    {t("runtime.components.wizard.creation.steps.topics-deadlines.text_automatically_prevent_submissions_after_the_deadline")}{" "}</span>
                 </div>
               </label>
             </div>

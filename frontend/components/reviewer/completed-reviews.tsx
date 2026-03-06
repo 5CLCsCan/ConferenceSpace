@@ -37,14 +37,11 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
     setCurrentPage(1)
   }
 
-  const { reviews, total, isLoading } = useCompletedReviews(
-    currentReviewerId,
-    {
-      search: debouncedSearch,
-      limit: PAGE_SIZE,
-      offset: (currentPage - 1) * PAGE_SIZE,
-    },
-  )
+  const { reviews, total, isLoading } = useCompletedReviews(currentReviewerId, {
+    search: debouncedSearch,
+    limit: PAGE_SIZE,
+    offset: (currentPage - 1) * PAGE_SIZE,
+  })
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
@@ -145,16 +142,20 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
             className="h-8 px-3 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none text-slate-700 dark:text-slate-300"
           >
             <option value="date-desc">
-              {t("dashboard.roles.reviewer.completedReviews.sortByDate")} (Newest)
+              {t("dashboard.roles.reviewer.completedReviews.sortByDate")}{" "}
+              {t("runtime.components.reviewer.completed-reviews.text_newest")}{" "}
             </option>
             <option value="date-asc">
-              {t("dashboard.roles.reviewer.completedReviews.sortByDate")} (Oldest)
+              {t("dashboard.roles.reviewer.completedReviews.sortByDate")}{" "}
+              {t("runtime.components.reviewer.completed-reviews.text_oldest")}{" "}
             </option>
             <option value="title-asc">
-              {t("dashboard.roles.reviewer.completedReviews.sortByTitle")} (A-Z)
+              {t("dashboard.roles.reviewer.completedReviews.sortByTitle")}{" "}
+              {t("runtime.components.reviewer.completed-reviews.text_a_z")}{" "}
             </option>
             <option value="title-desc">
-              {t("dashboard.roles.reviewer.completedReviews.sortByTitle")} (Z-A)
+              {t("dashboard.roles.reviewer.completedReviews.sortByTitle")}{" "}
+              {t("runtime.components.reviewer.completed-reviews.text_z_a")}{" "}
             </option>
           </select>
 
@@ -163,7 +164,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
               onClick={() => setSearchQuery("")}
               className="h-8 px-3 rounded-md border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
             >
-              Clear
+              {t("runtime.components.reviewer.completed-reviews.text_clear")}{" "}
             </button>
           )}
         </div>
@@ -174,7 +175,9 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
         {isLoading ? (
           <div className="flex items-center justify-center py-16 gap-2 text-slate-400">
             <Loader2 className="size-5 animate-spin" />
-            <span className="text-xs font-medium">Loading completed reviews...</span>
+            <span className="text-xs font-medium">
+              {t("runtime.components.reviewer.completed-reviews.text_loading_completed_reviews")}
+            </span>
           </div>
         ) : sortedReviews.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-4">
@@ -205,16 +208,16 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
                       #
                     </th>
                     <th className="py-2.5 px-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                      Paper
+                      {t("runtime.components.reviewer.completed-reviews.text_paper")}{" "}
                     </th>
                     <th className="py-2.5 px-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400 w-28">
-                      Version
+                      {t("runtime.components.reviewer.completed-reviews.text_version")}{" "}
                     </th>
                     <th className="py-2.5 px-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400 w-36">
                       {t("dashboard.roles.reviewer.completedReviews.completedOn")}
                     </th>
                     <th className="py-2.5 px-3 text-right text-[10px] font-bold uppercase tracking-widest text-slate-400 w-24">
-                      Action
+                      {t("runtime.components.reviewer.completed-reviews.text_action")}{" "}
                     </th>
                   </tr>
                 </thead>
@@ -251,7 +254,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
                         </div>
                         {/* Completed badge */}
                         <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-[9px] font-bold uppercase tracking-wider">
-                          Done
+                          {t("runtime.components.reviewer.completed-reviews.text_done")}{" "}
                         </span>
                       </div>
                     </td>
@@ -276,7 +279,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
                         }}
                         className="inline-flex items-center gap-1 h-7 px-2.5 rounded-md bg-[#1B3C53] hover:bg-[#234C6A] text-white text-[9px] font-bold uppercase tracking-wider transition-colors"
                       >
-                        View
+                        {t("runtime.components.reviewer.completed-reviews.text_view")}{" "}
                         <span
                           className="material-symbols-outlined"
                           style={{ fontSize: "12px", lineHeight: "1" }}
@@ -297,16 +300,19 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
       {!isLoading && total > 0 && (
         <div className="flex items-center justify-between">
           <p className="text-[11px] text-slate-500 dark:text-slate-400">
-            Showing{" "}
+            {t("runtime.components.reviewer.completed-reviews.text_showing")}{" "}
             <span className="font-bold text-[#1B3C53] dark:text-white">
-              {Math.min((currentPage - 1) * PAGE_SIZE + 1, total)}–{Math.min(currentPage * PAGE_SIZE, total)}
+              {Math.min((currentPage - 1) * PAGE_SIZE + 1, total)}–
+              {Math.min(currentPage * PAGE_SIZE, total)}
             </span>{" "}
             of <span className="font-bold text-[#1B3C53] dark:text-white">{total}</span> completed
             {total === 1 ? " review" : " reviews"}
             {debouncedSearch && (
               <>
                 {" "}
-                for &ldquo;<span className="font-medium">{debouncedSearch}</span>&rdquo;
+                {t("runtime.components.reviewer.completed-reviews.text_for_ldquo")}
+                <span className="font-medium">{debouncedSearch}</span>
+                {t("runtime.components.reviewer.completed-reviews.text_rdquo")}
               </>
             )}
           </p>

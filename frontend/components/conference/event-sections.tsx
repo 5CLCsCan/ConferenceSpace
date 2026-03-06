@@ -1,5 +1,8 @@
+"use client"
+
 import type { ReactNode } from "react"
 import type { ConferenceReviewProgress, ConferenceSetupStatus } from "./types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 // -------------------------------------------------------------------------
 // Progress Section - for active conferences with review progress
@@ -10,6 +13,7 @@ interface ProgressSectionProps {
 }
 
 export function ProgressSection({ progress }: ProgressSectionProps) {
+  const { t } = useTranslation()
   return (
     <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3 border border-slate-100 dark:border-slate-600">
       <div className="flex justify-between items-end mb-1.5">
@@ -30,8 +34,7 @@ export function ProgressSection({ progress }: ProgressSectionProps) {
             <strong className="text-[#1B3C53] dark:text-white">
               {progress.submissions.toLocaleString()}
             </strong>{" "}
-            Submissions
-          </span>
+            {t("runtime.components.conference.event-sections.text_submissions")}{" "}</span>
         )}
         {progress.daysLeft > 0 && (
           <span>
@@ -54,16 +57,15 @@ interface SetupStatusSectionProps {
 }
 
 export function SetupStatusSection({ setup }: SetupStatusSectionProps) {
+  const { t } = useTranslation()
   return (
     <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3 border border-slate-100 dark:border-slate-600">
       <div className="flex justify-between items-end mb-1.5">
         <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">
-          Setup Status
-        </span>
+          {t("runtime.components.conference.event-sections.text_setup_status")}{" "}</span>
         {setup.actionRequired && (
           <span className="text-[8px] font-black text-orange-600 bg-orange-50 dark:bg-orange-900/20 px-1.5 py-0.5 rounded border border-orange-100 dark:border-orange-800 uppercase tracking-widest">
-            Action Required
-          </span>
+            {t("runtime.components.conference.event-sections.text_action_required")}{" "}</span>
         )}
       </div>
       <div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-1 mb-1.5 overflow-hidden">
@@ -72,7 +74,7 @@ export function SetupStatusSection({ setup }: SetupStatusSectionProps) {
           style={{ width: `${setup.progress}%` }}
         />
       </div>
-      <div className="text-right text-[10px] font-medium text-slate-400">Phase: {setup.phase}</div>
+      <div className="text-right text-[10px] font-medium text-slate-400">{t("runtime.components.conference.event-sections.text_phase")}{" "}{setup.phase}</div>
     </div>
   )
 }
@@ -86,12 +88,13 @@ interface DraftStatusSectionProps {
 }
 
 export function DraftStatusSection({ daysAgo }: DraftStatusSectionProps) {
+  const { t } = useTranslation()
   return (
     <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3 border border-slate-100 dark:border-slate-600 flex flex-col justify-center items-center text-center h-[80px] cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
       <span className="material-symbols-outlined text-slate-300 dark:text-slate-500 text-[24px] mb-1 group-hover:text-[#1B3C53] dark:group-hover:text-white transition-colors">
         edit_document
       </span>
-      <span className="text-[10px] font-medium text-slate-400">Draft saved {daysAgo} days ago</span>
+      <span className="text-[10px] font-medium text-slate-400">{t("runtime.components.conference.event-sections.text_draft_saved")}{" "}{daysAgo} {t("runtime.components.conference.event-sections.text_days_ago")}</span>
     </div>
   )
 }
@@ -105,10 +108,11 @@ interface CompletedStatsSectionProps {
 }
 
 export function CompletedStatsSection({ acceptedPapers }: CompletedStatsSectionProps) {
+  const { t } = useTranslation()
   return (
     <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3 border border-slate-100 dark:border-slate-600">
       <div className="flex justify-between items-center text-[10px] font-medium text-slate-400">
-        <span>Accepted Papers</span>
+        <span>{t("runtime.components.conference.event-sections.text_accepted_papers")}</span>
         <span className="font-bold text-slate-700 dark:text-slate-300 text-xs">
           {acceptedPapers.toLocaleString()}
         </span>

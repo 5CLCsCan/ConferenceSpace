@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Paperclip, X, Loader2 } from "lucide-react"
+import { X, Loader2, Copy, Check, ChevronDown, ThumbsUp, ThumbsDown, Info } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Textarea } from "@/components/ui/textarea"
@@ -13,6 +13,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useChat } from "@ai-sdk/react"
 import {
   DefaultChatTransport,
@@ -23,21 +28,20 @@ import { Streamdown } from "streamdown"
 import type { ChatConversation, ChatAttachment } from "./types"
 import { capturePageContext } from "@/lib/chatbot/page-context"
 import { executeAction, type ActionType, type ActionParams } from "@/lib/chatbot/action-executor"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ChatViewProps {
   conversation: ChatConversation
   onSendMessage?: (message: string, attachments?: ChatAttachment[]) => void
+  onMessagesChange?: (messages: UIMessage[]) => void
+  onConversationSynced?: () => void
 }
 
-function loadMessagesFromStorage(conversationId: string): UIMessage[] {
-  if (typeof window === "undefined") return []
+function toMessageSignature(messages: UIMessage[]): string {
   try {
-    const stored = localStorage.getItem(`ai-chat-${conversationId}`)
-    if (!stored) return []
-    const messages = JSON.parse(stored)
-    return Array.isArray(messages) ? messages : []
+    return JSON.stringify(messages)
   } catch {
-    return []
+    return String(messages.length)
   }
 }
 
@@ -47,6 +51,87 @@ function getToolDisplayName(toolName: string): string {
     performAction: "Perform Action",
   }
   return aliases[toolName] || toolName
+}
+
+function getMessageText(msg: UIMessage): string {
+  return msg.parts
+    .filter((p): p is { type: "text"; text: string } => p.type === "text")
+    .map((p) => p.text)
+    .join("")
+}
+
+const iconBtn =
+  "h-4 w-4 flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+
+function MessageActions({ msg, isUser }: { msg: UIMessage; isUser: boolean }) {
+  const { t } = useTranslation()
+  const text = getMessageText(msg)
+  const charCount = text.length
+  const [copied, setCopied] = React.useState(false)
+  const timestamp = (msg as { createdAt?: Date }).createdAt
+    ? format(new Date((msg as { createdAt?: Date }).createdAt!), "HH:mm")
+    : format(new Date(), "HH:mm")
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1200)
+  }
+
+  return (
+    <div
+      className={cn(
+        "flex items-center justify-between gap-2 py-[3px] px-[15px]",
+        isUser ? "flex-row-reverse" : "flex-row",
+      )}
+    >
+      <div className="relative">
+        <button
+          type="button"
+          onClick={handleCopy}
+          className={cn(iconBtn, copied && "text-green-600 dark:text-green-400")}
+          aria-label={t("runtime.components.chatbot.chat-view.aria_label_copy")}
+        >
+          {copied ? <Check className="size-2" /> : <Copy className="size-2" />}
+        </button>
+        {copied && (
+          <div
+            className={cn(
+              "absolute z-50 rounded-md border bg-popover px-2 py-1 text-[9px] text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95",
+              isUser ? "right-0 bottom-full mb-1" : "left-0 bottom-full mb-1",
+            )}
+          >
+            {t("runtime.components.chatbot.chat-view.text_copied")}{" "}</div>
+        )}
+      </div>
+      <div className="flex items-center gap-1">
+        <button type="button" className={iconBtn} aria-label={t("runtime.components.chatbot.chat-view.aria_label_like")}>
+          <ThumbsUp className="size-2" />
+        </button>
+        <button type="button" className={iconBtn} aria-label={t("runtime.components.chatbot.chat-view.aria_label_dislike")}>
+          <ThumbsDown className="size-2" />
+        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button type="button" className={iconBtn} aria-label={t("runtime.components.chatbot.chat-view.aria_label_message_info")}>
+              <Info className="size-2" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align={isUser ? "end" : "start"}
+            className="min-w-[60px] mr-[26px] -mt-[5px] [&_p]:text-[9px] [&_p]:text-slate-600 dark:[&_p]:text-slate-400"
+          >
+            <div className="px-1 py-1 space-y-0.5">
+              <p className="text-[8px] text-slate-600 dark:text-slate-400">{t("runtime.components.chatbot.chat-view.text_time")}{" "}{timestamp}</p>
+              <p className="text-[8px] text-slate-600 dark:text-slate-400">
+                {t("runtime.components.chatbot.chat-view.text_characters")}{" "}{charCount}
+              </p>
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
+  )
 }
 
 // Tool call collapsible block
@@ -70,35 +155,36 @@ function ToolBlock({
   return (
     <details
       className={cn(
-        "mt-2 rounded-md border text-[10px]",
+        "group mt-2 rounded-md border text-[9px]",
         isError
           ? "border-red-200 dark:border-red-800/50 bg-red-50/60 dark:bg-red-950/20"
           : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50",
       )}
-      open={open}
+      open={open || undefined}
     >
       <summary
         className={cn(
           "flex items-center gap-1.5 px-2.5 py-1.5 cursor-pointer select-none list-none",
-          "font-medium tracking-wide text-[10px] uppercase",
+          "font-medium tracking-wide text-[9px] uppercase",
           isError ? "text-red-500" : "text-[#456882] dark:text-slate-400",
         )}
       >
         {isLoading ? (
-          <Loader2 className="h-3 w-3 animate-spin" />
+          <Loader2 className="h-2.5 w-2.5 animate-spin shrink-0" />
         ) : (
           <span
-            className="material-symbols-outlined"
-            style={{ fontSize: "11px", fontVariationSettings: '"FILL" 0, "wght" 400' }}
+            className="material-symbols-outlined shrink-0"
+            style={{ fontSize: "10px", fontVariationSettings: '"FILL" 0, "wght" 400' }}
           >
             {isError ? "error" : "settings"}
           </span>
         )}
-        {label}
-        {statusIcon && <span className={cn("ml-auto font-bold", statusColor)}>{statusIcon}</span>}
+        <span className="min-w-0 flex-1 truncate">{label}</span>
+        {statusIcon && <span className={cn("shrink-0 font-bold", statusColor)}>{statusIcon}</span>}
+        <ChevronDown className="h-3 w-3 shrink-0 transition-transform duration-200 group-open:rotate-180" />
       </summary>
       {children && (
-        <div className="px-2.5 pb-2.5 space-y-1.5 border-t border-slate-200 dark:border-slate-700 mt-0 pt-2">
+        <div className="px-2 pb-2 space-y-1 border-t border-slate-200 dark:border-slate-700 mt-0 pt-1.5 text-[9px]">
           {children}
         </div>
       )}
@@ -109,7 +195,7 @@ function ToolBlock({
 function ToolField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+      <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
         {label}
       </span>
       <div className="mt-0.5">{children}</div>
@@ -119,28 +205,31 @@ function ToolField({ label, children }: { label: string; children: React.ReactNo
 
 function ToolPre({ children }: { children: React.ReactNode }) {
   return (
-    <pre className="text-[10px] font-mono bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-1.5 whitespace-pre-wrap break-words overflow-wrap-anywhere max-h-36 overflow-auto leading-relaxed">
+    <pre className="text-[9px] font-mono bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-1 whitespace-pre-wrap break-words overflow-wrap-anywhere max-h-28 overflow-auto leading-relaxed">
       {children}
     </pre>
   )
 }
 
-export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
+export function ChatView({
+  conversation,
+  onSendMessage,
+  onMessagesChange,
+  onConversationSynced,
+}: ChatViewProps) {
+  const { t } = useTranslation()
   const [input, setInput] = React.useState("")
   const [attachments, setAttachments] = React.useState<ChatAttachment[]>([])
   const [mode, setMode] = React.useState<"agentic" | "standard">("agentic")
   const scrollAreaRef = React.useRef<HTMLDivElement>(null)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const refMapRef = React.useRef<Map<string, Element>>(new Map())
-
-  const initialMessages = React.useMemo(
-    () => loadMessagesFromStorage(conversation.id),
-    [conversation.id],
-  )
+  const previousStatusRef = React.useRef<string>("ready")
+  const lastEmittedMessagesSignatureRef = React.useRef<string>("")
 
   const { messages, sendMessage, status, addToolOutput } = useChat({
     id: conversation.id,
-    messages: initialMessages,
+    messages: conversation.messages,
     transport: new DefaultChatTransport({ api: "/api/chat" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
@@ -188,6 +277,31 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
   React.useEffect(() => {
     scrollToBottom()
   }, [messages, scrollToBottom])
+
+  const messagesSignature = React.useMemo(() => toMessageSignature(messages), [messages])
+
+  React.useEffect(() => {
+    if (!onMessagesChange) {
+      return
+    }
+    if (lastEmittedMessagesSignatureRef.current === messagesSignature) {
+      return
+    }
+    lastEmittedMessagesSignatureRef.current = messagesSignature
+    onMessagesChange(messages)
+  }, [messages, messagesSignature, onMessagesChange])
+
+  React.useEffect(() => {
+    const previousStatus = previousStatusRef.current
+    if (
+      onConversationSynced &&
+      status === "ready" &&
+      (previousStatus === "submitted" || previousStatus === "streaming")
+    ) {
+      onConversationSynced()
+    }
+    previousStatusRef.current = status
+  }, [status, onConversationSynced])
 
   const handleFileSelect = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
@@ -250,28 +364,27 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                 </span>
               </div>
               <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
-                Start a conversation
-              </p>
+                {t("runtime.components.chatbot.chat-view.text_start_a_conversation")}{" "}</p>
               <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 max-w-[200px] leading-relaxed">
-                Ask me anything about the conference system
-              </p>
+                {t("runtime.components.chatbot.chat-view.text_ask_me_anything_about_the_conference")}{" "}</p>
             </div>
           ) : (
             messages.map((msg) => (
               <div
                 key={msg.id}
-                className={cn("flex", msg.role === "user" ? "justify-end" : "justify-start")}
+                className={cn("flex mb-1", msg.role === "user" ? "justify-end" : "justify-start")}
               >
                 <div
                   className={cn(
-                    "flex flex-col gap-1 max-w-[82%]",
-                    msg.role === "user" && "items-end",
+                    "flex flex-col gap-1 py-1.5",
+                    msg.role === "user" ? "max-w-[82%] items-end" : "w-full",
                   )}
+                  style={{ paddingTop: "12px", paddingBottom: 0 }}
                 >
                   {/* Message bubble */}
                   <div
                     className={cn(
-                      "rounded-xl px-3 py-2",
+                      "rounded-xl px-3 py-0",
                       msg.role === "user"
                         ? "bg-[#1B3C53] text-white rounded-tr-sm"
                         : "text-[#141414] dark:text-slate-100",
@@ -312,8 +425,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                                 >
                                   psychology
                                 </span>
-                                Reasoning
-                              </summary>
+                                {t("runtime.components.chatbot.chat-view.text_reasoning")}{" "}</summary>
                               <div className="px-2.5 pb-2.5 pt-2 border-t border-slate-200 dark:border-slate-700">
                                 <div className="font-mono text-[10px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-1.5 whitespace-pre-wrap leading-relaxed chatbot-markdown">
                                   <Streamdown isAnimating={isLastStreaming(msg, i)}>
@@ -345,7 +457,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                               open={false}
                             >
                               <ToolField label="Tool">
-                                <span className="text-[10px] font-mono text-slate-600 dark:text-slate-300">
+                                <span className="text-[9px] font-mono text-slate-600 dark:text-slate-300">
                                   {toolName}
                                 </span>
                               </ToolField>
@@ -382,14 +494,14 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                                 open={true}
                               >
                                 <ToolField label="Tool">
-                                  <span className="text-[10px] font-mono text-slate-600 dark:text-slate-300">
+                                  <span className="text-[9px] font-mono text-slate-600 dark:text-slate-300">
                                     {toolName}
                                   </span>
                                 </ToolField>
                                 <ToolField label="Input">
                                   <ToolPre>{JSON.stringify(toolInput, null, 2)}</ToolPre>
                                 </ToolField>
-                                <p className="text-[10px] text-slate-400 italic">Executing...</p>
+                                <p className="text-[9px] text-slate-400 italic">{t("runtime.components.chatbot.chat-view.text_executing")}</p>
                               </ToolBlock>
                             )
                           }
@@ -449,7 +561,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                                 open={true}
                               >
                                 <ToolField label="Tool">
-                                  <span className="text-[10px] font-mono text-slate-600 dark:text-slate-300">
+                                  <span className="text-[9px] font-mono text-slate-600 dark:text-slate-300">
                                     {toolName}
                                   </span>
                                 </ToolField>
@@ -472,7 +584,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                                 open={true}
                               >
                                 <ToolField label="Tool">
-                                  <span className="text-[10px] font-mono text-slate-600 dark:text-slate-300">
+                                  <span className="text-[9px] font-mono text-slate-600 dark:text-slate-300">
                                     {toolName}
                                   </span>
                                 </ToolField>
@@ -480,7 +592,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                                   <ToolPre>{JSON.stringify(toolInput, null, 2)}</ToolPre>
                                 </ToolField>
                                 <ToolField label="Error">
-                                  <span className="text-[10px] text-red-500 font-mono">
+                                  <span className="text-[9px] text-red-500 font-mono">
                                     {toolError}
                                   </span>
                                 </ToolField>
@@ -507,7 +619,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                                 open={false}
                               >
                                 <ToolField label="Tool">
-                                  <span className="text-[10px] font-mono text-slate-600 dark:text-slate-300">
+                                  <span className="text-[9px] font-mono text-slate-600 dark:text-slate-300">
                                     {toolName}
                                   </span>
                                 </ToolField>
@@ -529,10 +641,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                     })}
                   </div>
 
-                  {/* Timestamp */}
-                  <p className="text-[9px] text-slate-400 dark:text-slate-500 px-1">
-                    {format(new Date(), "HH:mm")}
-                  </p>
+                  {msg.role !== "user" && <MessageActions msg={msg} isUser={false} />}
                 </div>
               </div>
             ))
@@ -562,7 +671,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
             multiple
             className="hidden"
             onChange={handleFileSelect}
-            aria-label="Attach files"
+            aria-label={t("runtime.components.chatbot.chat-view.aria_label_attach_files")}
           />
           {/* Content area - entirely above utility */}
           <div className="px-2 pt-2 min-h-[45px]">
@@ -570,7 +679,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask the assistant..."
+              placeholder={t("runtime.components.chatbot.chat-view.placeholder_ask_the_assistant")}
               className="min-h-[25px] max-h-[200px] resize-none border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 w-full text-[11px] text-[#141414] dark:text-slate-100 placeholder:text-slate-400 py-0 px-0"
               rows={2}
               spellCheck={false}
@@ -596,7 +705,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                       type="button"
                       className="h-3.5 w-3.5 flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                       onClick={() => handleRemoveAttachment(att.id)}
-                      aria-label="Remove attachment"
+                      aria-label={t("runtime.components.chatbot.chat-view.aria_label_remove_attachment")}
                     >
                       <X className="h-2.5 w-2.5 text-slate-400" />
                     </button>
@@ -617,11 +726,9 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="agentic" className="text-[9px]">
-                  Agentic
-                </SelectItem>
+                  {t("runtime.components.chatbot.chat-view.text_agentic")}{" "}</SelectItem>
                 <SelectItem value="standard" className="text-[9px]">
-                  Standard
-                </SelectItem>
+                  {t("runtime.components.chatbot.chat-view.text_standard")}{" "}</SelectItem>
               </SelectContent>
             </Select>
             <div className="flex items-center gap-1">
@@ -629,7 +736,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 className="h-5 w-5 flex items-center justify-center rounded hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                aria-label="Attach file"
+                aria-label={t("runtime.components.chatbot.chat-view.aria_label_attach_file")}
               >
                 <span
                   className="material-symbols-outlined text-slate-500 dark:text-slate-400"
@@ -647,7 +754,7 @@ export function ChatView({ conversation, onSendMessage }: ChatViewProps) {
                     ? "border-slate-300 dark:border-slate-600 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-600 "
                     : "border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed",
                 )}
-                aria-label="Send message"
+                aria-label={t("runtime.components.chatbot.chat-view.aria_label_send_message")}
               >
                 <span
                   className="material-symbols-outlined"

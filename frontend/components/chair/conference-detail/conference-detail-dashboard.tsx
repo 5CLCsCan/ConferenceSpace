@@ -6,6 +6,7 @@ import { getConferenceSubmissions } from "@/lib/api/submissions"
 import { getConferenceById } from "@/lib/api/conferences"
 import { DashboardStatsCard, DashboardStatsGrid } from "./dashboard-stats-card"
 import { ChairActionsPanel } from "./chair-actions-panel"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ConferenceDetailDashboardProps {
   conferenceId: string
@@ -18,6 +19,7 @@ export function ConferenceDetailDashboard({
   onNavigateToAssignments,
   className,
 }: ConferenceDetailDashboardProps) {
+  const { t } = useTranslation()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [stats, setStats] = useState({
@@ -68,7 +70,7 @@ export function ConferenceDetailDashboard({
   }, [conferenceId])
 
   if (loading) {
-    return <div className="text-xs text-slate-500">Loading dashboard...</div>
+    return <div className="text-xs text-slate-500">{t("runtime.components.chair.conference-detail.conference-detail-dashboard.text_loading_dashboard")}</div>
   }
 
   if (error) {
@@ -128,10 +130,7 @@ export function ConferenceDetailDashboard({
       BACKEND REQUEST: <Implement GET /api/v1/conferences/:conference_id/stats; chair dashboard and conference analytics in frontend currently require synthetic/derived fallback metrics without an authoritative stats contract; return stable aggregates (submission totals, review progress, acceptance metrics, track/time breakdowns) with explicit field schema and empty-state behavior for new conferences.>
       */}
       <div className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-        Advanced analytics (review progress timelines, track-level acceptance, and operational
-        aggregates) require the backend conference stats contract and are intentionally shown as
-        unavailable until that endpoint exists.
-      </div>
+        {t("runtime.components.chair.conference-detail.conference-detail-dashboard.text_advanced_analytics_review_progress_timelines_track")}{" "}</div>
     </div>
   )
 }

@@ -1,6 +1,9 @@
+"use client"
+
 import { cn } from "@/lib/utils"
 import type { TabProps } from "./types"
 import { MemberAvatar } from "./components/member-avatar"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 // Consistent icon styling for 16px material symbols
 const iconStyle = {
@@ -35,6 +38,7 @@ function MemberCard({
   member: CommitteeMember
   variant?: "featured" | "default" | "compact"
 }) {
+  const { t } = useTranslation()
   if (variant === "featured") {
     return (
       <div 
@@ -151,6 +155,7 @@ function MemberCard({
 }
 
 export function CommitteeTab({ conference }: TabProps) {
+  const { t } = useTranslation()
   return (
     <div className="w-full space-y-6">
       {/* Header */}
@@ -158,10 +163,9 @@ export function CommitteeTab({ conference }: TabProps) {
         {/* Card Header */}
         <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
           <h2 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            Organizing Committee
-          </h2>
+            {t("runtime.components.author.conference-detail.committee-tab.text_organizing_committee")}{" "}</h2>
           <p className="text-[10px] text-slate-500 mt-0.5">
-            Meet the team behind {conference.name}.
+            {t("runtime.components.author.conference-detail.committee-tab.text_meet_the_team_behind")}{" "}{conference.name}.
           </p>
         </div>
 
@@ -170,8 +174,7 @@ export function CommitteeTab({ conference }: TabProps) {
           {/* General Chairs */}
           <div>
             <h3 className="text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
-              General Chairs
-            </h3>
+              {t("runtime.components.author.conference-detail.committee-tab.text_general_chairs")}{" "}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {conference.chair && (
                 <MemberCard
@@ -201,8 +204,7 @@ export function CommitteeTab({ conference }: TabProps) {
           {/* Program Chairs */}
           <div>
             <h3 className="text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
-              Program Chairs
-            </h3>
+              {t("runtime.components.author.conference-detail.committee-tab.text_program_chairs")}{" "}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {["Alex Brown", "Emily Zhang", "Robert Klein"].map((name) => (
                 <MemberCard
@@ -220,8 +222,7 @@ export function CommitteeTab({ conference }: TabProps) {
           {/* Area Chairs */}
           <div>
             <h3 className="text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
-              Area Chairs
-            </h3>
+              {t("runtime.components.author.conference-detail.committee-tab.text_area_chairs")}{" "}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
               {[
                 { name: "David Miller", track: "Reinforcement Learning" },
@@ -240,9 +241,8 @@ export function CommitteeTab({ conference }: TabProps) {
               ))}
               <div className="p-2.5 rounded-lg border border-slate-100 hover:border-slate-200 dark:border-slate-800 hover:shadow-sm transition-all bg-white dark:bg-slate-900 flex flex-col justify-center cursor-pointer group">
                 <div className="font-bold text-[#1B3C53] dark:text-white text-[12px] tracking-tight group-hover:text-blue-600">
-                  More Members
-                </div>
-                <div className="text-[10px] text-slate-500">View full list</div>
+                  {t("runtime.components.author.conference-detail.committee-tab.text_more_members")}{" "}</div>
+                <div className="text-[10px] text-slate-500">{t("runtime.components.author.conference-detail.committee-tab.text_view_full_list")}</div>
                 <div className="mt-1.5 flex">
                   <span
                     className="material-symbols-outlined text-slate-400 group-hover:text-blue-600"

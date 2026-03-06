@@ -1,6 +1,8 @@
 "use client"
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { tStatic as t } from "@/lib/i18n/static-translate"
 
 // =============================================================================
 // Feedback Field Configuration (Scholar-Compact)
@@ -17,7 +19,7 @@ interface FeedbackField {
 const FEEDBACK_FIELDS: FeedbackField[] = [
   {
     key: "summary",
-    label: "Summary of Contribution",
+    label: t("runtime.components.reviewer.submission-review.detailed-feedback.prop_label_summary_of_contribution"),
     placeholder: "Briefly describe the key claims and contributions in your own words...",
     tips: [
       "Explain the main problem being addressed",
@@ -28,7 +30,7 @@ const FEEDBACK_FIELDS: FeedbackField[] = [
   },
   {
     key: "strengths",
-    label: "Strengths",
+    label: t("runtime.components.reviewer.submission-review.detailed-feedback.prop_label_strengths"),
     placeholder: "Identify the innovative aspects and high-quality elements...",
     tips: [
       "Identify main contributions and innovations",
@@ -39,7 +41,7 @@ const FEEDBACK_FIELDS: FeedbackField[] = [
   },
   {
     key: "weaknesses",
-    label: "Weaknesses",
+    label: t("runtime.components.reviewer.submission-review.detailed-feedback.prop_label_weaknesses"),
     placeholder: "Identify technical flaws, missing experiments, or clarity issues...",
     tips: [
       "Be specific about technical issues",
@@ -50,7 +52,7 @@ const FEEDBACK_FIELDS: FeedbackField[] = [
   },
   {
     key: "questions",
-    label: "Questions for Authors",
+    label: t("runtime.components.reviewer.submission-review.detailed-feedback.prop_label_questions_for_authors"),
     placeholder: "Specific questions for authors to address during rebuttal...",
     tips: [
       "Ask clarifying questions about methodology",
@@ -73,6 +75,7 @@ interface FeedbackCardProps {
 }
 
 function FeedbackCard({ field, value, onChange, isLast = false }: FeedbackCardProps) {
+  const { t } = useTranslation()
   const wordCount = value.trim() ? value.trim().split(/\s+/).length : 0
 
   return (
@@ -166,11 +169,9 @@ export function DetailedFeedbackSection({
       {/* Header */}
       <div className="flex items-center justify-between mb-3 mt-3 border-b border-slate-100 pb-2 flex-shrink-0">
         <h2 className="font-bold text-sm text-[#1B3C53] tracking-tight uppercase">
-          Review Synthesis
-        </h2>
+          {t("runtime.components.reviewer.submission-review.detailed-feedback.text_review_synthesis")}{" "}</h2>
         <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">
-          {completedCount}/4 Completed
-        </span>
+          {completedCount}{t("runtime.components.reviewer.submission-review.detailed-feedback.text_4_completed")}{" "}</span>
       </div>
 
       {/* Feedback Fields */}

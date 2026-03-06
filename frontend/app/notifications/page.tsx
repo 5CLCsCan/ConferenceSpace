@@ -14,6 +14,7 @@ import type { Notification } from "@/lib/types"
 import { resolveNotificationActionUrl } from "@/lib/notifications/resolve-action-url"
 import { cn } from "@/lib/utils"
 import { getSidebarMenuItems } from "@/lib/navigation"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 function notificationKind(type: Notification["type"]): CardNotification["type"] {
   if (type === "deadline_reminder") return "deadline"
@@ -70,6 +71,7 @@ const PAGE_SIZE = 5
 
 
 export default function NotificationsPage() {
+  const { t } = useTranslation()
   const router = useRouter()
   const { currentRole, isAuthenticated, isAuthLoading } = useAuth()
   const {
@@ -197,11 +199,9 @@ export default function NotificationsPage() {
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-4">
             <div>
               <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white leading-none">
-                Notifications
-              </h1>
+                {t("runtime.app.notifications.page.text_notifications")}{" "}</h1>
               <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-2 max-w-xl">
-                Stay updated on submissions, reviews, deadlines, and discussion activity.
-              </p>
+                {t("runtime.app.notifications.page.text_stay_updated_on_submissions_reviews_deadlines")}{" "}</p>
             </div>
 
             <div className="absolute top-8 right-12 flex items-center gap-2">
@@ -209,8 +209,7 @@ export default function NotificationsPage() {
                 onClick={() => markAllAsRead()}
                 className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-800 rounded-full text-xs font-normal text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-neutral-700 transition-all shadow-sm"
               >
-                Mark all as read
-              </button>
+                {t("runtime.app.notifications.page.text_mark_all_as_read")}{" "}</button>
               <button className="p-2.5 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-800 rounded-full text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-neutral-700 transition-all shadow-sm">
                 <Settings2 className="w-3.5 h-3.5" />
               </button>
@@ -270,9 +269,9 @@ export default function NotificationsPage() {
 
           <div className="flex flex-col gap-4 pb-20">
             {isLoading ? (
-              <div className="text-sm text-slate-500">Loading notifications...</div>
+              <div className="text-sm text-slate-500">{t("runtime.app.notifications.page.text_loading_notifications")}</div>
             ) : error ? (
-              <div className="text-sm text-red-600">Failed to load notifications: {error.message}</div>
+              <div className="text-sm text-red-600">{t("runtime.app.notifications.page.text_failed_to_load_notifications")}{" "}{error.message}</div>
             ) : filteredNotifications.length > 0 ? (
               <>
                 <SectionLabel label="Latest" />

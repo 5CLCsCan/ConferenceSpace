@@ -4,6 +4,7 @@ import { useState } from "react"
 import type { ThreadCardProps } from "../types"
 import { StatusBadge, CategoryTag, VisibilityIndicator } from "./badges"
 import { MessageItem } from "./message-item"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export function ThreadCard({
   thread,
@@ -13,6 +14,7 @@ export function ThreadCard({
   onReply,
   readOnly = false,
 }: ThreadCardProps) {
+  const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(!thread.isCollapsed)
   const [replyText, setReplyText] = useState("")
   const [showReplyBox, setShowReplyBox] = useState(false)
@@ -170,7 +172,7 @@ export function ThreadCard({
               <textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Write a reply..."
+                placeholder={t("runtime.components.shared.discussion.components.thread-card.placeholder_write_a_reply")}
                 className="w-full px-3 py-2 text-xs text-slate-700 placeholder-slate-400 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-[#1B3C53] focus:ring-1 focus:ring-[#1B3C53]/20 resize-none"
                 rows={3}
                 autoFocus
@@ -232,15 +234,13 @@ export function ThreadCard({
                     }}
                     className="h-7 px-3 text-[11px] font-medium text-slate-600 hover:text-slate-800 transition-colors"
                   >
-                    Cancel
-                  </button>
+                    {t("runtime.components.shared.discussion.components.thread-card.text_cancel")}{" "}</button>
                   <button
                     onClick={handleReply}
                     disabled={!replyText.trim()}
                     className="h-7 px-3 bg-[#1B3C53] hover:bg-[#234C6A] disabled:bg-slate-300 text-white text-[11px] font-medium rounded-md transition-colors disabled:cursor-not-allowed"
                   >
-                    Reply
-                  </button>
+                    {t("runtime.components.shared.discussion.components.thread-card.text_reply")}{" "}</button>
                 </div>
               </div>
             </div>
@@ -270,8 +270,7 @@ export function ThreadCard({
               >
                 reply
               </span>
-              Reply to thread
-            </button>
+              {t("runtime.components.shared.discussion.components.thread-card.text_reply_to_thread")}{" "}</button>
           )}
         </div>
       )}

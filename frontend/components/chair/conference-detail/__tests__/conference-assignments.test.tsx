@@ -4,6 +4,22 @@ import { ConferenceAssignments } from "../conference-assignments"
 import * as suggestionsApi from "@/lib/api/suggestions"
 import * as conferencesApi from "@/lib/api/conferences"
 
+vi.mock("@/lib/i18n/translation-context", async () => {
+  const { tStatic } = await vi.importActual<typeof import("@/lib/i18n/static-translate")>(
+    "@/lib/i18n/static-translate",
+  )
+
+  return {
+    useTranslation: () => ({
+      locale: "en",
+      messages: {},
+      setLocale: vi.fn(),
+      t: tStatic,
+      tList: () => [],
+    }),
+  }
+})
+
 // Mock the API modules
 vi.mock("@/lib/api/suggestions", () => ({
   getSuggestions: vi.fn(),
@@ -26,6 +42,7 @@ describe("ConferenceAssignments", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    localStorage.setItem("conference_locale", "en")
   })
 
   afterEach(() => {
@@ -247,7 +264,9 @@ describe("ConferenceAssignments", () => {
         expect(screen.getByText("#1 - Machine Learning Paper")).toBeInTheDocument()
         expect(screen.getByText("alice@example.com")).toBeInTheDocument()
         expect(screen.getByText("bob@example.com")).toBeInTheDocument()
-        expect(screen.getByText("2 suggested reviewers")).toBeInTheDocument()
+        expect(
+          screen.getByText((_, element) => element?.textContent?.replace(/\s+/g, " ").trim() === "2 suggested reviewer s"),
+        ).toBeInTheDocument()
       })
     })
 

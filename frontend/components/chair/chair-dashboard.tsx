@@ -13,6 +13,7 @@ import { ROUTES } from "@/lib/routes"
 import { listConferences } from "@/lib/api/conferences"
 import { getConferenceSubmissions } from "@/lib/api/submissions"
 import type { Conference } from "@/lib/types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface DashboardMetrics {
   totalSubmissions: number
@@ -64,7 +65,11 @@ function daysUntil(value?: string): number | null {
   return Math.ceil(delta / (1000 * 60 * 60 * 24))
 }
 
-function buildAction(conference: Conference, submissionTotal: number): DashboardAction {
+function buildAction(
+  conference: Conference,
+  submissionTotal: number,
+  t: (key: string) => string,
+): DashboardAction {
   const dueInDays = daysUntil(conference.submission_deadline)
   const isOverdue = typeof dueInDays === "number" && dueInDays < 0
   const priority: ActionPriority = isOverdue
@@ -79,7 +84,7 @@ function buildAction(conference: Conference, submissionTotal: number): Dashboard
     conferenceName: conference.name,
     year: String(conference.year),
     priority,
-    title: "Monitor Submissions & Reviews",
+    title: t("runtime.components.chair.chair-dashboard.prop_title_monitor_submissions_reviews"),
     description: `${submissionTotal} submission${submissionTotal === 1 ? "" : "s"} in this conference.`,
     dueLabel:
       dueInDays === null
@@ -96,6 +101,7 @@ function buildAction(conference: Conference, submissionTotal: number): Dashboard
 }
 
 export default function ChairDashboard() {
+  const { t } = useTranslation()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -150,7 +156,7 @@ export default function ChairDashboard() {
 
         setActions(
           totals
-            .map((item) => buildAction(item.conference, item.total))
+            .map((item) => buildAction(item.conference, item.total, t))
             .sort((a, b) => {
               const aOverdue = a.isOverdue ? 0 : 1
               const bOverdue = b.isOverdue ? 0 : 1
@@ -167,7 +173,7 @@ export default function ChairDashboard() {
     }
 
     void loadDashboard()
-  }, [])
+  }, [t])
 
   const lastUpdated = useMemo(() => new Date().toLocaleTimeString(), [])
 
@@ -176,24 +182,22 @@ export default function ChairDashboard() {
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
           <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white leading-[1.1]">
-            Chair Dashboard
-          </h1>
+            {t("runtime.components.chair.chair-dashboard.text_chair_dashboard")}{" "}</h1>
           <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
-            Overview &amp; management across your conferences.
-          </p>
+            {t("runtime.components.chair.chair-dashboard.text_overview_amp_management_across_your_conferences")}{" "}</p>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">
-            Last updated: {lastUpdated}
+            {t("runtime.components.chair.chair-dashboard.text_last_updated")}{" "}{lastUpdated}
           </span>
         </div>
       </div>
 
       {loading ? (
-        <div className="text-sm text-slate-500">Loading dashboard...</div>
+        <div className="text-sm text-slate-500">{t("runtime.components.chair.chair-dashboard.text_loading_dashboard")}</div>
       ) : error ? (
         <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-          Failed to load dashboard: {error}
+          {t("runtime.components.chair.chair-dashboard.text_failed_to_load_dashboard")}{" "}{error}
         </div>
       ) : (
         <>
@@ -214,7 +218,7 @@ export default function ChairDashboard() {
 
           <div className="flex flex-col gap-2">
             <SectionHeader
-              title="Actions Required"
+              title={t("runtime.components.chair.chair-dashboard.title_actions_required")}
               actionLabel="View all"
               onAction={() => router.push(ROUTES.CHAIR.CONFERENCES)}
             />
@@ -222,8 +226,7 @@ export default function ChairDashboard() {
             <ActionCardList>
               {actions.length === 0 ? (
                 <div className="rounded-lg border border-slate-200 bg-white p-4 text-xs text-slate-500">
-                  No conference actions found.
-                </div>
+                  {t("runtime.components.chair.chair-dashboard.text_no_conference_actions_found")}{" "}</div>
               ) : (
                 actions.map((action) => (
                   <ActionCard

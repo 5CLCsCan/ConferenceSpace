@@ -2,8 +2,10 @@
 
 import { PHASE_CONFIG, PHASE_DESCRIPTIONS_BY_ROLE } from "../config"
 import type { PhaseHeaderProps } from "../types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export function PhaseHeader({ settings, userRole = "reviewer" }: PhaseHeaderProps) {
+  const { t } = useTranslation()
   const phase = PHASE_CONFIG[settings.phase]
   const description = PHASE_DESCRIPTIONS_BY_ROLE[settings.phase][userRole]
 
@@ -62,11 +64,9 @@ export function PhaseHeader({ settings, userRole = "reviewer" }: PhaseHeaderProp
             >schedule</span>
             <div className="text-right">
               <div className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
-                Response Deadline
-              </div>
+                {t("runtime.components.shared.rebuttal.components.phase-header.text_response_deadline")}{" "}</div>
               <div className="text-[11px] font-medium text-amber-600">
-                {settings.daysRemaining} days remaining
-              </div>
+                {settings.daysRemaining} {t("runtime.components.shared.rebuttal.components.phase-header.text_days_remaining")}{" "}</div>
             </div>
           </div>
         )}

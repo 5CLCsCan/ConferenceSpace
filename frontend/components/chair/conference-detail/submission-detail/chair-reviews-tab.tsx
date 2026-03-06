@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import type { SubmissionDetail, ReviewerDecision } from "./types"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { tStatic as t } from "@/lib/i18n/static-translate"
 
 // --- Types ---
 interface ReviewerScore {
@@ -116,16 +118,16 @@ const MOCK_REBUTTAL_POINTS: RebuttalPoint[] = [
 
 // --- Helper functions ---
 const CATEGORY_CONFIG: Record<string, { icon: string; color: string; label: string }> = {
-  weakness: { icon: "warning", color: "text-amber-500", label: "Weakness" },
-  question: { icon: "help", color: "text-blue-500", label: "Question" },
-  suggestion: { icon: "lightbulb", color: "text-purple-500", label: "Suggestion" },
+  weakness: { icon: "warning", color: "text-amber-500", label: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_label_weakness") },
+  question: { icon: "help", color: "text-blue-500", label: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_label_question") },
+  suggestion: { icon: "lightbulb", color: "text-purple-500", label: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_label_suggestion") },
 }
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
-  pending_review: { label: "Pending", bg: "bg-slate-100", text: "text-slate-600" },
-  addressed: { label: "Addressed", bg: "bg-emerald-50", text: "text-emerald-600" },
-  partially_addressed: { label: "Partial", bg: "bg-amber-50", text: "text-amber-600" },
-  not_addressed: { label: "Not Addressed", bg: "bg-red-50", text: "text-red-600" },
+  pending_review: { label: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_label_pending"), bg: "bg-slate-100", text: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_text_text_slate_600") },
+  addressed: { label: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_label_addressed"), bg: "bg-emerald-50", text: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_text_text_emerald_600") },
+  partially_addressed: { label: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_label_partial"), bg: "bg-amber-50", text: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_text_text_amber_600") },
+  not_addressed: { label: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_label_not_addressed"), bg: "bg-red-50", text: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_text_text_red_600") },
 }
 
 function getRecommendationLabel(rec: string): string {
@@ -160,6 +162,7 @@ function DecisionMakingPanel({
   onDecision: (decision: string) => void
   reviewers: ReviewerScore[]
 }) {
+  const { t } = useTranslation()
   const [notes, setNotes] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isNotesExpanded, setIsNotesExpanded] = useState(false)
@@ -167,35 +170,35 @@ function DecisionMakingPanel({
   const decisions = [
     {
       key: "accept",
-      label: "Accept",
+      label: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_label_accept"),
       icon: "check_circle",
-      description: "Ready for publication",
+      description: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_description_ready_for_publication"),
       activeStyle: "bg-emerald-600 text-white border-emerald-600",
       inactiveStyle:
         "bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-200 hover:border-emerald-400",
     },
     {
       key: "minor",
-      label: "Minor Revision",
+      label: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_label_minor_revision"),
       icon: "edit_note",
-      description: "Small changes needed",
+      description: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_description_small_changes_needed"),
       activeStyle: "bg-sky-600 text-white border-sky-600",
       inactiveStyle: "bg-white hover:bg-sky-50 text-sky-700 border-sky-200 hover:border-sky-400",
     },
     {
       key: "major",
-      label: "Major Revision",
+      label: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_label_major_revision"),
       icon: "rate_review",
-      description: "Significant changes required",
+      description: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_description_significant_changes_required"),
       activeStyle: "bg-amber-600 text-white border-amber-600",
       inactiveStyle:
         "bg-white hover:bg-amber-50 text-amber-700 border-amber-200 hover:border-amber-400",
     },
     {
       key: "reject",
-      label: "Reject",
+      label: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_label_reject"),
       icon: "cancel",
-      description: "Does not meet standards",
+      description: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_description_does_not_meet_standards"),
       activeStyle: "bg-red-600 text-white border-red-600",
       inactiveStyle: "bg-white hover:bg-red-50 text-red-600 border-red-200 hover:border-red-400",
     },
@@ -214,8 +217,7 @@ function DecisionMakingPanel({
       {/* Decision Options */}
       <div className="p-4 space-y-2">
         <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-          Select Decision
-        </div>
+          {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_select_decision")}{" "}</div>
         {decisions.map((d) => {
           const isActive = currentDecision === d.key
           return (
@@ -260,8 +262,7 @@ function DecisionMakingPanel({
             <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
               lock
             </span>
-            Private Notes
-          </div>
+            {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_private_notes")}{" "}</div>
           <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
             {isNotesExpanded ? "expand_less" : "expand_more"}
           </span>
@@ -272,11 +273,10 @@ function DecisionMakingPanel({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="w-full border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] focus:border-[#1B3C53] focus:ring-1 focus:ring-[#1B3C53]/20 resize-none h-20 placeholder:text-slate-300 bg-white dark:bg-slate-800 p-2.5"
-              placeholder="Internal notes visible only to chairs..."
+              placeholder={t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.placeholder_internal_notes_visible_only_to_chairs")}
             />
             <div className="text-[9px] text-slate-400 mt-1">
-              These notes are private and will not be shared with authors or reviewers.
-            </div>
+              {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_these_notes_are_private_and_will")}{" "}</div>
           </>
         )}
       </div>
@@ -298,21 +298,18 @@ function DecisionMakingPanel({
               <span className="material-symbols-outlined animate-spin" style={{ fontSize: "16px" }}>
                 progress_activity
               </span>
-              Submitting...
-            </>
+              {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_submitting")}{" "}</>
           ) : (
             <>
               <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
                 send
               </span>
-              Submit Decision
-            </>
+              {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_submit_decision")}{" "}</>
           )}
         </button>
         {!currentDecision && (
           <div className="text-[9px] text-slate-400 text-center mt-2">
-            Select a decision above to continue
-          </div>
+            {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_select_a_decision_above_to_continue")}{" "}</div>
         )}
       </div>
     </div>
@@ -330,8 +327,7 @@ function ReviewerScoresPanel({ reviewers }: { reviewers: ReviewerScore[] }) {
     <div className="bg-white border border-slate-200 rounded-xl p-4 mb-5">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-          Reviewer Scores
-        </h3>
+          {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_reviewer_scores")}{" "}</h3>
         {updatedCount > 0 && (
           <span className="text-[9px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
             {updatedCount} score{updatedCount > 1 ? "s" : ""} updated
@@ -345,7 +341,7 @@ function ReviewerScoresPanel({ reviewers }: { reviewers: ReviewerScore[] }) {
           <span className="text-[28px] font-black text-[#1B3C53] leading-none">
             {avgCurrent.toFixed(1)}
           </span>
-          <span className="text-[10px] text-slate-400 font-medium">avg. score</span>
+          <span className="text-[10px] text-slate-400 font-medium">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_avg_score")}</span>
         </div>
       </div>
 
@@ -363,7 +359,7 @@ function ReviewerScoresPanel({ reviewers }: { reviewers: ReviewerScore[] }) {
               <span className="text-[12px] font-medium text-slate-700">{reviewer.anonymousId}</span>
             </div>
             <div className="text-right">
-              <div className="text-[9px] text-slate-400 uppercase tracking-wider">Score</div>
+              <div className="text-[9px] text-slate-400 uppercase tracking-wider">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_score")}</div>
               <div className="text-[12px] font-bold text-[#1B3C53]">
                 {reviewer.updated ? (
                   <>
@@ -379,7 +375,7 @@ function ReviewerScoresPanel({ reviewers }: { reviewers: ReviewerScore[] }) {
               </div>
             </div>
             <div className="text-right w-24">
-              <div className="text-[9px] text-slate-400 uppercase tracking-wider">Rec.</div>
+              <div className="text-[9px] text-slate-400 uppercase tracking-wider">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_rec")}</div>
               <div
                 className={cn(
                   "text-[11px] font-bold",
@@ -440,11 +436,11 @@ function PointCard({ point, reviewerLabel }: { point: RebuttalPoint; reviewerLab
         <div className="px-4 py-4">
           <div className="flex gap-3">
             <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
-              <span className="text-[9px] font-bold">A</span>
+              <span className="text-[9px] font-bold">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_a")}</span>
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-bold text-slate-500">Author Response</span>
+                <span className="text-[10px] font-bold text-slate-500">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_author_response")}</span>
               </div>
               <p
                 className="text-xs text-slate-700 leading-relaxed"
@@ -463,17 +459,14 @@ function PointCard({ point, reviewerLabel }: { point: RebuttalPoint; reviewerLab
             <div className="mt-3 ml-9 pl-3 border-l-2 border-slate-200">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
-                  Reviewer Response
-                </span>
+                  {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_reviewer_response")}{" "}</span>
                 {point.reviewerAcknowledgment.satisfactory && (
                   <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
-                    Satisfied
-                  </span>
+                    {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_satisfied")}{" "}</span>
                 )}
                 {point.reviewerAcknowledgment.satisfactory === false && (
                   <span className="text-[8px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
-                    Concerns Remain
-                  </span>
+                    {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_concerns_remain")}{" "}</span>
                 )}
               </div>
               {point.reviewerAcknowledgment.note && (
@@ -515,13 +508,12 @@ function ReviewerResponseGroup({
             {reviewerLabel.replace("Reviewer #", "R")}
           </div>
           <div className="text-left">
-            <div className="text-[12px] font-bold text-slate-700">Response to {reviewerLabel}</div>
+            <div className="text-[12px] font-bold text-slate-700">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_response_to")}{" "}{reviewerLabel}</div>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="text-[9px] text-slate-500">{points.length} points</span>
               {addressedCount === points.length && (
                 <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
-                  All addressed
-                </span>
+                  {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_all_addressed")}{" "}</span>
               )}
               {pendingCount > 0 && (
                 <span className="text-[8px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
@@ -573,8 +565,7 @@ function PointByPointSection({
     <div className="mb-5">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-          Point-by-Point Responses
-        </h3>
+          {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_point_by_point_responses")}{" "}</h3>
         <div className="flex items-center gap-3 text-[10px]">
           <span className="text-slate-500">
             <span className="font-bold text-[#1B3C53]">{totalPoints}</span> total

@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import { Loader2, ArrowLeft, BookOpen, ExternalLink, Unlink } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { ROUTES } from "@/lib/routes"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 const EMPTY_FORM: ProfileFormData = {
   firstName: "",
@@ -36,6 +37,7 @@ const normalizeDomains = (domains: unknown): string[] => {
 }
 
 export default function UserProfilePage() {
+  const { t } = useTranslation()
   const params = useParams()
   const router = useRouter()
   const { toast } = useToast()
@@ -160,8 +162,8 @@ export default function UserProfilePage() {
     const targetId = Number(profile.id)
     if (!Number.isFinite(targetId) || targetId <= 0) {
       toast({
-        title: "Unable to save",
-        description: "Missing profile id.",
+        title: t("runtime.app.profile.user_id.page.prop_title_unable_to_save"),
+        description: t("runtime.app.profile.user_id.page.prop_description_missing_profile_id"),
         variant: "destructive",
       })
       return
@@ -185,7 +187,7 @@ export default function UserProfilePage() {
         body: JSON.stringify(payload),
       })
 
-      toast({ title: "Profile updated", description: "Your profile was saved successfully." })
+      toast({ title: t("runtime.app.profile.user_id.page.prop_title_profile_updated"), description: t("runtime.app.profile.user_id.page.prop_description_your_profile_was_saved_successfully") })
       await refreshUser()
 
       setProfile((prev) =>
@@ -208,8 +210,8 @@ export default function UserProfilePage() {
       }
 
       toast({
-        title: "Unable to save",
-        description: "Please try again.",
+        title: t("runtime.app.profile.user_id.page.prop_title_unable_to_save"),
+        description: t("runtime.app.profile.user_id.page.prop_description_please_try_again"),
         variant: "destructive",
       })
     } finally {
@@ -269,8 +271,8 @@ export default function UserProfilePage() {
       await refreshAcademicProfile()
       await refreshUser()
       toast({
-        title: "Academic profile unlinked",
-        description: "Your Semantic Scholar profile has been disconnected.",
+        title: t("runtime.app.profile.user_id.page.prop_title_academic_profile_unlinked"),
+        description: t("runtime.app.profile.user_id.page.prop_description_your_semantic_scholar_profile_has_been"),
       })
     } catch (error) {
       if (error instanceof UnauthorizedError) {
@@ -279,8 +281,8 @@ export default function UserProfilePage() {
       }
 
       toast({
-        title: "Unable to unlink",
-        description: "Please try again.",
+        title: t("runtime.app.profile.user_id.page.prop_title_unable_to_unlink"),
+        description: t("runtime.app.profile.user_id.page.prop_description_please_try_again"),
         variant: "destructive",
       })
     } finally {
@@ -307,11 +309,10 @@ export default function UserProfilePage() {
         <DashboardHeader />
         <main className="container mx-auto px-4 py-10">
           <div className="max-w-xl mx-auto bg-white border rounded-xl p-8 text-center space-y-4">
-            <h1 className="text-2xl font-bold text-neutral-900">Profile Not Found</h1>
+            <h1 className="text-2xl font-bold text-neutral-900">{t("runtime.app.profile.user_id.page.text_profile_not_found")}</h1>
             <p className="text-neutral-600">
-              We could not resolve this profile id. Please return to the previous page.
-            </p>
-            <Button onClick={() => router.back()}>Go Back</Button>
+              {t("runtime.app.profile.user_id.page.text_we_could_not_resolve_this_profile")}{" "}</p>
+            <Button onClick={() => router.back()}>{t("runtime.app.profile.user_id.page.text_go_back")}</Button>
           </div>
         </main>
       </div>
@@ -330,8 +331,7 @@ export default function UserProfilePage() {
           }
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
+          {t("runtime.app.profile.user_id.page.text_back")}{" "}</Button>
 
         <Card className="py-6">
           <CardHeader>
@@ -340,7 +340,7 @@ export default function UserProfilePage() {
           <CardContent className="space-y-6">
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="first-name">First name</Label>
+                <Label htmlFor="first-name">{t("runtime.app.profile.user_id.page.text_first_name")}</Label>
                 <Input
                   id="first-name"
                   value={formData.firstName}
@@ -350,7 +350,7 @@ export default function UserProfilePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="last-name">Last name</Label>
+                <Label htmlFor="last-name">{t("runtime.app.profile.user_id.page.text_last_name")}</Label>
                 <Input
                   id="last-name"
                   value={formData.lastName}
@@ -361,7 +361,7 @@ export default function UserProfilePage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("runtime.app.profile.user_id.page.text_email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -375,7 +375,7 @@ export default function UserProfilePage() {
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <BookOpen className="h-4 w-4 text-neutral-600" />
-                  <span className="text-sm font-medium">Academic Profile</span>
+                  <span className="text-sm font-medium">{t("runtime.app.profile.user_id.page.text_academic_profile")}</span>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -388,15 +388,13 @@ export default function UserProfilePage() {
                         className="gap-1.5"
                       >
                         <ExternalLink className="h-3.5 w-3.5" />
-                        View
-                      </a>
+                        {t("runtime.app.profile.user_id.page.text_view")}{" "}</a>
                     </Button>
                   )}
 
                   {isOwnProfile && !academicProfile && (
                     <Button size="sm" onClick={() => setShowOnboarding(true)}>
-                      Connect
-                    </Button>
+                      {t("runtime.app.profile.user_id.page.text_connect")}{" "}</Button>
                   )}
 
                   {isOwnProfile && academicProfile && (
@@ -411,8 +409,7 @@ export default function UserProfilePage() {
                       ) : (
                         <Unlink className="h-3.5 w-3.5" />
                       )}
-                      Unlink
-                    </Button>
+                      {t("runtime.app.profile.user_id.page.text_unlink")}{" "}</Button>
                   )}
                 </div>
               </div>
@@ -422,7 +419,7 @@ export default function UserProfilePage() {
                   <div className="grid grid-cols-3 gap-2">
                     <div className="rounded-md border bg-white p-2 text-center">
                       <p className="text-lg font-semibold">{academicProfile.hIndex}</p>
-                      <p className="text-[10px] text-neutral-500 uppercase">h-index</p>
+                      <p className="text-[10px] text-neutral-500 uppercase">{t("runtime.app.profile.user_id.page.text_h_index")}</p>
                     </div>
                     <div className="rounded-md border bg-white p-2 text-center">
                       <p className="text-lg font-semibold">{academicProfile.citationCount}</p>
@@ -435,7 +432,7 @@ export default function UserProfilePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <p className="text-xs font-medium text-neutral-600">Synced Publications</p>
+                    <p className="text-xs font-medium text-neutral-600">{t("runtime.app.profile.user_id.page.text_synced_publications")}</p>
                     {academicProfile.papers?.length ? (
                       <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
                         {academicProfile.papers.slice(0, 20).map((paper) => (
@@ -450,8 +447,7 @@ export default function UserProfilePage() {
                       </div>
                     ) : (
                       <p className="text-xs text-neutral-500">
-                        Profile linked, but no publications are currently available.
-                      </p>
+                        {t("runtime.app.profile.user_id.page.text_profile_linked_but_no_publications_are")}{" "}</p>
                     )}
                   </div>
                 </div>
@@ -465,7 +461,7 @@ export default function UserProfilePage() {
             </div>
 
             <div className="space-y-3">
-              <Label>Domains</Label>
+              <Label>{t("runtime.app.profile.user_id.page.text_domains")}</Label>
 
               {isOwnProfile && (
                 <div className="flex gap-2">
@@ -479,7 +475,7 @@ export default function UserProfilePage() {
                         addDomain()
                       }
                     }}
-                    placeholder="Add a domain"
+                    placeholder={t("runtime.app.profile.user_id.page.placeholder_add_a_domain")}
                   />
                   <Button
                     type="button"
@@ -487,8 +483,7 @@ export default function UserProfilePage() {
                     onClick={addDomain}
                     disabled={saving || !domainInput.trim()}
                   >
-                    Add
-                  </Button>
+                    {t("runtime.app.profile.user_id.page.text_add")}{" "}</Button>
                 </div>
               )}
 
@@ -509,7 +504,7 @@ export default function UserProfilePage() {
                     </Badge>
                   ))
                 ) : (
-                  <span className="text-sm text-neutral-500">No domains listed</span>
+                  <span className="text-sm text-neutral-500">{t("runtime.app.profile.user_id.page.text_no_domains_listed")}</span>
                 )}
               </div>
             </div>
@@ -523,8 +518,7 @@ export default function UserProfilePage() {
                   }
                   disabled={saving}
                 >
-                  Reset
-                </Button>
+                  {t("runtime.app.profile.user_id.page.text_reset")}{" "}</Button>
                 <Button onClick={handleSave} disabled={saving}>
                   {saving ? "Saving..." : "Save"}
                 </Button>

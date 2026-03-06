@@ -114,18 +114,16 @@ export default function RegisterPage() {
             </span>
           </div>
           <div className="auth-brand-content">
-            <p className="auth-brand-label">CONFERENCESPACE</p>
-            <h1 className="auth-brand-headline">Join the academic research community.</h1>
+            <p className="auth-brand-label">{t("runtime.app.register.page.text_conferencespace")}</p>
+            <h1 className="auth-brand-headline">{t("runtime.app.register.page.text_join_the_academic_research_community")}</h1>
             <p className="auth-brand-sub">
-              Create your scholar account to submit papers, review manuscripts, and chair
-              conferences.
-            </p>
+              {t("runtime.app.register.page.text_create_your_scholar_account_to_submit")}{" "}</p>
           </div>
           <div className="auth-brand-features">
             {[
-              { icon: "edit_document", text: "Paper submission & tracking" },
-              { icon: "rate_review", text: "Structured peer review" },
-              { icon: "diversity_3", text: "Conference management" },
+              { icon: "edit_document", text: t("runtime.app.register.page.prop_text_paper_submission_tracking") },
+              { icon: "rate_review", text: t("runtime.app.register.page.prop_text_structured_peer_review") },
+              { icon: "diversity_3", text: t("runtime.app.register.page.prop_text_conference_management") },
             ].map(({ icon, text }) => (
               <div key={text} className="auth-feature-row">
                 <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
@@ -166,7 +164,7 @@ export default function RegisterPage() {
                 <input
                   id="firstName"
                   type="text"
-                  placeholder="Ada"
+                  placeholder={t("runtime.app.register.page.placeholder_ada")}
                   value={formData.firstName}
                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                   required
@@ -182,7 +180,7 @@ export default function RegisterPage() {
                 <input
                   id="lastName"
                   type="text"
-                  placeholder="Lovelace"
+                  placeholder={t("runtime.app.register.page.placeholder_lovelace")}
                   value={formData.lastName}
                   onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                   required
@@ -201,7 +199,7 @@ export default function RegisterPage() {
               <input
                 id="email"
                 type="email"
-                placeholder="ada.lovelace@example.com"
+                placeholder={t("runtime.app.register.page.placeholder_ada_lovelace_example_com")}
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
@@ -220,7 +218,7 @@ export default function RegisterPage() {
                 <input
                   id="domain"
                   type="text"
-                  placeholder="Machine Learning"
+                  placeholder={t("runtime.app.register.page.placeholder_machine_learning")}
                   value={domainInput}
                   onChange={(e) => setDomainInput(e.target.value)}
                   onKeyDown={(e) => {
@@ -237,7 +235,7 @@ export default function RegisterPage() {
                   onClick={handleAddDomain}
                   disabled={isLoading}
                   className="auth-domain-add-btn"
-                  aria-label="Add domain"
+                  aria-label={t("runtime.app.register.page.aria_label_add_domain")}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
                     add
@@ -393,7 +391,7 @@ export default function RegisterPage() {
                 </button>
               </div>
               {formData.confirmPassword && formData.password !== formData.confirmPassword && (
-                <p className="auth-field-error">Passwords do not match</p>
+                <p className="auth-field-error">{t("runtime.app.register.page.text_passwords_do_not_match")}</p>
               )}
             </div>
 
@@ -401,7 +399,7 @@ export default function RegisterPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="h-3 w-3 animate-spin" />
-                  <span>Creating account...</span>
+                  <span>{t("runtime.app.register.page.text_creating_account")}</span>
                 </>
               ) : (
                 t("common.actions.signUp")

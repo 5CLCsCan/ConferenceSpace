@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { apiFetch } from "@/lib/api/client"
 import type { Author } from "./types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface UserSearchResult {
   id: number
@@ -40,6 +41,7 @@ export function AuthorsStep({
   onReorder,
   currentUserEmail,
 }: AuthorsStepProps) {
+  const { t } = useTranslation()
   const [searchResults, setSearchResults] = useState<UserSearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
@@ -49,7 +51,11 @@ export function AuthorsStep({
   // A9: Inline edit state
   const [editingAuthorId, setEditingAuthorId] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<{
-    firstName: string; lastName: string; email: string; affiliation: string; country: string
+    firstName: string
+    lastName: string
+    email: string
+    affiliation: string
+    country: string
   }>({ firstName: "", lastName: "", email: "", affiliation: "", country: "" })
 
   // A10: Drag state
@@ -173,13 +179,15 @@ export function AuthorsStep({
       <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
-            Author List ({authors.length})
+            {t("runtime.components.author.submit.authors-step.text_author_list")}
+            {authors.length})
           </h3>
           <button
             onClick={() => setShowGuidelines(true)}
-            className="text-[10px] font-medium text-[#1B3C53] dark:text-slate-400 hover:underline flex items-center gap-1 uppercase tracking-wider">
+            className="text-[10px] font-medium text-[#1B3C53] dark:text-slate-400 hover:underline flex items-center gap-1 uppercase tracking-wider"
+          >
             <span className="material-symbols-outlined text-[14px]">info</span>
-            Naming Guidelines
+            {t("runtime.components.author.submit.authors-step.text_naming_guidelines")}{" "}
           </button>
         </div>
         <div className="flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
@@ -195,8 +203,8 @@ export function AuthorsStep({
                 dragOverIndex === index && draggedIndex !== index
                   ? "bg-[#1B3C53]/5 border-t-2 border-[#1B3C53]"
                   : draggedIndex === index
-                  ? "opacity-40"
-                  : "hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                    ? "opacity-40"
+                    : "hover:bg-slate-50 dark:hover:bg-slate-700/50"
               }`}
             >
               {/* A10: Drag handle */}
@@ -278,45 +286,44 @@ export function AuthorsStep({
                   </div>
                 </div>
               ) : (
-              <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 gap-2">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-bold text-[#141414] dark:text-white truncate">
-                      {author.firstName} {author.lastName}
-                    </h4>
-                    {currentUserEmail && author.email === currentUserEmail && (
-                      <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 uppercase tracking-wide">
-                        You
-                      </span>
-                    )}
+                <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-xs font-bold text-[#141414] dark:text-white truncate">
+                        {author.firstName} {author.lastName}
+                      </h4>
+                      {currentUserEmail && author.email === currentUserEmail && (
+                        <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 uppercase tracking-wide">
+                          {t("runtime.components.author.submit.authors-step.text_you")}{" "}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-slate-500 truncate">{author.email}</p>
                   </div>
-                  <p className="text-[11px] text-slate-500 truncate">{author.email}</p>
+                  <div>
+                    <p className="text-[11px] font-medium text-[#141414] dark:text-white truncate">
+                      {author.affiliation}
+                    </p>
+                    <p className="text-[10px] text-slate-400 truncate">{author.country}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-[11px] font-medium text-[#141414] dark:text-white truncate">
-                    {author.affiliation}
-                  </p>
-                  <p className="text-[10px] text-slate-400 truncate">{author.country}</p>
-                </div>
-              </div>
               )}
               <div className="flex items-center gap-2 w-full md:w-auto mt-2 md:mt-0 justify-between md:justify-end">
                 {editingAuthorId === author.id ? (
-                  /* A9: Save / Cancel when editing */
                   <div className="flex items-center gap-1.5">
                     <button
                       type="button"
                       onClick={saveEditing}
                       className="h-7 px-3 rounded-md text-[10px] font-medium bg-[#1B3C53] text-white hover:bg-[#234C6A] transition-colors"
                     >
-                      Save
+                      {t("runtime.components.author.submit.authors-step.text_save")}
                     </button>
                     <button
                       type="button"
                       onClick={() => setEditingAuthorId(null)}
                       className="h-7 px-3 rounded-md text-[10px] font-medium text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                     >
-                      Cancel
+                      {t("runtime.components.author.submit.authors-step.text_cancel")}
                     </button>
                   </div>
                 ) : (
@@ -327,14 +334,19 @@ export function AuthorsStep({
                           type="checkbox"
                           checked={author.isCorresponding}
                           onChange={() => onToggleCorresponding(author.id)}
-                          className="peer appearance-none size-4 rounded border border-slate-300 bg-white checked:bg-[#1B3C53] checked:border-[#1B3C53] transition-all"
+                          disabled={index === 0}
+                          className={`peer appearance-none size-4 rounded border border-slate-300 bg-white checked:bg-[#1B3C53] checked:border-[#1B3C53] transition-all ${
+                            index === 0 ? "cursor-not-allowed opacity-60" : ""
+                          }`}
                         />
                         <span className="absolute inset-0 flex items-center justify-center text-white opacity-0 peer-checked:opacity-100 pointer-events-none">
-                          <span className="material-symbols-outlined text-[12px] font-bold">check</span>
+                          <span className="material-symbols-outlined text-[12px] font-bold">
+                            check
+                          </span>
                         </span>
                       </div>
                       <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-                        Correspondent
+                        {t("runtime.components.author.submit.authors-step.text_correspondent")}{" "}
                       </span>
                     </label>
                     <div className="flex items-center border-l border-slate-200 dark:border-slate-600 pl-2 ml-1">
@@ -342,15 +354,20 @@ export function AuthorsStep({
                         type="button"
                         onClick={() => startEditing(author)}
                         className="p-1.5 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors rounded hover:bg-slate-100 dark:hover:bg-slate-600"
-                        title="Edit details"
+                        title={t(
+                          "runtime.components.author.submit.authors-step.title_edit_details",
+                        )}
                       >
                         <span className="material-symbols-outlined text-[16px]">edit</span>
                       </button>
                       {index > 0 && (
                         <button
+                          type="button"
                           onClick={() => onRemoveAuthor(author.id)}
                           className="p-1.5 text-slate-400 hover:text-red-600 transition-colors rounded hover:bg-red-50 dark:hover:bg-red-900/20"
-                          title="Remove author"
+                          title={t(
+                            "runtime.components.author.submit.authors-step.title_remove_author",
+                          )}
                         >
                           <span className="material-symbols-outlined text-[16px]">delete</span>
                         </button>
@@ -368,31 +385,33 @@ export function AuthorsStep({
       <div className="px-4 pt-4 pb-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-300 dark:border-slate-600">
         <div className="border-b border-slate-200 dark:border-slate-700 pb-3 mb-4">
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
-            Add Co-Author
+            {t("runtime.components.author.submit.authors-step.text_add_co_author")}{" "}
           </h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div className="flex flex-col gap-1.5">
             <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-              First Name <span className="text-red-500 ml-0.5">*</span>
+              {t("runtime.components.author.submit.authors-step.text_first_name")}{" "}
+              <span className="text-red-500 ml-0.5">*</span>
             </span>
             <input
               type="text"
               value={newAuthor.firstName}
               onChange={(e) => onNewAuthorChange({ ...newAuthor, firstName: e.target.value })}
-              placeholder="e.g. John"
+              placeholder={t("runtime.components.author.submit.authors-step.placeholder_e_g_john")}
               className="w-full h-10 text-xs font-normal py-2 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all"
             />
           </div>
           <div className="flex flex-col gap-1.5">
             <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-              Last Name <span className="text-red-500 ml-0.5">*</span>
+              {t("runtime.components.author.submit.authors-step.text_last_name")}{" "}
+              <span className="text-red-500 ml-0.5">*</span>
             </span>
             <input
               type="text"
               value={newAuthor.lastName}
               onChange={(e) => onNewAuthorChange({ ...newAuthor, lastName: e.target.value })}
-              placeholder="e.g. Doe"
+              placeholder={t("runtime.components.author.submit.authors-step.placeholder_e_g_doe")}
               className="w-full h-10 text-xs font-normal py-2 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all"
             />
           </div>
@@ -400,7 +419,8 @@ export function AuthorsStep({
           {/* Email with User Search */}
           <div className="flex flex-col gap-1.5 md:col-span-2 relative" ref={dropdownRef}>
             <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-              Email Address <span className="text-red-500 ml-0.5">*</span>
+              {t("runtime.components.author.submit.authors-step.text_email_address")}{" "}
+              <span className="text-red-500 ml-0.5">*</span>
             </span>
             <input
               type="email"
@@ -411,7 +431,9 @@ export function AuthorsStep({
                   setShowDropdown(true)
                 }
               }}
-              placeholder="e.g. john.doe@university.edu - Start typing to search existing users"
+              placeholder={t(
+                "runtime.components.author.submit.authors-step.placeholder_e_g_john_doe_university_edu",
+              )}
               className="w-full h-10 text-xs font-normal py-2 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all"
             />
 
@@ -423,7 +445,9 @@ export function AuthorsStep({
                     <span className="material-symbols-outlined animate-spin text-[#1B3C53] text-[14px]">
                       sync
                     </span>
-                    <span className="text-xs text-slate-500">Searching...</span>
+                    <span className="text-xs text-slate-500">
+                      {t("runtime.components.author.submit.authors-step.text_searching")}
+                    </span>
                   </div>
                 ) : searchResults.length > 0 ? (
                   <div className="p-1">
@@ -461,19 +485,23 @@ export function AuthorsStep({
 
           <div className="flex flex-col gap-1.5">
             <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-              Affiliation <span className="text-red-500 ml-0.5">*</span>
+              {t("runtime.components.author.submit.authors-step.text_affiliation")}{" "}
+              <span className="text-red-500 ml-0.5">*</span>
             </span>
             <input
               type="text"
               value={newAuthor.affiliation}
               onChange={(e) => onNewAuthorChange({ ...newAuthor, affiliation: e.target.value })}
-              placeholder="e.g. Stanford University"
+              placeholder={t(
+                "runtime.components.author.submit.authors-step.placeholder_e_g_stanford_university",
+              )}
               className="w-full h-10 text-xs font-normal py-2 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all"
             />
           </div>
           <div className="flex flex-col gap-1.5">
             <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-              Country <span className="text-red-500 ml-0.5">*</span>
+              {t("runtime.components.author.submit.authors-step.text_country")}{" "}
+              <span className="text-red-500 ml-0.5">*</span>
             </span>
             <div className="relative">
               <select
@@ -481,19 +509,45 @@ export function AuthorsStep({
                 onChange={(e) => onNewAuthorChange({ ...newAuthor, country: e.target.value })}
                 className="w-full h-10 text-xs font-normal py-2 pl-3.5 pr-8 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] appearance-none cursor-pointer transition-all"
               >
-                <option value="">Select country...</option>
-                <option value="United States">United States</option>
-                <option value="United Kingdom">United Kingdom</option>
-                <option value="Canada">Canada</option>
-                <option value="Germany">Germany</option>
-                <option value="France">France</option>
-                <option value="Japan">Japan</option>
-                <option value="Australia">Australia</option>
-                <option value="Vietnam">Vietnam</option>
-                <option value="China">China</option>
-                <option value="Singapore">Singapore</option>
-                <option value="South Korea">South Korea</option>
-                <option value="India">India</option>
+                <option value="">
+                  {t("runtime.components.author.submit.authors-step.text_select_country")}
+                </option>
+                <option value="United States">
+                  {t("runtime.components.author.submit.authors-step.text_united_states")}
+                </option>
+                <option value="United Kingdom">
+                  {t("runtime.components.author.submit.authors-step.text_united_kingdom")}
+                </option>
+                <option value="Canada">
+                  {t("runtime.components.author.submit.authors-step.text_canada")}
+                </option>
+                <option value="Germany">
+                  {t("runtime.components.author.submit.authors-step.text_germany")}
+                </option>
+                <option value="France">
+                  {t("runtime.components.author.submit.authors-step.text_france")}
+                </option>
+                <option value="Japan">
+                  {t("runtime.components.author.submit.authors-step.text_japan")}
+                </option>
+                <option value="Australia">
+                  {t("runtime.components.author.submit.authors-step.text_australia")}
+                </option>
+                <option value="Vietnam">
+                  {t("runtime.components.author.submit.authors-step.text_vietnam")}
+                </option>
+                <option value="China">
+                  {t("runtime.components.author.submit.authors-step.text_china")}
+                </option>
+                <option value="Singapore">
+                  {t("runtime.components.author.submit.authors-step.text_singapore")}
+                </option>
+                <option value="South Korea">
+                  {t("runtime.components.author.submit.authors-step.text_south_korea")}
+                </option>
+                <option value="India">
+                  {t("runtime.components.author.submit.authors-step.text_india")}
+                </option>
               </select>
               <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                 <span className="material-symbols-outlined text-[16px]">expand_more</span>
@@ -515,7 +569,7 @@ export function AuthorsStep({
             }
             className="h-8 px-3 rounded-full text-[10px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors uppercase tracking-wider"
           >
-            Cancel
+            {t("runtime.components.author.submit.authors-step.text_cancel")}{" "}
           </button>
           <button
             type="button"
@@ -523,30 +577,97 @@ export function AuthorsStep({
             className="flex items-center gap-1.5 h-9 px-4 rounded-md text-[10px] font-medium bg-[#1B3C53] hover:bg-[#234C6A] text-white shadow-md transition-all uppercase tracking-wider"
           >
             <span className="material-symbols-outlined text-[16px]">person_add</span>
-            Add Author
+            {t("runtime.components.author.submit.authors-step.text_add_author")}{" "}
           </button>
         </div>
       </div>
 
       {/* A11: Naming Guidelines Modal (compact) */}
       {showGuidelines && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" onClick={() => setShowGuidelines(false)}>
-          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 shadow-xl w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
+          onClick={() => setShowGuidelines(false)}
+        >
+          <div
+            className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 shadow-xl w-full max-w-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="px-3 py-2.5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
-              <h3 className="text-xs font-bold text-[#1B3C53] dark:text-white tracking-tight">Author Naming Guidelines</h3>
-              <button type="button" onClick={() => setShowGuidelines(false)} className="p-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400">
+              <h3 className="text-xs font-bold text-[#1B3C53] dark:text-white tracking-tight">
+                Author Naming Guidelines
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowGuidelines(false)}
+                className="p-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400"
+              >
                 <span className="material-symbols-outlined text-[16px]">close</span>
               </button>
             </div>
             <ul className="px-3 py-2.5 space-y-2 text-[10px] text-slate-600 dark:text-slate-300">
-              <li className="flex gap-1.5"><span className="material-symbols-outlined text-[12px] text-[#1B3C53] mt-px shrink-0">check_circle</span><span><strong className="text-[#1B3C53] dark:text-white">Full legal names only</strong> — use your complete given and family name as it appears on official documents; avoid initials or shortened forms.</span></li>
-              <li className="flex gap-1.5"><span className="material-symbols-outlined text-[12px] text-[#1B3C53] mt-px shrink-0">check_circle</span><span><strong className="text-[#1B3C53] dark:text-white">Consistent spelling</strong> — ensure your name matches exactly across all your previous publications and your profile to maintain a unified author identity.</span></li>
-              <li className="flex gap-1.5"><span className="material-symbols-outlined text-[12px] text-[#1B3C53] mt-px shrink-0">check_circle</span><span><strong className="text-[#1B3C53] dark:text-white">Affiliation accuracy</strong> — list the institution where the research was primarily conducted, not your current institution if you have since moved.</span></li>
-              <li className="flex gap-1.5"><span className="material-symbols-outlined text-[12px] text-[#1B3C53] mt-px shrink-0">check_circle</span><span><strong className="text-[#1B3C53] dark:text-white">One corresponding author</strong> — designate a single author responsible for all correspondence during review and post-acceptance communications.</span></li>
-              <li className="flex gap-1.5"><span className="material-symbols-outlined text-[12px] text-amber-500 mt-px shrink-0">warning</span><span><strong className="text-amber-700 dark:text-amber-400">Double-blind review</strong> — do not include any author names, affiliations, or identifying information inside the submitted PDF manuscript.</span></li>
+              <li className="flex gap-1.5">
+                <span className="material-symbols-outlined text-[12px] text-[#1B3C53] mt-px shrink-0">
+                  check_circle
+                </span>
+                <span>
+                  <strong className="text-[#1B3C53] dark:text-white">Full legal names only</strong>{" "}
+                  — use your complete given and family name as it appears on official documents;
+                  avoid initials or shortened forms.
+                </span>
+              </li>
+              <li className="flex gap-1.5">
+                <span className="material-symbols-outlined text-[12px] text-[#1B3C53] mt-px shrink-0">
+                  check_circle
+                </span>
+                <span>
+                  <strong className="text-[#1B3C53] dark:text-white">Consistent spelling</strong> —
+                  ensure your name matches exactly across all your previous publications and your
+                  profile to maintain a unified author identity.
+                </span>
+              </li>
+              <li className="flex gap-1.5">
+                <span className="material-symbols-outlined text-[12px] text-[#1B3C53] mt-px shrink-0">
+                  check_circle
+                </span>
+                <span>
+                  <strong className="text-[#1B3C53] dark:text-white">Affiliation accuracy</strong> —
+                  list the institution where the research was primarily conducted, not your current
+                  institution if you have since moved.
+                </span>
+              </li>
+              <li className="flex gap-1.5">
+                <span className="material-symbols-outlined text-[12px] text-[#1B3C53] mt-px shrink-0">
+                  check_circle
+                </span>
+                <span>
+                  <strong className="text-[#1B3C53] dark:text-white">
+                    One corresponding author
+                  </strong>{" "}
+                  — designate a single author responsible for all correspondence during review and
+                  post-acceptance communications.
+                </span>
+              </li>
+              <li className="flex gap-1.5">
+                <span className="material-symbols-outlined text-[12px] text-amber-500 mt-px shrink-0">
+                  warning
+                </span>
+                <span>
+                  <strong className="text-amber-700 dark:text-amber-400">
+                    Double-blind review
+                  </strong>{" "}
+                  — do not include any author names, affiliations, or identifying information inside
+                  the submitted PDF manuscript.
+                </span>
+              </li>
             </ul>
             <div className="px-3 py-2 border-t border-slate-100 dark:border-slate-700 flex justify-end">
-              <button type="button" onClick={() => setShowGuidelines(false)} className="h-7 px-3 rounded text-[10px] font-medium bg-[#1B3C53] text-white hover:bg-[#234C6A] transition-colors">Got it</button>
+              <button
+                type="button"
+                onClick={() => setShowGuidelines(false)}
+                className="h-7 px-3 rounded text-[10px] font-medium bg-[#1B3C53] text-white hover:bg-[#234C6A] transition-colors"
+              >
+                Got it
+              </button>
             </div>
           </div>
         </div>
