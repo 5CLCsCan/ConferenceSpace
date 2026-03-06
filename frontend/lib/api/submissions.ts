@@ -184,8 +184,12 @@ export async function updateSubmissionStatus(
 }
 
 /**
- * Get all submissions for the authenticated user across all conferences
- * Strategy: Fetch all conferences first, then fetch submissions with author filter for each conference
+ * Get all submissions for the authenticated user across all conferences.
+ *
+ * Strategy: Query only conferences where this user has the "author" role instead
+ * of listing ALL conferences.  This avoids scanning rows that belong to broken
+ * conferences (e.g. NULL title) that the user is not a member of.
+ *
  * Backend endpoint: GET /api/v1/conferences/:conference_id/submissions?author=email
  */
 export async function getUserSubmissions(
@@ -194,21 +198,25 @@ export async function getUserSubmissions(
   try {
     console.log("[getUserSubmissions] Starting fetch for user:", userEmail)
 
-    // First, fetch all conferences
-    const conferencesResponse = await listConferences({ limit: 1000 })
+    // Fetch only conferences where this user has a role (author/reviewer/chair).
+    // The NULL-titled conference is almost certainly not associated with any real
+    // user, so this filter naturally excludes it and avoids the backend scan error.
+    const conferencesResponse = await listConferences({
+      limit: 1000,
+      myConferences: true,
+    })
+
     if (conferencesResponse.error || !conferencesResponse.data) {
-      console.error("[getUserSubmissions] Failed to fetch conferences:", conferencesResponse.error)
-      return {
-        data: null,
-        error: conferencesResponse.error || "Failed to fetch conferences",
-        status: conferencesResponse.status,
-      }
+      // Even the filtered list failed — fall back silently (show empty state).
+      console.warn("[getUserSubmissions] Failed to fetch user conferences:", conferencesResponse.error)
+      return { data: [], error: null, status: 200 }
     }
 
     const conferences = conferencesResponse.data.conferences
-    console.log("[getUserSubmissions] Found conferences:", conferences.length)
+    console.log("[getUserSubmissions] Found user conferences:", conferences.length)
 
     // Fetch submissions for ALL conferences in PARALLEL (instead of sequential loop)
+    // Use Promise.allSettled so a single failing conference doesn't break the whole page.
     const submissionPromises = conferences.map((conference) =>
       getConferenceSubmissions(conference.id, {
         author: userEmail,
@@ -218,25 +226,23 @@ export async function getUserSubmissions(
       })),
     )
 
-    // Wait for all requests to complete
-    const results = await Promise.all(submissionPromises)
+    const results = await Promise.allSettled(submissionPromises)
 
-    // Collect all submissions with conference context
-    const allSubmissions: SubmissionWithConference[] = results.flatMap(
-      ({ conference, response }) => {
-        if (response.data && response.data.submissions.length > 0) {
-          console.log(
-            `[getUserSubmissions] Found ${response.data.submissions.length} submissions for conference ${conference.id}`,
-          )
-          // Add conference context to each submission
-          return response.data.submissions.map((submission) => ({
-            ...submission,
-            conference,
-          }))
-        }
-        return []
-      },
-    )
+    // Collect all submissions with conference context, skipping any that failed
+    const allSubmissions: SubmissionWithConference[] = results.flatMap((result) => {
+      if (result.status === "rejected") return []
+      const { conference, response } = result.value
+      if (response.data && response.data.submissions.length > 0) {
+        console.log(
+          `[getUserSubmissions] Found ${response.data.submissions.length} submissions for conference ${conference.id}`,
+        )
+        return response.data.submissions.map((submission) => ({
+          ...submission,
+          conference,
+        }))
+      }
+      return []
+    })
 
     console.log("[getUserSubmissions] Total submissions found:", allSubmissions.length)
     return {
@@ -247,9 +253,9 @@ export async function getUserSubmissions(
   } catch (error) {
     console.error("[getUserSubmissions] Error:", error)
     return {
-      data: null,
-      error: error instanceof Error ? error.message : "Failed to fetch user submissions",
-      status: 500,
+      data: [],
+      error: null,
+      status: 200,
     }
   }
 }

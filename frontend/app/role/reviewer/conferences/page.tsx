@@ -40,6 +40,7 @@ export default function ReviewerConferencesPage() {
   const conferences = dashboard?.conferences || []
   const totalConferences = dashboard?.total_conferences || 0
   const totalPages = Math.max(1, Math.ceil(totalConferences / PAGE_SIZE))
+  const dashboardStats = dashboard?.stats
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -72,6 +73,7 @@ export default function ReviewerConferencesPage() {
               totalItems={totalConferences}
               pageSize={PAGE_SIZE}
               onPageChange={handlePageChange}
+              stats={dashboardStats}
             />
           )}
         </div>

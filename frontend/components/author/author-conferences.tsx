@@ -168,8 +168,9 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
       setError(null)
 
       try {
-        // Fetch all conferences to check user's submissions (no server-side endpoint for this)
-        const conferenceResponse = await listConferences({ limit: 500 })
+        // Fetch only conferences where this user has a role to avoid scanning
+        // NULL-titled conferences the user is not a member of (backend bug workaround).
+        const conferenceResponse = await listConferences({ limit: 500, myConferences: true })
         const conferences = conferenceResponse.data?.conferences || []
 
         const conferenceWithSubmissions = await Promise.all(

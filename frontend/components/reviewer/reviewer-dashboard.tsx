@@ -49,7 +49,9 @@ export function ReviewerDashboard() {
   }
 
   const stats = dashboard?.stats
-  const recentAssignments = dashboard?.recent_assignments || []
+  const recentAssignments = (dashboard?.recent_assignments || []).filter(
+    (a) => a.status !== "suggested"
+  )
 
   return (
     <div className="flex flex-col gap-8">
@@ -63,7 +65,7 @@ export function ReviewerDashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Total Assigned" value={stats?.total_assigned || 0} />
+        <StatCard label="Total Assigned" value={(stats?.pending || 0) + (stats?.in_progress || 0) + (stats?.completed || 0)} />
         <StatCard label="Pending" value={stats?.pending || 0} />
         <StatCard label="In Progress" value={stats?.in_progress || 0} />
         <StatCard label="Completed" value={stats?.completed || 0} />
