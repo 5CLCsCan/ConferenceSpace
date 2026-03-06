@@ -198,6 +198,31 @@ export async function getReviewerDashboard(
       },
     )
 
+    // Enrich conference total_papers with accurate counts (excluding 'suggested' assignments).
+    // The dashboard's total_papers includes suggested; the per-conference papers endpoint does not.
+    // We use limit=1 to minimise data transfer — we only need the total count.
+    if (mappedConferences.length > 0) {
+      const paperTotals = await Promise.allSettled(
+        mappedConferences.map((conf) =>
+          apiFetch<{ data: { papers: AssignedPaper[]; total: number } }>(
+            `/api/v1/reviewer/${encodeURIComponent(reviewerEmail)}/conferences/${conf.id}/papers?limit=1&offset=0`,
+          ).then((r) => ({ confId: conf.id, total: r.data.data?.total ?? conf.total_papers }))
+            .catch(() => ({ confId: conf.id, total: conf.total_papers })),
+        ),
+      )
+      const totalMap = new Map<string, number>()
+      for (const result of paperTotals) {
+        if (result.status === "fulfilled") {
+          totalMap.set(result.value.confId, result.value.total)
+        }
+      }
+      for (const conf of mappedConferences) {
+        if (totalMap.has(conf.id)) {
+          conf.total_papers = totalMap.get(conf.id)!
+        }
+      }
+    }
+
     // Extract invitations, assignments and totals based on format
     const invitationsArray = isNewFormat
       ? (backendData.invitations as any).data

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import type { ReviewerConference } from "@/lib/types"
+import type { ReviewerConference, ReviewerStats } from "@/lib/types"
 
 type TabType = "my-conferences" | "explore"
 type ViewMode = "list" | "compact"
@@ -17,6 +17,7 @@ interface ReviewerConferencesProps {
   totalItems?: number
   pageSize?: number
   onPageChange?: (page: number) => void
+  stats?: ReviewerStats
 }
 
 // Progress ring component for visual stats
@@ -421,16 +422,19 @@ export function ReviewerConferences({
   totalItems = 0,
   pageSize = 10,
   onPageChange,
+  stats,
 }: ReviewerConferencesProps) {
   const [activeTab, setActiveTab] = useState<TabType>("my-conferences")
   const [viewMode, setViewMode] = useState<ViewMode>("list")
 
-  // Stats for summary
-  const totalPending = conferences.reduce(
-    (acc, c) => acc + ((c.total_papers || 0) - (c.reviewed_papers || 0)),
-    0,
-  )
-  const totalReviewed = conferences.reduce((acc, c) => acc + (c.reviewed_papers || 0), 0)
+  // Stats for summary — use global stats (excludes 'suggested') when available,
+  // otherwise fall back to per-conference sums (which may include suggested).
+  const totalPending = stats
+    ? (stats.pending || 0) + (stats.in_progress || 0)
+    : conferences.reduce((acc, c) => acc + ((c.total_papers || 0) - (c.reviewed_papers || 0)), 0)
+  const totalReviewed = stats
+    ? stats.completed || 0
+    : conferences.reduce((acc, c) => acc + (c.reviewed_papers || 0), 0)
   const activeConferences = totalItems
 
   const getPageNumbers = () => {
