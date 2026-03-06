@@ -5,6 +5,12 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { ChevronDown, ChevronUp, Eye, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import {
@@ -39,6 +45,7 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
   >(null)
   const [decisionSaving, setDecisionSaving] = useState(false)
   const [decisionMessage, setDecisionMessage] = useState<string | null>(null)
+  const [selectedReview, setSelectedReview] = useState<AssignmentReview | null>(null)
 
   const REVIEWS_PER_PAGE = 5
 
@@ -261,116 +268,63 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
               </p>
             ) : (
               <>
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {reviews.map((review, index) => {
                     const globalIndex = (currentPage - 1) * REVIEWS_PER_PAGE + index
                     return (
-                      <Card key={review.id} className="border-l-4 border-l-primary mb-4">
-                        <CardHeader className="px-4 pt-4 pb-2">
-                          <div className="flex items-start justify-between">
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <CardTitle className="text-base">
-                                  {t("dashboard.chair.review.reviewNumber")} #{globalIndex + 1}
-                                </CardTitle>
-                                {review.reviewer_email && (
-                                  <button
-                                    type="button"
-                                    className="text-xs text-muted-foreground ml-2 hover:underline"
-                                    onClick={() => router.push(ROUTES.PROFILE(review.reviewer_email || ""))}
-                                  >
-                                    {review.reviewer_email}
-                                  </button>
-                                )}
-                                {review.review_data?.recommendation &&
-                                  getRecommendationBadge(review.review_data.recommendation)}
-                                {review.review_data?.confidence &&
-                                  getConfidenceBadge(review.review_data.confidence)}
-                              </div>
-                              {review.review_score !== undefined && (
-                                <div className="flex items-center gap-2 mt-2">
-                                  <span className="text-lg font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
-                                    {review.review_score?.toFixed?.(1) ?? review.review_score}
-                                  </span>
-                                  <span className="text-xs text-muted-foreground font-medium">
-                                    / 10
-                                  </span>
-                                  <span className="ml-2 text-xs text-muted-foreground">
-                                    {t("dashboard.chair.review.score")}
-                                  </span>
-                                </div>
-                              )}
-                              {review.review_submitted_at && (
-                                <div className="text-sm text-muted-foreground">
-                                  {t("dashboard.chair.review.submittedAt")}:{" "}
-                                  {formatDate(review.review_submitted_at)}
-                                </div>
-                              )}
-                            </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(event) => event.preventDefault()}
+                      <div
+                        key={review.id}
+                        className="flex items-center justify-between gap-3 px-4 py-3 rounded-lg border bg-card hover:bg-accent/30 transition-colors"
+                      >
+                        {/* Left: index + email */}
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-sm font-semibold shrink-0 text-muted-foreground w-7 text-right">
+                            #{globalIndex + 1}
+                          </span>
+                          {review.reviewer_email ? (
+                            <button
+                              type="button"
+                              className="text-sm font-medium hover:underline truncate max-w-[160px]"
+                              onClick={() => router.push(ROUTES.PROFILE(review.reviewer_email || ""))}
                             >
-                              <Eye className="size-4 mr-2" />
-                              {t("common.actions.viewDetail")}
-                            </Button>
-                          </div>
-                        </CardHeader>
-                        {review.review_data?.feedback && (
-                          <CardContent className="space-y-3 px-4 pb-4">
-                            {review.review_data.feedback.strengths && (
-                              <div>
-                                <div className="text-sm font-semibold text-success mb-1">
-                                  {t("dashboard.chair.review.strengths")}
-                                </div>
-                                <p className="text-sm text-muted-foreground">
-                                  {review.review_data.feedback.strengths}
-                                </p>
-                              </div>
-                            )}
-                            {review.review_data.feedback.weaknesses && (
-                              <div>
-                                <div className="text-sm font-semibold text-destructive mb-1">
-                                  {t("dashboard.chair.review.weaknesses")}
-                                </div>
-                                <p className="text-sm text-muted-foreground">
-                                  {review.review_data.feedback.weaknesses}
-                                </p>
-                              </div>
-                            )}
-                            {review.review_data.feedback.questions && (
-                              <div>
-                                <div className="text-sm font-semibold text-primary mb-1">
-                                  {t("dashboard.chair.review.questions")}
-                                </div>
-                                <p className="text-sm text-muted-foreground">
-                                  {review.review_data.feedback.questions}
-                                </p>
-                              </div>
-                            )}
-                            {review.review_data.criteria && (
-                              <div>
-                                <div className="text-sm font-semibold mb-2">
-                                  {t("dashboard.chair.review.criteriaScores")}
-                                </div>
-                                <div className="grid grid-cols-2 gap-2 text-sm">
-                                  {Object.entries(review.review_data.criteria).map(
-                                    ([key, value]) => (
-                                      <div key={key} className="flex justify-between">
-                                        <span className="capitalize text-muted-foreground">
-                                          {key.replace(/_/g, " ")}:
-                                        </span>
-                                        <span className="font-semibold">{value}</span>
-                                      </div>
-                                    ),
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                          </CardContent>
-                        )}
-                      </Card>
+                              {review.reviewer_email}
+                            </button>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">Anonymous</span>
+                          )}
+                        </div>
+
+                        {/* Middle: badges + score */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {review.review_data?.recommendation &&
+                            getRecommendationBadge(review.review_data.recommendation)}
+                          {review.review_data?.confidence &&
+                            getConfidenceBadge(review.review_data.confidence)}
+                          {review.review_score !== undefined && (
+                            <span className="text-sm font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                              {review.review_score?.toFixed?.(1) ?? review.review_score}
+                              <span className="text-xs font-normal text-muted-foreground ml-0.5">/10</span>
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Right: date + button */}
+                        <div className="flex items-center gap-3 shrink-0">
+                          {review.review_submitted_at && (
+                            <span className="text-xs text-muted-foreground hidden md:block">
+                              {formatDate(review.review_submitted_at)}
+                            </span>
+                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedReview(review)}
+                          >
+                            <Eye className="size-3.5 mr-1.5" />
+                            {t("common.actions.viewDetail")}
+                          </Button>
+                        </div>
+                      </div>
                     )
                   })}
                 </div>
@@ -442,6 +396,121 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
           </CardContent>
         )}
       </Card>
+      {/* Review Detail Dialog */}
+      <Dialog open={!!selectedReview} onOpenChange={(open) => { if (!open) setSelectedReview(null) }}>
+        <DialogContent
+          className="max-w-2xl w-full p-0 overflow-visible"
+          style={{ overflow: 'visible' }}
+        >
+          <div className="p-6 overflow-auto max-h-[80vh]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 flex-wrap text-base">
+                {t("dashboard.chair.review.reviewDetail") || "Review Detail"}
+                {selectedReview?.review_data?.recommendation &&
+                  getRecommendationBadge(selectedReview.review_data.recommendation)}
+                {selectedReview?.review_data?.confidence &&
+                  getConfidenceBadge(selectedReview.review_data.confidence)}
+              </DialogTitle>
+            </DialogHeader>
+
+            {selectedReview && (
+              <div className="space-y-3 text-sm">
+                {/* Top: meta + criteria side by side */}
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Left: meta */}
+                  <div className="space-y-1.5 text-sm">
+                    {selectedReview.reviewer_email && (
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-muted-foreground shrink-0">Reviewer:</span>
+                        <button
+                          type="button"
+                          className="font-medium hover:underline truncate"
+                          onClick={() => {
+                            router.push(ROUTES.PROFILE(selectedReview.reviewer_email || ""))
+                            setSelectedReview(null)
+                          }}
+                        >
+                          {selectedReview.reviewer_email}
+                        </button>
+                      </div>
+                    )}
+                    {selectedReview.review_score !== undefined && (
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-muted-foreground">{t("dashboard.chair.review.score")}:</span>
+                        <span className="font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                          {selectedReview.review_score?.toFixed?.(1) ?? selectedReview.review_score}
+                          <span className="text-xs font-normal text-muted-foreground ml-0.5">/10</span>
+                        </span>
+                      </div>
+                    )}
+                    {selectedReview.review_submitted_at && (
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-muted-foreground">{t("dashboard.chair.review.submittedAt")}:</span>
+                        <span>{formatDate(selectedReview.review_submitted_at)}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right: criteria scores */}
+                  {selectedReview.review_data?.criteria && (
+                    <div className="bg-muted/40 rounded-md px-3 py-2 space-y-1">
+                      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">
+                        {t("dashboard.chair.review.criteriaScores")}
+                      </div>
+                      {Object.entries(selectedReview.review_data.criteria).map(([key, value]) => (
+                        <div key={key} className="flex items-center justify-between gap-2">
+                          <span className="capitalize text-muted-foreground text-xs">{key.replace(/_/g, " ")}</span>
+                          <div className="flex items-center gap-1">
+                            <div className="w-16 h-1.5 rounded-full bg-border overflow-hidden">
+                              <div
+                                className="h-full bg-primary rounded-full"
+                                style={{ width: `${(Number(value) / 10) * 100}%` }}
+                              />
+                            </div>
+                            <span className="font-semibold text-xs w-5 text-right">{String(value)}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Feedback sections */}
+                {selectedReview.review_data?.feedback && (
+                  <div className="space-y-2 border-t pt-3">
+                    {selectedReview.review_data.feedback.summary && (
+                      <div>
+                        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">Summary of Contribution</div>
+                        <p className="text-sm text-foreground/80 leading-snug">{selectedReview.review_data.feedback.summary}</p>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-2 gap-3">
+                      {selectedReview.review_data.feedback.strengths && (
+                        <div>
+                          <div className="text-xs font-semibold text-success uppercase tracking-wide mb-0.5">{t("dashboard.chair.review.strengths")}</div>
+                          <p className="text-xs text-muted-foreground leading-snug">{selectedReview.review_data.feedback.strengths}</p>
+                        </div>
+                      )}
+                      {selectedReview.review_data.feedback.weaknesses && (
+                        <div>
+                          <div className="text-xs font-semibold text-destructive uppercase tracking-wide mb-0.5">{t("dashboard.chair.review.weaknesses")}</div>
+                          <p className="text-xs text-muted-foreground leading-snug">{selectedReview.review_data.feedback.weaknesses}</p>
+                        </div>
+                      )}
+                    </div>
+                    {selectedReview.review_data.feedback.questions && (
+                      <div>
+                        <div className="text-xs font-semibold text-primary uppercase tracking-wide mb-0.5">{t("dashboard.chair.review.questions")}</div>
+                        <p className="text-xs text-muted-foreground leading-snug">{selectedReview.review_data.feedback.questions}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
