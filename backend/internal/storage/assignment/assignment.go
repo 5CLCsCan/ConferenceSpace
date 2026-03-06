@@ -491,13 +491,16 @@ func (s *Storage) GetReviewsBySubmission(ctx context.Context, submissionID int64
 	}
 
 	// Get reviews with reviewer email
+	// reviewer_id in paper_assignments references conference_reviewers(id),
+	// so we must JOIN through conference_reviewers to reach users.
 	query, args, err := s.qb.
 		Select(
 			"a.id", "a.conference_id", "a.submission_id", "a.reviewer_id", "a.score", "a.status", "a.assigned_at", "a.completed_at", "a.review_status", "a.review_score", "a.review_data", "a.review_submitted_at", "a.created_at", "a.updated_at",
 			"u.email AS reviewer_email",
 		).
 		From(model.AssignmentTableName + " AS a").
-		Join("users u ON a.reviewer_id = u.user_id").
+		Join("conference_reviewers cr ON a.reviewer_id = cr.id").
+		Join("users u ON cr.user_id = u.user_id").
 		Where(sq.Eq{"a." + model.ColSubmissionID: submissionID}).
 		Where(sq.Eq{"a." + model.ColReviewStatus: model.ReviewStatusSubmitted}).
 		OrderBy("a.review_submitted_at DESC").
@@ -515,7 +518,7 @@ func (s *Storage) GetReviewsBySubmission(ctx context.Context, submissionID int64
 	}
 	defer rows.Close()
 
-	var reviews []*dto.Assignment
+	reviews := make([]*dto.Assignment, 0)
 	for rows.Next() {
 		var result model.Assignment
 		err := rows.Scan(
@@ -687,9 +690,9 @@ func (s *Storage) GetSuggestionsByConference(ctx context.Context, conferenceID i
 
 	for rows.Next() {
 		var (
-			id, subID, revID                 int64
-			score                            float64
-			submissionTitle, reviewerEmail   string
+			id, subID, revID               int64
+			score                          float64
+			submissionTitle, reviewerEmail string
 		)
 
 		err := rows.Scan(&id, &subID, &revID, &score, &submissionTitle, &reviewerEmail)

@@ -7,6 +7,7 @@ import { ROUTES } from "@/lib/routes"
 import { getConferenceSubmissions, type Submission } from "@/lib/api/submissions"
 import { getSubmissionReviews } from "@/lib/api/reviews"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { useDebounce } from "@/hooks/use-debounce"
 
 type SubmissionStatus = "under_review" | "accepted" | "pending" | "rejected" | "withdrawn"
 
@@ -56,8 +57,12 @@ function ReviewProgress({ completed, total }: { completed: number; total: number
     <div className="w-full max-w-[120px]">
       <div className="flex justify-between text-[10px] mb-1">
         <span className="text-slate-600 dark:text-slate-400">
-          {completed}/{total} {t("runtime.components.chair.conference-detail.conference-submissions.text_done")}{" "}</span>
-        <span className={cn("font-medium", completed === total ? "text-green-600" : "text-slate-400")}>
+          {completed}/{total}{" "}
+          {t("runtime.components.chair.conference-detail.conference-submissions.text_done")}{" "}
+        </span>
+        <span
+          className={cn("font-medium", completed === total ? "text-green-600" : "text-slate-400")}
+        >
           {percentage}%
         </span>
       </div>
@@ -77,7 +82,11 @@ function ScoreBadge({ score }: { score: number | null }) {
   }
 
   const variant =
-    score >= 4 ? "bg-green-100 text-green-700 border-green-200" : score >= 3 ? "bg-slate-100 text-slate-700 border-slate-200" : "bg-red-50 text-red-700 border-red-100"
+    score >= 4
+      ? "bg-green-100 text-green-700 border-green-200"
+      : score >= 3
+        ? "bg-slate-100 text-slate-700 border-slate-200"
+        : "bg-red-50 text-red-700 border-red-100"
 
   return (
     <span
@@ -102,7 +111,8 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
   const [currentPage, setCurrentPage] = useState(1)
   const [totalEntries, setTotalEntries] = useState(0)
 
-  const entriesPerPage = 10
+  const entriesPerPage = 8
+  const debouncedSearch = useDebounce(searchQuery, 400)
 
   useEffect(() => {
     async function loadSubmissions() {
@@ -110,7 +120,7 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
       setError(null)
 
       const response = await getConferenceSubmissions(conferenceId, {
-        title: searchQuery || undefined,
+        title: debouncedSearch || undefined,
         status: selectedStatus === "all" ? undefined : selectedStatus,
         limit: entriesPerPage,
         offset: (currentPage - 1) * entriesPerPage,
@@ -134,7 +144,9 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
             offset: 0,
           })
           const reviewList = reviews.data || []
-          const completed = reviewList.filter((review) => review.review_status === "submitted").length
+          const completed = reviewList.filter(
+            (review) => review.review_status === "submitted",
+          ).length
           const total = reviewList.length
           const score =
             completed > 0
@@ -159,7 +171,7 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
     }
 
     void loadSubmissions()
-  }, [conferenceId, currentPage, searchQuery, selectedStatus])
+  }, [conferenceId, currentPage, debouncedSearch, selectedStatus])
 
   const totalPages = useMemo(() => {
     return Math.max(1, Math.ceil(totalEntries / entriesPerPage))
@@ -170,16 +182,25 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
           <h2 className="text-lg font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            {t("runtime.components.chair.conference-detail.conference-submissions.text_submissions")}{" "}</h2>
+            {t(
+              "runtime.components.chair.conference-detail.conference-submissions.text_submissions",
+            )}{" "}
+          </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            {t("runtime.components.chair.conference-detail.conference-submissions.text_manage_and_review_conference_submissions_with")}{" "}</p>
+            {t(
+              "runtime.components.chair.conference-detail.conference-submissions.text_manage_and_review_conference_submissions_with",
+            )}{" "}
+          </p>
         </div>
       </div>
 
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
         <div className="p-3 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row gap-3 justify-between items-center bg-slate-50/50 dark:bg-slate-800/30">
           <div className="relative w-full md:w-80">
-            <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: "16px" }}>
+            <span
+              className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
+              style={{ fontSize: "16px" }}
+            >
               search
             </span>
             <input
@@ -189,7 +210,9 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
                 setCurrentPage(1)
                 setSearchQuery(event.target.value)
               }}
-              placeholder={t("runtime.components.chair.conference-detail.conference-submissions.placeholder_search_by_title")}
+              placeholder={t(
+                "runtime.components.chair.conference-detail.conference-submissions.placeholder_search_by_title",
+              )}
               className="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-[11px] focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] dark:text-white outline-none transition-colors"
             />
           </div>
@@ -202,17 +225,39 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
             }}
             className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[11px] rounded-md py-1.5 pl-2.5 pr-6 focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none cursor-pointer"
           >
-            <option value="all">{t("runtime.components.chair.conference-detail.conference-submissions.text_all_statuses")}</option>
-            <option value="draft">{t("runtime.components.chair.conference-detail.conference-submissions.text_draft")}</option>
-            <option value="published">{t("runtime.components.chair.conference-detail.conference-submissions.text_published")}</option>
-            <option value="reviewing">{t("runtime.components.chair.conference-detail.conference-submissions.text_reviewing")}</option>
-            <option value="accepted">{t("runtime.components.chair.conference-detail.conference-submissions.text_accepted")}</option>
-            <option value="rejected">{t("runtime.components.chair.conference-detail.conference-submissions.text_rejected")}</option>
+            <option value="all">
+              {t(
+                "runtime.components.chair.conference-detail.conference-submissions.text_all_statuses",
+              )}
+            </option>
+            <option value="draft">
+              {t("runtime.components.chair.conference-detail.conference-submissions.text_draft")}
+            </option>
+            <option value="published">
+              {t(
+                "runtime.components.chair.conference-detail.conference-submissions.text_published",
+              )}
+            </option>
+            <option value="reviewing">
+              {t(
+                "runtime.components.chair.conference-detail.conference-submissions.text_reviewing",
+              )}
+            </option>
+            <option value="accepted">
+              {t("runtime.components.chair.conference-detail.conference-submissions.text_accepted")}
+            </option>
+            <option value="rejected">
+              {t("runtime.components.chair.conference-detail.conference-submissions.text_rejected")}
+            </option>
           </select>
         </div>
 
         {loading ? (
-          <div className="p-6 text-xs text-slate-500">{t("runtime.components.chair.conference-detail.conference-submissions.text_loading_submissions")}</div>
+          <div className="p-6 text-xs text-slate-500">
+            {t(
+              "runtime.components.chair.conference-detail.conference-submissions.text_loading_submissions",
+            )}
+          </div>
         ) : error ? (
           <div className="p-6 text-xs text-red-700 bg-red-50 border-t border-red-200">{error}</div>
         ) : (
@@ -222,15 +267,30 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
                 <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
                   <tr>
                     <th className="px-3 py-2.5 text-[10px] uppercase font-bold text-slate-400 tracking-widest w-16">
-                      {t("runtime.components.chair.conference-detail.conference-submissions.text_id")}{" "}</th>
+                      {t(
+                        "runtime.components.chair.conference-detail.conference-submissions.text_id",
+                      )}{" "}
+                    </th>
                     <th className="px-3 py-2.5 text-[10px] uppercase font-bold text-slate-400 tracking-widest">
-                      {t("runtime.components.chair.conference-detail.conference-submissions.text_paper_details")}{" "}</th>
+                      {t(
+                        "runtime.components.chair.conference-detail.conference-submissions.text_paper_details",
+                      )}{" "}
+                    </th>
                     <th className="px-3 py-2.5 text-[10px] uppercase font-bold text-slate-400 tracking-widest w-32">
-                      {t("runtime.components.chair.conference-detail.conference-submissions.text_status")}{" "}</th>
+                      {t(
+                        "runtime.components.chair.conference-detail.conference-submissions.text_status",
+                      )}{" "}
+                    </th>
                     <th className="px-3 py-2.5 text-[10px] uppercase font-bold text-slate-400 tracking-widest w-[168px]">
-                      {t("runtime.components.chair.conference-detail.conference-submissions.text_reviews")}{" "}</th>
+                      {t(
+                        "runtime.components.chair.conference-detail.conference-submissions.text_reviews",
+                      )}{" "}
+                    </th>
                     <th className="px-3 py-2.5 text-[10px] uppercase font-bold text-slate-400 tracking-widest w-20 text-center">
-                      {t("runtime.components.chair.conference-detail.conference-submissions.text_score")}{" "}</th>
+                      {t(
+                        "runtime.components.chair.conference-detail.conference-submissions.text_score",
+                      )}{" "}
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-[12px]">
@@ -240,11 +300,15 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
                       <tr
                         key={submission.id}
                         onClick={() =>
-                          router.push(ROUTES.CHAIR.SUBMISSION_DETAIL(conferenceId, String(submission.id)))
+                          router.push(
+                            ROUTES.CHAIR.SUBMISSION_DETAIL(conferenceId, String(submission.id)),
+                          )
                         }
                         className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group cursor-pointer"
                       >
-                        <td className="px-3 py-3 font-mono text-[11px] text-slate-400">#{submission.id}</td>
+                        <td className="px-3 py-3 font-mono text-[11px] text-slate-400">
+                          #{submission.id}
+                        </td>
                         <td className="px-3 py-3">
                           <div className="flex flex-col">
                             <span className="text-[13px] font-semibold text-slate-900 dark:text-white group-hover:text-[#456882] transition-colors line-clamp-1 tracking-tight leading-[1.3]">
@@ -280,7 +344,9 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
 
             <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div className="text-[11px] text-slate-500">
-                {t("runtime.components.chair.conference-detail.conference-submissions.text_showing")}{" "}
+                {t(
+                  "runtime.components.chair.conference-detail.conference-submissions.text_showing",
+                )}{" "}
                 <span className="font-bold text-[#1B3C53] dark:text-white">
                   {Math.min((currentPage - 1) * entriesPerPage + 1, totalEntries)}
                 </span>{" "}
@@ -288,8 +354,7 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
                 <span className="font-bold text-[#1B3C53] dark:text-white">
                   {Math.min(currentPage * entriesPerPage, totalEntries)}
                 </span>{" "}
-                of{" "}
-                <span className="font-bold text-[#1B3C53] dark:text-white">{totalEntries}</span>{" "}
+                of <span className="font-bold text-[#1B3C53] dark:text-white">{totalEntries}</span>{" "}
                 entries
               </div>
               <div className="flex gap-1">
@@ -298,13 +363,19 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
                   disabled={currentPage === 1}
                   className="px-2.5 py-1 border border-slate-200 rounded text-[10px] text-slate-500 hover:bg-slate-50 disabled:opacity-50"
                 >
-                  {t("runtime.components.chair.conference-detail.conference-submissions.text_previous")}{" "}</button>
+                  {t(
+                    "runtime.components.chair.conference-detail.conference-submissions.text_previous",
+                  )}{" "}
+                </button>
                 <button
                   onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
                   className="px-2.5 py-1 border border-slate-200 rounded text-[10px] text-slate-500 hover:bg-slate-50 disabled:opacity-50"
                 >
-                  {t("runtime.components.chair.conference-detail.conference-submissions.text_next")}{" "}</button>
+                  {t(
+                    "runtime.components.chair.conference-detail.conference-submissions.text_next",
+                  )}{" "}
+                </button>
               </div>
             </div>
           </>

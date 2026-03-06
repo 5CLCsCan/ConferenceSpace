@@ -149,6 +149,7 @@ export interface ReviewData {
     methodology: number
   }
   feedback: {
+    summary?: string
     strengths: string
     weaknesses?: string
     questions?: string

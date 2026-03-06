@@ -2,92 +2,59 @@ import { useState, useEffect, useCallback } from "react"
 import { getCompletedPapers } from "@/lib/api/reviews"
 import type { AssignedPaper } from "@/lib/types"
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 5
 
 interface UseCompletedReviewsFilters {
   search?: string
+  limit?: number
+  offset?: number
 }
 
 export function useCompletedReviews(reviewerId: string, filters?: UseCompletedReviewsFilters) {
   const [reviews, setReviews] = useState<AssignedPaper[]>([])
+  const [total, setTotal] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
-  const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [hasMore, setHasMore] = useState(false)
-  const [currentOffset, setCurrentOffset] = useState(0)
 
-  const loadReviews = useCallback(
-    async (reset: boolean = false) => {
-      if (!reviewerId) return
+  const limit = filters?.limit ?? PAGE_SIZE
+  const offset = filters?.offset ?? 0
 
-      if (reset) {
-        setIsLoading(true)
-        setReviews([])
-        setCurrentOffset(0)
-      } else {
-        setIsLoadingMore(true)
+  const loadReviews = useCallback(async () => {
+    if (!reviewerId) return
+
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const response = await getCompletedPapers(reviewerId, {
+        limit,
+        offset,
+        search: filters?.search,
+      })
+
+      if (response.error) {
+        setError(response.error)
+        return
       }
 
-      try {
-        // Load paginated papers from completed-papers API with filters
-        const offset = reset ? 0 : currentOffset
-        const response = await getCompletedPapers(reviewerId, {
-          limit: PAGE_SIZE,
-          offset,
-          search: filters?.search,
-        })
-
-        if (response.error) {
-          setError(response.error)
-          return
-        }
-
-        const newReviews = response.data || []
-        const total = response.total
-
-        if (reset) {
-          setReviews(newReviews)
-          setCurrentOffset(newReviews.length)
-        } else {
-          // Avoid duplicates
-          setReviews((prev) => {
-            const existingIds = new Set(prev.map((r) => r.id))
-            const uniqueNew = newReviews.filter((r) => !existingIds.has(r.id))
-            return [...prev, ...uniqueNew]
-          })
-          setCurrentOffset((prev) => prev + newReviews.length)
-        }
-
-        const totalLoaded = reset ? newReviews.length : currentOffset + newReviews.length
-        setHasMore(totalLoaded < total)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load completed reviews")
-      } finally {
-        setIsLoading(false)
-        setIsLoadingMore(false)
-      }
-    },
-    [reviewerId, currentOffset, filters?.search],
-  )
+      setReviews(response.data || [])
+      setTotal(response.total || 0)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load completed reviews")
+    } finally {
+      setIsLoading(false)
+    }
+  }, [reviewerId, limit, offset, filters?.search])
 
   useEffect(() => {
-    loadReviews(true)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reviewerId, filters?.search])
-
-  const loadMore = useCallback(() => {
-    if (!isLoading && !isLoadingMore && hasMore) {
-      loadReviews(false)
-    }
-  }, [isLoading, isLoadingMore, hasMore, loadReviews])
+    loadReviews()
+  }, [loadReviews])
 
   return {
     reviews,
+    total,
     isLoading,
-    isLoadingMore,
     error,
-    hasMore,
-    loadMore,
-    refresh: () => loadReviews(true),
+    refresh: loadReviews,
   }
 }
