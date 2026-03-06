@@ -49,7 +49,11 @@ const keyAliases: Record<string, string> = {
 
 const TranslationContext = createContext<TranslationContextValue | undefined>(undefined)
 
-function buildCandidatePaths(path: string): string[] {
+function buildCandidatePaths(path: unknown): string[] {
+  if (typeof path !== "string" || path.length === 0) {
+    return []
+  }
+
   const [first, ...rest] = path.split(".")
   const alias = keyAliases[first]
   if (alias) {
@@ -75,6 +79,13 @@ function getValueFromPath(path: string, messages: Messages) {
 }
 
 function resolveMessage(path: string, messages: Messages, values?: TranslationValues): string {
+  if (typeof path !== "string" || path.length === 0) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn(`[Translation] Invalid key: ${String(path)}`)
+    }
+    return ""
+  }
+
   for (const candidate of buildCandidatePaths(path)) {
     const resolved = getValueFromPath(candidate, messages)
 
@@ -135,6 +146,13 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
 
   const translateList = useCallback(
     (key: string) => {
+      if (typeof key !== "string" || key.length === 0) {
+        if (process.env.NODE_ENV === "development") {
+          console.warn(`[Translation] Invalid list key: ${String(key)}`)
+        }
+        return []
+      }
+
       for (const candidate of buildCandidatePaths(key)) {
         const resolved = getValueFromPath(candidate, messages)
         if (Array.isArray(resolved)) {

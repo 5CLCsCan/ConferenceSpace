@@ -105,7 +105,7 @@ export default function ForgotPasswordPage() {
             </span>
           </div>
           <div className="auth-brand-content">
-            <p className="auth-brand-label">CONFERENCESPACE</p>
+            <p className="auth-brand-label">{t("runtime.app.forgot-password.page.text_conferencespace")}</p>
             <h1 className="auth-brand-headline">{t("auth.forgotPassword.brandTitle")}</h1>
             <p className="auth-brand-sub">{t("auth.forgotPassword.brandSubtitle")}</p>
           </div>
@@ -152,7 +152,7 @@ export default function ForgotPasswordPage() {
                 <input
                   id="email"
                   type="email"
-                  placeholder="ada.lovelace@example.com"
+                  placeholder={t("runtime.app.forgot-password.page.placeholder_ada_lovelace_example_com")}
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   required

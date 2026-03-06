@@ -4,8 +4,10 @@ import { useState } from "react"
 import type { MessageItemProps } from "../types"
 import { ROLE_STYLES } from "../config"
 import { ParticipantAvatar } from "./participant-avatar"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export function MessageItem({ message, isFirst, onReact, onQuote }: MessageItemProps) {
+  const { t } = useTranslation()
   const [showActions, setShowActions] = useState(false)
 
   return (
@@ -33,7 +35,7 @@ export function MessageItem({ message, isFirst, onReact, onQuote }: MessageItemP
               </span>
             )}
             <span className="text-[10px] text-slate-400 font-medium">{message.relativeTime}</span>
-            {message.editedAt && <span className="text-[9px] text-slate-400 italic">(edited)</span>}
+            {message.editedAt && <span className="text-[9px] text-slate-400 italic">{t("runtime.components.shared.discussion.components.message-item.text_edited")}</span>}
           </div>
 
           {/* Content */}
@@ -152,7 +154,7 @@ export function MessageItem({ message, isFirst, onReact, onQuote }: MessageItemP
           <button
             onClick={() => onReact?.(message.id, "thumbs_up")}
             className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
-            title="React"
+            title={t("runtime.components.shared.discussion.components.message-item.title_react")}
           >
             <span
               className="material-symbols-outlined"
@@ -179,7 +181,7 @@ export function MessageItem({ message, isFirst, onReact, onQuote }: MessageItemP
           <button
             onClick={() => onQuote?.(message.id)}
             className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
-            title="Quote"
+            title={t("runtime.components.shared.discussion.components.message-item.title_quote")}
           >
             <span
               className="material-symbols-outlined"
@@ -205,7 +207,7 @@ export function MessageItem({ message, isFirst, onReact, onQuote }: MessageItemP
           </button>
           <button
             className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
-            title="More"
+            title={t("runtime.components.shared.discussion.components.message-item.title_more")}
           >
             <span
               className="material-symbols-outlined"

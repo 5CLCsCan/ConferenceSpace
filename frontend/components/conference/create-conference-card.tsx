@@ -1,8 +1,13 @@
+"use client"
+
+import { useTranslation } from "@/lib/i18n/translation-context"
+
 interface CreateConferenceCardProps {
   onClick: () => void
 }
 
 export function CreateConferenceCard({ onClick }: CreateConferenceCardProps) {
+  const { t } = useTranslation()
   return (
     <div
       onClick={onClick}
@@ -14,11 +19,9 @@ export function CreateConferenceCard({ onClick }: CreateConferenceCardProps) {
         </span>
       </div>
       <h3 className="text-sm font-bold text-slate-600 dark:text-slate-400 group-hover:text-[#1B3C53] dark:group-hover:text-white mb-1 transition-colors tracking-tight">
-        Create New Conference
-      </h3>
+        {t("runtime.components.conference.create-conference-card.text_create_new_conference")}{" "}</h3>
       <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 text-center max-w-[160px] leading-relaxed">
-        Start managing a new conference, workshop or event.
-      </p>
+        {t("runtime.components.conference.create-conference-card.text_start_managing_a_new_conference_workshop")}{" "}</p>
     </div>
   )
 }

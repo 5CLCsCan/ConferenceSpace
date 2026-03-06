@@ -90,13 +90,13 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
 
   const getRecommendationBadge = (recommendation: string) => {
     const config: Record<string, { label: string; className: string }> = {
-      strong_accept: { label: "Strong Accept", className: "bg-green-600 text-white" },
-      accept: { label: "Accept", className: "bg-green-500 text-white" },
-      weak_accept: { label: "Weak Accept", className: "bg-green-400 text-white" },
-      borderline: { label: "Borderline", className: "bg-yellow-500 text-white" },
-      weak_reject: { label: "Weak Reject", className: "bg-orange-400 text-white" },
-      reject: { label: "Reject", className: "bg-red-500 text-white" },
-      strong_reject: { label: "Strong Reject", className: "bg-red-600 text-white" },
+      strong_accept: { label: t("runtime.components.chair.submission-review-tab.prop_label_strong_accept"), className: "bg-green-600 text-white" },
+      accept: { label: t("runtime.components.chair.submission-review-tab.prop_label_accept"), className: "bg-green-500 text-white" },
+      weak_accept: { label: t("runtime.components.chair.submission-review-tab.prop_label_weak_accept"), className: "bg-green-400 text-white" },
+      borderline: { label: t("runtime.components.chair.submission-review-tab.prop_label_borderline"), className: "bg-yellow-500 text-white" },
+      weak_reject: { label: t("runtime.components.chair.submission-review-tab.prop_label_weak_reject"), className: "bg-orange-400 text-white" },
+      reject: { label: t("runtime.components.chair.submission-review-tab.prop_label_reject"), className: "bg-red-500 text-white" },
+      strong_reject: { label: t("runtime.components.chair.submission-review-tab.prop_label_strong_reject"), className: "bg-red-600 text-white" },
     }
     const item = config[recommendation] || {
       label: recommendation,
@@ -159,7 +159,7 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
     <div className="space-y-2">
       <Card>
         <CardHeader className="px-4 pt-4 pb-2">
-          <CardTitle>Final Decision</CardTitle>
+          <CardTitle>{t("runtime.components.chair.submission-review-tab.text_final_decision")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 px-4 pb-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -168,26 +168,21 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
               variant={selectedDecision === "accepted" ? "default" : "outline"}
               onClick={() => setSelectedDecision("accepted")}
             >
-              Accept
-            </Button>
+              {t("runtime.components.chair.submission-review-tab.text_accept")}{" "}</Button>
             <Button
               type="button"
               variant={selectedDecision === "rejected" ? "destructive" : "outline"}
               onClick={() => setSelectedDecision("rejected")}
             >
-              Reject
-            </Button>
-            <Button type="button" variant="outline" disabled title="Backend only supports accepted/rejected statuses right now.">
-              Minor Revision
-            </Button>
-            <Button type="button" variant="outline" disabled title="Backend only supports accepted/rejected statuses right now.">
-              Major Revision
-            </Button>
+              {t("runtime.components.chair.submission-review-tab.text_reject")}{" "}</Button>
+            <Button type="button" variant="outline" disabled title={t("runtime.components.chair.submission-review-tab.title_backend_only_supports_accepted_rejected_statuses")}>
+              {t("runtime.components.chair.submission-review-tab.text_minor_revision")}{" "}</Button>
+            <Button type="button" variant="outline" disabled title={t("runtime.components.chair.submission-review-tab.title_backend_only_supports_accepted_rejected_statuses")}>
+              {t("runtime.components.chair.submission-review-tab.text_major_revision")}{" "}</Button>
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Only <code>accepted</code> and <code>rejected</code> can be persisted with the current backend contract. Revision decisions are intentionally disabled.
-          </p>
+            {t("runtime.components.chair.submission-review-tab.text_only")}{" "}<code>accepted</code> and <code>rejected</code> {t("runtime.components.chair.submission-review-tab.text_can_be_persisted_with_the_current")}{" "}</p>
 
           <div className="flex items-center gap-2">
             <Button
@@ -214,8 +209,7 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
               {decisionSaving ? (
                 <>
                   <Loader2 className="size-4 mr-2 animate-spin" />
-                  Saving...
-                </>
+                  {t("runtime.components.chair.submission-review-tab.text_saving")}{" "}</>
               ) : (
                 "Save Decision"
               )}

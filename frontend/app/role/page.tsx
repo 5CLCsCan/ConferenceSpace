@@ -7,11 +7,14 @@ import type { UserRole } from "@/lib/types"
 import { canAccessRole } from "@/lib/role-access"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { ROUTES } from "@/lib/routes"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { tStatic as t } from "@/lib/i18n/static-translate"
 
 /* ------------------------------------------------------------------ */
 /*  Abstract decorative shape component                                */
 /* ------------------------------------------------------------------ */
 function AbstractShape({ className, style }: { className?: string; style?: React.CSSProperties }) {
+  const { t } = useTranslation()
   return <div className={className} style={style} aria-hidden="true" />
 }
 
@@ -21,10 +24,10 @@ function AbstractShape({ className, style }: { className?: string; style?: React
 const ROLE_CONFIG = {
   author: {
     icon: "edit_document",
-    label: "Submissions",
-    title: "Author",
+    label: t("runtime.app.role.page.prop_label_submissions"),
+    title: t("runtime.app.role.page.prop_title_author"),
     description:
-      "Manage submissions, view reviews, and upload camera-ready papers for upcoming conferences.",
+      t("runtime.app.role.page.prop_description_manage_submissions_view_reviews_and_upload"),
     gradient: "from-emerald-500 via-green-600 to-teal-700",
     accentColor: "#16a34a",
     shadowColor: "rgba(22,163,74,0.25)",
@@ -33,10 +36,10 @@ const ROLE_CONFIG = {
   },
   reviewer: {
     icon: "rate_review",
-    label: "Evaluations",
-    title: "Reviewer",
+    label: t("runtime.app.role.page.prop_label_evaluations"),
+    title: t("runtime.app.role.page.prop_title_reviewer"),
     description:
-      "Evaluate assigned papers, submit scores, and provide constructive feedback to authors.",
+      t("runtime.app.role.page.prop_description_evaluate_assigned_papers_submit_scores_and"),
     gradient: "from-blue-500 via-blue-600 to-indigo-700",
     accentColor: "#2563eb",
     shadowColor: "rgba(37,99,235,0.25)",
@@ -46,9 +49,9 @@ const ROLE_CONFIG = {
   },
   chair: {
     icon: "gavel",
-    label: "Management",
-    title: "Chair",
-    description: "Oversee conference tracks, manage committees, and set schedules for the event.",
+    label: t("runtime.app.role.page.prop_label_management"),
+    title: t("runtime.app.role.page.prop_title_chair"),
+    description: t("runtime.app.role.page.prop_description_oversee_conference_tracks_manage_committees_and"),
     gradient: "from-violet-500 via-purple-600 to-purple-800",
     accentColor: "#9333ea",
     shadowColor: "rgba(147,51,234,0.25)",
@@ -223,8 +226,7 @@ export default function RoleSelectionPage() {
               <span className="material-symbols-outlined text-2xl">school</span>
             </div>
             <h1 className="text-xl font-bold tracking-tight text-[#0f172a] dark:text-white">
-              ConferenceSpace
-            </h1>
+              {t("runtime.app.role.page.text_conferencespace")}{" "}</h1>
           </div>
           <button className="text-slate-500">
             <span className="material-symbols-outlined">menu</span>
@@ -236,12 +238,12 @@ export default function RoleSelectionPage() {
       <DashboardSidebar
         menuItems={[
           {
-            label: "Dashboard",
+            labelKey: "dashboard.sidebar.nav.common.dashboard",
             href: ROUTES.ROLE_SELECT,
             icon: "dashboard",
           },
           {
-            label: "Notifications",
+            labelKey: "dashboard.sidebar.nav.common.notifications",
             href: ROUTES.NOTIFICATIONS,
             icon: "notifications",
             badge: 3,
@@ -291,17 +293,14 @@ export default function RoleSelectionPage() {
               <div className="flex items-center gap-2.5 mb-1">
                 <div className="w-1.5 h-1.5 rounded-full bg-[#1B3C53]" />
                 <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400">
-                  Role Selection
-                </span>
+                  {t("runtime.app.role.page.text_role_selection")}{" "}</span>
               </div>
               <h2 className="text-[32px] font-black tracking-tight text-slate-900 dark:text-white leading-[1.1]">
-                Welcome back, <br className="md:hidden" />
+                {t("runtime.app.role.page.text_welcome_back")}{" "}<br className="md:hidden" />
                 <span className="text-[#16a34a]">{user.name.split(" ")[0]}</span>
               </h2>
               <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xl font-light leading-relaxed">
-                Please select the role you wish to operate as today. You can switch roles at any
-                time from your account settings.
-              </p>
+                {t("runtime.app.role.page.text_please_select_the_role_you_wish")}{" "}</p>
               {/* Accent divider */}
               <div className="flex items-center gap-3 pt-2">
                 <div className="w-8 h-[2px] bg-[#1B3C53] rounded-full" />
@@ -438,8 +437,7 @@ export default function RoleSelectionPage() {
                             }}
                           />
                           <span className="text-[10px] font-medium text-slate-400">
-                            Full Access
-                          </span>
+                            {t("runtime.app.role.page.text_full_access")}{" "}</span>
                         </div>
                       </div>
 
@@ -452,8 +450,7 @@ export default function RoleSelectionPage() {
                           }}
                           className={`w-full py-2.5 px-5 rounded-full text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 group/btn ${cfg.btnClass}`}
                         >
-                          Enter Dashboard
-                          <span className="material-symbols-outlined text-base group-hover/btn:translate-x-1 transition-transform">
+                          {t("runtime.app.role.page.text_enter_dashboard")}{" "}<span className="material-symbols-outlined text-base group-hover/btn:translate-x-1 transition-transform">
                             arrow_forward
                           </span>
                         </button>

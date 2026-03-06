@@ -34,6 +34,23 @@ function statusRank(status: string) {
   }
 }
 
+const statusLabelKeys: Record<StatusFilter, string> = {
+  all: "runtime.components.reviewer.assigned-dashboard.filters.all",
+  not_started: "runtime.components.reviewer.assigned-dashboard.filters.notStarted",
+  in_progress: "runtime.components.reviewer.assigned-dashboard.filters.inProgress",
+  completed: "runtime.components.reviewer.assigned-dashboard.filters.completed",
+}
+
+const assignmentStatusLabelKeys: Record<string, string> = {
+  not_started: "dashboard.roles.reviewer.papers.statusValues.not_started",
+  in_progress: "dashboard.roles.reviewer.papers.statusValues.in_progress",
+  completed: "dashboard.roles.reviewer.papers.statusValues.completed",
+  pending: "dashboard.roles.reviewer.papers.statusValues.pending",
+  accepted: "dashboard.roles.reviewer.papers.statusValues.accepted",
+  declined: "dashboard.roles.reviewer.papers.statusValues.declined",
+  submitted: "dashboard.roles.reviewer.papers.statusValues.submitted",
+}
+
 export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
   const router = useRouter()
   const { t } = useTranslation()
@@ -154,13 +171,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
               }`}
             >
-              {status === "all"
-                ? "All"
-                : status === "not_started"
-                  ? "Pending"
-                  : status === "in_progress"
-                    ? "Draft"
-                    : "Done"}
+              {t(statusLabelKeys[status])}
               <span className="ml-1 opacity-60">{statusCounts[status]}</span>
             </button>
           ))}
@@ -179,9 +190,9 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
             onChange={(event) => setSortBy(event.target.value as SortOption)}
             className="h-8 px-3 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none"
           >
-            <option value="deadline">Sort: Deadline</option>
-            <option value="title">Sort: Title</option>
-            <option value="status">Sort: Status</option>
+            <option value="deadline">{t("runtime.components.reviewer.assigned-dashboard.text_sort_deadline")}</option>
+            <option value="title">{t("runtime.components.reviewer.assigned-dashboard.text_sort_title")}</option>
+            <option value="status">{t("runtime.components.reviewer.assigned-dashboard.text_sort_status")}</option>
           </select>
         </div>
       </div>
@@ -230,7 +241,10 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
                     </div>
                   </td>
                   <td className="py-3 px-3 text-[11px] text-slate-600 dark:text-slate-300">
-                    {t(`dashboard.roles.reviewer.papers.statusValues.${paper.assignment_status}`)}
+                    {t(
+                      assignmentStatusLabelKeys[paper.assignment_status] ||
+                        "dashboard.roles.reviewer.papers.statusValues.pending",
+                    )}
                   </td>
                   <td className="py-3 px-3 text-[11px] text-slate-600 dark:text-slate-300">
                     {paper.due_date ? new Date(paper.due_date).toLocaleDateString() : "-"}
@@ -241,8 +255,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
                       onClick={() => handleOpenAssignment(paper.assignment_id)}
                       className="h-8 px-3 rounded-md bg-[#1B3C53] hover:bg-[#234C6A] text-white text-[11px] font-semibold"
                     >
-                      Open
-                    </button>
+                      {t("runtime.components.reviewer.assigned-dashboard.text_open")}{" "}</button>
                   </td>
                 </tr>
               ))}

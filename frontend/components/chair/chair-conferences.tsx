@@ -21,6 +21,7 @@ import {
 } from "@/components/conference/explore-cards"
 import { listConferences } from "@/lib/api/conferences"
 import type { Conference as ApiConference } from "@/lib/types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ChairConferencesProps {
   /** Initial conferences data */
@@ -81,6 +82,7 @@ function mapToExploreConference(conference: ApiConference): ExploreConference {
 }
 
 export function ChairConferences({ conferences: initialConferences }: ChairConferencesProps) {
+  const { t } = useTranslation()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<TabType>("my-conferences")
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
@@ -206,15 +208,14 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
     if (loading) {
       return (
         <div className="flex items-center justify-center py-16 text-xs text-slate-500">
-          Loading conferences...
-        </div>
+          {t("runtime.components.chair.chair-conferences.text_loading_conferences")}{" "}</div>
       )
     }
 
     if (error) {
       return (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">
-          Failed to load conferences: {error}
+          {t("runtime.components.chair.chair-conferences.text_failed_to_load_conferences")}{" "}{error}
         </div>
       )
     }
@@ -371,15 +372,14 @@ interface HeaderProps {
 }
 
 function Header({ onCreateConference }: HeaderProps) {
+  const { t } = useTranslation()
   return (
     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6">
       <div>
         <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white leading-none">
-          Conferences
-        </h1>
+          {t("runtime.components.chair.chair-conferences.text_conferences")}{" "}</h1>
         <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-2 max-w-xl">
-          Manage your conferences and discover new opportunities.
-        </p>
+          {t("runtime.components.chair.chair-conferences.text_manage_your_conferences_and_discover_new")}{" "}</p>
       </div>
       <button
         onClick={onCreateConference}
@@ -404,8 +404,7 @@ function Header({ onCreateConference }: HeaderProps) {
         >
           add
         </span>
-        Create Conference
-      </button>
+        {t("runtime.components.chair.chair-conferences.text_create_conference")}{" "}</button>
     </div>
   )
 }
@@ -420,10 +419,11 @@ interface TabsProps {
 }
 
 function Tabs({ activeTab, onTabChange }: TabsProps) {
+  const { t } = useTranslation()
   const tabs: { key: TabType; label: string }[] = [
-    { key: "my-conferences", label: "My Conferences" },
-    { key: "explore", label: "Explore" },
-    { key: "archived", label: "Archived" },
+    { key: "my-conferences", label: t("runtime.components.chair.chair-conferences.prop_label_my_conferences") },
+    { key: "explore", label: t("runtime.components.chair.chair-conferences.prop_label_explore") },
+    { key: "archived", label: t("runtime.components.chair.chair-conferences.prop_label_archived") },
   ]
 
   return (
@@ -470,6 +470,7 @@ function Toolbar({
   viewMode,
   onViewModeChange,
 }: ToolbarProps) {
+  const { t } = useTranslation()
   const placeholders: Record<TabType, string> = {
     "my-conferences": "Search conferences...",
     explore: "Search conferences...",
@@ -478,18 +479,18 @@ function Toolbar({
 
   const sortOptions: Record<TabType, { value: string; label: string }[]> = {
     "my-conferences": [
-      { value: "date-newest", label: "Date (Newest)" },
-      { value: "name-asc", label: "Name (A-Z)" },
-      { value: "submissions", label: "Submissions (High-Low)" },
+      { value: "date-newest", label: t("runtime.components.chair.chair-conferences.prop_label_date_newest") },
+      { value: "name-asc", label: t("runtime.components.chair.chair-conferences.prop_label_name_a_z") },
+      { value: "submissions", label: t("runtime.components.chair.chair-conferences.prop_label_submissions_high_low") },
     ],
     explore: [
-      { value: "popularity", label: "Popularity" },
-      { value: "date-upcoming", label: "Date (Upcoming)" },
-      { value: "name-asc", label: "Name (A-Z)" },
+      { value: "popularity", label: t("runtime.components.chair.chair-conferences.prop_label_popularity") },
+      { value: "date-upcoming", label: t("runtime.components.chair.chair-conferences.prop_label_date_upcoming") },
+      { value: "name-asc", label: t("runtime.components.chair.chair-conferences.prop_label_name_a_z") },
     ],
     archived: [
-      { value: "date-newest", label: "Date (Newest)" },
-      { value: "name-asc", label: "Name (A-Z)" },
+      { value: "date-newest", label: t("runtime.components.chair.chair-conferences.prop_label_date_newest") },
+      { value: "name-asc", label: t("runtime.components.chair.chair-conferences.prop_label_name_a_z") },
     ],
   }
 
@@ -531,8 +532,7 @@ function Toolbar({
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-            Sort by:
-          </span>
+            {t("runtime.components.chair.chair-conferences.text_sort_by")}{" "}</span>
           <select
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}

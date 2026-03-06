@@ -18,6 +18,7 @@ import { useAuth } from "@/lib/auth-context"
 import { listConferences } from "@/lib/api/conferences"
 import { getConferenceSubmissions, type Submission } from "@/lib/api/submissions"
 import type { Conference } from "@/lib/types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 type ViewMode = "grid" | "list"
 
@@ -61,6 +62,7 @@ function mapConferenceToExplore(conference: Conference): ExploreConference {
 }
 
 export function AuthorConferences({ conferences: initialConferences }: AuthorConferencesProps) {
+  const { t } = useTranslation()
   const router = useRouter()
   const { user } = useAuth()
   const [activeTab, setActiveTab] = useState<AuthorTabType>("my-conferences")
@@ -229,15 +231,14 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
     if (loading) {
       return (
         <div className="flex items-center justify-center py-16 text-xs text-slate-500">
-          Loading conferences...
-        </div>
+          {t("runtime.components.author.author-conferences.text_loading_conferences")}{" "}</div>
       )
     }
 
     if (error) {
       return (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">
-          Failed to load conferences: {error}
+          {t("runtime.components.author.author-conferences.text_failed_to_load_conferences")}{" "}{error}
         </div>
       )
     }
@@ -389,15 +390,14 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
 // -------------------------------------------------------------------------
 
 function Header() {
+  const { t } = useTranslation()
   return (
     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6">
       <div>
         <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white leading-none">
-          Conferences
-        </h1>
+          {t("runtime.components.author.author-conferences.text_conferences")}{" "}</h1>
         <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-2 max-w-xl">
-          Track your paper submissions and discover new opportunities to publish your research.
-        </p>
+          {t("runtime.components.author.author-conferences.text_track_your_paper_submissions_and_discover")}{" "}</p>
       </div>
     </div>
   )
@@ -413,10 +413,11 @@ interface TabsProps {
 }
 
 function Tabs({ activeTab, onTabChange }: TabsProps) {
+  const { t } = useTranslation()
   const tabs: { key: AuthorTabType; label: string }[] = [
-    { key: "my-conferences", label: "My Submissions" },
-    { key: "explore", label: "Explore" },
-    { key: "archived", label: "Archived" },
+    { key: "my-conferences", label: t("runtime.components.author.author-conferences.prop_label_my_submissions") },
+    { key: "explore", label: t("runtime.components.author.author-conferences.prop_label_explore") },
+    { key: "archived", label: t("runtime.components.author.author-conferences.prop_label_archived") },
   ]
 
   return (
@@ -463,6 +464,7 @@ function Toolbar({
   viewMode,
   onViewModeChange,
 }: ToolbarProps) {
+  const { t } = useTranslation()
   const placeholders: Record<AuthorTabType, string> = {
     "my-conferences": "Search submissions...",
     explore: "Search conferences...",
@@ -471,18 +473,18 @@ function Toolbar({
 
   const sortOptions: Record<AuthorTabType, { value: string; label: string }[]> = {
     "my-conferences": [
-      { value: "date-newest", label: "Date (Newest)" },
-      { value: "name-asc", label: "Name (A-Z)" },
-      { value: "status", label: "Status" },
+      { value: "date-newest", label: t("runtime.components.author.author-conferences.prop_label_date_newest") },
+      { value: "name-asc", label: t("runtime.components.author.author-conferences.prop_label_name_a_z") },
+      { value: "status", label: t("runtime.components.author.author-conferences.prop_label_status") },
     ],
     explore: [
-      { value: "deadline", label: "Deadline (Soon)" },
-      { value: "date-upcoming", label: "Date (Upcoming)" },
-      { value: "name-asc", label: "Name (A-Z)" },
+      { value: "deadline", label: t("runtime.components.author.author-conferences.prop_label_deadline_soon") },
+      { value: "date-upcoming", label: t("runtime.components.author.author-conferences.prop_label_date_upcoming") },
+      { value: "name-asc", label: t("runtime.components.author.author-conferences.prop_label_name_a_z") },
     ],
     archived: [
-      { value: "date-newest", label: "Date (Newest)" },
-      { value: "name-asc", label: "Name (A-Z)" },
+      { value: "date-newest", label: t("runtime.components.author.author-conferences.prop_label_date_newest") },
+      { value: "name-asc", label: t("runtime.components.author.author-conferences.prop_label_name_a_z") },
     ],
   }
 
@@ -524,8 +526,7 @@ function Toolbar({
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-            Sort by:
-          </span>
+            {t("runtime.components.author.author-conferences.text_sort_by")}{" "}</span>
           <select
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}
@@ -633,15 +634,14 @@ function EmptyState({ type }: EmptyStateProps) {
 }
 
 function NoResultsState() {
+  const { t } = useTranslation()
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
       <span className="material-symbols-outlined text-[28px] text-slate-300 mb-2">search_off</span>
       <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-1 tracking-tight">
-        No results found
-      </h3>
+        {t("runtime.components.author.author-conferences.text_no_results_found")}{" "}</h3>
       <p className="text-[10px] font-medium text-slate-400 text-center">
-        Try adjusting your search terms
-      </p>
+        {t("runtime.components.author.author-conferences.text_try_adjusting_your_search_terms")}{" "}</p>
     </div>
   )
 }

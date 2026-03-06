@@ -5,8 +5,10 @@ import ChairDashboard from "@/components/chair/chair-dashboard"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { useNotifications } from "@/hooks/use-notifications"
 import { getSidebarMenuItems } from "@/lib/navigation"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export default function ChairPage() {
+  const { t } = useTranslation()
   const { unreadCount } = useNotifications({ limit: 1 })
 
   return (
@@ -18,8 +20,7 @@ export default function ChairPage() {
           <Suspense
             fallback={
               <div className="flex items-center justify-center h-full text-slate-400">
-                Loading Chair Dashboard...
-              </div>
+                {t("runtime.app.role.chair.page.text_loading_chair_dashboard")}{" "}</div>
             }
           >
             <ChairDashboard />

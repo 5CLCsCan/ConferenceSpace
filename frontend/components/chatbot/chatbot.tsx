@@ -13,6 +13,7 @@ import {
   getConversationHistory,
   listConversations,
 } from "@/lib/chatbot/conversations"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 type ChatViewState = "closed" | "conversation-list" | "chat"
 
@@ -90,6 +91,7 @@ function mergeConversationLists(
 }
 
 export function Chatbot() {
+  const { t } = useTranslation()
   const pathname = usePathname()
   const { isOpen, setIsOpen, width, setWidth } = useChatbot()
   const [isResizing, setIsResizing] = React.useState(false)
@@ -345,7 +347,7 @@ export function Chatbot() {
           isOpen && "scale-0 opacity-0 pointer-events-none",
           !isOpen && "scale-100 opacity-100",
         )}
-        aria-label="Open assistant"
+        aria-label={t("runtime.components.chatbot.chatbot.aria_label_open_assistant")}
       >
         <span
           className="material-symbols-outlined"
@@ -375,7 +377,7 @@ export function Chatbot() {
           <div
             onMouseDown={handleMouseDown}
             className="absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize z-10 hover:bg-[#1B3C53]/20 transition-colors group"
-            aria-label="Resize sidebar"
+            aria-label={t("runtime.components.chatbot.chatbot.aria_label_resize_sidebar")}
           >
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-12 bg-slate-300 dark:bg-slate-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
@@ -385,13 +387,12 @@ export function Chatbot() {
           <div className="flex items-center gap-2">
             {viewState === "conversation-list" ? (
               <span className="text-[11px] font-bold uppercase tracking-wider text-[#1B3C53] dark:text-slate-200">
-                Recent Conversations
-              </span>
+                {t("runtime.components.chatbot.chatbot.text_recent_conversations")}{" "}</span>
             ) : (
               <button
                 onClick={handleMinimize}
                 className="h-7 w-7 flex items-center justify-center rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                aria-label="Back to conversations"
+                aria-label={t("runtime.components.chatbot.chatbot.aria_label_back_to_conversations")}
               >
                 <span
                   className="material-symbols-outlined text-slate-500"
@@ -405,7 +406,7 @@ export function Chatbot() {
           <button
             onClick={handleClose}
             className="h-7 w-7 flex items-center justify-center rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            aria-label="Close assistant"
+            aria-label={t("runtime.components.chatbot.chatbot.aria_label_close_assistant")}
           >
             <span
               className="material-symbols-outlined text-slate-400"

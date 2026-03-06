@@ -6,6 +6,7 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint . --max-warnings=0",
+    "i18n:audit": "node scripts/i18n-audit.mjs",
     "start": "next start",
     "pretty": "prettier --write .",
     "pretty:check": "prettier --check .",

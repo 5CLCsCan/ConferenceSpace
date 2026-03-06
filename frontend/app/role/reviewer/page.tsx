@@ -5,8 +5,10 @@ import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { useNotifications } from "@/hooks/use-notifications"
 import { ReviewerDashboard } from "@/components/reviewer/reviewer-dashboard"
 import { getSidebarMenuItems } from "@/lib/navigation"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export default function ReviewerPage() {
+  const { t } = useTranslation()
   const { unreadCount } = useNotifications({ limit: 1 })
 
   return (
@@ -18,8 +20,7 @@ export default function ReviewerPage() {
           <Suspense
             fallback={
               <div className="flex items-center justify-center h-full text-slate-400">
-                Loading...
-              </div>
+                {t("runtime.app.role.reviewer.page.text_loading")}{" "}</div>
             }
           >
             <ReviewerDashboard />

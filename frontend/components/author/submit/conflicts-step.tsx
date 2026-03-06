@@ -1,5 +1,7 @@
 "use client"
 
+import { useTranslation } from "@/lib/i18n/translation-context"
+
 interface Conflict {
   id: string
   firstName: string
@@ -28,35 +30,12 @@ interface ConflictsStepProps {
   onCoiConfirmedChange: (checked: boolean) => void
 }
 
-const conflictReasons = [
-  { value: "advisor", label: "Advisor / Advisee Relationship" },
-  { value: "coauthor", label: "Recent Co-author (last 24 months)" },
-  { value: "family", label: "Family Member / Close Personal Relationship" },
-  { value: "financial", label: "Financial Interest / Grant Collaboration" },
-  { value: "other", label: "Other (Please specify in comments)" },
-]
-
-const reasonLabels: Record<string, { label: string; color: string }> = {
-  advisor: {
-    label: "Advisor",
-    color: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
-  },
-  coauthor: {
-    label: "Co-author",
-    color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-  },
-  family: {
-    label: "Personal",
-    color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
-  },
-  financial: {
-    label: "Financial",
-    color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
-  },
-  other: {
-    label: "Other",
-    color: "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300",
-  },
+const reasonColors: Record<string, string> = {
+  advisor: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
+  coauthor: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+  family: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+  financial: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
+  other: "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300",
 }
 
 export function ConflictsStep({
@@ -73,6 +52,48 @@ export function ConflictsStep({
   onRemoveConflict,
   onCoiConfirmedChange,
 }: ConflictsStepProps) {
+  const { t } = useTranslation()
+  const conflictReasonOptions = [
+    {
+      value: "advisor",
+      label: t(
+        "runtime.components.author.submit.conflicts-step.prop_label_advisor_advisee_relationship",
+      ),
+    },
+    {
+      value: "coauthor",
+      label: t(
+        "runtime.components.author.submit.conflicts-step.prop_label_recent_co_author_last_24_months",
+      ),
+    },
+    {
+      value: "family",
+      label: t(
+        "runtime.components.author.submit.conflicts-step.prop_label_family_member_close_personal_relationship",
+      ),
+    },
+    {
+      value: "financial",
+      label: t(
+        "runtime.components.author.submit.conflicts-step.prop_label_financial_interest_grant_collaboration",
+      ),
+    },
+    {
+      value: "other",
+      label: t(
+        "runtime.components.author.submit.conflicts-step.prop_label_other_please_specify_in_comments",
+      ),
+    },
+  ]
+
+  const reasonLabels: Record<string, string> = {
+    advisor: t("runtime.components.author.submit.conflicts-step.prop_label_advisor"),
+    coauthor: t("runtime.components.author.submit.conflicts-step.prop_label_co_author"),
+    family: t("runtime.components.author.submit.conflicts-step.prop_label_personal"),
+    financial: t("runtime.components.author.submit.conflicts-step.prop_label_financial"),
+    other: t("runtime.components.author.submit.conflicts-step.prop_label_other"),
+  }
+
   return (
     <div className="flex flex-col gap-4 w-full">
       {/* Policy Definition Alert */}
@@ -82,13 +103,9 @@ export function ConflictsStep({
         </span>
         <div>
           <p className="text-xs font-bold text-[#1B3C53] dark:text-blue-200 mb-0.5">
-            Policy Definition
-          </p>
+            {t("runtime.components.author.submit.conflicts-step.text_policy_definition")}{" "}</p>
           <p className="text-[11px] text-slate-600 dark:text-blue-300/80 leading-relaxed">
-            A conflict of interest exists if you have been a co-author with a PC member in the last
-            24 months, are from the same institution, or have a close personal or professional
-            relationship (e.g., family member, Ph.D. advisor/advisee).
-          </p>
+            {t("runtime.components.author.submit.conflicts-step.text_a_conflict_of_interest_exists_if")}{" "}</p>
         </div>
       </div>
 
@@ -97,11 +114,10 @@ export function ConflictsStep({
         <div className="border-b border-slate-100 dark:border-slate-700 pb-3 mb-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
-              Institutional Conflicts
-            </h3>
+              {t("runtime.components.author.submit.conflicts-step.text_institutional_conflicts")}{" "}</h3>
             <span
               className="material-symbols-outlined text-slate-400 cursor-help text-[16px]"
-              title="Domains of your current affiliation are automatically flagged."
+              title={t("runtime.components.author.submit.conflicts-step.title_domains_of_your_current_affiliation_are")}
             >
               help
             </span>
@@ -109,8 +125,7 @@ export function ConflictsStep({
         </div>
         <div className="flex flex-col gap-1.5">
           <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-            Conflict Domains
-          </span>
+            {t("runtime.components.author.submit.conflicts-step.text_conflict_domains")}{" "}</span>
           <div className="w-full min-h-10 px-2 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus-within:ring-2 focus-within:ring-[#1B3C53] focus-within:border-[#1B3C53] transition-all flex flex-wrap gap-2 items-center">
             {conflictDomains.map((domain) => (
               <div
@@ -131,7 +146,7 @@ export function ConflictsStep({
             ))}
             <input
               className="flex-1 min-w-[180px] h-6 border-none bg-transparent focus:ring-0 focus:outline-none text-xs px-2 placeholder:text-slate-400"
-              placeholder="Add domain (e.g. google.com) and press Enter..."
+              placeholder={t("runtime.components.author.submit.conflicts-step.placeholder_add_domain_e_g_google_com")}
               type="text"
               value={domainInput}
               onChange={(e) => onDomainInputChange(e.target.value)}
@@ -139,9 +154,7 @@ export function ConflictsStep({
             />
           </div>
           <p className="text-[10px] text-slate-400 font-light">
-            Reviewers with email addresses from these domains will be automatically marked as
-            conflicted.
-          </p>
+            {t("runtime.components.author.submit.conflicts-step.text_reviewers_with_email_addresses_from_these")}{" "}</p>
         </div>
       </div>
 
@@ -149,22 +162,19 @@ export function ConflictsStep({
       <div className="px-4 pt-4 pb-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-4">
         <div className="border-b border-slate-100 dark:border-slate-700 pb-3">
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
-            Individual Conflicts
-          </h3>
+            {t("runtime.components.author.submit.conflicts-step.text_individual_conflicts")}{" "}</h3>
           <p className="text-[10px] text-slate-400 mt-0.5 font-light">
-            Specify individual program committee members with whom you have a conflict.
-          </p>
+            {t("runtime.components.author.submit.conflicts-step.text_specify_individual_program_committee_members_with")}{" "}</p>
         </div>
 
         {/* Add Conflict Form */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end bg-slate-50 dark:bg-slate-700/30 p-3 rounded-lg border border-slate-100 dark:border-slate-600">
           <div className="md:col-span-4 flex flex-col gap-1.5">
             <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-              First Name
-            </span>
+              {t("runtime.components.author.submit.conflicts-step.text_first_name")}{" "}</span>
             <input
               className="w-full h-10 text-xs font-normal py-2 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all"
-              placeholder="John"
+              placeholder={t("runtime.components.author.submit.conflicts-step.placeholder_john")}
               type="text"
               value={newConflict.firstName}
               onChange={(e) => onNewConflictChange({ ...newConflict, firstName: e.target.value })}
@@ -172,11 +182,10 @@ export function ConflictsStep({
           </div>
           <div className="md:col-span-4 flex flex-col gap-1.5">
             <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-              Last Name
-            </span>
+              {t("runtime.components.author.submit.conflicts-step.text_last_name")}{" "}</span>
             <input
               className="w-full h-10 text-xs font-normal py-2 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all"
-              placeholder="Doe"
+              placeholder={t("runtime.components.author.submit.conflicts-step.placeholder_doe")}
               type="text"
               value={newConflict.lastName}
               onChange={(e) => onNewConflictChange({ ...newConflict, lastName: e.target.value })}
@@ -184,11 +193,11 @@ export function ConflictsStep({
           </div>
           <div className="md:col-span-4 flex flex-col gap-1.5">
             <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-              Email <span className="font-normal text-slate-400">(Optional)</span>
+              {t("runtime.components.author.submit.conflicts-step.text_email")}{" "}<span className="font-normal text-slate-400">{t("runtime.components.author.submit.conflicts-step.text_optional")}</span>
             </span>
             <input
               className="w-full h-10 text-xs font-normal py-2 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all"
-              placeholder="john.doe@example.com"
+              placeholder={t("runtime.components.author.submit.conflicts-step.placeholder_john_doe_example_com")}
               type="email"
               value={newConflict.email}
               onChange={(e) => onNewConflictChange({ ...newConflict, email: e.target.value })}
@@ -196,15 +205,14 @@ export function ConflictsStep({
           </div>
           <div className="md:col-span-8 flex flex-col gap-1.5">
             <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-              Reason
-            </span>
+              {t("runtime.components.author.submit.conflicts-step.text_reason")}{" "}</span>
             <div className="relative">
               <select
                 className="w-full h-10 text-xs font-normal py-2 pl-3.5 pr-8 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] appearance-none cursor-pointer transition-all"
                 value={newConflict.reason}
                 onChange={(e) => onNewConflictChange({ ...newConflict, reason: e.target.value })}
               >
-                {conflictReasons.map((r) => (
+                {conflictReasonOptions.map((r) => (
                   <option key={r.value} value={r.value}>
                     {r.label}
                   </option>
@@ -222,8 +230,7 @@ export function ConflictsStep({
               onClick={onAddConflict}
             >
               <span className="material-symbols-outlined text-[14px]">add</span>
-              Add Conflict
-            </button>
+              {t("runtime.components.author.submit.conflicts-step.text_add_conflict")}{" "}</button>
           </div>
         </div>
 
@@ -233,25 +240,20 @@ export function ConflictsStep({
             <thead className="bg-slate-50 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600">
               <tr>
                 <th className="px-3 py-2.5 font-bold text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                  Name
-                </th>
+                  {t("runtime.components.author.submit.conflicts-step.text_name")}{" "}</th>
                 <th className="px-3 py-2.5 font-bold text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest hidden sm:table-cell">
-                  Email
-                </th>
+                  {t("runtime.components.author.submit.conflicts-step.text_email")}{" "}</th>
                 <th className="px-3 py-2.5 font-bold text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                  Reason
-                </th>
+                  {t("runtime.components.author.submit.conflicts-step.text_reason")}{" "}</th>
                 <th className="px-3 py-2.5 text-right font-bold text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                  Action
-                </th>
+                  {t("runtime.components.author.submit.conflicts-step.text_action")}{" "}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
               {conflicts.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-3 py-4 text-center text-slate-400 text-xs">
-                    No individual conflicts listed. Add conflicts using the form above.
-                  </td>
+                    {t("runtime.components.author.submit.conflicts-step.text_no_individual_conflicts_listed_add_conflicts")}{" "}</td>
                 </tr>
               ) : (
                 conflicts.map((conflict) => (
@@ -267,15 +269,15 @@ export function ConflictsStep({
                     </td>
                     <td className="px-3 py-2.5">
                       <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${reasonLabels[conflict.reason]?.color || reasonLabels.other.color}`}
+                        className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${reasonColors[conflict.reason] || reasonColors.other}`}
                       >
-                        {reasonLabels[conflict.reason]?.label || conflict.reason}
+                        {reasonLabels[conflict.reason] || reasonLabels.other}
                       </span>
                     </td>
                     <td className="px-3 py-2.5 text-right">
                       <button
                         className="text-slate-400 hover:text-red-500 transition-colors"
-                        title="Remove"
+                        title={t("runtime.components.author.submit.conflicts-step.title_remove")}
                         onClick={() => onRemoveConflict(conflict.id)}
                       >
                         <span className="material-symbols-outlined text-[16px]">delete</span>
@@ -300,12 +302,9 @@ export function ConflictsStep({
           />
           <div className="flex flex-col gap-0.5">
             <span className="text-xs font-bold text-[#141414] dark:text-white">
-              Confirm Declaration
-            </span>
+              {t("runtime.components.author.submit.conflicts-step.text_confirm_declaration")}{" "}</span>
             <span className="text-[10px] text-slate-400 font-light">
-              I certify that I have disclosed all potential conflicts of interest to the best of my
-              knowledge according to the conference policy.
-            </span>
+              {t("runtime.components.author.submit.conflicts-step.text_i_certify_that_i_have_disclosed")}{" "}</span>
           </div>
         </label>
       </div>

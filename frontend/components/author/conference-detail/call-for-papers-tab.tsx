@@ -1,7 +1,11 @@
+"use client"
+
 import { cn } from "@/lib/utils"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import type { TabProps } from "./types"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { tStatic as t } from "@/lib/i18n/static-translate"
 
 // Consistent icon styling for 16px material symbols
 const iconStyle = {
@@ -72,11 +76,11 @@ For more details, please refer to the submission guidelines.
 const MOCK_RESOURCES = [
   {
     name: "LaTeX Template",
-    description: "Official style file",
+    description: t("runtime.components.author.conference-detail.call-for-papers-tab.prop_description_official_style_file"),
     type: "latex",
     icon: "description",
   },
-  { name: "Word Template", description: ".docx format", type: "word", icon: "picture_as_pdf" },
+  { name: "Word Template", description: t("runtime.components.author.conference-detail.call-for-papers-tab.prop_description_docx_format"), type: "word", icon: "picture_as_pdf" },
 ]
 
 /**
@@ -84,6 +88,7 @@ const MOCK_RESOURCES = [
  * Uses Scholar-Compact sizing conventions (text-[12px] for body)
  */
 function CFPMarkdownRenderer({ content }: { content: string }) {
+  const { t } = useTranslation()
   return (
     <div className="cfp-markdown-content">
       <ReactMarkdown
@@ -205,11 +210,10 @@ function CFPContentCard({ conference }: TabProps) {
       <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            Call for Papers
-          </h2>
+            {t("runtime.components.author.conference-detail.call-for-papers-tab.text_call_for_papers")}{" "}</h2>
           {conference.submission_deadline && (
             <p className="text-[9px] text-slate-400 mt-0.5">
-              Submission Deadline:{" "}
+              {t("runtime.components.author.conference-detail.call-for-papers-tab.text_submission_deadline")}{" "}
               {new Date(conference.submission_deadline).toLocaleDateString("en-US", {
                 month: "long",
                 day: "numeric",
@@ -221,7 +225,7 @@ function CFPContentCard({ conference }: TabProps) {
         <div className="flex gap-1">
           <button
             className="text-slate-400 hover:text-[#1B3C53] p-1.5 rounded hover:bg-slate-50 transition-colors"
-            title="Print"
+            title={t("runtime.components.author.conference-detail.call-for-papers-tab.title_print")}
           >
             <span className="material-symbols-outlined" style={iconStyle}>
               print
@@ -229,7 +233,7 @@ function CFPContentCard({ conference }: TabProps) {
           </button>
           <button
             className="text-slate-400 hover:text-[#1B3C53] p-1.5 rounded hover:bg-slate-50 transition-colors"
-            title="Download PDF"
+            title={t("runtime.components.author.conference-detail.call-for-papers-tab.title_download_pdf")}
           >
             <span className="material-symbols-outlined" style={iconStyle}>
               picture_as_pdf
@@ -237,7 +241,7 @@ function CFPContentCard({ conference }: TabProps) {
           </button>
           <button
             className="text-slate-400 hover:text-[#1B3C53] p-1.5 rounded hover:bg-slate-50 transition-colors"
-            title="Share"
+            title={t("runtime.components.author.conference-detail.call-for-papers-tab.title_share")}
           >
             <span className="material-symbols-outlined" style={iconStyle}>
               share
@@ -257,19 +261,19 @@ function CFPContentCard({ conference }: TabProps) {
 function ImportantDatesCard({ conference }: TabProps) {
   const dates = [
     {
-      label: "Abstract Deadline",
+      label: t("runtime.components.author.conference-detail.call-for-papers-tab.prop_label_abstract_deadline"),
       date: conference.configurations?.abstract_submission_deadline,
       status: "passed" as const,
     },
     {
-      label: "Full Paper Deadline",
+      label: t("runtime.components.author.conference-detail.call-for-papers-tab.prop_label_full_paper_deadline"),
       date: conference.submission_deadline,
       status: "current" as const,
       daysLeft: 5,
     },
-    { label: "Notification", date: conference.notification_date, status: "upcoming" as const },
+    { label: t("runtime.components.author.conference-detail.call-for-papers-tab.prop_label_notification"), date: conference.notification_date, status: "upcoming" as const },
     {
-      label: "Conference Dates",
+      label: t("runtime.components.author.conference-detail.call-for-papers-tab.prop_label_conference_dates"),
       date: conference.conference_date,
       status: "upcoming" as const,
     },
@@ -279,8 +283,7 @@ function ImportantDatesCard({ conference }: TabProps) {
     <div className="bg-white dark:bg-slate-900 px-4 pt-4 pb-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
       <div className="mb-3">
         <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-          Important Dates
-        </h3>
+          {t("runtime.components.author.conference-detail.call-for-papers-tab.text_important_dates")}{" "}</h3>
       </div>
 
       <div className="space-y-2.5 relative">
@@ -350,8 +353,7 @@ function ImportantDatesCard({ conference }: TabProps) {
               </p>
               {item.daysLeft && (
                 <p className="text-[8px] text-red-500 font-medium mt-0.5">
-                  {item.daysLeft} days left
-                </p>
+                  {item.daysLeft} {t("runtime.components.author.conference-detail.call-for-papers-tab.text_days_left")}{" "}</p>
               )}
             </div>
           </div>
@@ -363,15 +365,14 @@ function ImportantDatesCard({ conference }: TabProps) {
 
 function AuthorResourcesCard() {
   const resourceColors: Record<string, { bg: string; text: string; hover: string }> = {
-    latex: { bg: "bg-blue-50", text: "text-blue-600", hover: "group-hover:text-blue-700" },
-    word: { bg: "bg-red-50", text: "text-red-600", hover: "group-hover:text-red-700" },
+    latex: { bg: "bg-blue-50", text: t("runtime.components.author.conference-detail.call-for-papers-tab.prop_text_text_blue_600"), hover: "group-hover:text-blue-700" },
+    word: { bg: "bg-red-50", text: t("runtime.components.author.conference-detail.call-for-papers-tab.prop_text_text_red_600"), hover: "group-hover:text-red-700" },
   }
 
   return (
     <div className="bg-white dark:bg-slate-900 px-4 pt-4 pb-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
       <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-3 tracking-tight">
-        Author Resources
-      </h3>
+        {t("runtime.components.author.conference-detail.call-for-papers-tab.text_author_resources")}{" "}</h3>
 
       <ul className="space-y-1.5">
         {MOCK_RESOURCES.map((resource, idx) => {

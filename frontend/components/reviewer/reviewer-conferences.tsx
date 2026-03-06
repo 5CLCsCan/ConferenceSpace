@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState } from "react"
 import { Loader2 } from "lucide-react"
 import type { ReviewerConference } from "@/lib/types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 type TabType = "my-conferences" | "explore"
 type ViewMode = "list" | "compact"
@@ -28,6 +29,7 @@ function ProgressRing({
   size?: number
   strokeWidth?: number
 }) {
+  const { t } = useTranslation()
   const radius = (size - strokeWidth) / 2
   const circumference = radius * 2 * Math.PI
   const offset = circumference - (progress / 100) * circumference
@@ -67,6 +69,7 @@ function MyConferenceRow({
   conference: ReviewerConference
   onSelect: () => void
 }) {
+  const { t } = useTranslation()
   const reviewed = conference.reviewed_papers || 0
   const total = conference.total_papers || 0
   const pending = total - reviewed
@@ -103,13 +106,11 @@ function MyConferenceRow({
           </h3>
           {urgency === "critical" && (
             <span className="shrink-0 flex items-center gap-0.5 px-1 py-0.5 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded text-[8px] font-black uppercase tracking-widest">
-              Urgent
-            </span>
+              {t("runtime.components.reviewer.reviewer-conferences.text_urgent")}{" "}</span>
           )}
           {isArchived && (
             <span className="shrink-0 px-1 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-400 rounded text-[7px] font-black uppercase tracking-widest">
-              Archived
-            </span>
+              {t("runtime.components.reviewer.reviewer-conferences.text_archived")}{" "}</span>
           )}
         </div>
         <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 truncate">
@@ -180,6 +181,7 @@ function MyConferenceCard({
   conference: ReviewerConference
   onSelect: () => void
 }) {
+  const { t } = useTranslation()
   const reviewed = conference.reviewed_papers || 0
   const total = conference.total_papers || 0
   const pending = total - reviewed
@@ -225,13 +227,11 @@ function MyConferenceCard({
           {urgency === "critical" && (
             <span className="shrink-0 flex items-center gap-0.5 px-1.5 py-0.5 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded text-[9px] font-black uppercase tracking-widest">
               <span className="w-[5px] h-[5px] rounded-full bg-amber-500 animate-pulse" />
-              Urgent
-            </span>
+              {t("runtime.components.reviewer.reviewer-conferences.text_urgent")}{" "}</span>
           )}
           {isArchived && (
             <span className="shrink-0 px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-400 rounded text-[9px] font-black uppercase tracking-widest">
-              Archived
-            </span>
+              {t("runtime.components.reviewer.reviewer-conferences.text_archived")}{" "}</span>
           )}
         </div>
 
@@ -246,8 +246,7 @@ function MyConferenceCard({
               <span className="text-xs text-slate-400">/ {total}</span>
             </div>
             <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">
-              Papers Reviewed
-            </div>
+              {t("runtime.components.reviewer.reviewer-conferences.text_papers_reviewed")}{" "}</div>
           </div>
           <div className="text-right">
             <div
@@ -256,8 +255,7 @@ function MyConferenceCard({
               {pending}
             </div>
             <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">
-              Pending
-            </div>
+              {t("runtime.components.reviewer.reviewer-conferences.text_pending")}{" "}</div>
           </div>
         </div>
 
@@ -265,16 +263,14 @@ function MyConferenceCard({
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 py-3">
           <div>
             <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
-              Track
-            </div>
+              {t("runtime.components.reviewer.reviewer-conferences.text_track")}{" "}</div>
             <div className="text-[10px] font-medium text-slate-600 dark:text-slate-400 truncate">
               {conference.domain || "Computer Vision"}
             </div>
           </div>
           <div>
             <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
-              Deadline
-            </div>
+              {t("runtime.components.reviewer.reviewer-conferences.text_deadline")}{" "}</div>
             <div
               className={`text-[10px] font-bold ${urgency === "critical" ? "text-amber-600 dark:text-amber-500" : "text-slate-600 dark:text-slate-400"}`}
             >
@@ -307,6 +303,7 @@ function ExploreConferenceCard({
   conference: ReviewerConference
   index: number
 }) {
+  const { t } = useTranslation()
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return "TBA"
     return new Date(dateStr).toLocaleDateString("en-US", {
@@ -335,40 +332,35 @@ function ExploreConferenceCard({
             </p>
           </div>
           <span className="shrink-0 px-1.5 py-0.5 bg-[#1B3C53]/5 dark:bg-slate-700 text-[#1B3C53] dark:text-slate-300 rounded text-[8px] font-black uppercase tracking-widest">
-            Open
-          </span>
+            {t("runtime.components.reviewer.reviewer-conferences.text_open")}{" "}</span>
         </div>
 
         {/* Meta grid */}
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 py-2 border-t border-b border-slate-100 dark:border-slate-700">
           <div>
             <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
-              Deadline
-            </div>
+              {t("runtime.components.reviewer.reviewer-conferences.text_deadline")}{" "}</div>
             <div className="text-xs font-bold text-[#1B3C53] dark:text-white">
               {formatDate(conference.review_deadline)}
             </div>
           </div>
           <div>
             <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
-              Papers
-            </div>
+              {t("runtime.components.reviewer.reviewer-conferences.text_papers")}{" "}</div>
             <div className="text-xs font-bold text-[#1B3C53] dark:text-white">
               {conference.total_papers || "~50"}
             </div>
           </div>
           <div>
             <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
-              Location
-            </div>
+              {t("runtime.components.reviewer.reviewer-conferences.text_location")}{" "}</div>
             <div className="text-[10px] font-medium text-slate-600 dark:text-slate-400 truncate">
               {conference.location || "Virtual"}
             </div>
           </div>
           <div>
             <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
-              Domain
-            </div>
+              {t("runtime.components.reviewer.reviewer-conferences.text_domain")}{" "}</div>
             <div className="text-[10px] font-medium text-slate-600 dark:text-slate-400 truncate">
               {conference.domain || "AI/ML"}
             </div>
@@ -377,10 +369,9 @@ function ExploreConferenceCard({
 
         {/* Action */}
         <div className="flex items-center justify-between mt-3">
-          <span className="text-[9px] font-medium text-slate-400">Seeking reviewers</span>
+          <span className="text-[9px] font-medium text-slate-400">{t("runtime.components.reviewer.reviewer-conferences.text_seeking_reviewers")}</span>
           <button className="flex items-center gap-1.5 h-7 px-2.5 bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] rounded text-[10px] font-bold uppercase tracking-wider hover:bg-[#234C6A] dark:hover:bg-slate-200 transition-colors">
-            Apply
-            <span className="material-symbols-outlined text-[12px]">arrow_forward</span>
+            {t("runtime.components.reviewer.reviewer-conferences.text_apply")}{" "}<span className="material-symbols-outlined text-[12px]">arrow_forward</span>
           </button>
         </div>
       </div>
@@ -419,6 +410,7 @@ export function ReviewerConferences({
   searchQuery = "",
   onSearchChange,
 }: ReviewerConferencesProps) {
+  const { t } = useTranslation()
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
   const [activeTab, setActiveTab] = useState<TabType>("my-conferences")
   const [viewMode, setViewMode] = useState<ViewMode>("list")
@@ -465,11 +457,9 @@ export function ReviewerConferences({
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6">
           <div>
             <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white leading-none">
-              Conferences
-            </h1>
+              {t("runtime.components.reviewer.reviewer-conferences.text_conferences")}{" "}</h1>
             <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-2 max-w-lg">
-              Track your review assignments across conferences and discover new opportunities.
-            </p>
+              {t("runtime.components.reviewer.reviewer-conferences.text_track_your_review_assignments_across_conferences")}{" "}</p>
           </div>
 
           {/* Quick stats - only for my-conferences */}
@@ -480,8 +470,7 @@ export function ReviewerConferences({
                   {activeConferences}
                 </div>
                 <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">
-                  Active
-                </div>
+                  {t("runtime.components.reviewer.reviewer-conferences.text_active")}{" "}</div>
               </div>
               <div className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
               <div className="text-center">
@@ -489,8 +478,7 @@ export function ReviewerConferences({
                   {totalPending}
                 </div>
                 <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">
-                  Pending
-                </div>
+                  {t("runtime.components.reviewer.reviewer-conferences.text_pending")}{" "}</div>
               </div>
               <div className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
               <div className="text-center">
@@ -498,8 +486,7 @@ export function ReviewerConferences({
                   {totalReviewed}
                 </div>
                 <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">
-                  Done
-                </div>
+                  {t("runtime.components.reviewer.reviewer-conferences.text_done")}{" "}</div>
               </div>
             </div>
           )}
@@ -517,8 +504,7 @@ export function ReviewerConferences({
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
               }`}
             >
-              My Conferences
-              {conferences.length > 0 && (
+              {t("runtime.components.reviewer.reviewer-conferences.text_my_conferences")}{" "}{conferences.length > 0 && (
                 <span className="ml-1.5 text-[9px] font-bold text-slate-400">
                   {conferences.length}
                 </span>
@@ -532,8 +518,7 @@ export function ReviewerConferences({
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
               }`}
             >
-              Explore
-            </button>
+              {t("runtime.components.reviewer.reviewer-conferences.text_explore")}{" "}</button>
           </div>
 
           {/* Search + Filters */}
@@ -544,7 +529,7 @@ export function ReviewerConferences({
               </span>
               <input
                 className="w-full sm:w-56 h-8 pl-8 pr-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1B3C53]/20 focus:border-[#1B3C53] transition-all"
-                placeholder="Search conferences..."
+                placeholder={t("runtime.components.reviewer.reviewer-conferences.placeholder_search_conferences")}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => onSearchChange?.(e.target.value)}
@@ -559,7 +544,7 @@ export function ReviewerConferences({
                       ? "bg-white dark:bg-slate-700 shadow-sm text-[#1B3C53] dark:text-white"
                       : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                   }`}
-                  title="List view"
+                  title={t("runtime.components.reviewer.reviewer-conferences.title_list_view")}
                 >
                   <span className="material-symbols-outlined text-[14px]">view_list</span>
                 </button>
@@ -570,7 +555,7 @@ export function ReviewerConferences({
                       ? "bg-white dark:bg-slate-700 shadow-sm text-[#1B3C53] dark:text-white"
                       : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                   }`}
-                  title="Compact view"
+                  title={t("runtime.components.reviewer.reviewer-conferences.title_compact_view")}
                 >
                   <span className="material-symbols-outlined text-[14px]">view_module</span>
                 </button>
@@ -590,23 +575,17 @@ export function ReviewerConferences({
               {/* Table header */}
               <div className="grid grid-cols-[minmax(160px,280px)_1fr_100px_120px_60px_70px] items-center gap-4 px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                 <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">
-                  Conference
-                </div>
+                  {t("runtime.components.reviewer.reviewer-conferences.text_conference")}{" "}</div>
                 <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">
-                  Track
-                </div>
+                  {t("runtime.components.reviewer.reviewer-conferences.text_track")}{" "}</div>
                 <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
-                  Deadline
-                </div>
+                  {t("runtime.components.reviewer.reviewer-conferences.text_deadline")}{" "}</div>
                 <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
-                  Progress
-                </div>
+                  {t("runtime.components.reviewer.reviewer-conferences.text_progress")}{" "}</div>
                 <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest text-center">
-                  Queue
-                </div>
+                  {t("runtime.components.reviewer.reviewer-conferences.text_queue")}{" "}</div>
                 <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest text-right">
-                  Action
-                </div>
+                  {t("runtime.components.reviewer.reviewer-conferences.text_action")}{" "}</div>
               </div>
 
               {/* Conference rows */}
@@ -649,7 +628,7 @@ export function ReviewerConferences({
             {isLoadingMore && (
               <>
                 <Loader2 className="size-5 text-slate-300 animate-spin mb-2" />
-                <p className="text-[10px] font-medium text-slate-400">Loading more...</p>
+                <p className="text-[10px] font-medium text-slate-400">{t("runtime.components.reviewer.reviewer-conferences.text_loading_more")}</p>
               </>
             )}
           </div>

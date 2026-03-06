@@ -5,6 +5,7 @@ import { formatDistanceToNow } from "date-fns"
 import { cn } from "@/lib/utils"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import type { ChatConversation } from "./types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ConversationListProps {
   conversations: ChatConversation[]
@@ -19,6 +20,7 @@ export function ConversationList({
   onNewConversation,
   onDeleteConversation,
 }: ConversationListProps) {
+  const { t } = useTranslation()
   const [hoveredId, setHoveredId] = React.useState<string | null>(null)
 
   const handleDelete = React.useCallback(
@@ -44,11 +46,9 @@ export function ConversationList({
                 </span>
               </div>
               <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                No conversations yet
-              </p>
+                {t("runtime.components.chatbot.conversation-list.text_no_conversations_yet")}{" "}</p>
               <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
-                Start a new conversation to get help
-              </p>
+                {t("runtime.components.chatbot.conversation-list.text_start_a_new_conversation_to_get")}{" "}</p>
             </div>
           ) : (
             <div className="space-y-0.5">
@@ -85,7 +85,7 @@ export function ConversationList({
                     <button
                       className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors opacity-0 group-hover:opacity-100"
                       onClick={(e) => handleDelete(e, conversation.id)}
-                      aria-label="Delete conversation"
+                      aria-label={t("runtime.components.chatbot.conversation-list.aria_label_delete_conversation")}
                     >
                       <span
                         className="material-symbols-outlined text-slate-400 hover:text-red-500"
@@ -119,8 +119,7 @@ export function ConversationList({
           >
             add
           </span>
-          New Conversation
-        </button>
+          {t("runtime.components.chatbot.conversation-list.text_new_conversation")}{" "}</button>
       </div>
     </div>
   )

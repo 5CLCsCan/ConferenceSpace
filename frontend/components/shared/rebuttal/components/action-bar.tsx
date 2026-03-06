@@ -1,6 +1,7 @@
 "use client"
 
 import type { ActionBarProps } from "../types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export function ActionBar({
   hasUpdates,
@@ -9,6 +10,7 @@ export function ActionBar({
   onSubmitRebuttal,
   onStartDiscussion,
 }: ActionBarProps) {
+  const { t } = useTranslation()
   return (
     <div className="sticky bottom-6 z-20 bg-white border border-slate-200 p-4 rounded-xl shadow-lg mt-8">
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -53,8 +55,7 @@ export function ActionBar({
               onClick={onStartDiscussion}
               className="flex-1 md:flex-none h-8 px-4 rounded-md border border-slate-300 text-slate-700 font-medium text-[11px] hover:bg-slate-50 transition-colors"
             >
-              Start Discussion
-            </button>
+              {t("runtime.components.shared.rebuttal.components.action-bar.text_start_discussion")}{" "}</button>
           )}
 
           {userRole === "author" ? (
@@ -81,8 +82,7 @@ export function ActionBar({
                   boxSizing: 'border-box'
                 }}
               >send</span>
-              Submit Rebuttal
-            </button>
+              {t("runtime.components.shared.rebuttal.components.action-bar.text_submit_rebuttal")}{" "}</button>
           ) : (
             <button
               onClick={onUpdateReview}
@@ -107,8 +107,7 @@ export function ActionBar({
                   boxSizing: 'border-box'
                 }}
               >edit</span>
-              Update Review
-            </button>
+              {t("runtime.components.shared.rebuttal.components.action-bar.text_update_review")}{" "}</button>
           )}
         </div>
       </div>

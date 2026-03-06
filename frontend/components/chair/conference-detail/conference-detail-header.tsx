@@ -2,16 +2,18 @@
 
 import { cn } from "@/lib/utils"
 import type { ConferenceInfo, TabId, TabItem } from "./types"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { tStatic as t } from "@/lib/i18n/static-translate"
 
 const TABS: TabItem[] = [
-  { id: "dashboard", label: "Dashboard", icon: "analytics" },
-  { id: "overview", label: "Overview", icon: "info" },
-  { id: "cfp", label: "Call for Papers", icon: "campaign" },
-  { id: "dates", label: "Important Dates", icon: "event" },
-  { id: "committee", label: "Committee", icon: "groups" },
-  { id: "submissions", label: "Submissions", icon: "description" },
-  { id: "assignments", label: "Assignments", icon: "assignment_ind" },
-  { id: "coi", label: "COI", icon: "warning" },
+  { id: "dashboard", label: t("runtime.components.chair.conference-detail.conference-detail-header.prop_label_dashboard"), icon: "analytics" },
+  { id: "overview", label: t("runtime.components.chair.conference-detail.conference-detail-header.prop_label_overview"), icon: "info" },
+  { id: "cfp", label: t("runtime.components.chair.conference-detail.conference-detail-header.prop_label_call_for_papers"), icon: "campaign" },
+  { id: "dates", label: t("runtime.components.chair.conference-detail.conference-detail-header.prop_label_important_dates"), icon: "event" },
+  { id: "committee", label: t("runtime.components.chair.conference-detail.conference-detail-header.prop_label_committee"), icon: "groups" },
+  { id: "submissions", label: t("runtime.components.chair.conference-detail.conference-detail-header.prop_label_submissions"), icon: "description" },
+  { id: "assignments", label: t("runtime.components.chair.conference-detail.conference-detail-header.prop_label_assignments"), icon: "assignment_ind" },
+  { id: "coi", label: t("runtime.components.chair.conference-detail.conference-detail-header.prop_label_coi"), icon: "warning" },
 ]
 
 interface ConferenceDetailHeaderProps {
@@ -27,6 +29,7 @@ export function ConferenceDetailHeader({
   onTabChange,
   className,
 }: ConferenceDetailHeaderProps) {
+  const { t } = useTranslation()
   return (
     <header
       className={cn(
@@ -60,7 +63,7 @@ export function ConferenceDetailHeader({
             >
               folder_open
             </span>
-            <span>Conferences</span>
+            <span>{t("runtime.components.chair.conference-detail.conference-detail-header.text_conferences")}</span>
             <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
               chevron_right
             </span>
@@ -121,8 +124,7 @@ export function ConferenceDetailHeader({
             >
               settings
             </span>
-            Settings
-          </button>
+            {t("runtime.components.chair.conference-detail.conference-detail-header.text_settings")}{" "}</button>
         </div>
       </div>
 

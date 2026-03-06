@@ -126,17 +126,13 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
             className="h-8 px-3 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none text-slate-700 dark:text-slate-300"
           >
             <option value="date-desc">
-              {t("dashboard.roles.reviewer.completedReviews.sortByDate")} (Newest)
-            </option>
+              {t("dashboard.roles.reviewer.completedReviews.sortByDate")} {t("runtime.components.reviewer.completed-reviews.text_newest")}{" "}</option>
             <option value="date-asc">
-              {t("dashboard.roles.reviewer.completedReviews.sortByDate")} (Oldest)
-            </option>
+              {t("dashboard.roles.reviewer.completedReviews.sortByDate")} {t("runtime.components.reviewer.completed-reviews.text_oldest")}{" "}</option>
             <option value="title-asc">
-              {t("dashboard.roles.reviewer.completedReviews.sortByTitle")} (A-Z)
-            </option>
+              {t("dashboard.roles.reviewer.completedReviews.sortByTitle")} {t("runtime.components.reviewer.completed-reviews.text_a_z")}{" "}</option>
             <option value="title-desc">
-              {t("dashboard.roles.reviewer.completedReviews.sortByTitle")} (Z-A)
-            </option>
+              {t("dashboard.roles.reviewer.completedReviews.sortByTitle")} {t("runtime.components.reviewer.completed-reviews.text_z_a")}{" "}</option>
           </select>
 
           {searchQuery && (
@@ -144,8 +140,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
               onClick={() => setSearchQuery("")}
               className="h-8 px-3 rounded-md border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
             >
-              Clear
-            </button>
+              {t("runtime.components.reviewer.completed-reviews.text_clear")}{" "}</button>
           )}
         </div>
       </div>
@@ -155,7 +150,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
         {isLoading ? (
           <div className="flex items-center justify-center py-16 gap-2 text-slate-400">
             <Loader2 className="size-5 animate-spin" />
-            <span className="text-xs font-medium">Loading completed reviews...</span>
+            <span className="text-xs font-medium">{t("runtime.components.reviewer.completed-reviews.text_loading_completed_reviews")}</span>
           </div>
         ) : sortedReviews.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-4">
@@ -186,17 +181,14 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
                       #
                     </th>
                     <th className="py-2.5 px-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                      Paper
-                    </th>
+                      {t("runtime.components.reviewer.completed-reviews.text_paper")}{" "}</th>
                     <th className="py-2.5 px-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400 w-28">
-                      Version
-                    </th>
+                      {t("runtime.components.reviewer.completed-reviews.text_version")}{" "}</th>
                     <th className="py-2.5 px-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400 w-36">
                       {t("dashboard.roles.reviewer.completedReviews.completedOn")}
                     </th>
                     <th className="py-2.5 px-3 text-right text-[10px] font-bold uppercase tracking-widest text-slate-400 w-24">
-                      Action
-                    </th>
+                      {t("runtime.components.reviewer.completed-reviews.text_action")}{" "}</th>
                   </tr>
                 </thead>
               </table>
@@ -232,8 +224,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
                         </div>
                         {/* Completed badge */}
                         <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-[9px] font-bold uppercase tracking-wider">
-                          Done
-                        </span>
+                          {t("runtime.components.reviewer.completed-reviews.text_done")}{" "}</span>
                       </div>
                     </td>
 
@@ -257,8 +248,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
                         }}
                         className="inline-flex items-center gap-1 h-7 px-2.5 rounded-md bg-[#1B3C53] hover:bg-[#234C6A] text-white text-[9px] font-bold uppercase tracking-wider transition-colors"
                       >
-                        View
-                        <span
+                        {t("runtime.components.reviewer.completed-reviews.text_view")}{" "}<span
                           className="material-symbols-outlined"
                           style={{ fontSize: "12px", lineHeight: "1" }}
                         >
@@ -280,7 +270,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
           {isLoadingMore && (
             <div className="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-500">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#1B3C53] dark:border-white" />
-              <span className="text-[10px] font-bold uppercase tracking-wider">Loading...</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider">{t("runtime.components.reviewer.completed-reviews.text_loading")}</span>
             </div>
           )}
         </div>
@@ -289,15 +279,14 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
       {/* Results count */}
       {!isLoading && sortedReviews.length > 0 && (
         <div className="text-[11px] text-slate-500">
-          Showing{" "}
+          {t("runtime.components.reviewer.completed-reviews.text_showing")}{" "}
           <span className="font-bold text-[#1B3C53] dark:text-white">{sortedReviews.length}</span>{" "}
           completed
           {sortedReviews.length === 1 ? " review" : " reviews"}
           {debouncedSearch && (
             <>
               {" "}
-              for &ldquo;<span className="font-medium">{debouncedSearch}</span>&rdquo;
-            </>
+              {t("runtime.components.reviewer.completed-reviews.text_for_ldquo")}<span className="font-medium">{debouncedSearch}</span>{t("runtime.components.reviewer.completed-reviews.text_rdquo")}{" "}</>
           )}
         </div>
       )}

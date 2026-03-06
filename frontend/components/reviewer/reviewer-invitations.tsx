@@ -152,15 +152,13 @@ export function ReviewerInvitations({
 
             {/* Description */}
             <p className="text-slate-500 dark:text-slate-400 text-xs font-medium leading-relaxed max-w-2xl mb-4">
-              You have been invited to serve as a reviewer. The program committee values your
-              expertise. Please indicate your availability.
-            </p>
+              {t("runtime.components.reviewer.reviewer-invitations.text_you_have_been_invited_to_serve")}{" "}</p>
 
             {/* Meta info */}
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[10px] text-slate-500 dark:text-slate-400">
               <div className="flex items-center gap-2">
                 <span>
-                  Invited:{" "}
+                  {t("runtime.components.reviewer.reviewer-invitations.text_invited")}{" "}
                   <span className="font-semibold text-[#1B3C53] dark:text-white">
                     {formatDate(invitation.requested_at)}
                   </span>
@@ -169,7 +167,7 @@ export function ReviewerInvitations({
               {invitation.respond_by && (
                 <div className="flex items-center gap-2">
                   <span>
-                    Respond by:{" "}
+                    {t("runtime.components.reviewer.reviewer-invitations.text_respond_by")}{" "}
                     <span
                       className={`font-semibold ${isUrgent ? "text-amber-600" : "text-[#1B3C53] dark:text-white"}`}
                     >
@@ -193,15 +191,13 @@ export function ReviewerInvitations({
               ) : (
                 <span className="material-symbols-outlined text-[14px]">check_circle</span>
               )}
-              Accept
-            </button>
+              {t("runtime.components.reviewer.reviewer-invitations.text_accept")}{" "}</button>
             <button
               onClick={() => handleResponse(invitation.conference_id, invitation.id, "rejected")}
               disabled={handling === invitation.id}
               className="w-full h-8 px-3 rounded-full border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium text-[11px] hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors bg-white dark:bg-transparent disabled:opacity-50"
             >
-              Decline
-            </button>
+              {t("runtime.components.reviewer.reviewer-invitations.text_decline")}{" "}</button>
           </div>
         </div>
       </div>
@@ -225,8 +221,7 @@ export function ReviewerInvitations({
                 <span className="material-symbols-outlined text-[16px] !font-bold">
                   check_circle
                 </span>
-                Accepted
-              </span>
+                {t("runtime.components.reviewer.reviewer-invitations.text_accepted")}{" "}</span>
             </div>
 
             {/* Title */}
@@ -238,7 +233,7 @@ export function ReviewerInvitations({
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[10px] text-slate-500 dark:text-slate-400 mt-2">
               <div className="flex items-center gap-2">
                 <span>
-                  Accepted on:{" "}
+                  {t("runtime.components.reviewer.reviewer-invitations.text_accepted_on")}{" "}
                   <span className="font-semibold text-[#1B3C53] dark:text-white">
                     {formatDate(invitation.accepted_on || invitation.requested_at)}
                   </span>
@@ -247,7 +242,7 @@ export function ReviewerInvitations({
               {invitation.assignments_count !== undefined && (
                 <div className="flex items-center gap-2">
                   <span>
-                    Assignments:{" "}
+                    {t("runtime.components.reviewer.reviewer-invitations.text_assignments")}{" "}
                     <span className="font-semibold text-[#1B3C53] dark:text-white">
                       {invitation.assignments_count}{" "}
                       {invitation.assignments_count === 1 ? "Paper" : "Papers"}
@@ -261,8 +256,7 @@ export function ReviewerInvitations({
           {/* Actions */}
           <div className="flex flex-row lg:flex-col items-center justify-center gap-3 w-full lg:w-40 lg:border-l border-slate-100 dark:border-slate-700 lg:pl-4 pt-4 lg:pt-0 border-t lg:border-t-0">
             <button className="w-full h-9 px-4 rounded-md bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] font-medium text-[11px] hover:bg-[#234C6A] dark:hover:bg-slate-200 transition-all flex items-center justify-center">
-              Go to Dashboard
-            </button>
+              {t("runtime.components.reviewer.reviewer-invitations.text_go_to_dashboard")}{" "}</button>
           </div>
         </div>
       </div>
@@ -284,8 +278,7 @@ export function ReviewerInvitations({
               </span>
               <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-[9px] font-bold uppercase tracking-wider">
                 <span className="material-symbols-outlined text-[12px]">cancel</span>
-                Declined
-              </span>
+                {t("runtime.components.reviewer.reviewer-invitations.text_declined")}{" "}</span>
             </div>
 
             {/* Title */}
@@ -297,7 +290,7 @@ export function ReviewerInvitations({
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[10px] text-slate-500 dark:text-slate-400 mt-2">
               <div className="flex items-center gap-2">
                 <span>
-                  Declined on:{" "}
+                  {t("runtime.components.reviewer.reviewer-invitations.text_declined_on")}{" "}
                   <span className="font-medium">
                     {formatDate(invitation.declined_on || invitation.requested_at)}
                   </span>
@@ -309,8 +302,7 @@ export function ReviewerInvitations({
           {/* No actions */}
           <div className="flex flex-row lg:flex-col items-center justify-center gap-3 w-full lg:w-40 lg:border-l border-slate-200 dark:border-slate-700 lg:pl-4 pt-4 lg:pt-0 border-t lg:border-t-0">
             <span className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium">
-              No actions available
-            </span>
+              {t("runtime.components.reviewer.reviewer-invitations.text_no_actions_available")}{" "}</span>
           </div>
         </div>
       </div>
@@ -352,11 +344,9 @@ export function ReviewerInvitations({
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white">
-            Reviewer Invitations
-          </h1>
+            {t("runtime.components.reviewer.reviewer-invitations.text_reviewer_invitations")}{" "}</h1>
           <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
-            Review and respond to conference invitations requesting your expertise.
-          </p>
+            {t("runtime.components.reviewer.reviewer-invitations.text_review_and_respond_to_conference_invitations")}{" "}</p>
         </div>
       </div>
 
@@ -372,7 +362,7 @@ export function ReviewerInvitations({
                 : "text-slate-500 dark:text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700"
             }`}
           >
-            All <span className="opacity-70 ml-0.5 text-[9px]">{counts.all}</span>
+            {t("runtime.components.reviewer.reviewer-invitations.text_all")}{" "}<span className="opacity-70 ml-0.5 text-[9px]">{counts.all}</span>
           </button>
           <button
             onClick={() => handleFilterChange("pending")}
@@ -382,7 +372,7 @@ export function ReviewerInvitations({
                 : "text-slate-500 dark:text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700"
             }`}
           >
-            Pending <span className="opacity-70 ml-0.5 text-[9px]">{counts.pending}</span>
+            {t("runtime.components.reviewer.reviewer-invitations.text_pending")}{" "}<span className="opacity-70 ml-0.5 text-[9px]">{counts.pending}</span>
           </button>
           <button
             onClick={() => handleFilterChange("accepted")}
@@ -392,7 +382,7 @@ export function ReviewerInvitations({
                 : "text-slate-500 dark:text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700"
             }`}
           >
-            Accepted <span className="opacity-70 ml-0.5 text-[9px]">{counts.accepted}</span>
+            {t("runtime.components.reviewer.reviewer-invitations.text_accepted")}{" "}<span className="opacity-70 ml-0.5 text-[9px]">{counts.accepted}</span>
           </button>
           <button
             onClick={() => handleFilterChange("declined")}
@@ -402,22 +392,22 @@ export function ReviewerInvitations({
                 : "text-slate-500 dark:text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700"
             }`}
           >
-            Declined <span className="opacity-70 ml-0.5 text-[9px]">{counts.declined}</span>
+            {t("runtime.components.reviewer.reviewer-invitations.text_declined")}{" "}<span className="opacity-70 ml-0.5 text-[9px]">{counts.declined}</span>
           </button>
         </div>
 
         {/* Sort Dropdown */}
         <div className="flex items-center gap-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
           <span className="material-symbols-outlined text-[16px]">filter_list</span>
-          <span className="text-[10px]">Sort by:</span>
+          <span className="text-[10px]">{t("runtime.components.reviewer.reviewer-invitations.text_sort_by")}</span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortOption)}
             className="bg-transparent border-none text-[#1B3C53] dark:text-white font-black uppercase tracking-wider focus:ring-0 p-0 cursor-pointer text-[10px] pr-8"
           >
-            <option value="deadline">Deadline (Earliest)</option>
-            <option value="invited">Date Invited (Newest)</option>
-            <option value="conference">Conference Name</option>
+            <option value="deadline">{t("runtime.components.reviewer.reviewer-invitations.text_deadline_earliest")}</option>
+            <option value="invited">{t("runtime.components.reviewer.reviewer-invitations.text_date_invited_newest")}</option>
+            <option value="conference">{t("runtime.components.reviewer.reviewer-invitations.text_conference_name")}</option>
           </select>
         </div>
       </div>
@@ -434,7 +424,7 @@ export function ReviewerInvitations({
             {isLoadingMore && (
               <div className="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-500">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1B3C53] dark:border-white" />
-                <span className="text-[11px] font-bold uppercase tracking-wider">Loading...</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider">{t("runtime.components.reviewer.reviewer-invitations.text_loading")}</span>
               </div>
             )}
           </div>

@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast"
 import { semanticScholarApi, type Author, type AuthorWithPapers } from "@/lib/api/semantic-scholar"
 import { userApi } from "@/lib/api/user"
 import { Search, Loader2, User, BookOpen, ExternalLink, CheckCircle } from "lucide-react"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ProfileOnboardingModalProps {
   isOpen: boolean
@@ -32,6 +33,7 @@ export function ProfileOnboardingModal({
   userName = "",
   onComplete,
 }: ProfileOnboardingModalProps) {
+  const { t } = useTranslation()
   const { toast } = useToast()
   const [step, setStep] = useState<"search" | "confirm" | "success">("search")
   const [searchQuery, setSearchQuery] = useState(userName)
@@ -53,16 +55,16 @@ export function ProfileOnboardingModal({
 
       if ((response.data || []).length === 0) {
         toast({
-          title: "No authors found",
-          description: "Try a different name variation.",
+          title: t("runtime.components.profile.profile-onboarding-modal.prop_title_no_authors_found"),
+          description: t("runtime.components.profile.profile-onboarding-modal.prop_description_try_a_different_name_variation"),
           variant: "destructive",
         })
       }
     } catch {
       setSearchResults([])
       toast({
-        title: "Search failed",
-        description: "Could not search Semantic Scholar. Please try again.",
+        title: t("runtime.components.profile.profile-onboarding-modal.prop_title_search_failed"),
+        description: t("runtime.components.profile.profile-onboarding-modal.prop_description_could_not_search_semantic_scholar_please"),
         variant: "destructive",
       })
     } finally {
@@ -78,8 +80,8 @@ export function ProfileOnboardingModal({
     } catch {
       setSelectedAuthor(author)
       toast({
-        title: "Limited details",
-        description: "Could not load full author details, showing basic profile.",
+        title: t("runtime.components.profile.profile-onboarding-modal.prop_title_limited_details"),
+        description: t("runtime.components.profile.profile-onboarding-modal.prop_description_could_not_load_full_author_details"),
       })
     } finally {
       setIsLoadingDetails(false)
@@ -97,8 +99,8 @@ export function ProfileOnboardingModal({
       await userApi.linkAcademicProfile(selectedAuthor.authorId)
       setStep("success")
       toast({
-        title: "Academic profile linked",
-        description: "Your publications will be synced to your profile.",
+        title: t("runtime.components.profile.profile-onboarding-modal.prop_title_academic_profile_linked"),
+        description: t("runtime.components.profile.profile-onboarding-modal.prop_description_your_publications_will_be_synced_to"),
       })
       setTimeout(() => {
         onComplete(selectedAuthor.authorId)
@@ -106,8 +108,8 @@ export function ProfileOnboardingModal({
       }, 900)
     } catch {
       toast({
-        title: "Link failed",
-        description: "Could not link this profile. Please try again.",
+        title: t("runtime.components.profile.profile-onboarding-modal.prop_title_link_failed"),
+        description: t("runtime.components.profile.profile-onboarding-modal.prop_description_could_not_link_this_profile_please"),
         variant: "destructive",
       })
     } finally {
@@ -124,10 +126,9 @@ export function ProfileOnboardingModal({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[620px] max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>Connect Academic Profile</DialogTitle>
+          <DialogTitle>{t("runtime.components.profile.profile-onboarding-modal.text_connect_academic_profile")}</DialogTitle>
           <DialogDescription>
-            Link your Semantic Scholar profile to sync publications and citation metrics.
-          </DialogDescription>
+            {t("runtime.components.profile.profile-onboarding-modal.text_link_your_semantic_scholar_profile_to")}{" "}</DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto py-2 px-1">
@@ -139,7 +140,7 @@ export function ProfileOnboardingModal({
                   <Input
                     autoFocus
                     value={searchQuery}
-                    placeholder="Search by name..."
+                    placeholder={t("runtime.components.profile.profile-onboarding-modal.placeholder_search_by_name")}
                     className="pl-9"
                     onChange={(event) => setSearchQuery(event.target.value)}
                     onKeyDown={(event) => {
@@ -155,14 +156,13 @@ export function ProfileOnboardingModal({
               </div>
 
               <div className="text-sm text-muted-foreground">
-                Found {searchResults.length} potential matches
-              </div>
+                {t("runtime.components.profile.profile-onboarding-modal.text_found")}{" "}{searchResults.length} {t("runtime.components.profile.profile-onboarding-modal.text_potential_matches")}{" "}</div>
 
               <ScrollArea className="h-[320px] border rounded-md p-2">
                 {searchResults.length === 0 && !isSearching ? (
                   <div className="flex h-full flex-col items-center justify-center text-center text-muted-foreground p-8">
                     <User className="h-12 w-12 mb-2 opacity-20" />
-                    <p>Search for your name to find your profile</p>
+                    <p>{t("runtime.components.profile.profile-onboarding-modal.text_search_for_your_name_to_find")}</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -181,7 +181,7 @@ export function ProfileOnboardingModal({
                               </p>
                             </div>
                             {author.hIndex !== undefined && (
-                              <Badge variant="secondary">h-index: {author.hIndex}</Badge>
+                              <Badge variant="secondary">{t("runtime.components.profile.profile-onboarding-modal.text_h_index")}{" "}{author.hIndex}</Badge>
                             )}
                           </div>
 
@@ -204,7 +204,7 @@ export function ProfileOnboardingModal({
                                 onClick={(event) => event.stopPropagation()}
                                 className="text-xs text-primary hover:underline flex items-center gap-1"
                               >
-                                View Profile <ExternalLink className="h-3 w-3" />
+                                {t("runtime.components.profile.profile-onboarding-modal.text_view_profile")}{" "}<ExternalLink className="h-3 w-3" />
                               </a>
                             )}
                           </div>
@@ -228,15 +228,15 @@ export function ProfileOnboardingModal({
                 <div className="flex justify-center gap-8 mb-5">
                   <div className="text-center">
                     <div className="text-2xl font-bold">{selectedAuthor.paperCount || 0}</div>
-                    <div className="text-xs uppercase text-muted-foreground">Papers</div>
+                    <div className="text-xs uppercase text-muted-foreground">{t("runtime.components.profile.profile-onboarding-modal.text_papers")}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold">{selectedAuthor.citationCount || 0}</div>
-                    <div className="text-xs uppercase text-muted-foreground">Citations</div>
+                    <div className="text-xs uppercase text-muted-foreground">{t("runtime.components.profile.profile-onboarding-modal.text_citations")}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold">{selectedAuthor.hIndex || 0}</div>
-                    <div className="text-xs uppercase text-muted-foreground">h-index</div>
+                    <div className="text-xs uppercase text-muted-foreground">{t("runtime.components.profile.profile-onboarding-modal.text_h_index_2")}</div>
                   </div>
                 </div>
               </div>
@@ -244,8 +244,7 @@ export function ProfileOnboardingModal({
               {isLoadingDetails && (
                 <div className="flex items-center justify-center py-4 text-sm text-slate-500">
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Loading author details...
-                </div>
+                  {t("runtime.components.profile.profile-onboarding-modal.text_loading_author_details")}{" "}</div>
               )}
             </div>
           )}
@@ -255,10 +254,9 @@ export function ProfileOnboardingModal({
               <div className="rounded-full bg-green-100 p-3">
                 <CheckCircle className="h-10 w-10 text-green-600" />
               </div>
-              <h3 className="text-2xl font-bold">Profile Linked</h3>
+              <h3 className="text-2xl font-bold">{t("runtime.components.profile.profile-onboarding-modal.text_profile_linked")}</h3>
               <p className="text-muted-foreground">
-                Your publication data will appear after sync completes.
-              </p>
+                {t("runtime.components.profile.profile-onboarding-modal.text_your_publication_data_will_appear_after")}{" "}</p>
             </div>
           )}
         </div>
@@ -266,21 +264,18 @@ export function ProfileOnboardingModal({
         <DialogFooter>
           {step === "search" && (
             <Button variant="ghost" onClick={handleSkip}>
-              Skip for now
-            </Button>
+              {t("runtime.components.profile.profile-onboarding-modal.text_skip_for_now")}{" "}</Button>
           )}
 
           {step === "confirm" && (
             <>
               <Button variant="outline" onClick={() => setStep("search")}>
-                Back to search
-              </Button>
+                {t("runtime.components.profile.profile-onboarding-modal.text_back_to_search")}{" "}</Button>
               <Button onClick={handleConfirm} disabled={isConfirming}>
                 {isConfirming ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Linking...
-                  </>
+                    {t("runtime.components.profile.profile-onboarding-modal.text_linking")}{" "}</>
                 ) : (
                   "Confirm and Link"
                 )}

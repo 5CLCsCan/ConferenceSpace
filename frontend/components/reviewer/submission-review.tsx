@@ -20,6 +20,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import useAssignmentReview from "@/hooks/use-assignment-review"
 import type { Paper } from "@/lib/types"
 import type { ReviewData } from "@/lib/api/reviews"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 // =============================================================================
 // MAIN COMPONENT: SubmissionReviewScreen
@@ -42,6 +43,7 @@ export function SubmissionReviewScreen({
   initialTab = "review",
   onBack,
 }: SubmissionReviewScreenProps) {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<TabType>(initialTab)
   const [formData, setFormData] = useState<ReviewFormData>(INITIAL_FORM_DATA)
   const [discussionCount, setDiscussionCount] = useState(0)
@@ -196,8 +198,7 @@ export function SubmissionReviewScreen({
             className="text-[11px] font-semibold text-slate-500 hover:text-slate-900"
             onClick={onBack}
           >
-            Back
-          </button>
+            {t("runtime.components.reviewer.submission-review.text_back")}{" "}</button>
         </div>
       )}
 
@@ -237,8 +238,7 @@ export function SubmissionReviewScreen({
                   {/* Header */}
                   <div className="flex items-center justify-between mt-3 mb-3 border-b border-slate-100 pb-2">
                     <h2 className="font-bold text-sm text-[#1B3C53] tracking-tight uppercase leading-none">
-                      Scoring Criteria
-                    </h2>
+                      {t("runtime.components.reviewer.submission-review.text_scoring_criteria")}{" "}</h2>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button
@@ -275,8 +275,7 @@ export function SubmissionReviewScreen({
                       >
                         <div className="space-y-3">
                           <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                            Scoring Guide
-                          </h4>
+                            {t("runtime.components.reviewer.submission-review.text_scoring_guide")}{" "}</h4>
                           <div className="space-y-2">
                             <div className="flex items-center gap-2">
                               <div className="flex gap-0.5">
@@ -284,8 +283,7 @@ export function SubmissionReviewScreen({
                                 <span className="w-2 h-2 rounded-full bg-[#16a34a]" />
                               </div>
                               <span className="text-[9px] text-slate-600">
-                                8-10: Strong contribution, recommend
-                              </span>
+                                {t("runtime.components.reviewer.submission-review.text_8_10_strong_contribution_recommend")}{" "}</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="flex gap-0.5">
@@ -293,8 +291,7 @@ export function SubmissionReviewScreen({
                                 <span className="w-2 h-2 rounded-full bg-[#a3a3a3]" />
                               </div>
                               <span className="text-[9px] text-slate-600">
-                                5-7: Acceptable with caveats
-                              </span>
+                                {t("runtime.components.reviewer.submission-review.text_5_7_acceptable_with_caveats")}{" "}</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="flex gap-0.5">
@@ -302,8 +299,7 @@ export function SubmissionReviewScreen({
                                 <span className="w-2 h-2 rounded-full bg-[#dc2626]" />
                               </div>
                               <span className="text-[9px] text-slate-600">
-                                1-4: Significant issues present
-                              </span>
+                                {t("runtime.components.reviewer.submission-review.text_1_4_significant_issues_present")}{" "}</span>
                             </div>
                           </div>
                           <div className="pt-2 border-t border-slate-100">
@@ -311,8 +307,7 @@ export function SubmissionReviewScreen({
                               href="#"
                               className="text-[9px] text-[#2563eb] hover:underline font-medium"
                             >
-                              View full reviewer guide &rarr;
-                            </a>
+                              {t("runtime.components.reviewer.submission-review.text_view_full_reviewer_guide_rarr")}{" "}</a>
                           </div>
                         </div>
                       </TooltipContent>
@@ -425,7 +420,7 @@ export function SubmissionReviewScreen({
                 >
                   schedule
                 </span>
-                Last draft saved: {formData.lastSaved || "Not saved"}
+                {t("runtime.components.reviewer.submission-review.text_last_draft_saved")}{" "}{formData.lastSaved || "Not saved"}
               </div>
               <div className="flex items-center gap-3">
                 <button

@@ -68,20 +68,17 @@ function LoginForm() {
             </span>
           </div>
           <div className="auth-brand-content">
-            <p className="auth-brand-label">CONFERENCESPACE</p>
+            <p className="auth-brand-label">{t("runtime.app.login.page.text_conferencespace")}</p>
             <h1 className="auth-brand-headline">
-              The scholarly platform for academic conferences.
-            </h1>
+              {t("runtime.app.login.page.text_the_scholarly_platform_for_academic_conferences")}{" "}</h1>
             <p className="auth-brand-sub">
-              Submit research, coordinate reviews, and chair conferences — all within one unified
-              system.
-            </p>
+              {t("runtime.app.login.page.text_submit_research_coordinate_reviews_and_chair")}{" "}</p>
           </div>
           <div className="auth-brand-features">
             {[
-              { icon: "edit_document", text: "Paper submission & tracking" },
-              { icon: "rate_review", text: "Structured peer review" },
-              { icon: "diversity_3", text: "Conference management" },
+              { icon: "edit_document", text: t("runtime.app.login.page.prop_text_paper_submission_tracking") },
+              { icon: "rate_review", text: t("runtime.app.login.page.prop_text_structured_peer_review") },
+              { icon: "diversity_3", text: t("runtime.app.login.page.prop_text_conference_management") },
             ].map(({ icon, text }) => (
               <div key={text} className="auth-feature-row">
                 <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
@@ -140,7 +137,7 @@ function LoginForm() {
               <input
                 id="email"
                 type="email"
-                placeholder="ada.lovelace@example.com"
+                placeholder={t("runtime.app.login.page.placeholder_ada_lovelace_example_com")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -201,7 +198,7 @@ function LoginForm() {
               {isLoading ? (
                 <>
                   <Loader2 className="h-3 w-3 animate-spin" />
-                  <span>Signing in...</span>
+                  <span>{t("runtime.app.login.page.text_signing_in")}</span>
                 </>
               ) : (
                 t("common.actions.signIn")

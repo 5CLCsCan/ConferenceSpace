@@ -81,8 +81,8 @@ export default function CreateConferencePage() {
 
   const handleSaveDraft = () => {
     toast({
-      title: "Draft saved",
-      description: "Your conference draft has been saved.",
+      title: t("runtime.app.role.chair.conferences.new.page.prop_title_draft_saved"),
+      description: t("runtime.app.role.chair.conferences.new.page.prop_description_your_conference_draft_has_been_saved"),
     })
   }
 
@@ -95,8 +95,8 @@ export default function CreateConferencePage() {
     // Validation
     if (!formData.title || !formData.acronym) {
       toast({
-        title: "Missing required fields",
-        description: "Please provide at least the conference name and acronym.",
+        title: t("runtime.app.role.chair.conferences.new.page.prop_title_missing_required_fields"),
+        description: t("runtime.app.role.chair.conferences.new.page.prop_description_please_provide_at_least_the_conference"),
         variant: "destructive",
       })
       return

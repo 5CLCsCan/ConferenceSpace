@@ -4,6 +4,7 @@ import { useState } from "react"
 import { cn } from "@/lib/utils"
 import type { Submission } from "@/lib/api/submissions"
 import { formatDate } from "@/lib/utils"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface OverviewTabProps {
   submission: Submission
@@ -12,6 +13,7 @@ interface OverviewTabProps {
 
 // --- File Type Icon (Scholar-Compact) ---
 function FileTypeIcon({ type }: { type: "pdf" | "zip" | "doc" | "other" }) {
+  const { t } = useTranslation()
   const config: Record<string, { icon: string; bgClass: string; textClass: string }> = {
     pdf: { icon: "picture_as_pdf", bgClass: "bg-red-50", textClass: "text-red-600" },
     zip: { icon: "folder_zip", bgClass: "bg-blue-50", textClass: "text-blue-600" },
@@ -64,11 +66,11 @@ function AuthorAvatar({ name, size = "sm" }: { name: string; size?: "sm" | "md" 
 
 // --- Abstract Card (Scholar-Compact) ---
 function AbstractCard({ abstract, keywords }: { abstract: string; keywords: string[] }) {
+  const { t } = useTranslation()
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-4 tracking-tight">
-        Abstract
-      </h3>
+        {t("runtime.components.author.submission-detail.overview-tab.text_abstract")}{" "}</h3>
       <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-6">{abstract}</p>
       {keywords.length > 0 && (
         <div className="flex flex-wrap gap-2">
@@ -96,6 +98,7 @@ function SubmissionFilesCard({
   conferenceId: string
   lastUpdated: string
 }) {
+  const { t } = useTranslation()
   const fileUrl = submission.file
     ? `/api/backend/api/v1/conferences/${conferenceId}/submissions/${submission.id}/file`
     : null
@@ -112,9 +115,8 @@ function SubmissionFilesCard({
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-          Submission Files
-        </h3>
-        <span className="text-[10px] text-slate-400">Last updated: {lastUpdated}</span>
+          {t("runtime.components.author.submission-detail.overview-tab.text_submission_files")}{" "}</h3>
+        <span className="text-[10px] text-slate-400">{t("runtime.components.author.submission-detail.overview-tab.text_last_updated")}{" "}{lastUpdated}</span>
       </div>
       <div className="space-y-3">
         <div className="flex items-center p-3 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
@@ -124,7 +126,7 @@ function SubmissionFilesCard({
               {submission.file.original_name}
             </h4>
             <p className="text-[10px] text-slate-500">
-              {(submission.file.size / 1024 / 1024).toFixed(1)} MB -{" "}
+              {(submission.file.size / 1024 / 1024).toFixed(1)} {t("runtime.components.author.submission-detail.overview-tab.text_mb")}{" "}
               {submission.file.mime_type?.split("/")[1]?.toUpperCase() || "File"}
             </p>
           </div>
@@ -132,7 +134,7 @@ function SubmissionFilesCard({
             {isPdfFile && (
               <button
                 className="p-2 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors"
-                title="Preview"
+                title={t("runtime.components.author.submission-detail.overview-tab.title_preview")}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
                   visibility
@@ -143,7 +145,7 @@ function SubmissionFilesCard({
               href={fileUrl || ""}
               download={submission.file.original_name}
               className="p-2 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors"
-              title="Download"
+              title={t("runtime.components.author.submission-detail.overview-tab.title_download")}
             >
               <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
                 download
@@ -164,6 +166,7 @@ function CoverLetterCard({
   submission: Submission
   conferenceId: string
 }) {
+  const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
 
   return (
@@ -177,8 +180,7 @@ function CoverLetterCard({
             mail
           </span>
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            Cover Letter
-          </h3>
+            {t("runtime.components.author.submission-detail.overview-tab.text_cover_letter")}{" "}</h3>
         </div>
         <span className="material-symbols-outlined text-slate-400" style={{ fontSize: "20px" }}>
           {isExpanded ? "expand_less" : "expand_more"}
@@ -199,19 +201,17 @@ function CoverLetterCard({
                   {submission.cover_letter.original_name}
                 </p>
                 <p className="text-[10px] text-slate-400">
-                  {(submission.cover_letter.size / 1024 / 1024).toFixed(2)} MB
-                </p>
+                  {(submission.cover_letter.size / 1024 / 1024).toFixed(2)} {t("runtime.components.author.submission-detail.overview-tab.text_mb_2")}{" "}</p>
               </div>
               <a
                 href={`/api/backend/api/v1/conferences/${conferenceId}/submissions/${submission.id}/cover_letter`}
                 download={submission.cover_letter.original_name}
                 className="text-[11px] font-medium text-[#1B3C53] hover:underline"
               >
-                Download
-              </a>
+                {t("runtime.components.author.submission-detail.overview-tab.text_download")}{" "}</a>
             </div>
           ) : (
-            <p className="text-xs text-slate-400 italic">No cover letter attached.</p>
+            <p className="text-xs text-slate-400 italic">{t("runtime.components.author.submission-detail.overview-tab.text_no_cover_letter_attached")}</p>
           )}
         </div>
       )}
@@ -221,6 +221,7 @@ function CoverLetterCard({
 
 // --- Submission Meta Card (Sidebar, Scholar-Compact) ---
 function SubmissionMetaCard({ submission }: { submission: Submission }) {
+  const { t } = useTranslation()
   // Build authors list
   const authors = [
     { name: submission.author, isCorresponding: true },
@@ -233,14 +234,12 @@ function SubmissionMetaCard({ submission }: { submission: Submission }) {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <h3 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-4">
-        Submission Meta
-      </h3>
+        {t("runtime.components.author.submission-detail.overview-tab.text_submission_meta")}{" "}</h3>
       <div className="space-y-6">
         {/* Authors */}
         <div>
           <h4 className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-3">
-            Author(s)
-          </h4>
+            {t("runtime.components.author.submission-detail.overview-tab.text_author_s")}{" "}</h4>
           <div className="space-y-3">
             {authors.map((author, idx) => (
               <div
@@ -262,8 +261,7 @@ function SubmissionMetaCard({ submission }: { submission: Submission }) {
         {/* Conflicts of Interest */}
         <div>
           <h4 className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-2">
-            Conflicts of Interest
-          </h4>
+            {t("runtime.components.author.submission-detail.overview-tab.text_conflicts_of_interest")}{" "}</h4>
           <div className="flex flex-wrap gap-2">
             {submission.domain && submission.domain.length > 0 ? (
               submission.domain.map((affiliation, index) => (
@@ -275,7 +273,7 @@ function SubmissionMetaCard({ submission }: { submission: Submission }) {
                 </span>
               ))
             ) : (
-              <span className="text-xs text-slate-400">None declared</span>
+              <span className="text-xs text-slate-400">{t("runtime.components.author.submission-detail.overview-tab.text_none_declared")}</span>
             )}
           </div>
         </div>
@@ -295,23 +293,23 @@ interface StatusStep {
 }
 
 function SubmissionStatusCard({ submission }: { submission: Submission }) {
+  const { t } = useTranslation()
   const statusSteps: StatusStep[] = [
     {
       id: "submitted",
-      label: "Submitted",
+      label: t("runtime.components.author.submission-detail.overview-tab.prop_label_submitted"),
       date: formatDate(submission.created_at),
       completed: true,
     },
-    { id: "bidding", label: "Bidding Phase", date: "Completed", completed: true },
-    { id: "rebuttal", label: "Rebuttal Phase", date: "Ends in 3 days", current: true },
-    { id: "decision", label: "Final Decision", date: "Expected", pending: true },
+    { id: "bidding", label: t("runtime.components.author.submission-detail.overview-tab.prop_label_bidding_phase"), date: "Completed", completed: true },
+    { id: "rebuttal", label: t("runtime.components.author.submission-detail.overview-tab.prop_label_rebuttal_phase"), date: "Ends in 3 days", current: true },
+    { id: "decision", label: t("runtime.components.author.submission-detail.overview-tab.prop_label_final_decision"), date: "Expected", pending: true },
   ]
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <h3 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-4">
-        Submission Status
-      </h3>
+        {t("runtime.components.author.submission-detail.overview-tab.text_submission_status")}{" "}</h3>
       <div className="relative pl-2 space-y-6">
         <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-slate-100 dark:bg-slate-700" />
         {statusSteps.map((step) => (
@@ -366,15 +364,14 @@ function SubmissionStatusCard({ submission }: { submission: Submission }) {
 
 // --- Withdraw Submission Card (Sidebar, Scholar-Compact) ---
 function WithdrawSubmissionCard() {
+  const { t } = useTranslation()
   return (
     <div className="border border-red-100 dark:border-red-900/30 bg-red-50 dark:bg-red-900/10 rounded-xl p-6">
-      <h3 className="text-sm font-bold text-red-700 dark:text-red-400 mb-2">Withdraw Submission</h3>
+      <h3 className="text-sm font-bold text-red-700 dark:text-red-400 mb-2">{t("runtime.components.author.submission-detail.overview-tab.text_withdraw_submission")}</h3>
       <p className="text-xs text-red-600 dark:text-red-400/80 mb-3 leading-relaxed">
-        Withdrawing your paper will remove it from consideration. This action cannot be undone.
-      </p>
+        {t("runtime.components.author.submission-detail.overview-tab.text_withdrawing_your_paper_will_remove_it")}{" "}</p>
       <button className="w-full h-8 bg-white dark:bg-transparent border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 font-bold rounded-md text-[11px] transition-colors shadow-sm">
-        Withdraw Paper
-      </button>
+        {t("runtime.components.author.submission-detail.overview-tab.text_withdraw_paper")}{" "}</button>
     </div>
   )
 }

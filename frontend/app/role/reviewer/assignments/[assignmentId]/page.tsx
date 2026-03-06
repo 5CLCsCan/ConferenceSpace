@@ -14,8 +14,10 @@ import { setAssignmentConferenceContext } from "@/lib/reviewer/assignment-contex
 import { ROUTES } from "@/lib/routes"
 import type { Paper } from "@/lib/types"
 import type { TabType } from "@/components/reviewer/submission-review/types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export default function ReviewerAssignmentPage() {
+  const { t } = useTranslation()
   const params = useParams() as { assignmentId: string }
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -104,26 +106,22 @@ export default function ReviewerAssignmentPage() {
       <div className="h-full w-full flex items-center justify-center px-6">
         <div className="max-w-xl w-full rounded-xl border border-amber-300 bg-amber-50 p-6 space-y-3">
           <h1 className="text-xl font-semibold text-amber-900">
-            Unable to resolve assignment context
-          </h1>
+            {t("runtime.app.role.reviewer.assignments.assignmentId.page.text_unable_to_resolve_assignment_context")}{" "}</h1>
           <p className="text-sm text-amber-800">
-            We could not determine the conference for assignment{" "}
-            <strong>{params.assignmentId}</strong>. Open this assignment from the conference
-            submissions list or add a valid <code>conferenceId</code> query parameter.
-          </p>
+            {t("runtime.app.role.reviewer.assignments.assignmentId.page.text_we_could_not_determine_the_conference")}{" "}
+            <strong>{params.assignmentId}</strong>{t("runtime.app.role.reviewer.assignments.assignmentId.page.text_open_this_assignment_from_the_conference")}{" "}<code>conferenceId</code> {t("runtime.app.role.reviewer.assignments.assignmentId.page.text_query_parameter")}{" "}</p>
           <div className="pt-2">
             <button
               type="button"
               className="inline-flex items-center rounded-md bg-amber-700 px-3 py-2 text-sm font-medium text-white hover:bg-amber-800"
               onClick={() => router.push(ROUTES.REVIEWER.CONFERENCES)}
             >
-              Go to Conferences
-            </button>
+              {t("runtime.app.role.reviewer.assignments.assignmentId.page.text_go_to_conferences")}{" "}</button>
           </div>
         </div>
       </div>
     ),
-    [params.assignmentId, router],
+    [params.assignmentId, router, t],
   )
 
   if (!user) {
@@ -138,8 +136,7 @@ export default function ReviewerAssignmentPage() {
         <div className="flex-1 overflow-y-auto">
           {loading ? (
             <div className="h-full w-full flex items-center justify-center text-slate-400">
-              Loading...
-            </div>
+              {t("runtime.app.role.reviewer.assignments.assignmentId.page.text_loading")}{" "}</div>
           ) : isUnresolved || !conferenceId || !submissionId ? (
             unresolvedBody
           ) : (

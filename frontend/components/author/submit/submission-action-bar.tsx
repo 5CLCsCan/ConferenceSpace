@@ -2,6 +2,7 @@
 
 import { Loader2 } from "lucide-react"
 import type { StepType } from "./types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface SubmissionActionBarProps {
   currentStep: StepType
@@ -32,6 +33,7 @@ export function SubmissionActionBar({
   onCancel,
   canSubmit = true,
 }: SubmissionActionBarProps) {
+  const { t } = useTranslation()
   const currentIndex = stepOrder.indexOf(currentStep)
   const isFirstStep = currentIndex === 0
   const isLastStep = currentIndex === stepOrder.length - 1
@@ -90,8 +92,7 @@ export function SubmissionActionBar({
           >
             arrow_back
           </span>
-          Return
-        </button>
+          {t("runtime.components.author.submit.submission-action-bar.text_return")}{" "}</button>
 
         {/* Right Side Actions */}
         <div className="flex items-center gap-3">
@@ -123,8 +124,7 @@ export function SubmissionActionBar({
             >
               save
             </span>
-            Save Draft
-          </button>
+            {t("runtime.components.author.submit.submission-action-bar.text_save_draft")}{" "}</button>
 
           {/* Next / Submit Button */}
           {isLastStep ? (
@@ -137,12 +137,10 @@ export function SubmissionActionBar({
               {submitting ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  Submitting...
-                </>
+                  {t("runtime.components.author.submit.submission-action-bar.text_submitting")}{" "}</>
               ) : (
                 <>
-                  Submit Paper
-                  <span
+                  {t("runtime.components.author.submit.submission-action-bar.text_submit_paper")}{" "}<span
                     className="material-symbols-outlined"
                     style={{
                       fontSize: "16px",

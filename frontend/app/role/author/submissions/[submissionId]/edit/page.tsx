@@ -12,8 +12,10 @@ import type { Submission } from "@/lib/api/submissions"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
 import { ROUTES } from "@/lib/routes"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 function EditSubmissionPageContent() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const router = useRouter()
   const params = useParams()
@@ -98,13 +100,11 @@ function EditSubmissionPageContent() {
     return (
       <main className="min-h-screen flex items-center justify-center bg-neutral-50 p-6">
         <div className="max-w-lg text-center space-y-4 bg-white border rounded-xl p-8">
-          <h1 className="text-2xl font-bold text-neutral-900">Submission Not Found</h1>
+          <h1 className="text-2xl font-bold text-neutral-900">{t("runtime.app.role.author.submissions.submissionId.edit.page.text_submission_not_found")}</h1>
           <p className="text-neutral-600">
-            We could not resolve this submission link. Please return to your submissions list.
-          </p>
+            {t("runtime.app.role.author.submissions.submissionId.edit.page.text_we_could_not_resolve_this_submission")}{" "}</p>
           <Button onClick={() => router.push(ROUTES.AUTHOR.SUBMISSIONS)}>
-            Back To Submissions
-          </Button>
+            {t("runtime.app.role.author.submissions.submissionId.edit.page.text_back_to_submissions")}{" "}</Button>
         </div>
       </main>
     )

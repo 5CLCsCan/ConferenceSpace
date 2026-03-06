@@ -4,6 +4,8 @@ import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { ROUTES } from "@/lib/routes"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { tStatic as t } from "@/lib/i18n/static-translate"
 
 /* -----------------------------------------------------------------------
    HomeLanding — Scholar-Compact aesthetic
@@ -16,10 +18,10 @@ const STEPS = [
   {
     index: 1,
     icon: "event",
-    label: "Conference Setup",
+    label: t("runtime.app.page.prop_label_conference_setup"),
     sub: "Chair creates conference",
     description:
-      "The chair defines the conference identity: title, acronym, venue, and operational timeline. Review type (single- or double-blind), submission constraints, CFP text, committee policy, and key dates are all configured through a six-step wizard before the conference becomes visible to authors.",
+      t("runtime.app.page.prop_description_the_chair_defines_the_conference_identity"),
     detail: [
       "Six-step creation wizard",
       "Submission window enforcement",
@@ -31,10 +33,10 @@ const STEPS = [
   {
     index: 2,
     icon: "upload_file",
-    label: "Submission Intake",
+    label: t("runtime.app.page.prop_label_submission_intake"),
     sub: "Authors discover and submit",
     description:
-      "Authors browse available conferences, inspect CFP details, and enter the submission wizard when a conference is open. The wizard guides them through paper details, co-author lookup against registered users, manuscript file upload (with pre-check diagnostics), conflict-of-interest declaration, and a final review before save-as-draft or publish.",
+      t("runtime.app.page.prop_description_authors_browse_available_conferences_inspect_cfp"),
     detail: [
       "Conference discovery and CFP browsing",
       "Multi-step submission wizard",
@@ -46,10 +48,10 @@ const STEPS = [
   {
     index: 3,
     icon: "mail",
-    label: "Reviewer Invitation",
+    label: t("runtime.app.page.prop_label_reviewer_invitation"),
     sub: "Chairs invite, reviewers respond",
     description:
-      "The chair manages a reviewer committee per conference and sends invitations from the committee panel. Each invited reviewer receives a notification and explicit accept/decline controls. Accepted invitations unlock assignment execution. Declined invitations require the chair to find alternative coverage.",
+      t("runtime.app.page.prop_description_the_chair_manages_a_reviewer_committee"),
     detail: [
       "Committee roster management",
       "Per-conference reviewer invitation",
@@ -61,10 +63,10 @@ const STEPS = [
   {
     index: 4,
     icon: "rate_review",
-    label: "Review Execution",
+    label: t("runtime.app.page.prop_label_review_execution"),
     sub: "Reviewers score and submit",
     description:
-      "Reviewers open their assigned papers from a sortable backlog. The review workspace presents the paper alongside a scoring form — overall score, confidence, novelty, technical quality, clarity, and relevance — plus narrative comment sections for authors and the programme committee. Draft saves preserve progress; final submit gates on required field completion.",
+      t("runtime.app.page.prop_description_reviewers_open_their_assigned_papers_from"),
     detail: [
       "Sortable assignment backlog",
       "Multi-criteria scoring form",
@@ -76,10 +78,10 @@ const STEPS = [
   {
     index: 5,
     icon: "forum",
-    label: "Discussion & Deliberation",
+    label: t("runtime.app.page.prop_label_discussion_deliberation"),
     sub: "Threaded cross-role collaboration",
     description:
-      "Each submission has a shared discussion workspace. Authors, reviewers, and chairs can create threads and post replies from their respective role contexts. Thread visibility is role-framed in the UI, but message state is persisted at the submission level and provides an auditable collaboration record that informs decision-making.",
+      t("runtime.app.page.prop_description_each_submission_has_a_shared_discussion"),
     detail: [
       "Per-submission threaded discussion",
       "Thread creation and message replies",
@@ -91,10 +93,10 @@ const STEPS = [
   {
     index: 6,
     icon: "gavel",
-    label: "Chair Decision",
+    label: t("runtime.app.page.prop_label_chair_decision"),
     sub: "Accept or reject, persisted",
     description:
-      "After reviewing the accumulated evidence — submitted reviews, discussion threads, COI analytics, and conference dashboard data — the chair selects an outcome for each submission. The current persisted decision states are accept and reject. Once committed, the submission status transitions and result notifications propagate to affected authors and reviewers.",
+      t("runtime.app.page.prop_description_after_reviewing_the_accumulated_evidence_submitted"),
     detail: [
       "Submission evidence review (scores + discussions + COI)",
       "Accept / reject decision persistence",
@@ -116,6 +118,7 @@ function getScrollParent(el: HTMLElement | null): HTMLElement {
 }
 
 function WorkflowScroll() {
+  const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
   const [activeIdx, setActiveIdx] = useState(0)
   const [panelKey, setPanelKey] = useState(0)
@@ -198,14 +201,12 @@ function WorkflowScroll() {
         {/* ── Left: timeline nav ── */}
         <div className="wf-left">
           <div className="wf-left-header">
-            <div className="wf-section-label">The lifecycle</div>
+            <div className="wf-section-label">{t("runtime.app.page.text_the_lifecycle")}</div>
             <h2 className="wf-title">
-              From setup to decision <br />— in one system
-            </h2>
+              {t("runtime.app.page.text_from_setup_to_decision")}{" "}<br />{t("runtime.app.page.text_in_one_system")}{" "}</h2>
             <p className="wf-desc">
-              Every stage of the conference paper lifecycle is wired together and role-gated. <br />
-              Scroll to walk through it.
-            </p>
+              {t("runtime.app.page.text_every_stage_of_the_conference_paper")}{" "}<br />
+              {t("runtime.app.page.text_scroll_to_walk_through_it")}{" "}</p>
           </div>
 
           <div className="wf-timeline">
@@ -246,7 +247,7 @@ function WorkflowScroll() {
                 <span className="material-symbols-outlined">{step.icon}</span>
               </div>
               <span className="wf-panel-step-num">
-                Step {step.index} of {STEPS.length}
+                {t("runtime.app.page.text_step")}{" "}{step.index} of {STEPS.length}
               </span>
             </div>
             <h3 className="wf-panel-title">{step.label}</h3>
@@ -384,29 +385,24 @@ export default function HomePage() {
             <div className="landing-logo-mark">
               <span className="material-symbols-outlined">school</span>
             </div>
-            <span className="landing-logo-name">ConferenceSpace</span>
+            <span className="landing-logo-name">{t("runtime.app.page.text_conferencespace")}</span>
           </Link>
           <nav className="landing-nav-links">
             <a href="#how-it-works" className="landing-nav-link">
-              Workflow
-            </a>
+              {t("runtime.app.page.text_workflow")}{" "}</a>
             <a href="#roles" className="landing-nav-link">
-              Roles
-            </a>
+              {t("runtime.app.page.text_roles")}{" "}</a>
             <a href="#features" className="landing-nav-link">
-              Features
-            </a>
+              {t("runtime.app.page.text_features")}{" "}</a>
           </nav>
           <div className="landing-nav-actions">
             <div className="landing-lang">
               <LanguageSwitcher />
             </div>
             <Link href={ROUTES.LOGIN} className="landing-btn landing-btn--ghost">
-              Sign in
-            </Link>
+              {t("runtime.app.page.text_sign_in")}{" "}</Link>
             <Link href={ROUTES.REGISTER} className="landing-btn landing-btn--primary">
-              Register
-            </Link>
+              {t("runtime.app.page.text_register")}{" "}</Link>
           </div>
         </div>
       </header>
@@ -417,44 +413,33 @@ export default function HomePage() {
         <div className="landing-hero-inner">
           <div className="landing-hero-eyebrow">
             <span className="material-symbols-outlined">deployed_code</span>
-            Academic Conference Operations Platform
-          </div>
+            {t("runtime.app.page.text_academic_conference_operations_platform")}{" "}</div>
           <h1 className="landing-hero-title">
-            One workspace.
-            <br />
-            Every role.
-            <br />
-            <span className="landing-hero-title-accent">Full lifecycle.</span>
+            {t("runtime.app.page.text_one_workspace")}{" "}<br />
+            {t("runtime.app.page.text_every_role")}{" "}<br />
+            <span className="landing-hero-title-accent">{t("runtime.app.page.text_full_lifecycle")}</span>
           </h1>
           <p className="landing-hero-sub">
-            ConferenceSpace coordinates conferences end-to-end — from the call for papers through
-            submission, peer review, decision, and result notification — in a single, role-aware
-            system for authors, reviewers, and chairs.
-          </p>
+            {t("runtime.app.page.text_conferencespace_coordinates_conferences_end_to_end")}{" "}</p>
           <div className="landing-hero-cta">
             <Link
               href={ROUTES.REGISTER}
               className="landing-btn landing-btn--primary landing-btn--lg"
             >
-              Create an account
-            </Link>
+              {t("runtime.app.page.text_create_an_account")}{" "}</Link>
             <Link href={ROUTES.LOGIN} className="landing-btn landing-btn--outline landing-btn--lg">
-              Sign in
-            </Link>
+              {t("runtime.app.page.text_sign_in")}{" "}</Link>
           </div>
           <div className="landing-hero-props">
             <div className="landing-hero-prop">
               <span className="material-symbols-outlined">swap_horiz</span>
-              Multi-role single account
-            </div>
+              {t("runtime.app.page.text_multi_role_single_account")}{" "}</div>
             <div className="landing-hero-prop">
               <span className="material-symbols-outlined">notifications</span>
-              Real-time WebSocket notifications
-            </div>
+              {t("runtime.app.page.text_real_time_websocket_notifications")}{" "}</div>
             <div className="landing-hero-prop">
               <span className="material-symbols-outlined">forum</span>
-              Cross-role discussion threads
-            </div>
+              {t("runtime.app.page.text_cross_role_discussion_threads")}{" "}</div>
           </div>
         </div>
         <div className="landing-hero-scroll-hint" aria-hidden>
@@ -469,13 +454,10 @@ export default function HomePage() {
       <section id="roles" className="landing-section landing-section--alt">
         <div className="landing-section-inner">
           <Reveal>
-            <div className="landing-section-label">Role workspaces</div>
-            <h2 className="landing-section-title">Three roles. One account.</h2>
+            <div className="landing-section-label">{t("runtime.app.page.text_role_workspaces")}</div>
+            <h2 className="landing-section-title">{t("runtime.app.page.text_three_roles_one_account")}</h2>
             <p className="landing-section-desc">
-              A single registered account can operate as Author, Reviewer, or Chair simultaneously.
-              Switch active role context at any time — permissions and workspaces adjust
-              accordingly.
-            </p>
+              {t("runtime.app.page.text_a_single_registered_account_can_operate")}{" "}</p>
           </Reveal>
           <div className="landing-roles">
             <Reveal delay={0}>
@@ -485,12 +467,12 @@ export default function HomePage() {
                 color="green"
                 desc="Researchers submitting work and tracking evaluation outcomes."
                 caps={[
-                  { icon: "search", text: "Discover and browse open conferences" },
-                  { icon: "upload_file", text: "Create and publish paper submissions" },
-                  { icon: "save", text: "Save drafts and return to continue later" },
-                  { icon: "forum", text: "Participate in per-submission discussions" },
-                  { icon: "visibility", text: "Track submission status through review" },
-                  { icon: "download", text: "Download submission artifacts" },
+                  { icon: "search", text: t("runtime.app.page.prop_text_discover_and_browse_open_conferences") },
+                  { icon: "upload_file", text: t("runtime.app.page.prop_text_create_and_publish_paper_submissions") },
+                  { icon: "save", text: t("runtime.app.page.prop_text_save_drafts_and_return_to_continue") },
+                  { icon: "forum", text: t("runtime.app.page.prop_text_participate_in_per_submission_discussions") },
+                  { icon: "visibility", text: t("runtime.app.page.prop_text_track_submission_status_through_review") },
+                  { icon: "download", text: t("runtime.app.page.prop_text_download_submission_artifacts") },
                 ]}
               />
             </Reveal>
@@ -501,12 +483,12 @@ export default function HomePage() {
                 color="blue"
                 desc="Invited evaluators performing scholarly peer review."
                 caps={[
-                  { icon: "mail", text: "Accept or decline review invitations" },
-                  { icon: "assignment", text: "Access full assignment queue and backlog" },
-                  { icon: "star_rate", text: "Score papers on multiple criteria dimensions" },
-                  { icon: "save", text: "Save review drafts and submit final reviews" },
-                  { icon: "history", text: "Maintain a searchable completed-review archive" },
-                  { icon: "forum", text: "Discuss privately with co-reviewers per paper" },
+                  { icon: "mail", text: t("runtime.app.page.prop_text_accept_or_decline_review_invitations") },
+                  { icon: "assignment", text: t("runtime.app.page.prop_text_access_full_assignment_queue_and_backlog") },
+                  { icon: "star_rate", text: t("runtime.app.page.prop_text_score_papers_on_multiple_criteria_dimensions") },
+                  { icon: "save", text: t("runtime.app.page.prop_text_save_review_drafts_and_submit_final") },
+                  { icon: "history", text: t("runtime.app.page.prop_text_maintain_a_searchable_completed_review_archive") },
+                  { icon: "forum", text: t("runtime.app.page.prop_text_discuss_privately_with_co_reviewers_per") },
                 ]}
               />
             </Reveal>
@@ -517,12 +499,12 @@ export default function HomePage() {
                 color="navy"
                 desc="Conference owners governing policy, progress, and outcomes."
                 caps={[
-                  { icon: "add_circle", text: "Launch conferences through a 6-step wizard" },
-                  { icon: "dashboard", text: "Monitor portfolio-level health and metrics" },
-                  { icon: "person_search", text: "Inspect COI relationships and rebuild index" },
-                  { icon: "gavel", text: "Persist accept / reject decisions per submission" },
-                  { icon: "group", text: "Manage reviewer committee and send invitations" },
-                  { icon: "bar_chart", text: "View submission and review analytics dashboards" },
+                  { icon: "add_circle", text: t("runtime.app.page.prop_text_launch_conferences_through_a_6_step") },
+                  { icon: "dashboard", text: t("runtime.app.page.prop_text_monitor_portfolio_level_health_and_metrics") },
+                  { icon: "person_search", text: t("runtime.app.page.prop_text_inspect_coi_relationships_and_rebuild_index") },
+                  { icon: "gavel", text: t("runtime.app.page.prop_text_persist_accept_reject_decisions_per_submission") },
+                  { icon: "group", text: t("runtime.app.page.prop_text_manage_reviewer_committee_and_send_invitations") },
+                  { icon: "bar_chart", text: t("runtime.app.page.prop_text_view_submission_and_review_analytics_dashboards") },
                 ]}
               />
             </Reveal>
@@ -534,43 +516,41 @@ export default function HomePage() {
       <section id="features" className="landing-section">
         <div className="landing-section-inner">
           <Reveal>
-            <div className="landing-section-label">Platform features</div>
-            <h2 className="landing-section-title">Built for conference operations</h2>
+            <div className="landing-section-label">{t("runtime.app.page.text_platform_features")}</div>
+            <h2 className="landing-section-title">{t("runtime.app.page.text_built_for_conference_operations")}</h2>
             <p className="landing-section-desc">
-              Every feature maps to a real conference workflow step — no placeholder sprinkle, no
-              marketing fiction.
-            </p>
+              {t("runtime.app.page.text_every_feature_maps_to_a_real")}{" "}</p>
           </Reveal>
           <div className="landing-features">
             {[
               {
                 icon: "psychology",
-                title: "Manuscript pre-check",
+                title: t("runtime.app.page.prop_title_manuscript_pre_check"),
                 desc: "Authors upload to a pre-check endpoint before final submission. Compliance diagnostics surface formatting issues before they block the intake pipeline.",
               },
               {
                 icon: "gpp_good",
-                title: "Conflict-of-interest monitoring",
+                title: t("runtime.app.page.prop_title_conflict_of_interest_monitoring"),
                 desc: "COI relationship analytics are computed per conference. Chairs can inspect reviewer-author conflict tables and trigger a manual index rebuild operation.",
               },
               {
                 icon: "notifications_active",
-                title: "Real-time notification feed",
+                title: t("runtime.app.page.prop_title_real_time_notification_feed"),
                 desc: "Workflow events push through a WebSocket channel in near-real-time alongside a persistent notification inbox with per-item read controls.",
               },
               {
                 icon: "swap_horiz",
-                title: "Role context switching",
+                title: t("runtime.app.page.prop_title_role_context_switching"),
                 desc: "One account holds multiple role grants. The role-selection screen validates access before switching, ensuring the correct workspace and permission scope loads.",
               },
               {
                 icon: "person_pin",
-                title: "Semantic Scholar profile linking",
+                title: t("runtime.app.page.prop_title_semantic_scholar_profile_linking"),
                 desc: "Authors can search the Semantic Scholar author index and link their academic identity to their account, enriching profile and submission context.",
               },
               {
                 icon: "route",
-                title: "Multi-step submission wizard",
+                title: t("runtime.app.page.prop_title_multi_step_submission_wizard"),
                 desc: "The submission form guides authors through paper details, co-author search, file upload with pre-check, conflict-of-interest declaration, and a final review step.",
               },
             ].map((f, i) => (
@@ -596,30 +576,23 @@ export default function HomePage() {
         <Reveal>
           <div className="landing-cta-inner">
             <div className="landing-section-label" style={{ color: "rgba(255,255,255,0.5)" }}>
-              Get started
-            </div>
+              {t("runtime.app.page.text_get_started")}{" "}</div>
             <h2 className="landing-cta-title">
-              Your entire conference workflow,
-              <br />
-              in one place.
-            </h2>
+              {t("runtime.app.page.text_your_entire_conference_workflow")}{" "}<br />
+              {t("runtime.app.page.text_in_one_place")}{" "}</h2>
             <p className="landing-cta-sub">
-              Register once. Switch between Author, Reviewer, and Chair contexts. One system handles
-              your full conference operations lifecycle.
-            </p>
+              {t("runtime.app.page.text_register_once_switch_between_author_reviewer")}{" "}</p>
             <div className="landing-cta-actions">
               <Link
                 href={ROUTES.REGISTER}
                 className="landing-btn landing-btn--white landing-btn--lg"
               >
-                Create your account
-              </Link>
+                {t("runtime.app.page.text_create_your_account")}{" "}</Link>
               <Link
                 href={ROUTES.LOGIN}
                 className="landing-btn landing-btn--outline-white landing-btn--lg"
               >
-                Sign in
-              </Link>
+                {t("runtime.app.page.text_sign_in")}{" "}</Link>
             </div>
           </div>
         </Reveal>
@@ -632,11 +605,10 @@ export default function HomePage() {
             <div className="landing-logo-mark landing-logo-mark--sm">
               <span className="material-symbols-outlined">school</span>
             </div>
-            <span className="landing-logo-name">ConferenceSpace</span>
+            <span className="landing-logo-name">{t("runtime.app.page.text_conferencespace")}</span>
           </Link>
           <div className="landing-footer-copy">
-            Academic conference operations platform &mdash; Role-based, lifecycle-aware.
-          </div>
+            {t("runtime.app.page.text_academic_conference_operations_platform_role_based")}{" "}</div>
         </div>
       </footer>
     </div>

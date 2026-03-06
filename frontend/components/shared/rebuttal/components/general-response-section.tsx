@@ -4,12 +4,14 @@ import { useState } from "react"
 
 import { ATTACHMENT_TYPE_CONFIG } from "../config"
 import type { GeneralResponseSectionProps } from "../types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export function GeneralResponseSection({
   submission,
   userRole = "reviewer",
   defaultExpanded = true,
 }: GeneralResponseSectionProps) {
+  const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(defaultExpanded)
 
   return (
@@ -39,7 +41,7 @@ export function GeneralResponseSection({
               boxSizing: 'border-box'
             }}
           >format_quote</span>
-          <h3 className="text-sm font-bold text-[#141414] tracking-tight">General Response</h3>
+          <h3 className="text-sm font-bold text-[#141414] tracking-tight">{t("runtime.components.shared.rebuttal.components.general-response-section.text_general_response")}</h3>
           <span className="text-[9px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-500">
             {submission.generalResponse.wordCount} words
           </span>
@@ -78,8 +80,7 @@ export function GeneralResponseSection({
           {submission.attachments.length > 0 && (
             <div className="mt-4 pt-4 border-t border-slate-100">
               <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-2">
-                Attachments
-              </div>
+                {t("runtime.components.shared.rebuttal.components.general-response-section.text_attachments")}{" "}</div>
               <div className="space-y-2">
                 {submission.attachments.map((att) => {
                   const typeConfig =
@@ -130,8 +131,7 @@ export function GeneralResponseSection({
                         </span>
                       </div>
                       <button className="h-6 px-2 text-[9px] font-bold text-slate-600 bg-white border border-slate-200 rounded hover:bg-slate-100 transition-colors">
-                        Download
-                      </button>
+                        {t("runtime.components.shared.rebuttal.components.general-response-section.text_download")}{" "}</button>
                     </div>
                   )
                 })}
