@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { useToast } from "@/hooks/use-toast"
 
 // Import from extracted modules
 import {
@@ -46,11 +47,14 @@ export function SubmissionReviewScreen({
   const [formData, setFormData] = useState<ReviewFormData>(INITIAL_FORM_DATA)
   const [discussionCount, setDiscussionCount] = useState(0)
   const { review, saving, saveReview } = useAssignmentReview(conferenceId, assignmentId)
+  const { toast } = useToast()
+  const hasInitialized = useRef(false)
 
   useEffect(() => {
-    if (!review?.review_data) {
+    if (!review?.review_data || hasInitialized.current) {
       return
     }
+    hasInitialized.current = true
 
     const reviewData = review.review_data
     const criteria = reviewData.criteria || {}
@@ -62,13 +66,13 @@ export function SubmissionReviewScreen({
       clarity: normalizeReviewScore(criteria.clarity, prev.clarity),
       significance: normalizeReviewScore(criteria.significance, prev.significance),
       methodology: normalizeReviewScore(criteria.methodology, prev.methodology),
+      summary: feedback.summary ?? prev.summary,
       strengths: feedback.strengths ?? prev.strengths,
       weaknesses: feedback.weaknesses ?? prev.weaknesses,
       questions: feedback.questions ?? prev.questions,
       recommendation: reviewData.recommendation ?? prev.recommendation,
       confidence:
         reviewData.confidence === "high" ? 5 : reviewData.confidence === "medium" ? 3 : 1,
-      summary: feedback.strengths ?? prev.summary,
     }))
   }, [review?.review_data])
 
@@ -115,9 +119,10 @@ export function SubmissionReviewScreen({
         methodology: formData.methodology,
       },
       feedback: {
-        strengths: formData.strengths || formData.summary || "",
-        weaknesses: formData.weaknesses || "",
-        questions: formData.questions || "",
+        summary: formData.summary,
+        strengths: formData.strengths,
+        weaknesses: formData.weaknesses,
+        questions: formData.questions,
       },
       recommendation: (formData.recommendation as ReviewData["recommendation"]) || "borderline",
       confidence: confidenceValue,
@@ -126,13 +131,6 @@ export function SubmissionReviewScreen({
   }
 
   const handleSaveDraft = async () => {
-    const now = new Date().toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    })
-    updateFormField("lastSaved", now)
-
     const payload = toReviewPayload("draft")
     const { success, error } = await saveReview({
       assignment_id: Number(assignmentId),
@@ -148,19 +146,42 @@ export function SubmissionReviewScreen({
       status: payload.status,
     })
 
-    if (!success) {
-      alert(error || "Failed to save draft")
+    if (success) {
+      const now = new Date().toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      })
+      updateFormField("lastSaved", now)
+      toast({
+        title: "Draft saved",
+        description: `Your review draft was saved at ${now}.`,
+      })
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Failed to save draft",
+        description: error || "An unexpected error occurred. Please try again.",
+      })
     }
   }
 
   const handleSubmitReview = async () => {
     // Validation
     if (!formData.recommendation) {
-      alert("Please select an overall rating before submitting.")
+      toast({
+        variant: "destructive",
+        title: "Recommendation required",
+        description: "Please select an overall rating before submitting.",
+      })
       return
     }
     if (!formData.summary.trim() || !formData.strengths.trim() || !formData.weaknesses.trim()) {
-      alert("Please ensure the summary, strengths, and weaknesses are filled.")
+      toast({
+        variant: "destructive",
+        title: "Incomplete review",
+        description: "Please fill in the Summary, Strengths, and Weaknesses before submitting.",
+      })
       return
     }
 
@@ -179,8 +200,17 @@ export function SubmissionReviewScreen({
       status: payload.status,
     })
 
-    if (!success) {
-      alert(error || "Failed to submit review")
+    if (success) {
+      toast({
+        title: "Review submitted",
+        description: "Your review has been submitted successfully.",
+      })
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Failed to submit review",
+        description: error || "An unexpected error occurred. Please try again.",
+      })
     }
   }
 
