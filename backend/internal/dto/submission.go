@@ -45,11 +45,14 @@ type Submission struct {
 	Track        string                  `json:"track"`                                                                                  // Must be one of the conference's tracks
 	Status       string                  `json:"status,omitempty" binding:"omitempty,oneof=draft published reviewing accepted rejected"` // Optional for updates
 	Information  *SubmissionInformation  `json:"information"`
-	File         *SubmissionFileMetadata `json:"file,omitempty"`
-	CoverLetter  *SubmissionFileMetadata `json:"cover_letter,omitempty"` // Optional cover letter (PDF, DOCX, or TXT)
-	Reviewers    []Reviewer              `json:"reviewers,omitempty"`    // Only populated when includeReviewers=true
-	CreatedAt    time.Time               `json:"created_at"`
-	UpdatedAt    time.Time               `json:"updated_at"`
+	File                    *SubmissionFileMetadata `json:"file,omitempty"`
+	CoverLetter             *SubmissionFileMetadata `json:"cover_letter,omitempty"`  // Optional cover letter (PDF, DOCX, or TXT)
+	CameraReady             *SubmissionFileMetadata `json:"camera_ready,omitempty"`  // Camera-ready final version
+	Reviewers               []Reviewer              `json:"reviewers,omitempty"`     // Only populated when includeReviewers=true
+	RebuttalPhase           string                  `json:"rebuttal_phase,omitempty"`
+	RebuttalGeneralResponse *string                 `json:"rebuttal_general_response,omitempty"`
+	CreatedAt               time.Time               `json:"created_at"`
+	UpdatedAt               time.Time               `json:"updated_at"`
 }
 
 type SubmissionCreateRequest struct {

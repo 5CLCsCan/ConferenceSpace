@@ -31,6 +31,7 @@ type StorageInterface interface {
 	ConfirmSuggestions(ctx context.Context, conferenceID int64, assignmentIDs []int64) (int64, error)
 	DeleteSuggestion(ctx context.Context, assignmentID int64) error
 	DeleteSuggestionsByConference(ctx context.Context, conferenceID int64) error
+	AcknowledgeRebuttal(ctx context.Context, assignmentID int64) (*dto.Assignment, error)
 }
 
 type ListParams struct {
@@ -896,3 +897,33 @@ func (s *Storage) DeleteSuggestionsByConference(ctx context.Context, conferenceI
 
 	return nil
 }
+
+// AcknowledgeRebuttal marks the reviewer as having read the author's rebuttal (idempotent).
+func (s *Storage) AcknowledgeRebuttal(ctx context.Context, assignmentID int64) (*dto.Assignment, error) {
+	var result model.Assignment
+	err := s.db.QueryRowContext(ctx, `
+		UPDATE paper_assignments
+		SET rebuttal_status = 'acknowledged',
+		    rebuttal_acknowledged_at = COALESCE(rebuttal_acknowledged_at, NOW()),
+		    updated_at = NOW()
+		WHERE id = $1
+		RETURNING id, conference_id, submission_id, reviewer_id, score, status,
+		          assigned_at, completed_at, review_status, review_score, review_data,
+		          review_submitted_at, rebuttal_status,
+		          rebuttal_submitted_at, rebuttal_acknowledged_at, created_at, updated_at
+	`, assignmentID).Scan(
+		&result.ID, &result.ConferenceID, &result.SubmissionID, &result.ReviewerID,
+		&result.Score, &result.Status, &result.AssignedAt, &result.CompletedAt,
+		&result.ReviewStatus, &result.ReviewScore, &result.ReviewData, &result.ReviewSubmittedAt,
+		&result.RebuttalStatus, &result.RebuttalSubmittedAt,
+		&result.RebuttalAcknowledgedAt, &result.CreatedAt, &result.UpdatedAt,
+	)
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("assignment not found")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("acknowledge rebuttal: %w", err)
+	}
+	return result.ToDTO(), nil
+}
+

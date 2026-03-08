@@ -49,7 +49,7 @@ describe("ChairActionsPanel", () => {
   })
 
   afterEach(() => {
-    vi.resetAllMocks()
+    vi.clearAllMocks()
   })
 
   it("should render chair actions title", () => {

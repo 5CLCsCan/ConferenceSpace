@@ -11,15 +11,20 @@ import (
 	coiService "github.com/dcao/conferencespace/internal/service/coi"
 	notificationService "github.com/dcao/conferencespace/internal/service/notification"
 	"github.com/dcao/conferencespace/internal/storage"
+	assignmentStorage "github.com/dcao/conferencespace/internal/storage/assignment"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
+	rebuttalStorage "github.com/dcao/conferencespace/internal/storage/rebuttal"
 	reviewerStorage "github.com/dcao/conferencespace/internal/storage/reviewer"
 	userStorage "github.com/dcao/conferencespace/internal/storage/user"
+	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
 type Controller struct {
 	reviewerStorage     reviewerStorage.StorageInterface
+	assignmentStorage   assignmentStorage.StorageInterface
+	rebuttalStorage     rebuttalStorage.StorageInterface
 	roleStorage         conferenceuserrole.StorageInterface
 	userStorage         userStorage.StorageInterface
 	conferenceStorage   conferenceStorage.StorageInterface
@@ -30,6 +35,8 @@ type Controller struct {
 func New(store *storage.Storage, coiSvc *coiService.Service) *Controller {
 	return &Controller{
 		reviewerStorage:   store.Reviewer,
+		assignmentStorage: store.Assignment,
+		rebuttalStorage:   store.RebuttalPoint,
 		roleStorage:       store.ConferenceUserRole,
 		userStorage:       store.User,
 		conferenceStorage: store.Conference,
@@ -41,6 +48,8 @@ func New(store *storage.Storage, coiSvc *coiService.Service) *Controller {
 func NewWithNotifications(store *storage.Storage, coiSvc *coiService.Service, notifService *notificationService.Service) *Controller {
 	return &Controller{
 		reviewerStorage:     store.Reviewer,
+		assignmentStorage:   store.Assignment,
+		rebuttalStorage:     store.RebuttalPoint,
 		roleStorage:         store.ConferenceUserRole,
 		userStorage:         store.User,
 		conferenceStorage:   store.Conference,
@@ -564,4 +573,72 @@ func (c *Controller) GetCompletedPapers(ginCtx *gin.Context, req *dto.GetComplet
 		Limit:  req.Limit,
 		Offset: req.Offset,
 	}, nil
+}
+
+// AcknowledgeRebuttal godoc
+// @Summary      Reviewer acknowledges author rebuttal
+// @Description  Reviewer marks that they have read the author's rebuttal for their assignment (idempotent)
+// @Tags         assignments
+// @Produce      json
+// @Security     BearerAuth
+// @Param        conference_id path int true "Conference ID"
+// @Param        assignment_id path int true "Assignment ID"
+// @Success      200 {object} dto.RebuttalStatusResponse
+// @Failure      401 {object} handler.Response
+// @Failure      404 {object} handler.Response
+// @Failure      500 {object} handler.Response
+// @Router       /conferences/{conference_id}/assignments/{assignment_id}/rebuttal/acknowledge [put]
+func (c *Controller) AcknowledgeRebuttal(ginCtx *gin.Context, req *dto.AcknowledgeRebuttalRequest) (*dto.RebuttalStatusResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	_, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	assignment, err := c.assignmentStorage.AcknowledgeRebuttal(ctx, req.AssignmentID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	return &dto.RebuttalStatusResponse{
+		RebuttalPhase:          model.RebuttalPhaseSubmitted,
+		RebuttalStatus:         assignment.RebuttalStatus,
+		RebuttalAcknowledgedAt: assignment.RebuttalAcknowledgedAt,
+	}, nil
+}
+
+// AcknowledgePoint godoc
+// @Summary      Acknowledge a specific rebuttal point
+// @Description  Reviewer marks one review point as addressed/not-addressed with optional note (idempotent)
+// @Tags         assignments
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        conference_id path int true "Conference ID"
+// @Param        assignment_id path int true "Assignment ID"
+// @Param        point_id path string true "Point ID"
+// @Param        request body dto.AcknowledgePointRequest true "Status and note"
+// @Success      200 {object} handler.Response
+// @Router       /conferences/{conference_id}/assignments/{assignment_id}/rebuttal/points/{point_id}/acknowledge [put]
+func (c *Controller) AcknowledgePoint(ginCtx *gin.Context, req *dto.AcknowledgePointRequest) (*map[string]string, error) {
+	ctx := ginCtx.Request.Context()
+
+	_, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	// Resolve submissionID from assignment
+	assignment, err := c.assignmentStorage.GetByID(ctx, req.AssignmentID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "assignment not found")
+	}
+
+	if err := c.rebuttalStorage.AcknowledgePoint(ctx, assignment.SubmissionID, req.PointID, req.Status, req.Note); err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	result := map[string]string{"status": "acknowledged"}
+	return &result, nil
 }

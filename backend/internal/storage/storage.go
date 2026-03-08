@@ -15,6 +15,7 @@ import (
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	"github.com/dcao/conferencespace/internal/storage/discussion"
 	"github.com/dcao/conferencespace/internal/storage/notification"
+	"github.com/dcao/conferencespace/internal/storage/rebuttal"
 	"github.com/dcao/conferencespace/internal/storage/reviewer"
 	"github.com/dcao/conferencespace/internal/storage/scholar"
 	"github.com/dcao/conferencespace/internal/storage/submission"
@@ -35,6 +36,7 @@ type Storage struct {
 	Cache              cache.StorageInterface
 	Scholar            scholar.StorageInterface
 	Discussion         discussion.StorageInterface
+	RebuttalPoint      rebuttal.StorageInterface
 }
 
 func NewStorage(db *sql.DB) *Storage {
@@ -52,6 +54,7 @@ func NewStorage(db *sql.DB) *Storage {
 		Cache:              cache.New(db),
 		Scholar:            scholar.New(db),
 		Discussion:         discussion.New(db),
+		RebuttalPoint:      rebuttal.New(db),
 	}
 }
 

@@ -167,3 +167,38 @@ type ConferenceTransitionStatusResponse struct {
 	NewStatus          string `json:"new_status"`
 	AssignmentsCreated int    `json:"assignments_created,omitempty"` // Only set when transitioning to reviewing
 }
+
+// ConferenceStatsRequest is the URI binding for GET /conferences/:conference_id/stats
+type ConferenceStatsRequest struct {
+	ConferenceID int64 `uri:"conference_id" binding:"required"`
+}
+
+// ConferenceSubmissionStats holds submission counts broken down by status.
+type ConferenceSubmissionStats struct {
+	Total     int `json:"total"`
+	Draft     int `json:"draft"`
+	Submitted int `json:"submitted"`
+	Accepted  int `json:"accepted"`
+	Rejected  int `json:"rejected"`
+}
+
+// ConferenceReviewStats holds review/assignment progress counts.
+type ConferenceReviewStats struct {
+	TotalAssigned int `json:"total_assigned"`
+	Completed     int `json:"completed"`
+	Pending       int `json:"pending"`
+}
+
+// ConferenceTrackStats holds per-track submission counts.
+type ConferenceTrackStats struct {
+	Name            string `json:"name"`
+	SubmissionCount int    `json:"submission_count"`
+	AcceptedCount   int    `json:"accepted_count"`
+}
+
+// ConferenceStatsResponse is the response for GET /conferences/:conference_id/stats
+type ConferenceStatsResponse struct {
+	Submissions ConferenceSubmissionStats `json:"submissions"`
+	Reviews     ConferenceReviewStats     `json:"reviews"`
+	Tracks      []ConferenceTrackStats    `json:"tracks"`
+}

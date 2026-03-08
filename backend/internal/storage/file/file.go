@@ -15,12 +15,15 @@ import (
 type StorageInterface interface {
 	SaveFile(file io.Reader, header *multipart.FileHeader, conferenceID, submissionID int64) (*dto.SubmissionFileMetadata, error)
 	SaveCoverLetter(file io.Reader, header *multipart.FileHeader, conferenceID, submissionID int64) (*dto.SubmissionFileMetadata, error)
+	SaveCameraReady(file io.Reader, header *multipart.FileHeader, conferenceID, submissionID int64) (*dto.SubmissionFileMetadata, error)
 	Open(path string) (io.ReadCloser, error)
 	GetFilePath(conferenceID, submissionID int64, filename string) string
 	GetCoverLetterPath(conferenceID, submissionID int64, filename string) string
+	GetCameraReadyPath(conferenceID, submissionID int64, filename string) string
 	DeleteByPath(path string) error
 	DeleteFile(conferenceID, submissionID int64, filename string) error
 	DeleteCoverLetter(conferenceID, submissionID int64, filename string) error
+	DeleteCameraReady(conferenceID, submissionID int64, filename string) error
 }
 
 type LocalFileStorage struct {
@@ -227,6 +230,68 @@ func (s *LocalFileStorage) DeleteByPath(path string) error {
 	}
 	if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("failed to delete file: %w", err)
+	}
+	return nil
+}
+
+// SaveCameraReady saves the camera-ready (final) version of a paper (PDF only).
+func (s *LocalFileStorage) SaveCameraReady(file io.Reader, header *multipart.FileHeader, conferenceID, submissionID int64) (*dto.SubmissionFileMetadata, error) {
+	if !s.isValidPDF(header) {
+		return nil, fmt.Errorf("only PDF files are allowed for camera-ready upload")
+	}
+
+	const maxSize = 20 * 1024 * 1024 // 20MB
+	if header.Size > maxSize {
+		return nil, fmt.Errorf("file size must not exceed 20MB")
+	}
+
+	dirPath := filepath.Join(s.basePath, fmt.Sprintf("%d", conferenceID), fmt.Sprintf("%d", submissionID), "camera_ready")
+	if err := os.MkdirAll(dirPath, 0755); err != nil {
+		return nil, fmt.Errorf("failed to create directory: %w", err)
+	}
+
+	timestamp := time.Now().Unix()
+	ext := filepath.Ext(header.Filename)
+	nameWithoutExt := strings.TrimSuffix(header.Filename, ext)
+	filename := fmt.Sprintf("camera_ready_%d_%s%s", timestamp, s.sanitizeFilename(nameWithoutExt), ext)
+	filePath := filepath.Join(dirPath, filename)
+
+	dst, err := os.Create(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create file: %w", err)
+	}
+	defer dst.Close()
+
+	size, err := io.Copy(dst, file)
+	if err != nil {
+		os.Remove(filePath)
+		return nil, fmt.Errorf("failed to save file: %w", err)
+	}
+
+	if err := s.validatePDFHeader(filePath); err != nil {
+		os.Remove(filePath)
+		return nil, err
+	}
+
+	return &dto.SubmissionFileMetadata{
+		Filename:     filename,
+		OriginalName: header.Filename,
+		Size:         size,
+		MimeType:     "application/pdf",
+		Path:         filePath,
+	}, nil
+}
+
+// GetCameraReadyPath returns the full path to a camera-ready file.
+func (s *LocalFileStorage) GetCameraReadyPath(conferenceID, submissionID int64, filename string) string {
+	return filepath.Join(s.basePath, fmt.Sprintf("%d", conferenceID), fmt.Sprintf("%d", submissionID), "camera_ready", filename)
+}
+
+// DeleteCameraReady deletes a camera-ready file.
+func (s *LocalFileStorage) DeleteCameraReady(conferenceID, submissionID int64, filename string) error {
+	filePath := s.GetCameraReadyPath(conferenceID, submissionID, filename)
+	if err := os.Remove(filePath); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("failed to delete camera-ready file: %w", err)
 	}
 	return nil
 }

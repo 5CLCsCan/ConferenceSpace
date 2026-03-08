@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 import type { Submission } from "@/lib/api/submissions"
 import { formatDate } from "@/lib/utils"
@@ -424,27 +424,106 @@ function WithdrawSubmissionCard() {
   )
 }
 
+// --- Camera-Ready Upload Section ---
+function CameraReadySection({
+  submission,
+  conferenceId,
+  onUploaded,
+}: {
+  submission: Submission
+  conferenceId: string
+  onUploaded: (updated: Submission) => void
+}) {
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    setError(null)
+    const { submitCameraReady } = await import("@/lib/api/papers")
+    const result = await submitCameraReady(conferenceId, String(submission.id), file)
+    setUploading(false)
+    if (result.error || !result.data) {
+      setError(result.error ?? "Upload failed")
+    } else {
+      onUploaded(result.data)
+    }
+    if (fileInputRef.current) fileInputRef.current.value = ""
+  }
+
+  return (
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
+      <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-4 tracking-tight">
+        Camera-Ready Version
+      </h3>
+      {submission.camera_ready ? (
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-red-50 text-red-600">
+            <span className="material-symbols-outlined">picture_as_pdf</span>
+          </div>
+          <div>
+            <p className="text-xs font-medium text-slate-800 dark:text-slate-200">
+              {submission.camera_ready.original_name}
+            </p>
+            <p className="text-xs text-slate-500">
+              {(submission.camera_ready.size / 1024 / 1024).toFixed(1)} MB
+            </p>
+          </div>
+        </div>
+      ) : (
+        <p className="text-xs text-slate-500 mb-4">No camera-ready version uploaded yet.</p>
+      )}
+      {error && <p className="text-xs text-red-600 mb-2">{error}</p>}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="application/pdf"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+      <button
+        onClick={() => fileInputRef.current?.click()}
+        disabled={uploading}
+        className="text-xs px-3 py-1.5 rounded-lg bg-[#1B3C53] text-white hover:bg-[#1B3C53]/90 disabled:opacity-50"
+      >
+        {uploading ? "Uploading…" : submission.camera_ready ? "Replace File" : "Upload PDF"}
+      </button>
+    </div>
+  )
+}
+
 // --- Main Component ---
 export function OverviewTab({ submission, conferenceId }: OverviewTabProps) {
-  const keywords = submission.information?.keywords || []
+  const [localSubmission, setLocalSubmission] = useState(submission)
+  const keywords = localSubmission.information?.keywords || []
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in duration-200">
       {/* Main Content (2/3) */}
       <div className="lg:col-span-2 space-y-6">
-        {submission.abstract && <AbstractCard abstract={submission.abstract} keywords={keywords} />}
+        {localSubmission.abstract && <AbstractCard abstract={localSubmission.abstract} keywords={keywords} />}
         <SubmissionFilesCard
-          submission={submission}
+          submission={localSubmission}
           conferenceId={conferenceId}
-          lastUpdated={formatDate(submission.updated_at)}
+          lastUpdated={formatDate(localSubmission.updated_at)}
         />
-        <CoverLetterCard submission={submission} conferenceId={conferenceId} />
+        <CoverLetterCard submission={localSubmission} conferenceId={conferenceId} />
+        {localSubmission.status === "accepted" && (
+          <CameraReadySection
+            submission={localSubmission}
+            conferenceId={conferenceId}
+            onUploaded={setLocalSubmission}
+          />
+        )}
       </div>
 
       {/* Sidebar (1/3) */}
       <div className="space-y-6">
-        <SubmissionMetaCard submission={submission} />
-        <SubmissionStatusCard submission={submission} />
+        <SubmissionMetaCard submission={localSubmission} />
+        <SubmissionStatusCard submission={localSubmission} />
         <WithdrawSubmissionCard />
       </div>
     </div>

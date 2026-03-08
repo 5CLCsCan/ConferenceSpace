@@ -43,6 +43,15 @@ export interface Submission {
     mime_type: string
     path: string
   }
+  camera_ready?: {
+    filename: string
+    original_name: string
+    size: number
+    mime_type: string
+    path: string
+  }
+  rebuttal_phase?: string
+  rebuttal_general_response?: string
   created_at: string
   updated_at: string
 }

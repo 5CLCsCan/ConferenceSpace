@@ -277,6 +277,7 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			conferences.DELETE("/:conference_id", handler.HandleNoRequestWithURIMessage("conference deleted successfully", ctrl.Conference.Delete))
 			conferences.PUT("/:conference_id/bookmark", handler.HandleRequestWithURI(ctrl.Conference.ToggleBookmark))
 			conferences.PUT("/:conference_id/status", handler.HandleRequestWithAll(ctrl.Conference.TransitionStatus))
+			conferences.GET("/:conference_id/stats", handler.HandleRequestWithURI(ctrl.Conference.GetStats))
 
 			// Reviewer routes nested under conferences (all protected - authentication required)
 			reviewers := conferences.Group("/:conference_id/reviewers")
@@ -300,6 +301,10 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 				submissions.PUT("/:submission_id", handler.HandleSubmissionUpdate(ctrl.Submission.Update))
 				submissions.POST("/:submission_id/publish", handler.HandleSubmissionPublish(ctrl.Submission.Publish))
 				submissions.PUT("/:submission_id/status", handler.HandleRequestWithAll(ctrl.Submission.UpdateStatus))
+				submissions.PUT("/:submission_id/rebuttal", handler.HandleRequestWithAll(ctrl.Submission.SubmitRebuttal))
+				submissions.GET("/:submission_id/rebuttal", handler.HandleRequestWithURI(ctrl.Submission.GetRebuttal))
+				submissions.POST("/:submission_id/camera-ready", ctrl.Submission.UploadCameraReady)
+				submissions.GET("/:submission_id/camera-ready", ctrl.Submission.GetCameraReady)
 				submissions.DELETE("/:submission_id", handler.HandleNoRequestWithMessage("submission deleted successfully", ctrl.Submission.Delete))
 
 				// Auto-assignment endpoint - automatically sets submissions to "reviewing" status
@@ -338,6 +343,8 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 		{
 			assignments.PUT("/:assignment_id/review", handler.HandleRequestWithAll(ctrl.Assignment.SaveReview))
 			assignments.GET("/:assignment_id/review", handler.HandleRequestWithURI(ctrl.Assignment.GetReview))
+			assignments.PUT("/:assignment_id/rebuttal/acknowledge", handler.HandleRequestWithURI(ctrl.Reviewer.AcknowledgeRebuttal))
+			assignments.PUT("/:assignment_id/rebuttal/points/:point_id/acknowledge", handler.HandleRequestWithAll(ctrl.Reviewer.AcknowledgePoint))
 
 			// Suggestion routes (chair only)
 			suggestions := assignments.Group("/suggestions")

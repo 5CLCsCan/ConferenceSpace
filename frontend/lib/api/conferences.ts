@@ -93,36 +93,50 @@ export async function getConferenceStats(
   conferenceId: string,
 ): Promise<ApiResponse<ConferenceStats>> {
   try {
-    /*
-    BACKEND REQUEST: <Implement GET /api/v1/conferences/:conference_id/stats; chair dashboard and conference analytics in frontend currently require synthetic/derived fallback metrics without an authoritative stats contract; return stable aggregates (submission totals, review progress, acceptance metrics, track/time breakdowns) with explicit field schema and empty-state behavior for new conferences.>
-    */
-    // TODO: Implement when backend stats endpoint is available
-    // const { data, response } = await apiFetch<{ data: ConferenceStats }>(`/api/v1/conferences/${conferenceId}/stats`)
-    // return {
-    //   data: data.data,
-    //   error: null,
-    //   status: response.status,
-    // }
-
-    // For now, return mock data with proper structure
-    return {
+    const { data, response } = await apiFetch<{
       data: {
-        total_submissions: 0,
-        total_reviews: 0,
-        avg_reviews_per_paper: 0,
-        acceptance_rate: 0,
-        submissions_by_track: [],
-        submissions_over_time: [],
-        review_progress: {
-          completed: 0,
-          in_progress: 0,
-          pending: 0,
-        },
-        top_keywords: [],
+        submissions: {
+          total: number
+          draft: number
+          submitted: number
+          accepted: number
+          rejected: number
+        }
+        reviews: {
+          total_assigned: number
+          completed: number
+          pending: number
+        }
+        tracks: Array<{ name: string; submission_count: number; accepted_count: number }>
+      }
+    }>(`/api/v1/conferences/${conferenceId}/stats`)
+
+    const backendStats = data.data
+    const mapped: ConferenceStats = {
+      total_submissions: backendStats.submissions.total,
+      total_reviews: backendStats.reviews.total_assigned,
+      avg_reviews_per_paper:
+        backendStats.submissions.total > 0
+          ? backendStats.reviews.total_assigned / backendStats.submissions.total
+          : 0,
+      acceptance_rate:
+        backendStats.submissions.total > 0
+          ? (backendStats.submissions.accepted / backendStats.submissions.total) * 100
+          : 0,
+      submissions_by_track: backendStats.tracks.map((t) => ({
+        track: t.name,
+        count: t.submission_count,
+      })),
+      submissions_over_time: [],
+      review_progress: {
+        completed: backendStats.reviews.completed,
+        in_progress: 0,
+        pending: backendStats.reviews.pending,
       },
-      error: null,
-      status: 200,
+      top_keywords: [],
     }
+
+    return { data: mapped, error: null, status: response.status }
   } catch (error) {
     return {
       data: null,
