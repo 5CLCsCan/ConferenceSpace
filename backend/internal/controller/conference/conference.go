@@ -503,3 +503,35 @@ func (c *Controller) TransitionStatus(ginCtx *gin.Context, req *dto.ConferenceTr
 
 	return response, nil
 }
+
+// GetStats godoc
+// @Summary      Get conference statistics
+// @Description  Returns aggregated submission, review, and track statistics for a conference (chair only)
+// @Tags         conferences
+// @Produce      json
+// @Security     BearerAuth
+// @Param        conference_id path int true "Conference ID"
+// @Success      200 {object} dto.ConferenceStatsResponse
+// @Failure      401 {object} handler.Response
+// @Failure      403 {object} handler.Response
+// @Failure      500 {object} handler.Response
+// @Router       /conferences/{conference_id}/stats [get]
+func (c *Controller) GetStats(ginCtx *gin.Context, req *dto.ConferenceStatsRequest) (*dto.ConferenceStatsResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, req.ConferenceID, userEmail) {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "only chair or co-chair can view conference stats")
+	}
+
+	stats, err := c.conferenceStorage.GetStats(ctx, req.ConferenceID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	return stats, nil
+}

@@ -38,8 +38,11 @@ const mockConference = {
 
 // Counts tab buttons rendered in the nav area
 function getTabButtons(container: HTMLElement) {
-  // Tab buttons are inside the border-t div (the tabs bar), not the header actions
-  const tabBar = container.querySelector(".overflow-x-auto")
+  // Tabs are inside ScrollArea (data-slot="scroll-area-viewport") within the border-t wrapper
+  const viewport = container.querySelector('[data-slot="scroll-area-viewport"]')
+  if (viewport) return viewport.querySelectorAll("button")
+  // Fallback: look in border-t container directly
+  const tabBar = container.querySelector(".border-t")
   return tabBar ? tabBar.querySelectorAll("button") : []
 }
 
@@ -103,8 +106,8 @@ describe("ConferenceDetailHeader — tab visibility by role", () => {
         userRole="chair"
       />,
     )
-    const tabBar = chairContainer.querySelector(".overflow-x-auto")
-    expect(tabBar?.textContent).toContain("warning")
+    const chairViewport = chairContainer.querySelector('[data-slot="scroll-area-viewport"]') ?? chairContainer.querySelector(".border-t")
+    expect(chairViewport?.textContent).toContain("warning")
 
     const { container: authorContainer } = render(
       <ConferenceDetailHeader
@@ -114,7 +117,7 @@ describe("ConferenceDetailHeader — tab visibility by role", () => {
         userRole="author"
       />,
     )
-    const authorTabBar = authorContainer.querySelector(".overflow-x-auto")
-    expect(authorTabBar?.textContent).not.toContain("warning")
+    const authorViewport = authorContainer.querySelector('[data-slot="scroll-area-viewport"]') ?? authorContainer.querySelector(".border-t")
+    expect(authorViewport?.textContent).not.toContain("warning")
   })
 })

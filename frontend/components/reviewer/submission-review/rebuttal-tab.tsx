@@ -1,27 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { getConferenceById } from "@/lib/api/conferences"
-import {
-  MOCK_POINTS,
-  MOCK_REVIEWERS,
-  MOCK_SETTINGS,
-  MOCK_SUBMISSION,
-  buildRebuttalSettingsFromConference,
-  RebuttalPanel,
-} from "@/components/shared/rebuttal"
-import { useTranslation } from "@/lib/i18n/translation-context"
+import { RebuttalPanel } from "@/components/shared/rebuttal"
+import { getRebuttal, acknowledgePoint } from "@/lib/api/rebuttal"
+import type { RebuttalPanelData } from "@/lib/api/rebuttal"
+import type { ResponseStatus } from "@/components/shared/rebuttal/types"
 
-/**
- * Reviewer-specific Rebuttal Tab
- *
- * This is a thin wrapper around the shared RebuttalPanel component.
- * It provides reviewer-specific defaults and handles the data fetching/state management
- * that would typically come from an API.
- *
- * The shared RebuttalPanel component in @/components/shared/rebuttal can be used
- * directly by other roles (author, chair) with their specific configurations.
- */
 interface RebuttalTabProps {
   conferenceId: string
   submissionId: string
@@ -29,39 +13,54 @@ interface RebuttalTabProps {
 }
 
 export function RebuttalTab({ conferenceId, submissionId, assignmentId }: RebuttalTabProps) {
-  const [settings, setSettings] = useState(MOCK_SETTINGS)
+  const [data, setData] = useState<RebuttalPanelData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    void getConferenceById(conferenceId).then((response) => {
-      setSettings(buildRebuttalSettingsFromConference(response.data))
-    })
-  }, [conferenceId])
+    async function load() {
+      setLoading(true)
+      const result = await getRebuttal(conferenceId, submissionId, assignmentId)
+      setLoading(false)
+      if (result.error || !result.data) {
+        setError(result.error ?? "Failed to load rebuttal")
+      } else {
+        setData(result.data)
+      }
+    }
+    void load()
+  }, [conferenceId, submissionId, assignmentId])
 
-  const { t } = useTranslation()
-  return (
-    <div className="space-y-3">
-      {/*
-      BACKEND REQUEST: <Implement rebuttal persistence APIs for reviewer acknowledgment and author rebuttal state transitions; frontend rebuttal actions are now explicitly disabled because backend write contract is unavailable; expose idempotent role-aware endpoints with allowed status enums, audit metadata, and reload-consistent state across author/reviewer/chair views.>
-      */}
-      <div className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-        {t(
-          "runtime.components.reviewer.submission-review.rebuttal-tab.text_rebuttal_write_actions_are_currently_unavailable",
-        )}{" "}
-        {conferenceId}
-        {t("runtime.components.reviewer.submission-review.rebuttal-tab.text_submission")}{" "}
-        {submissionId}
-        {t("runtime.components.reviewer.submission-review.rebuttal-tab.text_assignment")}{" "}
-        {assignmentId}).
+  async function handlePointStatusChange(pointId: string, status: ResponseStatus, note?: string) {
+    const result = await acknowledgePoint(conferenceId, assignmentId, pointId, status, note)
+    if (result.error) {
+      setError(result.error)
+    }
+  }
+
+  if (loading) {
+    return <div className="text-xs text-slate-500 py-4">Loading rebuttal…</div>
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+        {error}
       </div>
+    )
+  }
 
-      <RebuttalPanel
-        settings={settings}
-        reviewers={MOCK_REVIEWERS}
-        points={MOCK_POINTS}
-        submission={MOCK_SUBMISSION}
-        userRole="reviewer"
-        readOnly
-      />
-    </div>
+  if (!data) return null
+
+  return (
+    <RebuttalPanel
+      settings={data.settings}
+      reviewers={data.reviewers}
+      points={data.points}
+      submission={data.submission}
+      userRole="reviewer"
+      currentUserId={assignmentId}
+      onPointStatusChange={handlePointStatusChange}
+    />
   )
 }

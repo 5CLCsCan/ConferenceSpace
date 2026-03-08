@@ -476,27 +476,31 @@ export async function precheckPaper(
 }
 
 /**
- * Submit camera ready version of accepted paper
- * TODO: Backend endpoint not yet implemented - placeholder for future use
+ * Upload camera-ready version of an accepted paper
+ * Backend: POST /api/v1/conferences/:conference_id/submissions/:submission_id/camera-ready
  */
 export async function submitCameraReady(
-  paperId: string,
+  conferenceId: string,
+  submissionId: string,
   file: File,
-): Promise<{ data: boolean; error: string | null }> {
+): Promise<{ data: import("@/lib/api/submissions").Submission | null; error: string | null }> {
   try {
-    /*
-    BACKEND REQUEST: <Implement camera-ready upload contract for conference submissions; frontend papers API contains placeholder logic because backend upload endpoint is unavailable; provide authenticated multipart upload endpoint, validation/error schema, and final artifact metadata response compatible with current submission model.>
-    */
-    // TODO: Implement when backend supports file uploads
-    // const formData = new FormData()
-    // formData.append('file', file)
-    // const { response } = await apiFetch(`/api/v1/conferences/${conferenceId}/submissions/${paperId}/camera-ready`, {
-    //   method: 'POST',
-    //   body: formData
-    // })
+    const formData = new FormData()
+    formData.append("file", file)
 
-    return { data: true, error: null }
+    const { data } = await apiFetch<{ data: any }>(
+      `/api/v1/conferences/${conferenceId}/submissions/${submissionId}/camera-ready`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    )
+
+    return { data: data.data, error: null }
   } catch (error) {
-    return { data: false, error: "Failed to submit camera ready version" }
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to upload camera-ready file",
+    }
   }
 }

@@ -31,6 +31,8 @@ type StorageInterface interface {
 	Delete(ctx context.Context, id int64) error
 	BulkUpdateStatus(ctx context.Context, submissionIDs []int64, status string) error
 	GetReviewersBySubmissionID(ctx context.Context, submissionID int64) ([]dto.Reviewer, error)
+	SubmitRebuttal(ctx context.Context, submissionID int64, generalResponse string) error
+	UpdateCameraReady(ctx context.Context, id int64, meta *dto.SubmissionFileMetadata) (*dto.Submission, error)
 }
 
 type Storage struct {
@@ -127,6 +129,13 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Submission, error
 			model.ColCoverLetterSize,
 			model.ColCoverLetterMimeType,
 			model.ColCoverLetterUploadedAt,
+			"camera_ready_path",
+			"camera_ready_original_name",
+			"camera_ready_size",
+			"camera_ready_mime_type",
+			"camera_ready_uploaded_at",
+			"rebuttal_phase",
+			"rebuttal_general_response",
 			model.ColCreatedAt,
 			model.ColUpdatedAt,
 		).
@@ -160,6 +169,13 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Submission, error
 		&entity.CoverLetterSize,
 		&entity.CoverLetterMimeType,
 		&entity.CoverLetterUploadedAt,
+		&entity.CameraReadyPath,
+		&entity.CameraReadyOriginalName,
+		&entity.CameraReadySize,
+		&entity.CameraReadyMimeType,
+		&entity.CameraReadyUploadedAt,
+		&entity.RebuttalPhase,
+		&entity.RebuttalGeneralResponse,
 		&entity.CreatedAt,
 		&entity.UpdatedAt,
 	)
@@ -547,4 +563,54 @@ func (s *Storage) GetReviewersBySubmissionID(ctx context.Context, submissionID i
 	}
 
 	return reviewers, nil
+}
+
+// UpdateCameraReady stores camera-ready file metadata on a submission.
+func (s *Storage) UpdateCameraReady(ctx context.Context, id int64, meta *dto.SubmissionFileMetadata) (*dto.Submission, error) {
+	entity := &model.Submission{}
+	err := s.db.QueryRowContext(ctx, `
+		UPDATE conference_submissions
+		SET camera_ready_path = $1,
+		    camera_ready_original_name = $2,
+		    camera_ready_size = $3,
+		    camera_ready_mime_type = $4,
+		    camera_ready_uploaded_at = NOW(),
+		    updated_at = NOW()
+		WHERE submission_id = $5
+		RETURNING submission_id, conference_id, author, title, abstract, link, domain, track,
+		          status, information, file_path, file_original_name, file_size, file_mime_type,
+		          file_uploaded_at, cover_letter_path, cover_letter_original_name, cover_letter_size,
+		          cover_letter_mime_type, cover_letter_uploaded_at,
+		          camera_ready_path, camera_ready_original_name, camera_ready_size,
+		          camera_ready_mime_type, camera_ready_uploaded_at,
+		          rebuttal_phase, rebuttal_general_response,
+		          created_at, updated_at
+	`, meta.Path, meta.OriginalName, meta.Size, meta.MimeType, id).Scan(
+		&entity.SubmissionID, &entity.ConferenceID, &entity.Author, &entity.Title,
+		&entity.Abstract, &entity.Link, &entity.Domain, &entity.Track,
+		&entity.Status, &entity.Information, &entity.FilePath, &entity.FileOriginalName,
+		&entity.FileSize, &entity.FileMimeType, &entity.FileUploadedAt,
+		&entity.CoverLetterPath, &entity.CoverLetterOriginalName, &entity.CoverLetterSize,
+		&entity.CoverLetterMimeType, &entity.CoverLetterUploadedAt,
+		&entity.CameraReadyPath, &entity.CameraReadyOriginalName, &entity.CameraReadySize,
+		&entity.CameraReadyMimeType, &entity.CameraReadyUploadedAt,
+		&entity.RebuttalPhase, &entity.RebuttalGeneralResponse,
+		&entity.CreatedAt, &entity.UpdatedAt,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("update camera ready: %w", err)
+	}
+	return entity.ToDTO(), nil
+}
+
+// SubmitRebuttal sets the rebuttal phase to 'submitted' and stores the general response.
+func (s *Storage) SubmitRebuttal(ctx context.Context, submissionID int64, generalResponse string) error {
+	_, err := s.db.ExecContext(ctx, `
+		UPDATE conference_submissions
+		SET rebuttal_phase = 'submitted',
+		    rebuttal_general_response = $1,
+		    updated_at = NOW()
+		WHERE submission_id = $2
+	`, generalResponse, submissionID)
+	return err
 }

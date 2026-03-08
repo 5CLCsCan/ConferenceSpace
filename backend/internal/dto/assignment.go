@@ -12,13 +12,16 @@ type Assignment struct {
 	Status            string      `json:"status,omitempty"` // pending, accepted, declined, completed
 	AssignedAt        time.Time   `json:"assigned_at,omitempty"`
 	CompletedAt       *time.Time  `json:"completed_at,omitempty"`
-	ReviewStatus      *string     `json:"review_status,omitempty"` // draft, submitted
-	ReviewScore       *float64    `json:"review_score,omitempty"`
-	ReviewData        *ReviewData `json:"review_data,omitempty"`
-	ReviewSubmittedAt *time.Time  `json:"review_submitted_at,omitempty"`
-	CreatedAt         time.Time   `json:"created_at,omitempty"`
-	UpdatedAt         time.Time   `json:"updated_at,omitempty"`
-	ReviewerEmail     string      `json:"reviewer_email,omitempty"`
+	ReviewStatus           *string     `json:"review_status,omitempty"` // draft, submitted
+	ReviewScore            *float64    `json:"review_score,omitempty"`
+	ReviewData             *ReviewData `json:"review_data,omitempty"`
+	ReviewSubmittedAt      *time.Time  `json:"review_submitted_at,omitempty"`
+	RebuttalStatus         string      `json:"rebuttal_status,omitempty"`
+	RebuttalSubmittedAt    *time.Time  `json:"rebuttal_submitted_at,omitempty"`
+	RebuttalAcknowledgedAt *time.Time  `json:"rebuttal_acknowledged_at,omitempty"`
+	CreatedAt              time.Time   `json:"created_at,omitempty"`
+	UpdatedAt              time.Time   `json:"updated_at,omitempty"`
+	ReviewerEmail          string      `json:"reviewer_email,omitempty"`
 }
 
 // AssignmentCreateRequest represents the request to create a single assignment
@@ -244,4 +247,85 @@ type ConfirmedAssignmentsListResponse struct {
 	Assignments      []*ConfirmedAssignmentGroup `json:"assignments"`
 	TotalPapers      int                         `json:"total_papers"`
 	TotalAssignments int64                       `json:"total_assignments"`
+}
+
+// ================== Rebuttal DTOs ==================
+
+// RebuttalPointResponse is the author's response to a single review point.
+type RebuttalPointResponse struct {
+	PointID        string `json:"point_id"`
+	AuthorResponse string `json:"author_response"`
+}
+
+// RebuttalPerReviewerResponse is the author's structured response to one reviewer's points.
+type RebuttalPerReviewerResponse struct {
+	Points []RebuttalPointResponse `json:"points"`
+}
+
+// SubmitRebuttalPointInput is one point inside the PUT rebuttal request body.
+type SubmitRebuttalPointInput struct {
+	PointID         string `json:"point_id"`
+	AssignmentID    int64  `json:"assignment_id"`
+	Category        string `json:"category"`
+	Section         string `json:"section"`
+	OriginalComment string `json:"original_comment"`
+	AuthorResponse  string `json:"author_response"`
+}
+
+// SubmitRebuttalRequest is the body for PUT /conferences/:id/submissions/:id/rebuttal
+type SubmitRebuttalRequest struct {
+	ConferenceID    int64                      `uri:"conference_id" json:"conference_id"`
+	SubmissionID    int64                      `uri:"submission_id" json:"submission_id"`
+	GeneralResponse string                     `json:"general_response" binding:"required"`
+	Points          []SubmitRebuttalPointInput `json:"points"`
+}
+
+// AcknowledgeRebuttalRequest is the URI for PUT /conferences/:id/assignments/:id/rebuttal/acknowledge
+type AcknowledgeRebuttalRequest struct {
+	ConferenceID int64 `uri:"conference_id" json:"conference_id"`
+	AssignmentID int64 `uri:"assignment_id" json:"assignment_id"`
+}
+
+// RebuttalStatusResponse is returned after submit or acknowledge actions.
+type RebuttalStatusResponse struct {
+	RebuttalPhase          string     `json:"rebuttal_phase"`
+	RebuttalStatus         string     `json:"rebuttal_status"`
+	RebuttalSubmittedAt    *time.Time `json:"rebuttal_submitted_at,omitempty"`
+	RebuttalAcknowledgedAt *time.Time `json:"rebuttal_acknowledged_at,omitempty"`
+}
+
+// RebuttalPointDTO represents a single per-reviewer review point.
+type RebuttalPointDTO struct {
+	PointID              string `json:"point_id"`
+	AssignmentID         int64  `json:"assignment_id"`
+	Category             string `json:"category"`
+	Section              string `json:"section"`
+	OriginalComment      string `json:"original_comment"`
+	AuthorResponse       string `json:"author_response"`
+	Status               string `json:"status"`
+	ReviewerAcknowledged bool   `json:"reviewer_acknowledged"`
+	ReviewerNote         string `json:"reviewer_note,omitempty"`
+}
+
+// GetRebuttalRequest is the URI for GET .../rebuttal
+type GetRebuttalRequest struct {
+	ConferenceID int64 `uri:"conference_id" json:"conference_id"`
+	SubmissionID int64 `uri:"submission_id" json:"submission_id"`
+}
+
+// GetRebuttalResponse is the full rebuttal state returned by GET .../rebuttal
+type GetRebuttalResponse struct {
+	Phase           string             `json:"phase"`
+	GeneralResponse string             `json:"general_response"`
+	SubmittedAt     *time.Time         `json:"submitted_at,omitempty"`
+	Points          []RebuttalPointDTO `json:"points"`
+}
+
+// AcknowledgePointRequest is URI + body for PUT .../rebuttal/points/:point_id/acknowledge
+type AcknowledgePointRequest struct {
+	ConferenceID int64  `uri:"conference_id" json:"conference_id"`
+	AssignmentID int64  `uri:"assignment_id" json:"assignment_id"`
+	PointID      string `uri:"point_id" json:"point_id"`
+	Status       string `json:"status" binding:"required,oneof=addressed partially_addressed not_addressed pending_review"`
+	Note         string `json:"note"`
 }

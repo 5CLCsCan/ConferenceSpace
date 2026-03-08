@@ -7,6 +7,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -15,10 +16,12 @@ import (
 	"github.com/dcao/conferencespace/internal/model"
 	coiService "github.com/dcao/conferencespace/internal/service/coi"
 	notificationService "github.com/dcao/conferencespace/internal/service/notification"
+
 	"github.com/dcao/conferencespace/internal/storage"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	fileStorage "github.com/dcao/conferencespace/internal/storage/file"
+	rebuttalStorage "github.com/dcao/conferencespace/internal/storage/rebuttal"
 	submissionStorage "github.com/dcao/conferencespace/internal/storage/submission"
 	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
@@ -26,6 +29,7 @@ import (
 
 type Controller struct {
 	submissionStorage   submissionStorage.StorageInterface
+	rebuttalStorage     rebuttalStorage.StorageInterface
 	conferenceStorage   conferenceStorage.StorageInterface
 	fileStorage         fileStorage.StorageInterface
 	roleStorage         conferenceuserrole.StorageInterface
@@ -37,6 +41,7 @@ type Controller struct {
 func New(store *storage.Storage, fileStore fileStorage.StorageInterface, geminiClient interface{}, coiSvc *coiService.Service) *Controller {
 	return &Controller{
 		submissionStorage: store.Submission,
+		rebuttalStorage:   store.RebuttalPoint,
 		conferenceStorage: store.Conference,
 		fileStorage:       fileStore,
 		roleStorage:       store.ConferenceUserRole,
@@ -55,6 +60,7 @@ func NewWithNotifications(
 ) *Controller {
 	return &Controller{
 		submissionStorage:   store.Submission,
+		rebuttalStorage:     store.RebuttalPoint,
 		conferenceStorage:   store.Conference,
 		fileStorage:         fileStore,
 		roleStorage:         store.ConferenceUserRole,
@@ -1001,4 +1007,229 @@ func (c *Controller) GetCoverLetter(ginCtx *gin.Context) {
 		"Content-Disposition": fmt.Sprintf("inline; filename=\"%s\"", submission.CoverLetter.OriginalName),
 		"Content-Length":      fmt.Sprintf("%d", submission.CoverLetter.Size),
 	})
+}
+
+// SubmitRebuttal godoc
+// @Summary      Submit author rebuttal
+// @Description  Author submits a rebuttal (general response + per-reviewer responses) for a submission
+// @Tags         submissions
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        conference_id path int true "Conference ID"
+// @Param        submission_id path int true "Submission ID"
+// @Param        request body dto.SubmitRebuttalRequest true "Rebuttal content"
+// @Success      200 {object} dto.RebuttalStatusResponse
+// @Failure      400 {object} handler.Response
+// @Failure      401 {object} handler.Response
+// @Failure      403 {object} handler.Response
+// @Failure      500 {object} handler.Response
+// @Router       /conferences/{conference_id}/submissions/{submission_id}/rebuttal [put]
+func (c *Controller) SubmitRebuttal(ginCtx *gin.Context, req *dto.SubmitRebuttalRequest) (*dto.RebuttalStatusResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	sub, err := c.submissionStorage.GetByID(ctx, req.SubmissionID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "submission not found")
+	}
+
+	if sub.ConferenceID != req.ConferenceID {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "submission not found in this conference")
+	}
+
+	if sub.Author != userEmail {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "only the submission author can submit a rebuttal")
+	}
+
+	if err := c.submissionStorage.SubmitRebuttal(ctx, req.SubmissionID, req.GeneralResponse); err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	if len(req.Points) > 0 {
+		modelPoints := make([]model.RebuttalPoint, 0, len(req.Points))
+		for _, p := range req.Points {
+			modelPoints = append(modelPoints, model.RebuttalPoint{
+				SubmissionID:    req.SubmissionID,
+				ConferenceID:    req.ConferenceID,
+				AssignmentID:    p.AssignmentID,
+				PointID:         p.PointID,
+				Category:        p.Category,
+				Section:         p.Section,
+				OriginalComment: p.OriginalComment,
+				AuthorResponse:  p.AuthorResponse,
+			})
+		}
+		if err := c.rebuttalStorage.UpsertPoints(ctx, modelPoints); err != nil {
+			return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+		}
+	}
+
+	now := time.Now()
+	return &dto.RebuttalStatusResponse{
+		RebuttalPhase:       model.RebuttalPhaseSubmitted,
+		RebuttalStatus:      model.RebuttalStatusSubmitted,
+		RebuttalSubmittedAt: &now,
+	}, nil
+}
+
+// GetRebuttal godoc
+// @Summary      Get rebuttal state for a submission
+// @Description  Returns rebuttal phase, general response, and per-point data
+// @Tags         submissions
+// @Produce      json
+// @Security     BearerAuth
+// @Param        conference_id path int true "Conference ID"
+// @Param        submission_id path int true "Submission ID"
+// @Success      200 {object} dto.GetRebuttalResponse
+// @Router       /conferences/{conference_id}/submissions/{submission_id}/rebuttal [get]
+func (c *Controller) GetRebuttal(ginCtx *gin.Context, req *dto.GetRebuttalRequest) (*dto.GetRebuttalResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	sub, err := c.submissionStorage.GetByID(ctx, req.SubmissionID)
+	if err != nil || sub.ConferenceID != req.ConferenceID {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "submission not found")
+	}
+
+	points, err := c.rebuttalStorage.GetBySubmission(ctx, req.SubmissionID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	generalResponse := ""
+	if sub.RebuttalGeneralResponse != nil {
+		generalResponse = *sub.RebuttalGeneralResponse
+	}
+
+	submittedAt := &sub.UpdatedAt
+
+	return &dto.GetRebuttalResponse{
+		Phase:           sub.RebuttalPhase,
+		GeneralResponse: generalResponse,
+		SubmittedAt:     submittedAt,
+		Points:          points,
+	}, nil
+}
+
+// UploadCameraReady godoc
+// @Summary      Upload camera-ready version
+// @Description  Upload the camera-ready (final) version of an accepted submission (author only)
+// @Tags         submissions
+// @Accept       multipart/form-data
+// @Produce      json
+// @Security     BearerAuth
+// @Param        conference_id path int true "Conference ID"
+// @Param        submission_id path int true "Submission ID"
+// @Param        file formData file true "Camera-ready PDF"
+// @Success      200 {object} dto.Submission
+// @Failure      400 {object} handler.Response
+// @Failure      401 {object} handler.Response
+// @Failure      403 {object} handler.Response
+// @Failure      500 {object} handler.Response
+// @Router       /conferences/{conference_id}/submissions/{submission_id}/camera-ready [post]
+func (c *Controller) UploadCameraReady(ginCtx *gin.Context) {
+	ctx := ginCtx.Request.Context()
+
+	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
+	if err != nil {
+		ginCtx.JSON(http.StatusBadRequest, handler.Response{Error: "invalid conference ID"})
+		return
+	}
+	submissionID, err := strconv.ParseInt(ginCtx.Param("submission_id"), 10, 64)
+	if err != nil {
+		ginCtx.JSON(http.StatusBadRequest, handler.Response{Error: "invalid submission ID"})
+		return
+	}
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		ginCtx.JSON(http.StatusUnauthorized, handler.Response{Error: "user not authenticated"})
+		return
+	}
+
+	sub, err := c.submissionStorage.GetByID(ctx, submissionID)
+	if err != nil || sub.ConferenceID != conferenceID {
+		ginCtx.JSON(http.StatusNotFound, handler.Response{Error: "submission not found"})
+		return
+	}
+	if sub.Author != userEmail {
+		ginCtx.JSON(http.StatusForbidden, handler.Response{Error: "only the submission author can upload camera-ready"})
+		return
+	}
+
+	fileHeader, err := ginCtx.FormFile("file")
+	if err != nil {
+		ginCtx.JSON(http.StatusBadRequest, handler.Response{Error: "file is required"})
+		return
+	}
+	f, err := fileHeader.Open()
+	if err != nil {
+		ginCtx.JSON(http.StatusInternalServerError, handler.Response{Error: "failed to open file"})
+		return
+	}
+	defer f.Close()
+
+	meta, err := c.fileStorage.SaveCameraReady(f, fileHeader, conferenceID, submissionID)
+	if err != nil {
+		ginCtx.JSON(http.StatusBadRequest, handler.Response{Error: err.Error()})
+		return
+	}
+
+	updated, err := c.submissionStorage.UpdateCameraReady(ctx, submissionID, meta)
+	if err != nil {
+		_ = c.fileStorage.DeleteCameraReady(conferenceID, submissionID, meta.Filename)
+		ginCtx.JSON(http.StatusInternalServerError, handler.Response{Error: err.Error()})
+		return
+	}
+
+	ginCtx.JSON(http.StatusOK, handler.Response{Data: updated})
+}
+
+// GetCameraReady godoc
+// @Summary      Download camera-ready file
+// @Description  Download the camera-ready PDF for a submission
+// @Tags         submissions
+// @Produce      application/pdf
+// @Security     BearerAuth
+// @Param        conference_id path int true "Conference ID"
+// @Param        submission_id path int true "Submission ID"
+// @Success      200  {file}   binary
+// @Failure      404 {object} handler.Response
+// @Router       /conferences/{conference_id}/submissions/{submission_id}/camera-ready [get]
+func (c *Controller) GetCameraReady(ginCtx *gin.Context) {
+	ctx := ginCtx.Request.Context()
+
+	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
+	if err != nil {
+		ginCtx.JSON(http.StatusBadRequest, handler.Response{Error: "invalid conference ID"})
+		return
+	}
+	submissionID, err := strconv.ParseInt(ginCtx.Param("submission_id"), 10, 64)
+	if err != nil {
+		ginCtx.JSON(http.StatusBadRequest, handler.Response{Error: "invalid submission ID"})
+		return
+	}
+
+	sub, err := c.submissionStorage.GetByID(ctx, submissionID)
+	if err != nil || sub.ConferenceID != conferenceID {
+		ginCtx.JSON(http.StatusNotFound, handler.Response{Error: "submission not found"})
+		return
+	}
+	if sub.CameraReady == nil || sub.CameraReady.Path == "" {
+		ginCtx.JSON(http.StatusNotFound, handler.Response{Error: "camera-ready file not found"})
+		return
+	}
+	if _, err := os.Stat(sub.CameraReady.Path); os.IsNotExist(err) {
+		ginCtx.JSON(http.StatusNotFound, handler.Response{Error: "camera-ready file not found on disk"})
+		return
+	}
+
+	ginCtx.Header("Content-Type", sub.CameraReady.MimeType)
+	ginCtx.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", sub.CameraReady.OriginalName))
+	ginCtx.Header("Content-Length", fmt.Sprintf("%d", sub.CameraReady.Size))
+	ginCtx.File(sub.CameraReady.Path)
 }

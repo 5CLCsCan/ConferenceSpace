@@ -54,9 +54,24 @@ type Submission struct {
 	CoverLetterSize         *int64         `db:"cover_letter_size"`
 	CoverLetterMimeType     *string        `db:"cover_letter_mime_type"`
 	CoverLetterUploadedAt   *time.Time     `db:"cover_letter_uploaded_at"`
+	CameraReadyPath         *string        `db:"camera_ready_path"`
+	CameraReadyOriginalName *string        `db:"camera_ready_original_name"`
+	CameraReadySize         *int64         `db:"camera_ready_size"`
+	CameraReadyMimeType     *string        `db:"camera_ready_mime_type"`
+	CameraReadyUploadedAt   *time.Time     `db:"camera_ready_uploaded_at"`
+	RebuttalPhase           string         `db:"rebuttal_phase"`
+	RebuttalGeneralResponse *string        `db:"rebuttal_general_response"`
 	CreatedAt               time.Time      `db:"created_at"`
 	UpdatedAt               time.Time      `db:"updated_at"`
 }
+
+// Rebuttal phase constants
+const (
+	RebuttalPhaseAwaiting   = "awaiting"
+	RebuttalPhaseSubmitted  = "submitted"
+	RebuttalPhaseDiscussion = "discussion"
+	RebuttalPhaseFinalized  = "finalized"
+)
 
 func (s *Submission) ToDTO() *dto.Submission {
 	domain := []string(s.Domain)
@@ -99,21 +114,35 @@ func (s *Submission) ToDTO() *dto.Submission {
 		}
 	}
 
+	var cameraReadyMetadata *dto.SubmissionFileMetadata
+	if s.CameraReadyPath != nil && s.CameraReadyOriginalName != nil && s.CameraReadySize != nil && s.CameraReadyMimeType != nil {
+		cameraReadyMetadata = &dto.SubmissionFileMetadata{
+			Filename:     filepath.Base(*s.CameraReadyPath),
+			OriginalName: *s.CameraReadyOriginalName,
+			Size:         *s.CameraReadySize,
+			MimeType:     *s.CameraReadyMimeType,
+			Path:         *s.CameraReadyPath,
+		}
+	}
+
 	return &dto.Submission{
-		ID:           s.SubmissionID,
-		ConferenceID: s.ConferenceID,
-		Author:       s.Author,
-		Title:        s.Title,
-		Abstract:     s.Abstract,
-		Link:         s.Link,
-		Domain:       domain,
-		Track:        track,
-		Status:       s.Status,
-		Information:  info,
-		File:         fileMetadata,
-		CoverLetter:  coverLetterMetadata,
-		CreatedAt:    s.CreatedAt,
-		UpdatedAt:    s.UpdatedAt,
+		ID:                      s.SubmissionID,
+		ConferenceID:            s.ConferenceID,
+		Author:                  s.Author,
+		Title:                   s.Title,
+		Abstract:                s.Abstract,
+		Link:                    s.Link,
+		Domain:                  domain,
+		Track:                   track,
+		Status:                  s.Status,
+		Information:             info,
+		File:                    fileMetadata,
+		CoverLetter:             coverLetterMetadata,
+		CameraReady:             cameraReadyMetadata,
+		RebuttalPhase:           s.RebuttalPhase,
+		RebuttalGeneralResponse: s.RebuttalGeneralResponse,
+		CreatedAt:               s.CreatedAt,
+		UpdatedAt:               s.UpdatedAt,
 	}
 }
 

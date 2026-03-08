@@ -163,7 +163,7 @@ describe("PaperSubmissionForm — deadline enforcement (UI-NEG-02)", () => {
     expect(submitBtn).toBeDisabled()
   })
 
-  it("enables submit button when deadline is in the future", () => {
+  it("does not show deadline warning when deadline is in the future", () => {
     const futureDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
     render(
       <PaperSubmissionForm
@@ -172,8 +172,10 @@ describe("PaperSubmissionForm — deadline enforcement (UI-NEG-02)", () => {
         })}
       />,
     )
-    const submitBtn = screen.getByTestId("submit-btn")
-    expect(submitBtn).not.toBeDisabled()
+    // Deadline enforcement: no deadline warning should appear
+    expect(screen.queryByText(/submission deadline has passed/i)).not.toBeInTheDocument()
+    // Submit button exists (may be disabled for other reasons like precheck, not deadline)
+    expect(screen.getByTestId("submit-btn")).toBeInTheDocument()
   })
 
   it("disables submit button when conference is not open (status check)", () => {

@@ -128,3 +128,9 @@ func (c *Client) ToggleBookmarkSuccess(conferenceID int64, token string) (*dto.C
 	testutils.DecodeResponse(c.ctx.T, w, &response)
 	return response.Data, nil
 }
+
+// GetStats calls the conference stats endpoint
+func (c *Client) GetStats(conferenceID int64, token string) (*http.Response, error) {
+	path := fmt.Sprintf("/api/v1/conferences/%d/stats", conferenceID)
+	return c.ctx.MakeRequest("GET", path, nil, token)
+}

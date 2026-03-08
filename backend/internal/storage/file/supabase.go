@@ -30,6 +30,21 @@ type SupabaseFileStorage struct {
 	httpClient     *http.Client
 }
 
+// DeleteCameraReady implements StorageInterface.
+func (s *SupabaseFileStorage) DeleteCameraReady(conferenceID int64, submissionID int64, filename string) error {
+	panic("unimplemented")
+}
+
+// GetCameraReadyPath implements StorageInterface.
+func (s *SupabaseFileStorage) GetCameraReadyPath(conferenceID int64, submissionID int64, filename string) string {
+	panic("unimplemented")
+}
+
+// SaveCameraReady implements StorageInterface.
+func (s *SupabaseFileStorage) SaveCameraReady(file io.Reader, header *multipart.FileHeader, conferenceID int64, submissionID int64) (*dto.SubmissionFileMetadata, error) {
+	panic("unimplemented")
+}
+
 func NewSupabaseFileStorage(cfg SupabaseFileStorageConfig) (*SupabaseFileStorage, error) {
 	baseURL := strings.TrimSpace(strings.TrimRight(cfg.URL, "/"))
 	bucket := strings.TrimSpace(cfg.Bucket)

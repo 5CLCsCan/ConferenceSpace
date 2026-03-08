@@ -50,7 +50,7 @@ describe("ConferenceAssignments", () => {
   })
 
   afterEach(() => {
-    vi.resetAllMocks()
+    vi.clearAllMocks()
   })
 
   describe("Loading states", () => {

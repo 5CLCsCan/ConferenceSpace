@@ -36,6 +36,7 @@ type StorageInterface interface {
 	AddBookmark(ctx context.Context, userEmail string, conferenceID int64) error
 	RemoveBookmark(ctx context.Context, userEmail string, conferenceID int64) error
 	IsBookmarked(ctx context.Context, userEmail string, conferenceID int64) (bool, error)
+	GetStats(ctx context.Context, conferenceID int64) (*dto.ConferenceStatsResponse, error)
 }
 
 type Storage struct {
@@ -673,4 +674,87 @@ func (s *Storage) TransitionStatus(ctx context.Context, id int64, newStatus stri
 	}
 
 	return entity.ToDTO(), nil
+}
+
+// GetStats returns aggregated statistics for a conference.
+func (s *Storage) GetStats(ctx context.Context, conferenceID int64) (*dto.ConferenceStatsResponse, error) {
+	// submission counts by status
+	subRows, err := s.db.QueryContext(ctx, `
+		SELECT status, COUNT(*) AS cnt
+		FROM conference_submissions
+		WHERE conference_id = $1
+		GROUP BY status
+	`, conferenceID)
+	if err != nil {
+		return nil, fmt.Errorf("query submission stats: %w", err)
+	}
+	defer subRows.Close()
+
+	var subStats dto.ConferenceSubmissionStats
+	for subRows.Next() {
+		var status string
+		var cnt int
+		if err := subRows.Scan(&status, &cnt); err != nil {
+			return nil, err
+		}
+		subStats.Total += cnt
+		switch status {
+		case "draft":
+			subStats.Draft = cnt
+		case "submitted", "reviewing":
+			subStats.Submitted += cnt
+		case "accepted":
+			subStats.Accepted = cnt
+		case "rejected":
+			subStats.Rejected = cnt
+		}
+	}
+
+	// review/assignment progress
+	var reviewStats dto.ConferenceReviewStats
+	err = s.db.QueryRowContext(ctx, `
+		SELECT
+			COUNT(*) AS total,
+			COUNT(*) FILTER (WHERE status = 'completed') AS completed
+		FROM paper_assignments
+		WHERE conference_id = $1
+	`, conferenceID).Scan(&reviewStats.TotalAssigned, &reviewStats.Completed)
+	if err != nil {
+		return nil, fmt.Errorf("query review stats: %w", err)
+	}
+	reviewStats.Pending = reviewStats.TotalAssigned - reviewStats.Completed
+
+	// per-track breakdown
+	trackRows, err := s.db.QueryContext(ctx, `
+		SELECT
+			COALESCE(track, 'Untracked') AS track,
+			COUNT(*) AS submission_count,
+			COUNT(*) FILTER (WHERE status = 'accepted') AS accepted_count
+		FROM conference_submissions
+		WHERE conference_id = $1
+		GROUP BY track
+		ORDER BY track
+	`, conferenceID)
+	if err != nil {
+		return nil, fmt.Errorf("query track stats: %w", err)
+	}
+	defer trackRows.Close()
+
+	var tracks []dto.ConferenceTrackStats
+	for trackRows.Next() {
+		var t dto.ConferenceTrackStats
+		if err := trackRows.Scan(&t.Name, &t.SubmissionCount, &t.AcceptedCount); err != nil {
+			return nil, err
+		}
+		tracks = append(tracks, t)
+	}
+	if tracks == nil {
+		tracks = []dto.ConferenceTrackStats{}
+	}
+
+	return &dto.ConferenceStatsResponse{
+		Submissions: subStats,
+		Reviews:     reviewStats,
+		Tracks:      tracks,
+	}, nil
 }

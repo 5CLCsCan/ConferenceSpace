@@ -30,14 +30,24 @@ type Assignment struct {
 	Status            string          `db:"status"`
 	AssignedAt        time.Time       `db:"assigned_at"`
 	CompletedAt       *time.Time      `db:"completed_at"`
-	ReviewStatus      *string         `db:"review_status"`
-	ReviewScore       *float64        `db:"review_score"`
-	ReviewData        json.RawMessage `db:"review_data"`
-	ReviewSubmittedAt *time.Time      `db:"review_submitted_at"`
-	CreatedAt         time.Time       `db:"created_at"`
-	UpdatedAt         time.Time       `db:"updated_at"`
-	ReviewerEmail     string          `db:"reviewer_email"`
+	ReviewStatus           *string         `db:"review_status"`
+	ReviewScore            *float64        `db:"review_score"`
+	ReviewData             json.RawMessage `db:"review_data"`
+	ReviewSubmittedAt      *time.Time      `db:"review_submitted_at"`
+	RebuttalStatus         string          `db:"rebuttal_status"`
+	RebuttalSubmittedAt    *time.Time      `db:"rebuttal_submitted_at"`
+	RebuttalAcknowledgedAt *time.Time      `db:"rebuttal_acknowledged_at"`
+	CreatedAt              time.Time       `db:"created_at"`
+	UpdatedAt              time.Time       `db:"updated_at"`
+	ReviewerEmail          string          `db:"reviewer_email"`
 }
+
+// Rebuttal status constants (per assignment)
+const (
+	RebuttalStatusNone         = "none"
+	RebuttalStatusSubmitted    = "submitted"
+	RebuttalStatusAcknowledged = "acknowledged"
+)
 
 // Assignment status constants
 const (
@@ -103,6 +113,11 @@ func (a *Assignment) ToDTO() *dto.Assignment {
 	if a.ReviewSubmittedAt != nil {
 		result.ReviewSubmittedAt = a.ReviewSubmittedAt
 	}
+
+	// Add rebuttal fields
+	result.RebuttalStatus = a.RebuttalStatus
+	result.RebuttalSubmittedAt = a.RebuttalSubmittedAt
+	result.RebuttalAcknowledgedAt = a.RebuttalAcknowledgedAt
 
 	return result
 }
