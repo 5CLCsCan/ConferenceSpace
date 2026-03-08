@@ -21,6 +21,7 @@ const (
 	UserColUpdatedAt          = "updated_at"
 	UserColSemanticScholarID  = "semantic_scholar_id"
 	UserColProfileSyncStatus  = "profile_sync_status"
+	UserColEmailVerified      = "email_verified"
 )
 
 type User struct {
@@ -32,6 +33,7 @@ type User struct {
 	Domain            pq.StringArray `db:"domain"`
 	SemanticScholarID sql.NullString `db:"semantic_scholar_id"`
 	ProfileSyncStatus sql.NullString `db:"profile_sync_status"`
+	EmailVerified     bool           `db:"email_verified"`
 	CreatedAt         time.Time      `db:"created_at"`
 	UpdatedAt         time.Time      `db:"updated_at"`
 }
