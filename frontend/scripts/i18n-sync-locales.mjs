@@ -93,7 +93,11 @@ function setNestedValue(target, key, value) {
       current[segment] = value
       break
     }
-    if (!current[segment] || typeof current[segment] !== "object" || Array.isArray(current[segment])) {
+    if (
+      !current[segment] ||
+      typeof current[segment] !== "object" ||
+      Array.isArray(current[segment])
+    ) {
       current[segment] = {}
     }
     current = current[segment]
@@ -156,10 +160,7 @@ function expandDynamicPattern(pattern, filePath) {
     filePath.endsWith(path.join("components", "language-switcher.tsx")) &&
     (pattern === "${currentOption.labelKey}" || pattern === "${option.labelKey}")
   ) {
-    return [
-      "common.messages.languages.vietnamese",
-      "common.messages.languages.english",
-    ]
+    return ["common.messages.languages.vietnamese", "common.messages.languages.english"]
   }
   return []
 }
@@ -401,15 +402,13 @@ function syncLocales() {
   for (const key of [...tUsageResolved].sort()) {
     const enEntry = enLeaves.get(key)
     const viEntry = viLeaves.get(key)
-    const enValue =
-      enEntry && enEntry.type === "string" ? enEntry.value : key
+    const enValue = enEntry && enEntry.type === "string" ? enEntry.value : key
     const viValue =
       viEntry && viEntry.type === "string" ? viEntry.value : viFallback(enValue, existingMap)
 
     const enPlaceholders = extractPlaceholders(enValue)
     const viPlaceholders = extractPlaceholders(viValue)
-    const safeViValue =
-      enPlaceholders.join(",") === viPlaceholders.join(",") ? viValue : enValue
+    const safeViValue = enPlaceholders.join(",") === viPlaceholders.join(",") ? viValue : enValue
 
     setNestedValue(nextEn, key, enValue)
     setNestedValue(nextVi, key, safeViValue)

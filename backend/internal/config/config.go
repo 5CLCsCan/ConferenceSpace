@@ -9,12 +9,13 @@ import (
 
 // Config holds all application configuration
 type Config struct {
-	Server          ServerConfig
-	Database        DatabaseConfig
-	Neo4j           Neo4jConfig
-	Gemini          GeminiConfig
-	SemanticScholar SemanticScholarConfig
-	JWT             JWTConfig
+	Server                   ServerConfig
+	Database                 DatabaseConfig
+	Neo4j                    Neo4jConfig
+	Gemini                   GeminiConfig
+	SemanticScholar          SemanticScholarConfig
+	FileStorage              FileStorageConfig
+	JWT                      JWTConfig
 	Brevo                    BrevoConfig
 	RequireEmailVerification bool
 	AppBaseURL               string
@@ -22,8 +23,8 @@ type Config struct {
 
 // ServerConfig holds server-related configuration
 type ServerConfig struct {
-	Port      string
-	Env       string
+	Port       string
+	Env        string
 	AdminToken string // Admin token to bypass authentication
 }
 
@@ -62,6 +63,15 @@ type GeminiConfig struct {
 type SemanticScholarConfig struct {
 	APIKey  string
 	Enabled bool
+}
+
+// FileStorageConfig holds file storage provider configuration
+type FileStorageConfig struct {
+	Provider               string
+	LocalBasePath          string
+	SupabaseURL            string
+	SupabaseServiceRoleKey string
+	SupabaseBucket         string
 }
 
 // BrevoConfig holds Brevo transactional email configuration
@@ -105,6 +115,13 @@ func Load() (*Config, error) {
 		SemanticScholar: SemanticScholarConfig{
 			APIKey:  getEnv("SEMANTIC_SCHOLAR_API_KEY", ""),
 			Enabled: getEnv("SEMANTIC_SCHOLAR_ENABLED", "true") == "true",
+		},
+		FileStorage: FileStorageConfig{
+			Provider:               getEnv("FILE_STORAGE_PROVIDER", "local"),
+			LocalBasePath:          getEnv("FILE_STORAGE_LOCAL_BASE_PATH", "./uploads/submissions"),
+			SupabaseURL:            getEnv("SUPABASE_URL", ""),
+			SupabaseServiceRoleKey: getEnv("SUPABASE_SERVICE_ROLE_KEY", ""),
+			SupabaseBucket:         getEnv("SUPABASE_STORAGE_BUCKET", ""),
 		},
 		JWT: JWTConfig{
 			Secret: getEnv("JWT_SECRET", "your-secret-key-change-this-in-production"),

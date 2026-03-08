@@ -19,7 +19,9 @@ interface FeedbackField {
 const FEEDBACK_FIELDS: FeedbackField[] = [
   {
     key: "summary",
-    label: t("runtime.components.reviewer.submission-review.detailed-feedback.prop_label_summary_of_contribution"),
+    label: t(
+      "runtime.components.reviewer.submission-review.detailed-feedback.prop_label_summary_of_contribution",
+    ),
     placeholder: "Briefly describe the key claims and contributions in your own words...",
     tips: [
       "Explain the main problem being addressed",
@@ -30,7 +32,9 @@ const FEEDBACK_FIELDS: FeedbackField[] = [
   },
   {
     key: "strengths",
-    label: t("runtime.components.reviewer.submission-review.detailed-feedback.prop_label_strengths"),
+    label: t(
+      "runtime.components.reviewer.submission-review.detailed-feedback.prop_label_strengths",
+    ),
     placeholder: "Identify the innovative aspects and high-quality elements...",
     tips: [
       "Identify main contributions and innovations",
@@ -41,7 +45,9 @@ const FEEDBACK_FIELDS: FeedbackField[] = [
   },
   {
     key: "weaknesses",
-    label: t("runtime.components.reviewer.submission-review.detailed-feedback.prop_label_weaknesses"),
+    label: t(
+      "runtime.components.reviewer.submission-review.detailed-feedback.prop_label_weaknesses",
+    ),
     placeholder: "Identify technical flaws, missing experiments, or clarity issues...",
     tips: [
       "Be specific about technical issues",
@@ -52,7 +58,9 @@ const FEEDBACK_FIELDS: FeedbackField[] = [
   },
   {
     key: "questions",
-    label: t("runtime.components.reviewer.submission-review.detailed-feedback.prop_label_questions_for_authors"),
+    label: t(
+      "runtime.components.reviewer.submission-review.detailed-feedback.prop_label_questions_for_authors",
+    ),
     placeholder: "Specific questions for authors to address during rebuttal...",
     tips: [
       "Ask clarifying questions about methodology",
@@ -81,7 +89,7 @@ function FeedbackCard({ field, value, onChange, isLast = false }: FeedbackCardPr
   return (
     <div className={isLast ? "flex-1 flex flex-col min-h-0" : "space-y-2"}>
       {/* Header */}
-      <div className="flex items-center justify-between flex-shrink-0 mb-2">
+      <div className="flex items-center justify-between shrink-0 mb-2">
         <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">
           {field.label}
         </label>
@@ -167,11 +175,18 @@ export function DetailedFeedbackSection({
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 pt-4 pb-4 h-[866px] flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3 mt-3 border-b border-slate-100 pb-2 flex-shrink-0">
+      <div className="flex items-center justify-between mb-3 mt-3 border-b border-slate-100 pb-2 shrink-0">
         <h2 className="font-bold text-sm text-[#1B3C53] tracking-tight uppercase">
-          {t("runtime.components.reviewer.submission-review.detailed-feedback.text_review_synthesis")}{" "}</h2>
+          {t(
+            "runtime.components.reviewer.submission-review.detailed-feedback.text_review_synthesis",
+          )}{" "}
+        </h2>
         <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">
-          {completedCount}{t("runtime.components.reviewer.submission-review.detailed-feedback.text_4_completed")}{" "}</span>
+          {completedCount}
+          {t(
+            "runtime.components.reviewer.submission-review.detailed-feedback.text_4_completed",
+          )}{" "}
+        </span>
       </div>
 
       {/* Feedback Fields */}

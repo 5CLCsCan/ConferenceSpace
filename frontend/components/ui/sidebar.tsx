@@ -192,7 +192,9 @@ function Sidebar({
         >
           <SheetHeader className="sr-only">
             <SheetTitle>{t("runtime.components.ui.sidebar.text_sidebar")}</SheetTitle>
-            <SheetDescription>{t("runtime.components.ui.sidebar.text_displays_the_mobile_sidebar")}</SheetDescription>
+            <SheetDescription>
+              {t("runtime.components.ui.sidebar.text_displays_the_mobile_sidebar")}
+            </SheetDescription>
           </SheetHeader>
           <div className="flex h-full w-full flex-col">{children}</div>
         </SheetContent>

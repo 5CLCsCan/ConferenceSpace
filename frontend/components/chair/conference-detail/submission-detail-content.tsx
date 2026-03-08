@@ -38,7 +38,10 @@ function AbstractCard({ abstract, keywords }: { abstract: string; keywords: stri
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-4 tracking-tight">
-        {t("runtime.components.chair.conference-detail.submission-detail-content.text_abstract")}{" "}</h3>
+        {t(
+          "runtime.components.chair.conference-detail.submission-detail-content.text_abstract",
+        )}{" "}
+      </h3>
       <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-6">{abstract}</p>
       <div className="flex flex-wrap gap-2">
         {keywords.map((keyword) => (
@@ -67,8 +70,16 @@ function SubmissionFilesCard({
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-          {t("runtime.components.chair.conference-detail.submission-detail-content.text_submission_files")}{" "}</h3>
-        <span className="text-[10px] text-slate-400">{t("runtime.components.chair.conference-detail.submission-detail-content.text_last_updated")}{" "}{lastUpdated}</span>
+          {t(
+            "runtime.components.chair.conference-detail.submission-detail-content.text_submission_files",
+          )}{" "}
+        </h3>
+        <span className="text-[10px] text-slate-400">
+          {t(
+            "runtime.components.chair.conference-detail.submission-detail-content.text_last_updated",
+          )}{" "}
+          {lastUpdated}
+        </span>
       </div>
       <div className="space-y-3">
         {files.map((file) => (
@@ -90,7 +101,9 @@ function SubmissionFilesCard({
               {file.type === "pdf" && (
                 <button
                   className="p-2 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors"
-                  title={t("runtime.components.chair.conference-detail.submission-detail-content.title_preview")}
+                  title={t(
+                    "runtime.components.chair.conference-detail.submission-detail-content.title_preview",
+                  )}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
                     visibility
@@ -99,7 +112,9 @@ function SubmissionFilesCard({
               )}
               <button
                 className="p-2 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors"
-                title={t("runtime.components.chair.conference-detail.submission-detail-content.title_download")}
+                title={t(
+                  "runtime.components.chair.conference-detail.submission-detail-content.title_download",
+                )}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
                   download
@@ -129,7 +144,10 @@ function CoverLetterCard({ content }: { content?: string }) {
             mail
           </span>
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            {t("runtime.components.chair.conference-detail.submission-detail-content.text_cover_letter")}{" "}</h3>
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail-content.text_cover_letter",
+            )}{" "}
+          </h3>
         </div>
         <span className="material-symbols-outlined text-slate-400" style={{ fontSize: "20px" }}>
           {isExpanded ? "expand_less" : "expand_more"}
@@ -166,12 +184,18 @@ function SubmissionMetaCard({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <h3 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-4">
-        {t("runtime.components.chair.conference-detail.submission-detail-content.text_submission_meta")}{" "}</h3>
+        {t(
+          "runtime.components.chair.conference-detail.submission-detail-content.text_submission_meta",
+        )}{" "}
+      </h3>
       <div className="space-y-6">
         {/* Authors */}
         <div>
           <h4 className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-3">
-            {t("runtime.components.chair.conference-detail.submission-detail-content.text_author_s")}{" "}</h4>
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail-content.text_author_s",
+            )}{" "}
+          </h4>
           <div className="space-y-3">
             {authors.map((author) => (
               <div
@@ -189,7 +213,9 @@ function SubmissionMetaCard({
                 <button
                   onClick={() => handleAuthorProfileClick(author.email || author.id)}
                   className="p-1.5 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors flex-shrink-0"
-                  title={t("runtime.components.chair.conference-detail.submission-detail-content.title_view_profile")}
+                  title={t(
+                    "runtime.components.chair.conference-detail.submission-detail-content.title_view_profile",
+                  )}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
                     open_in_new
@@ -203,7 +229,10 @@ function SubmissionMetaCard({
         {/* Conflicts of Interest */}
         <div>
           <h4 className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-2">
-            {t("runtime.components.chair.conference-detail.submission-detail-content.text_conflicts_of_interest")}{" "}</h4>
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail-content.text_conflicts_of_interest",
+            )}{" "}
+          </h4>
           <div className="flex flex-wrap gap-2">
             {conflictsOfInterest.map((affiliation, index) => (
               <button
@@ -225,12 +254,19 @@ function SubmissionMetaCard({
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t("runtime.components.chair.conference-detail.submission-detail-content.text_affiliation_details")}</DialogTitle>
+            <DialogTitle>
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail-content.text_affiliation_details",
+              )}
+            </DialogTitle>
             <DialogDescription>{selectedAffiliation}</DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              {t("runtime.components.chair.conference-detail.submission-detail-content.text_additional_details_about_this_affiliation_will")}{" "}</p>
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail-content.text_additional_details_about_this_affiliation_will",
+              )}{" "}
+            </p>
           </div>
         </DialogContent>
       </Dialog>

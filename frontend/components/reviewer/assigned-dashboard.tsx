@@ -315,13 +315,16 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
       {!isLoading && total > 0 && (
         <div className="flex items-center justify-between">
           <p className="text-[11px] text-slate-500 dark:text-slate-400">
-            Showing{" "}
+            {t("runtime.components.reviewer.assigned-dashboard.text_showing")}{" "}
             <span className="font-bold text-[#1B3C53] dark:text-white">
               {Math.min((currentPage - 1) * PAGE_SIZE + 1, total)}–
               {Math.min(currentPage * PAGE_SIZE, total)}
             </span>{" "}
-            of <span className="font-bold text-[#1B3C53] dark:text-white">{total}</span>{" "}
-            {total === 1 ? "paper" : "papers"}
+            {t("runtime.components.reviewer.assigned-dashboard.text_of")}{" "}
+            <span className="font-bold text-[#1B3C53] dark:text-white">{total}</span>{" "}
+            {total === 1
+              ? t("runtime.components.reviewer.assigned-dashboard.text_paper")
+              : t("runtime.components.reviewer.assigned-dashboard.text_papers")}
           </p>
 
           {totalPages > 1 && (
@@ -331,7 +334,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
                 disabled={currentPage === 1}
                 className="h-8 px-2.5 rounded-md border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
               >
-                Previous
+                {t("runtime.components.reviewer.assigned-dashboard.text_previous")}
               </button>
               {getPageNumbers().map((page, idx) =>
                 page === "ellipsis" ? (
@@ -357,7 +360,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
                 disabled={currentPage === totalPages}
                 className="h-8 px-2.5 rounded-md border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
               >
-                Next
+                {t("runtime.components.reviewer.assigned-dashboard.text_next")}
               </button>
             </div>
           )}

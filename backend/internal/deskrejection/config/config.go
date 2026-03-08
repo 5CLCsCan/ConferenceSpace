@@ -7,11 +7,9 @@ import (
 	"github.com/dcao/conferencespace/internal/deskrejection/models"
 )
 
-
 type Manager struct {
 	baseConfig *models.PaperRuleConfig
 }
-
 
 func NewManager() *Manager {
 	return &Manager{
@@ -19,16 +17,13 @@ func NewManager() *Manager {
 	}
 }
 
-
 func (m *Manager) SetDefaults(defaults *models.PaperRuleConfig) {
 	m.baseConfig = defaults
 }
 
-
 func (m *Manager) GetConfig() *models.PaperRuleConfig {
 	return m.baseConfig
 }
-
 
 func (m *Manager) ApplyCustomSettings(settings *models.PaperSettings) {
 	if settings == nil {
@@ -67,8 +62,15 @@ func (m *Manager) ApplyCustomSettings(settings *models.PaperSettings) {
 	if settings.MaxSentenceWords != nil {
 		m.baseConfig.MaxSentenceWords = *settings.MaxSentenceWords
 	}
-}
 
+	if len(settings.ConferenceDomains) > 0 {
+		m.baseConfig.ConferenceDomains = settings.ConferenceDomains
+	}
+
+	if len(settings.PromptFragments) > 0 {
+		m.baseConfig.PromptFragments = settings.PromptFragments
+	}
+}
 
 func (m *Manager) Set(field string, value interface{}) error {
 	switch field {
@@ -126,7 +128,6 @@ func (m *Manager) Set(field string, value interface{}) error {
 	return nil
 }
 
-
 func (m *Manager) Get(field string) (interface{}, error) {
 	switch field {
 	case "max_pages":
@@ -150,7 +151,6 @@ func (m *Manager) Get(field string) (interface{}, error) {
 	}
 }
 
-
 func (m *Manager) ApplyJSON(jsonData []byte) error {
 	var settings map[string]interface{}
 	if err := json.Unmarshal(jsonData, &settings); err != nil {
@@ -165,11 +165,9 @@ func (m *Manager) ApplyJSON(jsonData []byte) error {
 	return nil
 }
 
-
 func Merge(settings *models.PaperSettings, maxPages int) *models.PaperRuleConfig {
 	manager := NewManager()
 	manager.baseConfig.MaxPages = maxPages
 	manager.ApplyCustomSettings(settings)
 	return manager.GetConfig()
 }
-

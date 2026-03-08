@@ -11,6 +11,7 @@ import (
 	"github.com/dcao/conferencespace/internal/storage/cache"
 	"github.com/dcao/conferencespace/internal/storage/coi"
 	"github.com/dcao/conferencespace/internal/storage/conference"
+	conferencetemplate "github.com/dcao/conferencespace/internal/storage/conference_template"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	"github.com/dcao/conferencespace/internal/storage/discussion"
 	"github.com/dcao/conferencespace/internal/storage/notification"
@@ -24,6 +25,7 @@ type Storage struct {
 	User               user.StorageInterface
 	AuthToken          authtoken.StorageInterface
 	Conference         conference.StorageInterface
+	ConferenceTemplate conferencetemplate.StorageInterface
 	Submission         submission.StorageInterface
 	Reviewer           reviewer.StorageInterface
 	Assignment         assignment.StorageInterface
@@ -40,6 +42,7 @@ func NewStorage(db *sql.DB) *Storage {
 		User:               user.New(db),
 		AuthToken:          authtoken.New(db),
 		Conference:         conference.New(db),
+		ConferenceTemplate: conferencetemplate.New(db),
 		Submission:         submission.New(db),
 		Reviewer:           reviewer.New(db),
 		Assignment:         assignment.New(db),

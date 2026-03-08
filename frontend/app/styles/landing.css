@@ -476,9 +476,12 @@
 .wf-left {
   width: 42%;
   flex-shrink: 0;
-  /* Left edge aligns with nav content: (100vw - 1280px * scale) / 2 + 24px * scale */
+  /* Keep nav alignment on wide screens, but never let left gutter collapse on smaller viewports. */
   padding: calc(96px * var(--ui-scale)) calc(56px * var(--ui-scale)) calc(56px * var(--ui-scale))
-    calc((100vw - 1280px * var(--ui-scale)) / 2 + 24px * var(--ui-scale));
+    max(
+      calc(24px * var(--ui-scale)),
+      calc((100vw - 1280px * var(--ui-scale)) / 2 + 24px * var(--ui-scale))
+    );
   display: flex;
   flex-direction: column;
   gap: calc(36px * var(--ui-scale));

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"unicode"
 
 	"github.com/dcao/conferencespace/internal/deskrejection/models"
 )
@@ -22,12 +23,12 @@ func (b *baseChecker) Description() string { return b.description }
 func (b *baseChecker) Check(ctx context.Context, doc models.Document, config models.PaperRuleConfig) models.CheckResult {
 	status, details, conf := b.checkFn(doc, config)
 	return models.CheckResult{
-		ItemID:     b.id,
-		Category:   b.category,
+		ItemID:      b.id,
+		Category:    b.category,
 		Description: b.description,
-		Status:     status,
-		Details:    details,
-		Confidence: conf,
+		Status:      status,
+		Details:     details,
+		Confidence:  conf,
 	}
 }
 
@@ -37,8 +38,7 @@ func init() {
 		category:    "title_abstract",
 		description: "Title ≤ 15 words",
 		checkFn: func(doc models.Document, config models.PaperRuleConfig) (string, string, float64) {
-			lines := strings.SplitN(doc.FullText, "\n", 2)
-			title := strings.TrimSpace(lines[0])
+			title := extractDocumentTitle(doc.FullText)
 			words := len(strings.Fields(title))
 			maxWords := config.TitleMaxWords
 			if maxWords == 0 {
@@ -99,12 +99,82 @@ func init() {
 		category:    "scope_match",
 		description: "Paper scope matches conference scope",
 		checkFn: func(doc models.Document, config models.PaperRuleConfig) (string, string, float64) {
-			// This would be checked when we have conference domains available
-			// For now, always pass (can be enhanced with domain comparison)
-			status := "pass"
-			details := "Scope check not implemented yet"
-			return status, details, 0.5
+			if len(config.ConferenceDomains) == 0 {
+				return "warning", "Conference scope keywords are not configured", 0.6
+			}
+
+			scopeTokens := make(map[string]bool)
+			for _, domain := range config.ConferenceDomains {
+				for _, token := range tokenizeScope(domain) {
+					scopeTokens[token] = true
+				}
+			}
+
+			if len(scopeTokens) == 0 {
+				return "warning", "Conference scope keywords are too generic for matching", 0.6
+			}
+
+			docTokens := make(map[string]bool)
+			keywordText := strings.Join(doc.Keywords, " ")
+			for _, token := range tokenizeScope(keywordText + " " + doc.FullText) {
+				docTokens[token] = true
+			}
+
+			matches := make([]string, 0)
+			for token := range scopeTokens {
+				if docTokens[token] {
+					matches = append(matches, token)
+				}
+			}
+
+			if len(matches) == 0 {
+				return "fail", "No overlap found between paper content and conference scope", 0.82
+			}
+
+			if len(matches) == 1 {
+				return "warning", fmt.Sprintf("Limited scope overlap detected (%s)", matches[0]), 0.72
+			}
+
+			return "pass", fmt.Sprintf("Scope overlap detected (%d matched keywords)", len(matches)), 0.88
 		},
 	})
 }
 
+func extractDocumentTitle(fullText string) string {
+	lines := strings.Split(fullText, "\n")
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" {
+			continue
+		}
+		lowered := strings.ToLower(trimmed)
+		if strings.Contains(lowered, "abstract") || strings.Contains(lowered, "introduction") {
+			continue
+		}
+		return trimmed
+	}
+	return "Untitled"
+}
+
+func tokenizeScope(input string) []string {
+	normalized := strings.Map(func(r rune) rune {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsSpace(r) {
+			return unicode.ToLower(r)
+		}
+		return ' '
+	}, input)
+
+	rawTokens := strings.Fields(normalized)
+	tokens := make([]string, 0, len(rawTokens))
+	for _, token := range rawTokens {
+		if len(token) < 3 {
+			continue
+		}
+		switch token {
+		case "the", "and", "for", "with", "from", "into", "using", "based", "this", "that":
+			continue
+		}
+		tokens = append(tokens, token)
+	}
+	return tokens
+}

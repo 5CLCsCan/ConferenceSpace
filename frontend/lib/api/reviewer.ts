@@ -206,7 +206,8 @@ export async function getReviewerDashboard(
         mappedConferences.map((conf) =>
           apiFetch<{ data: { papers: AssignedPaper[]; total: number } }>(
             `/api/v1/reviewer/${encodeURIComponent(reviewerEmail)}/conferences/${conf.id}/papers?limit=1&offset=0`,
-          ).then((r) => ({ confId: conf.id, total: r.data.data?.total ?? conf.total_papers }))
+          )
+            .then((r) => ({ confId: conf.id, total: r.data.data?.total ?? conf.total_papers }))
             .catch(() => ({ confId: conf.id, total: conf.total_papers })),
         ),
       )

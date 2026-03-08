@@ -15,8 +15,10 @@ import (
 type StorageInterface interface {
 	SaveFile(file io.Reader, header *multipart.FileHeader, conferenceID, submissionID int64) (*dto.SubmissionFileMetadata, error)
 	SaveCoverLetter(file io.Reader, header *multipart.FileHeader, conferenceID, submissionID int64) (*dto.SubmissionFileMetadata, error)
+	Open(path string) (io.ReadCloser, error)
 	GetFilePath(conferenceID, submissionID int64, filename string) string
 	GetCoverLetterPath(conferenceID, submissionID int64, filename string) string
+	DeleteByPath(path string) error
 	DeleteFile(conferenceID, submissionID int64, filename string) error
 	DeleteCoverLetter(conferenceID, submissionID int64, filename string) error
 }
@@ -92,10 +94,7 @@ func (s *LocalFileStorage) GetFilePath(conferenceID, submissionID int64, filenam
 
 func (s *LocalFileStorage) DeleteFile(conferenceID, submissionID int64, filename string) error {
 	filePath := s.GetFilePath(conferenceID, submissionID, filename)
-	if err := os.Remove(filePath); err != nil && !os.IsNotExist(err) {
-		return fmt.Errorf("failed to delete file: %w", err)
-	}
-	return nil
+	return s.DeleteByPath(filePath)
 }
 
 func (s *LocalFileStorage) isValidPDF(header *multipart.FileHeader) bool {
@@ -215,8 +214,19 @@ func (s *LocalFileStorage) GetCoverLetterPath(conferenceID, submissionID int64, 
 // DeleteCoverLetter deletes a cover letter file
 func (s *LocalFileStorage) DeleteCoverLetter(conferenceID, submissionID int64, filename string) error {
 	filePath := s.GetCoverLetterPath(conferenceID, submissionID, filename)
-	if err := os.Remove(filePath); err != nil && !os.IsNotExist(err) {
-		return fmt.Errorf("failed to delete cover letter: %w", err)
+	return s.DeleteByPath(filePath)
+}
+
+func (s *LocalFileStorage) Open(path string) (io.ReadCloser, error) {
+	return os.Open(path)
+}
+
+func (s *LocalFileStorage) DeleteByPath(path string) error {
+	if path == "" {
+		return nil
+	}
+	if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("failed to delete file: %w", err)
 	}
 	return nil
 }

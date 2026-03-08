@@ -106,17 +106,31 @@ export default function ReviewerAssignmentPage() {
       <div className="h-full w-full flex items-center justify-center px-6">
         <div className="max-w-xl w-full rounded-xl border border-amber-300 bg-amber-50 p-6 space-y-3">
           <h1 className="text-xl font-semibold text-amber-900">
-            {t("runtime.app.role.reviewer.assignments.assignmentId.page.text_unable_to_resolve_assignment_context")}{" "}</h1>
+            {t(
+              "runtime.app.role.reviewer.assignments.assignmentId.page.text_unable_to_resolve_assignment_context",
+            )}{" "}
+          </h1>
           <p className="text-sm text-amber-800">
-            {t("runtime.app.role.reviewer.assignments.assignmentId.page.text_we_could_not_determine_the_conference")}{" "}
-            <strong>{params.assignmentId}</strong>{t("runtime.app.role.reviewer.assignments.assignmentId.page.text_open_this_assignment_from_the_conference")}{" "}<code>conferenceId</code> {t("runtime.app.role.reviewer.assignments.assignmentId.page.text_query_parameter")}{" "}</p>
+            {t(
+              "runtime.app.role.reviewer.assignments.assignmentId.page.text_we_could_not_determine_the_conference",
+            )}{" "}
+            <strong>{params.assignmentId}</strong>
+            {t(
+              "runtime.app.role.reviewer.assignments.assignmentId.page.text_open_this_assignment_from_the_conference",
+            )}{" "}
+            <code>conferenceId</code>{" "}
+            {t("runtime.app.role.reviewer.assignments.assignmentId.page.text_query_parameter")}{" "}
+          </p>
           <div className="pt-2">
             <button
               type="button"
               className="inline-flex items-center rounded-md bg-amber-700 px-3 py-2 text-sm font-medium text-white hover:bg-amber-800"
               onClick={() => router.push(ROUTES.REVIEWER.CONFERENCES)}
             >
-              {t("runtime.app.role.reviewer.assignments.assignmentId.page.text_go_to_conferences")}{" "}</button>
+              {t(
+                "runtime.app.role.reviewer.assignments.assignmentId.page.text_go_to_conferences",
+              )}{" "}
+            </button>
           </div>
         </div>
       </div>
@@ -136,7 +150,8 @@ export default function ReviewerAssignmentPage() {
         <div className="flex-1 overflow-y-auto">
           {loading ? (
             <div className="h-full w-full flex items-center justify-center text-slate-400">
-              {t("runtime.app.role.reviewer.assignments.assignmentId.page.text_loading")}{" "}</div>
+              {t("runtime.app.role.reviewer.assignments.assignmentId.page.text_loading")}{" "}
+            </div>
           ) : isUnresolved || !conferenceId || !submissionId ? (
             unresolvedBody
           ) : (

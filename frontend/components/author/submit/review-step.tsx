@@ -39,25 +39,29 @@ export function ReviewStep({
         <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px]">article</span>
-            {t("runtime.components.author.submit.review-step.text_paper_details")}{" "}</h3>
+            {t("runtime.components.author.submit.review-step.text_paper_details")}{" "}
+          </h3>
           <button
             className="text-[10px] font-medium text-[#1B3C53] hover:text-[#234C6A] dark:text-slate-400 dark:hover:text-white transition-colors flex items-center gap-1 uppercase tracking-wider"
             onClick={() => onStepChange("paper")}
           >
-            {t("runtime.components.author.submit.review-step.text_edit")}{" "}<span className="material-symbols-outlined text-[14px]">edit</span>
+            {t("runtime.components.author.submit.review-step.text_edit")}{" "}
+            <span className="material-symbols-outlined text-[14px]">edit</span>
           </button>
         </div>
         <div className="px-4 py-3 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-3">
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-              {t("runtime.components.author.submit.review-step.text_title")}{" "}</label>
+              {t("runtime.components.author.submit.review-step.text_title")}{" "}
+            </label>
             <p className="text-sm font-bold text-[#141414] dark:text-white">
               {title || "No title provided"}
             </p>
           </div>
           <div className="md:col-span-2">
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-              {t("runtime.components.author.submit.review-step.text_abstract")}{" "}</label>
+              {t("runtime.components.author.submit.review-step.text_abstract")}{" "}
+            </label>
             <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-4">
               {abstract || "No abstract provided"}
             </p>
@@ -65,18 +69,22 @@ export function ReviewStep({
           <div className="flex flex-col gap-4">
             <div>
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-                {t("runtime.components.author.submit.review-step.text_track")}{" "}</label>
+                {t("runtime.components.author.submit.review-step.text_track")}{" "}
+              </label>
               {selectedTrack ? (
                 <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 uppercase tracking-wide">
                   {selectedTrack}
                 </span>
               ) : (
-                <span className="text-slate-400 text-xs">{t("runtime.components.author.submit.review-step.text_not_selected")}</span>
+                <span className="text-slate-400 text-xs">
+                  {t("runtime.components.author.submit.review-step.text_not_selected")}
+                </span>
               )}
             </div>
             <div>
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-                {t("runtime.components.author.submit.review-step.text_keywords")}{" "}</label>
+                {t("runtime.components.author.submit.review-step.text_keywords")}{" "}
+              </label>
               <div className="flex flex-wrap gap-1">
                 {keywords.length > 0 ? (
                   keywords.map((keyword) => (
@@ -88,7 +96,9 @@ export function ReviewStep({
                     </span>
                   ))
                 ) : (
-                  <span className="text-slate-400 text-xs">{t("runtime.components.author.submit.review-step.text_no_keywords")}</span>
+                  <span className="text-slate-400 text-xs">
+                    {t("runtime.components.author.submit.review-step.text_no_keywords")}
+                  </span>
                 )}
               </div>
             </div>
@@ -101,12 +111,14 @@ export function ReviewStep({
         <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px]">group</span>
-            {t("runtime.components.author.submit.review-step.text_authors")}{" "}</h3>
+            {t("runtime.components.author.submit.review-step.text_authors")}{" "}
+          </h3>
           <button
             className="text-[10px] font-medium text-[#1B3C53] hover:text-[#234C6A] dark:text-slate-400 dark:hover:text-white transition-colors flex items-center gap-1 uppercase tracking-wider"
             onClick={() => onStepChange("authors")}
           >
-            {t("runtime.components.author.submit.review-step.text_edit")}{" "}<span className="material-symbols-outlined text-[14px]">edit</span>
+            {t("runtime.components.author.submit.review-step.text_edit")}{" "}
+            <span className="material-symbols-outlined text-[14px]">edit</span>
           </button>
         </div>
         <div className="px-4 py-3">
@@ -115,13 +127,17 @@ export function ReviewStep({
               <thead className="bg-slate-50 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600">
                 <tr>
                   <th className="px-3 py-2.5 font-bold text-[10px] text-slate-400 uppercase tracking-widest rounded-l-lg">
-                    {t("runtime.components.author.submit.review-step.text_name")}{" "}</th>
+                    {t("runtime.components.author.submit.review-step.text_name")}{" "}
+                  </th>
                   <th className="px-3 py-2.5 font-bold text-[10px] text-slate-400 uppercase tracking-widest">
-                    {t("runtime.components.author.submit.review-step.text_affiliation")}{" "}</th>
+                    {t("runtime.components.author.submit.review-step.text_affiliation")}{" "}
+                  </th>
                   <th className="px-3 py-2.5 font-bold text-[10px] text-slate-400 uppercase tracking-widest">
-                    {t("runtime.components.author.submit.review-step.text_role")}{" "}</th>
+                    {t("runtime.components.author.submit.review-step.text_role")}{" "}
+                  </th>
                   <th className="px-3 py-2.5 font-bold text-[10px] text-slate-400 uppercase tracking-widest rounded-r-lg text-right">
-                    {t("runtime.components.author.submit.review-step.text_email")}{" "}</th>
+                    {t("runtime.components.author.submit.review-step.text_email")}{" "}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -131,7 +147,8 @@ export function ReviewStep({
                       {author.firstName} {author.lastName}
                       {author.isCorresponding && (
                         <span className="ml-1 text-[8px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded dark:bg-blue-900/30 dark:text-blue-300 uppercase tracking-wide">
-                          {t("runtime.components.author.submit.review-step.text_contact")}{" "}</span>
+                          {t("runtime.components.author.submit.review-step.text_contact")}{" "}
+                        </span>
                       )}
                     </td>
                     <td className="px-3 py-2.5 text-slate-600 dark:text-slate-300">
@@ -156,12 +173,14 @@ export function ReviewStep({
           <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
             <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight flex items-center gap-2">
               <span className="material-symbols-outlined text-[16px]">attach_file</span>
-              {t("runtime.components.author.submit.review-step.text_manuscript")}{" "}</h3>
+              {t("runtime.components.author.submit.review-step.text_manuscript")}{" "}
+            </h3>
             <button
               className="text-[10px] font-medium text-[#1B3C53] hover:text-[#234C6A] dark:text-slate-400 dark:hover:text-white transition-colors flex items-center gap-1 uppercase tracking-wider"
               onClick={() => onStepChange("file")}
             >
-              {t("runtime.components.author.submit.review-step.text_edit")}{" "}<span className="material-symbols-outlined text-[14px]">edit</span>
+              {t("runtime.components.author.submit.review-step.text_edit")}{" "}
+              <span className="material-symbols-outlined text-[14px]">edit</span>
             </button>
           </div>
           <div className="px-4 py-3">
@@ -175,7 +194,9 @@ export function ReviewStep({
                     {uploadedFile.name}
                   </p>
                   <p className="text-[10px] text-slate-500">
-                    {(uploadedFile.size / 1024 / 1024).toFixed(1)} {t("runtime.components.author.submit.review-step.text_mb")}{" "}</p>
+                    {(uploadedFile.size / 1024 / 1024).toFixed(1)}{" "}
+                    {t("runtime.components.author.submit.review-step.text_mb")}{" "}
+                  </p>
                 </div>
                 <span
                   className="material-symbols-outlined text-green-500 text-[18px]"
@@ -189,7 +210,9 @@ export function ReviewStep({
                 <span className="material-symbols-outlined text-slate-400 text-[18px]">
                   upload_file
                 </span>
-                <p className="text-xs text-slate-500">{t("runtime.components.author.submit.review-step.text_no_manuscript_uploaded")}</p>
+                <p className="text-xs text-slate-500">
+                  {t("runtime.components.author.submit.review-step.text_no_manuscript_uploaded")}
+                </p>
               </div>
             )}
           </div>
@@ -200,12 +223,14 @@ export function ReviewStep({
           <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
             <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight flex items-center gap-2">
               <span className="material-symbols-outlined text-[16px]">warning</span>
-              {t("runtime.components.author.submit.review-step.text_declarations")}{" "}</h3>
+              {t("runtime.components.author.submit.review-step.text_declarations")}{" "}
+            </h3>
             <button
               className="text-[10px] font-medium text-[#1B3C53] hover:text-[#234C6A] dark:text-slate-400 dark:hover:text-white transition-colors flex items-center gap-1 uppercase tracking-wider"
               onClick={() => onStepChange("coi")}
             >
-              {t("runtime.components.author.submit.review-step.text_edit")}{" "}<span className="material-symbols-outlined text-[14px]">edit</span>
+              {t("runtime.components.author.submit.review-step.text_edit")}{" "}
+              <span className="material-symbols-outlined text-[14px]">edit</span>
             </button>
           </div>
           <div className="px-4 py-3">
@@ -228,7 +253,11 @@ export function ReviewStep({
                 >
                   {coiConfirmed ? "check_box" : "check_box_outline_blank"}
                 </span>
-                <span>{t("runtime.components.author.submit.review-step.text_conflict_disclosure_confirmed")}</span>
+                <span>
+                  {t(
+                    "runtime.components.author.submit.review-step.text_conflict_disclosure_confirmed",
+                  )}
+                </span>
               </div>
             </div>
           </div>
@@ -246,9 +275,15 @@ export function ReviewStep({
           />
           <div className="flex flex-col gap-0.5">
             <span className="text-xs font-bold text-[#141414] dark:text-white">
-              {t("runtime.components.author.submit.review-step.text_i_certify_that_the_information_provided")}{" "}</span>
+              {t(
+                "runtime.components.author.submit.review-step.text_i_certify_that_the_information_provided",
+              )}{" "}
+            </span>
             <span className="text-[10px] text-slate-400 font-light">
-              {t("runtime.components.author.submit.review-step.text_by_checking_this_box_i_confirm")}{" "}</span>
+              {t(
+                "runtime.components.author.submit.review-step.text_by_checking_this_box_i_confirm",
+              )}{" "}
+            </span>
           </div>
         </label>
       </div>

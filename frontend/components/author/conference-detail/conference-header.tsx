@@ -17,10 +17,30 @@ interface ConferenceHeaderProps {
 }
 
 const TABS: { id: TabType; label: string; icon: string }[] = [
-  { id: "overview", label: t("runtime.components.author.conference-detail.conference-header.prop_label_overview"), icon: "info" },
-  { id: "cfp", label: t("runtime.components.author.conference-detail.conference-header.prop_label_call_for_papers"), icon: "campaign" },
-  { id: "dates", label: t("runtime.components.author.conference-detail.conference-header.prop_label_important_dates"), icon: "event" },
-  { id: "committee", label: t("runtime.components.author.conference-detail.conference-header.prop_label_committee"), icon: "groups" },
+  {
+    id: "overview",
+    label: t("runtime.components.author.conference-detail.conference-header.prop_label_overview"),
+    icon: "info",
+  },
+  {
+    id: "cfp",
+    label: t(
+      "runtime.components.author.conference-detail.conference-header.prop_label_call_for_papers",
+    ),
+    icon: "campaign",
+  },
+  {
+    id: "dates",
+    label: t(
+      "runtime.components.author.conference-detail.conference-header.prop_label_important_dates",
+    ),
+    icon: "event",
+  },
+  {
+    id: "committee",
+    label: t("runtime.components.author.conference-detail.conference-header.prop_label_committee"),
+    icon: "groups",
+  },
 ]
 
 export function ConferenceHeader({
@@ -68,7 +88,9 @@ export function ConferenceHeader({
             >
               folder_open
             </span>
-            <span>{t("runtime.components.author.conference-detail.conference-header.text_conferences")}</span>
+            <span>
+              {t("runtime.components.author.conference-detail.conference-header.text_conferences")}
+            </span>
             <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
               chevron_right
             </span>
@@ -163,7 +185,10 @@ export function ConferenceHeader({
           </button>
           {showSubmitBlocked && (
             <span className="text-[10px] text-slate-500">
-              {t("runtime.components.author.conference-detail.conference-header.text_submissions_are_closed_for_this_conference")}{" "}</span>
+              {t(
+                "runtime.components.author.conference-detail.conference-header.text_submissions_are_closed_for_this_conference",
+              )}{" "}
+            </span>
           )}
         </div>
       </div>

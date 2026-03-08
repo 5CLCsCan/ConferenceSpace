@@ -15,6 +15,14 @@ import type {
 } from "./types"
 
 export type DiscussionActorRole = "author" | "reviewer" | "chair"
+export interface DiscussionConfigAdapter {
+  review_type?: string
+  discussion_settings?: {
+    allow_author_response?: boolean
+    start_at?: string
+    end_at?: string
+  }
+}
 
 function toRelativeTime(value?: string): string {
   if (!value) return "Just now"
@@ -118,14 +126,18 @@ export function buildDiscussionThreads(
   })
 }
 
-export function buildDiscussionSettings(role: DiscussionActorRole): ConferenceSettings {
-  const reviewMode: ReviewMode = "double_blind"
+export function buildDiscussionSettings(
+  role: DiscussionActorRole,
+  config?: DiscussionConfigAdapter,
+): ConferenceSettings {
+  const reviewMode: ReviewMode =
+    config?.review_type === "single-blind" ? "single_blind" : "double_blind"
   const phase = "discussion"
 
   return {
     reviewMode,
-    allowAuthorResponse: role !== "reviewer",
-    discussionDeadline: "",
+    allowAuthorResponse: config?.discussion_settings?.allow_author_response ?? role !== "reviewer",
+    discussionDeadline: config?.discussion_settings?.end_at || "",
     currentPhase: phase,
   }
 }

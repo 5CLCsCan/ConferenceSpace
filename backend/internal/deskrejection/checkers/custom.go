@@ -7,9 +7,12 @@ import (
 	"github.com/dcao/conferencespace/internal/deskrejection/models"
 )
 
-func RegisterCustom(config models.PaperRuleConfig) {
+// BuildCustom returns request-scoped custom checkers without mutating global registry.
+func BuildCustom(config models.PaperRuleConfig) []Checker {
+	checkers := make([]Checker, 0, 2)
+
 	if config.CustomRules.MinDatasets > 0 {
-		Register("experiments", "custom.min_datasets", &baseChecker{
+		checkers = append(checkers, &baseChecker{
 			id:          "custom.min_datasets",
 			category:    "experiments",
 			description: fmt.Sprintf("At least %d datasets used", config.CustomRules.MinDatasets),
@@ -28,7 +31,7 @@ func RegisterCustom(config models.PaperRuleConfig) {
 	}
 
 	if len(config.CustomRules.BannedPhrases) > 0 {
-		Register("writing_quality", "custom.banned_phrases", &baseChecker{
+		checkers = append(checkers, &baseChecker{
 			id:          "custom.banned_phrases",
 			category:    "writing_quality",
 			description: "No banned phrases",
@@ -47,5 +50,15 @@ func RegisterCustom(config models.PaperRuleConfig) {
 				return status, details, 1.0
 			},
 		})
+	}
+
+	return checkers
+}
+
+// RegisterCustom is kept for backward compatibility with existing call sites.
+// Prefer BuildCustom + ExecuteAllWithCustom to avoid global registry mutation.
+func RegisterCustom(config models.PaperRuleConfig) {
+	for _, checker := range BuildCustom(config) {
+		Register(checker.Category(), checker.ID(), checker)
 	}
 }

@@ -171,12 +171,18 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                 return (
                   <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100">
                     <p className="text-[11px] text-slate-500">
-                      Showing{" "}
+                      {t(
+                        "runtime.components.chair.conference-detail.conference-committee.text_showing",
+                      )}{" "}
                       <span className="font-bold text-[#1B3C53]">
                         {Math.min((currentPage - 1) * PAGE_SIZE + 1, members.length)}–
                         {Math.min(currentPage * PAGE_SIZE, members.length)}
                       </span>{" "}
-                      of <span className="font-bold text-[#1B3C53]">{members.length}</span> members
+                      {t("runtime.components.chair.conference-detail.conference-committee.text_of")}{" "}
+                      <span className="font-bold text-[#1B3C53]">{members.length}</span>{" "}
+                      {t(
+                        "runtime.components.chair.conference-detail.conference-committee.text_members",
+                      )}
                     </p>
                     <div className="flex items-center gap-1">
                       <button
@@ -184,7 +190,9 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                         disabled={currentPage === 1}
                         className="h-7 px-2.5 rounded border border-slate-200 text-[11px] font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none transition-colors"
                       >
-                        Previous
+                        {t(
+                          "runtime.components.chair.conference-detail.conference-committee.text_previous",
+                        )}
                       </button>
                       {getPageNumbers().map((page, idx) =>
                         page === "ellipsis" ? (
@@ -210,7 +218,9 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                         disabled={currentPage === totalPages}
                         className="h-7 px-2.5 rounded border border-slate-200 text-[11px] font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none transition-colors"
                       >
-                        Next
+                        {t(
+                          "runtime.components.chair.conference-detail.conference-committee.text_next",
+                        )}
                       </button>
                     </div>
                   </div>

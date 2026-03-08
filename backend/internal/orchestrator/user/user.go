@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -51,18 +52,29 @@ func New(store *storage.Storage, jwtSecret string, jwtExpiryHours int, brevoClie
 
 func (o *Orchestrator) Register(ctx context.Context, req *dto.UserCreateRequest) (*dto.UserResponse, error) {
 	if req.User == nil {
-		return nil, fmt.Errorf("user data is required")
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "user data is required")
+	}
+
+	existingUser, err := o.userStorage.GetByEmail(ctx, req.User.Email)
+	if err == nil && existingUser != nil {
+		return nil, handler.NewErrorResponse(http.StatusConflict, "an account with this email already exists")
+	}
+	if err != nil && !errors.Is(err, userStorage.ErrUserNotFound) {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "unable to create account")
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, fmt.Errorf("failed to hash password: %w", err)
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "unable to create account")
 	}
 
 	emailVerified := !o.requireVerification
 	userResp, err := o.userStorage.Create(ctx, req.User, string(hashedPassword), emailVerified)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, userStorage.ErrEmailAlreadyExists) {
+			return nil, handler.NewErrorResponse(http.StatusConflict, "an account with this email already exists")
+		}
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "unable to create account")
 	}
 
 	if o.requireVerification {
@@ -91,7 +103,7 @@ func (o *Orchestrator) Login(ctx context.Context, req *dto.LoginRequest) (*dto.L
 
 	token, err := jwt.GenerateToken(userResp.ID, userResp.Email, o.jwtSecret, o.jwtExpiry)
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate token: %w", err)
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "unable to complete login")
 	}
 
 	return &dto.LoginResponse{

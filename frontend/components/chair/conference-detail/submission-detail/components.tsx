@@ -14,27 +14,39 @@ import { tStatic as t } from "@/lib/i18n/static-translate"
 // --- Status Badge ---
 const statusConfig: Record<SubmissionDetailStatus, { label: string; className: string }> = {
   under_review: {
-    label: t("runtime.components.chair.conference-detail.submission-detail.components.prop_label_under_review"),
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.components.prop_label_under_review",
+    ),
     className: "bg-yellow-50 text-yellow-700 border-yellow-100",
   },
   accepted: {
-    label: t("runtime.components.chair.conference-detail.submission-detail.components.prop_label_accepted"),
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.components.prop_label_accepted",
+    ),
     className: "bg-green-50 text-green-700 border-green-100",
   },
   pending_decision: {
-    label: t("runtime.components.chair.conference-detail.submission-detail.components.prop_label_pending_decision"),
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.components.prop_label_pending_decision",
+    ),
     className: "bg-purple-50 text-purple-700 border-purple-100",
   },
   rejected: {
-    label: t("runtime.components.chair.conference-detail.submission-detail.components.prop_label_rejected"),
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.components.prop_label_rejected",
+    ),
     className: "bg-red-50 text-red-700 border-red-100",
   },
   withdrawn: {
-    label: t("runtime.components.chair.conference-detail.submission-detail.components.prop_label_withdrawn"),
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.components.prop_label_withdrawn",
+    ),
     className: "bg-slate-100 text-slate-600 border-slate-200",
   },
   revision_requested: {
-    label: t("runtime.components.chair.conference-detail.submission-detail.components.prop_label_revision_requested"),
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.components.prop_label_revision_requested",
+    ),
     className: "bg-amber-50 text-amber-700 border-amber-100",
   },
 }
@@ -57,11 +69,36 @@ export function SubmissionStatusBadge({ status }: { status: SubmissionDetailStat
 
 // --- Reviewer Decision Label ---
 const decisionConfig: Record<ReviewerDecision, { label: string; className: string }> = {
-  accept: { label: t("runtime.components.chair.conference-detail.submission-detail.components.prop_label_accept"), className: "text-green-600" },
-  weak_accept: { label: t("runtime.components.chair.conference-detail.submission-detail.components.prop_label_weak_accept"), className: "text-yellow-600" },
-  borderline: { label: t("runtime.components.chair.conference-detail.submission-detail.components.prop_label_borderline"), className: "text-slate-600" },
-  weak_reject: { label: t("runtime.components.chair.conference-detail.submission-detail.components.prop_label_weak_reject"), className: "text-orange-600" },
-  reject: { label: t("runtime.components.chair.conference-detail.submission-detail.components.prop_label_reject"), className: "text-red-600" },
+  accept: {
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.components.prop_label_accept",
+    ),
+    className: "text-green-600",
+  },
+  weak_accept: {
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.components.prop_label_weak_accept",
+    ),
+    className: "text-yellow-600",
+  },
+  borderline: {
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.components.prop_label_borderline",
+    ),
+    className: "text-slate-600",
+  },
+  weak_reject: {
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.components.prop_label_weak_reject",
+    ),
+    className: "text-orange-600",
+  },
+  reject: {
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.components.prop_label_reject",
+    ),
+    className: "text-red-600",
+  },
 }
 
 export function ReviewerDecisionLabel({
@@ -96,19 +133,27 @@ const assignmentStatusConfig: Record<
   { label: string; className: string }
 > = {
   completed: {
-    label: t("runtime.components.chair.conference-detail.submission-detail.components.prop_label_completed"),
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.components.prop_label_completed",
+    ),
     className: "bg-green-50 text-green-700 border-green-100",
   },
   pending: {
-    label: t("runtime.components.chair.conference-detail.submission-detail.components.prop_label_pending"),
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.components.prop_label_pending",
+    ),
     className: "bg-yellow-50 text-yellow-700 border-yellow-100",
   },
   in_progress: {
-    label: t("runtime.components.chair.conference-detail.submission-detail.components.prop_label_in_progress"),
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.components.prop_label_in_progress",
+    ),
     className: "bg-blue-50 text-blue-700 border-blue-100",
   },
   declined: {
-    label: t("runtime.components.chair.conference-detail.submission-detail.components.prop_label_declined"),
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.components.prop_label_declined",
+    ),
     className: "bg-red-50 text-red-700 border-red-100",
   },
 }

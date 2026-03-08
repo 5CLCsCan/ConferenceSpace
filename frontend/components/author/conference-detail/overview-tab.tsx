@@ -31,7 +31,10 @@ function AboutSection({ description }: { description?: string }) {
           <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
             description
           </span>
-          {t("runtime.components.author.conference-detail.overview-tab.text_about_the_conference")}{" "}</h2>
+          {t(
+            "runtime.components.author.conference-detail.overview-tab.text_about_the_conference",
+          )}{" "}
+        </h2>
       </div>
       <div className="p-4">
         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -51,10 +54,15 @@ function TracksSection({ tracks }: { tracks?: string[] }) {
           <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
             alt_route
           </span>
-          {t("runtime.components.author.conference-detail.overview-tab.text_conference_tracks")}{" "}</h2>
+          {t(
+            "runtime.components.author.conference-detail.overview-tab.text_conference_tracks",
+          )}{" "}
+        </h2>
         {tracks && tracks.length > 0 && (
           <span className="text-[9px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full uppercase tracking-wider">
-            {tracks.length} {t("runtime.components.author.conference-detail.overview-tab.text_active_tracks")}{" "}</span>
+            {tracks.length}{" "}
+            {t("runtime.components.author.conference-detail.overview-tab.text_active_tracks")}{" "}
+          </span>
         )}
       </div>
       <div className="p-4">
@@ -82,7 +90,9 @@ function TracksSection({ tracks }: { tracks?: string[] }) {
             ))}
           </div>
         ) : (
-          <span className="text-xs text-slate-500">{t("runtime.components.author.conference-detail.overview-tab.text_no_tracks_specified")}</span>
+          <span className="text-xs text-slate-500">
+            {t("runtime.components.author.conference-detail.overview-tab.text_no_tracks_specified")}
+          </span>
         )}
       </div>
     </section>
@@ -106,13 +116,15 @@ function DetailsCard({ synonym, venue, website, contact, conferenceId }: Details
           <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
             info
           </span>
-          {t("runtime.components.author.conference-detail.overview-tab.text_details")}{" "}</h2>
+          {t("runtime.components.author.conference-detail.overview-tab.text_details")}{" "}
+        </h2>
       </div>
       <div className="p-4 space-y-4">
         {/* Synonym */}
         <div>
           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-            {t("runtime.components.author.conference-detail.overview-tab.text_synonym")}{" "}</span>
+            {t("runtime.components.author.conference-detail.overview-tab.text_synonym")}{" "}
+          </span>
           <div className="text-[11px] font-semibold text-[#1B3C53] dark:text-white bg-slate-50 dark:bg-slate-800 inline-block px-2 py-1 rounded border border-slate-200 dark:border-slate-700">
             {synonym}
           </div>
@@ -122,7 +134,8 @@ function DetailsCard({ synonym, venue, website, contact, conferenceId }: Details
         {venue && (
           <div>
             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-              {t("runtime.components.author.conference-detail.overview-tab.text_venue")}{" "}</span>
+              {t("runtime.components.author.conference-detail.overview-tab.text_venue")}{" "}
+            </span>
             <div className="text-[11px] font-medium text-[#1B3C53] dark:text-white flex items-start gap-1.5">
               <span className="material-symbols-outlined text-slate-400 mt-0.5" style={iconStyle}>
                 apartment
@@ -136,7 +149,8 @@ function DetailsCard({ synonym, venue, website, contact, conferenceId }: Details
         {website && (
           <div>
             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-              {t("runtime.components.author.conference-detail.overview-tab.text_website")}{" "}</span>
+              {t("runtime.components.author.conference-detail.overview-tab.text_website")}{" "}
+            </span>
             <a
               href={website.startsWith("http") ? website : `https://${website}`}
               target="_blank"
@@ -155,7 +169,10 @@ function DetailsCard({ synonym, venue, website, contact, conferenceId }: Details
         {contact && (
           <div>
             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-              {t("runtime.components.author.conference-detail.overview-tab.text_organizer_contact")}{" "}</span>
+              {t(
+                "runtime.components.author.conference-detail.overview-tab.text_organizer_contact",
+              )}{" "}
+            </span>
             <a
               href={`mailto:${contact}`}
               className="text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:text-[#1B3C53] flex items-center gap-1"
@@ -172,7 +189,9 @@ function DetailsCard({ synonym, venue, website, contact, conferenceId }: Details
       {/* Footer */}
       <div className="bg-slate-50 dark:bg-slate-800/50 px-4 py-3 border-t border-slate-200 dark:border-slate-800">
         <div className="flex items-center justify-between">
-          <span className="text-[9px] text-slate-500 font-medium">{t("runtime.components.author.conference-detail.overview-tab.text_conference_id")}</span>
+          <span className="text-[9px] text-slate-500 font-medium">
+            {t("runtime.components.author.conference-detail.overview-tab.text_conference_id")}
+          </span>
           <span className="text-[9px] text-slate-400 font-mono">#{conferenceId}</span>
         </div>
       </div>
@@ -189,7 +208,8 @@ function KeywordsCard({ keywords }: { keywords?: string[] }) {
           <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
             label
           </span>
-          {t("runtime.components.author.conference-detail.overview-tab.text_keywords")}{" "}</h2>
+          {t("runtime.components.author.conference-detail.overview-tab.text_keywords")}{" "}
+        </h2>
       </div>
       <div className="p-4">
         <div className="flex flex-wrap gap-1.5">
@@ -203,7 +223,11 @@ function KeywordsCard({ keywords }: { keywords?: string[] }) {
               </span>
             ))
           ) : (
-            <span className="text-xs text-slate-500">{t("runtime.components.author.conference-detail.overview-tab.text_no_keywords_specified")}</span>
+            <span className="text-xs text-slate-500">
+              {t(
+                "runtime.components.author.conference-detail.overview-tab.text_no_keywords_specified",
+              )}
+            </span>
           )}
         </div>
       </div>

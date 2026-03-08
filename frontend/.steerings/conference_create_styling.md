@@ -40,7 +40,7 @@
 ### Input Icons (Material Symbols)
 
 - **Font size**: `14px` (inline style)
-- **Size constraints**: 
+- **Size constraints**:
   - `width: 14px`
   - `height: 14px`
   - `max-width: 14px`

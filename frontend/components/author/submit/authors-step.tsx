@@ -235,28 +235,32 @@ export function AuthorsStep({
                     type="text"
                     value={editValues.firstName}
                     onChange={(e) => setEditValues((v) => ({ ...v, firstName: e.target.value }))}
-                    placeholder="First name"
+                    placeholder={t("runtime.components.author.submit.authors-step.text_first_name")}
                     className="h-8 text-xs px-2.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus:ring-1 focus:ring-[#1B3C53]"
                   />
                   <input
                     type="text"
                     value={editValues.lastName}
                     onChange={(e) => setEditValues((v) => ({ ...v, lastName: e.target.value }))}
-                    placeholder="Last name"
+                    placeholder={t("runtime.components.author.submit.authors-step.text_last_name")}
                     className="h-8 text-xs px-2.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus:ring-1 focus:ring-[#1B3C53]"
                   />
                   <input
                     type="email"
                     value={editValues.email}
                     onChange={(e) => setEditValues((v) => ({ ...v, email: e.target.value }))}
-                    placeholder="Email"
+                    placeholder={t(
+                      "runtime.components.author.submit.authors-step.text_email_address",
+                    )}
                     className="h-8 text-xs px-2.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus:ring-1 focus:ring-[#1B3C53]"
                   />
                   <input
                     type="text"
                     value={editValues.affiliation}
                     onChange={(e) => setEditValues((v) => ({ ...v, affiliation: e.target.value }))}
-                    placeholder="Affiliation"
+                    placeholder={t(
+                      "runtime.components.author.submit.authors-step.text_affiliation",
+                    )}
                     className="h-8 text-xs px-2.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus:ring-1 focus:ring-[#1B3C53]"
                   />
                   {/* A9: Country in edit form */}
@@ -266,19 +270,45 @@ export function AuthorsStep({
                       onChange={(e) => setEditValues((v) => ({ ...v, country: e.target.value }))}
                       className="w-full h-8 text-xs pl-2.5 pr-7 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus:ring-1 focus:ring-[#1B3C53] appearance-none"
                     >
-                      <option value="">Country...</option>
-                      <option value="United States">United States</option>
-                      <option value="United Kingdom">United Kingdom</option>
-                      <option value="Canada">Canada</option>
-                      <option value="Germany">Germany</option>
-                      <option value="France">France</option>
-                      <option value="Japan">Japan</option>
-                      <option value="Australia">Australia</option>
-                      <option value="Vietnam">Vietnam</option>
-                      <option value="China">China</option>
-                      <option value="Singapore">Singapore</option>
-                      <option value="South Korea">South Korea</option>
-                      <option value="India">India</option>
+                      <option value="">
+                        {t("runtime.components.author.submit.authors-step.text_select_country")}
+                      </option>
+                      <option value="United States">
+                        {t("runtime.components.author.submit.authors-step.text_united_states")}
+                      </option>
+                      <option value="United Kingdom">
+                        {t("runtime.components.author.submit.authors-step.text_united_kingdom")}
+                      </option>
+                      <option value="Canada">
+                        {t("runtime.components.author.submit.authors-step.text_canada")}
+                      </option>
+                      <option value="Germany">
+                        {t("runtime.components.author.submit.authors-step.text_germany")}
+                      </option>
+                      <option value="France">
+                        {t("runtime.components.author.submit.authors-step.text_france")}
+                      </option>
+                      <option value="Japan">
+                        {t("runtime.components.author.submit.authors-step.text_japan")}
+                      </option>
+                      <option value="Australia">
+                        {t("runtime.components.author.submit.authors-step.text_australia")}
+                      </option>
+                      <option value="Vietnam">
+                        {t("runtime.components.author.submit.authors-step.text_vietnam")}
+                      </option>
+                      <option value="China">
+                        {t("runtime.components.author.submit.authors-step.text_china")}
+                      </option>
+                      <option value="Singapore">
+                        {t("runtime.components.author.submit.authors-step.text_singapore")}
+                      </option>
+                      <option value="South Korea">
+                        {t("runtime.components.author.submit.authors-step.text_south_korea")}
+                      </option>
+                      <option value="India">
+                        {t("runtime.components.author.submit.authors-step.text_india")}
+                      </option>
                     </select>
                     <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                       <span className="material-symbols-outlined text-[14px]">expand_more</span>
@@ -594,7 +624,7 @@ export function AuthorsStep({
           >
             <div className="px-3 py-2.5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
               <h3 className="text-xs font-bold text-[#1B3C53] dark:text-white tracking-tight">
-                Author Naming Guidelines
+                {t("runtime.components.author.submit.authors-step.text_author_naming_guidelines")}
               </h3>
               <button
                 type="button"
@@ -610,29 +640,12 @@ export function AuthorsStep({
                   check_circle
                 </span>
                 <span>
-                  <strong className="text-[#1B3C53] dark:text-white">Full legal names only</strong>{" "}
-                  — use your complete given and family name as it appears on official documents;
-                  avoid initials or shortened forms.
-                </span>
-              </li>
-              <li className="flex gap-1.5">
-                <span className="material-symbols-outlined text-[12px] text-[#1B3C53] mt-px shrink-0">
-                  check_circle
-                </span>
-                <span>
-                  <strong className="text-[#1B3C53] dark:text-white">Consistent spelling</strong> —
-                  ensure your name matches exactly across all your previous publications and your
-                  profile to maintain a unified author identity.
-                </span>
-              </li>
-              <li className="flex gap-1.5">
-                <span className="material-symbols-outlined text-[12px] text-[#1B3C53] mt-px shrink-0">
-                  check_circle
-                </span>
-                <span>
-                  <strong className="text-[#1B3C53] dark:text-white">Affiliation accuracy</strong> —
-                  list the institution where the research was primarily conducted, not your current
-                  institution if you have since moved.
+                  <strong className="text-[#1B3C53] dark:text-white">
+                    {t("runtime.components.author.submit.authors-step.text_full_legal_names_only")}
+                  </strong>{" "}
+                  {t(
+                    "runtime.components.author.submit.authors-step.text_use_your_complete_given_and_family_name_as_it_appears_on_official_documents_avoid_initials_or_shortened_forms",
+                  )}
                 </span>
               </li>
               <li className="flex gap-1.5">
@@ -641,10 +654,39 @@ export function AuthorsStep({
                 </span>
                 <span>
                   <strong className="text-[#1B3C53] dark:text-white">
-                    One corresponding author
+                    {t("runtime.components.author.submit.authors-step.text_consistent_spelling")}
                   </strong>{" "}
-                  — designate a single author responsible for all correspondence during review and
-                  post-acceptance communications.
+                  {t(
+                    "runtime.components.author.submit.authors-step.text_ensure_your_name_matches_exactly_across_all_your_previous_publications_and_your_profile_to_maintain_a_unified_author_identity",
+                  )}
+                </span>
+              </li>
+              <li className="flex gap-1.5">
+                <span className="material-symbols-outlined text-[12px] text-[#1B3C53] mt-px shrink-0">
+                  check_circle
+                </span>
+                <span>
+                  <strong className="text-[#1B3C53] dark:text-white">
+                    {t("runtime.components.author.submit.authors-step.text_affiliation_accuracy")}
+                  </strong>{" "}
+                  {t(
+                    "runtime.components.author.submit.authors-step.text_list_the_institution_where_the_research_was_primarily_conducted_not_your_current_institution_if_you_have_since_moved",
+                  )}
+                </span>
+              </li>
+              <li className="flex gap-1.5">
+                <span className="material-symbols-outlined text-[12px] text-[#1B3C53] mt-px shrink-0">
+                  check_circle
+                </span>
+                <span>
+                  <strong className="text-[#1B3C53] dark:text-white">
+                    {t(
+                      "runtime.components.author.submit.authors-step.text_one_corresponding_author",
+                    )}
+                  </strong>{" "}
+                  {t(
+                    "runtime.components.author.submit.authors-step.text_designate_a_single_author_responsible_for_all_correspondence_during_review_and_post_acceptance_communications",
+                  )}
                 </span>
               </li>
               <li className="flex gap-1.5">
@@ -653,10 +695,11 @@ export function AuthorsStep({
                 </span>
                 <span>
                   <strong className="text-amber-700 dark:text-amber-400">
-                    Double-blind review
+                    {t("runtime.components.author.submit.authors-step.text_double_blind_review")}
                   </strong>{" "}
-                  — do not include any author names, affiliations, or identifying information inside
-                  the submitted PDF manuscript.
+                  {t(
+                    "runtime.components.author.submit.authors-step.text_do_not_include_any_author_names_affiliations_or_identifying_information_inside_the_submitted_pdf_manuscript",
+                  )}
                 </span>
               </li>
             </ul>
@@ -666,7 +709,7 @@ export function AuthorsStep({
                 onClick={() => setShowGuidelines(false)}
                 className="h-7 px-3 rounded text-[10px] font-medium bg-[#1B3C53] text-white hover:bg-[#234C6A] transition-colors"
               >
-                Got it
+                {t("runtime.components.author.submit.authors-step.text_got_it")}
               </button>
             </div>
           </div>

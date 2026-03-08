@@ -67,7 +67,9 @@ export function AuthorConferenceDetail({ conferenceId }: AuthorConferenceDetailP
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-slate-500">{t("runtime.components.author.author-conference-detail.text_loading_conference_details")}</div>
+        <div className="text-slate-500">
+          {t("runtime.components.author.author-conference-detail.text_loading_conference_details")}
+        </div>
       </div>
     )
   }
@@ -76,7 +78,10 @@ export function AuthorConferenceDetail({ conferenceId }: AuthorConferenceDetailP
     return (
       <div className="flex items-center justify-center h-screen px-6">
         <div className="w-full max-w-xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {t("runtime.components.author.author-conference-detail.text_failed_to_load_conference_details")}{" "}{error || "Unknown error"}
+          {t(
+            "runtime.components.author.author-conference-detail.text_failed_to_load_conference_details",
+          )}{" "}
+          {error || "Unknown error"}
         </div>
       </div>
     )

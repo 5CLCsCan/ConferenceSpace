@@ -10,11 +10,6 @@ const BASE_ROUTES = {
   NOTIFICATIONS: "/notifications",
   ROLE_SELECT: "/role",
   PROFILE: (userId: string) => `/profile/${userId}`,
-  TEST: {
-    LOGIN: "/test/login",
-    DISCUSSION: "/test/discussion",
-    PROFILE_LINK: "/test/profile-link",
-  },
 
   AUTHOR: {
     DASHBOARD: "/role/author",
@@ -38,6 +33,7 @@ const BASE_ROUTES = {
     DASHBOARD: "/role/chair",
     CONFERENCES: "/role/chair/conferences",
     NEW_CONFERENCE: "/role/chair/conferences/new",
+    CONFERENCE_EDIT: (id: string) => `/role/chair/conferences/${id}/edit`,
     CONFERENCE_DETAIL: (id: string) => `/role/chair/conferences/${id}`,
     CONFERENCE_SUBMISSIONS: (id: string) => `/role/chair/conferences/${id}/submissions`,
     SUBMISSION_DETAIL: (cId: string, sId: string) =>

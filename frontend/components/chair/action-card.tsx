@@ -1,5 +1,6 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
+import { useTranslation } from "@/lib/i18n/translation-context"
 import { cn } from "@/lib/utils"
 
 /**
@@ -40,13 +41,6 @@ const priorityBadgeVariants = cva(
     },
   },
 )
-
-const priorityLabels: Record<string, string> = {
-  high: "High Priority",
-  medium: "Medium",
-  urgent: "Urgent",
-  low: "Low",
-}
 
 // Types
 export type ActionPriority = "high" | "medium" | "urgent" | "low"
@@ -102,6 +96,14 @@ export function ActionCard({
   onClick,
   className,
 }: ActionCardProps) {
+  const { t } = useTranslation()
+  const priorityLabels: Record<ActionPriority, string> = {
+    high: t("runtime.components.chair.action-card.text_high_priority"),
+    medium: t("runtime.components.chair.action-card.text_medium_priority"),
+    urgent: t("runtime.components.chair.action-card.text_urgent_priority"),
+    low: t("runtime.components.chair.action-card.text_low_priority"),
+  }
+
   return (
     <div
       className={cn(
@@ -144,7 +146,9 @@ export function ActionCard({
       {/* Due/Status - Fixed width for alignment */}
       <div className="text-right shrink-0 w-[80px] -ml-5">
         <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest block">
-          {isOverdue ? "Status" : "Due In"}
+          {isOverdue
+            ? t("runtime.components.chair.action-card.text_status")
+            : t("runtime.components.chair.action-card.text_due_in")}
         </span>
         <span
           className={cn(

@@ -123,7 +123,8 @@ export function DateTimePicker({
           />
           <div className="p-3 border-t border-slate-200 dark:border-slate-700">
             <label className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest mb-2 block">
-              {t("runtime.components.wizard.creation.date-time-picker.text_time")}{" "}</label>
+              {t("runtime.components.wizard.creation.date-time-picker.text_time")}{" "}
+            </label>
             <input
               type="time"
               value={time}

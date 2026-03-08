@@ -41,7 +41,11 @@ export function ConferenceDates({ conferenceId, className }: ConferenceDatesProp
   }, [conferenceId])
 
   if (loading) {
-    return <div className="text-xs text-slate-500">{t("runtime.components.chair.conference-detail.conference-dates.text_loading_timeline")}</div>
+    return (
+      <div className="text-xs text-slate-500">
+        {t("runtime.components.chair.conference-detail.conference-dates.text_loading_timeline")}
+      </div>
+    )
   }
 
   if (error) {
@@ -55,14 +59,23 @@ export function ConferenceDates({ conferenceId, className }: ConferenceDatesProp
   return (
     <div className={cn("space-y-4", className)}>
       <div>
-        <h2 className="text-lg font-bold text-[#1B3C53] tracking-tight">{t("runtime.components.chair.conference-detail.conference-dates.text_conference_timeline")}</h2>
+        <h2 className="text-lg font-bold text-[#1B3C53] tracking-tight">
+          {t(
+            "runtime.components.chair.conference-detail.conference-dates.text_conference_timeline",
+          )}
+        </h2>
         <p className="text-[11px] text-slate-500 mt-0.5">
-          {t("runtime.components.chair.conference-detail.conference-dates.text_api_backed_schedule_from_conference_configuration")}{" "}</p>
+          {t(
+            "runtime.components.chair.conference-detail.conference-dates.text_api_backed_schedule_from_conference_configuration",
+          )}{" "}
+        </p>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100">
-          <h3 className="text-sm font-bold text-[#1B3C53] tracking-tight">{t("runtime.components.chair.conference-detail.conference-dates.text_important_dates")}</h3>
+          <h3 className="text-sm font-bold text-[#1B3C53] tracking-tight">
+            {t("runtime.components.chair.conference-detail.conference-dates.text_important_dates")}
+          </h3>
         </div>
 
         {dates.length > 0 ? (
@@ -82,14 +95,20 @@ export function ConferenceDates({ conferenceId, className }: ConferenceDatesProp
                   <p className="text-xs text-slate-500 mt-0.5">{item.description}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[12px] font-semibold text-slate-800">{formatDate(item.date)}</p>
+                  <p className="text-[12px] font-semibold text-slate-800">
+                    {formatDate(item.date)}
+                  </p>
                   <p className="text-[10px] text-slate-400 uppercase">{item.type}</p>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="px-4 py-6 text-xs text-slate-500">{t("runtime.components.chair.conference-detail.conference-dates.text_no_schedule_dates_configured")}</div>
+          <div className="px-4 py-6 text-xs text-slate-500">
+            {t(
+              "runtime.components.chair.conference-detail.conference-dates.text_no_schedule_dates_configured",
+            )}
+          </div>
         )}
       </div>
     </div>

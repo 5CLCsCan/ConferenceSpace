@@ -42,23 +42,31 @@ func GetAll() map[string][]Checker {
 }
 
 func ExecuteAll(ctx context.Context, doc models.Document, config models.PaperRuleConfig) []models.CheckResult {
+	return ExecuteAllWithCustom(ctx, doc, config, nil)
+}
+
+func ExecuteAllWithCustom(ctx context.Context, doc models.Document, config models.PaperRuleConfig, custom []Checker) []models.CheckResult {
 	checkersByCat := GetAll()
+	allCheckers := make([]Checker, 0)
+	for _, categoryCheckers := range checkersByCat {
+		allCheckers = append(allCheckers, categoryCheckers...)
+	}
+	allCheckers = append(allCheckers, custom...)
+
 	resultsChan := make(chan models.CheckResult, 100)
 	var wg sync.WaitGroup
 
-	for _, checkers := range checkersByCat {
-		for _, checker := range checkers {
-			wg.Add(1)
-			go func(ch Checker) {
-				defer wg.Done()
-				select {
-				case <-ctx.Done():
-					return
-				default:
-					resultsChan <- ch.Check(ctx, doc, config)
-				}
-			}(checker)
-		}
+	for _, checker := range allCheckers {
+		wg.Add(1)
+		go func(ch Checker) {
+			defer wg.Done()
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				resultsChan <- ch.Check(ctx, doc, config)
+			}
+		}(checker)
 	}
 
 	go func() {
@@ -73,3 +81,11 @@ func ExecuteAll(ctx context.Context, doc models.Document, config models.PaperRul
 	return results
 }
 
+func SnapshotCheckerCount() int {
+	checkersByCat := GetAll()
+	total := 0
+	for _, categoryCheckers := range checkersByCat {
+		total += len(categoryCheckers)
+	}
+	return total
+}

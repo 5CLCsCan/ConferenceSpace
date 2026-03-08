@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Loader2 } from "lucide-react"
 import type { ReviewRequest } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
@@ -11,8 +11,10 @@ import { useToast } from "@/hooks/use-toast"
 interface EnhancedInvitation extends ReviewRequest {
   track_name?: string
   respond_by?: string
+  deadline?: string
   accepted_on?: string
   declined_on?: string
+  rejected_on?: string
   assignments_count?: number
 }
 
@@ -27,10 +29,11 @@ interface ReviewerInvitationsProps {
   totalItems?: number
   pageSize?: number
   onPageChange?: (page: number) => void
-  statusCounts?: { all: number; pending: number; accepted: number; declined: number }
+  statusCounts?: { all: number; pending: number; accepted: number; rejected: number }
+  isRefreshing?: boolean
 }
 
-type StatusFilter = "all" | "pending" | "accepted" | "declined"
+type StatusFilter = "all" | "pending" | "accepted" | "rejected"
 type SortOption = "deadline" | "invited" | "conference"
 
 export function ReviewerInvitations({
@@ -45,8 +48,9 @@ export function ReviewerInvitations({
   pageSize = 5,
   onPageChange,
   statusCounts: externalStatusCounts,
+  isRefreshing = false,
 }: ReviewerInvitationsProps) {
-  const { t } = useTranslation()
+  const { locale, t } = useTranslation()
   const { toast } = useToast()
   const [handling, setHandling] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<SortOption>("deadline")
@@ -55,7 +59,7 @@ export function ReviewerInvitations({
     all: totalItems ?? invitations.length,
     pending: invitations.filter((i) => i.status === "pending").length,
     accepted: invitations.filter((i) => i.status === "accepted").length,
-    declined: invitations.filter((i) => i.status === "declined").length,
+    rejected: invitations.filter((i) => i.status === "rejected").length,
   }
 
   // Generate page numbers with ellipsis
@@ -114,12 +118,56 @@ export function ReviewerInvitations({
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    return new Date(dateString).toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
     })
   }
+
+  const sortedInvitations = useMemo(() => {
+    const parseTimestamp = (value?: string) => {
+      if (!value) {
+        return null
+      }
+
+      const timestamp = new Date(value).getTime()
+      return Number.isNaN(timestamp) ? null : timestamp
+    }
+
+    return [...invitations].sort((left, right) => {
+      if (sortBy === "conference") {
+        return left.conference_name.localeCompare(right.conference_name)
+      }
+
+      if (sortBy === "invited") {
+        return (
+          (parseTimestamp(right.requested_at) ?? Number.NEGATIVE_INFINITY) -
+          (parseTimestamp(left.requested_at) ?? Number.NEGATIVE_INFINITY)
+        )
+      }
+
+      const leftDeadline = parseTimestamp(left.respond_by || left.deadline)
+      const rightDeadline = parseTimestamp(right.respond_by || right.deadline)
+
+      if (leftDeadline === null && rightDeadline === null) {
+        return (
+          (parseTimestamp(right.requested_at) ?? Number.NEGATIVE_INFINITY) -
+          (parseTimestamp(left.requested_at) ?? Number.NEGATIVE_INFINITY)
+        )
+      }
+
+      if (leftDeadline === null) {
+        return 1
+      }
+
+      if (rightDeadline === null) {
+        return -1
+      }
+
+      return leftDeadline - rightDeadline
+    })
+  }, [invitations, sortBy])
 
   const renderPendingCard = (invitation: EnhancedInvitation) => {
     const isUrgent = invitation.respond_by
@@ -270,7 +318,7 @@ export function ReviewerInvitations({
     )
   }
 
-  const renderDeclinedCard = (invitation: EnhancedInvitation) => {
+  const renderRejectedCard = (invitation: EnhancedInvitation) => {
     return (
       <div
         key={invitation.id}
@@ -300,7 +348,9 @@ export function ReviewerInvitations({
                 <span>
                   {t("runtime.components.reviewer.reviewer-invitations.text_declined_on")}{" "}
                   <span className="font-medium">
-                    {formatDate(invitation.declined_on || invitation.requested_at)}
+                    {formatDate(
+                      invitation.rejected_on || invitation.declined_on || invitation.requested_at,
+                    )}
                   </span>
                 </span>
               </div>
@@ -322,8 +372,8 @@ export function ReviewerInvitations({
     switch (invitation.status) {
       case "accepted":
         return renderAcceptedCard(invitation)
-      case "declined":
-        return renderDeclinedCard(invitation)
+      case "rejected":
+        return renderRejectedCard(invitation)
       default:
         return renderPendingCard(invitation)
     }
@@ -366,7 +416,7 @@ export function ReviewerInvitations({
       {/* Filters Row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* Tab Filters */}
-        <div className="flex gap-1 p-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg self-start shadow-sm">
+        <div className="flex flex-wrap gap-1 p-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg self-start shadow-sm">
           <button
             onClick={() => handleFilterChange("all")}
             className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${
@@ -401,20 +451,21 @@ export function ReviewerInvitations({
             <span className="opacity-70 ml-0.5 text-[9px]">{counts.accepted}</span>
           </button>
           <button
-            onClick={() => handleFilterChange("declined")}
+            onClick={() => handleFilterChange("rejected")}
             className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${
-              currentStatusFilter === "declined"
+              currentStatusFilter === "rejected"
                 ? "bg-[#1B3C53] text-white shadow-sm"
                 : "text-slate-500 dark:text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700"
             }`}
           >
             {t("runtime.components.reviewer.reviewer-invitations.text_declined")}{" "}
-            <span className="opacity-70 ml-0.5 text-[9px]">{counts.declined}</span>
+            <span className="opacity-70 ml-0.5 text-[9px]">{counts.rejected}</span>
           </button>
         </div>
 
         {/* Sort Dropdown */}
         <div className="flex items-center gap-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+          {isRefreshing && <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-400" />}
           <span className="material-symbols-outlined text-[16px]">filter_list</span>
           <span className="text-[10px]">
             {t("runtime.components.reviewer.reviewer-invitations.text_sort_by")}
@@ -439,9 +490,9 @@ export function ReviewerInvitations({
 
       {/* Invitations List */}
       <div className="space-y-6 pb-12">
-        {invitations.length === 0
+        {sortedInvitations.length === 0
           ? renderEmptyState()
-          : invitations.map((invitation) => renderInvitationCard(invitation))}
+          : sortedInvitations.map((invitation) => renderInvitationCard(invitation))}
 
         {/* Pagination */}
         {totalItems !== undefined && totalItems > 0 && (

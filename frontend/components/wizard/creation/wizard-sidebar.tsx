@@ -28,7 +28,8 @@ export function WizardSidebar({
           </div>
           <div className="flex flex-col">
             <h1 className="text-[16px] font-bold tracking-tight text-[#141414] dark:text-white">
-              {t("runtime.components.wizard.creation.wizard-sidebar.text_conferencespace")}{" "}</h1>
+              {t("runtime.components.wizard.creation.wizard-sidebar.text_conferencespace")}{" "}
+            </h1>
           </div>
         </div>
       </div>
@@ -37,8 +38,13 @@ export function WizardSidebar({
       <div className="px-4">
         <div className="flex flex-col mb-6">
           <h1 className="text-[#1B3C53] dark:text-white text-sm font-bold leading-[1.2] tracking-tight">
-            {t("runtime.components.wizard.creation.wizard-sidebar.text_create_new_conference")}{" "}</h1>
-          <p className="text-slate-400 text-[10px] font-medium">{t("runtime.components.wizard.creation.wizard-sidebar.text_follow_through_all_steps_to_publish")}</p>
+            {t("runtime.components.wizard.creation.wizard-sidebar.text_create_new_conference")}{" "}
+          </h1>
+          <p className="text-slate-400 text-[10px] font-medium">
+            {t(
+              "runtime.components.wizard.creation.wizard-sidebar.text_follow_through_all_steps_to_publish",
+            )}
+          </p>
         </div>
 
         {/* Steps */}

@@ -14,9 +14,21 @@ interface BasicDetailsStepProps {
 }
 
 const LOCATION_TYPES = [
-  { value: "in-person", label: t("runtime.components.wizard.creation.steps.basic-details.prop_label_in_person"), icon: "location_on" },
-  { value: "virtual", label: t("runtime.components.wizard.creation.steps.basic-details.prop_label_virtual"), icon: "videocam" },
-  { value: "hybrid", label: t("runtime.components.wizard.creation.steps.basic-details.prop_label_hybrid"), icon: "sync_alt" },
+  {
+    value: "in-person",
+    label: t("runtime.components.wizard.creation.steps.basic-details.prop_label_in_person"),
+    icon: "location_on",
+  },
+  {
+    value: "virtual",
+    label: t("runtime.components.wizard.creation.steps.basic-details.prop_label_virtual"),
+    icon: "videocam",
+  },
+  {
+    value: "hybrid",
+    label: t("runtime.components.wizard.creation.steps.basic-details.prop_label_hybrid"),
+    icon: "sync_alt",
+  },
 ] as const
 
 export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
@@ -34,12 +46,18 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
 
       <form className="flex flex-col gap-4 w-full pb-[64px]" onSubmit={(e) => e.preventDefault()}>
         {/* Conference Identity */}
-        <WizardFormCard title={t("runtime.components.wizard.creation.steps.basic-details.title_conference_identity")}>
+        <WizardFormCard
+          title={t(
+            "runtime.components.wizard.creation.steps.basic-details.title_conference_identity",
+          )}
+        >
           <div className="flex flex-col gap-4">
             <WizardFormField label="Conference Name" required>
               <WizardInput
                 type="text"
-                placeholder={t("runtime.components.wizard.creation.steps.basic-details.placeholder_e_g_international_conference_on_computer")}
+                placeholder={t(
+                  "runtime.components.wizard.creation.steps.basic-details.placeholder_e_g_international_conference_on_computer",
+                )}
                 value={data.title}
                 onChange={(e) => updateData({ title: e.target.value })}
               />
@@ -49,7 +67,9 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
               <WizardFormField label="Acronym" required hint="Used in URLs and correspondence">
                 <WizardInput
                   type="text"
-                  placeholder={t("runtime.components.wizard.creation.steps.basic-details.placeholder_e_g_iccv_2024")}
+                  placeholder={t(
+                    "runtime.components.wizard.creation.steps.basic-details.placeholder_e_g_iccv_2024",
+                  )}
                   value={data.acronym}
                   onChange={(e) => updateData({ acronym: e.target.value })}
                 />
@@ -58,7 +78,9 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
               <WizardFormField label="Contact Email" required>
                 <WizardInput
                   type="email"
-                  placeholder={t("runtime.components.wizard.creation.steps.basic-details.placeholder_e_g_chairs_iccv2024_org")}
+                  placeholder={t(
+                    "runtime.components.wizard.creation.steps.basic-details.placeholder_e_g_chairs_iccv2024_org",
+                  )}
                   value={data.contactEmail}
                   onChange={(e) => updateData({ contactEmail: e.target.value })}
                   icon={
@@ -91,7 +113,9 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
             <WizardFormField label="Conference Website">
               <WizardInput
                 type="url"
-                placeholder={t("runtime.components.wizard.creation.steps.basic-details.placeholder_https_example_org_conference")}
+                placeholder={t(
+                  "runtime.components.wizard.creation.steps.basic-details.placeholder_https_example_org_conference",
+                )}
                 value={data.website}
                 onChange={(e) => updateData({ website: e.target.value })}
                 icon={
@@ -125,7 +149,9 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
         {/* Venue & Format and Conference Dates - Side by Side */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Venue & Format */}
-          <WizardFormCard title={t("runtime.components.wizard.creation.steps.basic-details.title_venue_format")}>
+          <WizardFormCard
+            title={t("runtime.components.wizard.creation.steps.basic-details.title_venue_format")}
+          >
             <div className="flex flex-col gap-4">
               {/* Format Selection */}
               <WizardFormField label="Conference Format" required>
@@ -177,7 +203,9 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
                 >
                   <WizardInput
                     type="text"
-                    placeholder={t("runtime.components.wizard.creation.steps.basic-details.placeholder_e_g_convention_center_paris_france")}
+                    placeholder={t(
+                      "runtime.components.wizard.creation.steps.basic-details.placeholder_e_g_convention_center_paris_france",
+                    )}
                     value={data.location}
                     onChange={(e) => {
                       updateData({ location: e.target.value, venue: e.target.value })
@@ -217,7 +245,9 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
                 >
                   <WizardInput
                     type="text"
-                    placeholder={t("runtime.components.wizard.creation.steps.basic-details.placeholder_e_g_zoom_gather_town_hopin")}
+                    placeholder={t(
+                      "runtime.components.wizard.creation.steps.basic-details.placeholder_e_g_zoom_gather_town_hopin",
+                    )}
                     value=""
                     onChange={() => {}}
                     icon={
@@ -250,13 +280,19 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
           </WizardFormCard>
 
           {/* Conference Dates */}
-          <WizardFormCard title={t("runtime.components.wizard.creation.steps.basic-details.title_conference_dates")}>
+          <WizardFormCard
+            title={t(
+              "runtime.components.wizard.creation.steps.basic-details.title_conference_dates",
+            )}
+          >
             <div className="flex flex-col gap-4">
               <WizardFormField label="Start Date" required>
                 <DateTimePicker
                   date={data.conferenceStartDate}
                   onDateChange={(date) => handleDateChange("conferenceStartDate", date)}
-                  placeholder={t("runtime.components.wizard.creation.steps.basic-details.placeholder_pick_start_date_and_time")}
+                  placeholder={t(
+                    "runtime.components.wizard.creation.steps.basic-details.placeholder_pick_start_date_and_time",
+                  )}
                 />
               </WizardFormField>
 
@@ -264,7 +300,9 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
                 <DateTimePicker
                   date={data.conferenceEndDate}
                   onDateChange={(date) => handleDateChange("conferenceEndDate", date)}
-                  placeholder={t("runtime.components.wizard.creation.steps.basic-details.placeholder_pick_end_date_and_time")}
+                  placeholder={t(
+                    "runtime.components.wizard.creation.steps.basic-details.placeholder_pick_end_date_and_time",
+                  )}
                   minDate={data.conferenceStartDate}
                 />
               </WizardFormField>
@@ -292,20 +330,33 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
         </div>
 
         {/* Brief Description (optional) */}
-        <WizardFormCard title={t("runtime.components.wizard.creation.steps.basic-details.title_conference_description")}>
+        <WizardFormCard
+          title={t(
+            "runtime.components.wizard.creation.steps.basic-details.title_conference_description",
+          )}
+        >
           <div className="flex flex-col gap-2">
             <p className="text-[10px] font-light text-slate-400 -mt-2">
-              {t("runtime.components.wizard.creation.steps.basic-details.text_a_brief_overview_of_the_conference")}{" "}</p>
+              {t(
+                "runtime.components.wizard.creation.steps.basic-details.text_a_brief_overview_of_the_conference",
+              )}{" "}
+            </p>
             <textarea
               className="w-full min-h-[100px] text-xs font-normal py-2.5 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all resize-y leading-relaxed"
-              placeholder={t("runtime.components.wizard.creation.steps.basic-details.placeholder_e_g_the_international_conference_on")}
+              placeholder={t(
+                "runtime.components.wizard.creation.steps.basic-details.placeholder_e_g_the_international_conference_on",
+              )}
               value={data.description}
               onChange={(e) => updateData({ description: e.target.value })}
               rows={4}
             />
             <div className="flex justify-end">
               <span className="text-[9px] font-light text-slate-400 uppercase tracking-wider">
-                {data.description.length} {t("runtime.components.wizard.creation.steps.basic-details.text_500_characters")}{" "}</span>
+                {data.description.length}{" "}
+                {t(
+                  "runtime.components.wizard.creation.steps.basic-details.text_500_characters",
+                )}{" "}
+              </span>
             </div>
           </div>
         </WizardFormCard>

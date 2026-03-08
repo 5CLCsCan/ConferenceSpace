@@ -35,7 +35,11 @@ export function MessageItem({ message, isFirst, onReact, onQuote }: MessageItemP
               </span>
             )}
             <span className="text-[10px] text-slate-400 font-medium">{message.relativeTime}</span>
-            {message.editedAt && <span className="text-[9px] text-slate-400 italic">{t("runtime.components.shared.discussion.components.message-item.text_edited")}</span>}
+            {message.editedAt && (
+              <span className="text-[9px] text-slate-400 italic">
+                {t("runtime.components.shared.discussion.components.message-item.text_edited")}
+              </span>
+            )}
           </div>
 
           {/* Content */}

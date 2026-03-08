@@ -24,7 +24,10 @@ export function RecommendationSelector({
   return (
     <div className="space-y-3">
       <label className="block text-[10px] font-bold text-slate-700 uppercase tracking-wider">
-        {t("runtime.components.reviewer.submission-review.recommendation-selector.text_overall_rating")}{" "}</label>
+        {t(
+          "runtime.components.reviewer.submission-review.recommendation-selector.text_overall_rating",
+        )}{" "}
+      </label>
 
       {/* Recommendation Grid - 7 items in a row, compact */}
       <div className="flex gap-1">
@@ -61,7 +64,11 @@ export function RecommendationSelector({
           </span>
         </div>
       ) : (
-        <p className="text-[9px] text-slate-400 italic">{t("runtime.components.reviewer.submission-review.recommendation-selector.text_select_overall_rating")}</p>
+        <p className="text-[9px] text-slate-400 italic">
+          {t(
+            "runtime.components.reviewer.submission-review.recommendation-selector.text_select_overall_rating",
+          )}
+        </p>
       )}
     </div>
   )
@@ -83,7 +90,10 @@ export function ConfidenceSelector({ value, onChange }: ConfidenceSelectorProps)
   return (
     <div className="space-y-3">
       <label className="block text-[10px] font-bold text-slate-700 uppercase tracking-wider">
-        {t("runtime.components.reviewer.submission-review.recommendation-selector.text_reviewer_confidence")}{" "}</label>
+        {t(
+          "runtime.components.reviewer.submission-review.recommendation-selector.text_reviewer_confidence",
+        )}{" "}
+      </label>
 
       {/* Confidence Segmented Control */}
       <div className="flex bg-slate-100 p-0.5 rounded-lg">
@@ -116,14 +126,19 @@ export function ConfidenceSelector({ value, onChange }: ConfidenceSelectorProps)
       {selectedOption ? (
         <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 rounded-lg border border-slate-200">
           <span className="text-[10px] font-bold text-[#1B3C53] uppercase tracking-tighter">
-            {t("runtime.components.reviewer.submission-review.recommendation-selector.text_level")}{" "}{selectedOption.value}
+            {t("runtime.components.reviewer.submission-review.recommendation-selector.text_level")}{" "}
+            {selectedOption.value}
           </span>
           <span className="text-[9px] text-slate-500 font-medium tracking-tight">
             ({selectedOption.fullLabel})
           </span>
         </div>
       ) : (
-        <p className="text-[9px] text-slate-400 italic">{t("runtime.components.reviewer.submission-review.recommendation-selector.text_select_confidence_level")}</p>
+        <p className="text-[9px] text-slate-400 italic">
+          {t(
+            "runtime.components.reviewer.submission-review.recommendation-selector.text_select_confidence_level",
+          )}
+        </p>
       )}
     </div>
   )
@@ -159,7 +174,10 @@ export function FinalRecommendationCard({
       {/* Header */}
       <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
         <h2 className="font-bold text-sm text-[#1B3C53] tracking-tight uppercase">
-          {t("runtime.components.reviewer.submission-review.recommendation-selector.text_final_assessment")}{" "}</h2>
+          {t(
+            "runtime.components.reviewer.submission-review.recommendation-selector.text_final_assessment",
+          )}{" "}
+        </h2>
         <span
           className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${
             isComplete ? "bg-slate-100 text-slate-700" : "bg-slate-50 text-slate-300"
@@ -185,7 +203,10 @@ export function FinalRecommendationCard({
           <div className="flex items-center gap-4">
             <div>
               <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">
-                {t("runtime.components.reviewer.submission-review.recommendation-selector.text_global_rating")}{" "}</span>
+                {t(
+                  "runtime.components.reviewer.submission-review.recommendation-selector.text_global_rating",
+                )}{" "}
+              </span>
               <p className="text-[11px] font-black text-[#1B3C53] leading-none">
                 {selectedRec.label}
               </p>
@@ -193,7 +214,10 @@ export function FinalRecommendationCard({
             <div className="w-px h-5 bg-slate-100" />
             <div>
               <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">
-                {t("runtime.components.reviewer.submission-review.recommendation-selector.text_confidence")}{" "}</span>
+                {t(
+                  "runtime.components.reviewer.submission-review.recommendation-selector.text_confidence",
+                )}{" "}
+              </span>
               <p className="text-[11px] font-black text-[#1B3C53] leading-none">
                 {selectedConf.value}: {selectedConf.label}
               </p>

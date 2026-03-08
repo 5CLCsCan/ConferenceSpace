@@ -220,9 +220,7 @@ describe("ChairActionsPanel", () => {
     fireEvent.click(autoAssignButton)
 
     await waitFor(() => {
-      expect(
-        screen.getByText("Created 5 suggestions for 3 papers"),
-      ).toBeInTheDocument()
+      expect(screen.getByText("Created 5 suggestions for 3 papers")).toBeInTheDocument()
     })
   })
 

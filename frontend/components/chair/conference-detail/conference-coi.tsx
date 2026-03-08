@@ -142,9 +142,19 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            {t("runtime.components.chair.conference-detail.conference-coi.text_conflicts_of_interest_management")}{" "}</h2>
+            {t(
+              "runtime.components.chair.conference-detail.conference-coi.text_conflicts_of_interest_management",
+            )}{" "}
+          </h2>
           <p className="text-[12px] text-slate-500 mt-1 max-w-xl leading-relaxed">
-            {t("runtime.components.chair.conference-detail.conference-coi.text_this_view_is_fully_api_backed")}{" "}<code>/api/v1/coi/*</code>{t("runtime.components.chair.conference-detail.conference-coi.text_manual_moderation_actions_are_currently_disabled")}{" "}</p>
+            {t(
+              "runtime.components.chair.conference-detail.conference-coi.text_this_view_is_fully_api_backed",
+            )}{" "}
+            <code>/api/v1/coi/*</code>
+            {t(
+              "runtime.components.chair.conference-detail.conference-coi.text_manual_moderation_actions_are_currently_disabled",
+            )}{" "}
+          </p>
         </div>
         <button
           type="button"
@@ -188,20 +198,33 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
       </div>
 
       <div className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-        {t("runtime.components.chair.conference-detail.conference-coi.text_confirm_dismiss_and_reviewer_reassignment_coi")}{" "}</div>
+        {t(
+          "runtime.components.chair.conference-detail.conference-coi.text_confirm_dismiss_and_reviewer_reassignment_coi",
+        )}{" "}
+      </div>
 
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
         <div className="p-3 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row gap-3 justify-between items-center">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <select
               value={severity}
-              onChange={(event) => handleSeverityChange(event.target.value as "" | "high" | "medium" | "low")}
+              onChange={(event) =>
+                handleSeverityChange(event.target.value as "" | "high" | "medium" | "low")
+              }
               className="bg-white border border-slate-200 text-slate-600 text-[11px] rounded-md py-1.5 pl-2.5 pr-6 focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none cursor-pointer"
             >
-              <option value="">{t("runtime.components.chair.conference-detail.conference-coi.text_all_severities")}</option>
-              <option value="high">{t("runtime.components.chair.conference-detail.conference-coi.text_high")}</option>
-              <option value="medium">{t("runtime.components.chair.conference-detail.conference-coi.text_medium")}</option>
-              <option value="low">{t("runtime.components.chair.conference-detail.conference-coi.text_low")}</option>
+              <option value="">
+                {t("runtime.components.chair.conference-detail.conference-coi.text_all_severities")}
+              </option>
+              <option value="high">
+                {t("runtime.components.chair.conference-detail.conference-coi.text_high")}
+              </option>
+              <option value="medium">
+                {t("runtime.components.chair.conference-detail.conference-coi.text_medium")}
+              </option>
+              <option value="low">
+                {t("runtime.components.chair.conference-detail.conference-coi.text_low")}
+              </option>
             </select>
           </div>
 
@@ -214,7 +237,9 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
             </span>
             <input
               type="text"
-              placeholder={t("runtime.components.chair.conference-detail.conference-coi.placeholder_search_reviewer_author")}
+              placeholder={t(
+                "runtime.components.chair.conference-detail.conference-coi.placeholder_search_reviewer_author",
+              )}
               value={searchQuery}
               onChange={(event) => handleSearchChange(event.target.value)}
               className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] placeholder-slate-400 transition-shadow"
@@ -223,7 +248,11 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
         </div>
 
         {loading ? (
-          <div className="p-6 text-xs text-slate-500">{t("runtime.components.chair.conference-detail.conference-coi.text_loading_coi_relationships")}</div>
+          <div className="p-6 text-xs text-slate-500">
+            {t(
+              "runtime.components.chair.conference-detail.conference-coi.text_loading_coi_relationships",
+            )}
+          </div>
         ) : error ? (
           <div className="p-6 text-xs text-red-700 bg-red-50 border-t border-red-200">{error}</div>
         ) : (
@@ -231,18 +260,31 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
             <table className="w-full text-left border-collapse">
               <thead className="bg-slate-50 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-200 tracking-widest">
                 <tr>
-                  <th className="px-3 py-2.5">{t("runtime.components.chair.conference-detail.conference-coi.text_reviewer")}</th>
-                  <th className="px-3 py-2.5">{t("runtime.components.chair.conference-detail.conference-coi.text_author")}</th>
-                  <th className="px-3 py-2.5">{t("runtime.components.chair.conference-detail.conference-coi.text_type")}</th>
-                  <th className="px-3 py-2.5">{t("runtime.components.chair.conference-detail.conference-coi.text_severity")}</th>
-                  <th className="px-3 py-2.5">{t("runtime.components.chair.conference-detail.conference-coi.text_source")}</th>
+                  <th className="px-3 py-2.5">
+                    {t("runtime.components.chair.conference-detail.conference-coi.text_reviewer")}
+                  </th>
+                  <th className="px-3 py-2.5">
+                    {t("runtime.components.chair.conference-detail.conference-coi.text_author")}
+                  </th>
+                  <th className="px-3 py-2.5">
+                    {t("runtime.components.chair.conference-detail.conference-coi.text_type")}
+                  </th>
+                  <th className="px-3 py-2.5">
+                    {t("runtime.components.chair.conference-detail.conference-coi.text_severity")}
+                  </th>
+                  <th className="px-3 py-2.5">
+                    {t("runtime.components.chair.conference-detail.conference-coi.text_source")}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {relationships.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-3 py-8 text-center text-xs text-slate-500">
-                      {t("runtime.components.chair.conference-detail.conference-coi.text_no_coi_relationships_found")}{" "}</td>
+                      {t(
+                        "runtime.components.chair.conference-detail.conference-coi.text_no_coi_relationships_found",
+                      )}{" "}
+                    </td>
                   </tr>
                 ) : (
                   relationships.map((relationship) => (
@@ -275,7 +317,9 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
                           {relationship.severity}
                         </span>
                       </td>
-                      <td className="px-3 py-3 text-[11px] text-slate-700">{relationship.detected_by}</td>
+                      <td className="px-3 py-3 text-[11px] text-slate-700">
+                        {relationship.detected_by}
+                      </td>
                     </tr>
                   ))
                 )}
@@ -288,11 +332,14 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
         {!loading && !error && total > 0 && (
           <div className="flex items-center justify-between px-3 py-3 border-t border-slate-200 dark:border-slate-800">
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Showing{" "}
+              {t("runtime.components.chair.conference-detail.conference-coi.text_showing")}{" "}
               <span className="font-bold text-[#1B3C53] dark:text-white">
-                {Math.min((currentPage - 1) * PAGE_SIZE + 1, total)}–{Math.min(currentPage * PAGE_SIZE, total)}
+                {Math.min((currentPage - 1) * PAGE_SIZE + 1, total)}–
+                {Math.min(currentPage * PAGE_SIZE, total)}
               </span>{" "}
-              of <span className="font-bold text-[#1B3C53] dark:text-white">{total}</span> conflicts
+              {t("runtime.components.chair.conference-detail.conference-coi.text_of")}{" "}
+              <span className="font-bold text-[#1B3C53] dark:text-white">{total}</span>{" "}
+              {t("runtime.components.chair.conference-detail.conference-coi.text_conflicts")}
             </p>
 
             {totalPages > 1 && (
@@ -302,11 +349,13 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
                   disabled={currentPage === 1}
                   className="h-7 px-2.5 rounded border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
                 >
-                  Previous
+                  {t("runtime.components.chair.conference-detail.conference-coi.text_previous")}
                 </button>
                 {getPageNumbers().map((page, idx) =>
                   page === "ellipsis" ? (
-                    <span key={`e-${idx}`} className="px-1 text-slate-400 text-xs">...</span>
+                    <span key={`e-${idx}`} className="px-1 text-slate-400 text-xs">
+                      ...
+                    </span>
                   ) : (
                     <button
                       key={page}
@@ -326,7 +375,7 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
                   disabled={currentPage === totalPages}
                   className="h-7 px-2.5 rounded border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
                 >
-                  Next
+                  {t("runtime.components.chair.conference-detail.conference-coi.text_next")}
                 </button>
               </div>
             )}

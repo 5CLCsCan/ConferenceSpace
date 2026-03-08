@@ -34,11 +34,19 @@ function formatConferenceDates(conference: Conference): string {
   if (!start || Number.isNaN(start.getTime())) {
     return "Dates TBD"
   }
-  const startLabel = start.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
+  const startLabel = start.toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  })
   if (!end || Number.isNaN(end.getTime())) {
     return startLabel
   }
-  const endLabel = end.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
+  const endLabel = end.toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  })
   return `${startLabel} - ${endLabel}`
 }
 
@@ -75,6 +83,7 @@ function PaginationBar({
   itemsPerPage: number
   onPageChange: (page: number) => void
 }) {
+  const { t } = useTranslation()
   if (totalPages <= 1) return null
   const startIndex = (currentPage - 1) * itemsPerPage
   const getPageNumbers = () => {
@@ -84,7 +93,12 @@ function PaginationBar({
     } else {
       pages.push(1)
       if (currentPage > 3) pages.push("...")
-      for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) pages.push(i)
+      for (
+        let i = Math.max(2, currentPage - 1);
+        i <= Math.min(totalPages - 1, currentPage + 1);
+        i++
+      )
+        pages.push(i)
       if (currentPage < totalPages - 2) pages.push("...")
       pages.push(totalPages)
     }
@@ -93,9 +107,12 @@ function PaginationBar({
   return (
     <div className="flex items-center justify-between mt-4 px-1">
       <p className="text-[11px] text-slate-500">
-        Showing{" "}
-        <span className="font-bold text-[#1B3C53]">{startIndex + 1}–{Math.min(startIndex + itemsPerPage, total)}</span>{" "}
-        of <span className="font-bold text-[#1B3C53]">{total}</span>
+        {t("runtime.components.author.author-conferences.text_showing")}{" "}
+        <span className="font-bold text-[#1B3C53]">
+          {startIndex + 1}–{Math.min(startIndex + itemsPerPage, total)}
+        </span>{" "}
+        {t("runtime.components.author.author-conferences.text_of")}{" "}
+        <span className="font-bold text-[#1B3C53]">{total}</span>
       </p>
       <div className="flex items-center gap-1">
         <button
@@ -103,11 +120,13 @@ function PaginationBar({
           disabled={currentPage === 1}
           className="px-2 py-1 text-[11px] rounded border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Previous
+          {t("runtime.components.author.author-conferences.text_previous")}
         </button>
         {getPageNumbers().map((page, idx) =>
           page === "..." ? (
-            <span key={`ellipsis-${idx}`} className="px-1 text-[11px] text-slate-400">…</span>
+            <span key={`ellipsis-${idx}`} className="px-1 text-[11px] text-slate-400">
+              …
+            </span>
           ) : (
             <button
               key={page}
@@ -120,14 +139,14 @@ function PaginationBar({
             >
               {page}
             </button>
-          )
+          ),
         )}
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           className="px-2 py-1 text-[11px] rounded border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Next
+          {t("runtime.components.author.author-conferences.text_next")}
         </button>
       </div>
     </div>
@@ -248,7 +267,9 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
           })
           if (!cancelled) {
             setExploreConferences(
-              (res.data?.conferences || []).filter(c => c.status !== "completed").map(mapConferenceToExplore),
+              (res.data?.conferences || [])
+                .filter((c) => c.status !== "completed")
+                .map(mapConferenceToExplore),
             )
             setExploreTotal(res.data?.total || 0)
           }
@@ -286,6 +307,10 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
 
   const handleViewDetails = (id: string) => {
     router.push(ROUTES.AUTHOR.CONFERENCE_DETAIL(id))
+  }
+
+  const handleStartSubmission = (id: string) => {
+    router.push(`${ROUTES.AUTHOR.NEW_SUBMISSION}?conferenceId=${id}`)
   }
 
   // Filter My Conferences client-side (server-side not possible without a dedicated submissions endpoint)
@@ -339,14 +364,16 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
     if (loading) {
       return (
         <div className="flex items-center justify-center py-16 text-xs text-slate-500">
-          {t("runtime.components.author.author-conferences.text_loading_conferences")}{" "}</div>
+          {t("runtime.components.author.author-conferences.text_loading_conferences")}{" "}
+        </div>
       )
     }
 
     if (error) {
       return (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">
-          {t("runtime.components.author.author-conferences.text_failed_to_load_conferences")}{" "}{error}
+          {t("runtime.components.author.author-conferences.text_failed_to_load_conferences")}{" "}
+          {error}
         </div>
       )
     }
@@ -403,7 +430,7 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
       if (exploreLoading) {
         return (
           <div className="flex items-center justify-center py-16 text-xs text-slate-500">
-            Loading conferences...
+            {t("runtime.components.author.author-conferences.text_loading_conferences")}
           </div>
         )
       }
@@ -416,6 +443,10 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
             <ExploreConferenceList
               conferences={exploreConferences}
               onViewDetails={handleViewDetails}
+              primaryActionLabel={t(
+                "runtime.components.author.author-conference-cards.text_submit_paper",
+              )}
+              onPrimaryAction={handleStartSubmission}
               currentPage={currentPage}
               totalPages={totalPages}
               totalItems={exploreTotal}
@@ -434,6 +465,10 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
                 key={conference.id}
                 conference={conference}
                 onViewDetails={handleViewDetails}
+                primaryActionLabel={t(
+                  "runtime.components.author.author-conference-cards.text_submit_paper",
+                )}
+                onPrimaryAction={handleStartSubmission}
               />
             ))}
           </div>
@@ -453,7 +488,7 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
       if (archivedLoading) {
         return (
           <div className="flex items-center justify-center py-16 text-xs text-slate-500">
-            Loading conferences...
+            {t("runtime.components.author.author-conferences.text_loading_conferences")}
           </div>
         )
       }
@@ -536,9 +571,13 @@ function Header() {
     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6">
       <div>
         <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white leading-none">
-          {t("runtime.components.author.author-conferences.text_conferences")}{" "}</h1>
+          {t("runtime.components.author.author-conferences.text_conferences")}{" "}
+        </h1>
         <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-2 max-w-xl">
-          {t("runtime.components.author.author-conferences.text_track_your_paper_submissions_and_discover")}{" "}</p>
+          {t(
+            "runtime.components.author.author-conferences.text_track_your_paper_submissions_and_discover",
+          )}{" "}
+        </p>
       </div>
     </div>
   )
@@ -556,9 +595,15 @@ interface TabsProps {
 function Tabs({ activeTab, onTabChange }: TabsProps) {
   const { t } = useTranslation()
   const tabs: { key: AuthorTabType; label: string }[] = [
-    { key: "my-conferences", label: t("runtime.components.author.author-conferences.prop_label_my_submissions") },
+    {
+      key: "my-conferences",
+      label: t("runtime.components.author.author-conferences.prop_label_my_submissions"),
+    },
     { key: "explore", label: t("runtime.components.author.author-conferences.prop_label_explore") },
-    { key: "archived", label: t("runtime.components.author.author-conferences.prop_label_archived") },
+    {
+      key: "archived",
+      label: t("runtime.components.author.author-conferences.prop_label_archived"),
+    },
   ]
 
   return (
@@ -614,18 +659,42 @@ function Toolbar({
 
   const sortOptions: Record<AuthorTabType, { value: string; label: string }[]> = {
     "my-conferences": [
-      { value: "date-newest", label: t("runtime.components.author.author-conferences.prop_label_date_newest") },
-      { value: "name-asc", label: t("runtime.components.author.author-conferences.prop_label_name_a_z") },
-      { value: "status", label: t("runtime.components.author.author-conferences.prop_label_status") },
+      {
+        value: "date-newest",
+        label: t("runtime.components.author.author-conferences.prop_label_date_newest"),
+      },
+      {
+        value: "name-asc",
+        label: t("runtime.components.author.author-conferences.prop_label_name_a_z"),
+      },
+      {
+        value: "status",
+        label: t("runtime.components.author.author-conferences.prop_label_status"),
+      },
     ],
     explore: [
-      { value: "deadline", label: t("runtime.components.author.author-conferences.prop_label_deadline_soon") },
-      { value: "date-upcoming", label: t("runtime.components.author.author-conferences.prop_label_date_upcoming") },
-      { value: "name-asc", label: t("runtime.components.author.author-conferences.prop_label_name_a_z") },
+      {
+        value: "deadline",
+        label: t("runtime.components.author.author-conferences.prop_label_deadline_soon"),
+      },
+      {
+        value: "date-upcoming",
+        label: t("runtime.components.author.author-conferences.prop_label_date_upcoming"),
+      },
+      {
+        value: "name-asc",
+        label: t("runtime.components.author.author-conferences.prop_label_name_a_z"),
+      },
     ],
     archived: [
-      { value: "date-newest", label: t("runtime.components.author.author-conferences.prop_label_date_newest") },
-      { value: "name-asc", label: t("runtime.components.author.author-conferences.prop_label_name_a_z") },
+      {
+        value: "date-newest",
+        label: t("runtime.components.author.author-conferences.prop_label_date_newest"),
+      },
+      {
+        value: "name-asc",
+        label: t("runtime.components.author.author-conferences.prop_label_name_a_z"),
+      },
     ],
   }
 
@@ -667,7 +736,8 @@ function Toolbar({
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-            {t("runtime.components.author.author-conferences.text_sort_by")}{" "}</span>
+            {t("runtime.components.author.author-conferences.text_sort_by")}{" "}
+          </span>
           <select
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}
@@ -780,9 +850,13 @@ function NoResultsState() {
     <div className="flex flex-col items-center justify-center py-16 px-4">
       <span className="material-symbols-outlined text-[28px] text-slate-300 mb-2">search_off</span>
       <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-1 tracking-tight">
-        {t("runtime.components.author.author-conferences.text_no_results_found")}{" "}</h3>
+        {t("runtime.components.author.author-conferences.text_no_results_found")}{" "}
+      </h3>
       <p className="text-[10px] font-medium text-slate-400 text-center">
-        {t("runtime.components.author.author-conferences.text_try_adjusting_your_search_terms")}{" "}</p>
+        {t(
+          "runtime.components.author.author-conferences.text_try_adjusting_your_search_terms",
+        )}{" "}
+      </p>
     </div>
   )
 }

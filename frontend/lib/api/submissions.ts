@@ -208,7 +208,10 @@ export async function getUserSubmissions(
 
     if (conferencesResponse.error || !conferencesResponse.data) {
       // Even the filtered list failed — fall back silently (show empty state).
-      console.warn("[getUserSubmissions] Failed to fetch user conferences:", conferencesResponse.error)
+      console.warn(
+        "[getUserSubmissions] Failed to fetch user conferences:",
+        conferencesResponse.error,
+      )
       return { data: [], error: null, status: 200 }
     }
 

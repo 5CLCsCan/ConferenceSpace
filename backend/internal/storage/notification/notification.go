@@ -31,6 +31,8 @@ type StorageInterface interface {
 	MarkAsRead(ctx context.Context, id int64, userEmail string) (*dto.Notification, error)
 	MarkAllAsRead(ctx context.Context, userEmail string) (int64, error)
 	Delete(ctx context.Context, id int64, userEmail string) error
+	GetPreferences(ctx context.Context, userEmail string) (*dto.NotificationPreferencesResponse, error)
+	UpdatePreferences(ctx context.Context, userEmail string, req *dto.NotificationPreferencesUpdateRequest) (*dto.NotificationPreferencesResponse, error)
 }
 
 // Storage implements notification storage operations
@@ -409,6 +411,176 @@ func (s *Storage) Delete(ctx context.Context, id int64, userEmail string) error 
 	return nil
 }
 
+func (s *Storage) GetPreferences(ctx context.Context, userEmail string) (*dto.NotificationPreferencesResponse, error) {
+	query, args, err := s.qb.
+		Select(
+			model.NotificationPrefColUserEmail,
+			model.NotificationPrefColSubmissionReceived,
+			model.NotificationPrefColReviewAssigned,
+			model.NotificationPrefColReviewSubmitted,
+			model.NotificationPrefColPaperAccepted,
+			model.NotificationPrefColPaperRejected,
+			model.NotificationPrefColDeadlineReminder,
+			model.NotificationPrefColStatusChange,
+			model.NotificationPrefColEmailNotifications,
+			model.NotificationPrefColUpdatedAt,
+		).
+		From(model.NotificationPreferencesTableName).
+		Where(sq.Eq{model.NotificationPrefColUserEmail: userEmail}).
+		ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("failed to build preferences query: %w", err)
+	}
+
+	entity := &model.NotificationPreferences{}
+	err = s.db.QueryRowContext(ctx, query, args...).Scan(
+		&entity.UserEmail,
+		&entity.SubmissionReceived,
+		&entity.ReviewAssigned,
+		&entity.ReviewSubmitted,
+		&entity.PaperAccepted,
+		&entity.PaperRejected,
+		&entity.DeadlineReminder,
+		&entity.StatusChange,
+		&entity.EmailNotifications,
+		&entity.UpdatedAt,
+	)
+	if err == sql.ErrNoRows {
+		return s.upsertPreferences(ctx, &model.NotificationPreferences{
+			UserEmail:          userEmail,
+			SubmissionReceived: true,
+			ReviewAssigned:     true,
+			ReviewSubmitted:    true,
+			PaperAccepted:      true,
+			PaperRejected:      true,
+			DeadlineReminder:   true,
+			StatusChange:       true,
+			EmailNotifications: true,
+		})
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get preferences: %w", err)
+	}
+
+	return entity.ToDTO(), nil
+}
+
+func (s *Storage) UpdatePreferences(ctx context.Context, userEmail string, req *dto.NotificationPreferencesUpdateRequest) (*dto.NotificationPreferencesResponse, error) {
+	current, err := s.GetPreferences(ctx, userEmail)
+	if err != nil {
+		return nil, err
+	}
+
+	entity := &model.NotificationPreferences{
+		UserEmail:          userEmail,
+		SubmissionReceived: current.SubmissionReceived,
+		ReviewAssigned:     current.ReviewAssigned,
+		ReviewSubmitted:    current.ReviewSubmitted,
+		PaperAccepted:      current.PaperAccepted,
+		PaperRejected:      current.PaperRejected,
+		DeadlineReminder:   current.DeadlineReminder,
+		StatusChange:       current.StatusChange,
+		EmailNotifications: current.EmailNotifications,
+	}
+
+	if req.SubmissionReceived != nil {
+		entity.SubmissionReceived = *req.SubmissionReceived
+	}
+	if req.ReviewAssigned != nil {
+		entity.ReviewAssigned = *req.ReviewAssigned
+	}
+	if req.ReviewSubmitted != nil {
+		entity.ReviewSubmitted = *req.ReviewSubmitted
+	}
+	if req.PaperAccepted != nil {
+		entity.PaperAccepted = *req.PaperAccepted
+	}
+	if req.PaperRejected != nil {
+		entity.PaperRejected = *req.PaperRejected
+	}
+	if req.DeadlineReminder != nil {
+		entity.DeadlineReminder = *req.DeadlineReminder
+	}
+	if req.StatusChange != nil {
+		entity.StatusChange = *req.StatusChange
+	}
+	if req.EmailNotifications != nil {
+		entity.EmailNotifications = *req.EmailNotifications
+	}
+
+	return s.upsertPreferences(ctx, entity)
+}
+
+func (s *Storage) upsertPreferences(ctx context.Context, prefs *model.NotificationPreferences) (*dto.NotificationPreferencesResponse, error) {
+	query := `
+		INSERT INTO notification_preferences (
+			user_email,
+			submission_received,
+			review_assigned,
+			review_submitted,
+			paper_accepted,
+			paper_rejected,
+			deadline_reminder,
+			status_change,
+			email_notifications,
+			updated_at
+		)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())
+		ON CONFLICT (user_email)
+		DO UPDATE SET
+			submission_received = EXCLUDED.submission_received,
+			review_assigned = EXCLUDED.review_assigned,
+			review_submitted = EXCLUDED.review_submitted,
+			paper_accepted = EXCLUDED.paper_accepted,
+			paper_rejected = EXCLUDED.paper_rejected,
+			deadline_reminder = EXCLUDED.deadline_reminder,
+			status_change = EXCLUDED.status_change,
+			email_notifications = EXCLUDED.email_notifications,
+			updated_at = NOW()
+		RETURNING user_email,
+			submission_received,
+			review_assigned,
+			review_submitted,
+			paper_accepted,
+			paper_rejected,
+			deadline_reminder,
+			status_change,
+			email_notifications,
+			updated_at
+	`
+
+	entity := &model.NotificationPreferences{}
+	err := s.db.QueryRowContext(
+		ctx,
+		query,
+		prefs.UserEmail,
+		prefs.SubmissionReceived,
+		prefs.ReviewAssigned,
+		prefs.ReviewSubmitted,
+		prefs.PaperAccepted,
+		prefs.PaperRejected,
+		prefs.DeadlineReminder,
+		prefs.StatusChange,
+		prefs.EmailNotifications,
+	).Scan(
+		&entity.UserEmail,
+		&entity.SubmissionReceived,
+		&entity.ReviewAssigned,
+		&entity.ReviewSubmitted,
+		&entity.PaperAccepted,
+		&entity.PaperRejected,
+		&entity.DeadlineReminder,
+		&entity.StatusChange,
+		&entity.EmailNotifications,
+		&entity.UpdatedAt,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to upsert preferences: %w", err)
+	}
+
+	return entity.ToDTO(), nil
+}
+
 // Helper function to convert empty string to nil
 func nilIfEmpty(s string) interface{} {
 	if s == "" {
@@ -416,4 +588,3 @@ func nilIfEmpty(s string) interface{} {
 	}
 	return s
 }
-

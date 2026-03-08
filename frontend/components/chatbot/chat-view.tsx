@@ -101,19 +101,32 @@ function MessageActions({ msg, isUser }: { msg: UIMessage; isUser: boolean }) {
               isUser ? "right-0 bottom-full mb-1" : "left-0 bottom-full mb-1",
             )}
           >
-            {t("runtime.components.chatbot.chat-view.text_copied")}{" "}</div>
+            {t("runtime.components.chatbot.chat-view.text_copied")}{" "}
+          </div>
         )}
       </div>
       <div className="flex items-center gap-1">
-        <button type="button" className={iconBtn} aria-label={t("runtime.components.chatbot.chat-view.aria_label_like")}>
+        <button
+          type="button"
+          className={iconBtn}
+          aria-label={t("runtime.components.chatbot.chat-view.aria_label_like")}
+        >
           <ThumbsUp className="size-2" />
         </button>
-        <button type="button" className={iconBtn} aria-label={t("runtime.components.chatbot.chat-view.aria_label_dislike")}>
+        <button
+          type="button"
+          className={iconBtn}
+          aria-label={t("runtime.components.chatbot.chat-view.aria_label_dislike")}
+        >
           <ThumbsDown className="size-2" />
         </button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button type="button" className={iconBtn} aria-label={t("runtime.components.chatbot.chat-view.aria_label_message_info")}>
+            <button
+              type="button"
+              className={iconBtn}
+              aria-label={t("runtime.components.chatbot.chat-view.aria_label_message_info")}
+            >
               <Info className="size-2" />
             </button>
           </DropdownMenuTrigger>
@@ -122,9 +135,11 @@ function MessageActions({ msg, isUser }: { msg: UIMessage; isUser: boolean }) {
             className="min-w-[60px] mr-[26px] -mt-[5px] [&_p]:text-[9px] [&_p]:text-slate-600 dark:[&_p]:text-slate-400"
           >
             <div className="px-1 py-1 space-y-0.5">
-              <p className="text-[8px] text-slate-600 dark:text-slate-400">{t("runtime.components.chatbot.chat-view.text_time")}{" "}{timestamp}</p>
               <p className="text-[8px] text-slate-600 dark:text-slate-400">
-                {t("runtime.components.chatbot.chat-view.text_characters")}{" "}{charCount}
+                {t("runtime.components.chatbot.chat-view.text_time")} {timestamp}
+              </p>
+              <p className="text-[8px] text-slate-600 dark:text-slate-400">
+                {t("runtime.components.chatbot.chat-view.text_characters")} {charCount}
               </p>
             </div>
           </DropdownMenuContent>
@@ -364,9 +379,13 @@ export function ChatView({
                 </span>
               </div>
               <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
-                {t("runtime.components.chatbot.chat-view.text_start_a_conversation")}{" "}</p>
+                {t("runtime.components.chatbot.chat-view.text_start_a_conversation")}{" "}
+              </p>
               <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 max-w-[200px] leading-relaxed">
-                {t("runtime.components.chatbot.chat-view.text_ask_me_anything_about_the_conference")}{" "}</p>
+                {t(
+                  "runtime.components.chatbot.chat-view.text_ask_me_anything_about_the_conference",
+                )}{" "}
+              </p>
             </div>
           ) : (
             messages.map((msg) => (
@@ -425,7 +444,8 @@ export function ChatView({
                                 >
                                   psychology
                                 </span>
-                                {t("runtime.components.chatbot.chat-view.text_reasoning")}{" "}</summary>
+                                {t("runtime.components.chatbot.chat-view.text_reasoning")}{" "}
+                              </summary>
                               <div className="px-2.5 pb-2.5 pt-2 border-t border-slate-200 dark:border-slate-700">
                                 <div className="font-mono text-[10px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-1.5 whitespace-pre-wrap leading-relaxed chatbot-markdown">
                                   <Streamdown isAnimating={isLastStreaming(msg, i)}>
@@ -501,7 +521,9 @@ export function ChatView({
                                 <ToolField label="Input">
                                   <ToolPre>{JSON.stringify(toolInput, null, 2)}</ToolPre>
                                 </ToolField>
-                                <p className="text-[9px] text-slate-400 italic">{t("runtime.components.chatbot.chat-view.text_executing")}</p>
+                                <p className="text-[9px] text-slate-400 italic">
+                                  {t("runtime.components.chatbot.chat-view.text_executing")}
+                                </p>
                               </ToolBlock>
                             )
                           }
@@ -705,7 +727,9 @@ export function ChatView({
                       type="button"
                       className="h-3.5 w-3.5 flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                       onClick={() => handleRemoveAttachment(att.id)}
-                      aria-label={t("runtime.components.chatbot.chat-view.aria_label_remove_attachment")}
+                      aria-label={t(
+                        "runtime.components.chatbot.chat-view.aria_label_remove_attachment",
+                      )}
                     >
                       <X className="h-2.5 w-2.5 text-slate-400" />
                     </button>
@@ -726,9 +750,11 @@ export function ChatView({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="agentic" className="text-[9px]">
-                  {t("runtime.components.chatbot.chat-view.text_agentic")}{" "}</SelectItem>
+                  {t("runtime.components.chatbot.chat-view.text_agentic")}{" "}
+                </SelectItem>
                 <SelectItem value="standard" className="text-[9px]">
-                  {t("runtime.components.chatbot.chat-view.text_standard")}{" "}</SelectItem>
+                  {t("runtime.components.chatbot.chat-view.text_standard")}{" "}
+                </SelectItem>
               </SelectContent>
             </Select>
             <div className="flex items-center gap-1">

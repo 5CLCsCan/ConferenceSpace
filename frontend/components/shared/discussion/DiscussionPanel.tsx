@@ -62,12 +62,16 @@ export function DiscussionPanel({
         <div className="flex items-start justify-between gap-4 mb-3">
           <div>
             <h2 className="text-sm font-bold text-[#1B3C53] tracking-tight flex items-center gap-2">
-              {t("runtime.components.shared.discussion.DiscussionPanel.text_discussion_threads")}{" "}<span className="px-1.5 py-0.5 rounded bg-slate-100 text-[10px] font-bold text-slate-500">
+              {t("runtime.components.shared.discussion.DiscussionPanel.text_discussion_threads")}{" "}
+              <span className="px-1.5 py-0.5 rounded bg-slate-100 text-[10px] font-bold text-slate-500">
                 {totalCount}
               </span>
             </h2>
             <p className="text-xs text-slate-500 mt-0.5 max-w-xl leading-relaxed">
-              {t("runtime.components.shared.discussion.DiscussionPanel.text_collaborate_with_other_reviewers_and_committee")}{" "}</p>
+              {t(
+                "runtime.components.shared.discussion.DiscussionPanel.text_collaborate_with_other_reviewers_and_committee",
+              )}{" "}
+            </p>
           </div>
           <ReviewModeIndicator mode={settings.reviewMode} />
         </div>
@@ -101,7 +105,9 @@ export function DiscussionPanel({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t("runtime.components.shared.discussion.DiscussionPanel.placeholder_search_discussions")}
+              placeholder={t(
+                "runtime.components.shared.discussion.DiscussionPanel.placeholder_search_discussions",
+              )}
               className="w-full h-8 pl-9 pr-3 text-xs text-slate-700 placeholder-slate-400 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-[#1B3C53] focus:ring-1 focus:ring-[#1B3C53]/20"
             />
           </div>
@@ -113,10 +119,18 @@ export function DiscussionPanel({
               onChange={(e) => setFilterVisibility(e.target.value as MessageVisibility | "all")}
               className="h-8 pl-3 pr-7 text-[11px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg appearance-none focus:outline-none focus:border-[#1B3C53] cursor-pointer"
             >
-              <option value="all">{t("runtime.components.shared.discussion.DiscussionPanel.text_all_visibility")}</option>
-              <option value="committee">{t("runtime.components.shared.discussion.DiscussionPanel.text_committee_only")}</option>
-              <option value="reviewers">{t("runtime.components.shared.discussion.DiscussionPanel.text_reviewers_only")}</option>
-              <option value="authors">{t("runtime.components.shared.discussion.DiscussionPanel.text_visible_to_authors")}</option>
+              <option value="all">
+                {t("runtime.components.shared.discussion.DiscussionPanel.text_all_visibility")}
+              </option>
+              <option value="committee">
+                {t("runtime.components.shared.discussion.DiscussionPanel.text_committee_only")}
+              </option>
+              <option value="reviewers">
+                {t("runtime.components.shared.discussion.DiscussionPanel.text_reviewers_only")}
+              </option>
+              <option value="authors">
+                {t("runtime.components.shared.discussion.DiscussionPanel.text_visible_to_authors")}
+              </option>
             </select>
             <span
               className="absolute right-2 top-2 pointer-events-none material-symbols-outlined text-slate-400"
@@ -148,11 +162,21 @@ export function DiscussionPanel({
               onChange={(e) => setFilterStatus(e.target.value as ThreadStatus | "all")}
               className="h-8 pl-3 pr-7 text-[11px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg appearance-none focus:outline-none focus:border-[#1B3C53] cursor-pointer"
             >
-              <option value="all">{t("runtime.components.shared.discussion.DiscussionPanel.text_all_status")}</option>
-              <option value="pinned">{t("runtime.components.shared.discussion.DiscussionPanel.text_pinned")}</option>
-              <option value="open">{t("runtime.components.shared.discussion.DiscussionPanel.text_open")}</option>
-              <option value="resolved">{t("runtime.components.shared.discussion.DiscussionPanel.text_resolved")}</option>
-              <option value="flagged">{t("runtime.components.shared.discussion.DiscussionPanel.text_flagged")}</option>
+              <option value="all">
+                {t("runtime.components.shared.discussion.DiscussionPanel.text_all_status")}
+              </option>
+              <option value="pinned">
+                {t("runtime.components.shared.discussion.DiscussionPanel.text_pinned")}
+              </option>
+              <option value="open">
+                {t("runtime.components.shared.discussion.DiscussionPanel.text_open")}
+              </option>
+              <option value="resolved">
+                {t("runtime.components.shared.discussion.DiscussionPanel.text_resolved")}
+              </option>
+              <option value="flagged">
+                {t("runtime.components.shared.discussion.DiscussionPanel.text_flagged")}
+              </option>
             </select>
             <span
               className="absolute right-2 top-2 pointer-events-none material-symbols-outlined text-slate-400"
@@ -207,7 +231,8 @@ export function DiscussionPanel({
               >
                 add
               </span>
-              {t("runtime.components.shared.discussion.DiscussionPanel.text_new_topic")}{" "}</button>
+              {t("runtime.components.shared.discussion.DiscussionPanel.text_new_topic")}{" "}
+            </button>
           )}
         </div>
       </div>
@@ -240,7 +265,8 @@ export function DiscussionPanel({
                 push_pin
               </span>
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                {t("runtime.components.shared.discussion.DiscussionPanel.text_pinned")}{" "}</span>
+                {t("runtime.components.shared.discussion.DiscussionPanel.text_pinned")}{" "}
+              </span>
             </div>
             {pinnedThreads.map((thread) => (
               <ThreadCard
@@ -262,7 +288,8 @@ export function DiscussionPanel({
             {pinnedThreads.length > 0 && (
               <div className="flex items-center gap-2 px-1 pt-2">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  {t("runtime.components.shared.discussion.DiscussionPanel.text_all_threads")}{" "}</span>
+                  {t("runtime.components.shared.discussion.DiscussionPanel.text_all_threads")}{" "}
+                </span>
               </div>
             )}
             {otherThreads.map((thread) => (
@@ -285,7 +312,9 @@ export function DiscussionPanel({
             <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-slate-100 flex items-center justify-center">
               <span className="material-symbols-outlined text-[24px] text-slate-400">forum</span>
             </div>
-            <h3 className="text-sm font-bold text-slate-700 mb-1">{t("runtime.components.shared.discussion.DiscussionPanel.text_no_discussions_found")}</h3>
+            <h3 className="text-sm font-bold text-slate-700 mb-1">
+              {t("runtime.components.shared.discussion.DiscussionPanel.text_no_discussions_found")}
+            </h3>
             <p className="text-xs text-slate-500 max-w-xs mx-auto">
               {searchQuery || filterVisibility !== "all" || filterStatus !== "all"
                 ? "Try adjusting your filters or search query."
@@ -317,7 +346,10 @@ export function DiscussionPanel({
                 >
                   add
                 </span>
-                {t("runtime.components.shared.discussion.DiscussionPanel.text_start_discussion")}{" "}</button>
+                {t(
+                  "runtime.components.shared.discussion.DiscussionPanel.text_start_discussion",
+                )}{" "}
+              </button>
             )}
           </div>
         )}

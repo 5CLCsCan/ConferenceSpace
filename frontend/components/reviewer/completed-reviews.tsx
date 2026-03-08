@@ -193,8 +193,8 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
             </p>
             <p className="text-[10px] font-medium text-slate-400 text-center max-w-xs">
               {debouncedSearch
-                ? "Try adjusting your search query."
-                : "Reviews you have completed will appear here."}
+                ? t("dashboard.roles.reviewer.completedReviews.noResultsDescription")
+                : t("dashboard.roles.reviewer.completedReviews.noCompletedReviewsDescription")}
             </p>
           </div>
         ) : (
@@ -324,7 +324,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
                 disabled={currentPage === 1}
                 className="h-8 px-2.5 rounded-md border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
               >
-                Previous
+                {t("runtime.components.reviewer.completed-reviews.text_previous")}
               </button>
               {getPageNumbers().map((page, idx) =>
                 page === "ellipsis" ? (
@@ -350,7 +350,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
                 disabled={currentPage === totalPages}
                 className="h-8 px-2.5 rounded-md border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
               >
-                Next
+                {t("runtime.components.reviewer.completed-reviews.text_next")}
               </button>
             </div>
           )}

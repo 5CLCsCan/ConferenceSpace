@@ -44,4 +44,3 @@ describe("ImportantDatesTab", () => {
     expect(() => render(<ImportantDatesTab dates={dates as any} />)).not.toThrow()
   })
 })
-

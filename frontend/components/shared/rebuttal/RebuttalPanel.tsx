@@ -95,7 +95,8 @@ export function RebuttalPanel({
       {/* Per-Reviewer Responses */}
       <div className="space-y-4">
         <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-          {t("runtime.components.shared.rebuttal.RebuttalPanel.text_point_by_point_responses")}{" "}</h3>
+          {t("runtime.components.shared.rebuttal.RebuttalPanel.text_point_by_point_responses")}{" "}
+        </h3>
 
         {userRole === "author" ? (
           // Author view: show all reviewer groups

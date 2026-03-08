@@ -25,7 +25,10 @@ export default function AuthorConferenceDetailPage() {
       <Suspense
         fallback={
           <div className="flex items-center justify-center h-screen w-full text-slate-400">
-            {t("runtime.app.role.author.conferences.conferenceId.page.text_loading_conference_details")}{" "}</div>
+            {t(
+              "runtime.app.role.author.conferences.conferenceId.page.text_loading_conference_details",
+            )}{" "}
+          </div>
         }
       >
         <AuthorConferenceDetail conferenceId={conferenceId} />

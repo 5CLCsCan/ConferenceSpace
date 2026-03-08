@@ -1,19 +1,21 @@
 package submission
 
 import (
+	"context"
+	"io"
+	"mime/multipart"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
+
+	"github.com/dcao/conferencespace/internal/deskrejection/drerrors"
 	"github.com/dcao/conferencespace/internal/deskrejection/models"
+	"github.com/dcao/conferencespace/internal/deskrejection/pipeline"
 	"github.com/dcao/conferencespace/internal/dto"
+	"github.com/dcao/conferencespace/internal/handler"
+	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
-	// Unused imports commented out while precheck is disabled
-	// "context"
-	// "net/http"
-	// "os"
-	// "path/filepath"
-	// "strconv"
-	// "github.com/dcao/conferencespace/internal/deskrejection/pipeline"
-	// "github.com/dcao/conferencespace/internal/handler"
-	// "github.com/dcao/conferencespace/internal/utils"
-	// "github.com/google/uuid"
 )
 
 // PreCheck godoc
@@ -32,23 +34,6 @@ import (
 // @Failure      500 {object} handler.Response
 // @Router       /conferences/{conference_id}/submissions/precheck [post]
 func (c *Controller) PreCheck(ginCtx *gin.Context) (*models.ComplianceReport, error) {
-	// TEMPORARILY DISABLED: Always return valid report
-	// TODO: Re-enable validation logic when ready
-	return &models.ComplianceReport{
-		PaperTitle:   "Temporary Validation",
-		OverallScore:  1.0,
-		Decision:     "pass",
-		Summary: models.Summary{
-			TotalItems: 1,
-			Passed:     1,
-			Failed:     0,
-			PassRate:   1.0,
-		},
-		CategoryScores:  make(map[string]models.CategoryScore),
-		DetailedResults: []models.CheckResult{},
-	}, nil
-
-	/* ORIGINAL CODE - DISABLED
 	ctx := ginCtx.Request.Context()
 
 	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
@@ -61,7 +46,7 @@ func (c *Controller) PreCheck(ginCtx *gin.Context) (*models.ComplianceReport, er
 	if !exists {
 		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
 	}
-	
+
 	// Log user activity (optional, for analytics)
 	_ = userEmail
 
@@ -71,12 +56,8 @@ func (c *Controller) PreCheck(ginCtx *gin.Context) (*models.ComplianceReport, er
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "file is required")
 	}
 
-	// Save uploaded file temporarily
-	tempDir := os.TempDir()
-	tempFileName := uuid.New().String() + filepath.Ext(file.Filename)
-	tempFilePath := filepath.Join(tempDir, tempFileName)
-
-	if err := ginCtx.SaveUploadedFile(file, tempFilePath); err != nil {
+	tempFilePath, err := savePrecheckUploadToTemp(file)
+	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to save file")
 	}
 	defer os.Remove(tempFilePath) // Clean up temp file
@@ -88,7 +69,7 @@ func (c *Controller) PreCheck(ginCtx *gin.Context) (*models.ComplianceReport, er
 	}
 
 	// Convert conference configuration to paper rule configuration
-	paperConfig := convertConferenceConfigToPaperRuleConfig(conference.Configurations)
+	paperConfig := convertConferenceConfigToPaperRuleConfig(conference)
 
 	// Add Gemini client to context if available
 	if c.geminiClient != nil {
@@ -98,27 +79,121 @@ func (c *Controller) PreCheck(ginCtx *gin.Context) (*models.ComplianceReport, er
 	// Run desk rejection validation
 	report, err := pipeline.Run(ctx, tempFilePath, paperConfig)
 	if err != nil {
-		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "validation failed: "+err.Error())
+		return nil, mapPrecheckError(err)
 	}
 
 	// Return report without storing anything
 	return &report, nil
-	*/
 }
 
 // convertConferenceConfigToPaperRuleConfig converts conference configuration to paper rule configuration
-func convertConferenceConfigToPaperRuleConfig(conf *dto.ConferenceConfiguration) *models.PaperRuleConfig {
+func convertConferenceConfigToPaperRuleConfig(conference *dto.ConferenceResponse) *models.PaperRuleConfig {
 	// Start with default configuration
 	paperConfig := models.NewPaperRuleConfig()
+	if conference == nil {
+		return paperConfig
+	}
 
+	paperConfig.ConferenceDomains = conference.Domain
+
+	conf := conference.Configurations
 	// Apply conference-specific settings if available
 	if conf != nil {
 		if conf.MaximumPages != nil {
 			paperConfig.MaxPages = *conf.MaximumPages
 		}
-		// Add other mappings as needed in the future
+
+		if conf.DeskRejectionSettings != nil {
+			dr := conf.DeskRejectionSettings
+			if dr.MinReferences != nil {
+				paperConfig.MinReferences = *dr.MinReferences
+			}
+			if len(dr.RequiredSections) > 0 {
+				paperConfig.RequiredSections = dr.RequiredSections
+			}
+			if dr.TitleMaxWords != nil {
+				paperConfig.TitleMaxWords = *dr.TitleMaxWords
+			}
+			if dr.MaxSentenceWords != nil {
+				paperConfig.MaxSentenceWords = *dr.MaxSentenceWords
+			}
+			if dr.Thresholds != nil {
+				if dr.Thresholds.DeskRejectScore != nil {
+					paperConfig.Thresholds.DeskRejectScore = *dr.Thresholds.DeskRejectScore
+				}
+				if dr.Thresholds.AcceptScore != nil {
+					paperConfig.Thresholds.AcceptScore = *dr.Thresholds.AcceptScore
+				}
+			}
+			if len(dr.Weights) > 0 {
+				paperConfig.Weights = dr.Weights
+			}
+			if dr.CustomRules != nil {
+				if dr.CustomRules.MinDatasets != nil {
+					paperConfig.CustomRules.MinDatasets = *dr.CustomRules.MinDatasets
+				}
+				if dr.CustomRules.MinimumTables != nil {
+					paperConfig.CustomRules.MinimumTables = *dr.CustomRules.MinimumTables
+				}
+				if dr.CustomRules.AuthorAnonymizationRequired != nil {
+					paperConfig.CustomRules.AuthorAnonymizationReq = *dr.CustomRules.AuthorAnonymizationRequired
+				}
+				if len(dr.CustomRules.CriticalKeywordsRequired) > 0 {
+					paperConfig.CustomRules.CriticalKeywordsReq = dr.CustomRules.CriticalKeywordsRequired
+				}
+				if len(dr.CustomRules.BannedPhrases) > 0 {
+					paperConfig.CustomRules.BannedPhrases = dr.CustomRules.BannedPhrases
+				}
+			}
+			if len(dr.ScopeKeywords) > 0 {
+				paperConfig.ConferenceDomains = dr.ScopeKeywords
+			}
+			if len(dr.PromptFragments) > 0 {
+				paperConfig.PromptFragments = dr.PromptFragments
+			}
+		}
 	}
 
 	return paperConfig
 }
 
+func mapPrecheckError(err error) error {
+	if typedErr, ok := err.(*drerrors.Error); ok {
+		return handler.NewDetailedErrorResponse(http.StatusUnprocessableEntity, "precheck failed", map[string]interface{}{
+			"code":     "PRECHECK_FAILED",
+			"category": typedErr.Category,
+			"message":  typedErr.Message,
+		})
+	}
+
+	return handler.NewDetailedErrorResponse(http.StatusUnprocessableEntity, "precheck failed", map[string]interface{}{
+		"code":     "PRECHECK_FAILED",
+		"category": drerrors.CategoryPipeline,
+		"message":  err.Error(),
+	})
+}
+
+func savePrecheckUploadToTemp(file *multipart.FileHeader) (string, error) {
+	pattern := "precheck-*"
+	if ext := filepath.Ext(file.Filename); ext != "" {
+		pattern += ext
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		return "", err
+	}
+	defer src.Close()
+
+	tempFile, err := os.CreateTemp("", pattern)
+	if err != nil {
+		return "", err
+	}
+	defer tempFile.Close()
+
+	if _, err := io.Copy(tempFile, src); err != nil {
+		return "", err
+	}
+
+	return tempFile.Name(), nil
+}

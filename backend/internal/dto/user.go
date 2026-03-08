@@ -3,13 +3,15 @@ package dto
 import "time"
 
 type User struct {
-	ID                int64    `json:"id"`
-	Email             string   `json:"email" binding:"required,email"`
-	FirstName         string   `json:"first_name" binding:"required"`
-	LastName          string   `json:"last_name" binding:"required"`
-	Domain            []string `json:"domain"`
-	SemanticScholarID *string  `json:"semantic_scholar_id,omitempty"`
-	ProfileSyncStatus *string  `json:"profile_sync_status,omitempty"`
+	ID                   int64    `json:"id"`
+	Email                string   `json:"email" binding:"required,email"`
+	FirstName            string   `json:"first_name" binding:"required"`
+	LastName             string   `json:"last_name" binding:"required"`
+	Domain               []string `json:"domain"`
+	SemanticScholarID    *string  `json:"semantic_scholar_id,omitempty"`
+	ProfileSyncStatus    *string  `json:"profile_sync_status,omitempty"`
+	SemanticScholarIDSet bool     `json:"-"`
+	ProfileSyncStatusSet bool     `json:"-"`
 }
 
 type UserResponse struct {
@@ -86,6 +88,11 @@ type UserCOICheckResponse struct {
 	TotalAuthors       int                 `json:"total_authors"`
 	ConflictingCount   int                 `json:"conflicting_count"`
 	ConflictingAuthors []ConflictingAuthor `json:"conflicting_authors"`
+}
+
+type ProfileSyncStatusResponse struct {
+	SemanticScholarID *string `json:"semantic_scholar_id,omitempty"`
+	ProfileSyncStatus *string `json:"profile_sync_status,omitempty"`
 }
 
 type ForgotPasswordRequest struct {

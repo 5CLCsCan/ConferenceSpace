@@ -16,21 +16,27 @@ interface PendingDecisionsTableProps {
 const DEFAULT_DECISIONS: PendingDecision[] = [
   {
     id: "#1024",
-    title: t("runtime.components.chair.conference-detail.pending-decisions-table.prop_title_deep_learning_for_autonomous_navigation_in"),
+    title: t(
+      "runtime.components.chair.conference-detail.pending-decisions-table.prop_title_deep_learning_for_autonomous_navigation_in",
+    ),
     score: 4.8,
     status: "Reviews Done",
     scoreVariant: "high",
   },
   {
     id: "#1056",
-    title: t("runtime.components.chair.conference-detail.pending-decisions-table.prop_title_generative_adversarial_networks_for_image"),
+    title: t(
+      "runtime.components.chair.conference-detail.pending-decisions-table.prop_title_generative_adversarial_networks_for_image",
+    ),
     score: 3.2,
     status: "Borderline",
     scoreVariant: "medium",
   },
   {
     id: "#1089",
-    title: t("runtime.components.chair.conference-detail.pending-decisions-table.prop_title_reinforcement_learning_in_robotics_a_survey"),
+    title: t(
+      "runtime.components.chair.conference-detail.pending-decisions-table.prop_title_reinforcement_learning_in_robotics_a_survey",
+    ),
     score: 1.5,
     status: "Low Confidence",
     scoreVariant: "low",
@@ -66,13 +72,19 @@ export function PendingDecisionsTable({
             </span>
           </div>
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            {t("runtime.components.chair.conference-detail.pending-decisions-table.text_pending_decisions")}{" "}</h3>
+            {t(
+              "runtime.components.chair.conference-detail.pending-decisions-table.text_pending_decisions",
+            )}{" "}
+          </h3>
         </div>
         <button
           onClick={onViewAll}
           className="text-[10px] text-[#1B3C53] dark:text-sky-400 font-bold hover:underline uppercase tracking-wider"
         >
-          {t("runtime.components.chair.conference-detail.pending-decisions-table.text_view_all_submissions")}{" "}</button>
+          {t(
+            "runtime.components.chair.conference-detail.pending-decisions-table.text_view_all_submissions",
+          )}{" "}
+        </button>
       </div>
 
       {/* Table */}
@@ -80,11 +92,25 @@ export function PendingDecisionsTable({
         <table className="w-full text-left border-collapse">
           <thead className="bg-slate-50 dark:bg-slate-900/50 text-[9px] uppercase text-slate-400 font-bold tracking-widest">
             <tr>
-              <th className="px-4 py-2.5">{t("runtime.components.chair.conference-detail.pending-decisions-table.text_id")}</th>
-              <th className="px-4 py-2.5">{t("runtime.components.chair.conference-detail.pending-decisions-table.text_title")}</th>
-              <th className="px-4 py-2.5">{t("runtime.components.chair.conference-detail.pending-decisions-table.text_score")}</th>
-              <th className="px-4 py-2.5">{t("runtime.components.chair.conference-detail.pending-decisions-table.text_status")}</th>
-              <th className="px-4 py-2.5 text-right">{t("runtime.components.chair.conference-detail.pending-decisions-table.text_action")}</th>
+              <th className="px-4 py-2.5">
+                {t("runtime.components.chair.conference-detail.pending-decisions-table.text_id")}
+              </th>
+              <th className="px-4 py-2.5">
+                {t("runtime.components.chair.conference-detail.pending-decisions-table.text_title")}
+              </th>
+              <th className="px-4 py-2.5">
+                {t("runtime.components.chair.conference-detail.pending-decisions-table.text_score")}
+              </th>
+              <th className="px-4 py-2.5">
+                {t(
+                  "runtime.components.chair.conference-detail.pending-decisions-table.text_status",
+                )}
+              </th>
+              <th className="px-4 py-2.5 text-right">
+                {t(
+                  "runtime.components.chair.conference-detail.pending-decisions-table.text_action",
+                )}
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
@@ -113,7 +139,10 @@ export function PendingDecisionsTable({
                     onClick={() => onDecide?.(decision.id)}
                     className="text-slate-500 hover:text-[#1B3C53] font-medium text-[10px] uppercase tracking-wider"
                   >
-                    {t("runtime.components.chair.conference-detail.pending-decisions-table.text_decide")}{" "}</button>
+                    {t(
+                      "runtime.components.chair.conference-detail.pending-decisions-table.text_decide",
+                    )}{" "}
+                  </button>
                 </td>
               </tr>
             ))}

@@ -138,7 +138,10 @@ function DateEventCard({ event, phaseStatus }: { event: ImportantDate; phaseStat
                 >
                   schedule
                 </span>
-                {t("runtime.components.author.conference-detail.important-dates-tab.text_23_59_aoe")}{" "}</span>
+                {t(
+                  "runtime.components.author.conference-detail.important-dates-tab.text_23_59_aoe",
+                )}{" "}
+              </span>
             </div>
           )}
         </div>
@@ -147,15 +150,22 @@ function DateEventCard({ event, phaseStatus }: { event: ImportantDate; phaseStat
         <div className="text-right shrink-0 flex items-center gap-2">
           {isPassed && (
             <span className="inline-block px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 text-[9px] font-bold rounded uppercase">
-              {t("runtime.components.author.conference-detail.important-dates-tab.text_passed")}{" "}</span>
+              {t(
+                "runtime.components.author.conference-detail.important-dates-tab.text_passed",
+              )}{" "}
+            </span>
           )}
           {isUpcoming && (
             <span className="inline-block px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-[#1B3C53] dark:text-blue-200 text-[9px] font-bold rounded-full border border-blue-100 dark:border-blue-900/50 uppercase">
-              {t("runtime.components.author.conference-detail.important-dates-tab.text_upcoming")}{" "}</span>
+              {t(
+                "runtime.components.author.conference-detail.important-dates-tab.text_upcoming",
+              )}{" "}
+            </span>
           )}
           {!isPassed && !isUpcoming && phaseStatus !== "completed" && (
             <span className="inline-block px-1.5 py-0.5 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[9px] font-bold rounded uppercase">
-              {t("runtime.components.author.conference-detail.important-dates-tab.text_open")}{" "}</span>
+              {t("runtime.components.author.conference-detail.important-dates-tab.text_open")}{" "}
+            </span>
           )}
         </div>
       </div>
@@ -210,7 +220,9 @@ function TimelinePhase({ phase }: { phase: Phase }) {
         >
           {isCompleted && "Completed"}
           {isInProgress && "In Progress"}
-          {isUpcoming && "Upcoming"} {t("runtime.components.author.conference-detail.important-dates-tab.text_text")}{" "}{phase.period}
+          {isUpcoming && "Upcoming"}{" "}
+          {t("runtime.components.author.conference-detail.important-dates-tab.text_text")}{" "}
+          {phase.period}
         </p>
       </div>
 
@@ -237,15 +249,23 @@ function NextDeadlineCard({
       <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-8 -mt-8 pointer-events-none" />
 
       <h3 className="text-[10px] font-medium text-slate-300 uppercase tracking-wider mb-1.5">
-        {t("runtime.components.author.conference-detail.important-dates-tab.text_next_major_deadline")}{" "}</h3>
+        {t(
+          "runtime.components.author.conference-detail.important-dates-tab.text_next_major_deadline",
+        )}{" "}
+      </h3>
       <div className="text-3xl font-bold mb-0.5">
         {daysUntil} <span className="text-sm font-normal text-slate-400">days</span>
       </div>
-      <p className="text-sm font-normal text-white mb-4">{t("runtime.components.author.conference-detail.important-dates-tab.text_until")}{" "}{nextDeadline.title}</p>
+      <p className="text-sm font-normal text-white mb-4">
+        {t("runtime.components.author.conference-detail.important-dates-tab.text_until")}{" "}
+        {nextDeadline.title}
+      </p>
 
       <div className="space-y-2 pt-3 border-t border-white/10">
         <div className="flex justify-between text-[11px]">
-          <span className="text-slate-300 font-light">{t("runtime.components.author.conference-detail.important-dates-tab.text_target_date")}</span>
+          <span className="text-slate-300 font-light">
+            {t("runtime.components.author.conference-detail.important-dates-tab.text_target_date")}
+          </span>
           <span className="font-light">
             {new Date(nextDeadline.date).toLocaleDateString("en-US", {
               month: "short",
@@ -255,8 +275,12 @@ function NextDeadlineCard({
           </span>
         </div>
         <div className="flex justify-between text-[11px]">
-          <span className="text-slate-300 font-light">{t("runtime.components.author.conference-detail.important-dates-tab.text_timezone")}</span>
-          <span className="font-light">{t("runtime.components.author.conference-detail.important-dates-tab.text_aoe_utc_12")}</span>
+          <span className="text-slate-300 font-light">
+            {t("runtime.components.author.conference-detail.important-dates-tab.text_timezone")}
+          </span>
+          <span className="font-light">
+            {t("runtime.components.author.conference-detail.important-dates-tab.text_aoe_utc_12")}
+          </span>
         </div>
       </div>
     </div>
@@ -271,14 +295,19 @@ function HelpCard() {
         <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
           help
         </span>
-        {t("runtime.components.author.conference-detail.important-dates-tab.text_need_help")}{" "}</h3>
+        {t("runtime.components.author.conference-detail.important-dates-tab.text_need_help")}{" "}
+      </h3>
       <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">
-        {t("runtime.components.author.conference-detail.important-dates-tab.text_check_the_conference_website_or_contact")}{" "}</p>
+        {t(
+          "runtime.components.author.conference-detail.important-dates-tab.text_check_the_conference_website_or_contact",
+        )}{" "}
+      </p>
       <a
         className="text-[10px] font-bold text-[#1B3C53] dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 flex items-center gap-0.5 transition-colors"
         href="#"
       >
-        {t("runtime.components.author.conference-detail.important-dates-tab.text_contact_support")}{" "}<span className="material-symbols-outlined" style={iconStyle}>
+        {t("runtime.components.author.conference-detail.important-dates-tab.text_contact_support")}{" "}
+        <span className="material-symbols-outlined" style={iconStyle}>
           arrow_forward
         </span>
       </a>
@@ -330,16 +359,25 @@ export function ImportantDatesTab({ dates }: DatesTabProps) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            {t("runtime.components.author.conference-detail.important-dates-tab.text_conference_timeline")}{" "}</h2>
+            {t(
+              "runtime.components.author.conference-detail.important-dates-tab.text_conference_timeline",
+            )}{" "}
+          </h2>
           <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-            {t("runtime.components.author.conference-detail.important-dates-tab.text_keep_track_of_important_deadlines_for")}{" "}</p>
+            {t(
+              "runtime.components.author.conference-detail.important-dates-tab.text_keep_track_of_important_deadlines_for",
+            )}{" "}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <button className="px-3 py-2 text-[11px] font-medium text-slate-700 bg-white border border-slate-200 rounded-md hover:bg-slate-50 flex items-center gap-1.5 shadow-sm transition-all">
             <span className="material-symbols-outlined" style={iconStyle}>
               calendar_add_on
             </span>
-            {t("runtime.components.author.conference-detail.important-dates-tab.text_sync_to_calendar")}{" "}</button>
+            {t(
+              "runtime.components.author.conference-detail.important-dates-tab.text_sync_to_calendar",
+            )}{" "}
+          </button>
         </div>
       </div>
 

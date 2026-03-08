@@ -22,4 +22,3 @@ describe("translation-context", () => {
     ).not.toThrow()
   })
 })
-

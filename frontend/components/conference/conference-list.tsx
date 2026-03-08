@@ -110,17 +110,23 @@ export function ConferenceList({
       {/* Header Row */}
       <div className="hidden lg:grid lg:grid-cols-[1fr_190px_130px_190px_minmax(120px,240px)_88px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.conference-list.text_conference")}{" "}</div>
+          {t("runtime.components.conference.conference-list.text_conference")}{" "}
+        </div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.conference-list.text_role")}{" "}</div>
+          {t("runtime.components.conference.conference-list.text_role")}{" "}
+        </div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.conference-list.text_status")}{" "}</div>
+          {t("runtime.components.conference.conference-list.text_status")}{" "}
+        </div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.conference-list.text_dates")}{" "}</div>
+          {t("runtime.components.conference.conference-list.text_dates")}{" "}
+        </div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.conference-list.text_progress")}{" "}</div>
+          {t("runtime.components.conference.conference-list.text_progress")}{" "}
+        </div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">
-          {t("runtime.components.conference.conference-list.text_actions")}{" "}</div>
+          {t("runtime.components.conference.conference-list.text_actions")}{" "}
+        </div>
       </div>
 
       {/* List Rows */}
@@ -154,7 +160,8 @@ export function ConferenceList({
                 disabled={currentPage <= 1}
                 className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t("runtime.components.conference.conference-list.text_previous")}{" "}</button>
+                {t("runtime.components.conference.conference-list.text_previous")}{" "}
+              </button>
 
               {getPageNumbers().map((page, idx) => {
                 if (page === "ellipsis") {
@@ -186,7 +193,8 @@ export function ConferenceList({
                 disabled={currentPage >= totalPages}
                 className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t("runtime.components.conference.conference-list.text_next")}{" "}</button>
+                {t("runtime.components.conference.conference-list.text_next")}{" "}
+              </button>
             </div>
           )}
         </div>
@@ -393,7 +401,10 @@ function ProgressIndicator({ conference }: ProgressIndicatorProps) {
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-bold text-[#1B3C53] dark:text-white">{value}%</span>
           {daysLeft > 0 && (
-            <span className="text-[9px] font-medium text-slate-400">{daysLeft}{t("runtime.components.conference.conference-list.text_d_left")}</span>
+            <span className="text-[9px] font-medium text-slate-400">
+              {daysLeft}
+              {t("runtime.components.conference.conference-list.text_d_left")}
+            </span>
           )}
         </div>
       </div>
@@ -421,7 +432,8 @@ function ProgressIndicator({ conference }: ProgressIndicatorProps) {
           </span>
           {actionRequired && (
             <span className="text-[8px] font-black text-orange-600 uppercase tracking-wider">
-              {t("runtime.components.conference.conference-list.text_action")}{" "}</span>
+              {t("runtime.components.conference.conference-list.text_action")}{" "}
+            </span>
           )}
         </div>
       </div>
@@ -432,7 +444,10 @@ function ProgressIndicator({ conference }: ProgressIndicatorProps) {
   if (conference.status === "draft" && conference.draftSavedDaysAgo !== undefined) {
     return (
       <span className="text-[10px] font-medium text-slate-400 italic">
-        {t("runtime.components.conference.conference-list.text_saved")}{" "}{conference.draftSavedDaysAgo}{t("runtime.components.conference.conference-list.text_d_ago")}{" "}</span>
+        {t("runtime.components.conference.conference-list.text_saved")}{" "}
+        {conference.draftSavedDaysAgo}
+        {t("runtime.components.conference.conference-list.text_d_ago")}{" "}
+      </span>
     )
   }
 

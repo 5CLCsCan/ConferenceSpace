@@ -41,7 +41,7 @@ function MemberCard({
   const { t } = useTranslation()
   if (variant === "featured") {
     return (
-      <div 
+      <div
         className="flex items-start gap-3 p-3 rounded-lg border border-slate-100 hover:border-slate-200 dark:border-slate-800 dark:hover:border-slate-700 transition-colors bg-slate-50/50 dark:bg-slate-800/50 cursor-pointer relative group"
         onClick={(e) => {
           e.preventDefault()
@@ -87,7 +87,7 @@ function MemberCard({
 
   if (variant === "compact") {
     return (
-      <div 
+      <div
         className="p-2.5 rounded-lg border border-slate-100 hover:border-slate-200 dark:border-slate-800 hover:shadow-sm transition-all bg-white dark:bg-slate-900 cursor-pointer relative group"
         onClick={(e) => {
           e.preventDefault()
@@ -122,7 +122,7 @@ function MemberCard({
   }
 
   return (
-    <div 
+    <div
       className="flex items-center gap-3 p-2.5 rounded-lg border border-slate-100 hover:border-slate-200 dark:border-slate-800 dark:hover:border-slate-700 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/30 cursor-pointer relative group"
       onClick={(e) => {
         e.preventDefault()
@@ -163,9 +163,15 @@ export function CommitteeTab({ conference }: TabProps) {
         {/* Card Header */}
         <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
           <h2 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            {t("runtime.components.author.conference-detail.committee-tab.text_organizing_committee")}{" "}</h2>
+            {t(
+              "runtime.components.author.conference-detail.committee-tab.text_organizing_committee",
+            )}{" "}
+          </h2>
           <p className="text-[10px] text-slate-500 mt-0.5">
-            {t("runtime.components.author.conference-detail.committee-tab.text_meet_the_team_behind")}{" "}{conference.name}.
+            {t(
+              "runtime.components.author.conference-detail.committee-tab.text_meet_the_team_behind",
+            )}{" "}
+            {conference.name}.
           </p>
         </div>
 
@@ -174,7 +180,10 @@ export function CommitteeTab({ conference }: TabProps) {
           {/* General Chairs */}
           <div>
             <h3 className="text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
-              {t("runtime.components.author.conference-detail.committee-tab.text_general_chairs")}{" "}</h3>
+              {t(
+                "runtime.components.author.conference-detail.committee-tab.text_general_chairs",
+              )}{" "}
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {conference.chair && (
                 <MemberCard
@@ -204,7 +213,10 @@ export function CommitteeTab({ conference }: TabProps) {
           {/* Program Chairs */}
           <div>
             <h3 className="text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
-              {t("runtime.components.author.conference-detail.committee-tab.text_program_chairs")}{" "}</h3>
+              {t(
+                "runtime.components.author.conference-detail.committee-tab.text_program_chairs",
+              )}{" "}
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {["Alex Brown", "Emily Zhang", "Robert Klein"].map((name) => (
                 <MemberCard
@@ -222,7 +234,8 @@ export function CommitteeTab({ conference }: TabProps) {
           {/* Area Chairs */}
           <div>
             <h3 className="text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
-              {t("runtime.components.author.conference-detail.committee-tab.text_area_chairs")}{" "}</h3>
+              {t("runtime.components.author.conference-detail.committee-tab.text_area_chairs")}{" "}
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
               {[
                 { name: "David Miller", track: "Reinforcement Learning" },
@@ -241,8 +254,15 @@ export function CommitteeTab({ conference }: TabProps) {
               ))}
               <div className="p-2.5 rounded-lg border border-slate-100 hover:border-slate-200 dark:border-slate-800 hover:shadow-sm transition-all bg-white dark:bg-slate-900 flex flex-col justify-center cursor-pointer group">
                 <div className="font-bold text-[#1B3C53] dark:text-white text-[12px] tracking-tight group-hover:text-blue-600">
-                  {t("runtime.components.author.conference-detail.committee-tab.text_more_members")}{" "}</div>
-                <div className="text-[10px] text-slate-500">{t("runtime.components.author.conference-detail.committee-tab.text_view_full_list")}</div>
+                  {t(
+                    "runtime.components.author.conference-detail.committee-tab.text_more_members",
+                  )}{" "}
+                </div>
+                <div className="text-[10px] text-slate-500">
+                  {t(
+                    "runtime.components.author.conference-detail.committee-tab.text_view_full_list",
+                  )}
+                </div>
                 <div className="mt-1.5 flex">
                   <span
                     className="material-symbols-outlined text-slate-400 group-hover:text-blue-600"

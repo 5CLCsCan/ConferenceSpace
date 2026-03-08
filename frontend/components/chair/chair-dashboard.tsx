@@ -49,11 +49,11 @@ const EMPTY_METRICS: DashboardMetrics = {
   totalConferences: 0,
 }
 
-function formatDueDate(value?: string): string | undefined {
+function formatDueDate(value: string | undefined, locale: string): string | undefined {
   if (!value) return undefined
   const parsed = new Date(value)
   if (Number.isNaN(parsed.getTime())) return undefined
-  return parsed.toLocaleDateString("en-US", { month: "short", day: "2-digit" })
+  return parsed.toLocaleDateString(locale, { month: "short", day: "2-digit" })
 }
 
 function daysUntil(value?: string): number | null {
@@ -68,7 +68,8 @@ function daysUntil(value?: string): number | null {
 function buildAction(
   conference: Conference,
   submissionTotal: number,
-  t: (key: string) => string,
+  t: (key: string, values?: Record<string, string | number>) => string,
+  locale: string,
 ): DashboardAction {
   const dueInDays = daysUntil(conference.submission_deadline)
   const isOverdue = typeof dueInDays === "number" && dueInDays < 0
@@ -85,23 +86,38 @@ function buildAction(
     year: String(conference.year),
     priority,
     title: t("runtime.components.chair.chair-dashboard.prop_title_monitor_submissions_reviews"),
-    description: `${submissionTotal} submission${submissionTotal === 1 ? "" : "s"} in this conference.`,
+    description:
+      submissionTotal === 1
+        ? t("runtime.components.chair.chair-dashboard.text_submission_count_description_one")
+        : t("runtime.components.chair.chair-dashboard.text_submission_count_description", {
+            count: submissionTotal,
+          }),
     dueLabel:
       dueInDays === null
         ? undefined
         : isOverdue
-          ? `${Math.abs(dueInDays)} days late`
-          : `${dueInDays} days`,
-    dueDate: formatDueDate(conference.submission_deadline),
-    statusLabel: isOverdue ? "Overdue" : undefined,
-    statusDate: isOverdue ? formatDueDate(conference.submission_deadline) : undefined,
-    buttonLabel: "Open Conference",
+          ? Math.abs(dueInDays) === 1
+            ? t("runtime.components.chair.chair-dashboard.text_days_late_one")
+            : t("runtime.components.chair.chair-dashboard.text_days_late", {
+                count: Math.abs(dueInDays),
+              })
+          : dueInDays === 1
+            ? t("runtime.components.chair.chair-dashboard.text_due_in_days_one")
+            : t("runtime.components.chair.chair-dashboard.text_due_in_days", {
+                count: dueInDays,
+              }),
+    dueDate: formatDueDate(conference.submission_deadline, locale),
+    statusLabel: isOverdue
+      ? t("runtime.components.chair.chair-dashboard.text_overdue")
+      : undefined,
+    statusDate: isOverdue ? formatDueDate(conference.submission_deadline, locale) : undefined,
+    buttonLabel: t("runtime.components.chair.chair-dashboard.text_open_conference"),
     isOverdue,
   }
 }
 
 export default function ChairDashboard() {
-  const { t } = useTranslation()
+  const { locale, t } = useTranslation()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -156,7 +172,9 @@ export default function ChairDashboard() {
 
         setActions(
           totals
-            .map((item) => buildAction(item.conference, item.total, t))
+            .map((item) =>
+              buildAction(item.conference, item.total, t, locale === "vi" ? "vi-VN" : "en-US"),
+            )
             .sort((a, b) => {
               const aOverdue = a.isOverdue ? 0 : 1
               const bOverdue = b.isOverdue ? 0 : 1
@@ -173,44 +191,61 @@ export default function ChairDashboard() {
     }
 
     void loadDashboard()
-  }, [t])
+  }, [locale, t])
 
-  const lastUpdated = useMemo(() => new Date().toLocaleTimeString(), [])
+  const lastUpdated = useMemo(
+    () => new Date().toLocaleTimeString(locale === "vi" ? "vi-VN" : "en-US"),
+    [locale],
+  )
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
           <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white leading-[1.1]">
-            {t("runtime.components.chair.chair-dashboard.text_chair_dashboard")}{" "}</h1>
+            {t("runtime.components.chair.chair-dashboard.text_chair_dashboard")}{" "}
+          </h1>
           <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
-            {t("runtime.components.chair.chair-dashboard.text_overview_amp_management_across_your_conferences")}{" "}</p>
+            {t(
+              "runtime.components.chair.chair-dashboard.text_overview_amp_management_across_your_conferences",
+            )}{" "}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">
-            {t("runtime.components.chair.chair-dashboard.text_last_updated")}{" "}{lastUpdated}
+            {t("runtime.components.chair.chair-dashboard.text_last_updated")} {lastUpdated}
           </span>
         </div>
       </div>
 
       {loading ? (
-        <div className="text-sm text-slate-500">{t("runtime.components.chair.chair-dashboard.text_loading_dashboard")}</div>
+        <div className="text-sm text-slate-500">
+          {t("runtime.components.chair.chair-dashboard.text_loading_dashboard")}
+        </div>
       ) : error ? (
         <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-          {t("runtime.components.chair.chair-dashboard.text_failed_to_load_dashboard")}{" "}{error}
+          {t("runtime.components.chair.chair-dashboard.text_failed_to_load_dashboard")} {error}
         </div>
       ) : (
         <>
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
-            <MetricCard label="Total Submissions" value={metrics.totalSubmissions} />
             <MetricCard
-              label="Reviews Completed"
-              value={metrics.reviewsCompleted}
-              subtext={`Across ${metrics.reviewsConferences} conferences`}
+              label={t("runtime.components.chair.chair-dashboard.text_total_submissions")}
+              value={metrics.totalSubmissions}
             />
-            <MetricCard label="Avg. Acceptance" value={`${metrics.avgAcceptance}%`} />
             <MetricCard
-              label="Active Conferences"
+              label={t("runtime.components.chair.chair-dashboard.text_reviews_completed")}
+              value={metrics.reviewsCompleted}
+              subtext={t("runtime.components.chair.chair-dashboard.text_across_conferences", {
+                count: metrics.reviewsConferences,
+              })}
+            />
+            <MetricCard
+              label={t("runtime.components.chair.chair-dashboard.text_avg_acceptance")}
+              value={`${metrics.avgAcceptance}%`}
+            />
+            <MetricCard
+              label={t("runtime.components.chair.chair-dashboard.text_active_conferences")}
               value={metrics.activeConferences}
               suffix={`/ ${metrics.totalConferences}`}
             />
@@ -219,14 +254,17 @@ export default function ChairDashboard() {
           <div className="flex flex-col gap-2">
             <SectionHeader
               title={t("runtime.components.chair.chair-dashboard.title_actions_required")}
-              actionLabel="View all"
+              actionLabel={t("runtime.components.chair.chair-dashboard.text_view_all")}
               onAction={() => router.push(ROUTES.CHAIR.CONFERENCES)}
             />
 
             <ActionCardList>
               {actions.length === 0 ? (
                 <div className="rounded-lg border border-slate-200 bg-white p-4 text-xs text-slate-500">
-                  {t("runtime.components.chair.chair-dashboard.text_no_conference_actions_found")}{" "}</div>
+                  {t(
+                    "runtime.components.chair.chair-dashboard.text_no_conference_actions_found",
+                  )}{" "}
+                </div>
               ) : (
                 actions.map((action) => (
                   <ActionCard

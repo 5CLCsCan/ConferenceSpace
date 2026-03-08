@@ -45,7 +45,8 @@ export function ParticipantAvatar({ participant, size = "md" }: ParticipantAvata
       <div
         className={`${sizeClasses[size]} rounded-full bg-[#1B3C53] text-white flex items-center justify-center font-bold ring-2 ring-[#1B3C53]/20`}
       >
-        {t("runtime.components.shared.discussion.components.participant-avatar.text_you")}{" "}</div>
+        {t("runtime.components.shared.discussion.components.participant-avatar.text_you")}{" "}
+      </div>
     )
   }
 

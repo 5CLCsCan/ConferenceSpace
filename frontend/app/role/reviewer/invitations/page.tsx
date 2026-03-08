@@ -19,7 +19,7 @@ export default function ReviewerInvitationsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [statusFilter, setStatusFilter] = useState("")
 
-  const { dashboard, isLoading, refresh } = useReviewerDashboard(reviewerEmail, {
+  const { dashboard, isLoading, isValidating, refresh } = useReviewerDashboard(reviewerEmail, {
     invitationStatus: statusFilter,
     invitationLimit: PAGE_SIZE,
     invitationOffset: (currentPage - 1) * PAGE_SIZE,
@@ -42,8 +42,8 @@ export default function ReviewerInvitationsPage() {
     conferenceLimit: 1,
     conferenceOffset: 0,
   })
-  const { dashboard: declinedCountDash } = useReviewerDashboard(reviewerEmail, {
-    invitationStatus: "declined",
+  const { dashboard: rejectedCountDash } = useReviewerDashboard(reviewerEmail, {
+    invitationStatus: "rejected",
     invitationLimit: 1,
     invitationOffset: 0,
     conferenceLimit: 1,
@@ -52,12 +52,12 @@ export default function ReviewerInvitationsPage() {
 
   const pendingCount = pendingCountDash?.total_invitations ?? 0
   const acceptedCount = acceptedCountDash?.total_invitations ?? 0
-  const declinedCount = declinedCountDash?.total_invitations ?? 0
+  const rejectedCount = rejectedCountDash?.total_invitations ?? 0
   const statusCounts = {
-    all: pendingCount + acceptedCount + declinedCount,
+    all: pendingCount + acceptedCount + rejectedCount,
     pending: pendingCount,
     accepted: acceptedCount,
-    declined: declinedCount,
+    rejected: rejectedCount,
   }
 
   const invitations = dashboard?.invitations || []
@@ -88,7 +88,7 @@ export default function ReviewerInvitationsPage() {
 
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
         <div className="flex-1 overflow-y-auto py-8 px-12 w-full">
-          {isLoading && invitations.length === 0 ? (
+          {isLoading && !dashboard ? (
             <InvitationsSkeleton />
           ) : (
             <ReviewerInvitations
@@ -103,6 +103,7 @@ export default function ReviewerInvitationsPage() {
               pageSize={PAGE_SIZE}
               onPageChange={handlePageChange}
               statusCounts={statusCounts}
+              isRefreshing={isValidating}
             />
           )}
         </div>

@@ -172,8 +172,12 @@ function buildHistoryEvents(
     id: `submission-created-${submissionData.id}`,
     type: "submission_created",
     category: "submission",
-    title: t("runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_title_submission_created"),
-    description: t("runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_description_initial_submission_was_created"),
+    title: t(
+      "runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_title_submission_created",
+    ),
+    description: t(
+      "runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_description_initial_submission_was_created",
+    ),
     actor: authorActor,
     timestamp: submissionData.created_at,
   })
@@ -183,7 +187,9 @@ function buildHistoryEvents(
       id: `submission-file-${submissionData.id}`,
       type: "submission_uploaded",
       category: "submission",
-      title: t("runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_title_file_uploaded"),
+      title: t(
+        "runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_title_file_uploaded",
+      ),
       description: `Uploaded ${submissionData.file.original_name || submissionData.file.filename}`,
       actor: authorActor,
       timestamp: submissionData.updated_at || submissionData.created_at,
@@ -198,8 +204,12 @@ function buildHistoryEvents(
       id: `submission-updated-${submissionData.id}`,
       type: "submission_updated",
       category: "submission",
-      title: t("runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_title_submission_updated"),
-      description: t("runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_description_submission_metadata_was_updated"),
+      title: t(
+        "runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_title_submission_updated",
+      ),
+      description: t(
+        "runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_description_submission_metadata_was_updated",
+      ),
       actor: authorActor,
       timestamp: submissionData.updated_at,
     })
@@ -215,7 +225,9 @@ function buildHistoryEvents(
       submissionData.status === "accepted" || submissionData.status === "rejected"
         ? "decision"
         : "status",
-    title: t("runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_title_status_updated"),
+    title: t(
+      "runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_title_status_updated",
+    ),
     description: `Submission status is ${submissionData.status}`,
     actor: buildActor("System", "system"),
     timestamp: submissionData.updated_at || submissionData.created_at,
@@ -229,7 +241,9 @@ function buildHistoryEvents(
       id: `review-assigned-${review.id}`,
       type: "reviewers_assigned",
       category: "assignment",
-      title: t("runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_title_reviewer_assigned"),
+      title: t(
+        "runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_title_reviewer_assigned",
+      ),
       description: `${reviewerName} assigned to this submission`,
       actor: buildActor("Chair", "chair"),
       timestamp: review.created_at,
@@ -240,7 +254,9 @@ function buildHistoryEvents(
         id: `review-draft-${review.id}`,
         type: "review_saved",
         category: "review",
-        title: t("runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_title_draft_review_saved"),
+        title: t(
+          "runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_title_draft_review_saved",
+        ),
         description: `${reviewerName} saved a draft review`,
         actor: reviewerActor,
         timestamp: review.updated_at,
@@ -256,7 +272,9 @@ function buildHistoryEvents(
         id: `review-submitted-${review.id}`,
         type: "review_submitted",
         category: "review",
-        title: t("runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_title_review_submitted"),
+        title: t(
+          "runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_title_review_submitted",
+        ),
         description: `${reviewerName} submitted a review`,
         actor: reviewerActor,
         timestamp: review.review_submitted_at || review.updated_at,
@@ -272,7 +290,9 @@ function buildHistoryEvents(
       id: `thread-created-${thread.id}`,
       type: "discussion_thread_created",
       category: "discussion",
-      title: t("runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_title_discussion_thread_created"),
+      title: t(
+        "runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_title_discussion_thread_created",
+      ),
       description: `${threadActor.name} opened thread: ${thread.title}`,
       actor: threadActor,
       timestamp: thread.created_at,
@@ -285,7 +305,9 @@ function buildHistoryEvents(
         id: `thread-message-${message.id}`,
         type: "discussion_message_added",
         category: "discussion",
-        title: t("runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_title_discussion_message_added"),
+        title: t(
+          "runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.prop_title_discussion_message_added",
+        ),
         description: `${normalizePersonLabel(actorEmail)} posted a message in "${thread.title}"`,
         actor: buildActor(
           normalizePersonLabel(actorEmail),
@@ -381,7 +403,9 @@ export default function ChairSubmissionDetailPage() {
       const submissionData = submissionResponse.data
       const coAuthors = submissionData.information?.co_authors || []
       const keywords = submissionData.information?.keywords || submissionData.domain || []
-      const conflicts = (submissionData.information?.declared_conflicts || []).map((item) => item.email)
+      const conflicts = (submissionData.information?.declared_conflicts || []).map(
+        (item) => item.email,
+      )
       const reviews = reviewsResponse.data || []
       const analytics = analyticsResponse.data
 
@@ -461,7 +485,8 @@ export default function ChairSubmissionDetailPage() {
             analytics &&
             analytics.confidence_distribution.high >= analytics.confidence_distribution.medium
               ? "high"
-              : analytics && analytics.confidence_distribution.low > analytics.confidence_distribution.medium
+              : analytics &&
+                  analytics.confidence_distribution.low > analytics.confidence_distribution.medium
                 ? "low"
                 : "medium",
           status: `${reviews.filter((review) => review.review_status === "submitted").length}/${reviews.length} reviews submitted`,
@@ -517,16 +542,25 @@ export default function ChairSubmissionDetailPage() {
           <div className="px-8 py-6 w-full max-w-[1600px] mx-auto">
             {loading ? (
               <div className="flex items-center justify-center h-64 text-slate-400 text-xs">
-                {t("runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.text_loading")}{" "}</div>
+                {t(
+                  "runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.text_loading",
+                )}{" "}
+              </div>
             ) : error || !submission ? (
               <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-                {t("runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.text_failed_to_load_submission")}{" "}{error || "Unknown error"}
+                {t(
+                  "runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.text_failed_to_load_submission",
+                )}{" "}
+                {error || "Unknown error"}
               </div>
             ) : (
               <Suspense
                 fallback={
                   <div className="flex items-center justify-center h-64 text-slate-400 text-xs">
-                    {t("runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.text_loading")}{" "}</div>
+                    {t(
+                      "runtime.app.role.chair.conferences.conferenceId.submissions.submissionId.page.text_loading",
+                    )}{" "}
+                  </div>
                 }
               >
                 <SubmissionDetailContent

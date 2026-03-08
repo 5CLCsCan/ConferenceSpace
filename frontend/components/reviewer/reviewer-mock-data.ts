@@ -284,7 +284,7 @@ export const MOCK_INVITATIONS: ReviewRequest[] = [
     requested_by: "contact@eccv2024.org",
     requested_by_name: "ECCV Chairs",
     requested_at: "2024-07-28T16:00:00Z",
-    status: "declined",
+    status: "rejected",
     expertise_match: 85,
     papers_count: 3,
     estimated_hours: 10,

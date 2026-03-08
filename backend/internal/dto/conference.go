@@ -2,23 +2,74 @@ package dto
 
 import "time"
 
+type DeskRejectionThresholds struct {
+	DeskRejectScore *float64 `json:"desk_reject_score,omitempty"`
+	AcceptScore     *float64 `json:"accept_score,omitempty"`
+}
+
+type DeskRejectionCustomRules struct {
+	MinDatasets                 *int     `json:"min_datasets,omitempty"`
+	MinimumTables               *int     `json:"minimum_tables,omitempty"`
+	AuthorAnonymizationRequired *bool    `json:"author_anonymization_required,omitempty"`
+	CriticalKeywordsRequired    []string `json:"critical_keywords_required,omitempty"`
+	BannedPhrases               []string `json:"banned_phrases,omitempty"`
+}
+
+type DeskRejectionSettings struct {
+	Enabled          *bool                     `json:"enabled,omitempty"`
+	MinReferences    *int                      `json:"min_references,omitempty"`
+	RequiredSections []string                  `json:"required_sections,omitempty"`
+	TitleMaxWords    *int                      `json:"title_max_words,omitempty"`
+	MaxSentenceWords *int                      `json:"max_sentence_words,omitempty"`
+	Thresholds       *DeskRejectionThresholds  `json:"thresholds,omitempty"`
+	Weights          map[string]float64        `json:"weights,omitempty"`
+	CustomRules      *DeskRejectionCustomRules `json:"custom_rules,omitempty"`
+	ScopeKeywords    []string                  `json:"scope_keywords,omitempty"`
+	PromptFragments  []string                  `json:"prompt_fragments,omitempty"`
+}
+
+type DiscussionSettings struct {
+	Enabled             *bool      `json:"enabled,omitempty"`
+	AllowAuthorResponse *bool      `json:"allow_author_response,omitempty"`
+	StartAt             *time.Time `json:"start_at,omitempty"`
+	EndAt               *time.Time `json:"end_at,omitempty"`
+}
+
+type RebuttalSettings struct {
+	Enabled              *bool      `json:"enabled,omitempty"`
+	StartAt              *time.Time `json:"start_at,omitempty"`
+	EndAt                *time.Time `json:"end_at,omitempty"`
+	CharacterLimit       *int       `json:"character_limit,omitempty"`
+	AllowRevisions       *bool      `json:"allow_revisions,omitempty"`
+	AllowNewResults      *bool      `json:"allow_new_results,omitempty"`
+	RequireResponseToAll *bool      `json:"require_response_to_all,omitempty"`
+}
+
+type WorkflowSettings struct {
+	StrictDeadlines *bool `json:"strict_deadlines,omitempty"`
+}
+
 type ConferenceConfiguration struct {
-	StartDate                    *time.Time `json:"start_date,omitempty"`
-	EndDate                      *time.Time `json:"end_date,omitempty"`
-	AbstractSubmissionDeadline   *time.Time `json:"abstract_submission_deadline,omitempty"`
-	FullPaperSubmissionDeadline  *time.Time `json:"full_paper_submission_deadline,omitempty"`
-	CameraReadyDeadline          *time.Time `json:"camera_ready_deadline,omitempty"`
-	Format                       *string    `json:"format,omitempty"`
-	EstimatedNumberOfSubmission  *int       `json:"estimated_number_of_submission,omitempty"`
-	ReviewType                   *string    `json:"review_type,omitempty"`
-	SubmissionType               *string    `json:"submission_type,omitempty"`
-	HaveCOI                      *bool      `json:"have_coi,omitempty"`
-	COIWindowYears               *int       `json:"coi_window_years,omitempty"` // Years to look back for collaborations (e.g., 4)
-	MaximumPages                 *int       `json:"maximum_pages,omitempty"`
-	SubmissionFormat             *string    `json:"submission_format,omitempty"`
-	RequireCompleteAuthorProfile *bool      `json:"require_complete_author_profile,omitempty"`
-	AllowPaperWithDrawls         *bool      `json:"allow_paper_withdrawls,omitempty"`
-	CallForPaperText             *string    `json:"call_for_paper_text,omitempty"`
+	StartDate                    *time.Time             `json:"start_date,omitempty"`
+	EndDate                      *time.Time             `json:"end_date,omitempty"`
+	AbstractSubmissionDeadline   *time.Time             `json:"abstract_submission_deadline,omitempty"`
+	FullPaperSubmissionDeadline  *time.Time             `json:"full_paper_submission_deadline,omitempty"`
+	CameraReadyDeadline          *time.Time             `json:"camera_ready_deadline,omitempty"`
+	Format                       *string                `json:"format,omitempty"`
+	EstimatedNumberOfSubmission  *int                   `json:"estimated_number_of_submission,omitempty"`
+	ReviewType                   *string                `json:"review_type,omitempty"`
+	SubmissionType               *string                `json:"submission_type,omitempty"`
+	HaveCOI                      *bool                  `json:"have_coi,omitempty"`
+	COIWindowYears               *int                   `json:"coi_window_years,omitempty"` // Years to look back for collaborations (e.g., 4)
+	MaximumPages                 *int                   `json:"maximum_pages,omitempty"`
+	SubmissionFormat             *string                `json:"submission_format,omitempty"`
+	RequireCompleteAuthorProfile *bool                  `json:"require_complete_author_profile,omitempty"`
+	AllowPaperWithDrawls         *bool                  `json:"allow_paper_withdrawls,omitempty"`
+	CallForPaperText             *string                `json:"call_for_paper_text,omitempty"`
+	DeskRejectionSettings        *DeskRejectionSettings `json:"desk_rejection_settings,omitempty"`
+	DiscussionSettings           *DiscussionSettings    `json:"discussion_settings,omitempty"`
+	RebuttalSettings             *RebuttalSettings      `json:"rebuttal_settings,omitempty"`
+	WorkflowSettings             *WorkflowSettings      `json:"workflow_settings,omitempty"`
 }
 
 type Conference struct {

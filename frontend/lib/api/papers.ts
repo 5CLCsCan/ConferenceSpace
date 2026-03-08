@@ -1,5 +1,27 @@
-import { apiFetch, API_BASE_URL } from "@/lib/api/client"
-import type { Paper } from "@/lib/types"
+import { apiFetch, API_BASE_URL, ApiError } from "@/lib/api/client"
+import type { Paper, PrecheckBlockedError, PrecheckResult } from "@/lib/types"
+
+interface PaperMutationResult {
+  data: Paper | null
+  error: string | null
+  precheckBlocked?: PrecheckBlockedError | null
+}
+
+function parsePrecheckBlocked(error: unknown): PrecheckBlockedError | null {
+  if (!(error instanceof ApiError) || error.status !== 422) {
+    return null
+  }
+
+  const body = error.body as { data?: unknown } | undefined
+  const payload = body?.data as
+    | { code?: string; decision?: string; blocking_items?: unknown }
+    | undefined
+  if (!payload || payload.code !== "PRECHECK_BLOCKED") {
+    return null
+  }
+
+  return payload as PrecheckBlockedError
+}
 
 /**
  * Submit a new paper to a conference
@@ -26,7 +48,7 @@ export async function submitPaper(data: {
       page_count?: number
     }
   }
-}): Promise<{ data: Paper | null; error: string | null }> {
+}): Promise<PaperMutationResult> {
   try {
     // Create FormData for multipart upload
     const formData = new FormData()
@@ -81,9 +103,13 @@ export async function submitPaper(data: {
       reviews: [],
     }
 
-    return { data: paper, error: null }
+    return { data: paper, error: null, precheckBlocked: null }
   } catch (error) {
-    return { data: null, error: error instanceof Error ? error.message : "Failed to submit paper" }
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to submit paper",
+      precheckBlocked: parsePrecheckBlocked(error),
+    }
   }
 }
 
@@ -156,7 +182,7 @@ export async function updatePaper(
       }
     }
   },
-): Promise<{ data: Paper | null; error: string | null }> {
+): Promise<PaperMutationResult> {
   try {
     // Create FormData for multipart upload (supports file updates)
     const formData = new FormData()
@@ -209,9 +235,13 @@ export async function updatePaper(
       reviews: [],
     }
 
-    return { data: paper, error: null }
+    return { data: paper, error: null, precheckBlocked: null }
   } catch (error) {
-    return { data: null, error: error instanceof Error ? error.message : "Failed to update paper" }
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to update paper",
+      precheckBlocked: parsePrecheckBlocked(error),
+    }
   }
 }
 
@@ -229,7 +259,7 @@ export async function publishPaper(
     file?: File // Paper file (required if not already uploaded)
     cover_letter?: File // Cover letter file (optional)
   },
-): Promise<{ data: Paper | null; error: string | null }> {
+): Promise<PaperMutationResult> {
   try {
     let requestOptions: RequestInit = {
       method: "POST",
@@ -273,9 +303,13 @@ export async function publishPaper(
       reviews: [],
     }
 
-    return { data: paper, error: null }
+    return { data: paper, error: null, precheckBlocked: null }
   } catch (error) {
-    return { data: null, error: error instanceof Error ? error.message : "Failed to publish paper" }
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to publish paper",
+      precheckBlocked: parsePrecheckBlocked(error),
+    }
   }
 }
 
@@ -391,34 +425,7 @@ export async function precheckPaper(
   conferenceId: string,
   file: File,
 ): Promise<{
-  data: {
-    paper_title: string
-    overall_score: number
-    decision: string
-    summary: {
-      total_items: number
-      passed: number
-      failed: number
-      pass_rate: number
-    }
-    category_scores: Record<
-      string,
-      {
-        score: number
-        passed: number
-        failed: number
-        weight: number
-      }
-    >
-    detailed_results: Array<{
-      item_id: string
-      category: string
-      description: string
-      status: "pass" | "fail" | "warning"
-      details: string
-      confidence: number
-    }>
-  } | null
+  data: PrecheckResult | null
   error: string | null
 }> {
   try {
@@ -441,8 +448,26 @@ export async function precheckPaper(
       }
     }
 
-    return { data: responseData.data, error: null }
+    return { data: responseData.data as PrecheckResult, error: null }
   } catch (error) {
+    if (error instanceof ApiError) {
+      const body = error.body as
+        | {
+            data?: {
+              message?: string
+            }
+          }
+        | undefined
+
+      const detailedMessage = body?.data?.message?.trim()
+      if (detailedMessage) {
+        return {
+          data: null,
+          error: detailedMessage,
+        }
+      }
+    }
+
     return {
       data: null,
       error: error instanceof Error ? error.message : "Failed to precheck paper",

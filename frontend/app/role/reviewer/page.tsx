@@ -20,7 +20,8 @@ export default function ReviewerPage() {
           <Suspense
             fallback={
               <div className="flex items-center justify-center h-full text-slate-400">
-                {t("runtime.app.role.reviewer.page.text_loading")}{" "}</div>
+                {t("runtime.app.role.reviewer.page.text_loading")}{" "}
+              </div>
             }
           >
             <ReviewerDashboard />

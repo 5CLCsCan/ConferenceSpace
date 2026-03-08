@@ -68,13 +68,16 @@ export async function DELETE(_req: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: "Missing thread id" }, { status: 400 })
   }
 
-  const upstreamResponse = await fetch(`${AGENT_SESSIONS_ENDPOINT}/${encodeURIComponent(threadId)}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
+  const upstreamResponse = await fetch(
+    `${AGENT_SESSIONS_ENDPOINT}/${encodeURIComponent(threadId)}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
     },
-    cache: "no-store",
-  })
+  )
 
   if (!upstreamResponse.ok) {
     const payload = await safeJson(upstreamResponse)

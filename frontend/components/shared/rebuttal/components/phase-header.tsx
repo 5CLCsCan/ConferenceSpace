@@ -14,23 +14,23 @@ export function PhaseHeader({ settings, userRole = "reviewer" }: PhaseHeaderProp
       <div className="flex items-start justify-between gap-4 mb-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span 
+            <span
               className={`material-symbols-outlined ${phase.color}`}
-              style={{ 
-                fontSize: '16px', 
-                width: '16px', 
-                height: '16px', 
-                maxWidth: '16px', 
-                maxHeight: '16px',
-                minWidth: '16px',
-                minHeight: '16px',
-                lineHeight: '1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+              style={{
+                fontSize: "16px",
+                width: "16px",
+                height: "16px",
+                maxWidth: "16px",
+                maxHeight: "16px",
+                minWidth: "16px",
+                minHeight: "16px",
+                lineHeight: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 flexShrink: 0,
-                transform: 'none',
-                boxSizing: 'border-box'
+                transform: "none",
+                boxSizing: "border-box",
               }}
             >
               {phase.icon}
@@ -43,30 +43,39 @@ export function PhaseHeader({ settings, userRole = "reviewer" }: PhaseHeaderProp
         {/* Deadline Counter */}
         {settings.phase !== "finalized" && (
           <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
-            <span 
-              className="material-symbols-outlined text-amber-600" 
-              style={{ 
-                fontSize: '16px', 
-                width: '16px', 
-                height: '16px', 
-                maxWidth: '16px', 
-                maxHeight: '16px',
-                minWidth: '16px',
-                minHeight: '16px',
-                lineHeight: '1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+            <span
+              className="material-symbols-outlined text-amber-600"
+              style={{
+                fontSize: "16px",
+                width: "16px",
+                height: "16px",
+                maxWidth: "16px",
+                maxHeight: "16px",
+                minWidth: "16px",
+                minHeight: "16px",
+                lineHeight: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 flexShrink: 0,
-                transform: 'none',
-                boxSizing: 'border-box'
+                transform: "none",
+                boxSizing: "border-box",
               }}
-            >schedule</span>
+            >
+              schedule
+            </span>
             <div className="text-right">
               <div className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
-                {t("runtime.components.shared.rebuttal.components.phase-header.text_response_deadline")}{" "}</div>
+                {t(
+                  "runtime.components.shared.rebuttal.components.phase-header.text_response_deadline",
+                )}{" "}
+              </div>
               <div className="text-[11px] font-medium text-amber-600">
-                {settings.daysRemaining} {t("runtime.components.shared.rebuttal.components.phase-header.text_days_remaining")}{" "}</div>
+                {settings.daysRemaining}{" "}
+                {t(
+                  "runtime.components.shared.rebuttal.components.phase-header.text_days_remaining",
+                )}{" "}
+              </div>
             </div>
           </div>
         )}

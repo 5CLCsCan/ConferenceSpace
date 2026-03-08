@@ -78,16 +78,16 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 	}
 
 	return &Controller{
-		Auth:         auth.New(orch, serverEnv),
-		User:         user.New(store, assignmentService, semanticScholarCtrl), // Pass assignment service for COI checks
-		Conference:   conference.New(store, assignmentService), // Pass assignment service for auto-assign on status change
-		Submission:   submission.NewWithNotifications(store, fileStore, clients.Gemini, notifSvc),
-		Reviewer:     reviewer.NewWithNotifications(store, notifSvc),
-		Assignment:   assignmentController.NewWithNotifications(store, assignmentService, notifSvc, coiSvc),
-		COI:          coiController.New(coiSvc, store.ConferenceUserRole),
-		Notification: notificationController.New(store),
+		Auth:            auth.New(orch, serverEnv),
+		User:            user.New(store, assignmentService, semanticScholarCtrl), // Pass assignment service for COI checks
+		Conference:      conference.New(store, assignmentService),                // Pass assignment service for auto-assign on status change
+		Submission:      submission.NewWithNotifications(store, fileStore, clients.Gemini, coiSvc, notifSvc),
+		Reviewer:        reviewer.NewWithNotifications(store, coiSvc, notifSvc),
+		Assignment:      assignmentController.NewWithNotifications(store, assignmentService, notifSvc, coiSvc),
+		COI:             coiController.New(coiSvc, store.ConferenceUserRole),
+		Notification:    notificationController.New(store),
 		SemanticScholar: semanticScholarCtrl,
-		Discussion:   discussionController.New(discSvc),
+		Discussion:      discussionController.New(discSvc),
 	}
 }
 
@@ -134,15 +134,15 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 	}
 
 	return &Controller{
-		Auth:         auth.New(orch, serverEnv),
-		User:         user.New(store, assignmentService, semanticScholarCtrl),
-		Conference:   conference.New(store, assignmentService),
-		Submission:   submission.NewWithNotifications(store, fileStore, clients.Gemini, notifSvc),
-		Reviewer:     reviewer.NewWithNotifications(store, notifSvc),
-		Assignment:   assignmentController.NewWithNotifications(store, assignmentService, notifSvc, coiSvc),
-		COI:          coiController.New(coiSvc, store.ConferenceUserRole),
-		Notification: notificationController.New(store),
+		Auth:            auth.New(orch, serverEnv),
+		User:            user.New(store, assignmentService, semanticScholarCtrl),
+		Conference:      conference.New(store, assignmentService),
+		Submission:      submission.NewWithNotifications(store, fileStore, clients.Gemini, coiSvc, notifSvc),
+		Reviewer:        reviewer.NewWithNotifications(store, coiSvc, notifSvc),
+		Assignment:      assignmentController.NewWithNotifications(store, assignmentService, notifSvc, coiSvc),
+		COI:             coiController.New(coiSvc, store.ConferenceUserRole),
+		Notification:    notificationController.New(store),
 		SemanticScholar: semanticScholarCtrl,
-		Discussion:   discussionController.New(discSvc),
+		Discussion:      discussionController.New(discSvc),
 	}
 }

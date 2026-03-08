@@ -12,9 +12,9 @@ import (
 
 // Client provides access to Google Gemini API
 type Client struct {
-	apiKey   string
-	model    string
-	baseURL  string
+	apiKey     string
+	model      string
+	baseURL    string
 	httpClient *http.Client
 }
 
@@ -27,8 +27,8 @@ type Config struct {
 // NewClient creates a new Gemini client
 func NewClient(cfg Config) *Client {
 	return &Client{
-		apiKey: cfg.APIKey,
-		model:  cfg.Model,
+		apiKey:  cfg.APIKey,
+		model:   cfg.Model,
 		baseURL: "https://generativelanguage.googleapis.com/v1beta",
 		httpClient: &http.Client{
 			Timeout: 15 * time.Second, // Reduced timeout for faster failure
@@ -55,7 +55,7 @@ type Part struct {
 // GenerateContentResponse represents the response from Gemini API
 type GenerateContentResponse struct {
 	Candidates []Candidate `json:"candidates"`
-	Error      *APIError    `json:"error,omitempty"`
+	Error      *APIError   `json:"error,omitempty"`
 }
 
 // Candidate represents a candidate response
@@ -69,6 +69,10 @@ type APIError struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Status  string `json:"status"`
+}
+
+type apiErrorEnvelope struct {
+	Error *APIError `json:"error"`
 }
 
 // GenerateText sends a prompt to Gemini and returns the generated text
@@ -113,9 +117,13 @@ func (c *Client) GenerateText(ctx context.Context, prompt string) (string, error
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		var apiErr APIError
-		if err := json.Unmarshal(body, &apiErr); err == nil {
-			return "", fmt.Errorf("gemini API error: %s (code: %d)", apiErr.Message, apiErr.Code)
+		if apiErr := parseAPIErrorBody(body); apiErr != nil {
+			return "", fmt.Errorf(
+				"gemini API error: %s (code: %d, status: %s)",
+				apiErr.Message,
+				apiErr.Code,
+				apiErr.Status,
+			)
 		}
 		return "", fmt.Errorf("gemini API error: status %d, body: %s", resp.StatusCode, string(body))
 	}
@@ -140,3 +148,16 @@ func (c *Client) GenerateText(ctx context.Context, prompt string) (string, error
 	return response.Candidates[0].Content.Parts[0].Text, nil
 }
 
+func parseAPIErrorBody(body []byte) *APIError {
+	var wrapped apiErrorEnvelope
+	if err := json.Unmarshal(body, &wrapped); err == nil && wrapped.Error != nil {
+		return wrapped.Error
+	}
+
+	var direct APIError
+	if err := json.Unmarshal(body, &direct); err == nil && (direct.Code != 0 || direct.Message != "") {
+		return &direct
+	}
+
+	return nil
+}

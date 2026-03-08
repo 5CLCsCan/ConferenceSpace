@@ -95,6 +95,7 @@ function PaginationBar({
   itemsPerPage: number
   onPageChange: (page: number) => void
 }) {
+  const { t } = useTranslation()
   if (totalPages <= 1) return null
   const startIndex = (currentPage - 1) * itemsPerPage
   const getPageNumbers = () => {
@@ -104,7 +105,12 @@ function PaginationBar({
     } else {
       pages.push(1)
       if (currentPage > 3) pages.push("...")
-      for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) pages.push(i)
+      for (
+        let i = Math.max(2, currentPage - 1);
+        i <= Math.min(totalPages - 1, currentPage + 1);
+        i++
+      )
+        pages.push(i)
       if (currentPage < totalPages - 2) pages.push("...")
       pages.push(totalPages)
     }
@@ -113,9 +119,12 @@ function PaginationBar({
   return (
     <div className="flex items-center justify-between mt-4 px-1">
       <p className="text-[11px] text-slate-500">
-        Showing{" "}
-        <span className="font-bold text-[#1B3C53]">{startIndex + 1}–{Math.min(startIndex + itemsPerPage, total)}</span>{" "}
-        of <span className="font-bold text-[#1B3C53]">{total}</span>
+        {t("runtime.components.chair.chair-conferences.text_showing")}{" "}
+        <span className="font-bold text-[#1B3C53]">
+          {startIndex + 1}–{Math.min(startIndex + itemsPerPage, total)}
+        </span>{" "}
+        {t("runtime.components.chair.chair-conferences.text_of")}{" "}
+        <span className="font-bold text-[#1B3C53]">{total}</span>
       </p>
       <div className="flex items-center gap-1">
         <button
@@ -123,11 +132,13 @@ function PaginationBar({
           disabled={currentPage === 1}
           className="px-2 py-1 text-[11px] rounded border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Previous
+          {t("runtime.components.chair.chair-conferences.text_previous")}
         </button>
         {getPageNumbers().map((page, idx) =>
           page === "..." ? (
-            <span key={`ellipsis-${idx}`} className="px-1 text-[11px] text-slate-400">…</span>
+            <span key={`ellipsis-${idx}`} className="px-1 text-[11px] text-slate-400">
+              …
+            </span>
           ) : (
             <button
               key={page}
@@ -140,14 +151,14 @@ function PaginationBar({
             >
               {page}
             </button>
-          )
+          ),
         )}
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           className="px-2 py-1 text-[11px] rounded border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Next
+          {t("runtime.components.chair.chair-conferences.text_next")}
         </button>
       </div>
     </div>
@@ -192,7 +203,11 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
             offset,
           })
           if (!cancelled) {
-            setMyConferences((res.data?.conferences || []).filter(c => c.status !== "completed").map(mapToChairConference))
+            setMyConferences(
+              (res.data?.conferences || [])
+                .filter((c) => c.status !== "completed")
+                .map(mapToChairConference),
+            )
             setMyTotal(res.data?.total || 0)
           }
         } else if (activeTab === "explore") {
@@ -203,7 +218,9 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
           })
           if (!cancelled) {
             setExploreConferences(
-              (res.data?.conferences || []).filter(c => c.status !== "completed").map(mapToExploreConference),
+              (res.data?.conferences || [])
+                .filter((c) => c.status !== "completed")
+                .map(mapToExploreConference),
             )
             setExploreTotal(res.data?.total || 0)
           }
@@ -261,21 +278,23 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
     if (loading) {
       return (
         <div className="flex items-center justify-center py-16 text-xs text-slate-500">
-          {t("runtime.components.chair.chair-conferences.text_loading_conferences")}{" "}</div>
+          {t("runtime.components.chair.chair-conferences.text_loading_conferences")}{" "}
+        </div>
       )
     }
 
     if (error) {
       return (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">
-          {t("runtime.components.chair.chair-conferences.text_failed_to_load_conferences")}{" "}{error}
+          {t("runtime.components.chair.chair-conferences.text_failed_to_load_conferences")} {error}
         </div>
       )
     }
 
     if (activeTab === "my-conferences") {
       const totalPages = Math.ceil(myTotal / ITEMS_PER_PAGE) || 1
-      if (!loading && myConferences.length === 0 && !searchQuery) return <EmptyState type={activeTab} />
+      if (!loading && myConferences.length === 0 && !searchQuery)
+        return <EmptyState type={activeTab} />
       if (!loading && myConferences.length === 0 && searchQuery) return <NoResultsState />
 
       if (viewMode === "list") {
@@ -319,7 +338,8 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
 
     if (activeTab === "explore") {
       const totalPages = Math.ceil(exploreTotal / ITEMS_PER_PAGE) || 1
-      if (!loading && exploreConferences.length === 0 && !searchQuery) return <EmptyState type={activeTab} />
+      if (!loading && exploreConferences.length === 0 && !searchQuery)
+        return <EmptyState type={activeTab} />
       if (!loading && exploreConferences.length === 0 && searchQuery) return <NoResultsState />
 
       if (viewMode === "list") {
@@ -362,7 +382,8 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
 
     if (activeTab === "archived") {
       const totalPages = Math.ceil(archivedTotal / ITEMS_PER_PAGE) || 1
-      if (!loading && archivedConferences.length === 0 && !searchQuery) return <EmptyState type={activeTab} />
+      if (!loading && archivedConferences.length === 0 && !searchQuery)
+        return <EmptyState type={activeTab} />
       if (!loading && archivedConferences.length === 0 && searchQuery) return <NoResultsState />
 
       if (viewMode === "list") {
@@ -445,9 +466,13 @@ function Header({ onCreateConference }: HeaderProps) {
     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6">
       <div>
         <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white leading-none">
-          {t("runtime.components.chair.chair-conferences.text_conferences")}{" "}</h1>
+          {t("runtime.components.chair.chair-conferences.text_conferences")}{" "}
+        </h1>
         <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-2 max-w-xl">
-          {t("runtime.components.chair.chair-conferences.text_manage_your_conferences_and_discover_new")}{" "}</p>
+          {t(
+            "runtime.components.chair.chair-conferences.text_manage_your_conferences_and_discover_new",
+          )}{" "}
+        </p>
       </div>
       <button
         onClick={onCreateConference}
@@ -472,7 +497,8 @@ function Header({ onCreateConference }: HeaderProps) {
         >
           add
         </span>
-        {t("runtime.components.chair.chair-conferences.text_create_conference")}{" "}</button>
+        {t("runtime.components.chair.chair-conferences.text_create_conference")}{" "}
+      </button>
     </div>
   )
 }
@@ -489,7 +515,10 @@ interface TabsProps {
 function Tabs({ activeTab, onTabChange }: TabsProps) {
   const { t } = useTranslation()
   const tabs: { key: TabType; label: string }[] = [
-    { key: "my-conferences", label: t("runtime.components.chair.chair-conferences.prop_label_my_conferences") },
+    {
+      key: "my-conferences",
+      label: t("runtime.components.chair.chair-conferences.prop_label_my_conferences"),
+    },
     { key: "explore", label: t("runtime.components.chair.chair-conferences.prop_label_explore") },
     { key: "archived", label: t("runtime.components.chair.chair-conferences.prop_label_archived") },
   ]
@@ -547,18 +576,42 @@ function Toolbar({
 
   const sortOptions: Record<TabType, { value: string; label: string }[]> = {
     "my-conferences": [
-      { value: "date-newest", label: t("runtime.components.chair.chair-conferences.prop_label_date_newest") },
-      { value: "name-asc", label: t("runtime.components.chair.chair-conferences.prop_label_name_a_z") },
-      { value: "submissions", label: t("runtime.components.chair.chair-conferences.prop_label_submissions_high_low") },
+      {
+        value: "date-newest",
+        label: t("runtime.components.chair.chair-conferences.prop_label_date_newest"),
+      },
+      {
+        value: "name-asc",
+        label: t("runtime.components.chair.chair-conferences.prop_label_name_a_z"),
+      },
+      {
+        value: "submissions",
+        label: t("runtime.components.chair.chair-conferences.prop_label_submissions_high_low"),
+      },
     ],
     explore: [
-      { value: "popularity", label: t("runtime.components.chair.chair-conferences.prop_label_popularity") },
-      { value: "date-upcoming", label: t("runtime.components.chair.chair-conferences.prop_label_date_upcoming") },
-      { value: "name-asc", label: t("runtime.components.chair.chair-conferences.prop_label_name_a_z") },
+      {
+        value: "popularity",
+        label: t("runtime.components.chair.chair-conferences.prop_label_popularity"),
+      },
+      {
+        value: "date-upcoming",
+        label: t("runtime.components.chair.chair-conferences.prop_label_date_upcoming"),
+      },
+      {
+        value: "name-asc",
+        label: t("runtime.components.chair.chair-conferences.prop_label_name_a_z"),
+      },
     ],
     archived: [
-      { value: "date-newest", label: t("runtime.components.chair.chair-conferences.prop_label_date_newest") },
-      { value: "name-asc", label: t("runtime.components.chair.chair-conferences.prop_label_name_a_z") },
+      {
+        value: "date-newest",
+        label: t("runtime.components.chair.chair-conferences.prop_label_date_newest"),
+      },
+      {
+        value: "name-asc",
+        label: t("runtime.components.chair.chair-conferences.prop_label_name_a_z"),
+      },
     ],
   }
 
@@ -600,7 +653,8 @@ function Toolbar({
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-            {t("runtime.components.chair.chair-conferences.text_sort_by")}{" "}</span>
+            {t("runtime.components.chair.chair-conferences.text_sort_by")}{" "}
+          </span>
           <select
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}

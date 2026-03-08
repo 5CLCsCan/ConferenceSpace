@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-
 	"github.com/Masterminds/squirrel"
 	"github.com/dcao/conferencespace/internal/model"
 )
@@ -18,6 +17,7 @@ type StorageInterface interface {
 	UpsertPaper(ctx context.Context, paper *model.ScholarPaper) (int64, error)
 	LinkPaperToProfile(ctx context.Context, profileID, paperID int64) error
 	ClearProfilePapers(ctx context.Context, profileID int64) error
+	ReplaceProfilePapers(ctx context.Context, profileID int64, paperIDs []int64) error
 	GetPapersByProfileID(ctx context.Context, profileID int64) ([]*model.ScholarPaper, error)
 	DeleteProfileByUserID(ctx context.Context, userID int64) error
 }
@@ -44,7 +44,8 @@ func (s *Storage) CreateProfile(ctx context.Context, profile *model.ScholarProfi
 			profile.UserID, profile.SemanticScholarID, profile.Name, profile.Affiliations,
 			profile.PaperCount, profile.CitationCount, profile.HIndex, profile.URL,
 		).
-		Suffix("ON CONFLICT (semantic_scholar_id) DO UPDATE SET " +
+		Suffix("ON CONFLICT (user_id) DO UPDATE SET " +
+			"semantic_scholar_id = EXCLUDED.semantic_scholar_id, " +
 			"name = EXCLUDED.name, affiliations = EXCLUDED.affiliations, " +
 			"paper_count = EXCLUDED.paper_count, citation_count = EXCLUDED.citation_count, " +
 			"h_index = EXCLUDED.h_index, url = EXCLUDED.url, updated_at = NOW() " +
@@ -121,13 +122,54 @@ func (s *Storage) ClearProfilePapers(ctx context.Context, profileID int64) error
 	query, args, err := s.qb.Delete(model.ScholarProfilePapersTableName).
 		Where(squirrel.Eq{"profile_id": profileID}).
 		ToSql()
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to build clear papers query: %w", err)
 	}
 
 	_, err = s.db.ExecContext(ctx, query, args...)
 	return err
+}
+
+func (s *Storage) ReplaceProfilePapers(ctx context.Context, profileID int64, paperIDs []int64) error {
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	builder := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+
+	deleteQuery, deleteArgs, err := builder.Delete(model.ScholarProfilePapersTableName).
+		Where(squirrel.Eq{"profile_id": profileID}).
+		ToSql()
+	if err != nil {
+		return fmt.Errorf("failed to build clear profile papers query: %w", err)
+	}
+
+	if _, err := tx.ExecContext(ctx, deleteQuery, deleteArgs...); err != nil {
+		return fmt.Errorf("failed to clear profile papers: %w", err)
+	}
+
+	for _, paperID := range paperIDs {
+		insertQuery, insertArgs, err := builder.Insert(model.ScholarProfilePapersTableName).
+			Columns("profile_id", "paper_id").
+			Values(profileID, paperID).
+			Suffix("ON CONFLICT DO NOTHING").
+			ToSql()
+		if err != nil {
+			return fmt.Errorf("failed to build paper link query: %w", err)
+		}
+		if _, err := tx.ExecContext(ctx, insertQuery, insertArgs...); err != nil {
+			return fmt.Errorf("failed to link paper %d to profile %d: %w", paperID, profileID, err)
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit profile paper replacement: %w", err)
+	}
+
+	return nil
 }
 
 func (s *Storage) GetProfileByUserID(ctx context.Context, userID int64) (*model.ScholarProfile, error) {

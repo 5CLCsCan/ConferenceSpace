@@ -38,7 +38,8 @@ function ReviewCard({ title, onEdit, children }: ReviewCardProps) {
             >
               edit
             </span>
-            {t("runtime.components.wizard.creation.steps.final-review.text_edit")}{" "}</button>
+            {t("runtime.components.wizard.creation.steps.final-review.text_edit")}{" "}
+          </button>
         )}
       </div>
       <div className="px-4 py-3">{children}</div>
@@ -86,9 +87,13 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-2">
         <div className="flex flex-col gap-1">
           <h1 className="text-[#141414] dark:text-white text-[32px] font-bold tracking-tight leading-[1.1]">
-            {t("runtime.components.wizard.creation.steps.final-review.text_final_review")}{" "}</h1>
+            {t("runtime.components.wizard.creation.steps.final-review.text_final_review")}{" "}
+          </h1>
           <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 max-w-xl">
-            {t("runtime.components.wizard.creation.steps.final-review.text_please_review_all_details_before_creating")}{" "}</p>
+            {t(
+              "runtime.components.wizard.creation.steps.final-review.text_please_review_all_details_before_creating",
+            )}{" "}
+          </p>
         </div>
 
         {/* Ready to Publish Badge */}
@@ -100,13 +105,17 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
             info
           </span>
           <span className="text-[9px] font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300">
-            {t("runtime.components.wizard.creation.steps.final-review.text_ready_to_publish")}{" "}</span>
+            {t("runtime.components.wizard.creation.steps.final-review.text_ready_to_publish")}{" "}
+          </span>
         </div>
       </div>
 
       <div className="flex flex-col gap-4 pb-[64px]">
         {/* Basic Details */}
-        <ReviewCard title={t("runtime.components.wizard.creation.steps.final-review.title_basic_details")} onEdit={() => onEditStep?.(1)}>
+        <ReviewCard
+          title={t("runtime.components.wizard.creation.steps.final-review.title_basic_details")}
+          onEdit={() => onEditStep?.(1)}
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
             <ReviewField label="Conference Name" value={data.title} />
             <ReviewField label="Acronym" value={data.acronym} />
@@ -123,11 +132,17 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
         </ReviewCard>
 
         {/* Topics & Tracks */}
-        <ReviewCard title={t("runtime.components.wizard.creation.steps.final-review.title_topics_tracks")} onEdit={() => onEditStep?.(2)}>
+        <ReviewCard
+          title={t("runtime.components.wizard.creation.steps.final-review.title_topics_tracks")}
+          onEdit={() => onEditStep?.(2)}
+        >
           <div className="flex flex-col gap-3">
             <div>
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">
-                {t("runtime.components.wizard.creation.steps.final-review.text_selected_topics")}{" "}</p>
+                {t(
+                  "runtime.components.wizard.creation.steps.final-review.text_selected_topics",
+                )}{" "}
+              </p>
               <div className="flex flex-wrap gap-2">
                 {data.topics.length > 0 ? (
                   <>
@@ -146,7 +161,11 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
                     )}
                   </>
                 ) : (
-                  <span className="text-[10px] text-slate-400 italic">{t("runtime.components.wizard.creation.steps.final-review.text_no_topics_defined")}</span>
+                  <span className="text-[10px] text-slate-400 italic">
+                    {t(
+                      "runtime.components.wizard.creation.steps.final-review.text_no_topics_defined",
+                    )}
+                  </span>
                 )}
               </div>
             </div>
@@ -154,7 +173,10 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
             {data.tracks.length > 0 && (
               <div>
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">
-                  {t("runtime.components.wizard.creation.steps.final-review.text_conference_tracks")}{" "}</p>
+                  {t(
+                    "runtime.components.wizard.creation.steps.final-review.text_conference_tracks",
+                  )}{" "}
+                </p>
                 <div className="flex flex-wrap gap-2">
                   {data.tracks.slice(0, 3).map((track, index) => (
                     <span
@@ -184,22 +206,35 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
         {/* Two-column layout for Committees and Review Policy */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Committees */}
-          <ReviewCard title={t("runtime.components.wizard.creation.steps.final-review.title_committees")} onEdit={() => onEditStep?.(5)}>
+          <ReviewCard
+            title={t("runtime.components.wizard.creation.steps.final-review.title_committees")}
+            onEdit={() => onEditStep?.(5)}
+          >
             <div className="space-y-3">
               <div className="flex justify-between items-center border-b border-slate-50 dark:border-slate-700 pb-2">
-                <span className="text-xs text-slate-600 dark:text-slate-400">{t("runtime.components.wizard.creation.steps.final-review.text_general_chairs")}</span>
+                <span className="text-xs text-slate-600 dark:text-slate-400">
+                  {t("runtime.components.wizard.creation.steps.final-review.text_general_chairs")}
+                </span>
                 <span className="font-medium text-[#141414] dark:text-white text-xs">
-                  {organizerCounts.generalChairs} {t("runtime.components.wizard.creation.steps.final-review.text_member")}{" "}{organizerCounts.generalChairs !== 1 ? "s" : ""}
+                  {organizerCounts.generalChairs}{" "}
+                  {t("runtime.components.wizard.creation.steps.final-review.text_member")}{" "}
+                  {organizerCounts.generalChairs !== 1 ? "s" : ""}
                 </span>
               </div>
               <div className="flex justify-between items-center border-b border-slate-50 dark:border-slate-700 pb-2">
-                <span className="text-xs text-slate-600 dark:text-slate-400">{t("runtime.components.wizard.creation.steps.final-review.text_program_chairs")}</span>
+                <span className="text-xs text-slate-600 dark:text-slate-400">
+                  {t("runtime.components.wizard.creation.steps.final-review.text_program_chairs")}
+                </span>
                 <span className="font-medium text-[#141414] dark:text-white text-xs">
-                  {organizerCounts.programChairs} {t("runtime.components.wizard.creation.steps.final-review.text_member")}{" "}{organizerCounts.programChairs !== 1 ? "s" : ""}
+                  {organizerCounts.programChairs}{" "}
+                  {t("runtime.components.wizard.creation.steps.final-review.text_member")}{" "}
+                  {organizerCounts.programChairs !== 1 ? "s" : ""}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-xs text-slate-600 dark:text-slate-400">{t("runtime.components.wizard.creation.steps.final-review.text_reviewers")}</span>
+                <span className="text-xs text-slate-600 dark:text-slate-400">
+                  {t("runtime.components.wizard.creation.steps.final-review.text_reviewers")}
+                </span>
                 <span className="font-medium text-[#141414] dark:text-white text-xs">
                   {organizerCounts.reviewers > 0
                     ? `${organizerCounts.reviewers} Member${organizerCounts.reviewers !== 1 ? "s" : ""}`
@@ -210,11 +245,15 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
           </ReviewCard>
 
           {/* Review Policy */}
-          <ReviewCard title={t("runtime.components.wizard.creation.steps.final-review.title_review_policy")} onEdit={() => onEditStep?.(3)}>
+          <ReviewCard
+            title={t("runtime.components.wizard.creation.steps.final-review.title_review_policy")}
+            onEdit={() => onEditStep?.(3)}
+          >
             <div className="space-y-3">
               <div>
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
-                  {t("runtime.components.wizard.creation.steps.final-review.text_review_mode")}{" "}</p>
+                  {t("runtime.components.wizard.creation.steps.final-review.text_review_mode")}{" "}
+                </p>
                 <div className="flex items-center gap-1.5">
                   <span
                     className="material-symbols-outlined text-slate-400"
@@ -229,7 +268,10 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
-                  {t("runtime.components.wizard.creation.steps.final-review.text_paper_submission_deadline")}{" "}</p>
+                  {t(
+                    "runtime.components.wizard.creation.steps.final-review.text_paper_submission_deadline",
+                  )}{" "}
+                </p>
                 <p className="text-xs font-medium text-[#141414] dark:text-white">
                   {formatDate(data.fullPaperDeadline)}
                 </p>
@@ -239,32 +281,43 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
         </div>
 
         {/* Submission Guidelines Summary */}
-        <ReviewCard title={t("runtime.components.wizard.creation.steps.final-review.title_submission_guidelines")} onEdit={() => onEditStep?.(3)}>
+        <ReviewCard
+          title={t(
+            "runtime.components.wizard.creation.steps.final-review.title_submission_guidelines",
+          )}
+          onEdit={() => onEditStep?.(3)}
+        >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
-                {t("runtime.components.wizard.creation.steps.final-review.text_max_pages")}{" "}</p>
+                {t("runtime.components.wizard.creation.steps.final-review.text_max_pages")}{" "}
+              </p>
               <p className="text-xs font-medium text-[#141414] dark:text-white">
                 {data.maxPages || 8}
               </p>
             </div>
             <div>
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
-                {t("runtime.components.wizard.creation.steps.final-review.text_abstract_max_words")}{" "}</p>
+                {t(
+                  "runtime.components.wizard.creation.steps.final-review.text_abstract_max_words",
+                )}{" "}
+              </p>
               <p className="text-xs font-medium text-[#141414] dark:text-white">
                 {data.abstractMaxWords || 250}
               </p>
             </div>
             <div>
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
-                {t("runtime.components.wizard.creation.steps.final-review.text_file_formats")}{" "}</p>
+                {t("runtime.components.wizard.creation.steps.final-review.text_file_formats")}{" "}
+              </p>
               <p className="text-xs font-medium text-[#141414] dark:text-white">
                 {data.fileFormats.length > 0 ? data.fileFormats.join(", ") : "PDF"}
               </p>
             </div>
             <div>
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
-                {t("runtime.components.wizard.creation.steps.final-review.text_supplementary")}{" "}</p>
+                {t("runtime.components.wizard.creation.steps.final-review.text_supplementary")}{" "}
+              </p>
               <p className="text-xs font-medium text-[#141414] dark:text-white">
                 {data.allowSupplementary ? "Allowed" : "Not Allowed"}
               </p>
@@ -283,9 +336,15 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
             />
             <div className="flex flex-col">
               <span className="text-xs font-bold text-[#141414] dark:text-white">
-                {t("runtime.components.wizard.creation.steps.final-review.text_i_confirm_that_all_information_is")}{" "}</span>
+                {t(
+                  "runtime.components.wizard.creation.steps.final-review.text_i_confirm_that_all_information_is",
+                )}{" "}
+              </span>
               <span className="text-[10px] text-slate-400 font-light leading-relaxed">
-                {t("runtime.components.wizard.creation.steps.final-review.text_by_checking_this_box_you_confirm")}{" "}</span>
+                {t(
+                  "runtime.components.wizard.creation.steps.final-review.text_by_checking_this_box_you_confirm",
+                )}{" "}
+              </span>
             </div>
           </label>
         </div>

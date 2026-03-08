@@ -7,6 +7,7 @@ import { useTranslation } from "@/lib/i18n/translation-context"
 interface SubmissionActionBarProps {
   currentStep: StepType
   submitting: boolean
+  savingDraft?: boolean
   onStepChange: (step: StepType) => void
   onSaveDraft: () => void
   onSubmit: () => void
@@ -16,17 +17,10 @@ interface SubmissionActionBarProps {
 
 const stepOrder: StepType[] = ["paper", "authors", "file", "coi", "review"]
 
-const nextStepLabels: Record<StepType, string> = {
-  paper: "Next: Authors",
-  authors: "Next: Upload",
-  file: "Next: Conflicts",
-  coi: "Next: Review",
-  review: "Submit Paper",
-}
-
 export function SubmissionActionBar({
   currentStep,
   submitting,
+  savingDraft = false,
   onStepChange,
   onSaveDraft,
   onSubmit,
@@ -37,6 +31,13 @@ export function SubmissionActionBar({
   const currentIndex = stepOrder.indexOf(currentStep)
   const isFirstStep = currentIndex === 0
   const isLastStep = currentIndex === stepOrder.length - 1
+  const nextStepLabels: Record<StepType, string> = {
+    paper: t("runtime.components.author.submit.submission-action-bar.text_next_authors"),
+    authors: t("runtime.components.author.submit.submission-action-bar.text_next_upload"),
+    file: t("runtime.components.author.submit.submission-action-bar.text_next_conflicts"),
+    coi: t("runtime.components.author.submit.submission-action-bar.text_next_review"),
+    review: t("runtime.components.author.submit.submission-action-bar.text_submit_paper"),
+  }
 
   const handlePrevious = () => {
     if (!isFirstStep) {
@@ -92,7 +93,8 @@ export function SubmissionActionBar({
           >
             arrow_back
           </span>
-          {t("runtime.components.author.submit.submission-action-bar.text_return")}{" "}</button>
+          {t("runtime.components.author.submit.submission-action-bar.text_return")}{" "}
+        </button>
 
         {/* Right Side Actions */}
         <div className="flex items-center gap-3">
@@ -100,7 +102,7 @@ export function SubmissionActionBar({
           <button
             type="button"
             onClick={onSaveDraft}
-            disabled={submitting}
+            disabled={submitting || savingDraft}
             className="hidden sm:flex items-center gap-1.5 h-8 px-3 rounded-full text-[10px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors uppercase tracking-wider disabled:opacity-50"
           >
             <span
@@ -124,7 +126,10 @@ export function SubmissionActionBar({
             >
               save
             </span>
-            {t("runtime.components.author.submit.submission-action-bar.text_save_draft")}{" "}</button>
+            {savingDraft
+              ? t("runtime.components.author.submit.submission-action-bar.text_saving")
+              : t("runtime.components.author.submit.submission-action-bar.text_save_draft")}
+          </button>
 
           {/* Next / Submit Button */}
           {isLastStep ? (
@@ -137,10 +142,12 @@ export function SubmissionActionBar({
               {submitting ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  {t("runtime.components.author.submit.submission-action-bar.text_submitting")}{" "}</>
+                  {t("runtime.components.author.submit.submission-action-bar.text_submitting")}{" "}
+                </>
               ) : (
                 <>
-                  {t("runtime.components.author.submit.submission-action-bar.text_submit_paper")}{" "}<span
+                  {t("runtime.components.author.submit.submission-action-bar.text_submit_paper")}{" "}
+                  <span
                     className="material-symbols-outlined"
                     style={{
                       fontSize: "16px",

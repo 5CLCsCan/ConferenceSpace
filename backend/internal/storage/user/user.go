@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -11,6 +12,9 @@ import (
 	"github.com/dcao/conferencespace/internal/model"
 	"github.com/lib/pq"
 )
+
+var ErrEmailAlreadyExists = errors.New("email already exists")
+var ErrUserNotFound = errors.New("user not found")
 
 type QueryParams struct {
 	Limit     int
@@ -91,6 +95,11 @@ func (s *Storage) Create(ctx context.Context, user *dto.User, hashedPassword str
 	)
 
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok &&
+			string(pqErr.Code) == "23505" &&
+			pqErr.Constraint == "users_email_key" {
+			return nil, ErrEmailAlreadyExists
+		}
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
@@ -132,7 +141,7 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.UserResponse, err
 	)
 
 	if err == sql.ErrNoRows {
-		return nil, fmt.Errorf("user not found")
+		return nil, ErrUserNotFound
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -176,7 +185,7 @@ func (s *Storage) GetByEmail(ctx context.Context, email string) (*dto.UserRespon
 	)
 
 	if err == sql.ErrNoRows {
-		return nil, fmt.Errorf("user not found")
+		return nil, ErrUserNotFound
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -222,7 +231,7 @@ func (s *Storage) GetByEmailWithPassword(ctx context.Context, email string) (*dt
 	)
 
 	if err == sql.ErrNoRows {
-		return nil, "", fmt.Errorf("user not found")
+		return nil, "", ErrUserNotFound
 	}
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to get user: %w", err)
@@ -332,11 +341,19 @@ func (s *Storage) Update(ctx context.Context, id int64, user *dto.User) (*dto.Us
 		model.UserColUpdatedAt: time.Now(),
 	}
 
-	if user.SemanticScholarID != nil {
-		updateMap[model.UserColSemanticScholarID] = *user.SemanticScholarID
+	if user.SemanticScholarIDSet {
+		if user.SemanticScholarID == nil {
+			updateMap[model.UserColSemanticScholarID] = nil
+		} else {
+			updateMap[model.UserColSemanticScholarID] = *user.SemanticScholarID
+		}
 	}
-	if user.ProfileSyncStatus != nil {
-		updateMap[model.UserColProfileSyncStatus] = *user.ProfileSyncStatus
+	if user.ProfileSyncStatusSet {
+		if user.ProfileSyncStatus == nil {
+			updateMap[model.UserColProfileSyncStatus] = nil
+		} else {
+			updateMap[model.UserColProfileSyncStatus] = *user.ProfileSyncStatus
+		}
 	}
 
 	query, args, err := s.qb.
@@ -374,7 +391,7 @@ func (s *Storage) Update(ctx context.Context, id int64, user *dto.User) (*dto.Us
 	)
 
 	if err == sql.ErrNoRows {
-		return nil, fmt.Errorf("user not found")
+		return nil, ErrUserNotFound
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to update user: %w", err)
@@ -391,11 +408,19 @@ func (s *Storage) UpdateByEmail(ctx context.Context, email string, user *dto.Use
 		model.UserColUpdatedAt: time.Now(),
 	}
 
-	if user.SemanticScholarID != nil {
-		updateMap[model.UserColSemanticScholarID] = *user.SemanticScholarID
+	if user.SemanticScholarIDSet {
+		if user.SemanticScholarID == nil {
+			updateMap[model.UserColSemanticScholarID] = nil
+		} else {
+			updateMap[model.UserColSemanticScholarID] = *user.SemanticScholarID
+		}
 	}
-	if user.ProfileSyncStatus != nil {
-		updateMap[model.UserColProfileSyncStatus] = *user.ProfileSyncStatus
+	if user.ProfileSyncStatusSet {
+		if user.ProfileSyncStatus == nil {
+			updateMap[model.UserColProfileSyncStatus] = nil
+		} else {
+			updateMap[model.UserColProfileSyncStatus] = *user.ProfileSyncStatus
+		}
 	}
 
 	query, args, err := s.qb.
@@ -433,7 +458,7 @@ func (s *Storage) UpdateByEmail(ctx context.Context, email string, user *dto.Use
 	)
 
 	if err == sql.ErrNoRows {
-		return nil, fmt.Errorf("user not found")
+		return nil, ErrUserNotFound
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to update user: %w", err)
@@ -463,7 +488,7 @@ func (s *Storage) Delete(ctx context.Context, id int64) error {
 	}
 
 	if rows == 0 {
-		return fmt.Errorf("user not found")
+		return ErrUserNotFound
 	}
 
 	return nil
@@ -538,7 +563,7 @@ func (s *Storage) DeleteByEmail(ctx context.Context, email string) error {
 	}
 
 	if rows == 0 {
-		return fmt.Errorf("user not found")
+		return ErrUserNotFound
 	}
 
 	return nil

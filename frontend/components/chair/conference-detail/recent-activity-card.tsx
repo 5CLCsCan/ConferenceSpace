@@ -60,7 +60,10 @@ export function RecentActivityCard({
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-          {t("runtime.components.chair.conference-detail.recent-activity-card.text_recent_activity")}{" "}</h3>
+          {t(
+            "runtime.components.chair.conference-detail.recent-activity-card.text_recent_activity",
+          )}{" "}
+        </h3>
         <button
           onClick={onMore}
           className="text-slate-400 hover:text-[#1B3C53] transition-colors p-1"

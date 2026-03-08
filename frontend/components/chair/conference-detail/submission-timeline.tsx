@@ -50,7 +50,10 @@ export function SubmissionTimeline({ data = DEFAULT_DATA, className }: Submissio
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-          {t("runtime.components.chair.conference-detail.submission-timeline.text_submission_timeline")}{" "}</h3>
+          {t(
+            "runtime.components.chair.conference-detail.submission-timeline.text_submission_timeline",
+          )}{" "}
+        </h3>
         <select
           value={period}
           onChange={(e) => setPeriod(e.target.value as PeriodOption)}
@@ -90,7 +93,10 @@ export function SubmissionTimeline({ data = DEFAULT_DATA, className }: Submissio
             {/* Tooltip */}
             {point.isDeadline && (
               <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#1B3C53] text-white text-[9px] py-0.5 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity shadow-lg whitespace-nowrap font-medium">
-                {t("runtime.components.chair.conference-detail.submission-timeline.text_deadline")}{" "}</div>
+                {t(
+                  "runtime.components.chair.conference-detail.submission-timeline.text_deadline",
+                )}{" "}
+              </div>
             )}
           </div>
         ))}
@@ -98,10 +104,18 @@ export function SubmissionTimeline({ data = DEFAULT_DATA, className }: Submissio
 
       {/* X-axis labels */}
       <div className="flex justify-between text-[9px] text-slate-400 mt-3 px-1">
-        <span>{t("runtime.components.chair.conference-detail.submission-timeline.text_week_1")}</span>
-        <span>{t("runtime.components.chair.conference-detail.submission-timeline.text_week_4")}</span>
-        <span>{t("runtime.components.chair.conference-detail.submission-timeline.text_week_8")}</span>
-        <span>{t("runtime.components.chair.conference-detail.submission-timeline.text_deadline")}</span>
+        <span>
+          {t("runtime.components.chair.conference-detail.submission-timeline.text_week_1")}
+        </span>
+        <span>
+          {t("runtime.components.chair.conference-detail.submission-timeline.text_week_4")}
+        </span>
+        <span>
+          {t("runtime.components.chair.conference-detail.submission-timeline.text_week_8")}
+        </span>
+        <span>
+          {t("runtime.components.chair.conference-detail.submission-timeline.text_deadline")}
+        </span>
         <span>{t("runtime.components.chair.conference-detail.submission-timeline.text_late")}</span>
       </div>
     </div>

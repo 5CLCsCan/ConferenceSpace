@@ -139,7 +139,10 @@ export function ScoreSummary({ scores }: ScoreSummaryProps) {
           </div>
           <div>
             <div className="text-[10px] font-medium text-white/60 uppercase tracking-wider">
-              {t("runtime.components.reviewer.submission-review.scoring-criteria.text_average_score")}{" "}</div>
+              {t(
+                "runtime.components.reviewer.submission-review.scoring-criteria.text_average_score",
+              )}{" "}
+            </div>
             <div className="text-sm font-bold" style={{ color: descriptor.color }}>
               {descriptor.label}
             </div>
@@ -166,15 +169,21 @@ export function ScoreSummary({ scores }: ScoreSummaryProps) {
           <div className="flex gap-1.5">
             {distribution.high > 0 && (
               <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[9px] font-bold">
-                {distribution.high} {t("runtime.components.reviewer.submission-review.scoring-criteria.text_high")}{" "}</span>
+                {distribution.high}{" "}
+                {t("runtime.components.reviewer.submission-review.scoring-criteria.text_high")}{" "}
+              </span>
             )}
             {distribution.mid > 0 && (
               <span className="px-1.5 py-0.5 rounded bg-slate-500/20 text-slate-300 text-[9px] font-bold">
-                {distribution.mid} {t("runtime.components.reviewer.submission-review.scoring-criteria.text_mid")}{" "}</span>
+                {distribution.mid}{" "}
+                {t("runtime.components.reviewer.submission-review.scoring-criteria.text_mid")}{" "}
+              </span>
             )}
             {distribution.low > 0 && (
               <span className="px-1.5 py-0.5 rounded bg-red-500/20 text-red-300 text-[9px] font-bold">
-                {distribution.low} {t("runtime.components.reviewer.submission-review.scoring-criteria.text_low")}{" "}</span>
+                {distribution.low}{" "}
+                {t("runtime.components.reviewer.submission-review.scoring-criteria.text_low")}{" "}
+              </span>
             )}
           </div>
         </div>

@@ -32,30 +32,33 @@ export function ReviewerScoreCard({ reviewer }: ReviewerScoreCardProps) {
           {/* Score */}
           <div className="text-right">
             <div className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">
-              {t("runtime.components.shared.rebuttal.components.reviewer-score-card.text_score")}{" "}</div>
+              {t(
+                "runtime.components.shared.rebuttal.components.reviewer-score-card.text_score",
+              )}{" "}
+            </div>
             <div className="flex items-center gap-1">
               {scoreChanged && (
                 <>
                   <span className="text-[10px] text-slate-400 line-through">
                     {reviewer.scores.original}
                   </span>
-                  <span 
-                    className="material-symbols-outlined text-emerald-500" 
-                    style={{ 
-                      fontSize: '16px', 
-                      width: '16px', 
-                      height: '16px', 
-                      maxWidth: '16px', 
-                      maxHeight: '16px',
-                      minWidth: '16px',
-                      minHeight: '16px',
-                      lineHeight: '1',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                  <span
+                    className="material-symbols-outlined text-emerald-500"
+                    style={{
+                      fontSize: "16px",
+                      width: "16px",
+                      height: "16px",
+                      maxWidth: "16px",
+                      maxHeight: "16px",
+                      minWidth: "16px",
+                      minHeight: "16px",
+                      lineHeight: "1",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                       flexShrink: 0,
-                      transform: 'none',
-                      boxSizing: 'border-box'
+                      transform: "none",
+                      boxSizing: "border-box",
                     }}
                   >
                     arrow_forward
@@ -74,7 +77,9 @@ export function ReviewerScoreCard({ reviewer }: ReviewerScoreCardProps) {
 
           {/* Recommendation */}
           <div className="text-right min-w-[80px]">
-            <div className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">{t("runtime.components.shared.rebuttal.components.reviewer-score-card.text_rec")}</div>
+            <div className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">
+              {t("runtime.components.shared.rebuttal.components.reviewer-score-card.text_rec")}
+            </div>
             <span
               className={`text-[10px] font-medium ${
                 recChanged ? "text-emerald-600" : "text-slate-600"

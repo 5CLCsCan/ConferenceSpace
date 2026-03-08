@@ -11,9 +11,13 @@ export function EmptyState() {
         <BellOff className="w-8 h-8 text-slate-300 dark:text-slate-600" />
       </div>
       <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
-        {t("runtime.components.notifications.empty-state.text_you_apos_re_all_caught_up")}{" "}</h3>
+        {t("runtime.components.notifications.empty-state.text_you_apos_re_all_caught_up")}{" "}
+      </h3>
       <p className="text-sm font-medium text-slate-500 dark:text-slate-400 max-w-xs mx-auto leading-relaxed">
-        {t("runtime.components.notifications.empty-state.text_no_new_notifications_at_the_moment")}{" "}</p>
+        {t(
+          "runtime.components.notifications.empty-state.text_no_new_notifications_at_the_moment",
+        )}{" "}
+      </p>
     </div>
   )
 }

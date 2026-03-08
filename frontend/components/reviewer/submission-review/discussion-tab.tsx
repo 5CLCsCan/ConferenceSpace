@@ -1,16 +1,15 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
-import {
-  DiscussionPanel,
-  type CreateThreadData,
-} from "@/components/shared/discussion"
+import { DiscussionPanel, type CreateThreadData } from "@/components/shared/discussion"
 import { useAuth } from "@/lib/auth-context"
 import { createMessage, createThread, getMessages, getThreads } from "@/lib/api/discussions"
+import { getConferenceById } from "@/lib/api/conferences"
 import {
   buildCurrentUser,
   buildDiscussionSettings,
   buildDiscussionThreads,
+  type DiscussionConfigAdapter,
 } from "@/components/shared/discussion/api-adapter"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
@@ -51,6 +50,9 @@ export function DiscussionTab({
   const [error, setError] = useState<string | null>(null)
   const [collapsedThreadIds, setCollapsedThreadIds] = useState<Record<string, boolean>>({})
   const [threads, setThreads] = useState<ReturnType<typeof buildDiscussionThreads>>([])
+  const [discussionConfig, setDiscussionConfig] = useState<DiscussionConfigAdapter | undefined>(
+    undefined,
+  )
 
   const conferenceNumericId = useMemo(() => toNumericId(conferenceId), [conferenceId])
   const submissionNumericId = useMemo(() => toNumericId(submissionId), [submissionId])
@@ -59,7 +61,10 @@ export function DiscussionTab({
     () => buildCurrentUser("reviewer", user?.email, user?.name),
     [user?.email, user?.name],
   )
-  const settings = useMemo(() => buildDiscussionSettings("reviewer"), [])
+  const settings = useMemo(
+    () => buildDiscussionSettings("reviewer", discussionConfig),
+    [discussionConfig],
+  )
 
   const loadThreads = useCallback(async () => {
     if (!conferenceNumericId || !submissionNumericId) {
@@ -97,6 +102,18 @@ export function DiscussionTab({
   useEffect(() => {
     void loadThreads()
   }, [loadThreads])
+
+  useEffect(() => {
+    void getConferenceById(conferenceId).then((response) => {
+      if (!response.data?.configurations) {
+        return
+      }
+      setDiscussionConfig({
+        review_type: response.data.configurations.review_type,
+        discussion_settings: response.data.configurations.discussion_settings,
+      })
+    })
+  }, [conferenceId])
 
   const threadsWithCollapseState = useMemo(
     () =>
@@ -141,13 +158,20 @@ export function DiscussionTab({
   }, [])
 
   if (loading) {
-    return <div className="text-xs text-slate-500">{t("runtime.components.reviewer.submission-review.discussion-tab.text_loading_discussions")}</div>
+    return (
+      <div className="text-xs text-slate-500">
+        {t("runtime.components.reviewer.submission-review.discussion-tab.text_loading_discussions")}
+      </div>
+    )
   }
 
   if (error) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-        {t("runtime.components.reviewer.submission-review.discussion-tab.text_failed_to_load_discussions")}{" "}{error}
+        {t(
+          "runtime.components.reviewer.submission-review.discussion-tab.text_failed_to_load_discussions",
+        )}{" "}
+        {error}
       </div>
     )
   }

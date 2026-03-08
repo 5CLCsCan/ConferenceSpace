@@ -52,6 +52,29 @@ type ApiFetchOptions = RequestInit & {
   skipAuth?: boolean
 }
 
+const TECHNICAL_ERROR_PATTERN =
+  /(pq:|sqlstate|duplicate key value|violates unique constraint|constraint\s+"[^"]+"|database|syntax error at or near|failed to [a-z_ ]+:)/i
+
+function sanitizeApiErrorMessage(message: string, status: number): string {
+  if (status >= 500) {
+    return "Something went wrong. Please try again later."
+  }
+
+  if (!message.trim()) {
+    return "Request could not be completed. Please try again."
+  }
+
+  if (/duplicate key value|unique constraint/i.test(message)) {
+    return "This value is already in use."
+  }
+
+  if (TECHNICAL_ERROR_PATTERN.test(message)) {
+    return "Request could not be completed. Please try again."
+  }
+
+  return message
+}
+
 function normalizePath(path: string) {
   if (!path.startsWith("/")) {
     return `/${path}`
@@ -106,7 +129,11 @@ export async function apiFetch<TResponse = unknown>(
       typeof body === "string"
         ? body || response.statusText
         : body?.error || body?.message || response.statusText
-    throw new ApiError(message, response.status, body)
+    throw new ApiError(
+      sanitizeApiErrorMessage(String(message ?? ""), response.status),
+      response.status,
+      body,
+    )
   }
 
   return {

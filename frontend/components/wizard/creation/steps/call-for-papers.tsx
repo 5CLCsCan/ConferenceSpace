@@ -72,18 +72,25 @@ export function CallForPapersStep({ data, updateData }: CallForPapersStepProps) 
     <div className="flex flex-col gap-4 w-full min-w-0">
       <div className="flex flex-col gap-2">
         <WizardHeader
-          title={t("runtime.components.wizard.creation.steps.call-for-papers.title_call_for_papers")}
+          title={t(
+            "runtime.components.wizard.creation.steps.call-for-papers.title_call_for_papers",
+          )}
           description="Compose the public Call for Papers content that will be displayed to potential authors."
         />
         <p className="text-[10px] font-light text-slate-400 leading-[12px]">
-          {t("runtime.components.wizard.creation.steps.call-for-papers.text_use_the_rich_text_editor_below")}{" "}</p>
+          {t(
+            "runtime.components.wizard.creation.steps.call-for-papers.text_use_the_rich_text_editor_below",
+          )}{" "}
+        </p>
       </div>
 
       <form className="flex flex-col gap-4 w-full relative" onSubmit={(e) => e.preventDefault()}>
         {/* Character count badge - floating above editor */}
         <div className="absolute -top-10 right-0 z-10 flex items-center gap-1.5 bg-white dark:bg-slate-900 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm">
           <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">
-            {(data.callForPaperText || '').length} {t("runtime.components.wizard.creation.steps.call-for-papers.text_characters")}{" "}</span>
+            {(data.callForPaperText || "").length}{" "}
+            {t("runtime.components.wizard.creation.steps.call-for-papers.text_characters")}{" "}
+          </span>
         </div>
 
         {/* Call for Papers Text */}
@@ -91,7 +98,9 @@ export function CallForPapersStep({ data, updateData }: CallForPapersStepProps) 
           <RichEditor
             markdown={data.callForPaperText || defaultCfpContent}
             onChange={handleEditorChange}
-            placeholder={t("runtime.components.wizard.creation.steps.call-for-papers.placeholder_start_writing_your_call_for_papers")}
+            placeholder={t(
+              "runtime.components.wizard.creation.steps.call-for-papers.placeholder_start_writing_your_call_for_papers",
+            )}
           />
         </div>
       </form>

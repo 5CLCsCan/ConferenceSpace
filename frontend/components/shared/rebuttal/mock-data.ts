@@ -1,4 +1,5 @@
 import type { RebuttalPoint, RebuttalSettings, RebuttalSubmission, ReviewerInfo } from "./types"
+import type { Conference } from "@/lib/types"
 
 // =============================================================================
 // Mock Settings
@@ -12,6 +13,27 @@ export const MOCK_SETTINGS: RebuttalSettings = {
   allowRevisions: true,
   allowNewResults: true,
   requireResponseToAll: false,
+}
+
+export function buildRebuttalSettingsFromConference(
+  conference?: Conference | null,
+): RebuttalSettings {
+  const rebuttal = conference?.configurations?.rebuttal_settings
+  const deadline = rebuttal?.end_at || MOCK_SETTINGS.deadline
+  const deadlineDate = new Date(deadline)
+  const daysRemaining = Number.isNaN(deadlineDate.getTime())
+    ? MOCK_SETTINGS.daysRemaining
+    : Math.max(0, Math.ceil((deadlineDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+
+  return {
+    phase: rebuttal?.enabled ? "submitted" : "awaiting",
+    deadline,
+    daysRemaining,
+    characterLimitPerReview: rebuttal?.character_limit || MOCK_SETTINGS.characterLimitPerReview,
+    allowRevisions: rebuttal?.allow_revisions ?? MOCK_SETTINGS.allowRevisions,
+    allowNewResults: rebuttal?.allow_new_results ?? MOCK_SETTINGS.allowNewResults,
+    requireResponseToAll: rebuttal?.require_response_to_all ?? MOCK_SETTINGS.requireResponseToAll,
+  }
 }
 
 // =============================================================================

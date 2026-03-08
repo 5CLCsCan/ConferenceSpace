@@ -10,41 +10,34 @@ import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
 import { ROUTES } from "@/lib/routes"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { tStatic as t } from "@/lib/i18n/static-translate"
 import { deletePaper } from "@/lib/api/papers"
 
 // -------------------------------------------------------------------------
 // Status Configuration (Scholar-Compact - Neutralized Colors)
 // -------------------------------------------------------------------------
 
-const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+const STATUS_CONFIG: Record<string, { className: string }> = {
   under_review: {
-    label: t("runtime.components.author.author-submissions-list.prop_label_under_review"),
     className:
       "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800",
   },
   reviewing: {
-    label: t("runtime.components.author.author-submissions-list.prop_label_under_review"),
     className:
       "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800",
   },
   accepted: {
-    label: t("runtime.components.author.author-submissions-list.prop_label_accepted"),
     className:
       "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800",
   },
   rejected: {
-    label: t("runtime.components.author.author-submissions-list.prop_label_rejected"),
     className:
       "bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
   },
   draft: {
-    label: t("runtime.components.author.author-submissions-list.prop_label_draft"),
     className:
       "bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
   },
   published: {
-    label: t("runtime.components.author.author-submissions-list.prop_label_submitted"),
     className:
       "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800",
   },
@@ -57,9 +50,21 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
 function SubmissionStatusBadge({ status }: { status: string }) {
   const { t } = useTranslation()
   const config = STATUS_CONFIG[status] || {
-    label: status,
     className: "bg-slate-100 text-slate-600 border-slate-200",
   }
+
+  const label =
+    status === "under_review" || status === "reviewing"
+      ? t("runtime.components.author.author-submissions-list.prop_label_under_review")
+      : status === "accepted"
+        ? t("runtime.components.author.author-submissions-list.prop_label_accepted")
+        : status === "rejected"
+          ? t("runtime.components.author.author-submissions-list.prop_label_rejected")
+          : status === "draft"
+            ? t("runtime.components.author.author-submissions-list.prop_label_draft")
+            : status === "published"
+              ? t("runtime.components.author.author-submissions-list.prop_label_submitted")
+              : status
 
   return (
     <span
@@ -68,7 +73,7 @@ function SubmissionStatusBadge({ status }: { status: string }) {
         config.className,
       )}
     >
-      {config.label}
+      {label}
     </span>
   )
 }
@@ -113,6 +118,7 @@ function FilterTabs({ value, onChange, options, className }: FilterTabsProps) {
 
 export function AuthorSubmissionsList() {
   const { user } = useAuth()
+  const { t } = useTranslation()
   const router = useRouter()
   const [submissions, setSubmissions] = useState<SubmissionWithConference[]>([])
   const [loading, setLoading] = useState(true)
@@ -498,6 +504,7 @@ interface SubmissionRowProps {
 
 function SubmissionRow({ submission, onClick, onDelete }: SubmissionRowProps) {
   const router = useRouter()
+  const { t } = useTranslation()
   const [menuOpen, setMenuOpen] = useState(false)
   const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -588,7 +595,7 @@ function SubmissionRow({ submission, onClick, onDelete }: SubmissionRowProps) {
               <span className="material-symbols-outlined text-[14px] text-slate-400">
                 visibility
               </span>
-              View Details
+              {t("runtime.components.author.author-submissions-list.text_view_details")}
             </button>
             {isDraft && (
               <button
@@ -602,7 +609,7 @@ function SubmissionRow({ submission, onClick, onDelete }: SubmissionRowProps) {
                 className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
               >
                 <span className="material-symbols-outlined text-[14px] text-slate-400">edit</span>
-                Edit Draft
+                {t("runtime.components.author.author-submissions-list.text_edit_draft")}
               </button>
             )}
             {isDraft && (
@@ -615,7 +622,7 @@ function SubmissionRow({ submission, onClick, onDelete }: SubmissionRowProps) {
                   className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                 >
                   <span className="material-symbols-outlined text-[14px]">delete</span>
-                  Delete Draft
+                  {t("runtime.components.author.author-submissions-list.text_delete_draft")}
                 </button>
               </>
             )}
@@ -643,13 +650,14 @@ function SubmissionRow({ submission, onClick, onDelete }: SubmissionRowProps) {
                   </span>
                 </div>
                 <div className="pt-0.5">
-                  <h3 className="text-sm font-bold text-[#141414] dark:text-white">Delete Draft</h3>
+                  <h3 className="text-sm font-bold text-[#141414] dark:text-white">
+                    {t("runtime.components.author.author-submissions-list.text_delete_draft_title")}
+                  </h3>
                   <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
-                    Are you sure you want to permanently delete the draft
-                    <strong className="text-slate-700 dark:text-slate-200">
-                      &ldquo;{submission.title}&rdquo;
-                    </strong>
-                    ? This action cannot be undone and all draft data will be lost.
+                    {t(
+                      "runtime.components.author.author-submissions-list.text_delete_draft_confirmation",
+                      { title: submission.title },
+                    )}
                   </p>
                 </div>
               </div>
@@ -660,7 +668,7 @@ function SubmissionRow({ submission, onClick, onDelete }: SubmissionRowProps) {
                   disabled={isDeleting}
                   className="h-8 px-4 rounded-md text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
                 >
-                  Cancel
+                  {t("runtime.components.author.author-submissions-list.text_cancel")}
                 </button>
                 <button
                   type="button"
@@ -671,7 +679,7 @@ function SubmissionRow({ submission, onClick, onDelete }: SubmissionRowProps) {
                   {isDeleting && (
                     <span className="material-symbols-outlined animate-spin text-[13px]">sync</span>
                   )}
-                  Delete Permanently
+                  {t("runtime.components.author.author-submissions-list.text_delete_permanently")}
                 </button>
               </div>
             </div>

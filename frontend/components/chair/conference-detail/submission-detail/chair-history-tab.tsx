@@ -2,11 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
-import type {
-  HistoryEventCategory,
-  SubmissionHistoryActor,
-  SubmissionHistoryEvent,
-} from "./types"
+import type { HistoryEventCategory, SubmissionHistoryActor, SubmissionHistoryEvent } from "./types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { tStatic as t } from "@/lib/i18n/static-translate"
 
@@ -16,49 +12,63 @@ const CATEGORY_CONFIG: Record<
   { label: string; icon: string; borderColor: string; iconColor: string; bgColor: string }
 > = {
   review: {
-    label: t("runtime.components.chair.conference-detail.submission-detail.chair-history-tab.prop_label_review"),
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.chair-history-tab.prop_label_review",
+    ),
     icon: "rate_review",
     borderColor: "border-l-blue-400",
     iconColor: "text-blue-500",
     bgColor: "bg-blue-50",
   },
   assignment: {
-    label: t("runtime.components.chair.conference-detail.submission-detail.chair-history-tab.prop_label_assignment"),
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.chair-history-tab.prop_label_assignment",
+    ),
     icon: "group_add",
     borderColor: "border-l-orange-400",
     iconColor: "text-orange-500",
     bgColor: "bg-orange-50",
   },
   submission: {
-    label: t("runtime.components.chair.conference-detail.submission-detail.chair-history-tab.prop_label_submission"),
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.chair-history-tab.prop_label_submission",
+    ),
     icon: "upload_file",
     borderColor: "border-l-slate-400",
     iconColor: "text-slate-500",
     bgColor: "bg-slate-100",
   },
   status: {
-    label: t("runtime.components.chair.conference-detail.submission-detail.chair-history-tab.prop_label_status"),
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.chair-history-tab.prop_label_status",
+    ),
     icon: "sync",
     borderColor: "border-l-purple-400",
     iconColor: "text-purple-500",
     bgColor: "bg-purple-50",
   },
   decision: {
-    label: t("runtime.components.chair.conference-detail.submission-detail.chair-history-tab.prop_label_decision"),
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.chair-history-tab.prop_label_decision",
+    ),
     icon: "gavel",
     borderColor: "border-l-emerald-400",
     iconColor: "text-emerald-500",
     bgColor: "bg-emerald-50",
   },
   coi: {
-    label: t("runtime.components.chair.conference-detail.submission-detail.chair-history-tab.prop_label_coi"),
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.chair-history-tab.prop_label_coi",
+    ),
     icon: "shield",
     borderColor: "border-l-rose-400",
     iconColor: "text-rose-500",
     bgColor: "bg-rose-50",
   },
   discussion: {
-    label: t("runtime.components.chair.conference-detail.submission-detail.chair-history-tab.prop_label_discussion"),
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.chair-history-tab.prop_label_discussion",
+    ),
     icon: "forum",
     borderColor: "border-l-cyan-400",
     iconColor: "text-cyan-500",
@@ -308,7 +318,12 @@ export function ChairHistoryTab({ events, loading = false }: ChairHistoryTabProp
   }
 
   const filterOptions: { key: FilterOption; label: string }[] = [
-    { key: "all", label: t("runtime.components.chair.conference-detail.submission-detail.chair-history-tab.prop_label_all") },
+    {
+      key: "all",
+      label: t(
+        "runtime.components.chair.conference-detail.submission-detail.chair-history-tab.prop_label_all",
+      ),
+    },
     ...(Object.keys(CATEGORY_CONFIG) as HistoryEventCategory[])
       .filter((category) => categoryCounts[category] > 0)
       .map((category) => ({ key: category, label: CATEGORY_CONFIG[category].label })),
@@ -320,7 +335,10 @@ export function ChairHistoryTab({ events, loading = false }: ChairHistoryTabProp
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-4">
             <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-              {t("runtime.components.chair.conference-detail.submission-detail.chair-history-tab.text_activity_log")}{" "}</h3>
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-history-tab.text_activity_log",
+              )}{" "}
+            </h3>
             <SummaryStats events={orderedEvents} />
           </div>
         </div>
@@ -343,7 +361,11 @@ export function ChairHistoryTab({ events, loading = false }: ChairHistoryTabProp
       <div className="divide-y divide-slate-100 dark:divide-slate-800">
         {loading ? (
           <div className="px-4 py-8 text-center">
-            <p className="text-xs text-slate-400 dark:text-slate-500">{t("runtime.components.chair.conference-detail.submission-detail.chair-history-tab.text_loading_history_events")}</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500">
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-history-tab.text_loading_history_events",
+              )}
+            </p>
           </div>
         ) : paginatedEvents.length > 0 ? (
           paginatedEvents.map((event) => <EventRow key={event.id} event={event} />)
@@ -356,7 +378,10 @@ export function ChairHistoryTab({ events, loading = false }: ChairHistoryTabProp
               history
             </span>
             <p className="text-xs text-slate-400 dark:text-slate-500">
-              {t("runtime.components.chair.conference-detail.submission-detail.chair-history-tab.text_no_history_events_available_yet")}{" "}</p>
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-history-tab.text_no_history_events_available_yet",
+              )}{" "}
+            </p>
           </div>
         )}
       </div>
@@ -364,12 +389,16 @@ export function ChairHistoryTab({ events, loading = false }: ChairHistoryTabProp
       {!loading && filteredEvents.length > 0 && (
         <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div className="text-[11px] text-slate-500">
-            {t("runtime.components.chair.conference-detail.submission-detail.chair-history-tab.text_showing")}{" "}
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail.chair-history-tab.text_showing",
+            )}{" "}
             <span className="font-bold text-[#1B3C53] dark:text-white">
               {startIndex + 1}-{Math.min(endIndex, filteredEvents.length)}
             </span>{" "}
             of{" "}
-            <span className="font-bold text-[#1B3C53] dark:text-white">{filteredEvents.length}</span>{" "}
+            <span className="font-bold text-[#1B3C53] dark:text-white">
+              {filteredEvents.length}
+            </span>{" "}
             events
           </div>
           <div className="flex gap-1">
@@ -378,7 +407,10 @@ export function ChairHistoryTab({ events, loading = false }: ChairHistoryTabProp
               disabled={currentPage === 1}
               className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {t("runtime.components.chair.conference-detail.submission-detail.chair-history-tab.text_previous")}{" "}</button>
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-history-tab.text_previous",
+              )}{" "}
+            </button>
             {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => {
               if (page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1) {
                 return (
@@ -399,7 +431,10 @@ export function ChairHistoryTab({ events, loading = false }: ChairHistoryTabProp
 
               if (page === currentPage - 2 || page === currentPage + 2) {
                 return (
-                  <span key={page} className="px-1.5 text-slate-400 dark:text-slate-500 text-[10px]">
+                  <span
+                    key={page}
+                    className="px-1.5 text-slate-400 dark:text-slate-500 text-[10px]"
+                  >
                     ...
                   </span>
                 )
@@ -412,7 +447,10 @@ export function ChairHistoryTab({ events, loading = false }: ChairHistoryTabProp
               disabled={currentPage === totalPages}
               className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {t("runtime.components.chair.conference-detail.submission-detail.chair-history-tab.text_next")}{" "}</button>
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-history-tab.text_next",
+              )}{" "}
+            </button>
           </div>
         </div>
       )}

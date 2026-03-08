@@ -40,4 +40,3 @@ describe("OverviewTab", () => {
     expect(() => render(<OverviewTab conference={conference as any} />)).not.toThrow()
   })
 })
-

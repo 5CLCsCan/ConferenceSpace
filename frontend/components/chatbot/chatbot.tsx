@@ -68,9 +68,7 @@ function mergeConversationLists(
     merged.set(remoteConversation.id, {
       ...remoteConversation,
       messages:
-        existing && existing.messages.length > 0
-          ? existing.messages
-          : remoteConversation.messages,
+        existing && existing.messages.length > 0 ? existing.messages : remoteConversation.messages,
     })
   }
 
@@ -199,9 +197,7 @@ export function Chatbot() {
         try {
           const history = await getConversationHistory(conversationId)
           setConversations((prev) =>
-            sortConversations(
-              prev.map((item) => (item.id === conversationId ? history : item)),
-            ),
+            sortConversations(prev.map((item) => (item.id === conversationId ? history : item))),
           )
         } catch (error) {
           console.error("chatbot.getConversationHistory failed", error)
@@ -273,35 +269,38 @@ export function Chatbot() {
     [currentConversationId],
   )
 
-  const handleMessagesChange = React.useCallback((conversationId: string, messages: UIMessage[]) => {
-    const nextSignature = toMessageSignature(messages)
-    setConversations((prev) => {
-      let changed = false
-      const next = prev.map((conversation) => {
-        if (conversation.id !== conversationId) {
-          return conversation
-        }
+  const handleMessagesChange = React.useCallback(
+    (conversationId: string, messages: UIMessage[]) => {
+      const nextSignature = toMessageSignature(messages)
+      setConversations((prev) => {
+        let changed = false
+        const next = prev.map((conversation) => {
+          if (conversation.id !== conversationId) {
+            return conversation
+          }
 
-        const previousSignature = toMessageSignature(conversation.messages)
-        const nextUpdatedAt = resolveLastMessageTimestamp(messages, conversation.updatedAt)
-        if (
-          previousSignature === nextSignature &&
-          conversation.updatedAt.getTime() === nextUpdatedAt.getTime()
-        ) {
-          return conversation
-        }
+          const previousSignature = toMessageSignature(conversation.messages)
+          const nextUpdatedAt = resolveLastMessageTimestamp(messages, conversation.updatedAt)
+          if (
+            previousSignature === nextSignature &&
+            conversation.updatedAt.getTime() === nextUpdatedAt.getTime()
+          ) {
+            return conversation
+          }
 
-        changed = true
-        return {
-          ...conversation,
-          messages,
-          updatedAt: nextUpdatedAt,
-        }
+          changed = true
+          return {
+            ...conversation,
+            messages,
+            updatedAt: nextUpdatedAt,
+          }
+        })
+
+        return changed ? sortConversations(next) : prev
       })
-
-      return changed ? sortConversations(next) : prev
-    })
-  }, [])
+    },
+    [],
+  )
 
   const handleConversationSynced = React.useCallback(() => {
     void refreshConversations()
@@ -387,12 +386,15 @@ export function Chatbot() {
           <div className="flex items-center gap-2">
             {viewState === "conversation-list" ? (
               <span className="text-[11px] font-bold uppercase tracking-wider text-[#1B3C53] dark:text-slate-200">
-                {t("runtime.components.chatbot.chatbot.text_recent_conversations")}{" "}</span>
+                {t("runtime.components.chatbot.chatbot.text_recent_conversations")}{" "}
+              </span>
             ) : (
               <button
                 onClick={handleMinimize}
                 className="h-7 w-7 flex items-center justify-center rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                aria-label={t("runtime.components.chatbot.chatbot.aria_label_back_to_conversations")}
+                aria-label={t(
+                  "runtime.components.chatbot.chatbot.aria_label_back_to_conversations",
+                )}
               >
                 <span
                   className="material-symbols-outlined text-slate-500"
@@ -451,7 +453,9 @@ export function Chatbot() {
                 key={currentConversation.id}
                 conversation={currentConversation}
                 onSendMessage={handleSendMessage}
-                onMessagesChange={(messages) => handleMessagesChange(currentConversation.id, messages)}
+                onMessagesChange={(messages) =>
+                  handleMessagesChange(currentConversation.id, messages)
+                }
                 onConversationSynced={handleConversationSynced}
               />
             </div>

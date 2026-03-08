@@ -103,9 +103,13 @@ export function ConflictsStep({
         </span>
         <div>
           <p className="text-xs font-bold text-[#1B3C53] dark:text-blue-200 mb-0.5">
-            {t("runtime.components.author.submit.conflicts-step.text_policy_definition")}{" "}</p>
+            {t("runtime.components.author.submit.conflicts-step.text_policy_definition")}{" "}
+          </p>
           <p className="text-[11px] text-slate-600 dark:text-blue-300/80 leading-relaxed">
-            {t("runtime.components.author.submit.conflicts-step.text_a_conflict_of_interest_exists_if")}{" "}</p>
+            {t(
+              "runtime.components.author.submit.conflicts-step.text_a_conflict_of_interest_exists_if",
+            )}{" "}
+          </p>
         </div>
       </div>
 
@@ -114,10 +118,15 @@ export function ConflictsStep({
         <div className="border-b border-slate-100 dark:border-slate-700 pb-3 mb-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
-              {t("runtime.components.author.submit.conflicts-step.text_institutional_conflicts")}{" "}</h3>
+              {t(
+                "runtime.components.author.submit.conflicts-step.text_institutional_conflicts",
+              )}{" "}
+            </h3>
             <span
               className="material-symbols-outlined text-slate-400 cursor-help text-[16px]"
-              title={t("runtime.components.author.submit.conflicts-step.title_domains_of_your_current_affiliation_are")}
+              title={t(
+                "runtime.components.author.submit.conflicts-step.title_domains_of_your_current_affiliation_are",
+              )}
             >
               help
             </span>
@@ -125,7 +134,8 @@ export function ConflictsStep({
         </div>
         <div className="flex flex-col gap-1.5">
           <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-            {t("runtime.components.author.submit.conflicts-step.text_conflict_domains")}{" "}</span>
+            {t("runtime.components.author.submit.conflicts-step.text_conflict_domains")}{" "}
+          </span>
           <div className="w-full min-h-10 px-2 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus-within:ring-2 focus-within:ring-[#1B3C53] focus-within:border-[#1B3C53] transition-all flex flex-wrap gap-2 items-center">
             {conflictDomains.map((domain) => (
               <div
@@ -146,7 +156,9 @@ export function ConflictsStep({
             ))}
             <input
               className="flex-1 min-w-[180px] h-6 border-none bg-transparent focus:ring-0 focus:outline-none text-xs px-2 placeholder:text-slate-400"
-              placeholder={t("runtime.components.author.submit.conflicts-step.placeholder_add_domain_e_g_google_com")}
+              placeholder={t(
+                "runtime.components.author.submit.conflicts-step.placeholder_add_domain_e_g_google_com",
+              )}
               type="text"
               value={domainInput}
               onChange={(e) => onDomainInputChange(e.target.value)}
@@ -154,7 +166,10 @@ export function ConflictsStep({
             />
           </div>
           <p className="text-[10px] text-slate-400 font-light">
-            {t("runtime.components.author.submit.conflicts-step.text_reviewers_with_email_addresses_from_these")}{" "}</p>
+            {t(
+              "runtime.components.author.submit.conflicts-step.text_reviewers_with_email_addresses_from_these",
+            )}{" "}
+          </p>
         </div>
       </div>
 
@@ -162,16 +177,21 @@ export function ConflictsStep({
       <div className="px-4 pt-4 pb-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-4">
         <div className="border-b border-slate-100 dark:border-slate-700 pb-3">
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
-            {t("runtime.components.author.submit.conflicts-step.text_individual_conflicts")}{" "}</h3>
+            {t("runtime.components.author.submit.conflicts-step.text_individual_conflicts")}{" "}
+          </h3>
           <p className="text-[10px] text-slate-400 mt-0.5 font-light">
-            {t("runtime.components.author.submit.conflicts-step.text_specify_individual_program_committee_members_with")}{" "}</p>
+            {t(
+              "runtime.components.author.submit.conflicts-step.text_specify_individual_program_committee_members_with",
+            )}{" "}
+          </p>
         </div>
 
         {/* Add Conflict Form */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end bg-slate-50 dark:bg-slate-700/30 p-3 rounded-lg border border-slate-100 dark:border-slate-600">
           <div className="md:col-span-4 flex flex-col gap-1.5">
             <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-              {t("runtime.components.author.submit.conflicts-step.text_first_name")}{" "}</span>
+              {t("runtime.components.author.submit.conflicts-step.text_first_name")}{" "}
+            </span>
             <input
               className="w-full h-10 text-xs font-normal py-2 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all"
               placeholder={t("runtime.components.author.submit.conflicts-step.placeholder_john")}
@@ -182,7 +202,8 @@ export function ConflictsStep({
           </div>
           <div className="md:col-span-4 flex flex-col gap-1.5">
             <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-              {t("runtime.components.author.submit.conflicts-step.text_last_name")}{" "}</span>
+              {t("runtime.components.author.submit.conflicts-step.text_last_name")}{" "}
+            </span>
             <input
               className="w-full h-10 text-xs font-normal py-2 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all"
               placeholder={t("runtime.components.author.submit.conflicts-step.placeholder_doe")}
@@ -193,11 +214,16 @@ export function ConflictsStep({
           </div>
           <div className="md:col-span-4 flex flex-col gap-1.5">
             <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-              {t("runtime.components.author.submit.conflicts-step.text_email")}{" "}<span className="font-normal text-slate-400">{t("runtime.components.author.submit.conflicts-step.text_optional")}</span>
+              {t("runtime.components.author.submit.conflicts-step.text_email")}{" "}
+              <span className="font-normal text-slate-400">
+                {t("runtime.components.author.submit.conflicts-step.text_optional")}
+              </span>
             </span>
             <input
               className="w-full h-10 text-xs font-normal py-2 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all"
-              placeholder={t("runtime.components.author.submit.conflicts-step.placeholder_john_doe_example_com")}
+              placeholder={t(
+                "runtime.components.author.submit.conflicts-step.placeholder_john_doe_example_com",
+              )}
               type="email"
               value={newConflict.email}
               onChange={(e) => onNewConflictChange({ ...newConflict, email: e.target.value })}
@@ -205,7 +231,8 @@ export function ConflictsStep({
           </div>
           <div className="md:col-span-8 flex flex-col gap-1.5">
             <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-              {t("runtime.components.author.submit.conflicts-step.text_reason")}{" "}</span>
+              {t("runtime.components.author.submit.conflicts-step.text_reason")}{" "}
+            </span>
             <div className="relative">
               <select
                 className="w-full h-10 text-xs font-normal py-2 pl-3.5 pr-8 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] appearance-none cursor-pointer transition-all"
@@ -230,7 +257,8 @@ export function ConflictsStep({
               onClick={onAddConflict}
             >
               <span className="material-symbols-outlined text-[14px]">add</span>
-              {t("runtime.components.author.submit.conflicts-step.text_add_conflict")}{" "}</button>
+              {t("runtime.components.author.submit.conflicts-step.text_add_conflict")}{" "}
+            </button>
           </div>
         </div>
 
@@ -240,20 +268,27 @@ export function ConflictsStep({
             <thead className="bg-slate-50 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600">
               <tr>
                 <th className="px-3 py-2.5 font-bold text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                  {t("runtime.components.author.submit.conflicts-step.text_name")}{" "}</th>
+                  {t("runtime.components.author.submit.conflicts-step.text_name")}{" "}
+                </th>
                 <th className="px-3 py-2.5 font-bold text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest hidden sm:table-cell">
-                  {t("runtime.components.author.submit.conflicts-step.text_email")}{" "}</th>
+                  {t("runtime.components.author.submit.conflicts-step.text_email")}{" "}
+                </th>
                 <th className="px-3 py-2.5 font-bold text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                  {t("runtime.components.author.submit.conflicts-step.text_reason")}{" "}</th>
+                  {t("runtime.components.author.submit.conflicts-step.text_reason")}{" "}
+                </th>
                 <th className="px-3 py-2.5 text-right font-bold text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                  {t("runtime.components.author.submit.conflicts-step.text_action")}{" "}</th>
+                  {t("runtime.components.author.submit.conflicts-step.text_action")}{" "}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
               {conflicts.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-3 py-4 text-center text-slate-400 text-xs">
-                    {t("runtime.components.author.submit.conflicts-step.text_no_individual_conflicts_listed_add_conflicts")}{" "}</td>
+                    {t(
+                      "runtime.components.author.submit.conflicts-step.text_no_individual_conflicts_listed_add_conflicts",
+                    )}{" "}
+                  </td>
                 </tr>
               ) : (
                 conflicts.map((conflict) => (
@@ -302,9 +337,13 @@ export function ConflictsStep({
           />
           <div className="flex flex-col gap-0.5">
             <span className="text-xs font-bold text-[#141414] dark:text-white">
-              {t("runtime.components.author.submit.conflicts-step.text_confirm_declaration")}{" "}</span>
+              {t("runtime.components.author.submit.conflicts-step.text_confirm_declaration")}{" "}
+            </span>
             <span className="text-[10px] text-slate-400 font-light">
-              {t("runtime.components.author.submit.conflicts-step.text_i_certify_that_i_have_disclosed")}{" "}</span>
+              {t(
+                "runtime.components.author.submit.conflicts-step.text_i_certify_that_i_have_disclosed",
+              )}{" "}
+            </span>
           </div>
         </label>
       </div>

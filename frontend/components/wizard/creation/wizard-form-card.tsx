@@ -26,7 +26,9 @@ export function WizardFormCard({ title, children, tooltip }: WizardFormCardProps
                 <button
                   type="button"
                   className="flex items-center justify-center size-4 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-help"
-                  aria-label={t("runtime.components.wizard.creation.wizard-form-card.aria_label_more_information")}
+                  aria-label={t(
+                    "runtime.components.wizard.creation.wizard-form-card.aria_label_more_information",
+                  )}
                 >
                   <span
                     className="material-symbols-outlined text-[12px] leading-none"

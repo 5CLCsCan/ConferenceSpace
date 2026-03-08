@@ -59,9 +59,21 @@ function ExploreStatusBadge({ status }: ExploreStatusBadgeProps) {
 interface ExploreConferenceCardProps {
   conference: ExploreConference
   onViewDetails: (id: string) => void
+  primaryActionLabel?: string
+  onPrimaryAction?: (id: string) => void
 }
 
-export function ExploreConferenceCard({ conference, onViewDetails }: ExploreConferenceCardProps) {
+export function ExploreConferenceCard({
+  conference,
+  onViewDetails,
+  primaryActionLabel,
+  onPrimaryAction,
+}: ExploreConferenceCardProps) {
+  const canUsePrimaryAction =
+    conference.exploreStatus === "call-for-papers" &&
+    typeof primaryActionLabel === "string" &&
+    typeof onPrimaryAction === "function"
+
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 group flex flex-col h-full">
       {/* Card Content */}
@@ -114,11 +126,24 @@ export function ExploreConferenceCard({ conference, onViewDetails }: ExploreConf
 
       {/* Footer */}
       <div className="border-t border-slate-100 dark:border-slate-700 px-4 py-3 bg-slate-50/50 dark:bg-slate-800/50 rounded-b-xl">
-        <button
-          onClick={() => onViewDetails(conference.id)}
-          className="w-full h-8 px-3 text-[11px] font-medium rounded-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 hover:text-[#1B3C53] dark:hover:text-white hover:border-slate-300 transition-all duration-200"
-        >
-          {t("runtime.components.conference.explore-cards.text_view_details")}{" "}</button>
+        <div className="flex items-center gap-2">
+          {canUsePrimaryAction && (
+            <button
+              onClick={() => onPrimaryAction(conference.id)}
+              className="flex-1 h-8 px-3 text-[11px] font-medium rounded-full bg-[#1B3C53] text-white hover:bg-[#234C6A] transition-colors"
+            >
+              {primaryActionLabel}
+            </button>
+          )}
+          <button
+            onClick={() => onViewDetails(conference.id)}
+            className={`h-8 px-3 text-[11px] font-medium rounded-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 hover:text-[#1B3C53] dark:hover:text-white hover:border-slate-300 transition-all duration-200 ${
+              canUsePrimaryAction ? "shrink-0" : "w-full"
+            }`}
+          >
+            {t("runtime.components.conference.explore-cards.text_view_details")}{" "}
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -147,7 +172,8 @@ export function ArchivedConferenceCard({ conference, onViewDetails }: ArchivedCo
             >
               archive
             </span>
-            {t("runtime.components.conference.explore-cards.text_archived")}{" "}</span>
+            {t("runtime.components.conference.explore-cards.text_archived")}{" "}
+          </span>
           <button
             onClick={(e) => e.stopPropagation()}
             className="text-slate-300 hover:text-[#1B3C53] dark:hover:text-white transition-colors"
@@ -186,7 +212,8 @@ export function ArchivedConferenceCard({ conference, onViewDetails }: ArchivedCo
           onClick={() => onViewDetails(conference.id)}
           className="w-full h-8 px-3 text-[11px] font-medium rounded-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 hover:text-[#1B3C53] dark:hover:text-white hover:border-slate-300 transition-all duration-200"
         >
-          {t("runtime.components.conference.explore-cards.text_view_details")}{" "}</button>
+          {t("runtime.components.conference.explore-cards.text_view_details")}{" "}
+        </button>
       </div>
     </div>
   )
@@ -199,6 +226,8 @@ export function ArchivedConferenceCard({ conference, onViewDetails }: ArchivedCo
 interface ExploreConferenceListProps {
   conferences: ExploreConference[]
   onViewDetails: (id: string) => void
+  primaryActionLabel?: string
+  onPrimaryAction?: (id: string) => void
   /** Pagination props */
   currentPage?: number
   totalPages?: number
@@ -210,6 +239,8 @@ interface ExploreConferenceListProps {
 export function ExploreConferenceList({
   conferences,
   onViewDetails,
+  primaryActionLabel,
+  onPrimaryAction,
   currentPage = 1,
   totalPages = 1,
   totalItems,
@@ -284,19 +315,25 @@ export function ExploreConferenceList({
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
       {/* Header Row */}
-      <div className="hidden lg:grid lg:grid-cols-[1fr_200px_190px_210px_minmax(100px,180px)_96px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
+      <div className="hidden lg:grid lg:grid-cols-[1fr_200px_190px_210px_minmax(100px,180px)_180px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.explore-cards.text_conference")}{" "}</div>
+          {t("runtime.components.conference.explore-cards.text_conference")}{" "}
+        </div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.explore-cards.text_location")}{" "}</div>
+          {t("runtime.components.conference.explore-cards.text_location")}{" "}
+        </div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.explore-cards.text_status")}{" "}</div>
+          {t("runtime.components.conference.explore-cards.text_status")}{" "}
+        </div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.explore-cards.text_dates")}{" "}</div>
+          {t("runtime.components.conference.explore-cards.text_dates")}{" "}
+        </div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.explore-cards.text_topics")}{" "}</div>
+          {t("runtime.components.conference.explore-cards.text_topics")}{" "}
+        </div>
         <div className="px-4 py-3 pr-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">
-          {t("runtime.components.conference.explore-cards.text_actions")}{" "}</div>
+          {t("runtime.components.conference.explore-cards.text_actions")}{" "}
+        </div>
       </div>
 
       {/* List Rows */}
@@ -306,6 +343,8 @@ export function ExploreConferenceList({
             key={conference.id}
             conference={conference}
             onViewDetails={onViewDetails}
+            primaryActionLabel={primaryActionLabel}
+            onPrimaryAction={onPrimaryAction}
           />
         ))}
       </div>
@@ -334,7 +373,8 @@ export function ExploreConferenceList({
                 disabled={currentPage <= 1}
                 className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t("runtime.components.conference.explore-cards.text_previous")}{" "}</button>
+                {t("runtime.components.conference.explore-cards.text_previous")}{" "}
+              </button>
 
               {getPageNumbers().map((page, idx) => {
                 if (page === "ellipsis") {
@@ -366,14 +406,17 @@ export function ExploreConferenceList({
                 disabled={currentPage >= totalPages}
                 className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t("runtime.components.conference.explore-cards.text_next")}{" "}</button>
+                {t("runtime.components.conference.explore-cards.text_next")}{" "}
+              </button>
             </div>
           )}
         </div>
       ) : (
         <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
           <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-            {conferences.length} {t("runtime.components.conference.explore-cards.text_conferences_found")}{" "}</div>
+            {conferences.length}{" "}
+            {t("runtime.components.conference.explore-cards.text_conferences_found")}{" "}
+          </div>
         </div>
       )}
     </div>
@@ -383,17 +426,26 @@ export function ExploreConferenceList({
 function ExploreListRow({
   conference,
   onViewDetails,
+  primaryActionLabel,
+  onPrimaryAction,
 }: {
   conference: ExploreConference
   onViewDetails: (id: string) => void
+  primaryActionLabel?: string
+  onPrimaryAction?: (id: string) => void
 }) {
+  const canUsePrimaryAction =
+    conference.exploreStatus === "call-for-papers" &&
+    typeof primaryActionLabel === "string" &&
+    typeof onPrimaryAction === "function"
+
   return (
     <div
       onClick={() => onViewDetails(conference.id)}
       className="group cursor-pointer transition-all duration-150 hover:bg-slate-50 dark:hover:bg-slate-700/50"
     >
       {/* Desktop Layout */}
-      <div className="hidden lg:grid lg:grid-cols-[1fr_200px_190px_210px_minmax(100px,180px)_96px] items-center min-h-[60px]">
+      <div className="hidden lg:grid lg:grid-cols-[1fr_200px_190px_210px_minmax(100px,180px)_180px] items-center min-h-[60px]">
         {/* Conference (Name + Full Description) */}
         <div className="px-4 py-3">
           <h3 className="text-[13px] font-bold leading-[1.3] tracking-tight text-[#1B3C53] dark:text-white group-hover:text-[#234C6A] dark:group-hover:text-slate-200 transition-colors line-clamp-1">
@@ -463,17 +515,26 @@ function ExploreListRow({
         </div>
 
         {/* Actions */}
-        <div className="px-2 py-3 pr-4 flex justify-center">
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all"
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: "18px", width: "18px", height: "18px", lineHeight: "1" }}
+        <div className="px-4 py-3 flex items-center justify-end gap-2">
+          {canUsePrimaryAction && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onPrimaryAction(conference.id)
+              }}
+              className="h-8 px-3 rounded-full bg-[#1B3C53] text-white text-[10px] font-semibold hover:bg-[#234C6A] transition-colors"
             >
-              more_horiz
-            </span>
+              {primaryActionLabel}
+            </button>
+          )}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onViewDetails(conference.id)
+            }}
+            className="h-8 px-3 rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-semibold hover:bg-slate-50 dark:hover:bg-slate-600 hover:text-[#1B3C53] dark:hover:text-white transition-colors"
+          >
+            {t("runtime.components.conference.explore-cards.text_view_details")}
           </button>
         </div>
       </div>
@@ -519,6 +580,31 @@ function ExploreListRow({
             ))}
           </div>
         )}
+
+        <div className="mt-3 flex items-center gap-2">
+          {canUsePrimaryAction && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onPrimaryAction(conference.id)
+              }}
+              className="flex-1 h-8 px-3 rounded-full bg-[#1B3C53] text-white text-[11px] font-medium hover:bg-[#234C6A] transition-colors"
+            >
+              {primaryActionLabel}
+            </button>
+          )}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onViewDetails(conference.id)
+            }}
+            className={`h-8 px-3 rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[11px] font-medium hover:bg-slate-50 dark:hover:bg-slate-600 hover:text-[#1B3C53] dark:hover:text-white transition-colors ${
+              canUsePrimaryAction ? "shrink-0" : "flex-1"
+            }`}
+          >
+            {t("runtime.components.conference.explore-cards.text_view_details")}
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -618,13 +704,17 @@ export function ArchivedConferenceList({
       {/* Header Row */}
       <div className="hidden lg:grid lg:grid-cols-[1fr_200px_210px_96px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.explore-cards.text_conference")}{" "}</div>
+          {t("runtime.components.conference.explore-cards.text_conference")}{" "}
+        </div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.explore-cards.text_location")}{" "}</div>
+          {t("runtime.components.conference.explore-cards.text_location")}{" "}
+        </div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.explore-cards.text_dates")}{" "}</div>
+          {t("runtime.components.conference.explore-cards.text_dates")}{" "}
+        </div>
         <div className="px-4 py-3 pr-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">
-          {t("runtime.components.conference.explore-cards.text_actions")}{" "}</div>
+          {t("runtime.components.conference.explore-cards.text_actions")}{" "}
+        </div>
       </div>
 
       {/* List Rows */}
@@ -651,7 +741,8 @@ export function ArchivedConferenceList({
             <span className="font-bold text-[#1B3C53] dark:text-white">
               {(totalItems || conferences.length).toLocaleString()}
             </span>{" "}
-            {t("runtime.components.conference.explore-cards.text_archived_conferences")}{" "}</div>
+            {t("runtime.components.conference.explore-cards.text_archived_conferences")}{" "}
+          </div>
 
           {/* Right: Page navigation */}
           {totalPages > 1 && (
@@ -661,7 +752,8 @@ export function ArchivedConferenceList({
                 disabled={currentPage <= 1}
                 className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t("runtime.components.conference.explore-cards.text_previous")}{" "}</button>
+                {t("runtime.components.conference.explore-cards.text_previous")}{" "}
+              </button>
 
               {getPageNumbers().map((page, idx) => {
                 if (page === "ellipsis") {
@@ -693,14 +785,17 @@ export function ArchivedConferenceList({
                 disabled={currentPage >= totalPages}
                 className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t("runtime.components.conference.explore-cards.text_next")}{" "}</button>
+                {t("runtime.components.conference.explore-cards.text_next")}{" "}
+              </button>
             </div>
           )}
         </div>
       ) : (
         <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
           <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-            {conferences.length} {t("runtime.components.conference.explore-cards.text_archived_conferences")}{" "}</div>
+            {conferences.length}{" "}
+            {t("runtime.components.conference.explore-cards.text_archived_conferences")}{" "}
+          </div>
         </div>
       )}
     </div>
@@ -784,7 +879,8 @@ function ArchivedListRow({
             >
               archive
             </span>
-            {t("runtime.components.conference.explore-cards.text_archived")}{" "}</span>
+            {t("runtime.components.conference.explore-cards.text_archived")}{" "}
+          </span>
           <button
             onClick={(e) => e.stopPropagation()}
             className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all shrink-0"

@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/dcao/conferencespace/internal/dto"
@@ -20,7 +22,17 @@ type StorageInterface interface {
 	GetBySubmission(ctx context.Context, conferenceID int64, submissionID int64) ([]*model.COIRelationship, error)
 	GetDashboardStats(ctx context.Context, conferenceID int64) (*dto.COIDashboardStats, error)
 	DeleteByConference(ctx context.Context, conferenceID int64) error
+	DeleteByConferenceAndSubmission(ctx context.Context, conferenceID int64, submissionID int64) error
+	DeleteByConferenceAndReviewer(ctx context.Context, conferenceID int64, reviewerID int64) error
 	GetPaperSummaries(ctx context.Context, conferenceID int64, filters *PaperQueryFilters) ([]*PaperSummaryData, int64, error)
+	GetLastRebuildAt(ctx context.Context, conferenceID int64) (*time.Time, error)
+	SetLastRebuildAt(ctx context.Context, conferenceID int64, rebuiltAt time.Time) error
+	UpsertDirtyConference(ctx context.Context, conferenceID int64, reason string) error
+	UpsertDirtySubmission(ctx context.Context, conferenceID int64, submissionID int64, reason string) error
+	UpsertDirtyReviewer(ctx context.Context, conferenceID int64, reviewerID int64, reason string) error
+	ListDirtyScopes(ctx context.Context, conferenceID int64, limit int) ([]*DirtyScope, error)
+	DeleteDirtyScope(ctx context.Context, conferenceID int64, scopeType string, scopeKey string) error
+	ClearDirtyScopes(ctx context.Context, conferenceID int64) error
 }
 
 // Storage implements COI relationship storage operations
@@ -61,6 +73,31 @@ type PaperSummaryData struct {
 	HighSeverityCount   int
 	MediumSeverityCount int
 	LowSeverityCount    int
+}
+
+const (
+	ScopeTypeConference = "conference"
+	ScopeTypeSubmission = "submission"
+	ScopeTypeReviewer   = "reviewer"
+)
+
+// DirtyScope represents a pending COI refresh task at conference/submission/reviewer granularity.
+type DirtyScope struct {
+	ConferenceID int64
+	ScopeType    string
+	ScopeKey     string
+	SubmissionID *int64
+	ReviewerID   *int64
+	Reason       string
+	UpdatedAt    time.Time
+}
+
+func submissionScopeKey(submissionID int64) string {
+	return strconv.FormatInt(submissionID, 10)
+}
+
+func reviewerScopeKey(reviewerID int64) string {
+	return strconv.FormatInt(reviewerID, 10)
 }
 
 // Create inserts a new COI relationship
@@ -449,7 +486,7 @@ func (s *Storage) GetBySubmission(ctx context.Context, conferenceID int64, submi
 	query := s.sb.Select("*").
 		From(model.COIRelationshipTableName).
 		Where(sq.Eq{
-			model.COIColConferenceID:  conferenceID,
+			model.COIColConferenceID: conferenceID,
 			model.COIColSubmissionID: submissionID,
 		})
 
@@ -495,6 +532,36 @@ func (s *Storage) DeleteByConference(ctx context.Context, conferenceID int64) er
 	_, err := query.ExecContext(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to delete COI relationships: %w", err)
+	}
+
+	return nil
+}
+
+// DeleteByConferenceAndSubmission deletes COI relationships for a single submission in a conference.
+func (s *Storage) DeleteByConferenceAndSubmission(ctx context.Context, conferenceID int64, submissionID int64) error {
+	query := s.sb.Delete(model.COIRelationshipTableName).
+		Where(sq.Eq{
+			model.COIColConferenceID: conferenceID,
+			model.COIColSubmissionID: submissionID,
+		})
+
+	if _, err := query.ExecContext(ctx); err != nil {
+		return fmt.Errorf("failed to delete COI relationships by submission: %w", err)
+	}
+
+	return nil
+}
+
+// DeleteByConferenceAndReviewer deletes COI relationships for a single reviewer in a conference.
+func (s *Storage) DeleteByConferenceAndReviewer(ctx context.Context, conferenceID int64, reviewerID int64) error {
+	query := s.sb.Delete(model.COIRelationshipTableName).
+		Where(sq.Eq{
+			model.COIColConferenceID: conferenceID,
+			model.COIColReviewerID:   reviewerID,
+		})
+
+	if _, err := query.ExecContext(ctx); err != nil {
+		return fmt.Errorf("failed to delete COI relationships by reviewer: %w", err)
 	}
 
 	return nil
@@ -592,4 +659,196 @@ func (s *Storage) GetPaperSummaries(ctx context.Context, conferenceID int64, fil
 	}
 
 	return summaries, total, nil
+}
+
+func (s *Storage) GetLastRebuildAt(ctx context.Context, conferenceID int64) (*time.Time, error) {
+	const query = `
+		SELECT last_rebuild_at
+		FROM coi_refresh_state
+		WHERE conference_id = $1
+	`
+
+	var rebuiltAt time.Time
+	err := s.db.QueryRowContext(ctx, query, conferenceID).Scan(&rebuiltAt)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch COI rebuild state: %w", err)
+	}
+	return &rebuiltAt, nil
+}
+
+func (s *Storage) SetLastRebuildAt(ctx context.Context, conferenceID int64, rebuiltAt time.Time) error {
+	const query = `
+		INSERT INTO coi_refresh_state (conference_id, last_rebuild_at, updated_at)
+		VALUES ($1, $2, NOW())
+		ON CONFLICT (conference_id)
+		DO UPDATE SET last_rebuild_at = EXCLUDED.last_rebuild_at, updated_at = NOW()
+	`
+
+	if _, err := s.db.ExecContext(ctx, query, conferenceID, rebuiltAt); err != nil {
+		return fmt.Errorf("failed to persist COI rebuild state: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Storage) upsertDirtyScope(
+	ctx context.Context,
+	conferenceID int64,
+	scopeType string,
+	scopeKey string,
+	submissionID *int64,
+	reviewerID *int64,
+	reason string,
+) error {
+	const query = `
+		INSERT INTO coi_dirty_scopes (
+			conference_id,
+			scope_type,
+			scope_key,
+			submission_id,
+			reviewer_id,
+			reason,
+			updated_at
+		)
+		VALUES ($1, $2, $3, $4, $5, $6, NOW())
+		ON CONFLICT (conference_id, scope_type, scope_key)
+		DO UPDATE SET reason = EXCLUDED.reason, updated_at = NOW()
+	`
+
+	if reason == "" {
+		reason = "data_changed"
+	}
+
+	if _, err := s.db.ExecContext(
+		ctx,
+		query,
+		conferenceID,
+		scopeType,
+		scopeKey,
+		submissionID,
+		reviewerID,
+		reason,
+	); err != nil {
+		return fmt.Errorf("failed to upsert COI dirty scope: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Storage) UpsertDirtyConference(ctx context.Context, conferenceID int64, reason string) error {
+	return s.upsertDirtyScope(ctx, conferenceID, ScopeTypeConference, "all", nil, nil, reason)
+}
+
+func (s *Storage) UpsertDirtySubmission(ctx context.Context, conferenceID int64, submissionID int64, reason string) error {
+	return s.upsertDirtyScope(
+		ctx,
+		conferenceID,
+		ScopeTypeSubmission,
+		submissionScopeKey(submissionID),
+		&submissionID,
+		nil,
+		reason,
+	)
+}
+
+func (s *Storage) UpsertDirtyReviewer(ctx context.Context, conferenceID int64, reviewerID int64, reason string) error {
+	return s.upsertDirtyScope(
+		ctx,
+		conferenceID,
+		ScopeTypeReviewer,
+		reviewerScopeKey(reviewerID),
+		nil,
+		&reviewerID,
+		reason,
+	)
+}
+
+func (s *Storage) ListDirtyScopes(ctx context.Context, conferenceID int64, limit int) ([]*DirtyScope, error) {
+	query := `
+		SELECT conference_id, scope_type, scope_key, submission_id, reviewer_id, reason, updated_at
+		FROM coi_dirty_scopes
+		WHERE conference_id = $1
+		ORDER BY updated_at ASC
+	`
+
+	args := []interface{}{conferenceID}
+	if limit > 0 {
+		query += " LIMIT $2"
+		args = append(args, limit)
+	}
+
+	rows, err := s.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list COI dirty scopes: %w", err)
+	}
+	defer rows.Close()
+
+	scopes := make([]*DirtyScope, 0)
+	for rows.Next() {
+		scope := &DirtyScope{}
+		var submissionID sql.NullInt64
+		var reviewerID sql.NullInt64
+		var reason sql.NullString
+
+		if err := rows.Scan(
+			&scope.ConferenceID,
+			&scope.ScopeType,
+			&scope.ScopeKey,
+			&submissionID,
+			&reviewerID,
+			&reason,
+			&scope.UpdatedAt,
+		); err != nil {
+			return nil, fmt.Errorf("failed to scan COI dirty scope: %w", err)
+		}
+
+		if submissionID.Valid {
+			id := submissionID.Int64
+			scope.SubmissionID = &id
+		}
+		if reviewerID.Valid {
+			id := reviewerID.Int64
+			scope.ReviewerID = &id
+		}
+		if reason.Valid {
+			scope.Reason = reason.String
+		}
+
+		scopes = append(scopes, scope)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating COI dirty scopes: %w", err)
+	}
+
+	return scopes, nil
+}
+
+func (s *Storage) DeleteDirtyScope(ctx context.Context, conferenceID int64, scopeType string, scopeKey string) error {
+	const query = `
+		DELETE FROM coi_dirty_scopes
+		WHERE conference_id = $1 AND scope_type = $2 AND scope_key = $3
+	`
+
+	if _, err := s.db.ExecContext(ctx, query, conferenceID, scopeType, scopeKey); err != nil {
+		return fmt.Errorf("failed to delete COI dirty scope: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Storage) ClearDirtyScopes(ctx context.Context, conferenceID int64) error {
+	const query = `
+		DELETE FROM coi_dirty_scopes
+		WHERE conference_id = $1
+	`
+
+	if _, err := s.db.ExecContext(ctx, query, conferenceID); err != nil {
+		return fmt.Errorf("failed to clear COI dirty scopes: %w", err)
+	}
+
+	return nil
 }

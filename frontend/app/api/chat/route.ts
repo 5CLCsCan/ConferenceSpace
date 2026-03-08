@@ -310,7 +310,9 @@ function mapInternalEventsToUiStream(upstream: ReadableStream<Uint8Array>) {
   })
 }
 
-async function* parseSseJsonEvents(stream: ReadableStream<Uint8Array>): AsyncGenerator<InternalAgentEvent> {
+async function* parseSseJsonEvents(
+  stream: ReadableStream<Uint8Array>,
+): AsyncGenerator<InternalAgentEvent> {
   const reader = stream.getReader()
   const decoder = new TextDecoder()
   let buffer = ""
@@ -379,7 +381,9 @@ function findLatestCompletedToolResult(
       ).trim()
       if (!toolName) continue
 
-      const output = (part as { output?: unknown; result?: unknown }).output ?? (part as { result?: unknown }).result
+      const output =
+        (part as { output?: unknown; result?: unknown }).output ??
+        (part as { result?: unknown }).result
       const errorText = (part as { errorText?: string }).errorText
 
       const result: ToolSubmissionCandidate["result"] = {

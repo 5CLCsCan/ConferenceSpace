@@ -73,8 +73,7 @@ export function SubmissionReviewScreen({
       weaknesses: feedback.weaknesses ?? prev.weaknesses,
       questions: feedback.questions ?? prev.questions,
       recommendation: reviewData.recommendation ?? prev.recommendation,
-      confidence:
-        reviewData.confidence === "high" ? 5 : reviewData.confidence === "medium" ? 3 : 1,
+      confidence: reviewData.confidence === "high" ? 5 : reviewData.confidence === "medium" ? 3 : 1,
     }))
   }, [review?.review_data])
 
@@ -110,8 +109,11 @@ export function SubmissionReviewScreen({
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const toReviewPayload = (status: "draft" | "submitted"): ReviewData & { status: "draft" | "submitted" } => {
-    const confidenceValue = formData.confidence >= 4 ? "high" : formData.confidence >= 2 ? "medium" : "low"
+  const toReviewPayload = (
+    status: "draft" | "submitted",
+  ): ReviewData & { status: "draft" | "submitted" } => {
+    const confidenceValue =
+      formData.confidence >= 4 ? "high" : formData.confidence >= 2 ? "medium" : "low"
     return {
       criteria: {
         originality: formData.originality,
@@ -228,7 +230,8 @@ export function SubmissionReviewScreen({
             className="text-[11px] font-semibold text-slate-500 hover:text-slate-900"
             onClick={onBack}
           >
-            {t("runtime.components.reviewer.submission-review.text_back")}{" "}</button>
+            {t("runtime.components.reviewer.submission-review.text_back")}{" "}
+          </button>
         </div>
       )}
 
@@ -268,7 +271,10 @@ export function SubmissionReviewScreen({
                   {/* Header */}
                   <div className="flex items-center justify-between mt-3 mb-3 border-b border-slate-100 pb-2">
                     <h2 className="font-bold text-sm text-[#1B3C53] tracking-tight uppercase leading-none">
-                      {t("runtime.components.reviewer.submission-review.text_scoring_criteria")}{" "}</h2>
+                      {t(
+                        "runtime.components.reviewer.submission-review.text_scoring_criteria",
+                      )}{" "}
+                    </h2>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button
@@ -305,7 +311,10 @@ export function SubmissionReviewScreen({
                       >
                         <div className="space-y-3">
                           <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                            {t("runtime.components.reviewer.submission-review.text_scoring_guide")}{" "}</h4>
+                            {t(
+                              "runtime.components.reviewer.submission-review.text_scoring_guide",
+                            )}{" "}
+                          </h4>
                           <div className="space-y-2">
                             <div className="flex items-center gap-2">
                               <div className="flex gap-0.5">
@@ -313,7 +322,10 @@ export function SubmissionReviewScreen({
                                 <span className="w-2 h-2 rounded-full bg-[#16a34a]" />
                               </div>
                               <span className="text-[9px] text-slate-600">
-                                {t("runtime.components.reviewer.submission-review.text_8_10_strong_contribution_recommend")}{" "}</span>
+                                {t(
+                                  "runtime.components.reviewer.submission-review.text_8_10_strong_contribution_recommend",
+                                )}{" "}
+                              </span>
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="flex gap-0.5">
@@ -321,7 +333,10 @@ export function SubmissionReviewScreen({
                                 <span className="w-2 h-2 rounded-full bg-[#a3a3a3]" />
                               </div>
                               <span className="text-[9px] text-slate-600">
-                                {t("runtime.components.reviewer.submission-review.text_5_7_acceptable_with_caveats")}{" "}</span>
+                                {t(
+                                  "runtime.components.reviewer.submission-review.text_5_7_acceptable_with_caveats",
+                                )}{" "}
+                              </span>
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="flex gap-0.5">
@@ -329,7 +344,10 @@ export function SubmissionReviewScreen({
                                 <span className="w-2 h-2 rounded-full bg-[#dc2626]" />
                               </div>
                               <span className="text-[9px] text-slate-600">
-                                {t("runtime.components.reviewer.submission-review.text_1_4_significant_issues_present")}{" "}</span>
+                                {t(
+                                  "runtime.components.reviewer.submission-review.text_1_4_significant_issues_present",
+                                )}{" "}
+                              </span>
                             </div>
                           </div>
                           <div className="pt-2 border-t border-slate-100">
@@ -337,7 +355,10 @@ export function SubmissionReviewScreen({
                               href="#"
                               className="text-[9px] text-[#2563eb] hover:underline font-medium"
                             >
-                              {t("runtime.components.reviewer.submission-review.text_view_full_reviewer_guide_rarr")}{" "}</a>
+                              {t(
+                                "runtime.components.reviewer.submission-review.text_view_full_reviewer_guide_rarr",
+                              )}{" "}
+                            </a>
                           </div>
                         </div>
                       </TooltipContent>
@@ -450,7 +471,8 @@ export function SubmissionReviewScreen({
                 >
                   schedule
                 </span>
-                {t("runtime.components.reviewer.submission-review.text_last_draft_saved")}{" "}{formData.lastSaved || "Not saved"}
+                {t("runtime.components.reviewer.submission-review.text_last_draft_saved")}{" "}
+                {formData.lastSaved || "Not saved"}
               </div>
               <div className="flex items-center gap-3">
                 <button

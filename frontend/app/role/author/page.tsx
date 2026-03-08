@@ -20,7 +20,8 @@ export default function AuthorPage() {
           <Suspense
             fallback={
               <div className="flex items-center justify-center h-full text-slate-400">
-                {t("runtime.app.role.author.page.text_loading_conferences")}{" "}</div>
+                {t("runtime.app.role.author.page.text_loading_conferences")}{" "}
+              </div>
             }
           >
             <AuthorConferences />

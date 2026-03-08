@@ -399,6 +399,8 @@ function ExploreConferenceCard({
 
 // Empty state component
 function EmptyState({ type }: { type: "my-conferences" | "explore" }) {
+  const { t } = useTranslation()
+
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
       <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
@@ -407,12 +409,14 @@ function EmptyState({ type }: { type: "my-conferences" | "explore" }) {
         </span>
       </div>
       <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-1">
-        {type === "my-conferences" ? "No conferences yet" : "No conferences available"}
+        {type === "my-conferences"
+          ? t("runtime.components.reviewer.reviewer-conferences.text_no_conferences_yet")
+          : t("runtime.components.reviewer.reviewer-conferences.text_no_conferences_available")}
       </h3>
       <p className="text-[10px] font-medium text-slate-400 text-center max-w-xs">
         {type === "my-conferences"
-          ? "You haven't joined any conferences as a reviewer. Explore and apply to review for upcoming conferences."
-          : "There are no conferences seeking reviewers at this time. Check back later."}
+          ? t("runtime.components.reviewer.reviewer-conferences.text_empty_my_conferences")
+          : t("runtime.components.reviewer.reviewer-conferences.text_empty_explore_conferences")}
       </p>
     </div>
   )

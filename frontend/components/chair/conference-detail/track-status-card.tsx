@@ -39,7 +39,8 @@ export function TrackStatusCard({
       )}
     >
       <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-4 tracking-tight">
-        {t("runtime.components.chair.conference-detail.track-status-card.text_track_status")}{" "}</h3>
+        {t("runtime.components.chair.conference-detail.track-status-card.text_track_status")}{" "}
+      </h3>
 
       <div className="space-y-3.5">
         {tracks.map((track) => (
@@ -65,7 +66,10 @@ export function TrackStatusCard({
         onClick={onViewReport}
         className="w-full mt-4 py-2 text-[10px] text-slate-400 hover:text-[#1B3C53] font-medium uppercase tracking-wider border border-dashed border-slate-200 rounded-lg hover:border-slate-300 hover:bg-slate-50 transition-all"
       >
-        {t("runtime.components.chair.conference-detail.track-status-card.text_view_detailed_track_report")}{" "}</button>
+        {t(
+          "runtime.components.chair.conference-detail.track-status-card.text_view_detailed_track_report",
+        )}{" "}
+      </button>
     </div>
   )
 }

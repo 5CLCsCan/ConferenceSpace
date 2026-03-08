@@ -34,7 +34,8 @@ export function ProgressSection({ progress }: ProgressSectionProps) {
             <strong className="text-[#1B3C53] dark:text-white">
               {progress.submissions.toLocaleString()}
             </strong>{" "}
-            {t("runtime.components.conference.event-sections.text_submissions")}{" "}</span>
+            {t("runtime.components.conference.event-sections.text_submissions")}{" "}
+          </span>
         )}
         {progress.daysLeft > 0 && (
           <span>
@@ -62,10 +63,12 @@ export function SetupStatusSection({ setup }: SetupStatusSectionProps) {
     <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3 border border-slate-100 dark:border-slate-600">
       <div className="flex justify-between items-end mb-1.5">
         <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">
-          {t("runtime.components.conference.event-sections.text_setup_status")}{" "}</span>
+          {t("runtime.components.conference.event-sections.text_setup_status")}{" "}
+        </span>
         {setup.actionRequired && (
           <span className="text-[8px] font-black text-orange-600 bg-orange-50 dark:bg-orange-900/20 px-1.5 py-0.5 rounded border border-orange-100 dark:border-orange-800 uppercase tracking-widest">
-            {t("runtime.components.conference.event-sections.text_action_required")}{" "}</span>
+            {t("runtime.components.conference.event-sections.text_action_required")}{" "}
+          </span>
         )}
       </div>
       <div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-1 mb-1.5 overflow-hidden">
@@ -74,7 +77,9 @@ export function SetupStatusSection({ setup }: SetupStatusSectionProps) {
           style={{ width: `${setup.progress}%` }}
         />
       </div>
-      <div className="text-right text-[10px] font-medium text-slate-400">{t("runtime.components.conference.event-sections.text_phase")}{" "}{setup.phase}</div>
+      <div className="text-right text-[10px] font-medium text-slate-400">
+        {t("runtime.components.conference.event-sections.text_phase")} {setup.phase}
+      </div>
     </div>
   )
 }
@@ -94,7 +99,10 @@ export function DraftStatusSection({ daysAgo }: DraftStatusSectionProps) {
       <span className="material-symbols-outlined text-slate-300 dark:text-slate-500 text-[24px] mb-1 group-hover:text-[#1B3C53] dark:group-hover:text-white transition-colors">
         edit_document
       </span>
-      <span className="text-[10px] font-medium text-slate-400">{t("runtime.components.conference.event-sections.text_draft_saved")}{" "}{daysAgo} {t("runtime.components.conference.event-sections.text_days_ago")}</span>
+      <span className="text-[10px] font-medium text-slate-400">
+        {t("runtime.components.conference.event-sections.text_draft_saved")} {daysAgo}{" "}
+        {t("runtime.components.conference.event-sections.text_days_ago")}
+      </span>
     </div>
   )
 }

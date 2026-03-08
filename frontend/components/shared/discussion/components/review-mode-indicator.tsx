@@ -10,19 +10,31 @@ interface ReviewModeIndicatorProps {
 
 const MODE_CONFIG: Record<ReviewMode, { label: string; icon: string; description: string }> = {
   double_blind: {
-    label: t("runtime.components.shared.discussion.components.review-mode-indicator.prop_label_double_blind"),
+    label: t(
+      "runtime.components.shared.discussion.components.review-mode-indicator.prop_label_double_blind",
+    ),
     icon: "visibility_off",
-    description: t("runtime.components.shared.discussion.components.review-mode-indicator.prop_description_author_and_reviewer_identities_are_hidden"),
+    description: t(
+      "runtime.components.shared.discussion.components.review-mode-indicator.prop_description_author_and_reviewer_identities_are_hidden",
+    ),
   },
   single_blind: {
-    label: t("runtime.components.shared.discussion.components.review-mode-indicator.prop_label_single_blind"),
+    label: t(
+      "runtime.components.shared.discussion.components.review-mode-indicator.prop_label_single_blind",
+    ),
     icon: "person_off",
-    description: t("runtime.components.shared.discussion.components.review-mode-indicator.prop_description_author_identities_are_hidden_from_reviewers"),
+    description: t(
+      "runtime.components.shared.discussion.components.review-mode-indicator.prop_description_author_identities_are_hidden_from_reviewers",
+    ),
   },
   open: {
-    label: t("runtime.components.shared.discussion.components.review-mode-indicator.prop_label_open_review"),
+    label: t(
+      "runtime.components.shared.discussion.components.review-mode-indicator.prop_label_open_review",
+    ),
     icon: "visibility",
-    description: t("runtime.components.shared.discussion.components.review-mode-indicator.prop_description_all_identities_are_visible"),
+    description: t(
+      "runtime.components.shared.discussion.components.review-mode-indicator.prop_description_all_identities_are_visible",
+    ),
   },
 }
 

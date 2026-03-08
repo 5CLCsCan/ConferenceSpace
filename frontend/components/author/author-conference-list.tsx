@@ -97,17 +97,23 @@ export function AuthorConferenceList({
       {/* Header Row */}
       <div className="hidden lg:grid lg:grid-cols-[1fr_200px_190px_200px_minmax(120px,200px)_96px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.author.author-conference-list.text_conference")}{" "}</div>
+          {t("runtime.components.author.author-conference-list.text_conference")}{" "}
+        </div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.author.author-conference-list.text_paper_title")}{" "}</div>
+          {t("runtime.components.author.author-conference-list.text_paper_title")}{" "}
+        </div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.author.author-conference-list.text_status")}{" "}</div>
+          {t("runtime.components.author.author-conference-list.text_status")}{" "}
+        </div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.author.author-conference-list.text_dates")}{" "}</div>
+          {t("runtime.components.author.author-conference-list.text_dates")}{" "}
+        </div>
         <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.author.author-conference-list.text_deadline")}{" "}</div>
+          {t("runtime.components.author.author-conference-list.text_deadline")}{" "}
+        </div>
         <div className="px-4 py-3 pr-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">
-          {t("runtime.components.author.author-conference-list.text_actions")}{" "}</div>
+          {t("runtime.components.author.author-conference-list.text_actions")}{" "}
+        </div>
       </div>
 
       {/* List Rows */}
@@ -145,7 +151,8 @@ export function AuthorConferenceList({
                 disabled={currentPage <= 1}
                 className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t("runtime.components.author.author-conference-list.text_previous")}{" "}</button>
+                {t("runtime.components.author.author-conference-list.text_previous")}{" "}
+              </button>
 
               {getPageNumbers().map((page, idx) => {
                 if (page === "ellipsis") {
@@ -177,7 +184,8 @@ export function AuthorConferenceList({
                 disabled={currentPage >= totalPages}
                 className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t("runtime.components.author.author-conference-list.text_next")}{" "}</button>
+                {t("runtime.components.author.author-conference-list.text_next")}{" "}
+              </button>
             </div>
           )}
         </div>
@@ -298,7 +306,10 @@ function AuthorConferenceListRow({ conference, onNavigate }: AuthorConferenceLis
 
         {conference.paperTitle && (
           <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 line-clamp-1 mb-2">
-            {t("runtime.components.author.author-conference-list.text_text")}{conference.paperTitle}{t("runtime.components.author.author-conference-list.text_text")}{" "}</p>
+            {t("runtime.components.author.author-conference-list.text_text")}
+            {conference.paperTitle}
+            {t("runtime.components.author.author-conference-list.text_text")}{" "}
+          </p>
         )}
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-slate-400 dark:text-slate-500">
@@ -345,7 +356,8 @@ function DeadlineIndicator({ conference }: DeadlineIndicatorProps) {
     return (
       <div className="flex flex-col gap-1">
         <span className="text-[9px] font-medium text-slate-400 dark:text-slate-500">
-          {t("runtime.components.author.author-conference-list.text_review_progress")}{" "}</span>
+          {t("runtime.components.author.author-conference-list.text_review_progress")}{" "}
+        </span>
         <div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-1.5 overflow-hidden">
           <div
             className="bg-yellow-500 dark:bg-yellow-400 h-1.5 rounded-full transition-all"
@@ -363,7 +375,9 @@ function DeadlineIndicator({ conference }: DeadlineIndicatorProps) {
   if (conference.status === "revision-requested" && conference.fullPaperDeadline) {
     return (
       <div className="flex flex-col gap-0.5">
-        <span className="text-[9px] font-medium text-orange-500">{t("runtime.components.author.author-conference-list.text_revision_due")}</span>
+        <span className="text-[9px] font-medium text-orange-500">
+          {t("runtime.components.author.author-conference-list.text_revision_due")}
+        </span>
         <span className="text-[10px] font-bold text-orange-600 dark:text-orange-400">
           {conference.fullPaperDeadline}
         </span>
@@ -375,7 +389,9 @@ function DeadlineIndicator({ conference }: DeadlineIndicatorProps) {
   if (conference.status === "bookmarked" && conference.submissionDeadline) {
     return (
       <div className="flex flex-col gap-0.5">
-        <span className="text-[9px] font-medium text-slate-400">{t("runtime.components.author.author-conference-list.text_submission_due")}</span>
+        <span className="text-[9px] font-medium text-slate-400">
+          {t("runtime.components.author.author-conference-list.text_submission_due")}
+        </span>
         <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300">
           {conference.submissionDeadline}
         </span>
@@ -387,7 +403,9 @@ function DeadlineIndicator({ conference }: DeadlineIndicatorProps) {
   if (conference.status === "submitted" && conference.submissionDate) {
     return (
       <div className="flex flex-col gap-0.5">
-        <span className="text-[9px] font-medium text-slate-400">{t("runtime.components.author.author-conference-list.text_submitted")}</span>
+        <span className="text-[9px] font-medium text-slate-400">
+          {t("runtime.components.author.author-conference-list.text_submitted")}
+        </span>
         <span className="text-[10px] font-medium text-slate-500">{conference.submissionDate}</span>
       </div>
     )

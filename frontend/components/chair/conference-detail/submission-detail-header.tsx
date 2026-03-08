@@ -10,10 +10,30 @@ import { useTranslation } from "@/lib/i18n/translation-context"
 import { tStatic as t } from "@/lib/i18n/static-translate"
 
 const SUB_TABS: { id: SubmissionSubTab; label: string }[] = [
-  { id: "overview", label: t("runtime.components.chair.conference-detail.submission-detail-header.prop_label_overview") },
-  { id: "reviews", label: t("runtime.components.chair.conference-detail.submission-detail-header.prop_label_reviews_feedback") },
-  { id: "discussion", label: t("runtime.components.chair.conference-detail.submission-detail-header.prop_label_discussion") },
-  { id: "history", label: t("runtime.components.chair.conference-detail.submission-detail-header.prop_label_history") },
+  {
+    id: "overview",
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail-header.prop_label_overview",
+    ),
+  },
+  {
+    id: "reviews",
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail-header.prop_label_reviews_feedback",
+    ),
+  },
+  {
+    id: "discussion",
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail-header.prop_label_discussion",
+    ),
+  },
+  {
+    id: "history",
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail-header.prop_label_history",
+    ),
+  },
 ]
 
 interface SubmissionDetailHeaderProps {
@@ -61,7 +81,11 @@ export function SubmissionDetailHeader({
               <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
                 folder_open
               </span>
-              <span>{t("runtime.components.chair.conference-detail.submission-detail-header.text_conferences")}</span>
+              <span>
+                {t(
+                  "runtime.components.chair.conference-detail.submission-detail-header.text_conferences",
+                )}
+              </span>
             </button>
             <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
               chevron_right
@@ -79,12 +103,18 @@ export function SubmissionDetailHeader({
               onClick={() => router.push(ROUTES.CHAIR.CONFERENCE_SUBMISSIONS(conferenceId))}
               className="hover:text-[#1B3C53] dark:hover:text-white transition-colors"
             >
-              {t("runtime.components.chair.conference-detail.submission-detail-header.text_submissions")}{" "}</button>
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail-header.text_submissions",
+              )}{" "}
+            </button>
             <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
               chevron_right
             </span>
             <span className="font-semibold text-[#1B3C53] dark:text-white">
-              {t("runtime.components.chair.conference-detail.submission-detail-header.text_submission")}{" "}{submissionDisplayId}
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail-header.text_submission",
+              )}{" "}
+              {submissionDisplayId}
             </span>
           </div>
 
@@ -95,7 +125,9 @@ export function SubmissionDetailHeader({
             </h1>
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
               <span>
-                {t("runtime.components.chair.conference-detail.submission-detail-header.text_track")}{" "}
+                {t(
+                  "runtime.components.chair.conference-detail.submission-detail-header.text_track",
+                )}{" "}
                 <strong className="text-slate-700 dark:text-slate-300">{submissionTrack}</strong>
               </span>
               <SubmissionStatusBadge status={submissionStatus} />
@@ -106,11 +138,18 @@ export function SubmissionDetailHeader({
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <button className="h-8 px-3 bg-white border border-slate-200 text-slate-600 font-medium text-[11px] rounded-md hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => onTabChange("overview")}
+            className="h-8 px-3 bg-white border border-slate-200 text-slate-600 font-medium text-[11px] rounded-md hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center gap-1.5"
+          >
             <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
               settings
             </span>
-            {t("runtime.components.chair.conference-detail.submission-detail-header.text_settings")}{" "}</button>
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail-header.text_settings",
+            )}{" "}
+          </button>
         </div>
       </div>
 

@@ -28,13 +28,16 @@ export function AbstractCard({ submission }: AbstractCardProps) {
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
-        <h3 className="font-bold text-sm text-[#1B3C53] tracking-tight uppercase">{t("runtime.components.reviewer.submission-review.review-sidebar.text_abstract")}</h3>
+        <h3 className="font-bold text-sm text-[#1B3C53] tracking-tight uppercase">
+          {t("runtime.components.reviewer.submission-review.review-sidebar.text_abstract")}
+        </h3>
       </div>
       <p className="text-xs text-slate-600 leading-relaxed mb-6">{submission.abstract}</p>
       <div className="space-y-4 pt-6 border-t border-slate-100">
         <div>
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-            {t("runtime.components.reviewer.submission-review.review-sidebar.text_keywords")}{" "}</span>
+            {t("runtime.components.reviewer.submission-review.review-sidebar.text_keywords")}{" "}
+          </span>
           <div className="flex flex-wrap gap-2 mt-2">
             {submission.keywords.map((kw, i) => (
               <span
@@ -49,7 +52,10 @@ export function AbstractCard({ submission }: AbstractCardProps) {
         {submission.supplementaryMaterial && (
           <div>
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              {t("runtime.components.reviewer.submission-review.review-sidebar.text_supplementary_material")}{" "}</span>
+              {t(
+                "runtime.components.reviewer.submission-review.review-sidebar.text_supplementary_material",
+              )}{" "}
+            </span>
             <div className="mt-2">
               <a
                 href="#"
@@ -171,14 +177,21 @@ export function AIAssistantCard() {
               >
                 auto_awesome
               </span>
-              {t("runtime.components.reviewer.submission-review.review-sidebar.text_ai_assistant")}{" "}</h3>
+              {t(
+                "runtime.components.reviewer.submission-review.review-sidebar.text_ai_assistant",
+              )}{" "}
+            </h3>
             <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-indigo-200 text-indigo-800 uppercase">
-              {t("runtime.components.reviewer.submission-review.review-sidebar.text_beta")}{" "}</span>
+              {t("runtime.components.reviewer.submission-review.review-sidebar.text_beta")}{" "}
+            </span>
           </div>
           {!isAnalyzing ? (
             <>
               <p className="text-[10px] text-indigo-800 mb-3 leading-relaxed">
-                {t("runtime.components.reviewer.submission-review.review-sidebar.text_pre_analyze_the_pdf_for_key")}{" "}</p>
+                {t(
+                  "runtime.components.reviewer.submission-review.review-sidebar.text_pre_analyze_the_pdf_for_key",
+                )}{" "}
+              </p>
               <button
                 onClick={() => setIsDialogOpen(true)}
                 className="w-full h-8 px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-md shadow-sm transition-all flex items-center justify-center gap-1.5"
@@ -204,7 +217,10 @@ export function AIAssistantCard() {
                 >
                   analytics
                 </span>
-                {t("runtime.components.reviewer.submission-review.review-sidebar.text_generate_analysis")}{" "}</button>
+                {t(
+                  "runtime.components.reviewer.submission-review.review-sidebar.text_generate_analysis",
+                )}{" "}
+              </button>
             </>
           ) : (
             <>
@@ -238,7 +254,10 @@ export function AIAssistantCard() {
                     >
                       visibility
                     </span>
-                    {t("runtime.components.reviewer.submission-review.review-sidebar.text_view_analysis")}{" "}</button>
+                    {t(
+                      "runtime.components.reviewer.submission-review.review-sidebar.text_view_analysis",
+                    )}{" "}
+                  </button>
                 ) : (
                   <>
                     <button
@@ -266,12 +285,18 @@ export function AIAssistantCard() {
                       >
                         settings
                       </span>
-                      {t("runtime.components.reviewer.submission-review.review-sidebar.text_check_config")}{" "}</button>
+                      {t(
+                        "runtime.components.reviewer.submission-review.review-sidebar.text_check_config",
+                      )}{" "}
+                    </button>
                     <button
                       onClick={handleCancelAnalysis}
                       className="w-full h-8 px-3 bg-slate-200 hover:bg-slate-300 text-slate-700 text-[10px] font-bold rounded-md shadow-sm transition-all flex items-center justify-center gap-1.5"
                     >
-                      {t("runtime.components.reviewer.submission-review.review-sidebar.text_cancel")}{" "}</button>
+                      {t(
+                        "runtime.components.reviewer.submission-review.review-sidebar.text_cancel",
+                      )}{" "}
+                    </button>
                   </>
                 )}
               </div>
@@ -283,7 +308,11 @@ export function AIAssistantCard() {
       <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>{t("runtime.components.reviewer.submission-review.review-sidebar.text_ai_analysis_configuration")}</DialogTitle>
+            <DialogTitle>
+              {t(
+                "runtime.components.reviewer.submission-review.review-sidebar.text_ai_analysis_configuration",
+              )}
+            </DialogTitle>
             <DialogDescription>
               {isAnalyzing
                 ? "Analysis is in progress. You can view your configuration below."
@@ -294,7 +323,9 @@ export function AIAssistantCard() {
             <Textarea
               value={analysisInput}
               onChange={(e) => setAnalysisInput(e.target.value)}
-              placeholder={t("runtime.components.reviewer.submission-review.review-sidebar.placeholder_enter_your_analysis_prompt_or_notes")}
+              placeholder={t(
+                "runtime.components.reviewer.submission-review.review-sidebar.placeholder_enter_your_analysis_prompt_or_notes",
+              )}
               className="min-h-[120px]"
               disabled={isAnalyzing}
             />
@@ -305,20 +336,27 @@ export function AIAssistantCard() {
                 onClick={() => setIsDialogOpen(false)}
                 className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors"
               >
-                {t("runtime.components.reviewer.submission-review.review-sidebar.text_close")}{" "}</button>
+                {t("runtime.components.reviewer.submission-review.review-sidebar.text_close")}{" "}
+              </button>
             ) : (
               <>
                 <button
                   onClick={() => setIsDialogOpen(false)}
                   className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors"
                 >
-                  {t("runtime.components.reviewer.submission-review.review-sidebar.text_cancel")}{" "}</button>
+                  {t(
+                    "runtime.components.reviewer.submission-review.review-sidebar.text_cancel",
+                  )}{" "}
+                </button>
                 <button
                   onClick={handleStartAnalysis}
                   disabled={!analysisInput.trim()}
                   className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {t("runtime.components.reviewer.submission-review.review-sidebar.text_start")}{" "}</button>
+                  {t(
+                    "runtime.components.reviewer.submission-review.review-sidebar.text_start",
+                  )}{" "}
+                </button>
               </>
             )}
           </DialogFooter>
@@ -328,16 +366,28 @@ export function AIAssistantCard() {
       <Dialog open={isAnalysisDialogOpen} onOpenChange={setIsAnalysisDialogOpen}>
         <DialogContent className="sm:max-w-[700px] max-h-[80vh]">
           <DialogHeader>
-            <DialogTitle>{t("runtime.components.reviewer.submission-review.review-sidebar.text_ai_analysis_results")}</DialogTitle>
+            <DialogTitle>
+              {t(
+                "runtime.components.reviewer.submission-review.review-sidebar.text_ai_analysis_results",
+              )}
+            </DialogTitle>
             <DialogDescription>
-              {t("runtime.components.reviewer.submission-review.review-sidebar.text_analysis_based_on_your_input")}{analysisInput}{t("runtime.components.reviewer.submission-review.review-sidebar.text_text")}{" "}</DialogDescription>
+              {t(
+                "runtime.components.reviewer.submission-review.review-sidebar.text_analysis_based_on_your_input",
+              )}
+              {analysisInput}
+              {t("runtime.components.reviewer.submission-review.review-sidebar.text_text")}{" "}
+            </DialogDescription>
           </DialogHeader>
           <div className="py-4 overflow-y-auto max-h-[60vh]">
             {analysisResult ? (
               <GithubMarkdown content={analysisResult} className="p-0" />
             ) : (
               <div className="text-slate-600 dark:text-slate-400 text-sm">
-                {t("runtime.components.reviewer.submission-review.review-sidebar.text_analysis_is_still_processing")}{" "}</div>
+                {t(
+                  "runtime.components.reviewer.submission-review.review-sidebar.text_analysis_is_still_processing",
+                )}{" "}
+              </div>
             )}
           </div>
           <DialogFooter>
@@ -345,7 +395,8 @@ export function AIAssistantCard() {
               onClick={() => setIsAnalysisDialogOpen(false)}
               className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors"
             >
-              {t("runtime.components.reviewer.submission-review.review-sidebar.text_close")}{" "}</button>
+              {t("runtime.components.reviewer.submission-review.review-sidebar.text_close")}{" "}
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -383,33 +434,49 @@ export function ReviewGuidelinesCard() {
         >
           info
         </span>
-        {t("runtime.components.reviewer.submission-review.review-sidebar.text_scoring_guide")}{" "}</h4>
+        {t("runtime.components.reviewer.submission-review.review-sidebar.text_scoring_guide")}{" "}
+      </h4>
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <div className="flex gap-0.5">
             <span className="w-2 h-2 rounded-full bg-[#0d9488]" />
             <span className="w-2 h-2 rounded-full bg-[#16a34a]" />
           </div>
-          <span className="text-[9px] text-slate-600">{t("runtime.components.reviewer.submission-review.review-sidebar.text_8_10_strong_contribution_recommend")}</span>
+          <span className="text-[9px] text-slate-600">
+            {t(
+              "runtime.components.reviewer.submission-review.review-sidebar.text_8_10_strong_contribution_recommend",
+            )}
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex gap-0.5">
             <span className="w-2 h-2 rounded-full bg-[#84cc16]" />
             <span className="w-2 h-2 rounded-full bg-[#a3a3a3]" />
           </div>
-          <span className="text-[9px] text-slate-600">{t("runtime.components.reviewer.submission-review.review-sidebar.text_5_7_acceptable_with_caveats")}</span>
+          <span className="text-[9px] text-slate-600">
+            {t(
+              "runtime.components.reviewer.submission-review.review-sidebar.text_5_7_acceptable_with_caveats",
+            )}
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex gap-0.5">
             <span className="w-2 h-2 rounded-full bg-[#f59e0b]" />
             <span className="w-2 h-2 rounded-full bg-[#dc2626]" />
           </div>
-          <span className="text-[9px] text-slate-600">{t("runtime.components.reviewer.submission-review.review-sidebar.text_1_4_significant_issues_present")}</span>
+          <span className="text-[9px] text-slate-600">
+            {t(
+              "runtime.components.reviewer.submission-review.review-sidebar.text_1_4_significant_issues_present",
+            )}
+          </span>
         </div>
       </div>
       <div className="mt-3 pt-3 border-t border-slate-100">
         <a href="#" className="text-[9px] text-[#2563eb] hover:underline font-medium">
-          {t("runtime.components.reviewer.submission-review.review-sidebar.text_view_full_reviewer_guide_rarr")}{" "}</a>
+          {t(
+            "runtime.components.reviewer.submission-review.review-sidebar.text_view_full_reviewer_guide_rarr",
+          )}{" "}
+        </a>
       </div>
     </div>
   )

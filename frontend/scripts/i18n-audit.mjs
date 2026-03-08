@@ -291,10 +291,7 @@ function expandDynamicPattern(pattern, filePath) {
     filePath.endsWith(path.join("components", "language-switcher.tsx")) &&
     (pattern === "${currentOption.labelKey}" || pattern === "${option.labelKey}")
   ) {
-    return [
-      "common.messages.languages.vietnamese",
-      "common.messages.languages.english",
-    ]
+    return ["common.messages.languages.vietnamese", "common.messages.languages.english"]
   }
 
   return []
@@ -569,7 +566,11 @@ function buildNestedObjectFromLeafMap(entries) {
         current[segment] = payload.value
         break
       }
-      if (!current[segment] || typeof current[segment] !== "object" || Array.isArray(current[segment])) {
+      if (
+        !current[segment] ||
+        typeof current[segment] !== "object" ||
+        Array.isArray(current[segment])
+      ) {
         current[segment] = {}
       }
       current = current[segment]
@@ -737,9 +738,14 @@ function main() {
   })
   printFailure("Dead keys in en.json", deadEnKeys.sort())
   printFailure("Dead keys in vi.json", deadViKeys.sort())
-  printFailure("Hardcoded user-visible strings", hardcodedFindings, (row) => {
-    return `${row.file}:${row.line} [${row.source}] "${row.text}"`
-  }, 120)
+  printFailure(
+    "Hardcoded user-visible strings",
+    hardcodedFindings,
+    (row) => {
+      return `${row.file}:${row.line} [${row.source}] "${row.text}"`
+    },
+    120,
+  )
 
   if (hasFailures) {
     process.exit(1)

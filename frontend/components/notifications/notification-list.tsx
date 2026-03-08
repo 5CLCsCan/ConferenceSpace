@@ -45,7 +45,11 @@ export function NotificationList({
     return (
       <div className={cn("p-4", className)}>
         <div className="text-center py-8">
-          <p className="text-destructive text-sm">{t("runtime.components.notifications.notification-list.text_failed_to_load_notifications")}</p>
+          <p className="text-destructive text-sm">
+            {t(
+              "runtime.components.notifications.notification-list.text_failed_to_load_notifications",
+            )}
+          </p>
           <p className="text-muted-foreground text-xs mt-1">{error.message}</p>
         </div>
       </div>
@@ -58,7 +62,9 @@ export function NotificationList({
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <div className="flex items-center gap-2">
             <Bell className="h-4 w-4 text-muted-foreground" />
-            <h3 className="font-semibold text-foreground">{t("runtime.components.notifications.notification-list.text_notifications")}</h3>
+            <h3 className="font-semibold text-foreground">
+              {t("runtime.components.notifications.notification-list.text_notifications")}
+            </h3>
             {unreadCount > 0 && (
               <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
                 {unreadCount} new
@@ -73,7 +79,8 @@ export function NotificationList({
               onClick={onMarkAllAsRead}
             >
               <CheckCheck className="h-3.5 w-3.5 mr-1" />
-              {t("runtime.components.notifications.notification-list.text_mark_all_as_read")}{" "}</Button>
+              {t("runtime.components.notifications.notification-list.text_mark_all_as_read")}{" "}
+            </Button>
           )}
         </div>
       )}
@@ -89,7 +96,10 @@ export function NotificationList({
           </div>
           <p className="text-muted-foreground text-sm">{emptyMessage}</p>
           <p className="text-muted-foreground text-xs mt-1">
-            {t("runtime.components.notifications.notification-list.text_you_apos_ll_see_notifications_about")}{" "}</p>
+            {t(
+              "runtime.components.notifications.notification-list.text_you_apos_ll_see_notifications_about",
+            )}{" "}
+          </p>
         </div>
       ) : (
         <>
@@ -115,7 +125,8 @@ export function NotificationList({
                 disabled={isLoading}
               >
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                {t("runtime.components.notifications.notification-list.text_load_more")}{" "}</Button>
+                {t("runtime.components.notifications.notification-list.text_load_more")}{" "}
+              </Button>
             </div>
           )}
         </>

@@ -1,7 +1,6 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/auth-context"
 import type { Submission } from "@/lib/api/submissions"
@@ -19,8 +18,16 @@ const statusConfig: Record<string, { label: string; className: string }> = {
     label: t("runtime.components.author.submission-detail.submission-header.prop_label_published"),
     className: "bg-blue-50 text-blue-700 border-blue-100",
   },
+  reviewing: {
+    label: t(
+      "runtime.components.author.submission-detail.submission-header.prop_label_under_review",
+    ),
+    className: "bg-yellow-50 text-yellow-700 border-yellow-100",
+  },
   under_review: {
-    label: t("runtime.components.author.submission-detail.submission-header.prop_label_under_review"),
+    label: t(
+      "runtime.components.author.submission-detail.submission-header.prop_label_under_review",
+    ),
     className: "bg-yellow-50 text-yellow-700 border-yellow-100",
   },
   accepted: {
@@ -32,7 +39,9 @@ const statusConfig: Record<string, { label: string; className: string }> = {
     className: "bg-red-50 text-red-700 border-red-100",
   },
   pending_decision: {
-    label: t("runtime.components.author.submission-detail.submission-header.prop_label_pending_decision"),
+    label: t(
+      "runtime.components.author.submission-detail.submission-header.prop_label_pending_decision",
+    ),
     className: "bg-purple-50 text-purple-700 border-purple-100",
   },
   withdrawn: {
@@ -40,7 +49,9 @@ const statusConfig: Record<string, { label: string; className: string }> = {
     className: "bg-slate-100 text-slate-600 border-slate-200",
   },
   revision_requested: {
-    label: t("runtime.components.author.submission-detail.submission-header.prop_label_revision_requested"),
+    label: t(
+      "runtime.components.author.submission-detail.submission-header.prop_label_revision_requested",
+    ),
     className: "bg-amber-50 text-amber-700 border-amber-100",
   },
 }
@@ -66,9 +77,18 @@ function SubmissionStatusBadge({ status }: { status: string }) {
 type TabId = "overview" | "discussion" | "rebuttal"
 
 const TABS: { id: TabId; label: string }[] = [
-  { id: "overview", label: t("runtime.components.author.submission-detail.submission-header.prop_label_overview") },
-  { id: "discussion", label: t("runtime.components.author.submission-detail.submission-header.prop_label_discussion") },
-  { id: "rebuttal", label: t("runtime.components.author.submission-detail.submission-header.prop_label_rebuttal") },
+  {
+    id: "overview",
+    label: t("runtime.components.author.submission-detail.submission-header.prop_label_overview"),
+  },
+  {
+    id: "discussion",
+    label: t("runtime.components.author.submission-detail.submission-header.prop_label_discussion"),
+  },
+  {
+    id: "rebuttal",
+    label: t("runtime.components.author.submission-detail.submission-header.prop_label_rebuttal"),
+  },
 ]
 
 interface SubmissionHeaderProps {
@@ -91,6 +111,7 @@ export function SubmissionHeader({
   const router = useRouter()
   const { user } = useAuth()
   const isAuthor = user?.email === submission.author
+  const canEditDraft = isAuthor && submission.status === "draft"
 
   return (
     <header
@@ -111,7 +132,11 @@ export function SubmissionHeader({
               <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
                 description
               </span>
-              <span>{t("runtime.components.author.submission-detail.submission-header.text_my_submissions")}</span>
+              <span>
+                {t(
+                  "runtime.components.author.submission-detail.submission-header.text_my_submissions",
+                )}
+              </span>
             </button>
             <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
               chevron_right
@@ -126,7 +151,8 @@ export function SubmissionHeader({
               chevron_right
             </span>
             <span className="font-semibold text-[#1B3C53] dark:text-white">
-              {t("runtime.components.author.submission-detail.submission-header.text_submission")}{submission.id}
+              {t("runtime.components.author.submission-detail.submission-header.text_submission")}
+              {submission.id}
             </span>
           </div>
 
@@ -152,21 +178,22 @@ export function SubmissionHeader({
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          {isAuthor && submission.status === "draft" && (
-            <Link
-              href={`${ROUTES.AUTHOR.SUBMISSION_EDIT(String(submission.id))}?conferenceId=${conferenceId}`}
+          {canEditDraft && (
+            <button
+              type="button"
+              onClick={() =>
+                router.push(
+                  `${ROUTES.AUTHOR.SUBMISSION_EDIT(String(submission.id))}?conferenceId=${conferenceId}`,
+                )
+              }
               className="h-8 px-3 bg-white border border-slate-200 text-slate-600 font-medium text-[11px] rounded-md hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center gap-1.5"
             >
               <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
                 edit_document
               </span>
-              {t("runtime.components.author.submission-detail.submission-header.text_edit")}{" "}</Link>
+              {t("runtime.components.author.submission-detail.submission-header.text_edit")}{" "}
+            </button>
           )}
-          <button className="h-8 px-3 bg-[#1B3C53] text-white font-medium text-[11px] rounded-md hover:bg-[#234C6A] transition-colors flex items-center gap-1.5">
-            <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
-              upload
-            </span>
-            {t("runtime.components.author.submission-detail.submission-header.text_upload_revision")}{" "}</button>
         </div>
       </div>
 

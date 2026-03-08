@@ -61,7 +61,10 @@ export async function resolveAssignmentConference({
     return { conferenceId: null, source: "unresolved" }
   }
 
-  const dashboardResponse = await getReviewerDashboard(normalizedReviewerEmail, DEFAULT_DASHBOARD_OPTIONS)
+  const dashboardResponse = await getReviewerDashboard(
+    normalizedReviewerEmail,
+    DEFAULT_DASHBOARD_OPTIONS,
+  )
   if (dashboardResponse.error || !dashboardResponse.data) {
     return { conferenceId: null, source: "unresolved" }
   }

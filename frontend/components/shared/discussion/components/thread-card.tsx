@@ -172,7 +172,9 @@ export function ThreadCard({
               <textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                placeholder={t("runtime.components.shared.discussion.components.thread-card.placeholder_write_a_reply")}
+                placeholder={t(
+                  "runtime.components.shared.discussion.components.thread-card.placeholder_write_a_reply",
+                )}
                 className="w-full px-3 py-2 text-xs text-slate-700 placeholder-slate-400 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-[#1B3C53] focus:ring-1 focus:ring-[#1B3C53]/20 resize-none"
                 rows={3}
                 autoFocus
@@ -234,13 +236,19 @@ export function ThreadCard({
                     }}
                     className="h-7 px-3 text-[11px] font-medium text-slate-600 hover:text-slate-800 transition-colors"
                   >
-                    {t("runtime.components.shared.discussion.components.thread-card.text_cancel")}{" "}</button>
+                    {t(
+                      "runtime.components.shared.discussion.components.thread-card.text_cancel",
+                    )}{" "}
+                  </button>
                   <button
                     onClick={handleReply}
                     disabled={!replyText.trim()}
                     className="h-7 px-3 bg-[#1B3C53] hover:bg-[#234C6A] disabled:bg-slate-300 text-white text-[11px] font-medium rounded-md transition-colors disabled:cursor-not-allowed"
                   >
-                    {t("runtime.components.shared.discussion.components.thread-card.text_reply")}{" "}</button>
+                    {t(
+                      "runtime.components.shared.discussion.components.thread-card.text_reply",
+                    )}{" "}
+                  </button>
                 </div>
               </div>
             </div>
@@ -270,7 +278,10 @@ export function ThreadCard({
               >
                 reply
               </span>
-              {t("runtime.components.shared.discussion.components.thread-card.text_reply_to_thread")}{" "}</button>
+              {t(
+                "runtime.components.shared.discussion.components.thread-card.text_reply_to_thread",
+              )}{" "}
+            </button>
           )}
         </div>
       )}

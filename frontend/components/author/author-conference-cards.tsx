@@ -258,7 +258,10 @@ export function ReviewProgressSection({ progress, paperTitle }: ReviewProgressSe
       <div className="space-y-2">
         {paperTitle && (
           <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 line-clamp-1">
-            {t("runtime.components.author.author-conference-cards.text_text")}{paperTitle}{t("runtime.components.author.author-conference-cards.text_text")}{" "}</p>
+            {t("runtime.components.author.author-conference-cards.text_text")}
+            {paperTitle}
+            {t("runtime.components.author.author-conference-cards.text_text")}{" "}
+          </p>
         )}
         <div className="flex items-center gap-2">
           <div className="flex-1 bg-slate-200 dark:bg-slate-600 rounded-full h-1.5 overflow-hidden">
@@ -271,7 +274,9 @@ export function ReviewProgressSection({ progress, paperTitle }: ReviewProgressSe
             {progress}%
           </span>
         </div>
-        <p className="text-[9px] text-slate-400">{t("runtime.components.author.author-conference-cards.text_review_in_progress")}</p>
+        <p className="text-[9px] text-slate-400">
+          {t("runtime.components.author.author-conference-cards.text_review_in_progress")}
+        </p>
       </div>
     </div>
   )
@@ -288,7 +293,10 @@ export function DeadlineSection({ deadline, label, isUrgent }: DeadlineSectionPr
     <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3 border border-slate-100 dark:border-slate-600">
       <div className="flex items-center gap-2">
         <span
-          className={cn("material-symbols-outlined", isUrgent ? "text-orange-500" : "text-slate-400")}
+          className={cn(
+            "material-symbols-outlined",
+            isUrgent ? "text-orange-500" : "text-slate-400",
+          )}
           style={{
             fontSize: "17.5px",
             width: "17.5px",
@@ -348,10 +356,15 @@ export function AcceptedSection({ paperTitle }: AcceptedSectionProps) {
           celebration
         </span>
         <div>
-          <p className="text-[10px] font-bold">{t("runtime.components.author.author-conference-cards.text_paper_accepted")}</p>
+          <p className="text-[10px] font-bold">
+            {t("runtime.components.author.author-conference-cards.text_paper_accepted")}
+          </p>
           {paperTitle && (
             <p className="text-[9px] text-slate-400 dark:text-slate-500 line-clamp-1">
-              {t("runtime.components.author.author-conference-cards.text_text")}{paperTitle}{t("runtime.components.author.author-conference-cards.text_text")}{" "}</p>
+              {t("runtime.components.author.author-conference-cards.text_text")}
+              {paperTitle}
+              {t("runtime.components.author.author-conference-cards.text_text")}{" "}
+            </p>
           )}
         </div>
       </div>
@@ -374,10 +387,15 @@ export function RejectedSection({ paperTitle }: RejectedSectionProps) {
           info
         </span>
         <div>
-          <p className="text-[10px] font-medium">{t("runtime.components.author.author-conference-cards.text_decision_not_accepted")}</p>
+          <p className="text-[10px] font-medium">
+            {t("runtime.components.author.author-conference-cards.text_decision_not_accepted")}
+          </p>
           {paperTitle && (
             <p className="text-[9px] text-slate-400 dark:text-slate-500 line-clamp-1">
-              {t("runtime.components.author.author-conference-cards.text_text")}{paperTitle}{t("runtime.components.author.author-conference-cards.text_text")}{" "}</p>
+              {t("runtime.components.author.author-conference-cards.text_text")}
+              {paperTitle}
+              {t("runtime.components.author.author-conference-cards.text_text")}{" "}
+            </p>
           )}
         </div>
       </div>
@@ -396,10 +414,16 @@ export function SubmittedSection({ paperTitle, submissionDate }: SubmittedSectio
       <div className="space-y-2">
         {paperTitle && (
           <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 line-clamp-2">
-            {t("runtime.components.author.author-conference-cards.text_text")}{paperTitle}{t("runtime.components.author.author-conference-cards.text_text")}{" "}</p>
+            {t("runtime.components.author.author-conference-cards.text_text")}
+            {paperTitle}
+            {t("runtime.components.author.author-conference-cards.text_text")}{" "}
+          </p>
         )}
         {submissionDate && (
-          <p className="text-[9px] text-slate-400">{t("runtime.components.author.author-conference-cards.text_submitted_on")}{" "}{submissionDate}</p>
+          <p className="text-[9px] text-slate-400">
+            {t("runtime.components.author.author-conference-cards.text_submitted_on")}{" "}
+            {submissionDate}
+          </p>
         )}
       </div>
     </div>
@@ -455,9 +479,12 @@ export function SubmittedCard({ conference, onNavigate }: AuthorConferenceCardPr
       onClick={() => onNavigate(conference.id)}
       footer={
         <div className="flex gap-2">
-          <ActionButton variant="secondary">{t("runtime.components.author.author-conference-cards.text_track_status")}</ActionButton>
+          <ActionButton variant="secondary" onClick={() => onNavigate(conference.id)}>
+            {t("runtime.components.author.author-conference-cards.text_track_status")}
+          </ActionButton>
           <ActionButton variant="primary" onClick={() => onNavigate(conference.id)}>
-            {t("runtime.components.author.author-conference-cards.text_view_submission")}{" "}</ActionButton>
+            {t("runtime.components.author.author-conference-cards.text_view_submission")}{" "}
+          </ActionButton>
         </div>
       }
     >
@@ -476,9 +503,12 @@ export function UnderReviewCard({ conference, onNavigate }: AuthorConferenceCard
       onClick={() => onNavigate(conference.id)}
       footer={
         <div className="flex gap-2">
-          <ActionButton variant="secondary">{t("runtime.components.author.author-conference-cards.text_view_reviews")}</ActionButton>
+          <ActionButton variant="secondary" onClick={() => onNavigate(conference.id)}>
+            {t("runtime.components.author.author-conference-cards.text_view_reviews")}
+          </ActionButton>
           <ActionButton variant="primary" onClick={() => onNavigate(conference.id)}>
-            {t("runtime.components.author.author-conference-cards.text_track_progress")}{" "}</ActionButton>
+            {t("runtime.components.author.author-conference-cards.text_track_progress")}{" "}
+          </ActionButton>
         </div>
       }
     >
@@ -497,9 +527,12 @@ export function AcceptedCard({ conference, onNavigate }: AuthorConferenceCardPro
       onClick={() => onNavigate(conference.id)}
       footer={
         <div className="flex gap-2">
-          <ActionButton variant="secondary">{t("runtime.components.author.author-conference-cards.text_view_details")}</ActionButton>
+          <ActionButton variant="secondary" onClick={() => onNavigate(conference.id)}>
+            {t("runtime.components.author.author-conference-cards.text_view_details")}
+          </ActionButton>
           <ActionButton variant="primary" onClick={() => onNavigate(conference.id)}>
-            {t("runtime.components.author.author-conference-cards.text_camera_ready")}{" "}</ActionButton>
+            {t("runtime.components.author.author-conference-cards.text_camera_ready")}{" "}
+          </ActionButton>
         </div>
       }
     >
@@ -519,7 +552,8 @@ export function RejectedCard({ conference, onNavigate }: AuthorConferenceCardPro
           onClick={() => onNavigate(conference.id)}
           className="w-full"
         >
-          {t("runtime.components.author.author-conference-cards.text_view_feedback")}{" "}</ActionButton>
+          {t("runtime.components.author.author-conference-cards.text_view_feedback")}{" "}
+        </ActionButton>
       }
     >
       <RejectedSection paperTitle={conference.paperTitle} />
@@ -534,9 +568,12 @@ export function RevisionRequestedCard({ conference, onNavigate }: AuthorConferen
       onClick={() => onNavigate(conference.id)}
       footer={
         <div className="flex gap-2">
-          <ActionButton variant="secondary">{t("runtime.components.author.author-conference-cards.text_view_reviews")}</ActionButton>
+          <ActionButton variant="secondary" onClick={() => onNavigate(conference.id)}>
+            {t("runtime.components.author.author-conference-cards.text_view_reviews")}
+          </ActionButton>
           <ActionButton variant="primary" onClick={() => onNavigate(conference.id)}>
-            {t("runtime.components.author.author-conference-cards.text_submit_revision")}{" "}</ActionButton>
+            {t("runtime.components.author.author-conference-cards.text_submit_revision")}{" "}
+          </ActionButton>
         </div>
       }
     >
@@ -558,9 +595,12 @@ export function BookmarkedCard({ conference, onNavigate }: AuthorConferenceCardP
       onClick={() => onNavigate(conference.id)}
       footer={
         <div className="flex gap-2">
-          <ActionButton variant="secondary">{t("runtime.components.author.author-conference-cards.text_view_cfp")}</ActionButton>
+          <ActionButton variant="secondary" onClick={() => onNavigate(conference.id)}>
+            {t("runtime.components.author.author-conference-cards.text_view_cfp")}
+          </ActionButton>
           <ActionButton variant="primary" onClick={() => onNavigate(conference.id)}>
-            {t("runtime.components.author.author-conference-cards.text_submit_paper")}{" "}</ActionButton>
+            {t("runtime.components.author.author-conference-cards.text_submit_paper")}{" "}
+          </ActionButton>
         </div>
       }
     >

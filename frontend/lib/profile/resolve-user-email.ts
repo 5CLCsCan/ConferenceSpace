@@ -12,7 +12,10 @@ interface ResolveUserEmailResult {
 
 const isEmailLike = (value: string) => value.includes("@")
 
-export async function resolveUserEmail(userId: string, currentUserId?: string): Promise<ResolveUserEmailResult> {
+export async function resolveUserEmail(
+  userId: string,
+  currentUserId?: string,
+): Promise<ResolveUserEmailResult> {
   if (!userId) {
     return { mode: "not_found" }
   }

@@ -39,6 +39,8 @@ export async function getConferenceById(conferenceId: string): Promise<ApiRespon
       location: data.data.venue || data.data.location || "",
       website: data.data.website || "",
       status: (data.data.status || "open") as ConferenceStatus,
+      created_at: data.data.created_at,
+      updated_at: data.data.updated_at,
       tracks: data.data.tracks || [], // Ensure tracks is always an array
       domain: data.data.domain || [], // Research domains/keywords/topics
       call_for_paper_text: data.data.configurations?.call_for_paper_text || undefined,
@@ -59,6 +61,10 @@ export async function getConferenceById(conferenceId: string): Promise<ApiRespon
         submission_format: data.data.configurations?.submission_format,
         require_complete_author_profile: data.data.configurations?.require_complete_author_profile,
         allow_paper_withdrawls: data.data.configurations?.allow_paper_withdrawls,
+        desk_rejection_settings: data.data.configurations?.desk_rejection_settings,
+        discussion_settings: data.data.configurations?.discussion_settings,
+        rebuttal_settings: data.data.configurations?.rebuttal_settings,
+        workflow_settings: data.data.configurations?.workflow_settings,
       },
     }
 
@@ -230,13 +236,34 @@ export async function listConferences(filters?: {
       location: conf.venue || conf.location || "",
       website: conf.website || "",
       status: (conf.status || "open") as ConferenceStatus,
+      created_at: conf.created_at,
+      updated_at: conf.updated_at,
       tracks: conf.tracks || [], // TODO: Map if available
       domain: conf.domain || [], // Research domains/keywords/topics
       call_for_paper_text: conf.configurations?.call_for_paper_text || undefined,
       chair: conf.chair,
+      co_chairs: conf.co_chairs || [],
       primary_contact: conf.primary_contact,
       area_chair: conf.area_chair,
       userRole: conf.user_role, // Backend now provides user role information
+      configurations: {
+        start_date: conf.configurations?.start_date,
+        end_date: conf.configurations?.end_date,
+        abstract_submission_deadline: conf.configurations?.abstract_submission_deadline,
+        full_paper_submission_deadline: conf.configurations?.full_paper_submission_deadline,
+        camera_ready_deadline: conf.configurations?.camera_ready_deadline,
+        format: conf.configurations?.format,
+        review_type: conf.configurations?.review_type,
+        have_coi: conf.configurations?.have_coi,
+        maximum_pages: conf.configurations?.maximum_pages,
+        submission_format: conf.configurations?.submission_format,
+        require_complete_author_profile: conf.configurations?.require_complete_author_profile,
+        allow_paper_withdrawls: conf.configurations?.allow_paper_withdrawls,
+        desk_rejection_settings: conf.configurations?.desk_rejection_settings,
+        discussion_settings: conf.configurations?.discussion_settings,
+        rebuttal_settings: conf.configurations?.rebuttal_settings,
+        workflow_settings: conf.configurations?.workflow_settings,
+      },
     }))
 
     return {
@@ -265,11 +292,12 @@ export async function createConference(conferenceData: {
   domain: string[]
   tracks?: string[]
   venue: string
+  co_chairs?: string[]
   configurations: {
-    start_date: string
-    end_date: string
+    start_date?: string
+    end_date?: string
     abstract_submission_deadline?: string
-    full_paper_submission_deadline: string
+    full_paper_submission_deadline?: string
     camera_ready_deadline?: string
     format: string
     review_type: string
@@ -279,6 +307,10 @@ export async function createConference(conferenceData: {
     require_complete_author_profile: boolean
     allow_paper_withdrawls: boolean
     call_for_paper_text?: string
+    desk_rejection_settings?: Record<string, unknown>
+    discussion_settings?: Record<string, unknown>
+    rebuttal_settings?: Record<string, unknown>
+    workflow_settings?: Record<string, unknown>
   }
 }): Promise<ApiResponse<Conference>> {
   try {
@@ -290,6 +322,7 @@ export async function createConference(conferenceData: {
         domain: conferenceData.domain,
         tracks: conferenceData.tracks || [],
         venue: conferenceData.venue,
+        co_chairs: conferenceData.co_chairs || [],
         configurations: conferenceData.configurations,
       },
     }
@@ -315,6 +348,8 @@ export async function createConference(conferenceData: {
       location: data.data.venue || data.data.location || "",
       website: data.data.website || "",
       status: (data.data.status || "open") as ConferenceStatus,
+      created_at: data.data.created_at,
+      updated_at: data.data.updated_at,
       tracks: data.data.tracks || [],
       domain: data.data.domain || [],
       call_for_paper_text: data.data.configurations?.call_for_paper_text || undefined,
@@ -362,6 +397,10 @@ export async function updateConference(
       have_coi?: boolean
       require_complete_author_profile?: boolean
       allow_paper_withdrawls?: boolean
+      desk_rejection_settings?: Record<string, unknown>
+      discussion_settings?: Record<string, unknown>
+      rebuttal_settings?: Record<string, unknown>
+      workflow_settings?: Record<string, unknown>
     }>
   }>,
 ): Promise<ApiResponse<Conference>> {

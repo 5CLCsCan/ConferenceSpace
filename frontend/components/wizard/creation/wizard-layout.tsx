@@ -17,6 +17,9 @@ interface WizardLayoutProps {
   onSubmit: () => void
   isSubmitting?: boolean
   canSubmit?: boolean
+  saveDraftLabel?: string
+  submitLabel?: string
+  submittingLabel?: string
 }
 
 const STEP_NEXT_LABELS: Record<number, string> = {
@@ -47,6 +50,9 @@ export function WizardLayout({
   onSubmit,
   isSubmitting = false,
   canSubmit = true,
+  saveDraftLabel,
+  submitLabel,
+  submittingLabel,
 }: WizardLayoutProps) {
   return (
     <div className="font-[Inter] bg-[#f8fafc] dark:bg-[#191919] text-[#141414] dark:text-white flex flex-col h-screen overflow-hidden">
@@ -77,6 +83,9 @@ export function WizardLayout({
           onSubmit={onSubmit}
           isSubmitting={isSubmitting}
           canSubmit={canSubmit}
+          saveDraftLabel={saveDraftLabel}
+          submitLabel={submitLabel}
+          submittingLabel={submittingLabel}
         />
       </div>
     </div>

@@ -20,7 +20,8 @@ export default function ChairPage() {
           <Suspense
             fallback={
               <div className="flex items-center justify-center h-full text-slate-400">
-                {t("runtime.app.role.chair.page.text_loading_chair_dashboard")}{" "}</div>
+                {t("runtime.app.role.chair.page.text_loading_chair_dashboard")}{" "}
+              </div>
             }
           >
             <ChairDashboard />
@@ -30,4 +31,3 @@ export default function ChairPage() {
     </div>
   )
 }
-

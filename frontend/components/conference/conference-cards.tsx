@@ -31,9 +31,11 @@ export function ActiveConferenceCard({ conference, onNavigate }: ConferenceCardP
             variant="secondary"
             onClick={(e) => {
               e?.stopPropagation()
+              onNavigate(conference.id)
             }}
           >
-            {t("runtime.components.conference.conference-cards.text_settings")}{" "}</ActionButton>
+            {t("runtime.components.conference.conference-cards.text_settings")}{" "}
+          </ActionButton>
           <ActionButton
             variant="primary"
             onClick={(e) => {
@@ -41,7 +43,8 @@ export function ActiveConferenceCard({ conference, onNavigate }: ConferenceCardP
               onNavigate(conference.id)
             }}
           >
-            {t("runtime.components.conference.conference-cards.text_dashboard")}{" "}</ActionButton>
+            {t("runtime.components.conference.conference-cards.text_dashboard")}{" "}
+          </ActionButton>
         </div>
       }
     >
@@ -66,9 +69,11 @@ export function PlanningConferenceCard({ conference, onNavigate }: ConferenceCar
             variant="secondary"
             onClick={(e) => {
               e?.stopPropagation()
+              onNavigate(conference.id)
             }}
           >
-            {t("runtime.components.conference.conference-cards.text_edit_details")}{" "}</ActionButton>
+            {t("runtime.components.conference.conference-cards.text_edit_details")}{" "}
+          </ActionButton>
           <ActionButton
             variant="secondary"
             onClick={(e) => {
@@ -76,7 +81,8 @@ export function PlanningConferenceCard({ conference, onNavigate }: ConferenceCar
               onNavigate(conference.id)
             }}
           >
-            {t("runtime.components.conference.conference-cards.text_setup")}{" "}</ActionButton>
+            {t("runtime.components.conference.conference-cards.text_setup")}{" "}
+          </ActionButton>
         </div>
       }
     >
@@ -104,7 +110,8 @@ export function DraftConferenceCard({ conference, onNavigate }: ConferenceCardPr
           }}
           className="w-full"
         >
-          {t("runtime.components.conference.conference-cards.text_continue_editing")}{" "}</ActionButton>
+          {t("runtime.components.conference.conference-cards.text_continue_editing")}{" "}
+        </ActionButton>
       }
     >
       <DraftStatusSection daysAgo={conference.draftSavedDaysAgo || 0} />
@@ -131,7 +138,8 @@ export function CompletedConferenceCard({ conference, onNavigate }: ConferenceCa
           }}
           className="w-full"
         >
-          {t("runtime.components.conference.conference-cards.text_view_archive")}{" "}</ActionButton>
+          {t("runtime.components.conference.conference-cards.text_view_archive")}{" "}
+        </ActionButton>
       }
     >
       <CompletedStatsSection acceptedPapers={conference.acceptedPapers || 0} />

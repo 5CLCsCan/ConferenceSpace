@@ -21,10 +21,10 @@ type Controller struct {
 }
 
 // New creates a new COI controller
-func New(coiSvc *coiService.Service, roleStore conferenceuserrole.StorageInterface) *Controller {
+func New(coiSvc *coiService.Service, roleStorage conferenceuserrole.StorageInterface) *Controller {
 	return &Controller{
 		coiService:  coiSvc,
-		roleStorage: roleStore,
+		roleStorage: roleStorage,
 	}
 }
 
@@ -43,6 +43,9 @@ func New(coiSvc *coiService.Service, roleStore conferenceuserrole.StorageInterfa
 // @Router       /coi/dashboard/stats/{conference_id} [get]
 func (c *Controller) GetDashboardStats(ginCtx *gin.Context, req *dto.COIDashboardStatsRequest) (*dto.COIDashboardStats, error) {
 	ctx := ginCtx.Request.Context()
+	if err := c.requireConferenceAccess(ginCtx, req.ConferenceID); err != nil {
+		return nil, err
+	}
 
 	// RBAC: only chair or co-chair can view COI dashboard
 	userEmail, exists := utils.GetEmail(ginCtx)
@@ -90,6 +93,9 @@ func (c *Controller) GetAllRelationships(ginCtx *gin.Context, req *dto.COIRelati
 
 	if req.ConferenceID == 0 {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "conference_id is required")
+	}
+	if err := c.requireConferenceAccess(ginCtx, req.ConferenceID); err != nil {
+		return nil, err
 	}
 
 	// RBAC: only chair or co-chair can list COI relationships
@@ -144,6 +150,14 @@ func (c *Controller) CheckReviewerAuthorCOI(ginCtx *gin.Context, req *dto.COIChe
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference_id")
 	}
+	if err := c.requireConferenceAccess(ginCtx, conferenceID); err != nil {
+		return nil, err
+	}
+
+	// Keep pair checks aligned with the latest computed relationships.
+	if _, err := c.coiService.AutoRefreshIfNeeded(ctx, conferenceID); err != nil {
+		fmt.Printf("Warning: COI auto-refresh failed: %v\n", err)
+	}
 
 	report, err := c.coiService.CheckReviewerAuthorCOI(ctx, conferenceID, req.ReviewerID, req.AuthorEmail)
 	if err != nil {
@@ -175,6 +189,9 @@ func (c *Controller) GetPaperCOIs(ginCtx *gin.Context, req *dto.PaperCOIListRequ
 
 	if req.ConferenceID == 0 {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "conference_id is required")
+	}
+	if err := c.requireConferenceAccess(ginCtx, req.ConferenceID); err != nil {
+		return nil, err
 	}
 
 	// RBAC: only chair or co-chair can view COI paper summaries
@@ -216,6 +233,9 @@ func (c *Controller) GetPaperCOIs(ginCtx *gin.Context, req *dto.PaperCOIListRequ
 // @Router       /coi/conferences/{conference_id}/rebuild [post]
 func (c *Controller) RebuildCOI(ginCtx *gin.Context, req *dto.COIRebuildRequest) (*dto.COIRebuildResponse, error) {
 	ctx := ginCtx.Request.Context()
+	if err := c.requireConferenceAccess(ginCtx, req.ConferenceID); err != nil {
+		return nil, err
+	}
 
 	// RBAC: only chair or co-chair can rebuild COI
 	userEmail, exists := utils.GetEmail(ginCtx)
@@ -246,7 +266,23 @@ func (c *Controller) RebuildCOI(ginCtx *gin.Context, req *dto.COIRebuildRequest)
 	}, nil
 }
 
+func (c *Controller) requireConferenceAccess(ginCtx *gin.Context, conferenceID int64) error {
+	ctx := ginCtx.Request.Context()
 
+	if isAdmin, exists := ginCtx.Get("is_admin"); exists {
+		if adminValue, ok := isAdmin.(bool); ok && adminValue {
+			return nil
+		}
+	}
 
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
 
+	if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, conferenceID, userEmail) {
+		return handler.NewErrorResponse(http.StatusForbidden, "only conference chairs can access COI management operations")
+	}
 
+	return nil
+}

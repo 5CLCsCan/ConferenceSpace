@@ -183,7 +183,11 @@ function hasJsx(node) {
     if (found) {
       return
     }
-    if (ts.isJsxElement(current) || ts.isJsxSelfClosingElement(current) || ts.isJsxFragment(current)) {
+    if (
+      ts.isJsxElement(current) ||
+      ts.isJsxSelfClosingElement(current) ||
+      ts.isJsxFragment(current)
+    ) {
       found = true
       return
     }
@@ -244,8 +248,10 @@ function ensureUseClientDirective(sourceText) {
 function ensureUseTranslationImport(sourceFile, sourceText) {
   const importDecls = sourceFile.statements.filter((statement) => ts.isImportDeclaration(statement))
   const targetImport = importDecls.find((statement) => {
-    return statement.moduleSpecifier.getText(sourceFile).replace(/["']/g, "") ===
+    return (
+      statement.moduleSpecifier.getText(sourceFile).replace(/["']/g, "") ===
       "@/lib/i18n/translation-context"
+    )
   })
 
   if (targetImport) {
@@ -263,8 +269,7 @@ function ensureUseTranslationImport(sourceFile, sourceText) {
     }
   }
 
-  const insertPos =
-    importDecls.length > 0 ? importDecls[importDecls.length - 1].getEnd() : 0
+  const insertPos = importDecls.length > 0 ? importDecls[importDecls.length - 1].getEnd() : 0
   const prefix = insertPos > 0 ? "\n" : ""
   const importLine = `${prefix}import { useTranslation } from "@/lib/i18n/translation-context"`
   return `${sourceText.slice(0, insertPos)}${importLine}${sourceText.slice(insertPos)}`
@@ -340,7 +345,11 @@ function setNestedValue(target, flatKey, value) {
       current[segment] = value
       break
     }
-    if (!current[segment] || typeof current[segment] !== "object" || Array.isArray(current[segment])) {
+    if (
+      !current[segment] ||
+      typeof current[segment] !== "object" ||
+      Array.isArray(current[segment])
+    ) {
       current[segment] = {}
     }
     current = current[segment]

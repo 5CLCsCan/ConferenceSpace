@@ -5,12 +5,7 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ChevronDown, ChevronUp, Eye, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import {
@@ -97,13 +92,34 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
 
   const getRecommendationBadge = (recommendation: string) => {
     const config: Record<string, { label: string; className: string }> = {
-      strong_accept: { label: t("runtime.components.chair.submission-review-tab.prop_label_strong_accept"), className: "bg-green-600 text-white" },
-      accept: { label: t("runtime.components.chair.submission-review-tab.prop_label_accept"), className: "bg-green-500 text-white" },
-      weak_accept: { label: t("runtime.components.chair.submission-review-tab.prop_label_weak_accept"), className: "bg-green-400 text-white" },
-      borderline: { label: t("runtime.components.chair.submission-review-tab.prop_label_borderline"), className: "bg-yellow-500 text-white" },
-      weak_reject: { label: t("runtime.components.chair.submission-review-tab.prop_label_weak_reject"), className: "bg-orange-400 text-white" },
-      reject: { label: t("runtime.components.chair.submission-review-tab.prop_label_reject"), className: "bg-red-500 text-white" },
-      strong_reject: { label: t("runtime.components.chair.submission-review-tab.prop_label_strong_reject"), className: "bg-red-600 text-white" },
+      strong_accept: {
+        label: t("runtime.components.chair.submission-review-tab.prop_label_strong_accept"),
+        className: "bg-green-600 text-white",
+      },
+      accept: {
+        label: t("runtime.components.chair.submission-review-tab.prop_label_accept"),
+        className: "bg-green-500 text-white",
+      },
+      weak_accept: {
+        label: t("runtime.components.chair.submission-review-tab.prop_label_weak_accept"),
+        className: "bg-green-400 text-white",
+      },
+      borderline: {
+        label: t("runtime.components.chair.submission-review-tab.prop_label_borderline"),
+        className: "bg-yellow-500 text-white",
+      },
+      weak_reject: {
+        label: t("runtime.components.chair.submission-review-tab.prop_label_weak_reject"),
+        className: "bg-orange-400 text-white",
+      },
+      reject: {
+        label: t("runtime.components.chair.submission-review-tab.prop_label_reject"),
+        className: "bg-red-500 text-white",
+      },
+      strong_reject: {
+        label: t("runtime.components.chair.submission-review-tab.prop_label_strong_reject"),
+        className: "bg-red-600 text-white",
+      },
     }
     const item = config[recommendation] || {
       label: recommendation,
@@ -166,7 +182,9 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
     <div className="space-y-2">
       <Card>
         <CardHeader className="px-4 pt-4 pb-2">
-          <CardTitle>{t("runtime.components.chair.submission-review-tab.text_final_decision")}</CardTitle>
+          <CardTitle>
+            {t("runtime.components.chair.submission-review-tab.text_final_decision")}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 px-4 pb-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -175,27 +193,51 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
               variant={selectedDecision === "accepted" ? "default" : "outline"}
               onClick={() => setSelectedDecision("accepted")}
             >
-              {t("runtime.components.chair.submission-review-tab.text_accept")}{" "}</Button>
+              {t("runtime.components.chair.submission-review-tab.text_accept")}{" "}
+            </Button>
             <Button
               type="button"
               variant={selectedDecision === "rejected" ? "destructive" : "outline"}
               onClick={() => setSelectedDecision("rejected")}
             >
-              {t("runtime.components.chair.submission-review-tab.text_reject")}{" "}</Button>
-            <Button type="button" variant="outline" disabled title={t("runtime.components.chair.submission-review-tab.title_backend_only_supports_accepted_rejected_statuses")}>
-              {t("runtime.components.chair.submission-review-tab.text_minor_revision")}{" "}</Button>
-            <Button type="button" variant="outline" disabled title={t("runtime.components.chair.submission-review-tab.title_backend_only_supports_accepted_rejected_statuses")}>
-              {t("runtime.components.chair.submission-review-tab.text_major_revision")}{" "}</Button>
+              {t("runtime.components.chair.submission-review-tab.text_reject")}{" "}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled
+              title={t(
+                "runtime.components.chair.submission-review-tab.title_backend_only_supports_accepted_rejected_statuses",
+              )}
+            >
+              {t("runtime.components.chair.submission-review-tab.text_minor_revision")}{" "}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled
+              title={t(
+                "runtime.components.chair.submission-review-tab.title_backend_only_supports_accepted_rejected_statuses",
+              )}
+            >
+              {t("runtime.components.chair.submission-review-tab.text_major_revision")}{" "}
+            </Button>
           </div>
 
           <p className="text-xs text-muted-foreground">
-            {t("runtime.components.chair.submission-review-tab.text_only")}{" "}<code>accepted</code> and <code>rejected</code> {t("runtime.components.chair.submission-review-tab.text_can_be_persisted_with_the_current")}{" "}</p>
+            {t("runtime.components.chair.submission-review-tab.text_only")} <code>accepted</code>{" "}
+            and <code>rejected</code>{" "}
+            {t(
+              "runtime.components.chair.submission-review-tab.text_can_be_persisted_with_the_current",
+            )}{" "}
+          </p>
 
           <div className="flex items-center gap-2">
             <Button
               type="button"
               disabled={
-                decisionSaving || !(selectedDecision === "accepted" || selectedDecision === "rejected")
+                decisionSaving ||
+                !(selectedDecision === "accepted" || selectedDecision === "rejected")
               }
               onClick={async () => {
                 if (selectedDecision !== "accepted" && selectedDecision !== "rejected") {
@@ -204,7 +246,11 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
 
                 setDecisionSaving(true)
                 setDecisionMessage(null)
-                const result = await updateSubmissionStatus(conferenceId, submissionId, selectedDecision)
+                const result = await updateSubmissionStatus(
+                  conferenceId,
+                  submissionId,
+                  selectedDecision,
+                )
                 if (result.error) {
                   setDecisionMessage(`Failed to save decision: ${result.error}`)
                 } else {
@@ -216,7 +262,8 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
               {decisionSaving ? (
                 <>
                   <Loader2 className="size-4 mr-2 animate-spin" />
-                  {t("runtime.components.chair.submission-review-tab.text_saving")}{" "}</>
+                  {t("runtime.components.chair.submission-review-tab.text_saving")}{" "}
+                </>
               ) : (
                 "Save Decision"
               )}
@@ -279,12 +326,16 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
                             <button
                               type="button"
                               className="text-sm font-medium hover:underline truncate max-w-[160px]"
-                              onClick={() => router.push(ROUTES.PROFILE(review.reviewer_email || ""))}
+                              onClick={() =>
+                                router.push(ROUTES.PROFILE(review.reviewer_email || ""))
+                              }
                             >
                               {review.reviewer_email}
                             </button>
                           ) : (
-                            <span className="text-sm text-muted-foreground">Anonymous</span>
+                            <span className="text-sm text-muted-foreground">
+                              {t("dashboard.chair.review.anonymous")}
+                            </span>
                           )}
                         </div>
 
@@ -297,7 +348,9 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
                           {review.review_score !== undefined && (
                             <span className="text-sm font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                               {review.review_score?.toFixed?.(1) ?? review.review_score}
-                              <span className="text-xs font-normal text-muted-foreground ml-0.5">/10</span>
+                              <span className="text-xs font-normal text-muted-foreground ml-0.5">
+                                /10
+                              </span>
                             </span>
                           )}
                         </div>
@@ -391,15 +444,20 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
         )}
       </Card>
       {/* Review Detail Dialog */}
-      <Dialog open={!!selectedReview} onOpenChange={(open) => { if (!open) setSelectedReview(null) }}>
+      <Dialog
+        open={!!selectedReview}
+        onOpenChange={(open) => {
+          if (!open) setSelectedReview(null)
+        }}
+      >
         <DialogContent
           className="max-w-2xl w-full p-0 overflow-visible"
-          style={{ overflow: 'visible' }}
+          style={{ overflow: "visible" }}
         >
           <div className="p-6 overflow-auto max-h-[80vh]">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 flex-wrap text-base">
-                {t("dashboard.chair.review.reviewDetail") || "Review Detail"}
+                {t("dashboard.chair.review.reviewDetail")}
                 {selectedReview?.review_data?.recommendation &&
                   getRecommendationBadge(selectedReview.review_data.recommendation)}
                 {selectedReview?.review_data?.confidence &&
@@ -415,7 +473,9 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
                   <div className="space-y-1.5 text-sm">
                     {selectedReview.reviewer_email && (
                       <div className="flex items-center gap-1.5">
-                        <span className="text-muted-foreground shrink-0">Reviewer:</span>
+                        <span className="text-muted-foreground shrink-0">
+                          {t("dashboard.chair.review.reviewer")}:
+                        </span>
                         <button
                           type="button"
                           className="font-medium hover:underline truncate"
@@ -430,16 +490,22 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
                     )}
                     {selectedReview.review_score !== undefined && (
                       <div className="flex items-center gap-1.5">
-                        <span className="text-muted-foreground">{t("dashboard.chair.review.score")}:</span>
+                        <span className="text-muted-foreground">
+                          {t("dashboard.chair.review.score")}:
+                        </span>
                         <span className="font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                           {selectedReview.review_score?.toFixed?.(1) ?? selectedReview.review_score}
-                          <span className="text-xs font-normal text-muted-foreground ml-0.5">/10</span>
+                          <span className="text-xs font-normal text-muted-foreground ml-0.5">
+                            /10
+                          </span>
                         </span>
                       </div>
                     )}
                     {selectedReview.review_submitted_at && (
                       <div className="flex items-center gap-1.5">
-                        <span className="text-muted-foreground">{t("dashboard.chair.review.submittedAt")}:</span>
+                        <span className="text-muted-foreground">
+                          {t("dashboard.chair.review.submittedAt")}:
+                        </span>
                         <span>{formatDate(selectedReview.review_submitted_at)}</span>
                       </div>
                     )}
@@ -453,7 +519,9 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
                       </div>
                       {Object.entries(selectedReview.review_data.criteria).map(([key, value]) => (
                         <div key={key} className="flex items-center justify-between gap-2">
-                          <span className="capitalize text-muted-foreground text-xs">{key.replace(/_/g, " ")}</span>
+                          <span className="capitalize text-muted-foreground text-xs">
+                            {key.replace(/_/g, " ")}
+                          </span>
                           <div className="flex items-center gap-1">
                             <div className="w-16 h-1.5 rounded-full bg-border overflow-hidden">
                               <div
@@ -461,7 +529,9 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
                                 style={{ width: `${(Number(value) / 10) * 100}%` }}
                               />
                             </div>
-                            <span className="font-semibold text-xs w-5 text-right">{String(value)}</span>
+                            <span className="font-semibold text-xs w-5 text-right">
+                              {String(value)}
+                            </span>
                           </div>
                         </div>
                       ))}
@@ -474,28 +544,44 @@ export function SubmissionReviewTab({ conferenceId, submissionId }: SubmissionRe
                   <div className="space-y-2 border-t pt-3">
                     {selectedReview.review_data.feedback.summary && (
                       <div>
-                        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">Summary of Contribution</div>
-                        <p className="text-sm text-foreground/80 leading-snug">{selectedReview.review_data.feedback.summary}</p>
+                        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
+                          {t("dashboard.chair.review.summaryOfContribution")}
+                        </div>
+                        <p className="text-sm text-foreground/80 leading-snug">
+                          {selectedReview.review_data.feedback.summary}
+                        </p>
                       </div>
                     )}
                     <div className="grid grid-cols-2 gap-3">
                       {selectedReview.review_data.feedback.strengths && (
                         <div>
-                          <div className="text-xs font-semibold text-success uppercase tracking-wide mb-0.5">{t("dashboard.chair.review.strengths")}</div>
-                          <p className="text-xs text-muted-foreground leading-snug">{selectedReview.review_data.feedback.strengths}</p>
+                          <div className="text-xs font-semibold text-success uppercase tracking-wide mb-0.5">
+                            {t("dashboard.chair.review.strengths")}
+                          </div>
+                          <p className="text-xs text-muted-foreground leading-snug">
+                            {selectedReview.review_data.feedback.strengths}
+                          </p>
                         </div>
                       )}
                       {selectedReview.review_data.feedback.weaknesses && (
                         <div>
-                          <div className="text-xs font-semibold text-destructive uppercase tracking-wide mb-0.5">{t("dashboard.chair.review.weaknesses")}</div>
-                          <p className="text-xs text-muted-foreground leading-snug">{selectedReview.review_data.feedback.weaknesses}</p>
+                          <div className="text-xs font-semibold text-destructive uppercase tracking-wide mb-0.5">
+                            {t("dashboard.chair.review.weaknesses")}
+                          </div>
+                          <p className="text-xs text-muted-foreground leading-snug">
+                            {selectedReview.review_data.feedback.weaknesses}
+                          </p>
                         </div>
                       )}
                     </div>
                     {selectedReview.review_data.feedback.questions && (
                       <div>
-                        <div className="text-xs font-semibold text-primary uppercase tracking-wide mb-0.5">{t("dashboard.chair.review.questions")}</div>
-                        <p className="text-xs text-muted-foreground leading-snug">{selectedReview.review_data.feedback.questions}</p>
+                        <div className="text-xs font-semibold text-primary uppercase tracking-wide mb-0.5">
+                          {t("dashboard.chair.review.questions")}
+                        </div>
+                        <p className="text-xs text-muted-foreground leading-snug">
+                          {selectedReview.review_data.feedback.questions}
+                        </p>
                       </div>
                     )}
                   </div>

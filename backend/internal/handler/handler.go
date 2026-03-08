@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/dcao/conferencespace/internal/dto"
@@ -21,8 +22,20 @@ type ErrorResponse struct {
 	Message    string
 }
 
+type DetailedErrorResponse struct {
+	StatusCode int
+	Message    string
+	Data       interface{}
+}
+
+const genericInternalErrorMessage = "Something went wrong. Please try again later."
+
 // Error implements the error interface
 func (e *ErrorResponse) Error() string {
+	return e.Message
+}
+
+func (e *DetailedErrorResponse) Error() string {
 	return e.Message
 }
 
@@ -31,6 +44,14 @@ func NewErrorResponse(statusCode int, message string) *ErrorResponse {
 	return &ErrorResponse{
 		StatusCode: statusCode,
 		Message:    message,
+	}
+}
+
+func NewDetailedErrorResponse(statusCode int, message string, data interface{}) *DetailedErrorResponse {
+	return &DetailedErrorResponse{
+		StatusCode: statusCode,
+		Message:    message,
+		Data:       data,
 	}
 }
 
@@ -570,10 +591,43 @@ func HandleSubmissionPublish(handler func(ctx *gin.Context, req *dto.SubmissionP
 // handleError processes errors and sends appropriate HTTP responses
 func handleError(ctx *gin.Context, err error) {
 	if errResp, ok := err.(*ErrorResponse); ok {
+		if errResp.StatusCode >= http.StatusInternalServerError {
+			log.Printf(
+				"[api-error] status=%d method=%s path=%s message=%s",
+				errResp.StatusCode,
+				ctx.Request.Method,
+				ctx.Request.URL.Path,
+				errResp.Message,
+			)
+			ctx.JSON(errResp.StatusCode, Response{Error: genericInternalErrorMessage})
+			return
+		}
 		ctx.JSON(errResp.StatusCode, Response{Error: errResp.Message})
+		return
+	}
+	if errResp, ok := err.(*DetailedErrorResponse); ok {
+		if errResp.StatusCode >= http.StatusInternalServerError {
+			log.Printf(
+				"[api-error] status=%d method=%s path=%s message=%s",
+				errResp.StatusCode,
+				ctx.Request.Method,
+				ctx.Request.URL.Path,
+				errResp.Message,
+			)
+			ctx.JSON(errResp.StatusCode, Response{Error: genericInternalErrorMessage})
+			return
+		}
+		ctx.JSON(errResp.StatusCode, Response{Error: errResp.Message, Data: errResp.Data})
 		return
 	}
 
 	// Default to internal server error
-	ctx.JSON(http.StatusInternalServerError, Response{Error: err.Error()})
+	log.Printf(
+		"[api-error] status=%d method=%s path=%s message=%v",
+		http.StatusInternalServerError,
+		ctx.Request.Method,
+		ctx.Request.URL.Path,
+		err,
+	)
+	ctx.JSON(http.StatusInternalServerError, Response{Error: genericInternalErrorMessage})
 }

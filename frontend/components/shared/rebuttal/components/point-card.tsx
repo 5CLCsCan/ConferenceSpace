@@ -48,23 +48,23 @@ export function PointCard({
       <div className="px-4 py-3 bg-slate-50/80 border-b border-slate-100">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-2 flex-1 min-w-0">
-            <span 
+            <span
               className={`material-symbols-outlined mt-0.5 ${category.color}`}
-              style={{ 
-                fontSize: '16px', 
-                width: '16px', 
-                height: '16px', 
-                maxWidth: '16px', 
-                maxHeight: '16px',
-                minWidth: '16px',
-                minHeight: '16px',
-                lineHeight: '1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+              style={{
+                fontSize: "16px",
+                width: "16px",
+                height: "16px",
+                maxWidth: "16px",
+                maxHeight: "16px",
+                minWidth: "16px",
+                minHeight: "16px",
+                lineHeight: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 flexShrink: 0,
-                transform: 'none',
-                boxSizing: 'border-box'
+                transform: "none",
+                boxSizing: "border-box",
               }}
             >
               {category.icon}
@@ -88,11 +88,17 @@ export function PointCard({
         <div className="px-4 py-4">
           <div className="flex gap-3">
             <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
-              <span className="text-[9px] font-bold">{t("runtime.components.shared.rebuttal.components.point-card.text_a")}</span>
+              <span className="text-[9px] font-bold">
+                {t("runtime.components.shared.rebuttal.components.point-card.text_a")}
+              </span>
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-bold text-slate-500">{t("runtime.components.shared.rebuttal.components.point-card.text_author_response")}</span>
+                <span className="text-[10px] font-bold text-slate-500">
+                  {t(
+                    "runtime.components.shared.rebuttal.components.point-card.text_author_response",
+                  )}
+                </span>
                 <span className="text-[9px] text-slate-400">
                   {point.characterCount?.toLocaleString()} chars
                 </span>
@@ -114,10 +120,16 @@ export function PointCard({
             <div className="mt-3 ml-9 pl-3 border-l-2 border-slate-200">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
-                  {t("runtime.components.shared.rebuttal.components.point-card.text_reviewer_response")}{" "}</span>
+                  {t(
+                    "runtime.components.shared.rebuttal.components.point-card.text_reviewer_response",
+                  )}{" "}
+                </span>
                 {point.reviewerAcknowledgment.satisfactory && (
                   <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
-                    {t("runtime.components.shared.rebuttal.components.point-card.text_satisfied")}{" "}</span>
+                    {t(
+                      "runtime.components.shared.rebuttal.components.point-card.text_satisfied",
+                    )}{" "}
+                  </span>
                 )}
               </div>
               {point.reviewerAcknowledgment.note && (
@@ -137,105 +149,127 @@ export function PointCard({
                     onClick={() => handleMarkStatus("addressed")}
                     className="h-7 px-2.5 text-[9px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-md transition-colors flex items-center gap-1"
                   >
-                    <span 
-                      className="material-symbols-outlined" 
-                      style={{ 
-                        fontSize: '16px', 
-                        width: '16px', 
-                        height: '16px', 
-                        maxWidth: '16px', 
-                        maxHeight: '16px',
-                        minWidth: '16px',
-                        minHeight: '16px',
-                        lineHeight: '1',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                    <span
+                      className="material-symbols-outlined"
+                      style={{
+                        fontSize: "16px",
+                        width: "16px",
+                        height: "16px",
+                        maxWidth: "16px",
+                        maxHeight: "16px",
+                        minWidth: "16px",
+                        minHeight: "16px",
+                        lineHeight: "1",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                         flexShrink: 0,
-                        transform: 'none',
-                        boxSizing: 'border-box'
+                        transform: "none",
+                        boxSizing: "border-box",
                       }}
-                    >check</span>
-                    {t("runtime.components.shared.rebuttal.components.point-card.text_addressed")}{" "}</button>
+                    >
+                      check
+                    </span>
+                    {t(
+                      "runtime.components.shared.rebuttal.components.point-card.text_addressed",
+                    )}{" "}
+                  </button>
                   <button
                     onClick={() => handleMarkStatus("partially_addressed")}
                     className="h-7 px-2.5 text-[9px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-md transition-colors flex items-center gap-1"
                   >
-                    <span 
-                      className="material-symbols-outlined" 
-                      style={{ 
-                        fontSize: '16px', 
-                        width: '16px', 
-                        height: '16px', 
-                        maxWidth: '16px', 
-                        maxHeight: '16px',
-                        minWidth: '16px',
-                        minHeight: '16px',
-                        lineHeight: '1',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                    <span
+                      className="material-symbols-outlined"
+                      style={{
+                        fontSize: "16px",
+                        width: "16px",
+                        height: "16px",
+                        maxWidth: "16px",
+                        maxHeight: "16px",
+                        minWidth: "16px",
+                        minHeight: "16px",
+                        lineHeight: "1",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                         flexShrink: 0,
-                        transform: 'none',
-                        boxSizing: 'border-box'
+                        transform: "none",
+                        boxSizing: "border-box",
                       }}
-                    >timelapse</span>
-                    {t("runtime.components.shared.rebuttal.components.point-card.text_partial")}{" "}</button>
+                    >
+                      timelapse
+                    </span>
+                    {t(
+                      "runtime.components.shared.rebuttal.components.point-card.text_partial",
+                    )}{" "}
+                  </button>
                   <button
                     onClick={() => handleMarkStatus("not_addressed")}
                     className="h-7 px-2.5 text-[9px] font-bold uppercase tracking-wider bg-red-50 text-red-600 hover:bg-red-100 rounded-md transition-colors flex items-center gap-1"
                   >
-                    <span 
-                      className="material-symbols-outlined" 
-                      style={{ 
-                        fontSize: '16px', 
-                        width: '16px', 
-                        height: '16px', 
-                        maxWidth: '16px', 
-                        maxHeight: '16px',
-                        minWidth: '16px',
-                        minHeight: '16px',
-                        lineHeight: '1',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                    <span
+                      className="material-symbols-outlined"
+                      style={{
+                        fontSize: "16px",
+                        width: "16px",
+                        height: "16px",
+                        maxWidth: "16px",
+                        maxHeight: "16px",
+                        minWidth: "16px",
+                        minHeight: "16px",
+                        lineHeight: "1",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                         flexShrink: 0,
-                        transform: 'none',
-                        boxSizing: 'border-box'
+                        transform: "none",
+                        boxSizing: "border-box",
                       }}
-                    >close</span>
-                    {t("runtime.components.shared.rebuttal.components.point-card.text_not_addressed")}{" "}</button>
+                    >
+                      close
+                    </span>
+                    {t(
+                      "runtime.components.shared.rebuttal.components.point-card.text_not_addressed",
+                    )}{" "}
+                  </button>
                   <button
                     onClick={() => setShowNoteInput(true)}
                     className="h-7 px-2.5 text-[9px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-md transition-colors flex items-center gap-1"
                   >
-                    <span 
-                      className="material-symbols-outlined" 
-                      style={{ 
-                        fontSize: '16px', 
-                        width: '16px', 
-                        height: '16px', 
-                        maxWidth: '16px', 
-                        maxHeight: '16px',
-                        minWidth: '16px',
-                        minHeight: '16px',
-                        lineHeight: '1',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                    <span
+                      className="material-symbols-outlined"
+                      style={{
+                        fontSize: "16px",
+                        width: "16px",
+                        height: "16px",
+                        maxWidth: "16px",
+                        maxHeight: "16px",
+                        minWidth: "16px",
+                        minHeight: "16px",
+                        lineHeight: "1",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                         flexShrink: 0,
-                        transform: 'none',
-                        boxSizing: 'border-box'
+                        transform: "none",
+                        boxSizing: "border-box",
                       }}
-                    >add_comment</span>
-                    {t("runtime.components.shared.rebuttal.components.point-card.text_add_note")}{" "}</button>
+                    >
+                      add_comment
+                    </span>
+                    {t(
+                      "runtime.components.shared.rebuttal.components.point-card.text_add_note",
+                    )}{" "}
+                  </button>
                 </div>
               ) : (
                 <div className="space-y-2">
                   <textarea
                     value={acknowledgmentNote}
                     onChange={(e) => setAcknowledgmentNote(e.target.value)}
-                    placeholder={t("runtime.components.shared.rebuttal.components.point-card.placeholder_add_a_note_to_your_response")}
+                    placeholder={t(
+                      "runtime.components.shared.rebuttal.components.point-card.placeholder_add_a_note_to_your_response",
+                    )}
                     className="w-full px-3 py-2 text-xs text-slate-700 placeholder-slate-400 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1B3C53] resize-none"
                     rows={2}
                   />
@@ -244,12 +278,18 @@ export function PointCard({
                       onClick={() => setShowNoteInput(false)}
                       className="h-7 px-3 text-[10px] font-medium text-slate-600 hover:text-slate-800"
                     >
-                      {t("runtime.components.shared.rebuttal.components.point-card.text_cancel")}{" "}</button>
+                      {t(
+                        "runtime.components.shared.rebuttal.components.point-card.text_cancel",
+                      )}{" "}
+                    </button>
                     <button
                       onClick={() => handleMarkStatus("addressed")}
                       className="h-7 px-3 text-[10px] font-medium bg-[#1B3C53] text-white rounded-md hover:bg-[#234C6A]"
                     >
-                      {t("runtime.components.shared.rebuttal.components.point-card.text_save_note")}{" "}</button>
+                      {t(
+                        "runtime.components.shared.rebuttal.components.point-card.text_save_note",
+                      )}{" "}
+                    </button>
                   </div>
                 </div>
               )}

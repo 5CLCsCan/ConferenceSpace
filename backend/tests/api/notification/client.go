@@ -49,6 +49,18 @@ func (c *Client) GetUnreadCount(token string) (*http.Response, error) {
 	return c.ctx.MakeRequest("GET", path, nil, token)
 }
 
+// GetPreferences calls the get notification preferences endpoint
+func (c *Client) GetPreferences(token string) (*http.Response, error) {
+	path := "/api/v1/notifications/preferences"
+	return c.ctx.MakeRequest("GET", path, nil, token)
+}
+
+// UpdatePreferences calls the update notification preferences endpoint
+func (c *Client) UpdatePreferences(req *dto.NotificationPreferencesUpdateRequest, token string) (*http.Response, error) {
+	path := "/api/v1/notifications/preferences"
+	return c.ctx.MakeRequest("PUT", path, req, token)
+}
+
 // MarkAsRead calls the mark notification as read endpoint
 func (c *Client) MarkAsRead(notificationID int64, token string) (*http.Response, error) {
 	path := fmt.Sprintf("/api/v1/notifications/%d/read", notificationID)
@@ -180,4 +192,3 @@ func (c *Client) GetSuccess(notificationID int64, token string) (*dto.Notificati
 
 	return response.Data, nil
 }
-

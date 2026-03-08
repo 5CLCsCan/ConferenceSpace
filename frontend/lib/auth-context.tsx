@@ -35,6 +35,44 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 // Valid user roles - used for validation
 const VALID_USER_ROLES: UserRole[] = ["author", "reviewer", "chair", "admin"]
+const TECHNICAL_ERROR_PATTERN =
+  /(pq:|sqlstate|duplicate key value|violates unique constraint|constraint|database|failed to [a-z_ ]+:)/i
+
+function resolveAuthErrorMessage(
+  error: unknown,
+  flow: "login" | "register",
+  t: (key: string) => string,
+): string {
+  const generic =
+    flow === "register" ? t("auth.messages.genericRegister") : t("auth.messages.genericLogin")
+  const fallback =
+    flow === "register" ? t("auth.messages.fallbackRegister") : t("auth.messages.fallbackLogin")
+
+  if (error instanceof ApiError) {
+    if (flow === "register" && error.status === 409) {
+      return t("auth.register.errors.emailInUse")
+    }
+    if (flow === "login" && error.status === 401) {
+      return t("auth.login.errors.failed")
+    }
+    if (error.status >= 500) {
+      return fallback
+    }
+    if (!error.message || TECHNICAL_ERROR_PATTERN.test(error.message)) {
+      return generic
+    }
+    return error.message
+  }
+
+  if (error instanceof Error) {
+    if (!error.message || TECHNICAL_ERROR_PATTERN.test(error.message)) {
+      return fallback
+    }
+    return error.message
+  }
+
+  return fallback
+}
 
 function extractRoles(rawRoles: unknown): UserRole[] {
   if (!Array.isArray(rawRoles)) {
@@ -97,6 +135,10 @@ function normalizeUser(apiUser: any): User {
     first_name: firstName || undefined,
     last_name: lastName || undefined,
     domain: Array.isArray(apiUser?.domain) ? apiUser.domain : undefined,
+    semantic_scholar_id:
+      typeof apiUser?.semantic_scholar_id === "string" ? apiUser.semantic_scholar_id : undefined,
+    profile_sync_status:
+      typeof apiUser?.profile_sync_status === "string" ? apiUser.profile_sync_status : undefined,
     created_at: apiUser?.created_at,
     updated_at: apiUser?.updated_at,
   }
@@ -239,11 +281,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         return { success: true }
       } catch (error) {
-        if (error instanceof ApiError) {
-          return { success: false, error: error.message || t("auth.messages.genericLogin") }
-        }
-        const message = error instanceof Error ? error.message : t("auth.messages.fallbackLogin")
-        return { success: false, error: message }
+        return { success: false, error: resolveAuthErrorMessage(error, "login", t) }
       }
     },
     [syncWithSessionManager, t],
@@ -268,11 +306,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         return { success: true }
       } catch (error) {
-        if (error instanceof ApiError) {
-          return { success: false, error: error.message || t("auth.messages.genericRegister") }
-        }
-        const message = error instanceof Error ? error.message : t("auth.messages.fallbackRegister")
-        return { success: false, error: message }
+        return { success: false, error: resolveAuthErrorMessage(error, "register", t) }
       }
     },
     [t],

@@ -100,11 +100,21 @@ function EditSubmissionPageContent() {
     return (
       <main className="min-h-screen flex items-center justify-center bg-neutral-50 p-6">
         <div className="max-w-lg text-center space-y-4 bg-white border rounded-xl p-8">
-          <h1 className="text-2xl font-bold text-neutral-900">{t("runtime.app.role.author.submissions.submissionId.edit.page.text_submission_not_found")}</h1>
+          <h1 className="text-2xl font-bold text-neutral-900">
+            {t(
+              "runtime.app.role.author.submissions.submissionId.edit.page.text_submission_not_found",
+            )}
+          </h1>
           <p className="text-neutral-600">
-            {t("runtime.app.role.author.submissions.submissionId.edit.page.text_we_could_not_resolve_this_submission")}{" "}</p>
+            {t(
+              "runtime.app.role.author.submissions.submissionId.edit.page.text_we_could_not_resolve_this_submission",
+            )}{" "}
+          </p>
           <Button onClick={() => router.push(ROUTES.AUTHOR.SUBMISSIONS)}>
-            {t("runtime.app.role.author.submissions.submissionId.edit.page.text_back_to_submissions")}{" "}</Button>
+            {t(
+              "runtime.app.role.author.submissions.submissionId.edit.page.text_back_to_submissions",
+            )}{" "}
+          </Button>
         </div>
       </main>
     )

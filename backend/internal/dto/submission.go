@@ -42,7 +42,7 @@ type Submission struct {
 	Abstract     string                  `json:"abstract"`
 	Link         string                  `json:"link"`
 	Domain       []string                `json:"domain"`
-	Track        string                  `json:"track"`                                                                // Must be one of the conference's tracks
+	Track        string                  `json:"track"`                                                                                  // Must be one of the conference's tracks
 	Status       string                  `json:"status,omitempty" binding:"omitempty,oneof=draft published reviewing accepted rejected"` // Optional for updates
 	Information  *SubmissionInformation  `json:"information"`
 	File         *SubmissionFileMetadata `json:"file,omitempty"`
@@ -99,4 +99,18 @@ type UpdateStatusRequest struct {
 	ConferenceID int64  `uri:"conference_id" json:"conference_id"`
 	ID           int64  `uri:"submission_id" json:"submission_id"`
 	Status       string `json:"status" binding:"required,oneof=draft published reviewing accepted rejected"`
+}
+
+type PrecheckBlockingItem struct {
+	ItemID      string `json:"item_id"`
+	Category    string `json:"category"`
+	Description string `json:"description"`
+	Status      string `json:"status"`
+	Details     string `json:"details"`
+}
+
+type PrecheckBlockedResponse struct {
+	Code          string                 `json:"code"`
+	Decision      string                 `json:"decision"`
+	BlockingItems []PrecheckBlockingItem `json:"blocking_items"`
 }

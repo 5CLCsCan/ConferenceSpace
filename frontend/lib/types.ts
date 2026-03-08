@@ -15,6 +15,51 @@ export type PaperStatus =
 // Review status
 export type ReviewStatus = "pending" | "in_progress" | "completed"
 
+export type PrecheckDecision = "accept_for_review" | "manual_review" | "desk_reject"
+
+export interface PrecheckResult {
+  paper_title: string
+  overall_score: number
+  decision: PrecheckDecision
+  summary: {
+    total_items: number
+    passed: number
+    failed: number
+    pass_rate: number
+  }
+  category_scores: Record<
+    string,
+    {
+      score: number
+      passed: number
+      failed: number
+      weight: number
+    }
+  >
+  detailed_results: Array<{
+    item_id: string
+    category: string
+    description: string
+    status: "pass" | "fail" | "warning"
+    details: string
+    confidence: number
+  }>
+}
+
+export interface PrecheckBlockingItem {
+  item_id: string
+  category: string
+  description: string
+  status: string
+  details: string
+}
+
+export interface PrecheckBlockedError {
+  code: "PRECHECK_BLOCKED"
+  decision: PrecheckDecision
+  blocking_items: PrecheckBlockingItem[]
+}
+
 // Decision types
 export type DecisionType = "accept" | "reject" | "major_revision" | "minor_revision"
 
@@ -35,6 +80,8 @@ export interface User {
   domain?: string[]
   created_at?: string
   updated_at?: string
+  semantic_scholar_id?: string
+  profile_sync_status?: "pending" | "completed" | "failed" | string
 }
 
 // Conference status type - matches backend enum
@@ -56,6 +103,8 @@ export interface Conference {
   location: string
   website?: string
   status: ConferenceStatus
+  created_at?: string
+  updated_at?: string
   tracks: string[]
   domain?: string[] // Research domains/keywords/topics
   call_for_paper_text?: string // Call for paper content
@@ -79,7 +128,82 @@ export interface Conference {
     submission_format?: string
     require_complete_author_profile?: boolean
     allow_paper_withdrawls?: boolean
+    desk_rejection_settings?: {
+      enabled?: boolean
+      min_references?: number
+      required_sections?: string[]
+      title_max_words?: number
+      max_sentence_words?: number
+      thresholds?: {
+        desk_reject_score?: number
+        accept_score?: number
+      }
+      weights?: Record<string, number>
+      custom_rules?: {
+        min_datasets?: number
+        minimum_tables?: number
+        author_anonymization_required?: boolean
+        critical_keywords_required?: string[]
+        banned_phrases?: string[]
+      }
+      scope_keywords?: string[]
+      prompt_fragments?: string[]
+    }
+    discussion_settings?: {
+      enabled?: boolean
+      allow_author_response?: boolean
+      start_at?: string
+      end_at?: string
+    }
+    rebuttal_settings?: {
+      enabled?: boolean
+      start_at?: string
+      end_at?: string
+      character_limit?: number
+      allow_revisions?: boolean
+      allow_new_results?: boolean
+      require_response_to_all?: boolean
+    }
+    workflow_settings?: {
+      strict_deadlines?: boolean
+    }
   }
+}
+
+export interface ConferenceConfigTemplatePayload {
+  description?: string
+  location?: string
+  location_type?: "in-person" | "virtual" | "hybrid" | string
+  topics?: string[]
+  tracks?: string[]
+  conference_start_date?: string
+  conference_end_date?: string
+  abstract_deadline?: string
+  full_paper_deadline?: string
+  camera_ready_deadline?: string
+  max_pages?: number
+  abstract_max_words?: number
+  min_keywords?: number
+  max_keywords?: number
+  allow_supplementary?: boolean
+  supplementary_types?: string[]
+  strict_deadlines?: boolean
+  review_type?: "single-blind" | "double-blind" | string
+  rebuttal_start_date?: string
+  rebuttal_end_date?: string
+  final_decision_date?: string
+  file_formats?: string[]
+  call_for_paper_text?: string
+  co_chairs?: string[]
+}
+
+export interface ConferenceConfigTemplate {
+  id: string
+  name: string
+  description: string
+  payload: ConferenceConfigTemplatePayload
+  created_at: string
+  updated_at: string
 }
 
 // Track interface
@@ -278,7 +402,7 @@ export interface ReviewRequest {
   requested_by: String
   requested_by_name: string
   requested_at: string
-  status: "pending" | "accepted" | "declined"
+  status: "pending" | "accepted" | "rejected"
   expertise_match: number
   papers_count: number
   estimated_hours: number

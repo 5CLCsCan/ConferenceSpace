@@ -3,6 +3,7 @@ package conference
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/dcao/conferencespace/internal/assignment"
 	"github.com/dcao/conferencespace/internal/dto"
@@ -10,6 +11,7 @@ import (
 	"github.com/dcao/conferencespace/internal/model"
 	"github.com/dcao/conferencespace/internal/storage"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
+	conferencetemplate "github.com/dcao/conferencespace/internal/storage/conference_template"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
@@ -17,6 +19,7 @@ import (
 
 type Controller struct {
 	conferenceStorage conferenceStorage.StorageInterface
+	templateStorage   conferencetemplate.StorageInterface
 	roleStorage       conferenceuserrole.StorageInterface
 	assignmentService *assignment.Service
 }
@@ -24,6 +27,7 @@ type Controller struct {
 func New(store *storage.Storage, assignmentSvc *assignment.Service) *Controller {
 	return &Controller{
 		conferenceStorage: store.Conference,
+		templateStorage:   store.ConferenceTemplate,
 		roleStorage:       store.ConferenceUserRole,
 		assignmentService: assignmentSvc,
 	}
@@ -250,6 +254,95 @@ func (c *Controller) Delete(ginCtx *gin.Context, req *dto.ConferenceDeleteReques
 	}
 
 	return c.conferenceStorage.Delete(ctx, req.ConferenceID)
+}
+
+func (c *Controller) ListTemplates(ginCtx *gin.Context, req *dto.ConferenceConfigTemplateListRequest) (*dto.ConferenceConfigTemplateListResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	templates, err := c.templateStorage.List(ctx, userEmail, req.Search)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	return &dto.ConferenceConfigTemplateListResponse{Templates: templates}, nil
+}
+
+func (c *Controller) CreateTemplate(ginCtx *gin.Context, req *dto.ConferenceConfigTemplateCreateRequest) (*dto.ConferenceConfigTemplateResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	if req.Template == nil {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "template data is required")
+	}
+	if strings.TrimSpace(req.Template.Name) == "" {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "template name is required")
+	}
+	if req.Template.Payload == nil {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "template payload is required")
+	}
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	req.Template.Name = strings.TrimSpace(req.Template.Name)
+	response, err := c.templateStorage.Create(ctx, userEmail, req.Template)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+	return response, nil
+}
+
+func (c *Controller) UpdateTemplate(ginCtx *gin.Context, req *dto.ConferenceConfigTemplateUpdateRequest) (*dto.ConferenceConfigTemplateResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	if req.Template == nil {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "template data is required")
+	}
+	if strings.TrimSpace(req.Template.Name) == "" {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "template name is required")
+	}
+	if req.Template.Payload == nil {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "template payload is required")
+	}
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	req.Template.Name = strings.TrimSpace(req.Template.Name)
+	response, err := c.templateStorage.Update(ctx, req.TemplateID, userEmail, req.Template)
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return nil, handler.NewErrorResponse(http.StatusNotFound, "conference config template not found")
+		}
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+	return response, nil
+}
+
+func (c *Controller) DeleteTemplate(ginCtx *gin.Context, req *dto.ConferenceConfigTemplateDeleteRequest) error {
+	ctx := ginCtx.Request.Context()
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	if err := c.templateStorage.Delete(ctx, req.TemplateID, userEmail); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return handler.NewErrorResponse(http.StatusNotFound, "conference config template not found")
+		}
+		return handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	return nil
 }
 
 // ToggleBookmark godoc

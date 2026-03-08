@@ -46,4 +46,3 @@ describe("AuthorConferences", () => {
     expect(screen.getByText("Conferences")).toBeInTheDocument()
   })
 })
-

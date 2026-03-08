@@ -113,10 +113,11 @@ var DefaultPipeline = []Stage{
 
 ## Dependencies
 
-- `github.com/unidoc/unipdf/v3`: PDF parsing (**requires license**)
+- `pdftotext` (Poppler): optional high-quality PDF text extraction when installed
+- `github.com/ledongthuc/pdf`: built-in Go fallback for PDF text extraction
 - `github.com/google/uuid`: File naming
 
-**Note**: UniPDF needs a commercial license for production.
+**Note**: The extractor prefers `pdftotext` when available and falls back to the Go parser automatically.
 
 _This checklist is a practical, opinionated guide for sanity-checking the writing quality, structure, and presentation of CS papers—especially for conference (and journal) submissions. While some items are subjective, the goal is to provide concrete reminders and highlight common pitfalls. It is a living document and will continue to be updated based on feedback._
 

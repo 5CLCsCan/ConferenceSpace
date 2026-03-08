@@ -46,4 +46,10 @@ export {
 } from "./config"
 
 // Mock data (for development)
-export { MOCK_POINTS, MOCK_REVIEWERS, MOCK_SETTINGS, MOCK_SUBMISSION } from "./mock-data"
+export {
+  MOCK_POINTS,
+  MOCK_REVIEWERS,
+  MOCK_SETTINGS,
+  MOCK_SUBMISSION,
+  buildRebuttalSettingsFromConference,
+} from "./mock-data"
