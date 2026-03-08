@@ -94,10 +94,12 @@
     ]
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.9.0",
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4.1.9",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.0.0",
-    "@types/node": "^22",
+    "@types/node": "^22.19.15",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^4.3.0",

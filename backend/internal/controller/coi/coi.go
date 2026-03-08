@@ -47,6 +47,15 @@ func (c *Controller) GetDashboardStats(ginCtx *gin.Context, req *dto.COIDashboar
 		return nil, err
 	}
 
+	// RBAC: only chair or co-chair can view COI dashboard
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+	if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, req.ConferenceID, userEmail) {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "only chair can access COI dashboard")
+	}
+
 	// Auto-refresh COI data if stale (older than 5 minutes)
 	if _, err := c.coiService.AutoRefreshIfNeeded(ctx, req.ConferenceID); err != nil {
 		// Log but don't fail - we can still return stale data
@@ -87,6 +96,15 @@ func (c *Controller) GetAllRelationships(ginCtx *gin.Context, req *dto.COIRelati
 	}
 	if err := c.requireConferenceAccess(ginCtx, req.ConferenceID); err != nil {
 		return nil, err
+	}
+
+	// RBAC: only chair or co-chair can list COI relationships
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+	if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, req.ConferenceID, userEmail) {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "only chair can access COI relationships")
 	}
 
 	// Auto-refresh COI data if stale (older than 5 minutes)
@@ -176,6 +194,15 @@ func (c *Controller) GetPaperCOIs(ginCtx *gin.Context, req *dto.PaperCOIListRequ
 		return nil, err
 	}
 
+	// RBAC: only chair or co-chair can view COI paper summaries
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+	if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, req.ConferenceID, userEmail) {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "only chair can access COI paper summaries")
+	}
+
 	// Auto-refresh COI data if stale (older than 5 minutes)
 	if _, err := c.coiService.AutoRefreshIfNeeded(ctx, req.ConferenceID); err != nil {
 		// Log but don't fail - we can still return stale data
@@ -208,6 +235,15 @@ func (c *Controller) RebuildCOI(ginCtx *gin.Context, req *dto.COIRebuildRequest)
 	ctx := ginCtx.Request.Context()
 	if err := c.requireConferenceAccess(ginCtx, req.ConferenceID); err != nil {
 		return nil, err
+	}
+
+	// RBAC: only chair or co-chair can rebuild COI
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+	if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, req.ConferenceID, userEmail) {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "only chair can rebuild COI")
 	}
 
 	// Start timing

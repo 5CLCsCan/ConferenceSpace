@@ -1,7 +1,7 @@
 "use client"
 
 import { Suspense, useEffect, useState } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useNotifications } from "@/hooks/use-notifications"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import {
@@ -19,6 +19,7 @@ import {
 } from "@/components/chair/conference-detail"
 import { getSidebarMenuItems } from "@/lib/navigation"
 import { getConferenceById } from "@/lib/api/conferences"
+import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
 function formatDate(value?: string) {
@@ -31,7 +32,9 @@ function formatDate(value?: string) {
 export default function ChairConferenceDetailPage() {
   const { t } = useTranslation()
   const params = useParams()
+  const router = useRouter()
   const conferenceId = params.conferenceId as string
+  const { currentRole, isAuthLoading } = useAuth()
 
   const { unreadCount } = useNotifications({ limit: 1 })
   const [activeTab, setActiveTab] = useState<TabId>("dashboard")
@@ -102,6 +105,12 @@ export default function ChairConferenceDetailPage() {
     }
   }
 
+  // Route guard: redirect non-chairs away from chair pages
+  if (!isAuthLoading && currentRole !== "chair") {
+    router.replace("/role")
+    return null
+  }
+
   return (
     <div className="bg-white dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
       <DashboardSidebar menuItems={getSidebarMenuItems("chair", unreadCount)} />
@@ -111,6 +120,7 @@ export default function ChairConferenceDetailPage() {
           conference={conference}
           activeTab={activeTab}
           onTabChange={setActiveTab}
+          userRole={currentRole ?? undefined}
         />
 
         <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-black">

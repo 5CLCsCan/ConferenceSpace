@@ -13,11 +13,11 @@ import (
 
 type mockUserStorage struct {
 	getByEmailFn func(ctx context.Context, email string) (*dto.UserResponse, error)
-	createFn     func(ctx context.Context, user *dto.User, hashedPassword string) (*dto.UserResponse, error)
+	createFn     func(ctx context.Context, user *dto.User, hashedPassword string, emailVerified bool) (*dto.UserResponse, error)
 }
 
-func (m *mockUserStorage) Create(ctx context.Context, user *dto.User, hashedPassword string) (*dto.UserResponse, error) {
-	return m.createFn(ctx, user, hashedPassword)
+func (m *mockUserStorage) Create(ctx context.Context, user *dto.User, hashedPassword string, emailVerified bool) (*dto.UserResponse, error) {
+	return m.createFn(ctx, user, hashedPassword, emailVerified)
 }
 
 func (m *mockUserStorage) GetByID(ctx context.Context, id int64) (*dto.UserResponse, error) {
@@ -55,6 +55,14 @@ func (m *mockUserStorage) DeleteByEmail(ctx context.Context, email string) error
 	return errors.New("not implemented")
 }
 
+func (m *mockUserStorage) UpdatePassword(context.Context, string, string) error {
+	return errors.New("not implemented")
+}
+
+func (m *mockUserStorage) SetEmailVerified(context.Context, string, bool) error {
+	return errors.New("not implemented")
+}
+
 func TestRegister_ReturnsConflictForDuplicateEmail(t *testing.T) {
 	t.Parallel()
 
@@ -63,7 +71,7 @@ func TestRegister_ReturnsConflictForDuplicateEmail(t *testing.T) {
 			getByEmailFn: func(ctx context.Context, email string) (*dto.UserResponse, error) {
 				return nil, userStorage.ErrUserNotFound
 			},
-			createFn: func(ctx context.Context, user *dto.User, hashedPassword string) (*dto.UserResponse, error) {
+			createFn: func(ctx context.Context, user *dto.User, hashedPassword string, emailVerified bool) (*dto.UserResponse, error) {
 				return nil, userStorage.ErrEmailAlreadyExists
 			},
 		},
@@ -102,7 +110,7 @@ func TestRegister_ReturnsBadRequestWhenUserMissing(t *testing.T) {
 			getByEmailFn: func(ctx context.Context, email string) (*dto.UserResponse, error) {
 				return nil, userStorage.ErrUserNotFound
 			},
-			createFn: func(ctx context.Context, user *dto.User, hashedPassword string) (*dto.UserResponse, error) {
+			createFn: func(ctx context.Context, user *dto.User, hashedPassword string, emailVerified bool) (*dto.UserResponse, error) {
 				return nil, nil
 			},
 		},
@@ -137,7 +145,7 @@ func TestRegister_RejectsExistingEmailBeforeInsert(t *testing.T) {
 					},
 				}, nil
 			},
-			createFn: func(ctx context.Context, user *dto.User, hashedPassword string) (*dto.UserResponse, error) {
+			createFn: func(ctx context.Context, user *dto.User, hashedPassword string, emailVerified bool) (*dto.UserResponse, error) {
 				t.Fatal("Create should not be called when email already exists")
 				return nil, nil
 			},

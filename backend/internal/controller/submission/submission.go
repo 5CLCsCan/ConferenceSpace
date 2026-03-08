@@ -8,6 +8,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
@@ -140,6 +141,15 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.SubmissionCreateReques
 	if conference.Status != model.ConferenceStatusOpen {
 		return nil, handler.NewErrorResponse(http.StatusForbidden,
 			fmt.Sprintf("submissions are not allowed. Conference status is '%s', but must be 'open'", conference.Status))
+	}
+
+	// Check submission deadline when creating a published submission
+	if req.Submission.Status == dto.StatusPublished {
+		if conference.Configurations != nil && conference.Configurations.FullPaperSubmissionDeadline != nil {
+			if time.Now().After(*conference.Configurations.FullPaperSubmissionDeadline) {
+				return nil, handler.NewErrorResponse(http.StatusForbidden, "submission deadline has passed")
+			}
+		}
 	}
 
 	req.Submission.Author = userEmail
@@ -461,6 +471,19 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.SubmissionUpdateReques
 		return nil, handler.NewErrorResponse(http.StatusForbidden, "cannot update published submission")
 	}
 
+	// Check submission deadline when updating to published status
+	if req.Submission.Status == dto.StatusPublished {
+		conference, err := c.conferenceStorage.GetByID(ctx, conferenceID)
+		if err != nil {
+			return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
+		}
+		if conference.Configurations != nil && conference.Configurations.FullPaperSubmissionDeadline != nil {
+			if time.Now().After(*conference.Configurations.FullPaperSubmissionDeadline) {
+				return nil, handler.NewErrorResponse(http.StatusForbidden, "submission deadline has passed")
+			}
+		}
+	}
+
 	req.Submission.Author = userEmail
 	req.Submission.ConferenceID = conferenceID
 
@@ -589,12 +612,19 @@ func (c *Controller) Publish(ginCtx *gin.Context, req *dto.SubmissionPublishRequ
 		return nil, handler.NewErrorResponse(http.StatusForbidden, fmt.Sprintf("cannot publish submission with status '%s', only draft submissions can be published", existing.Status))
 	}
 
+	// Check submission deadline before allowing publication.
+	conference, err := c.conferenceStorage.GetByID(ctx, conferenceID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
+	}
+	if conference.Configurations != nil && conference.Configurations.FullPaperSubmissionDeadline != nil {
+		if time.Now().After(*conference.Configurations.FullPaperSubmissionDeadline) {
+			return nil, handler.NewErrorResponse(http.StatusForbidden, "submission deadline has passed")
+		}
+	}
+
 	// Hard gate: only allow publish when the current paper passes precheck.
 	if req.Submission.File != nil && len(req.Submission.File.Content) > 0 {
-		conference, err := c.conferenceStorage.GetByID(ctx, conferenceID)
-		if err != nil {
-			return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
-		}
 		if err := c.ensureSubmissionPrecheckApprovedFromBytes(
 			ctx,
 			conference,
@@ -604,10 +634,6 @@ func (c *Controller) Publish(ginCtx *gin.Context, req *dto.SubmissionPublishRequ
 			return nil, err
 		}
 	} else if existing.File != nil && existing.File.Path != "" {
-		conference, err := c.conferenceStorage.GetByID(ctx, conferenceID)
-		if err != nil {
-			return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
-		}
 		if err := c.ensureSubmissionPrecheckApprovedForStoredFile(ctx, conference, existing.File); err != nil {
 			return nil, err
 		}

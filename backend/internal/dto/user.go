@@ -94,3 +94,41 @@ type ProfileSyncStatusResponse struct {
 	SemanticScholarID *string `json:"semantic_scholar_id,omitempty"`
 	ProfileSyncStatus *string `json:"profile_sync_status,omitempty"`
 }
+
+type ForgotPasswordRequest struct {
+	Email string `json:"email" binding:"required,email"`
+}
+
+// ForgotPasswordResponse includes token only in dev/test
+type ForgotPasswordResponse struct {
+	Message string  `json:"message"`
+	Token   *string `json:"token,omitempty"`
+}
+
+type ResetPasswordRequest struct {
+	Token       string `json:"token" binding:"required"`
+	NewPassword string `json:"new_password" binding:"required,min=8"`
+}
+
+type ChangePasswordRequest struct {
+	CurrentPassword string `json:"current_password" binding:"required"`
+	NewPassword     string `json:"new_password" binding:"required,min=8"`
+}
+
+type VerifyEmailRequest struct {
+	Token string `form:"token" binding:"required"`
+}
+
+type ResendVerificationRequest struct {
+	Email string `json:"email" binding:"required,email"`
+}
+
+// ResendVerificationResponse includes token only in dev/test
+type ResendVerificationResponse struct {
+	Message string  `json:"message"`
+	Token   *string `json:"token,omitempty"`
+}
+
+type MessageResponse struct {
+	Message string `json:"message"`
+}

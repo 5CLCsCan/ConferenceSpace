@@ -9,13 +9,16 @@ import (
 
 // Config holds all application configuration
 type Config struct {
-	Server          ServerConfig
-	Database        DatabaseConfig
-	Neo4j           Neo4jConfig
-	Gemini          GeminiConfig
-	SemanticScholar SemanticScholarConfig
-	FileStorage     FileStorageConfig
-	JWT             JWTConfig
+	Server                   ServerConfig
+	Database                 DatabaseConfig
+	Neo4j                    Neo4jConfig
+	Gemini                   GeminiConfig
+	SemanticScholar          SemanticScholarConfig
+	FileStorage              FileStorageConfig
+	JWT                      JWTConfig
+	Brevo                    BrevoConfig
+	RequireEmailVerification bool
+	AppBaseURL               string
 }
 
 // ServerConfig holds server-related configuration
@@ -71,6 +74,14 @@ type FileStorageConfig struct {
 	SupabaseBucket         string
 }
 
+// BrevoConfig holds Brevo transactional email configuration
+type BrevoConfig struct {
+	APIKey    string
+	FromEmail string
+	FromName  string
+	Enabled   bool
+}
+
 // Load reads configuration from environment variables
 func Load() (*Config, error) {
 	// Try to load .env file, but don't fail if it doesn't exist
@@ -116,6 +127,14 @@ func Load() (*Config, error) {
 			Secret: getEnv("JWT_SECRET", "your-secret-key-change-this-in-production"),
 			Expiry: getEnvAsInt("JWT_EXPIRY_HOURS", 24),
 		},
+		Brevo: BrevoConfig{
+			APIKey:    getEnv("BREVO_API_KEY", ""),
+			FromEmail: getEnv("BREVO_FROM_EMAIL", "noreply@conferencespace.io"),
+			FromName:  getEnv("BREVO_FROM_NAME", "ConferenceSpace"),
+			Enabled:   getEnv("BREVO_API_KEY", "") != "",
+		},
+		RequireEmailVerification: getEnv("REQUIRE_EMAIL_VERIFICATION", "false") == "true",
+		AppBaseURL:               getEnv("APP_BASE_URL", "http://localhost:3000"),
 	}
 
 	return cfg, nil

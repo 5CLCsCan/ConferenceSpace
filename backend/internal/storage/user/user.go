@@ -25,7 +25,7 @@ type QueryParams struct {
 }
 
 type StorageInterface interface {
-	Create(ctx context.Context, user *dto.User, hashedPassword string) (*dto.UserResponse, error)
+	Create(ctx context.Context, user *dto.User, hashedPassword string, emailVerified bool) (*dto.UserResponse, error)
 	GetByID(ctx context.Context, id int64) (*dto.UserResponse, error)
 	GetByEmail(ctx context.Context, email string) (*dto.UserResponse, error)
 	GetByEmailWithPassword(ctx context.Context, email string) (*dto.UserResponse, string, error)
@@ -34,6 +34,8 @@ type StorageInterface interface {
 	UpdateByEmail(ctx context.Context, email string, user *dto.User) (*dto.UserResponse, error)
 	Delete(ctx context.Context, id int64) error
 	DeleteByEmail(ctx context.Context, email string) error
+	UpdatePassword(ctx context.Context, email string, hashedPassword string) error
+	SetEmailVerified(ctx context.Context, email string, verified bool) error
 }
 
 // Storage handles user data persistence
@@ -50,7 +52,7 @@ func New(db *sql.DB) *Storage {
 	}
 }
 
-func (s *Storage) Create(ctx context.Context, user *dto.User, hashedPassword string) (*dto.UserResponse, error) {
+func (s *Storage) Create(ctx context.Context, user *dto.User, hashedPassword string, emailVerified bool) (*dto.UserResponse, error) {
 	now := time.Now()
 
 	query, args, err := s.qb.
@@ -61,10 +63,11 @@ func (s *Storage) Create(ctx context.Context, user *dto.User, hashedPassword str
 			model.UserColLastName,
 			model.UserColPassword,
 			model.UserColDomain,
+			model.UserColEmailVerified,
 			model.UserColCreatedAt,
 			model.UserColUpdatedAt,
 		).
-		Values(user.Email, user.FirstName, user.LastName, hashedPassword, pq.Array(user.Domain), now, now).
+		Values(user.Email, user.FirstName, user.LastName, hashedPassword, pq.Array(user.Domain), emailVerified, now, now).
 		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s",
 			model.UserColUserID,
 			model.UserColEmail,
@@ -486,6 +489,54 @@ func (s *Storage) Delete(ctx context.Context, id int64) error {
 
 	if rows == 0 {
 		return ErrUserNotFound
+	}
+
+	return nil
+}
+
+func (s *Storage) UpdatePassword(ctx context.Context, email string, hashedPassword string) error {
+	query, args, err := s.qb.
+		Update(model.UserTableName).
+		Set(model.UserColPassword, hashedPassword).
+		Set(model.UserColUpdatedAt, time.Now()).
+		Where(sq.Eq{model.UserColEmail: email}).
+		ToSql()
+	if err != nil {
+		return fmt.Errorf("failed to build update query: %w", err)
+	}
+
+	result, err := s.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to update password: %w", err)
+	}
+
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
+		return fmt.Errorf("user not found")
+	}
+
+	return nil
+}
+
+func (s *Storage) SetEmailVerified(ctx context.Context, email string, verified bool) error {
+	query, args, err := s.qb.
+		Update(model.UserTableName).
+		Set(model.UserColEmailVerified, verified).
+		Set(model.UserColUpdatedAt, time.Now()).
+		Where(sq.Eq{model.UserColEmail: email}).
+		ToSql()
+	if err != nil {
+		return fmt.Errorf("failed to build update query: %w", err)
+	}
+
+	result, err := s.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to set email verified: %w", err)
+	}
+
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
+		return fmt.Errorf("user not found")
 	}
 
 	return nil

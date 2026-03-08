@@ -22,7 +22,7 @@ type fakeUserStorage struct {
 	getByEmail func(ctx context.Context, email string) (*dto.UserResponse, error)
 }
 
-func (f *fakeUserStorage) Create(context.Context, *dto.User, string) (*dto.UserResponse, error) {
+func (f *fakeUserStorage) Create(context.Context, *dto.User, string, bool) (*dto.UserResponse, error) {
 	panic("unexpected call to Create")
 }
 
@@ -59,6 +59,14 @@ func (f *fakeUserStorage) Delete(context.Context, int64) error {
 
 func (f *fakeUserStorage) DeleteByEmail(context.Context, string) error {
 	panic("unexpected call to DeleteByEmail")
+}
+
+func (f *fakeUserStorage) UpdatePassword(context.Context, string, string) error {
+	panic("unexpected call to UpdatePassword")
+}
+
+func (f *fakeUserStorage) SetEmailVerified(context.Context, string, bool) error {
+	panic("unexpected call to SetEmailVerified")
 }
 
 type fakeScholarStorage struct {

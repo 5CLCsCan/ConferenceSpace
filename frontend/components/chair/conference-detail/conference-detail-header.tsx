@@ -7,10 +7,13 @@ import type { ConferenceInfo, TabId, TabItem } from "./types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { ROUTES } from "@/lib/routes"
 
+const CHAIR_ONLY_TABS: TabId[] = ["coi"]
+
 interface ConferenceDetailHeaderProps {
   conference: ConferenceInfo
   activeTab: TabId
   onTabChange: (tab: TabId) => void
+  userRole?: string
   className?: string
 }
 
@@ -18,6 +21,7 @@ export function ConferenceDetailHeader({
   conference,
   activeTab,
   onTabChange,
+  userRole,
   className,
 }: ConferenceDetailHeaderProps) {
   const { t } = useTranslation()
@@ -80,7 +84,8 @@ export function ConferenceDetailHeader({
       icon: "warning",
     },
   ]
-
+  const visibleTabs =
+    userRole === "chair" ? tabs : tabs.filter((tab) => !CHAIR_ONLY_TABS.includes(tab.id))
   return (
     <header
       className={cn(
@@ -190,11 +195,11 @@ export function ConferenceDetailHeader({
         </div>
       </div>
 
-      {/* Tabs */}
+        {/* Tabs */}
       <div className="border-t border-slate-100 dark:border-slate-800">
         <ScrollArea className="w-full">
           <div className="flex min-w-max space-x-6 px-8 pb-1">
-            {tabs.map((tab) => (
+            {visibleTabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}

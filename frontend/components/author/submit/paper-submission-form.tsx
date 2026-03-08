@@ -140,6 +140,11 @@ export function PaperSubmissionForm({
       : defaultTracks
 
   const isNewSubmissionBlocked = !initialSubmission && conference?.status !== "open"
+  const submissionDeadline =
+    conference?.configurations?.full_paper_submission_deadline
+      ? new Date(conference.configurations.full_paper_submission_deadline)
+      : null
+  const isDeadlinePassed = submissionDeadline !== null && new Date() > submissionDeadline
 
   const mapSubmissionError = useCallback(
     (errorMessage: string | null, precheckBlocked?: PrecheckBlockedError | null): string => {
@@ -500,6 +505,15 @@ export function PaperSubmissionForm({
       })
       return
     }
+    if (isDeadlinePassed) {
+      toast({
+        title: "Submission deadline has passed",
+        description:
+          "Publishing is no longer available because the conference submission deadline has passed.",
+        variant: "destructive",
+      })
+      return
+    }
     setSubmitting(true)
 
     try {
@@ -562,6 +576,7 @@ export function PaperSubmissionForm({
     !submitting &&
     !savingDraft &&
     !isNewSubmissionBlocked &&
+    !isDeadlinePassed &&
     submissionConfirmed &&
     coiConfirmed &&
     (hasPrecheckApproval || canUseServerSidePrecheck) &&
@@ -651,6 +666,23 @@ export function PaperSubmissionForm({
                 </span>
               </div>
             </div>
+
+            {/* Deadline passed warning */}
+            {isDeadlinePassed && (
+              <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/30 px-4 py-3">
+                <span className="material-symbols-outlined text-red-500" style={{ fontSize: "18px" }}>
+                  schedule
+                </span>
+                <div>
+                  <p className="text-[12px] font-semibold text-red-700 dark:text-red-400">
+                    Submission deadline has passed
+                  </p>
+                  <p className="text-[11px] text-red-600 dark:text-red-500">
+                    The deadline was {submissionDeadline!.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}. New submissions and publishing are no longer accepted.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Step Content */}
             {currentStep === "paper" && (

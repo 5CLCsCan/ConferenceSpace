@@ -26,12 +26,13 @@ function getValueFromPath(path: string, messages: typeof en) {
 }
 
 function currentLocale(): Locale {
-  if (typeof window === "undefined") {
-    return "en"
-  }
+	if (typeof window === "undefined") {
+		return "en"
+	}
 
-  const stored = window.localStorage.getItem(LOCALE_STORAGE_KEY)
-  return stored === "vi" || stored === "en" ? stored : "vi"
+	const storage = window.localStorage
+	const stored = typeof storage?.getItem === "function" ? storage.getItem(LOCALE_STORAGE_KEY) : null
+	return stored === "vi" || stored === "en" ? stored : "vi"
 }
 
 export function tStatic(key: string, values?: TranslationValues): string {
