@@ -4,6 +4,8 @@ const BASE_ROUTES = {
   HOME: "/",
   LOGIN: "/login",
   FORGOT_PASSWORD: "/forgot-password",
+  RESET_PASSWORD: "/reset-password",
+  VERIFY_EMAIL: "/verify-email",
   REGISTER: "/register",
   NOTIFICATIONS: "/notifications",
   ROLE_SELECT: "/role",

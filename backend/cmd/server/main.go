@@ -135,8 +135,8 @@ func initializeApp(cfg *config.Config) (*AppContext, func(), error) {
 	hub := websocket.NewHub()
 	go hub.Run()
 
-	orch := orchestrator.NewOrchestrator(store, cfg.JWT.Secret, cfg.JWT.Expiry)
-	ctrl := controller.NewControllerWithHub(orch, store, fileStore, clients, hub)
+	orch := orchestrator.NewOrchestrator(store, cfg)
+	ctrl := controller.NewControllerWithHub(orch, store, fileStore, clients, hub, cfg.Server.Env)
 
 	cleanup := func() {
 		if err := db.Close(); err != nil {
@@ -195,6 +195,10 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 		{
 			authRoutes.POST("/register", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Auth.Register))
 			authRoutes.POST("/login", handler.HandleRequest(ctrl.Auth.Login))
+			authRoutes.POST("/forgot-password", handler.HandleRequest(ctrl.Auth.ForgotPassword))
+			authRoutes.POST("/reset-password", handler.HandleRequest(ctrl.Auth.ResetPassword))
+			authRoutes.POST("/resend-verification", handler.HandleRequest(ctrl.Auth.ResendVerification))
+			authRoutes.GET("/verify-email", handler.HandleRequestWithQuery(ctrl.Auth.VerifyEmail))
 
 			// Test endpoint for development - creates test user and returns token
 			if cfg.Server.Env == "" || cfg.Server.Env == "development" || cfg.Server.Env == "test" {
@@ -206,6 +210,13 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 				)
 				authRoutes.POST("/test-login", handler.HandleRequest(testCtrl.TestLogin))
 			}
+		}
+
+		// Protected auth routes
+		authProtected := v1.Group("/auth")
+		authProtected.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
+		{
+			authProtected.POST("/change-password", handler.HandleRequest(ctrl.Auth.ChangePassword))
 		}
 
 		// Protected user routes (authentication required)

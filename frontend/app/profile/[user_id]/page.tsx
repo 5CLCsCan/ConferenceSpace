@@ -14,10 +14,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, ArrowLeft, BookOpen, ExternalLink, Unlink } from "lucide-react"
+import { Loader2, ArrowLeft, BookOpen, ExternalLink, Unlink, Eye, EyeOff } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { ROUTES } from "@/lib/routes"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { authApi } from "@/lib/api/auth"
 
 const EMPTY_FORM: ProfileFormData = {
   firstName: "",
@@ -56,6 +57,11 @@ export default function UserProfilePage() {
   const [academicProfile, setAcademicProfile] = useState<AcademicProfile | null>(null)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [isUnlinking, setIsUnlinking] = useState(false)
+  const [pwForm, setPwForm] = useState({ current: "", next: "", confirm: "" })
+  const [pwLoading, setPwLoading] = useState(false)
+  const [pwError, setPwError] = useState("")
+  const [showPwCurrent, setShowPwCurrent] = useState(false)
+  const [showPwNext, setShowPwNext] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => setAuthChecked(true), 100)
@@ -139,6 +145,27 @@ export default function UserProfilePage() {
     return profile.email === authUser.email
   }, [profile, authUser])
 
+  type PwRuleKey = "length" | "lower" | "upper" | "number" | "special"
+  const pwRuleOrder: PwRuleKey[] = ["length", "lower", "upper", "number", "special"]
+  const pwChecks = useMemo(
+    () => ({
+      length: pwForm.next.length >= 8,
+      lower: /[a-z]/.test(pwForm.next),
+      upper: /[A-Z]/.test(pwForm.next),
+      number: /\d/.test(pwForm.next),
+      special: /[^A-Za-z0-9]/.test(pwForm.next),
+    }),
+    [pwForm.next],
+  )
+  const pwStrength = pwRuleOrder.filter((r) => pwChecks[r]).length
+  const pwRuleLabels: Record<PwRuleKey, string> = {
+    length: "At least 8 characters",
+    lower: "Lowercase letter",
+    upper: "Uppercase letter",
+    number: "Number",
+    special: "Special character",
+  }
+
   const isDirty = useMemo(() => {
     const sameDomains =
       formData.domain.length === initialFormData.domain.length &&
@@ -216,6 +243,28 @@ export default function UserProfilePage() {
       })
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleChangePassword = async () => {
+    setPwError("")
+    if (pwForm.next !== pwForm.confirm) {
+      setPwError("Passwords do not match.")
+      return
+    }
+    if (!pwRuleOrder.every((r) => pwChecks[r])) {
+      setPwError("New password does not meet all requirements.")
+      return
+    }
+    setPwLoading(true)
+    try {
+      await authApi.changePassword(pwForm.current, pwForm.next)
+      setPwForm({ current: "", next: "", confirm: "" })
+      toast({ title: "Password changed", description: "Your password was updated successfully." })
+    } catch (err) {
+      setPwError(err instanceof Error ? err.message : "Failed to change password.")
+    } finally {
+      setPwLoading(false)
     }
   }
 
@@ -526,6 +575,112 @@ export default function UserProfilePage() {
             )}
           </CardContent>
         </Card>
+
+        {isOwnProfile && (
+          <Card>
+            <CardHeader>
+              <CardTitle style={{ fontSize: "14px", fontWeight: 700, color: "#1B3C53" }}>
+                Security
+              </CardTitle>
+              <p style={{ fontSize: "12px", color: "#64748b", marginTop: "2px" }}>
+                Change your account password
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px", maxWidth: "400px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <Label style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#374151" }}>
+                    Current password
+                  </Label>
+                  <div style={{ position: "relative" }}>
+                    <Input
+                      type={showPwCurrent ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={pwForm.current}
+                      onChange={(e) => setPwForm((f) => ({ ...f, current: e.target.value }))}
+                      disabled={pwLoading}
+                      style={{ height: "34px", fontSize: "12px", paddingRight: "36px" }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPwCurrent((v) => !v)}
+                      style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#9ca3af", padding: 0 }}
+                      tabIndex={-1}
+                    >
+                      {showPwCurrent ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <Label style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#374151" }}>
+                    New password
+                  </Label>
+                  <div style={{ display: "flex", gap: "3px", marginBottom: "4px" }}>
+                    {[0, 1, 2, 3, 4].map((i) => (
+                      <div key={i} style={{ height: "3px", flex: 1, borderRadius: "2px", background: i < pwStrength ? (["#ef4444", "#f97316", "#eab308", "#22c55e", "#16a34a"][pwStrength - 1]) : "#e5e7eb", transition: "background 0.15s" }} />
+                    ))}
+                  </div>
+                  <div style={{ position: "relative" }}>
+                    <Input
+                      type={showPwNext ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={pwForm.next}
+                      onChange={(e) => setPwForm((f) => ({ ...f, next: e.target.value }))}
+                      disabled={pwLoading}
+                      style={{ height: "34px", fontSize: "12px", paddingRight: "36px" }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPwNext((v) => !v)}
+                      style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#9ca3af", padding: 0 }}
+                      tabIndex={-1}
+                    >
+                      {showPwNext ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "4px" }}>
+                    {pwRuleOrder.map((rule) => (
+                      <span key={rule} style={{ fontSize: "10px", display: "flex", alignItems: "center", gap: "3px", color: pwChecks[rule] ? "#16a34a" : "#9ca3af", transition: "color 0.15s" }}>
+                        {pwChecks[rule]
+                          ? <span className="material-symbols-outlined" style={{ fontSize: "10px" }}>check</span>
+                          : <span className="material-symbols-outlined" style={{ fontSize: "10px" }}>circle</span>}
+                        {pwRuleLabels[rule]}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <Label style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#374151" }}>
+                    Confirm new password
+                  </Label>
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    value={pwForm.confirm}
+                    onChange={(e) => setPwForm((f) => ({ ...f, confirm: e.target.value }))}
+                    disabled={pwLoading}
+                    style={{ height: "34px", fontSize: "12px" }}
+                  />
+                </div>
+
+                {pwError && (
+                  <p style={{ fontSize: "11px", color: "#ef4444" }}>{pwError}</p>
+                )}
+
+                <Button
+                  onClick={handleChangePassword}
+                  disabled={pwLoading || !pwForm.current || !pwForm.next || !pwForm.confirm}
+                  size="sm"
+                  style={{ height: "32px", fontSize: "11px", fontWeight: 600, background: "#1B3C53", color: "#fff", alignSelf: "flex-start" }}
+                >
+                  {pwLoading ? <><Loader2 className="h-3 w-3 animate-spin mr-1" />Saving…</> : "Change password"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </main>
 
       {isOwnProfile && (

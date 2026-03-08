@@ -102,5 +102,5 @@ func (c *TestController) createTestUser(ctx context.Context, email, firstName, l
 		Domain:    []string{"Computer Science"},
 	}
 
-	return c.userStorage.Create(ctx, user, string(hashedPassword))
+	return c.userStorage.Create(ctx, user, string(hashedPassword), true)
 }

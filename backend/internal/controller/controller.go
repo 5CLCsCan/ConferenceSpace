@@ -36,7 +36,7 @@ type Controller struct {
 	Discussion      *discussionController.Controller
 }
 
-func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, fileStore fileStorage.StorageInterface, clients *clients.Clients) *Controller {
+func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, fileStore fileStorage.StorageInterface, clients *clients.Clients, serverEnv string) *Controller {
 	assignmentService := assignment.NewService(store, clients)
 
 	// Create COI detector - include RelationshipDetector if Neo4j is available
@@ -78,7 +78,7 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 	}
 
 	return &Controller{
-		Auth:         auth.New(orch),
+		Auth:         auth.New(orch, serverEnv),
 		User:         user.New(store, assignmentService, semanticScholarCtrl), // Pass assignment service for COI checks
 		Conference:   conference.New(store, assignmentService), // Pass assignment service for auto-assign on status change
 		Submission:   submission.NewWithNotifications(store, fileStore, clients.Gemini, notifSvc),
@@ -92,7 +92,7 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 }
 
 // NewControllerWithHub creates a new controller with WebSocket hub support
-func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storage, fileStore fileStorage.StorageInterface, clients *clients.Clients, hub *websocket.Hub) *Controller {
+func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storage, fileStore fileStorage.StorageInterface, clients *clients.Clients, hub *websocket.Hub, serverEnv string) *Controller {
 	assignmentService := assignment.NewService(store, clients)
 
 	// Create COI detector - include RelationshipDetector if Neo4j is available
@@ -134,7 +134,7 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 	}
 
 	return &Controller{
-		Auth:         auth.New(orch),
+		Auth:         auth.New(orch, serverEnv),
 		User:         user.New(store, assignmentService, semanticScholarCtrl),
 		Conference:   conference.New(store, assignmentService),
 		Submission:   submission.NewWithNotifications(store, fileStore, clients.Gemini, notifSvc),
