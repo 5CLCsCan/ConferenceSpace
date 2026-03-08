@@ -17,7 +17,7 @@ function splitSubmissionFormats(value?: string): string[] {
 
   const formats = value
     .split(",")
-    .map((item) => item.trim())
+    .map((item) => item.trim()) 
     .filter(Boolean)
 
   return formats.length > 0 ? formats : initialFormData.fileFormats
