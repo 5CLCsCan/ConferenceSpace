@@ -64,13 +64,13 @@ export function PreCheckResults({ result }: PreCheckResultsProps) {
     if (decision === "desk_reject") {
       return (
         <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
-          Desk Reject
+          {t("dashboard.author.submit.precheck.decision.deskReject")}
         </Badge>
       )
     }
     return (
       <Badge className="bg-yellow-50 text-yellow-700 border-yellow-200 font-medium">
-        Manual Review
+        {t("dashboard.author.submit.precheck.decision.manualReview")}
       </Badge>
     )
   }

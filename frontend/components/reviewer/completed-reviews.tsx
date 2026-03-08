@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
@@ -8,6 +8,8 @@ import { formatDate } from "@/lib/utils"
 import { useCompletedReviews } from "@/hooks/use-completed-reviews"
 import { ROUTES } from "@/lib/routes"
 import { useDebounce } from "@/hooks/use-debounce"
+
+const PAGE_SIZE = 8
 
 interface CompletedReviewsProps {
   reviewerId?: string
@@ -25,14 +27,23 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState<SortOption>("date")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
-  const loadMoreRef = useRef<HTMLDivElement>(null)
+  const [currentPage, setCurrentPage] = useState(1)
 
   const debouncedSearch = useDebounce(searchQuery, 500)
 
-  const { reviews, isLoading, isLoadingMore, hasMore, loadMore } = useCompletedReviews(
-    currentReviewerId,
-    { search: debouncedSearch },
-  )
+  // Reset page when search changes
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value)
+    setCurrentPage(1)
+  }
+
+  const { reviews, total, isLoading } = useCompletedReviews(currentReviewerId, {
+    search: debouncedSearch,
+    limit: PAGE_SIZE,
+    offset: (currentPage - 1) * PAGE_SIZE,
+  })
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   const sortedReviews = [...reviews].sort((a, b) => {
     if (sortBy === "date") {
@@ -43,30 +54,35 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
     return sortOrder === "asc" ? comparison : -comparison
   })
 
-  // Infinite scroll observer
-  useEffect(() => {
-    if (!loadMore || !hasMore || isLoadingMore) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMore()
-        }
-      },
-      { threshold: 0.1 },
-    )
-
-    const currentRef = loadMoreRef.current
-    if (currentRef) {
-      observer.observe(currentRef)
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page)
     }
+  }
 
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef)
+  const getPageNumbers = () => {
+    const pages: (number | "ellipsis")[] = []
+    const maxVisible = 5
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
+    } else {
+      pages.push(1)
+      if (currentPage <= 3) {
+        for (let i = 2; i <= 4; i++) pages.push(i)
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      } else if (currentPage >= totalPages - 2) {
+        pages.push("ellipsis")
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i)
+      } else {
+        pages.push("ellipsis")
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i)
+        pages.push("ellipsis")
+        pages.push(totalPages)
       }
     }
-  }, [loadMore, hasMore, isLoadingMore])
+    return pages
+  }
 
   const handleSelect = (paperId: string, conferenceId: string) => {
     if (onSelectPaper) return onSelectPaper(paperId, conferenceId)
@@ -109,7 +125,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
             type="text"
             placeholder={t("dashboard.roles.reviewer.completedReviews.searchPlaceholder")}
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full sm:w-64 h-8 pl-8 pr-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#1B3C53]"
           />
         </div>
@@ -126,16 +142,20 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
             className="h-8 px-3 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none text-slate-700 dark:text-slate-300"
           >
             <option value="date-desc">
-              {t("dashboard.roles.reviewer.completedReviews.sortByDate")} (Newest)
+              {t("dashboard.roles.reviewer.completedReviews.sortByDate")}{" "}
+              {t("runtime.components.reviewer.completed-reviews.text_newest")}{" "}
             </option>
             <option value="date-asc">
-              {t("dashboard.roles.reviewer.completedReviews.sortByDate")} (Oldest)
+              {t("dashboard.roles.reviewer.completedReviews.sortByDate")}{" "}
+              {t("runtime.components.reviewer.completed-reviews.text_oldest")}{" "}
             </option>
             <option value="title-asc">
-              {t("dashboard.roles.reviewer.completedReviews.sortByTitle")} (A-Z)
+              {t("dashboard.roles.reviewer.completedReviews.sortByTitle")}{" "}
+              {t("runtime.components.reviewer.completed-reviews.text_a_z")}{" "}
             </option>
             <option value="title-desc">
-              {t("dashboard.roles.reviewer.completedReviews.sortByTitle")} (Z-A)
+              {t("dashboard.roles.reviewer.completedReviews.sortByTitle")}{" "}
+              {t("runtime.components.reviewer.completed-reviews.text_z_a")}{" "}
             </option>
           </select>
 
@@ -144,7 +164,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
               onClick={() => setSearchQuery("")}
               className="h-8 px-3 rounded-md border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
             >
-              Clear
+              {t("runtime.components.reviewer.completed-reviews.text_clear")}{" "}
             </button>
           )}
         </div>
@@ -155,7 +175,9 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
         {isLoading ? (
           <div className="flex items-center justify-center py-16 gap-2 text-slate-400">
             <Loader2 className="size-5 animate-spin" />
-            <span className="text-xs font-medium">Loading completed reviews...</span>
+            <span className="text-xs font-medium">
+              {t("runtime.components.reviewer.completed-reviews.text_loading_completed_reviews")}
+            </span>
           </div>
         ) : sortedReviews.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-4">
@@ -171,8 +193,8 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
             </p>
             <p className="text-[10px] font-medium text-slate-400 text-center max-w-xs">
               {debouncedSearch
-                ? "Try adjusting your search query."
-                : "Reviews you have completed will appear here."}
+                ? t("dashboard.roles.reviewer.completedReviews.noResultsDescription")
+                : t("dashboard.roles.reviewer.completedReviews.noCompletedReviewsDescription")}
             </p>
           </div>
         ) : (
@@ -186,16 +208,16 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
                       #
                     </th>
                     <th className="py-2.5 px-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                      Paper
+                      {t("runtime.components.reviewer.completed-reviews.text_paper")}{" "}
                     </th>
                     <th className="py-2.5 px-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400 w-28">
-                      Version
+                      {t("runtime.components.reviewer.completed-reviews.text_version")}{" "}
                     </th>
                     <th className="py-2.5 px-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400 w-36">
                       {t("dashboard.roles.reviewer.completedReviews.completedOn")}
                     </th>
                     <th className="py-2.5 px-3 text-right text-[10px] font-bold uppercase tracking-widest text-slate-400 w-24">
-                      Action
+                      {t("runtime.components.reviewer.completed-reviews.text_action")}{" "}
                     </th>
                   </tr>
                 </thead>
@@ -213,7 +235,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
                   >
                     {/* Index */}
                     <td className="py-3 pl-4 pr-2 text-[11px] font-mono font-medium text-slate-400 dark:text-slate-500 w-10">
-                      {index + 1}
+                      {(currentPage - 1) * PAGE_SIZE + index + 1}
                     </td>
 
                     {/* Paper Info */}
@@ -232,7 +254,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
                         </div>
                         {/* Completed badge */}
                         <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-[9px] font-bold uppercase tracking-wider">
-                          Done
+                          {t("runtime.components.reviewer.completed-reviews.text_done")}{" "}
                         </span>
                       </div>
                     </td>
@@ -257,7 +279,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
                         }}
                         className="inline-flex items-center gap-1 h-7 px-2.5 rounded-md bg-[#1B3C53] hover:bg-[#234C6A] text-white text-[9px] font-bold uppercase tracking-wider transition-colors"
                       >
-                        View
+                        {t("runtime.components.reviewer.completed-reviews.text_view")}{" "}
                         <span
                           className="material-symbols-outlined"
                           style={{ fontSize: "12px", lineHeight: "1" }}
@@ -274,30 +296,63 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
         )}
       </div>
 
-      {/* Load More Trigger */}
-      {hasMore && (
-        <div ref={loadMoreRef} className="py-6 flex items-center justify-center">
-          {isLoadingMore && (
-            <div className="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-500">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#1B3C53] dark:border-white" />
-              <span className="text-[10px] font-bold uppercase tracking-wider">Loading...</span>
-            </div>
-          )}
-        </div>
-      )}
+      {/* Pagination */}
+      {!isLoading && total > 0 && (
+        <div className="flex items-center justify-between">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            {t("runtime.components.reviewer.completed-reviews.text_showing")}{" "}
+            <span className="font-bold text-[#1B3C53] dark:text-white">
+              {Math.min((currentPage - 1) * PAGE_SIZE + 1, total)}–
+              {Math.min(currentPage * PAGE_SIZE, total)}
+            </span>{" "}
+            of <span className="font-bold text-[#1B3C53] dark:text-white">{total}</span> completed
+            {total === 1 ? " review" : " reviews"}
+            {debouncedSearch && (
+              <>
+                {" "}
+                {t("runtime.components.reviewer.completed-reviews.text_for_ldquo")}
+                <span className="font-medium">{debouncedSearch}</span>
+                {t("runtime.components.reviewer.completed-reviews.text_rdquo")}
+              </>
+            )}
+          </p>
 
-      {/* Results count */}
-      {!isLoading && sortedReviews.length > 0 && (
-        <div className="text-[11px] text-slate-500">
-          Showing{" "}
-          <span className="font-bold text-[#1B3C53] dark:text-white">{sortedReviews.length}</span>{" "}
-          completed
-          {sortedReviews.length === 1 ? " review" : " reviews"}
-          {debouncedSearch && (
-            <>
-              {" "}
-              for &ldquo;<span className="font-medium">{debouncedSearch}</span>&rdquo;
-            </>
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="h-8 px-2.5 rounded-md border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+              >
+                {t("runtime.components.reviewer.completed-reviews.text_previous")}
+              </button>
+              {getPageNumbers().map((page, idx) =>
+                page === "ellipsis" ? (
+                  <span key={`e-${idx}`} className="px-1 text-slate-400 text-xs">
+                    ...
+                  </span>
+                ) : (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`h-8 min-w-[32px] rounded-md text-[11px] font-bold transition-colors ${
+                      currentPage === page
+                        ? "bg-[#1B3C53] text-white"
+                        : "border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ),
+              )}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="h-8 px-2.5 rounded-md border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+              >
+                {t("runtime.components.reviewer.completed-reviews.text_next")}
+              </button>
+            </div>
           )}
         </div>
       )}

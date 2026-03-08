@@ -4,6 +4,8 @@ import { WizardHeader } from "../wizard-header"
 import { WizardFormCard } from "../wizard-form-card"
 import { WizardFormField, WizardInput } from "../wizard-form-field"
 import { ConferenceFormData } from "../types"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { tStatic as t } from "@/lib/i18n/static-translate"
 
 interface PolicyGuidelinesStepProps {
   data: ConferenceFormData
@@ -11,19 +13,45 @@ interface PolicyGuidelinesStepProps {
 }
 
 const FILE_FORMATS = [
-  { value: "PDF", label: "PDF" },
-  { value: "LaTeX", label: "LaTeX" },
-  { value: "Word", label: "Word" },
+  {
+    value: "PDF",
+    label: t("runtime.components.wizard.creation.steps.policy-guidelines.prop_label_pdf"),
+  },
+  {
+    value: "LaTeX",
+    label: t("runtime.components.wizard.creation.steps.policy-guidelines.prop_label_latex"),
+  },
+  {
+    value: "Word",
+    label: t("runtime.components.wizard.creation.steps.policy-guidelines.prop_label_word"),
+  },
 ] as const
 
 const SUPPLEMENTARY_TYPES = [
-  { value: "code", label: "Source Code", icon: "code" },
-  { value: "data", label: "Datasets", icon: "database" },
-  { value: "appendix", label: "Appendix", icon: "description" },
-  { value: "video", label: "Video", icon: "videocam" },
+  {
+    value: "code",
+    label: t("runtime.components.wizard.creation.steps.policy-guidelines.prop_label_source_code"),
+    icon: "code",
+  },
+  {
+    value: "data",
+    label: t("runtime.components.wizard.creation.steps.policy-guidelines.prop_label_datasets"),
+    icon: "database",
+  },
+  {
+    value: "appendix",
+    label: t("runtime.components.wizard.creation.steps.policy-guidelines.prop_label_appendix"),
+    icon: "description",
+  },
+  {
+    value: "video",
+    label: t("runtime.components.wizard.creation.steps.policy-guidelines.prop_label_video"),
+    icon: "videocam",
+  },
 ] as const
 
 export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepProps) {
+  const { t } = useTranslation()
   const handleFileFormatToggle = (format: string) => {
     const formats = data.fileFormats.includes(format)
       ? data.fileFormats.filter((f) => f !== format)
@@ -41,7 +69,9 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
   return (
     <div className="flex flex-col gap-4 w-full min-w-0">
       <WizardHeader
-        title="Policy & Guidelines"
+        title={t(
+          "runtime.components.wizard.creation.steps.policy-guidelines.title_policy_guidelines",
+        )}
         description="Configure submission requirements, review process, and supplementary materials policy."
       />
 
@@ -51,7 +81,9 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
       >
         {/* Submission Guidelines */}
         <WizardFormCard
-          title="Submission Guidelines"
+          title={t(
+            "runtime.components.wizard.creation.steps.policy-guidelines.title_submission_guidelines",
+          )}
           tooltip="Define the formatting and length requirements for paper submissions."
         >
           <div className="flex flex-col gap-4">
@@ -61,7 +93,9 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
                   type="number"
                   min={1}
                   max={30}
-                  placeholder="e.g., 8"
+                  placeholder={t(
+                    "runtime.components.wizard.creation.steps.policy-guidelines.placeholder_e_g_8",
+                  )}
                   value={data.maxPages || ""}
                   onChange={(e) => updateData({ maxPages: parseInt(e.target.value) || 8 })}
                   icon={
@@ -89,7 +123,9 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
                   type="number"
                   min={50}
                   max={500}
-                  placeholder="e.g., 250"
+                  placeholder={t(
+                    "runtime.components.wizard.creation.steps.policy-guidelines.placeholder_e_g_250",
+                  )}
                   value={data.abstractMaxWords || ""}
                   onChange={(e) =>
                     updateData({ abstractMaxWords: parseInt(e.target.value) || 250 })
@@ -121,7 +157,9 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
                   type="number"
                   min={1}
                   max={10}
-                  placeholder="e.g., 3"
+                  placeholder={t(
+                    "runtime.components.wizard.creation.steps.policy-guidelines.placeholder_e_g_3",
+                  )}
                   value={data.minKeywords || ""}
                   onChange={(e) => updateData({ minKeywords: parseInt(e.target.value) || 3 })}
                 />
@@ -132,7 +170,9 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
                   type="number"
                   min={1}
                   max={10}
-                  placeholder="e.g., 5"
+                  placeholder={t(
+                    "runtime.components.wizard.creation.steps.policy-guidelines.placeholder_e_g_5",
+                  )}
                   value={data.maxKeywords || ""}
                   onChange={(e) => updateData({ maxKeywords: parseInt(e.target.value) || 5 })}
                 />
@@ -170,7 +210,9 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
 
         {/* Review Configuration */}
         <WizardFormCard
-          title="Review Configuration"
+          title={t(
+            "runtime.components.wizard.creation.steps.policy-guidelines.title_review_configuration",
+          )}
           tooltip="Configure the blind review process and conflict of interest policies."
         >
           <div className="flex flex-col gap-4">
@@ -201,7 +243,9 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
                   >
                     visibility_off
                   </span>
-                  Double-Blind
+                  {t(
+                    "runtime.components.wizard.creation.steps.policy-guidelines.text_double_blind",
+                  )}{" "}
                 </button>
                 <button
                   type="button"
@@ -227,7 +271,9 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
                   >
                     visibility
                   </span>
-                  Single-Blind
+                  {t(
+                    "runtime.components.wizard.creation.steps.policy-guidelines.text_single_blind",
+                  )}{" "}
                 </button>
               </div>
             </WizardFormField>
@@ -243,15 +289,25 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
               <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
                 {data.anonymity === "double-blind" ? (
                   <>
-                    <strong className="text-[#141414] dark:text-white">Double-blind:</strong> Both
-                    author and reviewer identities are hidden. Authors must anonymize their
-                    submissions.
+                    <strong className="text-[#141414] dark:text-white">
+                      {t(
+                        "runtime.components.wizard.creation.steps.policy-guidelines.text_double_blind_2",
+                      )}
+                    </strong>{" "}
+                    {t(
+                      "runtime.components.wizard.creation.steps.policy-guidelines.text_both_author_and_reviewer_identities_are",
+                    )}{" "}
                   </>
                 ) : (
                   <>
-                    <strong className="text-[#141414] dark:text-white">Single-blind:</strong>{" "}
-                    Reviewers know author identities, but authors don&apos;t know reviewer
-                    identities.
+                    <strong className="text-[#141414] dark:text-white">
+                      {t(
+                        "runtime.components.wizard.creation.steps.policy-guidelines.text_single_blind_2",
+                      )}
+                    </strong>{" "}
+                    {t(
+                      "runtime.components.wizard.creation.steps.policy-guidelines.text_reviewers_know_author_identities_but_authors",
+                    )}{" "}
                   </>
                 )}
               </p>
@@ -261,7 +317,9 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
 
         {/* Supplementary Materials */}
         <WizardFormCard
-          title="Supplementary Materials"
+          title={t(
+            "runtime.components.wizard.creation.steps.policy-guidelines.title_supplementary_materials",
+          )}
           tooltip="Configure what additional materials authors can submit alongside their papers."
         >
           <div className="flex flex-col gap-4">
@@ -275,10 +333,14 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
               />
               <div className="flex flex-col">
                 <span className="text-xs font-bold text-[#141414] dark:text-white">
-                  Allow Supplementary Materials
+                  {t(
+                    "runtime.components.wizard.creation.steps.policy-guidelines.text_allow_supplementary_materials",
+                  )}{" "}
                 </span>
                 <span className="text-[10px] text-slate-400 font-light">
-                  Authors can upload additional files with their submissions.
+                  {t(
+                    "runtime.components.wizard.creation.steps.policy-guidelines.text_authors_can_upload_additional_files_with",
+                  )}{" "}
                 </span>
               </div>
             </label>

@@ -8,6 +8,7 @@ import {
   rebuildCOIRelationships,
   type COIRelationship,
 } from "@/lib/api/coi"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ConferenceCOIProps {
   conferenceId: string
@@ -23,6 +24,7 @@ function StatCard({
   value: number
   className?: string
 }) {
+  const { t } = useTranslation()
   return (
     <div className={cn("rounded-lg border bg-white p-4", className)}>
       <p className="text-[10px] uppercase tracking-wider text-slate-500">{label}</p>
@@ -31,9 +33,14 @@ function StatCard({
   )
 }
 
+const PAGE_SIZE = 8
+
 export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
+  const { t } = useTranslation()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [total, setTotal] = useState(0)
   const [stats, setStats] = useState<{
     totalConflicts: number
     pendingReview: number
@@ -48,6 +55,42 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
   const [relationships, setRelationships] = useState<COIRelationship[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [severity, setSeverity] = useState<"" | "high" | "medium" | "low">("")
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+
+  const handleSeverityChange = (value: "" | "high" | "medium" | "low") => {
+    setSeverity(value)
+    setCurrentPage(1)
+  }
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value)
+    setCurrentPage(1)
+  }
+
+  const getPageNumbers = () => {
+    const pages: (number | "ellipsis")[] = []
+    const maxVisible = 5
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
+    } else {
+      pages.push(1)
+      if (currentPage <= 3) {
+        for (let i = 2; i <= 4; i++) pages.push(i)
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      } else if (currentPage >= totalPages - 2) {
+        pages.push("ellipsis")
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i)
+      } else {
+        pages.push("ellipsis")
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i)
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      }
+    }
+    return pages
+  }
   const [rebuilding, setRebuilding] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
 
@@ -71,8 +114,8 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
             conference_id: numericConferenceId,
             severity: severity || undefined,
             search: searchQuery || undefined,
-            limit: 100,
-            page: 1,
+            limit: PAGE_SIZE,
+            page: currentPage,
           }),
         ])
 
@@ -83,6 +126,7 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
           orphanedPapers: 0,
         })
         setRelationships(relationshipsResponse.relationships || [])
+        setTotal(relationshipsResponse.total || 0)
       } catch (loadError) {
         setError(loadError instanceof Error ? loadError.message : "Failed to load COI data")
       } finally {
@@ -91,18 +135,25 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
     }
 
     void loadCOI()
-  }, [numericConferenceId, searchQuery, severity])
+  }, [numericConferenceId, searchQuery, severity, currentPage])
 
   return (
     <div className={cn("space-y-6", className)}>
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            Conflicts of Interest Management
+            {t(
+              "runtime.components.chair.conference-detail.conference-coi.text_conflicts_of_interest_management",
+            )}{" "}
           </h2>
           <p className="text-[12px] text-slate-500 mt-1 max-w-xl leading-relaxed">
-            This view is fully API-backed from <code>/api/v1/coi/*</code>. Manual moderation
-            actions are currently disabled until backend write contracts are available.
+            {t(
+              "runtime.components.chair.conference-detail.conference-coi.text_this_view_is_fully_api_backed",
+            )}{" "}
+            <code>/api/v1/coi/*</code>
+            {t(
+              "runtime.components.chair.conference-detail.conference-coi.text_manual_moderation_actions_are_currently_disabled",
+            )}{" "}
           </p>
         </div>
         <button
@@ -147,8 +198,9 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
       </div>
 
       <div className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-        Confirm, dismiss, and reviewer-reassignment COI actions are intentionally disabled because
-        backend mutation endpoints are not available yet.
+        {t(
+          "runtime.components.chair.conference-detail.conference-coi.text_confirm_dismiss_and_reviewer_reassignment_coi",
+        )}{" "}
       </div>
 
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
@@ -156,13 +208,23 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <select
               value={severity}
-              onChange={(event) => setSeverity(event.target.value as "" | "high" | "medium" | "low")}
+              onChange={(event) =>
+                handleSeverityChange(event.target.value as "" | "high" | "medium" | "low")
+              }
               className="bg-white border border-slate-200 text-slate-600 text-[11px] rounded-md py-1.5 pl-2.5 pr-6 focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none cursor-pointer"
             >
-              <option value="">All severities</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
+              <option value="">
+                {t("runtime.components.chair.conference-detail.conference-coi.text_all_severities")}
+              </option>
+              <option value="high">
+                {t("runtime.components.chair.conference-detail.conference-coi.text_high")}
+              </option>
+              <option value="medium">
+                {t("runtime.components.chair.conference-detail.conference-coi.text_medium")}
+              </option>
+              <option value="low">
+                {t("runtime.components.chair.conference-detail.conference-coi.text_low")}
+              </option>
             </select>
           </div>
 
@@ -175,16 +237,22 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
             </span>
             <input
               type="text"
-              placeholder="Search reviewer, author..."
+              placeholder={t(
+                "runtime.components.chair.conference-detail.conference-coi.placeholder_search_reviewer_author",
+              )}
               value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
+              onChange={(event) => handleSearchChange(event.target.value)}
               className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] placeholder-slate-400 transition-shadow"
             />
           </div>
         </div>
 
         {loading ? (
-          <div className="p-6 text-xs text-slate-500">Loading COI relationships...</div>
+          <div className="p-6 text-xs text-slate-500">
+            {t(
+              "runtime.components.chair.conference-detail.conference-coi.text_loading_coi_relationships",
+            )}
+          </div>
         ) : error ? (
           <div className="p-6 text-xs text-red-700 bg-red-50 border-t border-red-200">{error}</div>
         ) : (
@@ -192,18 +260,30 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
             <table className="w-full text-left border-collapse">
               <thead className="bg-slate-50 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-200 tracking-widest">
                 <tr>
-                  <th className="px-3 py-2.5">Reviewer</th>
-                  <th className="px-3 py-2.5">Author</th>
-                  <th className="px-3 py-2.5">Type</th>
-                  <th className="px-3 py-2.5">Severity</th>
-                  <th className="px-3 py-2.5">Source</th>
+                  <th className="px-3 py-2.5">
+                    {t("runtime.components.chair.conference-detail.conference-coi.text_reviewer")}
+                  </th>
+                  <th className="px-3 py-2.5">
+                    {t("runtime.components.chair.conference-detail.conference-coi.text_author")}
+                  </th>
+                  <th className="px-3 py-2.5">
+                    {t("runtime.components.chair.conference-detail.conference-coi.text_type")}
+                  </th>
+                  <th className="px-3 py-2.5">
+                    {t("runtime.components.chair.conference-detail.conference-coi.text_severity")}
+                  </th>
+                  <th className="px-3 py-2.5">
+                    {t("runtime.components.chair.conference-detail.conference-coi.text_source")}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {relationships.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-3 py-8 text-center text-xs text-slate-500">
-                      No COI relationships found.
+                      {t(
+                        "runtime.components.chair.conference-detail.conference-coi.text_no_coi_relationships_found",
+                      )}{" "}
                     </td>
                   </tr>
                 ) : (
@@ -237,12 +317,68 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
                           {relationship.severity}
                         </span>
                       </td>
-                      <td className="px-3 py-3 text-[11px] text-slate-700">{relationship.detected_by}</td>
+                      <td className="px-3 py-3 text-[11px] text-slate-700">
+                        {relationship.detected_by}
+                      </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {!loading && !error && total > 0 && (
+          <div className="flex items-center justify-between px-3 py-3 border-t border-slate-200 dark:border-slate-800">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              {t("runtime.components.chair.conference-detail.conference-coi.text_showing")}{" "}
+              <span className="font-bold text-[#1B3C53] dark:text-white">
+                {Math.min((currentPage - 1) * PAGE_SIZE + 1, total)}–
+                {Math.min(currentPage * PAGE_SIZE, total)}
+              </span>{" "}
+              {t("runtime.components.chair.conference-detail.conference-coi.text_of")}{" "}
+              <span className="font-bold text-[#1B3C53] dark:text-white">{total}</span>{" "}
+              {t("runtime.components.chair.conference-detail.conference-coi.text_conflicts")}
+            </p>
+
+            {totalPages > 1 && (
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="h-7 px-2.5 rounded border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                >
+                  {t("runtime.components.chair.conference-detail.conference-coi.text_previous")}
+                </button>
+                {getPageNumbers().map((page, idx) =>
+                  page === "ellipsis" ? (
+                    <span key={`e-${idx}`} className="px-1 text-slate-400 text-xs">
+                      ...
+                    </span>
+                  ) : (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`h-7 min-w-[28px] rounded text-[11px] font-bold transition-colors ${
+                        currentPage === page
+                          ? "bg-[#1B3C53] text-white"
+                          : "border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="h-7 px-2.5 rounded border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                >
+                  {t("runtime.components.chair.conference-detail.conference-coi.text_next")}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

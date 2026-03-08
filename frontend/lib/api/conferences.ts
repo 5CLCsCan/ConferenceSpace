@@ -292,11 +292,12 @@ export async function createConference(conferenceData: {
   domain: string[]
   tracks?: string[]
   venue: string
+  co_chairs?: string[]
   configurations: {
-    start_date: string
-    end_date: string
+    start_date?: string
+    end_date?: string
     abstract_submission_deadline?: string
-    full_paper_submission_deadline: string
+    full_paper_submission_deadline?: string
     camera_ready_deadline?: string
     format: string
     review_type: string
@@ -321,6 +322,7 @@ export async function createConference(conferenceData: {
         domain: conferenceData.domain,
         tracks: conferenceData.tracks || [],
         venue: conferenceData.venue,
+        co_chairs: conferenceData.co_chairs || [],
         configurations: conferenceData.configurations,
       },
     }
@@ -395,6 +397,10 @@ export async function updateConference(
       have_coi?: boolean
       require_complete_author_profile?: boolean
       allow_paper_withdrawls?: boolean
+      desk_rejection_settings?: Record<string, unknown>
+      discussion_settings?: Record<string, unknown>
+      rebuttal_settings?: Record<string, unknown>
+      workflow_settings?: Record<string, unknown>
     }>
   }>,
 ): Promise<ApiResponse<Conference>> {

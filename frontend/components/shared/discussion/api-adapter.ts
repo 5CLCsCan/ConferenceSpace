@@ -130,7 +130,8 @@ export function buildDiscussionSettings(
   role: DiscussionActorRole,
   config?: DiscussionConfigAdapter,
 ): ConferenceSettings {
-  const reviewMode: ReviewMode = config?.review_type === "single-blind" ? "single_blind" : "double_blind"
+  const reviewMode: ReviewMode =
+    config?.review_type === "single-blind" ? "single_blind" : "double_blind"
   const phase = "discussion"
 
   return {

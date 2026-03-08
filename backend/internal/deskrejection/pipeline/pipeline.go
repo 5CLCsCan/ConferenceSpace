@@ -3,10 +3,10 @@ package pipeline
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/dcao/conferencespace/internal/deskrejection/aggregator"
 	"github.com/dcao/conferencespace/internal/deskrejection/checkers"
-	"github.com/dcao/conferencespace/internal/deskrejection/drerrors"
 	"github.com/dcao/conferencespace/internal/deskrejection/evaluator"
 	"github.com/dcao/conferencespace/internal/deskrejection/extractor"
 	"github.com/dcao/conferencespace/internal/deskrejection/models"
@@ -90,9 +90,8 @@ func checkStage(ctx context.Context, input any) (any, error) {
 		llmEvaluator := evaluator.NewLLMEvaluator(geminiClientVal)
 		contentResults, err := llmEvaluator.EvaluateContent(ctx, doc, *config)
 		if err != nil {
-			return nil, drerrors.New(drerrors.CategoryLLM, "LLM content evaluation failed", err)
-		}
-		if len(contentResults) > 0 {
+			log.Printf("[deskrejection] optional llm evaluation skipped: %v", err)
+		} else if len(contentResults) > 0 {
 			allResults = append(allResults, contentResults...)
 		}
 	}

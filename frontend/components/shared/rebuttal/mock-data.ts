@@ -15,7 +15,9 @@ export const MOCK_SETTINGS: RebuttalSettings = {
   requireResponseToAll: false,
 }
 
-export function buildRebuttalSettingsFromConference(conference?: Conference | null): RebuttalSettings {
+export function buildRebuttalSettingsFromConference(
+  conference?: Conference | null,
+): RebuttalSettings {
   const rebuttal = conference?.configurations?.rebuttal_settings
   const deadline = rebuttal?.end_at || MOCK_SETTINGS.deadline
   const deadlineDate = new Date(deadline)

@@ -1,18 +1,11 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import type { ConferenceInfo, TabId, TabItem } from "./types"
-
-const TABS: TabItem[] = [
-  { id: "dashboard", label: "Dashboard", icon: "analytics" },
-  { id: "overview", label: "Overview", icon: "info" },
-  { id: "cfp", label: "Call for Papers", icon: "campaign" },
-  { id: "dates", label: "Important Dates", icon: "event" },
-  { id: "committee", label: "Committee", icon: "groups" },
-  { id: "submissions", label: "Submissions", icon: "description" },
-  { id: "assignments", label: "Assignments", icon: "assignment_ind" },
-  { id: "coi", label: "COI", icon: "warning" },
-]
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { ROUTES } from "@/lib/routes"
 
 interface ConferenceDetailHeaderProps {
   conference: ConferenceInfo
@@ -27,6 +20,67 @@ export function ConferenceDetailHeader({
   onTabChange,
   className,
 }: ConferenceDetailHeaderProps) {
+  const { t } = useTranslation()
+  const router = useRouter()
+  const tabs: TabItem[] = [
+    {
+      id: "dashboard",
+      label: t(
+        "runtime.components.chair.conference-detail.conference-detail-header.prop_label_dashboard",
+      ),
+      icon: "analytics",
+    },
+    {
+      id: "overview",
+      label: t(
+        "runtime.components.chair.conference-detail.conference-detail-header.prop_label_overview",
+      ),
+      icon: "info",
+    },
+    {
+      id: "cfp",
+      label: t(
+        "runtime.components.chair.conference-detail.conference-detail-header.prop_label_call_for_papers",
+      ),
+      icon: "campaign",
+    },
+    {
+      id: "dates",
+      label: t(
+        "runtime.components.chair.conference-detail.conference-detail-header.prop_label_important_dates",
+      ),
+      icon: "event",
+    },
+    {
+      id: "committee",
+      label: t(
+        "runtime.components.chair.conference-detail.conference-detail-header.prop_label_committee",
+      ),
+      icon: "groups",
+    },
+    {
+      id: "submissions",
+      label: t(
+        "runtime.components.chair.conference-detail.conference-detail-header.prop_label_submissions",
+      ),
+      icon: "description",
+    },
+    {
+      id: "assignments",
+      label: t(
+        "runtime.components.chair.conference-detail.conference-detail-header.prop_label_assignments",
+      ),
+      icon: "assignment_ind",
+    },
+    {
+      id: "coi",
+      label: t(
+        "runtime.components.chair.conference-detail.conference-detail-header.prop_label_coi",
+      ),
+      icon: "warning",
+    },
+  ]
+
   return (
     <header
       className={cn(
@@ -60,7 +114,11 @@ export function ConferenceDetailHeader({
             >
               folder_open
             </span>
-            <span>Conferences</span>
+            <span>
+              {t(
+                "runtime.components.chair.conference-detail.conference-detail-header.text_conferences",
+              )}
+            </span>
             <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
               chevron_right
             </span>
@@ -101,7 +159,7 @@ export function ConferenceDetailHeader({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => onTabChange("overview")}
+            onClick={() => router.push(ROUTES.CHAIR.CONFERENCE_EDIT(conference.id))}
             className="h-8 px-3 bg-white border border-slate-200 text-slate-600 font-medium text-[11px] rounded-md hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center gap-1.5"
           >
             <span
@@ -125,55 +183,60 @@ export function ConferenceDetailHeader({
             >
               settings
             </span>
-            Settings
+            {t(
+              "runtime.components.chair.conference-detail.conference-detail-header.text_settings",
+            )}{" "}
           </button>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="px-8 border-t border-slate-100 dark:border-slate-800 overflow-x-auto">
-        <div className="flex space-x-6 min-w-max">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => onTabChange(tab.id)}
-              className={cn(
-                "py-3 border-b-2 font-medium text-[11px] tracking-wider transition-colors flex items-center gap-1.5",
-                activeTab === tab.id
-                  ? "border-[#1B3C53] text-[#1B3C53] dark:border-white dark:text-white"
-                  : "border-transparent text-slate-400 hover:text-[#1B3C53] dark:hover:text-white",
-              )}
-            >
-              <span
-                className="material-symbols-outlined"
-                style={{
-                  fontSize: "17.5px",
-                  width: "17.5px",
-                  height: "17.5px",
-                  maxWidth: "17.5px",
-                  maxHeight: "17.5px",
-                  minWidth: "17.5px",
-                  minHeight: "17.5px",
-                  lineHeight: "1",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                  transform: "none",
-                  boxSizing: "border-box",
-                }}
+      <div className="border-t border-slate-100 dark:border-slate-800">
+        <ScrollArea className="w-full">
+          <div className="flex min-w-max space-x-6 px-8 pb-1">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                className={cn(
+                  "py-3 border-b-2 font-medium text-[11px] tracking-wider transition-colors flex items-center gap-1.5",
+                  activeTab === tab.id
+                    ? "border-[#1B3C53] text-[#1B3C53] dark:border-white dark:text-white"
+                    : "border-transparent text-slate-400 hover:text-[#1B3C53] dark:hover:text-white",
+                )}
               >
-                {tab.icon}
-              </span>
-              {tab.label}
-              {tab.badge && (
-                <span className="bg-slate-100 text-slate-500 text-[9px] py-0.5 px-1.5 rounded-full ml-0.5 font-bold">
-                  {tab.badge.toLocaleString()}
+                <span
+                  className="material-symbols-outlined"
+                  style={{
+                    fontSize: "17.5px",
+                    width: "17.5px",
+                    height: "17.5px",
+                    maxWidth: "17.5px",
+                    maxHeight: "17.5px",
+                    minWidth: "17.5px",
+                    minHeight: "17.5px",
+                    lineHeight: "1",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                    transform: "none",
+                    boxSizing: "border-box",
+                  }}
+                >
+                  {tab.icon}
                 </span>
-              )}
-            </button>
-          ))}
-        </div>
+                {tab.label}
+                {tab.badge && (
+                  <span className="bg-slate-100 text-slate-500 text-[9px] py-0.5 px-1.5 rounded-full ml-0.5 font-bold">
+                    {tab.badge.toLocaleString()}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
       </div>
     </header>
   )

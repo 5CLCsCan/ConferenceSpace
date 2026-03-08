@@ -39,6 +39,8 @@ const INTERACTIVE_SELECTORS = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(", ")
 
+const CONTEXT_EXCLUDED_SELECTOR = '[data-chatbot-ui="true"], [data-chatbot-ignore-context="true"]'
+
 /**
  * Capture the current page's accessibility tree
  */
@@ -98,6 +100,7 @@ function buildA11yTree(element: Element, refMap: Map<string, Element>): A11yNode
   const children: A11yNode[] = []
   const childElements = Array.from(element.children).filter((child) => {
     if (!(child instanceof HTMLElement)) return false
+    if (isExcludedFromContext(child)) return false
     const style = window.getComputedStyle(child)
     return style.display !== "none" && style.visibility !== "hidden"
   })
@@ -246,4 +249,8 @@ function getAccessibleName(element: Element): string {
   if (title) return title
 
   return ""
+}
+
+function isExcludedFromContext(element: Element): boolean {
+  return Boolean(element.closest(CONTEXT_EXCLUDED_SELECTOR))
 }

@@ -110,7 +110,7 @@ export function DashboardHeader() {
                       }}
                     >
                       <CheckCheck className="h-3.5 w-3.5 mr-1" />
-                      Mark all read
+                      {t("runtime.components.dashboard-header.text_mark_all_read")}{" "}
                     </Button>
                   )}
                 </div>
@@ -122,7 +122,9 @@ export function DashboardHeader() {
                   ) : notifications.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-8 text-center">
                       <Bell className="h-8 w-8 text-neutral-300 mb-2" />
-                      <p className="text-sm text-neutral-500">No notifications yet</p>
+                      <p className="text-sm text-neutral-500">
+                        {t("runtime.components.dashboard-header.text_no_notifications_yet")}
+                      </p>
                     </div>
                   ) : (
                     notifications

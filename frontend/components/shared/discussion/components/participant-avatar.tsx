@@ -1,5 +1,8 @@
+"use client"
+
 import type { Participant } from "../types"
 import { ROLE_STYLES } from "../config"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ParticipantAvatarProps {
   participant: Participant
@@ -7,6 +10,7 @@ interface ParticipantAvatarProps {
 }
 
 export function ParticipantAvatar({ participant, size = "md" }: ParticipantAvatarProps) {
+  const { t } = useTranslation()
   const sizeClasses = {
     sm: "w-6 h-6 text-[8px]",
     md: "w-8 h-8 text-[10px]",
@@ -41,7 +45,7 @@ export function ParticipantAvatar({ participant, size = "md" }: ParticipantAvata
       <div
         className={`${sizeClasses[size]} rounded-full bg-[#1B3C53] text-white flex items-center justify-center font-bold ring-2 ring-[#1B3C53]/20`}
       >
-        You
+        {t("runtime.components.shared.discussion.components.participant-avatar.text_you")}{" "}
       </div>
     )
   }

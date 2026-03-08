@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { useToast } from "@/hooks/use-toast"
 
 // Import from extracted modules
 import {
@@ -20,6 +21,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import useAssignmentReview from "@/hooks/use-assignment-review"
 import type { Paper } from "@/lib/types"
 import type { ReviewData } from "@/lib/api/reviews"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 // =============================================================================
 // MAIN COMPONENT: SubmissionReviewScreen
@@ -42,15 +44,19 @@ export function SubmissionReviewScreen({
   initialTab = "review",
   onBack,
 }: SubmissionReviewScreenProps) {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<TabType>(initialTab)
   const [formData, setFormData] = useState<ReviewFormData>(INITIAL_FORM_DATA)
   const [discussionCount, setDiscussionCount] = useState(0)
   const { review, saving, saveReview } = useAssignmentReview(conferenceId, assignmentId)
+  const { toast } = useToast()
+  const hasInitialized = useRef(false)
 
   useEffect(() => {
-    if (!review?.review_data) {
+    if (!review?.review_data || hasInitialized.current) {
       return
     }
+    hasInitialized.current = true
 
     const reviewData = review.review_data
     const criteria = reviewData.criteria || {}
@@ -62,13 +68,12 @@ export function SubmissionReviewScreen({
       clarity: normalizeReviewScore(criteria.clarity, prev.clarity),
       significance: normalizeReviewScore(criteria.significance, prev.significance),
       methodology: normalizeReviewScore(criteria.methodology, prev.methodology),
+      summary: feedback.summary ?? prev.summary,
       strengths: feedback.strengths ?? prev.strengths,
       weaknesses: feedback.weaknesses ?? prev.weaknesses,
       questions: feedback.questions ?? prev.questions,
       recommendation: reviewData.recommendation ?? prev.recommendation,
-      confidence:
-        reviewData.confidence === "high" ? 5 : reviewData.confidence === "medium" ? 3 : 1,
-      summary: feedback.strengths ?? prev.summary,
+      confidence: reviewData.confidence === "high" ? 5 : reviewData.confidence === "medium" ? 3 : 1,
     }))
   }, [review?.review_data])
 
@@ -104,8 +109,11 @@ export function SubmissionReviewScreen({
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const toReviewPayload = (status: "draft" | "submitted"): ReviewData & { status: "draft" | "submitted" } => {
-    const confidenceValue = formData.confidence >= 4 ? "high" : formData.confidence >= 2 ? "medium" : "low"
+  const toReviewPayload = (
+    status: "draft" | "submitted",
+  ): ReviewData & { status: "draft" | "submitted" } => {
+    const confidenceValue =
+      formData.confidence >= 4 ? "high" : formData.confidence >= 2 ? "medium" : "low"
     return {
       criteria: {
         originality: formData.originality,
@@ -115,9 +123,10 @@ export function SubmissionReviewScreen({
         methodology: formData.methodology,
       },
       feedback: {
-        strengths: formData.strengths || formData.summary || "",
-        weaknesses: formData.weaknesses || "",
-        questions: formData.questions || "",
+        summary: formData.summary,
+        strengths: formData.strengths,
+        weaknesses: formData.weaknesses,
+        questions: formData.questions,
       },
       recommendation: (formData.recommendation as ReviewData["recommendation"]) || "borderline",
       confidence: confidenceValue,
@@ -126,13 +135,6 @@ export function SubmissionReviewScreen({
   }
 
   const handleSaveDraft = async () => {
-    const now = new Date().toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    })
-    updateFormField("lastSaved", now)
-
     const payload = toReviewPayload("draft")
     const { success, error } = await saveReview({
       assignment_id: Number(assignmentId),
@@ -148,19 +150,42 @@ export function SubmissionReviewScreen({
       status: payload.status,
     })
 
-    if (!success) {
-      alert(error || "Failed to save draft")
+    if (success) {
+      const now = new Date().toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      })
+      updateFormField("lastSaved", now)
+      toast({
+        title: "Draft saved",
+        description: `Your review draft was saved at ${now}.`,
+      })
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Failed to save draft",
+        description: error || "An unexpected error occurred. Please try again.",
+      })
     }
   }
 
   const handleSubmitReview = async () => {
     // Validation
     if (!formData.recommendation) {
-      alert("Please select an overall rating before submitting.")
+      toast({
+        variant: "destructive",
+        title: "Recommendation required",
+        description: "Please select an overall rating before submitting.",
+      })
       return
     }
     if (!formData.summary.trim() || !formData.strengths.trim() || !formData.weaknesses.trim()) {
-      alert("Please ensure the summary, strengths, and weaknesses are filled.")
+      toast({
+        variant: "destructive",
+        title: "Incomplete review",
+        description: "Please fill in the Summary, Strengths, and Weaknesses before submitting.",
+      })
       return
     }
 
@@ -179,8 +204,17 @@ export function SubmissionReviewScreen({
       status: payload.status,
     })
 
-    if (!success) {
-      alert(error || "Failed to submit review")
+    if (success) {
+      toast({
+        title: "Review submitted",
+        description: "Your review has been submitted successfully.",
+      })
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Failed to submit review",
+        description: error || "An unexpected error occurred. Please try again.",
+      })
     }
   }
 
@@ -196,7 +230,7 @@ export function SubmissionReviewScreen({
             className="text-[11px] font-semibold text-slate-500 hover:text-slate-900"
             onClick={onBack}
           >
-            Back
+            {t("runtime.components.reviewer.submission-review.text_back")}{" "}
           </button>
         </div>
       )}
@@ -237,7 +271,9 @@ export function SubmissionReviewScreen({
                   {/* Header */}
                   <div className="flex items-center justify-between mt-3 mb-3 border-b border-slate-100 pb-2">
                     <h2 className="font-bold text-sm text-[#1B3C53] tracking-tight uppercase leading-none">
-                      Scoring Criteria
+                      {t(
+                        "runtime.components.reviewer.submission-review.text_scoring_criteria",
+                      )}{" "}
                     </h2>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -275,7 +311,9 @@ export function SubmissionReviewScreen({
                       >
                         <div className="space-y-3">
                           <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                            Scoring Guide
+                            {t(
+                              "runtime.components.reviewer.submission-review.text_scoring_guide",
+                            )}{" "}
                           </h4>
                           <div className="space-y-2">
                             <div className="flex items-center gap-2">
@@ -284,7 +322,9 @@ export function SubmissionReviewScreen({
                                 <span className="w-2 h-2 rounded-full bg-[#16a34a]" />
                               </div>
                               <span className="text-[9px] text-slate-600">
-                                8-10: Strong contribution, recommend
+                                {t(
+                                  "runtime.components.reviewer.submission-review.text_8_10_strong_contribution_recommend",
+                                )}{" "}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
@@ -293,7 +333,9 @@ export function SubmissionReviewScreen({
                                 <span className="w-2 h-2 rounded-full bg-[#a3a3a3]" />
                               </div>
                               <span className="text-[9px] text-slate-600">
-                                5-7: Acceptable with caveats
+                                {t(
+                                  "runtime.components.reviewer.submission-review.text_5_7_acceptable_with_caveats",
+                                )}{" "}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
@@ -302,7 +344,9 @@ export function SubmissionReviewScreen({
                                 <span className="w-2 h-2 rounded-full bg-[#dc2626]" />
                               </div>
                               <span className="text-[9px] text-slate-600">
-                                1-4: Significant issues present
+                                {t(
+                                  "runtime.components.reviewer.submission-review.text_1_4_significant_issues_present",
+                                )}{" "}
                               </span>
                             </div>
                           </div>
@@ -311,7 +355,9 @@ export function SubmissionReviewScreen({
                               href="#"
                               className="text-[9px] text-[#2563eb] hover:underline font-medium"
                             >
-                              View full reviewer guide &rarr;
+                              {t(
+                                "runtime.components.reviewer.submission-review.text_view_full_reviewer_guide_rarr",
+                              )}{" "}
                             </a>
                           </div>
                         </div>
@@ -425,7 +471,8 @@ export function SubmissionReviewScreen({
                 >
                   schedule
                 </span>
-                Last draft saved: {formData.lastSaved || "Not saved"}
+                {t("runtime.components.reviewer.submission-review.text_last_draft_saved")}{" "}
+                {formData.lastSaved || "Not saved"}
               </div>
               <div className="flex items-center gap-3">
                 <button

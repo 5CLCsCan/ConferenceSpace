@@ -124,6 +124,11 @@ func (c *Controller) GetAuthorDetails(ginCtx *gin.Context) (*semantic_scholar.Au
 			if err == nil && len(papers) > 0 {
 				mappedPapers := make([]semantic_scholar.Paper, len(papers))
 				for i, p := range papers {
+					var authors []semantic_scholar.Author
+					if p.Authors != nil {
+						_ = json.Unmarshal(p.Authors, &authors)
+					}
+
 					mappedPapers[i] = semantic_scholar.Paper{
 						PaperID:       p.SemanticScholarID,
 						Title:         p.Title,
@@ -132,6 +137,7 @@ func (c *Controller) GetAuthorDetails(ginCtx *gin.Context) (*semantic_scholar.Au
 						Year:          p.Year,
 						CitationCount: p.CitationCount,
 						URL:           p.URL,
+						Authors:       authors,
 					}
 				}
 				result.Papers = mappedPapers

@@ -84,7 +84,9 @@ export async function getNotifications(
   const queryString = searchParams.toString()
   const path = queryString ? `/api/v1/notifications?${queryString}` : "/api/v1/notifications"
 
-  const { data } = await apiFetch<{ data: { notifications: BackendNotification[]; total: number } }>(path)
+  const { data } = await apiFetch<{
+    data: { notifications: BackendNotification[]; total: number }
+  }>(path)
   return {
     notifications: (data.data.notifications || []).map(normalizeNotification),
     total: data.data.total || 0,
@@ -114,9 +116,12 @@ export async function getNotification(id: number): Promise<Notification> {
  * Mark a notification as read
  */
 export async function markAsRead(id: number): Promise<Notification> {
-  const { data } = await apiFetch<{ data: BackendNotification }>(`/api/v1/notifications/${id}/read`, {
-    method: "PATCH",
-  })
+  const { data } = await apiFetch<{ data: BackendNotification }>(
+    `/api/v1/notifications/${id}/read`,
+    {
+      method: "PATCH",
+    },
+  )
   return normalizeNotification(data.data)
 }
 
@@ -143,16 +148,21 @@ export async function deleteNotification(id: number): Promise<void> {
 }
 
 export async function getNotificationPreferences(): Promise<NotificationPreferences> {
-  const { data } = await apiFetch<{ data: NotificationPreferences }>("/api/v1/notifications/preferences")
+  const { data } = await apiFetch<{ data: NotificationPreferences }>(
+    "/api/v1/notifications/preferences",
+  )
   return data.data
 }
 
 export async function updateNotificationPreferences(
   update: NotificationPreferencesUpdate,
 ): Promise<NotificationPreferences> {
-  const { data } = await apiFetch<{ data: NotificationPreferences }>("/api/v1/notifications/preferences", {
-    method: "PUT",
-    body: JSON.stringify(update),
-  })
+  const { data } = await apiFetch<{ data: NotificationPreferences }>(
+    "/api/v1/notifications/preferences",
+    {
+      method: "PUT",
+      body: JSON.stringify(update),
+    },
+  )
   return data.data
 }

@@ -2,6 +2,8 @@ package submission
 
 import (
 	"context"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -54,19 +56,8 @@ func (c *Controller) PreCheck(ginCtx *gin.Context) (*models.ComplianceReport, er
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "file is required")
 	}
 
-	// Save uploaded file temporarily
-	pattern := "precheck-*"
-	if ext := filepath.Ext(file.Filename); ext != "" {
-		pattern += ext
-	}
-	tempFile, err := os.CreateTemp("", pattern)
+	tempFilePath, err := savePrecheckUploadToTemp(file)
 	if err != nil {
-		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to prepare temporary file")
-	}
-	tempFilePath := tempFile.Name()
-	_ = tempFile.Close()
-
-	if err := ginCtx.SaveUploadedFile(file, tempFilePath); err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to save file")
 	}
 	defer os.Remove(tempFilePath) // Clean up temp file
@@ -180,4 +171,29 @@ func mapPrecheckError(err error) error {
 		"category": drerrors.CategoryPipeline,
 		"message":  err.Error(),
 	})
+}
+
+func savePrecheckUploadToTemp(file *multipart.FileHeader) (string, error) {
+	pattern := "precheck-*"
+	if ext := filepath.Ext(file.Filename); ext != "" {
+		pattern += ext
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		return "", err
+	}
+	defer src.Close()
+
+	tempFile, err := os.CreateTemp("", pattern)
+	if err != nil {
+		return "", err
+	}
+	defer tempFile.Close()
+
+	if _, err := io.Copy(tempFile, src); err != nil {
+		return "", err
+	}
+
+	return tempFile.Name(), nil
 }

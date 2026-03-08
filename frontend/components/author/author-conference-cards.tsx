@@ -2,6 +2,8 @@
 
 import type { ReactNode } from "react"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { tStatic as t } from "@/lib/i18n/static-translate"
 
 // -------------------------------------------------------------------------
 // Types
@@ -42,37 +44,37 @@ const STATUS_CONFIG: Record<
   { label: string; className: string; icon?: string }
 > = {
   submitted: {
-    label: "Submitted",
+    label: t("runtime.components.author.author-conference-cards.prop_label_submitted"),
     className:
       "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
     icon: "send",
   },
   "under-review": {
-    label: "Under Review",
+    label: t("runtime.components.author.author-conference-cards.prop_label_under_review"),
     className:
       "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700",
     icon: "hourglass_top",
   },
   accepted: {
-    label: "Accepted",
+    label: t("runtime.components.author.author-conference-cards.prop_label_accepted"),
     className:
       "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700",
     icon: "check_circle",
   },
   rejected: {
-    label: "Rejected",
+    label: t("runtime.components.author.author-conference-cards.prop_label_rejected"),
     className:
       "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700",
     icon: "cancel",
   },
   "revision-requested": {
-    label: "Revision Requested",
+    label: t("runtime.components.author.author-conference-cards.prop_label_revision_requested"),
     className:
       "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700",
     icon: "edit_note",
   },
   bookmarked: {
-    label: "Bookmarked",
+    label: t("runtime.components.author.author-conference-cards.prop_label_bookmarked"),
     className:
       "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600",
     icon: "bookmark",
@@ -88,6 +90,7 @@ interface StatusBadgeProps {
 }
 
 export function AuthorStatusBadge({ status }: StatusBadgeProps) {
+  const { t } = useTranslation()
   const config = STATUS_CONFIG[status]
   return (
     <span
@@ -255,7 +258,9 @@ export function ReviewProgressSection({ progress, paperTitle }: ReviewProgressSe
       <div className="space-y-2">
         {paperTitle && (
           <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 line-clamp-1">
-            &quot;{paperTitle}&quot;
+            {t("runtime.components.author.author-conference-cards.text_text")}
+            {paperTitle}
+            {t("runtime.components.author.author-conference-cards.text_text")}{" "}
           </p>
         )}
         <div className="flex items-center gap-2">
@@ -269,7 +274,9 @@ export function ReviewProgressSection({ progress, paperTitle }: ReviewProgressSe
             {progress}%
           </span>
         </div>
-        <p className="text-[9px] text-slate-400">Review in progress</p>
+        <p className="text-[9px] text-slate-400">
+          {t("runtime.components.author.author-conference-cards.text_review_in_progress")}
+        </p>
       </div>
     </div>
   )
@@ -286,7 +293,10 @@ export function DeadlineSection({ deadline, label, isUrgent }: DeadlineSectionPr
     <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3 border border-slate-100 dark:border-slate-600">
       <div className="flex items-center gap-2">
         <span
-          className={cn("material-symbols-outlined", isUrgent ? "text-orange-500" : "text-slate-400")}
+          className={cn(
+            "material-symbols-outlined",
+            isUrgent ? "text-orange-500" : "text-slate-400",
+          )}
           style={{
             fontSize: "17.5px",
             width: "17.5px",
@@ -346,10 +356,14 @@ export function AcceptedSection({ paperTitle }: AcceptedSectionProps) {
           celebration
         </span>
         <div>
-          <p className="text-[10px] font-bold">Paper Accepted</p>
+          <p className="text-[10px] font-bold">
+            {t("runtime.components.author.author-conference-cards.text_paper_accepted")}
+          </p>
           {paperTitle && (
             <p className="text-[9px] text-slate-400 dark:text-slate-500 line-clamp-1">
-              &quot;{paperTitle}&quot;
+              {t("runtime.components.author.author-conference-cards.text_text")}
+              {paperTitle}
+              {t("runtime.components.author.author-conference-cards.text_text")}{" "}
             </p>
           )}
         </div>
@@ -373,10 +387,14 @@ export function RejectedSection({ paperTitle }: RejectedSectionProps) {
           info
         </span>
         <div>
-          <p className="text-[10px] font-medium">Decision: Not Accepted</p>
+          <p className="text-[10px] font-medium">
+            {t("runtime.components.author.author-conference-cards.text_decision_not_accepted")}
+          </p>
           {paperTitle && (
             <p className="text-[9px] text-slate-400 dark:text-slate-500 line-clamp-1">
-              &quot;{paperTitle}&quot;
+              {t("runtime.components.author.author-conference-cards.text_text")}
+              {paperTitle}
+              {t("runtime.components.author.author-conference-cards.text_text")}{" "}
             </p>
           )}
         </div>
@@ -396,11 +414,16 @@ export function SubmittedSection({ paperTitle, submissionDate }: SubmittedSectio
       <div className="space-y-2">
         {paperTitle && (
           <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 line-clamp-2">
-            &quot;{paperTitle}&quot;
+            {t("runtime.components.author.author-conference-cards.text_text")}
+            {paperTitle}
+            {t("runtime.components.author.author-conference-cards.text_text")}{" "}
           </p>
         )}
         {submissionDate && (
-          <p className="text-[9px] text-slate-400">Submitted on {submissionDate}</p>
+          <p className="text-[9px] text-slate-400">
+            {t("runtime.components.author.author-conference-cards.text_submitted_on")}{" "}
+            {submissionDate}
+          </p>
         )}
       </div>
     </div>
@@ -456,9 +479,11 @@ export function SubmittedCard({ conference, onNavigate }: AuthorConferenceCardPr
       onClick={() => onNavigate(conference.id)}
       footer={
         <div className="flex gap-2">
-          <ActionButton variant="secondary">Track Status</ActionButton>
+          <ActionButton variant="secondary" onClick={() => onNavigate(conference.id)}>
+            {t("runtime.components.author.author-conference-cards.text_track_status")}
+          </ActionButton>
           <ActionButton variant="primary" onClick={() => onNavigate(conference.id)}>
-            View Submission
+            {t("runtime.components.author.author-conference-cards.text_view_submission")}{" "}
           </ActionButton>
         </div>
       }
@@ -478,9 +503,11 @@ export function UnderReviewCard({ conference, onNavigate }: AuthorConferenceCard
       onClick={() => onNavigate(conference.id)}
       footer={
         <div className="flex gap-2">
-          <ActionButton variant="secondary">View Reviews</ActionButton>
+          <ActionButton variant="secondary" onClick={() => onNavigate(conference.id)}>
+            {t("runtime.components.author.author-conference-cards.text_view_reviews")}
+          </ActionButton>
           <ActionButton variant="primary" onClick={() => onNavigate(conference.id)}>
-            Track Progress
+            {t("runtime.components.author.author-conference-cards.text_track_progress")}{" "}
           </ActionButton>
         </div>
       }
@@ -500,9 +527,11 @@ export function AcceptedCard({ conference, onNavigate }: AuthorConferenceCardPro
       onClick={() => onNavigate(conference.id)}
       footer={
         <div className="flex gap-2">
-          <ActionButton variant="secondary">View Details</ActionButton>
+          <ActionButton variant="secondary" onClick={() => onNavigate(conference.id)}>
+            {t("runtime.components.author.author-conference-cards.text_view_details")}
+          </ActionButton>
           <ActionButton variant="primary" onClick={() => onNavigate(conference.id)}>
-            Camera Ready
+            {t("runtime.components.author.author-conference-cards.text_camera_ready")}{" "}
           </ActionButton>
         </div>
       }
@@ -523,7 +552,7 @@ export function RejectedCard({ conference, onNavigate }: AuthorConferenceCardPro
           onClick={() => onNavigate(conference.id)}
           className="w-full"
         >
-          View Feedback
+          {t("runtime.components.author.author-conference-cards.text_view_feedback")}{" "}
         </ActionButton>
       }
     >
@@ -539,9 +568,11 @@ export function RevisionRequestedCard({ conference, onNavigate }: AuthorConferen
       onClick={() => onNavigate(conference.id)}
       footer={
         <div className="flex gap-2">
-          <ActionButton variant="secondary">View Reviews</ActionButton>
+          <ActionButton variant="secondary" onClick={() => onNavigate(conference.id)}>
+            {t("runtime.components.author.author-conference-cards.text_view_reviews")}
+          </ActionButton>
           <ActionButton variant="primary" onClick={() => onNavigate(conference.id)}>
-            Submit Revision
+            {t("runtime.components.author.author-conference-cards.text_submit_revision")}{" "}
           </ActionButton>
         </div>
       }
@@ -564,9 +595,11 @@ export function BookmarkedCard({ conference, onNavigate }: AuthorConferenceCardP
       onClick={() => onNavigate(conference.id)}
       footer={
         <div className="flex gap-2">
-          <ActionButton variant="secondary">View CFP</ActionButton>
+          <ActionButton variant="secondary" onClick={() => onNavigate(conference.id)}>
+            {t("runtime.components.author.author-conference-cards.text_view_cfp")}
+          </ActionButton>
           <ActionButton variant="primary" onClick={() => onNavigate(conference.id)}>
-            Submit Paper
+            {t("runtime.components.author.author-conference-cards.text_submit_paper")}{" "}
           </ActionButton>
         </div>
       }

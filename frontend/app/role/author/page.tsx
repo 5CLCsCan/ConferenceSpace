@@ -5,8 +5,10 @@ import { AuthorConferences } from "@/components/author/author-conferences"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { getSidebarMenuItems } from "@/lib/navigation"
 import { useNotifications } from "@/hooks/use-notifications"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export default function AuthorPage() {
+  const { t } = useTranslation()
   const { unreadCount } = useNotifications({ limit: 1 })
 
   return (
@@ -18,7 +20,7 @@ export default function AuthorPage() {
           <Suspense
             fallback={
               <div className="flex items-center justify-center h-full text-slate-400">
-                Loading Conferences...
+                {t("runtime.app.role.author.page.text_loading_conferences")}{" "}
               </div>
             }
           >

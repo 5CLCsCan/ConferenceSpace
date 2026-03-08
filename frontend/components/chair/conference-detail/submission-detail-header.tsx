@@ -6,12 +6,34 @@ import { ROUTES } from "@/lib/routes"
 import type { ConferenceInfo } from "./types"
 import type { SubmissionSubTab, SubmissionDetailStatus } from "./submission-detail/types"
 import { SubmissionStatusBadge } from "./submission-detail/components"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { tStatic as t } from "@/lib/i18n/static-translate"
 
 const SUB_TABS: { id: SubmissionSubTab; label: string }[] = [
-  { id: "overview", label: "Overview" },
-  { id: "reviews", label: "Reviews & Feedback" },
-  { id: "discussion", label: "Discussion" },
-  { id: "history", label: "History" },
+  {
+    id: "overview",
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail-header.prop_label_overview",
+    ),
+  },
+  {
+    id: "reviews",
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail-header.prop_label_reviews_feedback",
+    ),
+  },
+  {
+    id: "discussion",
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail-header.prop_label_discussion",
+    ),
+  },
+  {
+    id: "history",
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail-header.prop_label_history",
+    ),
+  },
 ]
 
 interface SubmissionDetailHeaderProps {
@@ -37,6 +59,7 @@ export function SubmissionDetailHeader({
   onTabChange,
   className,
 }: SubmissionDetailHeaderProps) {
+  const { t } = useTranslation()
   const router = useRouter()
 
   return (
@@ -58,7 +81,11 @@ export function SubmissionDetailHeader({
               <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
                 folder_open
               </span>
-              <span>Conferences</span>
+              <span>
+                {t(
+                  "runtime.components.chair.conference-detail.submission-detail-header.text_conferences",
+                )}
+              </span>
             </button>
             <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
               chevron_right
@@ -76,13 +103,18 @@ export function SubmissionDetailHeader({
               onClick={() => router.push(ROUTES.CHAIR.CONFERENCE_SUBMISSIONS(conferenceId))}
               className="hover:text-[#1B3C53] dark:hover:text-white transition-colors"
             >
-              Submissions
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail-header.text_submissions",
+              )}{" "}
             </button>
             <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
               chevron_right
             </span>
             <span className="font-semibold text-[#1B3C53] dark:text-white">
-              Submission {submissionDisplayId}
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail-header.text_submission",
+              )}{" "}
+              {submissionDisplayId}
             </span>
           </div>
 
@@ -93,7 +125,9 @@ export function SubmissionDetailHeader({
             </h1>
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
               <span>
-                Track:{" "}
+                {t(
+                  "runtime.components.chair.conference-detail.submission-detail-header.text_track",
+                )}{" "}
                 <strong className="text-slate-700 dark:text-slate-300">{submissionTrack}</strong>
               </span>
               <SubmissionStatusBadge status={submissionStatus} />
@@ -112,7 +146,9 @@ export function SubmissionDetailHeader({
             <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
               settings
             </span>
-            Settings
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail-header.text_settings",
+            )}{" "}
           </button>
         </div>
       </div>

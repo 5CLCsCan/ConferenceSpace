@@ -6,8 +6,10 @@ import { AuthorConferenceDetail } from "@/components/author/author-conference-de
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { getSidebarMenuItems } from "@/lib/navigation"
 import { useNotifications } from "@/hooks/use-notifications"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export default function AuthorConferenceDetailPage() {
+  const { t } = useTranslation()
   const { unreadCount } = useNotifications({ limit: 1 })
   const params = useParams()
   const conferenceId = params?.conferenceId as string
@@ -23,7 +25,9 @@ export default function AuthorConferenceDetailPage() {
       <Suspense
         fallback={
           <div className="flex items-center justify-center h-screen w-full text-slate-400">
-            Loading Conference Details...
+            {t(
+              "runtime.app.role.author.conferences.conferenceId.page.text_loading_conference_details",
+            )}{" "}
           </div>
         }
       >

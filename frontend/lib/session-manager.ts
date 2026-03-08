@@ -3,12 +3,14 @@ import { USER_STORAGE_KEY, ROLE_STORAGE_KEY } from "./config"
 import { canAccessRole } from "./role-access"
 
 const VALID_USER_ROLES: UserRole[] = ["author", "reviewer", "chair", "admin"]
+type StoragePreference = "local" | "session"
 
 class SessionManager {
   private static instance: SessionManager | null = null
   private user: User | null = null
   private currentRole: UserRole | null = null
   private allowRoleChange: boolean = false
+  private storagePreference: StoragePreference = "local"
 
   private constructor() {
     this.loadFromStorage()
@@ -22,7 +24,23 @@ class SessionManager {
   }
 
   private isBrowser(): boolean {
-    return typeof window !== "undefined" && typeof localStorage !== "undefined"
+    return typeof window !== "undefined"
+  }
+
+  private getStorage(storageType: StoragePreference): Storage | null {
+    if (!this.isBrowser()) {
+      return null
+    }
+
+    try {
+      return storageType === "local" ? window.localStorage : window.sessionStorage
+    } catch {
+      return null
+    }
+  }
+
+  private getInactiveStorageType(): StoragePreference {
+    return this.storagePreference === "local" ? "session" : "local"
   }
 
   private normalizeRoles(rawRoles: unknown): UserRole[] {
@@ -71,31 +89,63 @@ class SessionManager {
     }
   }
 
-  private loadFromStorage(): void {
-    if (!this.isBrowser()) {
-      return
+  private readUserFromStorage(storageType: StoragePreference): User | null {
+    const storage = this.getStorage(storageType)
+    if (!storage) {
+      return null
     }
 
     try {
-      const storedUser = localStorage.getItem(USER_STORAGE_KEY)
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser) as User
-        this.user = this.normalizeSessionUser(parsedUser)
-        this.persistUser()
+      const storedUser = storage.getItem(USER_STORAGE_KEY)
+      if (!storedUser) {
+        return null
       }
 
-      const storedRole = localStorage.getItem(ROLE_STORAGE_KEY) as UserRole | null
+      const parsedUser = JSON.parse(storedUser) as User
+      return this.normalizeSessionUser(parsedUser)
+    } catch {
+      return null
+    }
+  }
 
+  private readRoleFromStorage(storageType: StoragePreference): UserRole | null {
+    const storage = this.getStorage(storageType)
+    if (!storage) {
+      return null
+    }
+
+    try {
+      const storedRole = storage.getItem(ROLE_STORAGE_KEY) as UserRole | null
       if (storedRole && VALID_USER_ROLES.includes(storedRole)) {
-        this.currentRole = storedRole
-      } else {
-        this.currentRole = null
+        return storedRole
       }
+      return null
+    } catch {
+      return null
+    }
+  }
 
-      this.reconcileRoleWithUser()
-    } catch (error) {
+  private loadFromStorage(): void {
+    const sessionUser = this.readUserFromStorage("session")
+    const localUser = this.readUserFromStorage("local")
+
+    if (sessionUser) {
+      this.user = sessionUser
+      this.storagePreference = "session"
+    } else if (localUser) {
+      this.user = localUser
+      this.storagePreference = "local"
+    } else {
       this.user = null
-      this.currentRole = null
+      this.storagePreference = "local"
+    }
+
+    this.currentRole = this.readRoleFromStorage(this.storagePreference)
+    this.reconcileRoleWithUser()
+    this.persistUser()
+
+    if (this.currentRole) {
+      this.persistRole()
     }
   }
 
@@ -111,7 +161,11 @@ class SessionManager {
     return this.user !== null && this.user.email !== undefined
   }
 
-  setUser(user: User, preserveRole: boolean = true): void {
+  setUser(user: User, preserveRole: boolean = true, rememberMe?: boolean): void {
+    if (typeof rememberMe === "boolean") {
+      this.storagePreference = rememberMe ? "local" : "session"
+    }
+
     this.user = this.normalizeSessionUser(user)
     this.persistUser()
 
@@ -163,37 +217,45 @@ class SessionManager {
   }
 
   private persistUser(): void {
-    if (!this.isBrowser() || !this.user) {
+    if (!this.user) {
       return
     }
 
+    const activeStorage = this.getStorage(this.storagePreference)
+    const inactiveStorage = this.getStorage(this.getInactiveStorageType())
+
     try {
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(this.user))
-    } catch (error) {
-      // Silently fail - localStorage might be disabled
+      activeStorage?.setItem(USER_STORAGE_KEY, JSON.stringify(this.user))
+      inactiveStorage?.removeItem(USER_STORAGE_KEY)
+    } catch {
+      // Silently fail - storage might be unavailable
     }
   }
 
   private persistRole(): void {
-    if (!this.isBrowser() || !this.currentRole) {
+    if (!this.currentRole) {
       return
     }
 
+    const activeStorage = this.getStorage(this.storagePreference)
+    const inactiveStorage = this.getStorage(this.getInactiveStorageType())
+
     try {
-      localStorage.setItem(ROLE_STORAGE_KEY, this.currentRole)
-    } catch (error) {
-      // Silently fail - localStorage might be disabled
+      activeStorage?.setItem(ROLE_STORAGE_KEY, this.currentRole)
+      inactiveStorage?.removeItem(ROLE_STORAGE_KEY)
+    } catch {
+      // Silently fail - storage might be unavailable
     }
   }
 
   private clearRole(): void {
-    if (!this.isBrowser()) {
-      return
-    }
+    const localStorageRef = this.getStorage("local")
+    const sessionStorageRef = this.getStorage("session")
 
     try {
-      localStorage.removeItem(ROLE_STORAGE_KEY)
-    } catch (error) {
+      localStorageRef?.removeItem(ROLE_STORAGE_KEY)
+      sessionStorageRef?.removeItem(ROLE_STORAGE_KEY)
+    } catch {
       // Silently fail
     }
   }
@@ -202,15 +264,17 @@ class SessionManager {
     this.user = null
     this.currentRole = null
     this.allowRoleChange = false
+    this.storagePreference = "local"
 
-    if (!this.isBrowser()) {
-      return
-    }
+    const localStorageRef = this.getStorage("local")
+    const sessionStorageRef = this.getStorage("session")
 
     try {
-      localStorage.removeItem(USER_STORAGE_KEY)
-      localStorage.removeItem(ROLE_STORAGE_KEY)
-    } catch (error) {
+      localStorageRef?.removeItem(USER_STORAGE_KEY)
+      localStorageRef?.removeItem(ROLE_STORAGE_KEY)
+      sessionStorageRef?.removeItem(USER_STORAGE_KEY)
+      sessionStorageRef?.removeItem(ROLE_STORAGE_KEY)
+    } catch {
       // Silently fail
     }
   }

@@ -57,9 +57,7 @@ describe("suggestions API", () => {
 
       const result = await getSuggestions("123")
 
-      expect(mockApiFetch).toHaveBeenCalledWith(
-        "/api/v1/conferences/123/assignments/suggestions",
-      )
+      expect(mockApiFetch).toHaveBeenCalledWith("/api/v1/conferences/123/assignments/suggestions")
       expect(result.data).toEqual(mockResponse)
       expect(result.error).toBeNull()
       expect(result.status).toBe(200)
@@ -223,13 +221,10 @@ describe("suggestions API", () => {
 
       const result = await addSuggestion("123", 1, 10)
 
-      expect(mockApiFetch).toHaveBeenCalledWith(
-        "/api/v1/conferences/123/assignments/suggestions",
-        {
-          method: "POST",
-          body: JSON.stringify({ submission_id: 1, reviewer_id: 10 }),
-        },
-      )
+      expect(mockApiFetch).toHaveBeenCalledWith("/api/v1/conferences/123/assignments/suggestions", {
+        method: "POST",
+        body: JSON.stringify({ submission_id: 1, reviewer_id: 10 }),
+      })
       expect(result.data).toEqual(mockResponse)
       expect(result.data?.coi_warning).toBeUndefined()
       expect(result.status).toBe(201)
@@ -310,9 +305,7 @@ describe("suggestions API", () => {
 
       const result = await getConfirmedAssignments("123")
 
-      expect(mockApiFetch).toHaveBeenCalledWith(
-        "/api/v1/conferences/123/assignments/confirmed",
-      )
+      expect(mockApiFetch).toHaveBeenCalledWith("/api/v1/conferences/123/assignments/confirmed")
       expect(result.data).toEqual(mockResponse)
       expect(result.error).toBeNull()
       expect(result.status).toBe(200)

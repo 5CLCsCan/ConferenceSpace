@@ -4,6 +4,22 @@ import { ConferenceAssignments } from "../conference-assignments"
 import * as suggestionsApi from "@/lib/api/suggestions"
 import * as conferencesApi from "@/lib/api/conferences"
 
+vi.mock("@/lib/i18n/translation-context", async () => {
+  const { tStatic } = await vi.importActual<typeof import("@/lib/i18n/static-translate")>(
+    "@/lib/i18n/static-translate",
+  )
+
+  return {
+    useTranslation: () => ({
+      locale: "en",
+      messages: {},
+      setLocale: vi.fn(),
+      t: tStatic,
+      tList: () => [],
+    }),
+  }
+})
+
 // Mock the API modules
 vi.mock("@/lib/api/suggestions", () => ({
   getSuggestions: vi.fn(),
@@ -19,13 +35,18 @@ vi.mock("@/lib/api/conferences", () => ({
 
 describe("ConferenceAssignments", () => {
   const mockGetSuggestions = suggestionsApi.getSuggestions as ReturnType<typeof vi.fn>
-  const mockGetConfirmedAssignments = suggestionsApi.getConfirmedAssignments as ReturnType<typeof vi.fn>
+  const mockGetConfirmedAssignments = suggestionsApi.getConfirmedAssignments as ReturnType<
+    typeof vi.fn
+  >
   const mockConfirmSuggestions = suggestionsApi.confirmSuggestions as ReturnType<typeof vi.fn>
   const mockDeleteSuggestion = suggestionsApi.deleteSuggestion as ReturnType<typeof vi.fn>
-  const mockGetConferenceReviewers = conferencesApi.getConferenceReviewers as ReturnType<typeof vi.fn>
+  const mockGetConferenceReviewers = conferencesApi.getConferenceReviewers as ReturnType<
+    typeof vi.fn
+  >
 
   beforeEach(() => {
     vi.clearAllMocks()
+    localStorage.setItem("conference_locale", "en")
   })
 
   afterEach(() => {
@@ -36,7 +57,11 @@ describe("ConferenceAssignments", () => {
     it("should show loading state for suggestions tab", async () => {
       // Create a promise that never resolves to keep loading state
       mockGetSuggestions.mockReturnValue(new Promise(() => {}))
-      mockGetConfirmedAssignments.mockResolvedValue({ data: { assignments: [], total_papers: 0, total_assignments: 0 }, error: null, status: 200 })
+      mockGetConfirmedAssignments.mockResolvedValue({
+        data: { assignments: [], total_papers: 0, total_assignments: 0 },
+        error: null,
+        status: 200,
+      })
 
       render(<ConferenceAssignments conferenceId="123" />)
 
@@ -44,7 +69,11 @@ describe("ConferenceAssignments", () => {
     })
 
     it("should show loading state for confirmed tab when switched", async () => {
-      mockGetSuggestions.mockResolvedValue({ data: { suggestions: [], total_papers: 0, total_suggestions: 0 }, error: null, status: 200 })
+      mockGetSuggestions.mockResolvedValue({
+        data: { suggestions: [], total_papers: 0, total_suggestions: 0 },
+        error: null,
+        status: 200,
+      })
       // Create a promise that never resolves to keep loading state
       mockGetConfirmedAssignments.mockReturnValue(new Promise(() => {}))
 
@@ -118,7 +147,12 @@ describe("ConferenceAssignments", () => {
             submission_id: 1,
             submission_title: "Test Paper",
             reviewers: [
-              { assignment_id: 100, reviewer_id: 10, reviewer_email: "reviewer@test.com", score: 0.85 },
+              {
+                assignment_id: 100,
+                reviewer_id: 10,
+                reviewer_email: "reviewer@test.com",
+                score: 0.85,
+              },
             ],
           },
         ],
@@ -148,7 +182,11 @@ describe("ConferenceAssignments", () => {
       }
 
       mockGetSuggestions.mockResolvedValue({ data: mockSuggestions, error: null, status: 200 })
-      mockGetConfirmedAssignments.mockResolvedValue({ data: mockConfirmed, error: null, status: 200 })
+      mockGetConfirmedAssignments.mockResolvedValue({
+        data: mockConfirmed,
+        error: null,
+        status: 200,
+      })
 
       render(<ConferenceAssignments conferenceId="123" />)
 
@@ -178,7 +216,9 @@ describe("ConferenceAssignments", () => {
           {
             submission_id: 1,
             submission_title: "Paper 1",
-            reviewers: [{ assignment_id: 100, reviewer_id: 10, reviewer_email: "r1@test.com", score: 0.8 }],
+            reviewers: [
+              { assignment_id: 100, reviewer_id: 10, reviewer_email: "r1@test.com", score: 0.8 },
+            ],
           },
           {
             submission_id: 2,
@@ -199,8 +239,22 @@ describe("ConferenceAssignments", () => {
             submission_id: 3,
             submission_title: "Paper 3",
             reviewers: [
-              { assignment_id: 200, reviewer_id: 20, reviewer_email: "c1@test.com", score: 0.9, status: "accepted", review_status: "in_progress" },
-              { assignment_id: 201, reviewer_id: 21, reviewer_email: "c2@test.com", score: 0.85, status: "pending", review_status: "not_started" },
+              {
+                assignment_id: 200,
+                reviewer_id: 20,
+                reviewer_email: "c1@test.com",
+                score: 0.9,
+                status: "accepted",
+                review_status: "in_progress",
+              },
+              {
+                assignment_id: 201,
+                reviewer_id: 21,
+                reviewer_email: "c2@test.com",
+                score: 0.85,
+                status: "pending",
+                review_status: "not_started",
+              },
             ],
           },
         ],
@@ -209,7 +263,11 @@ describe("ConferenceAssignments", () => {
       }
 
       mockGetSuggestions.mockResolvedValue({ data: mockSuggestions, error: null, status: 200 })
-      mockGetConfirmedAssignments.mockResolvedValue({ data: mockConfirmed, error: null, status: 200 })
+      mockGetConfirmedAssignments.mockResolvedValue({
+        data: mockConfirmed,
+        error: null,
+        status: 200,
+      })
 
       render(<ConferenceAssignments conferenceId="123" />)
 
@@ -229,8 +287,18 @@ describe("ConferenceAssignments", () => {
             submission_id: 1,
             submission_title: "Machine Learning Paper",
             reviewers: [
-              { assignment_id: 100, reviewer_id: 10, reviewer_email: "alice@example.com", score: 0.95 },
-              { assignment_id: 101, reviewer_id: 11, reviewer_email: "bob@example.com", score: 0.75 },
+              {
+                assignment_id: 100,
+                reviewer_id: 10,
+                reviewer_email: "alice@example.com",
+                score: 0.95,
+              },
+              {
+                assignment_id: 101,
+                reviewer_id: 11,
+                reviewer_email: "bob@example.com",
+                score: 0.75,
+              },
             ],
           },
         ],
@@ -239,7 +307,11 @@ describe("ConferenceAssignments", () => {
       }
 
       mockGetSuggestions.mockResolvedValue({ data: mockData, error: null, status: 200 })
-      mockGetConfirmedAssignments.mockResolvedValue({ data: { assignments: [], total_papers: 0, total_assignments: 0 }, error: null, status: 200 })
+      mockGetConfirmedAssignments.mockResolvedValue({
+        data: { assignments: [], total_papers: 0, total_assignments: 0 },
+        error: null,
+        status: 200,
+      })
 
       render(<ConferenceAssignments conferenceId="123" />)
 
@@ -247,7 +319,12 @@ describe("ConferenceAssignments", () => {
         expect(screen.getByText("#1 - Machine Learning Paper")).toBeInTheDocument()
         expect(screen.getByText("alice@example.com")).toBeInTheDocument()
         expect(screen.getByText("bob@example.com")).toBeInTheDocument()
-        expect(screen.getByText("2 suggested reviewers")).toBeInTheDocument()
+        expect(
+          screen.getByText(
+            (_, element) =>
+              element?.textContent?.replace(/\s+/g, " ").trim() === "2 suggested reviewer s",
+          ),
+        ).toBeInTheDocument()
       })
     })
 
@@ -257,7 +334,9 @@ describe("ConferenceAssignments", () => {
           {
             submission_id: 1,
             submission_title: "Test Paper",
-            reviewers: [{ assignment_id: 100, reviewer_id: 10, reviewer_email: "test@test.com", score: 0.8 }],
+            reviewers: [
+              { assignment_id: 100, reviewer_id: 10, reviewer_email: "test@test.com", score: 0.8 },
+            ],
           },
         ],
         total_papers: 1,
@@ -265,7 +344,11 @@ describe("ConferenceAssignments", () => {
       }
 
       mockGetSuggestions.mockResolvedValue({ data: mockData, error: null, status: 200 })
-      mockGetConfirmedAssignments.mockResolvedValue({ data: { assignments: [], total_papers: 0, total_assignments: 0 }, error: null, status: 200 })
+      mockGetConfirmedAssignments.mockResolvedValue({
+        data: { assignments: [], total_papers: 0, total_assignments: 0 },
+        error: null,
+        status: 200,
+      })
 
       render(<ConferenceAssignments conferenceId="123" />)
 
@@ -275,8 +358,16 @@ describe("ConferenceAssignments", () => {
     })
 
     it("should not show Confirm All button when no suggestions", async () => {
-      mockGetSuggestions.mockResolvedValue({ data: { suggestions: [], total_papers: 0, total_suggestions: 0 }, error: null, status: 200 })
-      mockGetConfirmedAssignments.mockResolvedValue({ data: { assignments: [], total_papers: 0, total_assignments: 0 }, error: null, status: 200 })
+      mockGetSuggestions.mockResolvedValue({
+        data: { suggestions: [], total_papers: 0, total_suggestions: 0 },
+        error: null,
+        status: 200,
+      })
+      mockGetConfirmedAssignments.mockResolvedValue({
+        data: { assignments: [], total_papers: 0, total_assignments: 0 },
+        error: null,
+        status: 200,
+      })
 
       render(<ConferenceAssignments conferenceId="123" />)
 
@@ -309,8 +400,16 @@ describe("ConferenceAssignments", () => {
         total_assignments: 1,
       }
 
-      mockGetSuggestions.mockResolvedValue({ data: { suggestions: [], total_papers: 0, total_suggestions: 0 }, error: null, status: 200 })
-      mockGetConfirmedAssignments.mockResolvedValue({ data: mockConfirmed, error: null, status: 200 })
+      mockGetSuggestions.mockResolvedValue({
+        data: { suggestions: [], total_papers: 0, total_suggestions: 0 },
+        error: null,
+        status: 200,
+      })
+      mockGetConfirmedAssignments.mockResolvedValue({
+        data: mockConfirmed,
+        error: null,
+        status: 200,
+      })
 
       render(<ConferenceAssignments conferenceId="123" />)
 
@@ -335,9 +434,30 @@ describe("ConferenceAssignments", () => {
             submission_id: 1,
             submission_title: "Paper with Multiple Reviewers",
             reviewers: [
-              { assignment_id: 100, reviewer_id: 10, reviewer_email: "accepted@test.com", score: 0.9, status: "accepted", review_status: "in_progress" },
-              { assignment_id: 101, reviewer_id: 11, reviewer_email: "declined@test.com", score: 0.8, status: "declined", review_status: "not_started" },
-              { assignment_id: 102, reviewer_id: 12, reviewer_email: "completed@test.com", score: 0.85, status: "completed", review_status: "submitted" },
+              {
+                assignment_id: 100,
+                reviewer_id: 10,
+                reviewer_email: "accepted@test.com",
+                score: 0.9,
+                status: "accepted",
+                review_status: "in_progress",
+              },
+              {
+                assignment_id: 101,
+                reviewer_id: 11,
+                reviewer_email: "declined@test.com",
+                score: 0.8,
+                status: "declined",
+                review_status: "not_started",
+              },
+              {
+                assignment_id: 102,
+                reviewer_id: 12,
+                reviewer_email: "completed@test.com",
+                score: 0.85,
+                status: "completed",
+                review_status: "submitted",
+              },
             ],
           },
         ],
@@ -345,8 +465,16 @@ describe("ConferenceAssignments", () => {
         total_assignments: 3,
       }
 
-      mockGetSuggestions.mockResolvedValue({ data: { suggestions: [], total_papers: 0, total_suggestions: 0 }, error: null, status: 200 })
-      mockGetConfirmedAssignments.mockResolvedValue({ data: mockConfirmed, error: null, status: 200 })
+      mockGetSuggestions.mockResolvedValue({
+        data: { suggestions: [], total_papers: 0, total_suggestions: 0 },
+        error: null,
+        status: 200,
+      })
+      mockGetConfirmedAssignments.mockResolvedValue({
+        data: mockConfirmed,
+        error: null,
+        status: 200,
+      })
 
       render(<ConferenceAssignments conferenceId="123" />)
 
@@ -373,7 +501,9 @@ describe("ConferenceAssignments", () => {
           {
             submission_id: 1,
             submission_title: "Test Paper",
-            reviewers: [{ assignment_id: 100, reviewer_id: 10, reviewer_email: "test@test.com", score: 0.85 }],
+            reviewers: [
+              { assignment_id: 100, reviewer_id: 10, reviewer_email: "test@test.com", score: 0.85 },
+            ],
           },
         ],
         total_papers: 1,
@@ -381,7 +511,11 @@ describe("ConferenceAssignments", () => {
       }
 
       mockGetSuggestions.mockResolvedValue({ data: mockData, error: null, status: 200 })
-      mockGetConfirmedAssignments.mockResolvedValue({ data: { assignments: [], total_papers: 0, total_assignments: 0 }, error: null, status: 200 })
+      mockGetConfirmedAssignments.mockResolvedValue({
+        data: { assignments: [], total_papers: 0, total_assignments: 0 },
+        error: null,
+        status: 200,
+      })
 
       render(<ConferenceAssignments conferenceId="123" />)
 
@@ -396,7 +530,9 @@ describe("ConferenceAssignments", () => {
           {
             submission_id: 1,
             submission_title: "Test Paper",
-            reviewers: [{ assignment_id: 100, reviewer_id: 10, reviewer_email: "test@test.com", score: 0.55 }],
+            reviewers: [
+              { assignment_id: 100, reviewer_id: 10, reviewer_email: "test@test.com", score: 0.55 },
+            ],
           },
         ],
         total_papers: 1,
@@ -404,7 +540,11 @@ describe("ConferenceAssignments", () => {
       }
 
       mockGetSuggestions.mockResolvedValue({ data: mockData, error: null, status: 200 })
-      mockGetConfirmedAssignments.mockResolvedValue({ data: { assignments: [], total_papers: 0, total_assignments: 0 }, error: null, status: 200 })
+      mockGetConfirmedAssignments.mockResolvedValue({
+        data: { assignments: [], total_papers: 0, total_assignments: 0 },
+        error: null,
+        status: 200,
+      })
 
       render(<ConferenceAssignments conferenceId="123" />)
 
@@ -419,7 +559,9 @@ describe("ConferenceAssignments", () => {
           {
             submission_id: 1,
             submission_title: "Test Paper",
-            reviewers: [{ assignment_id: 100, reviewer_id: 10, reviewer_email: "test@test.com", score: 0.25 }],
+            reviewers: [
+              { assignment_id: 100, reviewer_id: 10, reviewer_email: "test@test.com", score: 0.25 },
+            ],
           },
         ],
         total_papers: 1,
@@ -427,7 +569,11 @@ describe("ConferenceAssignments", () => {
       }
 
       mockGetSuggestions.mockResolvedValue({ data: mockData, error: null, status: 200 })
-      mockGetConfirmedAssignments.mockResolvedValue({ data: { assignments: [], total_papers: 0, total_assignments: 0 }, error: null, status: 200 })
+      mockGetConfirmedAssignments.mockResolvedValue({
+        data: { assignments: [], total_papers: 0, total_assignments: 0 },
+        error: null,
+        status: 200,
+      })
 
       render(<ConferenceAssignments conferenceId="123" />)
 
@@ -439,8 +585,16 @@ describe("ConferenceAssignments", () => {
 
   describe("Error handling", () => {
     it("should display error when suggestions API fails", async () => {
-      mockGetSuggestions.mockResolvedValue({ data: null, error: "Failed to load suggestions", status: 500 })
-      mockGetConfirmedAssignments.mockResolvedValue({ data: { assignments: [], total_papers: 0, total_assignments: 0 }, error: null, status: 200 })
+      mockGetSuggestions.mockResolvedValue({
+        data: null,
+        error: "Failed to load suggestions",
+        status: 500,
+      })
+      mockGetConfirmedAssignments.mockResolvedValue({
+        data: { assignments: [], total_papers: 0, total_assignments: 0 },
+        error: null,
+        status: 200,
+      })
 
       render(<ConferenceAssignments conferenceId="123" />)
 
@@ -450,8 +604,16 @@ describe("ConferenceAssignments", () => {
     })
 
     it("should display error when confirmed assignments API fails", async () => {
-      mockGetSuggestions.mockResolvedValue({ data: { suggestions: [], total_papers: 0, total_suggestions: 0 }, error: null, status: 200 })
-      mockGetConfirmedAssignments.mockResolvedValue({ data: null, error: "Failed to load confirmed assignments", status: 500 })
+      mockGetSuggestions.mockResolvedValue({
+        data: { suggestions: [], total_papers: 0, total_suggestions: 0 },
+        error: null,
+        status: 200,
+      })
+      mockGetConfirmedAssignments.mockResolvedValue({
+        data: null,
+        error: "Failed to load confirmed assignments",
+        status: 500,
+      })
 
       render(<ConferenceAssignments conferenceId="123" />)
 
@@ -474,7 +636,9 @@ describe("ConferenceAssignments", () => {
           {
             submission_id: 1,
             submission_title: "Test Paper",
-            reviewers: [{ assignment_id: 100, reviewer_id: 10, reviewer_email: "test@test.com", score: 0.8 }],
+            reviewers: [
+              { assignment_id: 100, reviewer_id: 10, reviewer_email: "test@test.com", score: 0.8 },
+            ],
           },
         ],
         total_papers: 1,
@@ -482,8 +646,16 @@ describe("ConferenceAssignments", () => {
       }
 
       mockGetSuggestions.mockResolvedValue({ data: mockData, error: null, status: 200 })
-      mockGetConfirmedAssignments.mockResolvedValue({ data: { assignments: [], total_papers: 0, total_assignments: 0 }, error: null, status: 200 })
-      mockConfirmSuggestions.mockResolvedValue({ data: { confirmed_count: 1, message: "Confirmed" }, error: null, status: 200 })
+      mockGetConfirmedAssignments.mockResolvedValue({
+        data: { assignments: [], total_papers: 0, total_assignments: 0 },
+        error: null,
+        status: 200,
+      })
+      mockConfirmSuggestions.mockResolvedValue({
+        data: { confirmed_count: 1, message: "Confirmed" },
+        error: null,
+        status: 200,
+      })
 
       render(<ConferenceAssignments conferenceId="123" />)
 
@@ -525,7 +697,11 @@ describe("ConferenceAssignments", () => {
       }
 
       mockGetSuggestions.mockResolvedValue({ data: mockData, error: null, status: 200 })
-      mockGetConfirmedAssignments.mockResolvedValue({ data: { assignments: [], total_papers: 0, total_assignments: 0 }, error: null, status: 200 })
+      mockGetConfirmedAssignments.mockResolvedValue({
+        data: { assignments: [], total_papers: 0, total_assignments: 0 },
+        error: null,
+        status: 200,
+      })
 
       render(<ConferenceAssignments conferenceId="123" />)
 

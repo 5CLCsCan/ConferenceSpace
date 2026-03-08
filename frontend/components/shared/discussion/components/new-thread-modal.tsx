@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { createPortal } from "react-dom"
 import type { NewThreadModalProps, MessageVisibility, ThreadCategory } from "../types"
 import { VISIBILITY_CONFIG, CATEGORY_CONFIG } from "../config"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 const DEFAULT_VISIBILITIES: MessageVisibility[] = ["committee", "reviewers", "authors"]
 
@@ -14,6 +15,7 @@ export function NewThreadModal({
   onSubmit,
   availableVisibilities,
 }: NewThreadModalProps) {
+  const { t } = useTranslation()
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [visibility, setVisibility] = useState<MessageVisibility>("reviewers")
@@ -60,7 +62,11 @@ export function NewThreadModal({
       >
         {/* Header */}
         <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
-          <h2 className="text-sm font-bold text-[#141414] tracking-tight">Start New Discussion</h2>
+          <h2 className="text-sm font-bold text-[#141414] tracking-tight">
+            {t(
+              "runtime.components.shared.discussion.components.new-thread-modal.text_start_new_discussion",
+            )}
+          </h2>
           <button
             onClick={onClose}
             className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
@@ -74,13 +80,17 @@ export function NewThreadModal({
           {/* Title */}
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-              Topic Title
+              {t(
+                "runtime.components.shared.discussion.components.new-thread-modal.text_topic_title",
+              )}{" "}
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g., Concern about baseline methodology"
+              placeholder={t(
+                "runtime.components.shared.discussion.components.new-thread-modal.placeholder_e_g_concern_about_baseline_methodology",
+              )}
               className="w-full h-9 px-3 text-sm text-slate-700 placeholder-slate-400 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-[#1B3C53] focus:ring-1 focus:ring-[#1B3C53]/20"
             />
           </div>
@@ -89,7 +99,9 @@ export function NewThreadModal({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                Visibility
+                {t(
+                  "runtime.components.shared.discussion.components.new-thread-modal.text_visibility",
+                )}{" "}
               </label>
               <div className="relative">
                 <select
@@ -110,7 +122,9 @@ export function NewThreadModal({
             </div>
             <div>
               <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                Category
+                {t(
+                  "runtime.components.shared.discussion.components.new-thread-modal.text_category",
+                )}{" "}
               </label>
               <div className="relative">
                 <select
@@ -144,12 +158,16 @@ export function NewThreadModal({
           {/* Content */}
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-              Message
+              {t(
+                "runtime.components.shared.discussion.components.new-thread-modal.text_message",
+              )}{" "}
             </label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Describe your topic or concern..."
+              placeholder={t(
+                "runtime.components.shared.discussion.components.new-thread-modal.placeholder_describe_your_topic_or_concern",
+              )}
               className="w-full px-3 py-2 text-xs text-slate-700 placeholder-slate-400 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-[#1B3C53] focus:ring-1 focus:ring-[#1B3C53]/20 resize-none"
               rows={5}
             />
@@ -175,7 +193,7 @@ export function NewThreadModal({
             onClick={onClose}
             className="h-8 px-4 text-[11px] font-medium text-slate-600 hover:text-slate-800 rounded-md hover:bg-slate-200 transition-colors"
           >
-            Cancel
+            {t("runtime.components.shared.discussion.components.new-thread-modal.text_cancel")}{" "}
           </button>
           <button
             onClick={handleSubmit}
@@ -183,7 +201,9 @@ export function NewThreadModal({
             className="h-8 px-4 bg-[#1B3C53] hover:bg-[#234C6A] disabled:bg-slate-300 text-white text-[11px] font-bold rounded-md transition-colors disabled:cursor-not-allowed flex items-center gap-1.5"
           >
             <span className="material-symbols-outlined text-[14px]">send</span>
-            Start Discussion
+            {t(
+              "runtime.components.shared.discussion.components.new-thread-modal.text_start_discussion",
+            )}{" "}
           </button>
         </div>
       </div>

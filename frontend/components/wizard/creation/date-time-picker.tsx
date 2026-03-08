@@ -5,6 +5,7 @@ import { format } from "date-fns"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface DateTimePickerProps {
   date: Date | undefined
@@ -23,6 +24,7 @@ export function DateTimePicker({
   minDate,
   className,
 }: DateTimePickerProps) {
+  const { t } = useTranslation()
   const [time, setTime] = React.useState<string>(() => {
     if (date) {
       const hours = date.getHours().toString().padStart(2, "0")
@@ -121,7 +123,7 @@ export function DateTimePicker({
           />
           <div className="p-3 border-t border-slate-200 dark:border-slate-700">
             <label className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest mb-2 block">
-              Time
+              {t("runtime.components.wizard.creation.date-time-picker.text_time")}{" "}
             </label>
             <input
               type="time"

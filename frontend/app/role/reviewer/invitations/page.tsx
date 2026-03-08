@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useCallback } from "react"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { ReviewerInvitations } from "@/components/reviewer/reviewer-invitations"
 import { useNotifications } from "@/hooks/use-notifications"
@@ -9,52 +9,78 @@ import { useAuth } from "@/lib/auth-context"
 import { InvitationsSkeleton } from "@/components/reviewer/loading-skeletons"
 import { getSidebarMenuItems } from "@/lib/navigation"
 
+const PAGE_SIZE = 5
+
 export default function ReviewerInvitationsPage() {
   const { user } = useAuth()
   const { unreadCount } = useNotifications({ limit: 1 })
   const reviewerEmail = user?.email || ""
 
-  const [invitationOffset, setInvitationOffset] = useState(0)
-  const [invitationStatusFilter, setInvitationStatusFilter] = useState("")
-  const [allInvitations, setAllInvitations] = useState<any[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [statusFilter, setStatusFilter] = useState("")
 
-  const { dashboard, isLoading, refresh } = useReviewerDashboard(reviewerEmail, {
-    invitationStatus: invitationStatusFilter,
-    invitationLimit: 20,
-    invitationOffset,
+  const { dashboard, isLoading, isValidating, refresh } = useReviewerDashboard(reviewerEmail, {
+    invitationStatus: statusFilter,
+    invitationLimit: PAGE_SIZE,
+    invitationOffset: (currentPage - 1) * PAGE_SIZE,
     conferenceLimit: 1,
     conferenceOffset: 0,
   })
 
-  useEffect(() => {
-    if (!dashboard?.invitations) {
-      return
-    }
+  // Lightweight calls to get per-status totals for tab badges (invitationLimit: 1 → minimal data transfer)
+  const { dashboard: pendingCountDash } = useReviewerDashboard(reviewerEmail, {
+    invitationStatus: "pending",
+    invitationLimit: 1,
+    invitationOffset: 0,
+    conferenceLimit: 1,
+    conferenceOffset: 0,
+  })
+  const { dashboard: acceptedCountDash } = useReviewerDashboard(reviewerEmail, {
+    invitationStatus: "accepted",
+    invitationLimit: 1,
+    invitationOffset: 0,
+    conferenceLimit: 1,
+    conferenceOffset: 0,
+  })
+  const { dashboard: rejectedCountDash } = useReviewerDashboard(reviewerEmail, {
+    invitationStatus: "rejected",
+    invitationLimit: 1,
+    invitationOffset: 0,
+    conferenceLimit: 1,
+    conferenceOffset: 0,
+  })
 
-    if (invitationOffset === 0) {
-      setAllInvitations(dashboard.invitations)
-      return
-    }
+  const pendingCount = pendingCountDash?.total_invitations ?? 0
+  const acceptedCount = acceptedCountDash?.total_invitations ?? 0
+  const rejectedCount = rejectedCountDash?.total_invitations ?? 0
+  const statusCounts = {
+    all: pendingCount + acceptedCount + rejectedCount,
+    pending: pendingCount,
+    accepted: acceptedCount,
+    rejected: rejectedCount,
+  }
 
-    setAllInvitations((prev) => {
-      const existingIds = new Set(prev.map((invitation) => invitation.id))
-      const newItems = dashboard.invitations.filter((invitation: any) => !existingIds.has(invitation.id))
-      return [...prev, ...newItems]
-    })
-  }, [dashboard?.invitations, invitationOffset])
+  const invitations = dashboard?.invitations || []
+  const total = dashboard?.total_invitations ?? 0
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
-  useEffect(() => {
-    setInvitationOffset(0)
-    setAllInvitations([])
-  }, [invitationStatusFilter])
+  const handlePageChange = useCallback(
+    (page: number) => {
+      if (page >= 1 && page <= totalPages) {
+        setCurrentPage(page)
+      }
+    },
+    [totalPages],
+  )
+
+  const handleStatusFilterChange = useCallback((status: string) => {
+    setStatusFilter(status === "all" ? "" : status)
+    setCurrentPage(1)
+  }, [])
 
   if (!user) {
     return null
   }
-
-  const hasMoreInvitations = dashboard?.total_invitations
-    ? allInvitations.length < dashboard.total_invitations
-    : false
 
   return (
     <div className="bg-[#f8fafc] dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
@@ -62,28 +88,22 @@ export default function ReviewerInvitationsPage() {
 
       <main className="flex-grow flex flex-col h-screen overflow-hidden">
         <div className="flex-1 overflow-y-auto py-8 px-12 w-full">
-          {isLoading && allInvitations.length === 0 ? (
+          {isLoading && !dashboard ? (
             <InvitationsSkeleton />
           ) : (
             <ReviewerInvitations
-              invitations={allInvitations}
-              onInvitationHandled={async () => {
-                await refresh()
-              }}
+              invitations={invitations}
+              onInvitationHandled={refresh}
               reviewerId={reviewerEmail}
-              onStatusFilterChange={(status) => {
-                setInvitationStatusFilter(status === "all" ? "" : status)
-                setInvitationOffset(0)
-                setAllInvitations([])
-              }}
-              currentStatusFilter={invitationStatusFilter || "all"}
-              onLoadMore={() => {
-                if (!isLoading && hasMoreInvitations) {
-                  setInvitationOffset((prev) => prev + 20)
-                }
-              }}
-              hasMore={hasMoreInvitations}
-              isLoadingMore={isLoading && invitationOffset > 0}
+              onStatusFilterChange={handleStatusFilterChange}
+              currentStatusFilter={statusFilter || "all"}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={total}
+              pageSize={PAGE_SIZE}
+              onPageChange={handlePageChange}
+              statusCounts={statusCounts}
+              isRefreshing={isValidating}
             />
           )}
         </div>

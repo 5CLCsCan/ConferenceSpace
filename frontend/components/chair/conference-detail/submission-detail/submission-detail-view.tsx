@@ -12,6 +12,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { tStatic as t } from "@/lib/i18n/static-translate"
 
 interface SubmissionDetailViewProps {
   conferenceId: string
@@ -22,10 +24,30 @@ interface SubmissionDetailViewProps {
 
 // --- Sub Tab Navigation ---
 const SUB_TABS: { id: SubmissionSubTab; label: string }[] = [
-  { id: "overview", label: "Overview" },
-  { id: "reviews", label: "Reviews & Feedback" },
-  { id: "discussion", label: "Discussion" },
-  { id: "history", label: "History" },
+  {
+    id: "overview",
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.prop_label_overview",
+    ),
+  },
+  {
+    id: "reviews",
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.prop_label_reviews_feedback",
+    ),
+  },
+  {
+    id: "discussion",
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.prop_label_discussion",
+    ),
+  },
+  {
+    id: "history",
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.prop_label_history",
+    ),
+  },
 ]
 
 function SubTabNavigation({
@@ -35,6 +57,7 @@ function SubTabNavigation({
   activeTab: SubmissionSubTab
   onTabChange: (tab: SubmissionSubTab) => void
 }) {
+  const { t } = useTranslation()
   return (
     <div className="border-b border-slate-200 dark:border-slate-800 mb-6">
       <div className="flex gap-8">
@@ -62,7 +85,9 @@ function AbstractCard({ abstract, keywords }: { abstract: string; keywords: stri
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-4 tracking-tight">
-        Abstract
+        {t(
+          "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.text_abstract",
+        )}{" "}
       </h3>
       <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-6">{abstract}</p>
       <div className="flex flex-wrap gap-2">
@@ -91,9 +116,16 @@ function SubmissionFilesCard({
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-          Submission Files
+          {t(
+            "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.text_submission_files",
+          )}{" "}
         </h3>
-        <span className="text-[10px] text-slate-400">Last updated: {lastUpdated}</span>
+        <span className="text-[10px] text-slate-400">
+          {t(
+            "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.text_last_updated",
+          )}{" "}
+          {lastUpdated}
+        </span>
       </div>
       <div className="space-y-3">
         {files.map((file) => (
@@ -115,7 +147,9 @@ function SubmissionFilesCard({
               {file.type === "pdf" && (
                 <button
                   className="p-2 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors"
-                  title="Preview"
+                  title={t(
+                    "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.title_preview",
+                  )}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
                     visibility
@@ -124,7 +158,9 @@ function SubmissionFilesCard({
               )}
               <button
                 className="p-2 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors"
-                title="Download"
+                title={t(
+                  "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.title_download",
+                )}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
                   download
@@ -153,7 +189,9 @@ function CoverLetterCard({ content }: { content?: string }) {
             mail
           </span>
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            Cover Letter
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.text_cover_letter",
+            )}{" "}
           </h3>
         </div>
         <span className="material-symbols-outlined text-slate-400" style={{ fontSize: "20px" }}>
@@ -187,13 +225,17 @@ function SubmissionMetaCard({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <h3 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-4">
-        Submission Meta
+        {t(
+          "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.text_submission_meta",
+        )}{" "}
       </h3>
       <div className="space-y-6">
         {/* Authors */}
         <div>
           <h4 className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-3">
-            Author(s)
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.text_author_s",
+            )}{" "}
           </h4>
           <div className="space-y-3">
             {authors.map((author) => (
@@ -212,7 +254,9 @@ function SubmissionMetaCard({
                 <button
                   onClick={() => handleAuthorProfileClick(author.id)}
                   className="p-1.5 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors flex-shrink-0"
-                  title="View profile"
+                  title={t(
+                    "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.title_view_profile",
+                  )}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
                     open_in_new
@@ -226,7 +270,9 @@ function SubmissionMetaCard({
         {/* Conflicts of Interest */}
         <div>
           <h4 className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-2">
-            Conflicts of Interest
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.text_conflicts_of_interest",
+            )}{" "}
           </h4>
           <div className="flex flex-wrap gap-2">
             {conflictsOfInterest.map((affiliation, index) => (
@@ -249,12 +295,18 @@ function SubmissionMetaCard({
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Affiliation Details</DialogTitle>
+            <DialogTitle>
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.text_affiliation_details",
+              )}
+            </DialogTitle>
             <DialogDescription>{selectedAffiliation}</DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              Additional details about this affiliation will be displayed here.
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.text_additional_details_about_this_affiliation_will",
+              )}{" "}
             </p>
           </div>
         </DialogContent>
@@ -286,13 +338,18 @@ export function SubmissionDetailView({
               onClick={onBack}
               className="hover:text-[#1B3C53] dark:hover:text-white transition-colors"
             >
-              Submissions
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.text_submissions",
+              )}{" "}
             </button>
             <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
               chevron_right
             </span>
             <span className="font-medium text-slate-700 dark:text-slate-300">
-              Submission {submission.displayId}
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.text_submission",
+              )}{" "}
+              {submission.displayId}
             </span>
           </div>
 
@@ -304,7 +361,9 @@ export function SubmissionDetailView({
           {/* Meta Info */}
           <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
             <span>
-              Track:{" "}
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.text_track",
+              )}{" "}
               <strong className="text-slate-700 dark:text-slate-300">{submission.track}</strong>
             </span>
             <SubmissionStatusBadge status={submission.status} />
@@ -346,10 +405,14 @@ export function SubmissionDetailView({
             rate_review
           </span>
           <h3 className="text-sm font-bold text-slate-600 dark:text-slate-400 mb-2">
-            Reviews & Feedback
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.text_reviews_feedback",
+            )}{" "}
           </h3>
           <p className="text-xs text-slate-400">
-            Detailed review comments and feedback will be displayed here.
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.text_detailed_review_comments_and_feedback_will",
+            )}{" "}
           </p>
         </div>
       )}
@@ -362,9 +425,15 @@ export function SubmissionDetailView({
           >
             forum
           </span>
-          <h3 className="text-sm font-bold text-slate-600 dark:text-slate-400 mb-2">Discussion</h3>
+          <h3 className="text-sm font-bold text-slate-600 dark:text-slate-400 mb-2">
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.text_discussion",
+            )}
+          </h3>
           <p className="text-xs text-slate-400">
-            Reviewer discussion threads and meta-reviews will be displayed here.
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.text_reviewer_discussion_threads_and_meta_reviews",
+            )}{" "}
           </p>
         </div>
       )}
@@ -377,9 +446,15 @@ export function SubmissionDetailView({
           >
             history
           </span>
-          <h3 className="text-sm font-bold text-slate-600 dark:text-slate-400 mb-2">History</h3>
+          <h3 className="text-sm font-bold text-slate-600 dark:text-slate-400 mb-2">
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.text_history",
+            )}
+          </h3>
           <p className="text-xs text-slate-400">
-            Submission history and status changes will be displayed here.
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail.submission-detail-view.text_submission_history_and_status_changes_will",
+            )}{" "}
           </p>
         </div>
       )}

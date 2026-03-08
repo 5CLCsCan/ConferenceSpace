@@ -244,6 +244,7 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			users.GET("/me", handler.HandleNoRequest(ctrl.User.GetMe))
 			users.GET("/me/profile-sync-status", handler.HandleNoRequest(ctrl.User.GetProfileSyncStatus))
 			users.GET("/me/academic-profile", handler.HandleNoRequest(ctrl.User.GetAcademicProfile))
+			users.GET("/:email/academic-profile", handler.HandleNoRequest(ctrl.User.GetAcademicProfileByEmail))
 			users.POST("/link-academic-profile", handler.HandleRequest(ctrl.User.LinkAcademicProfile))
 			users.POST("/unlink-academic-profile", handler.HandleNoRequest(ctrl.User.UnlinkAcademicProfile))
 			users.GET("/search", handler.HandleNoRequest(ctrl.User.Search))
@@ -301,6 +302,15 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 				submissions.POST("/:submission_id/threads", handler.HandleNoRequestWithStatus(http.StatusCreated, ctrl.Discussion.CreateThread))
 				submissions.GET("/:submission_id/threads", handler.HandleNoRequest(ctrl.Discussion.GetThreads))
 			}
+		}
+
+		conferenceTemplates := v1.Group("/conference-config-templates")
+		conferenceTemplates.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
+		{
+			conferenceTemplates.GET("", handler.HandleRequestWithQuery(ctrl.Conference.ListTemplates))
+			conferenceTemplates.POST("", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Conference.CreateTemplate))
+			conferenceTemplates.PUT("/:template_id", handler.HandleRequestWithURIAndJSON(ctrl.Conference.UpdateTemplate))
+			conferenceTemplates.DELETE("/:template_id", handler.HandleNoRequestWithURIMessage("conference config template deleted successfully", ctrl.Conference.DeleteTemplate))
 		}
 
 		// Reviewer dashboard routes (authentication required)

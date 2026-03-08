@@ -1,13 +1,16 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { formatDistanceToNow } from "date-fns"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { Settings2, FileText, AlertCircle, History } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { useNotifications } from "@/hooks/use-notifications"
-import { NotificationCard, type Notification as CardNotification } from "@/components/notifications/notification-card"
+import {
+  NotificationCard,
+  type Notification as CardNotification,
+} from "@/components/notifications/notification-card"
 import { TabButton, FilterPill } from "@/components/notifications/notification-controls"
 import { EmptyState } from "@/components/notifications/empty-state"
 import type { Notification } from "@/lib/types"
@@ -21,6 +24,7 @@ import {
 } from "@/lib/api/notifications"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 function notificationKind(type: Notification["type"]): CardNotification["type"] {
   if (type === "deadline_reminder") return "deadline"
@@ -30,12 +34,20 @@ function notificationKind(type: Notification["type"]): CardNotification["type"] 
   return "system"
 }
 
-function actionLabelForType(type: Notification["type"]): string {
-  if (type === "deadline_reminder") return "View Deadline"
-  if (type === "review_assigned" || type === "review_submitted") return "Open Review"
-  if (type === "discussion_thread" || type === "discussion_message") return "Open Discussion"
-  if (type === "paper_accepted" || type === "paper_rejected") return "View Decision"
-  return "Open"
+function actionLabelForType(type: Notification["type"], t: (key: string) => string): string {
+  if (type === "deadline_reminder") {
+    return t("runtime.app.notifications.page.text_view_deadline")
+  }
+  if (type === "review_assigned" || type === "review_submitted") {
+    return t("runtime.app.notifications.page.text_open_review")
+  }
+  if (type === "discussion_thread" || type === "discussion_message") {
+    return t("runtime.app.notifications.page.text_open_discussion")
+  }
+  if (type === "paper_accepted" || type === "paper_rejected") {
+    return t("runtime.app.notifications.page.text_view_decision")
+  }
+  return t("runtime.app.notifications.page.text_open")
 }
 
 function metadataToString(metadata?: Record<string, unknown>): string | undefined {
@@ -57,7 +69,7 @@ function metadataToString(metadata?: Record<string, unknown>): string | undefine
     .join(" • ")
 }
 
-function mapNotification(notification: Notification): CardNotification {
+function mapNotification(notification: Notification, t: (key: string) => string): CardNotification {
   const actionHref = resolveNotificationActionUrl(notification.action_url)
 
   return {
@@ -67,31 +79,96 @@ function mapNotification(notification: Notification): CardNotification {
     content: notification.message,
     time: formatDistanceToNow(new Date(notification.created_at), { addSuffix: true }),
     isRead: notification.read,
-    actionLabel: actionHref ? actionLabelForType(notification.type) : undefined,
+    actionLabel: actionHref ? actionLabelForType(notification.type, t) : undefined,
     actionHref: actionHref || undefined,
     meta: metadataToString(notification.metadata),
   }
 }
 
+const PAGE_SIZE = 5
+
 export default function NotificationsPage() {
+  const { t } = useTranslation()
   const router = useRouter()
-  const { currentRole } = useAuth()
+  const { currentRole, isAuthenticated, isAuthLoading } = useAuth()
   const {
     notifications,
     unreadCount,
+    total,
     markAsRead,
     markAllAsRead,
+    fetchNotifications,
     isLoading,
     error,
-  } = useNotifications({ limit: 100 })
+  } = useNotifications({ limit: PAGE_SIZE })
 
+  const [currentPage, setCurrentPage] = useState(1)
   const [activeTab, setActiveTab] = useState<"all" | "unread" | "mentions">("all")
   const [activeFilter, setActiveFilter] = useState("all")
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [settingsLoading, setSettingsLoading] = useState(false)
   const [notificationPrefs, setNotificationPrefs] = useState<NotificationPreferences | null>(null)
 
-  const cardNotifications = useMemo(() => notifications.map(mapNotification), [notifications])
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+
+  const handleTabChange = useCallback(
+    (tab: "all" | "unread" | "mentions") => {
+      setActiveTab(tab)
+      setCurrentPage(1)
+      const params: { limit: number; offset: number; unread?: boolean } = {
+        limit: PAGE_SIZE,
+        offset: 0,
+      }
+      if (tab === "unread") params.unread = true
+      fetchNotifications(params)
+    },
+    [fetchNotifications],
+  )
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      if (page >= 1 && page <= totalPages) {
+        setCurrentPage(page)
+        const params: { limit: number; offset: number; unread?: boolean } = {
+          limit: PAGE_SIZE,
+          offset: (page - 1) * PAGE_SIZE,
+        }
+        if (activeTab === "unread") params.unread = true
+        fetchNotifications(params)
+      }
+    },
+    [totalPages, activeTab, fetchNotifications],
+  )
+
+  // Generate page numbers with ellipsis
+  const getPageNumbers = () => {
+    const pages: (number | "ellipsis")[] = []
+    const maxVisible = 5
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
+    } else {
+      pages.push(1)
+      if (currentPage <= 3) {
+        for (let i = 2; i <= 4; i++) pages.push(i)
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      } else if (currentPage >= totalPages - 2) {
+        pages.push("ellipsis")
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i)
+      } else {
+        pages.push("ellipsis")
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i)
+        pages.push("ellipsis")
+        pages.push(totalPages)
+      }
+    }
+    return pages
+  }
+
+  const cardNotifications = useMemo(
+    () => notifications.map((notification) => mapNotification(notification, t)),
+    [notifications, t],
+  )
 
   const filteredNotifications = useMemo(() => {
     return cardNotifications.filter((n) => {
@@ -151,14 +228,20 @@ export default function NotificationsPage() {
   }, [settingsOpen])
 
   const preferenceRows: Array<{ key: keyof NotificationPreferences; label: string }> = [
-    { key: "submission_received", label: "Submission Received" },
-    { key: "review_assigned", label: "Review Assigned" },
-    { key: "review_submitted", label: "Review Submitted" },
-    { key: "paper_accepted", label: "Paper Accepted" },
-    { key: "paper_rejected", label: "Paper Rejected" },
-    { key: "deadline_reminder", label: "Deadline Reminder" },
-    { key: "status_change", label: "Status Change" },
-    { key: "email_notifications", label: "Email Notifications" },
+    {
+      key: "submission_received",
+      label: t("runtime.app.notifications.page.text_submission_received"),
+    },
+    { key: "review_assigned", label: t("runtime.app.notifications.page.text_review_assigned") },
+    { key: "review_submitted", label: t("runtime.app.notifications.page.text_review_submitted") },
+    { key: "paper_accepted", label: t("runtime.app.notifications.page.text_paper_accepted") },
+    { key: "paper_rejected", label: t("runtime.app.notifications.page.text_paper_rejected") },
+    { key: "deadline_reminder", label: t("runtime.app.notifications.page.text_deadline_reminder") },
+    { key: "status_change", label: t("runtime.app.notifications.page.text_status_change") },
+    {
+      key: "email_notifications",
+      label: t("runtime.app.notifications.page.text_email_notifications"),
+    },
   ]
 
   return (
@@ -170,10 +253,12 @@ export default function NotificationsPage() {
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-4">
             <div>
               <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white leading-none">
-                Notifications
+                {t("runtime.app.notifications.page.text_notifications")}{" "}
               </h1>
               <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-2 max-w-xl">
-                Stay updated on submissions, reviews, deadlines, and discussion activity.
+                {t(
+                  "runtime.app.notifications.page.text_stay_updated_on_submissions_reviews_deadlines",
+                )}{" "}
               </p>
             </div>
 
@@ -182,7 +267,7 @@ export default function NotificationsPage() {
                 onClick={() => markAllAsRead()}
                 className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-800 rounded-full text-xs font-normal text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-neutral-700 transition-all shadow-sm"
               >
-                Mark all as read
+                {t("runtime.app.notifications.page.text_mark_all_as_read")}
               </button>
               <button
                 onClick={() => setSettingsOpen(true)}
@@ -197,46 +282,46 @@ export default function NotificationsPage() {
             <div className="border-b border-slate-200 dark:border-slate-700 mb-6">
               <div className="flex gap-6">
                 <TabButton
-                  label="All"
+                  label={t("runtime.app.notifications.page.text_all")}
                   active={activeTab === "all"}
-                  onClick={() => setActiveTab("all")}
+                  onClick={() => handleTabChange("all")}
                   badge={cardNotifications.length}
                 />
                 <TabButton
-                  label="Unread"
+                  label={t("runtime.app.notifications.page.text_unread")}
                   active={activeTab === "unread"}
-                  onClick={() => setActiveTab("unread")}
+                  onClick={() => handleTabChange("unread")}
                   badge={unreadCount}
                   badgeActiveBg="bg-blue-600"
                 />
                 <TabButton
-                  label="Mentions"
+                  label={t("runtime.app.notifications.page.text_mentions")}
                   active={activeTab === "mentions"}
-                  onClick={() => setActiveTab("mentions")}
+                  onClick={() => handleTabChange("mentions")}
                 />
               </div>
             </div>
 
             <div className="flex flex-wrap gap-2.5">
               <FilterPill
-                label="All Types"
+                label={t("runtime.app.notifications.page.text_all_types")}
                 active={activeFilter === "all"}
                 onClick={() => setActiveFilter("all")}
               />
               <FilterPill
-                label="Deadlines"
+                label={t("runtime.app.notifications.page.text_deadlines")}
                 icon={<AlertCircle className="w-3.5 h-3.5" />}
                 active={activeFilter === "deadline"}
                 onClick={() => setActiveFilter("deadline")}
               />
               <FilterPill
-                label="Submissions"
+                label={t("runtime.app.notifications.page.text_submissions")}
                 icon={<FileText className="w-3.5 h-3.5" />}
                 active={activeFilter === "submission"}
                 onClick={() => setActiveFilter("submission")}
               />
               <FilterPill
-                label="Reviews"
+                label={t("runtime.app.notifications.page.text_reviews")}
                 icon={<History className="w-3.5 h-3.5" />}
                 active={activeFilter === "review"}
                 onClick={() => setActiveFilter("review")}
@@ -246,12 +331,17 @@ export default function NotificationsPage() {
 
           <div className="flex flex-col gap-4 pb-20">
             {isLoading ? (
-              <div className="text-sm text-slate-500">Loading notifications...</div>
+              <div className="text-sm text-slate-500">
+                {t("runtime.app.notifications.page.text_loading_notifications")}
+              </div>
             ) : error ? (
-              <div className="text-sm text-red-600">Failed to load notifications: {error.message}</div>
+              <div className="text-sm text-red-600">
+                {t("runtime.app.notifications.page.text_failed_to_load_notifications")}{" "}
+                {error.message}
+              </div>
             ) : filteredNotifications.length > 0 ? (
               <>
-                <SectionLabel label="Latest" />
+                <SectionLabel label={t("runtime.app.notifications.page.text_latest")} />
                 {filteredNotifications.map((n) => (
                   <NotificationCard
                     key={n.id}
@@ -264,6 +354,67 @@ export default function NotificationsPage() {
             ) : (
               <EmptyState />
             )}
+
+            {/* Pagination */}
+            {!isLoading && !error && total > 0 && (
+              <div className="flex items-center justify-between pt-2">
+                <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                  {t("runtime.app.notifications.page.text_showing")}{" "}
+                  <span className="font-bold text-[#1B3C53] dark:text-white">
+                    {Math.min((currentPage - 1) * PAGE_SIZE + 1, total)}-
+                    {Math.min(currentPage * PAGE_SIZE, total)}
+                  </span>{" "}
+                  {t("runtime.app.notifications.page.text_of")}{" "}
+                  <span className="font-bold text-[#1B3C53] dark:text-white">
+                    {total.toLocaleString()}
+                  </span>{" "}
+                  {t("runtime.app.notifications.page.text_notifications_count")}
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage <= 1}
+                      className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {t("runtime.app.notifications.page.text_previous")}
+                    </button>
+
+                    {getPageNumbers().map((page, idx) =>
+                      page === "ellipsis" ? (
+                        <span
+                          key={`ellipsis-${idx}`}
+                          className="px-1.5 text-slate-400 text-[10px] flex items-center"
+                        >
+                          ...
+                        </span>
+                      ) : (
+                        <button
+                          key={page}
+                          onClick={() => handlePageChange(page)}
+                          className={`px-2.5 py-1 rounded text-[10px] ${
+                            page === currentPage
+                              ? "bg-[#1B3C53] text-white hover:bg-[#234C6A]"
+                              : "border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ),
+                    )}
+
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage >= totalPages}
+                      className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {t("runtime.app.notifications.page.text_next")}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </main>
@@ -271,10 +422,14 @@ export default function NotificationsPage() {
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Notification Settings</DialogTitle>
+            <DialogTitle>
+              {t("runtime.app.notifications.page.text_notification_settings")}
+            </DialogTitle>
           </DialogHeader>
           {settingsLoading ? (
-            <p className="text-sm text-slate-500">Loading settings...</p>
+            <p className="text-sm text-slate-500">
+              {t("runtime.app.notifications.page.text_loading_settings")}
+            </p>
           ) : (
             <div className="space-y-3">
               {preferenceRows.map((row) => {
@@ -308,7 +463,9 @@ function SectionLabel({ label, className }: { label: string; className?: string 
   return (
     <div className={cn("flex items-center gap-4 py-2", className)}>
       <div className="h-[1px] bg-slate-100 dark:bg-neutral-800/50 flex-1"></div>
-      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">{label}</span>
+      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+        {label}
+      </span>
       <div className="h-[1px] bg-slate-100 dark:bg-neutral-800/50 flex-1"></div>
     </div>
   )

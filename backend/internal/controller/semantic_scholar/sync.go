@@ -53,8 +53,8 @@ func (c *Controller) SyncAuthorProfile(ctx context.Context, userID int64, author
 			paper := &model.ScholarPaper{
 				SemanticScholarID: p.PaperID,
 				Title:             p.Title,
-				Abstract:          "",      // Abstract might not be in the lightweight paper object, but let's check
-				Venue:             p.Venue, // Venue vs Journal vs Venue field?
+				Abstract:          p.Abstract,
+				Venue:             p.Venue,
 				Year:              p.Year,
 				CitationCount:     p.CitationCount,
 				URL:               p.URL,

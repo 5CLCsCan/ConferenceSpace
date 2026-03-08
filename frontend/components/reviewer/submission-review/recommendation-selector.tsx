@@ -1,6 +1,7 @@
 "use client"
 
 import { RECOMMENDATION_OPTIONS, confidenceOptions } from "./types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 // =============================================================================
 // RecommendationSelector Component (Scholar-Compact)
@@ -17,12 +18,15 @@ export function RecommendationSelector({
   onChange,
   averageScore,
 }: RecommendationSelectorProps) {
+  const { t } = useTranslation()
   const selectedOption = RECOMMENDATION_OPTIONS.find((o) => o.value === value)
 
   return (
     <div className="space-y-3">
       <label className="block text-[10px] font-bold text-slate-700 uppercase tracking-wider">
-        Overall Rating
+        {t(
+          "runtime.components.reviewer.submission-review.recommendation-selector.text_overall_rating",
+        )}{" "}
       </label>
 
       {/* Recommendation Grid - 7 items in a row, compact */}
@@ -60,7 +64,11 @@ export function RecommendationSelector({
           </span>
         </div>
       ) : (
-        <p className="text-[9px] text-slate-400 italic">Select overall rating.</p>
+        <p className="text-[9px] text-slate-400 italic">
+          {t(
+            "runtime.components.reviewer.submission-review.recommendation-selector.text_select_overall_rating",
+          )}
+        </p>
       )}
     </div>
   )
@@ -76,12 +84,15 @@ interface ConfidenceSelectorProps {
 }
 
 export function ConfidenceSelector({ value, onChange }: ConfidenceSelectorProps) {
+  const { t } = useTranslation()
   const selectedOption = confidenceOptions.find((o) => o.value === value)
 
   return (
     <div className="space-y-3">
       <label className="block text-[10px] font-bold text-slate-700 uppercase tracking-wider">
-        Reviewer Confidence
+        {t(
+          "runtime.components.reviewer.submission-review.recommendation-selector.text_reviewer_confidence",
+        )}{" "}
       </label>
 
       {/* Confidence Segmented Control */}
@@ -115,14 +126,19 @@ export function ConfidenceSelector({ value, onChange }: ConfidenceSelectorProps)
       {selectedOption ? (
         <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 rounded-lg border border-slate-200">
           <span className="text-[10px] font-bold text-[#1B3C53] uppercase tracking-tighter">
-            Level {selectedOption.value}
+            {t("runtime.components.reviewer.submission-review.recommendation-selector.text_level")}{" "}
+            {selectedOption.value}
           </span>
           <span className="text-[9px] text-slate-500 font-medium tracking-tight">
             ({selectedOption.fullLabel})
           </span>
         </div>
       ) : (
-        <p className="text-[9px] text-slate-400 italic">Select confidence level.</p>
+        <p className="text-[9px] text-slate-400 italic">
+          {t(
+            "runtime.components.reviewer.submission-review.recommendation-selector.text_select_confidence_level",
+          )}
+        </p>
       )}
     </div>
   )
@@ -149,6 +165,7 @@ export function FinalRecommendationCard({
   averageScore,
   isComplete,
 }: FinalRecommendationCardProps) {
+  const { t } = useTranslation()
   const selectedRec = RECOMMENDATION_OPTIONS.find((o) => o.value === recommendation)
   const selectedConf = confidenceOptions.find((o) => o.value === confidence)
 
@@ -157,7 +174,9 @@ export function FinalRecommendationCard({
       {/* Header */}
       <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
         <h2 className="font-bold text-sm text-[#1B3C53] tracking-tight uppercase">
-          Final Assessment
+          {t(
+            "runtime.components.reviewer.submission-review.recommendation-selector.text_final_assessment",
+          )}{" "}
         </h2>
         <span
           className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${
@@ -184,7 +203,9 @@ export function FinalRecommendationCard({
           <div className="flex items-center gap-4">
             <div>
               <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">
-                Global Rating
+                {t(
+                  "runtime.components.reviewer.submission-review.recommendation-selector.text_global_rating",
+                )}{" "}
               </span>
               <p className="text-[11px] font-black text-[#1B3C53] leading-none">
                 {selectedRec.label}
@@ -193,7 +214,9 @@ export function FinalRecommendationCard({
             <div className="w-px h-5 bg-slate-100" />
             <div>
               <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">
-                Confidence
+                {t(
+                  "runtime.components.reviewer.submission-review.recommendation-selector.text_confidence",
+                )}{" "}
               </span>
               <p className="text-[11px] font-black text-[#1B3C53] leading-none">
                 {selectedConf.value}: {selectedConf.label}

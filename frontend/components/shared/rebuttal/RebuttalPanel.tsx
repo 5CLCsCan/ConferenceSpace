@@ -10,6 +10,7 @@ import {
   ScoreSummaryPanel,
 } from "./components"
 import type { RebuttalPanelProps, ResponseStatus } from "./types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export function RebuttalPanel({
   settings,
@@ -24,6 +25,7 @@ export function RebuttalPanel({
   readOnly = false,
   className = "",
 }: RebuttalPanelProps) {
+  const { t } = useTranslation()
   const [points, setPoints] = useState(initialPoints)
 
   const handlePointStatusChange = (pointId: string, status: ResponseStatus, note?: string) => {
@@ -93,7 +95,7 @@ export function RebuttalPanel({
       {/* Per-Reviewer Responses */}
       <div className="space-y-4">
         <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-          Point-by-Point Responses
+          {t("runtime.components.shared.rebuttal.RebuttalPanel.text_point_by_point_responses")}{" "}
         </h3>
 
         {userRole === "author" ? (

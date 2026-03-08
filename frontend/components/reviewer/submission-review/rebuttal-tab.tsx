@@ -10,6 +10,7 @@ import {
   buildRebuttalSettingsFromConference,
   RebuttalPanel,
 } from "@/components/shared/rebuttal"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 /**
  * Reviewer-specific Rebuttal Tab
@@ -36,15 +37,21 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
     })
   }, [conferenceId])
 
+  const { t } = useTranslation()
   return (
     <div className="space-y-3">
       {/*
       BACKEND REQUEST: <Implement rebuttal persistence APIs for reviewer acknowledgment and author rebuttal state transitions; frontend rebuttal actions are now explicitly disabled because backend write contract is unavailable; expose idempotent role-aware endpoints with allowed status enums, audit metadata, and reload-consistent state across author/reviewer/chair views.>
       */}
       <div className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-        Rebuttal write actions are currently unavailable because the backend persistence API is not
-        implemented yet. You can review rebuttal content here, but acknowledgments cannot be saved
-        (conference {conferenceId}, submission {submissionId}, assignment {assignmentId}).
+        {t(
+          "runtime.components.reviewer.submission-review.rebuttal-tab.text_rebuttal_write_actions_are_currently_unavailable",
+        )}{" "}
+        {conferenceId}
+        {t("runtime.components.reviewer.submission-review.rebuttal-tab.text_submission")}{" "}
+        {submissionId}
+        {t("runtime.components.reviewer.submission-review.rebuttal-tab.text_assignment")}{" "}
+        {assignmentId}).
       </div>
 
       <RebuttalPanel

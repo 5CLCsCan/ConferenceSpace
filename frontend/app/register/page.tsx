@@ -5,30 +5,17 @@ import type React from "react"
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useAuth } from "@/lib/auth-context"
-import { Badge } from "@/components/ui/badge"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { computerScienceKeywords, searchKeywords } from "@/lib/data/domain-keywords"
-import { Check, Circle, Eye, EyeOff, GraduationCap, Loader2, Plus, X } from "lucide-react"
-import { typography, spacing, iconSizes } from "@/lib/typography"
+import { Loader2 } from "lucide-react"
 import { ROUTES } from "@/lib/routes"
 
 export default function RegisterPage() {
   const router = useRouter()
   const { register } = useAuth()
   const { t } = useTranslation()
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -45,15 +32,13 @@ export default function RegisterPage() {
 
   const addDomainValue = (value: string) => {
     const trimmed = value.trim()
-    if (!trimmed || domains.includes(trimmed)) {
-      return
-    }
+    if (!trimmed || domains.includes(trimmed)) return
     setDomains([...domains, trimmed])
   }
 
   const suggestions: string[] = useMemo(() => {
     const pool = domainInput.trim() ? searchKeywords(domainInput) : computerScienceKeywords
-    return pool.filter((keyword) => !domains.includes(keyword)).slice(0, 18)
+    return pool.filter((kw) => !domains.includes(kw)).slice(0, 18)
   }, [domainInput, domains])
 
   type PasswordRuleKey = "length" | "lower" | "upper" | "number" | "special"
@@ -71,14 +56,11 @@ export default function RegisterPage() {
   )
 
   const passwordRuleOrder: PasswordRuleKey[] = ["length", "lower", "upper", "number", "special"]
+  const passwordStrength = passwordRuleOrder.filter((r) => passwordChecks[r]).length
 
   const handleAddDomain = () => {
     addDomainValue(domainInput)
     setDomainInput("")
-  }
-
-  const handleRemoveDomain = (item: string) => {
-    setDomains(domains.filter((domain) => domain !== item))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,20 +71,16 @@ export default function RegisterPage() {
       setError(t("auth.register.errors.passwordMismatch"))
       return
     }
-
-    const allRulesPassed = passwordRuleOrder.every((rule) => passwordChecks[rule])
-    if (!allRulesPassed) {
+    if (!passwordRuleOrder.every((rule) => passwordChecks[rule])) {
       setError(t("auth.register.errors.passwordStrength"))
       return
     }
-
     if (domains.length === 0) {
       setError(t("auth.register.errors.domainsRequired"))
       return
     }
 
     setIsLoading(true)
-
     const result = await register({
       first_name: formData.firstName.trim(),
       last_name: formData.lastName.trim(),
@@ -119,272 +97,339 @@ export default function RegisterPage() {
     }
   }
 
+  const strengthColors = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#16a34a"]
+  const strengthLabels = ["Very Weak", "Weak", "Fair", "Strong", "Excellent"]
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4 py-8">
-      <div className="w-full max-w-md">
-        <div className={`text-center mb-8`}>
-          <Link
-            href={ROUTES.HOME}
-            className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-lg mb-4"
-          >
-            <GraduationCap className={`${iconSizes.lg} text-white`} />
-          </Link>
-          <p className={`text-neutral-600 ${typography.body}`}>{t("auth.register.title")}</p>
+    <div className="auth-shell">
+      {/* Left panel - branding */}
+      <div className="auth-brand-panel">
+        <div className="auth-brand-inner">
+          <div className="auth-logo-mark">
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: "28px", color: "#ffffff" }}
+            >
+              school
+            </span>
+          </div>
+          <div className="auth-brand-content">
+            <p className="auth-brand-label">
+              {t("runtime.app.register.page.text_conferencespace")}
+            </p>
+            <h1 className="auth-brand-headline">
+              {t("runtime.app.register.page.text_join_the_academic_research_community")}
+            </h1>
+            <p className="auth-brand-sub">
+              {t("runtime.app.register.page.text_create_your_scholar_account_to_submit")}{" "}
+            </p>
+          </div>
+          <div className="auth-brand-features">
+            {[
+              {
+                icon: "edit_document",
+                text: t("runtime.app.register.page.prop_text_paper_submission_tracking"),
+              },
+              {
+                icon: "rate_review",
+                text: t("runtime.app.register.page.prop_text_structured_peer_review"),
+              },
+              {
+                icon: "diversity_3",
+                text: t("runtime.app.register.page.prop_text_conference_management"),
+              },
+            ].map(({ icon, text }) => (
+              <div key={text} className="auth-feature-row">
+                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                  {icon}
+                </span>
+                <span>{text}</span>
+              </div>
+            ))}
+          </div>
         </div>
+        <div className="auth-brand-grid" aria-hidden="true" />
+      </div>
 
-        <Card className="border-neutral-200 shadow-sm py-6">
-          <CardHeader>
-            <CardTitle>{t("common.actions.signUp")}</CardTitle>
-            <CardDescription>{t("auth.register.subtitle")}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className={spacing.subsection}>
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription className={typography.body}>{error}</AlertDescription>
-                </Alert>
-              )}
+      {/* Right panel - form */}
+      <div className="auth-form-panel auth-form-panel--register">
+        <div className="auth-form-inner">
+          <div className="auth-form-header">
+            <h2 className="auth-form-title">{t("common.actions.signUp")}</h2>
+            <p className="auth-form-desc">{t("auth.register.subtitle")}</p>
+          </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="firstName">{t("common.labels.firstName")}</Label>
-                <Input
+          {error && (
+            <div className="auth-notice auth-notice--error">
+              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                error
+              </span>
+              <span>{error}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="auth-form-fields">
+            {/* Name row */}
+            <div className="auth-field-row">
+              <div className="auth-field">
+                <label htmlFor="firstName" className="auth-label">
+                  {t("common.labels.firstName")}
+                </label>
+                <input
                   id="firstName"
                   type="text"
-                  placeholder="Ada"
+                  placeholder={t("runtime.app.register.page.placeholder_ada")}
                   value={formData.firstName}
                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                   required
                   disabled={isLoading}
-                  className="border-neutral-300"
+                  className="auth-input"
+                  autoComplete="given-name"
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="lastName">{t("common.labels.lastName")}</Label>
-                <Input
+              <div className="auth-field">
+                <label htmlFor="lastName" className="auth-label">
+                  {t("common.labels.lastName")}
+                </label>
+                <input
                   id="lastName"
                   type="text"
-                  placeholder="Lovelace"
+                  placeholder={t("runtime.app.register.page.placeholder_lovelace")}
                   value={formData.lastName}
                   onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                   required
                   disabled={isLoading}
-                  className="border-neutral-300"
+                  className="auth-input"
+                  autoComplete="family-name"
                 />
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">{t("common.labels.email")}</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="ada.lovelace@example.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            {/* Email */}
+            <div className="auth-field">
+              <label htmlFor="email" className="auth-label">
+                {t("common.labels.email")}
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder={t("runtime.app.register.page.placeholder_ada_lovelace_example_com")}
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                required
+                disabled={isLoading}
+                className="auth-input"
+                autoComplete="email"
+              />
+            </div>
+
+            {/* Research domains */}
+            <div className="auth-field">
+              <label htmlFor="domain" className="auth-label">
+                {t("common.labels.domains")}
+              </label>
+              <div className="auth-domain-input-row">
+                <input
+                  id="domain"
+                  type="text"
+                  placeholder={t("runtime.app.register.page.placeholder_machine_learning")}
+                  value={domainInput}
+                  onChange={(e) => setDomainInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault()
+                      handleAddDomain()
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="auth-input"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddDomain}
+                  disabled={isLoading}
+                  className="auth-domain-add-btn"
+                  aria-label={t("runtime.app.register.page.aria_label_add_domain")}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                    add
+                  </span>
+                </button>
+              </div>
+
+              {domains.length > 0 && (
+                <div className="auth-domain-tags">
+                  {domains.map((item) => (
+                    <span key={item} className="auth-domain-tag">
+                      {item}
+                      <button
+                        type="button"
+                        onClick={() => setDomains(domains.filter((d) => d !== item))}
+                        className="auth-domain-tag-remove"
+                        aria-label={`Remove ${item}`}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: "10px" }}>
+                          close
+                        </span>
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <div className="auth-suggestions">
+                <p className="auth-suggestions-label">{t("auth.register.suggestions.title")}</p>
+                <div className="auth-suggestions-grid">
+                  {suggestions.length > 0 ? (
+                    suggestions.map((kw) => (
+                      <button
+                        key={kw}
+                        type="button"
+                        onClick={() => addDomainValue(kw)}
+                        disabled={isLoading}
+                        className="auth-suggestion-chip"
+                      >
+                        {kw}
+                      </button>
+                    ))
+                  ) : (
+                    <span className="auth-suggestions-empty">
+                      {t("auth.register.suggestions.empty")}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Password */}
+            <div className="auth-field">
+              <label htmlFor="password" className="auth-label">
+                {t("common.labels.password")}
+              </label>
+              <div className="auth-input-wrap">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
                   disabled={isLoading}
-                  className="border-neutral-300"
+                  className="auth-input"
+                  autoComplete="new-password"
+                  aria-describedby="password-strength"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((p) => !p)}
+                  className="auth-eye-btn"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  tabIndex={-1}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+                    {showPassword ? "visibility_off" : "visibility"}
+                  </span>
+                </button>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="domain">{t("common.labels.domains")}</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="domain"
-                    type="text"
-                    placeholder="Machine Learning"
-                    value={domainInput}
-                    onChange={(e) => setDomainInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault()
-                        handleAddDomain()
-                      }
-                    }}
-                    disabled={isLoading}
-                    className="border-neutral-300"
-                  />
-                  <Button
-                    type="button"
-                    onClick={handleAddDomain}
-                    disabled={isLoading}
-                    variant="outline"
-                    size="icon"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                {domains.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {domains.map((item) => (
-                      <Badge key={item} variant="secondary" className="gap-1">
-                        {item}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveDomain(item)}
-                          className="ml-1 hover:text-destructive"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
+              {formData.password && (
+                <div id="password-strength" className="auth-strength">
+                  <div className="auth-strength-bars">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div
+                        key={i}
+                        className="auth-strength-bar"
+                        style={{
+                          backgroundColor:
+                            i <= passwordStrength
+                              ? strengthColors[passwordStrength - 1]
+                              : undefined,
+                        }}
+                      />
                     ))}
                   </div>
-                )}
-                <div className={`mt-4 ${spacing.item}`}>
-                  <p
-                    className={`${typography.bodySmall} ${typography.medium} text-neutral-500 uppercase tracking-wide`}
+                  <span
+                    className="auth-strength-label"
+                    style={{
+                      color:
+                        passwordStrength > 0 ? strengthColors[passwordStrength - 1] : undefined,
+                    }}
                   >
-                    {t("auth.register.suggestions.title")}
-                  </p>
-                  <p className={`${typography.bodySmall} text-neutral-500`}>
-                    {t("auth.register.suggestions.subtitle")}
-                  </p>
-                  <div
-                    className={`flex flex-wrap ${spacing.gap.sm} min-h-[112px] max-h-[112px] overflow-y-auto overscroll-contain`}
-                  >
-                    {suggestions.length > 0 ? (
-                      suggestions.map((keyword) => (
-                        <Button
-                          key={keyword}
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="border-dashed"
-                          disabled={isLoading}
-                          onClick={() => addDomainValue(keyword)}
-                        >
-                          {keyword}
-                        </Button>
-                      ))
-                    ) : (
-                      <span className={`${typography.bodySmall} text-neutral-400`}>
-                        {t("auth.register.suggestions.empty")}
-                      </span>
-                    )}
-                  </div>
+                    {strengthLabels[passwordStrength - 1] ?? ""}
+                  </span>
                 </div>
-              </div>
+              )}
 
-              <div className="space-y-2">
-                <Label htmlFor="password">{t("common.labels.password")}</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="********"
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    required
-                    disabled={isLoading}
-                    className="border-neutral-300 pr-10"
-                    aria-describedby="password-hint"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-800"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    aria-label={
-                      showPassword
-                        ? t("auth.register.passwordHints.hide")
-                        : t("auth.register.passwordHints.show")
-                    }
-                    disabled={isLoading}
+              <div className="auth-password-rules">
+                {passwordRuleOrder.map((rule) => (
+                  <span
+                    key={rule}
+                    className={`auth-rule ${passwordChecks[rule] ? "auth-rule--met" : ""}`}
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
-                <div
-                  id="password-hint"
-                  className={`mt-3 ${spacing.item} rounded-md bg-neutral-100 p-3 ${typography.bodySmall} text-neutral-600`}
-                >
-                  <p className={`${typography.medium} text-neutral-700 uppercase tracking-wide`}>
-                    {t("auth.register.passwordHints.title")}
-                  </p>
-                  <ul className={spacing.tight}>
-                    {passwordRuleOrder.map((rule) => {
-                      const met = passwordChecks[rule]
-                      return (
-                        <li key={rule} className={`flex items-center ${spacing.gap.sm}`}>
-                          {met ? (
-                            <Check className={`${iconSizes.xs} text-success`} aria-hidden="true" />
-                          ) : (
-                            <Circle
-                              className={`${iconSizes.xs} text-neutral-400`}
-                              aria-hidden="true"
-                            />
-                          )}
-                          <span className={met ? "text-neutral-700" : "text-neutral-400"}>
-                            {t(`auth.register.passwordHints.rules.${rule}`)}
-                          </span>
-                        </li>
-                      )
-                    })}
-                  </ul>
-                </div>
+                    <span className="material-symbols-outlined" style={{ fontSize: "10px" }}>
+                      {passwordChecks[rule] ? "check" : "circle"}
+                    </span>
+                    {t(`auth.register.passwordHints.rules.${rule}`)}
+                  </span>
+                ))}
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">{t("common.labels.confirmPassword")}</Label>
-                <div className="relative">
-                  <Input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="********"
-                    value={formData.confirmPassword}
-                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                    required
-                    disabled={isLoading}
-                    className="border-neutral-300 pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-800"
-                    onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    aria-label={
-                      showConfirmPassword
-                        ? t("auth.register.passwordHints.hide")
-                        : t("auth.register.passwordHints.show")
-                    }
-                    disabled={isLoading}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className={`mr-2 ${iconSizes.sm} animate-spin`} />
-                    {t("common.actions.signUp")}...
-                  </>
-                ) : (
-                  t("common.actions.signUp")
-                )}
-              </Button>
-            </form>
-          </CardContent>
-          <CardFooter>
-            <div className={`${typography.body} text-center text-neutral-600 w-full`}>
-              {t("auth.register.haveAccount")}{" "}
-              <Link
-                href={ROUTES.LOGIN}
-                className={`text-primary hover:underline ${typography.medium}`}
-              >
-                {t("common.actions.signIn")}
-              </Link>
             </div>
-          </CardFooter>
-        </Card>
+
+            {/* Confirm password */}
+            <div className="auth-field">
+              <label htmlFor="confirmPassword" className="auth-label">
+                {t("common.labels.confirmPassword")}
+              </label>
+              <div className="auth-input-wrap">
+                <input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  required
+                  disabled={isLoading}
+                  className="auth-input"
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((p) => !p)}
+                  className="auth-eye-btn"
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                  tabIndex={-1}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+                    {showConfirmPassword ? "visibility_off" : "visibility"}
+                  </span>
+                </button>
+              </div>
+              {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                <p className="auth-field-error">
+                  {t("runtime.app.register.page.text_passwords_do_not_match")}
+                </p>
+              )}
+            </div>
+
+            <button type="submit" disabled={isLoading} className="auth-submit-btn">
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <span>{t("runtime.app.register.page.text_creating_account")}</span>
+                </>
+              ) : (
+                t("common.actions.signUp")
+              )}
+            </button>
+          </form>
+
+          <p className="auth-switch-text">
+            {t("auth.register.haveAccount")}{" "}
+            <Link href={ROUTES.LOGIN} className="auth-switch-link">
+              {t("common.actions.signIn")}
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )

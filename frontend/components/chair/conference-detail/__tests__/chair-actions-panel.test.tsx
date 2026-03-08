@@ -3,6 +3,22 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import { ChairActionsPanel } from "../chair-actions-panel"
 import * as client from "@/lib/api/client"
 
+vi.mock("@/lib/i18n/translation-context", async () => {
+  const { tStatic } = await vi.importActual<typeof import("@/lib/i18n/static-translate")>(
+    "@/lib/i18n/static-translate",
+  )
+
+  return {
+    useTranslation: () => ({
+      locale: "en",
+      messages: {},
+      setLocale: vi.fn(),
+      t: tStatic,
+      tList: () => [],
+    }),
+  }
+})
+
 // Mock the apiFetch function
 vi.mock("@/lib/api/client", () => ({
   apiFetch: vi.fn(),
@@ -21,6 +37,7 @@ describe("ChairActionsPanel", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    localStorage.setItem("conference_locale", "en")
   })
 
   afterEach(() => {
@@ -195,9 +212,7 @@ describe("ChairActionsPanel", () => {
     fireEvent.click(autoAssignButton)
 
     await waitFor(() => {
-      expect(
-        screen.getByText("Created 5 suggestions for 3 papers"),
-      ).toBeInTheDocument()
+      expect(screen.getByText("Created 5 suggestions for 3 papers")).toBeInTheDocument()
     })
   })
 

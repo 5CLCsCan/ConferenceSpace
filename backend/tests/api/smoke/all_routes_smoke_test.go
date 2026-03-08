@@ -70,6 +70,7 @@ func TestAPIRouteRegistrationAndAuthGuards(t *testing.T) {
 		{name: "users_me", method: http.MethodGet, path: "/api/v1/users/me", expected: []int{http.StatusUnauthorized}},
 		{name: "users_profile_sync_status", method: http.MethodGet, path: "/api/v1/users/me/profile-sync-status", expected: []int{http.StatusUnauthorized}},
 		{name: "users_academic_profile", method: http.MethodGet, path: "/api/v1/users/me/academic-profile", expected: []int{http.StatusUnauthorized}},
+		{name: "users_academic_profile_by_email", method: http.MethodGet, path: "/api/v1/users/test@example.com/academic-profile", expected: []int{http.StatusUnauthorized}},
 		{name: "users_link_profile", method: http.MethodPost, path: "/api/v1/users/link-academic-profile", expected: []int{http.StatusUnauthorized}},
 		{name: "users_unlink_profile", method: http.MethodPost, path: "/api/v1/users/unlink-academic-profile", expected: []int{http.StatusUnauthorized}},
 		{name: "users_search", method: http.MethodGet, path: "/api/v1/users/search?q=test", expected: []int{http.StatusUnauthorized}},

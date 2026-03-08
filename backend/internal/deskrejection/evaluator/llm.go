@@ -7,21 +7,24 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/dcao/conferencespace/internal/clients/gemini"
 	"github.com/dcao/conferencespace/internal/deskrejection/drerrors"
 	"github.com/dcao/conferencespace/internal/deskrejection/models"
 )
 
+type textGenerator interface {
+	GenerateText(ctx context.Context, prompt string) (string, error)
+}
+
 // LLMEvaluator evaluates paper content quality using LLM
 type LLMEvaluator struct {
-	client *gemini.Client
+	client textGenerator
 }
 
 // NewLLMEvaluator creates a new LLM evaluator
 // Accepts interface{} to allow passing through context
 func NewLLMEvaluator(client interface{}) *LLMEvaluator {
-	// Type assert to Gemini client
-	gc, ok := client.(*gemini.Client)
+	// Type assert to Gemini client-compatible interface
+	gc, ok := client.(textGenerator)
 	if !ok || gc == nil {
 		return &LLMEvaluator{client: nil}
 	}

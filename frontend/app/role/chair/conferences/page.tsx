@@ -5,8 +5,10 @@ import { ChairConferences } from "@/components/chair/chair-conferences"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { useNotifications } from "@/hooks/use-notifications"
 import { getSidebarMenuItems } from "@/lib/navigation"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export default function ChairConferencesPage() {
+  const { t } = useTranslation()
   const { unreadCount } = useNotifications({ limit: 1 })
 
   return (
@@ -18,7 +20,7 @@ export default function ChairConferencesPage() {
           <Suspense
             fallback={
               <div className="flex items-center justify-center h-full text-slate-400">
-                Loading Conferences...
+                {t("runtime.app.role.chair.conferences.page.text_loading_conferences")}{" "}
               </div>
             }
           >
@@ -29,4 +31,3 @@ export default function ChairConferencesPage() {
     </div>
   )
 }
-

@@ -13,7 +13,9 @@ function parsePrecheckBlocked(error: unknown): PrecheckBlockedError | null {
   }
 
   const body = error.body as { data?: unknown } | undefined
-  const payload = body?.data as { code?: string; decision?: string; blocking_items?: unknown } | undefined
+  const payload = body?.data as
+    | { code?: string; decision?: string; blocking_items?: unknown }
+    | undefined
   if (!payload || payload.code !== "PRECHECK_BLOCKED") {
     return null
   }
@@ -448,6 +450,24 @@ export async function precheckPaper(
 
     return { data: responseData.data as PrecheckResult, error: null }
   } catch (error) {
+    if (error instanceof ApiError) {
+      const body = error.body as
+        | {
+            data?: {
+              message?: string
+            }
+          }
+        | undefined
+
+      const detailedMessage = body?.data?.message?.trim()
+      if (detailedMessage) {
+        return {
+          data: null,
+          error: detailedMessage,
+        }
+      }
+    }
+
     return {
       data: null,
       error: error instanceof Error ? error.message : "Failed to precheck paper",

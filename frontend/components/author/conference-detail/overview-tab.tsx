@@ -1,5 +1,8 @@
+"use client"
+
 import { cn } from "@/lib/utils"
 import type { TabProps } from "./types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 // Consistent icon styling for 16px material symbols
 const iconStyle = {
@@ -20,6 +23,7 @@ const iconStyle = {
 }
 
 function AboutSection({ description }: { description?: string }) {
+  const { t } = useTranslation()
   return (
     <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
       <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
@@ -27,7 +31,9 @@ function AboutSection({ description }: { description?: string }) {
           <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
             description
           </span>
-          About the Conference
+          {t(
+            "runtime.components.author.conference-detail.overview-tab.text_about_the_conference",
+          )}{" "}
         </h2>
       </div>
       <div className="p-4">
@@ -40,6 +46,7 @@ function AboutSection({ description }: { description?: string }) {
 }
 
 function TracksSection({ tracks }: { tracks?: string[] }) {
+  const { t } = useTranslation()
   return (
     <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
       <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
@@ -47,11 +54,14 @@ function TracksSection({ tracks }: { tracks?: string[] }) {
           <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
             alt_route
           </span>
-          Conference Tracks
+          {t(
+            "runtime.components.author.conference-detail.overview-tab.text_conference_tracks",
+          )}{" "}
         </h2>
         {tracks && tracks.length > 0 && (
           <span className="text-[9px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full uppercase tracking-wider">
-            {tracks.length} Active Tracks
+            {tracks.length}{" "}
+            {t("runtime.components.author.conference-detail.overview-tab.text_active_tracks")}{" "}
           </span>
         )}
       </div>
@@ -80,7 +90,9 @@ function TracksSection({ tracks }: { tracks?: string[] }) {
             ))}
           </div>
         ) : (
-          <span className="text-xs text-slate-500">No tracks specified</span>
+          <span className="text-xs text-slate-500">
+            {t("runtime.components.author.conference-detail.overview-tab.text_no_tracks_specified")}
+          </span>
         )}
       </div>
     </section>
@@ -96,6 +108,7 @@ interface DetailsCardProps {
 }
 
 function DetailsCard({ synonym, venue, website, contact, conferenceId }: DetailsCardProps) {
+  const { t } = useTranslation()
   return (
     <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
       <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
@@ -103,14 +116,14 @@ function DetailsCard({ synonym, venue, website, contact, conferenceId }: Details
           <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
             info
           </span>
-          Details
+          {t("runtime.components.author.conference-detail.overview-tab.text_details")}{" "}
         </h2>
       </div>
       <div className="p-4 space-y-4">
         {/* Synonym */}
         <div>
           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-            Synonym
+            {t("runtime.components.author.conference-detail.overview-tab.text_synonym")}{" "}
           </span>
           <div className="text-[11px] font-semibold text-[#1B3C53] dark:text-white bg-slate-50 dark:bg-slate-800 inline-block px-2 py-1 rounded border border-slate-200 dark:border-slate-700">
             {synonym}
@@ -121,7 +134,7 @@ function DetailsCard({ synonym, venue, website, contact, conferenceId }: Details
         {venue && (
           <div>
             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-              Venue
+              {t("runtime.components.author.conference-detail.overview-tab.text_venue")}{" "}
             </span>
             <div className="text-[11px] font-medium text-[#1B3C53] dark:text-white flex items-start gap-1.5">
               <span className="material-symbols-outlined text-slate-400 mt-0.5" style={iconStyle}>
@@ -136,7 +149,7 @@ function DetailsCard({ synonym, venue, website, contact, conferenceId }: Details
         {website && (
           <div>
             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-              Website
+              {t("runtime.components.author.conference-detail.overview-tab.text_website")}{" "}
             </span>
             <a
               href={website.startsWith("http") ? website : `https://${website}`}
@@ -156,7 +169,9 @@ function DetailsCard({ synonym, venue, website, contact, conferenceId }: Details
         {contact && (
           <div>
             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-              Organizer Contact
+              {t(
+                "runtime.components.author.conference-detail.overview-tab.text_organizer_contact",
+              )}{" "}
             </span>
             <a
               href={`mailto:${contact}`}
@@ -174,7 +189,9 @@ function DetailsCard({ synonym, venue, website, contact, conferenceId }: Details
       {/* Footer */}
       <div className="bg-slate-50 dark:bg-slate-800/50 px-4 py-3 border-t border-slate-200 dark:border-slate-800">
         <div className="flex items-center justify-between">
-          <span className="text-[9px] text-slate-500 font-medium">Conference ID</span>
+          <span className="text-[9px] text-slate-500 font-medium">
+            {t("runtime.components.author.conference-detail.overview-tab.text_conference_id")}
+          </span>
           <span className="text-[9px] text-slate-400 font-mono">#{conferenceId}</span>
         </div>
       </div>
@@ -183,6 +200,7 @@ function DetailsCard({ synonym, venue, website, contact, conferenceId }: Details
 }
 
 function KeywordsCard({ keywords }: { keywords?: string[] }) {
+  const { t } = useTranslation()
   return (
     <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
       <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
@@ -190,7 +208,7 @@ function KeywordsCard({ keywords }: { keywords?: string[] }) {
           <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
             label
           </span>
-          Keywords
+          {t("runtime.components.author.conference-detail.overview-tab.text_keywords")}{" "}
         </h2>
       </div>
       <div className="p-4">
@@ -205,7 +223,11 @@ function KeywordsCard({ keywords }: { keywords?: string[] }) {
               </span>
             ))
           ) : (
-            <span className="text-xs text-slate-500">No keywords specified</span>
+            <span className="text-xs text-slate-500">
+              {t(
+                "runtime.components.author.conference-detail.overview-tab.text_no_keywords_specified",
+              )}
+            </span>
           )}
         </div>
       </div>

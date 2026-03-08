@@ -1,0 +1,97 @@
+/* Chatbot markdown styling — compact sizing for chat UI */
+@layer components {
+  .chatbot-markdown {
+    @apply text-[11px] leading-relaxed;
+  }
+
+  /* Override Streamdown/default sizes — force smaller typography */
+  .chatbot-markdown p,
+  .chatbot-markdown li,
+  .chatbot-markdown strong,
+  .chatbot-markdown em,
+  .chatbot-markdown span,
+  .chatbot-markdown div {
+    @apply text-[13px];
+  }
+
+  .chatbot-markdown p {
+    @apply my-0.5 leading-relaxed;
+  }
+
+  .chatbot-markdown li {
+    @apply py-0.5 text-[13px];
+  }
+
+  .chatbot-markdown strong {
+    @apply font-semibold text-[13px];
+  }
+
+  .chatbot-markdown em {
+    @apply italic text-[13px];
+  }
+
+  .chatbot-markdown code {
+    @apply font-mono bg-muted px-1 py-0.5 rounded text-[13px];
+  }
+
+  .chatbot-markdown pre {
+    @apply text-[13px] my-0.5;
+  }
+
+  /* Override Streamdown's text-xl, mt-6, mb-2 etc. on headings */
+  .chatbot-markdown h1 {
+    @apply font-semibold;
+    font-size: 1rem !important;
+    margin-top: 0.125rem !important;
+    margin-bottom: 0.125rem !important;
+  }
+
+  .chatbot-markdown h2 {
+    @apply font-semibold;
+    font-size: 0.9375rem !important;
+    margin-top: 0.125rem !important;
+    margin-bottom: 0.125rem !important;
+  }
+
+  .chatbot-markdown h3 {
+    @apply font-semibold;
+    font-size: 0.875rem !important;
+    margin-top: 0.125rem !important;
+    margin-bottom: 0.125rem !important;
+  }
+
+  .chatbot-markdown h4,
+  .chatbot-markdown h5,
+  .chatbot-markdown h6 {
+    @apply font-semibold;
+    font-size: 0.8125rem !important;
+    margin-top: 0.125rem !important;
+    margin-bottom: 0.125rem !important;
+  }
+
+  .chatbot-markdown ul,
+  .chatbot-markdown ol {
+    @apply my-0.5 text-[13px];
+  }
+
+  .chatbot-markdown ul {
+    @apply list-disc list-inside;
+  }
+
+  .chatbot-markdown ol {
+    @apply list-decimal list-inside;
+  }
+
+  .chatbot-markdown blockquote {
+    @apply border-l-2 border-muted pl-2 my-0.5 text-[13px];
+  }
+
+  .chatbot-markdown a {
+    @apply text-primary underline text-[13px];
+  }
+
+  /* Reduce vertical spacing in markdown content wrapper */
+  .chatbot-markdown .space-y-4 {
+    @apply space-y-2;
+  }
+}

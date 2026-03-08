@@ -1,6 +1,8 @@
 "use client"
 
 import type { StepType } from "./types"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { tStatic as t } from "@/lib/i18n/static-translate"
 
 interface SubmissionProgressSidebarProps {
   currentStep: StepType
@@ -14,17 +16,58 @@ interface SubmissionStep {
 }
 
 const SUBMISSION_STEPS: SubmissionStep[] = [
-  { id: "paper", title: "Paper Details", description: "Title, abstract, keywords" },
-  { id: "authors", title: "Authors & Affiliations", description: "Add co-authors" },
-  { id: "file", title: "Upload Manuscript", description: "PDF and materials" },
-  { id: "coi", title: "Conflicts of Interest", description: "Declare conflicts" },
-  { id: "review", title: "Review & Submit", description: "Final check" },
+  {
+    id: "paper",
+    title: t(
+      "runtime.components.author.submit.submission-progress-sidebar.prop_title_paper_details",
+    ),
+    description: t(
+      "runtime.components.author.submit.submission-progress-sidebar.prop_description_title_abstract_keywords",
+    ),
+  },
+  {
+    id: "authors",
+    title: t(
+      "runtime.components.author.submit.submission-progress-sidebar.prop_title_authors_affiliations",
+    ),
+    description: t(
+      "runtime.components.author.submit.submission-progress-sidebar.prop_description_add_co_authors",
+    ),
+  },
+  {
+    id: "file",
+    title: t(
+      "runtime.components.author.submit.submission-progress-sidebar.prop_title_upload_manuscript",
+    ),
+    description: t(
+      "runtime.components.author.submit.submission-progress-sidebar.prop_description_pdf_and_materials",
+    ),
+  },
+  {
+    id: "coi",
+    title: t(
+      "runtime.components.author.submit.submission-progress-sidebar.prop_title_conflicts_of_interest",
+    ),
+    description: t(
+      "runtime.components.author.submit.submission-progress-sidebar.prop_description_declare_conflicts",
+    ),
+  },
+  {
+    id: "review",
+    title: t(
+      "runtime.components.author.submit.submission-progress-sidebar.prop_title_review_submit",
+    ),
+    description: t(
+      "runtime.components.author.submit.submission-progress-sidebar.prop_description_final_check",
+    ),
+  },
 ]
 
 export function SubmissionProgressSidebar({
   currentStep,
   onStepChange,
 }: SubmissionProgressSidebarProps) {
+  const { t } = useTranslation()
   return (
     <aside className="hidden lg:flex w-[240px] flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-full overflow-y-auto z-10">
       {/* Logo */}
@@ -35,7 +78,9 @@ export function SubmissionProgressSidebar({
           </div>
           <div className="flex flex-col">
             <h1 className="text-[16px] font-bold tracking-tight text-[#141414] dark:text-white">
-              ConferenceSpace
+              {t(
+                "runtime.components.author.submit.submission-progress-sidebar.text_conferencespace",
+              )}{" "}
             </h1>
           </div>
         </div>
@@ -45,10 +90,14 @@ export function SubmissionProgressSidebar({
       <div className="px-4">
         <div className="flex flex-col mb-6">
           <h1 className="text-[#1B3C53] dark:text-white text-sm font-bold leading-[1.2] tracking-tight">
-            Submit New Paper
+            {t(
+              "runtime.components.author.submit.submission-progress-sidebar.text_submit_new_paper",
+            )}{" "}
           </h1>
           <p className="text-slate-400 text-[10px] font-medium">
-            Complete all steps to submit your manuscript
+            {t(
+              "runtime.components.author.submit.submission-progress-sidebar.text_complete_all_steps_to_submit_your",
+            )}{" "}
           </p>
         </div>
 

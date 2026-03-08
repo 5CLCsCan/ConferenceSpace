@@ -8,6 +8,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { cn } from "@/lib/utils"
 import { cva } from "class-variance-authority"
 import { getSidebarMenuItems } from "@/lib/navigation"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { tStatic as t } from "@/lib/i18n/static-translate"
 
 // ============================================================================
 // TYPES
@@ -65,40 +67,46 @@ const MOCK_EVENTS: ScheduleEvent[] = [
   // Today
   {
     id: "1",
-    title: "Abstract Submission Deadline",
+    title: t("runtime.app.role.chair.schedules.page.prop_title_abstract_submission_deadline"),
     conference: "AAAI Conference on Artificial Intelligence",
     conferenceAcronym: "AAAI",
     date: getDate(0),
     time: "23:59",
     type: "deadline",
-    description: "Final deadline for abstract submissions",
+    description: t(
+      "runtime.app.role.chair.schedules.page.prop_description_final_deadline_for_abstract_submissions",
+    ),
     isUrgent: true,
   },
   {
     id: "2",
-    title: "PC Meeting",
+    title: t("runtime.app.role.chair.schedules.page.prop_title_pc_meeting"),
     conference: "AAAI Conference on Artificial Intelligence",
     conferenceAcronym: "AAAI",
     date: getDate(0),
     time: "14:00",
     type: "meeting",
-    description: "Program committee sync call",
+    description: t(
+      "runtime.app.role.chair.schedules.page.prop_description_program_committee_sync_call",
+    ),
   },
   // Tomorrow
   {
     id: "3",
-    title: "Review Assignment Opens",
+    title: t("runtime.app.role.chair.schedules.page.prop_title_review_assignment_opens"),
     conference: "Computer Vision and Pattern Recognition",
     conferenceAcronym: "CVPR",
     date: getDate(1),
     time: "09:00",
     type: "milestone",
-    description: "Bidding phase begins for reviewers",
+    description: t(
+      "runtime.app.role.chair.schedules.page.prop_description_bidding_phase_begins_for_reviewers",
+    ),
   },
   // In 3 days
   {
     id: "4",
-    title: "Full Paper Deadline",
+    title: t("runtime.app.role.chair.schedules.page.prop_title_full_paper_deadline"),
     conference: "AAAI Conference on Artificial Intelligence",
     conferenceAcronym: "AAAI",
     date: getDate(3),
@@ -108,7 +116,7 @@ const MOCK_EVENTS: ScheduleEvent[] = [
   },
   {
     id: "5",
-    title: "Area Chair Briefing",
+    title: t("runtime.app.role.chair.schedules.page.prop_title_area_chair_briefing"),
     conference: "AAAI Conference on Artificial Intelligence",
     conferenceAcronym: "AAAI",
     date: getDate(3),
@@ -118,7 +126,7 @@ const MOCK_EVENTS: ScheduleEvent[] = [
   // In 5 days
   {
     id: "6",
-    title: "Reviewer Bidding Deadline",
+    title: t("runtime.app.role.chair.schedules.page.prop_title_reviewer_bidding_deadline"),
     conference: "Computer Vision and Pattern Recognition",
     conferenceAcronym: "CVPR",
     date: getDate(5),
@@ -128,7 +136,7 @@ const MOCK_EVENTS: ScheduleEvent[] = [
   // In 7 days
   {
     id: "7",
-    title: "Review Period Begins",
+    title: t("runtime.app.role.chair.schedules.page.prop_title_review_period_begins"),
     conference: "AAAI Conference on Artificial Intelligence",
     conferenceAcronym: "AAAI",
     date: getDate(7),
@@ -138,7 +146,7 @@ const MOCK_EVENTS: ScheduleEvent[] = [
   // In 10 days
   {
     id: "8",
-    title: "Meta-Review Deadline",
+    title: t("runtime.app.role.chair.schedules.page.prop_title_meta_review_deadline"),
     conference: "Neural Information Processing Systems",
     conferenceAcronym: "NeurIPS",
     date: getDate(10),
@@ -148,7 +156,7 @@ const MOCK_EVENTS: ScheduleEvent[] = [
   // In 14 days
   {
     id: "9",
-    title: "Author Notification",
+    title: t("runtime.app.role.chair.schedules.page.prop_title_author_notification"),
     conference: "Neural Information Processing Systems",
     conferenceAcronym: "NeurIPS",
     date: getDate(14),
@@ -158,7 +166,7 @@ const MOCK_EVENTS: ScheduleEvent[] = [
   // In 21 days
   {
     id: "10",
-    title: "Rebuttal Period Opens",
+    title: t("runtime.app.role.chair.schedules.page.prop_title_rebuttal_period_opens"),
     conference: "AAAI Conference on Artificial Intelligence",
     conferenceAcronym: "AAAI",
     date: getDate(21),
@@ -168,7 +176,7 @@ const MOCK_EVENTS: ScheduleEvent[] = [
   // In 28 days
   {
     id: "11",
-    title: "Camera Ready Deadline",
+    title: t("runtime.app.role.chair.schedules.page.prop_title_camera_ready_deadline"),
     conference: "Neural Information Processing Systems",
     conferenceAcronym: "NeurIPS",
     date: getDate(28),
@@ -178,7 +186,7 @@ const MOCK_EVENTS: ScheduleEvent[] = [
   // Past events
   {
     id: "12",
-    title: "Submission Portal Opened",
+    title: t("runtime.app.role.chair.schedules.page.prop_title_submission_portal_opened"),
     conference: "AAAI Conference on Artificial Intelligence",
     conferenceAcronym: "AAAI",
     date: getDate(-14),
@@ -187,7 +195,7 @@ const MOCK_EVENTS: ScheduleEvent[] = [
   },
   {
     id: "13",
-    title: "Call for Papers Released",
+    title: t("runtime.app.role.chair.schedules.page.prop_title_call_for_papers_released"),
     conference: "Computer Vision and Pattern Recognition",
     conferenceAcronym: "CVPR",
     date: getDate(-30),
@@ -204,20 +212,40 @@ const MOCK_CONFERENCES: ConferenceTimeline[] = [
     year: "2025",
     currentPhase: "submission",
     phases: [
-      { phase: "planning", label: "Planning", startDate: getDate(-60), endDate: getDate(-30) },
+      {
+        phase: "planning",
+        label: t("runtime.app.role.chair.schedules.page.prop_label_planning"),
+        startDate: getDate(-60),
+        endDate: getDate(-30),
+      },
       {
         phase: "submission",
-        label: "Submission",
+        label: t("runtime.app.role.chair.schedules.page.prop_label_submission"),
         startDate: getDate(-30),
         endDate: getDate(7),
         isCurrent: true,
       },
-      { phase: "review", label: "Review", startDate: getDate(7), endDate: getDate(35) },
-      { phase: "rebuttal", label: "Rebuttal", startDate: getDate(35), endDate: getDate(42) },
-      { phase: "decision", label: "Decision", startDate: getDate(42), endDate: getDate(56) },
+      {
+        phase: "review",
+        label: t("runtime.app.role.chair.schedules.page.prop_label_review"),
+        startDate: getDate(7),
+        endDate: getDate(35),
+      },
+      {
+        phase: "rebuttal",
+        label: t("runtime.app.role.chair.schedules.page.prop_label_rebuttal"),
+        startDate: getDate(35),
+        endDate: getDate(42),
+      },
+      {
+        phase: "decision",
+        label: t("runtime.app.role.chair.schedules.page.prop_label_decision"),
+        startDate: getDate(42),
+        endDate: getDate(56),
+      },
       {
         phase: "camera_ready",
-        label: "Camera Ready",
+        label: t("runtime.app.role.chair.schedules.page.prop_label_camera_ready"),
         startDate: getDate(56),
         endDate: getDate(70),
       },
@@ -232,14 +260,29 @@ const MOCK_CONFERENCES: ConferenceTimeline[] = [
     phases: [
       {
         phase: "planning",
-        label: "Planning",
+        label: t("runtime.app.role.chair.schedules.page.prop_label_planning"),
         startDate: getDate(-45),
         endDate: getDate(5),
         isCurrent: true,
       },
-      { phase: "submission", label: "Submission", startDate: getDate(5), endDate: getDate(45) },
-      { phase: "review", label: "Review", startDate: getDate(45), endDate: getDate(90) },
-      { phase: "decision", label: "Decision", startDate: getDate(90), endDate: getDate(105) },
+      {
+        phase: "submission",
+        label: t("runtime.app.role.chair.schedules.page.prop_label_submission"),
+        startDate: getDate(5),
+        endDate: getDate(45),
+      },
+      {
+        phase: "review",
+        label: t("runtime.app.role.chair.schedules.page.prop_label_review"),
+        startDate: getDate(45),
+        endDate: getDate(90),
+      },
+      {
+        phase: "decision",
+        label: t("runtime.app.role.chair.schedules.page.prop_label_decision"),
+        startDate: getDate(90),
+        endDate: getDate(105),
+      },
     ],
   },
   {
@@ -249,20 +292,40 @@ const MOCK_CONFERENCES: ConferenceTimeline[] = [
     year: "2024",
     currentPhase: "decision",
     phases: [
-      { phase: "planning", label: "Planning", startDate: getDate(-180), endDate: getDate(-150) },
-      { phase: "submission", label: "Submission", startDate: getDate(-150), endDate: getDate(-90) },
-      { phase: "review", label: "Review", startDate: getDate(-90), endDate: getDate(-30) },
-      { phase: "rebuttal", label: "Rebuttal", startDate: getDate(-30), endDate: getDate(-14) },
+      {
+        phase: "planning",
+        label: t("runtime.app.role.chair.schedules.page.prop_label_planning"),
+        startDate: getDate(-180),
+        endDate: getDate(-150),
+      },
+      {
+        phase: "submission",
+        label: t("runtime.app.role.chair.schedules.page.prop_label_submission"),
+        startDate: getDate(-150),
+        endDate: getDate(-90),
+      },
+      {
+        phase: "review",
+        label: t("runtime.app.role.chair.schedules.page.prop_label_review"),
+        startDate: getDate(-90),
+        endDate: getDate(-30),
+      },
+      {
+        phase: "rebuttal",
+        label: t("runtime.app.role.chair.schedules.page.prop_label_rebuttal"),
+        startDate: getDate(-30),
+        endDate: getDate(-14),
+      },
       {
         phase: "decision",
-        label: "Decision",
+        label: t("runtime.app.role.chair.schedules.page.prop_label_decision"),
         startDate: getDate(-14),
         endDate: getDate(14),
         isCurrent: true,
       },
       {
         phase: "camera_ready",
-        label: "Camera Ready",
+        label: t("runtime.app.role.chair.schedules.page.prop_label_camera_ready"),
         startDate: getDate(14),
         endDate: getDate(35),
       },
@@ -345,6 +408,7 @@ function QuickStatCard({
   isExpanded?: boolean
   onToggle?: () => void
 }) {
+  const { t } = useTranslation()
   return (
     <div
       className={cn(
@@ -390,10 +454,10 @@ function ConferencePhaseTimeline({ conferences }: { conferences: ConferenceTimel
     <div className="bg-white dark:bg-slate-900 px-4 pt-4 pb-3 rounded-xl border border-slate-200 dark:border-slate-800">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-          Conference Phases
+          {t("runtime.app.role.chair.schedules.page.text_conference_phases")}{" "}
         </h3>
         <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">
-          {conferences.length} Active
+          {conferences.length} {t("runtime.app.role.chair.schedules.page.text_active")}{" "}
         </span>
       </div>
 
@@ -548,7 +612,9 @@ function AgendaPanel({
               >
                 event_available
               </span>
-              <p className="text-xs text-slate-400">No events scheduled</p>
+              <p className="text-xs text-slate-400">
+                {t("runtime.app.role.chair.schedules.page.text_no_events_scheduled")}
+              </p>
             </div>
           )}
         </div>
@@ -558,16 +624,18 @@ function AgendaPanel({
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            Upcoming Deadlines
+            {t("runtime.app.role.chair.schedules.page.text_upcoming_deadlines")}{" "}
           </h3>
-          <span className="text-[10px] text-slate-400 font-medium">Next 7 days</span>
+          <span className="text-[10px] text-slate-400 font-medium">
+            {t("runtime.app.role.chair.schedules.page.text_next_7_days")}
+          </span>
         </div>
         <div className="p-3 space-y-2">
           {upcomingDeadlines.length > 0 ? (
             upcomingDeadlines.map((event) => <EventCard key={event.id} event={event} compact />)
           ) : (
             <p className="text-xs text-slate-400 text-center py-4">
-              No deadlines in the next 7 days
+              {t("runtime.app.role.chair.schedules.page.text_no_deadlines_in_the_next_7")}{" "}
             </p>
           )}
         </div>
@@ -599,9 +667,11 @@ function TimelineView({ events }: { events: ScheduleEvent[] }) {
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
       <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
         <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-          Event Timeline
+          {t("runtime.app.role.chair.schedules.page.text_event_timeline")}{" "}
         </h3>
-        <p className="text-[10px] text-slate-400 mt-0.5">{sortedEvents.length} upcoming events</p>
+        <p className="text-[10px] text-slate-400 mt-0.5">
+          {sortedEvents.length} {t("runtime.app.role.chair.schedules.page.text_upcoming_events")}
+        </p>
       </div>
 
       <div className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -726,10 +796,12 @@ export default function ChairSchedulesPage() {
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
             <div>
               <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white leading-[1.1]">
-                Schedules
+                {t("runtime.app.role.chair.schedules.page.text_schedules")}{" "}
               </h1>
               <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
-                Conference deadlines, milestones, and meetings at a glance.
+                {t(
+                  "runtime.app.role.chair.schedules.page.text_conference_deadlines_milestones_and_meetings_at",
+                )}{" "}
               </p>
             </div>
 
@@ -754,7 +826,7 @@ export default function ChairSchedulesPage() {
                   sideOffset={8}
                   className="border-0 rounded-xl text-[10px] text-slate-500 dark:text-slate-300"
                 >
-                  Filter events by conference
+                  {t("runtime.app.role.chair.schedules.page.text_filter_events_by_conference")}{" "}
                 </TooltipContent>
               </Tooltip>
 
@@ -770,8 +842,10 @@ export default function ChairSchedulesPage() {
                           ? "bg-white dark:bg-slate-700 shadow-sm text-[#1B3C53] dark:text-white"
                           : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300",
                       )}
-                      aria-label="Switch to calendar view"
-                      title="Calendar View"
+                      aria-label={t(
+                        "runtime.app.role.chair.schedules.page.aria_label_switch_to_calendar_view",
+                      )}
+                      title={t("runtime.app.role.chair.schedules.page.title_calendar_view")}
                     >
                       <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
                         calendar_month
@@ -783,7 +857,7 @@ export default function ChairSchedulesPage() {
                     sideOffset={8}
                     className="border-0 rounded-xl text-[10px] text-slate-500 dark:text-slate-300"
                   >
-                    Calendar view
+                    {t("runtime.app.role.chair.schedules.page.text_calendar_view")}{" "}
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip>
@@ -796,8 +870,10 @@ export default function ChairSchedulesPage() {
                           ? "bg-white dark:bg-slate-700 shadow-sm text-[#1B3C53] dark:text-white"
                           : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300",
                       )}
-                      aria-label="Switch to timeline view"
-                      title="Timeline View"
+                      aria-label={t(
+                        "runtime.app.role.chair.schedules.page.aria_label_switch_to_timeline_view",
+                      )}
+                      title={t("runtime.app.role.chair.schedules.page.title_timeline_view")}
                     >
                       <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
                         view_timeline
@@ -809,7 +885,7 @@ export default function ChairSchedulesPage() {
                     sideOffset={8}
                     className="border-0 rounded-xl text-[10px] text-slate-500 dark:text-slate-300"
                   >
-                    Timeline view
+                    {t("runtime.app.role.chair.schedules.page.text_timeline_view")}{" "}
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -894,7 +970,8 @@ export default function ChairSchedulesPage() {
                             className={cn(
                               className,
                               "relative mx-0 w-full min-w-0 max-w-none h-[calc(var(--cell-size)*1.05)]",
-                              modifiers.selected && "bg-[#1B3C53] text-white hover:bg-[#1B3C53] hover:text-white",
+                              modifiers.selected &&
+                                "bg-[#1B3C53] text-white hover:bg-[#1B3C53] hover:text-white",
                             )}
                             {...props}
                           >
@@ -922,15 +999,21 @@ export default function ChairSchedulesPage() {
                   <div className="flex items-center justify-center gap-4 mt-0 pt-4">
                     <div className="flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-red-500" />
-                      <span className="text-[10px] font-medium text-slate-500">Deadline</span>
+                      <span className="text-[10px] font-medium text-slate-500">
+                        {t("runtime.app.role.chair.schedules.page.text_deadline")}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-blue-500" />
-                      <span className="text-[10px] font-medium text-slate-500">Meeting</span>
+                      <span className="text-[10px] font-medium text-slate-500">
+                        {t("runtime.app.role.chair.schedules.page.text_meeting")}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                      <span className="text-[10px] font-medium text-slate-500">Milestone</span>
+                      <span className="text-[10px] font-medium text-slate-500">
+                        {t("runtime.app.role.chair.schedules.page.text_milestone")}
+                      </span>
                     </div>
                   </div>
                 </div>

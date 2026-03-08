@@ -4,6 +4,7 @@ import { useState, useRef } from "react"
 import { precheckPaper, downloadPaperFile } from "@/lib/api/papers"
 import type { Conference, PrecheckResult } from "@/lib/types"
 import { PreCheckResults } from "./precheck-results"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface FileUploadStepProps {
   uploadedFile: File | null
@@ -35,6 +36,7 @@ export function FileUploadStep({
   onRemoveFile,
   onPrecheckUpdate,
 }: FileUploadStepProps) {
+  const { t } = useTranslation()
   const [isPrechecking, setIsPrechecking] = useState(false)
   const [precheckResult, setPrecheckResult] = useState<PrecheckResult | null>(null)
   const [precheckError, setPrecheckError] = useState<string | null>(null)
@@ -116,11 +118,14 @@ export function FileUploadStep({
           </span>
           <div>
             <h3 className="text-xs font-bold text-[#1B3C53] dark:text-blue-200">
-              Double-Blind Review Policy
+              {t(
+                "runtime.components.author.submit.file-upload-step.text_double_blind_review_policy",
+              )}{" "}
             </h3>
             <p className="text-[11px] text-slate-600 dark:text-blue-300/80 mt-0.5 leading-relaxed">
-              This conference follows a double-blind review process. Your manuscript must not
-              contain names, affiliations, or any other identifying information.
+              {t(
+                "runtime.components.author.submit.file-upload-step.text_this_conference_follows_a_double_blind",
+              )}{" "}
             </p>
           </div>
         </div>
@@ -131,10 +136,10 @@ export function FileUploadStep({
         <div className="border-b border-slate-100 dark:border-slate-700 pb-3 mb-4">
           <div className="flex justify-between items-center">
             <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
-              Manuscript PDF
+              {t("runtime.components.author.submit.file-upload-step.text_manuscript_pdf")}{" "}
             </h3>
             <span className="text-[9px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded uppercase tracking-wider">
-              Max: 20MB
+              {t("runtime.components.author.submit.file-upload-step.text_max_20mb")}{" "}
             </span>
           </div>
         </div>
@@ -156,7 +161,10 @@ export function FileUploadStep({
                   {uploadedFile.name}
                 </p>
                 <p className="text-[11px] text-slate-500 mt-1">
-                  {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB - Click to replace
+                  {(uploadedFile.size / 1024 / 1024).toFixed(2)}{" "}
+                  {t(
+                    "runtime.components.author.submit.file-upload-step.text_mb_click_to_replace",
+                  )}{" "}
                 </p>
               </div>
             ) : existingFile ? (
@@ -165,7 +173,10 @@ export function FileUploadStep({
                   {existingFile.name}
                 </p>
                 <p className="text-[11px] text-slate-500 mt-1">
-                  {(existingFile.size / 1024 / 1024).toFixed(2)} MB - Existing file
+                  {(existingFile.size / 1024 / 1024).toFixed(2)}{" "}
+                  {t(
+                    "runtime.components.author.submit.file-upload-step.text_mb_existing_file",
+                  )}{" "}
                 </p>
                 <button
                   type="button"
@@ -177,15 +188,23 @@ export function FileUploadStep({
                   className="mt-2 text-[10px] font-medium text-[#1B3C53] hover:underline flex items-center gap-1 mx-auto uppercase tracking-wider"
                 >
                   <span className="material-symbols-outlined text-[14px]">download</span>
-                  {isDownloading ? "Downloading..." : "Download existing"}
+                  {isDownloading
+                    ? t("runtime.components.author.submit.file-upload-step.text_downloading")
+                    : t("runtime.components.author.submit.file-upload-step.text_download_existing")}
                 </button>
               </div>
             ) : (
               <>
                 <p className="text-sm font-bold text-[#141414] dark:text-white group-hover:text-[#1B3C53] dark:group-hover:text-slate-300 transition-colors">
-                  Click to upload or drag and drop
+                  {t(
+                    "runtime.components.author.submit.file-upload-step.text_click_to_upload_or_drag_and",
+                  )}{" "}
                 </p>
-                <p className="text-[11px] text-slate-500 mt-1">Only PDF files are allowed</p>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  {t(
+                    "runtime.components.author.submit.file-upload-step.text_only_pdf_files_are_allowed",
+                  )}
+                </p>
               </>
             )}
           </div>
@@ -198,7 +217,9 @@ export function FileUploadStep({
               sync
             </span>
             <span className="text-xs font-medium text-[#1B3C53] dark:text-slate-300">
-              Running quality check on your paper...
+              {t(
+                "runtime.components.author.submit.file-upload-step.text_running_quality_check_on_your_paper",
+              )}{" "}
             </span>
           </div>
         )}
@@ -232,20 +253,29 @@ export function FileUploadStep({
                     <span className="material-symbols-outlined text-[14px] icon-filled">
                       check_circle
                     </span>
-                    Ready
+                    {t("runtime.components.author.submit.file-upload-step.text_ready")}{" "}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-[10px] text-slate-500">
-                  <span>{(uploadedFile.size / 1024 / 1024).toFixed(1)} MB</span>
+                  <span>
+                    {(uploadedFile.size / 1024 / 1024).toFixed(1)}{" "}
+                    {t("runtime.components.author.submit.file-upload-step.text_mb")}
+                  </span>
                   <span>-</span>
-                  <span>Uploaded just now</span>
+                  <span>
+                    {t("runtime.components.author.submit.file-upload-step.text_uploaded_just_now")}
+                  </span>
                 </div>
               </div>
               <div className="flex items-center gap-1">
                 <button
                   className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors"
-                  title="Preview"
+                  title={t("runtime.components.author.submit.file-upload-step.title_preview")}
                   type="button"
+                  onClick={() => {
+                    const url = URL.createObjectURL(uploadedFile)
+                    window.open(url, "_blank")
+                  }}
                 >
                   <span className="material-symbols-outlined text-[18px]">visibility</span>
                 </button>
@@ -253,9 +283,12 @@ export function FileUploadStep({
                   onClick={() => {
                     onRemoveFile()
                     onPrecheckUpdate?.(null, null)
+                    setPrecheckResult(null)
+                    setPrecheckError(null)
+                    if (fileInputRef.current) fileInputRef.current.value = ""
                   }}
                   className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg text-slate-400 hover:text-red-600 transition-colors"
-                  title="Delete"
+                  title={t("runtime.components.author.submit.file-upload-step.title_delete")}
                   type="button"
                 >
                   <span className="material-symbols-outlined text-[18px]">delete</span>
@@ -278,11 +311,13 @@ export function FileUploadStep({
         <div className="border-b border-slate-100 dark:border-slate-700 pb-3 mb-4">
           <div className="flex justify-between items-center">
             <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
-              Supplementary Material{" "}
-              <span className="text-slate-400 font-normal text-xs">(Optional)</span>
+              {t("runtime.components.author.submit.file-upload-step.text_supplementary_material")}{" "}
+              <span className="text-slate-400 font-normal text-xs">
+                {t("runtime.components.author.submit.file-upload-step.text_optional")}
+              </span>
             </h3>
             <span className="text-[9px] font-medium text-slate-500 uppercase tracking-wider">
-              ZIP, Code, Data
+              {t("runtime.components.author.submit.file-upload-step.text_zip_code_data")}{" "}
             </span>
           </div>
         </div>
@@ -292,25 +327,31 @@ export function FileUploadStep({
             className="flex-1 border border-dashed border-slate-300 dark:border-slate-600 hover:border-[#1B3C53] dark:hover:border-slate-400 rounded-lg h-20 flex flex-col items-center justify-center gap-1.5 bg-slate-50/50 dark:bg-slate-900/20 hover:bg-[#1B3C53]/5 transition-all text-slate-500 hover:text-[#1B3C53] dark:hover:text-slate-300"
           >
             <span className="material-symbols-outlined text-[20px]">upload_file</span>
-            <span className="text-[11px] font-medium">Add supplementary files</span>
+            <span className="text-[11px] font-medium">
+              {t("runtime.components.author.submit.file-upload-step.text_add_supplementary_files")}
+            </span>
           </button>
         </div>
         <p className="text-[10px] text-slate-400 mt-3 font-light">
-          Upload source code, datasets, or additional proofs that support your submission.
+          {t(
+            "runtime.components.author.submit.file-upload-step.text_upload_source_code_datasets_or_additional",
+          )}{" "}
         </p>
       </div>
 
       {/* Validation Status */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {fileValidation.format && (
+        {(fileValidation.format || (precheckResult && precheckResult.overall_score >= 60)) && (
           <div className="bg-green-50 dark:bg-green-900/10 rounded-lg px-4 py-3 border border-green-100 dark:border-green-900/20 flex items-start gap-3">
             <span className="material-symbols-outlined text-green-600 text-[16px]">verified</span>
             <div>
               <p className="text-xs font-bold text-green-800 dark:text-green-300">
-                Format Validated
+                {t("runtime.components.author.submit.file-upload-step.text_format_validated")}{" "}
               </p>
               <p className="text-[10px] text-green-700/70 dark:text-green-400/70 font-light">
-                The uploaded PDF meets the conference formatting guidelines.
+                {t(
+                  "runtime.components.author.submit.file-upload-step.text_the_uploaded_pdf_meets_the_conference",
+                )}{" "}
               </p>
             </div>
           </div>
@@ -320,9 +361,13 @@ export function FileUploadStep({
             font_download
           </span>
           <div>
-            <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Font Check</p>
+            <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
+              {t("runtime.components.author.submit.file-upload-step.text_font_check")}
+            </p>
             <p className="text-[10px] text-slate-500 font-light">
-              Fonts will be analyzed upon final submission.
+              {t(
+                "runtime.components.author.submit.file-upload-step.text_fonts_will_be_analyzed_upon_final",
+              )}{" "}
             </p>
           </div>
         </div>

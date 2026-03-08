@@ -89,6 +89,7 @@ type ReviewCriteria struct {
 
 // ReviewFeedback represents textual feedback sections
 type ReviewFeedback struct {
+	Summary    string `json:"summary,omitempty"`
 	Strengths  string `json:"strengths"`
 	Weaknesses string `json:"weaknesses,omitempty"`
 	Questions  string `json:"questions,omitempty"`
@@ -240,7 +241,7 @@ type ConfirmedAssignmentGroup struct {
 
 // ConfirmedAssignmentsListResponse is the response for listing confirmed assignments
 type ConfirmedAssignmentsListResponse struct {
-	Assignments       []*ConfirmedAssignmentGroup `json:"assignments"`
-	TotalPapers       int                         `json:"total_papers"`
-	TotalAssignments  int64                       `json:"total_assignments"`
+	Assignments      []*ConfirmedAssignmentGroup `json:"assignments"`
+	TotalPapers      int                         `json:"total_papers"`
+	TotalAssignments int64                       `json:"total_assignments"`
 }

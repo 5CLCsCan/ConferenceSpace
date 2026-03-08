@@ -2,6 +2,7 @@
 
 import { Loader2 } from "lucide-react"
 import type { StepType } from "./types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface SubmissionActionBarProps {
   currentStep: StepType
@@ -16,14 +17,6 @@ interface SubmissionActionBarProps {
 
 const stepOrder: StepType[] = ["paper", "authors", "file", "coi", "review"]
 
-const nextStepLabels: Record<StepType, string> = {
-  paper: "Next: Authors",
-  authors: "Next: Upload",
-  file: "Next: Conflicts",
-  coi: "Next: Review",
-  review: "Submit Paper",
-}
-
 export function SubmissionActionBar({
   currentStep,
   submitting,
@@ -34,9 +27,17 @@ export function SubmissionActionBar({
   onCancel,
   canSubmit = true,
 }: SubmissionActionBarProps) {
+  const { t } = useTranslation()
   const currentIndex = stepOrder.indexOf(currentStep)
   const isFirstStep = currentIndex === 0
   const isLastStep = currentIndex === stepOrder.length - 1
+  const nextStepLabels: Record<StepType, string> = {
+    paper: t("runtime.components.author.submit.submission-action-bar.text_next_authors"),
+    authors: t("runtime.components.author.submit.submission-action-bar.text_next_upload"),
+    file: t("runtime.components.author.submit.submission-action-bar.text_next_conflicts"),
+    coi: t("runtime.components.author.submit.submission-action-bar.text_next_review"),
+    review: t("runtime.components.author.submit.submission-action-bar.text_submit_paper"),
+  }
 
   const handlePrevious = () => {
     if (!isFirstStep) {
@@ -92,7 +93,7 @@ export function SubmissionActionBar({
           >
             arrow_back
           </span>
-          Return
+          {t("runtime.components.author.submit.submission-action-bar.text_return")}{" "}
         </button>
 
         {/* Right Side Actions */}
@@ -125,7 +126,9 @@ export function SubmissionActionBar({
             >
               save
             </span>
-            {savingDraft ? "Saving..." : "Save Draft"}
+            {savingDraft
+              ? t("runtime.components.author.submit.submission-action-bar.text_saving")
+              : t("runtime.components.author.submit.submission-action-bar.text_save_draft")}
           </button>
 
           {/* Next / Submit Button */}
@@ -139,11 +142,11 @@ export function SubmissionActionBar({
               {submitting ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  Submitting...
+                  {t("runtime.components.author.submit.submission-action-bar.text_submitting")}{" "}
                 </>
               ) : (
                 <>
-                  Submit Paper
+                  {t("runtime.components.author.submit.submission-action-bar.text_submit_paper")}{" "}
                   <span
                     className="material-symbols-outlined"
                     style={{

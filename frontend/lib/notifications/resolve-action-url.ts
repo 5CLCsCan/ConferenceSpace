@@ -58,7 +58,8 @@ export function resolveNotificationActionUrl(actionUrl?: string): string | null 
   const reviewerPaper = path.match(/^\/dashboard\/reviewer\/papers\/(\d+)$/)
   if (reviewerPaper) {
     const [, assignmentId] = reviewerPaper
-    const conferenceId = url.searchParams.get("conference_id") || url.searchParams.get("conferenceId")
+    const conferenceId =
+      url.searchParams.get("conference_id") || url.searchParams.get("conferenceId")
     if (conferenceId) {
       return `${ROUTES.REVIEWER.ASSIGNMENT(assignmentId)}?conferenceId=${conferenceId}`
     }
@@ -68,7 +69,8 @@ export function resolveNotificationActionUrl(actionUrl?: string): string | null 
   const authorPaper = path.match(/^\/dashboard\/author\/papers\/(\d+)$/)
   if (authorPaper) {
     const [, submissionId] = authorPaper
-    const conferenceId = url.searchParams.get("conference_id") || url.searchParams.get("conferenceId")
+    const conferenceId =
+      url.searchParams.get("conference_id") || url.searchParams.get("conferenceId")
     if (conferenceId) {
       return `${ROUTES.AUTHOR.SUBMISSION_DETAIL(submissionId)}?conferenceId=${conferenceId}`
     }

@@ -32,6 +32,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ConferenceAssignmentsProps {
   conferenceId: string
@@ -41,6 +42,7 @@ interface ConferenceAssignmentsProps {
 type TabType = "suggestions" | "confirmed"
 
 function ScoreBadge({ score }: { score: number }) {
+  const { t } = useTranslation()
   const percentage = Math.round(score * 100)
   const variant =
     percentage >= 70
@@ -62,14 +64,53 @@ function ScoreBadge({ score }: { score: number }) {
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation()
   const statusConfig: Record<string, { label: string; bg: string; text: string }> = {
-    pending: { label: "Pending", bg: "bg-amber-50", text: "text-amber-700" },
-    accepted: { label: "Accepted", bg: "bg-green-50", text: "text-green-700" },
-    declined: { label: "Declined", bg: "bg-red-50", text: "text-red-700" },
-    completed: { label: "Completed", bg: "bg-blue-50", text: "text-blue-700" },
+    pending: {
+      label: t(
+        "runtime.components.chair.conference-detail.conference-assignments.prop_label_pending",
+      ),
+      bg: "bg-amber-50",
+      text: t(
+        "runtime.components.chair.conference-detail.conference-assignments.prop_text_text_amber_700",
+      ),
+    },
+    accepted: {
+      label: t(
+        "runtime.components.chair.conference-detail.conference-assignments.prop_label_accepted",
+      ),
+      bg: "bg-green-50",
+      text: t(
+        "runtime.components.chair.conference-detail.conference-assignments.prop_text_text_green_700",
+      ),
+    },
+    declined: {
+      label: t(
+        "runtime.components.chair.conference-detail.conference-assignments.prop_label_declined",
+      ),
+      bg: "bg-red-50",
+      text: t(
+        "runtime.components.chair.conference-detail.conference-assignments.prop_text_text_red_700",
+      ),
+    },
+    completed: {
+      label: t(
+        "runtime.components.chair.conference-detail.conference-assignments.prop_label_completed",
+      ),
+      bg: "bg-blue-50",
+      text: t(
+        "runtime.components.chair.conference-detail.conference-assignments.prop_text_text_blue_700",
+      ),
+    },
   }
 
-  const config = statusConfig[status] || { label: status, bg: "bg-slate-100", text: "text-slate-600" }
+  const config = statusConfig[status] || {
+    label: status,
+    bg: "bg-slate-100",
+    text: t(
+      "runtime.components.chair.conference-detail.conference-assignments.prop_text_text_slate_600",
+    ),
+  }
 
   return (
     <span
@@ -85,13 +126,44 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 function ReviewStatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation()
   const statusConfig: Record<string, { label: string; bg: string; text: string }> = {
-    not_started: { label: "Not Started", bg: "bg-slate-100", text: "text-slate-500" },
-    in_progress: { label: "In Progress", bg: "bg-purple-50", text: "text-purple-700" },
-    submitted: { label: "Submitted", bg: "bg-emerald-50", text: "text-emerald-700" },
+    not_started: {
+      label: t(
+        "runtime.components.chair.conference-detail.conference-assignments.prop_label_not_started",
+      ),
+      bg: "bg-slate-100",
+      text: t(
+        "runtime.components.chair.conference-detail.conference-assignments.prop_text_text_slate_500",
+      ),
+    },
+    in_progress: {
+      label: t(
+        "runtime.components.chair.conference-detail.conference-assignments.prop_label_in_progress",
+      ),
+      bg: "bg-purple-50",
+      text: t(
+        "runtime.components.chair.conference-detail.conference-assignments.prop_text_text_purple_700",
+      ),
+    },
+    submitted: {
+      label: t(
+        "runtime.components.chair.conference-detail.conference-assignments.prop_label_submitted",
+      ),
+      bg: "bg-emerald-50",
+      text: t(
+        "runtime.components.chair.conference-detail.conference-assignments.prop_text_text_emerald_700",
+      ),
+    },
   }
 
-  const config = statusConfig[status] || { label: status, bg: "bg-slate-100", text: "text-slate-600" }
+  const config = statusConfig[status] || {
+    label: status,
+    bg: "bg-slate-100",
+    text: t(
+      "runtime.components.chair.conference-detail.conference-assignments.prop_text_text_slate_600",
+    ),
+  }
 
   return (
     <span
@@ -107,6 +179,7 @@ function ReviewStatusBadge({ status }: { status: string }) {
 }
 
 export function ConferenceAssignments({ conferenceId, className }: ConferenceAssignmentsProps) {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<TabType>("suggestions")
 
   // Suggestions state
@@ -130,7 +203,11 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
   const [availableReviewers, setAvailableReviewers] = useState<Reviewer[]>([])
   const [loadingReviewers, setLoadingReviewers] = useState(false)
   const [addingReviewer, setAddingReviewer] = useState(false)
-  const [coiWarning, setCoiWarning] = useState<{ show: boolean; reasons: string[]; reviewerId: number | null }>({
+  const [coiWarning, setCoiWarning] = useState<{
+    show: boolean
+    reasons: string[]
+    reviewerId: number | null
+  }>({
     show: false,
     reasons: [],
     reviewerId: null,
@@ -268,10 +345,14 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
           <h2 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            Reviewer Assignments
+            {t(
+              "runtime.components.chair.conference-detail.conference-assignments.text_reviewer_assignments",
+            )}{" "}
           </h2>
           <p className="text-xs font-medium text-slate-500 leading-relaxed mt-0.5">
-            Review and manage reviewer assignments for submissions.
+            {t(
+              "runtime.components.chair.conference-detail.conference-assignments.text_review_and_manage_reviewer_assignments_for",
+            )}{" "}
           </p>
         </div>
 
@@ -297,7 +378,9 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
               : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300",
           )}
         >
-          Pending Suggestions
+          {t(
+            "runtime.components.chair.conference-detail.conference-assignments.text_pending_suggestions",
+          )}{" "}
           {totalSuggestions > 0 && (
             <span className="ml-2 px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded text-[9px] font-bold">
               {totalSuggestions}
@@ -316,7 +399,9 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
               : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300",
           )}
         >
-          Confirmed Assignments
+          {t(
+            "runtime.components.chair.conference-detail.conference-assignments.text_confirmed_assignments",
+          )}{" "}
           {totalConfirmed > 0 && (
             <span className="ml-2 px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[9px] font-bold">
               {totalConfirmed}
@@ -333,9 +418,15 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
         {activeTab === "suggestions" ? (
           // Suggestions Tab Content
           loadingSuggestions ? (
-            <div className="p-6 text-xs font-medium text-slate-500">Loading suggestions...</div>
+            <div className="p-6 text-xs font-medium text-slate-500">
+              {t(
+                "runtime.components.chair.conference-detail.conference-assignments.text_loading_suggestions",
+              )}
+            </div>
           ) : error ? (
-            <div className="p-6 text-xs font-medium text-red-700 bg-red-50 border-t border-red-200">{error}</div>
+            <div className="p-6 text-xs font-medium text-red-700 bg-red-50 border-t border-red-200">
+              {error}
+            </div>
           ) : suggestionsEmpty ? (
             <div className="p-8 text-center">
               <div className="text-slate-400 mb-2">
@@ -344,11 +435,14 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
                 </span>
               </div>
               <h3 className="text-sm font-bold tracking-tight text-[#1B3C53] dark:text-slate-300">
-                No Pending Suggestions
+                {t(
+                  "runtime.components.chair.conference-detail.conference-assignments.text_no_pending_suggestions",
+                )}{" "}
               </h3>
               <p className="text-xs font-medium text-slate-500 leading-relaxed mt-1 max-w-md mx-auto">
-                Run auto-assignment from the Actions panel to generate reviewer suggestions, or all
-                suggestions have been confirmed.
+                {t(
+                  "runtime.components.chair.conference-detail.conference-assignments.text_run_auto_assignment_from_the_actions",
+                )}{" "}
               </p>
             </div>
           ) : (
@@ -361,7 +455,10 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
                         #{group.submission_id} - {group.submission_title}
                       </h3>
                       <p className="text-[10px] font-medium text-slate-400 mt-0.5">
-                        {group.reviewers.length} suggested reviewer
+                        {group.reviewers.length}{" "}
+                        {t(
+                          "runtime.components.chair.conference-detail.conference-assignments.text_suggested_reviewer",
+                        )}{" "}
                         {group.reviewers.length !== 1 ? "s" : ""}
                       </p>
                     </div>
@@ -374,7 +471,9 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
                       <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
                         person_add
                       </span>
-                      Add Reviewer
+                      {t(
+                        "runtime.components.chair.conference-detail.conference-assignments.text_add_reviewer",
+                      )}{" "}
                     </Button>
                   </div>
 
@@ -393,7 +492,11 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
                               {reviewer.reviewer_email}
                             </p>
                             <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-[10px] font-medium text-slate-400">Match:</span>
+                              <span className="text-[10px] font-medium text-slate-400">
+                                {t(
+                                  "runtime.components.chair.conference-detail.conference-assignments.text_match",
+                                )}
+                              </span>
                               <ScoreBadge score={reviewer.score} />
                             </div>
                           </div>
@@ -412,7 +515,9 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
                             >
                               check
                             </span>
-                            Confirm
+                            {t(
+                              "runtime.components.chair.conference-detail.conference-assignments.text_confirm",
+                            )}{" "}
                           </Button>
                           <Button
                             variant="ghost"
@@ -433,7 +538,9 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
                             >
                               close
                             </span>
-                            Remove
+                            {t(
+                              "runtime.components.chair.conference-detail.conference-assignments.text_remove",
+                            )}{" "}
                           </Button>
                         </div>
                       </div>
@@ -443,72 +550,87 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
               ))}
             </div>
           )
-        ) : (
-          // Confirmed Assignments Tab Content
-          loadingConfirmed ? (
-            <div className="p-6 text-xs font-medium text-slate-500">Loading confirmed assignments...</div>
-          ) : error ? (
-            <div className="p-6 text-xs font-medium text-red-700 bg-red-50 border-t border-red-200">{error}</div>
-          ) : confirmedEmpty ? (
-            <div className="p-8 text-center">
-              <div className="text-slate-400 mb-2">
-                <span className="material-symbols-outlined" style={{ fontSize: "48px" }}>
-                  assignment_turned_in
-                </span>
-              </div>
-              <h3 className="text-sm font-bold tracking-tight text-[#1B3C53] dark:text-slate-300">
-                No Confirmed Assignments
-              </h3>
-              <p className="text-xs font-medium text-slate-500 leading-relaxed mt-1 max-w-md mx-auto">
-                Confirm suggestions from the &ldquo;Pending Suggestions&rdquo; tab to see them here.
-              </p>
+        ) : // Confirmed Assignments Tab Content
+        loadingConfirmed ? (
+          <div className="p-6 text-xs font-medium text-slate-500">
+            {t(
+              "runtime.components.chair.conference-detail.conference-assignments.text_loading_confirmed_assignments",
+            )}
+          </div>
+        ) : error ? (
+          <div className="p-6 text-xs font-medium text-red-700 bg-red-50 border-t border-red-200">
+            {error}
+          </div>
+        ) : confirmedEmpty ? (
+          <div className="p-8 text-center">
+            <div className="text-slate-400 mb-2">
+              <span className="material-symbols-outlined" style={{ fontSize: "48px" }}>
+                assignment_turned_in
+              </span>
             </div>
-          ) : (
-            <div className="divide-y divide-slate-100 dark:divide-slate-800">
-              {confirmedAssignments.map((group) => (
-                <div key={group.submission_id} className="p-4">
-                  <div className="mb-3">
-                    <h3 className="text-sm font-bold tracking-tight text-[#1B3C53] dark:text-white">
-                      #{group.submission_id} - {group.submission_title}
-                    </h3>
-                    <p className="text-[10px] font-medium text-slate-400 mt-0.5">
-                      {group.reviewers.length} assigned reviewer
-                      {group.reviewers.length !== 1 ? "s" : ""}
-                    </p>
-                  </div>
+            <h3 className="text-sm font-bold tracking-tight text-[#1B3C53] dark:text-slate-300">
+              {t(
+                "runtime.components.chair.conference-detail.conference-assignments.text_no_confirmed_assignments",
+              )}{" "}
+            </h3>
+            <p className="text-xs font-medium text-slate-500 leading-relaxed mt-1 max-w-md mx-auto">
+              {t(
+                "runtime.components.chair.conference-detail.conference-assignments.text_confirm_suggestions_from_the_ldquo_pending",
+              )}{" "}
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+            {confirmedAssignments.map((group) => (
+              <div key={group.submission_id} className="p-4">
+                <div className="mb-3">
+                  <h3 className="text-sm font-bold tracking-tight text-[#1B3C53] dark:text-white">
+                    #{group.submission_id} - {group.submission_title}
+                  </h3>
+                  <p className="text-[10px] font-medium text-slate-400 mt-0.5">
+                    {group.reviewers.length}{" "}
+                    {t(
+                      "runtime.components.chair.conference-detail.conference-assignments.text_assigned_reviewer",
+                    )}{" "}
+                    {group.reviewers.length !== 1 ? "s" : ""}
+                  </p>
+                </div>
 
-                  <div className="space-y-2">
-                    {group.reviewers.map((reviewer: ConfirmedReviewer) => (
-                      <div
-                        key={reviewer.assignment_id}
-                        className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-[#1B3C53] text-white flex items-center justify-center text-xs font-medium">
-                            {reviewer.reviewer_email.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <p className="text-xs font-medium text-slate-700 dark:text-slate-200">
-                              {reviewer.reviewer_email}
-                            </p>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-[10px] font-medium text-slate-400">Match:</span>
-                              <ScoreBadge score={reviewer.score} />
-                            </div>
-                          </div>
+                <div className="space-y-2">
+                  {group.reviewers.map((reviewer: ConfirmedReviewer) => (
+                    <div
+                      key={reviewer.assignment_id}
+                      className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-[#1B3C53] text-white flex items-center justify-center text-xs font-medium">
+                          {reviewer.reviewer_email.charAt(0).toUpperCase()}
                         </div>
-
-                        <div className="flex items-center gap-2">
-                          <StatusBadge status={reviewer.status} />
-                          <ReviewStatusBadge status={reviewer.review_status} />
+                        <div>
+                          <p className="text-xs font-medium text-slate-700 dark:text-slate-200">
+                            {reviewer.reviewer_email}
+                          </p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[10px] font-medium text-slate-400">
+                              {t(
+                                "runtime.components.chair.conference-detail.conference-assignments.text_match",
+                              )}
+                            </span>
+                            <ScoreBadge score={reviewer.score} />
+                          </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
+
+                      <div className="flex items-center gap-2">
+                        <StatusBadge status={reviewer.status} />
+                        <ReviewStatusBadge status={reviewer.review_status} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
@@ -516,17 +638,33 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Add Reviewer</DialogTitle>
+            <DialogTitle>
+              {t(
+                "runtime.components.chair.conference-detail.conference-assignments.text_add_reviewer",
+              )}
+            </DialogTitle>
             <DialogDescription>
-              Select a reviewer to assign to &ldquo;{selectedSubmission?.submission_title}&rdquo;
+              {t(
+                "runtime.components.chair.conference-detail.conference-assignments.text_select_a_reviewer_to_assign_to",
+              )}
+              {selectedSubmission?.submission_title}
+              {t(
+                "runtime.components.chair.conference-detail.conference-assignments.text_rdquo",
+              )}{" "}
             </DialogDescription>
           </DialogHeader>
 
           {loadingReviewers ? (
-            <div className="py-4 text-center text-xs font-medium text-slate-500">Loading reviewers...</div>
+            <div className="py-4 text-center text-xs font-medium text-slate-500">
+              {t(
+                "runtime.components.chair.conference-detail.conference-assignments.text_loading_reviewers",
+              )}
+            </div>
           ) : availableReviewers.length === 0 ? (
             <div className="py-4 text-center text-xs font-medium text-slate-500">
-              No available reviewers. All accepted reviewers are already suggested for this paper.
+              {t(
+                "runtime.components.chair.conference-detail.conference-assignments.text_no_available_reviewers_all_accepted_reviewers",
+              )}{" "}
             </div>
           ) : (
             <div className="max-h-[300px] overflow-y-auto space-y-2">
@@ -542,7 +680,10 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
                   </p>
                   {reviewer.domain && reviewer.domain.length > 0 && (
                     <p className="text-[10px] font-medium text-slate-400 mt-0.5">
-                      Expertise: {reviewer.domain.join(", ")}
+                      {t(
+                        "runtime.components.chair.conference-detail.conference-assignments.text_expertise",
+                      )}{" "}
+                      {reviewer.domain.join(", ")}
                     </p>
                   )}
                 </button>
@@ -553,29 +694,48 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
       </Dialog>
 
       {/* COI Warning Dialog */}
-      <AlertDialog open={coiWarning.show} onOpenChange={(open) => !open && setCoiWarning({ show: false, reasons: [], reviewerId: null })}>
+      <AlertDialog
+        open={coiWarning.show}
+        onOpenChange={(open) =>
+          !open && setCoiWarning({ show: false, reasons: [], reviewerId: null })
+        }
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-amber-600">
               <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>
                 warning
               </span>
-              Conflict of Interest Warning
+              {t(
+                "runtime.components.chair.conference-detail.conference-assignments.text_conflict_of_interest_warning",
+              )}{" "}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              <p className="mb-2 text-xs font-medium">The reviewer was added but has potential conflicts of interest:</p>
+              <p className="mb-2 text-xs font-medium">
+                {t(
+                  "runtime.components.chair.conference-detail.conference-assignments.text_the_reviewer_was_added_but_has",
+                )}
+              </p>
               <ul className="list-disc pl-4 space-y-1">
                 {coiWarning.reasons.map((reason, i) => (
-                  <li key={i} className="text-xs">{reason}</li>
+                  <li key={i} className="text-xs">
+                    {reason}
+                  </li>
                 ))}
               </ul>
               <p className="mt-3 text-xs font-medium">
-                The assignment has been created. You may want to review this assignment before confirming.
+                {t(
+                  "runtime.components.chair.conference-detail.conference-assignments.text_the_assignment_has_been_created_you",
+                )}{" "}
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction>Understood</AlertDialogAction>
+            <AlertDialogAction>
+              {t(
+                "runtime.components.chair.conference-detail.conference-assignments.text_understood",
+              )}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -588,7 +748,9 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {confirmDialog.type === "confirm-all" ? "Confirm All Suggestions?" : "Remove Suggestion?"}
+              {confirmDialog.type === "confirm-all"
+                ? "Confirm All Suggestions?"
+                : "Remove Suggestion?"}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirmDialog.type === "confirm-all"
@@ -597,7 +759,9 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>
+              {t("runtime.components.chair.conference-detail.conference-assignments.text_cancel")}
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (confirmDialog.type === "confirm-all") {

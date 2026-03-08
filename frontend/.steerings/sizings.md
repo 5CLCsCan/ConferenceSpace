@@ -70,7 +70,7 @@
 - **Letter spacing**: `tracking-widest` (0.1em)
 - **Vertical padding**: `py-2.5` (10px)
 - **Horizontal padding**: `px-3` (12px)
-- **Text color**: 
+- **Text color**:
   - Light mode: `text-slate-400` (#94a3b8)
   - Dark mode: `text-slate-500` (#64748b)
 

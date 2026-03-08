@@ -4,6 +4,7 @@ import { useState } from "react"
 
 import type { ReviewerResponseGroupProps, ResponseStatus } from "../types"
 import { PointCard } from "./point-card"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 export function ReviewerResponseGroup({
   reviewer,
@@ -13,6 +14,7 @@ export function ReviewerResponseGroup({
   defaultExpanded,
   readOnly = false,
 }: ReviewerResponseGroupProps) {
+  const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(defaultExpanded ?? reviewer.isCurrentUser)
   const pendingCount = points.filter((p) => p.status === "pending_review").length
   const addressedCount = points.filter((p) => p.status === "addressed").length
@@ -44,34 +46,39 @@ export function ReviewerResponseGroup({
               <span className="text-[9px] text-slate-500">{points.length} points</span>
               {pendingCount > 0 && reviewer.isCurrentUser && (
                 <span className="text-[8px] font-bold text-[#1B3C53] bg-[#1B3C53]/10 px-1.5 py-0.5 rounded">
-                  {pendingCount} need review
+                  {pendingCount}{" "}
+                  {t(
+                    "runtime.components.shared.rebuttal.components.reviewer-response-group.text_need_review",
+                  )}{" "}
                 </span>
               )}
               {addressedCount === points.length && (
                 <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
-                  All addressed
+                  {t(
+                    "runtime.components.shared.rebuttal.components.reviewer-response-group.text_all_addressed",
+                  )}{" "}
                 </span>
               )}
             </div>
           </div>
         </div>
-        <span 
-          className="material-symbols-outlined text-slate-400" 
-          style={{ 
-            fontSize: '16px', 
-            width: '16px', 
-            height: '16px', 
-            maxWidth: '16px', 
-            maxHeight: '16px',
-            minWidth: '16px',
-            minHeight: '16px',
-            lineHeight: '1',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+        <span
+          className="material-symbols-outlined text-slate-400"
+          style={{
+            fontSize: "16px",
+            width: "16px",
+            height: "16px",
+            maxWidth: "16px",
+            maxHeight: "16px",
+            minWidth: "16px",
+            minHeight: "16px",
+            lineHeight: "1",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             flexShrink: 0,
-            transform: 'none',
-            boxSizing: 'border-box'
+            transform: "none",
+            boxSizing: "border-box",
           }}
         >
           {isExpanded ? "expand_less" : "expand_more"}

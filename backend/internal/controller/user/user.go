@@ -164,6 +164,57 @@ func (c *Controller) GetProfileSyncStatus(ginCtx *gin.Context) (*dto.ProfileSync
 	}, nil
 }
 
+func (c *Controller) getAcademicProfileByUserID(ctx context.Context, userID int64) (*dto.AcademicProfileResponse, error) {
+	if c.scholarStorage == nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "academic profile storage not initialized")
+	}
+
+	profile, err := c.scholarStorage.GetProfileByUserID(ctx, userID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to get academic profile")
+	}
+	if profile == nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "academic profile not linked")
+	}
+
+	papers, err := c.scholarStorage.GetPapersByProfileID(ctx, profile.ID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to get academic papers")
+	}
+
+	respPapers := make([]dto.AcademicPaper, len(papers))
+	for i, p := range papers {
+		var authors []dto.PaperAuthor
+		if p.Authors != nil {
+			_ = json.Unmarshal(p.Authors, &authors)
+		}
+
+		respPapers[i] = dto.AcademicPaper{
+			PaperID:       p.SemanticScholarID,
+			Title:         p.Title,
+			Abstract:      p.Abstract,
+			Venue:         p.Venue,
+			Year:          p.Year,
+			CitationCount: p.CitationCount,
+			URL:           p.URL,
+			Authors:       authors,
+		}
+	}
+
+	return &dto.AcademicProfileResponse{
+		UserID:            profile.UserID,
+		SemanticScholarID: profile.SemanticScholarID,
+		Name:              profile.Name,
+		Affiliations:      profile.Affiliations,
+		PaperCount:        profile.PaperCount,
+		CitationCount:     profile.CitationCount,
+		HIndex:            profile.HIndex,
+		URL:               profile.URL,
+		SyncedAt:          profile.UpdatedAt.Format("2006-01-02 15:04:05"),
+		Papers:            respPapers,
+	}, nil
+}
+
 // Update godoc
 // @Summary      Update user
 // @Description  Update user profile (only own profile)
@@ -390,60 +441,36 @@ func (c *Controller) GetAcademicProfile(ginCtx *gin.Context) (*dto.AcademicProfi
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "user not found")
 	}
 
-	// Fetch from scholar storage
-	if c.scholarStorage == nil {
-		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "academic profile storage not initialized")
+	return c.getAcademicProfileByUserID(ctx, user.ID)
+}
+
+// GetAcademicProfileByEmail godoc
+// @Summary      Get academic profile by user email
+// @Description  Get synced academic profile details and papers for a specific authenticated user profile
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        email path string true "User Email"
+// @Success      200 {object} dto.AcademicProfileResponse
+// @Failure      400 {object} handler.Response
+// @Failure      401 {object} handler.Response
+// @Failure      404 {object} handler.Response
+// @Router       /users/{email}/academic-profile [get]
+func (c *Controller) GetAcademicProfileByEmail(ginCtx *gin.Context) (*dto.AcademicProfileResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	email := ginCtx.Param("email")
+	if email == "" {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "email is required")
 	}
 
-	profile, err := c.scholarStorage.GetProfileByUserID(ctx, user.ID)
+	user, err := c.userStorage.GetByEmail(ctx, email)
 	if err != nil {
-		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to get academic profile")
-	}
-	if profile == nil {
-		return nil, handler.NewErrorResponse(http.StatusNotFound, "academic profile not linked")
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "user not found")
 	}
 
-	// Fetch papers
-	papers, err := c.scholarStorage.GetPapersByProfileID(ctx, profile.ID)
-	if err != nil {
-		// Log error but maybe return profile without papers?
-		// For now fail since papers are important part of profile
-		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to get academic papers")
-	}
-
-	// Map to DTO
-	respPapers := make([]dto.AcademicPaper, len(papers))
-	for i, p := range papers {
-		// Parse authors from JSON
-		var authors []dto.PaperAuthor
-		if p.Authors != nil {
-			_ = json.Unmarshal(p.Authors, &authors)
-		}
-
-		respPapers[i] = dto.AcademicPaper{
-			PaperID:       p.SemanticScholarID,
-			Title:         p.Title,
-			Abstract:      p.Abstract,
-			Venue:         p.Venue,
-			Year:          p.Year,
-			CitationCount: p.CitationCount,
-			URL:           p.URL,
-			Authors:       authors,
-		}
-	}
-
-	return &dto.AcademicProfileResponse{
-		UserID:            profile.UserID,
-		SemanticScholarID: profile.SemanticScholarID,
-		Name:              profile.Name,
-		Affiliations:      profile.Affiliations,
-		PaperCount:        profile.PaperCount,
-		CitationCount:     profile.CitationCount,
-		HIndex:            profile.HIndex,
-		URL:               profile.URL,
-		SyncedAt:          profile.UpdatedAt.Format("2006-01-02 15:04:05"),
-		Papers:            respPapers,
-	}, nil
+	return c.getAcademicProfileByUserID(ctx, user.ID)
 }
 
 // checkCOIWithRelationshipDetector checks COI using the graph-based relationship detector

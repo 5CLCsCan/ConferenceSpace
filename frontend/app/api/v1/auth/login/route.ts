@@ -3,6 +3,11 @@
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 import { AUTH_COOKIE_NAME } from "@/lib/config"
+import {
+  extractLoginRequestPayload,
+  type LoginPayload,
+  resolveAuthCookieMaxAge,
+} from "@/lib/auth/login-request"
 
 const BACKEND_API_BASE_URL =
   process.env.BACKEND_API_BASE_URL ??
@@ -13,14 +18,15 @@ const COOKIE_MAX_AGE = Number(process.env.JWT_EXPIRY_SECONDS ?? 60 * 60 * 24)
 
 export async function POST(request: Request) {
   try {
-    const payload = await request.json()
+    const payload = (await request.json()) as LoginPayload
+    const { rememberMe, backendPayload } = extractLoginRequestPayload(payload)
 
     const backendResponse = await fetch(`${BACKEND_API_BASE_URL}/api/v1/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(backendPayload),
     })
 
     const data = await backendResponse.json()
@@ -43,6 +49,7 @@ export async function POST(request: Request) {
     }
 
     const cookieStore = await cookies()
+    const maxAge = resolveAuthCookieMaxAge(rememberMe, COOKIE_MAX_AGE)
 
     // Set HTTP-only cookie for API requests (secure)
     cookieStore.set({
@@ -52,7 +59,7 @@ export async function POST(request: Request) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: COOKIE_MAX_AGE,
+      ...(maxAge ? { maxAge } : {}),
     })
 
     // Set non-HTTP-only cookie for WebSocket authentication
@@ -64,7 +71,7 @@ export async function POST(request: Request) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: COOKIE_MAX_AGE,
+      ...(maxAge ? { maxAge } : {}),
     })
 
     return NextResponse.json({ user })

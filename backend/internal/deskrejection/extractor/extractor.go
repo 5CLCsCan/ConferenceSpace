@@ -1,107 +1,119 @@
 package extractor
 
 import (
+	"errors"
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 
 	"github.com/dcao/conferencespace/internal/deskrejection/drerrors"
-	"github.com/unidoc/unipdf/v3/extractor"
-	"github.com/unidoc/unipdf/v3/model"
-
 	"github.com/dcao/conferencespace/internal/deskrejection/models"
 )
 
+type extractedText struct {
+	PageTexts []string
+}
+
+type backend interface {
+	Name() string
+	Extract(path string) (*extractedText, error)
+}
+
 func Extract(path string, config models.PaperRuleConfig) (models.Document, error) {
-	doc, err := loadPDF(path)
-	if err != nil {
-		return models.Document{}, drerrors.New(drerrors.CategoryExtraction, "unable to load PDF", err)
+	failures := make([]string, 0)
+
+	for _, candidate := range availableBackends() {
+		extracted, err := candidate.Extract(path)
+		if err != nil {
+			failures = append(failures, fmt.Sprintf("%s: %v", candidate.Name(), err))
+			continue
+		}
+
+		document, err := buildDocument(extracted, config)
+		if err != nil {
+			failures = append(failures, fmt.Sprintf("%s: %v", candidate.Name(), err))
+			continue
+		}
+
+		return document, nil
+	}
+
+	if len(failures) == 0 {
+		failures = append(failures, "no PDF text extractor is available")
+	}
+
+	return models.Document{}, drerrors.New(
+		drerrors.CategoryExtraction,
+		"unable to extract text from PDF",
+		errors.New(strings.Join(failures, "; ")),
+	)
+}
+
+func buildDocument(extracted *extractedText, config models.PaperRuleConfig) (models.Document, error) {
+	if extracted == nil || len(extracted.PageTexts) == 0 {
+		return models.Document{}, errors.New("extractor returned no pages")
 	}
 
 	var builder strings.Builder
 	sections := make(map[string]string)
 	currentSection := ""
 	var sectionBuilder strings.Builder
+	stats := models.DocumentStats{PageCount: len(extracted.PageTexts)}
 
-	numPages, err := doc.GetNumPages()
-	if err != nil {
-		return models.Document{}, drerrors.New(drerrors.CategoryExtraction, "unable to read page count", err)
-	}
-	stats := models.DocumentStats{PageCount: numPages}
-
-	for pageNum := 1; pageNum <= numPages; pageNum++ {
-		page, err := doc.GetPage(pageNum)
-		if err != nil {
-			return models.Document{}, drerrors.New(
-				drerrors.CategoryExtraction,
-				fmt.Sprintf("unable to load page %d", pageNum),
-				err,
-			)
+	for _, pageText := range extracted.PageTexts {
+		normalized := normalizePageText(pageText)
+		if builder.Len() > 0 {
+			builder.WriteString("\n")
 		}
+		builder.WriteString(normalized)
 
-		ext, err := extractor.New(page)
-		if err != nil {
-			return models.Document{}, drerrors.New(
-				drerrors.CategoryExtraction,
-				fmt.Sprintf("unable to build text extractor for page %d", pageNum),
-				err,
-			)
-		}
-
-		text, err := ext.ExtractText()
-		if err != nil {
-			return models.Document{}, drerrors.New(
-				drerrors.CategoryExtraction,
-				fmt.Sprintf("unable to extract text from page %d", pageNum),
-				err,
-			)
-		}
-		builder.WriteString(text + "\n")
-
-		lines := strings.Split(text, "\n")
+		lines := strings.Split(normalized, "\n")
 		for _, line := range lines {
 			trimmed := strings.TrimSpace(line)
 			if isSectionHeader(trimmed, config.RequiredSections) {
-				// Save previous section if exists
 				if currentSection != "" {
-					sections[currentSection] = sectionBuilder.String()
+					sections[currentSection] = strings.TrimSpace(sectionBuilder.String())
 				}
-				// Reset and start new section
 				sectionBuilder.Reset()
 				currentSection = normalizeSectionName(trimmed)
 			}
-			sectionBuilder.WriteString(line + "\n")
+			if trimmed != "" {
+				sectionBuilder.WriteString(trimmed)
+				sectionBuilder.WriteString("\n")
+			}
 		}
 
-		stats.FigureCount += strings.Count(text, "Figure")
-		stats.TableCount += strings.Count(text, "Table")
-		stats.ReferenceCount += countReferenceMentions(text)
+		lowered := strings.ToLower(normalized)
+		stats.FigureCount += strings.Count(lowered, "figure")
+		stats.TableCount += strings.Count(lowered, "table")
+		stats.ReferenceCount += countReferenceMentions(normalized)
 	}
 
 	if currentSection != "" {
-		sections[currentSection] = sectionBuilder.String()
+		sections[currentSection] = strings.TrimSpace(sectionBuilder.String())
 	}
 
-	fullText := builder.String()
+	fullText := strings.TrimSpace(builder.String())
+	if fullText == "" {
+		return models.Document{}, errors.New("extractor returned no text")
+	}
+
 	stats.WordCount = len(strings.Fields(fullText))
-	keywords := extractKeywords(fullText)
 
 	return models.Document{
 		FullText: fullText,
 		Sections: sections,
 		Stats:    stats,
-		Keywords: keywords,
+		Keywords: extractKeywords(fullText),
 	}, nil
 }
 
-func loadPDF(path string) (*model.PdfReader, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	return model.NewPdfReader(f)
+func normalizePageText(text string) string {
+	text = strings.ReplaceAll(text, "\r\n", "\n")
+	text = strings.ReplaceAll(text, "\r", "\n")
+	text = strings.ReplaceAll(text, "\u0000", "")
+	text = strings.ReplaceAll(text, "\f", "\n")
+	return strings.TrimSpace(text)
 }
 
 func isSectionHeader(line string, required []string) bool {
@@ -118,9 +130,7 @@ func isSectionHeader(line string, required []string) bool {
 func normalizeSectionName(name string) string {
 	name = strings.ToLower(name)
 
-	// Common variations for each section (ordered by specificity - longest first)
 	variations := [][2]string{
-		// Results/Experiments check before individual words to avoid conflicts
 		{"experimental results", "Results"},
 		{"results and discussion", "Results"},
 		{"experiments and results", "Results"},
@@ -129,27 +139,21 @@ func normalizeSectionName(name string) string {
 		{"experiment", "Experiments"},
 		{"results", "Results"},
 		{"result", "Results"},
-
-		// Methods variations
 		{"methodology", "Methods"},
 		{"methods", "Methods"},
 		{"method", "Methods"},
-
-		// Other sections
 		{"abstract", "Abstract"},
 		{"introduction", "Introduction"},
 		{"conclusions", "Conclusions"},
 		{"conclusion", "Conclusions"},
 	}
 
-	// Check if name matches any variation
 	for _, pair := range variations {
 		if strings.Contains(name, pair[0]) {
 			return pair[1]
 		}
 	}
 
-	// Return original if no match found
 	return name
 }
 
@@ -186,7 +190,6 @@ func extractKeywords(text string) []string {
 		return keywords
 	}
 
-	// Fallback: extract tokens that appear after "keywords"
 	re := regexp.MustCompile(`(?i)keywords?\s*[:\-]\s*([^\n]+)`)
 	match := re.FindStringSubmatch(text)
 	if len(match) < 2 {

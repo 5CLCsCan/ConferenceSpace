@@ -1,3 +1,5 @@
+"use client"
+
 import type { Conference } from "./types"
 import { ConferenceCardBase, ActionButton } from "./conference-card-base"
 import {
@@ -6,6 +8,7 @@ import {
   DraftStatusSection,
   CompletedStatsSection,
 } from "./event-sections"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ConferenceCardProps {
   conference: Conference
@@ -17,6 +20,7 @@ interface ConferenceCardProps {
 // -------------------------------------------------------------------------
 
 export function ActiveConferenceCard({ conference, onNavigate }: ConferenceCardProps) {
+  const { t } = useTranslation()
   return (
     <ConferenceCardBase
       conference={conference}
@@ -30,7 +34,7 @@ export function ActiveConferenceCard({ conference, onNavigate }: ConferenceCardP
               onNavigate(conference.id)
             }}
           >
-            Settings
+            {t("runtime.components.conference.conference-cards.text_settings")}{" "}
           </ActionButton>
           <ActionButton
             variant="primary"
@@ -39,7 +43,7 @@ export function ActiveConferenceCard({ conference, onNavigate }: ConferenceCardP
               onNavigate(conference.id)
             }}
           >
-            Dashboard
+            {t("runtime.components.conference.conference-cards.text_dashboard")}{" "}
           </ActionButton>
         </div>
       }
@@ -54,6 +58,7 @@ export function ActiveConferenceCard({ conference, onNavigate }: ConferenceCardP
 // -------------------------------------------------------------------------
 
 export function PlanningConferenceCard({ conference, onNavigate }: ConferenceCardProps) {
+  const { t } = useTranslation()
   return (
     <ConferenceCardBase
       conference={conference}
@@ -67,7 +72,7 @@ export function PlanningConferenceCard({ conference, onNavigate }: ConferenceCar
               onNavigate(conference.id)
             }}
           >
-            Edit Details
+            {t("runtime.components.conference.conference-cards.text_edit_details")}{" "}
           </ActionButton>
           <ActionButton
             variant="secondary"
@@ -76,7 +81,7 @@ export function PlanningConferenceCard({ conference, onNavigate }: ConferenceCar
               onNavigate(conference.id)
             }}
           >
-            Setup
+            {t("runtime.components.conference.conference-cards.text_setup")}{" "}
           </ActionButton>
         </div>
       }
@@ -91,6 +96,7 @@ export function PlanningConferenceCard({ conference, onNavigate }: ConferenceCar
 // -------------------------------------------------------------------------
 
 export function DraftConferenceCard({ conference, onNavigate }: ConferenceCardProps) {
+  const { t } = useTranslation()
   return (
     <ConferenceCardBase
       conference={conference}
@@ -104,7 +110,7 @@ export function DraftConferenceCard({ conference, onNavigate }: ConferenceCardPr
           }}
           className="w-full"
         >
-          Continue Editing
+          {t("runtime.components.conference.conference-cards.text_continue_editing")}{" "}
         </ActionButton>
       }
     >
@@ -118,6 +124,7 @@ export function DraftConferenceCard({ conference, onNavigate }: ConferenceCardPr
 // -------------------------------------------------------------------------
 
 export function CompletedConferenceCard({ conference, onNavigate }: ConferenceCardProps) {
+  const { t } = useTranslation()
   return (
     <ConferenceCardBase
       conference={conference}
@@ -131,7 +138,7 @@ export function CompletedConferenceCard({ conference, onNavigate }: ConferenceCa
           }}
           className="w-full"
         >
-          View Archive
+          {t("runtime.components.conference.conference-cards.text_view_archive")}{" "}
         </ActionButton>
       }
     >

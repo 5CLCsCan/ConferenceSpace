@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { ROUTES } from "@/lib/routes"
+import { useDebounce } from "@/hooks/use-debounce"
 import type { AuthorConference, AuthorTabType } from "./author-conference-cards"
 import { AuthorConferenceCard } from "./author-conference-cards"
 import { AuthorConferenceList } from "./author-conference-list"
@@ -18,6 +19,7 @@ import { useAuth } from "@/lib/auth-context"
 import { listConferences } from "@/lib/api/conferences"
 import { getConferenceSubmissions, type Submission } from "@/lib/api/submissions"
 import type { Conference } from "@/lib/types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 type ViewMode = "grid" | "list"
 
@@ -32,11 +34,19 @@ function formatConferenceDates(conference: Conference): string {
   if (!start || Number.isNaN(start.getTime())) {
     return "Dates TBD"
   }
-  const startLabel = start.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
+  const startLabel = start.toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  })
   if (!end || Number.isNaN(end.getTime())) {
     return startLabel
   }
-  const endLabel = end.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
+  const endLabel = end.toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  })
   return `${startLabel} - ${endLabel}`
 }
 
@@ -60,7 +70,91 @@ function mapConferenceToExplore(conference: Conference): ExploreConference {
   }
 }
 
+function PaginationBar({
+  currentPage,
+  totalPages,
+  total,
+  itemsPerPage,
+  onPageChange,
+}: {
+  currentPage: number
+  totalPages: number
+  total: number
+  itemsPerPage: number
+  onPageChange: (page: number) => void
+}) {
+  const { t } = useTranslation()
+  if (totalPages <= 1) return null
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = []
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
+    } else {
+      pages.push(1)
+      if (currentPage > 3) pages.push("...")
+      for (
+        let i = Math.max(2, currentPage - 1);
+        i <= Math.min(totalPages - 1, currentPage + 1);
+        i++
+      )
+        pages.push(i)
+      if (currentPage < totalPages - 2) pages.push("...")
+      pages.push(totalPages)
+    }
+    return pages
+  }
+  return (
+    <div className="flex items-center justify-between mt-4 px-1">
+      <p className="text-[11px] text-slate-500">
+        {t("runtime.components.author.author-conferences.text_showing")}{" "}
+        <span className="font-bold text-[#1B3C53]">
+          {startIndex + 1}–{Math.min(startIndex + itemsPerPage, total)}
+        </span>{" "}
+        {t("runtime.components.author.author-conferences.text_of")}{" "}
+        <span className="font-bold text-[#1B3C53]">{total}</span>
+      </p>
+      <div className="flex items-center gap-1">
+        <button
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-2 py-1 text-[11px] rounded border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {t("runtime.components.author.author-conferences.text_previous")}
+        </button>
+        {getPageNumbers().map((page, idx) =>
+          page === "..." ? (
+            <span key={`ellipsis-${idx}`} className="px-1 text-[11px] text-slate-400">
+              …
+            </span>
+          ) : (
+            <button
+              key={page}
+              onClick={() => onPageChange(page as number)}
+              className={`px-2 py-1 text-[11px] rounded border ${
+                currentPage === page
+                  ? "bg-[#1B3C53] text-white border-[#1B3C53]"
+                  : "border-slate-200 text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              {page}
+            </button>
+          ),
+        )}
+        <button
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="px-2 py-1 text-[11px] rounded border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {t("runtime.components.author.author-conferences.text_next")}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export function AuthorConferences({ conferences: initialConferences }: AuthorConferencesProps) {
+  const { t } = useTranslation()
   const router = useRouter()
   const { user } = useAuth()
   const [activeTab, setActiveTab] = useState<AuthorTabType>("my-conferences")
@@ -71,11 +165,20 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [myConferences, setMyConferences] = useState<AuthorConference[]>(initialConferences || [])
+  // explore/archived use server-side data with separate totals
   const [exploreConferences, setExploreConferences] = useState<ExploreConference[]>([])
+  const [exploreTotal, setExploreTotal] = useState(0)
+  const [exploreLoading, setExploreLoading] = useState(false)
   const [archivedConferences, setArchivedConferences] = useState<ExploreConference[]>([])
+  const [archivedTotal, setArchivedTotal] = useState(0)
+  const [archivedLoading, setArchivedLoading] = useState(false)
 
+  const ITEMS_PER_PAGE = 6
+  const debouncedSearch = useDebounce(searchQuery, 400)
+
+  // my-conferences: N+1 approach (conferences + check submissions per conference)
   useEffect(() => {
-    async function loadAuthorConferences() {
+    async function loadMyConferences() {
       if (!user?.email) {
         setLoading(false)
         setMyConferences(initialConferences || [])
@@ -86,7 +189,9 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
       setError(null)
 
       try {
-        const conferenceResponse = await listConferences({ limit: 200 })
+        // Fetch only conferences where this user has a role to avoid scanning
+        // NULL-titled conferences the user is not a member of (backend bug workaround).
+        const conferenceResponse = await listConferences({ limit: 500, myConferences: true })
         const conferences = conferenceResponse.data?.conferences || []
 
         const conferenceWithSubmissions = await Promise.all(
@@ -105,8 +210,6 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
         )
 
         const nextMy: AuthorConference[] = []
-        const nextExplore: ExploreConference[] = []
-        const nextArchived: ExploreConference[] = []
 
         for (const { conference, submissions } of conferenceWithSubmissions) {
           if (submissions.length > 0) {
@@ -131,34 +234,72 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
               submissionDeadline: conference.submission_deadline || "",
               fullPaperDeadline: conference.camera_ready_deadline || "",
             })
-            continue
-          }
-
-          const mappedConference = mapConferenceToExplore(conference)
-          if (conference.status === "completed") {
-            nextArchived.push(mappedConference)
-          } else {
-            nextExplore.push(mappedConference)
           }
         }
 
         setMyConferences(nextMy)
-        setExploreConferences(nextExplore)
-        setArchivedConferences(nextArchived)
       } catch (loadError) {
         setError(loadError instanceof Error ? loadError.message : "Failed to load conferences")
         setMyConferences(initialConferences || [])
-        setExploreConferences([])
-        setArchivedConferences([])
       } finally {
         setLoading(false)
       }
     }
 
-    void loadAuthorConferences()
+    void loadMyConferences()
   }, [user?.email, initialConferences])
 
-  const ITEMS_PER_PAGE = 5
+  // explore/archived: server-side fetch with debounced search
+  useEffect(() => {
+    if (activeTab !== "explore" && activeTab !== "archived") return
+    let cancelled = false
+
+    async function fetchExploreOrArchived() {
+      const offset = (currentPage - 1) * ITEMS_PER_PAGE
+
+      if (activeTab === "explore") {
+        setExploreLoading(true)
+        try {
+          const res = await listConferences({
+            title: debouncedSearch || undefined,
+            limit: ITEMS_PER_PAGE,
+            offset,
+          })
+          if (!cancelled) {
+            setExploreConferences(
+              (res.data?.conferences || [])
+                .filter((c) => c.status !== "completed")
+                .map(mapConferenceToExplore),
+            )
+            setExploreTotal(res.data?.total || 0)
+          }
+        } finally {
+          if (!cancelled) setExploreLoading(false)
+        }
+      } else if (activeTab === "archived") {
+        setArchivedLoading(true)
+        try {
+          const res = await listConferences({
+            status: "completed",
+            title: debouncedSearch || undefined,
+            limit: ITEMS_PER_PAGE,
+            offset,
+          })
+          if (!cancelled) {
+            setArchivedConferences((res.data?.conferences || []).map(mapConferenceToExplore))
+            setArchivedTotal(res.data?.total || 0)
+          }
+        } finally {
+          if (!cancelled) setArchivedLoading(false)
+        }
+      }
+    }
+
+    void fetchExploreOrArchived()
+    return () => {
+      cancelled = true
+    }
+  }, [activeTab, debouncedSearch, currentPage])
 
   const handleNavigate = (id: string) => {
     router.push(ROUTES.AUTHOR.CONFERENCE_DETAIL(id))
@@ -168,7 +309,11 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
     router.push(ROUTES.AUTHOR.CONFERENCE_DETAIL(id))
   }
 
-  // Filter My Conferences (exclude rejected from active view)
+  const handleStartSubmission = (id: string) => {
+    router.push(`${ROUTES.AUTHOR.NEW_SUBMISSION}?conferenceId=${id}`)
+  }
+
+  // Filter My Conferences client-side (server-side not possible without a dedicated submissions endpoint)
   const getFilteredMyConferences = (): AuthorConference[] => {
     let filtered = myConferences.filter((c) => c.status !== "rejected")
     if (searchQuery) {
@@ -180,35 +325,25 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
           c.paperTitle?.toLowerCase().includes(query),
       )
     }
-    return filtered
-  }
-
-  // Filter Explore Conferences
-  const getFilteredExploreConferences = (): ExploreConference[] => {
-    let filtered = [...exploreConferences]
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(
-        (c) =>
-          c.name.toLowerCase().includes(query) ||
-          c.fullDescription.toLowerCase().includes(query) ||
-          c.topics.some((t) => t.toLowerCase().includes(query)),
-      )
+    const statusOrder: Record<string, number> = {
+      accepted: 0,
+      "under-review": 1,
+      submitted: 2,
+      rejected: 3,
     }
-    return filtered
-  }
-
-  // Filter Archived Conferences
-  const getFilteredArchivedConferences = (): ExploreConference[] => {
-    let filtered = [...archivedConferences]
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(
-        (c) =>
-          c.name.toLowerCase().includes(query) ||
-          c.fullDescription.toLowerCase().includes(query) ||
-          c.location.toLowerCase().includes(query),
+    if (sortBy === "name-asc") {
+      filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name))
+    } else if (sortBy === "status") {
+      filtered = [...filtered].sort(
+        (a, b) => (statusOrder[a.status] ?? 9) - (statusOrder[b.status] ?? 9),
       )
+    } else {
+      // date-newest: sort by submissionDeadline descending
+      filtered = [...filtered].sort((a, b) => {
+        const da = a.submissionDeadline ? new Date(a.submissionDeadline).getTime() : 0
+        const db = b.submissionDeadline ? new Date(b.submissionDeadline).getTime() : 0
+        return db - da
+      })
     }
     return filtered
   }
@@ -229,7 +364,7 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
     if (loading) {
       return (
         <div className="flex items-center justify-center py-16 text-xs text-slate-500">
-          Loading conferences...
+          {t("runtime.components.author.author-conferences.text_loading_conferences")}{" "}
         </div>
       )
     }
@@ -237,14 +372,15 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
     if (error) {
       return (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">
-          Failed to load conferences: {error}
+          {t("runtime.components.author.author-conferences.text_failed_to_load_conferences")}{" "}
+          {error}
         </div>
       )
     }
 
     if (activeTab === "my-conferences") {
       const allConferences = getFilteredMyConferences()
-      const totalPages = Math.ceil(allConferences.length / ITEMS_PER_PAGE)
+      const totalPages = Math.ceil(allConferences.length / ITEMS_PER_PAGE) || 1
       const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
       const paginatedConferences = allConferences.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
@@ -268,36 +404,52 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
       }
 
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {paginatedConferences.map((conference) => (
-            <AuthorConferenceCard
-              key={conference.id}
-              conference={conference}
-              onNavigate={handleNavigate}
-            />
-          ))}
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {paginatedConferences.map((conference) => (
+              <AuthorConferenceCard
+                key={conference.id}
+                conference={conference}
+                onNavigate={handleNavigate}
+              />
+            ))}
+          </div>
+          <PaginationBar
+            currentPage={currentPage}
+            totalPages={totalPages}
+            total={allConferences.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )
     }
 
     if (activeTab === "explore") {
-      const allConferences = getFilteredExploreConferences()
-      const totalPages = Math.ceil(allConferences.length / ITEMS_PER_PAGE)
-      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-      const paginatedConferences = allConferences.slice(startIndex, startIndex + ITEMS_PER_PAGE)
-
-      if (allConferences.length === 0 && !searchQuery) return <EmptyState type={activeTab} />
-      if (allConferences.length === 0 && searchQuery) return <NoResultsState />
+      const totalPages = Math.ceil(exploreTotal / ITEMS_PER_PAGE) || 1
+      if (exploreLoading) {
+        return (
+          <div className="flex items-center justify-center py-16 text-xs text-slate-500">
+            {t("runtime.components.author.author-conferences.text_loading_conferences")}
+          </div>
+        )
+      }
+      if (exploreConferences.length === 0 && !searchQuery) return <EmptyState type={activeTab} />
+      if (exploreConferences.length === 0 && searchQuery) return <NoResultsState />
 
       if (viewMode === "list") {
         return (
           <div className="flex flex-col gap-4">
             <ExploreConferenceList
-              conferences={paginatedConferences}
+              conferences={exploreConferences}
               onViewDetails={handleViewDetails}
+              primaryActionLabel={t(
+                "runtime.components.author.author-conference-cards.text_submit_paper",
+              )}
+              onPrimaryAction={handleStartSubmission}
               currentPage={currentPage}
               totalPages={totalPages}
-              totalItems={allConferences.length}
+              totalItems={exploreTotal}
               itemsPerPage={ITEMS_PER_PAGE}
               onPageChange={setCurrentPage}
             />
@@ -306,36 +458,52 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
       }
 
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {paginatedConferences.map((conference) => (
-            <ExploreConferenceCard
-              key={conference.id}
-              conference={conference}
-              onViewDetails={handleViewDetails}
-            />
-          ))}
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {exploreConferences.map((conference) => (
+              <ExploreConferenceCard
+                key={conference.id}
+                conference={conference}
+                onViewDetails={handleViewDetails}
+                primaryActionLabel={t(
+                  "runtime.components.author.author-conference-cards.text_submit_paper",
+                )}
+                onPrimaryAction={handleStartSubmission}
+              />
+            ))}
+          </div>
+          <PaginationBar
+            currentPage={currentPage}
+            totalPages={totalPages}
+            total={exploreTotal}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )
     }
 
     if (activeTab === "archived") {
-      const allConferences = getFilteredArchivedConferences()
-      const totalPages = Math.ceil(allConferences.length / ITEMS_PER_PAGE)
-      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-      const paginatedConferences = allConferences.slice(startIndex, startIndex + ITEMS_PER_PAGE)
-
-      if (allConferences.length === 0 && !searchQuery) return <EmptyState type={activeTab} />
-      if (allConferences.length === 0 && searchQuery) return <NoResultsState />
+      const totalPages = Math.ceil(archivedTotal / ITEMS_PER_PAGE) || 1
+      if (archivedLoading) {
+        return (
+          <div className="flex items-center justify-center py-16 text-xs text-slate-500">
+            {t("runtime.components.author.author-conferences.text_loading_conferences")}
+          </div>
+        )
+      }
+      if (archivedConferences.length === 0 && !searchQuery) return <EmptyState type={activeTab} />
+      if (archivedConferences.length === 0 && searchQuery) return <NoResultsState />
 
       if (viewMode === "list") {
         return (
           <div className="flex flex-col gap-4">
             <ArchivedConferenceList
-              conferences={paginatedConferences}
+              conferences={archivedConferences}
               onViewDetails={handleViewDetails}
               currentPage={currentPage}
               totalPages={totalPages}
-              totalItems={allConferences.length}
+              totalItems={archivedTotal}
               itemsPerPage={ITEMS_PER_PAGE}
               onPageChange={setCurrentPage}
             />
@@ -344,14 +512,23 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
       }
 
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {paginatedConferences.map((conference) => (
-            <ArchivedConferenceCard
-              key={conference.id}
-              conference={conference}
-              onViewDetails={handleViewDetails}
-            />
-          ))}
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {archivedConferences.map((conference) => (
+              <ArchivedConferenceCard
+                key={conference.id}
+                conference={conference}
+                onViewDetails={handleViewDetails}
+              />
+            ))}
+          </div>
+          <PaginationBar
+            currentPage={currentPage}
+            totalPages={totalPages}
+            total={archivedTotal}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )
     }
@@ -389,14 +566,17 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
 // -------------------------------------------------------------------------
 
 function Header() {
+  const { t } = useTranslation()
   return (
     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6">
       <div>
         <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white leading-none">
-          Conferences
+          {t("runtime.components.author.author-conferences.text_conferences")}{" "}
         </h1>
         <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-2 max-w-xl">
-          Track your paper submissions and discover new opportunities to publish your research.
+          {t(
+            "runtime.components.author.author-conferences.text_track_your_paper_submissions_and_discover",
+          )}{" "}
         </p>
       </div>
     </div>
@@ -413,10 +593,17 @@ interface TabsProps {
 }
 
 function Tabs({ activeTab, onTabChange }: TabsProps) {
+  const { t } = useTranslation()
   const tabs: { key: AuthorTabType; label: string }[] = [
-    { key: "my-conferences", label: "My Submissions" },
-    { key: "explore", label: "Explore" },
-    { key: "archived", label: "Archived" },
+    {
+      key: "my-conferences",
+      label: t("runtime.components.author.author-conferences.prop_label_my_submissions"),
+    },
+    { key: "explore", label: t("runtime.components.author.author-conferences.prop_label_explore") },
+    {
+      key: "archived",
+      label: t("runtime.components.author.author-conferences.prop_label_archived"),
+    },
   ]
 
   return (
@@ -463,6 +650,7 @@ function Toolbar({
   viewMode,
   onViewModeChange,
 }: ToolbarProps) {
+  const { t } = useTranslation()
   const placeholders: Record<AuthorTabType, string> = {
     "my-conferences": "Search submissions...",
     explore: "Search conferences...",
@@ -471,18 +659,42 @@ function Toolbar({
 
   const sortOptions: Record<AuthorTabType, { value: string; label: string }[]> = {
     "my-conferences": [
-      { value: "date-newest", label: "Date (Newest)" },
-      { value: "name-asc", label: "Name (A-Z)" },
-      { value: "status", label: "Status" },
+      {
+        value: "date-newest",
+        label: t("runtime.components.author.author-conferences.prop_label_date_newest"),
+      },
+      {
+        value: "name-asc",
+        label: t("runtime.components.author.author-conferences.prop_label_name_a_z"),
+      },
+      {
+        value: "status",
+        label: t("runtime.components.author.author-conferences.prop_label_status"),
+      },
     ],
     explore: [
-      { value: "deadline", label: "Deadline (Soon)" },
-      { value: "date-upcoming", label: "Date (Upcoming)" },
-      { value: "name-asc", label: "Name (A-Z)" },
+      {
+        value: "deadline",
+        label: t("runtime.components.author.author-conferences.prop_label_deadline_soon"),
+      },
+      {
+        value: "date-upcoming",
+        label: t("runtime.components.author.author-conferences.prop_label_date_upcoming"),
+      },
+      {
+        value: "name-asc",
+        label: t("runtime.components.author.author-conferences.prop_label_name_a_z"),
+      },
     ],
     archived: [
-      { value: "date-newest", label: "Date (Newest)" },
-      { value: "name-asc", label: "Name (A-Z)" },
+      {
+        value: "date-newest",
+        label: t("runtime.components.author.author-conferences.prop_label_date_newest"),
+      },
+      {
+        value: "name-asc",
+        label: t("runtime.components.author.author-conferences.prop_label_name_a_z"),
+      },
     ],
   }
 
@@ -524,7 +736,7 @@ function Toolbar({
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-            Sort by:
+            {t("runtime.components.author.author-conferences.text_sort_by")}{" "}
           </span>
           <select
             value={sortBy}
@@ -633,14 +845,17 @@ function EmptyState({ type }: EmptyStateProps) {
 }
 
 function NoResultsState() {
+  const { t } = useTranslation()
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
       <span className="material-symbols-outlined text-[28px] text-slate-300 mb-2">search_off</span>
       <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-1 tracking-tight">
-        No results found
+        {t("runtime.components.author.author-conferences.text_no_results_found")}{" "}
       </h3>
       <p className="text-[10px] font-medium text-slate-400 text-center">
-        Try adjusting your search terms
+        {t(
+          "runtime.components.author.author-conferences.text_try_adjusting_your_search_terms",
+        )}{" "}
       </p>
     </div>
   )

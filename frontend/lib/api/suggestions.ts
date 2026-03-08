@@ -212,9 +212,11 @@ export async function addSuggestion(
 /**
  * Get all confirmed assignments for a conference grouped by submission
  */
-export async function getConfirmedAssignments(
-  conferenceId: string | number,
-): Promise<{ data: ConfirmedAssignmentsListResponse | null; error: string | null; status: number }> {
+export async function getConfirmedAssignments(conferenceId: string | number): Promise<{
+  data: ConfirmedAssignmentsListResponse | null
+  error: string | null
+  status: number
+}> {
   try {
     const { data, response } = await apiFetch<{ data: ConfirmedAssignmentsListResponse }>(
       `/api/v1/conferences/${conferenceId}/assignments/confirmed`,

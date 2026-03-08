@@ -6,8 +6,10 @@ import { PaperSubmissionForm } from "@/components/author/submit/paper-submission
 import { getConferenceById } from "@/lib/api/conferences"
 import type { Conference } from "@/lib/types"
 import { Loader2 } from "lucide-react"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 function NewSubmissionPageContent() {
+  const { t } = useTranslation()
   const searchParams = useSearchParams()
   const conferenceId = searchParams.get("conferenceId")
 
@@ -48,7 +50,8 @@ function NewSubmissionPageContent() {
     return (
       <div className="flex h-screen items-center justify-center px-6">
         <div className="w-full max-w-xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          Failed to load conference: {loadError}
+          {t("runtime.app.role.author.submissions.new.page.text_failed_to_load_conference")}{" "}
+          {loadError}
         </div>
       </div>
     )
@@ -58,10 +61,16 @@ function NewSubmissionPageContent() {
     return (
       <div className="flex h-screen items-center justify-center px-6">
         <div className="w-full max-w-xl rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 space-y-2">
-          <h1 className="text-base font-semibold text-amber-900">Submissions are closed</h1>
+          <h1 className="text-base font-semibold text-amber-900">
+            {t("runtime.app.role.author.submissions.new.page.text_submissions_are_closed")}
+          </h1>
           <p className="text-sm text-amber-800">
-            New submissions are only allowed when the conference status is <code>open</code>.
-            Current status: <code>{conference.status}</code>.
+            {t(
+              "runtime.app.role.author.submissions.new.page.text_new_submissions_are_only_allowed_when",
+            )}{" "}
+            <code>open</code>
+            {t("runtime.app.role.author.submissions.new.page.text_current_status")}{" "}
+            <code>{conference.status}</code>.
           </p>
         </div>
       </div>

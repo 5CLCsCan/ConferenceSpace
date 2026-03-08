@@ -1,8 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { apiFetch } from "@/lib/api/client"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { ROUTES } from "@/lib/routes"
 
 interface ChairAction {
   id: string
@@ -25,18 +28,21 @@ interface ChairActionsPanelProps {
   className?: string
 }
 
-const DEFAULT_MILESTONE: NextMilestone = {
-  label: "Author Notification",
-  date: "Dec 10",
-}
-
 export function ChairActionsPanel({
   conferenceId,
   onNavigateToAssignments,
   actions,
-  nextMilestone = DEFAULT_MILESTONE,
+  nextMilestone,
   className,
 }: ChairActionsPanelProps) {
+  const { t } = useTranslation()
+  const router = useRouter()
+  const displayMilestone = nextMilestone ?? {
+    label: t(
+      "runtime.components.chair.conference-detail.chair-actions-panel.prop_label_author_notification",
+    ),
+    date: "Dec 10",
+  }
   const [autoAssignLoading, setAutoAssignLoading] = useState(false)
   const [autoAssignError, setAutoAssignError] = useState<string | null>(null)
   const [autoAssignSuccess, setAutoAssignSuccess] = useState<string | null>(null)
@@ -63,7 +69,13 @@ export function ChairActionsPanel({
       })
 
       setAutoAssignSuccess(
-        `Created ${data.data.total_assignments} suggestions for ${data.data.total_submissions} papers`,
+        t(
+          "runtime.components.chair.conference-detail.chair-actions-panel.text_created_assignment_suggestions",
+          {
+            assignments: data.data.total_assignments,
+            submissions: data.data.total_submissions,
+          },
+        ),
       )
 
       // Navigate to assignments tab after success
@@ -73,7 +85,12 @@ export function ChairActionsPanel({
         }, 1500)
       }
     } catch (error: any) {
-      setAutoAssignError(error.message || "Failed to run auto-assignment")
+      setAutoAssignError(
+        error.message ||
+          t(
+            "runtime.components.chair.conference-detail.chair-actions-panel.text_failed_to_run_auto_assignment",
+          ),
+      )
     } finally {
       setAutoAssignLoading(false)
     }
@@ -82,18 +99,31 @@ export function ChairActionsPanel({
   const defaultActions: ChairAction[] = [
     {
       id: "auto-assign",
-      label: autoAssignLoading ? "Running..." : "Auto-Assign Reviewers",
+      label: autoAssignLoading
+        ? t("runtime.components.chair.conference-detail.chair-actions-panel.text_running")
+        : t(
+            "runtime.components.chair.conference-detail.chair-actions-panel.text_auto_assign_reviewers",
+          ),
       icon: "auto_awesome",
       onClick: handleAutoAssign,
       loading: autoAssignLoading,
     },
     {
       id: "view-assignments",
-      label: "View Assignments",
+      label: t(
+        "runtime.components.chair.conference-detail.chair-actions-panel.prop_label_view_assignments",
+      ),
       icon: "assignment_ind",
       onClick: onNavigateToAssignments,
     },
-    { id: "cfp", label: "Edit CFP Details", icon: "edit_note" },
+    {
+      id: "cfp",
+      label: t(
+        "runtime.components.chair.conference-detail.chair-actions-panel.prop_label_edit_cfp_details",
+      ),
+      icon: "edit_note",
+      onClick: () => router.push(ROUTES.CHAIR.CONFERENCE_EDIT(conferenceId)),
+    },
   ]
 
   const displayActions = actions || defaultActions
@@ -109,7 +139,9 @@ export function ChairActionsPanel({
       <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none" />
 
       <div className="relative z-10">
-        <h3 className="text-sm font-bold mb-3 tracking-tight">Chair Actions</h3>
+        <h3 className="text-sm font-bold mb-3 tracking-tight">
+          {t("runtime.components.chair.conference-detail.chair-actions-panel.text_chair_actions")}
+        </h3>
 
         {/* Status messages */}
         {autoAssignError && (
@@ -146,12 +178,14 @@ export function ChairActionsPanel({
         {/* Next Milestone */}
         <div className="mt-4 pt-3 border-t border-white/10">
           <p className="text-[9px] text-slate-300 mb-1.5 uppercase tracking-widest font-medium">
-            Next Milestone
+            {t(
+              "runtime.components.chair.conference-detail.chair-actions-panel.text_next_milestone",
+            )}{" "}
           </p>
           <div className="flex items-center justify-between">
-            <span className="text-[12px] font-bold">{nextMilestone.label}</span>
+            <span className="text-[12px] font-bold">{displayMilestone.label}</span>
             <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded text-white font-medium">
-              {nextMilestone.date}
+              {displayMilestone.date}
             </span>
           </div>
         </div>

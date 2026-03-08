@@ -1,6 +1,7 @@
 "use client"
 
 import { Loader2 } from "lucide-react"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface WizardActionBarProps {
   currentStep: number
@@ -14,6 +15,9 @@ interface WizardActionBarProps {
   onSubmit: () => void
   isSubmitting?: boolean
   canSubmit?: boolean
+  saveDraftLabel?: string
+  submitLabel?: string
+  submittingLabel?: string
 }
 
 export function WizardActionBar({
@@ -28,7 +32,11 @@ export function WizardActionBar({
   onSubmit,
   isSubmitting = false,
   canSubmit = true,
+  saveDraftLabel,
+  submitLabel,
+  submittingLabel,
 }: WizardActionBarProps) {
+  const { t } = useTranslation()
   const isLastStep = currentStep === totalSteps
 
   return (
@@ -40,28 +48,28 @@ export function WizardActionBar({
           onClick={onCancel}
           className="flex items-center gap-1.5 h-8 px-3 rounded-full text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors uppercase tracking-wider"
         >
-          <span 
-            className="material-symbols-outlined" 
-            style={{ 
-              fontSize: '16px', 
-              width: '16px', 
-              height: '16px', 
-              maxWidth: '16px', 
-              maxHeight: '16px',
-              minWidth: '16px',
-              minHeight: '16px',
-              lineHeight: '1',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+          <span
+            className="material-symbols-outlined"
+            style={{
+              fontSize: "16px",
+              width: "16px",
+              height: "16px",
+              maxWidth: "16px",
+              maxHeight: "16px",
+              minWidth: "16px",
+              minHeight: "16px",
+              lineHeight: "1",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               flexShrink: 0,
-              transform: 'none',
-              boxSizing: 'border-box'
+              transform: "none",
+              boxSizing: "border-box",
             }}
           >
             arrow_back
           </span>
-          Back
+          {t("runtime.components.wizard.creation.wizard-action-bar.text_back")}{" "}
         </button>
 
         {/* Right Side Actions */}
@@ -72,28 +80,29 @@ export function WizardActionBar({
             onClick={onSaveDraft}
             className="hidden sm:flex items-center gap-1.5 h-8 px-3 rounded-full text-[10px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors uppercase tracking-wider"
           >
-            <span 
-              className="material-symbols-outlined" 
-              style={{ 
-                fontSize: '16px', 
-                width: '16px', 
-                height: '16px', 
-                maxWidth: '16px', 
-                maxHeight: '16px',
-                minWidth: '16px',
-                minHeight: '16px',
-                lineHeight: '1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+            <span
+              className="material-symbols-outlined"
+              style={{
+                fontSize: "16px",
+                width: "16px",
+                height: "16px",
+                maxWidth: "16px",
+                maxHeight: "16px",
+                minWidth: "16px",
+                minHeight: "16px",
+                lineHeight: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 flexShrink: 0,
-                transform: 'none',
-                boxSizing: 'border-box'
+                transform: "none",
+                boxSizing: "border-box",
               }}
             >
               save
             </span>
-            Save Draft
+            {saveDraftLabel ||
+              t("runtime.components.wizard.creation.wizard-action-bar.text_save_draft")}{" "}
           </button>
 
           {/* Previous Step Button */}
@@ -119,28 +128,30 @@ export function WizardActionBar({
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  Creating...
+                  {submittingLabel ||
+                    t("runtime.components.wizard.creation.wizard-action-bar.text_creating")}{" "}
                 </>
               ) : (
                 <>
-                  Create Conference
-                  <span 
-                    className="material-symbols-outlined" 
-                    style={{ 
-                      fontSize: '16px', 
-                      width: '16px', 
-                      height: '16px', 
-                      maxWidth: '16px', 
-                      maxHeight: '16px',
-                      minWidth: '16px',
-                      minHeight: '16px',
-                      lineHeight: '1',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                  {submitLabel ||
+                    t("runtime.components.wizard.creation.wizard-action-bar.text_create_conference")}{" "}
+                  <span
+                    className="material-symbols-outlined"
+                    style={{
+                      fontSize: "16px",
+                      width: "16px",
+                      height: "16px",
+                      maxWidth: "16px",
+                      maxHeight: "16px",
+                      minWidth: "16px",
+                      minHeight: "16px",
+                      lineHeight: "1",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                       flexShrink: 0,
-                      transform: 'none',
-                      boxSizing: 'border-box'
+                      transform: "none",
+                      boxSizing: "border-box",
                     }}
                   >
                     check

@@ -170,6 +170,42 @@ export interface Conference {
   }
 }
 
+export interface ConferenceConfigTemplatePayload {
+  description?: string
+  location?: string
+  location_type?: "in-person" | "virtual" | "hybrid" | string
+  topics?: string[]
+  tracks?: string[]
+  conference_start_date?: string
+  conference_end_date?: string
+  abstract_deadline?: string
+  full_paper_deadline?: string
+  camera_ready_deadline?: string
+  max_pages?: number
+  abstract_max_words?: number
+  min_keywords?: number
+  max_keywords?: number
+  allow_supplementary?: boolean
+  supplementary_types?: string[]
+  strict_deadlines?: boolean
+  review_type?: "single-blind" | "double-blind" | string
+  rebuttal_start_date?: string
+  rebuttal_end_date?: string
+  final_decision_date?: string
+  file_formats?: string[]
+  call_for_paper_text?: string
+  co_chairs?: string[]
+}
+
+export interface ConferenceConfigTemplate {
+  id: string
+  name: string
+  description: string
+  payload: ConferenceConfigTemplatePayload
+  created_at: string
+  updated_at: string
+}
+
 // Track interface
 export interface Track {
   id: string
@@ -366,7 +402,7 @@ export interface ReviewRequest {
   requested_by: String
   requested_by_name: string
   requested_at: string
-  status: "pending" | "accepted" | "declined"
+  status: "pending" | "accepted" | "rejected"
   expertise_match: number
   papers_count: number
   estimated_hours: number
