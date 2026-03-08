@@ -4,7 +4,7 @@
 
 import type { Conference, ConferenceStats, ConferenceStatus, Paper, User, Track } from "@/lib/types"
 export type { Conference, ConferenceStats, ConferenceStatus, Paper, User, Track }
-import { apiFetch } from "@/lib/api/client"
+import { apiFetch, ApiError } from "@/lib/api/client"
 
 // API Response wrapper for type safety
 export interface ApiResponse<T> {
@@ -68,10 +68,12 @@ export async function getConferenceById(conferenceId: string): Promise<ApiRespon
       status: response.status,
     }
   } catch (error) {
+    // Preserve status code from ApiError
+    const status = error instanceof ApiError ? error.status : 500
     return {
       data: null,
       error: error instanceof Error ? error.message : "Failed to fetch conference",
-      status: 500,
+      status,
     }
   }
 }

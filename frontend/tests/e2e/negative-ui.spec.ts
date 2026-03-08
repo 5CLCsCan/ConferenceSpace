@@ -5,13 +5,20 @@ import { createConference, generateConferenceData } from '../utils/api/conferenc
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 const SHORT_TIMEOUT = 5000; // 5 seconds max wait
+const LOGIN_TIMEOUT = 3000; // Wait for login to complete
 
 test.describe('Negative UI Tests - Frontend Validation & RBAC', () => {
+  
+  // Ensure each test has isolated data
+  test.beforeEach(async () => {
+    // Add small delay between tests to avoid data conflicts
+    await new Promise(resolve => setTimeout(resolve, 500));
+  });
   
   test('[UI-SEC-01] Author and Reviewer cannot access Chair-only features', async ({ page, request }) => {
     console.log('=== [UI-SEC-01] Testing RBAC in UI ===');
     
-    // Setup: Create users and conference
+    // Setup: Create fresh users and conference for this test
     const state = await StateBuilder
       .create(request)
       .withUsers({ reviewerCount: 1, authorCount: 1 })
@@ -25,11 +32,39 @@ test.describe('Negative UI Tests - Frontend Validation & RBAC', () => {
     // Test 1: Author cannot see Auto-assign button or COI Dashboard
     console.log('Testing Author access restrictions...');
     await page.goto(`${FRONTEND_URL}/test/login?email=${author.email}`);
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(LOGIN_TIMEOUT);
     
-    // Navigate to conference page
-    await page.goto(`${FRONTEND_URL}/conferences/${conferenceId}`);
-    await page.waitForTimeout(1000);
+    // Wait for login to complete
+    await page.waitForLoadState('networkidle');
+    
+    // Navigate to conference page with timeout protection
+    console.log(`Navigating to /conferences/${conferenceId}...`);
+    try {
+      await Promise.race([
+        page.goto(`${FRONTEND_URL}/conferences/${conferenceId}`, { timeout: SHORT_TIMEOUT }),
+        page.waitForURL((url) => {
+          const urlStr = url.toString();
+          return urlStr === `${FRONTEND_URL}/` ||
+                 urlStr === `${FRONTEND_URL}/login` ||
+                 urlStr === `${FRONTEND_URL}/unauthorized` ||
+                 urlStr === `${FRONTEND_URL}/403`;
+        }, { timeout: SHORT_TIMEOUT })
+      ]);
+      
+      // Check if redirected
+      const currentUrl = page.url();
+      if (currentUrl !== `${FRONTEND_URL}/conferences/${conferenceId}`) {
+        console.log(`✓ Author redirected from conference page to: ${currentUrl}`);
+      } else {
+        // Page loaded, wait for network to settle
+        await page.waitForLoadState('networkidle', { timeout: SHORT_TIMEOUT });
+      }
+    } catch (error: any) {
+      if (error.message.includes('Timeout')) {
+        throw new Error(`UI Security Error: Page hang or infinite redirect detected when accessing /conferences/${conferenceId}`);
+      }
+      throw error;
+    }
     
     // Assert: Auto-assign button should not be visible (with short timeout)
     const autoAssignButton = page.locator('button:has-text("Auto-assign"), button:has-text("Auto assign"), button:has-text("Autoassign")');
@@ -65,8 +100,25 @@ test.describe('Negative UI Tests - Frontend Validation & RBAC', () => {
     
     // Test 2: Try to access Chair URLs directly - should redirect or show access denied
     console.log('Testing direct URL access for Author...');
-    await page.goto(`${FRONTEND_URL}/chair/dashboard`);
-    await page.waitForTimeout(1000);
+    try {
+      await Promise.race([
+        page.goto(`${FRONTEND_URL}/chair/dashboard`, { timeout: SHORT_TIMEOUT }),
+        page.waitForURL((url) => {
+          const urlStr = url.toString();
+          return urlStr === `${FRONTEND_URL}/` ||
+                 urlStr === `${FRONTEND_URL}/login` ||
+                 urlStr === `${FRONTEND_URL}/unauthorized` ||
+                 urlStr === `${FRONTEND_URL}/403`;
+        }, { timeout: SHORT_TIMEOUT })
+      ]);
+      
+      await page.waitForLoadState('networkidle', { timeout: SHORT_TIMEOUT });
+    } catch (error: any) {
+      if (error.message.includes('Timeout')) {
+        throw new Error('UI Security Error: Page hang or infinite redirect detected when accessing /chair/dashboard');
+      }
+      throw error;
+    }
     
     // Should either redirect to home or show access denied
     const currentUrl = page.url();
@@ -75,6 +127,8 @@ test.describe('Negative UI Tests - Frontend Validation & RBAC', () => {
     const isBlocked = 
       currentUrl === `${FRONTEND_URL}/` || 
       currentUrl === `${FRONTEND_URL}/login` ||
+      currentUrl === `${FRONTEND_URL}/unauthorized` ||
+      currentUrl === `${FRONTEND_URL}/403` ||
       pageContent?.toLowerCase().includes('access denied') ||
       pageContent?.toLowerCase().includes('unauthorized') ||
       pageContent?.toLowerCase().includes('403') ||
@@ -83,15 +137,39 @@ test.describe('Negative UI Tests - Frontend Validation & RBAC', () => {
     if (!isBlocked) {
       throw new Error(`UI Security Gap: Author can access /chair/dashboard (URL: ${currentUrl})`);
     }
-    console.log('✓ Author blocked from accessing /chair/dashboard');
+    console.log(`✓ Author blocked from accessing /chair/dashboard (redirected to: ${currentUrl})`);
     
     // Test 3: Reviewer cannot see Auto-assign button or COI Dashboard
     console.log('Testing Reviewer access restrictions...');
     await page.goto(`${FRONTEND_URL}/test/login?email=${reviewer.email}`);
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(LOGIN_TIMEOUT);
+    await page.waitForLoadState('networkidle');
     
-    await page.goto(`${FRONTEND_URL}/conferences/${conferenceId}`);
-    await page.waitForTimeout(1000);
+    console.log(`Navigating to /conferences/${conferenceId} as Reviewer...`);
+    try {
+      await Promise.race([
+        page.goto(`${FRONTEND_URL}/conferences/${conferenceId}`, { timeout: SHORT_TIMEOUT }),
+        page.waitForURL((url) => {
+          const urlStr = url.toString();
+          return urlStr === `${FRONTEND_URL}/` ||
+                 urlStr === `${FRONTEND_URL}/login` ||
+                 urlStr === `${FRONTEND_URL}/unauthorized` ||
+                 urlStr === `${FRONTEND_URL}/403`;
+        }, { timeout: SHORT_TIMEOUT })
+      ]);
+      
+      const currentUrl = page.url();
+      if (currentUrl !== `${FRONTEND_URL}/conferences/${conferenceId}`) {
+        console.log(`✓ Reviewer redirected from conference page to: ${currentUrl}`);
+      } else {
+        await page.waitForLoadState('networkidle', { timeout: SHORT_TIMEOUT });
+      }
+    } catch (error: any) {
+      if (error.message.includes('Timeout')) {
+        throw new Error(`UI Security Error: Page hang or infinite redirect detected when Reviewer accessing /conferences/${conferenceId}`);
+      }
+      throw error;
+    }
     
     // Assert: Auto-assign button should not be visible
     try {
@@ -121,8 +199,25 @@ test.describe('Negative UI Tests - Frontend Validation & RBAC', () => {
     
     // Test 4: Try to access Chair URLs directly as Reviewer
     console.log('Testing direct URL access for Reviewer...');
-    await page.goto(`${FRONTEND_URL}/coi-dashboard/${conferenceId}`);
-    await page.waitForTimeout(1000);
+    try {
+      await Promise.race([
+        page.goto(`${FRONTEND_URL}/coi-dashboard/${conferenceId}`, { timeout: SHORT_TIMEOUT }),
+        page.waitForURL((url) => {
+          const urlStr = url.toString();
+          return urlStr === `${FRONTEND_URL}/` ||
+                 urlStr === `${FRONTEND_URL}/login` ||
+                 urlStr === `${FRONTEND_URL}/unauthorized` ||
+                 urlStr === `${FRONTEND_URL}/403`;
+        }, { timeout: SHORT_TIMEOUT })
+      ]);
+      
+      await page.waitForLoadState('networkidle', { timeout: SHORT_TIMEOUT });
+    } catch (error: any) {
+      if (error.message.includes('Timeout')) {
+        throw new Error('UI Security Error: Page hang or infinite redirect detected when Reviewer accessing COI dashboard');
+      }
+      throw error;
+    }
     
     const reviewerUrl = page.url();
     const reviewerPageContent = await page.textContent('body', { timeout: SHORT_TIMEOUT });
@@ -130,6 +225,8 @@ test.describe('Negative UI Tests - Frontend Validation & RBAC', () => {
     const reviewerBlocked = 
       reviewerUrl === `${FRONTEND_URL}/` || 
       reviewerUrl === `${FRONTEND_URL}/login` ||
+      reviewerUrl === `${FRONTEND_URL}/unauthorized` ||
+      reviewerUrl === `${FRONTEND_URL}/403` ||
       reviewerPageContent?.toLowerCase().includes('access denied') ||
       reviewerPageContent?.toLowerCase().includes('unauthorized') ||
       reviewerPageContent?.toLowerCase().includes('403') ||
@@ -138,7 +235,7 @@ test.describe('Negative UI Tests - Frontend Validation & RBAC', () => {
     if (!reviewerBlocked) {
       throw new Error(`UI Security Gap: Reviewer can access COI dashboard (URL: ${reviewerUrl})`);
     }
-    console.log('✓ Reviewer blocked from accessing COI dashboard');
+    console.log(`✓ Reviewer blocked from accessing COI dashboard (redirected to: ${reviewerUrl})`);
     
     console.log('=== [UI-SEC-01] PASSED: RBAC correctly enforced in UI ===');
   });
@@ -146,7 +243,7 @@ test.describe('Negative UI Tests - Frontend Validation & RBAC', () => {
   test('[UI-NEG-02] Submit button disabled after deadline', async ({ page, request }) => {
     console.log('=== [UI-NEG-02] Testing deadline enforcement in UI ===');
     
-    // Setup: Create conference with deadline in the past
+    // Setup: Create fresh users and conference with deadline in the past
     const authorData = generateUserData(['Computer Science']);
     const author = await registerUser(request, authorData);
     
@@ -166,11 +263,12 @@ test.describe('Negative UI Tests - Frontend Validation & RBAC', () => {
     
     // Login as author
     await page.goto(`${FRONTEND_URL}/test/login?email=${author.email}`);
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(LOGIN_TIMEOUT);
+    await page.waitForLoadState('networkidle');
     
     // Navigate to submission page
     await page.goto(`${FRONTEND_URL}/conferences/${conference.id}/submit`);
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
     
     // Assert: Submit/Publish button should be disabled
     const submitButton = page.locator('button:has-text("Submit"), button:has-text("Publish"), button[type="submit"]');
@@ -221,11 +319,27 @@ test.describe('Negative UI Tests - Frontend Validation & RBAC', () => {
   test('[UI-NEG-03] Frontend validation for invalid review scores', async ({ page, request }) => {
     console.log('=== [UI-NEG-03] Testing frontend validation for review scores ===');
     
-    // Setup: Create ready-to-review state
+    // Setup: Create fresh ready-to-review state with FUTURE deadline
+    // IMPORTANT: Set deadline in the future to avoid backend blocking submission creation
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + 30); // 30 days in the future
+    
     const state = await StateBuilder
       .create(request)
       .withUsers({ reviewerCount: 1, authorCount: 1 })
-      .withConference()
+      .withConference({
+        conferenceData: {
+          configurations: {
+            start_date: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(), // 60 days future
+            end_date: new Date(Date.now() + 65 * 24 * 60 * 60 * 1000).toISOString(), // 65 days future
+            abstract_submission_deadline: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(), // 20 days future
+            full_paper_submission_deadline: futureDate.toISOString(), // 30 days future
+            format: 'virtual' as const,
+            review_type: 'double-blind' as const,
+            have_coi: true,
+          }
+        }
+      })
       .withSubmissions({ submissionsPerAuthor: 1 })
       .withAcceptedReviewers({ autoAccept: true })
       .buildPhase3();
@@ -234,15 +348,17 @@ test.describe('Negative UI Tests - Frontend Validation & RBAC', () => {
     const submission = state.submissions[0];
     const conferenceId = state.conference.id;
     
-    console.log(`Reviewer: ${reviewer.email}, Submission: ${submission.id}`);
+    console.log(`Reviewer: ${reviewer.email}, Submission: ${submission.id}, Conference: ${conferenceId}`);
+    console.log(`Deadline set to: ${futureDate.toISOString()}`);
     
     // Login as reviewer
     await page.goto(`${FRONTEND_URL}/test/login?email=${reviewer.email}`);
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(LOGIN_TIMEOUT);
+    await page.waitForLoadState('networkidle');
     
     // Navigate to review form
     await page.goto(`${FRONTEND_URL}/reviewer/conferences/${conferenceId}/papers/${submission.id}/review`);
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
     
     // Test 1: Enter negative score
     console.log('Testing negative score validation...');
