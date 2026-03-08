@@ -117,6 +117,13 @@ export function PaperSubmissionForm({
 
   const isNewSubmissionBlocked = !initialSubmission && conference?.status !== "open"
 
+  const submissionDeadline =
+    conference?.configurations?.full_paper_submission_deadline
+      ? new Date(conference.configurations.full_paper_submission_deadline)
+      : null
+  const isDeadlinePassed = submissionDeadline !== null && new Date() > submissionDeadline
+  const isSubmitDisabled = isNewSubmissionBlocked || isDeadlinePassed
+
   const mapSubmissionError = (errorMessage: string | null): string => {
     if (!errorMessage) {
       return "Unable to submit due to an unknown error."
@@ -502,6 +509,23 @@ export function PaperSubmissionForm({
               </div>
             </div>
 
+            {/* Deadline passed warning */}
+            {isDeadlinePassed && (
+              <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/30 px-4 py-3">
+                <span className="material-symbols-outlined text-red-500" style={{ fontSize: "18px" }}>
+                  schedule
+                </span>
+                <div>
+                  <p className="text-[12px] font-semibold text-red-700 dark:text-red-400">
+                    Submission deadline has passed
+                  </p>
+                  <p className="text-[11px] text-red-600 dark:text-red-500">
+                    The deadline was {submissionDeadline!.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}. New submissions and publishing are no longer accepted.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Step Content */}
             {currentStep === "paper" && (
               <PaperDetailsStep
@@ -609,6 +633,7 @@ export function PaperSubmissionForm({
         <SubmissionActionBar
           currentStep={currentStep}
           submitting={submitting}
+          canSubmit={!isSubmitDisabled}
           onStepChange={setCurrentStep}
           onSaveDraft={handleSaveDraft}
           onSubmit={handleSubmit}
