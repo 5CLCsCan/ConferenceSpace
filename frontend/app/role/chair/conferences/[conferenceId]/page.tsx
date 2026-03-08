@@ -55,6 +55,13 @@ export default function ChairConferenceDetailPage() {
       setLoading(true)
       setError(null)
       const response = await getConferenceById(conferenceId)
+      
+      // Handle 403 Forbidden - redirect to unauthorized page
+      if (response.status === 403) {
+        router.push("/")
+        return
+      }
+      
       if (response.error || !response.data) {
         setError(response.error || "Failed to load conference")
         setLoading(false)
@@ -75,7 +82,7 @@ export default function ChairConferenceDetailPage() {
     }
 
     void loadConference()
-  }, [conferenceId])
+  }, [conferenceId, router])
 
   const renderTabContent = () => {
     switch (activeTab) {
