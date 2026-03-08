@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import { ChairActionsPanel } from "../chair-actions-panel"
 import * as client from "@/lib/api/client"
+import * as authContext from "@/lib/auth-context"
 
 vi.mock("@/lib/i18n/translation-context", async () => {
   const { tStatic } = await vi.importActual<typeof import("@/lib/i18n/static-translate")>(
@@ -25,6 +26,11 @@ vi.mock("@/lib/api/client", () => ({
   API_BASE_URL: "http://localhost:8080",
 }))
 
+// Mock useAuth
+vi.mock("@/lib/auth-context", () => ({
+  useAuth: vi.fn(() => ({ currentRole: "chair" })),
+}))
+
 // Mock cn utility
 vi.mock("@/lib/utils", () => ({
   cn: (...args: (string | undefined | boolean)[]) =>
@@ -38,6 +44,8 @@ describe("ChairActionsPanel", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     localStorage.setItem("conference_locale", "en")
+    // Restore default chair role after each reset
+    vi.mocked(authContext.useAuth).mockReturnValue({ currentRole: "chair" } as any)
   })
 
   afterEach(() => {
@@ -261,6 +269,49 @@ describe("ChairActionsPanel", () => {
           method: "POST",
         }),
       )
+    })
+  })
+
+  describe("RBAC: role-based visibility", () => {
+    it("should render panel for chair role", () => {
+      vi.mocked(authContext.useAuth).mockReturnValue({ currentRole: "chair" } as any)
+
+      render(
+        <ChairActionsPanel
+          conferenceId="123"
+          onNavigateToAssignments={mockOnNavigateToAssignments}
+        />,
+      )
+
+      expect(screen.getByText("Auto-Assign Reviewers")).toBeInTheDocument()
+    })
+
+    it("should NOT render panel for author role", () => {
+      vi.mocked(authContext.useAuth).mockReturnValue({ currentRole: "author" } as any)
+
+      const { container } = render(
+        <ChairActionsPanel
+          conferenceId="123"
+          onNavigateToAssignments={mockOnNavigateToAssignments}
+        />,
+      )
+
+      expect(container.firstChild).toBeNull()
+      expect(screen.queryByText("Auto-Assign Reviewers")).not.toBeInTheDocument()
+    })
+
+    it("should NOT render panel for reviewer role", () => {
+      vi.mocked(authContext.useAuth).mockReturnValue({ currentRole: "reviewer" } as any)
+
+      const { container } = render(
+        <ChairActionsPanel
+          conferenceId="123"
+          onNavigateToAssignments={mockOnNavigateToAssignments}
+        />,
+      )
+
+      expect(container.firstChild).toBeNull()
+      expect(screen.queryByText("Auto-Assign Reviewers")).not.toBeInTheDocument()
     })
   })
 })

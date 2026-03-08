@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { apiFetch } from "@/lib/api/client"
+import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ChairAction {
@@ -34,6 +35,11 @@ export function ChairActionsPanel({
   className,
 }: ChairActionsPanelProps) {
   const { t } = useTranslation()
+  const { currentRole } = useAuth()
+
+  // Only render for chairs
+  if (currentRole !== "chair") return null
+
   const displayMilestone = nextMilestone ?? {
     label: t("runtime.components.chair.conference-detail.chair-actions-panel.prop_label_author_notification"),
     date: "Dec 10",

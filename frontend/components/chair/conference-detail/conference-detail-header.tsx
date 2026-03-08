@@ -5,7 +5,7 @@ import type { ConferenceInfo, TabId, TabItem } from "./types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { tStatic as t } from "@/lib/i18n/static-translate"
 
-const TABS: TabItem[] = [
+const ALL_TABS: TabItem[] = [
   { id: "dashboard", label: t("runtime.components.chair.conference-detail.conference-detail-header.prop_label_dashboard"), icon: "analytics" },
   { id: "overview", label: t("runtime.components.chair.conference-detail.conference-detail-header.prop_label_overview"), icon: "info" },
   { id: "cfp", label: t("runtime.components.chair.conference-detail.conference-detail-header.prop_label_call_for_papers"), icon: "campaign" },
@@ -16,10 +16,13 @@ const TABS: TabItem[] = [
   { id: "coi", label: t("runtime.components.chair.conference-detail.conference-detail-header.prop_label_coi"), icon: "warning" },
 ]
 
+const CHAIR_ONLY_TABS: TabId[] = ["coi"]
+
 interface ConferenceDetailHeaderProps {
   conference: ConferenceInfo
   activeTab: TabId
   onTabChange: (tab: TabId) => void
+  userRole?: string
   className?: string
 }
 
@@ -27,9 +30,13 @@ export function ConferenceDetailHeader({
   conference,
   activeTab,
   onTabChange,
+  userRole,
   className,
 }: ConferenceDetailHeaderProps) {
   const { t } = useTranslation()
+  const TABS = userRole === "chair"
+    ? ALL_TABS
+    : ALL_TABS.filter((tab) => !CHAIR_ONLY_TABS.includes(tab.id as TabId))
   return (
     <header
       className={cn(

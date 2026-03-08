@@ -15,6 +15,7 @@ import (
 	"github.com/dcao/conferencespace/internal/storage"
 	assignmentStorage "github.com/dcao/conferencespace/internal/storage/assignment"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
+	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	reviewerStorage "github.com/dcao/conferencespace/internal/storage/reviewer"
 	submissionStorage "github.com/dcao/conferencespace/internal/storage/submission"
 	"github.com/dcao/conferencespace/internal/utils"
@@ -30,6 +31,7 @@ type Controller struct {
 	conferenceStorage   conferenceStorage.StorageInterface
 	notificationService *notificationService.Service
 	coiService          *coiService.Service
+	roleStorage         conferenceuserrole.StorageInterface
 }
 
 // New creates a new assignment controller
@@ -41,6 +43,7 @@ func New(store *storage.Storage, assignmentService *assignment.Service, coiSvc *
 		submissionStorage: store.Submission,
 		conferenceStorage: store.Conference,
 		coiService:        coiSvc,
+		roleStorage:       store.ConferenceUserRole,
 	}
 }
 
@@ -54,6 +57,7 @@ func NewWithNotifications(store *storage.Storage, assignmentService *assignment.
 		conferenceStorage:   store.Conference,
 		notificationService: notifSvc,
 		coiService:          coiSvc,
+		roleStorage:         store.ConferenceUserRole,
 	}
 }
 
@@ -77,6 +81,15 @@ func (c *Controller) AutoAssign(ginCtx *gin.Context, req *dto.AutoAssignRequest)
 	conferenceID, err := strconv.ParseInt(conferenceIDStr, 10, 64)
 	if err != nil {
 		return nil, fmt.Errorf("invalid conference_id")
+	}
+
+	// RBAC: only chair or co-chair can trigger auto-assign
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+	if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, conferenceID, userEmail) {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "only chair can trigger auto-assign")
 	}
 
 	// Validate
