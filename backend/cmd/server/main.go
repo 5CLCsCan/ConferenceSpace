@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -126,7 +128,7 @@ func initializeApp(cfg *config.Config) (*AppContext, func(), error) {
 	}
 
 	// Initialize file storage service
-	fileStore := fileStorage.NewLocalFileStorage("./uploads/submissions")
+	fileStore, err := initializeFileStorage(cfg)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -143,8 +145,10 @@ func initializeApp(cfg *config.Config) (*AppContext, func(), error) {
 			log.Printf("Error closing database: %v", err)
 		}
 
-		if err := clients.Close(context.Background()); err != nil {
-			log.Printf("Error closing clients: %v", err)
+		if clients != nil {
+			if err := clients.Close(context.Background()); err != nil {
+				log.Printf("Error closing clients: %v", err)
+			}
 		}
 	}
 
@@ -155,6 +159,31 @@ func initializeApp(cfg *config.Config) (*AppContext, func(), error) {
 	}
 
 	return appCtx, cleanup, nil
+}
+
+func initializeFileStorage(cfg *config.Config) (fileStorage.StorageInterface, error) {
+	switch strings.ToLower(strings.TrimSpace(cfg.FileStorage.Provider)) {
+	case "", "local":
+		basePath := cfg.FileStorage.LocalBasePath
+		if strings.TrimSpace(basePath) == "" {
+			basePath = "./uploads/submissions"
+		}
+		log.Printf("Using local file storage at %s", basePath)
+		return fileStorage.NewLocalFileStorage(basePath), nil
+	case "supabase":
+		storage, err := fileStorage.NewSupabaseFileStorage(fileStorage.SupabaseFileStorageConfig{
+			URL:            cfg.FileStorage.SupabaseURL,
+			ServiceRoleKey: cfg.FileStorage.SupabaseServiceRoleKey,
+			Bucket:         cfg.FileStorage.SupabaseBucket,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to initialize supabase file storage: %w", err)
+		}
+		log.Printf("Using supabase file storage bucket %s", cfg.FileStorage.SupabaseBucket)
+		return storage, nil
+	default:
+		return nil, fmt.Errorf("unsupported file storage provider: %s", cfg.FileStorage.Provider)
+	}
 }
 
 // setupRouter configures all routes
@@ -213,6 +242,7 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 		users.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
 			users.GET("/me", handler.HandleNoRequest(ctrl.User.GetMe))
+			users.GET("/me/profile-sync-status", handler.HandleNoRequest(ctrl.User.GetProfileSyncStatus))
 			users.GET("/me/academic-profile", handler.HandleNoRequest(ctrl.User.GetAcademicProfile))
 			users.POST("/link-academic-profile", handler.HandleRequest(ctrl.User.LinkAcademicProfile))
 			users.POST("/unlink-academic-profile", handler.HandleNoRequest(ctrl.User.UnlinkAcademicProfile))
@@ -326,6 +356,8 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 		notifications.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
 			notifications.GET("", handler.HandleRequestWithQuery(ctrl.Notification.List))
+			notifications.GET("/preferences", handler.HandleNoRequest(ctrl.Notification.GetPreferences))
+			notifications.PUT("/preferences", handler.HandleRequest(ctrl.Notification.UpdatePreferences))
 			notifications.GET("/unread-count", handler.HandleNoRequest(ctrl.Notification.GetUnreadCount))
 			notifications.GET("/:id", handler.HandleNoRequest(ctrl.Notification.Get))
 			notifications.PATCH("/:id/read", handler.HandleNoRequest(ctrl.Notification.MarkAsRead))

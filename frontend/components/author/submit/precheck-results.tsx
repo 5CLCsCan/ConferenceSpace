@@ -9,35 +9,9 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Button } from "@/components/ui/button"
 import { ChevronDown, ChevronUp } from "lucide-react"
 import { useState } from "react"
+import type { PrecheckResult } from "@/lib/types"
 
-export interface PreCheckResult {
-  paper_title: string
-  overall_score: number
-  decision: string
-  summary: {
-    total_items: number
-    passed: number
-    failed: number
-    pass_rate: number
-  }
-  category_scores: Record<
-    string,
-    {
-      score: number
-      passed: number
-      failed: number
-      weight: number
-    }
-  >
-  detailed_results: Array<{
-    item_id: string
-    category: string
-    description: string
-    status: "pass" | "fail" | "warning"
-    details: string
-    confidence: number
-  }>
-}
+export type PreCheckResult = PrecheckResult
 
 interface PreCheckResultsProps {
   result: PreCheckResult
@@ -87,9 +61,16 @@ export function PreCheckResults({ result }: PreCheckResultsProps) {
         </Badge>
       )
     }
+    if (decision === "desk_reject") {
+      return (
+        <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+          Desk Reject
+        </Badge>
+      )
+    }
     return (
       <Badge className="bg-yellow-50 text-yellow-700 border-yellow-200 font-medium">
-        {decision}
+        Manual Review
       </Badge>
     )
   }

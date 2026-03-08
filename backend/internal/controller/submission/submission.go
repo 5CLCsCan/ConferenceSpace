@@ -7,12 +7,12 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/model"
+	coiService "github.com/dcao/conferencespace/internal/service/coi"
 	notificationService "github.com/dcao/conferencespace/internal/service/notification"
 	"github.com/dcao/conferencespace/internal/storage"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
@@ -29,28 +29,62 @@ type Controller struct {
 	fileStorage         fileStorage.StorageInterface
 	roleStorage         conferenceuserrole.StorageInterface
 	geminiClient        interface{} // Store as interface to allow nil checks
+	coiService          *coiService.Service
 	notificationService *notificationService.Service
 }
 
-func New(store *storage.Storage, fileStore fileStorage.StorageInterface, geminiClient interface{}) *Controller {
+func New(store *storage.Storage, fileStore fileStorage.StorageInterface, geminiClient interface{}, coiSvc *coiService.Service) *Controller {
 	return &Controller{
 		submissionStorage: store.Submission,
 		conferenceStorage: store.Conference,
 		fileStorage:       fileStore,
 		roleStorage:       store.ConferenceUserRole,
 		geminiClient:      geminiClient,
+		coiService:        coiSvc,
 	}
 }
 
 // NewWithNotifications creates a new controller with notification support
-func NewWithNotifications(store *storage.Storage, fileStore fileStorage.StorageInterface, geminiClient interface{}, notifSvc *notificationService.Service) *Controller {
+func NewWithNotifications(
+	store *storage.Storage,
+	fileStore fileStorage.StorageInterface,
+	geminiClient interface{},
+	coiSvc *coiService.Service,
+	notifSvc *notificationService.Service,
+) *Controller {
 	return &Controller{
 		submissionStorage:   store.Submission,
 		conferenceStorage:   store.Conference,
 		fileStorage:         fileStore,
 		roleStorage:         store.ConferenceUserRole,
 		geminiClient:        geminiClient,
+		coiService:          coiSvc,
 		notificationService: notifSvc,
+	}
+}
+
+func (c *Controller) deleteStoredFileByMetadata(conferenceID, submissionID int64, metadata *dto.SubmissionFileMetadata, isCoverLetter bool) {
+	if metadata == nil {
+		return
+	}
+	if metadata.Path != "" {
+		_ = c.fileStorage.DeleteByPath(metadata.Path)
+		return
+	}
+	if isCoverLetter {
+		_ = c.fileStorage.DeleteCoverLetter(conferenceID, submissionID, metadata.Filename)
+		return
+	}
+	_ = c.fileStorage.DeleteFile(conferenceID, submissionID, metadata.Filename)
+}
+
+func (c *Controller) markSubmissionDirty(ctx context.Context, conferenceID, submissionID int64, reason string) {
+	if c.coiService == nil {
+		return
+	}
+
+	if err := c.coiService.MarkSubmissionDirty(ctx, conferenceID, submissionID, reason); err != nil {
+		fmt.Printf("Warning: failed to mark submission %d dirty for COI refresh: %v\n", submissionID, err)
 	}
 }
 
@@ -115,6 +149,22 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.SubmissionCreateReques
 		req.Submission.Status = dto.StatusDraft
 	}
 
+	// For published submissions, a file is mandatory and must pass precheck.
+	if req.Submission.Status == dto.StatusPublished {
+		if req.Submission.File == nil || len(req.Submission.File.Content) == 0 {
+			return nil, handler.NewErrorResponse(http.StatusBadRequest, "paper file is required when publishing a submission")
+		}
+
+		if err := c.ensureSubmissionPrecheckApprovedFromBytes(
+			ctx,
+			conference,
+			req.Submission.File.Content,
+			req.Submission.File.OriginalName,
+		); err != nil {
+			return nil, err
+		}
+	}
+
 	// Create the submission first
 	submission, err := c.submissionStorage.Create(ctx, req.Submission)
 	if err != nil {
@@ -136,11 +186,7 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.SubmissionCreateReques
 
 	// Handle file upload
 	// - For draft: file is OPTIONAL (can save empty draft)
-	// - For published: file is REQUIRED
-	if req.Submission.Status == dto.StatusPublished && req.Submission.File == nil {
-		return nil, handler.NewErrorResponse(http.StatusBadRequest, "paper file is required when publishing a submission")
-	}
-
+	// - For published: file has already been validated above
 	// If file is provided, save it
 	if req.Submission.File != nil {
 		// Save file using file storage service
@@ -167,7 +213,7 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.SubmissionCreateReques
 		_, err = c.submissionStorage.Update(ctx, submission.ID, updateData)
 		if err != nil {
 			// Clean up file if update fails
-			c.fileStorage.DeleteFile(conferenceID, submission.ID, fileMetadata.Filename)
+			c.deleteStoredFileByMetadata(conferenceID, submission.ID, fileMetadata, false)
 			return nil, err
 		}
 
@@ -200,7 +246,7 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.SubmissionCreateReques
 		_, err = c.submissionStorage.Update(ctx, submission.ID, updateData)
 		if err != nil {
 			// Clean up cover letter if update fails
-			c.fileStorage.DeleteCoverLetter(conferenceID, submission.ID, coverLetterMetadata.Filename)
+			c.deleteStoredFileByMetadata(conferenceID, submission.ID, coverLetterMetadata, true)
 			return nil, err
 		}
 
@@ -232,6 +278,8 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.SubmissionCreateReques
 			}
 		}()
 	}
+
+	c.markSubmissionDirty(ctx, conferenceID, submission.ID, "submission_created")
 
 	return submission, nil
 }
@@ -425,9 +473,7 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.SubmissionUpdateReques
 	// Handle paper file update if provided
 	if req.Submission.File != nil {
 		// Delete old paper file if exists
-		if existing.File != nil {
-			c.fileStorage.DeleteFile(conferenceID, id, existing.File.Filename)
-		}
+		c.deleteStoredFileByMetadata(conferenceID, id, existing.File, false)
 
 		// Save new paper file
 		fileReader := io.NopCloser(bytes.NewReader(req.Submission.File.Content))
@@ -450,7 +496,7 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.SubmissionUpdateReques
 		updatedSubmission, err = c.submissionStorage.Update(ctx, id, updateData)
 		if err != nil {
 			// Clean up file if update fails
-			c.fileStorage.DeleteFile(conferenceID, id, fileMetadata.Filename)
+			c.deleteStoredFileByMetadata(conferenceID, id, fileMetadata, false)
 			return nil, err
 		}
 	}
@@ -458,9 +504,7 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.SubmissionUpdateReques
 	// Handle cover letter update if provided
 	if req.Submission.CoverLetter != nil {
 		// Delete old cover letter if exists
-		if existing.CoverLetter != nil {
-			c.fileStorage.DeleteCoverLetter(conferenceID, id, existing.CoverLetter.Filename)
-		}
+		c.deleteStoredFileByMetadata(conferenceID, id, existing.CoverLetter, true)
 
 		// Save new cover letter
 		coverReader := io.NopCloser(bytes.NewReader(req.Submission.CoverLetter.Content))
@@ -483,10 +527,12 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.SubmissionUpdateReques
 		updatedSubmission, err = c.submissionStorage.Update(ctx, id, updateData)
 		if err != nil {
 			// Clean up cover letter if update fails
-			c.fileStorage.DeleteCoverLetter(conferenceID, id, coverLetterMetadata.Filename)
+			c.deleteStoredFileByMetadata(conferenceID, id, coverLetterMetadata, true)
 			return nil, err
 		}
 	}
+
+	c.markSubmissionDirty(ctx, conferenceID, id, "submission_updated")
 
 	return updatedSubmission, nil
 }
@@ -543,12 +589,34 @@ func (c *Controller) Publish(ginCtx *gin.Context, req *dto.SubmissionPublishRequ
 		return nil, handler.NewErrorResponse(http.StatusForbidden, fmt.Sprintf("cannot publish submission with status '%s', only draft submissions can be published", existing.Status))
 	}
 
+	// Hard gate: only allow publish when the current paper passes precheck.
+	if req.Submission.File != nil && len(req.Submission.File.Content) > 0 {
+		conference, err := c.conferenceStorage.GetByID(ctx, conferenceID)
+		if err != nil {
+			return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
+		}
+		if err := c.ensureSubmissionPrecheckApprovedFromBytes(
+			ctx,
+			conference,
+			req.Submission.File.Content,
+			req.Submission.File.OriginalName,
+		); err != nil {
+			return nil, err
+		}
+	} else if existing.File != nil && existing.File.Path != "" {
+		conference, err := c.conferenceStorage.GetByID(ctx, conferenceID)
+		if err != nil {
+			return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
+		}
+		if err := c.ensureSubmissionPrecheckApprovedForStoredFile(ctx, conference, existing.File); err != nil {
+			return nil, err
+		}
+	}
+
 	// Handle paper file upload if provided
 	if req.Submission.File != nil {
 		// Delete old paper file if exists
-		if existing.File != nil {
-			c.fileStorage.DeleteFile(conferenceID, id, existing.File.Filename)
-		}
+		c.deleteStoredFileByMetadata(conferenceID, id, existing.File, false)
 
 		// Save new paper file
 		fileReader := io.NopCloser(bytes.NewReader(req.Submission.File.Content))
@@ -571,7 +639,7 @@ func (c *Controller) Publish(ginCtx *gin.Context, req *dto.SubmissionPublishRequ
 		existing, err = c.submissionStorage.Update(ctx, id, updateData)
 		if err != nil {
 			// Clean up file if update fails
-			c.fileStorage.DeleteFile(conferenceID, id, fileMetadata.Filename)
+			c.deleteStoredFileByMetadata(conferenceID, id, fileMetadata, false)
 			return nil, err
 		}
 	}
@@ -584,9 +652,7 @@ func (c *Controller) Publish(ginCtx *gin.Context, req *dto.SubmissionPublishRequ
 	// Handle cover letter upload if provided
 	if req.Submission.CoverLetter != nil {
 		// Delete old cover letter if exists
-		if existing.CoverLetter != nil {
-			c.fileStorage.DeleteCoverLetter(conferenceID, id, existing.CoverLetter.Filename)
-		}
+		c.deleteStoredFileByMetadata(conferenceID, id, existing.CoverLetter, true)
 
 		// Save new cover letter
 		coverReader := io.NopCloser(bytes.NewReader(req.Submission.CoverLetter.Content))
@@ -609,7 +675,7 @@ func (c *Controller) Publish(ginCtx *gin.Context, req *dto.SubmissionPublishRequ
 		existing, err = c.submissionStorage.Update(ctx, id, updateData)
 		if err != nil {
 			// Clean up cover letter if update fails
-			c.fileStorage.DeleteCoverLetter(conferenceID, id, coverLetterMetadata.Filename)
+			c.deleteStoredFileByMetadata(conferenceID, id, coverLetterMetadata, true)
 			return nil, err
 		}
 	}
@@ -622,6 +688,8 @@ func (c *Controller) Publish(ginCtx *gin.Context, req *dto.SubmissionPublishRequ
 	if err != nil {
 		return nil, err
 	}
+
+	c.markSubmissionDirty(ctx, conferenceID, id, "submission_published")
 
 	return publishedSubmission, nil
 }
@@ -676,7 +744,12 @@ func (c *Controller) Delete(ginCtx *gin.Context) error {
 		return handler.NewErrorResponse(http.StatusForbidden, "cannot delete published submission")
 	}
 
-	return c.submissionStorage.Delete(ctx, id)
+	if err := c.submissionStorage.Delete(ctx, id); err != nil {
+		return err
+	}
+
+	c.markSubmissionDirty(ctx, conferenceID, id, "submission_deleted")
+	return nil
 }
 
 // GetFile godoc
@@ -724,22 +797,18 @@ func (c *Controller) GetFile(ginCtx *gin.Context) {
 		return
 	}
 
-	// Use the path stored in the database (full path)
-	filePath := submission.File.Path
-
-	// Check if file exists
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+	reader, err := c.fileStorage.Open(submission.File.Path)
+	if err != nil {
 		ginCtx.JSON(http.StatusNotFound, handler.Response{Error: "file not found"})
 		return
 	}
+	defer reader.Close()
 
 	// Set headers for file download
-	ginCtx.Header("Content-Type", submission.File.MimeType)
-	ginCtx.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", submission.File.OriginalName))
-	ginCtx.Header("Content-Length", fmt.Sprintf("%d", submission.File.Size))
-
-	// Serve the file
-	ginCtx.File(filePath)
+	ginCtx.DataFromReader(http.StatusOK, submission.File.Size, submission.File.MimeType, reader, map[string]string{
+		"Content-Disposition": fmt.Sprintf("inline; filename=\"%s\"", submission.File.OriginalName),
+		"Content-Length":      fmt.Sprintf("%d", submission.File.Size),
+	})
 }
 
 // UpdateStatus godoc
@@ -844,6 +913,8 @@ func (c *Controller) UpdateStatus(ginCtx *gin.Context, req *dto.UpdateStatusRequ
 		}()
 	}
 
+	c.markSubmissionDirty(ctx, req.ConferenceID, req.ID, "submission_status_updated")
+
 	return updatedSubmission, nil
 }
 
@@ -892,20 +963,16 @@ func (c *Controller) GetCoverLetter(ginCtx *gin.Context) {
 		return
 	}
 
-	// Use the path stored in the database (full path)
-	filePath := submission.CoverLetter.Path
-
-	// Check if file exists
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+	reader, err := c.fileStorage.Open(submission.CoverLetter.Path)
+	if err != nil {
 		ginCtx.JSON(http.StatusNotFound, handler.Response{Error: "cover letter file not found"})
 		return
 	}
+	defer reader.Close()
 
 	// Set headers for file download
-	ginCtx.Header("Content-Type", submission.CoverLetter.MimeType)
-	ginCtx.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", submission.CoverLetter.OriginalName))
-	ginCtx.Header("Content-Length", fmt.Sprintf("%d", submission.CoverLetter.Size))
-
-	// Serve the file
-	ginCtx.File(filePath)
+	ginCtx.DataFromReader(http.StatusOK, submission.CoverLetter.Size, submission.CoverLetter.MimeType, reader, map[string]string{
+		"Content-Disposition": fmt.Sprintf("inline; filename=\"%s\"", submission.CoverLetter.OriginalName),
+		"Content-Length":      fmt.Sprintf("%d", submission.CoverLetter.Size),
+	})
 }

@@ -1,0 +1,7 @@
+Neural Network Optimization for Large-Scale Machine Learning
+
+Abstract
+This paper proposes a machine learning optimization method for neural networks.
+
+Introduction
+We study deep learning training stability for large datasets and classification tasks.

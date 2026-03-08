@@ -133,6 +133,42 @@ export default function CreateConferencePage() {
           require_complete_author_profile: true,
           allow_paper_withdrawls: true,
           call_for_paper_text: formData.callForPaperText || undefined,
+          desk_rejection_settings: {
+            enabled: true,
+            required_sections: ["Abstract", "Introduction", "Methods", "Results", "Conclusions"],
+            title_max_words: 15,
+            max_sentence_words: 25,
+            min_references: Math.max(formData.minKeywords, 1),
+            thresholds: {
+              desk_reject_score: 0.3,
+              accept_score: 0.7,
+            },
+            custom_rules: {
+              min_datasets: formData.allowSupplementary ? 1 : 0,
+            },
+            scope_keywords: formData.topics,
+            prompt_fragments: formData.callForPaperText
+              ? [`Conference scope and emphasis:\n${formData.callForPaperText}`]
+              : [],
+          },
+          discussion_settings: {
+            enabled: true,
+            allow_author_response: true,
+            start_at: formData.fullPaperDeadline?.toISOString(),
+            end_at: formData.finalDecisionDate?.toISOString(),
+          },
+          rebuttal_settings: {
+            enabled: Boolean(formData.rebuttalStartDate && formData.rebuttalEndDate),
+            start_at: formData.rebuttalStartDate?.toISOString(),
+            end_at: formData.rebuttalEndDate?.toISOString(),
+            character_limit: 10000,
+            allow_revisions: true,
+            allow_new_results: true,
+            require_response_to_all: false,
+          },
+          workflow_settings: {
+            strict_deadlines: formData.strictDeadlines,
+          },
         },
       }
 

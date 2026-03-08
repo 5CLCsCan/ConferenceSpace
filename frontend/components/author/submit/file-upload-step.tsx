@@ -2,31 +2,8 @@
 
 import { useState, useRef } from "react"
 import { precheckPaper, downloadPaperFile } from "@/lib/api/papers"
-import type { Conference } from "@/lib/types"
-
-interface PreCheckResult {
-  paper_title: string
-  overall_score: number
-  decision: string
-  summary: {
-    total_items: number
-    passed: number
-    failed: number
-    pass_rate: number
-  }
-  category_scores?: Record<
-    string,
-    { score: number; passed: number; failed: number; weight: number }
-  >
-  detailed_results?: Array<{
-    item_id: string
-    category: string
-    description: string
-    status: "pass" | "fail" | "warning"
-    details: string
-    confidence: number
-  }>
-}
+import type { Conference, PrecheckResult } from "@/lib/types"
+import { PreCheckResults } from "./precheck-results"
 
 interface FileUploadStepProps {
   uploadedFile: File | null
@@ -44,6 +21,7 @@ interface FileUploadStepProps {
   }
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void
   onRemoveFile: () => void
+  onPrecheckUpdate?: (result: PrecheckResult | null, error: string | null) => void
 }
 
 export function FileUploadStep({
@@ -55,22 +33,29 @@ export function FileUploadStep({
   existingFile,
   onFileUpload,
   onRemoveFile,
+  onPrecheckUpdate,
 }: FileUploadStepProps) {
   const [isPrechecking, setIsPrechecking] = useState(false)
-  const [precheckResult, setPrecheckResult] = useState<PreCheckResult | null>(null)
+  const [precheckResult, setPrecheckResult] = useState<PrecheckResult | null>(null)
   const [precheckError, setPrecheckError] = useState<string | null>(null)
   const [isDownloading, setIsDownloading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Run precheck when file is uploaded
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    onFileUpload(e)
     const file = e.target.files?.[0]
+    onFileUpload(e)
+
+    if (file && (file.type !== "application/pdf" || file.size > 20 * 1024 * 1024)) {
+      onPrecheckUpdate?.(null, null)
+      return
+    }
 
     if (file && conference?.id) {
       setIsPrechecking(true)
       setPrecheckError(null)
       setPrecheckResult(null)
+      onPrecheckUpdate?.(null, null)
 
       try {
         const conferenceId = String(conference.id)
@@ -78,14 +63,20 @@ export function FileUploadStep({
 
         if (response.error) {
           setPrecheckError(response.error)
+          onPrecheckUpdate?.(null, response.error)
         } else if (response.data) {
-          setPrecheckResult(response.data as PreCheckResult)
+          setPrecheckResult(response.data)
+          onPrecheckUpdate?.(response.data, null)
         }
       } catch (error) {
-        setPrecheckError(error instanceof Error ? error.message : "Precheck failed")
+        const message = error instanceof Error ? error.message : "Precheck failed"
+        setPrecheckError(message)
+        onPrecheckUpdate?.(null, message)
       } finally {
         setIsPrechecking(false)
       }
+    } else {
+      onPrecheckUpdate?.(null, null)
     }
   }
 
@@ -259,7 +250,10 @@ export function FileUploadStep({
                   <span className="material-symbols-outlined text-[18px]">visibility</span>
                 </button>
                 <button
-                  onClick={onRemoveFile}
+                  onClick={() => {
+                    onRemoveFile()
+                    onPrecheckUpdate?.(null, null)
+                  }}
                   className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg text-slate-400 hover:text-red-600 transition-colors"
                   title="Delete"
                   type="button"
@@ -273,43 +267,8 @@ export function FileUploadStep({
 
         {/* Precheck Results */}
         {precheckResult && (
-          <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-xs font-bold text-[#1B3C53] dark:text-white uppercase tracking-wider">
-                Quality Check Results
-              </h4>
-              <span
-                className={`text-[9px] font-bold px-2 py-1 rounded uppercase tracking-wide ${
-                  precheckResult.decision === "accept"
-                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                    : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
-                }`}
-              >
-                Score: {precheckResult.overall_score}%
-              </span>
-            </div>
-            <div className="space-y-1.5">
-              {precheckResult.detailed_results?.slice(0, 5).map((item) => (
-                <div key={item.item_id} className="flex items-center gap-2 text-xs">
-                  <span
-                    className={`material-symbols-outlined text-[16px] ${
-                      item.status === "pass"
-                        ? "text-green-500"
-                        : item.status === "warning"
-                          ? "text-amber-500"
-                          : "text-red-500"
-                    }`}
-                  >
-                    {item.status === "pass"
-                      ? "check_circle"
-                      : item.status === "warning"
-                        ? "warning"
-                        : "cancel"}
-                  </span>
-                  <span className="text-slate-700 dark:text-slate-300">{item.description}</span>
-                </div>
-              ))}
-            </div>
+          <div className="mt-4">
+            <PreCheckResults result={precheckResult} />
           </div>
         )}
       </div>

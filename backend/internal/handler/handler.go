@@ -21,8 +21,18 @@ type ErrorResponse struct {
 	Message    string
 }
 
+type DetailedErrorResponse struct {
+	StatusCode int
+	Message    string
+	Data       interface{}
+}
+
 // Error implements the error interface
 func (e *ErrorResponse) Error() string {
+	return e.Message
+}
+
+func (e *DetailedErrorResponse) Error() string {
 	return e.Message
 }
 
@@ -31,6 +41,14 @@ func NewErrorResponse(statusCode int, message string) *ErrorResponse {
 	return &ErrorResponse{
 		StatusCode: statusCode,
 		Message:    message,
+	}
+}
+
+func NewDetailedErrorResponse(statusCode int, message string, data interface{}) *DetailedErrorResponse {
+	return &DetailedErrorResponse{
+		StatusCode: statusCode,
+		Message:    message,
+		Data:       data,
 	}
 }
 
@@ -571,6 +589,10 @@ func HandleSubmissionPublish(handler func(ctx *gin.Context, req *dto.SubmissionP
 func handleError(ctx *gin.Context, err error) {
 	if errResp, ok := err.(*ErrorResponse); ok {
 		ctx.JSON(errResp.StatusCode, Response{Error: errResp.Message})
+		return
+	}
+	if errResp, ok := err.(*DetailedErrorResponse); ok {
+		ctx.JSON(errResp.StatusCode, Response{Error: errResp.Message, Data: errResp.Data})
 		return
 	}
 

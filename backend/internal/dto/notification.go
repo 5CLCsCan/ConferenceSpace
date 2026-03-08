@@ -67,3 +67,26 @@ type MarkAllAsReadResponse struct {
 	MarkedCount int64 `json:"marked_count"`
 }
 
+type NotificationPreferencesResponse struct {
+	UserEmail          string    `json:"user_email"`
+	SubmissionReceived bool      `json:"submission_received"`
+	ReviewAssigned     bool      `json:"review_assigned"`
+	ReviewSubmitted    bool      `json:"review_submitted"`
+	PaperAccepted      bool      `json:"paper_accepted"`
+	PaperRejected      bool      `json:"paper_rejected"`
+	DeadlineReminder   bool      `json:"deadline_reminder"`
+	StatusChange       bool      `json:"status_change"`
+	EmailNotifications bool      `json:"email_notifications"`
+	UpdatedAt          time.Time `json:"updated_at"`
+}
+
+type NotificationPreferencesUpdateRequest struct {
+	SubmissionReceived *bool `json:"submission_received,omitempty"`
+	ReviewAssigned     *bool `json:"review_assigned,omitempty"`
+	ReviewSubmitted    *bool `json:"review_submitted,omitempty"`
+	PaperAccepted      *bool `json:"paper_accepted,omitempty"`
+	PaperRejected      *bool `json:"paper_rejected,omitempty"`
+	DeadlineReminder   *bool `json:"deadline_reminder,omitempty"`
+	StatusChange       *bool `json:"status_change,omitempty"`
+	EmailNotifications *bool `json:"email_notifications,omitempty"`
+}

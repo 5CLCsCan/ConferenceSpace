@@ -134,6 +134,36 @@ func (c *Controller) GetMe(ginCtx *gin.Context) (*dto.UserResponse, error) {
 	return user, nil
 }
 
+// GetProfileSyncStatus godoc
+// @Summary      Get profile sync status
+// @Description  Get current user's academic profile sync lifecycle state
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} dto.ProfileSyncStatusResponse
+// @Failure      401 {object} handler.Response
+// @Failure      404 {object} handler.Response
+// @Router       /users/me/profile-sync-status [get]
+func (c *Controller) GetProfileSyncStatus(ginCtx *gin.Context) (*dto.ProfileSyncStatusResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	user, err := c.userStorage.GetByEmail(ctx, userEmail)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "user not found")
+	}
+
+	return &dto.ProfileSyncStatusResponse{
+		SemanticScholarID: user.SemanticScholarID,
+		ProfileSyncStatus: user.ProfileSyncStatus,
+	}, nil
+}
+
 // Update godoc
 // @Summary      Update user
 // @Description  Update user profile (only own profile)

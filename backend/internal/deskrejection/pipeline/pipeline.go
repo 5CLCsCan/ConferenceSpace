@@ -6,6 +6,7 @@ import (
 
 	"github.com/dcao/conferencespace/internal/deskrejection/aggregator"
 	"github.com/dcao/conferencespace/internal/deskrejection/checkers"
+	"github.com/dcao/conferencespace/internal/deskrejection/drerrors"
 	"github.com/dcao/conferencespace/internal/deskrejection/evaluator"
 	"github.com/dcao/conferencespace/internal/deskrejection/extractor"
 	"github.com/dcao/conferencespace/internal/deskrejection/models"
@@ -82,52 +83,20 @@ func checkStage(ctx context.Context, input any) (any, error) {
 		return nil, fmt.Errorf("checkStage: config has wrong type")
 	}
 
-	// Register custom checkers
-	checkers.RegisterCustom(*config)
-	
-	// Run manual checkers and LLM evaluation concurrently
-	resultsChan := make(chan []models.CheckResult, 2)
-	errChan := make(chan error, 2)
-	
-	// Run built-in and custom checkers (manual checks: page count, word count, etc.)
-	go func() {
-		manualResults := checkers.ExecuteAll(ctx, doc, *config)
-		resultsChan <- manualResults
-	}()
-	
-	// Run LLM content evaluation concurrently (single call for content-relevant checks)
-	go func() {
-		if geminiClientVal := ctx.Value("gemini_client"); geminiClientVal != nil {
-			llmEvaluator := evaluator.NewLLMEvaluator(geminiClientVal)
-			contentResults, err := llmEvaluator.EvaluateContent(ctx, doc, *config)
-			if err != nil {
-				// LLM failure doesn't block - return empty results
-				resultsChan <- []models.CheckResult{}
-			} else if contentResults != nil {
-				resultsChan <- contentResults
-			} else {
-				resultsChan <- []models.CheckResult{}
-			}
-		} else {
-			resultsChan <- []models.CheckResult{}
+	customCheckers := checkers.BuildCustom(*config)
+	allResults := checkers.ExecuteAllWithCustom(ctx, doc, *config, customCheckers)
+
+	if geminiClientVal := ctx.Value("gemini_client"); geminiClientVal != nil {
+		llmEvaluator := evaluator.NewLLMEvaluator(geminiClientVal)
+		contentResults, err := llmEvaluator.EvaluateContent(ctx, doc, *config)
+		if err != nil {
+			return nil, drerrors.New(drerrors.CategoryLLM, "LLM content evaluation failed", err)
 		}
-	}()
-	
-	// Collect results from both goroutines
-	var allResults []models.CheckResult
-	for i := 0; i < 2; i++ {
-		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		case results := <-resultsChan:
-			allResults = append(allResults, results...)
-		case err := <-errChan:
-			if err != nil {
-				// Log error but continue with available results
-			}
+		if len(contentResults) > 0 {
+			allResults = append(allResults, contentResults...)
 		}
 	}
-	
+
 	return allResults, nil
 }
 
@@ -160,4 +129,3 @@ func aggregateStage(ctx context.Context, input any) (any, error) {
 
 	return aggregator.Generate(results, doc, *config), nil
 }
-

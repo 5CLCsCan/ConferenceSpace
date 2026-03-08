@@ -93,6 +93,10 @@ function normalizeUser(apiUser: any): User {
     first_name: firstName || undefined,
     last_name: lastName || undefined,
     domain: Array.isArray(apiUser?.domain) ? apiUser.domain : undefined,
+    semantic_scholar_id:
+      typeof apiUser?.semantic_scholar_id === "string" ? apiUser.semantic_scholar_id : undefined,
+    profile_sync_status:
+      typeof apiUser?.profile_sync_status === "string" ? apiUser.profile_sync_status : undefined,
     created_at: apiUser?.created_at,
     updated_at: apiUser?.updated_at,
   }

@@ -27,6 +27,7 @@ export function ActiveConferenceCard({ conference, onNavigate }: ConferenceCardP
             variant="secondary"
             onClick={(e) => {
               e?.stopPropagation()
+              onNavigate(conference.id)
             }}
           >
             Settings
@@ -63,6 +64,7 @@ export function PlanningConferenceCard({ conference, onNavigate }: ConferenceCar
             variant="secondary"
             onClick={(e) => {
               e?.stopPropagation()
+              onNavigate(conference.id)
             }}
           >
             Edit Details

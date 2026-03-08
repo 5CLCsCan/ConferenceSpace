@@ -1,0 +1,18 @@
+{
+  "evaluations": [
+    {
+      "id": "1.2",
+      "category": "title_abstract",
+      "status": "pass",
+      "details": "Title clearly states problem and approach.",
+      "confidence": 0.93
+    },
+    {
+      "id": "5.1",
+      "category": "experiments",
+      "status": "fail",
+      "details": "Only one dataset is reported.",
+      "confidence": 0.88
+    }
+  ]
+}

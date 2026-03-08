@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS coi_refresh_state (
+    conference_id BIGINT PRIMARY KEY REFERENCES conferences(conference_id) ON DELETE CASCADE,
+    last_rebuild_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

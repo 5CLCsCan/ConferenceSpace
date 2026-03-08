@@ -6,6 +6,7 @@ import type { StepType } from "./types"
 interface SubmissionActionBarProps {
   currentStep: StepType
   submitting: boolean
+  savingDraft?: boolean
   onStepChange: (step: StepType) => void
   onSaveDraft: () => void
   onSubmit: () => void
@@ -26,6 +27,7 @@ const nextStepLabels: Record<StepType, string> = {
 export function SubmissionActionBar({
   currentStep,
   submitting,
+  savingDraft = false,
   onStepChange,
   onSaveDraft,
   onSubmit,
@@ -99,7 +101,7 @@ export function SubmissionActionBar({
           <button
             type="button"
             onClick={onSaveDraft}
-            disabled={submitting}
+            disabled={submitting || savingDraft}
             className="hidden sm:flex items-center gap-1.5 h-8 px-3 rounded-full text-[10px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors uppercase tracking-wider disabled:opacity-50"
           >
             <span
@@ -123,7 +125,7 @@ export function SubmissionActionBar({
             >
               save
             </span>
-            Save Draft
+            {savingDraft ? "Saving..." : "Save Draft"}
           </button>
 
           {/* Next / Submit Button */}

@@ -41,6 +41,9 @@ func (c *Controller) LinkAcademicProfile(ginCtx *gin.Context, req *LinkProfileRe
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "user not found")
 	}
+	if user.ProfileSyncStatus != nil && *user.ProfileSyncStatus == "pending" {
+		return nil, handler.NewErrorResponse(http.StatusConflict, "profile sync is already in progress")
+	}
 
 	// 2. Add validation: Check if this semantic scholar ID is valid?
 	// We skip strict validation here to be fast, but ideally we should check if author exists.
@@ -50,6 +53,8 @@ func (c *Controller) LinkAcademicProfile(ginCtx *gin.Context, req *LinkProfileRe
 	status := "pending"
 	user.SemanticScholarID = &req.SemanticScholarID
 	user.ProfileSyncStatus = &status
+	user.User.SemanticScholarIDSet = true
+	user.User.ProfileSyncStatusSet = true
 
 	// UpdateByEmail takes *dto.User.
 	// Need to ensure the user object has the new fields set.
@@ -80,6 +85,7 @@ func (c *Controller) LinkAcademicProfile(ginCtx *gin.Context, req *LinkProfileRe
 			currentUser, err := c.userStorage.GetByID(bgCtx, userID)
 			if err == nil {
 				currentUser.User.ProfileSyncStatus = &newStatus
+				currentUser.User.ProfileSyncStatusSet = true
 				// Use Update instead of UpdateByEmail
 				_, _ = c.userStorage.Update(bgCtx, userID, currentUser.User)
 			}
@@ -119,6 +125,9 @@ func (c *Controller) UnlinkAcademicProfile(ginCtx *gin.Context) (*dto.UserRespon
 	if user.SemanticScholarID == nil || *user.SemanticScholarID == "" {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "no academic profile linked")
 	}
+	if user.ProfileSyncStatus != nil && *user.ProfileSyncStatus == "pending" {
+		return nil, handler.NewErrorResponse(http.StatusConflict, "cannot unlink while profile sync is in progress")
+	}
 
 	// 3. Delete scholar profile data
 	if c.scholarStorage != nil {
@@ -132,6 +141,8 @@ func (c *Controller) UnlinkAcademicProfile(ginCtx *gin.Context) (*dto.UserRespon
 	// 4. Clear user's semantic scholar fields
 	user.SemanticScholarID = nil
 	user.ProfileSyncStatus = nil
+	user.User.SemanticScholarIDSet = true
+	user.User.ProfileSyncStatusSet = true
 
 	updatedUser, err := c.userStorage.UpdateByEmail(ctx, userEmail, user.User)
 	if err != nil {

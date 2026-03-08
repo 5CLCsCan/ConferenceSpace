@@ -236,3 +236,57 @@ func (c *Controller) Delete(ginCtx *gin.Context) error {
 	return nil
 }
 
+// GetPreferences godoc
+// @Summary      Get notification preferences
+// @Description  Get notification preference settings for the authenticated user
+// @Tags         notifications
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} dto.NotificationPreferencesResponse
+// @Failure      401 {object} handler.Response
+// @Failure      500 {object} handler.Response
+// @Router       /notifications/preferences [get]
+func (c *Controller) GetPreferences(ginCtx *gin.Context) (*dto.NotificationPreferencesResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	preferences, err := c.notificationStorage.GetPreferences(ctx, userEmail)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	return preferences, nil
+}
+
+// UpdatePreferences godoc
+// @Summary      Update notification preferences
+// @Description  Update notification preference settings for the authenticated user
+// @Tags         notifications
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request body dto.NotificationPreferencesUpdateRequest true "Notification preferences update"
+// @Success      200 {object} dto.NotificationPreferencesResponse
+// @Failure      401 {object} handler.Response
+// @Failure      500 {object} handler.Response
+// @Router       /notifications/preferences [put]
+func (c *Controller) UpdatePreferences(ginCtx *gin.Context, req *dto.NotificationPreferencesUpdateRequest) (*dto.NotificationPreferencesResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	preferences, err := c.notificationStorage.UpdatePreferences(ctx, userEmail, req)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	return preferences, nil
+}

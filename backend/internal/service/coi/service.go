@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"sync"
+	"strings"
 	"time"
 
 	"github.com/dcao/conferencespace/internal/assignment/coi/commons"
@@ -20,6 +20,8 @@ import (
 // AutoRefreshInterval is the duration after which COI data is considered stale
 const AutoRefreshInterval = 5 * time.Minute
 
+const dirtyScopeRefreshLimit = 200
+
 // Service provides COI management functionality
 type Service struct {
 	detector          detectors.ConflictDetector
@@ -27,10 +29,6 @@ type Service struct {
 	submissionStorage submissionStorage.StorageInterface
 	reviewerStorage   reviewerStorage.StorageInterface
 	userStorage       userStorage.StorageInterface
-
-	// Track last rebuild time per conference
-	lastRebuildMu   sync.RWMutex
-	lastRebuildTime map[int64]time.Time
 }
 
 // New creates a new COI service
@@ -47,44 +45,121 @@ func New(
 		submissionStorage: submissionStor,
 		reviewerStorage:   reviewerStor,
 		userStorage:       userStor,
-		lastRebuildTime:   make(map[int64]time.Time),
 	}
 }
 
 // needsRefresh checks if a conference's COI data needs to be rebuilt
-func (s *Service) needsRefresh(conferenceID int64) bool {
-	s.lastRebuildMu.RLock()
-	lastTime, exists := s.lastRebuildTime[conferenceID]
-	s.lastRebuildMu.RUnlock()
-
-	if !exists {
-		return true
+func (s *Service) needsRefresh(ctx context.Context, conferenceID int64) (bool, error) {
+	lastTime, err := s.coiStorage.GetLastRebuildAt(ctx, conferenceID)
+	if err != nil {
+		return false, err
 	}
-
-	return time.Since(lastTime) > AutoRefreshInterval
+	if lastTime == nil {
+		return true, nil
+	}
+	return time.Since(*lastTime) > AutoRefreshInterval, nil
 }
 
 // markRefreshed updates the last rebuild time for a conference
-func (s *Service) markRefreshed(conferenceID int64) {
-	s.lastRebuildMu.Lock()
-	s.lastRebuildTime[conferenceID] = time.Now()
-	s.lastRebuildMu.Unlock()
+func (s *Service) markRefreshed(ctx context.Context, conferenceID int64) error {
+	return s.coiStorage.SetLastRebuildAt(ctx, conferenceID, time.Now())
 }
 
 // AutoRefreshIfNeeded checks if COI data is stale and triggers rebuild if needed
 // Returns true if a refresh was triggered
 func (s *Service) AutoRefreshIfNeeded(ctx context.Context, conferenceID int64) (bool, error) {
-	if !s.needsRefresh(conferenceID) {
+	processedDirtyScopes, err := s.RefreshDirtyScopes(ctx, conferenceID)
+	if err != nil {
+		return false, fmt.Errorf("failed to refresh dirty COI scopes: %w", err)
+	}
+	if processedDirtyScopes > 0 {
+		return true, nil
+	}
+
+	needsRefresh, err := s.needsRefresh(ctx, conferenceID)
+	if err != nil {
+		return false, fmt.Errorf("failed to check COI refresh state: %w", err)
+	}
+	if !needsRefresh {
 		return false, nil
 	}
 
 	// Rebuild COI relationships
-	_, err := s.BuildAndStoreRelationships(ctx, conferenceID)
+	_, err = s.BuildAndStoreRelationships(ctx, conferenceID)
 	if err != nil {
 		return false, fmt.Errorf("auto-refresh failed: %w", err)
 	}
 
 	return true, nil
+}
+
+// MarkConferenceDirty marks an entire conference as needing COI recomputation.
+func (s *Service) MarkConferenceDirty(ctx context.Context, conferenceID int64, reason string) error {
+	return s.coiStorage.UpsertDirtyConference(ctx, conferenceID, reason)
+}
+
+// MarkSubmissionDirty marks a submission scope as needing COI recomputation.
+func (s *Service) MarkSubmissionDirty(ctx context.Context, conferenceID, submissionID int64, reason string) error {
+	return s.coiStorage.UpsertDirtySubmission(ctx, conferenceID, submissionID, reason)
+}
+
+// MarkReviewerDirty marks a reviewer scope as needing COI recomputation.
+func (s *Service) MarkReviewerDirty(ctx context.Context, conferenceID, reviewerID int64, reason string) error {
+	return s.coiStorage.UpsertDirtyReviewer(ctx, conferenceID, reviewerID, reason)
+}
+
+// RefreshDirtyScopes incrementally refreshes COI relationships for dirty submission/reviewer scopes.
+func (s *Service) RefreshDirtyScopes(ctx context.Context, conferenceID int64) (int, error) {
+	scopes, err := s.coiStorage.ListDirtyScopes(ctx, conferenceID, dirtyScopeRefreshLimit)
+	if err != nil {
+		return 0, fmt.Errorf("failed to list dirty scopes: %w", err)
+	}
+	if len(scopes) == 0 {
+		return 0, nil
+	}
+
+	processed := 0
+	for _, scope := range scopes {
+		switch scope.ScopeType {
+		case coiStorage.ScopeTypeConference:
+			if _, err := s.BuildAndStoreRelationships(ctx, conferenceID); err != nil {
+				return processed, fmt.Errorf("failed to refresh conference scope: %w", err)
+			}
+			if err := s.coiStorage.ClearDirtyScopes(ctx, conferenceID); err != nil {
+				return processed, fmt.Errorf("failed to clear dirty scopes after conference rebuild: %w", err)
+			}
+			return len(scopes), nil
+		case coiStorage.ScopeTypeSubmission:
+			if scope.SubmissionID == nil {
+				return processed, fmt.Errorf("dirty submission scope is missing submission_id")
+			}
+			if err := s.refreshSubmissionScope(ctx, conferenceID, *scope.SubmissionID); err != nil {
+				return processed, fmt.Errorf("failed to refresh submission scope %d: %w", *scope.SubmissionID, err)
+			}
+		case coiStorage.ScopeTypeReviewer:
+			if scope.ReviewerID == nil {
+				return processed, fmt.Errorf("dirty reviewer scope is missing reviewer_id")
+			}
+			if err := s.refreshReviewerScope(ctx, conferenceID, *scope.ReviewerID); err != nil {
+				return processed, fmt.Errorf("failed to refresh reviewer scope %d: %w", *scope.ReviewerID, err)
+			}
+		default:
+			return processed, fmt.Errorf("unsupported dirty scope type: %s", scope.ScopeType)
+		}
+
+		if err := s.coiStorage.DeleteDirtyScope(ctx, conferenceID, scope.ScopeType, scope.ScopeKey); err != nil {
+			return processed, fmt.Errorf("failed to clear dirty scope %s/%s: %w", scope.ScopeType, scope.ScopeKey, err)
+		}
+		processed++
+	}
+
+	if processed > 0 {
+		if err := s.markRefreshed(ctx, conferenceID); err != nil {
+			return processed, fmt.Errorf("failed to update refresh timestamp after dirty scope refresh: %w", err)
+		}
+	}
+
+	return processed, nil
 }
 
 // BuildAndStoreRelationships detects and stores COI relationships for a conference
@@ -107,39 +182,8 @@ func (s *Service) BuildAndStoreRelationships(ctx context.Context, conferenceID i
 		return 0, fmt.Errorf("failed to fetch reviewers: %w", err)
 	}
 
-	// Convert to detector format
-	detectorSubmissions := make([]commons.Submission, len(submissions))
-	for i, sub := range submissions {
-		detectorSubmissions[i] = commons.Submission{
-			ID:          sub.ID,
-			AuthorEmail: sub.Author,
-			CoAuthors:   []string{},
-			Declared:    []commons.ConflictDeclaration{},
-		}
-		if sub.Information != nil {
-			if sub.Information.CoAuthors != nil {
-				detectorSubmissions[i].CoAuthors = sub.Information.CoAuthors
-			}
-			if sub.Information.DeclaredConflicts != nil {
-				// Convert from dto.ConflictDeclaration to commons.ConflictDeclaration
-				for _, dc := range sub.Information.DeclaredConflicts {
-					detectorSubmissions[i].Declared = append(detectorSubmissions[i].Declared, commons.ConflictDeclaration{
-						Email:  dc.Email,
-						Reason: dc.Reason,
-					})
-				}
-			}
-		}
-	}
-
-	detectorReviewers := make([]commons.Reviewer, len(reviewers))
-	for i, rev := range reviewers {
-		detectorReviewers[i] = commons.Reviewer{
-			ID:        rev.ID,
-			UserID:    rev.UserID,
-			UserEmail: rev.Email,
-		}
-	}
+	detectorSubmissions := toDetectorSubmissions(submissions)
+	detectorReviewers := toDetectorReviewers(reviewers)
 
 	// Detect conflicts with details
 	conflictDetails, err := s.detector.DetectConflictsWithDetails(
@@ -156,16 +200,70 @@ func (s *Service) BuildAndStoreRelationships(ctx context.Context, conferenceID i
 		return 0, fmt.Errorf("failed to clear existing relationships: %w", err)
 	}
 
-	// Convert conflict details to storage models
+	relationships := toRelationships(conferenceID, s.detector.Name(), conflictDetails)
+
+	// Store relationships in batch
+	if err := s.coiStorage.BatchCreate(ctx, relationships); err != nil {
+		return 0, fmt.Errorf("failed to store relationships: %w", err)
+	}
+
+	// Mark this conference as refreshed
+	if err := s.markRefreshed(ctx, conferenceID); err != nil {
+		return 0, fmt.Errorf("failed to persist refresh state: %w", err)
+	}
+
+	return len(relationships), nil
+}
+
+func toDetectorSubmissions(submissions []*dto.Submission) []commons.Submission {
+	detectorSubmissions := make([]commons.Submission, len(submissions))
+	for i, sub := range submissions {
+		detectorSubmission := commons.Submission{
+			ID:          sub.ID,
+			AuthorEmail: sub.Author,
+			CoAuthors:   []string{},
+			Declared:    []commons.ConflictDeclaration{},
+		}
+		if sub.Information != nil {
+			if sub.Information.CoAuthors != nil {
+				detectorSubmission.CoAuthors = sub.Information.CoAuthors
+			}
+			if sub.Information.DeclaredConflicts != nil {
+				for _, dc := range sub.Information.DeclaredConflicts {
+					detectorSubmission.Declared = append(detectorSubmission.Declared, commons.ConflictDeclaration{
+						Email:  dc.Email,
+						Reason: dc.Reason,
+					})
+				}
+			}
+		}
+		detectorSubmissions[i] = detectorSubmission
+	}
+
+	return detectorSubmissions
+}
+
+func toDetectorReviewers(reviewers []*dto.Reviewer) []commons.Reviewer {
+	detectorReviewers := make([]commons.Reviewer, len(reviewers))
+	for i, rev := range reviewers {
+		detectorReviewers[i] = commons.Reviewer{
+			ID:        rev.ID,
+			UserID:    rev.UserID,
+			UserEmail: rev.Email,
+		}
+	}
+
+	return detectorReviewers
+}
+
+func toRelationships(conferenceID int64, detectorName string, conflictDetails []commons.ConflictDetail) []*model.COIRelationship {
 	relationships := make([]*model.COIRelationship, 0, len(conflictDetails))
 	for _, detail := range conflictDetails {
-		// Marshal evidence to JSON
 		evidenceJSON, err := json.Marshal(detail.Evidence)
 		if err != nil {
 			evidenceJSON = []byte("[]")
 		}
 
-		// Only set SubmissionID if it's not 0 (to store NULL instead of 0 in DB)
 		var submissionID *int64
 		if detail.SubmissionID != 0 {
 			submissionID = &detail.SubmissionID
@@ -178,23 +276,114 @@ func (s *Service) BuildAndStoreRelationships(ctx context.Context, conferenceID i
 			SubmissionID:     submissionID,
 			RelationshipType: detail.Type,
 			Severity:         detail.Severity,
-			Description:      detail.Description,
+			Description:      buildRelationshipDescription(detail),
 			Evidence:         evidenceJSON,
 			StartDate:        detail.StartDate,
 			EndDate:          detail.EndDate,
-			DetectedBy:       s.detector.Name(),
+			DetectedBy:       detectorName,
 		})
 	}
 
-	// Store relationships in batch
-	if err := s.coiStorage.BatchCreate(ctx, relationships); err != nil {
-		return 0, fmt.Errorf("failed to store relationships: %w", err)
+	return relationships
+}
+
+func (s *Service) refreshSubmissionScope(ctx context.Context, conferenceID, submissionID int64) error {
+	if err := s.coiStorage.DeleteByConferenceAndSubmission(ctx, conferenceID, submissionID); err != nil {
+		return err
 	}
 
-	// Mark this conference as refreshed
-	s.markRefreshed(conferenceID)
+	submission, err := s.submissionStorage.GetByID(ctx, submissionID)
+	if err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "not found") {
+			return nil
+		}
+		return fmt.Errorf("failed to fetch submission %d: %w", submissionID, err)
+	}
+	if submission.ConferenceID != conferenceID {
+		return nil
+	}
 
-	return len(relationships), nil
+	reviewers, _, err := s.reviewerStorage.List(ctx, conferenceID, &reviewerStorage.ListParams{
+		Status: model.ReviewerStatusAccepted,
+		Limit:  10000,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to fetch accepted reviewers: %w", err)
+	}
+	if len(reviewers) == 0 {
+		return nil
+	}
+
+	conflictDetails, err := s.detector.DetectConflictsWithDetails(
+		ctx,
+		toDetectorSubmissions([]*dto.Submission{submission}),
+		toDetectorReviewers(reviewers),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to detect conflicts for submission scope: %w", err)
+	}
+
+	relationships := toRelationships(conferenceID, s.detector.Name(), conflictDetails)
+	if len(relationships) == 0 {
+		return nil
+	}
+
+	if err := s.coiStorage.BatchCreate(ctx, relationships); err != nil {
+		return fmt.Errorf("failed to store submission-scope relationships: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Service) refreshReviewerScope(ctx context.Context, conferenceID, reviewerID int64) error {
+	if err := s.coiStorage.DeleteByConferenceAndReviewer(ctx, conferenceID, reviewerID); err != nil {
+		return err
+	}
+
+	reviewer, err := s.reviewerStorage.GetByID(ctx, reviewerID)
+	if err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "not found") {
+			return nil
+		}
+		return fmt.Errorf("failed to fetch reviewer %d: %w", reviewerID, err)
+	}
+	if reviewer.ConferenceID != conferenceID {
+		return nil
+	}
+	if reviewer.Status != model.ReviewerStatusAccepted {
+		return nil
+	}
+
+	submissions, _, err := s.submissionStorage.List(ctx, &submissionStorage.QueryParams{
+		ConferenceID: conferenceID,
+		Limit:        10000,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to fetch submissions: %w", err)
+	}
+	if len(submissions) == 0 {
+		return nil
+	}
+
+	conflictDetails, err := s.detector.DetectConflictsWithDetails(
+		ctx,
+		toDetectorSubmissions(submissions),
+		toDetectorReviewers([]*dto.Reviewer{reviewer}),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to detect conflicts for reviewer scope: %w", err)
+	}
+
+	relationships := toRelationships(conferenceID, s.detector.Name(), conflictDetails)
+	if len(relationships) == 0 {
+		return nil
+	}
+
+	if err := s.coiStorage.BatchCreate(ctx, relationships); err != nil {
+		return fmt.Errorf("failed to store reviewer-scope relationships: %w", err)
+	}
+
+	return nil
 }
 
 // GetDashboardStats retrieves dashboard statistics
@@ -231,26 +420,43 @@ func (s *Service) GetAllRelationships(ctx context.Context, req *dto.COIRelations
 
 	// Enrich with reviewer and author details
 	enrichedRels := make([]*dto.COIRelationship, 0, len(relationships))
+	reviewerCache := make(map[int64]string)
+	reviewerEmailCache := make(map[int64]string)
+	authorCache := make(map[string]*dto.UserResponse)
 	for _, rel := range relationships {
 		enriched := rel.ToDTO()
 
 		// Get reviewer details
-		reviewer, err := s.reviewerStorage.GetByID(ctx, rel.ReviewerID)
-		if err == nil && reviewer != nil {
-			enriched.ReviewerEmail = reviewer.Email
+		if cachedName, ok := reviewerCache[rel.ReviewerID]; ok {
+			enriched.ReviewerName = cachedName
+			enriched.ReviewerEmail = reviewerEmailCache[rel.ReviewerID]
+		} else {
+			reviewer, err := s.reviewerStorage.GetByID(ctx, rel.ReviewerID)
+			if err == nil && reviewer != nil {
+				enriched.ReviewerEmail = reviewer.Email
 
-			// Get reviewer's user details for name
-			if reviewer.UserID > 0 {
-				reviewerUser, err := s.userStorage.GetByID(ctx, reviewer.UserID)
-				if err == nil && reviewerUser != nil {
-					enriched.ReviewerName = reviewerUser.FirstName + " " + reviewerUser.LastName
+				// Get reviewer's user details for name
+				if reviewer.UserID > 0 {
+					reviewerUser, err := s.userStorage.GetByID(ctx, reviewer.UserID)
+					if err == nil && reviewerUser != nil {
+						enriched.ReviewerName = reviewerUser.FirstName + " " + reviewerUser.LastName
+					}
 				}
+				reviewerCache[rel.ReviewerID] = enriched.ReviewerName
+				reviewerEmailCache[rel.ReviewerID] = enriched.ReviewerEmail
 			}
 		}
 
 		// Get author details
-		author, err := s.userStorage.GetByEmail(ctx, rel.AuthorEmail)
-		if err == nil && author != nil {
+		author, found := authorCache[rel.AuthorEmail]
+		if !found {
+			var err error
+			author, err = s.userStorage.GetByEmail(ctx, rel.AuthorEmail)
+			if err == nil && author != nil {
+				authorCache[rel.AuthorEmail] = author
+			}
+		}
+		if author != nil {
 			enriched.AuthorName = author.FirstName + " " + author.LastName
 			if len(author.Domain) > 0 {
 				// Use domain as affiliation for now
@@ -269,6 +475,19 @@ func (s *Service) GetAllRelationships(ctx context.Context, req *dto.COIRelations
 		Page:          page,
 		Limit:         limit,
 	}, nil
+}
+
+func buildRelationshipDescription(detail commons.ConflictDetail) string {
+	base := detail.Description
+	if base == "" {
+		base = fmt.Sprintf("Conflict detected between reviewer %d and author %s", detail.ReviewerID, detail.AuthorEmail)
+	}
+
+	if len(detail.Evidence) == 0 {
+		return base
+	}
+
+	return fmt.Sprintf("%s. Evidence: %s", base, detail.Evidence[0])
 }
 
 // CheckReviewerAuthorCOI performs detailed COI check for a reviewer-author pair

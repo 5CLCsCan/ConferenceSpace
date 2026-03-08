@@ -1,6 +1,6 @@
 ﻿"use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { apiFetch, UnauthorizedError } from "@/lib/api/client"
@@ -54,6 +54,8 @@ export default function UserProfilePage() {
   const [academicProfile, setAcademicProfile] = useState<AcademicProfile | null>(null)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [isUnlinking, setIsUnlinking] = useState(false)
+  const [profileSyncStatus, setProfileSyncStatus] = useState<string | null>(null)
+  const [profileSyncError, setProfileSyncError] = useState<string | null>(null)
 
   useEffect(() => {
     const timer = setTimeout(() => setAuthChecked(true), 100)
@@ -96,6 +98,7 @@ export default function UserProfilePage() {
         }
 
         setProfile(user)
+        setProfileSyncStatus(user.profile_sync_status || null)
 
         const nextForm: ProfileFormData = {
           firstName: user.first_name || "",
@@ -136,6 +139,18 @@ export default function UserProfilePage() {
     }
     return profile.email === authUser.email
   }, [profile, authUser])
+
+  useEffect(() => {
+    if (!isOwnProfile) {
+      return
+    }
+    void userApi
+      .getProfileSyncStatus()
+      .then((response) => {
+        setProfileSyncStatus(response.data?.data?.profile_sync_status || null)
+      })
+      .catch(() => undefined)
+  }, [isOwnProfile])
 
   const isDirty = useMemo(() => {
     const sameDomains =
@@ -234,25 +249,70 @@ export default function UserProfilePage() {
     }))
   }
 
-  const refreshAcademicProfile = async () => {
+  const refreshAcademicProfile = useCallback(async () => {
     try {
       const academic = await userApi.getAcademicProfile()
       setAcademicProfile(academic.data?.data ?? null)
+      setProfileSyncError(null)
     } catch {
       setAcademicProfile(null)
+      if (profileSyncStatus === "failed") {
+        setProfileSyncError("Previous synchronization failed. Please retry linking your profile.")
+      }
     }
-  }
+  }, [profileSyncStatus])
+
+  const refreshProfileSyncStatus = useCallback(async () => {
+    if (!isOwnProfile) {
+      return
+    }
+
+    try {
+      const syncStatusResponse = await userApi.getProfileSyncStatus()
+      const nextStatus = syncStatusResponse.data?.data?.profile_sync_status || null
+      setProfileSyncStatus(nextStatus)
+
+      if (nextStatus === "completed") {
+        await refreshAcademicProfile()
+        await refreshUser()
+      }
+    } catch {
+      // Keep latest known status
+    }
+  }, [isOwnProfile, refreshAcademicProfile, refreshUser])
+
+  useEffect(() => {
+    if (!isOwnProfile || profileSyncStatus !== "pending") {
+      return
+    }
+
+    const interval = window.setInterval(() => {
+      void refreshProfileSyncStatus()
+    }, 5000)
+
+    return () => window.clearInterval(interval)
+  }, [isOwnProfile, profileSyncStatus, refreshProfileSyncStatus])
 
   const handleOnboardingComplete = async (authorId?: string) => {
     if (!authorId) {
       return
     }
+    setProfileSyncStatus("pending")
     await refreshAcademicProfile()
+    await refreshProfileSyncStatus()
     await refreshUser()
   }
 
   const handleUnlinkAcademicProfile = async () => {
     if (!isOwnProfile || isUnlinking) {
+      return
+    }
+    if (profileSyncStatus === "pending") {
+      toast({
+        title: "Sync in progress",
+        description: "Please wait for profile sync to complete before unlinking.",
+        variant: "destructive",
+      })
       return
     }
 
@@ -267,6 +327,8 @@ export default function UserProfilePage() {
       setIsUnlinking(true)
       await userApi.unlinkAcademicProfile()
       await refreshAcademicProfile()
+      setProfileSyncStatus(null)
+      setProfileSyncError(null)
       await refreshUser()
       toast({
         title: "Academic profile unlinked",
@@ -376,6 +438,11 @@ export default function UserProfilePage() {
                 <div className="flex items-center gap-2">
                   <BookOpen className="h-4 w-4 text-neutral-600" />
                   <span className="text-sm font-medium">Academic Profile</span>
+                  {profileSyncStatus && (
+                    <Badge variant="secondary" className="capitalize">
+                      Sync: {profileSyncStatus}
+                    </Badge>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -394,7 +461,11 @@ export default function UserProfilePage() {
                   )}
 
                   {isOwnProfile && !academicProfile && (
-                    <Button size="sm" onClick={() => setShowOnboarding(true)}>
+                    <Button
+                      size="sm"
+                      onClick={() => setShowOnboarding(true)}
+                      disabled={profileSyncStatus === "pending"}
+                    >
                       Connect
                     </Button>
                   )}
@@ -404,7 +475,7 @@ export default function UserProfilePage() {
                       size="sm"
                       variant="outline"
                       onClick={handleUnlinkAcademicProfile}
-                      disabled={isUnlinking}
+                      disabled={isUnlinking || profileSyncStatus === "pending"}
                     >
                       {isUnlinking ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -416,6 +487,31 @@ export default function UserProfilePage() {
                   )}
                 </div>
               </div>
+
+              {profileSyncStatus === "pending" && (
+                <p className="text-xs text-blue-700">
+                  Sync in progress. Your profile metrics and publications will appear when it
+                  completes.
+                </p>
+              )}
+
+              {profileSyncStatus === "failed" && (
+                <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2">
+                  <p className="text-xs text-red-700">
+                    {profileSyncError || "Profile sync failed. Please retry linking your profile."}
+                  </p>
+                  {isOwnProfile && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="mt-2"
+                      onClick={() => setShowOnboarding(true)}
+                    >
+                      Retry Sync
+                    </Button>
+                  )}
+                </div>
+              )}
 
               {academicProfile ? (
                 <div className="space-y-4">

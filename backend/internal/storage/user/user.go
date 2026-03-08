@@ -329,11 +329,19 @@ func (s *Storage) Update(ctx context.Context, id int64, user *dto.User) (*dto.Us
 		model.UserColUpdatedAt: time.Now(),
 	}
 
-	if user.SemanticScholarID != nil {
-		updateMap[model.UserColSemanticScholarID] = *user.SemanticScholarID
+	if user.SemanticScholarIDSet {
+		if user.SemanticScholarID == nil {
+			updateMap[model.UserColSemanticScholarID] = nil
+		} else {
+			updateMap[model.UserColSemanticScholarID] = *user.SemanticScholarID
+		}
 	}
-	if user.ProfileSyncStatus != nil {
-		updateMap[model.UserColProfileSyncStatus] = *user.ProfileSyncStatus
+	if user.ProfileSyncStatusSet {
+		if user.ProfileSyncStatus == nil {
+			updateMap[model.UserColProfileSyncStatus] = nil
+		} else {
+			updateMap[model.UserColProfileSyncStatus] = *user.ProfileSyncStatus
+		}
 	}
 
 	query, args, err := s.qb.
@@ -388,11 +396,19 @@ func (s *Storage) UpdateByEmail(ctx context.Context, email string, user *dto.Use
 		model.UserColUpdatedAt: time.Now(),
 	}
 
-	if user.SemanticScholarID != nil {
-		updateMap[model.UserColSemanticScholarID] = *user.SemanticScholarID
+	if user.SemanticScholarIDSet {
+		if user.SemanticScholarID == nil {
+			updateMap[model.UserColSemanticScholarID] = nil
+		} else {
+			updateMap[model.UserColSemanticScholarID] = *user.SemanticScholarID
+		}
 	}
-	if user.ProfileSyncStatus != nil {
-		updateMap[model.UserColProfileSyncStatus] = *user.ProfileSyncStatus
+	if user.ProfileSyncStatusSet {
+		if user.ProfileSyncStatus == nil {
+			updateMap[model.UserColProfileSyncStatus] = nil
+		} else {
+			updateMap[model.UserColProfileSyncStatus] = *user.ProfileSyncStatus
+		}
 	}
 
 	query, args, err := s.qb.

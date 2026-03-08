@@ -1,0 +1,4 @@
+Compact Model Compression
+
+Abstract
+This sentence intentionally contains many words so that the writing quality checker flags it because the configured limit is strict and this clause keeps adding extra tokens to exceed the threshold significantly.

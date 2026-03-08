@@ -24,15 +24,15 @@ const (
 
 // Notification types
 const (
-	NotificationTypeSubmissionReceived  = "submission_received"
-	NotificationTypeReviewAssigned      = "review_assigned"
-	NotificationTypeReviewSubmitted     = "review_submitted"
-	NotificationTypePaperAccepted       = "paper_accepted"
-	NotificationTypePaperRejected       = "paper_rejected"
-	NotificationTypeDeadlineReminder    = "deadline_reminder"
-	NotificationTypeStatusChange        = "status_change"
-	NotificationTypeDiscussionThread    = "discussion_thread"
-	NotificationTypeDiscussionMessage   = "discussion_message"
+	NotificationTypeSubmissionReceived = "submission_received"
+	NotificationTypeReviewAssigned     = "review_assigned"
+	NotificationTypeReviewSubmitted    = "review_submitted"
+	NotificationTypePaperAccepted      = "paper_accepted"
+	NotificationTypePaperRejected      = "paper_rejected"
+	NotificationTypeDeadlineReminder   = "deadline_reminder"
+	NotificationTypeStatusChange       = "status_change"
+	NotificationTypeDiscussionThread   = "discussion_thread"
+	NotificationTypeDiscussionMessage  = "discussion_message"
 )
 
 // Notification represents a notification in the database
@@ -81,33 +81,51 @@ func (n *Notification) ToDTO() *dto.Notification {
 const (
 	NotificationPreferencesTableName = "notification_preferences"
 
-	NotificationPrefColID                  = "id"
-	NotificationPrefColUserEmail           = "user_email"
-	NotificationPrefColSubmissionReceived  = "submission_received"
-	NotificationPrefColReviewAssigned      = "review_assigned"
-	NotificationPrefColReviewSubmitted     = "review_submitted"
-	NotificationPrefColPaperAccepted       = "paper_accepted"
-	NotificationPrefColPaperRejected       = "paper_rejected"
-	NotificationPrefColDeadlineReminder    = "deadline_reminder"
-	NotificationPrefColStatusChange        = "status_change"
-	NotificationPrefColEmailNotifications  = "email_notifications"
-	NotificationPrefColCreatedAt           = "created_at"
-	NotificationPrefColUpdatedAt           = "updated_at"
+	NotificationPrefColID                 = "id"
+	NotificationPrefColUserEmail          = "user_email"
+	NotificationPrefColSubmissionReceived = "submission_received"
+	NotificationPrefColReviewAssigned     = "review_assigned"
+	NotificationPrefColReviewSubmitted    = "review_submitted"
+	NotificationPrefColPaperAccepted      = "paper_accepted"
+	NotificationPrefColPaperRejected      = "paper_rejected"
+	NotificationPrefColDeadlineReminder   = "deadline_reminder"
+	NotificationPrefColStatusChange       = "status_change"
+	NotificationPrefColEmailNotifications = "email_notifications"
+	NotificationPrefColCreatedAt          = "created_at"
+	NotificationPrefColUpdatedAt          = "updated_at"
 )
 
 // NotificationPreferences represents user notification preferences
 type NotificationPreferences struct {
-	ID                  int64     `db:"id"`
-	UserEmail           string    `db:"user_email"`
-	SubmissionReceived  bool      `db:"submission_received"`
-	ReviewAssigned      bool      `db:"review_assigned"`
-	ReviewSubmitted     bool      `db:"review_submitted"`
-	PaperAccepted       bool      `db:"paper_accepted"`
-	PaperRejected       bool      `db:"paper_rejected"`
-	DeadlineReminder    bool      `db:"deadline_reminder"`
-	StatusChange        bool      `db:"status_change"`
-	EmailNotifications  bool      `db:"email_notifications"`
-	CreatedAt           time.Time `db:"created_at"`
-	UpdatedAt           time.Time `db:"updated_at"`
+	ID                 int64     `db:"id"`
+	UserEmail          string    `db:"user_email"`
+	SubmissionReceived bool      `db:"submission_received"`
+	ReviewAssigned     bool      `db:"review_assigned"`
+	ReviewSubmitted    bool      `db:"review_submitted"`
+	PaperAccepted      bool      `db:"paper_accepted"`
+	PaperRejected      bool      `db:"paper_rejected"`
+	DeadlineReminder   bool      `db:"deadline_reminder"`
+	StatusChange       bool      `db:"status_change"`
+	EmailNotifications bool      `db:"email_notifications"`
+	CreatedAt          time.Time `db:"created_at"`
+	UpdatedAt          time.Time `db:"updated_at"`
 }
 
+func (n *NotificationPreferences) ToDTO() *dto.NotificationPreferencesResponse {
+	if n == nil {
+		return nil
+	}
+
+	return &dto.NotificationPreferencesResponse{
+		UserEmail:          n.UserEmail,
+		SubmissionReceived: n.SubmissionReceived,
+		ReviewAssigned:     n.ReviewAssigned,
+		ReviewSubmitted:    n.ReviewSubmitted,
+		PaperAccepted:      n.PaperAccepted,
+		PaperRejected:      n.PaperRejected,
+		DeadlineReminder:   n.DeadlineReminder,
+		StatusChange:       n.StatusChange,
+		EmailNotifications: n.EmailNotifications,
+		UpdatedAt:          n.UpdatedAt,
+	}
+}

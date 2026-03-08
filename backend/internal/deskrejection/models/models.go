@@ -1,28 +1,32 @@
 package models
 
 type PaperRuleConfig struct {
-	MaxPages         int                `json:"max_pages"`
-	MinReferences    int                `json:"min_references"`
-	RequiredSections []string           `json:"required_sections"`
-	FormattingRules  FormattingRules    `json:"formatting_rules"`
-	Thresholds       Thresholds         `json:"thresholds"`
-	Weights          map[string]float64 `json:"weights"`
-	CustomRules      CustomRules        `json:"custom_rules,omitempty"`
-	TitleMaxWords    int                `json:"title_max_words"`
-	MaxSentenceWords int                `json:"max_sentence_words"`
+	MaxPages          int                `json:"max_pages"`
+	MinReferences     int                `json:"min_references"`
+	RequiredSections  []string           `json:"required_sections"`
+	FormattingRules   FormattingRules    `json:"formatting_rules"`
+	Thresholds        Thresholds         `json:"thresholds"`
+	Weights           map[string]float64 `json:"weights"`
+	CustomRules       CustomRules        `json:"custom_rules,omitempty"`
+	TitleMaxWords     int                `json:"title_max_words"`
+	MaxSentenceWords  int                `json:"max_sentence_words"`
+	ConferenceDomains []string           `json:"conference_domains,omitempty"`
+	PromptFragments   []string           `json:"prompt_fragments,omitempty"`
 }
 
 // PaperSettings stores only custom validation settings
 // Everything else uses defaults
 type PaperSettings struct {
-	MaxPages          *int                `json:"max_pages,omitempty"`
-	MinReferences     *int                `json:"min_references,omitempty"`
-	RequiredSections  []string            `json:"required_sections,omitempty"`
-	Thresholds        *Thresholds         `json:"thresholds,omitempty"`
-	Weights           map[string]float64  `json:"weights,omitempty"`
-	CustomRules       *CustomRules        `json:"custom_rules,omitempty"`
-	TitleMaxWords     *int                `json:"title_max_words,omitempty"`
-	MaxSentenceWords  *int                `json:"max_sentence_words,omitempty"`
+	MaxPages          *int               `json:"max_pages,omitempty"`
+	MinReferences     *int               `json:"min_references,omitempty"`
+	RequiredSections  []string           `json:"required_sections,omitempty"`
+	Thresholds        *Thresholds        `json:"thresholds,omitempty"`
+	Weights           map[string]float64 `json:"weights,omitempty"`
+	CustomRules       *CustomRules       `json:"custom_rules,omitempty"`
+	TitleMaxWords     *int               `json:"title_max_words,omitempty"`
+	MaxSentenceWords  *int               `json:"max_sentence_words,omitempty"`
+	ConferenceDomains []string           `json:"conference_domains,omitempty"`
+	PromptFragments   []string           `json:"prompt_fragments,omitempty"`
 }
 
 // NewPaperRuleConfig creates a default paper rule configuration
@@ -40,9 +44,13 @@ func NewPaperRuleConfig() *PaperRuleConfig {
 			AcceptScore:     0.7,
 		},
 		Weights: map[string]float64{
-			"title_abstract":   0.2,
-			"writing_quality": 0.3,
-			"experiments":      0.5,
+			"title_abstract":  0.2,
+			"introduction":    0.15,
+			"method":          0.15,
+			"writing_quality": 0.15,
+			"experiments":     0.25,
+			"pre_submission":  0.05,
+			"scope_match":     0.05,
 		},
 		TitleMaxWords:    15, // Default max words in title
 		MaxSentenceWords: 25, // Default max words in a sentence
@@ -87,12 +95,12 @@ type DocumentStats struct {
 }
 
 type CheckResult struct {
-	ItemID     string  `json:"item_id"`
-	Category   string  `json:"category"`
-	Description string `json:"description"`
-	Status     string  `json:"status"`
-	Details    string  `json:"details"`
-	Confidence float64 `json:"confidence"`
+	ItemID      string  `json:"item_id"`
+	Category    string  `json:"category"`
+	Description string  `json:"description"`
+	Status      string  `json:"status"`
+	Details     string  `json:"details"`
+	Confidence  float64 `json:"confidence"`
 }
 
 type ComplianceReport struct {
@@ -117,4 +125,3 @@ type CategoryScore struct {
 	Failed int     `json:"failed"`
 	Weight float64 `json:"weight"`
 }
-

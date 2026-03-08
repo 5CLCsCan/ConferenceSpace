@@ -10,8 +10,15 @@ export interface User {
   profile_sync_status?: string
 }
 
+export interface ProfileSyncStatus {
+  semantic_scholar_id?: string
+  profile_sync_status?: "pending" | "completed" | "failed" | string
+}
+
 export const userApi = {
   getMe: () => apiFetch<{ data: User }>("/api/v1/users/me"),
+  getProfileSyncStatus: () =>
+    apiFetch<{ data: ProfileSyncStatus }>("/api/v1/users/me/profile-sync-status"),
   getAcademicProfile: () =>
     apiFetch<{ data: AcademicProfile }>("/api/v1/users/me/academic-profile"),
   linkAcademicProfile: (semanticScholarId: string) =>

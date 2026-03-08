@@ -8,6 +8,7 @@ import (
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/model"
+	coiService "github.com/dcao/conferencespace/internal/service/coi"
 	notificationService "github.com/dcao/conferencespace/internal/service/notification"
 	"github.com/dcao/conferencespace/internal/storage"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
@@ -22,26 +23,39 @@ type Controller struct {
 	roleStorage         conferenceuserrole.StorageInterface
 	userStorage         userStorage.StorageInterface
 	conferenceStorage   conferenceStorage.StorageInterface
+	coiService          *coiService.Service
 	notificationService *notificationService.Service
 }
 
-func New(store *storage.Storage) *Controller {
+func New(store *storage.Storage, coiSvc *coiService.Service) *Controller {
 	return &Controller{
 		reviewerStorage:   store.Reviewer,
 		roleStorage:       store.ConferenceUserRole,
 		userStorage:       store.User,
 		conferenceStorage: store.Conference,
+		coiService:        coiSvc,
 	}
 }
 
 // NewWithNotifications creates a controller with notification support
-func NewWithNotifications(store *storage.Storage, notifService *notificationService.Service) *Controller {
+func NewWithNotifications(store *storage.Storage, coiSvc *coiService.Service, notifService *notificationService.Service) *Controller {
 	return &Controller{
 		reviewerStorage:     store.Reviewer,
 		roleStorage:         store.ConferenceUserRole,
 		userStorage:         store.User,
 		conferenceStorage:   store.Conference,
+		coiService:          coiSvc,
 		notificationService: notifService,
+	}
+}
+
+func (c *Controller) markReviewerDirty(ctx context.Context, conferenceID, reviewerID int64, reason string) {
+	if c.coiService == nil {
+		return
+	}
+
+	if err := c.coiService.MarkReviewerDirty(ctx, conferenceID, reviewerID, reason); err != nil {
+		fmt.Printf("Warning: failed to mark reviewer %d dirty for COI refresh: %v\n", reviewerID, err)
 	}
 }
 
@@ -88,6 +102,12 @@ func (c *Controller) BatchInvite(ginCtx *gin.Context, req *dto.ReviewerBatchInvi
 					}
 				}
 			}()
+		}
+	}
+
+	for _, reviewer := range result.Success {
+		if reviewer.Status == model.ReviewerStatusAccepted {
+			c.markReviewerDirty(ctx, req.ConferenceID, reviewer.ID, "reviewer_invited")
 		}
 	}
 
@@ -247,6 +267,8 @@ func (c *Controller) UpdateStatus(ginCtx *gin.Context, req *dto.ReviewerUpdateSt
 		}
 	}
 
+	c.markReviewerDirty(ctx, req.ConferenceID, req.ReviewerID, "reviewer_status_updated")
+
 	return result, nil
 }
 
@@ -280,6 +302,8 @@ func (c *Controller) Delete(ginCtx *gin.Context, req *dto.ReviewerDeleteRequest)
 	if err := c.reviewerStorage.Delete(ctx, req.ReviewerID); err != nil {
 		return handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
+
+	c.markReviewerDirty(ctx, req.ConferenceID, req.ReviewerID, "reviewer_deleted")
 
 	return nil
 }

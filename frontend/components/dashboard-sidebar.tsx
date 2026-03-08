@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense } from "react"
+import { Suspense, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
@@ -16,6 +16,8 @@ import {
 import { cn } from "@/lib/utils"
 import { ROUTES } from "@/lib/routes"
 import type { NavItem } from "@/lib/navigation"
+import { listConferences } from "@/lib/api/conferences"
+import type { Conference } from "@/lib/types"
 
 interface DashboardSidebarProps {
   menuItems: NavItem[]
@@ -24,8 +26,12 @@ interface DashboardSidebarProps {
 
 function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps) {
   const { user, logout, currentRole } = useAuth()
+  const { locale, setLocale } = useTranslation()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const [recentConferences, setRecentConferences] = useState<Conference[]>([])
+  const [loadingRecent, setLoadingRecent] = useState(false)
+  const [recentError, setRecentError] = useState<string | null>(null)
 
   const isRolePage = pathname === ROUTES.ROLE_SELECT
 
@@ -45,12 +51,66 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
     return pathname === hrefPathname && currentTab === hrefTab
   }
 
-  const mockConferences = [
-    { name: "CVPR 2024", role: "Reviewer", color: "text-[#2563eb]" },
-    { name: "ICML 2023", role: "Author", color: "text-[#16a34a]" },
-    { name: "NeurIPS 2024", role: "Reviewer", color: "text-[#2563eb]" },
-    { name: "AAAI 2024", role: "Chair", color: "text-[#9333ea]", active: true },
-  ]
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadRecentConferences() {
+      if (!currentRole || currentRole === "admin") {
+        setRecentConferences([])
+        return
+      }
+
+      setLoadingRecent(true)
+      setRecentError(null)
+      const response = await listConferences({
+        myConferences: true,
+        role: currentRole,
+        limit: 20,
+      })
+
+      if (cancelled) {
+        return
+      }
+
+      if (response.error || !response.data) {
+        setRecentError(response.error || "Failed to load conferences")
+        setRecentConferences([])
+        setLoadingRecent(false)
+        return
+      }
+
+      const sorted = [...response.data.conferences].sort((a, b) => {
+        const updatedA = Date.parse(a.updated_at || a.created_at || "")
+        const updatedB = Date.parse(b.updated_at || b.created_at || "")
+        if (updatedA !== updatedB) {
+          return updatedB - updatedA
+        }
+        const createdA = Date.parse(a.created_at || "")
+        const createdB = Date.parse(b.created_at || "")
+        return createdB - createdA
+      })
+
+      setRecentConferences(sorted.slice(0, 5))
+      setLoadingRecent(false)
+    }
+
+    void loadRecentConferences()
+
+    return () => {
+      cancelled = true
+    }
+  }, [currentRole])
+
+  const roleLabel = useMemo(() => {
+    if (!currentRole) return ""
+    return currentRole.charAt(0).toUpperCase() + currentRole.slice(1)
+  }, [currentRole])
+
+  const conferenceDetailHref = (conferenceId: string) => {
+    if (currentRole === "chair") return ROUTES.CHAIR.CONFERENCE_DETAIL(conferenceId)
+    if (currentRole === "reviewer") return ROUTES.REVIEWER.CONFERENCE_SUBMISSIONS(conferenceId)
+    return ROUTES.AUTHOR.CONFERENCE_DETAIL(conferenceId)
+  }
 
   return (
     <aside
@@ -135,29 +195,30 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
             Recent Conferences
           </h3>
           <nav className="space-y-5">
-            {mockConferences.map((conf, i) => (
-              <div
-                key={i}
-                className="block group cursor-pointer relative transition-all duration-200 px-1.5"
-              >
-                <h4 className="font-bold text-[12px] text-[#141414] dark:text-white group-hover:text-blue-600 transition-colors">
-                  {conf.name}
-                </h4>
-                <div className="flex items-center gap-1.5 mt-0">
-                  <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wide">
-                    {conf.role}
-                  </span>
-                  {conf.active && (
-                    <>
-                      <span className="w-1 h-1 rounded-full bg-slate-200"></span>
-                      <span className="text-[10px] font-medium text-slate-400 uppercase italic">
-                        Active
-                      </span>
-                    </>
-                  )}
-                </div>
-              </div>
-            ))}
+            {loadingRecent ? (
+              <p className="text-[10px] text-slate-400 px-1.5">Loading conferences...</p>
+            ) : recentError ? (
+              <p className="text-[10px] text-red-500 px-1.5">Unable to load recent conferences.</p>
+            ) : recentConferences.length === 0 ? (
+              <p className="text-[10px] text-slate-400 px-1.5">No recent conferences yet.</p>
+            ) : (
+              recentConferences.map((conf) => (
+                <Link
+                  key={conf.id}
+                  href={conferenceDetailHref(conf.id)}
+                  className="block group cursor-pointer relative transition-all duration-200 px-1.5"
+                >
+                  <h4 className="font-bold text-[12px] text-[#141414] dark:text-white group-hover:text-blue-600 transition-colors">
+                    {conf.acronym ? `${conf.acronym} ${conf.year}` : conf.name}
+                  </h4>
+                  <div className="flex items-center gap-1.5 mt-0">
+                    <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wide">
+                      {(conf.userRole || roleLabel || "").toUpperCase()}
+                    </span>
+                  </div>
+                </Link>
+              ))
+            )}
           </nav>
         </div>
       </nav>
@@ -197,12 +258,16 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
               </span>
             </div>
 
-            <DropdownMenuItem className="flex items-center gap-2.5 px-2.5 py-2 rounded-md text-slate-600 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-neutral-800 cursor-pointer transition-colors">
+            <DropdownMenuItem
+              onClick={() => setLocale(locale === "en" ? "vi" : "en")}
+              className="flex items-center gap-2.5 px-2.5 py-2 rounded-md text-slate-600 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-neutral-800 cursor-pointer transition-colors"
+            >
               <Globe className="w-3.5 h-3.5" />
               <span className="text-xs font-medium">Change Language</span>
               <span className="text-[9px] font-bold text-slate-400 ml-auto uppercase tracking-tighter">
-                EN
+                {locale.toUpperCase()}
               </span>
+              <Check className="w-3.5 h-3.5 text-slate-400" />
             </DropdownMenuItem>
 
             <DropdownMenuSeparator className="bg-slate-50 dark:bg-neutral-800 my-1" />

@@ -1,10 +1,13 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import { getConferenceById } from "@/lib/api/conferences"
 import {
   MOCK_POINTS,
   MOCK_REVIEWERS,
   MOCK_SETTINGS,
   MOCK_SUBMISSION,
+  buildRebuttalSettingsFromConference,
   RebuttalPanel,
 } from "@/components/shared/rebuttal"
 
@@ -25,6 +28,14 @@ interface RebuttalTabProps {
 }
 
 export function RebuttalTab({ conferenceId, submissionId, assignmentId }: RebuttalTabProps) {
+  const [settings, setSettings] = useState(MOCK_SETTINGS)
+
+  useEffect(() => {
+    void getConferenceById(conferenceId).then((response) => {
+      setSettings(buildRebuttalSettingsFromConference(response.data))
+    })
+  }, [conferenceId])
+
   return (
     <div className="space-y-3">
       {/*
@@ -37,7 +48,7 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
       </div>
 
       <RebuttalPanel
-        settings={MOCK_SETTINGS}
+        settings={settings}
         reviewers={MOCK_REVIEWERS}
         points={MOCK_POINTS}
         submission={MOCK_SUBMISSION}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { formatDistanceToNow } from "date-fns"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
@@ -14,6 +14,13 @@ import type { Notification } from "@/lib/types"
 import { resolveNotificationActionUrl } from "@/lib/notifications/resolve-action-url"
 import { cn } from "@/lib/utils"
 import { getSidebarMenuItems } from "@/lib/navigation"
+import {
+  getNotificationPreferences,
+  updateNotificationPreferences,
+  type NotificationPreferences,
+} from "@/lib/api/notifications"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Switch } from "@/components/ui/switch"
 
 function notificationKind(type: Notification["type"]): CardNotification["type"] {
   if (type === "deadline_reminder") return "deadline"
@@ -80,6 +87,9 @@ export default function NotificationsPage() {
 
   const [activeTab, setActiveTab] = useState<"all" | "unread" | "mentions">("all")
   const [activeFilter, setActiveFilter] = useState("all")
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [settingsLoading, setSettingsLoading] = useState(false)
+  const [notificationPrefs, setNotificationPrefs] = useState<NotificationPreferences | null>(null)
 
   const cardNotifications = useMemo(() => notifications.map(mapNotification), [notifications])
 
@@ -126,6 +136,31 @@ export default function NotificationsPage() {
 
   const menuItems = getSidebarMenuItems(currentRole, unreadCount)
 
+  useEffect(() => {
+    if (!settingsOpen) {
+      return
+    }
+
+    setSettingsLoading(true)
+    void getNotificationPreferences()
+      .then((prefs) => {
+        setNotificationPrefs(prefs)
+      })
+      .catch(() => undefined)
+      .finally(() => setSettingsLoading(false))
+  }, [settingsOpen])
+
+  const preferenceRows: Array<{ key: keyof NotificationPreferences; label: string }> = [
+    { key: "submission_received", label: "Submission Received" },
+    { key: "review_assigned", label: "Review Assigned" },
+    { key: "review_submitted", label: "Review Submitted" },
+    { key: "paper_accepted", label: "Paper Accepted" },
+    { key: "paper_rejected", label: "Paper Rejected" },
+    { key: "deadline_reminder", label: "Deadline Reminder" },
+    { key: "status_change", label: "Status Change" },
+    { key: "email_notifications", label: "Email Notifications" },
+  ]
+
   return (
     <div className="text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
       <DashboardSidebar menuItems={menuItems} />
@@ -149,7 +184,10 @@ export default function NotificationsPage() {
               >
                 Mark all as read
               </button>
-              <button className="p-2.5 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-800 rounded-full text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-neutral-700 transition-all shadow-sm">
+              <button
+                onClick={() => setSettingsOpen(true)}
+                className="p-2.5 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-800 rounded-full text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-neutral-700 transition-all shadow-sm"
+              >
                 <Settings2 className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -229,6 +267,39 @@ export default function NotificationsPage() {
           </div>
         </div>
       </main>
+
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Notification Settings</DialogTitle>
+          </DialogHeader>
+          {settingsLoading ? (
+            <p className="text-sm text-slate-500">Loading settings...</p>
+          ) : (
+            <div className="space-y-3">
+              {preferenceRows.map((row) => {
+                if (!notificationPrefs) return null
+                const checked = Boolean(notificationPrefs[row.key])
+                return (
+                  <div key={row.key} className="flex items-center justify-between gap-3">
+                    <span className="text-sm">{row.label}</span>
+                    <Switch
+                      checked={checked}
+                      onCheckedChange={(next) => {
+                        const optimistic = { ...notificationPrefs, [row.key]: next }
+                        setNotificationPrefs(optimistic)
+                        void updateNotificationPreferences({ [row.key]: next }).catch(() => {
+                          setNotificationPrefs(notificationPrefs)
+                        })
+                      }}
+                    />
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

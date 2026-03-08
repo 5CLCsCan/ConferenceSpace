@@ -7,10 +7,12 @@ import {
 } from "@/components/shared/discussion"
 import { useAuth } from "@/lib/auth-context"
 import { createMessage, createThread, getMessages, getThreads } from "@/lib/api/discussions"
+import { getConferenceById } from "@/lib/api/conferences"
 import {
   buildCurrentUser,
   buildDiscussionSettings,
   buildDiscussionThreads,
+  type DiscussionConfigAdapter,
 } from "@/components/shared/discussion/api-adapter"
 
 interface ChairDiscussionTabProps {
@@ -47,6 +49,9 @@ export function ChairDiscussionTab({
   const [error, setError] = useState<string | null>(null)
   const [collapsedThreadIds, setCollapsedThreadIds] = useState<Record<string, boolean>>({})
   const [threads, setThreads] = useState<ReturnType<typeof buildDiscussionThreads>>([])
+  const [discussionConfig, setDiscussionConfig] = useState<DiscussionConfigAdapter | undefined>(
+    undefined,
+  )
 
   const conferenceNumericId = useMemo(() => toNumericId(conferenceId), [conferenceId])
   const submissionNumericId = useMemo(() => toNumericId(submissionId), [submissionId])
@@ -55,7 +60,24 @@ export function ChairDiscussionTab({
     () => buildCurrentUser("chair", user?.email, user?.name),
     [user?.email, user?.name],
   )
-  const settings = useMemo(() => buildDiscussionSettings("chair"), [])
+  const settings = useMemo(() => buildDiscussionSettings("chair", discussionConfig), [discussionConfig])
+
+  useEffect(() => {
+    if (!conferenceId) {
+      return
+    }
+
+    void getConferenceById(conferenceId).then((response) => {
+      if (!response.data?.configurations) {
+        return
+      }
+
+      setDiscussionConfig({
+        review_type: response.data.configurations.review_type,
+        discussion_settings: response.data.configurations.discussion_settings,
+      })
+    })
+  }, [conferenceId])
 
   const loadThreads = useCallback(async () => {
     if (!conferenceNumericId || !submissionNumericId) {

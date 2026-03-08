@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import { submitPaper, updatePaper } from "@/lib/api/papers"
+import { publishPaper, submitPaper, updatePaper } from "@/lib/api/papers"
 import { useAuth } from "@/lib/auth-context"
 import { ROUTES } from "@/lib/routes"
-import type { Conference } from "@/lib/types"
+import type { Conference, PrecheckBlockedError, PrecheckResult } from "@/lib/types"
 import type { Submission } from "@/lib/api/submissions"
 import { useToast } from "@/components/ui/use-toast"
 import {
@@ -32,6 +32,9 @@ interface PaperSubmissionFormProps {
   submission?: Submission | null
 }
 
+type AutosaveStatus = "idle" | "saving" | "saved" | "error"
+const AUTOSAVE_INTERVAL_MS = 2 * 60 * 1000
+
 export function PaperSubmissionForm({
   conference,
   submission: initialSubmission,
@@ -42,8 +45,26 @@ export function PaperSubmissionForm({
 
   const [currentStep, setCurrentStep] = useState<StepType>("paper")
   const [submitting, setSubmitting] = useState(false)
+  const [savingDraft, setSavingDraft] = useState(false)
+  const [autosaveStatus, setAutosaveStatus] = useState<AutosaveStatus>("idle")
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(
+    initialSubmission?.updated_at ? new Date(initialSubmission.updated_at) : null,
+  )
+  const [draftSubmissionId, setDraftSubmissionId] = useState<string | null>(
+    initialSubmission?.id ? initialSubmission.id.toString() : null,
+  )
   const [showSuccessDialog, setShowSuccessDialog] = useState(false)
   const [successMessage, setSuccessMessage] = useState("")
+  const lastSavedSignatureRef = useRef<string>("")
+
+  useEffect(() => {
+    if (initialSubmission?.id) {
+      setDraftSubmissionId(initialSubmission.id.toString())
+      if (initialSubmission.updated_at) {
+        setLastSavedAt(new Date(initialSubmission.updated_at))
+      }
+    }
+  }, [initialSubmission?.id, initialSubmission?.updated_at])
 
   // Paper Details state
   const [title, setTitle] = useState(initialSubmission?.title || "")
@@ -80,6 +101,9 @@ export function PaperSubmissionForm({
   // File Upload state
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [precheckResult, setPrecheckResult] = useState<PrecheckResult | null>(null)
+  const [precheckError, setPrecheckError] = useState<string | null>(null)
+  const [lastPrecheckBlock, setLastPrecheckBlock] = useState<PrecheckBlockedError | null>(null)
   const [fileValidation, setFileValidation] = useState<{
     format: boolean
     fonts: boolean
@@ -114,23 +138,169 @@ export function PaperSubmissionForm({
 
   const isNewSubmissionBlocked = !initialSubmission && conference?.status !== "open"
 
-  const mapSubmissionError = (errorMessage: string | null): string => {
-    if (!errorMessage) {
-      return "Unable to submit due to an unknown error."
-    }
+  const mapSubmissionError = useCallback(
+    (errorMessage: string | null, precheckBlocked?: PrecheckBlockedError | null): string => {
+      if (precheckBlocked?.code === "PRECHECK_BLOCKED") {
+        const firstItem = precheckBlocked.blocking_items?.[0]
+        if (firstItem?.description) {
+          return `Precheck blocked submission (${precheckBlocked.decision}). ${firstItem.description}`
+        }
+        return `Precheck blocked submission (${precheckBlocked.decision}). Please resolve blocking issues in the quality check.`
+      }
 
-    const normalized = errorMessage.toLowerCase()
-    if (
-      normalized.includes("submissions are not allowed") ||
-      normalized.includes("status is") ||
-      normalized.includes("forbidden") ||
-      normalized.includes("403")
-    ) {
-      return "This conference is not currently accepting submissions. Please submit during the open phase."
-    }
+      if (!errorMessage) {
+        return "Unable to submit due to an unknown error."
+      }
 
-    return errorMessage
-  }
+      const normalized = errorMessage.toLowerCase()
+      if (
+        normalized.includes("submissions are not allowed") ||
+        normalized.includes("status is") ||
+        normalized.includes("forbidden") ||
+        normalized.includes("403")
+      ) {
+        return "This conference is not currently accepting submissions. Please submit during the open phase."
+      }
+
+      return errorMessage
+    },
+    [],
+  )
+
+  const buildSubmissionData = useCallback(
+    (status: "draft" | "published") => ({
+      title,
+      abstract,
+      link: "",
+      domain: [],
+      status,
+      track: selectedTrack,
+      file: uploadedFile || undefined,
+      information: {
+        keywords,
+        co_authors: authors.slice(1).map((a) => a.email),
+        declared_conflicts: conflicts
+          .filter((conflict) => conflict.email?.trim())
+          .map((conflict) => ({
+            email: conflict.email.trim(),
+            reason: conflict.reason || "other",
+          })),
+        paper_type: isStudentPaper ? "student" : "research",
+        track_name: selectedTrack,
+        additional_notes: "",
+        metadata: {
+          language: "en",
+          page_count: 0,
+        },
+      },
+    }),
+    [abstract, authors, conflicts, isStudentPaper, keywords, selectedTrack, title, uploadedFile],
+  )
+
+  const draftSignature = useMemo(
+    () =>
+      JSON.stringify({
+        payload: buildSubmissionData("draft"),
+        uploaded_file: uploadedFile
+          ? {
+              name: uploadedFile.name,
+              size: uploadedFile.size,
+              modified: uploadedFile.lastModified,
+            }
+          : null,
+      }),
+    [buildSubmissionData, uploadedFile],
+  )
+
+  const hasUnsavedChanges = draftSignature !== lastSavedSignatureRef.current
+
+  const saveDraft = useCallback(
+    async ({ manual = false, force = false }: { manual?: boolean; force?: boolean } = {}) => {
+      if (!user || !conference) {
+        return
+      }
+      if (isNewSubmissionBlocked) {
+        if (manual) {
+          toast({
+            title: "Submissions are closed",
+            description:
+              "Draft creation is disabled because this conference is not in open status.",
+            variant: "destructive",
+          })
+        }
+        return
+      }
+      if (savingDraft || submitting) {
+        return
+      }
+      if (!force && !hasUnsavedChanges) {
+        return
+      }
+
+      setSavingDraft(true)
+      setAutosaveStatus("saving")
+
+      try {
+        const submissionData = buildSubmissionData("draft")
+
+        const response = draftSubmissionId
+          ? await updatePaper(draftSubmissionId, conference.id, submissionData)
+          : await submitPaper({ conference_id: conference.id, ...submissionData })
+
+        if (response.error) {
+          setAutosaveStatus("error")
+          if (manual) {
+            toast({
+              title: "Failed to save draft",
+              description: mapSubmissionError(response.error),
+              variant: "destructive",
+            })
+          }
+          return
+        }
+
+        if (!draftSubmissionId && response.data?.id) {
+          setDraftSubmissionId(response.data.id)
+        }
+
+        lastSavedSignatureRef.current = draftSignature
+        const now = new Date()
+        setLastSavedAt(now)
+        setAutosaveStatus("saved")
+
+        if (manual) {
+          toast({
+            title: "Draft saved successfully",
+            description: "Your draft has been saved. You can continue editing anytime.",
+          })
+        }
+      } catch {
+        setAutosaveStatus("error")
+        if (manual) {
+          toast({
+            title: "Error saving draft",
+            description: "An unexpected error occurred. Please try again.",
+            variant: "destructive",
+          })
+        }
+      } finally {
+        setSavingDraft(false)
+      }
+    },
+    [
+      buildSubmissionData,
+      conference,
+      draftSignature,
+      draftSubmissionId,
+      hasUnsavedChanges,
+      isNewSubmissionBlocked,
+      mapSubmissionError,
+      savingDraft,
+      submitting,
+      toast,
+      user,
+    ],
+  )
 
   // Keyword handlers
   const handleAddKeyword = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -259,66 +429,41 @@ export function PaperSubmissionForm({
     setConflicts(conflicts.filter((c) => c.id !== id))
   }
 
-  // Save draft handler
-  const handleSaveDraft = async () => {
-    if (!user || !conference) return
-    if (isNewSubmissionBlocked) {
-      toast({
-        title: "Submissions are closed",
-        description: "Draft creation is disabled because this conference is not in open status.",
-        variant: "destructive",
-      })
+  useEffect(() => {
+    if (!lastSavedSignatureRef.current) {
+      lastSavedSignatureRef.current = draftSignature
       return
     }
-    setSubmitting(true)
-
-    try {
-      const submissionData = {
-        title,
-        abstract,
-        link: "",
-        domain: [],
-        status: "draft" as const,
-        track: selectedTrack,
-        information: {
-          keywords,
-          co_authors: authors.slice(1).map((a) => a.email),
-          declared_conflicts: [],
-          paper_type: isStudentPaper ? "student" : "research",
-          track_name: selectedTrack,
-          additional_notes: "",
-          metadata: {
-            language: "en",
-            page_count: 0,
-          },
-        },
-      }
-
-      const response = initialSubmission
-        ? await updatePaper(initialSubmission.id.toString(), conference.id, submissionData)
-        : await submitPaper({ conference_id: conference.id, ...submissionData })
-
-      if (response.error) {
-        toast({
-          title: "Failed to save draft",
-          description: mapSubmissionError(response.error),
-          variant: "destructive",
-        })
-      } else {
-        toast({
-          title: "Draft saved successfully",
-          description: "Your draft has been saved. You can continue editing anytime.",
-        })
-      }
-    } catch (error) {
-      toast({
-        title: "Error saving draft",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setSubmitting(false)
+    if (autosaveStatus === "saved" && hasUnsavedChanges) {
+      setAutosaveStatus("idle")
     }
+  }, [autosaveStatus, draftSignature, hasUnsavedChanges])
+
+  useEffect(() => {
+    if (!conference || !user || isNewSubmissionBlocked) {
+      return
+    }
+
+    const interval = window.setInterval(() => {
+      if (hasUnsavedChanges && !savingDraft && !submitting) {
+        void saveDraft()
+      }
+    }, AUTOSAVE_INTERVAL_MS)
+
+    return () => window.clearInterval(interval)
+  }, [
+    conference,
+    hasUnsavedChanges,
+    isNewSubmissionBlocked,
+    saveDraft,
+    savingDraft,
+    submitting,
+    user,
+  ])
+
+  // Save draft handler
+  const handleSaveDraft = async () => {
+    await saveDraft({ manual: true, force: true })
   }
 
   // Submit handler
@@ -336,38 +481,39 @@ export function PaperSubmissionForm({
     setSubmitting(true)
 
     try {
-      const submissionData = {
-        title,
-        abstract,
-        link: "",
-        domain: [],
-        status: "published" as const,
-        track: selectedTrack,
-        information: {
-          keywords,
-          co_authors: authors.slice(1).map((a) => a.email),
-          declared_conflicts: [],
-          paper_type: isStudentPaper ? "student" : "research",
-          track_name: selectedTrack,
-          additional_notes: "",
-          metadata: {
-            language: "en",
-            page_count: 0,
-          },
-        },
-      }
-
-      const response = initialSubmission
-        ? await updatePaper(initialSubmission.id.toString(), conference.id, submissionData)
-        : await submitPaper({ conference_id: conference.id, ...submissionData })
+      const response =
+        draftSubmissionId !== null
+          ? await (async () => {
+              const draftUpdate = await updatePaper(
+                draftSubmissionId,
+                conference.id,
+                buildSubmissionData("draft"),
+              )
+              if (draftUpdate.error) {
+                return draftUpdate
+              }
+              return publishPaper(draftSubmissionId, conference.id)
+            })()
+          : await submitPaper({
+              conference_id: conference.id,
+              ...buildSubmissionData("published"),
+            })
 
       if (response.error) {
+        setLastPrecheckBlock(response.precheckBlocked || null)
         toast({
           title: "Submission failed",
-          description: mapSubmissionError(response.error),
+          description: mapSubmissionError(response.error, response.precheckBlocked),
           variant: "destructive",
         })
       } else {
+        if (response.data?.id) {
+          setDraftSubmissionId(response.data.id)
+        }
+        lastSavedSignatureRef.current = draftSignature
+        setLastSavedAt(new Date())
+        setAutosaveStatus("saved")
+        setLastPrecheckBlock(null)
         setSuccessMessage("Your paper has been submitted successfully!")
         setShowSuccessDialog(true)
       }
@@ -381,6 +527,19 @@ export function PaperSubmissionForm({
       setSubmitting(false)
     }
   }
+
+  const hasPrecheckApproval = precheckResult?.decision === "accept_for_review"
+  const canUseServerSidePrecheck = Boolean(
+    initialSubmission?.file && !uploadedFile && !precheckError,
+  )
+  const canSubmit =
+    !submitting &&
+    !savingDraft &&
+    !isNewSubmissionBlocked &&
+    submissionConfirmed &&
+    coiConfirmed &&
+    (hasPrecheckApproval || canUseServerSidePrecheck) &&
+    !precheckError
 
   // Step header info
   const stepHeaders: Record<StepType, { title: string; description: string }> = {
@@ -408,6 +567,26 @@ export function PaperSubmissionForm({
     },
   }
 
+  const autosaveLabel =
+    autosaveStatus === "saving"
+      ? "Autosaving..."
+      : autosaveStatus === "error"
+        ? "Autosave failed"
+        : autosaveStatus === "saved"
+          ? `Saved${lastSavedAt ? ` ${lastSavedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}`
+          : hasUnsavedChanges
+            ? "Unsaved changes"
+            : "Ready"
+
+  const autosaveDotClass =
+    autosaveStatus === "saving"
+      ? "bg-amber-500 animate-pulse"
+      : autosaveStatus === "error"
+        ? "bg-red-500"
+        : autosaveStatus === "saved"
+          ? "bg-green-500"
+          : "bg-slate-400"
+
   return (
     <div className="font-[Inter] bg-[#f8fafc] dark:bg-[#191919] text-[#141414] dark:text-white flex flex-col h-screen overflow-hidden">
       <div className="flex flex-1 overflow-hidden relative">
@@ -426,9 +605,9 @@ export function PaperSubmissionForm({
                 </p>
               </div>
               <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm">
-                <div className="size-1.5 rounded-full bg-green-500 animate-pulse" />
+                <div className={`size-1.5 rounded-full ${autosaveDotClass}`} />
                 <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">
-                  Autosaving...
+                  {autosaveLabel}
                 </span>
               </div>
             </div>
@@ -470,9 +649,25 @@ export function PaperSubmissionForm({
                 uploadProgress={uploadProgress}
                 fileValidation={fileValidation}
                 conference={conference}
-                submissionId={initialSubmission?.id?.toString()}
+                submissionId={draftSubmissionId || undefined}
+                existingFile={
+                  initialSubmission?.file
+                    ? {
+                        name: initialSubmission.file.original_name,
+                        size: initialSubmission.file.size,
+                        type: initialSubmission.file.mime_type,
+                      }
+                    : undefined
+                }
                 onFileUpload={handleFileUpload}
                 onRemoveFile={handleRemoveFile}
+                onPrecheckUpdate={(result, error) => {
+                  setPrecheckResult(result)
+                  setPrecheckError(error)
+                  if (result || error) {
+                    setLastPrecheckBlock(null)
+                  }
+                }}
               />
             )}
 
@@ -510,6 +705,18 @@ export function PaperSubmissionForm({
             )}
 
             {/* Spacer for bottom action bar */}
+            {currentStep === "review" &&
+              ((!hasPrecheckApproval && !canUseServerSidePrecheck) ||
+                precheckError ||
+                lastPrecheckBlock) && (
+                <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-xs text-amber-800">
+                  {precheckError
+                    ? `Precheck failed: ${precheckError}`
+                    : lastPrecheckBlock
+                      ? mapSubmissionError(null, lastPrecheckBlock)
+                      : "Final submit is blocked until precheck decision is Accept for Review."}
+                </div>
+              )}
             <div className="h-20" />
           </div>
         </main>
@@ -517,10 +724,12 @@ export function PaperSubmissionForm({
         <SubmissionActionBar
           currentStep={currentStep}
           submitting={submitting}
+          savingDraft={savingDraft}
           onStepChange={setCurrentStep}
           onSaveDraft={handleSaveDraft}
           onSubmit={handleSubmit}
           onCancel={() => router.back()}
+          canSubmit={canSubmit}
         />
 
         {/* Success Dialog */}

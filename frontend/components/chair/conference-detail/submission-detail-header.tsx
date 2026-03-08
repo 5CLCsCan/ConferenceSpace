@@ -104,7 +104,11 @@ export function SubmissionDetailHeader({
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <button className="h-8 px-3 bg-white border border-slate-200 text-slate-600 font-medium text-[11px] rounded-md hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => onTabChange("overview")}
+            className="h-8 px-3 bg-white border border-slate-200 text-slate-600 font-medium text-[11px] rounded-md hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center gap-1.5"
+          >
             <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
               settings
             </span>

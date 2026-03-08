@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/dcao/conferencespace/internal/clients/gemini"
+	"github.com/dcao/conferencespace/internal/deskrejection/drerrors"
 	"github.com/dcao/conferencespace/internal/deskrejection/models"
 )
 
@@ -37,11 +39,14 @@ func (e *LLMEvaluator) EvaluateContent(ctx context.Context, doc models.Document,
 
 	response, err := e.client.GenerateText(ctx, prompt)
 	if err != nil {
-		return nil, fmt.Errorf("LLM evaluation failed: %w", err)
+		return nil, drerrors.New(drerrors.CategoryLLM, "LLM text generation failed", err)
 	}
 
 	// Parse the LLM response into multiple check results
 	results := parseLLMResponse(response)
+	if len(results) == 0 {
+		return nil, drerrors.New(drerrors.CategoryLLM, "LLM returned no usable checks", nil)
+	}
 	return results, nil
 }
 
@@ -49,8 +54,15 @@ func (e *LLMEvaluator) EvaluateContent(ctx context.Context, doc models.Document,
 func buildContentEvaluationPrompt(doc models.Document, config models.PaperRuleConfig) string {
 	// Truncate full text to reasonable length for LLM (e.g., first 20,000 characters)
 	fullText := truncateText(doc.FullText, 100000)
+	injectedFragments := ""
+	if len(config.PromptFragments) > 0 {
+		injectedFragments = strings.Join(config.PromptFragments, "\n")
+	}
 
 	return fmt.Sprintf(`You are evaluating an academic research paper for content quality based on CS conference submission standards. Analyze the paper comprehensively and evaluate MULTIPLE aspects in a SINGLE response.
+
+Conference-specific guidance (must be applied):
+%s
 
 The paper content is provided below. Note that the paper may be in any language, and section headers may vary.
 
@@ -132,7 +144,7 @@ Respond in EXACT JSON format (no markdown, no code blocks):
   ]
 }
 
-Be concise but specific. Focus on content quality, not formatting.`, fullText)
+Be concise but specific. Focus on content quality, not formatting.`, injectedFragments, fullText)
 }
 
 func truncateText(text string, maxChars int) string {
@@ -167,29 +179,24 @@ func parseLLMResponse(response string) []models.CheckResult {
 
 	var llmResp LLMResponse
 	if err := json.Unmarshal([]byte(cleaned), &llmResp); err != nil {
-		// Fallback: try to parse as plain text format
-		return parseTextFormatResponse(response)
+		// Deterministic fallback path for malformed output
+		return mergeWithDefaults(parseTextFormatResponse(response), "LLM response was not valid JSON")
 	}
 
-	// Map to CheckResult with descriptions
-	descriptions := map[string]string{
-		"1.2": "Title reflects problem and solution with technical keywords",
-		"1.4": "Abstract includes key components (problem, method, results, impact)",
-		"2.1": "Main problem clearly defined in first two paragraphs",
-		"2.4": "Contributions explicitly itemized",
-		"4.1": "All symbols defined before use",
-		"5.1": "Uses adequate number of datasets (≥3 expected)",
-		"5.2": "Compares with adequate baseline methods (≥3 expected)",
-		"5.3": "Includes ablation studies",
-		"6.1": "All abbreviations defined at first use",
+	if len(llmResp.Evaluations) == 0 {
+		return mergeWithDefaults(nil, "LLM response contained no evaluations")
 	}
+
+	expected := expectedChecks()
 
 	results := make([]models.CheckResult, 0, len(llmResp.Evaluations))
+	seen := make(map[string]bool)
 	for _, eval := range llmResp.Evaluations {
-		desc := descriptions[eval.ID]
-		if desc == "" {
-			desc = "Content quality evaluation"
+		definition, ok := expected[eval.ID]
+		if !ok {
+			continue
 		}
+		seen[eval.ID] = true
 
 		// Normalize status
 		status := strings.ToLower(eval.Status)
@@ -203,17 +210,36 @@ func parseLLMResponse(response string) []models.CheckResult {
 			confidence = 0.7
 		}
 
+		details := strings.TrimSpace(eval.Details)
+		if details == "" {
+			details = "No specific details provided by model"
+		}
+
 		results = append(results, models.CheckResult{
 			ItemID:      eval.ID,
-			Category:    eval.Category,
-			Description: desc,
+			Category:    fallbackCategory(eval.Category, definition.Category),
+			Description: definition.Description,
 			Status:      status,
-			Details:     eval.Details,
+			Details:     details,
 			Confidence:  confidence,
 		})
 	}
 
-	return results
+	for id, definition := range expected {
+		if seen[id] {
+			continue
+		}
+		results = append(results, models.CheckResult{
+			ItemID:      id,
+			Category:    definition.Category,
+			Description: definition.Description,
+			Status:      "warning",
+			Details:     "Model omitted this check; manual review recommended",
+			Confidence:  0.5,
+		})
+	}
+
+	return sortByItemID(results)
 }
 
 // parseTextFormatResponse is a fallback parser if JSON parsing fails
@@ -277,4 +303,66 @@ func getCategoryForID(id string) string {
 		return cat
 	}
 	return "content_quality"
+}
+
+type expectedCheck struct {
+	Category    string
+	Description string
+}
+
+func expectedChecks() map[string]expectedCheck {
+	return map[string]expectedCheck{
+		"1.2": {Category: "title_abstract", Description: "Title reflects problem and solution with technical keywords"},
+		"1.4": {Category: "title_abstract", Description: "Abstract includes key components (problem, method, results, impact)"},
+		"2.1": {Category: "introduction", Description: "Main problem clearly defined in first two paragraphs"},
+		"2.4": {Category: "introduction", Description: "Contributions explicitly itemized"},
+		"4.1": {Category: "method", Description: "All symbols defined before use"},
+		"5.1": {Category: "experiments", Description: "Uses adequate number of datasets (≥3 expected)"},
+		"5.2": {Category: "experiments", Description: "Compares with adequate baseline methods (≥3 expected)"},
+		"5.3": {Category: "experiments", Description: "Includes ablation studies"},
+		"6.1": {Category: "writing_quality", Description: "All abbreviations defined at first use"},
+	}
+}
+
+func fallbackCategory(candidate, fallback string) string {
+	normalized := strings.TrimSpace(strings.ToLower(candidate))
+	if normalized == "" {
+		return fallback
+	}
+	return normalized
+}
+
+func mergeWithDefaults(results []models.CheckResult, reason string) []models.CheckResult {
+	normalized := make(map[string]models.CheckResult)
+	for _, result := range results {
+		normalized[result.ItemID] = result
+	}
+
+	expected := expectedChecks()
+	for id, definition := range expected {
+		if _, ok := normalized[id]; ok {
+			continue
+		}
+		normalized[id] = models.CheckResult{
+			ItemID:      id,
+			Category:    definition.Category,
+			Description: definition.Description,
+			Status:      "warning",
+			Details:     reason,
+			Confidence:  0.5,
+		}
+	}
+
+	merged := make([]models.CheckResult, 0, len(normalized))
+	for _, result := range normalized {
+		merged = append(merged, result)
+	}
+	return sortByItemID(merged)
+}
+
+func sortByItemID(results []models.CheckResult) []models.CheckResult {
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].ItemID < results[j].ItemID
+	})
+	return results
 }

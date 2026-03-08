@@ -8,21 +8,25 @@ import (
 	"github.com/dcao/conferencespace/internal/storage/cache"
 	"github.com/dcao/conferencespace/internal/storage/scholar"
 	"github.com/gin-gonic/gin"
+	"sync"
 )
 
 // Controller handles Semantic Scholar API requests
 type Controller struct {
-	client  *semantic_scholar.Client
-	cache   cache.StorageInterface
-	scholar scholar.StorageInterface
+	client    *semantic_scholar.Client
+	cache     cache.StorageInterface
+	scholar   scholar.StorageInterface
+	syncMu    sync.Mutex
+	syncLocks map[int64]*sync.Mutex
 }
 
 // New creates a new Semantic Scholar controller
 func New(client *semantic_scholar.Client, cacheStorage cache.StorageInterface, scholarStorage scholar.StorageInterface) *Controller {
 	return &Controller{
-		client:  client,
-		cache:   cacheStorage,
-		scholar: scholarStorage,
+		client:    client,
+		cache:     cacheStorage,
+		scholar:   scholarStorage,
+		syncLocks: make(map[int64]*sync.Mutex),
 	}
 }
 
@@ -112,7 +116,7 @@ func (c *Controller) GetAuthorDetails(ginCtx *gin.Context) (*semantic_scholar.Au
 					HIndex:        profile.HIndex,
 					URL:           profile.URL,
 				},
-				Papers: []semantic_scholar.Paper{}, 
+				Papers: []semantic_scholar.Paper{},
 			}
 
 			// Fetch papers from relational storage
@@ -132,7 +136,7 @@ func (c *Controller) GetAuthorDetails(ginCtx *gin.Context) (*semantic_scholar.Au
 				}
 				result.Papers = mappedPapers
 			}
-			
+
 			return result, nil
 		}
 	}
@@ -213,5 +217,3 @@ func (c *Controller) GetAuthorPapers(ginCtx *gin.Context) (*semantic_scholar.Pap
 
 	return result, nil
 }
-
-

@@ -15,6 +15,30 @@ export interface MarkAllAsReadResponse {
   marked_count: number
 }
 
+export interface NotificationPreferences {
+  user_email: string
+  submission_received: boolean
+  review_assigned: boolean
+  review_submitted: boolean
+  paper_accepted: boolean
+  paper_rejected: boolean
+  deadline_reminder: boolean
+  status_change: boolean
+  email_notifications: boolean
+  updated_at: string
+}
+
+export interface NotificationPreferencesUpdate {
+  submission_received?: boolean
+  review_assigned?: boolean
+  review_submitted?: boolean
+  paper_accepted?: boolean
+  paper_rejected?: boolean
+  deadline_reminder?: boolean
+  status_change?: boolean
+  email_notifications?: boolean
+}
+
 // Request types
 export interface NotificationListRequest {
   limit?: number
@@ -116,4 +140,19 @@ export async function deleteNotification(id: number): Promise<void> {
   await apiFetch(`/api/v1/notifications/${id}`, {
     method: "DELETE",
   })
+}
+
+export async function getNotificationPreferences(): Promise<NotificationPreferences> {
+  const { data } = await apiFetch<{ data: NotificationPreferences }>("/api/v1/notifications/preferences")
+  return data.data
+}
+
+export async function updateNotificationPreferences(
+  update: NotificationPreferencesUpdate,
+): Promise<NotificationPreferences> {
+  const { data } = await apiFetch<{ data: NotificationPreferences }>("/api/v1/notifications/preferences", {
+    method: "PUT",
+    body: JSON.stringify(update),
+  })
+  return data.data
 }
