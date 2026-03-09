@@ -464,16 +464,16 @@ export function ReviewerInvitations({
         </div>
 
         {/* Sort Dropdown */}
-        <div className="flex items-center gap-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+        <div className="flex items-center gap-1 text-[11px] font-semibold text-slate-400 tracking-wider">
           {isRefreshing && <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-400" />}
           <span className="material-symbols-outlined text-[16px]">filter_list</span>
-          <span className="text-[10px]">
+          <span className="text-[10px] normal-case">
             {t("runtime.components.reviewer.reviewer-invitations.text_sort_by")}
           </span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortOption)}
-            className="bg-transparent border-none text-[#1B3C53] dark:text-white font-black uppercase tracking-wider focus:ring-0 p-0 cursor-pointer text-[10px] pr-8"
+            className="bg-transparent border-none text-[#1B3C53] dark:text-white font-semibold uppercase tracking-wider focus:ring-0 p-0 cursor-pointer text-[10px] pr-8"
           >
             <option value="deadline">
               {t("runtime.components.reviewer.reviewer-invitations.text_deadline_earliest")}

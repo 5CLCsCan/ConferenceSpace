@@ -1938,6 +1938,9 @@
         },
         "completed-reviews": {
           "text_a_z": "(A-Z)",
+          "text_date": "Date",
+          "text_sort_by": "Sort by:",
+          "text_title": "Title",
           "text_action": "Action",
           "text_clear": "Clear",
           "text_done": "Done",
