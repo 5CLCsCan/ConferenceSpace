@@ -106,6 +106,7 @@ export interface MessageItemProps {
   reviewMode: ReviewMode
   onReact?: (messageId: string, emoji: string) => void
   onQuote?: (messageId: string) => void
+  onDelete?: (messageId: string) => void
 }
 
 export interface ThreadCardProps {

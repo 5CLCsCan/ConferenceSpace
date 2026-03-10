@@ -23,6 +23,7 @@ type StorageInterface interface {
 	// Message operations
 	CreateMessage(ctx context.Context, message *model.DiscussionMessage) (*model.DiscussionMessage, error)
 	GetMessagesByThread(ctx context.Context, threadID int64) ([]*model.DiscussionMessage, error)
+	DeleteMessage(ctx context.Context, messageID int64, userID int64) error
 
 	// Validation helpers
 	GetSubmissionAuthorEmail(ctx context.Context, submissionID int64) (string, error)
@@ -367,6 +368,32 @@ func (s *Storage) GetMessagesByThread(ctx context.Context, threadID int64) ([]*m
 	}
 
 	return messages, nil
+}
+
+// DeleteMessage deletes a message if the requesting user is the author
+func (s *Storage) DeleteMessage(ctx context.Context, messageID int64, userID int64) error {
+	query, args, err := s.qb.
+		Delete(model.DiscussionMessageTableName).
+		Where(sq.Eq{"id": messageID, "author_id": userID}).
+		ToSql()
+	if err != nil {
+		return fmt.Errorf("failed to build delete query: %w", err)
+	}
+
+	result, err := s.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to delete message: %w", err)
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to check rows affected: %w", err)
+	}
+	if rows == 0 {
+		return fmt.Errorf("message not found or not authorized")
+	}
+
+	return nil
 }
 
 // GetSubmissionAuthorEmail gets the author email for a submission
