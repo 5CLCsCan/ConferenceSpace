@@ -1,11 +1,13 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import type { ReviewRequest } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { respondToReviewRequest } from "@/lib/api/reviewer"
 import { useToast } from "@/hooks/use-toast"
+import { ROUTES } from "@/lib/routes"
 
 // Extended invitation type to match the new design
 interface EnhancedInvitation extends ReviewRequest {
@@ -52,6 +54,7 @@ export function ReviewerInvitations({
 }: ReviewerInvitationsProps) {
   const { locale, t } = useTranslation()
   const { toast } = useToast()
+  const router = useRouter()
   const [handling, setHandling] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<SortOption>("deadline")
   // Use DB-accurate counts from parent when available; fall back to current page counts
@@ -309,7 +312,10 @@ export function ReviewerInvitations({
 
           {/* Actions */}
           <div className="flex flex-row lg:flex-col items-center justify-center gap-3 w-full lg:w-40 lg:border-l border-slate-100 dark:border-slate-700 lg:pl-4 pt-4 lg:pt-0 border-t lg:border-t-0">
-            <button className="w-full h-9 px-4 rounded-md bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] font-medium text-[11px] hover:bg-[#234C6A] dark:hover:bg-slate-200 transition-all flex items-center justify-center">
+            <button
+              onClick={() => router.push(ROUTES.REVIEWER.CONFERENCE_SUBMISSIONS(invitation.conference_id))}
+              className="w-full h-9 px-4 rounded-md bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] font-medium text-[11px] hover:bg-[#234C6A] dark:hover:bg-slate-200 transition-all flex items-center justify-center"
+            >
               {t("runtime.components.reviewer.reviewer-invitations.text_go_to_dashboard")}{" "}
             </button>
           </div>

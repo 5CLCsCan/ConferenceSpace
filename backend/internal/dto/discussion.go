@@ -9,6 +9,7 @@ type DiscussionThread struct {
 	ReviewerID        int64      `json:"reviewer_id"`
 	ConferenceID      int64      `json:"conference_id"`
 	Title             string     `json:"title"`
+	Visibility        string     `json:"visibility"`
 	CreatedAt         time.Time  `json:"created_at"`
 	ReviewerEmail     string     `json:"reviewer_email,omitempty"`
 	ReviewerFirstName string     `json:"reviewer_first_name,omitempty"`
@@ -33,8 +34,9 @@ type DiscussionMessage struct {
 
 // CreateThreadRequest represents the request to create a new thread
 type CreateThreadRequest struct {
-	Title   string `json:"title" binding:"required,min=1,max=255"`
-	Content string `json:"content" binding:"required,min=1"`
+	Title      string `json:"title" binding:"required,min=1,max=255"`
+	Content    string `json:"content" binding:"required,min=1"`
+	Visibility string `json:"visibility"`
 }
 
 // CreateThreadResponse represents the response after creating a thread

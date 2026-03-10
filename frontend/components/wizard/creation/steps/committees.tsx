@@ -1,12 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { WizardHeader } from "../wizard-header"
 import { WizardFormCard } from "../wizard-form-card"
-import { WizardFormField, WizardInput } from "../wizard-form-field"
+import { WizardFormField } from "../wizard-form-field"
 import { ConferenceFormData } from "../types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { tStatic as t } from "@/lib/i18n/static-translate"
+import { apiFetch } from "@/lib/api/client"
 
 interface CommitteesStepProps {
   data: ConferenceFormData
@@ -28,14 +29,32 @@ const ROLE_OPTIONS = [
     label: t("runtime.components.wizard.creation.steps.committees.prop_label_co_chair"),
     icon: "workspace_premium",
   },
+  {
+    value: "reviewer",
+    label: t("runtime.components.wizard.creation.steps.committees.prop_label_reviewers"),
+    icon: "rate_review",
+  },
 ] as const
+
+interface UserSearchResult {
+  id: number
+  email: string
+  first_name?: string
+  last_name?: string
+}
 
 export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
   const { t } = useTranslation()
-  const [newEmail, setNewEmail] = useState("")
   const [newRole, setNewRole] = useState("co-chair")
-  const [newAffiliation, setNewAffiliation] = useState("")
   const [organizers, setOrganizers] = useState<Organizer[]>([])
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchResults, setSearchResults] = useState<UserSearchResult[]>([])
+  const [searching, setSearching] = useState(false)
+  const [showDropdown, setShowDropdown] = useState(false)
+  const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setOrganizers((current) => {
@@ -65,21 +84,59 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
     return option?.label || role
   }
 
-  const handleAddOrganizer = () => {
-    const normalizedEmail = newEmail.trim().toLowerCase()
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClick)
+    return () => document.removeEventListener("mousedown", handleClick)
+  }, [])
+
+  const handleSearch = (q: string) => {
+    setSearchQuery(q)
+    setShowDropdown(true)
+    if (searchDebounce.current) clearTimeout(searchDebounce.current)
+    if (!q.trim()) {
+      setSearchResults([])
+      setSearching(false)
+      return
+    }
+    setSearching(true)
+    searchDebounce.current = setTimeout(async () => {
+      try {
+        const { data: respData } = await apiFetch<{ data?: { users?: UserSearchResult[] } }>(
+          `/api/v1/users/search?q=${encodeURIComponent(q.trim())}&limit=10`,
+        )
+        const users = respData?.data?.users || []
+        setSearchResults(users.map((u) => ({ id: Number(u.id), email: u.email, first_name: u.first_name, last_name: u.last_name })))
+      } catch {
+        setSearchResults([])
+      } finally {
+        setSearching(false)
+      }
+    }, 300)
+  }
+
+  const addOrganizer = (email: string, name?: string, userId?: number) => {
+    const normalizedEmail = email.trim().toLowerCase()
     if (!normalizedEmail) return
-    if (data.organizers.some((organizer) => organizer.email.trim().toLowerCase() === normalizedEmail)) {
-      setNewEmail("")
-      setNewAffiliation("")
+    if (data.organizers.some((o) => o.email.trim().toLowerCase() === normalizedEmail)) {
+      setSearchQuery("")
+      setSearchResults([])
+      setShowDropdown(false)
       return
     }
 
+    const displayName = name || normalizedEmail.split("@")[0].replace(/[._]/g, " ")
+
     const newOrganizer: Organizer = {
-      id: normalizedEmail,
-      name: normalizedEmail.split("@")[0].replace(/[._]/g, " "),
+      id: userId ? String(userId) : normalizedEmail,
+      name: displayName,
       email: normalizedEmail,
       role: newRole,
-      affiliation: newAffiliation.trim() || undefined,
       status: "pending",
     }
 
@@ -96,8 +153,20 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
       ],
     })
 
-    setNewEmail("")
-    setNewAffiliation("")
+    setSearchQuery("")
+    setSearchResults([])
+    setShowDropdown(false)
+  }
+
+  const handleSelectUser = (user: UserSearchResult) => {
+    const name = `${user.first_name || ""} ${user.last_name || ""}`.trim()
+    addOrganizer(user.email, name || undefined, user.id)
+  }
+
+  const handleAddDirectEmail = () => {
+    const email = searchQuery.trim().toLowerCase()
+    if (!email || !email.includes("@")) return
+    addOrganizer(email)
   }
 
   const handleRemoveOrganizer = (id: string) => {
@@ -129,7 +198,7 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
         onSubmit={(e) => e.preventDefault()}
       >
         {/* Quick Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {[
             {
               label: t("runtime.components.wizard.creation.steps.committees.prop_label_chairs"),
@@ -147,6 +216,13 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
               ),
               count: roleGroups.trackChairs.length,
               icon: "category",
+            },
+            {
+              label: t(
+                "runtime.components.wizard.creation.steps.committees.prop_label_reviewers",
+              ),
+              count: roleGroups.reviewers.length,
+              icon: "rate_review",
             },
             {
               label: t("runtime.components.wizard.creation.steps.committees.prop_label_pending"),
@@ -189,7 +265,7 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
           ))}
         </div>
 
-        {/* Invite Form - Compact inline design */}
+        {/* Invite Form - Search-based design */}
         <WizardFormCard
           title={t("runtime.components.wizard.creation.steps.committees.title_invite_member")}
         >
@@ -197,15 +273,82 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
             <div className="flex flex-col md:flex-row gap-2 items-end">
               <div className="flex-1 min-w-0">
                 <WizardFormField label="Email" required>
-                  <WizardInput
-                    type="email"
-                    placeholder={t(
-                      "runtime.components.wizard.creation.steps.committees.placeholder_colleague_university_edu",
+                  <div className="relative" ref={dropdownRef}>
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => handleSearch(e.target.value)}
+                      onFocus={() => searchQuery && setShowDropdown(true)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault()
+                          handleAddDirectEmail()
+                        }
+                      }}
+                      placeholder={t(
+                        "runtime.components.wizard.creation.steps.committees.placeholder_colleague_university_edu",
+                      )}
+                      className="w-full h-10 text-xs font-normal py-2 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all placeholder:text-slate-400"
+                    />
+                    {showDropdown && (searchQuery || searching) && (
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-[200px] overflow-y-auto z-50">
+                        {searching ? (
+                          <div className="flex items-center justify-center p-3 gap-2">
+                            <span className="material-symbols-outlined animate-spin text-[#1B3C53] text-[14px]">sync</span>
+                            <span className="text-xs text-slate-500">{t("runtime.components.wizard.creation.steps.committees.text_searching") || "Searching..."}</span>
+                          </div>
+                        ) : (
+                          <div className="p-1">
+                            {searchResults.map((user) => (
+                              <button
+                                key={user.id}
+                                type="button"
+                                onMouseDown={(e) => {
+                                  e.preventDefault()
+                                  handleSelectUser(user)
+                                }}
+                                className="w-full flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-left"
+                              >
+                                <div className="size-7 rounded-full bg-[#1B3C53]/10 flex items-center justify-center text-[#1B3C53] font-bold text-[10px]">
+                                  {user.first_name?.[0] || user.email[0].toUpperCase()}
+                                  {user.last_name?.[0] || ""}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-medium text-[#141414] dark:text-white truncate">
+                                    {user.email}
+                                  </p>
+                                  {(user.first_name || user.last_name) && (
+                                    <p className="text-[10px] text-slate-500 truncate">
+                                      {`${user.first_name || ""} ${user.last_name || ""}`.trim()}
+                                    </p>
+                                  )}
+                                </div>
+                                <span className="material-symbols-outlined text-slate-400 text-[16px]">person_add</span>
+                              </button>
+                            ))}
+                            {searchResults.length === 0 && !searching && (
+                              <div className="px-3 py-2 text-xs text-slate-400">
+                                {t("runtime.components.wizard.creation.steps.committees.text_no_users_found") || "No users found"}
+                              </div>
+                            )}
+                            {searchQuery.includes("@") && (
+                              <button
+                                type="button"
+                                onMouseDown={(e) => {
+                                  e.preventDefault()
+                                  handleAddDirectEmail()
+                                }}
+                                className="w-full flex items-center gap-1.5 px-3 py-2 rounded hover:bg-[#1B3C53]/5 text-[#1B3C53] font-medium text-xs border-t border-slate-100 transition-colors"
+                              >
+                                <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>person_add</span>
+                                Add directly: &ldquo;{searchQuery.trim()}&rdquo;
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     )}
-                    value={newEmail}
-                    onChange={(e) => setNewEmail(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleAddOrganizer()}
-                  />
+                  </div>
                 </WizardFormField>
               </div>
               <div className="w-full md:w-36">
@@ -223,33 +366,6 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
                   </select>
                 </WizardFormField>
               </div>
-              <div className="w-full md:w-40">
-                <WizardFormField label="Affiliation">
-                  <WizardInput
-                    type="text"
-                    placeholder={t(
-                      "runtime.components.wizard.creation.steps.committees.placeholder_institution",
-                    )}
-                    value={newAffiliation}
-                    onChange={(e) => setNewAffiliation(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleAddOrganizer()}
-                  />
-                </WizardFormField>
-              </div>
-              <button
-                type="button"
-                onClick={handleAddOrganizer}
-                disabled={!newEmail.trim()}
-                className="h-10 px-4 bg-[#1B3C53] hover:bg-[#234C6A] disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 whitespace-nowrap"
-              >
-                <span
-                  className="material-symbols-outlined"
-                  style={{ fontSize: "14px", width: "14px", height: "14px" }}
-                >
-                  person_add
-                </span>
-                {t("runtime.components.wizard.creation.steps.committees.text_invite")}{" "}
-              </button>
             </div>
             <p className="text-[10px] text-slate-400 font-light">
               {t(

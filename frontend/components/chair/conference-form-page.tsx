@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Sparkles } from "lucide-react"
-import { createConference, getConferenceById, updateConference } from "@/lib/api/conferences"
+import { createConference, getConferenceById, updateConference, inviteReviewers } from "@/lib/api/conferences"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { ROUTES } from "@/lib/routes"
@@ -199,6 +199,21 @@ export function ConferenceFormPage({ mode, conferenceId }: ConferenceFormPagePro
       }
 
       setExistingConference(response.data)
+
+      // After creating a new conference, invite reviewers added in the wizard
+      if (!isEditMode && response.data?.id) {
+        const reviewerOrganizers = formData.organizers.filter(
+          (o) => o.role === "reviewer" && o.id,
+        )
+        if (reviewerOrganizers.length > 0) {
+          const toInvite = reviewerOrganizers
+            .map((o) => ({ user_id: Number(o.id) }))
+            .filter((r) => r.user_id > 0)
+          if (toInvite.length > 0) {
+            await inviteReviewers(String(response.data.id), toInvite)
+          }
+        }
+      }
 
       toast({
         title: isEditMode
