@@ -279,6 +279,18 @@ func (s *Service) GetThread(ctx context.Context, userID int64, userEmail string,
 	return thread.ToDTO(), nil
 }
 
+// DeleteMessage deletes a message authored by the requesting user
+func (s *Service) DeleteMessage(ctx context.Context, userID int64, messageID int64) error {
+	err := s.storage.DeleteMessage(ctx, messageID, userID)
+	if err != nil {
+		if err.Error() == "message not found or not authorized" {
+			return fmt.Errorf("message not found or not authorized")
+		}
+		return fmt.Errorf("failed to delete message: %w", err)
+	}
+	return nil
+}
+
 func (s *Service) toThreadListResponse(threads []*model.DiscussionThread) *dto.ThreadListResponse {
 	dtoThreads := make([]*dto.DiscussionThread, len(threads))
 	for i, t := range threads {

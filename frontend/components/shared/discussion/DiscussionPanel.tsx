@@ -278,7 +278,7 @@ export function DiscussionPanel({
                 currentUser={currentUser}
                 onToggleCollapse={() => onToggleThreadCollapse?.(thread.id)}
                 onReply={(content) => onReplyToThread?.(thread.id, content)}
-                readOnly={readOnly}
+                readOnly={readOnly && thread.visibility !== "authors"}
               />
             ))}
           </div>
@@ -302,7 +302,7 @@ export function DiscussionPanel({
                 currentUser={currentUser}
                 onToggleCollapse={() => onToggleThreadCollapse?.(thread.id)}
                 onReply={(content) => onReplyToThread?.(thread.id, content)}
-                readOnly={readOnly}
+                readOnly={readOnly && thread.visibility !== "authors"}
               />
             ))}
           </div>
