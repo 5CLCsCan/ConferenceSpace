@@ -114,7 +114,7 @@ export function buildDiscussionThreads(
     return {
       id: String(thread.id),
       title: thread.title,
-      visibility: threadVisibilityForRole(role),
+      visibility: (thread.visibility as MessageVisibility) || threadVisibilityForRole(role),
       status: "open",
       category: threadCategoryFromTitle(thread.title),
       createdBy: threadCreator(thread, role, currentUserEmail),

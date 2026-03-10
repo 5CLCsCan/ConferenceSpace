@@ -1481,19 +1481,35 @@
             "text_type": "Type"
           },
           "conference-committee": {
+            "text_accepted": "Accepted",
+            "text_add_directly": "Add directly",
+            "text_area_chairs": "Area Chairs",
             "text_committee_members": "Committee Members",
             "text_domains": "Domains",
             "text_email": "Email",
+            "text_invite_error": "Failed to invite some reviewers",
+            "text_invite_reviewers": "Invite Reviewers",
+            "text_invite_selected": "Invite Selected",
+            "text_invite_success": "Reviewer(s) invited successfully",
             "text_loading_committee": "Loading committee...",
             "text_members": "members",
             "text_name": "Name",
             "text_next": "Next",
             "text_no_committee_members_found": "No committee members found.",
+            "text_no_users_found": "No users found",
             "text_of": "of",
+            "text_pending": "Pending",
+            "text_pending_invites": "Pending Invites",
             "text_previous": "Previous",
+            "text_rejected": "Rejected",
+            "text_remove_reviewer": "Remove",
             "text_reviewer": "Reviewer",
+            "text_reviewers": "Reviewers",
             "text_role": "Role",
-            "text_showing": "Showing"
+            "text_search_by_email": "Search by email or name...",
+            "text_searching": "Searching...",
+            "text_showing": "Showing",
+            "text_total_members": "Total Members"
           },
           "conference-dates": {
             "text_api_backed_schedule_from_conference_configuration": "API-backed schedule from conference configuration.",
@@ -1922,8 +1938,9 @@
           "filters": {
             "all": "All",
             "completed": "Done",
-            "inProgress": "Draft",
-            "notStarted": "Pending"
+            "pending": "Pending",
+            "accepted": "Accepted",
+            "declined": "Declined"
           },
           "text_next": "Next",
           "text_of": "of",
@@ -2289,6 +2306,7 @@
               "prop_label_co_chair": "Co-Chair",
               "prop_label_pc_members": "PC Members",
               "prop_label_pending": "Pending",
+              "prop_label_reviewers": "Reviewers",
               "prop_label_track_chairs": "Track Chairs",
               "text_academic_best_practice": "Academic Best Practice",
               "text_for_top_tier_conferences_aim_for": "For top-tier conferences, aim for 20-30 PC members per 100 expected submissions. Track chairs should have domain expertise in their assigned areas.",

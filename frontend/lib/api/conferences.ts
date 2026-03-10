@@ -586,16 +586,22 @@ export async function inviteReviewers(
   ApiResponse<{ success: Reviewer[]; failed: Array<{ user_id: number; error: string }> }>
 > {
   try {
-    const { data, response } = await apiFetch<{
-      success: Reviewer[]
-      failed: Array<{ user_id: number; error: string }>
-    }>(`/api/v1/conferences/${conferenceId}/reviewers`, {
+    const { data, response } = await apiFetch<
+      | { success: Reviewer[]; failed: Array<{ user_id: number; error: string }> }
+      | { data: { success: Reviewer[]; failed: Array<{ user_id: number; error: string }> } }
+    >(`/api/v1/conferences/${conferenceId}/reviewers`, {
       method: "POST",
       body: JSON.stringify({ reviewers }),
     })
 
+    // Unwrap the { data: ... } envelope that the backend handler always adds
+    type Payload = { success: Reviewer[]; failed: Array<{ user_id: number; error: string }> }
+    const payload: Payload =
+      (data as { data?: Payload }).data ??
+      (data as Payload)
+
     return {
-      data: data,
+      data: payload,
       error: null,
       status: response.status,
     }

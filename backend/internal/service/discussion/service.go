@@ -6,8 +6,8 @@ import (
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/model"
-	discussionStorage "github.com/dcao/conferencespace/internal/storage/discussion"
 	notificationService "github.com/dcao/conferencespace/internal/service/notification"
+	discussionStorage "github.com/dcao/conferencespace/internal/storage/discussion"
 )
 
 // Service provides discussion-related business logic
@@ -58,11 +58,16 @@ func (s *Service) CreateThread(ctx context.Context, userID int64, userEmail stri
 	}
 
 	// Create the thread
+	visibility := req.Visibility
+	if visibility == "" {
+		visibility = "reviewers"
+	}
 	thread := &model.DiscussionThread{
 		SubmissionID: submissionID,
 		ReviewerID:   userID,
 		ConferenceID: conferenceID,
 		Title:        req.Title,
+		Visibility:   visibility,
 	}
 
 	createdThread, err := s.storage.CreateThread(ctx, thread)

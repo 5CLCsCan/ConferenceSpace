@@ -113,6 +113,7 @@ export function DiscussionPanel({
           </div>
 
           {/* Visibility Filter */}
+          {!readOnly && (
           <div className="relative">
             <select
               value={filterVisibility}
@@ -154,6 +155,7 @@ export function DiscussionPanel({
               expand_more
             </span>
           </div>
+          )}
 
           {/* Status Filter */}
           <div className="relative">

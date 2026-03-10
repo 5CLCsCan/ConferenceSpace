@@ -153,7 +153,7 @@ func (s *Service) NotifyReviewAssigned(ctx context.Context, reviewerEmail string
 			"assignment_id": assignmentID,
 			"paper_title":   paperTitle,
 		},
-		ActionURL:    fmt.Sprintf("/dashboard/reviewer/papers/%d", submissionID),
+		ActionURL:    fmt.Sprintf("/dashboard/reviewer/papers/%d?conference_id=%d", assignmentID, conferenceID),
 		ConferenceID: &conferenceID,
 	}
 

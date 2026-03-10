@@ -132,6 +132,7 @@ export function DiscussionTab({
       await createThread(conferenceNumericId, submissionNumericId, {
         title: data.title,
         content: data.content,
+        visibility: data.visibility,
       })
       await loadThreads()
     },

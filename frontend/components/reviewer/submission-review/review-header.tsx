@@ -1,7 +1,9 @@
 "use client"
 
+import { useState } from "react"
 import type { SubmissionDetails } from "./types"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { downloadPaperFile } from "@/lib/api/papers"
 
 // =============================================================================
 // Review Header Component - Breadcrumbs and Deadline Bar
@@ -115,6 +117,32 @@ interface PaperHeaderProps {
 
 export function PaperHeader({ submission }: PaperHeaderProps) {
   const { t } = useTranslation()
+  const [downloading, setDownloading] = useState(false)
+
+  const handleDownloadPdf = async () => {
+    if (downloading) return
+    setDownloading(true)
+    try {
+      const response = await downloadPaperFile(submission.submissionId, submission.conference.id)
+      if (response.error || !response.data) {
+        console.error("Download failed:", response.error)
+        return
+      }
+      const url = window.URL.createObjectURL(response.data)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = response.filename || "paper.pdf"
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error("Failed to download PDF:", err)
+    } finally {
+      setDownloading(false)
+    }
+  }
+
   return (
     <section className="mb-8">
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
@@ -167,7 +195,11 @@ export function PaperHeader({ submission }: PaperHeaderProps) {
           </div>
         </div>
         <div className="flex-shrink-0 flex gap-3">
-          <button className="flex items-center gap-2 h-9 px-4 bg-white border border-slate-200 rounded-md text-[11px] font-bold tracking-wider hover:bg-slate-50 transition-all duration-200 shadow-sm">
+          <button
+            onClick={handleDownloadPdf}
+            disabled={downloading}
+            className="flex items-center gap-2 h-9 px-4 bg-white border border-slate-200 rounded-md text-[11px] font-bold tracking-wider hover:bg-slate-50 transition-all duration-200 shadow-sm disabled:opacity-50"
+          >
             <span
               className="material-symbols-outlined text-red-500"
               style={{

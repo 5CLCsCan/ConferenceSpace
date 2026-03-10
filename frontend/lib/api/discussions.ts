@@ -7,6 +7,7 @@ export interface DiscussionThread {
   reviewer_id: number
   conference_id: number
   title: string
+  visibility?: string
   created_at: string
   reviewer_email?: string
   reviewer_first_name?: string
@@ -47,6 +48,7 @@ export interface MessageListResponse {
 export interface CreateThreadRequest {
   title: string
   content: string
+  visibility?: string
 }
 
 export interface CreateMessageRequest {

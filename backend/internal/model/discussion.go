@@ -11,12 +11,13 @@ const (
 	DiscussionMessageTableName = "discussion_messages"
 
 	// Thread columns
-	ColThreadID       = "id"
-	ColThreadTitle    = "title"
-	ColThreadSubmissionID  = "submission_id"
-	ColThreadReviewerID    = "reviewer_id"
-	ColThreadConferenceID  = "conference_id"
-	ColThreadCreatedAt     = "created_at"
+	ColThreadID           = "id"
+	ColThreadTitle        = "title"
+	ColThreadSubmissionID = "submission_id"
+	ColThreadReviewerID   = "reviewer_id"
+	ColThreadConferenceID = "conference_id"
+	ColThreadVisibility   = "visibility"
+	ColThreadCreatedAt    = "created_at"
 
 	// Message columns
 	ColMessageID        = "id"
@@ -33,15 +34,16 @@ type DiscussionThread struct {
 	ReviewerID   int64     `db:"reviewer_id"`
 	ConferenceID int64     `db:"conference_id"`
 	Title        string    `db:"title"`
+	Visibility   string    `db:"visibility"`
 	CreatedAt    time.Time `db:"created_at"`
 
 	// View fields (populated from JOINs)
-	ReviewerEmail     string `db:"reviewer_email"`
-	ReviewerFirstName string `db:"reviewer_first_name"`
-	ReviewerLastName  string `db:"reviewer_last_name"`
-	AuthorEmail       string `db:"author_email"`
-	SubmissionTitle   string `db:"submission_title"`
-	MessageCount      int    `db:"message_count"`
+	ReviewerEmail     string     `db:"reviewer_email"`
+	ReviewerFirstName string     `db:"reviewer_first_name"`
+	ReviewerLastName  string     `db:"reviewer_last_name"`
+	AuthorEmail       string     `db:"author_email"`
+	SubmissionTitle   string     `db:"submission_title"`
+	MessageCount      int        `db:"message_count"`
 	LastMessageAt     *time.Time `db:"last_message_at"`
 }
 
@@ -53,6 +55,7 @@ func (t *DiscussionThread) ToDTO() *dto.DiscussionThread {
 		ReviewerID:        t.ReviewerID,
 		ConferenceID:      t.ConferenceID,
 		Title:             t.Title,
+		Visibility:        t.Visibility,
 		CreatedAt:         t.CreatedAt,
 		ReviewerEmail:     t.ReviewerEmail,
 		ReviewerFirstName: t.ReviewerFirstName,

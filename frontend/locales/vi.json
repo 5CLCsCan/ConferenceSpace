@@ -1481,19 +1481,35 @@
             "text_type": "Kiểu"
           },
           "conference-committee": {
+            "text_accepted": "Đã chấp nhận",
+            "text_add_directly": "Thêm trực tiếp",
+            "text_area_chairs": "Chủ trì khu vực",
             "text_committee_members": "thành viên ủy ban",
             "text_domains": "Lĩnh vực",
             "text_email": "E-mail",
+            "text_invite_error": "Không thể mời một số phản biện",
+            "text_invite_reviewers": "Mời phản biện",
+            "text_invite_selected": "Mời đã chọn",
+            "text_invite_success": "Đã mời phản biện thành công",
             "text_loading_committee": "Đang tải ủy ban...",
             "text_members": "thành viên",
             "text_name": "Tên",
             "text_next": "Tiếp theo",
             "text_no_committee_members_found": "Không tìm thấy thành viên ủy ban nào",
+            "text_no_users_found": "Không tìm thấy người dùng",
             "text_of": "trên",
+            "text_pending": "Đang chờ",
+            "text_pending_invites": "Lời mời đang chờ",
             "text_previous": "Trước",
+            "text_rejected": "Đã từ chối",
+            "text_remove_reviewer": "Xóa",
             "text_reviewer": "Phản biện",
+            "text_reviewers": "Phản biện",
             "text_role": "Vai trò",
-            "text_showing": "Hiển thị"
+            "text_search_by_email": "Tìm theo email hoặc tên...",
+            "text_searching": "Đang tìm...",
+            "text_showing": "Hiển thị",
+            "text_total_members": "Tổng thành viên"
           },
           "conference-dates": {
             "text_api_backed_schedule_from_conference_configuration": "Lịch trình được hỗ trợ API từ cấu hình hội nghị.",
@@ -1922,8 +1938,9 @@
           "filters": {
             "all": "Tất cả",
             "completed": "Hoàn tất",
-            "inProgress": "Bản nháp",
-            "notStarted": "Đang chờ"
+            "pending": "Đang chờ",
+            "accepted": "Đã chấp nhận",
+            "declined": "Đã từ chối"
           },
           "text_next": "Tiếp theo",
           "text_of": "trên",
@@ -2289,6 +2306,7 @@
               "prop_label_co_chair": "Đồng chủ trì",
               "prop_label_pc_members": "Thành viên PC",
               "prop_label_pending": "Đang chờ",
+              "prop_label_reviewers": "Phản biện",
               "prop_label_track_chairs": "Chủ trì track",
               "text_academic_best_practice": "Thực hành học thuật tốt nhất",
               "text_for_top_tier_conferences_aim_for": "Đối với các hội nghị top-tier, hãy hướng tới 20-30 thành viên PC cho mỗi 100 bài dự kiến. Chủ trì track cần có chuyên môn đúng với lĩnh vực phụ trách.",
