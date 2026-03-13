@@ -23,6 +23,7 @@ type StorageInterface interface {
 	// Message operations
 	CreateMessage(ctx context.Context, message *model.DiscussionMessage) (*model.DiscussionMessage, error)
 	GetMessagesByThread(ctx context.Context, threadID int64) ([]*model.DiscussionMessage, error)
+	DeleteMessage(ctx context.Context, messageID int64, userID int64) error
 
 	// Validation helpers
 	GetSubmissionAuthorEmail(ctx context.Context, submissionID int64) (string, error)
@@ -57,6 +58,7 @@ func (s *Storage) CreateThread(ctx context.Context, thread *model.DiscussionThre
 			model.ColThreadReviewerID,
 			model.ColThreadConferenceID,
 			model.ColThreadTitle,
+			model.ColThreadVisibility,
 			model.ColThreadCreatedAt,
 		).
 		Values(
@@ -64,9 +66,10 @@ func (s *Storage) CreateThread(ctx context.Context, thread *model.DiscussionThre
 			thread.ReviewerID,
 			thread.ConferenceID,
 			thread.Title,
+			thread.Visibility,
 			now,
 		).
-		Suffix("RETURNING id, submission_id, reviewer_id, conference_id, title, created_at").
+		Suffix("RETURNING id, submission_id, reviewer_id, conference_id, title, visibility, created_at").
 		ToSql()
 
 	if err != nil {
@@ -80,6 +83,7 @@ func (s *Storage) CreateThread(ctx context.Context, thread *model.DiscussionThre
 		&result.ReviewerID,
 		&result.ConferenceID,
 		&result.Title,
+		&result.Visibility,
 		&result.CreatedAt,
 	)
 
@@ -94,7 +98,7 @@ func (s *Storage) CreateThread(ctx context.Context, thread *model.DiscussionThre
 func (s *Storage) GetThreadByID(ctx context.Context, threadID int64) (*model.DiscussionThread, error) {
 	query := `
 		SELECT
-			t.id, t.submission_id, t.reviewer_id, t.conference_id, t.title, t.created_at,
+			t.id, t.submission_id, t.reviewer_id, t.conference_id, t.title, t.visibility, t.created_at,
 			u.email as reviewer_email, u.first_name as reviewer_first_name, u.last_name as reviewer_last_name,
 			s.author as author_email, s.title as submission_title,
 			COALESCE(m.message_count, 0) as message_count,
@@ -117,6 +121,7 @@ func (s *Storage) GetThreadByID(ctx context.Context, threadID int64) (*model.Dis
 		&thread.ReviewerID,
 		&thread.ConferenceID,
 		&thread.Title,
+		&thread.Visibility,
 		&thread.CreatedAt,
 		&thread.ReviewerEmail,
 		&thread.ReviewerFirstName,
@@ -141,7 +146,7 @@ func (s *Storage) GetThreadByID(ctx context.Context, threadID int64) (*model.Dis
 func (s *Storage) GetThreadsBySubmission(ctx context.Context, submissionID int64) ([]*model.DiscussionThread, error) {
 	query := `
 		SELECT
-			t.id, t.submission_id, t.reviewer_id, t.conference_id, t.title, t.created_at,
+			t.id, t.submission_id, t.reviewer_id, t.conference_id, t.title, t.visibility, t.created_at,
 			u.email as reviewer_email, u.first_name as reviewer_first_name, u.last_name as reviewer_last_name,
 			s.author as author_email, s.title as submission_title,
 			COALESCE(m.message_count, 0) as message_count,
@@ -165,7 +170,7 @@ func (s *Storage) GetThreadsBySubmission(ctx context.Context, submissionID int64
 func (s *Storage) GetThreadsByReviewer(ctx context.Context, reviewerID int64, submissionID int64) ([]*model.DiscussionThread, error) {
 	query := `
 		SELECT
-			t.id, t.submission_id, t.reviewer_id, t.conference_id, t.title, t.created_at,
+			t.id, t.submission_id, t.reviewer_id, t.conference_id, t.title, t.visibility, t.created_at,
 			u.email as reviewer_email, u.first_name as reviewer_first_name, u.last_name as reviewer_last_name,
 			s.author as author_email, s.title as submission_title,
 			COALESCE(m.message_count, 0) as message_count,
@@ -189,7 +194,7 @@ func (s *Storage) GetThreadsByReviewer(ctx context.Context, reviewerID int64, su
 func (s *Storage) GetThreadsForAuthor(ctx context.Context, authorEmail string, submissionID int64) ([]*model.DiscussionThread, error) {
 	query := `
 		SELECT
-			t.id, t.submission_id, t.reviewer_id, t.conference_id, t.title, t.created_at,
+			t.id, t.submission_id, t.reviewer_id, t.conference_id, t.title, t.visibility, t.created_at,
 			u.email as reviewer_email, u.first_name as reviewer_first_name, u.last_name as reviewer_last_name,
 			s.author as author_email, s.title as submission_title,
 			COALESCE(m.message_count, 0) as message_count,
@@ -202,7 +207,7 @@ func (s *Storage) GetThreadsForAuthor(ctx context.Context, authorEmail string, s
 			FROM discussion_messages
 			GROUP BY thread_id
 		) m ON t.id = m.thread_id
-		WHERE t.submission_id = $1 AND s.author = $2
+		WHERE t.submission_id = $1 AND s.author = $2 AND t.visibility = 'authors'
 		ORDER BY t.created_at DESC
 	`
 
@@ -213,7 +218,7 @@ func (s *Storage) GetThreadsForAuthor(ctx context.Context, authorEmail string, s
 func (s *Storage) GetThreadsByConference(ctx context.Context, conferenceID int64) ([]*model.DiscussionThread, error) {
 	query := `
 		SELECT
-			t.id, t.submission_id, t.reviewer_id, t.conference_id, t.title, t.created_at,
+			t.id, t.submission_id, t.reviewer_id, t.conference_id, t.title, t.visibility, t.created_at,
 			u.email as reviewer_email, u.first_name as reviewer_first_name, u.last_name as reviewer_last_name,
 			s.author as author_email, s.title as submission_title,
 			COALESCE(m.message_count, 0) as message_count,
@@ -250,6 +255,7 @@ func (s *Storage) queryThreads(ctx context.Context, query string, args ...interf
 			&thread.ReviewerID,
 			&thread.ConferenceID,
 			&thread.Title,
+			&thread.Visibility,
 			&thread.CreatedAt,
 			&thread.ReviewerEmail,
 			&thread.ReviewerFirstName,
@@ -362,6 +368,32 @@ func (s *Storage) GetMessagesByThread(ctx context.Context, threadID int64) ([]*m
 	}
 
 	return messages, nil
+}
+
+// DeleteMessage deletes a message if the requesting user is the author
+func (s *Storage) DeleteMessage(ctx context.Context, messageID int64, userID int64) error {
+	query, args, err := s.qb.
+		Delete(model.DiscussionMessageTableName).
+		Where(sq.Eq{"id": messageID, "author_id": userID}).
+		ToSql()
+	if err != nil {
+		return fmt.Errorf("failed to build delete query: %w", err)
+	}
+
+	result, err := s.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to delete message: %w", err)
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to check rows affected: %w", err)
+	}
+	if rows == 0 {
+		return fmt.Errorf("message not found or not authorized")
+	}
+
+	return nil
 }
 
 // GetSubmissionAuthorEmail gets the author email for a submission

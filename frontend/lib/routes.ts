@@ -18,6 +18,7 @@ const BASE_ROUTES = {
     SUBMISSION_EDIT: (id: string) => `/role/author/submissions/${id}/edit`,
     NEW_SUBMISSION: "/role/author/submissions/new",
     CONFERENCE_DETAIL: (id: string) => `/role/author/conferences/${id}`,
+    SCHEDULES: "/role/author/schedules",
   },
 
   REVIEWER: {
@@ -27,6 +28,7 @@ const BASE_ROUTES = {
     ASSIGNMENT: (id: string) => `/role/reviewer/assignments/${id}`,
     INVITATIONS: "/role/reviewer/invitations",
     COMPLETED: "/role/reviewer/completed",
+    SCHEDULES: "/role/reviewer/schedules",
   },
 
   CHAIR: {

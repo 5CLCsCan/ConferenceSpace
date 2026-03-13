@@ -101,7 +101,13 @@ export function AuthorConferenceDetail({ conferenceId }: AuthorConferenceDetailP
         <div className="px-8 py-6 w-full max-w-[1600px] mx-auto">
           {activeTab === "overview" && <OverviewTab conference={conference} />}
           {activeTab === "cfp" && <CallForPapersTab conference={conference} />}
-          {activeTab === "dates" && <ImportantDatesTab dates={dates} />}
+          {activeTab === "dates" && (
+            <ImportantDatesTab
+              dates={dates}
+              conferenceAcronym={conference.acronym}
+              conferenceName={conference.name}
+            />
+          )}
           {activeTab === "committee" && <CommitteeTab conference={conference} />}
         </div>
       </div>

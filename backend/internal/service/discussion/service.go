@@ -6,8 +6,8 @@ import (
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/model"
-	discussionStorage "github.com/dcao/conferencespace/internal/storage/discussion"
 	notificationService "github.com/dcao/conferencespace/internal/service/notification"
+	discussionStorage "github.com/dcao/conferencespace/internal/storage/discussion"
 )
 
 // Service provides discussion-related business logic
@@ -58,11 +58,16 @@ func (s *Service) CreateThread(ctx context.Context, userID int64, userEmail stri
 	}
 
 	// Create the thread
+	visibility := req.Visibility
+	if visibility == "" {
+		visibility = "reviewers"
+	}
 	thread := &model.DiscussionThread{
 		SubmissionID: submissionID,
 		ReviewerID:   userID,
 		ConferenceID: conferenceID,
 		Title:        req.Title,
+		Visibility:   visibility,
 	}
 
 	createdThread, err := s.storage.CreateThread(ctx, thread)
@@ -272,6 +277,18 @@ func (s *Service) GetThread(ctx context.Context, userID int64, userEmail string,
 	}
 
 	return thread.ToDTO(), nil
+}
+
+// DeleteMessage deletes a message authored by the requesting user
+func (s *Service) DeleteMessage(ctx context.Context, userID int64, messageID int64) error {
+	err := s.storage.DeleteMessage(ctx, messageID, userID)
+	if err != nil {
+		if err.Error() == "message not found or not authorized" {
+			return fmt.Errorf("message not found or not authorized")
+		}
+		return fmt.Errorf("failed to delete message: %w", err)
+	}
+	return nil
 }
 
 func (s *Service) toThreadListResponse(threads []*model.DiscussionThread) *dto.ThreadListResponse {

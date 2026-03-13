@@ -135,6 +135,7 @@ export function ChairDiscussionTab({
       await createThread(conferenceNumericId, submissionNumericId, {
         title: data.title,
         content: data.content,
+        visibility: data.visibility,
       })
       await loadThreads()
     },

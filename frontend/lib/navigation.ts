@@ -30,6 +30,11 @@ const SIDEBAR_NAV_TEMPLATES: Record<SidebarRole, NavTemplateItem[]> = {
       icon: "description",
     },
     {
+      labelKey: "dashboard.sidebar.nav.author.schedules",
+      href: ROUTES.AUTHOR.SCHEDULES,
+      icon: "calendar_month",
+    },
+    {
       labelKey: "dashboard.sidebar.nav.common.notifications",
       href: ROUTES.NOTIFICATIONS,
       icon: "notifications",
@@ -56,6 +61,11 @@ const SIDEBAR_NAV_TEMPLATES: Record<SidebarRole, NavTemplateItem[]> = {
       labelKey: "dashboard.sidebar.nav.reviewer.completed",
       href: ROUTES.REVIEWER.COMPLETED,
       icon: "task_alt",
+    },
+    {
+      labelKey: "dashboard.sidebar.nav.reviewer.schedules",
+      href: ROUTES.REVIEWER.SCHEDULES,
+      icon: "calendar_month",
     },
     {
       labelKey: "dashboard.sidebar.nav.common.notifications",

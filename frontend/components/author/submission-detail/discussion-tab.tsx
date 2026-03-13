@@ -179,9 +179,9 @@ export function DiscussionTab({
       threads={threadsWithCollapseState}
       settings={settings}
       currentUser={currentUser}
-      onCreateThread={handleCreateThread}
       onReplyToThread={handleReplyToThread}
       onToggleThreadCollapse={handleToggleCollapse}
+      readOnly
       // Authors can only post to author-visible threads
       availableVisibilities={["authors"]}
     />

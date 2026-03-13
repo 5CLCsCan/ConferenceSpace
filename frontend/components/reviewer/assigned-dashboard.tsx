@@ -16,7 +16,7 @@ import { setAssignmentConferenceContext } from "@/lib/reviewer/assignment-contex
 
 const PAGE_SIZE = 8
 
-type StatusFilter = "all" | "not_started" | "in_progress" | "completed"
+type StatusFilter = "all" | "pending" | "accepted" | "declined" | "completed"
 type SortOption = "deadline" | "title" | "status"
 
 interface AssignedDashboardProps {
@@ -25,21 +25,24 @@ interface AssignedDashboardProps {
 
 function statusRank(status: string) {
   switch (status) {
-    case "not_started":
+    case "pending":
       return 0
-    case "in_progress":
+    case "accepted":
       return 1
-    case "completed":
+    case "declined":
       return 2
-    default:
+    case "completed":
       return 3
+    default:
+      return 4
   }
 }
 
 const statusLabelKeys: Record<StatusFilter, string> = {
   all: "runtime.components.reviewer.assigned-dashboard.filters.all",
-  not_started: "runtime.components.reviewer.assigned-dashboard.filters.notStarted",
-  in_progress: "runtime.components.reviewer.assigned-dashboard.filters.inProgress",
+  pending: "runtime.components.reviewer.assigned-dashboard.filters.pending",
+  accepted: "runtime.components.reviewer.assigned-dashboard.filters.accepted",
+  declined: "runtime.components.reviewer.assigned-dashboard.filters.declined",
   completed: "runtime.components.reviewer.assigned-dashboard.filters.completed",
 }
 
@@ -199,7 +202,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex gap-0.5 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
-          {(["all", "not_started", "in_progress", "completed"] as StatusFilter[]).map((status) => (
+          {(["all", "pending", "accepted", "declined", "completed"] as StatusFilter[]).map((status) => (
             <button
               key={status}
               onClick={() => handleStatusChange(status)}

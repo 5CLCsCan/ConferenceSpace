@@ -87,7 +87,7 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 		COI:             coiController.New(coiSvc, store.ConferenceUserRole),
 		Notification:    notificationController.New(store),
 		SemanticScholar: semanticScholarCtrl,
-		Discussion:      discussionController.New(discSvc),
+		Discussion:      discussionController.New(discSvc, "./uploads/discussions"),
 	}
 }
 
@@ -143,6 +143,6 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 		COI:             coiController.New(coiSvc, store.ConferenceUserRole),
 		Notification:    notificationController.New(store),
 		SemanticScholar: semanticScholarCtrl,
-		Discussion:      discussionController.New(discSvc),
+		Discussion:      discussionController.New(discSvc, "./uploads/discussions"),
 	}
 }

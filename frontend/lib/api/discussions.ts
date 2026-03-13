@@ -7,6 +7,7 @@ export interface DiscussionThread {
   reviewer_id: number
   conference_id: number
   title: string
+  visibility?: string
   created_at: string
   reviewer_email?: string
   reviewer_first_name?: string
@@ -47,6 +48,7 @@ export interface MessageListResponse {
 export interface CreateThreadRequest {
   title: string
   content: string
+  visibility?: string
 }
 
 export interface CreateMessageRequest {
@@ -117,4 +119,36 @@ export async function getMessages(threadId: number): Promise<MessageListResponse
     `/api/v1/threads/${threadId}/messages`,
   )
   return data.data
+}
+
+/**
+ * Delete a message (only the author can delete their own message)
+ */
+export async function deleteMessage(threadId: number, messageId: number): Promise<void> {
+  await apiFetch(`/api/v1/threads/${threadId}/messages/${messageId}`, {
+    method: "DELETE",
+  })
+}
+
+export interface AttachmentUploadResponse {
+  url: string
+  filename: string
+  stored_name: string
+}
+
+/**
+ * Upload a file attachment for a discussion thread
+ */
+export async function uploadAttachment(
+  threadId: number,
+  formData: FormData,
+): Promise<AttachmentUploadResponse> {
+  const { data } = await apiFetch<AttachmentUploadResponse>(
+    `/api/v1/threads/${threadId}/attachments`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  )
+  return data
 }

@@ -17,6 +17,8 @@ export interface ProfileSyncStatus {
 
 export const userApi = {
   getMe: () => apiFetch<{ data: User }>("/api/v1/users/me"),
+  getByEmail: (email: string) =>
+    apiFetch<{ data: User }>(`/api/v1/users/${encodeURIComponent(email)}`),
   getProfileSyncStatus: () =>
     apiFetch<{ data: ProfileSyncStatus }>("/api/v1/users/me/profile-sync-status"),
   getAcademicProfile: () =>

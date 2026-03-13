@@ -400,6 +400,9 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			threads.GET("/:thread_id", handler.HandleNoRequest(ctrl.Discussion.GetThread))
 			threads.POST("/:thread_id/messages", handler.HandleNoRequestWithStatus(http.StatusCreated, ctrl.Discussion.CreateMessage))
 			threads.GET("/:thread_id/messages", handler.HandleNoRequest(ctrl.Discussion.GetMessages))
+			threads.DELETE("/:thread_id/messages/:message_id", handler.HandleNoRequestWithMessage("message deleted successfully", ctrl.Discussion.DeleteMessage))
+			threads.POST("/:thread_id/attachments", ctrl.Discussion.UploadAttachment)
+			threads.GET("/:thread_id/attachments/:filename", ctrl.Discussion.DownloadAttachment)
 		}
 
 		// Semantic Scholar routes (authentication required)

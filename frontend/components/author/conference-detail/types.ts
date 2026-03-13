@@ -12,6 +12,8 @@ export interface TabProps {
 
 export interface DatesTabProps {
   dates: ImportantDate[]
+  conferenceAcronym?: string
+  conferenceName?: string
 }
 
 export type { Conference, ImportantDate }

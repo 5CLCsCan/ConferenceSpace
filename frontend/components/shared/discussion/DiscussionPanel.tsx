@@ -113,6 +113,7 @@ export function DiscussionPanel({
           </div>
 
           {/* Visibility Filter */}
+          {!readOnly && (
           <div className="relative">
             <select
               value={filterVisibility}
@@ -154,6 +155,7 @@ export function DiscussionPanel({
               expand_more
             </span>
           </div>
+          )}
 
           {/* Status Filter */}
           <div className="relative">
@@ -276,7 +278,7 @@ export function DiscussionPanel({
                 currentUser={currentUser}
                 onToggleCollapse={() => onToggleThreadCollapse?.(thread.id)}
                 onReply={(content) => onReplyToThread?.(thread.id, content)}
-                readOnly={readOnly}
+                readOnly={readOnly && thread.visibility !== "authors"}
               />
             ))}
           </div>
@@ -300,7 +302,7 @@ export function DiscussionPanel({
                 currentUser={currentUser}
                 onToggleCollapse={() => onToggleThreadCollapse?.(thread.id)}
                 onReply={(content) => onReplyToThread?.(thread.id, content)}
-                readOnly={readOnly}
+                readOnly={readOnly && thread.visibility !== "authors"}
               />
             ))}
           </div>

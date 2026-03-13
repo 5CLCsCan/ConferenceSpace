@@ -1,8 +1,14 @@
 package discussion
 
 import (
+	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
@@ -13,13 +19,15 @@ import (
 
 // Controller handles discussion-related HTTP requests
 type Controller struct {
-	service *discussionService.Service
+	service        *discussionService.Service
+	uploadBasePath string
 }
 
 // New creates a new discussion controller
-func New(service *discussionService.Service) *Controller {
+func New(service *discussionService.Service, uploadBasePath string) *Controller {
 	return &Controller{
-		service: service,
+		service:        service,
+		uploadBasePath: uploadBasePath,
 	}
 }
 
@@ -276,4 +284,137 @@ func (c *Controller) GetMessages(ginCtx *gin.Context) (*dto.MessageListResponse,
 	}
 
 	return response, nil
+}
+
+// DeleteMessage godoc
+// @Summary      Delete a message
+// @Description  Delete a message authored by the current user
+// @Tags         discussions
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        thread_id path int true "Thread ID"
+// @Param        message_id path int true "Message ID"
+// @Success      200 {object} map[string]string
+// @Failure      400 {object} handler.Response
+// @Failure      401 {object} handler.Response
+// @Failure      403 {object} handler.Response
+// @Failure      404 {object} handler.Response
+// @Router       /threads/{thread_id}/messages/{message_id} [delete]
+func (c *Controller) DeleteMessage(ginCtx *gin.Context) error {
+	ctx := ginCtx.Request.Context()
+
+	userID, exists := utils.GetUserID(ginCtx)
+	if !exists {
+		return handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	messageID, err := strconv.ParseInt(ginCtx.Param("message_id"), 10, 64)
+	if err != nil {
+		return handler.NewErrorResponse(http.StatusBadRequest, "invalid message ID")
+	}
+
+	if err := c.service.DeleteMessage(ctx, userID, messageID); err != nil {
+		errMsg := err.Error()
+		if errMsg == "message not found or not authorized" {
+			return handler.NewErrorResponse(http.StatusForbidden, errMsg)
+		}
+		return handler.NewErrorResponse(http.StatusInternalServerError, errMsg)
+	}
+
+	return nil
+}
+
+// UploadAttachment uploads a file attachment for a discussion thread message
+// @Router /threads/{thread_id}/attachments [post]
+func (c *Controller) UploadAttachment(ginCtx *gin.Context) {
+	_, exists := utils.GetUserID(ginCtx)
+	if !exists {
+		ginCtx.JSON(http.StatusUnauthorized, gin.H{"error": "user not authenticated"})
+		return
+	}
+
+	threadID := ginCtx.Param("thread_id")
+	if threadID == "" {
+		ginCtx.JSON(http.StatusBadRequest, gin.H{"error": "invalid thread ID"})
+		return
+	}
+
+	fileHeader, err := ginCtx.FormFile("file")
+	if err != nil {
+		ginCtx.JSON(http.StatusBadRequest, gin.H{"error": "no file provided"})
+		return
+	}
+
+	const maxSize = 20 * 1024 * 1024 // 20MB
+	if fileHeader.Size > maxSize {
+		ginCtx.JSON(http.StatusBadRequest, gin.H{"error": "file size must not exceed 20MB"})
+		return
+	}
+
+	dirPath := filepath.Join(c.uploadBasePath, threadID)
+	if err := os.MkdirAll(dirPath, 0755); err != nil {
+		ginCtx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create upload directory"})
+		return
+	}
+
+	ext := filepath.Ext(fileHeader.Filename)
+	nameWithoutExt := strings.TrimSuffix(fileHeader.Filename, ext)
+	sanitized := strings.Map(func(r rune) rune {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_' {
+			return r
+		}
+		return '_'
+	}, nameWithoutExt)
+	filename := fmt.Sprintf("%d_%s%s", time.Now().UnixNano(), sanitized, ext)
+	filePath := filepath.Join(dirPath, filename)
+
+	src, err := fileHeader.Open()
+	if err != nil {
+		ginCtx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to open uploaded file"})
+		return
+	}
+	defer src.Close()
+
+	dst, err := os.Create(filePath)
+	if err != nil {
+		ginCtx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save file"})
+		return
+	}
+	defer dst.Close()
+
+	if _, err := io.Copy(dst, src); err != nil {
+		os.Remove(filePath)
+		ginCtx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to write file"})
+		return
+	}
+
+	downloadURL := fmt.Sprintf("/api/v1/threads/%s/attachments/%s", threadID, filename)
+	ginCtx.JSON(http.StatusOK, gin.H{
+		"url":         downloadURL,
+		"filename":    fileHeader.Filename,
+		"stored_name": filename,
+	})
+}
+
+// DownloadAttachment serves a file attachment for a discussion thread
+// @Router /threads/{thread_id}/attachments/{filename} [get]
+func (c *Controller) DownloadAttachment(ginCtx *gin.Context) {
+	_, exists := utils.GetUserID(ginCtx)
+	if !exists {
+		ginCtx.JSON(http.StatusUnauthorized, gin.H{"error": "user not authenticated"})
+		return
+	}
+
+	threadID := ginCtx.Param("thread_id")
+	filename := ginCtx.Param("filename")
+
+	// Prevent path traversal
+	if strings.Contains(filename, "..") || strings.Contains(filename, "/") {
+		ginCtx.JSON(http.StatusBadRequest, gin.H{"error": "invalid filename"})
+		return
+	}
+
+	filePath := filepath.Join(c.uploadBasePath, threadID, filename)
+	ginCtx.FileAttachment(filePath, filename)
 }

@@ -1,9 +1,12 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import type { TabProps } from "./types"
 import { MemberAvatar } from "./components/member-avatar"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { getConferenceReviewers, type Reviewer } from "@/lib/api/conferences"
+import { userApi, type User } from "@/lib/api/user"
 
 // Consistent icon styling for 16px material symbols
 const iconStyle = {
@@ -39,14 +42,16 @@ function MemberCard({
   variant?: "featured" | "default" | "compact"
 }) {
   const { t } = useTranslation()
+  const handleOpenProfile = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+    window.open(`https://scholar.google.com/scholar?q=${encodeURIComponent(member.name)}`, "_blank", "noopener,noreferrer")
+  }
   if (variant === "featured") {
     return (
       <div
         className="flex items-start gap-3 p-3 rounded-lg border border-slate-100 hover:border-slate-200 dark:border-slate-800 dark:hover:border-slate-700 transition-colors bg-slate-50/50 dark:bg-slate-800/50 cursor-pointer relative group"
-        onClick={(e) => {
-          e.preventDefault()
-          // No action - just visual feedback
-        }}
+        onClick={handleOpenProfile}
       >
         <MemberAvatar name={member.name} email={member.email || member.name} size="lg" />
         <div className="flex-1">
@@ -70,11 +75,7 @@ function MemberCard({
           )}
         </div>
         <button
-          onClick={(e) => {
-            e.stopPropagation()
-            e.preventDefault()
-            // No action - just visual feedback
-          }}
+          onClick={handleOpenProfile}
           className="text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors opacity-0 group-hover:opacity-100"
         >
           <span className="material-symbols-outlined" style={iconStyle}>
@@ -89,10 +90,7 @@ function MemberCard({
     return (
       <div
         className="p-2.5 rounded-lg border border-slate-100 hover:border-slate-200 dark:border-slate-800 hover:shadow-sm transition-all bg-white dark:bg-slate-900 cursor-pointer relative group"
-        onClick={(e) => {
-          e.preventDefault()
-          // No action - just visual feedback
-        }}
+        onClick={handleOpenProfile}
       >
         <div className="font-bold text-[#1B3C53] dark:text-white text-[12px] tracking-tight">
           {member.name}
@@ -106,11 +104,7 @@ function MemberCard({
           </div>
         )}
         <button
-          onClick={(e) => {
-            e.stopPropagation()
-            e.preventDefault()
-            // No action - just visual feedback
-          }}
+          onClick={handleOpenProfile}
           className="absolute top-2 right-2 text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors opacity-0 group-hover:opacity-100"
         >
           <span className="material-symbols-outlined" style={iconStyle}>
@@ -124,10 +118,7 @@ function MemberCard({
   return (
     <div
       className="flex items-center gap-3 p-2.5 rounded-lg border border-slate-100 hover:border-slate-200 dark:border-slate-800 dark:hover:border-slate-700 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/30 cursor-pointer relative group"
-      onClick={(e) => {
-        e.preventDefault()
-        // No action - just visual feedback
-      }}
+      onClick={handleOpenProfile}
     >
       <MemberAvatar name={member.name} email={member.email || member.name} />
       <div className="flex-1">
@@ -139,11 +130,7 @@ function MemberCard({
         </div>
       </div>
       <button
-        onClick={(e) => {
-          e.stopPropagation()
-          e.preventDefault()
-          // No action - just visual feedback
-        }}
+        onClick={handleOpenProfile}
         className="text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-colors opacity-0 group-hover:opacity-100"
       >
         <span className="material-symbols-outlined" style={iconStyle}>
@@ -156,6 +143,51 @@ function MemberCard({
 
 export function CommitteeTab({ conference }: TabProps) {
   const { t } = useTranslation()
+  const [reviewers, setReviewers] = useState<Reviewer[]>([])
+  const [loading, setLoading] = useState(true)
+  const [chairUsers, setChairUsers] = useState<Map<string, User>>(new Map())
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true)
+
+      // Fetch reviewers and chair user info in parallel
+      const emailsToFetch = [
+        conference.chair,
+        ...(conference.co_chairs ?? []),
+      ].filter(Boolean) as string[]
+
+      const [reviewersRes, ...userResults] = await Promise.all([
+        getConferenceReviewers(conference.id, { status: "accepted", limit: 100 }),
+        ...emailsToFetch.map((email) => userApi.getByEmail(email).catch(() => null)),
+      ])
+
+      setReviewers(reviewersRes.data?.reviewers ?? [])
+
+      const map = new Map<string, User>()
+      emailsToFetch.forEach((email, i) => {
+        const result = userResults[i] as { data: { data: User } } | null
+        const user = result?.data?.data
+        if (user) map.set(email, user)
+      })
+      setChairUsers(map)
+
+      setLoading(false)
+    }
+    void fetchData()
+  }, [conference.id, conference.chair, conference.co_chairs])
+
+  const getChairName = (email: string): string => {
+    const u = chairUsers.get(email)
+    if (u) return `${u.first_name} ${u.last_name}`.trim() || email
+    return email
+  }
+
+  const getDisplayName = (r: Reviewer) => {
+    if (r.first_name || r.last_name) return `${r.first_name ?? ""} ${r.last_name ?? ""}`.trim()
+    return r.email ?? `User #${r.user_id}`
+  }
+
   return (
     <div className="w-full space-y-6">
       {/* Header */}
@@ -188,9 +220,9 @@ export function CommitteeTab({ conference }: TabProps) {
               {conference.chair && (
                 <MemberCard
                   member={{
-                    name: conference.chair,
-                    email: `${conference.chair.toLowerCase().replace(/\s+/g, ".")}@conference.org`,
-                    organization: "Conference Organization",
+                    name: getChairName(conference.chair),
+                    email: conference.chair,
+                    role: "General Chair",
                   }}
                   variant="featured"
                 />
@@ -200,79 +232,62 @@ export function CommitteeTab({ conference }: TabProps) {
                 <MemberCard
                   key={idx}
                   member={{
-                    name: co,
-                    email: `${co.toLowerCase().replace(/\s+/g, ".")}@conference.org`,
-                    role: "Conference Co-Chair",
+                    name: getChairName(co),
+                    email: co,
+                    role: "Co-Chair",
                   }}
                   variant="featured"
                 />
               ))}
+
+              {!conference.chair && !conference.co_chairs?.length && (
+                <p className="text-[11px] text-slate-400 col-span-2">
+                  {t(
+                    "runtime.components.author.conference-detail.committee-tab.text_no_chairs_listed",
+                  ) || "No general chairs listed."}
+                </p>
+              )}
             </div>
           </div>
 
-          {/* Program Chairs */}
+          {/* Program Committee (Reviewers) */}
           <div>
             <h3 className="text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
               {t(
-                "runtime.components.author.conference-detail.committee-tab.text_program_chairs",
-              )}{" "}
+                "runtime.components.author.conference-detail.committee-tab.text_program_committee",
+              )}
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {["Alex Brown", "Emily Zhang", "Robert Klein"].map((name) => (
-                <MemberCard
-                  key={name}
-                  member={{
-                    name,
-                    role: "Research & Peer Review",
-                  }}
-                  variant="default"
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Area Chairs */}
-          <div>
-            <h3 className="text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
-              {t("runtime.components.author.conference-detail.committee-tab.text_area_chairs")}{" "}
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
-              {[
-                { name: "David Miller", track: "Reinforcement Learning" },
-                { name: "Sarah Jenkins", track: "Computer Vision" },
-                { name: "Wei Liu", track: "NLP & LLMs" },
-                { name: "Carlos Mendez", track: "Generative Models" },
-              ].map((chair) => (
-                <MemberCard
-                  key={chair.name}
-                  member={{
-                    name: chair.name,
-                    track: chair.track,
-                  }}
-                  variant="compact"
-                />
-              ))}
-              <div className="p-2.5 rounded-lg border border-slate-100 hover:border-slate-200 dark:border-slate-800 hover:shadow-sm transition-all bg-white dark:bg-slate-900 flex flex-col justify-center cursor-pointer group">
-                <div className="font-bold text-[#1B3C53] dark:text-white text-[12px] tracking-tight group-hover:text-blue-600">
-                  {t(
-                    "runtime.components.author.conference-detail.committee-tab.text_more_members",
-                  )}{" "}
-                </div>
-                <div className="text-[10px] text-slate-500">
-                  {t(
-                    "runtime.components.author.conference-detail.committee-tab.text_view_full_list",
-                  )}
-                </div>
-                <div className="mt-1.5 flex">
-                  <span
-                    className="material-symbols-outlined text-slate-400 group-hover:text-blue-600"
-                    style={iconStyle}
-                  >
-                    arrow_forward
-                  </span>
-                </div>
+            {loading ? (
+              <div className="flex items-center gap-2 py-4 text-slate-400 text-[11px]">
+                <span
+                  className="material-symbols-outlined animate-spin"
+                  style={{ fontSize: "14px" }}
+                >
+                  progress_activity
+                </span>
+                Loading members...
               </div>
-            </div>
+            ) : reviewers.length === 0 ? (
+              <p className="text-[11px] text-slate-400 py-2">
+                {t(
+                  "runtime.components.author.conference-detail.committee-tab.text_no_committee_members",
+                ) || "No committee members yet."}
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {reviewers.map((r) => (
+                  <MemberCard
+                    key={r.id ?? r.user_id}
+                    member={{
+                      name: getDisplayName(r),
+                      email: r.email,
+                      role: r.domain?.join(", ") || "Reviewer",
+                    }}
+                    variant="default"
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
