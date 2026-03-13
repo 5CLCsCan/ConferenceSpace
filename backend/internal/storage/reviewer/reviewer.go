@@ -81,6 +81,8 @@ func (s *Storage) selectWithUserJoin() sq.SelectBuilder {
 			fmt.Sprintf("%s.%s", model.ReviewerTableName, model.ColCreatedAt),
 			fmt.Sprintf("%s.%s", model.ReviewerTableName, model.ColUpdatedAt),
 			fmt.Sprintf("%s.%s", model.UserTableName, model.UserColEmail),
+			fmt.Sprintf("%s.%s", model.UserTableName, model.UserColFirstName),
+			fmt.Sprintf("%s.%s", model.UserTableName, model.UserColLastName),
 		).
 		From(model.ReviewerTableName).
 		LeftJoin(fmt.Sprintf("%s ON %s.%s = %s.%s",
@@ -231,6 +233,8 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Reviewer, error) 
 		&result.CreatedAt,
 		&result.UpdatedAt,
 		&result.UserEmail,
+		&result.UserFirstName,
+		&result.UserLastName,
 	)
 
 	if err == sql.ErrNoRows {
@@ -266,6 +270,8 @@ func (s *Storage) GetByUserAndConference(ctx context.Context, userID, conference
 		&result.CreatedAt,
 		&result.UpdatedAt,
 		&result.UserEmail,
+		&result.UserFirstName,
+		&result.UserLastName,
 	)
 
 	if err == sql.ErrNoRows {
@@ -336,6 +342,8 @@ func (s *Storage) List(ctx context.Context, conferenceID int64, params *ListPara
 			&result.CreatedAt,
 			&result.UpdatedAt,
 			&result.UserEmail,
+			&result.UserFirstName,
+			&result.UserLastName,
 		)
 		if err != nil {
 			return nil, 0, fmt.Errorf("failed to scan reviewer: %w", err)

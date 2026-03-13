@@ -7,8 +7,10 @@ type Reviewer struct {
 	ID           int64     `json:"id,omitempty"`
 	UserID       int64     `json:"user_id" binding:"required"`
 	ConferenceID int64     `json:"conference_id,omitempty"`
-	Email        string    `json:"email,omitempty"`  // From users table (view field)
-	Status       string    `json:"status,omitempty"` // Optional in request, defaults to "pending"
+	Email        string    `json:"email,omitempty"`      // From users table (view field)
+	FirstName    string    `json:"first_name,omitempty"` // From users table (view field)
+	LastName     string    `json:"last_name,omitempty"`  // From users table (view field)
+	Status       string    `json:"status,omitempty"`     // Optional in request, defaults to "pending"
 	Domain       []string  `json:"domain,omitempty"`
 	CreatedAt    time.Time `json:"created_at,omitempty"`
 	UpdatedAt    time.Time `json:"updated_at,omitempty"`

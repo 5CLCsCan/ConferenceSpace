@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils"
 import type { DatesTabProps, ImportantDate } from "./types"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { downloadICS } from "@/lib/utils/ics-calendar"
 
 // Consistent icon styling for 16px material symbols
 const iconStyle = {
@@ -315,7 +316,7 @@ function HelpCard() {
   )
 }
 
-export function ImportantDatesTab({ dates }: DatesTabProps) {
+export function ImportantDatesTab({ dates, conferenceAcronym, conferenceName }: DatesTabProps) {
   const { t } = useTranslation()
   const now = new Date()
 
@@ -370,7 +371,19 @@ export function ImportantDatesTab({ dates }: DatesTabProps) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="px-3 py-2 text-[11px] font-medium text-slate-700 bg-white border border-slate-200 rounded-md hover:bg-slate-50 flex items-center gap-1.5 shadow-sm transition-all">
+          <button
+            onClick={() => {
+              if (dates.length > 0) {
+                downloadICS(
+                  dates,
+                  conferenceAcronym || "CONF",
+                  conferenceName || "Conference",
+                )
+              }
+            }}
+            disabled={dates.length === 0}
+            className="px-3 py-2 text-[11px] font-medium text-slate-700 bg-white border border-slate-200 rounded-md hover:bg-slate-50 flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <span className="material-symbols-outlined" style={iconStyle}>
               calendar_add_on
             </span>
