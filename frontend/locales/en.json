@@ -304,7 +304,8 @@
       "nav": {
         "author": {
           "conferences": "Conferences",
-          "mySubmissions": "My Submissions"
+          "mySubmissions": "My Submissions",
+          "schedules": "Schedules"
         },
         "chair": {
           "conferences": "Conferences",
@@ -319,7 +320,8 @@
           "completed": "Completed",
           "conferences": "Conferences",
           "dashboard": "Dashboard",
-          "invitations": "Invitations"
+          "invitations": "Invitations",
+          "schedules": "Schedules"
         }
       }
     },
@@ -931,8 +933,11 @@
             "text_general_chairs": "General Chairs",
             "text_meet_the_team_behind": "Meet the team behind",
             "text_more_members": "More Members",
+            "text_no_chairs_listed": "No general chairs listed.",
+            "text_no_committee_members": "No committee members yet.",
             "text_organizing_committee": "Organizing Committee",
             "text_program_chairs": "Program Chairs",
+            "text_program_committee": "Program Committee",
             "text_view_full_list": "View full list"
           },
           "components": {

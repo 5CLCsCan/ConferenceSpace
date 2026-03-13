@@ -27,7 +27,9 @@ type Reviewer struct {
 	UpdatedAt    time.Time      `db:"updated_at"`
 
 	// View fields
-	UserEmail string `db:"email"`
+	UserEmail     string `db:"email"`
+	UserFirstName string `db:"first_name"`
+	UserLastName  string `db:"last_name"`
 }
 
 // Reviewer status constants
@@ -43,6 +45,8 @@ func (r *Reviewer) ToDTO() *dto.Reviewer {
 		UserID:       r.UserID,
 		ConferenceID: r.ConferenceID,
 		Email:        r.UserEmail,
+		FirstName:    r.UserFirstName,
+		LastName:     r.UserLastName,
 		Status:       r.Status,
 		Domain:       r.Domain,
 		CreatedAt:    r.CreatedAt,

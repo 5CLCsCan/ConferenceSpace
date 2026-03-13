@@ -1,0 +1,218 @@
+/**
+ * Schedule API - Aggregates conference deadlines across all user's conferences
+ * into a unified calendar view. Data is derived from conference configurations.
+ */
+
+import { listConferences, type ImportantDate } from "@/lib/api/conferences"
+import type { Conference, UserRole } from "@/lib/types"
+
+export type EventType = "deadline" | "milestone" | "event"
+
+export interface ScheduleEvent {
+  id: string
+  title: string
+  conference: string
+  conferenceAcronym: string
+  conferenceId: string
+  date: Date
+  type: EventType
+  description?: string
+  isUrgent?: boolean
+}
+
+export interface ConferenceTimeline {
+  id: string
+  acronym: string
+  name: string
+  year: string
+  status: string
+  dates: ImportantDate[]
+}
+
+/**
+ * Extracts schedule events from a conference's configurations
+ */
+function extractEventsFromConference(conf: Conference): ScheduleEvent[] {
+  const events: ScheduleEvent[] = []
+  const config = conf.configurations
+  if (!config) return events
+
+  const now = new Date()
+
+  const addEvent = (
+    id: string,
+    title: string,
+    dateStr: string | undefined,
+    type: EventType,
+    description: string,
+  ) => {
+    if (!dateStr) return
+    const date = new Date(dateStr)
+    if (isNaN(date.getTime())) return
+
+    const daysUntil = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    events.push({
+      id: `${conf.id}-${id}`,
+      title,
+      conference: conf.name,
+      conferenceAcronym: conf.acronym,
+      conferenceId: conf.id,
+      date,
+      type,
+      description,
+      isUrgent: type === "deadline" && daysUntil >= 0 && daysUntil <= 3,
+    })
+  }
+
+  addEvent(
+    "abstract-deadline",
+    "Abstract Submission Deadline",
+    config.abstract_submission_deadline,
+    "deadline",
+    `Abstract submission deadline for ${conf.acronym}`,
+  )
+
+  addEvent(
+    "paper-deadline",
+    "Paper Submission Deadline",
+    config.full_paper_submission_deadline,
+    "deadline",
+    `Full paper submission deadline for ${conf.acronym}`,
+  )
+
+  addEvent(
+    "camera-ready",
+    "Camera-Ready Deadline",
+    config.camera_ready_deadline,
+    "deadline",
+    `Camera-ready version due for ${conf.acronym}`,
+  )
+
+  addEvent(
+    "conf-start",
+    "Conference Begins",
+    config.start_date,
+    "event",
+    `${conf.name} begins`,
+  )
+
+  addEvent(
+    "conf-end",
+    "Conference Ends",
+    config.end_date,
+    "event",
+    `${conf.name} ends`,
+  )
+
+  // Discussion period dates
+  if (config.discussion_settings?.start_at) {
+    addEvent(
+      "discussion-start",
+      "Discussion Period Opens",
+      config.discussion_settings.start_at,
+      "milestone",
+      `Discussion period opens for ${conf.acronym}`,
+    )
+  }
+  if (config.discussion_settings?.end_at) {
+    addEvent(
+      "discussion-end",
+      "Discussion Period Closes",
+      config.discussion_settings.end_at,
+      "deadline",
+      `Discussion period closes for ${conf.acronym}`,
+    )
+  }
+
+  // Rebuttal period dates
+  if (config.rebuttal_settings?.start_at) {
+    addEvent(
+      "rebuttal-start",
+      "Rebuttal Period Opens",
+      config.rebuttal_settings.start_at,
+      "milestone",
+      `Rebuttal period opens for ${conf.acronym}`,
+    )
+  }
+  if (config.rebuttal_settings?.end_at) {
+    addEvent(
+      "rebuttal-end",
+      "Rebuttal Submission Deadline",
+      config.rebuttal_settings.end_at,
+      "deadline",
+      `Rebuttal submission deadline for ${conf.acronym}`,
+    )
+  }
+
+  return events
+}
+
+/**
+ * Fetches all schedule events for the current user based on their role
+ */
+export async function getMyScheduleEvents(
+  role: Extract<UserRole, "author" | "reviewer" | "chair">,
+): Promise<{ events: ScheduleEvent[]; conferences: ConferenceTimeline[]; error: string | null }> {
+  const response = await listConferences({
+    myConferences: true,
+    role,
+    limit: 100,
+  })
+
+  if (response.error || !response.data) {
+    return { events: [], conferences: [], error: response.error || "Failed to fetch conferences" }
+  }
+
+  const allEvents: ScheduleEvent[] = []
+  const timelines: ConferenceTimeline[] = []
+
+  for (const conf of response.data.conferences) {
+    const events = extractEventsFromConference(conf)
+    allEvents.push(...events)
+
+    const config = conf.configurations
+    const dates: ImportantDate[] = []
+    const now = new Date()
+
+    const addDate = (
+      id: string,
+      title: string,
+      dateStr: string | undefined,
+      type: "deadline" | "notification" | "event",
+      desc: string,
+    ) => {
+      if (!dateStr) return
+      dates.push({
+        id,
+        title,
+        date: dateStr,
+        description: desc,
+        type,
+        isPast: new Date(dateStr) < now,
+      })
+    }
+
+    if (config) {
+      addDate("abstract", "Abstract Submission", config.abstract_submission_deadline, "deadline", "Abstract submission deadline")
+      addDate("paper", "Paper Submission", config.full_paper_submission_deadline, "deadline", "Full paper submission deadline")
+      addDate("camera", "Camera-Ready", config.camera_ready_deadline, "deadline", "Camera-ready deadline")
+      addDate("start", "Conference Start", config.start_date, "event", "Conference begins")
+      addDate("end", "Conference End", config.end_date, "event", "Conference ends")
+    }
+
+    dates.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+    timelines.push({
+      id: conf.id,
+      acronym: conf.acronym,
+      name: conf.name,
+      year: String(conf.year),
+      status: conf.status,
+      dates,
+    })
+  }
+
+  allEvents.sort((a, b) => a.date.getTime() - b.date.getTime())
+
+  return { events: allEvents, conferences: timelines, error: null }
+}

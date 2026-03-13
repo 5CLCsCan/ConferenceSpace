@@ -517,6 +517,8 @@ export interface Reviewer {
   user_id: number
   conference_id?: number
   email?: string
+  first_name?: string
+  last_name?: string
   status?: "pending" | "accepted" | "rejected"
   domain?: string[]
   created_at?: string

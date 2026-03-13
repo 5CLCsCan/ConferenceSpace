@@ -304,7 +304,8 @@
       "nav": {
         "author": {
           "conferences": "Hội nghị",
-          "mySubmissions": "Bài nộp của tôi"
+          "mySubmissions": "Bài nộp của tôi",
+          "schedules": "Lịch trình"
         },
         "chair": {
           "conferences": "Hội nghị",
@@ -319,7 +320,8 @@
           "completed": "Đã hoàn thành",
           "conferences": "Hội nghị",
           "dashboard": "Bảng điều khiển",
-          "invitations": "Lời mời"
+          "invitations": "Lời mời",
+          "schedules": "Lịch trình"
         }
       }
     },
@@ -931,8 +933,11 @@
             "text_general_chairs": "Chủ trì chung",
             "text_meet_the_team_behind": "Gặp đội phía sau",
             "text_more_members": "Thêm thành viên",
+            "text_no_chairs_listed": "Chưa có thông tin chủ trì.",
+            "text_no_committee_members": "Chưa có thành viên tiểu ban.",
             "text_organizing_committee": "Ban tổ chức",
             "text_program_chairs": "Chủ trì chương trình",
+            "text_program_committee": "Tiểu ban chương trình",
             "text_view_full_list": "Xem danh sách đầy đủ"
           },
           "components": {
