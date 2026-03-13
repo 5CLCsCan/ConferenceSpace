@@ -31,22 +31,6 @@ export interface SubmissionFile {
   uploadedAt?: string
 }
 
-export interface ReviewScore {
-  reviewerId: string
-  reviewerName: string
-  avatarColor: string
-  decision: ReviewerDecision
-  score: number
-  confidence: ConfidenceLevel
-}
-
-export interface ReviewerAssignment {
-  id: string
-  name: string
-  avatar?: string
-  status: ReviewerAssignmentStatus
-}
-
 export interface SubmissionDetail {
   id: string
   displayId: string
@@ -60,14 +44,6 @@ export interface SubmissionDetail {
   files: SubmissionFile[]
   coverLetter?: string
   lastUpdated: string
-  reviewOverview: {
-    averageScore: number
-    maxScore: number
-    confidence: ConfidenceLevel
-    status: string
-    individualScores: ReviewScore[]
-  }
-  reviewerAssignments: ReviewerAssignment[]
 }
 
 export type SubmissionSubTab = "overview" | "reviews" | "discussion" | "history"

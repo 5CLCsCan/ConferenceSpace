@@ -8,10 +8,8 @@ import { SubmissionDetailHeader } from "@/components/chair/conference-detail/sub
 import { SubmissionDetailContent } from "@/components/chair/conference-detail/submission-detail-content"
 import type { ConferenceInfo } from "@/components/chair/conference-detail/types"
 import type {
-  ConfidenceLevel,
   HistoryEventCategory,
   HistoryEventType,
-  ReviewerDecision,
   SubmissionDetail,
   SubmissionDetailStatus,
   SubmissionHistoryActor,
@@ -21,11 +19,7 @@ import type {
 import { getSidebarMenuItems } from "@/lib/navigation"
 import { getConferenceById } from "@/lib/api/conferences"
 import { getSubmissionById, type Submission } from "@/lib/api/submissions"
-import {
-  getSubmissionReviewAnalytics,
-  getSubmissionReviews,
-  type AssignmentReview,
-} from "@/lib/api/reviews"
+import { getSubmissionReviews, type AssignmentReview } from "@/lib/api/reviews"
 import {
   getMessages,
   getThreads,
@@ -33,14 +27,6 @@ import {
   type DiscussionThread,
 } from "@/lib/api/discussions"
 import { useTranslation } from "@/lib/i18n/translation-context"
-
-const REVIEWER_COLORS = [
-  "bg-indigo-100 text-indigo-700",
-  "bg-purple-100 text-purple-700",
-  "bg-pink-100 text-pink-700",
-  "bg-blue-100 text-blue-700",
-  "bg-emerald-100 text-emerald-700",
-]
 
 function formatDate(value?: string): string {
   if (!value) return "-"
@@ -87,26 +73,6 @@ function mapSubmissionStatus(status: string): SubmissionDetailStatus {
   if (status === "reviewing") return "under_review"
   if (status === "draft") return "pending_decision"
   return "pending_decision"
-}
-
-function mapRecommendation(value?: string): ReviewerDecision {
-  if (
-    value === "accept" ||
-    value === "weak_accept" ||
-    value === "borderline" ||
-    value === "weak_reject" ||
-    value === "reject"
-  ) {
-    return value
-  }
-  if (value === "strong_accept") return "accept"
-  if (value === "strong_reject") return "reject"
-  return "borderline"
-}
-
-function mapConfidence(value?: string): ConfidenceLevel {
-  if (value === "high" || value === "medium" || value === "low") return value
-  return "medium"
 }
 
 function buildActor(name: string, role: string, id?: string): SubmissionHistoryActor {
@@ -348,6 +314,7 @@ export default function ChairSubmissionDetailPage() {
     year: "2026",
   })
   const [submission, setSubmission] = useState<SubmissionDetail | null>(null)
+  const [reviews, setReviews] = useState<AssignmentReview[]>([])
   const [historyEvents, setHistoryEvents] = useState<SubmissionHistoryEvent[]>([])
   const [historyLoading, setHistoryLoading] = useState(true)
   const [loading, setLoading] = useState(true)
@@ -358,6 +325,7 @@ export default function ChairSubmissionDetailPage() {
       setLoading(true)
       setHistoryLoading(true)
       setError(null)
+      setReviews([])
 
       const conferenceNumericId = Number(conferenceId)
       const submissionNumericId = Number(submissionId)
@@ -367,13 +335,11 @@ export default function ChairSubmissionDetailPage() {
         Number.isFinite(submissionNumericId) &&
         submissionNumericId > 0
 
-      const [conferenceResponse, submissionResponse, reviewsResponse, analyticsResponse] =
-        await Promise.all([
-          getConferenceById(conferenceId),
-          getSubmissionById(conferenceId, submissionId),
-          getSubmissionReviews(conferenceId, submissionId, { limit: 50, offset: 0 }),
-          getSubmissionReviewAnalytics(conferenceId, submissionId),
-        ])
+      const [conferenceResponse, submissionResponse, reviewsResponse] = await Promise.all([
+        getConferenceById(conferenceId),
+        getSubmissionById(conferenceId, submissionId),
+        getSubmissionReviews(conferenceId, submissionId, { limit: 50, offset: 0 }),
+      ])
 
       if (conferenceResponse.error || !conferenceResponse.data) {
         setError(conferenceResponse.error || "Failed to load conference")
@@ -406,8 +372,7 @@ export default function ChairSubmissionDetailPage() {
       const conflicts = (submissionData.information?.declared_conflicts || []).map(
         (item) => item.email,
       )
-      const reviews = reviewsResponse.data || []
-      const analytics = analyticsResponse.data
+      const submissionReviews = reviewsResponse.data || []
 
       let threads: DiscussionThread[] = []
       let messagesByThread: Record<number, DiscussionMessage[]> = {}
@@ -478,41 +443,13 @@ export default function ChairSubmissionDetailPage() {
         files,
         coverLetter: submissionData.information?.additional_notes,
         lastUpdated: formatDate(submissionData.updated_at),
-        reviewOverview: {
-          averageScore: analytics?.average_score || 0,
-          maxScore: 10,
-          confidence:
-            analytics &&
-            analytics.confidence_distribution.high >= analytics.confidence_distribution.medium
-              ? "high"
-              : analytics &&
-                  analytics.confidence_distribution.low > analytics.confidence_distribution.medium
-                ? "low"
-                : "medium",
-          status: `${reviews.filter((review) => review.review_status === "submitted").length}/${reviews.length} reviews submitted`,
-          individualScores: reviews.map((review, index) => ({
-            reviewerId: String(review.reviewer_id || index + 1),
-            reviewerName: review.reviewer_email || `Reviewer #${index + 1}`,
-            avatarColor: REVIEWER_COLORS[index % REVIEWER_COLORS.length],
-            decision: mapRecommendation(review.review_data?.recommendation),
-            score: review.review_score || 0,
-            confidence: mapConfidence(review.review_data?.confidence),
-          })),
-        },
-        reviewerAssignments: reviews.map((review, index) => ({
-          id: String(review.id),
-          name: review.reviewer_email || `Reviewer #${index + 1}`,
-          status:
-            review.review_status === "submitted"
-              ? "completed"
-              : review.review_status === "draft"
-                ? "in_progress"
-                : "pending",
-        })),
       }
 
       setSubmission(mappedSubmission)
-      setHistoryEvents(buildHistoryEvents(submissionData, reviews, threads, messagesByThread, t))
+      setReviews(submissionReviews)
+      setHistoryEvents(
+        buildHistoryEvents(submissionData, submissionReviews, threads, messagesByThread, t),
+      )
       setHistoryLoading(false)
       setLoading(false)
     }
@@ -568,8 +505,12 @@ export default function ChairSubmissionDetailPage() {
                   activeTab={activeTab}
                   conferenceId={conferenceId}
                   submissionId={submissionId}
+                  reviews={reviews}
                   historyEvents={historyEvents}
                   historyLoading={historyLoading}
+                  onSubmissionStatusChange={(status) =>
+                    setSubmission((current) => (current ? { ...current, status } : current))
+                  }
                 />
               </Suspense>
             )}

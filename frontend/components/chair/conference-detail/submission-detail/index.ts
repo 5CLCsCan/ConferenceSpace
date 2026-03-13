@@ -1,6 +1,5 @@
 // Submission Detail - Barrel Export
 export * from "./types"
-export { MOCK_SUBMISSION_DETAIL } from "./mock-data"
 export {
   SubmissionStatusBadge,
   ReviewerDecisionLabel,
