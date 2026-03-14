@@ -165,11 +165,19 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.SubmissionCreateReques
 		req.Submission.Status = dto.StatusDraft
 	}
 
-	// For published submissions, a file is mandatory.
-	// NOTE: precheck gate temporarily disabled for testing.
+	// For published submissions, a file is mandatory and must pass precheck.
 	if req.Submission.Status == dto.StatusPublished {
 		if req.Submission.File == nil || len(req.Submission.File.Content) == 0 {
 			return nil, handler.NewErrorResponse(http.StatusBadRequest, "paper file is required when publishing a submission")
+		}
+
+		if err := c.ensureSubmissionPrecheckApprovedFromBytes(
+			ctx,
+			conference,
+			req.Submission.File.Content,
+			req.Submission.File.OriginalName,
+		); err != nil {
+			return nil, err
 		}
 	}
 
@@ -621,8 +629,21 @@ func (c *Controller) Publish(ginCtx *gin.Context, req *dto.SubmissionPublishRequ
 		}
 	}
 
-	// Hard gate precheck temporarily disabled for testing.
-	// Original: check ensureSubmissionPrecheckApprovedFromBytes / ensureSubmissionPrecheckApprovedForStoredFile
+	// Hard gate: only allow publish when the current paper passes precheck.
+	if req.Submission.File != nil && len(req.Submission.File.Content) > 0 {
+		if err := c.ensureSubmissionPrecheckApprovedFromBytes(
+			ctx,
+			conference,
+			req.Submission.File.Content,
+			req.Submission.File.OriginalName,
+		); err != nil {
+			return nil, err
+		}
+	} else if existing.File != nil && existing.File.Path != "" {
+		if err := c.ensureSubmissionPrecheckApprovedForStoredFile(ctx, conference, existing.File); err != nil {
+			return nil, err
+		}
+	}
 
 	// Handle paper file upload if provided
 	if req.Submission.File != nil {
