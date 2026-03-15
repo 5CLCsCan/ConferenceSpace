@@ -14,6 +14,7 @@ import (
 	"github.com/dcao/conferencespace/internal/clients"
 	"github.com/dcao/conferencespace/internal/config"
 	"github.com/dcao/conferencespace/internal/controller"
+	"github.com/dcao/conferencespace/internal/cron"
 	"github.com/dcao/conferencespace/internal/controller/auth"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/middleware"
@@ -136,6 +137,9 @@ func initializeApp(cfg *config.Config) (*AppContext, func(), error) {
 	// Initialize WebSocket hub
 	hub := websocket.NewHub()
 	go hub.Run()
+
+	// Start rebuttal auto-finalize cron (checks every hour for overdue deadlines)
+	cron.StartRebuttalAutoFinalize(store.Conference)
 
 	orch := orchestrator.NewOrchestrator(store, cfg)
 	ctrl := controller.NewControllerWithHub(orch, store, fileStore, clients, hub, cfg.Server.Env)
@@ -320,6 +324,16 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			}
 		}
 
+		// Rebuttal management routes (chair only)
+		rebuttalMgmt := conferences.Group("/:conference_id/rebuttal")
+		{
+			rebuttalMgmt.GET("/settings", handler.HandleRequestWithURI(ctrl.Conference.GetRebuttalSettings))
+			rebuttalMgmt.PATCH("/settings", handler.HandleRequestWithAll(ctrl.Conference.SaveRebuttalSettings))
+			rebuttalMgmt.POST("/open", handler.HandleRequestWithURI(ctrl.Conference.OpenRebuttal))
+			rebuttalMgmt.POST("/finalize", handler.HandleRequestWithURI(ctrl.Conference.FinalizeRebuttal))
+			rebuttalMgmt.POST("/open-discussion", handler.HandleRequestWithURI(ctrl.Conference.OpenDiscussion))
+		}
+
 		conferenceTemplates := v1.Group("/conference-config-templates")
 		conferenceTemplates.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
@@ -354,6 +368,9 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 				suggestions.POST("/confirm", handler.HandleRequest(ctrl.Assignment.ConfirmSuggestions))
 				suggestions.DELETE("/:assignment_id", handler.HandleNoRequestWithMessage("suggestion deleted successfully", ctrl.Assignment.DeleteSuggestion))
 			}
+
+			// Post-rebuttal score route (reviewer)
+			assignments.PUT("/:assignment_id/post-rebuttal-score", handler.HandleRequestWithAll(ctrl.Reviewer.UpdatePostRebuttalScore))
 
 			// Confirmed assignments route (chair only)
 			assignments.GET("/confirmed", handler.HandleNoRequest(ctrl.Assignment.GetConfirmedAssignments))

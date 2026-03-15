@@ -25,6 +25,7 @@ export interface ReviewerInfo {
   id: string
   anonymousId: string // e.g., "Reviewer #2"
   isCurrentUser: boolean
+  rebuttalStatus?: string // "none" | "submitted" | "acknowledged"
   scores: {
     original: number
     current: number
@@ -83,6 +84,8 @@ export interface RebuttalSettings {
   deadline: string
   daysRemaining: number
   characterLimitPerReview: number
+  charLimitGeneral: number
+  charLimitPerPoint: number
   allowRevisions: boolean
   allowNewResults: boolean
   requireResponseToAll: boolean

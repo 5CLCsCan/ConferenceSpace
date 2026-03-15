@@ -46,8 +46,8 @@ function getTabButtons(container: HTMLElement) {
   return tabBar ? tabBar.querySelectorAll("button") : []
 }
 
-const TOTAL_TABS = 8 // dashboard, overview, cfp, dates, committee, submissions, assignments, coi
-const CHAIR_ONLY_TAB_COUNT = 1 // coi
+const TOTAL_TABS = 9 // dashboard, overview, cfp, dates, committee, submissions, assignments, coi, rebuttal
+const CHAIR_ONLY_TAB_COUNT = 2 // coi, rebuttal
 
 describe("ConferenceDetailHeader — tab visibility by role", () => {
   it("shows all tabs (including COI) for chair role", () => {

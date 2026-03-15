@@ -207,7 +207,7 @@ func (s *Storage) GetThreadsForAuthor(ctx context.Context, authorEmail string, s
 			FROM discussion_messages
 			GROUP BY thread_id
 		) m ON t.id = m.thread_id
-		WHERE t.submission_id = $1 AND s.author = $2 AND t.visibility = 'authors'
+		WHERE t.submission_id = $1 AND s.author = $2
 		ORDER BY t.created_at DESC
 	`
 
