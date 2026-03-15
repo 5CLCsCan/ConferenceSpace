@@ -37,6 +37,13 @@ type StorageInterface interface {
 	RemoveBookmark(ctx context.Context, userEmail string, conferenceID int64) error
 	IsBookmarked(ctx context.Context, userEmail string, conferenceID int64) (bool, error)
 	GetStats(ctx context.Context, conferenceID int64) (*dto.ConferenceStatsResponse, error)
+	GetRebuttalSettings(ctx context.Context, conferenceID int64) (*dto.ConferenceRebuttalConfig, error)
+	SaveRebuttalSettings(ctx context.Context, conferenceID int64, req *dto.SaveRebuttalConfigRequest) (*dto.ConferenceRebuttalConfig, error)
+	OpenRebuttal(ctx context.Context, conferenceID int64) error
+	FinalizeRebuttal(ctx context.Context, conferenceID int64) error
+	OpenDiscussion(ctx context.Context, conferenceID int64) error
+	GetRebuttalOverview(ctx context.Context, conferenceID int64) (*dto.RebuttalOverviewResponse, error)
+	GetOverdueRebuttalConferences(ctx context.Context) ([]int64, error)
 }
 
 type Storage struct {

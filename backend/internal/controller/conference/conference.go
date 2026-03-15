@@ -13,15 +13,17 @@ import (
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
 	conferencetemplate "github.com/dcao/conferencespace/internal/storage/conference_template"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
+	notificationService "github.com/dcao/conferencespace/internal/service/notification"
 	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
 type Controller struct {
-	conferenceStorage conferenceStorage.StorageInterface
-	templateStorage   conferencetemplate.StorageInterface
-	roleStorage       conferenceuserrole.StorageInterface
-	assignmentService *assignment.Service
+	conferenceStorage   conferenceStorage.StorageInterface
+	templateStorage     conferencetemplate.StorageInterface
+	roleStorage         conferenceuserrole.StorageInterface
+	assignmentService   *assignment.Service
+	notificationService *notificationService.Service
 }
 
 func New(store *storage.Storage, assignmentSvc *assignment.Service) *Controller {
@@ -30,6 +32,17 @@ func New(store *storage.Storage, assignmentSvc *assignment.Service) *Controller 
 		templateStorage:   store.ConferenceTemplate,
 		roleStorage:       store.ConferenceUserRole,
 		assignmentService: assignmentSvc,
+	}
+}
+
+// NewWithNotifications creates a controller with notification support.
+func NewWithNotifications(store *storage.Storage, assignmentSvc *assignment.Service, notifSvc *notificationService.Service) *Controller {
+	return &Controller{
+		conferenceStorage:   store.Conference,
+		templateStorage:     store.ConferenceTemplate,
+		roleStorage:         store.ConferenceUserRole,
+		assignmentService:   assignmentSvc,
+		notificationService: notifSvc,
 	}
 }
 

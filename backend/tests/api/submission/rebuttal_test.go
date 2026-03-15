@@ -117,6 +117,15 @@ func setupRebuttalScenario(t *testing.T, ctx *testutils.TestContext) (
 	}
 	assignmentID = papersData.Data.Papers[0].AssignmentID
 
+	// Open rebuttal period so tests can submit rebuttals
+	openResp, err := ctx.MakeRequest("POST",
+		fmt.Sprintf("/api/v1/conferences/%d/rebuttal/open", conferenceID),
+		nil, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to open rebuttal: %v", err)
+	}
+	testutils.AssertStatusCode(t, openResp, http.StatusOK)
+
 	return
 }
 
@@ -662,5 +671,124 @@ func TestAcknowledgePoint_PointNotFound(t *testing.T) {
 	}
 	if ackResp.StatusCode != http.StatusInternalServerError {
 		t.Fatalf("Expected 500 for point not found, got %d", ackResp.StatusCode)
+	}
+}
+
+// TestSubmitRebuttal_BlockedWhenNotAwaiting verifies that submitting a rebuttal
+// when the conference rebuttal phase is not 'awaiting' returns 400.
+func TestSubmitRebuttal_BlockedWhenNotAwaiting(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	chairToken, chair, _ := ctx.RegisterUniqueUser("chair", "password123", "Chair", "User", []string{"AI"})
+	authorToken, author, _ := ctx.RegisterUniqueUser("author", "password123", "Author", "User", []string{"AI"})
+
+	conferenceClient := conferenceTestClient.NewClient(ctx)
+	conf := &dto.Conference{
+		Title:   "Phase Guard Test",
+		Acronym: testutils.UniqueString("PGT"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI"},
+	}
+	createdConf, err := conferenceClient.CreateSuccess(conf, chairToken)
+	if err != nil {
+		t.Fatalf("create conference: %v", err)
+	}
+	conferenceID := createdConf.ID
+
+	submissionClient := NewClient(ctx)
+	sub, err := submissionClient.CreateSuccess(conferenceID, &dto.Submission{
+		ConferenceID: conferenceID,
+		Author:       author.Email,
+		Title:        "Phase Guard Paper",
+		Abstract:     "Testing phase guard for rebuttal submission",
+		Domain:       []string{"AI"},
+		Status:       dto.StatusDraft,
+	}, authorToken)
+	if err != nil {
+		t.Fatalf("create submission: %v", err)
+	}
+
+	// Rebuttal phase is 'not_started' — submit should be rejected
+	resp, err := ctx.MakeRequest("PUT",
+		fmt.Sprintf("/api/v1/conferences/%d/submissions/%d/rebuttal", conferenceID, sub.ID),
+		map[string]interface{}{"general_response": "hello", "points": []interface{}{}},
+		authorToken)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Errorf("expected 400 when rebuttal not open, got %d", resp.StatusCode)
+	}
+}
+
+// TestSubmitRebuttal_BlockedWhenExceedsCharLimit verifies that exceeding the
+// configured character limit returns 400.
+func TestSubmitRebuttal_BlockedWhenExceedsCharLimit(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	chairToken, authorToken, _, conferenceID, submissionID, _ := setupRebuttalScenario(t, ctx)
+
+	// Lower the char limit (rebuttal is already open from setupRebuttalScenario)
+	_, err := ctx.MakeRequest("PATCH",
+		fmt.Sprintf("/api/v1/conferences/%d/rebuttal/settings", conferenceID),
+		map[string]interface{}{
+			"enabled":              true,
+			"char_limit_general":   10,
+			"char_limit_per_point": 1000,
+		}, chairToken)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := ctx.MakeRequest("PUT",
+		fmt.Sprintf("/api/v1/conferences/%d/submissions/%d/rebuttal", conferenceID, submissionID),
+		map[string]interface{}{
+			"general_response": "this response is way too long and exceeds the 10 char limit",
+			"points":           []interface{}{},
+		}, authorToken)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Errorf("expected 400 for char limit exceeded, got %d", resp.StatusCode)
+	}
+}
+
+// TestAcknowledgeRebuttal_BlockedWhenFinalized verifies that acknowledging after
+// finalization returns 400.
+func TestAcknowledgeRebuttal_BlockedWhenFinalized(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	chairToken, authorToken, reviewerToken, conferenceID, submissionID, assignmentID := setupRebuttalScenario(t, ctx)
+
+	// Author submits rebuttal
+	submitResp, err := ctx.MakeRequest("PUT",
+		fmt.Sprintf("/api/v1/conferences/%d/submissions/%d/rebuttal", conferenceID, submissionID),
+		map[string]interface{}{"general_response": "My response.", "points": []interface{}{}},
+		authorToken)
+	if err != nil || submitResp.StatusCode != http.StatusOK {
+		t.Fatalf("submit rebuttal failed: status=%d err=%v", submitResp.StatusCode, err)
+	}
+
+	// Chair finalizes
+	finalResp, err := ctx.MakeRequest("POST",
+		fmt.Sprintf("/api/v1/conferences/%d/rebuttal/finalize", conferenceID),
+		nil, chairToken)
+	if err != nil || finalResp.StatusCode != http.StatusOK {
+		t.Fatalf("finalize failed: status=%d err=%v", finalResp.StatusCode, err)
+	}
+
+	// Reviewer tries to acknowledge — should be blocked
+	ackResp, err := ctx.MakeRequest("PUT",
+		fmt.Sprintf("/api/v1/conferences/%d/assignments/%d/rebuttal/acknowledge", conferenceID, assignmentID),
+		nil, reviewerToken)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ackResp.StatusCode != http.StatusBadRequest {
+		t.Errorf("expected 400 after finalization, got %d", ackResp.StatusCode)
 	}
 }

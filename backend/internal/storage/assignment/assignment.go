@@ -32,6 +32,7 @@ type StorageInterface interface {
 	DeleteSuggestion(ctx context.Context, assignmentID int64) error
 	DeleteSuggestionsByConference(ctx context.Context, conferenceID int64) error
 	AcknowledgeRebuttal(ctx context.Context, assignmentID int64) (*dto.Assignment, error)
+	UpdatePostRebuttalScore(ctx context.Context, assignmentID int64, req *dto.PostRebuttalScoreRequest) error
 }
 
 type ListParams struct {
@@ -166,7 +167,9 @@ func (s *Storage) BatchCreate(ctx context.Context, conferenceID int64, assignmen
 func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Assignment, error) {
 	query, args, err := s.qb.
 		Select("id", "conference_id", "submission_id", "reviewer_id", "score", "status", "assigned_at", "completed_at",
-			"review_status", "review_score", "review_data", "review_submitted_at", "created_at", "updated_at").
+			"review_status", "review_score", "review_data", "review_submitted_at",
+			"post_rebuttal_score", "post_rebuttal_recommendation", "post_rebuttal_comment", "post_rebuttal_updated_at",
+			"created_at", "updated_at").
 		From(model.AssignmentTableName).
 		Where(sq.Eq{"id": id}).
 		ToSql()
@@ -189,6 +192,10 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Assignment, error
 		&result.ReviewScore,
 		&result.ReviewData,
 		&result.ReviewSubmittedAt,
+		&result.PostRebuttalScore,
+		&result.PostRebuttalRecommendation,
+		&result.PostRebuttalComment,
+		&result.PostRebuttalUpdatedAt,
 		&result.CreatedAt,
 		&result.UpdatedAt,
 	)

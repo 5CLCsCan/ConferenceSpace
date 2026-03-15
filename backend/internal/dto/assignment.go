@@ -16,9 +16,13 @@ type Assignment struct {
 	ReviewScore            *float64    `json:"review_score,omitempty"`
 	ReviewData             *ReviewData `json:"review_data,omitempty"`
 	ReviewSubmittedAt      *time.Time  `json:"review_submitted_at,omitempty"`
-	RebuttalStatus         string      `json:"rebuttal_status,omitempty"`
-	RebuttalSubmittedAt    *time.Time  `json:"rebuttal_submitted_at,omitempty"`
-	RebuttalAcknowledgedAt *time.Time  `json:"rebuttal_acknowledged_at,omitempty"`
+	RebuttalStatus              string     `json:"rebuttal_status,omitempty"`
+	RebuttalSubmittedAt         *time.Time `json:"rebuttal_submitted_at,omitempty"`
+	RebuttalAcknowledgedAt      *time.Time `json:"rebuttal_acknowledged_at,omitempty"`
+	PostRebuttalScore           *int       `json:"post_rebuttal_score,omitempty"`
+	PostRebuttalRecommendation  *string    `json:"post_rebuttal_recommendation,omitempty"`
+	PostRebuttalComment         *string    `json:"post_rebuttal_comment,omitempty"`
+	PostRebuttalUpdatedAt       *time.Time `json:"post_rebuttal_updated_at,omitempty"`
 	CreatedAt              time.Time   `json:"created_at,omitempty"`
 	UpdatedAt              time.Time   `json:"updated_at,omitempty"`
 	ReviewerEmail          string      `json:"reviewer_email,omitempty"`
@@ -313,12 +317,22 @@ type GetRebuttalRequest struct {
 	SubmissionID int64 `uri:"submission_id" json:"submission_id"`
 }
 
+// RebuttalAssignmentStatus carries per-assignment rebuttal acknowledgment info.
+type RebuttalAssignmentStatus struct {
+	AssignmentID   int64  `json:"assignment_id"`
+	RebuttalStatus string `json:"rebuttal_status"` // none | submitted | acknowledged
+}
+
 // GetRebuttalResponse is the full rebuttal state returned by GET .../rebuttal
 type GetRebuttalResponse struct {
-	Phase           string             `json:"phase"`
-	GeneralResponse string             `json:"general_response"`
-	SubmittedAt     *time.Time         `json:"submitted_at,omitempty"`
-	Points          []RebuttalPointDTO `json:"points"`
+	Phase              string                     `json:"phase"`
+	GeneralResponse    string                     `json:"general_response"`
+	SubmittedAt        *time.Time                 `json:"submitted_at,omitempty"`
+	Points             []RebuttalPointDTO         `json:"points"`
+	Assignments        []RebuttalAssignmentStatus `json:"assignments"`
+	CharLimitGeneral   int                        `json:"char_limit_general"`
+	CharLimitPerPoint  int                        `json:"char_limit_per_point"`
+	Deadline           *time.Time                 `json:"deadline,omitempty"`
 }
 
 // AcknowledgePointRequest is URI + body for PUT .../rebuttal/points/:point_id/acknowledge
@@ -328,4 +342,13 @@ type AcknowledgePointRequest struct {
 	PointID      string `uri:"point_id" json:"point_id"`
 	Status       string `json:"status" binding:"required,oneof=addressed partially_addressed not_addressed pending_review"`
 	Note         string `json:"note"`
+}
+
+// PostRebuttalScoreRequest is the body for PUT .../assignments/:id/post-rebuttal-score
+type PostRebuttalScoreRequest struct {
+	ConferenceID   int64  `uri:"conference_id"`
+	AssignmentID   int64  `uri:"assignment_id"`
+	Score          int    `json:"score" binding:"required,min=1,max=10"`
+	Recommendation string `json:"recommendation" binding:"required,oneof=accept reject borderline"`
+	Comment        string `json:"comment"`
 }
