@@ -296,7 +296,7 @@ func (c *Controller) GetReview(ginCtx *gin.Context, req *dto.ReviewGetRequest) (
 
 	// CRITICAL: Verify user is the assigned reviewer
 	if reviewer.Email != userEmail {
-		// return nil, handler.NewErrorResponse(http.StatusForbidden, "you are not authorized to view this review")
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "you are not authorized to view this review")
 	}
 
 	return assignment, nil

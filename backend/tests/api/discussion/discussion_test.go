@@ -1,8 +1,12 @@
 package discussion
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"testing"
 
 	"github.com/dcao/conferencespace/internal/dto"
@@ -477,4 +481,94 @@ func TestDiscussionPhaseRestriction(t *testing.T) {
 
 	// Keep variables used to avoid lint errors
 	_ = authorToken
+}
+
+// TestCreateThread_NonReviewerForbidden_Standalone is a standalone top-level test
+// that verifies an author cannot create a discussion thread.
+// Note: the existing TestCreateThread sub-test already covers this case; this
+// function ensures it's also visible as a named top-level test.
+func TestCreateThread_NonReviewerForbidden_Standalone(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	conferenceID, submissionID, _, _, authorToken, _, _, _ := setupReviewingConference(t, ctx)
+
+	resp, err := ctx.MakeRequest("POST",
+		fmt.Sprintf("/api/v1/conferences/%d/submissions/%d/threads", conferenceID, submissionID),
+		map[string]interface{}{"title": "My Thread", "content": "Hello"},
+		authorToken,
+	)
+	if err != nil {
+		t.Fatalf("Request failed: %v", err)
+	}
+	if resp.StatusCode != http.StatusForbidden {
+		t.Fatalf("Expected 403, got %d", resp.StatusCode)
+	}
+}
+
+// TestAddMessage_LargeAttachment verifies that posting a message with an
+// attachment exceeding the server's size limit is rejected.
+// The server enforces a 20 MB limit. If the limit is not enforced at the HTTP
+// layer this test logs the actual status code for documentation purposes.
+func TestAddMessage_LargeAttachment(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	conferenceID, submissionID, _, reviewerToken, _, _, reviewerEmail, _ := setupReviewingConference(t, ctx)
+
+	// First, create a thread as the reviewer.
+	createResp, err := ctx.MakeRequest("POST",
+		fmt.Sprintf("/api/v1/conferences/%d/submissions/%d/threads", conferenceID, submissionID),
+		map[string]interface{}{"title": "Large Attach Thread", "content": "Thread body"},
+		reviewerToken,
+	)
+	if err != nil {
+		t.Fatalf("Create thread failed: %v", err)
+	}
+	if createResp.StatusCode != http.StatusCreated && createResp.StatusCode != http.StatusOK {
+		t.Fatalf("Expected 200/201 creating thread, got %d", createResp.StatusCode)
+	}
+	var threadData struct {
+		Data struct {
+			ID int64 `json:"id"`
+		} `json:"data"`
+	}
+	testutils.DecodeResponse(t, createResp, &threadData)
+	threadID := threadData.Data.ID
+
+	_ = reviewerEmail
+
+	// Build a >20 MB multipart body.
+	largeContent := make([]byte, 21*1024*1024) // 21 MB
+	for i := range largeContent {
+		largeContent[i] = 'A'
+	}
+
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	_ = writer.WriteField("content", "Message with large attachment")
+	h := make(textproto.MIMEHeader)
+	h.Set("Content-Disposition", `form-data; name="attachment"; filename="large.pdf"`)
+	h.Set("Content-Type", "application/pdf")
+	part, _ := writer.CreatePart(h)
+	_, _ = io.Copy(part, bytes.NewReader(largeContent))
+	writer.Close()
+
+	req, _ := http.NewRequest("POST",
+		ctx.BaseURL+fmt.Sprintf("/api/v1/threads/%d/messages", threadID),
+		&body,
+	)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("Authorization", "Bearer "+reviewerToken)
+
+	resp, err := ctx.Client.Do(req)
+	if err != nil {
+		t.Fatalf("Request failed: %v", err)
+	}
+
+	// Document observed behavior. Expect 400 if server enforces the 20 MB limit.
+	t.Logf("Large attachment response status: %d", resp.StatusCode)
+	if resp.StatusCode != http.StatusBadRequest && resp.StatusCode != http.StatusRequestEntityTooLarge {
+		t.Errorf("Expected 400 or 413 for >20 MB attachment, got %d", resp.StatusCode)
+	}
 }
