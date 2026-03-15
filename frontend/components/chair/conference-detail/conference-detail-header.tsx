@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import type { ConferenceInfo, TabId, TabItem } from "./types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { ROUTES } from "@/lib/routes"
@@ -200,53 +199,50 @@ export function ConferenceDetailHeader({
         </div>
       </div>
 
-        {/* Tabs */}
-      <div className="border-t border-slate-100 dark:border-slate-800">
-        <ScrollArea className="w-full">
-          <div className="flex min-w-max space-x-6 px-8 pb-1">
-            {visibleTabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => onTabChange(tab.id)}
-                className={cn(
-                  "py-3 border-b-2 font-medium text-[11px] tracking-wider transition-colors flex items-center gap-1.5",
-                  activeTab === tab.id
-                    ? "border-[#1B3C53] text-[#1B3C53] dark:border-white dark:text-white"
-                    : "border-transparent text-slate-400 hover:text-[#1B3C53] dark:hover:text-white",
-                )}
+      {/* Tabs */}
+      <div className="px-8 border-t border-slate-100 dark:border-slate-800 overflow-x-auto">
+        <div className="flex space-x-6 min-w-max">
+          {visibleTabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className={cn(
+                "py-3 border-b-2 font-medium text-[11px] tracking-wider transition-colors flex items-center gap-1.5",
+                activeTab === tab.id
+                  ? "border-[#1B3C53] text-[#1B3C53] dark:border-white dark:text-white"
+                  : "border-transparent text-slate-400 hover:text-[#1B3C53] dark:hover:text-white",
+              )}
+            >
+              <span
+                className="material-symbols-outlined"
+                style={{
+                  fontSize: "17.5px",
+                  width: "17.5px",
+                  height: "17.5px",
+                  maxWidth: "17.5px",
+                  maxHeight: "17.5px",
+                  minWidth: "17.5px",
+                  minHeight: "17.5px",
+                  lineHeight: "1",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  transform: "none",
+                  boxSizing: "border-box",
+                }}
               >
-                <span
-                  className="material-symbols-outlined"
-                  style={{
-                    fontSize: "17.5px",
-                    width: "17.5px",
-                    height: "17.5px",
-                    maxWidth: "17.5px",
-                    maxHeight: "17.5px",
-                    minWidth: "17.5px",
-                    minHeight: "17.5px",
-                    lineHeight: "1",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                    transform: "none",
-                    boxSizing: "border-box",
-                  }}
-                >
-                  {tab.icon}
+                {tab.icon}
+              </span>
+              {tab.label}
+              {tab.badge && (
+                <span className="bg-slate-100 text-slate-500 text-[9px] py-0.5 px-1.5 rounded-full ml-0.5 font-bold">
+                  {tab.badge.toLocaleString()}
                 </span>
-                {tab.label}
-                {tab.badge && (
-                  <span className="bg-slate-100 text-slate-500 text-[9px] py-0.5 px-1.5 rounded-full ml-0.5 font-bold">
-                    {tab.badge.toLocaleString()}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
     </header>
   )
