@@ -7,6 +7,7 @@ from sqlalchemy import (
     BIGINT,
     DateTime,
     CheckConstraint,
+    Float,
     ForeignKey,
     Index,
     Integer,
@@ -14,6 +15,7 @@ from sqlalchemy import (
     UniqueConstraint,
     VARCHAR,
     func,
+    text,
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -113,4 +115,57 @@ class AiToolAudit(Base):
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     trace_id: Mapped[str] = mapped_column(UUID(as_uuid=False), nullable=False)
     source: Mapped[str] = mapped_column(VARCHAR(16), nullable=False, default="client")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class GatingRun(Base):
+    __tablename__ = "gating_runs"
+    __table_args__ = (
+        CheckConstraint("mode IN ('advisory', 'gate')", name="ck_gating_runs_mode"),
+        CheckConstraint("verdict IN ('pass', 'warn', 'block', 'error')", name="ck_gating_runs_verdict"),
+        Index("idx_gating_runs_conference_created_at", "conference_id", "created_at"),
+        Index(
+            "idx_gating_runs_submission_id",
+            "submission_id",
+            postgresql_where=text("submission_id IS NOT NULL"),
+        ),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    conference_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    submission_id: Mapped[int | None] = mapped_column(BIGINT, nullable=True)
+    actor_id: Mapped[str] = mapped_column(Text, nullable=False)
+    mode: Mapped[str] = mapped_column(VARCHAR(16), nullable=False)
+    source: Mapped[str] = mapped_column(Text, nullable=False)
+    verdict: Mapped[str] = mapped_column(VARCHAR(16), nullable=False)
+    decision: Mapped[str | None] = mapped_column(Text, nullable=True)
+    score: Mapped[float | None] = mapped_column(Float, nullable=True)
+    policy_hash: Mapped[str] = mapped_column(Text, nullable=False)
+    input_fingerprint: Mapped[str] = mapped_column(Text, nullable=False)
+    error_detail: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class GatingStageRecord(Base):
+    __tablename__ = "gating_stage_records"
+    __table_args__ = (
+        CheckConstraint("status IN ('ok', 'skipped', 'blocked', 'failed')", name="ck_gating_stage_records_status"),
+        Index("idx_gating_stage_records_run_id", "run_id"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    run_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False),
+        ForeignKey(f"{SCHEMA}.gating_runs.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    stage_name: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(VARCHAR(16), nullable=False)
+    input_hash: Mapped[str | None] = mapped_column(Text, nullable=True)
+    output_hash: Mapped[str | None] = mapped_column(Text, nullable=True)
+    duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    detail: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
