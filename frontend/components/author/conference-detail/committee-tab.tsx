@@ -45,7 +45,11 @@ function MemberCard({
   const handleOpenProfile = (e: React.MouseEvent) => {
     e.stopPropagation()
     e.preventDefault()
-    window.open(`https://scholar.google.com/scholar?q=${encodeURIComponent(member.name)}`, "_blank", "noopener,noreferrer")
+    window.open(
+      `https://scholar.google.com/scholar?q=${encodeURIComponent(member.name)}`,
+      "_blank",
+      "noopener,noreferrer",
+    )
   }
   if (variant === "featured") {
     return (
@@ -152,10 +156,9 @@ export function CommitteeTab({ conference }: TabProps) {
       setLoading(true)
 
       // Fetch reviewers and chair user info in parallel
-      const emailsToFetch = [
-        conference.chair,
-        ...(conference.co_chairs ?? []),
-      ].filter(Boolean) as string[]
+      const emailsToFetch = [conference.chair, ...(conference.co_chairs ?? [])].filter(
+        Boolean,
+      ) as string[]
 
       const [reviewersRes, ...userResults] = await Promise.all([
         getConferenceReviewers(conference.id, { status: "accepted", limit: 100 }),

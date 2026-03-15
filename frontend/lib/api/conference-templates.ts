@@ -47,16 +47,19 @@ export async function createConferenceConfigTemplate(input: {
   payload: ConferenceConfigTemplatePayload
 }): Promise<ApiResponse<ConferenceConfigTemplate>> {
   try {
-    const { data, response } = await apiFetch<{ data: any }>("/api/v1/conference-config-templates", {
-      method: "POST",
-      body: JSON.stringify({
-        template: {
-          name: input.name,
-          description: input.description || "",
-          payload: input.payload,
-        },
-      }),
-    })
+    const { data, response } = await apiFetch<{ data: any }>(
+      "/api/v1/conference-config-templates",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          template: {
+            name: input.name,
+            description: input.description || "",
+            payload: input.payload,
+          },
+        }),
+      },
+    )
 
     return {
       data: mapTemplate(data.data),

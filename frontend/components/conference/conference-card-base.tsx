@@ -12,6 +12,8 @@ interface ConferenceCardBaseProps {
   className?: string
   /** Click handler for the card */
   onClick?: () => void
+  /** Optional action menu */
+  moreMenu?: ReactNode
 }
 
 /**
@@ -24,6 +26,7 @@ export function ConferenceCardBase({
   footer,
   className = "",
   onClick,
+  moreMenu,
 }: ConferenceCardBaseProps) {
   const isCompleted = conference.status === "completed"
 
@@ -37,12 +40,7 @@ export function ConferenceCardBase({
         {/* Header */}
         <div className="flex justify-between items-start mb-1.5">
           <StatusBadge status={conference.status} />
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="text-slate-300 hover:text-[#1B3C53] dark:hover:text-white transition-colors"
-          >
-            <span className="material-symbols-outlined text-[14px]">more_horiz</span>
-          </button>
+          {moreMenu}
         </div>
 
         {/* Title */}

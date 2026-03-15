@@ -112,12 +112,12 @@ interface AuthContextType {
 
 ### Impact
 
-| Surface | Issue |
-|---|---|
-| Auto-Assign button | Visible to all roles if they land on a chair conference page |
-| COI Dashboard tab | Always rendered regardless of user role |
-| Direct URL access `/role/chair/conferences/:id` | Fully accessible to any authenticated user |
-| Other chair-only tabs (Assignments, Submissions management) | Same exposure — all tabs are always shown |
+| Surface                                                     | Issue                                                        |
+| ----------------------------------------------------------- | ------------------------------------------------------------ |
+| Auto-Assign button                                          | Visible to all roles if they land on a chair conference page |
+| COI Dashboard tab                                           | Always rendered regardless of user role                      |
+| Direct URL access `/role/chair/conferences/:id`             | Fully accessible to any authenticated user                   |
+| Other chair-only tabs (Assignments, Submissions management) | Same exposure — all tabs are always shown                    |
 
 ---
 
@@ -263,24 +263,24 @@ Submit button is ALWAYS enabled (as long as status === "open")
 
 ### Impact
 
-| Scenario | Expected | Actual |
-|---|---|---|
-| Deadline passed, status still "open" | Button disabled + warning shown | Button enabled, no warning |
-| Deadline passed, status changed to "reviewing" | Button disabled (correct, but for wrong reason) | Button disabled only because status ≠ "open" |
-| User tries to submit after deadline | Rejected by backend with error | Allowed to attempt; gets backend error message |
-| User awareness of deadline | Should see clear warning proactively | No indication until submit fails |
+| Scenario                                       | Expected                                        | Actual                                         |
+| ---------------------------------------------- | ----------------------------------------------- | ---------------------------------------------- |
+| Deadline passed, status still "open"           | Button disabled + warning shown                 | Button enabled, no warning                     |
+| Deadline passed, status changed to "reviewing" | Button disabled (correct, but for wrong reason) | Button disabled only because status ≠ "open"   |
+| User tries to submit after deadline            | Rejected by backend with error                  | Allowed to attempt; gets backend error message |
+| User awareness of deadline                     | Should see clear warning proactively            | No indication until submit fails               |
 
 ---
 
 ## Summary Table
 
-| Issue | Root File(s) | Root Cause | Infrastructure Available? |
-|---|---|---|---|
-| UI-SEC-01: Auto-assign button visible to all | `chair-actions-panel.tsx` | No `useAuth()` call, no role check | ✅ `useAuth()` and `currentRole` exist |
-| UI-SEC-01: COI tab always shown | `conference-detail-header.tsx` | Static `TABS` array, no role filter, no prop for role | ✅ Can be filtered dynamically |
-| UI-SEC-01: Chair routes not protected | `app/role/chair/.../page.tsx`, no `middleware.ts` | No route guard, no Next.js middleware | ✅ Can add middleware or client-side guard |
-| UI-NEG-02: Submit button not disabled | `paper-submission-form.tsx`, `submission-action-bar.tsx` | `isNewSubmissionBlocked` only checks `status`, not deadline date | ✅ Deadline fields exist in `Conference` type |
-| UI-NEG-02: No deadline warning shown | `paper-submission-form.tsx` | No warning UI implemented at all | ✅ Conference deadline fields available |
+| Issue                                        | Root File(s)                                             | Root Cause                                                       | Infrastructure Available?                     |
+| -------------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------- | --------------------------------------------- |
+| UI-SEC-01: Auto-assign button visible to all | `chair-actions-panel.tsx`                                | No `useAuth()` call, no role check                               | ✅ `useAuth()` and `currentRole` exist        |
+| UI-SEC-01: COI tab always shown              | `conference-detail-header.tsx`                           | Static `TABS` array, no role filter, no prop for role            | ✅ Can be filtered dynamically                |
+| UI-SEC-01: Chair routes not protected        | `app/role/chair/.../page.tsx`, no `middleware.ts`        | No route guard, no Next.js middleware                            | ✅ Can add middleware or client-side guard    |
+| UI-NEG-02: Submit button not disabled        | `paper-submission-form.tsx`, `submission-action-bar.tsx` | `isNewSubmissionBlocked` only checks `status`, not deadline date | ✅ Deadline fields exist in `Conference` type |
+| UI-NEG-02: No deadline warning shown         | `paper-submission-form.tsx`                              | No warning UI implemented at all                                 | ✅ Conference deadline fields available       |
 
 ---
 

@@ -128,7 +128,8 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
           {myUnackedPoints.length > 0 && (
             <div className="flex items-center justify-between">
               <span className="text-xs text-slate-500 dark:text-slate-400">
-                {myUnackedPoints.length} point{myUnackedPoints.length !== 1 ? "s" : ""} unacknowledged
+                {myUnackedPoints.length} point{myUnackedPoints.length !== 1 ? "s" : ""}{" "}
+                unacknowledged
               </span>
               <button
                 onClick={handleMarkAllRead}

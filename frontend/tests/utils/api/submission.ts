@@ -1,52 +1,52 @@
-import { APIRequestContext } from '@playwright/test';
-import { faker } from '@faker-js/faker';
-import * as fs from 'fs';
+import { APIRequestContext } from "@playwright/test"
+import { faker } from "@faker-js/faker"
+import * as fs from "fs"
 
-const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8080/api/v1';
+const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:8080/api/v1"
 
 export interface SubmissionInformation {
-  co_authors?: string[];
-  keywords?: string[];
-  paper_type?: string;
-  track_name?: string;
-  additional_notes?: string;
+  co_authors?: string[]
+  keywords?: string[]
+  paper_type?: string
+  track_name?: string
+  additional_notes?: string
   metadata?: {
-    language?: string;
-    page_count?: number;
-  };
+    language?: string
+    page_count?: number
+  }
 }
 
 export interface SubmissionData {
-  title: string;
-  abstract: string;
-  link?: string;
-  domain: string[];
-  status: 'draft' | 'published';
-  information?: SubmissionInformation;
+  title: string
+  abstract: string
+  link?: string
+  domain: string[]
+  status: "draft" | "published"
+  information?: SubmissionInformation
 }
 
 export interface FileMetadata {
-  filename: string;
-  original_name: string;
-  size: number;
-  mime_type: string;
-  path: string;
+  filename: string
+  original_name: string
+  size: number
+  mime_type: string
+  path: string
 }
 
 export interface Submission {
-  id: number;
-  conference_id: number;
-  author: string;
-  title: string;
-  abstract: string;
-  link?: string;
-  domain: string[];
-  status: string;
-  information?: SubmissionInformation;
-  file?: FileMetadata;
-  cover_letter?: FileMetadata;
-  created_at: string;
-  updated_at: string;
+  id: number
+  conference_id: number
+  author: string
+  title: string
+  abstract: string
+  link?: string
+  domain: string[]
+  status: string
+  information?: SubmissionInformation
+  file?: FileMetadata
+  cover_letter?: FileMetadata
+  created_at: string
+  updated_at: string
 }
 
 /**
@@ -63,55 +63,50 @@ export async function createSubmission(
   token: string,
   conferenceId: number,
   submissionData: SubmissionData,
-  filePath?: string
+  filePath?: string,
 ): Promise<Submission> {
   // Prepare multipart form data
   // Wrap in { submission: ... } to match backend DTO structure (same as frontend lib/api/papers.ts)
   const formData: Record<string, any> = {
     submission: JSON.stringify({ submission: submissionData }),
-  };
+  }
 
   // Add file if provided
   if (filePath) {
     formData.file = {
-      name: filePath.split('/').pop() || filePath.split('\\').pop() || 'paper.pdf',
-      mimeType: 'application/pdf',
+      name: filePath.split("/").pop() || filePath.split("\\").pop() || "paper.pdf",
+      mimeType: "application/pdf",
       buffer: fs.readFileSync(filePath),
-    };
+    }
   }
 
-  console.log('Creating submission:', {
+  console.log("Creating submission:", {
     conferenceId,
     title: submissionData.title,
     status: submissionData.status,
     hasFile: !!filePath,
-  });
+  })
 
-  const response = await request.post(
-    `${API_BASE_URL}/conferences/${conferenceId}/submissions`,
-    {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      multipart: formData,
-    }
-  );
+  const response = await request.post(`${API_BASE_URL}/conferences/${conferenceId}/submissions`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    multipart: formData,
+  })
 
   if (!response.ok()) {
-    const errorBody = await response.text();
-    console.error('Submission creation failed:', {
+    const errorBody = await response.text()
+    console.error("Submission creation failed:", {
       status: response.status(),
       statusText: response.statusText(),
       body: errorBody,
       url: response.url(),
-    });
-    throw new Error(
-      `Failed to create submission: ${response.status()} - ${errorBody}`
-    );
+    })
+    throw new Error(`Failed to create submission: ${response.status()} - ${errorBody}`)
   }
 
-  const responseData = await response.json();
-  return responseData.data;
+  const responseData = await response.json()
+  return responseData.data
 }
 
 /**
@@ -126,26 +121,24 @@ export async function getSubmission(
   request: APIRequestContext,
   token: string,
   conferenceId: number,
-  submissionId: number
+  submissionId: number,
 ): Promise<Submission> {
   const response = await request.get(
     `${API_BASE_URL}/conferences/${conferenceId}/submissions/${submissionId}`,
     {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
-    }
-  );
+    },
+  )
 
   if (!response.ok()) {
-    const errorBody = await response.text();
-    throw new Error(
-      `Failed to get submission ${submissionId}: ${response.status()} - ${errorBody}`
-    );
+    const errorBody = await response.text()
+    throw new Error(`Failed to get submission ${submissionId}: ${response.status()} - ${errorBody}`)
   }
 
-  const responseData = await response.json();
-  return responseData.data;
+  const responseData = await response.json()
+  return responseData.data
 }
 
 /**
@@ -161,44 +154,42 @@ export async function listSubmissions(
   token: string,
   conferenceId: number,
   filters?: {
-    author?: string;
-    status?: string;
-    title?: string;
-    track?: string;
-    limit?: number;
-    offset?: number;
-  }
+    author?: string
+    status?: string
+    title?: string
+    track?: string
+    limit?: number
+    offset?: number
+  },
 ): Promise<{ submissions: Submission[]; total: number }> {
-  const params = new URLSearchParams();
-  if (filters?.author) params.append('author', filters.author);
-  if (filters?.status) params.append('status', filters.status);
-  if (filters?.title) params.append('title', filters.title);
-  if (filters?.track) params.append('track', filters.track);
-  if (filters?.limit) params.append('limit', filters.limit.toString());
-  if (filters?.offset) params.append('offset', filters.offset.toString());
+  const params = new URLSearchParams()
+  if (filters?.author) params.append("author", filters.author)
+  if (filters?.status) params.append("status", filters.status)
+  if (filters?.title) params.append("title", filters.title)
+  if (filters?.track) params.append("track", filters.track)
+  if (filters?.limit) params.append("limit", filters.limit.toString())
+  if (filters?.offset) params.append("offset", filters.offset.toString())
 
   const url = `${API_BASE_URL}/conferences/${conferenceId}/submissions${
-    params.toString() ? '?' + params.toString() : ''
-  }`;
+    params.toString() ? "?" + params.toString() : ""
+  }`
 
   const response = await request.get(url, {
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
-  });
+  })
 
   if (!response.ok()) {
-    const errorBody = await response.text();
-    throw new Error(
-      `Failed to list submissions: ${response.status()} - ${errorBody}`
-    );
+    const errorBody = await response.text()
+    throw new Error(`Failed to list submissions: ${response.status()} - ${errorBody}`)
   }
 
-  const responseData = await response.json();
+  const responseData = await response.json()
   return {
     submissions: responseData.data.submissions,
     total: responseData.data.total,
-  };
+  }
 }
 
 /**
@@ -217,40 +208,40 @@ export async function updateSubmission(
   conferenceId: number,
   submissionId: number,
   updates: Partial<SubmissionData>,
-  filePath?: string
+  filePath?: string,
 ): Promise<Submission> {
   // Wrap in { submission: ... } to match backend DTO structure (same as frontend lib/api/papers.ts)
   const formData: Record<string, any> = {
     submission: JSON.stringify({ submission: updates }),
-  };
+  }
 
   if (filePath) {
     formData.file = {
-      name: filePath.split('/').pop() || filePath.split('\\').pop() || 'paper.pdf',
-      mimeType: 'application/pdf',
+      name: filePath.split("/").pop() || filePath.split("\\").pop() || "paper.pdf",
+      mimeType: "application/pdf",
       buffer: fs.readFileSync(filePath),
-    };
+    }
   }
 
   const response = await request.put(
     `${API_BASE_URL}/conferences/${conferenceId}/submissions/${submissionId}`,
     {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       multipart: formData,
-    }
-  );
+    },
+  )
 
   if (!response.ok()) {
-    const errorBody = await response.text();
+    const errorBody = await response.text()
     throw new Error(
-      `Failed to update submission ${submissionId}: ${response.status()} - ${errorBody}`
-    );
+      `Failed to update submission ${submissionId}: ${response.status()} - ${errorBody}`,
+    )
   }
 
-  const responseData = await response.json();
-  return responseData.data;
+  const responseData = await response.json()
+  return responseData.data
 }
 
 /**
@@ -267,37 +258,37 @@ export async function publishSubmission(
   token: string,
   conferenceId: number,
   submissionId: number,
-  filePath?: string
+  filePath?: string,
 ): Promise<Submission> {
-  const formData: Record<string, any> = {};
+  const formData: Record<string, any> = {}
 
   if (filePath) {
     formData.file = {
-      name: filePath.split('/').pop() || filePath.split('\\').pop() || 'paper.pdf',
-      mimeType: 'application/pdf',
+      name: filePath.split("/").pop() || filePath.split("\\").pop() || "paper.pdf",
+      mimeType: "application/pdf",
       buffer: fs.readFileSync(filePath),
-    };
+    }
   }
 
   const response = await request.post(
     `${API_BASE_URL}/conferences/${conferenceId}/submissions/${submissionId}/publish`,
     {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       multipart: Object.keys(formData).length > 0 ? formData : undefined,
-    }
-  );
+    },
+  )
 
   if (!response.ok()) {
-    const errorBody = await response.text();
+    const errorBody = await response.text()
     throw new Error(
-      `Failed to publish submission ${submissionId}: ${response.status()} - ${errorBody}`
-    );
+      `Failed to publish submission ${submissionId}: ${response.status()} - ${errorBody}`,
+    )
   }
 
-  const responseData = await response.json();
-  return responseData.data;
+  const responseData = await response.json()
+  return responseData.data
 }
 
 /**
@@ -311,22 +302,22 @@ export async function deleteSubmission(
   request: APIRequestContext,
   token: string,
   conferenceId: number,
-  submissionId: number
+  submissionId: number,
 ): Promise<void> {
   const response = await request.delete(
     `${API_BASE_URL}/conferences/${conferenceId}/submissions/${submissionId}`,
     {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
-    }
-  );
+    },
+  )
 
   if (!response.ok()) {
-    const errorBody = await response.text();
+    const errorBody = await response.text()
     throw new Error(
-      `Failed to delete submission ${submissionId}: ${response.status()} - ${errorBody}`
-    );
+      `Failed to delete submission ${submissionId}: ${response.status()} - ${errorBody}`,
+    )
   }
 }
 
@@ -339,39 +330,39 @@ export async function deleteSubmission(
  */
 export function generateSubmissionData(
   domain: string[],
-  status: 'draft' | 'published' = 'published',
-  track?: string
+  status: "draft" | "published" = "published",
+  track?: string,
 ): SubmissionData {
   const topics = [
-    'Neural Networks',
-    'Deep Learning',
-    'Machine Learning',
-    'Natural Language Processing',
-    'Computer Vision',
-    'Reinforcement Learning',
-    'Generative AI',
-    'Transfer Learning',
-  ];
+    "Neural Networks",
+    "Deep Learning",
+    "Machine Learning",
+    "Natural Language Processing",
+    "Computer Vision",
+    "Reinforcement Learning",
+    "Generative AI",
+    "Transfer Learning",
+  ]
 
-  const topic = faker.helpers.arrayElement(topics);
+  const topic = faker.helpers.arrayElement(topics)
   const application = faker.helpers.arrayElement([
-    'Classification',
-    'Prediction',
-    'Optimization',
-    'Detection',
-    'Recognition',
-    'Generation',
-    'Analysis',
-  ]);
+    "Classification",
+    "Prediction",
+    "Optimization",
+    "Detection",
+    "Recognition",
+    "Generation",
+    "Analysis",
+  ])
 
-  const title = `${topic} for ${application}: ${faker.lorem.words(3)}`;
-  const abstract = faker.lorem.paragraphs(3);
+  const title = `${topic} for ${application}: ${faker.lorem.words(3)}`
+  const abstract = faker.lorem.paragraphs(3)
 
   const keywords = [
     faker.helpers.arrayElement(topics).toLowerCase(),
-    faker.helpers.arrayElement(['optimization', 'accuracy', 'performance', 'efficiency']),
-    faker.helpers.arrayElement(['algorithm', 'model', 'framework', 'architecture']),
-  ];
+    faker.helpers.arrayElement(["optimization", "accuracy", "performance", "efficiency"]),
+    faker.helpers.arrayElement(["algorithm", "model", "framework", "architecture"]),
+  ]
 
   return {
     title,
@@ -381,13 +372,13 @@ export function generateSubmissionData(
     status,
     information: {
       keywords,
-      paper_type: 'research',
-      track_name: track || faker.helpers.arrayElement(['AI', 'ML', 'NLP', 'CV']),
+      paper_type: "research",
+      track_name: track || faker.helpers.arrayElement(["AI", "ML", "NLP", "CV"]),
       additional_notes: faker.lorem.sentence(),
       metadata: {
-        language: 'en',
+        language: "en",
         page_count: faker.number.int({ min: 6, max: 12 }),
       },
     },
-  };
+  }
 }

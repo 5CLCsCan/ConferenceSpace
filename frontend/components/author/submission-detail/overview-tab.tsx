@@ -322,13 +322,14 @@ export function SubmissionStatusCard({ submission }: { submission: Submission })
     return { submitted: 0, bidding: 1, rebuttal: 2, decision: 3 }[step]
   }
   // Map submission.status to which timeline step is "current" (0-based)
-  const currentStepIndex: number = {
-    draft: 0,
-    published: 1,
-    reviewing: 2,
-    accepted: 3,
-    rejected: 3,
-  }[submission.status] ?? 0
+  const currentStepIndex: number =
+    {
+      draft: 0,
+      published: 1,
+      reviewing: 2,
+      accepted: 3,
+      rejected: 3,
+    }[submission.status] ?? 0
 
   const makeStep = (
     id: "submitted" | "bidding" | "rebuttal" | "decision",
@@ -530,7 +531,9 @@ export function OverviewTab({ submission, conferenceId }: OverviewTabProps) {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in duration-200">
       {/* Main Content (2/3) */}
       <div className="lg:col-span-2 space-y-6">
-        {localSubmission.abstract && <AbstractCard abstract={localSubmission.abstract} keywords={keywords} />}
+        {localSubmission.abstract && (
+          <AbstractCard abstract={localSubmission.abstract} keywords={keywords} />
+        )}
         <SubmissionFilesCard
           submission={localSubmission}
           conferenceId={conferenceId}

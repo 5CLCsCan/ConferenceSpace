@@ -30,6 +30,7 @@ export function ConferenceDetailDashboard({
     daysToSubmissionDeadline: 0,
     hasSubmissionDeadline: false,
   })
+  const [status, setStatus] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     async function loadDashboard() {
@@ -65,13 +66,16 @@ export function ConferenceDetailDashboard({
         const s = statsResponse.data
         setStats({
           totalSubmissions: s?.total_submissions ?? 0,
-          acceptedSubmissions: Math.round(((s?.acceptance_rate ?? 0) / 100) * (s?.total_submissions ?? 0)),
+          acceptedSubmissions: Math.round(
+            ((s?.acceptance_rate ?? 0) / 100) * (s?.total_submissions ?? 0),
+          ),
           reviewCompleted: s?.review_progress.completed ?? 0,
           reviewPending: s?.review_progress.pending ?? 0,
           acceptanceRate: s?.acceptance_rate ?? 0,
           daysToSubmissionDeadline,
           hasSubmissionDeadline,
         })
+        setStatus(conference.status)
       } catch (loadError) {
         setError(
           loadError instanceof Error
@@ -123,7 +127,6 @@ export function ConferenceDetailDashboard({
           "runtime.components.chair.conference-detail.conference-detail-dashboard.text_until_submission_deadline",
         )
 
-
   return (
     <div className={cn("space-y-4", className)}>
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -174,6 +177,7 @@ export function ConferenceDetailDashboard({
         <div className="lg:col-span-1">
           <ChairActionsPanel
             conferenceId={conferenceId}
+            conferenceStatus={status as any}
             onNavigateToAssignments={onNavigateToAssignments}
           />
         </div>

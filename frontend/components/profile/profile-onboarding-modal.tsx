@@ -247,7 +247,9 @@ export function ProfileOnboardingModal({
                                 <Badge variant="secondary" className="rounded-full">
                                   <BookOpen className="mr-1 h-3 w-3" />
                                   {author.paperCount || 0}{" "}
-                                  {t("runtime.components.profile.profile-onboarding-modal.text_papers")}
+                                  {t(
+                                    "runtime.components.profile.profile-onboarding-modal.text_papers",
+                                  )}
                                 </Badge>
                                 <Badge variant="secondary" className="rounded-full">
                                   <ExternalLink className="mr-1 h-3 w-3" />
@@ -366,7 +368,11 @@ export function ProfileOnboardingModal({
                       <div key={paper.paperId} className="rounded-2xl border bg-white p-4">
                         <p className="font-medium">{paper.title}</p>
                         <p className="mt-1 text-sm text-muted-foreground">
-                          {[paper.year, paper.venue, `${paper.citationCount || 0} ${t("runtime.components.profile.profile-onboarding-modal.text_citations").toLowerCase()}`]
+                          {[
+                            paper.year,
+                            paper.venue,
+                            `${paper.citationCount || 0} ${t("runtime.components.profile.profile-onboarding-modal.text_citations").toLowerCase()}`,
+                          ]
                             .filter(Boolean)
                             .join(" • ")}
                         </p>

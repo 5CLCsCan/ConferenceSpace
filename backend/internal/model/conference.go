@@ -36,9 +36,11 @@ const (
 
 // Conference status constants
 const (
+	ConferenceStatusDraft     = "draft"     // Draft, not visible to authors/reviewers
 	ConferenceStatusOpen      = "open"      // Accepting submissions
 	ConferenceStatusReviewing = "reviewing" // Submissions closed, under review
 	ConferenceStatusCompleted = "completed" // Conference finished
+	ConferenceStatusArchived  = "archived"  // Explicitly archived by chair
 )
 
 // Conference-level rebuttal phase constants (for new dedicated columns)

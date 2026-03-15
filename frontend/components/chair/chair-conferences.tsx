@@ -23,6 +23,10 @@ import {
 import { listConferences } from "@/lib/api/conferences"
 import type { Conference as ApiConference } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { Sparkles } from "lucide-react"
+import { ConferenceTemplateSheet } from "@/components/chair/conference-template-sheet"
+import type { ConferenceFormData } from "@/components/wizard/creation"
+import { ConferenceMoreMenu } from "@/components/chair/conference-more-menu"
 
 interface ChairConferencesProps {
   /** Initial conferences data */
@@ -52,6 +56,7 @@ function formatConferenceDates(conference: ApiConference): string {
 }
 
 function mapConferenceStatus(status: ApiConference["status"]): Conference["status"] {
+  if (status === "draft") return "draft"
   if (status === "completed") return "completed"
   if (status === "reviewing") return "active"
   return "planning"
@@ -179,8 +184,13 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
   const [myTotal, setMyTotal] = useState(0)
   const [exploreConferences, setExploreConferences] = useState<ExploreConference[]>([])
   const [exploreTotal, setExploreTotal] = useState(0)
+  const [draftConferences, setDraftConferences] = useState<Conference[]>([])
+  const [draftTotal, setDraftTotal] = useState(0)
   const [archivedConferences, setArchivedConferences] = useState<ExploreConference[]>([])
   const [archivedTotal, setArchivedTotal] = useState(0)
+
+  const [isTemplateSheetOpen, setIsTemplateSheetOpen] = useState(false)
+  const [reloadKey, setReloadKey] = useState(0)
 
   const ITEMS_PER_PAGE = 6
   const debouncedSearch = useDebounce(searchQuery, 400)
@@ -205,7 +215,10 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
           if (!cancelled) {
             setMyConferences(
               (res.data?.conferences || [])
-                .filter((c) => c.status !== "completed")
+                .filter(
+                  (c) =>
+                    c.status !== "completed" && c.status !== "archived" && c.status !== "draft",
+                )
                 .map(mapToChairConference),
             )
             setMyTotal(res.data?.total || 0)
@@ -219,14 +232,32 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
           if (!cancelled) {
             setExploreConferences(
               (res.data?.conferences || [])
-                .filter((c) => c.status !== "completed")
+                .filter(
+                  (c) =>
+                    c.status !== "completed" && c.status !== "archived" && c.status !== "draft",
+                )
                 .map(mapToExploreConference),
             )
             setExploreTotal(res.data?.total || 0)
           }
+        } else if (activeTab === "drafts") {
+          const res = await listConferences({
+            myConferences: true,
+            role: "chair",
+            status: "draft",
+            title: debouncedSearch || undefined,
+            limit: ITEMS_PER_PAGE,
+            offset,
+          })
+          if (!cancelled) {
+            setDraftConferences((res.data?.conferences || []).map(mapToChairConference))
+            setDraftTotal(res.data?.total || 0)
+          }
         } else if (activeTab === "archived") {
           const res = await listConferences({
-            status: "completed",
+            myConferences: true,
+            role: "chair",
+            status: "archived",
             title: debouncedSearch || undefined,
             limit: ITEMS_PER_PAGE,
             offset,
@@ -249,7 +280,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
     return () => {
       cancelled = true
     }
-  }, [activeTab, debouncedSearch, currentPage])
+  }, [activeTab, debouncedSearch, currentPage, reloadKey])
 
   const handleNavigate = (id: string) => {
     router.push(ROUTES.CHAIR.CONFERENCE_DETAIL(id))
@@ -272,6 +303,42 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
     setSearchQuery(query)
     setCurrentPage(1)
   }
+
+  const handleApplyTemplate = (data: Partial<ConferenceFormData>) => {
+    sessionStorage.setItem("conferenceTemplateDraft", JSON.stringify(data))
+    router.push(ROUTES.CHAIR.NEW_CONFERENCE)
+  }
+
+  const handleConferenceActionComplete = () => {
+    setReloadKey((current) => current + 1)
+  }
+
+  const renderMoreMenu = (conference: Conference) => {
+    const backendStatus: ApiConference["status"] =
+      conference.status === "draft"
+        ? "draft"
+        : conference.status === "active"
+          ? "reviewing"
+          : "completed"
+
+    return (
+      <ConferenceMoreMenu
+        conferenceId={conference.id}
+        conferenceStatus={backendStatus}
+        compact
+        onActionComplete={handleConferenceActionComplete}
+      />
+    )
+  }
+
+  const renderArchivedMoreMenu = (conference: ExploreConference) => (
+    <ConferenceMoreMenu
+      conferenceId={conference.id}
+      conferenceStatus="archived"
+      compact
+      onActionComplete={handleConferenceActionComplete}
+    />
+  )
 
   // Get data and render based on active tab
   const renderContent = () => {
@@ -303,6 +370,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
             <ConferenceList
               conferences={myConferences}
               onNavigate={handleNavigate}
+              renderMoreMenu={renderMoreMenu}
               currentPage={currentPage}
               totalPages={totalPages}
               totalItems={myTotal}
@@ -321,6 +389,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
                 key={conference.id}
                 conference={conference}
                 onNavigate={handleNavigate}
+                moreMenu={renderMoreMenu(conference)}
               />
             ))}
             <CreateConferenceCard onClick={handleCreateConference} />
@@ -380,6 +449,29 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
       )
     }
 
+    if (activeTab === "drafts") {
+      const totalPages = Math.ceil(draftTotal / ITEMS_PER_PAGE) || 1
+      if (!loading && draftConferences.length === 0 && !searchQuery)
+        return <EmptyState type={activeTab} />
+      if (!loading && draftConferences.length === 0 && searchQuery) return <NoResultsState />
+
+      // Drafts are always list-style: focus on editing, not grid cards
+      return (
+        <div className="flex flex-col gap-4">
+          <ConferenceList
+            conferences={draftConferences}
+            onNavigate={handleNavigate}
+            renderMoreMenu={renderMoreMenu}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={draftTotal}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )
+    }
+
     if (activeTab === "archived") {
       const totalPages = Math.ceil(archivedTotal / ITEMS_PER_PAGE) || 1
       if (!loading && archivedConferences.length === 0 && !searchQuery)
@@ -392,6 +484,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
             <ArchivedConferenceList
               conferences={archivedConferences}
               onViewDetails={handleViewDetails}
+              renderMoreMenu={renderArchivedMoreMenu}
               currentPage={currentPage}
               totalPages={totalPages}
               totalItems={archivedTotal}
@@ -410,6 +503,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
                 key={conference.id}
                 conference={conference}
                 onViewDetails={handleViewDetails}
+                moreMenu={renderArchivedMoreMenu(conference)}
               />
             ))}
           </div>
@@ -428,9 +522,12 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col relative">
       {/* Header */}
-      <Header onCreateConference={handleCreateConference} />
+      <Header
+        onCreateConference={handleCreateConference}
+        onManageTemplates={() => setIsTemplateSheetOpen(true)}
+      />
 
       {/* Tabs */}
       <Tabs activeTab={activeTab} onTabChange={handleTabChange} />
@@ -448,6 +545,13 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
 
       {/* Content */}
       <div className="flex-1">{renderContent()}</div>
+
+      <ConferenceTemplateSheet
+        open={isTemplateSheetOpen}
+        onOpenChange={setIsTemplateSheetOpen}
+        onApply={handleApplyTemplate}
+        allowSave={false}
+      />
     </div>
   )
 }
@@ -458,9 +562,10 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
 
 interface HeaderProps {
   onCreateConference: () => void
+  onManageTemplates: () => void
 }
 
-function Header({ onCreateConference }: HeaderProps) {
+function Header({ onCreateConference, onManageTemplates }: HeaderProps) {
   const { t } = useTranslation()
   return (
     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6">
@@ -471,34 +576,32 @@ function Header({ onCreateConference }: HeaderProps) {
         <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-2 max-w-xl">
           {t(
             "runtime.components.chair.chair-conferences.text_manage_your_conferences_and_discover_new",
-          )}{" "}
+          )}
         </p>
       </div>
-      <button
-        onClick={onCreateConference}
-        className="h-9 px-4 bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] text-[10px] font-medium uppercase tracking-wider rounded-md hover:bg-[#234C6A] dark:hover:bg-slate-100 transition-all duration-200 flex items-center gap-2"
-      >
-        <span
-          className="material-symbols-outlined"
-          style={{
-            fontSize: "16px",
-            width: "16px",
-            height: "16px",
-            maxWidth: "16px",
-            maxHeight: "16px",
-            minWidth: "16px",
-            minHeight: "16px",
-            lineHeight: "16px",
-            display: "inline-block",
-            flexShrink: 0,
-            transform: "none",
-            boxSizing: "border-box",
-          }}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onManageTemplates}
+          className="h-9 px-4 bg-white dark:bg-slate-800 text-[#1B3C53] dark:text-white border border-slate-200 dark:border-slate-700 text-[10px] font-bold uppercase tracking-wider rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 flex items-center gap-2 shadow-sm"
         >
-          add
-        </span>
-        {t("runtime.components.chair.chair-conferences.text_create_conference")}{" "}
-      </button>
+          <Sparkles className="size-4" />
+          {t("runtime.components.chair.conference-form-page.text_open_templates") ||
+            "Manage Templates"}
+        </button>
+
+        <button
+          onClick={onCreateConference}
+          className="h-9 px-4 bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] text-[10px] font-bold uppercase tracking-wider rounded-md hover:bg-[#234C6A] dark:hover:bg-slate-100 transition-all duration-200 flex items-center gap-2"
+        >
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: "16px", width: "16px", height: "16px" }}
+          >
+            add
+          </span>
+          {t("runtime.components.chair.chair-conferences.text_create_conference")}
+        </button>
+      </div>
     </div>
   )
 }
@@ -520,6 +623,7 @@ function Tabs({ activeTab, onTabChange }: TabsProps) {
       label: t("runtime.components.chair.chair-conferences.prop_label_my_conferences"),
     },
     { key: "explore", label: t("runtime.components.chair.chair-conferences.prop_label_explore") },
+    { key: "drafts", label: t("runtime.components.chair.chair-conferences.prop_label_drafts") },
     { key: "archived", label: t("runtime.components.chair.chair-conferences.prop_label_archived") },
   ]
 
@@ -571,6 +675,7 @@ function Toolbar({
   const placeholders: Record<TabType, string> = {
     "my-conferences": "Search conferences...",
     explore: "Search conferences...",
+    drafts: "Search drafts...",
     archived: "Search archived conferences...",
   }
 
@@ -587,6 +692,16 @@ function Toolbar({
       {
         value: "submissions",
         label: t("runtime.components.chair.chair-conferences.prop_label_submissions_high_low"),
+      },
+    ],
+    drafts: [
+      {
+        value: "date-newest",
+        label: t("runtime.components.chair.chair-conferences.prop_label_date_newest"),
+      },
+      {
+        value: "name-asc",
+        label: t("runtime.components.chair.chair-conferences.prop_label_name_a_z"),
       },
     ],
     explore: [

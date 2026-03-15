@@ -107,9 +107,7 @@ function buildAction(
                 count: dueInDays,
               }),
     dueDate: formatDueDate(conference.submission_deadline, locale),
-    statusLabel: isOverdue
-      ? t("runtime.components.chair.chair-dashboard.text_overdue")
-      : undefined,
+    statusLabel: isOverdue ? t("runtime.components.chair.chair-dashboard.text_overdue") : undefined,
     statusDate: isOverdue ? formatDueDate(conference.submission_deadline, locale) : undefined,
     buttonLabel: t("runtime.components.chair.chair-dashboard.text_open_conference"),
     isOverdue,

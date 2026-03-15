@@ -111,7 +111,14 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
           `/api/v1/users/search?q=${encodeURIComponent(q.trim())}&limit=10`,
         )
         const users = respData?.data?.users || []
-        setSearchResults(users.map((u) => ({ id: Number(u.id), email: u.email, first_name: u.first_name, last_name: u.last_name })))
+        setSearchResults(
+          users.map((u) => ({
+            id: Number(u.id),
+            email: u.email,
+            first_name: u.first_name,
+            last_name: u.last_name,
+          })),
+        )
       } catch {
         setSearchResults([])
       } finally {
@@ -218,9 +225,7 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
               icon: "category",
             },
             {
-              label: t(
-                "runtime.components.wizard.creation.steps.committees.prop_label_reviewers",
-              ),
+              label: t("runtime.components.wizard.creation.steps.committees.prop_label_reviewers"),
               count: roleGroups.reviewers.length,
               icon: "rate_review",
             },
@@ -294,8 +299,14 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
                       <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-[200px] overflow-y-auto z-50">
                         {searching ? (
                           <div className="flex items-center justify-center p-3 gap-2">
-                            <span className="material-symbols-outlined animate-spin text-[#1B3C53] text-[14px]">sync</span>
-                            <span className="text-xs text-slate-500">{t("runtime.components.wizard.creation.steps.committees.text_searching") || "Searching..."}</span>
+                            <span className="material-symbols-outlined animate-spin text-[#1B3C53] text-[14px]">
+                              sync
+                            </span>
+                            <span className="text-xs text-slate-500">
+                              {t(
+                                "runtime.components.wizard.creation.steps.committees.text_searching",
+                              ) || "Searching..."}
+                            </span>
                           </div>
                         ) : (
                           <div className="p-1">
@@ -323,12 +334,16 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
                                     </p>
                                   )}
                                 </div>
-                                <span className="material-symbols-outlined text-slate-400 text-[16px]">person_add</span>
+                                <span className="material-symbols-outlined text-slate-400 text-[16px]">
+                                  person_add
+                                </span>
                               </button>
                             ))}
                             {searchResults.length === 0 && !searching && (
                               <div className="px-3 py-2 text-xs text-slate-400">
-                                {t("runtime.components.wizard.creation.steps.committees.text_no_users_found") || "No users found"}
+                                {t(
+                                  "runtime.components.wizard.creation.steps.committees.text_no_users_found",
+                                ) || "No users found"}
                               </div>
                             )}
                             {searchQuery.includes("@") && (
@@ -340,7 +355,12 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
                                 }}
                                 className="w-full flex items-center gap-1.5 px-3 py-2 rounded hover:bg-[#1B3C53]/5 text-[#1B3C53] font-medium text-xs border-t border-slate-100 transition-colors"
                               >
-                                <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>person_add</span>
+                                <span
+                                  className="material-symbols-outlined"
+                                  style={{ fontSize: "12px" }}
+                                >
+                                  person_add
+                                </span>
                                 Add directly: &ldquo;{searchQuery.trim()}&rdquo;
                               </button>
                             )}

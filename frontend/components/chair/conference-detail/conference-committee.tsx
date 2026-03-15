@@ -116,11 +116,20 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     setSearching(true)
     searchDebounce.current = setTimeout(async () => {
       try {
-        const { data } = await apiFetch<{ data?: { users?: { id: number; email: string; first_name?: string; last_name?: string }[] } }>(
-          `/api/v1/users/search?q=${encodeURIComponent(q.trim())}&limit=10`,
-        )
+        const { data } = await apiFetch<{
+          data?: {
+            users?: { id: number; email: string; first_name?: string; last_name?: string }[]
+          }
+        }>(`/api/v1/users/search?q=${encodeURIComponent(q.trim())}&limit=10`)
         const users = data?.data?.users || []
-        setSearchResults(users.map((u) => ({ id: Number(u.id), email: u.email, first_name: u.first_name, last_name: u.last_name })))
+        setSearchResults(
+          users.map((u) => ({
+            id: Number(u.id),
+            email: u.email,
+            first_name: u.first_name,
+            last_name: u.last_name,
+          })),
+        )
       } catch {
         setSearchResults([])
       } finally {
@@ -278,7 +287,9 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-[200px] overflow-y-auto z-50">
                       {searching ? (
                         <div className="flex items-center justify-center p-3 gap-2">
-                          <span className="material-symbols-outlined animate-spin text-[#1B3C53] text-[14px]">sync</span>
+                          <span className="material-symbols-outlined animate-spin text-[#1B3C53] text-[14px]">
+                            sync
+                          </span>
                           <span className="text-xs text-slate-500">{T("text_searching")}</span>
                         </div>
                       ) : (
@@ -307,7 +318,9 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                                   </p>
                                 )}
                               </div>
-                              <span className="material-symbols-outlined text-slate-400 text-[16px]">person_add</span>
+                              <span className="material-symbols-outlined text-slate-400 text-[16px]">
+                                person_add
+                              </span>
                             </button>
                           ))}
                           {searchResults.length === 0 && (
@@ -325,7 +338,12 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                               }}
                               className="w-full flex items-center gap-1.5 px-3 py-2 rounded hover:bg-[#1B3C53]/5 text-[#1B3C53] font-medium text-xs border-t border-slate-100 transition-colors"
                             >
-                              <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>person_add</span>
+                              <span
+                                className="material-symbols-outlined"
+                                style={{ fontSize: "12px" }}
+                              >
+                                person_add
+                              </span>
                               {T("text_add_directly")}: &ldquo;{searchQuery.trim()}&rdquo;
                             </button>
                           )}
@@ -362,7 +380,9 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                       )}
                     >
                       {user.id == null && (
-                        <span className="material-symbols-outlined" style={{ fontSize: "10px" }}>warning</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: "10px" }}>
+                          warning
+                        </span>
                       )}
                       {user.email}
                       <button
@@ -425,8 +445,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                     reviewers
                       .slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
                       .map((reviewer) => {
-                        const email =
-                          reviewer.email || `user-${reviewer.user_id}@unknown.local`
+                        const email = reviewer.email || `user-${reviewer.user_id}@unknown.local`
                         const name = deriveNameFromEmail(email, reviewer.user_id)
                         return (
                           <tr

@@ -88,21 +88,9 @@ function extractEventsFromConference(conf: Conference): ScheduleEvent[] {
     `Camera-ready version due for ${conf.acronym}`,
   )
 
-  addEvent(
-    "conf-start",
-    "Conference Begins",
-    config.start_date,
-    "event",
-    `${conf.name} begins`,
-  )
+  addEvent("conf-start", "Conference Begins", config.start_date, "event", `${conf.name} begins`)
 
-  addEvent(
-    "conf-end",
-    "Conference Ends",
-    config.end_date,
-    "event",
-    `${conf.name} ends`,
-  )
+  addEvent("conf-end", "Conference Ends", config.end_date, "event", `${conf.name} ends`)
 
   // Discussion period dates
   if (config.discussion_settings?.start_at) {
@@ -193,9 +181,27 @@ export async function getMyScheduleEvents(
     }
 
     if (config) {
-      addDate("abstract", "Abstract Submission", config.abstract_submission_deadline, "deadline", "Abstract submission deadline")
-      addDate("paper", "Paper Submission", config.full_paper_submission_deadline, "deadline", "Full paper submission deadline")
-      addDate("camera", "Camera-Ready", config.camera_ready_deadline, "deadline", "Camera-ready deadline")
+      addDate(
+        "abstract",
+        "Abstract Submission",
+        config.abstract_submission_deadline,
+        "deadline",
+        "Abstract submission deadline",
+      )
+      addDate(
+        "paper",
+        "Paper Submission",
+        config.full_paper_submission_deadline,
+        "deadline",
+        "Full paper submission deadline",
+      )
+      addDate(
+        "camera",
+        "Camera-Ready",
+        config.camera_ready_deadline,
+        "deadline",
+        "Camera-ready deadline",
+      )
       addDate("start", "Conference Start", config.start_date, "event", "Conference begins")
       addDate("end", "Conference End", config.end_date, "event", "Conference ends")
     }

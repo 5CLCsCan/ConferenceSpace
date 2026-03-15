@@ -1,0 +1,7 @@
+"use client"
+
+import { ConferenceFormPage } from "@/components/chair/conference-form-page"
+
+export default function NewTemplatePage() {
+  return <ConferenceFormPage mode="create" isTemplateMode={true} />
+}

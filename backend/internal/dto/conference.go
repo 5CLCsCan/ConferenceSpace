@@ -82,6 +82,7 @@ type Conference struct {
 	Tracks         []string                 `json:"tracks"`
 	Venue          string                   `json:"venue"`
 	Configurations *ConferenceConfiguration `json:"configurations"`
+	Status         string                   `json:"status,omitempty"`
 }
 
 type ConferenceResponse struct {
@@ -95,7 +96,7 @@ type ConferenceResponse struct {
 	Tracks         []string                 `json:"tracks"`
 	Venue          string                   `json:"venue"`
 	Configurations *ConferenceConfiguration `json:"configurations"`
-	Status         string                   `json:"status"` // open, reviewing, completed
+	Status         string                   `json:"status"` // draft, open, reviewing, completed, archived
 	CreatedAt      time.Time                `json:"created_at"`
 	UpdatedAt      time.Time                `json:"updated_at"`
 	UserRole       string                   `json:"user_role,omitempty"` // User's role in this conference (if queried)
@@ -157,7 +158,7 @@ type ConferenceBookmarkResponse struct {
 // ConferenceTransitionStatusRequest represents the request to transition conference status
 type ConferenceTransitionStatusRequest struct {
 	ConferenceID int64  `uri:"conference_id" json:"conference_id" binding:"required"`
-	NewStatus    string `json:"new_status" binding:"required,oneof=open reviewing completed"`
+	NewStatus    string `json:"new_status" binding:"required,oneof=draft open reviewing completed archived"`
 }
 
 // ConferenceTransitionStatusResponse represents the response after status transition

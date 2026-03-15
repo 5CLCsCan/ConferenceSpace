@@ -16,8 +16,9 @@ import {
 import { cn } from "@/lib/utils"
 import { ROUTES } from "@/lib/routes"
 import type { NavItem } from "@/lib/navigation"
-import { listConferences } from "@/lib/api/conferences"
-import type { Conference } from "@/lib/types"
+import { listConferences, transitionConferenceStatus } from "@/lib/api/conferences"
+import type { Conference, ConferenceStatus } from "@/lib/types"
+import { useToast } from "@/hooks/use-toast"
 
 interface DashboardSidebarProps {
   menuItems: NavItem[]
@@ -28,6 +29,7 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
   const { t, locale, setLocale } = useTranslation()
   const { user, logout, currentRole } = useAuth()
   const router = useRouter()
+  const { toast } = useToast()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [recentConferences, setRecentConferences] = useState<Conference[]>([])
@@ -82,7 +84,12 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
         return
       }
 
-      const sorted = [...response.data.conferences].sort((a, b) => {
+      // Exclude non-active conferences from the recent list by default
+      const nonArchived = (response.data.conferences || []).filter(
+        (conf) => conf.status !== "archived" && conf.status !== "draft",
+      )
+
+      const sorted = [...nonArchived].sort((a, b) => {
         const updatedA = Date.parse(a.updated_at || a.created_at || "")
         const updatedB = Date.parse(b.updated_at || b.created_at || "")
         if (updatedA !== updatedB) {
@@ -129,7 +136,9 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
 
       const parsed = JSON.parse(rawValue)
       if (Array.isArray(parsed)) {
-        setArchivedRecentConferenceIds(parsed.filter((value): value is string => typeof value === "string"))
+        setArchivedRecentConferenceIds(
+          parsed.filter((value): value is string => typeof value === "string"),
+        )
         return
       }
     } catch {
@@ -166,28 +175,72 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
     [archivedRecentConferenceIds, recentConferences],
   )
 
-  const archiveRecentConference = (conferenceId: string) => {
+  const archiveRecentConference = async (conferenceId: string, status?: ConferenceStatus) => {
+    // Optimistically hide from recent list
     setArchivedRecentConferenceIds((current) =>
       current.includes(conferenceId) ? current : [...current, conferenceId],
     )
+
+    const targetStatus: ConferenceStatus = status === "archived" ? "completed" : "archived"
+
+    const response = await transitionConferenceStatus(conferenceId, targetStatus)
+    if (response.error || !response.data) {
+      setArchivedRecentConferenceIds((current) => current.filter((id) => id !== conferenceId))
+      toast({
+        title: t("runtime.components.dashboard-sidebar.text_failed_to_archive_recent_conference"),
+        description:
+          response.error ||
+          t(
+            "runtime.components.dashboard-sidebar.text_failed_to_archive_recent_conference_description",
+          ),
+        variant: "destructive",
+      })
+    }
   }
 
-  const restoreRecentConference = (conferenceId: string) => {
+  const restoreRecentConference = async (
+    conferenceId: string,
+    restoreStatus: ConferenceStatus = "completed",
+  ) => {
+    // Optimistically restore in recent list
     setArchivedRecentConferenceIds((current) => current.filter((id) => id !== conferenceId))
+
+    const response = await transitionConferenceStatus(conferenceId, restoreStatus)
+    if (response.error || !response.data) {
+      setArchivedRecentConferenceIds((current) =>
+        current.includes(conferenceId) ? current : [...current, conferenceId],
+      )
+      toast({
+        title: t("runtime.components.dashboard-sidebar.text_failed_to_restore_recent_conference"),
+        description:
+          response.error ||
+          t(
+            "runtime.components.dashboard-sidebar.text_failed_to_restore_recent_conference_description",
+          ),
+        variant: "destructive",
+      })
+    }
   }
 
   return (
     <aside
       className={cn(
-        "w-56 hidden md:flex flex-col border-r border-slate-200 bg-white dark:bg-neutral-900 h-screen overflow-hidden flex-shrink-0 z-40 relative shadow-[4px_0_24px_-2px_rgba(0,0,0,0.02)]",
+        "w-56 hidden md:flex flex-col border-r border-slate-200 bg-white dark:bg-neutral-900 h-screen overflow-hidden shrink-0 z-40 relative shadow-[4px_0_24px_-2px_rgba(0,0,0,0.02)]",
         className,
       )}
       style={{ height: "100vh" }}
     >
       {/* Branding */}
       <div className="px-5 py-8">
-        <div className="flex items-center gap-2.5">
-          <div className="bg-[#141414] text-white rounded-lg flex items-center justify-center shadow-lg shadow-slate-900/10 w-9 h-9">
+        <Link
+          href={
+            currentRole
+              ? (ROUTES.ROLE_ROUTE_MAP[currentRole] ?? ROUTES.ROLE_SELECT)
+              : ROUTES.ROLE_SELECT
+          }
+          className="flex items-center gap-2.5 transition-opacity hover:opacity-80 group"
+        >
+          <div className="bg-[#141414] text-white rounded-lg flex items-center justify-center shadow-lg shadow-slate-900/10 w-9 h-9 group-hover:scale-105 transition-transform">
             <span className="material-symbols-outlined text-[20px]">school</span>
           </div>
           <div className="flex flex-col">
@@ -196,19 +249,29 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
             </h1>
             {!isRolePage && currentRole && (
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-[10px] font-bold text-[var(--accent)] uppercase tracking-[0.5px] leading-none">
+                <span className="text-[10px] font-bold text-accent uppercase tracking-[0.5px] leading-none">
                   {currentRole.charAt(0).toUpperCase() + currentRole.slice(1)}
                 </span>
-                <Link
-                  href={ROUTES.ROLE_SELECT}
-                  className="text-[8px] font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 px-1.5 py-0.5 rounded transition-all uppercase tracking-wider leading-none"
-                >
-                  {t("runtime.components.dashboard-sidebar.text_change")}{" "}
-                </Link>
+                <div className="text-[8px] font-bold text-slate-500 bg-slate-100 dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 px-1.5 py-0.5 rounded uppercase tracking-wider leading-none">
+                  {t("runtime.components.dashboard-sidebar.text_active") || "Active"}
+                </div>
               </div>
             )}
           </div>
-        </div>
+        </Link>
+        {!isRolePage && currentRole && (
+          <div className="px-11 mt-2">
+            <Link
+              href={ROUTES.ROLE_SELECT}
+              className="text-[9px] font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-all uppercase tracking-wider flex items-center gap-1 group"
+            >
+              <span className="material-symbols-outlined text-[12px]">swap_horiz</span>
+              <span className="group-hover:underline underline-offset-2">
+                {t("runtime.components.dashboard-sidebar.text_change_role") || "Switch Role"}
+              </span>
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Navigation */}
@@ -307,9 +370,13 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
                   </Link>
                   <button
                     type="button"
-                    onClick={() => archiveRecentConference(conf.id)}
-                    aria-label={t("runtime.components.dashboard-sidebar.text_archive_recent_conference")}
-                    className="absolute right-1 top-0 flex h-5 w-5 items-center justify-center rounded text-slate-300 opacity-0 transition-colors transition-opacity hover:bg-slate-100 hover:text-slate-700 group-hover:opacity-100 dark:hover:bg-neutral-800 dark:hover:text-slate-200"
+                    onClick={() =>
+                      archiveRecentConference(conf.id, conf.status as ConferenceStatus)
+                    }
+                    aria-label={t(
+                      "runtime.components.dashboard-sidebar.text_archive_recent_conference",
+                    )}
+                    className="absolute right-1 top-0 flex h-5 w-5 items-center justify-center rounded text-slate-300 opacity-0 transition-opacity hover:bg-slate-100 hover:text-slate-700 group-hover:opacity-100 dark:hover:bg-neutral-800 dark:hover:text-slate-200"
                   >
                     <span className="material-symbols-outlined text-[14px]">archive</span>
                   </button>
@@ -340,9 +407,13 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
                   </Link>
                   <button
                     type="button"
-                    onClick={() => restoreRecentConference(conf.id)}
-                    aria-label={t("runtime.components.dashboard-sidebar.text_restore_recent_conference")}
-                    className="absolute right-1 top-0 flex h-5 w-5 items-center justify-center rounded text-slate-300 opacity-0 transition-colors transition-opacity hover:bg-slate-100 hover:text-slate-700 group-hover:opacity-100 dark:hover:bg-neutral-800 dark:hover:text-slate-200"
+                    onClick={() =>
+                      restoreRecentConference(conf.id, conf.status as ConferenceStatus)
+                    }
+                    aria-label={t(
+                      "runtime.components.dashboard-sidebar.text_restore_recent_conference",
+                    )}
+                    className="absolute right-1 top-0 flex h-5 w-5 items-center justify-center rounded text-slate-300 opacity-0 transition-opacity hover:bg-slate-100 hover:text-slate-700 group-hover:opacity-100 dark:hover:bg-neutral-800 dark:hover:text-slate-200"
                   >
                     <span className="material-symbols-outlined text-[14px]">unarchive</span>
                   </button>
@@ -358,7 +429,7 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-100/80 dark:hover:bg-neutral-800 transition-all duration-300 group outline-none border-none text-left">
-              <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-neutral-800 overflow-hidden border border-slate-200 dark:border-neutral-700 flex-shrink-0 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-300">
+              <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-neutral-800 overflow-hidden border border-slate-200 dark:border-neutral-700 shrink-0 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-300">
                 <span className="material-symbols-outlined text-slate-500 group-hover:text-[#1B3C53] dark:group-hover:text-white transition-colors text-xl">
                   person
                 </span>

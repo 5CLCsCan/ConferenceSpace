@@ -9,11 +9,11 @@ Wire the existing fake `/forgot-password` to the real backend and add three miss
 
 ## Dev vs Production Behaviour
 
-| Flow | Dev (no email server) | Production |
-|------|-----------------------|------------|
-| Forgot password | API returns token in response → auto-redirect to `/reset-password?token=xxx` | API returns generic message → show "check your email" state |
-| Email verification | `POST /auth/resend-verification` returns token → show direct verify link | User receives email → lands on `/verify-email?token=xxx` |
-| Reset password | Same `/reset-password` page, token comes from URL | Same |
+| Flow               | Dev (no email server)                                                        | Production                                                  |
+| ------------------ | ---------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Forgot password    | API returns token in response → auto-redirect to `/reset-password?token=xxx` | API returns generic message → show "check your email" state |
+| Email verification | `POST /auth/resend-verification` returns token → show direct verify link     | User receives email → lands on `/verify-email?token=xxx`    |
+| Reset password     | Same `/reset-password` page, token comes from URL                            | Same                                                        |
 
 The frontend detects dev mode by checking if the API response includes a `token` field.
 
@@ -26,6 +26,7 @@ The frontend detects dev mode by checking if the API response includes a `token`
 **Current state:** Multi-step fake UI — no API calls, auto-skips step 2, does `router.push('/login?reset=1')` on submit.
 
 **New behaviour:**
+
 - **Step 1 (email input):** Submit calls `POST /auth/forgot-password`
   - If response includes `token` (dev mode) → immediately redirect to `/reset-password?token=xxx`
   - If no token (prod) → transition to step 2 (success state)
@@ -109,6 +110,7 @@ VERIFY_EMAIL: "/verify-email",
 ## Styling
 
 All auth pages follow the existing Scholar-Compact design system:
+
 - Split `.auth-shell` layout — brand panel left (navy `#1B3C53`), form right (white)
 - CSS classes: `.auth-field`, `.auth-label`, `.auth-input`, `.auth-submit-btn`, `.auth-notice--error`, `.auth-notice--success`, `.auth-eye-btn`
 - Material Symbols Outlined icons
@@ -121,11 +123,11 @@ Profile change-password card uses shadcn components to match the rest of the pro
 
 ## Files to Create/Modify
 
-| File | Action |
-|------|--------|
-| `app/forgot-password/page.tsx` | Rewrite |
-| `app/reset-password/page.tsx` | Create |
-| `app/verify-email/page.tsx` | Create |
+| File                             | Action                    |
+| -------------------------------- | ------------------------- |
+| `app/forgot-password/page.tsx`   | Rewrite                   |
+| `app/reset-password/page.tsx`    | Create                    |
+| `app/verify-email/page.tsx`      | Create                    |
 | `app/profile/[user_id]/page.tsx` | Add security card section |
-| `lib/api/auth.ts` | Create |
-| `lib/routes.ts` | Add 2 routes |
+| `lib/api/auth.ts`                | Create                    |
+| `lib/routes.ts`                  | Add 2 routes              |
