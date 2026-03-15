@@ -49,10 +49,7 @@ redis-up: ## Start Redis cache
 	@echo "Starting Redis cache..."
 	docker-compose up -d redis
 	@echo "Waiting for Redis to be ready..."
-	@until docker-compose exec -T redis redis-cli ping 2>/dev/null | grep -q PONG; do \
-		echo "Waiting for Redis..."; \
-		sleep 1; \
-	done
+	@ping -n 4 127.0.0.1 > NUL 2>&1
 	@echo "Redis is ready!"
 
 redis-down: ## Stop Redis cache
@@ -74,11 +71,7 @@ neo4j-up: ## Start Neo4j graph database
 	@echo "Starting Neo4j graph database..."
 	docker-compose up -d neo4j
 	@echo "Waiting for Neo4j to be ready (this may take 30 seconds)..."
-	@sleep 10
-	@until docker-compose exec -T neo4j wget --no-verbose --tries=1 --spider http://localhost:7474 2>/dev/null; do \
-		echo "Waiting for Neo4j..."; \
-		sleep 5; \
-	done
+	@ping -n 31 127.0.0.1 > NUL 2>&1
 	@echo "✅ Neo4j is ready!"
 	@echo "📊 Neo4j Browser UI: http://localhost:7474"
 	@echo "🔐 Username: neo4j"
@@ -92,13 +85,10 @@ neo4j-restart: neo4j-down neo4j-up ## Restart Neo4j database
 
 neo4j-init: ## Initialize Neo4j constraints and indexes for COI detection
 	@echo "Initializing Neo4j schema (constraints & indexes)..."
-	@docker-compose exec -T neo4j cypher-shell -u $(NEO4J_USER) -p $(NEO4J_PASS) -d neo4j \
-		"CREATE CONSTRAINT author_email IF NOT EXISTS FOR (a:Author) REQUIRE a.email IS UNIQUE;" 2>/dev/null || true
-	@docker-compose exec -T neo4j cypher-shell -u $(NEO4J_USER) -p $(NEO4J_PASS) -d neo4j \
-		"CREATE INDEX author_name IF NOT EXISTS FOR (a:Author) ON (a.name);" 2>/dev/null || true
-	@docker-compose exec -T neo4j cypher-shell -u $(NEO4J_USER) -p $(NEO4J_PASS) -d neo4j \
-		"CREATE INDEX coauthor_date IF NOT EXISTS FOR ()-[r:COAUTHORED]-() ON (r.established_date);" 2>/dev/null || true
-	@echo "✅ Neo4j schema initialized!"
+	-@docker-compose exec -T neo4j cypher-shell -u $(NEO4J_USER) -p $(NEO4J_PASS) -d neo4j "CREATE CONSTRAINT author_email IF NOT EXISTS FOR (a:Author) REQUIRE a.email IS UNIQUE;"
+	-@docker-compose exec -T neo4j cypher-shell -u $(NEO4J_USER) -p $(NEO4J_PASS) -d neo4j "CREATE INDEX author_name IF NOT EXISTS FOR (a:Author) ON (a.name);"
+	-@docker-compose exec -T neo4j cypher-shell -u $(NEO4J_USER) -p $(NEO4J_PASS) -d neo4j "CREATE INDEX coauthor_date IF NOT EXISTS FOR ()-[r:COAUTHORED]-() ON (r.established_date);"
+	@echo "Neo4j schema initialized!"
 	@echo ""
 	@echo "📋 Created constraints:"
 	@echo "   - UNIQUE constraint on Author.email"
@@ -382,13 +372,8 @@ install-tools: ## Install required development tools
 
 swagger: ## Generate swagger documentation
 	@echo "Generating swagger documentation..."
-	@if ! command -v $(GOBIN)/swag >/dev/null 2>&1; then \
-		echo "⚠️  swag not found. Installing..."; \
-		go install github.com/swaggo/swag/cmd/swag@latest; \
-	fi
-	@$(GOBIN)/swag init -g cmd/server/main.go -o ./docs
-	@echo "✅ Swagger docs generated in ./docs"
-	@echo "📚 Access Swagger UI at: http://localhost:8080/swagger/index.html"
+	$(GOBIN)/swag init -g cmd/server/main.go -o ./docs
+	@echo "Swagger docs generated in ./docs"
 
 swagger-serve: swagger ## Generate and serve swagger UI
 	@echo "Swagger UI available at: http://localhost:8080/swagger/index.html"

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { publishPaper, submitPaper, updatePaper } from "@/lib/api/papers"
 import { useAuth } from "@/lib/auth-context"
 import { ROUTES } from "@/lib/routes"
-import type { Conference, PrecheckBlockedError, PrecheckResult } from "@/lib/types"
+import type { Conference } from "@/lib/types"
 import type { Submission } from "@/lib/api/submissions"
 import { useToast } from "@/components/ui/use-toast"
 import {
@@ -104,9 +104,6 @@ export function PaperSubmissionForm({
   // File Upload state
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
-  const [precheckResult, setPrecheckResult] = useState<PrecheckResult | null>(null)
-  const [precheckError, setPrecheckError] = useState<string | null>(null)
-  const [lastPrecheckBlock, setLastPrecheckBlock] = useState<PrecheckBlockedError | null>(null)
   const [fileValidation, setFileValidation] = useState<{
     format: boolean
     fonts: boolean
@@ -147,15 +144,7 @@ export function PaperSubmissionForm({
   const isDeadlinePassed = submissionDeadline !== null && new Date() > submissionDeadline
 
   const mapSubmissionError = useCallback(
-    (errorMessage: string | null, precheckBlocked?: PrecheckBlockedError | null): string => {
-      if (precheckBlocked?.code === "PRECHECK_BLOCKED") {
-        const firstItem = precheckBlocked.blocking_items?.[0]
-        if (firstItem?.description) {
-          return `Precheck blocked submission (${precheckBlocked.decision}). ${firstItem.description}`
-        }
-        return `Precheck blocked submission (${precheckBlocked.decision}). Please resolve blocking issues in the quality check.`
-      }
-
+    (errorMessage: string | null): string => {
       if (!errorMessage) {
         return "Unable to submit due to an unknown error."
       }
@@ -536,10 +525,9 @@ export function PaperSubmissionForm({
             })
 
       if (response.error) {
-        setLastPrecheckBlock(response.precheckBlocked || null)
         toast({
           title: "Submission failed",
-          description: mapSubmissionError(response.error, response.precheckBlocked),
+          description: mapSubmissionError(response.error),
           variant: "destructive",
         })
       } else {
@@ -549,7 +537,6 @@ export function PaperSubmissionForm({
         lastSavedSignatureRef.current = draftSignature
         setLastSavedAt(new Date())
         setAutosaveStatus("saved")
-        setLastPrecheckBlock(null)
         setSuccessMessage("Your paper has been submitted successfully!")
         setShowSuccessDialog(true)
       }
@@ -568,19 +555,13 @@ export function PaperSubmissionForm({
     }
   }
 
-  const hasPrecheckApproval = precheckResult?.decision === "accept_for_review"
-  const canUseServerSidePrecheck = Boolean(
-    initialSubmission?.file && !uploadedFile && !precheckError,
-  )
   const canSubmit =
     !submitting &&
     !savingDraft &&
     !isNewSubmissionBlocked &&
     !isDeadlinePassed &&
     submissionConfirmed &&
-    coiConfirmed &&
-    (hasPrecheckApproval || canUseServerSidePrecheck) &&
-    !precheckError
+    coiConfirmed
 
   // Step header info
   const stepHeaders: Record<StepType, { title: string; description: string }> = {
@@ -747,13 +728,6 @@ export function PaperSubmissionForm({
                 }
                 onFileUpload={handleFileUpload}
                 onRemoveFile={handleRemoveFile}
-                onPrecheckUpdate={(result, error) => {
-                  setPrecheckResult(result)
-                  setPrecheckError(error)
-                  if (result || error) {
-                    setLastPrecheckBlock(null)
-                  }
-                }}
               />
             )}
 
@@ -791,18 +765,6 @@ export function PaperSubmissionForm({
             )}
 
             {/* Spacer for bottom action bar */}
-            {currentStep === "review" &&
-              ((!hasPrecheckApproval && !canUseServerSidePrecheck) ||
-                precheckError ||
-                lastPrecheckBlock) && (
-                <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-xs text-amber-800">
-                  {precheckError
-                    ? `Precheck failed: ${precheckError}`
-                    : lastPrecheckBlock
-                      ? mapSubmissionError(null, lastPrecheckBlock)
-                      : "Final submit is blocked until precheck decision is Accept for Review."}
-                </div>
-              )}
             <div className="h-20" />
           </div>
         </main>
