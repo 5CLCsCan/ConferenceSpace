@@ -146,3 +146,10 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 		Discussion:      discussionController.New(discSvc, "./uploads/discussions"),
 	}
 }
+
+func getAIServiceClient(clients *clients.Clients) submission.GatingClient {
+	if clients == nil {
+		return nil
+	}
+	return clients.AIService
+}

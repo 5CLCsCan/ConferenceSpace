@@ -32,17 +32,48 @@ type SupabaseFileStorage struct {
 
 // DeleteCameraReady implements StorageInterface.
 func (s *SupabaseFileStorage) DeleteCameraReady(conferenceID int64, submissionID int64, filename string) error {
-	panic("unimplemented")
+	return s.DeleteByPath(s.GetCameraReadyPath(conferenceID, submissionID, filename))
 }
 
 // GetCameraReadyPath implements StorageInterface.
 func (s *SupabaseFileStorage) GetCameraReadyPath(conferenceID int64, submissionID int64, filename string) string {
-	panic("unimplemented")
+	return fmt.Sprintf("conferences/%d/submissions/%d/camera_ready/%s", conferenceID, submissionID, filename)
 }
 
 // SaveCameraReady implements StorageInterface.
 func (s *SupabaseFileStorage) SaveCameraReady(file io.Reader, header *multipart.FileHeader, conferenceID int64, submissionID int64) (*dto.SubmissionFileMetadata, error) {
-	panic("unimplemented")
+	format, ok := detectSubmissionFileFormat(header)
+	if !ok || format != submissionFileFormatPDF {
+		return nil, fmt.Errorf("only PDF files are allowed for camera-ready upload")
+	}
+	if header.Size > maxUploadSize {
+		return nil, fmt.Errorf("file size must not exceed 20MB")
+	}
+
+	content, err := readContentWithLimit(file, maxUploadSize)
+	if err != nil {
+		return nil, err
+	}
+	if err := validatePDFBytes(content); err != nil {
+		return nil, err
+	}
+
+	ext := filepath.Ext(header.Filename)
+	nameWithoutExt := strings.TrimSuffix(header.Filename, ext)
+	filename := fmt.Sprintf("camera_ready_%d_%s%s", time.Now().Unix(), sanitizeFilename(nameWithoutExt), ext)
+	objectPath := s.GetCameraReadyPath(conferenceID, submissionID, filename)
+
+	if err := s.uploadObject(objectPath, "application/pdf", content); err != nil {
+		return nil, err
+	}
+
+	return &dto.SubmissionFileMetadata{
+		Filename:     filename,
+		OriginalName: header.Filename,
+		Size:         int64(len(content)),
+		MimeType:     "application/pdf",
+		Path:         objectPath,
+	}, nil
 }
 
 func NewSupabaseFileStorage(cfg SupabaseFileStorageConfig) (*SupabaseFileStorage, error) {
@@ -74,8 +105,9 @@ func NewSupabaseFileStorage(cfg SupabaseFileStorageConfig) (*SupabaseFileStorage
 }
 
 func (s *SupabaseFileStorage) SaveFile(file io.Reader, header *multipart.FileHeader, conferenceID, submissionID int64) (*dto.SubmissionFileMetadata, error) {
-	if !isValidPDFHeader(header) {
-		return nil, fmt.Errorf("only PDF files are allowed")
+	format, ok := detectSubmissionFileFormat(header)
+	if !ok {
+		return nil, fmt.Errorf("only PDF, DOCX, and TEX files are allowed")
 	}
 	if header.Size > maxUploadSize {
 		return nil, fmt.Errorf("file size must not exceed 20MB")
@@ -85,7 +117,7 @@ func (s *SupabaseFileStorage) SaveFile(file io.Reader, header *multipart.FileHea
 	if err != nil {
 		return nil, err
 	}
-	if err := validatePDFBytes(content); err != nil {
+	if err := validateSubmissionFileBytes(format, content); err != nil {
 		return nil, err
 	}
 
@@ -96,7 +128,7 @@ func (s *SupabaseFileStorage) SaveFile(file io.Reader, header *multipart.FileHea
 
 	mimeType := header.Header.Get("Content-Type")
 	if strings.TrimSpace(mimeType) == "" {
-		mimeType = "application/pdf"
+		mimeType = fallbackSubmissionMIME(format)
 	}
 	if err := s.uploadObject(objectPath, mimeType, content); err != nil {
 		return nil, err
@@ -286,16 +318,6 @@ func validatePDFBytes(content []byte) error {
 		return fmt.Errorf("file is not a valid PDF")
 	}
 	return nil
-}
-
-func isValidPDFHeader(header *multipart.FileHeader) bool {
-	contentType := header.Header.Get("Content-Type")
-	if contentType != "application/pdf" {
-		return false
-	}
-
-	ext := strings.ToLower(filepath.Ext(header.Filename))
-	return ext == ".pdf"
 }
 
 func isValidCoverLetterHeader(header *multipart.FileHeader) bool {

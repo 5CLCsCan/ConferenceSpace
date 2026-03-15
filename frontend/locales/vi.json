@@ -1960,6 +1960,9 @@
         },
         "completed-reviews": {
           "text_a_z": "(A-Z)",
+          "text_date": "Ngày",
+          "text_sort_by": "Sắp xếp theo:",
+          "text_title": "Tiêu đề",
           "text_action": "Hoạt động",
           "text_clear": "Xóa",
           "text_done": "Hoàn tất",

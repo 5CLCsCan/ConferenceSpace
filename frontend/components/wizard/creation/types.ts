@@ -39,6 +39,12 @@ export interface ConferenceFormData {
   allowSupplementary: boolean
   supplementaryTypes: string[]
   strictDeadlines: boolean
+  gatingEnabled: boolean
+  gatingMinReferences: number | null
+  gatingRequiredSections: string[]
+  gatingAnonymizationRequired: boolean
+  gatingBannedPhrases: string[]
+  gatingPrompt: string
 
   // Step 4: Committees
   organizers: Array<{
@@ -124,6 +130,12 @@ export const initialFormData: ConferenceFormData = {
   allowSupplementary: true,
   supplementaryTypes: ["code", "data"],
   strictDeadlines: false,
+  gatingEnabled: false,
+  gatingMinReferences: null,
+  gatingRequiredSections: [],
+  gatingAnonymizationRequired: false,
+  gatingBannedPhrases: [],
+  gatingPrompt: "",
 
   // Committees
   organizers: [],

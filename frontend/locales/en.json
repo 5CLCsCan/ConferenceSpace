@@ -453,7 +453,7 @@
         },
         "text_a_single_registered_account_can_operate": "A single registered account can operate as Author, Reviewer, or Chair simultaneously. Switch active role context at any time — permissions and workspaces adjust accordingly.",
         "text_academic_conference_operations_platform": "Academic Conference Operations Platform",
-        "text_academic_conference_operations_platform_role_based": "Academic conference operations platform &mdash; Role-based, lifecycle-aware.",
+        "text_academic_conference_operations_platform_role_based": "Academic conference operations platform, Role-based, lifecycle-aware.",
         "text_built_for_conference_operations": "Built for conference operations",
         "text_conferencespace": "ConferenceSpace",
         "text_conferencespace_coordinates_conferences_end_to_end": "ConferenceSpace coordinates conferences end-to-end — from the call for papers through submission, peer review, decision, and result notification — in a single, role-aware system for authors, reviewers, and chairs.",
@@ -828,7 +828,7 @@
           "text_submit_paper": "Submit Paper",
           "text_submit_revision": "Submit Revision",
           "text_submitted_on": "Submitted on",
-          "text_text": "&quot;",
+          "text_text": "\"",
           "text_track_progress": "Track Progress",
           "text_track_status": "Track Status",
           "text_view_cfp": "View CFP",
@@ -855,7 +855,7 @@
           "text_status": "Status",
           "text_submission_due": "Submission Due",
           "text_submitted": "Submitted",
-          "text_text": "&quot;"
+          "text_text": "\""
         },
         "author-conferences": {
           "prop_label_archived": "Archived",
@@ -973,7 +973,7 @@
             "text_passed": "Passed",
             "text_sync_to_calendar": "Sync to Calendar",
             "text_target_date": "Target Date",
-            "text_text": "&bull;",
+            "text_text": "•",
             "text_timezone": "Timezone",
             "text_until": "Until",
             "text_upcoming": "Upcoming"
@@ -1297,7 +1297,7 @@
           "text_no_conference_actions_found": "No conference actions found.",
           "text_open_conference": "Open Conference",
           "text_overdue": "Overdue",
-          "text_overview_amp_management_across_your_conferences": "Overview &amp; management across your conferences.",
+          "text_overview_amp_management_across_your_conferences": "Overview & management across your conferences.",
           "text_reviews_completed": "Reviews Completed",
           "text_submission_count_description": "{count} submissions in this conference.",
           "text_submission_count_description_one": "1 submission in this conference.",
@@ -1432,7 +1432,7 @@
             "text_assigned_reviewer": "assigned reviewer",
             "text_cancel": "Cancel",
             "text_confirm": "Confirm",
-            "text_confirm_suggestions_from_the_ldquo_pending": "Confirm suggestions from the &ldquo;Pending Suggestions&rdquo; tab to see them here.",
+            "text_confirm_suggestions_from_the_ldquo_pending": "Confirm suggestions from the Pending Suggestions tab to see them here.",
             "text_confirmed_assignments": "Confirmed Assignments",
             "text_conflict_of_interest_warning": "Conflict of Interest Warning",
             "text_expertise": "Expertise:",
@@ -1444,12 +1444,12 @@
             "text_no_confirmed_assignments": "No Confirmed Assignments",
             "text_no_pending_suggestions": "No Pending Suggestions",
             "text_pending_suggestions": "Pending Suggestions",
-            "text_rdquo": "&rdquo;",
+            "text_rdquo": " ",
             "text_remove": "Remove",
             "text_review_and_manage_reviewer_assignments_for": "Review and manage reviewer assignments for submissions.",
             "text_reviewer_assignments": "Reviewer Assignments",
             "text_run_auto_assignment_from_the_actions": "Run auto-assignment from the Actions panel to generate reviewer suggestions, or all suggestions have been confirmed.",
-            "text_select_a_reviewer_to_assign_to": "Select a reviewer to assign to &ldquo;",
+            "text_select_a_reviewer_to_assign_to": "Select a reviewer to assign to",
             "text_suggested_reviewer": "suggested reviewer",
             "text_the_assignment_has_been_created_you": "The assignment has been created. You may want to review this assignment before confirming.",
             "text_the_reviewer_was_added_but_has": "The reviewer was added but has potential conflicts of interest:",
@@ -1892,14 +1892,14 @@
       "notifications": {
         "empty-state": {
           "text_no_new_notifications_at_the_moment": "No new notifications at the moment. Check back later for updates on your submissions and reviews.",
-          "text_you_apos_re_all_caught_up": "You&apos;re all caught up!"
+          "text_you_apos_re_all_caught_up": "You're all caught up!"
         },
         "notification-list": {
           "text_failed_to_load_notifications": "Failed to load notifications",
           "text_load_more": "Load more",
           "text_mark_all_as_read": "Mark all as read",
           "text_notifications": "Notifications",
-          "text_you_apos_ll_see_notifications_about": "You&apos;ll see notifications about submissions, reviews, and more here."
+          "text_you_apos_ll_see_notifications_about": "You'll see notifications about submissions, reviews, and more here."
         }
       },
       "profile": {
@@ -1960,17 +1960,20 @@
         },
         "completed-reviews": {
           "text_a_z": "(A-Z)",
+          "text_date": "Date",
+          "text_sort_by": "Sort by:",
+          "text_title": "Title",
           "text_action": "Action",
           "text_clear": "Clear",
           "text_done": "Done",
-          "text_for_ldquo": "for &ldquo;",
+          "text_for_ldquo": "for",
           "text_loading_completed_reviews": "Loading completed reviews...",
           "text_next": "Next",
           "text_newest": "(Newest)",
           "text_oldest": "(Oldest)",
           "text_paper": "Paper",
           "text_previous": "Previous",
-          "text_rdquo": "&rdquo;",
+          "text_rdquo": "",
           "text_showing": "Showing",
           "text_version": "Version",
           "text_view": "View",
@@ -2100,7 +2103,7 @@
             "text_ai_analysis_configuration": "AI Analysis Configuration",
             "text_ai_analysis_results": "AI Analysis Results",
             "text_ai_assistant": "AI Assistant",
-            "text_analysis_based_on_your_input": "Analysis based on your input: &quot;",
+            "text_analysis_based_on_your_input": "Analysis based on your input:",
             "text_analysis_is_still_processing": "Analysis is still processing...",
             "text_beta": "Beta",
             "text_cancel": "Cancel",
@@ -2112,9 +2115,9 @@
             "text_scoring_guide": "Scoring Guide",
             "text_start": "Start",
             "text_supplementary_material": "Supplementary Material",
-            "text_text": "&quot;",
+            "text_text": "",
             "text_view_analysis": "View analysis",
-            "text_view_full_reviewer_guide_rarr": "View full reviewer guide &rarr;"
+            "text_view_full_reviewer_guide_rarr": "View full reviewer guide"
           },
           "scoring-criteria": {
             "text_average_score": "Average Score",
@@ -2129,7 +2132,7 @@
           "text_last_draft_saved": "Last draft saved:",
           "text_scoring_criteria": "Scoring Criteria",
           "text_scoring_guide": "Scoring Guide",
-          "text_view_full_reviewer_guide_rarr": "View full reviewer guide &rarr;"
+          "text_view_full_reviewer_guide_rarr": "View full reviewer guide"
         }
       },
       "shared": {
@@ -2368,7 +2371,7 @@
               "text_both_author_and_reviewer_identities_are": "Both author and reviewer identities are hidden. Authors must anonymize their submissions.",
               "text_double_blind": "Double-Blind",
               "text_double_blind_2": "Double-blind:",
-              "text_reviewers_know_author_identities_but_authors": "Reviewers know author identities, but authors don&apos;t know reviewer identities.",
+              "text_reviewers_know_author_identities_but_authors": "Reviewers know author identities, but authors don't know reviewer identities.",
               "text_single_blind": "Single-Blind",
               "text_single_blind_2": "Single-blind:",
               "title_policy_guidelines": "Policy & Guidelines",

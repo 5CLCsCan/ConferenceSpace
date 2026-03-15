@@ -11,7 +11,8 @@ import type {
 import { FileTypeIcon, AuthorAvatar } from "./submission-detail/components"
 import { ChairDiscussionTab } from "./submission-detail/chair-discussion-tab"
 import { ChairHistoryTab } from "./submission-detail/chair-history-tab"
-import { SubmissionReviewTab } from "@/components/chair/submission-review-tab"
+import { ChairReviewsTab } from "./submission-detail/chair-reviews-tab"
+import type { AssignmentReview } from "@/lib/api/reviews"
 import {
   Dialog,
   DialogContent,
@@ -27,8 +28,10 @@ interface SubmissionDetailContentProps {
   activeTab: SubmissionSubTab
   conferenceId: string
   submissionId: string
+  reviews: AssignmentReview[]
   historyEvents: SubmissionHistoryEvent[]
   historyLoading?: boolean
+  onSubmissionStatusChange?: (status: SubmissionDetail["status"]) => void
   className?: string
 }
 
@@ -280,8 +283,10 @@ export function SubmissionDetailContent({
   activeTab,
   conferenceId,
   submissionId,
+  reviews,
   historyEvents,
   historyLoading = false,
+  onSubmissionStatusChange,
   className,
 }: SubmissionDetailContentProps) {
   return (
@@ -308,7 +313,13 @@ export function SubmissionDetailContent({
 
       {/* Other tabs - placeholder */}
       {activeTab === "reviews" && (
-        <SubmissionReviewTab conferenceId={conferenceId} submissionId={submissionId} />
+        <ChairReviewsTab
+          submission={submission}
+          conferenceId={conferenceId}
+          submissionId={submissionId}
+          reviews={reviews}
+          onStatusChange={onSubmissionStatusChange}
+        />
       )}
 
       {activeTab === "discussion" && (

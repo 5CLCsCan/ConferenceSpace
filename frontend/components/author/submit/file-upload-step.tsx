@@ -5,6 +5,10 @@ import { precheckPaper, downloadPaperFile } from "@/lib/api/papers"
 import type { Conference, PrecheckResult } from "@/lib/types"
 import { PreCheckResults } from "./precheck-results"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import {
+  ACCEPTED_MANUSCRIPT_FILE_INPUT,
+  getManuscriptUploadError,
+} from "./submission-file-validation"
 
 interface FileUploadStepProps {
   uploadedFile: File | null
@@ -48,7 +52,7 @@ export function FileUploadStep({
     const file = e.target.files?.[0]
     onFileUpload(e)
 
-    if (file && (file.type !== "application/pdf" || file.size > 20 * 1024 * 1024)) {
+    if (file && getManuscriptUploadError(file)) {
       onPrecheckUpdate?.(null, null)
       return
     }
@@ -136,10 +140,10 @@ export function FileUploadStep({
         <div className="border-b border-slate-100 dark:border-slate-700 pb-3 mb-4">
           <div className="flex justify-between items-center">
             <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
-              {t("runtime.components.author.submit.file-upload-step.text_manuscript_pdf")}{" "}
+              Manuscript File
             </h3>
             <span className="text-[9px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded uppercase tracking-wider">
-              {t("runtime.components.author.submit.file-upload-step.text_max_20mb")}{" "}
+              Max 20MB
             </span>
           </div>
         </div>
@@ -147,7 +151,7 @@ export function FileUploadStep({
           <input
             ref={fileInputRef}
             type="file"
-            accept=".pdf"
+            accept={ACCEPTED_MANUSCRIPT_FILE_INPUT}
             onChange={handleFileChange}
             className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer"
           />
@@ -201,9 +205,7 @@ export function FileUploadStep({
                   )}{" "}
                 </p>
                 <p className="text-[11px] text-slate-500 mt-1">
-                  {t(
-                    "runtime.components.author.submit.file-upload-step.text_only_pdf_files_are_allowed",
-                  )}
+                  PDF, DOCX, and TEX files are allowed
                 </p>
               </>
             )}
@@ -349,9 +351,7 @@ export function FileUploadStep({
                 {t("runtime.components.author.submit.file-upload-step.text_format_validated")}{" "}
               </p>
               <p className="text-[10px] text-green-700/70 dark:text-green-400/70 font-light">
-                {t(
-                  "runtime.components.author.submit.file-upload-step.text_the_uploaded_pdf_meets_the_conference",
-                )}{" "}
+                The uploaded manuscript meets the conference submission requirements.
               </p>
             </div>
           </div>

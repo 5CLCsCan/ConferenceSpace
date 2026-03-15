@@ -1,8 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
-import type { SubmissionDetail, ReviewerDecision } from "./types"
+import type { SubmissionDetail } from "./types"
+import type { AssignmentReview } from "@/lib/api/reviews"
+import { getRebuttal, type RebuttalPanelData } from "@/lib/api/rebuttal"
+import { updateSubmissionStatus } from "@/lib/api/submissions"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { tStatic as t } from "@/lib/i18n/static-translate"
 
@@ -13,108 +16,127 @@ interface ReviewerScore {
   originalScore: number
   currentScore: number
   updated: boolean
-  recommendation: "accept" | "weak_accept" | "borderline" | "weak_reject" | "reject"
+  recommendation:
+    | "strong_accept"
+    | "accept"
+    | "weak_accept"
+    | "borderline"
+    | "weak_reject"
+    | "reject"
+    | "strong_reject"
 }
 
 interface RebuttalPoint {
   id: string
   reviewerId: string
-  category: "weakness" | "question" | "suggestion"
+  category: "weakness" | "question" | "clarification" | "suggestion"
   section?: string
   originalComment: string
   authorResponse?: string
   status: "pending_review" | "addressed" | "partially_addressed" | "not_addressed"
   reviewerAcknowledgment?: {
     acknowledged: boolean
-    satisfactory: boolean
+    satisfactory?: boolean
     note?: string
   }
 }
 
-// --- Mock Data ---
-const MOCK_REVIEWER_SCORES: ReviewerScore[] = [
-  {
-    id: "r1",
-    anonymousId: "Reviewer #1",
-    originalScore: 6,
-    currentScore: 6,
-    updated: false,
-    recommendation: "weak_accept",
-  },
-  {
-    id: "r2",
-    anonymousId: "Reviewer #2",
-    originalScore: 5,
-    currentScore: 7,
-    updated: true,
-    recommendation: "accept",
-  },
-  {
-    id: "r3",
-    anonymousId: "Reviewer #3",
-    originalScore: 7,
-    currentScore: 7,
-    updated: false,
-    recommendation: "accept",
-  },
-]
+type DisplayDecision = "accept" | "minor" | "major" | "reject"
+type PersistedDecision = Extract<DisplayDecision, "accept" | "reject">
 
-const MOCK_REBUTTAL_POINTS: RebuttalPoint[] = [
-  {
-    id: "p1",
-    reviewerId: "r1",
-    category: "weakness",
-    section: "Methodology",
-    originalComment:
-      "The experimental setup lacks sufficient detail for reproducibility. What hyperparameters were used?",
-    authorResponse:
-      "We have added **Appendix B** with complete hyperparameter tables and training configurations.",
-    status: "addressed",
-    reviewerAcknowledgment: { acknowledged: true, satisfactory: true },
-  },
-  {
-    id: "p2",
-    reviewerId: "r1",
-    category: "question",
-    originalComment: "How does the method scale to larger datasets?",
-    authorResponse:
-      "Added scalability analysis in Section 5.3. Results show linear scaling up to 10M samples.",
-    status: "addressed",
-    reviewerAcknowledgment: { acknowledged: true, satisfactory: true },
-  },
-  {
-    id: "p3",
-    reviewerId: "r2",
-    category: "weakness",
-    section: "Related Work",
-    originalComment: "Missing comparison with recent transformer-based approaches from 2023.",
-    authorResponse: "Added comparison with [Reference A] and [Reference B] in Table 2.",
-    status: "partially_addressed",
-    reviewerAcknowledgment: {
-      acknowledged: true,
-      satisfactory: false,
-      note: "Would prefer more in-depth analysis",
-    },
-  },
-  {
-    id: "p4",
-    reviewerId: "r3",
-    category: "suggestion",
-    originalComment: "Consider adding ablation studies for each component.",
-    authorResponse:
-      "Added comprehensive ablation study in Section 6.2 with 5 additional experiments.",
-    status: "addressed",
-    reviewerAcknowledgment: { acknowledged: true, satisfactory: true },
-  },
-  {
-    id: "p5",
-    reviewerId: "r2",
-    category: "weakness",
-    originalComment: "The novelty claim seems overstated compared to prior work.",
-    authorResponse: "Revised claims in Section 1. Added detailed comparison table in Section 2.3.",
-    status: "pending_review",
-  },
-]
+function mapSubmissionStatusToDecision(
+  status: SubmissionDetail["status"],
+): DisplayDecision | undefined {
+  if (status === "accepted") return "accept"
+  if (status === "rejected") return "reject"
+  return undefined
+}
+
+function isPersistableDecision(decision?: DisplayDecision): decision is PersistedDecision {
+  return decision === "accept" || decision === "reject"
+}
+
+function mapDecisionToSubmissionStatus(decision: PersistedDecision): "accepted" | "rejected" {
+  return decision === "accept" ? "accepted" : "rejected"
+}
+
+function mapReviewRecommendation(value?: string): ReviewerScore["recommendation"] {
+  if (
+    value === "strong_accept" ||
+    value === "accept" ||
+    value === "weak_accept" ||
+    value === "borderline" ||
+    value === "weak_reject" ||
+    value === "reject" ||
+    value === "strong_reject"
+  ) {
+    return value
+  }
+
+  return "borderline"
+}
+
+function reviewerLabel(index: number) {
+  return `Reviewer #${index + 1}`
+}
+
+function buildReviewerScores(
+  reviews: AssignmentReview[],
+  rebuttalData: RebuttalPanelData | null,
+): ReviewerScore[] {
+  const rebuttalReviewers = new Map(
+    (rebuttalData?.reviewers ?? []).map((reviewer) => [reviewer.id, reviewer]),
+  )
+
+  const mappedReviews = reviews
+    .filter((review) => review.review_status === "submitted")
+    .map((review, index) => {
+      const rebuttalReviewer = rebuttalReviewers.get(String(review.id))
+
+      return {
+        id: String(review.id),
+        anonymousId: rebuttalReviewer?.anonymousId || reviewerLabel(index),
+        originalScore: typeof review.review_score === "number" ? review.review_score : 0,
+        currentScore: typeof review.review_score === "number" ? review.review_score : 0,
+        updated: false,
+        recommendation: mapReviewRecommendation(review.review_data?.recommendation),
+      }
+    })
+
+  const seen = new Set(mappedReviews.map((review) => review.id))
+
+  ;(rebuttalData?.reviewers ?? []).forEach((reviewer, index) => {
+    if (seen.has(reviewer.id)) {
+      return
+    }
+
+    mappedReviews.push({
+      id: reviewer.id,
+      anonymousId: reviewer.anonymousId || reviewerLabel(index),
+      originalScore: reviewer.scores.original || 0,
+      currentScore: reviewer.scores.current || 0,
+      updated: reviewer.scores.updated || false,
+      recommendation: mapReviewRecommendation(
+        reviewer.recommendation.current || reviewer.recommendation.original,
+      ),
+    })
+  })
+
+  return mappedReviews
+}
+
+function buildRebuttalPoints(rebuttalData: RebuttalPanelData | null): RebuttalPoint[] {
+  return (rebuttalData?.points ?? []).map((point) => ({
+    id: point.id,
+    reviewerId: point.reviewerId,
+    category: point.category === "clarification" ? "clarification" : point.category,
+    section: point.section,
+    originalComment: point.originalComment,
+    authorResponse: point.authorResponse,
+    status: point.status,
+    reviewerAcknowledgment: point.reviewerAcknowledgment,
+  }))
+}
 
 // --- Helper functions ---
 const CATEGORY_CONFIG: Record<string, { icon: string; color: string; label: string }> = {
@@ -131,6 +153,11 @@ const CATEGORY_CONFIG: Record<string, { icon: string; color: string; label: stri
     label: t(
       "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_label_question",
     ),
+  },
+  clarification: {
+    icon: "info",
+    color: "text-sky-500",
+    label: "Clarification",
   },
   suggestion: {
     icon: "lightbulb",
@@ -182,22 +209,26 @@ const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string }>
 
 function getRecommendationLabel(rec: string): string {
   const labels: Record<string, string> = {
+    strong_accept: "Strong Accept",
     accept: "Accept",
     weak_accept: "Weak Accept",
     borderline: "Borderline",
     weak_reject: "Weak Reject",
     reject: "Reject",
+    strong_reject: "Strong Reject",
   }
   return labels[rec] || rec
 }
 
 function getRecommendationColor(rec: string): string {
   const colors: Record<string, string> = {
+    strong_accept: "text-emerald-700",
     accept: "text-emerald-600",
     weak_accept: "text-lime-600",
     borderline: "text-slate-500",
     weak_reject: "text-orange-500",
     reject: "text-red-500",
+    strong_reject: "text-red-700",
   }
   return colors[rec] || "text-slate-500"
 }
@@ -206,15 +237,18 @@ function getRecommendationColor(rec: string): string {
 function DecisionMakingPanel({
   currentDecision,
   onDecision,
-  reviewers,
+  onSubmit,
+  isSaving,
+  message,
 }: {
-  currentDecision?: string
-  onDecision: (decision: string) => void
-  reviewers: ReviewerScore[]
+  currentDecision?: DisplayDecision
+  onDecision: (decision: DisplayDecision) => void
+  onSubmit: (notes: string) => Promise<void>
+  isSaving: boolean
+  message: string | null
 }) {
   const { t } = useTranslation()
   const [notes, setNotes] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isNotesExpanded, setIsNotesExpanded] = useState(false)
 
   const decisions = [
@@ -241,7 +275,8 @@ function DecisionMakingPanel({
         "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_description_small_changes_needed",
       ),
       activeStyle: "bg-sky-600 text-white border-sky-600",
-      inactiveStyle: "bg-white hover:bg-sky-50 text-sky-700 border-sky-200 hover:border-sky-400",
+      inactiveStyle: "bg-white text-sky-700 border-sky-200",
+      disabled: true,
     },
     {
       key: "major",
@@ -253,8 +288,8 @@ function DecisionMakingPanel({
         "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_description_significant_changes_required",
       ),
       activeStyle: "bg-amber-600 text-white border-amber-600",
-      inactiveStyle:
-        "bg-white hover:bg-amber-50 text-amber-700 border-amber-200 hover:border-amber-400",
+      inactiveStyle: "bg-white text-amber-700 border-amber-200",
+      disabled: true,
     },
     {
       key: "reject",
@@ -270,14 +305,6 @@ function DecisionMakingPanel({
     },
   ]
 
-  const handleSubmit = () => {
-    if (!currentDecision) return
-    setIsSubmitting(true)
-    // TODO: API call to submit decision
-    console.log("[Submit decision]", { decision: currentDecision, notes })
-    setTimeout(() => setIsSubmitting(false), 1000)
-  }
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden sticky top-0">
       {/* Decision Options */}
@@ -292,11 +319,18 @@ function DecisionMakingPanel({
           return (
             <button
               key={d.key}
-              onClick={() => onDecision(d.key)}
+              type="button"
+              disabled={d.disabled}
+              onClick={() => {
+                if (!d.disabled) {
+                  onDecision(d.key as DisplayDecision)
+                }
+              }}
               className={cn(
                 "w-full px-3 py-2.5 rounded-lg border transition-all flex items-center gap-3 text-left",
                 isActive ? d.activeStyle : d.inactiveStyle,
                 isActive && "shadow-sm",
+                d.disabled && "opacity-60 cursor-not-allowed",
               )}
             >
               <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
@@ -316,6 +350,9 @@ function DecisionMakingPanel({
             </button>
           )
         })}
+        <p className="text-[10px] text-slate-400 leading-relaxed">
+          Only Accept and Reject can be saved with the current backend.
+        </p>
       </div>
 
       {/* Divider */}
@@ -350,9 +387,8 @@ function DecisionMakingPanel({
               )}
             />
             <div className="text-[9px] text-slate-400 mt-1">
-              {t(
-                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_these_notes_are_private_and_will",
-              )}{" "}
+              Private notes are not persisted yet. They are shown here to preserve the approved
+              layout.
             </div>
           </>
         )}
@@ -361,16 +397,17 @@ function DecisionMakingPanel({
       {/* Submit Button */}
       <div className="p-4 pt-0">
         <button
-          onClick={handleSubmit}
-          disabled={!currentDecision || isSubmitting}
+          type="button"
+          onClick={() => void onSubmit(notes)}
+          disabled={!isPersistableDecision(currentDecision) || isSaving}
           className={cn(
             "w-full h-10 rounded-lg text-[10px] font-medium uppercase tracking-wider transition-all flex items-center justify-center gap-2",
-            currentDecision
+            isPersistableDecision(currentDecision)
               ? "bg-[#1B3C53] hover:bg-[#234C6A] text-white shadow-sm"
               : "bg-slate-100 text-slate-400 cursor-not-allowed",
           )}
         >
-          {isSubmitting ? (
+          {isSaving ? (
             <>
               <span className="material-symbols-outlined animate-spin" style={{ fontSize: "16px" }}>
                 progress_activity
@@ -397,6 +434,7 @@ function DecisionMakingPanel({
             )}{" "}
           </div>
         )}
+        {message && <div className="text-[10px] text-slate-500 text-center mt-2">{message}</div>}
       </div>
     </div>
   )
@@ -404,10 +442,30 @@ function DecisionMakingPanel({
 
 // --- Reviewer Scores Panel (Same design as reviewer's, adapted for chair) ---
 function ReviewerScoresPanel({ reviewers }: { reviewers: ReviewerScore[] }) {
-  const avgOriginal = reviewers.reduce((sum, r) => sum + r.originalScore, 0) / reviewers.length
-  const avgCurrent = reviewers.reduce((sum, r) => sum + r.currentScore, 0) / reviewers.length
-  const scoreChanged = avgOriginal !== avgCurrent
-  const updatedCount = reviewers.filter((r) => r.updated).length
+  const scoredReviewers = reviewers.filter((reviewer) => reviewer.currentScore > 0)
+
+  if (scoredReviewers.length === 0) {
+    return (
+      <div className="bg-white border border-slate-200 rounded-xl p-4 mb-5">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_reviewer_scores",
+            )}{" "}
+          </h3>
+        </div>
+        <p className="text-xs text-slate-500">No submitted reviews yet.</p>
+      </div>
+    )
+  }
+
+  const avgOriginal =
+    scoredReviewers.reduce((sum, reviewer) => sum + reviewer.originalScore, 0) /
+    scoredReviewers.length
+  const avgCurrent =
+    scoredReviewers.reduce((sum, reviewer) => sum + reviewer.currentScore, 0) /
+    scoredReviewers.length
+  const updatedCount = scoredReviewers.filter((reviewer) => reviewer.updated).length
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-4 mb-5">
@@ -440,7 +498,7 @@ function ReviewerScoresPanel({ reviewers }: { reviewers: ReviewerScore[] }) {
 
       {/* Individual Reviewers */}
       <div className="space-y-2">
-        {reviewers.map((reviewer) => (
+        {scoredReviewers.map((reviewer) => (
           <div
             key={reviewer.id}
             className="flex items-center gap-3 p-2 bg-slate-50/80 rounded-lg border border-slate-100"
@@ -670,18 +728,74 @@ function ReviewerResponseGroup({
 function PointByPointSection({
   points,
   reviewers,
+  loading,
+  error,
 }: {
   points: RebuttalPoint[]
   reviewers: ReviewerScore[]
+  loading: boolean
+  error: string | null
 }) {
-  // Group points by reviewer
+  if (loading) {
+    return (
+      <div className="mb-5">
+        <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">
+          {t(
+            "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_point_by_point_responses",
+          )}{" "}
+        </h3>
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
+          <p className="text-xs text-slate-500">Loading point-by-point responses…</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (points.length === 0) {
+    return (
+      <div className="mb-5">
+        <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">
+          {t(
+            "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_point_by_point_responses",
+          )}{" "}
+        </h3>
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
+          <p className="text-xs text-slate-500">
+            {error || "No point-by-point responses available yet."}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  const groupedByReviewer = new Map<string, RebuttalPoint[]>()
+  points.forEach((point) => {
+    const current = groupedByReviewer.get(point.reviewerId) || []
+    current.push(point)
+    groupedByReviewer.set(point.reviewerId, current)
+  })
+
+  const reviewerLabels = new Map(reviewers.map((reviewer) => [reviewer.id, reviewer.anonymousId]))
+
   const groupedPoints = reviewers
     .map((reviewer) => ({
       reviewerId: reviewer.id,
       reviewerLabel: reviewer.anonymousId,
-      points: points.filter((p) => p.reviewerId === reviewer.id),
+      points: groupedByReviewer.get(reviewer.id) || [],
     }))
     .filter(({ points }) => points.length > 0)
+
+  groupedByReviewer.forEach((reviewerPoints, reviewerId) => {
+    if (reviewerLabels.has(reviewerId)) {
+      return
+    }
+
+    groupedPoints.push({
+      reviewerId,
+      reviewerLabel: `Reviewer ${reviewerId}`,
+      points: reviewerPoints,
+    })
+  })
 
   const totalPoints = points.length
   const addressedPoints = points.filter((p) => p.status === "addressed").length
@@ -727,30 +841,113 @@ function PointByPointSection({
 // --- Main Export ---
 interface ChairReviewsTabProps {
   submission: SubmissionDetail
+  conferenceId: string
+  submissionId: string
+  reviews: AssignmentReview[]
+  onStatusChange?: (status: SubmissionDetail["status"]) => void
 }
 
-export function ChairReviewsTab({ submission }: ChairReviewsTabProps) {
-  const [currentDecision, setCurrentDecision] = useState<string | undefined>()
-  const reviewers = MOCK_REVIEWER_SCORES
-  const points = MOCK_REBUTTAL_POINTS
+export function ChairReviewsTab({
+  submission,
+  conferenceId,
+  submissionId,
+  reviews,
+  onStatusChange,
+}: ChairReviewsTabProps) {
+  const [currentDecision, setCurrentDecision] = useState<DisplayDecision | undefined>(
+    mapSubmissionStatusToDecision(submission.status),
+  )
+  const [decisionSaving, setDecisionSaving] = useState(false)
+  const [decisionMessage, setDecisionMessage] = useState<string | null>(null)
+  const [rebuttalData, setRebuttalData] = useState<RebuttalPanelData | null>(null)
+  const [rebuttalLoading, setRebuttalLoading] = useState(true)
+  const [rebuttalError, setRebuttalError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setCurrentDecision(mapSubmissionStatusToDecision(submission.status))
+  }, [submission.status])
+
+  useEffect(() => {
+    let isCancelled = false
+
+    async function loadRebuttal() {
+      setRebuttalLoading(true)
+      const result = await getRebuttal(conferenceId, submissionId)
+
+      if (isCancelled) {
+        return
+      }
+
+      if (result.error || !result.data) {
+        setRebuttalData(null)
+        setRebuttalError(result.error || "Failed to load rebuttal.")
+      } else {
+        setRebuttalData(result.data)
+        setRebuttalError(null)
+      }
+
+      setRebuttalLoading(false)
+    }
+
+    void loadRebuttal()
+
+    return () => {
+      isCancelled = true
+    }
+  }, [conferenceId, submissionId])
+
+  const reviewers = buildReviewerScores(reviews, rebuttalData)
+  const points = buildRebuttalPoints(rebuttalData)
+
+  async function handleDecisionSubmit(notes: string) {
+    if (!isPersistableDecision(currentDecision)) {
+      return
+    }
+
+    setDecisionSaving(true)
+    setDecisionMessage(null)
+
+    const nextStatus = mapDecisionToSubmissionStatus(currentDecision)
+    const result = await updateSubmissionStatus(conferenceId, submissionId, nextStatus)
+
+    if (result.error) {
+      setDecisionMessage(`Failed to save decision: ${result.error}`)
+    } else {
+      onStatusChange?.(nextStatus)
+      setDecisionMessage(
+        notes.trim().length > 0
+          ? "Decision saved. Private notes are not persisted yet."
+          : "Decision saved.",
+      )
+    }
+
+    setDecisionSaving(false)
+  }
 
   return (
-    <div className="flex gap-6">
+    <div className="flex flex-col xl:flex-row gap-6">
       {/* Main Content */}
       <div className="flex-[7] min-w-0">
         {/* Reviewer Scores Panel */}
         <ReviewerScoresPanel reviewers={reviewers} />
 
         {/* Point-by-Point Responses */}
-        <PointByPointSection points={points} reviewers={reviewers} />
+        <PointByPointSection
+          points={points}
+          reviewers={reviewers}
+          loading={rebuttalLoading}
+          error={rebuttalError}
+        />
       </div>
 
       {/* Sidebar - Decision Making */}
-      <div className="flex-[3] hidden lg:block">
+      <div className="flex-[3]">
         <DecisionMakingPanel
           currentDecision={currentDecision}
           onDecision={setCurrentDecision}
-          reviewers={reviewers}
+          onSubmit={handleDecisionSubmit}
+          isSaving={decisionSaving}
+          message={decisionMessage}
         />
       </div>
     </div>

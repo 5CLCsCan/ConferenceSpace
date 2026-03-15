@@ -131,7 +131,11 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
         </div>
 
         {/* Sort */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-[11px] font-semibold text-slate-400 tracking-wider">
+          <span className="material-symbols-outlined text-[16px]">filter_list</span>
+          <span className="text-[10px] normal-case">
+            {t("runtime.components.reviewer.completed-reviews.text_sort_by")}
+          </span>
           <select
             value={`${sortBy}-${sortOrder}`}
             onChange={(e) => {
@@ -139,23 +143,23 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
               setSortBy(s)
               setSortOrder(o)
             }}
-            className="h-8 px-3 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none text-slate-700 dark:text-slate-300"
+            className="bg-transparent border-none text-[#1B3C53] dark:text-white font-semibold uppercase tracking-wider focus:ring-0 p-0 cursor-pointer text-[10px] pr-8"
           >
             <option value="date-desc">
-              {t("dashboard.roles.reviewer.completedReviews.sortByDate")}{" "}
-              {t("runtime.components.reviewer.completed-reviews.text_newest")}{" "}
+              {t("runtime.components.reviewer.completed-reviews.text_date")}{" "}
+              {t("runtime.components.reviewer.completed-reviews.text_newest")}
             </option>
             <option value="date-asc">
-              {t("dashboard.roles.reviewer.completedReviews.sortByDate")}{" "}
-              {t("runtime.components.reviewer.completed-reviews.text_oldest")}{" "}
+              {t("runtime.components.reviewer.completed-reviews.text_date")}{" "}
+              {t("runtime.components.reviewer.completed-reviews.text_oldest")}
             </option>
             <option value="title-asc">
-              {t("dashboard.roles.reviewer.completedReviews.sortByTitle")}{" "}
-              {t("runtime.components.reviewer.completed-reviews.text_a_z")}{" "}
+              {t("runtime.components.reviewer.completed-reviews.text_title")}{" "}
+              {t("runtime.components.reviewer.completed-reviews.text_a_z")}
             </option>
             <option value="title-desc">
-              {t("dashboard.roles.reviewer.completedReviews.sortByTitle")}{" "}
-              {t("runtime.components.reviewer.completed-reviews.text_z_a")}{" "}
+              {t("runtime.components.reviewer.completed-reviews.text_title")}{" "}
+              {t("runtime.components.reviewer.completed-reviews.text_z_a")}
             </option>
           </select>
 

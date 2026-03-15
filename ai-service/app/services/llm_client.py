@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import json
 from typing import Any, AsyncIterator
 
 logger = logging.getLogger(__name__)
@@ -109,6 +110,59 @@ class LLMClient:
         if isinstance(content, list):
             return " ".join(str(c.get("text", "")) for c in content if isinstance(c, dict)).strip()
         return str(content or "").strip()
+
+    async def extract_structured_findings(
+        self,
+        *,
+        steering_prompt: str,
+        extracted_text: str,
+        submission_facts: dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        acompletion = _get_acompletion()
+        response = await acompletion(
+            model=self.model,
+            api_key=self.api_key,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You review submission content and return only JSON. "
+                        "Output a JSON array of objects with keys: rule_id, severity, reason, excerpt, remediation. "
+                        "Severity must be either 'warn' or 'pass'. Never emit 'block'."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": (
+                        f"Steering prompt:\n{steering_prompt}\n\n"
+                        f"Submission facts:\n{json.dumps(submission_facts, ensure_ascii=True)}\n\n"
+                        f"Extracted text:\n{extracted_text}"
+                    ),
+                },
+            ],
+            stream=False,
+            temperature=0,
+        )
+
+        choices = response.get("choices") if isinstance(response, dict) else getattr(response, "choices", [])
+        if not choices:
+            return []
+        message = choices[0].get("message") if isinstance(choices[0], dict) else getattr(choices[0], "message", None)
+        if not message:
+            return []
+        content = message.get("content") if isinstance(message, dict) else getattr(message, "content", "")
+        if isinstance(content, list):
+            content = " ".join(str(c.get("text", "")) for c in content if isinstance(c, dict)).strip()
+        if not content:
+            return []
+        try:
+            parsed = json.loads(str(content))
+        except json.JSONDecodeError:
+            logger.warning("llm.extract_structured_findings.invalid_json")
+            raise
+        if not isinstance(parsed, list):
+            return []
+        return [item for item in parsed if isinstance(item, dict)]
 
 
 def _get_acompletion():

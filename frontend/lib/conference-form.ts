@@ -17,10 +17,18 @@ function splitSubmissionFormats(value?: string): string[] {
 
   const formats = value
     .split(",")
-    .map((item) => item.trim()) 
+    .map((item) => item.trim())
     .filter(Boolean)
 
   return formats.length > 0 ? formats : initialFormData.fileFormats
+}
+
+function normalizeStringList(value?: string[]): string[] {
+  if (!value) {
+    return []
+  }
+
+  return value.map((item) => item.trim()).filter(Boolean)
 }
 
 function toISOString(value?: Date): string | undefined {
@@ -88,6 +96,7 @@ export function mapConferenceToFormData(conference: Conference): ConferenceFormD
   const config = conference.configurations
   const deskSettings = config?.desk_rejection_settings
   const normalizedReviewType = (config?.review_type || "").replace(/_/g, "-").toLowerCase()
+  const mappedRequiredSections = normalizeStringList(deskSettings?.required_sections)
 
   return {
     ...initialFormData,
@@ -112,8 +121,7 @@ export function mapConferenceToFormData(conference: Conference): ConferenceFormD
     abstractMaxWords: initialFormData.abstractMaxWords,
     supplementaryTypes: initialFormData.supplementaryTypes,
     allowSupplementary: (deskSettings?.custom_rules?.min_datasets || 0) > 0,
-    strictDeadlines:
-      config?.workflow_settings?.strict_deadlines ?? initialFormData.strictDeadlines,
+    strictDeadlines: config?.workflow_settings?.strict_deadlines ?? initialFormData.strictDeadlines,
     organizers: buildOrganizersFromEmails(conference.co_chairs),
     anonymity: normalizedReviewType === "single-blind" ? "single-blind" : "double-blind",
     rebuttalStartDate: parseDate(config?.rebuttal_settings?.start_at),
@@ -130,6 +138,14 @@ export function mapConferenceToFormData(conference: Conference): ConferenceFormD
     authorNotification: parseDate(config?.discussion_settings?.end_at),
     fileFormats: splitSubmissionFormats(config?.submission_format),
     callForPaperText: conference.call_for_paper_text || "",
+    gatingEnabled: deskSettings?.enabled ?? initialFormData.gatingEnabled,
+    gatingMinReferences: deskSettings?.min_references ?? initialFormData.gatingMinReferences,
+    gatingRequiredSections: mappedRequiredSections,
+    gatingAnonymizationRequired:
+      deskSettings?.custom_rules?.author_anonymization_required ??
+      initialFormData.gatingAnonymizationRequired,
+    gatingBannedPhrases: normalizeStringList(deskSettings?.custom_rules?.banned_phrases),
+    gatingPrompt: normalizeStringList(deskSettings?.prompt_fragments).join("\n\n"),
   }
 }
 
@@ -235,6 +251,9 @@ export function applyConferenceTemplateSections(
     tracks: [...current.tracks],
     fileFormats: [...current.fileFormats],
     supplementaryTypes: [...current.supplementaryTypes],
+    gatingRequiredSections: [...current.gatingRequiredSections],
+    gatingBannedPhrases: [...current.gatingBannedPhrases],
+    gatingScopeKeywords: [...current.gatingScopeKeywords],
   }
 
   if (selected.has("basics")) {
@@ -269,6 +288,12 @@ export function applyConferenceTemplateSections(
     next.supplementaryTypes = [...source.supplementaryTypes]
     next.fileFormats = [...source.fileFormats]
     next.strictDeadlines = source.strictDeadlines
+    next.gatingEnabled = source.gatingEnabled
+    next.gatingMinReferences = source.gatingMinReferences
+    next.gatingRequiredSections = [...source.gatingRequiredSections]
+    next.gatingAnonymizationRequired = source.gatingAnonymizationRequired
+    next.gatingBannedPhrases = [...source.gatingBannedPhrases]
+    next.gatingPrompt = source.gatingPrompt
   }
 
   if (selected.has("review_policy")) {
@@ -307,6 +332,9 @@ export function buildConferenceMutationPayload(
   const abstractDeadline = formData.abstractDeadline || formData.submissionsOpen
   const startDate = formData.conferenceStartDate || formData.dateRange.from
   const endDate = formData.conferenceEndDate || formData.dateRange.to
+  const gatingRequiredSections = normalizeStringList(formData.gatingRequiredSections)
+  const gatingBannedPhrases = normalizeStringList(formData.gatingBannedPhrases)
+  const gatingPrompt = formData.gatingPrompt.trim()
   const location =
     formData.locationType === "virtual" ? formData.website || formData.location : formData.location
 
@@ -337,8 +365,7 @@ export function buildConferenceMutationPayload(
       camera_ready_deadline:
         formData.cameraReadyDeadline?.toISOString() || existingConfig?.camera_ready_deadline,
       format: formData.locationType || existingConfig?.format,
-      review_type:
-        formData.anonymity === "single-blind" ? "single-blind" : "double-blind",
+      review_type: formData.anonymity === "single-blind" ? "single-blind" : "double-blind",
       have_coi: existingConfig?.have_coi ?? true,
       maximum_pages: formData.maxPages || existingConfig?.maximum_pages || 8,
       submission_format:
@@ -349,18 +376,9 @@ export function buildConferenceMutationPayload(
       allow_paper_withdrawls: existingConfig?.allow_paper_withdrawls ?? true,
       call_for_paper_text: formData.callForPaperText || existingConference?.call_for_paper_text,
       desk_rejection_settings: {
-        enabled: existingDeskSettings?.enabled ?? true,
-        required_sections: existingDeskSettings?.required_sections || [
-          "Abstract",
-          "Introduction",
-          "Methods",
-          "Results",
-          "Conclusions",
-        ],
-        title_max_words: existingDeskSettings?.title_max_words || 15,
-        max_sentence_words: existingDeskSettings?.max_sentence_words || 25,
-        min_references:
-          formData.minKeywords || existingDeskSettings?.min_references || 1,
+        enabled: formData.gatingEnabled,
+        required_sections: gatingRequiredSections,
+        min_references: formData.gatingMinReferences ?? undefined,
         thresholds: existingDeskSettings?.thresholds || {
           desk_reject_score: 0.3,
           accept_score: 0.7,
@@ -368,42 +386,28 @@ export function buildConferenceMutationPayload(
         weights: existingDeskSettings?.weights,
         custom_rules: {
           ...existingDeskSettings?.custom_rules,
-          min_datasets: formData.allowSupplementary
-            ? Math.max(existingDeskSettings?.custom_rules?.min_datasets || 0, 1)
-            : 0,
+          author_anonymization_required: formData.gatingAnonymizationRequired ? true : undefined,
+          banned_phrases: gatingBannedPhrases,
         },
-        scope_keywords:
-          formData.topics.length > 0
-            ? formData.topics
-            : existingDeskSettings?.scope_keywords || [],
-        prompt_fragments:
-          existingDeskSettings?.prompt_fragments?.length
-            ? existingDeskSettings.prompt_fragments
-            : formData.callForPaperText
-              ? [`Conference scope and emphasis:\n${formData.callForPaperText}`]
-              : [],
+        prompt_fragments: gatingPrompt ? [gatingPrompt] : [],
       },
       discussion_settings: {
         enabled: existingDiscussionSettings?.enabled ?? true,
         allow_author_response: existingDiscussionSettings?.allow_author_response ?? true,
-        start_at:
-          fullPaperDeadline?.toISOString() || existingDiscussionSettings?.start_at,
-        end_at:
-          formData.finalDecisionDate?.toISOString() || existingDiscussionSettings?.end_at,
+        start_at: fullPaperDeadline?.toISOString() || existingDiscussionSettings?.start_at,
+        end_at: formData.finalDecisionDate?.toISOString() || existingDiscussionSettings?.end_at,
       },
       rebuttal_settings: {
         enabled:
           Boolean(formData.rebuttalStartDate && formData.rebuttalEndDate) ||
           existingRebuttalSettings?.enabled ||
           false,
-        start_at:
-          formData.rebuttalStartDate?.toISOString() || existingRebuttalSettings?.start_at,
+        start_at: formData.rebuttalStartDate?.toISOString() || existingRebuttalSettings?.start_at,
         end_at: formData.rebuttalEndDate?.toISOString() || existingRebuttalSettings?.end_at,
         character_limit: existingRebuttalSettings?.character_limit || 10000,
         allow_revisions: existingRebuttalSettings?.allow_revisions ?? true,
         allow_new_results: existingRebuttalSettings?.allow_new_results ?? true,
-        require_response_to_all:
-          existingRebuttalSettings?.require_response_to_all ?? false,
+        require_response_to_all: existingRebuttalSettings?.require_response_to_all ?? false,
       },
       workflow_settings: {
         ...existingWorkflowSettings,

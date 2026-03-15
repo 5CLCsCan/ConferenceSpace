@@ -1,6 +1,7 @@
 package file
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -37,15 +38,26 @@ func NewLocalFileStorage(basePath string) *LocalFileStorage {
 }
 
 func (s *LocalFileStorage) SaveFile(file io.Reader, header *multipart.FileHeader, conferenceID, submissionID int64) (*dto.SubmissionFileMetadata, error) {
-	// Validate file type
-	if !s.isValidPDF(header) {
-		return nil, fmt.Errorf("only PDF files are allowed")
+	format, ok := detectSubmissionFileFormat(header)
+	if !ok {
+		return nil, fmt.Errorf("only PDF, DOCX, and TEX files are allowed")
 	}
 
 	// Validate file size (20MB limit)
 	const maxSize = 20 * 1024 * 1024 // 20MB
 	if header.Size > maxSize {
 		return nil, fmt.Errorf("file size must not exceed 20MB")
+	}
+
+	content, err := io.ReadAll(io.LimitReader(file, maxSize+1))
+	if err != nil {
+		return nil, fmt.Errorf("failed to read uploaded file: %w", err)
+	}
+	if int64(len(content)) > maxSize {
+		return nil, fmt.Errorf("file size must not exceed 20MB")
+	}
+	if err := validateSubmissionFileBytes(format, content); err != nil {
+		return nil, err
 	}
 
 	// Create directory structure
@@ -69,22 +81,21 @@ func (s *LocalFileStorage) SaveFile(file io.Reader, header *multipart.FileHeader
 	defer dst.Close()
 
 	// Copy file content
-	if _, err := io.Copy(dst, file); err != nil {
+	if _, err := io.Copy(dst, bytes.NewReader(content)); err != nil {
 		os.Remove(filePath) // Clean up on error
 		return nil, fmt.Errorf("failed to save file: %w", err)
 	}
 
-	// Basic PDF validation (check if it starts with PDF header)
-	if err := s.validatePDFHeader(filePath); err != nil {
-		os.Remove(filePath) // Clean up invalid file
-		return nil, err
+	mimeType := header.Header.Get("Content-Type")
+	if strings.TrimSpace(mimeType) == "" {
+		mimeType = fallbackSubmissionMIME(format)
 	}
 
 	metadata := &dto.SubmissionFileMetadata{
 		Filename:     filename,
 		OriginalName: header.Filename,
-		Size:         header.Size,
-		MimeType:     header.Header.Get("Content-Type"),
+		Size:         int64(len(content)),
+		MimeType:     mimeType,
 		Path:         filePath,
 	}
 
@@ -98,18 +109,6 @@ func (s *LocalFileStorage) GetFilePath(conferenceID, submissionID int64, filenam
 func (s *LocalFileStorage) DeleteFile(conferenceID, submissionID int64, filename string) error {
 	filePath := s.GetFilePath(conferenceID, submissionID, filename)
 	return s.DeleteByPath(filePath)
-}
-
-func (s *LocalFileStorage) isValidPDF(header *multipart.FileHeader) bool {
-	// Check MIME type
-	contentType := header.Header.Get("Content-Type")
-	if contentType != "application/pdf" {
-		return false
-	}
-
-	// Check file extension
-	ext := strings.ToLower(filepath.Ext(header.Filename))
-	return ext == ".pdf"
 }
 
 func (s *LocalFileStorage) sanitizeFilename(filename string) string {
@@ -129,28 +128,6 @@ func (s *LocalFileStorage) sanitizeFilename(filename string) string {
 	return result
 }
 
-func (s *LocalFileStorage) validatePDFHeader(filePath string) error {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return fmt.Errorf("failed to open file for validation: %w", err)
-	}
-	defer file.Close()
-
-	// Read first few bytes to check PDF header
-	header := make([]byte, 8)
-	n, err := file.Read(header)
-	if err != nil || n < 8 {
-		return fmt.Errorf("file appears to be corrupted")
-	}
-
-	// PDF files start with "%PDF-"
-	if string(header[:5]) != "%PDF-" {
-		return fmt.Errorf("file is not a valid PDF")
-	}
-
-	return nil
-}
-
 // SaveCoverLetter saves a cover letter file (PDF, DOCX, or TXT)
 func (s *LocalFileStorage) SaveCoverLetter(file io.Reader, header *multipart.FileHeader, conferenceID, submissionID int64) (*dto.SubmissionFileMetadata, error) {
 	// Validate file type
@@ -161,6 +138,14 @@ func (s *LocalFileStorage) SaveCoverLetter(file io.Reader, header *multipart.Fil
 	// Validate file size (20MB limit)
 	const maxSize = 20 * 1024 * 1024 // 20MB
 	if header.Size > maxSize {
+		return nil, fmt.Errorf("file size must not exceed 20MB")
+	}
+
+	content, err := io.ReadAll(io.LimitReader(file, maxSize+1))
+	if err != nil {
+		return nil, fmt.Errorf("failed to read uploaded file: %w", err)
+	}
+	if int64(len(content)) > maxSize {
 		return nil, fmt.Errorf("file size must not exceed 20MB")
 	}
 
@@ -185,24 +170,29 @@ func (s *LocalFileStorage) SaveCoverLetter(file io.Reader, header *multipart.Fil
 	defer dst.Close()
 
 	// Copy file content
-	if _, err := io.Copy(dst, file); err != nil {
+	if _, err := io.Copy(dst, bytes.NewReader(content)); err != nil {
 		os.Remove(filePath) // Clean up on error
 		return nil, fmt.Errorf("failed to save file: %w", err)
 	}
 
 	// Validate file format if PDF
 	if strings.ToLower(ext) == ".pdf" {
-		if err := s.validatePDFHeader(filePath); err != nil {
+		if err := validatePDFBytes(content); err != nil {
 			os.Remove(filePath) // Clean up invalid file
 			return nil, err
 		}
 	}
 
+	mimeType := header.Header.Get("Content-Type")
+	if strings.TrimSpace(mimeType) == "" {
+		mimeType = fallbackCoverLetterMIME(strings.ToLower(ext))
+	}
+
 	metadata := &dto.SubmissionFileMetadata{
 		Filename:     filename,
 		OriginalName: header.Filename,
-		Size:         header.Size,
-		MimeType:     header.Header.Get("Content-Type"),
+		Size:         int64(len(content)),
+		MimeType:     mimeType,
 		Path:         filePath,
 	}
 
@@ -236,13 +226,25 @@ func (s *LocalFileStorage) DeleteByPath(path string) error {
 
 // SaveCameraReady saves the camera-ready (final) version of a paper (PDF only).
 func (s *LocalFileStorage) SaveCameraReady(file io.Reader, header *multipart.FileHeader, conferenceID, submissionID int64) (*dto.SubmissionFileMetadata, error) {
-	if !s.isValidPDF(header) {
+	format, ok := detectSubmissionFileFormat(header)
+	if !ok || format != submissionFileFormatPDF {
 		return nil, fmt.Errorf("only PDF files are allowed for camera-ready upload")
 	}
 
 	const maxSize = 20 * 1024 * 1024 // 20MB
 	if header.Size > maxSize {
 		return nil, fmt.Errorf("file size must not exceed 20MB")
+	}
+
+	content, err := io.ReadAll(io.LimitReader(file, maxSize+1))
+	if err != nil {
+		return nil, fmt.Errorf("failed to read uploaded file: %w", err)
+	}
+	if int64(len(content)) > maxSize {
+		return nil, fmt.Errorf("file size must not exceed 20MB")
+	}
+	if err := validatePDFBytes(content); err != nil {
+		return nil, err
 	}
 
 	dirPath := filepath.Join(s.basePath, fmt.Sprintf("%d", conferenceID), fmt.Sprintf("%d", submissionID), "camera_ready")
@@ -262,15 +264,10 @@ func (s *LocalFileStorage) SaveCameraReady(file io.Reader, header *multipart.Fil
 	}
 	defer dst.Close()
 
-	size, err := io.Copy(dst, file)
+	size, err := io.Copy(dst, bytes.NewReader(content))
 	if err != nil {
 		os.Remove(filePath)
 		return nil, fmt.Errorf("failed to save file: %w", err)
-	}
-
-	if err := s.validatePDFHeader(filePath); err != nil {
-		os.Remove(filePath)
-		return nil, err
 	}
 
 	return &dto.SubmissionFileMetadata{

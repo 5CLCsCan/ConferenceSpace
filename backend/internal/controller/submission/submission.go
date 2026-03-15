@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"time"
 
+	aiServiceClient "github.com/dcao/conferencespace/internal/clients/ai_service"
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/model"
@@ -36,12 +37,22 @@ type Controller struct {
 	conferenceStorage   conferenceStorage.StorageInterface
 	fileStorage         fileStorage.StorageInterface
 	roleStorage         conferenceuserrole.StorageInterface
-	geminiClient        interface{} // Store as interface to allow nil checks
+	gatingClient        GatingClient
 	coiService          *coiService.Service
 	notificationService *notificationService.Service
 }
 
-func New(store *storage.Storage, fileStore fileStorage.StorageInterface, geminiClient interface{}, coiSvc *coiService.Service) *Controller {
+type GatingClient interface {
+	RunSubmissionMaterialGating(
+		ctx context.Context,
+		token string,
+		requestPayload *aiServiceClient.GatingRunRequest,
+		filename string,
+		fileContent []byte,
+	) (*aiServiceClient.GatingRunResponse, error)
+}
+
+func New(store *storage.Storage, fileStore fileStorage.StorageInterface, gatingClient GatingClient, coiSvc *coiService.Service) *Controller {
 	return &Controller{
 		submissionStorage: store.Submission,
 		assignmentStorage: store.Assignment,
@@ -49,7 +60,7 @@ func New(store *storage.Storage, fileStore fileStorage.StorageInterface, geminiC
 		conferenceStorage: store.Conference,
 		fileStorage:       fileStore,
 		roleStorage:       store.ConferenceUserRole,
-		geminiClient:      geminiClient,
+		gatingClient:      gatingClient,
 		coiService:        coiSvc,
 	}
 }
@@ -58,7 +69,7 @@ func New(store *storage.Storage, fileStore fileStorage.StorageInterface, geminiC
 func NewWithNotifications(
 	store *storage.Storage,
 	fileStore fileStorage.StorageInterface,
-	geminiClient interface{},
+	gatingClient GatingClient,
 	coiSvc *coiService.Service,
 	notifSvc *notificationService.Service,
 ) *Controller {
@@ -69,7 +80,7 @@ func NewWithNotifications(
 		conferenceStorage:   store.Conference,
 		fileStorage:         fileStore,
 		roleStorage:         store.ConferenceUserRole,
-		geminiClient:        geminiClient,
+		gatingClient:        gatingClient,
 		coiService:          coiSvc,
 		notificationService: notifSvc,
 	}
@@ -180,17 +191,21 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.SubmissionCreateReques
 		req.Submission.Status = dto.StatusDraft
 	}
 
-	// For published submissions, a file is mandatory and must pass precheck.
+	// For published submissions, a file is mandatory and must pass submission gating.
 	if req.Submission.Status == dto.StatusPublished {
 		if req.Submission.File == nil || len(req.Submission.File.Content) == 0 {
 			return nil, handler.NewErrorResponse(http.StatusBadRequest, "paper file is required when publishing a submission")
 		}
 
 		if err := c.ensureSubmissionPrecheckApprovedFromBytes(
-			ctx,
+			ginCtx,
 			conference,
+			req.Submission,
+			nil,
 			req.Submission.File.Content,
 			req.Submission.File.OriginalName,
+			req.Submission.File.MimeType,
+			precheckSourceSubmissionCreate,
 		); err != nil {
 			return nil, err
 		}
@@ -644,18 +659,27 @@ func (c *Controller) Publish(ginCtx *gin.Context, req *dto.SubmissionPublishRequ
 		}
 	}
 
-	// Hard gate: only allow publish when the current paper passes precheck.
 	if req.Submission.File != nil && len(req.Submission.File.Content) > 0 {
+		submissionID := existing.ID
 		if err := c.ensureSubmissionPrecheckApprovedFromBytes(
-			ctx,
+			ginCtx,
 			conference,
+			existing,
+			&submissionID,
 			req.Submission.File.Content,
 			req.Submission.File.OriginalName,
+			req.Submission.File.MimeType,
+			precheckSourceSubmissionPublish,
 		); err != nil {
 			return nil, err
 		}
-	} else if existing.File != nil && existing.File.Path != "" {
-		if err := c.ensureSubmissionPrecheckApprovedForStoredFile(ctx, conference, existing.File); err != nil {
+	} else {
+		if err := c.ensureSubmissionPrecheckApprovedForStoredFile(
+			ginCtx,
+			conference,
+			existing,
+			precheckSourceSubmissionPublish,
+		); err != nil {
 			return nil, err
 		}
 	}

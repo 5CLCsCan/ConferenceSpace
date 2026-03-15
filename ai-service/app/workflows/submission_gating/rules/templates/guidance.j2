@@ -1,0 +1,23 @@
+{% if finding.rule_id == "min_references" -%}
+Add enough citations to meet the minimum reference requirement before resubmitting.
+{%- elif finding.rule_id == "required_sections" -%}
+Add each missing required section heading and its corresponding content.
+{%- elif finding.rule_id == "title_max_words" -%}
+Shorten the title so it stays within the configured word limit.
+{%- elif finding.rule_id == "author_anonymization_required" -%}
+Remove author-identifying names and metadata from the manuscript and file properties.
+{%- elif finding.rule_id == "banned_phrases" -%}
+Remove the banned phrases from the manuscript text before submitting again.
+{%- elif finding.rule_id == "scope_keywords" -%}
+Clarify the paper's relevance to the conference scope or revise the scope keywords.
+{%- elif finding.rule_id == "maximum_pages" -%}
+Reduce the paper length to align with the preferred page limit.
+{%- elif finding.rule_id == "gating.disabled" -%}
+No gating action is required because submission gating is disabled for this conference.
+{%- elif finding.rule_id.startswith("binary_integrity") -%}
+Upload a supported, readable paper file in PDF, DOCX, or LaTeX format.
+{%- elif finding.rule_id.startswith("document_extraction") -%}
+Upload a readable file with machine-extractable text content.
+{%- else -%}
+Review the finding details and update the submission before resubmitting.
+{%- endif %}
