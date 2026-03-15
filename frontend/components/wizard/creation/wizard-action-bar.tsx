@@ -13,6 +13,7 @@ interface WizardActionBarProps {
   onNext: () => void
   onPrevious: () => void
   onSubmit: () => void
+  onOpenTemplate?: () => void
   isSubmitting?: boolean
   canSubmit?: boolean
   saveDraftLabel?: string
@@ -30,6 +31,7 @@ export function WizardActionBar({
   onNext,
   onPrevious,
   onSubmit,
+  onOpenTemplate,
   isSubmitting = false,
   canSubmit = true,
   saveDraftLabel,
@@ -42,35 +44,68 @@ export function WizardActionBar({
   return (
     <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-3 px-4 z-30 shadow-[0_-4px_20px_rgba(0,0,0,0.02)]">
       <div className="max-w-4xl mx-auto flex items-center justify-between">
-        {/* Return Button */}
-        <button
-          type="button"
-          onClick={onCancel}
-          className="flex items-center gap-1.5 h-8 px-3 rounded-full text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors uppercase tracking-wider"
-        >
-          <span
-            className="material-symbols-outlined"
-            style={{
-              fontSize: "16px",
-              width: "16px",
-              height: "16px",
-              maxWidth: "16px",
-              maxHeight: "16px",
-              minWidth: "16px",
-              minHeight: "16px",
-              lineHeight: "1",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              transform: "none",
-              boxSizing: "border-box",
-            }}
+        <div className="flex items-center gap-2">
+          {/* Return Button */}
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex items-center gap-1.5 h-8 px-3 rounded-full text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors uppercase tracking-wider"
           >
-            arrow_back
-          </span>
-          {t("runtime.components.wizard.creation.wizard-action-bar.text_back")}{" "}
-        </button>
+            <span
+              className="material-symbols-outlined"
+              style={{
+                fontSize: "16px",
+                width: "16px",
+                height: "16px",
+                maxWidth: "16px",
+                maxHeight: "16px",
+                minWidth: "16px",
+                minHeight: "16px",
+                lineHeight: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+                transform: "none",
+                boxSizing: "border-box",
+              }}
+            >
+              arrow_back
+            </span>
+            {t("runtime.components.wizard.creation.wizard-action-bar.text_back")}{" "}
+          </button>
+
+          {onOpenTemplate && (
+            <button
+              type="button"
+              onClick={onOpenTemplate}
+              className="flex items-center gap-1.5 h-8 px-3 rounded-full text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors uppercase tracking-wider"
+            >
+              <span
+                className="material-symbols-outlined"
+                style={{
+                  fontSize: "16px",
+                  width: "16px",
+                  height: "16px",
+                  maxWidth: "16px",
+                  maxHeight: "16px",
+                  minWidth: "16px",
+                  minHeight: "16px",
+                  lineHeight: "1",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  transform: "none",
+                  boxSizing: "border-box",
+                }}
+              >
+                library_books
+              </span>
+              {t("runtime.components.wizard.creation.wizard-action-bar.text_template")}
+            </button>
+          )}
+        </div>
 
         {/* Right Side Actions */}
         <div className="flex items-center gap-3">
