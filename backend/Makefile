@@ -19,7 +19,7 @@ help: ## Show this help message
 # Development Workflow
 # ============================================================================
 
-dev: db-up redis-up neo4j-up migrate-up neo4j-init swagger server ## Start all databases, run migrations, init Neo4j, generate swagger docs, and start server (recommended for development)
+dev: db-up redis-up neo4j-up migrate-up neo4j-init swagger server ## Start all databases, run migrations, init Neo4j, generate swagger docs, and start server
 
 restart: ## Restart all services (kill current server, stop databases, and run make dev)
 	@echo "Stopping existing server..."
@@ -412,3 +412,6 @@ status: ## Check status of services
 	@echo ""
 	@echo "=== API Health Check ==="
 	@curl -s http://localhost:8080/health 2>/dev/null | grep -q "healthy" && echo "API is healthy!" || echo "API not accessible"
+	@echo ""
+	@echo "=== GROBID Status ==="
+	@curl -sf http://localhost:8070/api/isalive > /dev/null 2>&1 && echo "[OK] GROBID is ready" || echo "[WARN] GROBID not accessible"

@@ -1,14 +1,7 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { CheckCircle2, XCircle, AlertCircle, TrendingUp, FileText, Sparkles } from "lucide-react"
-import { useTranslation } from "@/lib/i18n/translation-context"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { Button } from "@/components/ui/button"
-import { ChevronDown, ChevronUp } from "lucide-react"
 import { useState } from "react"
+import { useTranslation } from "@/lib/i18n/translation-context"
 import type { PrecheckResult } from "@/lib/types"
 
 export type PreCheckResult = PrecheckResult
@@ -19,80 +12,29 @@ interface PreCheckResultsProps {
 
 export function PreCheckResults({ result }: PreCheckResultsProps) {
   const { t } = useTranslation()
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
-
-  const toggleCategory = (category: string) => {
-    const newExpanded = new Set(expandedCategories)
-    if (newExpanded.has(category)) {
-      newExpanded.delete(category)
-    } else {
-      newExpanded.add(category)
-    }
-    setExpandedCategories(newExpanded)
-  }
-
-  const getStatusIcon = (status: "pass" | "fail" | "warning") => {
-    switch (status) {
-      case "pass":
-        return <CheckCircle2 className="size-5 text-green-600" />
-      case "fail":
-        return <XCircle className="size-5 text-red-600" />
-      case "warning":
-        return <AlertCircle className="size-5 text-yellow-600" />
-    }
-  }
-
-  const getStatusBadgeVariant = (status: "pass" | "fail" | "warning") => {
-    switch (status) {
-      case "pass":
-        return "bg-green-50 text-green-700 border-green-200"
-      case "fail":
-        return "bg-red-50 text-red-700 border-red-200"
-      case "warning":
-        return "bg-yellow-50 text-yellow-700 border-yellow-200"
-    }
-  }
-
-  const getDecisionBadge = (decision: string) => {
-    if (decision === "accept_for_review") {
-      return (
-        <Badge className="bg-green-50 text-green-700 border-green-200 font-medium">
-          {t("dashboard.author.submit.precheck.decision.acceptForReview")}
-        </Badge>
-      )
-    }
-    if (decision === "desk_reject") {
-      return (
-        <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
-          {t("dashboard.author.submit.precheck.decision.deskReject")}
-        </Badge>
-      )
-    }
-    return (
-      <Badge className="bg-yellow-50 text-yellow-700 border-yellow-200 font-medium">
-        {t("dashboard.author.submit.precheck.decision.manualReview")}
-      </Badge>
-    )
-  }
-
-  // Group detailed results by category
-  const resultsByCategory = result.detailed_results.reduce(
-    (acc, item) => {
-      if (!acc[item.category]) {
-        acc[item.category] = []
-      }
-      acc[item.category].push(item)
-      return acc
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
+    () => {
+      // Auto-expand failed categories by default
+      const failedCats = new Set<string>()
+      result.detailed_results.forEach((r) => {
+        if (r.status === "fail") failedCats.add(r.category)
+      })
+      return failedCats
     },
-    {} as Record<string, typeof result.detailed_results>,
   )
 
-  // Separate passed, warnings, and failed
+  const toggleCategory = (category: string) => {
+    setExpandedCategories((prev) => {
+      const next = new Set(prev)
+      next.has(category) ? next.delete(category) : next.add(category)
+      return next
+    })
+  }
+
   const passedResults = result.detailed_results.filter((r) => r.status === "pass")
   const warningResults = result.detailed_results.filter((r) => r.status === "warning")
   const failedResults = result.detailed_results.filter((r) => r.status === "fail")
 
-  // Category display names
   const categoryNames: Record<string, string> = {
     title_abstract: t("dashboard.author.submit.precheck.categories.titleAbstract"),
     introduction: t("dashboard.author.submit.precheck.categories.introduction"),
@@ -101,244 +43,323 @@ export function PreCheckResults({ result }: PreCheckResultsProps) {
     writing_quality: t("dashboard.author.submit.precheck.categories.writingQuality"),
     pre_submission: t("dashboard.author.submit.precheck.categories.preSubmission"),
     scope_match: t("dashboard.author.submit.precheck.categories.scopeMatch"),
+    deterministic: "Deterministic",
   }
 
-  return (
-    <div className="space-y-6">
-      {/* Overall Score Card */}
-      <Card className="border-2 border-primary/20 shadow-lg">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-primary/10">
-                <Sparkles className="size-6 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-2xl font-bold">
-                  {t("dashboard.author.submit.precheck.title")}
-                </CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {result.paper_title || t("dashboard.author.submit.precheck.extractedTitle")}
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-4xl font-bold text-primary mb-1">
-                {Math.round(result.overall_score)}%
-              </div>
-              {getDecisionBadge(result.decision)}
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-4 mb-4">
-            <div className="text-center p-4 rounded-lg bg-green-50 border border-green-200">
-              <div className="text-2xl font-bold text-green-700 mb-1">{result.summary.passed}</div>
-              <div className="text-sm text-muted-foreground">
-                {t("dashboard.author.submit.precheck.summary.passed")}
-              </div>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-yellow-50 border border-yellow-200">
-              <div className="text-2xl font-bold text-yellow-700 mb-1">{warningResults.length}</div>
-              <div className="text-sm text-muted-foreground">
-                {t("dashboard.author.submit.precheck.summary.warnings")}
-              </div>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-red-50 border border-red-200">
-              <div className="text-2xl font-bold text-red-700 mb-1">{result.summary.failed}</div>
-              <div className="text-sm text-muted-foreground">
-                {t("dashboard.author.submit.precheck.summary.failed")}
-              </div>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="font-medium">
-                {t("dashboard.author.submit.precheck.summary.passRate")}
-              </span>
-              <span className="font-semibold">{Math.round(result.summary.pass_rate * 100)}%</span>
-            </div>
-            <Progress value={result.summary.pass_rate * 100} className="h-3" />
-          </div>
-        </CardContent>
-      </Card>
+  const failedByCategory = failedResults.reduce(
+    (acc, item) => {
+      if (!acc[item.category]) acc[item.category] = []
+      acc[item.category].push(item)
+      return acc
+    },
+    {} as Record<string, typeof failedResults>,
+  )
 
-      {/* Category Scores */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="size-5 text-primary" />
+  const warningsByCategory = warningResults.reduce(
+    (acc, item) => {
+      if (!acc[item.category]) acc[item.category] = []
+      acc[item.category].push(item)
+      return acc
+    },
+    {} as Record<string, typeof warningResults>,
+  )
+
+  const overallScore = Math.round(result.overall_score)
+  const passRate = Math.round(result.summary.pass_rate * 100)
+  const isDeskReject = result.decision === "desk_reject"
+  const isAccepted = result.decision === "accept_for_review"
+
+  const decisionConfig = isDeskReject
+    ? { label: t("dashboard.author.submit.precheck.decision.deskReject"), bg: "bg-red-50", text: "text-red-600", border: "border-red-200", barColor: "bg-red-500" }
+    : isAccepted
+      ? { label: t("dashboard.author.submit.precheck.decision.acceptForReview"), bg: "bg-emerald-50", text: "text-emerald-600", border: "border-emerald-200", barColor: "bg-emerald-500" }
+      : { label: t("dashboard.author.submit.precheck.decision.manualReview"), bg: "bg-amber-50", text: "text-amber-600", border: "border-amber-200", barColor: "bg-amber-500" }
+
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="px-4 pt-4 pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="material-symbols-outlined text-[18px] text-[#1B3C53] dark:text-slate-300">
+              fact_check
+            </span>
+            <div>
+              <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
+                {t("dashboard.author.submit.precheck.title")}
+              </h3>
+              {result.paper_title && (
+                <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 mt-0.5 truncate max-w-[320px]">
+                  {result.paper_title}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <span className="text-sm font-bold text-[#1B3C53] dark:text-white tabular-nums">
+              {overallScore}%
+            </span>
+            <span
+              className={`inline-flex items-center text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${decisionConfig.bg} ${decisionConfig.text} border ${decisionConfig.border}`}
+            >
+              {decisionConfig.label}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats row + pass rate */}
+      <div className="px-4 pb-3 border-b border-slate-100 dark:border-slate-700">
+        <div className="flex items-center gap-4 mb-2.5">
+          <div className="flex items-center gap-1.5">
+            <span className="size-1.5 rounded-full bg-emerald-500" />
+            <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400 tabular-nums">
+              {result.summary.passed}{" "}
+              <span className="text-slate-400 dark:text-slate-500">
+                {t("dashboard.author.submit.precheck.summary.passed")}
+              </span>
+            </span>
+          </div>
+          {warningResults.length > 0 && (
+            <div className="flex items-center gap-1.5">
+              <span className="size-1.5 rounded-full bg-amber-400" />
+              <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400 tabular-nums">
+                {warningResults.length}{" "}
+                <span className="text-slate-400 dark:text-slate-500">
+                  {t("dashboard.author.submit.precheck.summary.warnings")}
+                </span>
+              </span>
+            </div>
+          )}
+          <div className="flex items-center gap-1.5">
+            <span className="size-1.5 rounded-full bg-red-500" />
+            <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400 tabular-nums">
+              {result.summary.failed}{" "}
+              <span className="text-slate-400 dark:text-slate-500">
+                {t("dashboard.author.submit.precheck.summary.failed")}
+              </span>
+            </span>
+          </div>
+        </div>
+        {/* Pass rate bar */}
+        <div className="flex items-center gap-2.5">
+          <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500 shrink-0">
+            {t("dashboard.author.submit.precheck.summary.passRate")}
+          </span>
+          <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-700 ease-out ${decisionConfig.barColor}`}
+              style={{ width: `${passRate}%` }}
+            />
+          </div>
+          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 tabular-nums shrink-0">
+            {passRate}%
+          </span>
+        </div>
+      </div>
+
+      {/* Category Breakdown */}
+      {Object.keys(result.category_scores).length > 0 && (
+        <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2.5">
             {t("dashboard.author.submit.precheck.categoryScores")}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {Object.entries(result.category_scores).map(([category, scores]) => (
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            {Object.entries(result.category_scores).map(([category, scores]) => {
+              const catScore = Math.round(scores.score)
+              const isFailing = catScore < 50
+              return (
+                <div
+                  key={category}
+                  className="px-3 py-2 rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30"
+                >
+                  <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 mb-1 truncate">
+                    {categoryNames[category] || category}
+                  </p>
+                  <div className="flex items-baseline gap-1.5">
+                    <span
+                      className={`text-xs font-bold tabular-nums ${isFailing ? "text-red-600" : "text-[#1B3C53] dark:text-white"}`}
+                    >
+                      {catScore}%
+                    </span>
+                    <span className="text-[9px] text-slate-400 dark:text-slate-500 tabular-nums">
+                      {scores.passed}
+                      <span className="text-emerald-500">P</span>
+                      {scores.failed > 0 && (
+                        <>
+                          {" / "}
+                          {scores.failed}
+                          <span className="text-red-500">F</span>
+                        </>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Passed Checks */}
+      {passedResults.length > 0 && (
+        <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-2">
+            {t("dashboard.author.submit.precheck.whatsGood")} ({passedResults.length})
+          </p>
+          <div className="space-y-1.5">
+            {passedResults.map((item) => (
               <div
-                key={category}
-                className="p-4 rounded-lg border bg-card hover:shadow-md transition-shadow"
+                key={item.item_id}
+                className="flex items-start gap-2.5 px-3 py-2 rounded-lg bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/20"
               >
-                <div className="text-sm font-medium text-muted-foreground mb-2">
-                  {categoryNames[category] || category}
+                <span className="material-symbols-outlined text-[14px] text-emerald-500 mt-px shrink-0">
+                  check_circle
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-[#141414] dark:text-white leading-snug">
+                    {item.description}
+                  </p>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 leading-relaxed">
+                    {item.details}
+                  </p>
                 </div>
-                <div className="text-2xl font-bold mb-1">{Math.round(scores.score)}%</div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span className="text-green-600">
-                    {scores.passed} {t("dashboard.author.submit.precheck.summary.passed")}
-                  </span>
-                  {scores.failed > 0 && (
-                    <>
-                      <span>•</span>
-                      <span className="text-red-600">
-                        {scores.failed} {t("dashboard.author.submit.precheck.summary.failed")}
-                      </span>
-                    </>
-                  )}
-                </div>
+                <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800 shrink-0">
+                  {t("dashboard.author.submit.precheck.status.pass")}
+                </span>
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      )}
 
-      {/* Detailed Results */}
-      <div className="space-y-4">
-        {/* Passed Items */}
-        {passedResults.length > 0 && (
-          <Card className="border-green-200 bg-green-50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-green-700">
-                <CheckCircle2 className="size-5" />
-                {t("dashboard.author.submit.precheck.whatsGood")} ({passedResults.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {passedResults.map((item) => (
-                  <div
-                    key={item.item_id}
-                    className="flex items-start gap-3 p-3 rounded-lg bg-white border border-green-200"
-                  >
-                    {getStatusIcon(item.status)}
-                    <div className="flex-1">
-                      <div className="font-medium text-sm mb-1">{item.description}</div>
-                      <div className="text-xs text-muted-foreground">{item.details}</div>
-                    </div>
-                    <Badge variant="outline" className={getStatusBadgeVariant(item.status)}>
-                      {t("dashboard.author.submit.precheck.status.pass")}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Warning Items */}
-        {warningResults.length > 0 && (
-          <Card className="border-yellow-200 bg-yellow-50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-yellow-700">
-                <AlertCircle className="size-5" />
-                {t("dashboard.author.submit.precheck.needsAttention")} ({warningResults.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {warningResults.map((item) => (
-                  <div
-                    key={item.item_id}
-                    className="flex items-start gap-3 p-3 rounded-lg bg-white border border-yellow-200"
-                  >
-                    {getStatusIcon(item.status)}
-                    <div className="flex-1">
-                      <div className="font-medium text-sm mb-1">{item.description}</div>
-                      <div className="text-xs text-muted-foreground">{item.details}</div>
-                    </div>
-                    <Badge variant="outline" className={getStatusBadgeVariant(item.status)}>
-                      {t("dashboard.author.submit.precheck.status.warning")}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Failed Items */}
-        {failedResults.length > 0 && (
-          <Card className="border-red-200 bg-red-50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-red-700">
-                <XCircle className="size-5" />
-                {t("dashboard.author.submit.precheck.whatsFixed")} ({failedResults.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {/* Group by category */}
-              {Object.entries(
-                failedResults.reduce(
-                  (acc, item) => {
-                    if (!acc[item.category]) {
-                      acc[item.category] = []
-                    }
-                    acc[item.category].push(item)
-                    return acc
-                  },
-                  {} as Record<string, typeof failedResults>,
-                ),
-              ).map(([category, items]) => (
-                <Collapsible key={category} className="mb-4">
-                  <CollapsibleTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-between p-3 h-auto hover:bg-red-50"
-                      onClick={() => toggleCategory(category)}
+      {/* Warning Checks */}
+      {warningResults.length > 0 && (
+        <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 mb-2">
+            {t("dashboard.author.submit.precheck.needsAttention")} ({warningResults.length})
+          </p>
+          {Object.entries(warningsByCategory).map(([category, items]) => (
+            <div key={category} className="mb-2 last:mb-0">
+              <button
+                type="button"
+                onClick={() => toggleCategory(`warn-${category}`)}
+                className="w-full flex items-center justify-between py-1.5 text-left group"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[14px] text-slate-400">
+                    folder_open
+                  </span>
+                  <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300">
+                    {categoryNames[category] || category}{" "}
+                    <span className="font-medium text-slate-400">({items.length})</span>
+                  </span>
+                </div>
+                <span
+                  className={`material-symbols-outlined text-[14px] text-slate-400 transition-transform duration-200 ${expandedCategories.has(`warn-${category}`) ? "rotate-180" : ""}`}
+                >
+                  expand_more
+                </span>
+              </button>
+              <div
+                className={`overflow-hidden transition-all duration-200 ${expandedCategories.has(`warn-${category}`) ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"}`}
+              >
+                <div className="space-y-1.5 pl-5 pt-1">
+                  {items.map((item) => (
+                    <div
+                      key={item.item_id}
+                      className="flex items-start gap-2.5 px-3 py-2 rounded-lg bg-amber-50/50 dark:bg-amber-900/10 border-l-2 border-amber-300 dark:border-amber-700"
                     >
-                      <div className="flex items-center gap-2">
-                        <FileText className="size-4" />
-                        <span className="font-medium">
-                          {categoryNames[category] || category} ({items.length})
-                        </span>
+                      <span className="material-symbols-outlined text-[14px] text-amber-500 mt-px shrink-0">
+                        warning
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-[#141414] dark:text-white leading-snug">
+                          {item.description}
+                        </p>
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 leading-relaxed">
+                          {item.details}
+                        </p>
+                        <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-1 tabular-nums">
+                          {t("dashboard.author.submit.precheck.confidence")}:{" "}
+                          {Math.round(item.confidence * 100)}%
+                        </p>
                       </div>
-                      {expandedCategories.has(category) ? (
-                        <ChevronUp className="size-4" />
-                      ) : (
-                        <ChevronDown className="size-4" />
-                      )}
-                    </Button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <div className="space-y-3 mt-2 pl-8">
-                      {items.map((item) => (
-                        <div
-                          key={item.item_id}
-                          className="flex items-start gap-3 p-3 rounded-lg bg-white border border-red-200"
-                        >
-                          {getStatusIcon(item.status)}
-                          <div className="flex-1">
-                            <div className="font-medium text-sm mb-1">{item.description}</div>
-                            <div className="text-xs text-muted-foreground">{item.details}</div>
-                            <div className="mt-2 flex items-center gap-2">
-                              <span className="text-xs text-muted-foreground">
-                                {t("dashboard.author.submit.precheck.confidence")}:{" "}
-                                {Math.round(item.confidence * 100)}%
-                              </span>
-                            </div>
-                          </div>
-                          <Badge variant="outline" className={getStatusBadgeVariant(item.status)}>
-                            {t("dashboard.author.submit.precheck.status.fail")}
-                          </Badge>
-                        </div>
-                      ))}
+                      <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800 shrink-0">
+                        {t("dashboard.author.submit.precheck.status.warning")}
+                      </span>
                     </div>
-                  </CollapsibleContent>
-                </Collapsible>
-              ))}
-            </CardContent>
-          </Card>
-        )}
-      </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Failed Checks */}
+      {failedResults.length > 0 && (
+        <div className="px-4 py-3">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 mb-2">
+            {t("dashboard.author.submit.precheck.whatsFixed")} ({failedResults.length})
+          </p>
+          {Object.entries(failedByCategory).map(([category, items]) => (
+            <div key={category} className="mb-2 last:mb-0">
+              <button
+                type="button"
+                onClick={() => toggleCategory(category)}
+                className="w-full flex items-center justify-between py-1.5 text-left group"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[14px] text-slate-400">
+                    folder_open
+                  </span>
+                  <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300">
+                    {categoryNames[category] || category}{" "}
+                    <span className="font-medium text-slate-400">({items.length})</span>
+                  </span>
+                </div>
+                <span
+                  className={`material-symbols-outlined text-[14px] text-slate-400 transition-transform duration-200 ${expandedCategories.has(category) ? "rotate-180" : ""}`}
+                >
+                  expand_more
+                </span>
+              </button>
+              <div
+                className={`overflow-hidden transition-all duration-200 ${expandedCategories.has(category) ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"}`}
+              >
+                <div className="space-y-1.5 pl-5 pt-1">
+                  {items.map((item) => (
+                    <div
+                      key={item.item_id}
+                      className="flex items-start gap-2.5 px-3 py-2 rounded-lg bg-red-50/30 dark:bg-red-900/10 border-l-2 border-red-300 dark:border-red-700"
+                    >
+                      <span className="material-symbols-outlined text-[14px] text-red-500 mt-px shrink-0">
+                        cancel
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-[#141414] dark:text-white leading-snug">
+                          {item.description}
+                        </p>
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 leading-relaxed">
+                          {item.details}
+                        </p>
+                        <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-1 tabular-nums">
+                          {t("dashboard.author.submit.precheck.confidence")}:{" "}
+                          {Math.round(item.confidence * 100)}%
+                        </p>
+                      </div>
+                      <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-red-50 text-red-600 border border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800 shrink-0">
+                        {t("dashboard.author.submit.precheck.status.fail")}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

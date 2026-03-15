@@ -13,6 +13,7 @@ type Config struct {
 	Database                 DatabaseConfig
 	Neo4j                    Neo4jConfig
 	Gemini                   GeminiConfig
+	AIService                AIServiceConfig
 	SemanticScholar          SemanticScholarConfig
 	FileStorage              FileStorageConfig
 	JWT                      JWTConfig
@@ -57,6 +58,12 @@ type GeminiConfig struct {
 	APIKey  string
 	Model   string // e.g., "gemini-pro" or "gemini-1.5-pro"
 	Enabled bool
+}
+
+// AIServiceConfig holds AI service workflow proxy configuration
+type AIServiceConfig struct {
+	BaseURL        string
+	TimeoutSeconds int
 }
 
 // SemanticScholarConfig holds Semantic Scholar API configuration
@@ -111,6 +118,10 @@ func Load() (*Config, error) {
 			APIKey:  getEnv("GEMINI_API_KEY", ""),
 			Model:   getEnv("GEMINI_MODEL", "gemini-1.5-pro"),
 			Enabled: getEnv("GEMINI_ENABLED", "false") == "true",
+		},
+		AIService: AIServiceConfig{
+			BaseURL:        getEnv("AI_SERVICE_BASE_URL", "http://localhost:8090"),
+			TimeoutSeconds: getEnvAsInt("AI_SERVICE_TIMEOUT_SECONDS", 30),
 		},
 		SemanticScholar: SemanticScholarConfig{
 			APIKey:  getEnv("SEMANTIC_SCHOLAR_API_KEY", ""),

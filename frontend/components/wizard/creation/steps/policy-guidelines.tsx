@@ -50,6 +50,17 @@ const SUPPLEMENTARY_TYPES = [
   },
 ] as const
 
+function parseCommaSeparatedList(value: string): string[] {
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
+
+function formatCommaSeparatedList(values: string[]): string {
+  return values.join(", ")
+}
+
 export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepProps) {
   const { t } = useTranslation()
   const handleFileFormatToggle = (format: string) => {
@@ -205,6 +216,129 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
                 ))}
               </div>
             </WizardFormField>
+          </div>
+        </WizardFormCard>
+
+        <WizardFormCard
+          title="Submission Gating"
+          tooltip="Define deterministic submission screening rules and an optional advisory AI steering prompt."
+        >
+          <div className="flex flex-col gap-4">
+            <label className="flex items-center gap-3 p-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+              <input
+                type="checkbox"
+                aria-label="Enable submission gating"
+                className="size-4 text-[#1B3C53] focus:ring-[#1B3C53] border-slate-300 dark:border-slate-600 rounded"
+                checked={data.gatingEnabled}
+                onChange={(e) => updateData({ gatingEnabled: e.target.checked })}
+              />
+              <div className="flex flex-col">
+                <span className="text-xs font-bold text-[#141414] dark:text-white">
+                  Enable submission gating
+                </span>
+                <span className="text-[10px] text-slate-400 font-light">
+                  Run deterministic policy checks before review and optionally add advisory AI
+                  content findings.
+                </span>
+              </div>
+            </label>
+
+            {data.gatingEnabled && (
+              <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <WizardFormField
+                    label="Minimum References"
+                    hint="Block submissions that cite fewer references than this threshold."
+                  >
+                    <WizardInput
+                      type="number"
+                      min={0}
+                      max={500}
+                      aria-label="Minimum references"
+                      value={data.gatingMinReferences ?? ""}
+                      onChange={(e) =>
+                        updateData({
+                          gatingMinReferences:
+                            e.target.value === ""
+                              ? null
+                              : Math.max(0, parseInt(e.target.value, 10) || 0),
+                        })
+                      }
+                    />
+                  </WizardFormField>
+
+                  <WizardFormField
+                    label="Required Sections"
+                    hint="Comma-separated section names, for example: Abstract, Introduction, References"
+                  >
+                    <WizardInput
+                      type="text"
+                      aria-label="Required sections"
+                      value={formatCommaSeparatedList(data.gatingRequiredSections)}
+                      onChange={(e) =>
+                        updateData({
+                          gatingRequiredSections: parseCommaSeparatedList(e.target.value),
+                        })
+                      }
+                    />
+                  </WizardFormField>
+                </div>
+
+                <WizardFormField
+                  label="Banned Phrases"
+                  hint="Comma-separated phrases that should trigger a deterministic finding when present."
+                >
+                  <WizardInput
+                    type="text"
+                    aria-label="Banned phrases"
+                    value={formatCommaSeparatedList(data.gatingBannedPhrases)}
+                    onChange={(e) =>
+                      updateData({
+                        gatingBannedPhrases: parseCommaSeparatedList(e.target.value),
+                      })
+                    }
+                  />
+                </WizardFormField>
+
+                <label className="flex items-center gap-3 p-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                  <input
+                    type="checkbox"
+                    aria-label="Require anonymized submissions"
+                    className="size-4 text-[#1B3C53] focus:ring-[#1B3C53] border-slate-300 dark:border-slate-600 rounded"
+                    checked={data.gatingAnonymizationRequired}
+                    onChange={(e) => updateData({ gatingAnonymizationRequired: e.target.checked })}
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold text-[#141414] dark:text-white">
+                      Require anonymized submissions
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-light">
+                      Flag author-identifying names or metadata when the review policy requires
+                      anonymization.
+                    </span>
+                  </div>
+                </label>
+
+                <WizardFormField
+                  label="Steering Prompt"
+                  hint="Optional chair prompt for advisory AI content evaluation. Limited to 2000 characters."
+                >
+                  <div className="flex flex-col gap-2">
+                    <textarea
+                      aria-label="Steering prompt"
+                      maxLength={2000}
+                      value={data.gatingPrompt}
+                      onChange={(e) => updateData({ gatingPrompt: e.target.value.slice(0, 2000) })}
+                      placeholder="Example: Flag unsupported claims, weak evaluation methodology, or missing novelty signals. Never issue a block verdict from this stage."
+                      className="min-h-[120px] w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3.5 py-3 text-xs text-[#141414] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all resize-y"
+                    />
+                    <p className="text-[10px] text-slate-400 font-light text-right">
+                      {data.gatingPrompt.length}/2000
+                    </p>
+                  </div>
+                </WizardFormField>
+              </div>
+            )}
           </div>
         </WizardFormCard>
 

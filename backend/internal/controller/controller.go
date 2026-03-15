@@ -81,7 +81,7 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 		Auth:            auth.New(orch, serverEnv),
 		User:            user.New(store, assignmentService, semanticScholarCtrl), // Pass assignment service for COI checks
 		Conference:      conference.New(store, assignmentService),                // Pass assignment service for auto-assign on status change
-		Submission:      submission.NewWithNotifications(store, fileStore, clients.Gemini, coiSvc, notifSvc),
+		Submission:      submission.NewWithNotifications(store, fileStore, getAIServiceClient(clients), coiSvc, notifSvc),
 		Reviewer:        reviewer.NewWithNotifications(store, coiSvc, notifSvc),
 		Assignment:      assignmentController.NewWithNotifications(store, assignmentService, notifSvc, coiSvc),
 		COI:             coiController.New(coiSvc, store.ConferenceUserRole),
@@ -137,7 +137,7 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 		Auth:            auth.New(orch, serverEnv),
 		User:            user.New(store, assignmentService, semanticScholarCtrl),
 		Conference:      conference.New(store, assignmentService),
-		Submission:      submission.NewWithNotifications(store, fileStore, clients.Gemini, coiSvc, notifSvc),
+		Submission:      submission.NewWithNotifications(store, fileStore, getAIServiceClient(clients), coiSvc, notifSvc),
 		Reviewer:        reviewer.NewWithNotifications(store, coiSvc, notifSvc),
 		Assignment:      assignmentController.NewWithNotifications(store, assignmentService, notifSvc, coiSvc),
 		COI:             coiController.New(coiSvc, store.ConferenceUserRole),
@@ -145,4 +145,11 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 		SemanticScholar: semanticScholarCtrl,
 		Discussion:      discussionController.New(discSvc, "./uploads/discussions"),
 	}
+}
+
+func getAIServiceClient(clients *clients.Clients) submission.GatingClient {
+	if clients == nil {
+		return nil
+	}
+	return clients.AIService
 }
