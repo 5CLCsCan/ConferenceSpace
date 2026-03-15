@@ -2,12 +2,10 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Sparkles } from "lucide-react"
 import { createConference, getConferenceById, updateConference, inviteReviewers } from "@/lib/api/conferences"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { ROUTES } from "@/lib/routes"
-import { Button } from "@/components/ui/button"
 import { ConferenceTemplateSheet } from "@/components/chair/conference-template-sheet"
 import {
   WizardLayout,
@@ -293,6 +291,7 @@ export function ConferenceFormPage({ mode, conferenceId }: ConferenceFormPagePro
       onNext={handleNext}
       onPrevious={handlePrevious}
       onSubmit={handleSubmit}
+      onOpenTemplate={() => setIsTemplateSheetOpen(true)}
       isSubmitting={isSubmitting}
       canSubmit={isEditMode || formData.confirmed}
       saveDraftLabel={
@@ -311,31 +310,7 @@ export function ConferenceFormPage({ mode, conferenceId }: ConferenceFormPagePro
           : undefined
       }
     >
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-3 rounded-[24px] border border-slate-200/80 bg-white/90 px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-              {t("runtime.components.chair.conference-form-page.text_reuse_settings")}
-            </p>
-            <p className="text-sm text-slate-600">
-              {t(
-                "runtime.components.chair.conference-form-page.text_reuse_settings_description",
-              )}
-            </p>
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setIsTemplateSheetOpen(true)}
-            className="h-11 rounded-full border-slate-200 px-5 text-[#1B3C53] hover:border-slate-300 hover:bg-slate-50"
-          >
-            <Sparkles className="size-4" />
-            {t("runtime.components.chair.conference-form-page.text_open_templates")}
-          </Button>
-        </div>
-
-        {renderStepContent()}
-      </div>
+      <div className="flex flex-col gap-4">{renderStepContent()}</div>
 
       <ConferenceTemplateSheet
         open={isTemplateSheetOpen}

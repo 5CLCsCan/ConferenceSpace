@@ -5,6 +5,16 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { tStatic as t } from "@/lib/i18n/static-translate"
 
+const PREVIEW_TEXT_LIMIT = 50
+
+function truncatePreviewText(value: string, limit = PREVIEW_TEXT_LIMIT) {
+  if (value.length <= limit) {
+    return value
+  }
+
+  return `${value.slice(0, Math.max(limit - 3, 0)).trimEnd()}...`
+}
+
 // -------------------------------------------------------------------------
 // Explore Status Badge
 // -------------------------------------------------------------------------
@@ -69,6 +79,8 @@ export function ExploreConferenceCard({
   primaryActionLabel,
   onPrimaryAction,
 }: ExploreConferenceCardProps) {
+  const descriptionPreview = truncatePreviewText(conference.fullDescription)
+  const locationPreview = truncatePreviewText(conference.location)
   const canUsePrimaryAction =
     conference.exploreStatus === "call-for-papers" &&
     typeof primaryActionLabel === "string" &&
@@ -96,13 +108,13 @@ export function ExploreConferenceCard({
 
         {/* Full Description */}
         <p className="text-[8px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-4">
-          {conference.fullDescription}
+          {descriptionPreview}
         </p>
 
         {/* Location */}
         <div className="space-y-1.5 mb-4">
           <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 leading-snug">
-            {conference.location}
+            {locationPreview}
           </p>
           <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500">
             {conference.dates}
@@ -434,6 +446,8 @@ function ExploreListRow({
   primaryActionLabel?: string
   onPrimaryAction?: (id: string) => void
 }) {
+  const descriptionPreview = truncatePreviewText(conference.fullDescription)
+  const locationPreview = truncatePreviewText(conference.location)
   const canUsePrimaryAction =
     conference.exploreStatus === "call-for-papers" &&
     typeof primaryActionLabel === "string" &&
@@ -452,14 +466,14 @@ function ExploreListRow({
             {conference.name}
           </h3>
           <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 mt-0.5 line-clamp-1">
-            {conference.fullDescription}
+            {descriptionPreview}
           </p>
         </div>
 
         {/* Location */}
         <div className="px-4 py-3">
           <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 line-clamp-2">
-            {conference.location}
+            {locationPreview}
           </span>
         </div>
 
@@ -560,11 +574,11 @@ function ExploreListRow({
           {conference.name}
         </h3>
         <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 line-clamp-1 mb-2">
-          {conference.fullDescription}
+          {descriptionPreview}
         </p>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-slate-400 dark:text-slate-500 mb-2">
-          <span>{conference.location}</span>
+          <span>{locationPreview}</span>
           <span>{conference.dates}</span>
         </div>
 

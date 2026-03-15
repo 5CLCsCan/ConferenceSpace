@@ -388,7 +388,18 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
   }
 
   return (
-    <div className={cn("space-y-5", className)}>
+    <div className={cn("space-y-6", className)}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-bold text-[#1B3C53] dark:text-white tracking-tight">
+            {T("text_committee_members")}
+          </h2>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+            {T("text_committee_subtitle")}
+          </p>
+        </div>
+      </div>
+
       {loading ? (
         <div className="text-xs text-slate-500">{T("text_loading_committee")}</div>
       ) : error ? (
@@ -428,14 +439,8 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
             />
           </div>
 
-          <div className="bg-white rounded-lg border border-slate-200 shadow-sm flex flex-col overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-200">
-              <h3 className="text-sm font-bold text-[#1B3C53] tracking-tight">
-                {T("text_committee_members")}
-              </h3>
-            </div>
-
-            <div className="p-4 border-b border-slate-200 flex flex-col xl:flex-row justify-between gap-3">
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden">
+            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col xl:flex-row justify-between gap-3">
               <div className="flex flex-col md:flex-row gap-3 flex-1">
                 <div className="relative flex-1 md:max-w-sm">
                   <Icon

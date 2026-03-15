@@ -15,6 +15,7 @@ interface WizardLayoutProps {
   onNext: () => void
   onPrevious: () => void
   onSubmit: () => void
+  onOpenTemplate?: () => void
   isSubmitting?: boolean
   canSubmit?: boolean
   saveDraftLabel?: string
@@ -48,6 +49,7 @@ export function WizardLayout({
   onNext,
   onPrevious,
   onSubmit,
+  onOpenTemplate,
   isSubmitting = false,
   canSubmit = true,
   saveDraftLabel,
@@ -81,6 +83,7 @@ export function WizardLayout({
           onNext={onNext}
           onPrevious={onPrevious}
           onSubmit={onSubmit}
+          onOpenTemplate={onOpenTemplate}
           isSubmitting={isSubmitting}
           canSubmit={canSubmit}
           saveDraftLabel={saveDraftLabel}

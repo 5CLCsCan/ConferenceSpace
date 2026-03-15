@@ -1487,6 +1487,7 @@
           },
           "conference-committee": {
             "text_accepted": "Đã chấp nhận",
+            "text_committee_subtitle": "Mời và quản lý phản biện cho hội nghị này.",
             "text_add_directly": "Thêm trực tiếp",
             "text_area_chairs": "Chủ trì khu vực",
             "text_committee_members": "thành viên ủy ban",
@@ -2408,6 +2409,7 @@
           },
           "wizard-action-bar": {
             "text_back": "Quay lại",
+            "text_template": "Mẫu",
             "text_create_conference": "Tạo hội nghị",
             "text_creating": "Đang tạo...",
             "text_save_changes": "Lưu thay đổi",

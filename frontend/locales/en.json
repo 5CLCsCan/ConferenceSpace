@@ -1487,6 +1487,7 @@
           },
           "conference-committee": {
             "text_accepted": "Accepted",
+            "text_committee_subtitle": "Invite and manage reviewers for this conference.",
             "text_add_directly": "Add directly",
             "text_area_chairs": "Area Chairs",
             "text_committee_members": "Committee Members",
@@ -2409,6 +2410,7 @@
           "wizard-action-bar": {
             "text_back": "Back",
             "text_create_conference": "Create Conference",
+            "text_template": "Template",
             "text_creating": "Creating...",
             "text_save_changes": "Save Changes",
             "text_save_draft": "Save Draft",
