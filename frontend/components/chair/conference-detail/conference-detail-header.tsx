@@ -200,7 +200,7 @@ export function ConferenceDetailHeader({
         </div>
       </div>
 
-        {/* Tabs */}
+      {/* Tabs */}
       <div className="border-t border-slate-100 dark:border-slate-800">
         <ScrollArea className="w-full">
           <div className="flex min-w-max space-x-6 px-8 pb-1">

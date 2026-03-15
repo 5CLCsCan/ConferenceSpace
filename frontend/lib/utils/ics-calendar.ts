@@ -17,11 +17,7 @@ function formatICSDate(dateStr: string): string {
 }
 
 function escapeICSText(text: string): string {
-  return text
-    .replace(/\\/g, "\\\\")
-    .replace(/;/g, "\\;")
-    .replace(/,/g, "\\,")
-    .replace(/\n/g, "\\n")
+  return text.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n")
 }
 
 function generateUID(id: string, conferenceAcronym: string): string {

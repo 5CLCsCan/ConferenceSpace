@@ -11,6 +11,7 @@ Phase 1 (Conference Setup) has been successfully implemented, building on top of
 ### 1. API Helper: `tests/utils/api/conference.ts` ✅
 
 **Functions Implemented:**
+
 - `createConference(request, token, conferenceData)` - Create a new conference
 - `getConference(request, token, conferenceId)` - Retrieve conference by ID
 - `updateConference(request, token, conferenceId, updates)` - Update conference details
@@ -18,6 +19,7 @@ Phase 1 (Conference Setup) has been successfully implemented, building on top of
 - `generateConferenceData(chairEmail, config?)` - Generate dynamic conference data with Faker
 
 **Features:**
+
 - Full TypeScript type definitions (`Conference`, `ConferenceData`, `ConferenceConfigurations`)
 - Dynamic data generation using `@faker-js/faker`
 - Realistic conference titles, acronyms, dates, and configurations
@@ -28,10 +30,12 @@ Phase 1 (Conference Setup) has been successfully implemented, building on top of
 ### 2. Phase Logic: `tests/phases/phase-1-conference.ts` ✅
 
 **Functions Implemented:**
+
 - `setupConferencePhase(request, chairUser, config?)` - Create conference with chair user
 - `executePhase1(request, phase0State, config?)` - Execute complete Phase 1 from Phase 0 state
 
 **Features:**
+
 - Accepts Phase 0 state (chair, reviewers, authors)
 - Returns Phase 1 state (all users + conference)
 - Configurable conference properties
@@ -45,6 +49,7 @@ Phase 1 (Conference Setup) has been successfully implemented, building on top of
 Fluent API for building test states across multiple phases.
 
 **Methods:**
+
 - `static create(request)` - Create new StateBuilder instance
 - `withUsers(config)` - Configure Phase 0 users
 - `withConference(config)` - Configure Phase 1 conference
@@ -53,9 +58,11 @@ Fluent API for building test states across multiple phases.
 - `buildPhase1()` - Build Phase 1 (users + conference)
 
 **Helper Function:**
+
 - `createBasicTestState(request, config)` - Quick one-liner for common setup
 
 **Features:**
+
 - Method chaining for clean, readable test setup
 - Automatic phase orchestration
 - Type-safe configuration
@@ -64,6 +71,7 @@ Fluent API for building test states across multiple phases.
 ### 4. Verification Tests: `tests/e2e/sanity/conference-setup.spec.ts` ✅
 
 **9 Tests Implemented:**
+
 1. ✓ Create a conference successfully
 2. ✓ Create conference with custom domain
 3. ✓ Create conference with custom format
@@ -77,6 +85,7 @@ Fluent API for building test states across multiple phases.
 ### 5. Documentation Updates ✅
 
 **Updated Files:**
+
 - `tests/README.md` - Added Phase 1 documentation, StateBuilder guide, API helpers
 - `tests/PHASE1_IMPLEMENTATION.md` - Completed Phase 1 summary (from Phase 0 doc)
 
@@ -87,67 +96,66 @@ Fluent API for building test states across multiple phases.
 ### Example 1: Basic Conference Creation
 
 ```typescript
-import { test } from '@playwright/test';
-import { createChair } from '../phases/phase-0-auth';
-import { setupConferencePhase } from '../phases/phase-1-conference';
+import { test } from "@playwright/test"
+import { createChair } from "../phases/phase-0-auth"
+import { setupConferencePhase } from "../phases/phase-1-conference"
 
-test('create conference', async ({ request }) => {
-  const chair = await createChair(request);
-  const conference = await setupConferencePhase(request, chair);
-  
-  console.log('Conference:', conference.title);
-  console.log('ID:', conference.id);
-});
+test("create conference", async ({ request }) => {
+  const chair = await createChair(request)
+  const conference = await setupConferencePhase(request, chair)
+
+  console.log("Conference:", conference.title)
+  console.log("ID:", conference.id)
+})
 ```
 
 ### Example 2: Using Phase Execution
 
 ```typescript
-import { executePhase0 } from '../phases/phase-0-auth';
-import { executePhase1 } from '../phases/phase-1-conference';
+import { executePhase0 } from "../phases/phase-0-auth"
+import { executePhase1 } from "../phases/phase-1-conference"
 
-test('full phase execution', async ({ request }) => {
-  const phase0 = await executePhase0(request);
-  const phase1 = await executePhase1(request, phase0);
-  
+test("full phase execution", async ({ request }) => {
+  const phase0 = await executePhase0(request)
+  const phase1 = await executePhase1(request, phase0)
+
   // Access everything
-  console.log('Chair:', phase1.chair.email);
-  console.log('Reviewers:', phase1.reviewers.length);
-  console.log('Conference:', phase1.conference.title);
-});
+  console.log("Chair:", phase1.chair.email)
+  console.log("Reviewers:", phase1.reviewers.length)
+  console.log("Conference:", phase1.conference.title)
+})
 ```
 
 ### Example 3: Using StateBuilder (Recommended)
 
 ```typescript
-import { StateBuilder } from '../utils/state/state-builder';
+import { StateBuilder } from "../utils/state/state-builder"
 
-test('state builder', async ({ request }) => {
-  const state = await StateBuilder
-    .create(request)
+test("state builder", async ({ request }) => {
+  const state = await StateBuilder.create(request)
     .withUsers({ reviewerCount: 5, authorCount: 3 })
-    .withConference({ domain: ['AI', 'ML'] })
-    .build();
-  
+    .withConference({ domain: ["AI", "ML"] })
+    .build()
+
   // Everything ready in one chain!
-  console.log('Conference:', state.conference.title);
-});
+  console.log("Conference:", state.conference.title)
+})
 ```
 
 ### Example 4: Quick Helper
 
 ```typescript
-import { createBasicTestState } from '../utils/state/state-builder';
+import { createBasicTestState } from "../utils/state/state-builder"
 
-test('quick setup', async ({ request }) => {
+test("quick setup", async ({ request }) => {
   const state = await createBasicTestState(request, {
     reviewerCount: 5,
     authorCount: 3,
-    conferenceDomain: ['Cybersecurity'],
-  });
-  
+    conferenceDomain: ["Cybersecurity"],
+  })
+
   // Ready to test!
-});
+})
 ```
 
 ---
@@ -190,11 +198,13 @@ Phase1State {
 ## 📊 Performance
 
 **Expected Performance:**
+
 - Phase 0: < 5 seconds (9 users)
 - Phase 1: < 2 seconds (1 conference)
 - **Combined: < 7 seconds total**
 
 **Actual Performance (with backend running):**
+
 - Phase 0: ~3.2 seconds
 - Phase 1: ~1.5 seconds
 - **Combined: ~4.7 seconds** ✅
@@ -206,6 +216,7 @@ Phase1State {
 ### Prerequisites
 
 1. **Backend server must be running:**
+
    ```bash
    cd backend
    make run
@@ -242,6 +253,7 @@ npm run test:e2e:ui
 ### 1. Dynamic Data Generation
 
 Every test run creates unique data:
+
 - Conference titles (e.g., "International Conference on Artificial Intelligence")
 - Acronyms (e.g., "ICAI2026")
 - Realistic dates (conference in 6 months, deadlines before)
@@ -252,16 +264,16 @@ Every test run creates unique data:
 StateBuilder provides clean, readable test setup:
 
 ```typescript
-await StateBuilder
-  .create(request)
+await StateBuilder.create(request)
   .withUsers({ reviewerCount: 5 })
-  .withConference({ format: 'hybrid' })
-  .build();
+  .withConference({ format: "hybrid" })
+  .build()
 ```
 
 ### 3. Type Safety
 
 Full TypeScript coverage:
+
 - All interfaces defined
 - IDE autocomplete support
 - Compile-time error checking
@@ -269,6 +281,7 @@ Full TypeScript coverage:
 ### 4. Flexible Configuration
 
 Customize everything:
+
 - User counts and domains
 - Conference format (in-person, virtual, hybrid)
 - Review type (single-blind, double-blind, open)
@@ -277,6 +290,7 @@ Customize everything:
 ### 5. Error Handling
 
 Comprehensive error handling:
+
 - Clear error messages
 - API response validation
 - Graceful failure handling
@@ -288,12 +302,14 @@ Comprehensive error handling:
 ### Phase 2: Submission Ready
 
 **Objectives:**
+
 - Create submission API helpers
 - Handle file uploads (multipart/form-data)
 - Publish submissions
 - Link submissions to conferences and authors
 
 **Files to Create:**
+
 - `tests/utils/api/submission.ts` - Submission API helpers
 - `tests/phases/phase-2-submissions.ts` - Submission phase logic
 - `tests/fixtures/files/sample.pdf` - Sample PDF for testing
@@ -316,10 +332,8 @@ Comprehensive error handling:
 
 1. **Conference Data Complexity** - Conference has many fields and nested configurations
    - **Solution:** Created comprehensive `ConferenceConfigurations` interface
-   
 2. **Date Generation** - Need logical dates (deadlines before conference)
    - **Solution:** Automatic date calculation in `generateConferenceData()`
-   
 3. **State Composition** - Need to pass Phase 0 state to Phase 1
    - **Solution:** Phase1State extends Phase0State with conference
 
@@ -327,10 +341,8 @@ Comprehensive error handling:
 
 1. **Separate Phase Functions** - `setupConferencePhase()` vs `executePhase1()`
    - Allows flexibility: use individual function or full phase execution
-   
 2. **StateBuilder as Separate Class** - Not part of phase files
    - Keeps phases simple, StateBuilder handles orchestration
-   
 3. **Helper Function** - `createBasicTestState()` for common cases
    - Reduces boilerplate for simple tests
 

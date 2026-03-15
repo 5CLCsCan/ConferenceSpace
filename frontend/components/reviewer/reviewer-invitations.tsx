@@ -313,7 +313,9 @@ export function ReviewerInvitations({
           {/* Actions */}
           <div className="flex flex-row lg:flex-col items-center justify-center gap-3 w-full lg:w-40 lg:border-l border-slate-100 dark:border-slate-700 lg:pl-4 pt-4 lg:pt-0 border-t lg:border-t-0">
             <button
-              onClick={() => router.push(ROUTES.REVIEWER.CONFERENCE_SUBMISSIONS(invitation.conference_id))}
+              onClick={() =>
+                router.push(ROUTES.REVIEWER.CONFERENCE_SUBMISSIONS(invitation.conference_id))
+              }
               className="w-full h-9 px-4 rounded-md bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] font-medium text-[11px] hover:bg-[#234C6A] dark:hover:bg-slate-200 transition-all flex items-center justify-center"
             >
               {t("runtime.components.reviewer.reviewer-invitations.text_go_to_dashboard")}{" "}

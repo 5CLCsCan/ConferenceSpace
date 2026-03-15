@@ -174,6 +174,108 @@ func TestConferenceStatusTransitions(t *testing.T) {
 	})
 }
 
+func TestConferenceArchiveTransitions(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	client := NewClient(ctx)
+
+	chairToken, chair, err := ctx.RegisterUniqueUser("chair", "password123", "Chair", "User", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register chair user: %v", err)
+	}
+
+	conf := &dto.Conference{
+		Title:       "Archive Transition Test Conference",
+		Acronym:     testutils.UniqueString("ATTC2025"),
+		Chair:       chair.Email,
+		Domain:      []string{"AI"},
+		Description: "Test conference for archive transitions",
+	}
+
+	confResp, err := client.Create(conf, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to create conference: %v", err)
+	}
+	testutils.AssertStatusCode(t, confResp, http.StatusCreated)
+
+	var confData struct {
+		Data *dto.ConferenceResponse `json:"data"`
+	}
+	testutils.DecodeResponse(t, confResp, &confData)
+	conferenceID := confData.Data.ID
+
+	t.Run("transition from open to archived", func(t *testing.T) {
+		requestBody := &dto.ConferenceTransitionStatusRequest{
+			ConferenceID: conferenceID,
+			NewStatus:    model.ConferenceStatusArchived,
+		}
+
+		resp, err := ctx.MakeRequest(
+			"PUT",
+			fmt.Sprintf("/api/v1/conferences/%d/status", conferenceID),
+			requestBody,
+			chairToken,
+		)
+		if err != nil {
+			t.Fatalf("Failed to transition status: %v", err)
+		}
+
+		testutils.AssertStatusCode(t, resp, http.StatusOK)
+
+		var transitionData struct {
+			Data *dto.ConferenceTransitionStatusResponse `json:"data"`
+		}
+		testutils.DecodeResponse(t, resp, &transitionData)
+
+		if transitionData.Data == nil {
+			t.Fatal("Expected transition data, got nil")
+		}
+
+		if transitionData.Data.PreviousStatus != model.ConferenceStatusOpen {
+			t.Errorf("Expected previous status to be '%s', got '%s'", model.ConferenceStatusOpen, transitionData.Data.PreviousStatus)
+		}
+		if transitionData.Data.NewStatus != model.ConferenceStatusArchived {
+			t.Errorf("Expected new status to be '%s', got '%s'", model.ConferenceStatusArchived, transitionData.Data.NewStatus)
+		}
+	})
+
+	t.Run("transition from archived to completed", func(t *testing.T) {
+		requestBody := &dto.ConferenceTransitionStatusRequest{
+			ConferenceID: conferenceID,
+			NewStatus:    model.ConferenceStatusCompleted,
+		}
+
+		resp, err := ctx.MakeRequest(
+			"PUT",
+			fmt.Sprintf("/api/v1/conferences/%d/status", conferenceID),
+			requestBody,
+			chairToken,
+		)
+		if err != nil {
+			t.Fatalf("Failed to transition status: %v", err)
+		}
+
+		testutils.AssertStatusCode(t, resp, http.StatusOK)
+
+		var transitionData struct {
+			Data *dto.ConferenceTransitionStatusResponse `json:"data"`
+		}
+		testutils.DecodeResponse(t, resp, &transitionData)
+
+		if transitionData.Data == nil {
+			t.Fatal("Expected transition data, got nil")
+		}
+
+		if transitionData.Data.PreviousStatus != model.ConferenceStatusArchived {
+			t.Errorf("Expected previous status to be '%s', got '%s'", model.ConferenceStatusArchived, transitionData.Data.PreviousStatus)
+		}
+		if transitionData.Data.NewStatus != model.ConferenceStatusCompleted {
+			t.Errorf("Expected new status to be '%s', got '%s'", model.ConferenceStatusCompleted, transitionData.Data.NewStatus)
+		}
+	})
+}
+
 func TestConferenceStatusInvalidTransitions(t *testing.T) {
 	ctx := testutils.NewTestContext(t)
 	defer ctx.Close()

@@ -66,6 +66,12 @@ func (s *Storage) Create(ctx context.Context, conf *dto.Conference) (*dto.Confer
 		return nil, fmt.Errorf("failed to serialize configuration: %w", err)
 	}
 
+	// Default status to draft or open depending on input; if not provided, use open.
+	status := conf.Status
+	if status == "" {
+		status = model.ConferenceStatusOpen
+	}
+
 	query, args, err := s.qb.
 		Insert(model.ConferenceTableName).
 		Columns(
@@ -92,7 +98,7 @@ func (s *Storage) Create(ctx context.Context, conf *dto.Conference) (*dto.Confer
 			pq.Array(conf.Tracks),
 			conf.Venue,
 			configBytes,
-			model.ConferenceStatusOpen, // Default to open status
+			status,
 			now,
 			now,
 		).

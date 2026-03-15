@@ -83,13 +83,12 @@ export function ConferenceDates({ conferenceId, className }: ConferenceDatesProp
         </div>
         {dates.length > 0 && (
           <button
-            onClick={() => downloadICS(dates, conferenceAcronym || "CONF", conferenceName || "Conference")}
+            onClick={() =>
+              downloadICS(dates, conferenceAcronym || "CONF", conferenceName || "Conference")
+            }
             className="px-3 py-2 text-[11px] font-medium text-slate-700 bg-white border border-slate-200 rounded-md hover:bg-slate-50 flex items-center gap-1.5 shadow-sm transition-all"
           >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: "16px" }}
-            >
+            <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
               calendar_add_on
             </span>
             Sync to Calendar

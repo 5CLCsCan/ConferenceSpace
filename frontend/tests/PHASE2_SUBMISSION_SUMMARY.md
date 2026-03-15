@@ -11,6 +11,7 @@ Phase 2 (Submission Ready) has been successfully implemented, building on top of
 ### 1. File Utility: `tests/utils/file-helper.ts` ✅
 
 **Functions Implemented:**
+
 - `generateDummyPDF(filePath)` - Create a minimal valid PDF file
 - `getOrCreateDummyPDF(filename?)` - Get existing or create new dummy PDF
 - `readFileAsBuffer(filePath)` - Read file as buffer
@@ -18,6 +19,7 @@ Phase 2 (Submission Ready) has been successfully implemented, building on top of
 - `cleanupFile(filePath)` - Delete test files
 
 **Features:**
+
 - Generates minimal valid PDF files for testing
 - Automatic directory creation
 - Reuses existing files to avoid duplication
@@ -26,6 +28,7 @@ Phase 2 (Submission Ready) has been successfully implemented, building on top of
 ### 2. API Helper: `tests/utils/api/submission.ts` ✅
 
 **Functions Implemented:**
+
 - `createSubmission(request, token, conferenceId, data, filePath?)` - Create submission with file upload
 - `getSubmission(request, token, conferenceId, submissionId)` - Retrieve submission by ID
 - `listSubmissions(request, token, conferenceId, filters?)` - List submissions with filters
@@ -35,6 +38,7 @@ Phase 2 (Submission Ready) has been successfully implemented, building on top of
 - `generateSubmissionData(domain, status?, track?)` - Generate dynamic submission data
 
 **Features:**
+
 - Full TypeScript type definitions (`Submission`, `SubmissionData`, `SubmissionInformation`, `FileMetadata`)
 - Multipart/form-data support for file uploads
 - Dynamic data generation using `@faker-js/faker`
@@ -45,10 +49,12 @@ Phase 2 (Submission Ready) has been successfully implemented, building on top of
 ### 3. Phase Logic: `tests/phases/phase-2-submissions.ts` ✅
 
 **Functions Implemented:**
+
 - `setupSubmissionPhase(request, conference, authors, config?)` - Create submissions for authors
 - `executePhase2(request, phase1State, config?)` - Execute complete Phase 2 from Phase 1 state
 
 **Features:**
+
 - Creates N submissions per author (configurable)
 - Supports draft and published submissions
 - Optional file uploads
@@ -59,13 +65,16 @@ Phase 2 (Submission Ready) has been successfully implemented, building on top of
 ### 4. State Builder Updates: `tests/utils/state/state-builder.ts` ✅
 
 **New Methods:**
+
 - `withSubmissions(config?)` - Configure Phase 2 submissions
 - `buildPhase2()` - Build Phase 2 (users + conference + submissions)
 
 **New Helper Function:**
+
 - `createCompleteTestState(request, config)` - Quick one-liner for complete setup
 
 **Features:**
+
 - Fluent API extended to Phase 2
 - Automatic phase dependency management (submissions require conference)
 - Type-safe configuration
@@ -73,6 +82,7 @@ Phase 2 (Submission Ready) has been successfully implemented, building on top of
 ### 5. Verification Tests: `tests/e2e/sanity/submission-setup.spec.ts` ✅
 
 **11 Tests Implemented:**
+
 1. ✓ Create submissions for authors
 2. ✓ Create multiple submissions per author
 3. ✓ Create draft submissions
@@ -92,77 +102,73 @@ Phase 2 (Submission Ready) has been successfully implemented, building on top of
 ### Example 1: Basic Submission Creation
 
 ```typescript
-import { test } from '@playwright/test';
-import { executePhase0 } from '../phases/phase-0-auth';
-import { executePhase1 } from '../phases/phase-1-conference';
-import { setupSubmissionPhase } from '../phases/phase-2-submissions';
+import { test } from "@playwright/test"
+import { executePhase0 } from "../phases/phase-0-auth"
+import { executePhase1 } from "../phases/phase-1-conference"
+import { setupSubmissionPhase } from "../phases/phase-2-submissions"
 
-test('create submissions', async ({ request }) => {
-  const phase0 = await executePhase0(request);
-  const phase1 = await executePhase1(request, phase0);
-  
-  const submissions = await setupSubmissionPhase(
-    request,
-    phase1.conference,
-    phase1.authors,
-    { submissionsPerAuthor: 2 }
-  );
-  
-  console.log('Created submissions:', submissions.length);
-});
+test("create submissions", async ({ request }) => {
+  const phase0 = await executePhase0(request)
+  const phase1 = await executePhase1(request, phase0)
+
+  const submissions = await setupSubmissionPhase(request, phase1.conference, phase1.authors, {
+    submissionsPerAuthor: 2,
+  })
+
+  console.log("Created submissions:", submissions.length)
+})
 ```
 
 ### Example 2: Using Phase Execution
 
 ```typescript
-import { executePhase0 } from '../phases/phase-0-auth';
-import { executePhase1 } from '../phases/phase-1-conference';
-import { executePhase2 } from '../phases/phase-2-submissions';
+import { executePhase0 } from "../phases/phase-0-auth"
+import { executePhase1 } from "../phases/phase-1-conference"
+import { executePhase2 } from "../phases/phase-2-submissions"
 
-test('full phase execution', async ({ request }) => {
-  const phase0 = await executePhase0(request);
-  const phase1 = await executePhase1(request, phase0);
+test("full phase execution", async ({ request }) => {
+  const phase0 = await executePhase0(request)
+  const phase1 = await executePhase1(request, phase0)
   const phase2 = await executePhase2(request, phase1, {
     submissionsPerAuthor: 3,
-  });
-  
+  })
+
   // Access everything
-  console.log('Submissions:', phase2.submissions.length);
-});
+  console.log("Submissions:", phase2.submissions.length)
+})
 ```
 
 ### Example 3: Using StateBuilder (Recommended)
 
 ```typescript
-import { StateBuilder } from '../utils/state/state-builder';
+import { StateBuilder } from "../utils/state/state-builder"
 
-test('state builder', async ({ request }) => {
-  const state = await StateBuilder
-    .create(request)
+test("state builder", async ({ request }) => {
+  const state = await StateBuilder.create(request)
     .withUsers({ reviewerCount: 5, authorCount: 3 })
-    .withConference({ domain: ['AI', 'ML'] })
+    .withConference({ domain: ["AI", "ML"] })
     .withSubmissions({ submissionsPerAuthor: 2 })
-    .build();
-  
+    .build()
+
   // Everything ready in one chain!
-  console.log('Submissions:', state.submissions.length);
-});
+  console.log("Submissions:", state.submissions.length)
+})
 ```
 
 ### Example 4: Quick Helper
 
 ```typescript
-import { createCompleteTestState } from '../utils/state/state-builder';
+import { createCompleteTestState } from "../utils/state/state-builder"
 
-test('quick setup', async ({ request }) => {
+test("quick setup", async ({ request }) => {
   const state = await createCompleteTestState(request, {
     reviewerCount: 5,
     authorCount: 3,
     submissionsPerAuthor: 2,
-  });
-  
+  })
+
   // Ready to test with 6 submissions (3 authors × 2)!
-});
+})
 ```
 
 ---
@@ -217,12 +223,14 @@ Phase2State {
 ## 📊 Performance
 
 **Expected Performance:**
+
 - Phase 0: < 5 seconds (9 users)
 - Phase 1: < 2 seconds (1 conference)
 - Phase 2: < 5 seconds (6 submissions with files)
 - **Combined: < 12 seconds total**
 
 **Actual Performance (with backend running):**
+
 - Phase 0: ~3.2 seconds
 - Phase 1: ~1.5 seconds
 - Phase 2: ~4.0 seconds (6 submissions)
@@ -235,6 +243,7 @@ Phase2State {
 ### Prerequisites
 
 1. **Backend server must be running:**
+
    ```bash
    cd backend
    make run
@@ -271,6 +280,7 @@ npm run test:e2e:ui
 ### 1. Multipart/Form-Data Support
 
 Properly handles file uploads with multipart/form-data:
+
 - JSON submission data as string
 - PDF file upload
 - Correct content-type headers
@@ -278,6 +288,7 @@ Properly handles file uploads with multipart/form-data:
 ### 2. Dynamic Data Generation
 
 Every test run creates unique submissions:
+
 - Realistic paper titles (e.g., "Neural Networks for Classification: Advanced Techniques")
 - Academic abstracts (3 paragraphs)
 - Keywords and metadata
@@ -286,6 +297,7 @@ Every test run creates unique submissions:
 ### 3. Flexible Configuration
 
 Customize everything:
+
 - Submissions per author
 - Draft vs published status
 - With or without files
@@ -294,6 +306,7 @@ Customize everything:
 ### 4. File Management
 
 Automatic PDF file handling:
+
 - Creates minimal valid PDF files
 - Reuses existing files
 - Cleanup utilities
@@ -302,6 +315,7 @@ Automatic PDF file handling:
 ### 5. Status Support
 
 Supports both submission statuses:
+
 - **Draft**: File optional, can be saved without file
 - **Published**: File required, ready for review
 
@@ -312,11 +326,13 @@ Supports both submission statuses:
 ### Phase 3: Review Ready
 
 **Objectives:**
+
 - Invite reviewers to conference
 - Accept reviewer invitations
 - Prepare for auto-assign
 
 **Files to Create:**
+
 - `tests/utils/api/reviewer.ts` - Reviewer API helpers
 - `tests/phases/phase-3-reviewers.ts` - Reviewer phase logic
 - `tests/e2e/sanity/reviewer-setup.spec.ts` - Verification tests
@@ -338,10 +354,8 @@ Supports both submission statuses:
 
 1. **Multipart/Form-Data** - Backend requires JSON string + file upload
    - **Solution:** Used Playwright's multipart API with proper structure
-   
 2. **File Generation** - Need valid PDF files for testing
    - **Solution:** Created minimal valid PDF generator
-   
 3. **Draft vs Published** - Different requirements for file uploads
    - **Solution:** Made file parameter optional, validated based on status
 
@@ -349,10 +363,8 @@ Supports both submission statuses:
 
 1. **Separate File Helper** - Not part of API helper
    - Keeps concerns separated, reusable across tests
-   
 2. **Submissions Per Author** - Configurable count
    - Allows testing different scenarios (1 paper, many papers)
-   
 3. **Dynamic Tracks** - Automatically distributed across conference domains
    - Ensures realistic distribution
 

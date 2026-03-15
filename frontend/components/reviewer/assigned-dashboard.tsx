@@ -202,20 +202,22 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex gap-0.5 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
-          {(["all", "pending", "accepted", "declined", "completed"] as StatusFilter[]).map((status) => (
-            <button
-              key={status}
-              onClick={() => handleStatusChange(status)}
-              className={`px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${
-                statusFilter === status
-                  ? "bg-white dark:bg-slate-700 shadow-sm text-[#1B3C53] dark:text-white"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
-              }`}
-            >
-              {t(statusLabelKeys[status])}
-              {statusFilter === status && <span className="ml-1 opacity-60">{total}</span>}
-            </button>
-          ))}
+          {(["all", "pending", "accepted", "declined", "completed"] as StatusFilter[]).map(
+            (status) => (
+              <button
+                key={status}
+                onClick={() => handleStatusChange(status)}
+                className={`px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${
+                  statusFilter === status
+                    ? "bg-white dark:bg-slate-700 shadow-sm text-[#1B3C53] dark:text-white"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                }`}
+              >
+                {t(statusLabelKeys[status])}
+                {statusFilter === status && <span className="ml-1 opacity-60">{total}</span>}
+              </button>
+            ),
+          )}
         </div>
 
         <div className="flex items-center gap-3">

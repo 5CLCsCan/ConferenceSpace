@@ -85,6 +85,44 @@ export async function getConferenceById(conferenceId: string): Promise<ApiRespon
 }
 
 /**
+ * Transition a conference status (e.g. open -> reviewing, completed <-> archived, draft -> open)
+ * Backend endpoint: PUT /api/v1/conferences/:conference_id/status
+ */
+export async function transitionConferenceStatus(
+  conferenceId: string,
+  newStatus: ConferenceStatus,
+): Promise<ApiResponse<{ previous_status: ConferenceStatus; new_status: ConferenceStatus }>> {
+  try {
+    const payload = {
+      conference_id: Number(conferenceId),
+      new_status: newStatus,
+    }
+
+    const { data, response } = await apiFetch<{
+      data: { previous_status: ConferenceStatus; new_status: ConferenceStatus }
+    }>(`/api/v1/conferences/${conferenceId}/status`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    })
+
+    return {
+      data: {
+        previous_status: data.data.previous_status,
+        new_status: data.data.new_status,
+      },
+      error: null,
+      status: response.status,
+    }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to update conference status",
+      status: 500,
+    }
+  }
+}
+
+/**
  * Get conference statistics
  * TODO: Backend endpoint not yet implemented - using mock data for now
  * Future endpoint: GET /api/v1/conferences/:conference_id/stats
@@ -309,6 +347,7 @@ export async function createConference(conferenceData: {
   tracks?: string[]
   venue: string
   co_chairs?: string[]
+  status?: ConferenceStatus
   configurations: {
     start_date?: string
     end_date?: string
@@ -340,6 +379,7 @@ export async function createConference(conferenceData: {
         venue: conferenceData.venue,
         co_chairs: conferenceData.co_chairs || [],
         configurations: conferenceData.configurations,
+        status: conferenceData.status,
       },
     }
 
@@ -598,9 +638,7 @@ export async function inviteReviewers(
 
     // Unwrap the { data: ... } envelope that the backend handler always adds
     type Payload = { success: Reviewer[]; failed: Array<{ user_id: number; error: string }> }
-    const payload: Payload =
-      (data as { data?: Payload }).data ??
-      (data as Payload)
+    const payload: Payload = (data as { data?: Payload }).data ?? (data as Payload)
 
     return {
       data: payload,

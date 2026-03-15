@@ -459,11 +459,18 @@ func (c *Controller) TransitionStatus(ginCtx *gin.Context, req *dto.ConferenceTr
 
 	previousStatus := conference.Status
 
-	// Validate status transition (no reversion allowed)
+	// Validate status transition (no reversion to earlier pipeline stages)
 	validTransitions := map[string][]string{
-		model.ConferenceStatusOpen:      {model.ConferenceStatusReviewing},
-		model.ConferenceStatusReviewing: {model.ConferenceStatusCompleted},
-		model.ConferenceStatusCompleted: {}, // No transitions allowed from completed
+		// Draft -> Open (initial publish) or Archived
+		model.ConferenceStatusDraft: {model.ConferenceStatusOpen, model.ConferenceStatusArchived},
+		// Open -> Reviewing or Archived
+		model.ConferenceStatusOpen: {model.ConferenceStatusReviewing, model.ConferenceStatusArchived},
+		// Reviewing -> Completed or Archived
+		model.ConferenceStatusReviewing: {model.ConferenceStatusCompleted, model.ConferenceStatusArchived},
+		// Completed -> Archived
+		model.ConferenceStatusCompleted: {model.ConferenceStatusArchived},
+		// Archived -> Completed (allow unarchive)
+		model.ConferenceStatusArchived: {model.ConferenceStatusCompleted},
 	}
 
 	allowedStatuses, exists := validTransitions[previousStatus]

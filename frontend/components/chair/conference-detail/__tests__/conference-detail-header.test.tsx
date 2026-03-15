@@ -106,7 +106,9 @@ describe("ConferenceDetailHeader — tab visibility by role", () => {
         userRole="chair"
       />,
     )
-    const chairViewport = chairContainer.querySelector('[data-slot="scroll-area-viewport"]') ?? chairContainer.querySelector(".border-t")
+    const chairViewport =
+      chairContainer.querySelector('[data-slot="scroll-area-viewport"]') ??
+      chairContainer.querySelector(".border-t")
     expect(chairViewport?.textContent).toContain("warning")
 
     const { container: authorContainer } = render(
@@ -117,7 +119,9 @@ describe("ConferenceDetailHeader — tab visibility by role", () => {
         userRole="author"
       />,
     )
-    const authorViewport = authorContainer.querySelector('[data-slot="scroll-area-viewport"]') ?? authorContainer.querySelector(".border-t")
+    const authorViewport =
+      authorContainer.querySelector('[data-slot="scroll-area-viewport"]') ??
+      authorContainer.querySelector(".border-t")
     expect(authorViewport?.textContent).not.toContain("warning")
   })
 })

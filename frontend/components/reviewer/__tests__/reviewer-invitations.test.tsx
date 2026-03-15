@@ -86,6 +86,8 @@ describe("ReviewerInvitations", () => {
     )
 
     expect(screen.getByText("No actions available")).toBeInTheDocument()
-    expect(screen.queryByText(/You have been invited to serve as a reviewer/i)).not.toBeInTheDocument()
+    expect(
+      screen.queryByText(/You have been invited to serve as a reviewer/i),
+    ).not.toBeInTheDocument()
   })
 })

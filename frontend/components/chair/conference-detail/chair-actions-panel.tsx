@@ -4,6 +4,8 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { apiFetch } from "@/lib/api/client"
+import { transitionConferenceStatus } from "@/lib/api/conferences"
+import type { ConferenceStatus } from "@/lib/types"
 import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { ROUTES } from "@/lib/routes"
@@ -23,6 +25,7 @@ interface NextMilestone {
 
 interface ChairActionsPanelProps {
   conferenceId: string
+  conferenceStatus?: ConferenceStatus
   onNavigateToAssignments?: () => void
   actions?: ChairAction[]
   nextMilestone?: NextMilestone
@@ -31,6 +34,7 @@ interface ChairActionsPanelProps {
 
 export function ChairActionsPanel({
   conferenceId,
+  conferenceStatus,
   onNavigateToAssignments,
   actions,
   nextMilestone,
@@ -42,6 +46,9 @@ export function ChairActionsPanel({
   const [autoAssignLoading, setAutoAssignLoading] = useState(false)
   const [autoAssignError, setAutoAssignError] = useState<string | null>(null)
   const [autoAssignSuccess, setAutoAssignSuccess] = useState<string | null>(null)
+  const [archiveLoading, setArchiveLoading] = useState(false)
+  const [archiveError, setArchiveError] = useState<string | null>(null)
+  const [archiveSuccess, setArchiveSuccess] = useState<string | null>(null)
 
   // Only render for chairs
   if (currentRole !== "chair") return null
@@ -101,6 +108,40 @@ export function ChairActionsPanel({
     }
   }
 
+  const handleArchiveToggle = async () => {
+    if (!conferenceStatus) return
+
+    const targetStatus: ConferenceStatus =
+      conferenceStatus === "archived" ? "completed" : "archived"
+
+    setArchiveLoading(true)
+    setArchiveError(null)
+    setArchiveSuccess(null)
+
+    try {
+      const response = await transitionConferenceStatus(conferenceId, targetStatus)
+      if (response.error || !response.data) {
+        setArchiveError(response.error || "Failed to update conference status")
+        return
+      }
+
+      setArchiveSuccess(
+        targetStatus === "archived"
+          ? t(
+              "runtime.components.chair.conference-detail.chair-actions-panel.text_archived_success",
+            )
+          : t(
+              "runtime.components.chair.conference-detail.chair-actions-panel.text_unarchived_success",
+            ),
+      )
+
+      // Reload detail page to reflect new status
+      router.refresh()
+    } finally {
+      setArchiveLoading(false)
+    }
+  }
+
   const defaultActions: ChairAction[] = [
     {
       id: "auto-assign",
@@ -128,6 +169,20 @@ export function ChairActionsPanel({
       ),
       icon: "edit_note",
       onClick: () => router.push(ROUTES.CHAIR.CONFERENCE_EDIT(conferenceId)),
+    },
+    {
+      id: "archive",
+      label:
+        conferenceStatus === "archived"
+          ? t(
+              "runtime.components.chair.conference-detail.chair-actions-panel.text_unarchive_conference",
+            )
+          : t(
+              "runtime.components.chair.conference-detail.chair-actions-panel.text_archive_conference",
+            ),
+      icon: "inventory_2",
+      onClick: handleArchiveToggle,
+      loading: archiveLoading,
     },
   ]
 
@@ -157,6 +212,16 @@ export function ChairActionsPanel({
         {autoAssignSuccess && (
           <div className="mb-2 px-2 py-1.5 bg-green-500/20 border border-green-400/30 rounded text-[10px] text-green-200">
             {autoAssignSuccess}
+          </div>
+        )}
+        {archiveError && (
+          <div className="mb-2 px-2 py-1.5 bg-red-500/20 border border-red-400/30 rounded text-[10px] text-red-200">
+            {archiveError}
+          </div>
+        )}
+        {archiveSuccess && (
+          <div className="mb-2 px-2 py-1.5 bg-green-500/20 border border-green-400/30 rounded text-[10px] text-green-200">
+            {archiveSuccess}
           </div>
         )}
 

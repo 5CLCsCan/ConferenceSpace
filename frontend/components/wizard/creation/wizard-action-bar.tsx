@@ -40,7 +40,7 @@ export function WizardActionBar({
   const isLastStep = currentStep === totalSteps
 
   return (
-    <div className="absolute bottom-0 left-0 lg:left-[240px] right-0 bg-white dark:bg-slate-900 py-3 px-4 z-30">
+    <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-3 px-4 z-30 shadow-[0_-4px_20px_rgba(0,0,0,0.02)]">
       <div className="max-w-4xl mx-auto flex items-center justify-between">
         {/* Return Button */}
         <button
@@ -134,7 +134,9 @@ export function WizardActionBar({
               ) : (
                 <>
                   {submitLabel ||
-                    t("runtime.components.wizard.creation.wizard-action-bar.text_create_conference")}{" "}
+                    t(
+                      "runtime.components.wizard.creation.wizard-action-bar.text_create_conference",
+                    )}{" "}
                   <span
                     className="material-symbols-outlined"
                     style={{

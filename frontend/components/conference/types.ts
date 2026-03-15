@@ -30,7 +30,7 @@ export interface Conference {
   acceptedPapers?: number
 }
 
-export type TabType = "my-conferences" | "explore" | "archived"
+export type TabType = "my-conferences" | "explore" | "drafts" | "archived"
 export type ViewMode = "grid" | "list"
 
 // Explore/Archived Conference Types

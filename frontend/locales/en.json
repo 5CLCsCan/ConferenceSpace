@@ -336,6 +336,11 @@
     }
   },
   "runtime": {
+    "common": {
+      "cancel": "Cancel",
+      "save_changes": "Save changes",
+      "discard": "Discard"
+    },
     "app": {
       "forgot-password": {
         "page": {
@@ -719,7 +724,8 @@
                 "prop_description_please_provide_at_least_the_conference": "Please provide at least the conference name and acronym.",
                 "prop_description_your_conference_draft_has_been_saved": "Your conference draft has been saved.",
                 "prop_title_draft_saved": "Draft saved",
-                "prop_title_missing_required_fields": "Missing required fields"
+                "prop_title_missing_required_fields": "Missing required fields",
+                "text_discard_changes": "Discard changes"
               }
             },
             "page": {
@@ -1254,6 +1260,7 @@
       },
       "chair": {
         "chair-conferences": {
+          "prop_label_drafts": "Drafts",
           "prop_label_archived": "Archived",
           "prop_label_date_newest": "Date (Newest)",
           "prop_label_date_upcoming": "Date (Upcoming)",
@@ -1310,7 +1317,10 @@
           "text_loading_conference": "Loading conference...",
           "text_open_templates": "Templates",
           "text_reuse_settings": "Reuse Setup",
-          "text_reuse_settings_description": "Apply a saved template or copy settings from another conference without replacing this conference's identity."
+          "text_reuse_settings_description": "Apply a saved template or copy settings from another conference without replacing this conference's identity.",
+          "text_unsaved_changes": "Unsaved changes",
+          "text_confirm_discard_changes_desc": "You have unsaved changes. Would you like to save them as a draft before leaving, or discard them?",
+          "text_discard_changes": "Discard changes"
         },
         "conference-template-sheet": {
           "placeholder_search_conferences": "Search conferences by title or acronym",
@@ -1327,11 +1337,12 @@
           "text_close": "Close",
           "text_co_chairs": "Co-chairs",
           "text_co_chairs_description": "Copy committee co-chair emails into this setup.",
-          "text_choose_action": "Choose what you want to do",
-          "text_choose_action_description": "Start with a saved template, copy settings from another conference, or save the current form for later.",
+          "text_choose_action": "Choose what to do next",
+          "text_choose_action_description": "Explore saved templates, copy from existing conferences, or create a brand new template from scratch.",
           "text_conference": "Conference",
           "text_copy_from_conference": "Copy from conference",
-          "text_copy_from_conference_card_description": "Reuse dates, tracks, CFP text, and policies from one of your conferences.",
+          "text_copy_from_conference_desc": "Reuse deadlines, tracks, CFP text, and policies from one of your existing conferences.",
+          "text_copy_from_conference_card_description": "Reuse deadlines, tracks, CFP text, and policies from one of your existing conferences.",
           "text_delete": "Delete",
           "text_delete_template": "Delete template",
           "text_delete_template_description": "Delete \"{name}\" from your saved templates? This cannot be undone.",
@@ -1341,7 +1352,9 @@
           "text_failed_to_load_conferences": "Failed to load conferences.",
           "text_failed_to_load_templates": "Failed to load templates.",
           "text_failed_to_save_template": "Failed to save template",
-          "text_failed_to_save_template_description": "Please review the template details and try again.",
+          "text_failed_to_save_template_description": "Please check the template details and try again.",
+          "text_create_new_template": "Create new template",
+          "text_create_template_from_scratch_desc": "Build a complete conference configuration from scratch without needing an existing conference.",
           "text_file_formats": "File formats",
           "text_identity_preserved": "This flow keeps the current conference name, acronym, website, and contact email unchanged.",
           "text_important_dates": "Important dates",
@@ -1349,6 +1362,7 @@
           "text_last_used": "Updated conference",
           "text_loading_conferences": "Loading your conferences...",
           "text_loading_templates": "Loading saved templates...",
+          "text_browse_saved_templates_desc": "Reuse a conference configuration you have previously saved.",
           "text_name_required": "Template name required",
           "text_name_required_description": "Add a template name before saving this setup.",
           "text_no_conference_description": "No conference description available.",
@@ -1356,7 +1370,7 @@
           "text_no_conferences_found_description": "Create or edit another conference first, then come back here to reuse its setup.",
           "text_no_template_description": "No template description yet.",
           "text_no_templates_yet": "No saved templates yet",
-          "text_no_templates_yet_description": "Save the current configuration once, then reuse it for future conferences.",
+          "text_no_templates_yet_description": "Start by creating a new template or copying settings from an existing conference.",
           "text_only_you_can_use_it": "Private to your account",
           "text_pick_source_description": "Choose a source, then apply only the sections you want to reuse.",
           "text_rebuttal_and_decision": "Rebuttal & decisions",
@@ -1389,7 +1403,9 @@
           "text_template_deleted_description": "The saved template has been removed.",
           "text_template_name": "Template name",
           "text_template_saved": "Template saved",
-          "text_template_saved_description": "\"{name}\" is ready to reuse.",
+          "text_template_saved_title": "Template created successfully",
+          "text_template_saved_description": "Your new conference template is now ready to use for future conferences.",
+          "text_template_name_required": "Please enter a template name",
           "text_template_scope": "Visibility",
           "text_templates_and_copying": "Conference templates",
           "text_templates_and_copying_description": "Save this setup or copy selected sections from another conference.",
@@ -1409,8 +1425,14 @@
             "text_chair_actions": "Chair Actions",
             "text_created_assignment_suggestions": "Created {assignments} suggestions for {submissions} papers",
             "text_failed_to_run_auto_assignment": "Failed to run auto-assignment",
+            "text_failed_to_update_conference_status": "Failed to update conference status",
+            "text_failed_to_update_conference_status_description": "Please try again in a moment.",
             "text_next_milestone": "Next Milestone",
-            "text_running": "Running..."
+            "text_running": "Running...",
+            "text_archive_conference": "Archive conference",
+            "text_unarchive_conference": "Unarchive conference",
+            "text_archived_success": "Conference archived",
+            "text_unarchived_success": "Conference restored to completed"
           },
           "conference-assignments": {
             "prop_label_accepted": "Accepted",
@@ -1803,6 +1825,7 @@
           "text_continue_editing": "Continue Editing",
           "text_dashboard": "Dashboard",
           "text_edit_details": "Edit Details",
+          "text_more_actions": "More actions",
           "text_settings": "Settings",
           "text_setup": "Setup",
           "text_view_archive": "View Archive"
@@ -1833,6 +1856,8 @@
           "prop_title_no_archived_conferences": "No archived conferences",
           "prop_title_no_conferences_to_explore": "No conferences to explore",
           "prop_title_no_conferences_yet": "No conferences yet",
+          "prop_title_no_draft_conferences": "No draft conferences",
+          "prop_description_conferences_you_save_as_drafts_will_appear_here": "Conferences you save as drafts will appear here.",
           "text_no_results_found": "No results found",
           "text_try_adjusting_your_search_terms": "Try adjusting your search terms"
         },
@@ -1871,12 +1896,18 @@
       },
       "dashboard-sidebar": {
         "text_account_settings": "Account Settings",
+        "text_active": "Active",
+        "text_change_role": "Switch Role",
         "text_all_recent_conferences_archived": "All recent conferences are archived from your sidebar.",
         "text_archive_recent_conference": "Archive from recent conferences",
         "text_archived_recent_conferences": "Archived Recent",
         "text_change": "Change",
         "text_change_language": "Change Language",
         "text_conferencespace": "ConferenceSpace",
+        "text_failed_to_archive_recent_conference": "Failed to archive recent conference",
+        "text_failed_to_archive_recent_conference_description": "The conference was not archived. Please try again.",
+        "text_failed_to_restore_recent_conference": "Failed to restore recent conference",
+        "text_failed_to_restore_recent_conference_description": "The conference was not restored. Please try again.",
         "text_guest": "Guest",
         "text_hide_archived_recent": "Hide archived",
         "text_loading_conferences": "Loading conferences...",

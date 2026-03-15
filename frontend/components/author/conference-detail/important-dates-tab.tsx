@@ -374,11 +374,7 @@ export function ImportantDatesTab({ dates, conferenceAcronym, conferenceName }: 
           <button
             onClick={() => {
               if (dates.length > 0) {
-                downloadICS(
-                  dates,
-                  conferenceAcronym || "CONF",
-                  conferenceName || "Conference",
-                )
+                downloadICS(dates, conferenceAcronym || "CONF", conferenceName || "Conference")
               }
             }}
             disabled={dates.length === 0}
