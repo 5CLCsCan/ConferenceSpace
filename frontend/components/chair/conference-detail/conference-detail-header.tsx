@@ -7,7 +7,7 @@ import type { ConferenceInfo, TabId, TabItem } from "./types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { ROUTES } from "@/lib/routes"
 
-const CHAIR_ONLY_TABS: TabId[] = ["coi"]
+const CHAIR_ONLY_TABS: TabId[] = ["coi", "rebuttal"]
 
 interface ConferenceDetailHeaderProps {
   conference: ConferenceInfo
@@ -82,6 +82,11 @@ export function ConferenceDetailHeader({
         "runtime.components.chair.conference-detail.conference-detail-header.prop_label_coi",
       ),
       icon: "warning",
+    },
+    {
+      id: "rebuttal",
+      label: "Rebuttal",
+      icon: "rate_review",
     },
   ]
   const visibleTabs =

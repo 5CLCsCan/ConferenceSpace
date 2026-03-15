@@ -21,11 +21,20 @@ interface BackendRebuttalPoint {
   reviewer_note: string
 }
 
+interface BackendAssignmentStatus {
+  assignment_id: number
+  rebuttal_status: string
+}
+
 interface BackendGetRebuttalResponse {
   phase: string
   general_response: string
   submitted_at: string | null
   points: BackendRebuttalPoint[]
+  assignments: BackendAssignmentStatus[]
+  char_limit_general: number
+  char_limit_per_point: number
+  deadline: string | null
 }
 
 export interface RebuttalPanelData {
@@ -52,13 +61,20 @@ export async function getRebuttal(
     )
     const backend = data.data
 
+    const deadlineDate = backend.deadline ? new Date(backend.deadline) : null
+    const daysRemaining = deadlineDate
+      ? Math.max(0, Math.ceil((deadlineDate.getTime() - Date.now()) / 86400000))
+      : 0
+
     const settings: RebuttalSettings = {
       phase: (backend.phase as RebuttalSettings["phase"]) || "awaiting",
-      deadline: "",
-      daysRemaining: 0,
-      characterLimitPerReview: 10000,
-      allowRevisions: true,
-      allowNewResults: true,
+      deadline: backend.deadline ?? "",
+      daysRemaining,
+      characterLimitPerReview: backend.char_limit_general || 10000,
+      charLimitGeneral: backend.char_limit_general || 3000,
+      charLimitPerPoint: backend.char_limit_per_point || 1000,
+      allowRevisions: false,
+      allowNewResults: false,
       requireResponseToAll: false,
     }
 
@@ -75,6 +91,12 @@ export async function getRebuttal(
         : undefined,
     }))
 
+    // Build assignment status map for ack progress
+    const assignmentStatusMap = new Map<string, string>()
+    for (const a of backend.assignments ?? []) {
+      assignmentStatusMap.set(String(a.assignment_id), a.rebuttal_status)
+    }
+
     // Derive unique ReviewerInfo objects from the unique assignment_ids in points.
     // The panel groups points by reviewer.id which maps to assignment_id.
     const assignmentIds = Array.from(new Set(points.map((p) => p.reviewerId)))
@@ -82,6 +104,7 @@ export async function getRebuttal(
       id: assignmentId,
       anonymousId: `Reviewer #${index + 1}`,
       isCurrentUser: currentAssignmentId ? assignmentId === currentAssignmentId : false,
+      rebuttalStatus: assignmentStatusMap.get(assignmentId) ?? "none",
       scores: { original: 0, current: 0, updated: false },
       recommendation: { original: "", current: "", updated: false },
       confidence: 0,
@@ -171,5 +194,28 @@ export async function acknowledgePoint(
     return { error: null }
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Failed to acknowledge point" }
+  }
+}
+
+/**
+ * Reviewer updates their post-rebuttal score after reading the author's rebuttal.
+ * Backend: PUT /api/v1/conferences/:id/assignments/:id/post-rebuttal-score
+ */
+export async function updatePostRebuttalScore(
+  conferenceId: string,
+  assignmentId: string,
+  data: { score: number; recommendation: string; comment: string },
+): Promise<{ error: string | null }> {
+  try {
+    await apiFetch(
+      `/api/v1/conferences/${conferenceId}/assignments/${assignmentId}/post-rebuttal-score`,
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+      },
+    )
+    return { error: null }
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Failed to update post-rebuttal score" }
   }
 }

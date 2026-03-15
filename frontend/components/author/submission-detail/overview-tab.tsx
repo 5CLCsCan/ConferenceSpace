@@ -314,37 +314,63 @@ interface StatusStep {
   pending?: boolean
 }
 
-function SubmissionStatusCard({ submission }: { submission: Submission }) {
+export function SubmissionStatusCard({ submission }: { submission: Submission }) {
   const { t } = useTranslation()
+
+  const stepIndex = (step: "submitted" | "bidding" | "rebuttal" | "decision") => {
+    // step index in the 4-step timeline: 0=submitted,1=bidding,2=rebuttal,3=decision
+    return { submitted: 0, bidding: 1, rebuttal: 2, decision: 3 }[step]
+  }
+  // Map submission.status to which timeline step is "current" (0-based)
+  const currentStepIndex: number = {
+    draft: 0,
+    published: 1,
+    reviewing: 2,
+    accepted: 3,
+    rejected: 3,
+  }[submission.status] ?? 0
+
+  const makeStep = (
+    id: "submitted" | "bidding" | "rebuttal" | "decision",
+    label: string,
+    date: string,
+  ): StatusStep => {
+    const idx = stepIndex(id)
+    const isTerminal = submission.status === "accepted" || submission.status === "rejected"
+    if (idx < currentStepIndex) return { id, label, date, completed: true }
+    if (idx === currentStepIndex) {
+      // decision step is "current" only when accepted/rejected — treat as completed
+      if (id === "decision" && isTerminal) return { id, label, date, completed: true }
+      return { id, label, date, current: true }
+    }
+    return { id, label, date, pending: true }
+  }
+
   const statusSteps: StatusStep[] = [
-    {
-      id: "submitted",
-      label: t("runtime.components.author.submission-detail.overview-tab.prop_label_submitted"),
-      date: formatDate(submission.created_at),
-      completed: true,
-    },
-    {
-      id: "bidding",
-      label: t("runtime.components.author.submission-detail.overview-tab.prop_label_bidding_phase"),
-      date: "Completed",
-      completed: true,
-    },
-    {
-      id: "rebuttal",
-      label: t(
-        "runtime.components.author.submission-detail.overview-tab.prop_label_rebuttal_phase",
-      ),
-      date: "Ends in 3 days",
-      current: true,
-    },
-    {
-      id: "decision",
-      label: t(
-        "runtime.components.author.submission-detail.overview-tab.prop_label_final_decision",
-      ),
-      date: "Expected",
-      pending: true,
-    },
+    makeStep(
+      "submitted",
+      t("runtime.components.author.submission-detail.overview-tab.prop_label_submitted"),
+      formatDate(submission.created_at),
+    ),
+    makeStep(
+      "bidding",
+      t("runtime.components.author.submission-detail.overview-tab.prop_label_bidding_phase"),
+      "Completed",
+    ),
+    makeStep(
+      "rebuttal",
+      t("runtime.components.author.submission-detail.overview-tab.prop_label_rebuttal_phase"),
+      "Ends in 3 days",
+    ),
+    makeStep(
+      "decision",
+      t("runtime.components.author.submission-detail.overview-tab.prop_label_final_decision"),
+      submission.status === "accepted"
+        ? "Accepted"
+        : submission.status === "rejected"
+          ? "Rejected"
+          : "Expected",
+    ),
   ]
 
   return (

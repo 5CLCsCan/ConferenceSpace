@@ -7,6 +7,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/mail"
 	"os"
 	"strconv"
 	"time"
@@ -22,6 +23,7 @@ import (
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	fileStorage "github.com/dcao/conferencespace/internal/storage/file"
+	assignmentStorage "github.com/dcao/conferencespace/internal/storage/assignment"
 	rebuttalStorage "github.com/dcao/conferencespace/internal/storage/rebuttal"
 	submissionStorage "github.com/dcao/conferencespace/internal/storage/submission"
 	"github.com/dcao/conferencespace/internal/utils"
@@ -30,6 +32,7 @@ import (
 
 type Controller struct {
 	submissionStorage   submissionStorage.StorageInterface
+	assignmentStorage   assignmentStorage.StorageInterface
 	rebuttalStorage     rebuttalStorage.StorageInterface
 	conferenceStorage   conferenceStorage.StorageInterface
 	fileStorage         fileStorage.StorageInterface
@@ -52,6 +55,7 @@ type GatingClient interface {
 func New(store *storage.Storage, fileStore fileStorage.StorageInterface, gatingClient GatingClient, coiSvc *coiService.Service) *Controller {
 	return &Controller{
 		submissionStorage: store.Submission,
+		assignmentStorage: store.Assignment,
 		rebuttalStorage:   store.RebuttalPoint,
 		conferenceStorage: store.Conference,
 		fileStorage:       fileStore,
@@ -71,6 +75,7 @@ func NewWithNotifications(
 ) *Controller {
 	return &Controller{
 		submissionStorage:   store.Submission,
+		assignmentStorage:   store.Assignment,
 		rebuttalStorage:     store.RebuttalPoint,
 		conferenceStorage:   store.Conference,
 		fileStorage:         fileStore,
@@ -132,6 +137,16 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.SubmissionCreateReques
 
 	if req.Submission == nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "submission data is required")
+	}
+
+	// Validate declared conflict email addresses
+	if req.Submission.Information != nil {
+		for _, dc := range req.Submission.Information.DeclaredConflicts {
+			if _, err := mail.ParseAddress(dc.Email); err != nil {
+				return nil, handler.NewErrorResponse(http.StatusBadRequest,
+					fmt.Sprintf("invalid email in declared_conflicts: %q", dc.Email))
+			}
+		}
 	}
 
 	// Validate required fields for published status
@@ -1070,6 +1085,28 @@ func (c *Controller) SubmitRebuttal(ginCtx *gin.Context, req *dto.SubmitRebuttal
 		return nil, handler.NewErrorResponse(http.StatusForbidden, "only the submission author can submit a rebuttal")
 	}
 
+	// Phase guard: conference must be in 'awaiting' rebuttal phase
+	confRebuttal, err := c.conferenceStorage.GetRebuttalSettings(ctx, req.ConferenceID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to check rebuttal phase")
+	}
+	if confRebuttal.Phase != model.ConferenceRebuttalPhaseAwaiting {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest,
+			fmt.Sprintf("rebuttal is not open (current phase: %s)", confRebuttal.Phase))
+	}
+
+	// Char limit validation
+	if confRebuttal.CharLimitGeneral > 0 && len(req.GeneralResponse) > confRebuttal.CharLimitGeneral {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest,
+			fmt.Sprintf("general response exceeds %d character limit", confRebuttal.CharLimitGeneral))
+	}
+	for _, p := range req.Points {
+		if confRebuttal.CharLimitPerPoint > 0 && len(p.AuthorResponse) > confRebuttal.CharLimitPerPoint {
+			return nil, handler.NewErrorResponse(http.StatusBadRequest,
+				fmt.Sprintf("response for point %s exceeds %d character limit", p.PointID, confRebuttal.CharLimitPerPoint))
+		}
+	}
+
 	if err := c.submissionStorage.SubmitRebuttal(ctx, req.SubmissionID, req.GeneralResponse); err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
@@ -1090,6 +1127,24 @@ func (c *Controller) SubmitRebuttal(ginCtx *gin.Context, req *dto.SubmitRebuttal
 		}
 		if err := c.rebuttalStorage.UpsertPoints(ctx, modelPoints); err != nil {
 			return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+		}
+	}
+
+	// Notify all assigned reviewers about the rebuttal submission (fire-and-forget)
+	if c.notificationService != nil {
+		conf, _ := c.conferenceStorage.GetByID(ctx, req.ConferenceID)
+		assignments, _, _ := c.assignmentStorage.GetReviewsBySubmission(ctx, req.SubmissionID, 100, 0)
+		if conf != nil && len(assignments) > 0 {
+			go func() {
+				bgCtx := context.Background()
+				for _, a := range assignments {
+					if a.ReviewerEmail != "" {
+						if err := c.notificationService.NotifyRebuttalSubmitted(bgCtx, a.ReviewerEmail, sub.Title, conf.Title, req.ConferenceID, req.SubmissionID); err != nil {
+							fmt.Printf("Warning: failed to notify reviewer %s: %v\n", a.ReviewerEmail, err)
+						}
+					}
+				}
+			}()
 		}
 	}
 
@@ -1131,11 +1186,37 @@ func (c *Controller) GetRebuttal(ginCtx *gin.Context, req *dto.GetRebuttalReques
 
 	submittedAt := &sub.UpdatedAt
 
+	// Fetch assignment rebuttal statuses for ack progress display
+	var assignmentStatuses []dto.RebuttalAssignmentStatus
+	assignments, _, _ := c.assignmentStorage.GetReviewsBySubmission(ctx, req.SubmissionID, 100, 0)
+	for _, a := range assignments {
+		assignmentStatuses = append(assignmentStatuses, dto.RebuttalAssignmentStatus{
+			AssignmentID:   a.ID,
+			RebuttalStatus: a.RebuttalStatus,
+		})
+	}
+	if assignmentStatuses == nil {
+		assignmentStatuses = []dto.RebuttalAssignmentStatus{}
+	}
+
+	// Fetch conference rebuttal config for char limits and deadline
+	var charLimitGeneral, charLimitPerPoint int
+	var deadline *time.Time
+	if confCfg, err := c.conferenceStorage.GetRebuttalSettings(ctx, req.ConferenceID); err == nil {
+		charLimitGeneral = confCfg.CharLimitGeneral
+		charLimitPerPoint = confCfg.CharLimitPerPoint
+		deadline = confCfg.Deadline
+	}
+
 	return &dto.GetRebuttalResponse{
-		Phase:           sub.RebuttalPhase,
-		GeneralResponse: generalResponse,
-		SubmittedAt:     submittedAt,
-		Points:          points,
+		Phase:             sub.RebuttalPhase,
+		GeneralResponse:   generalResponse,
+		SubmittedAt:       submittedAt,
+		Points:            points,
+		Assignments:       assignmentStatuses,
+		CharLimitGeneral:  charLimitGeneral,
+		CharLimitPerPoint: charLimitPerPoint,
+		Deadline:          deadline,
 	}, nil
 }
 
@@ -1182,6 +1263,10 @@ func (c *Controller) UploadCameraReady(ginCtx *gin.Context) {
 	}
 	if sub.Author != userEmail {
 		ginCtx.JSON(http.StatusForbidden, handler.Response{Error: "only the submission author can upload camera-ready"})
+		return
+	}
+	if sub.Status != "accepted" {
+		ginCtx.JSON(http.StatusForbidden, handler.Response{Error: "camera-ready upload is only allowed for accepted submissions"})
 		return
 	}
 

@@ -62,7 +62,7 @@ func TestCreateSubmissionWithDeclaredConflicts(t *testing.T) {
 				Reason: "Organization conflict - Former workplace",
 			},
 			{
-				Email:  "stanford.edu",
+				Email:  "contact@stanford.edu",
 				Reason: "Domain conflict - Close collaboration",
 			},
 		}
@@ -515,9 +515,9 @@ func TestDeclaredConflictsRoundTrip(t *testing.T) {
 
 	t.Run("frontend workflow simulation", func(t *testing.T) {
 		// Step 1: Frontend collects COI data from user in three separate arrays
-		coiPeople := []string{"jane.doe@uni.edu", "John Smith"}
-		coiOrgs := []string{"MIT AI Lab", "Google DeepMind"}
-		coiDomains := []string{"stanford.edu", "cmu.edu"}
+		coiPeople := []string{"jane.doe@uni.edu", "john.smith@university.edu"}
+		coiOrgs := []string{"mit-ai-lab@mit.edu", "deepmind@google.com"}
+		coiDomains := []string{"contact@stanford.edu", "contact@cmu.edu"}
 
 		t.Logf("Step 1: Frontend collected COI data:")
 		t.Logf("  - People: %v", coiPeople)
@@ -644,5 +644,69 @@ func TestDeclaredConflictsRoundTrip(t *testing.T) {
 
 		t.Logf("✓ Complete roundtrip successful - all COI data preserved!")
 	})
+}
+
+// TestDeclareConflicts_InvalidEmails verifies that a COI declaration containing
+// malformed email addresses is rejected with 400.
+func TestDeclareConflicts_InvalidEmails(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	submissionClient := NewClient(ctx)
+	conferenceClient := conference.NewClient(ctx)
+
+	chairToken, chair, err := ctx.RegisterUniqueUser("chair", "password123", "Chair", "User", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register chair user: %v", err)
+	}
+	authorToken, author, err := ctx.RegisterUniqueUser("author", "password123", "Author", "User", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register author user: %v", err)
+	}
+
+	conf := &dto.Conference{
+		Title:   "COI Invalid Email Test",
+		Acronym: testutils.UniqueString("CIET"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI"},
+	}
+	confResp, err := conferenceClient.Create(conf, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to create conference: %v", err)
+	}
+	var confData struct {
+		Data *dto.ConferenceResponse `json:"data"`
+	}
+	testutils.DecodeResponse(t, confResp, &confData)
+	conferenceID := confData.Data.ID
+
+	// Create submission including malformed emails in DeclaredConflicts.
+	// declared_conflicts lives inside submission.information — mirroring the pattern
+	// in the existing TestCreateSubmissionWithDeclaredConflicts test.
+	sub := &dto.Submission{
+		ConferenceID: conferenceID,
+		Author:       author.Email,
+		Title:        "COI Test Paper",
+		Abstract:     "Abstract",
+		Domain:       []string{"AI"},
+		Status:       dto.StatusDraft,
+		Information: &dto.SubmissionInformation{
+			DeclaredConflicts: []dto.ConflictDeclaration{
+				{Email: "not-an-email", Reason: "conflict"},
+				{Email: "also bad@@@@", Reason: "conflict"},
+			},
+		},
+	}
+	resp, err := submissionClient.Create(conferenceID, sub, authorToken)
+	if err != nil {
+		t.Fatalf("Request failed: %v", err)
+	}
+	// If the backend validates email format in DeclaredConflicts, it returns 400.
+	// A 201 here documents that email validation is missing and should be added.
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Logf("NOTE: Backend accepted invalid emails in declared_conflicts (status %d). "+
+			"Email format validation is missing.", resp.StatusCode)
+		t.Fatalf("Expected 400 for invalid emails, got %d", resp.StatusCode)
+	}
 }
 

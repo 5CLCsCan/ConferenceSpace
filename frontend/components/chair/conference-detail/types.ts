@@ -64,6 +64,7 @@ export type TabId =
   | "submissions"
   | "assignments"
   | "coi"
+  | "rebuttal"
 
 export interface TabItem {
   id: TabId

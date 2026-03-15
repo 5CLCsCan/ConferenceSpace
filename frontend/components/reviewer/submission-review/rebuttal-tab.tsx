@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { RebuttalPanel } from "@/components/shared/rebuttal"
-import { getRebuttal, acknowledgePoint } from "@/lib/api/rebuttal"
+import { getRebuttal, acknowledgePoint, updatePostRebuttalScore } from "@/lib/api/rebuttal"
 import type { RebuttalPanelData } from "@/lib/api/rebuttal"
 import type { ResponseStatus } from "@/components/shared/rebuttal/types"
 
@@ -17,24 +17,64 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true)
-      const result = await getRebuttal(conferenceId, submissionId, assignmentId)
-      setLoading(false)
-      if (result.error || !result.data) {
-        setError(result.error ?? "Failed to load rebuttal")
-      } else {
-        setData(result.data)
-      }
+  // Post-rebuttal score form
+  const [scoreFormOpen, setScoreFormOpen] = useState(false)
+  const [score, setScore] = useState(5)
+  const [recommendation, setRecommendation] = useState("borderline")
+  const [scoreComment, setScoreComment] = useState("")
+  const [scoreSaving, setScoreSaving] = useState(false)
+  const [scoreSuccess, setScoreSuccess] = useState(false)
+
+  async function load() {
+    setLoading(true)
+    const result = await getRebuttal(conferenceId, submissionId, assignmentId)
+    setLoading(false)
+    if (result.error || !result.data) {
+      setError(result.error ?? "Failed to load rebuttal")
+    } else {
+      setData(result.data)
     }
+  }
+
+  useEffect(() => {
     void load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conferenceId, submissionId, assignmentId])
 
   async function handlePointStatusChange(pointId: string, status: ResponseStatus, note?: string) {
     const result = await acknowledgePoint(conferenceId, assignmentId, pointId, status, note)
     if (result.error) {
       setError(result.error)
+    } else {
+      await load()
+    }
+  }
+
+  async function handleMarkAllRead() {
+    if (!data) return
+    const unacked = data.points.filter(
+      (p) => p.reviewerId === assignmentId && !p.reviewerAcknowledgment?.acknowledged,
+    )
+    for (const point of unacked) {
+      await acknowledgePoint(conferenceId, assignmentId, point.id, "addressed")
+    }
+    await load()
+  }
+
+  async function handleSaveScore() {
+    setScoreSaving(true)
+    setError(null)
+    const result = await updatePostRebuttalScore(conferenceId, assignmentId, {
+      score,
+      recommendation,
+      comment: scoreComment,
+    })
+    setScoreSaving(false)
+    if (result.error) {
+      setError(result.error)
+    } else {
+      setScoreSuccess(true)
+      setTimeout(() => setScoreSuccess(false), 3000)
     }
   }
 
@@ -52,15 +92,132 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
 
   if (!data) return null
 
+  const phase = data.settings.phase
+
+  // Phase: awaiting — author hasn't submitted yet
+  if (phase !== "submitted" && phase !== "finalized") {
+    return (
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm px-4 py-6 text-center">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          The author hasn&apos;t submitted their rebuttal yet.
+        </p>
+      </div>
+    )
+  }
+
+  // Count unacknowledged points for this reviewer
+  const myUnackedPoints = data.points.filter(
+    (p) => p.reviewerId === assignmentId && !p.reviewerAcknowledgment?.acknowledged,
+  )
+
   return (
-    <RebuttalPanel
-      settings={data.settings}
-      reviewers={data.reviewers}
-      points={data.points}
-      submission={data.submission}
-      userRole="reviewer"
-      currentUserId={assignmentId}
-      onPointStatusChange={handlePointStatusChange}
-    />
+    <div className="space-y-4">
+      {/* Finalized banner */}
+      {phase === "finalized" && (
+        <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3">
+          <p className="text-xs font-medium text-slate-600 dark:text-slate-400">
+            Rebuttal period is finalized. No further changes are possible.
+          </p>
+        </div>
+      )}
+
+      {/* Mark all read + post-rebuttal score — only when submitted/discussion */}
+      {phase === "submitted" && (
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 space-y-4">
+          {/* Mark all read */}
+          {myUnackedPoints.length > 0 && (
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                {myUnackedPoints.length} point{myUnackedPoints.length !== 1 ? "s" : ""} unacknowledged
+              </span>
+              <button
+                onClick={handleMarkAllRead}
+                className="text-xs px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium"
+              >
+                Mark all as read
+              </button>
+            </div>
+          )}
+
+          {/* Post-rebuttal score */}
+          <div>
+            <button
+              onClick={() => setScoreFormOpen(!scoreFormOpen)}
+              className="text-xs font-medium text-[#1B3C53] dark:text-blue-300 hover:underline"
+            >
+              {scoreFormOpen ? "▾ Hide" : "▸ Update"} post-rebuttal score
+            </button>
+
+            {scoreFormOpen && (
+              <div className="mt-3 space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">
+                      Score (1–10)
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={10}
+                      value={score}
+                      onChange={(e) => setScore(Number(e.target.value))}
+                      className="w-full text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#1B3C53]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">
+                      Recommendation
+                    </label>
+                    <select
+                      value={recommendation}
+                      onChange={(e) => setRecommendation(e.target.value)}
+                      className="w-full text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#1B3C53]"
+                    >
+                      <option value="accept">Accept</option>
+                      <option value="borderline">Borderline</option>
+                      <option value="reject">Reject</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">
+                    Comment (optional)
+                  </label>
+                  <textarea
+                    value={scoreComment}
+                    onChange={(e) => setScoreComment(e.target.value)}
+                    placeholder="Any additional comments after reading the rebuttal…"
+                    className="w-full text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 min-h-[60px] resize-y bg-white dark:bg-slate-800 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#1B3C53]"
+                  />
+                </div>
+                {scoreSuccess && (
+                  <p className="text-[10px] text-green-600 dark:text-green-400">Score updated.</p>
+                )}
+                <div className="flex justify-end">
+                  <button
+                    onClick={handleSaveScore}
+                    disabled={scoreSaving}
+                    className="text-xs px-4 py-1.5 rounded-lg bg-[#1B3C53] text-white hover:bg-[#1B3C53]/90 disabled:opacity-50 font-medium"
+                  >
+                    {scoreSaving ? "Saving…" : "Update Score"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <RebuttalPanel
+        settings={data.settings}
+        reviewers={data.reviewers}
+        points={data.points}
+        submission={data.submission}
+        userRole="reviewer"
+        currentUserId={assignmentId}
+        onPointStatusChange={handlePointStatusChange}
+        readOnly={phase === "finalized"}
+      />
+    </div>
   )
 }

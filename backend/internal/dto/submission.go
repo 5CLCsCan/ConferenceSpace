@@ -17,7 +17,7 @@ type ConflictDeclaration struct {
 
 type SubmissionInformation struct {
 	CoAuthors         []string               `json:"co_authors,omitempty"`
-	DeclaredConflicts []ConflictDeclaration  `json:"declared_conflicts,omitempty"`
+	DeclaredConflicts []ConflictDeclaration  `json:"declared_conflicts,omitempty" binding:"omitempty,dive"`
 	Keywords          []string               `json:"keywords,omitempty"`
 	PaperType         string                 `json:"paper_type,omitempty"`
 	TrackName         string                 `json:"track_name,omitempty"`
