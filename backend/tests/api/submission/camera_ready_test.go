@@ -108,12 +108,30 @@ func setupCameraReadyScenario(t *testing.T, ctx *testutils.TestContext) (
 	return
 }
 
-// TestUploadCameraReady_AuthorCanUpload verifies the author can upload a camera-ready PDF.
+// acceptSubmission transitions a submission to "accepted" status using the chair token.
+func acceptSubmission(t *testing.T, ctx *testutils.TestContext, conferenceID, submissionID int64, chairToken string) {
+	t.Helper()
+	resp, err := ctx.MakeRequest("PUT",
+		fmt.Sprintf("/api/v1/conferences/%d/submissions/%d/status", conferenceID, submissionID),
+		map[string]interface{}{"status": "accepted"},
+		chairToken,
+	)
+	if err != nil {
+		t.Fatalf("acceptSubmission: request failed: %v", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("acceptSubmission: expected 200, got %d", resp.StatusCode)
+	}
+}
+
+// TestUploadCameraReady_AuthorCanUpload verifies the author can upload a camera-ready PDF
+// to an accepted submission.
 func TestUploadCameraReady_AuthorCanUpload(t *testing.T) {
 	ctx := testutils.NewTestContext(t)
 	defer ctx.Close()
 
-	_, authorToken, conferenceID, submissionID := setupCameraReadyScenario(t, ctx)
+	chairToken, authorToken, conferenceID, submissionID := setupCameraReadyScenario(t, ctx)
+	acceptSubmission(t, ctx, conferenceID, submissionID, chairToken)
 
 	pdfContent := readTestPDF()
 	resp, err := uploadCameraReady(ctx, conferenceID, submissionID, pdfContent, authorToken)
@@ -150,7 +168,8 @@ func TestDownloadCameraReady_AfterUpload(t *testing.T) {
 	ctx := testutils.NewTestContext(t)
 	defer ctx.Close()
 
-	_, authorToken, conferenceID, submissionID := setupCameraReadyScenario(t, ctx)
+	chairToken, authorToken, conferenceID, submissionID := setupCameraReadyScenario(t, ctx)
+	acceptSubmission(t, ctx, conferenceID, submissionID, chairToken)
 
 	pdfContent := readTestPDF()
 	uploadResp, err := uploadCameraReady(ctx, conferenceID, submissionID, pdfContent, authorToken)
@@ -234,5 +253,27 @@ func TestUploadCameraReady_Unauthenticated(t *testing.T) {
 
 	if resp.StatusCode != http.StatusUnauthorized {
 		t.Fatalf("Expected 401, got %d", resp.StatusCode)
+	}
+}
+
+// TestUploadCameraReady_NonAcceptedStatus verifies that uploading to a draft
+// submission (not yet accepted) is rejected with 403.
+// This tests the status guard added to UploadCameraReady().
+func TestUploadCameraReady_NonAcceptedStatus(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	// setupCameraReadyScenario creates a submission with Status=draft — no status transition needed.
+	_, authorToken, conferenceID, submissionID := setupCameraReadyScenario(t, ctx)
+
+	pdfContent := readTestPDF()
+	resp, err := uploadCameraReady(ctx, conferenceID, submissionID, pdfContent, authorToken)
+	if err != nil {
+		t.Fatalf("Request failed: %v", err)
+	}
+
+	if resp.StatusCode != http.StatusForbidden {
+		body, _ := io.ReadAll(resp.Body)
+		t.Fatalf("Expected 403, got %d. Body: %s", resp.StatusCode, string(body))
 	}
 }

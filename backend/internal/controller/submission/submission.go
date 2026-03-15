@@ -7,6 +7,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/mail"
 	"os"
 	"strconv"
 	"time"
@@ -125,6 +126,16 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.SubmissionCreateReques
 
 	if req.Submission == nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "submission data is required")
+	}
+
+	// Validate declared conflict email addresses
+	if req.Submission.Information != nil {
+		for _, dc := range req.Submission.Information.DeclaredConflicts {
+			if _, err := mail.ParseAddress(dc.Email); err != nil {
+				return nil, handler.NewErrorResponse(http.StatusBadRequest,
+					fmt.Sprintf("invalid email in declared_conflicts: %q", dc.Email))
+			}
+		}
 	}
 
 	// Validate required fields for published status
@@ -1228,6 +1239,10 @@ func (c *Controller) UploadCameraReady(ginCtx *gin.Context) {
 	}
 	if sub.Author != userEmail {
 		ginCtx.JSON(http.StatusForbidden, handler.Response{Error: "only the submission author can upload camera-ready"})
+		return
+	}
+	if sub.Status != "accepted" {
+		ginCtx.JSON(http.StatusForbidden, handler.Response{Error: "camera-ready upload is only allowed for accepted submissions"})
 		return
 	}
 
