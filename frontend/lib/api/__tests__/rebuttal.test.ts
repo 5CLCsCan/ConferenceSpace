@@ -80,7 +80,10 @@ describe("getRebuttal", () => {
    * nothing renders. getRebuttal MUST derive ReviewerInfo[] from point assignment_ids.
    */
   it("derives reviewers from point assignment_ids so points can be rendered", async () => {
-    mockApiFetch.mockResolvedValue({ data: BACKEND_RESPONSE_WITH_POINTS, response: { status: 200 } })
+    mockApiFetch.mockResolvedValue({
+      data: BACKEND_RESPONSE_WITH_POINTS,
+      response: { status: 200 },
+    })
 
     const result = await getRebuttal("1", "10")
 
@@ -103,7 +106,10 @@ describe("getRebuttal", () => {
   })
 
   it("maps points correctly — reviewerId matches assignment_id as string", async () => {
-    mockApiFetch.mockResolvedValue({ data: BACKEND_RESPONSE_WITH_POINTS, response: { status: 200 } })
+    mockApiFetch.mockResolvedValue({
+      data: BACKEND_RESPONSE_WITH_POINTS,
+      response: { status: 200 },
+    })
 
     const result = await getRebuttal("1", "10")
 
@@ -122,7 +128,10 @@ describe("getRebuttal", () => {
    * Without this the reviewer sees no "Your Comments" section and can't acknowledge points.
    */
   it("marks the current reviewer isCurrentUser=true when currentAssignmentId matches", async () => {
-    mockApiFetch.mockResolvedValue({ data: BACKEND_RESPONSE_WITH_POINTS, response: { status: 200 } })
+    mockApiFetch.mockResolvedValue({
+      data: BACKEND_RESPONSE_WITH_POINTS,
+      response: { status: 200 },
+    })
 
     const result = await getRebuttal("1", "10", "42")
 
@@ -135,7 +144,10 @@ describe("getRebuttal", () => {
   })
 
   it("sets all reviewers isCurrentUser=false when no currentAssignmentId provided", async () => {
-    mockApiFetch.mockResolvedValue({ data: BACKEND_RESPONSE_WITH_POINTS, response: { status: 200 } })
+    mockApiFetch.mockResolvedValue({
+      data: BACKEND_RESPONSE_WITH_POINTS,
+      response: { status: 200 },
+    })
 
     const result = await getRebuttal("1", "10")
 
@@ -153,7 +165,10 @@ describe("getRebuttal", () => {
   })
 
   it("returns submission with general response for submitted phase", async () => {
-    mockApiFetch.mockResolvedValue({ data: BACKEND_RESPONSE_WITH_POINTS, response: { status: 200 } })
+    mockApiFetch.mockResolvedValue({
+      data: BACKEND_RESPONSE_WITH_POINTS,
+      response: { status: 200 },
+    })
 
     const result = await getRebuttal("1", "10")
 
@@ -287,7 +302,10 @@ describe("acknowledgePoint", () => {
 
 describe("getRebuttal — new fields (charLimits, assignments, rebuttalStatus)", () => {
   it("maps charLimitGeneral and charLimitPerPoint from backend", async () => {
-    mockApiFetch.mockResolvedValue({ data: BACKEND_RESPONSE_WITH_POINTS, response: { status: 200 } })
+    mockApiFetch.mockResolvedValue({
+      data: BACKEND_RESPONSE_WITH_POINTS,
+      response: { status: 200 },
+    })
 
     const result = await getRebuttal("1", "10")
 
@@ -296,7 +314,10 @@ describe("getRebuttal — new fields (charLimits, assignments, rebuttalStatus)",
   })
 
   it("maps rebuttalStatus onto each ReviewerInfo from the assignments array", async () => {
-    mockApiFetch.mockResolvedValue({ data: BACKEND_RESPONSE_WITH_POINTS, response: { status: 200 } })
+    mockApiFetch.mockResolvedValue({
+      data: BACKEND_RESPONSE_WITH_POINTS,
+      response: { status: 200 },
+    })
 
     const result = await getRebuttal("1", "10")
 
@@ -349,15 +370,16 @@ describe("getRebuttal — new fields (charLimits, assignments, rebuttalStatus)",
 
     await getRebuttal("5", "99")
 
-    expect(mockApiFetch).toHaveBeenCalledWith(
-      "/api/v1/conferences/5/submissions/99/rebuttal",
-    )
+    expect(mockApiFetch).toHaveBeenCalledWith("/api/v1/conferences/5/submissions/99/rebuttal")
   })
 })
 
 describe("updatePostRebuttalScore", () => {
   it("calls the correct backend endpoint with score, recommendation, and comment", async () => {
-    mockApiFetch.mockResolvedValue({ data: { message: "post-rebuttal score updated" }, response: { status: 200 } })
+    mockApiFetch.mockResolvedValue({
+      data: { message: "post-rebuttal score updated" },
+      response: { status: 200 },
+    })
 
     await updatePostRebuttalScore("1", "42", {
       score: 7,

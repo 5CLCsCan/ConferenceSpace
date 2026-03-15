@@ -12,16 +12,14 @@ interface PreCheckResultsProps {
 
 export function PreCheckResults({ result }: PreCheckResultsProps) {
   const { t } = useTranslation()
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    () => {
-      // Auto-expand failed categories by default
-      const failedCats = new Set<string>()
-      result.detailed_results.forEach((r) => {
-        if (r.status === "fail") failedCats.add(r.category)
-      })
-      return failedCats
-    },
-  )
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(() => {
+    // Auto-expand failed categories by default
+    const failedCats = new Set<string>()
+    result.detailed_results.forEach((r) => {
+      if (r.status === "fail") failedCats.add(r.category)
+    })
+    return failedCats
+  })
 
   const toggleCategory = (category: string) => {
     setExpandedCategories((prev) => {
@@ -70,10 +68,28 @@ export function PreCheckResults({ result }: PreCheckResultsProps) {
   const isAccepted = result.decision === "accept_for_review"
 
   const decisionConfig = isDeskReject
-    ? { label: t("dashboard.author.submit.precheck.decision.deskReject"), bg: "bg-red-50", text: "text-red-600", border: "border-red-200", barColor: "bg-red-500" }
+    ? {
+        label: t("dashboard.author.submit.precheck.decision.deskReject"),
+        bg: "bg-red-50",
+        text: "text-red-600",
+        border: "border-red-200",
+        barColor: "bg-red-500",
+      }
     : isAccepted
-      ? { label: t("dashboard.author.submit.precheck.decision.acceptForReview"), bg: "bg-emerald-50", text: "text-emerald-600", border: "border-emerald-200", barColor: "bg-emerald-500" }
-      : { label: t("dashboard.author.submit.precheck.decision.manualReview"), bg: "bg-amber-50", text: "text-amber-600", border: "border-amber-200", barColor: "bg-amber-500" }
+      ? {
+          label: t("dashboard.author.submit.precheck.decision.acceptForReview"),
+          bg: "bg-emerald-50",
+          text: "text-emerald-600",
+          border: "border-emerald-200",
+          barColor: "bg-emerald-500",
+        }
+      : {
+          label: t("dashboard.author.submit.precheck.decision.manualReview"),
+          bg: "bg-amber-50",
+          text: "text-amber-600",
+          border: "border-amber-200",
+          barColor: "bg-amber-500",
+        }
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">

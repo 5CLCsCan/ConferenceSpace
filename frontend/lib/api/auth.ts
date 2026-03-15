@@ -30,9 +30,12 @@ export const authApi = {
     }),
 
   verifyEmail: (token: string) =>
-    apiFetch<{ data: { message: string } }>(`/api/v1/auth/verify-email?token=${encodeURIComponent(token)}`, {
-      method: "GET",
-    }),
+    apiFetch<{ data: { message: string } }>(
+      `/api/v1/auth/verify-email?token=${encodeURIComponent(token)}`,
+      {
+        method: "GET",
+      },
+    ),
 
   resendVerification: (email: string) =>
     apiFetch<{ data: ResendVerificationResponse }>("/api/v1/auth/resend-verification", {

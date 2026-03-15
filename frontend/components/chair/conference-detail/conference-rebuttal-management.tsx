@@ -13,17 +13,29 @@ interface ConferenceRebuttalManagementProps {
 }
 
 const PHASE_LABELS: Record<string, { label: string; color: string }> = {
-  not_started: { label: "Not Started",          color: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400" },
-  awaiting:    { label: "Awaiting Submissions", color: "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" },
-  submitted:   { label: "Submitted",            color: "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300" },
-  finalized:   { label: "Finalized",            color: "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300" },
+  not_started: {
+    label: "Not Started",
+    color: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
+  },
+  awaiting: {
+    label: "Awaiting Submissions",
+    color: "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+  },
+  submitted: {
+    label: "Submitted",
+    color: "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
+  },
+  finalized: {
+    label: "Finalized",
+    color: "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300",
+  },
 }
 
 const SUBMISSION_PHASE_LABELS: Record<string, { text: string; color: string }> = {
   not_started: { text: "Not started", color: "text-slate-400" },
-  awaiting:    { text: "Awaiting",    color: "text-blue-600 dark:text-blue-400 font-medium" },
-  submitted:   { text: "Submitted",   color: "text-yellow-600 dark:text-yellow-400 font-medium" },
-  finalized:   { text: "Finalized",   color: "text-green-600 dark:text-green-400 font-medium" },
+  awaiting: { text: "Awaiting", color: "text-blue-600 dark:text-blue-400 font-medium" },
+  submitted: { text: "Submitted", color: "text-yellow-600 dark:text-yellow-400 font-medium" },
+  finalized: { text: "Finalized", color: "text-green-600 dark:text-green-400 font-medium" },
 }
 
 type FilterType = "all" | "has_response" | "no_response"
@@ -89,7 +101,9 @@ export function ConferenceRebuttalManagement({ conferenceId }: ConferenceRebutta
         <div className="px-4 py-4">
           <div className="flex items-center gap-3 mb-4">
             <span className="text-xs text-slate-500 dark:text-slate-400">Current Phase:</span>
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide ${phaseInfo.color}`}>
+            <span
+              className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide ${phaseInfo.color}`}
+            >
               {phaseInfo.label}
             </span>
           </div>
@@ -109,7 +123,9 @@ export function ConferenceRebuttalManagement({ conferenceId }: ConferenceRebutta
               <>
                 {confirmFinalize ? (
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-600 dark:text-slate-400">Are you sure? This cannot be undone.</span>
+                    <span className="text-xs text-slate-600 dark:text-slate-400">
+                      Are you sure? This cannot be undone.
+                    </span>
                     <button
                       disabled={actionLoading}
                       onClick={() => {
@@ -178,9 +194,7 @@ export function ConferenceRebuttalManagement({ conferenceId }: ConferenceRebutta
         </div>
 
         {filteredSubmissions.length === 0 ? (
-          <div className="px-4 py-6 text-xs text-slate-400 text-center">
-            No submissions found.
-          </div>
+          <div className="px-4 py-6 text-xs text-slate-400 text-center">No submissions found.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -221,7 +235,9 @@ export function ConferenceRebuttalManagement({ conferenceId }: ConferenceRebutta
                     </td>
                     <td className="px-4 py-2.5">
                       {s.has_response ? (
-                        <span className="text-[10px] font-bold text-green-600 dark:text-green-400">✓ Submitted</span>
+                        <span className="text-[10px] font-bold text-green-600 dark:text-green-400">
+                          ✓ Submitted
+                        </span>
                       ) : (
                         <span className="text-[10px] text-slate-400">—</span>
                       )}

@@ -22,7 +22,10 @@ beforeEach(() => {
 describe("authApi", () => {
   describe("forgotPassword", () => {
     it("calls POST /api/v1/auth/forgot-password with email", async () => {
-      mockApiFetch.mockResolvedValueOnce({ data: { data: { message: "ok" } }, response: new Response() })
+      mockApiFetch.mockResolvedValueOnce({
+        data: { data: { message: "ok" } },
+        response: new Response(),
+      })
       await authApi.forgotPassword("test@example.com")
       expect(mockApiFetch).toHaveBeenCalledWith(
         "/api/v1/auth/forgot-password",
@@ -54,7 +57,10 @@ describe("authApi", () => {
 
   describe("resetPassword", () => {
     it("calls POST /api/v1/auth/reset-password with token and new_password", async () => {
-      mockApiFetch.mockResolvedValueOnce({ data: { data: { message: "ok" } }, response: new Response() })
+      mockApiFetch.mockResolvedValueOnce({
+        data: { data: { message: "ok" } },
+        response: new Response(),
+      })
       await authApi.resetPassword("mytoken", "NewPass123!")
       expect(mockApiFetch).toHaveBeenCalledWith(
         "/api/v1/auth/reset-password",
@@ -68,7 +74,10 @@ describe("authApi", () => {
 
   describe("changePassword", () => {
     it("calls POST /api/v1/auth/change-password with current and new password", async () => {
-      mockApiFetch.mockResolvedValueOnce({ data: { data: { message: "ok" } }, response: new Response() })
+      mockApiFetch.mockResolvedValueOnce({
+        data: { data: { message: "ok" } },
+        response: new Response(),
+      })
       await authApi.changePassword("OldPass123!", "NewPass456!")
       expect(mockApiFetch).toHaveBeenCalledWith(
         "/api/v1/auth/change-password",
@@ -82,7 +91,10 @@ describe("authApi", () => {
 
   describe("verifyEmail", () => {
     it("calls GET /api/v1/auth/verify-email with encoded token", async () => {
-      mockApiFetch.mockResolvedValueOnce({ data: { data: { message: "ok" } }, response: new Response() })
+      mockApiFetch.mockResolvedValueOnce({
+        data: { data: { message: "ok" } },
+        response: new Response(),
+      })
       await authApi.verifyEmail("mytoken123")
       expect(mockApiFetch).toHaveBeenCalledWith(
         "/api/v1/auth/verify-email?token=mytoken123",
@@ -91,7 +103,10 @@ describe("authApi", () => {
     })
 
     it("encodes special characters in token", async () => {
-      mockApiFetch.mockResolvedValueOnce({ data: { data: { message: "ok" } }, response: new Response() })
+      mockApiFetch.mockResolvedValueOnce({
+        data: { data: { message: "ok" } },
+        response: new Response(),
+      })
       await authApi.verifyEmail("token with spaces")
       expect(mockApiFetch).toHaveBeenCalledWith(
         "/api/v1/auth/verify-email?token=token%20with%20spaces",
@@ -102,7 +117,10 @@ describe("authApi", () => {
 
   describe("resendVerification", () => {
     it("calls POST /api/v1/auth/resend-verification with email", async () => {
-      mockApiFetch.mockResolvedValueOnce({ data: { data: { message: "ok" } }, response: new Response() })
+      mockApiFetch.mockResolvedValueOnce({
+        data: { data: { message: "ok" } },
+        response: new Response(),
+      })
       await authApi.resendVerification("test@example.com")
       expect(mockApiFetch).toHaveBeenCalledWith(
         "/api/v1/auth/resend-verification",

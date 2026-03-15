@@ -114,47 +114,49 @@ export function DiscussionPanel({
 
           {/* Visibility Filter */}
           {!readOnly && (
-          <div className="relative">
-            <select
-              value={filterVisibility}
-              onChange={(e) => setFilterVisibility(e.target.value as MessageVisibility | "all")}
-              className="h-8 pl-3 pr-7 text-[11px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg appearance-none focus:outline-none focus:border-[#1B3C53] cursor-pointer"
-            >
-              <option value="all">
-                {t("runtime.components.shared.discussion.DiscussionPanel.text_all_visibility")}
-              </option>
-              <option value="committee">
-                {t("runtime.components.shared.discussion.DiscussionPanel.text_committee_only")}
-              </option>
-              <option value="reviewers">
-                {t("runtime.components.shared.discussion.DiscussionPanel.text_reviewers_only")}
-              </option>
-              <option value="authors">
-                {t("runtime.components.shared.discussion.DiscussionPanel.text_visible_to_authors")}
-              </option>
-            </select>
-            <span
-              className="absolute right-2 top-2 pointer-events-none material-symbols-outlined text-slate-400"
-              style={{
-                fontSize: "16px",
-                width: "16px",
-                height: "16px",
-                maxWidth: "16px",
-                maxHeight: "16px",
-                minWidth: "16px",
-                minHeight: "16px",
-                lineHeight: "1",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-                transform: "none",
-                boxSizing: "border-box",
-              }}
-            >
-              expand_more
-            </span>
-          </div>
+            <div className="relative">
+              <select
+                value={filterVisibility}
+                onChange={(e) => setFilterVisibility(e.target.value as MessageVisibility | "all")}
+                className="h-8 pl-3 pr-7 text-[11px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg appearance-none focus:outline-none focus:border-[#1B3C53] cursor-pointer"
+              >
+                <option value="all">
+                  {t("runtime.components.shared.discussion.DiscussionPanel.text_all_visibility")}
+                </option>
+                <option value="committee">
+                  {t("runtime.components.shared.discussion.DiscussionPanel.text_committee_only")}
+                </option>
+                <option value="reviewers">
+                  {t("runtime.components.shared.discussion.DiscussionPanel.text_reviewers_only")}
+                </option>
+                <option value="authors">
+                  {t(
+                    "runtime.components.shared.discussion.DiscussionPanel.text_visible_to_authors",
+                  )}
+                </option>
+              </select>
+              <span
+                className="absolute right-2 top-2 pointer-events-none material-symbols-outlined text-slate-400"
+                style={{
+                  fontSize: "16px",
+                  width: "16px",
+                  height: "16px",
+                  maxWidth: "16px",
+                  maxHeight: "16px",
+                  minWidth: "16px",
+                  minHeight: "16px",
+                  lineHeight: "1",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  transform: "none",
+                  boxSizing: "border-box",
+                }}
+              >
+                expand_more
+              </span>
+            </div>
           )}
 
           {/* Status Filter */}

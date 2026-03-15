@@ -1,16 +1,16 @@
-import { APIRequestContext } from '@playwright/test';
-import { RegisteredUser } from '../api/auth';
-import { Conference } from '../api/conference';
-import { Submission } from '../api/submission';
-import { Reviewer } from '../api/reviewer';
-import { executePhase0, Phase0State } from '../../phases/phase-0-auth';
-import { executePhase1, Phase1State, Phase1Config } from '../../phases/phase-1-conference';
-import { executePhase2, Phase2State, Phase2Config } from '../../phases/phase-2-submissions';
-import { executePhase3, Phase3State, Phase3Config } from '../../phases/phase-3-reviewers';
+import { APIRequestContext } from "@playwright/test"
+import { RegisteredUser } from "../api/auth"
+import { Conference } from "../api/conference"
+import { Submission } from "../api/submission"
+import { Reviewer } from "../api/reviewer"
+import { executePhase0, Phase0State } from "../../phases/phase-0-auth"
+import { executePhase1, Phase1State, Phase1Config } from "../../phases/phase-1-conference"
+import { executePhase2, Phase2State, Phase2Config } from "../../phases/phase-2-submissions"
+import { executePhase3, Phase3State, Phase3Config } from "../../phases/phase-3-reviewers"
 
 /**
  * StateBuilder - Fluent API for building test states
- * 
+ *
  * Example usage:
  * ```typescript
  * const state = await StateBuilder
@@ -22,22 +22,22 @@ import { executePhase3, Phase3State, Phase3Config } from '../../phases/phase-3-r
  * ```
  */
 export class StateBuilder {
-  private request: APIRequestContext;
+  private request: APIRequestContext
   private phase0Config: {
-    reviewerCount?: number;
-    authorCount?: number;
-    reviewerDomains?: string[][];
-    authorDomains?: string[][];
-  } = {};
-  private phase1Config?: Phase1Config;
-  private phase2Config?: Phase2Config;
-  private phase3Config?: Phase3Config;
-  private shouldCreateConference = false;
-  private shouldCreateSubmissions = false;
-  private shouldInviteReviewers = false;
+    reviewerCount?: number
+    authorCount?: number
+    reviewerDomains?: string[][]
+    authorDomains?: string[][]
+  } = {}
+  private phase1Config?: Phase1Config
+  private phase2Config?: Phase2Config
+  private phase3Config?: Phase3Config
+  private shouldCreateConference = false
+  private shouldCreateSubmissions = false
+  private shouldInviteReviewers = false
 
   private constructor(request: APIRequestContext) {
-    this.request = request;
+    this.request = request
   }
 
   /**
@@ -46,7 +46,7 @@ export class StateBuilder {
    * @returns StateBuilder instance
    */
   static create(request: APIRequestContext): StateBuilder {
-    return new StateBuilder(request);
+    return new StateBuilder(request)
   }
 
   /**
@@ -55,13 +55,13 @@ export class StateBuilder {
    * @returns StateBuilder instance for chaining
    */
   withUsers(config: {
-    reviewerCount?: number;
-    authorCount?: number;
-    reviewerDomains?: string[][];
-    authorDomains?: string[][];
+    reviewerCount?: number
+    authorCount?: number
+    reviewerDomains?: string[][]
+    authorDomains?: string[][]
   }): StateBuilder {
-    this.phase0Config = config;
-    return this;
+    this.phase0Config = config
+    return this
   }
 
   /**
@@ -70,9 +70,9 @@ export class StateBuilder {
    * @returns StateBuilder instance for chaining
    */
   withConference(config?: Phase1Config): StateBuilder {
-    this.shouldCreateConference = true;
-    this.phase1Config = config;
-    return this;
+    this.shouldCreateConference = true
+    this.phase1Config = config
+    return this
   }
 
   /**
@@ -81,10 +81,10 @@ export class StateBuilder {
    * @returns StateBuilder instance for chaining
    */
   withSubmissions(config?: Phase2Config): StateBuilder {
-    this.shouldCreateSubmissions = true;
-    this.shouldCreateConference = true; // Submissions require conference
-    this.phase2Config = config;
-    return this;
+    this.shouldCreateSubmissions = true
+    this.shouldCreateConference = true // Submissions require conference
+    this.phase2Config = config
+    return this
   }
 
   /**
@@ -93,11 +93,11 @@ export class StateBuilder {
    * @returns StateBuilder instance for chaining
    */
   withAcceptedReviewers(config?: Phase3Config): StateBuilder {
-    this.shouldInviteReviewers = true;
-    this.shouldCreateSubmissions = true; // Reviewers typically need submissions
-    this.shouldCreateConference = true; // Reviewers require conference
-    this.phase3Config = config;
-    return this;
+    this.shouldInviteReviewers = true
+    this.shouldCreateSubmissions = true // Reviewers typically need submissions
+    this.shouldCreateConference = true // Reviewers require conference
+    this.phase3Config = config
+    return this
   }
 
   /**
@@ -105,46 +105,46 @@ export class StateBuilder {
    * @returns Built state object
    */
   async build(): Promise<Phase0State | Phase1State | Phase2State | Phase3State> {
-    console.log('=== StateBuilder: Building Test State ===');
-    const startTime = Date.now();
+    console.log("=== StateBuilder: Building Test State ===")
+    const startTime = Date.now()
 
     // Phase 0: Create users
-    const phase0State = await executePhase0(this.request, this.phase0Config);
+    const phase0State = await executePhase0(this.request, this.phase0Config)
 
     // Phase 1: Create conference (if configured)
     if (this.shouldCreateConference) {
-      const phase1State = await executePhase1(this.request, phase0State, this.phase1Config);
-      
+      const phase1State = await executePhase1(this.request, phase0State, this.phase1Config)
+
       // Phase 2: Create submissions (if configured)
       if (this.shouldCreateSubmissions) {
-        const phase2State = await executePhase2(this.request, phase1State, this.phase2Config);
-        
+        const phase2State = await executePhase2(this.request, phase1State, this.phase2Config)
+
         // Phase 3: Invite and accept reviewers (if configured)
         if (this.shouldInviteReviewers) {
-          const phase3State = await executePhase3(this.request, phase2State, this.phase3Config);
-          
-          const duration = Date.now() - startTime;
-          console.log(`=== StateBuilder: Complete in ${duration}ms ===`);
-          
-          return phase3State;
+          const phase3State = await executePhase3(this.request, phase2State, this.phase3Config)
+
+          const duration = Date.now() - startTime
+          console.log(`=== StateBuilder: Complete in ${duration}ms ===`)
+
+          return phase3State
         }
-        
-        const duration = Date.now() - startTime;
-        console.log(`=== StateBuilder: Complete in ${duration}ms ===`);
-        
-        return phase2State;
+
+        const duration = Date.now() - startTime
+        console.log(`=== StateBuilder: Complete in ${duration}ms ===`)
+
+        return phase2State
       }
-      
-      const duration = Date.now() - startTime;
-      console.log(`=== StateBuilder: Complete in ${duration}ms ===`);
-      
-      return phase1State;
+
+      const duration = Date.now() - startTime
+      console.log(`=== StateBuilder: Complete in ${duration}ms ===`)
+
+      return phase1State
     }
 
-    const duration = Date.now() - startTime;
-    console.log(`=== StateBuilder: Complete in ${duration}ms ===`);
-    
-    return phase0State;
+    const duration = Date.now() - startTime
+    console.log(`=== StateBuilder: Complete in ${duration}ms ===`)
+
+    return phase0State
   }
 
   /**
@@ -152,7 +152,7 @@ export class StateBuilder {
    * @returns Phase 0 state
    */
   async buildPhase0(): Promise<Phase0State> {
-    return await executePhase0(this.request, this.phase0Config);
+    return await executePhase0(this.request, this.phase0Config)
   }
 
   /**
@@ -160,8 +160,8 @@ export class StateBuilder {
    * @returns Phase 1 state
    */
   async buildPhase1(): Promise<Phase1State> {
-    const phase0State = await executePhase0(this.request, this.phase0Config);
-    return await executePhase1(this.request, phase0State, this.phase1Config);
+    const phase0State = await executePhase0(this.request, this.phase0Config)
+    return await executePhase1(this.request, phase0State, this.phase1Config)
   }
 
   /**
@@ -169,9 +169,9 @@ export class StateBuilder {
    * @returns Phase 2 state
    */
   async buildPhase2(): Promise<Phase2State> {
-    const phase0State = await executePhase0(this.request, this.phase0Config);
-    const phase1State = await executePhase1(this.request, phase0State, this.phase1Config);
-    return await executePhase2(this.request, phase1State, this.phase2Config);
+    const phase0State = await executePhase0(this.request, this.phase0Config)
+    const phase1State = await executePhase1(this.request, phase0State, this.phase1Config)
+    return await executePhase2(this.request, phase1State, this.phase2Config)
   }
 
   /**
@@ -179,10 +179,10 @@ export class StateBuilder {
    * @returns Phase 3 state
    */
   async buildPhase3(): Promise<Phase3State> {
-    const phase0State = await executePhase0(this.request, this.phase0Config);
-    const phase1State = await executePhase1(this.request, phase0State, this.phase1Config);
-    const phase2State = await executePhase2(this.request, phase1State, this.phase2Config);
-    return await executePhase3(this.request, phase2State, this.phase3Config);
+    const phase0State = await executePhase0(this.request, this.phase0Config)
+    const phase1State = await executePhase1(this.request, phase0State, this.phase1Config)
+    const phase2State = await executePhase2(this.request, phase1State, this.phase2Config)
+    return await executePhase3(this.request, phase2State, this.phase3Config)
   }
 }
 
@@ -195,13 +195,12 @@ export class StateBuilder {
 export async function createBasicTestState(
   request: APIRequestContext,
   config?: {
-    reviewerCount?: number;
-    authorCount?: number;
-    conferenceDomain?: string[];
-  }
+    reviewerCount?: number
+    authorCount?: number
+    conferenceDomain?: string[]
+  },
 ): Promise<Phase1State> {
-  return await StateBuilder
-    .create(request)
+  return (await StateBuilder.create(request)
     .withUsers({
       reviewerCount: config?.reviewerCount || 5,
       authorCount: config?.authorCount || 3,
@@ -209,7 +208,7 @@ export async function createBasicTestState(
     .withConference({
       domain: config?.conferenceDomain,
     })
-    .build() as Phase1State;
+    .build()) as Phase1State
 }
 
 /**
@@ -221,14 +220,13 @@ export async function createBasicTestState(
 export async function createCompleteTestState(
   request: APIRequestContext,
   config?: {
-    reviewerCount?: number;
-    authorCount?: number;
-    conferenceDomain?: string[];
-    submissionsPerAuthor?: number;
-  }
+    reviewerCount?: number
+    authorCount?: number
+    conferenceDomain?: string[]
+    submissionsPerAuthor?: number
+  },
 ): Promise<Phase2State> {
-  return await StateBuilder
-    .create(request)
+  return (await StateBuilder.create(request)
     .withUsers({
       reviewerCount: config?.reviewerCount || 5,
       authorCount: config?.authorCount || 3,
@@ -239,7 +237,7 @@ export async function createCompleteTestState(
     .withSubmissions({
       submissionsPerAuthor: config?.submissionsPerAuthor || 2,
     })
-    .build() as Phase2State;
+    .build()) as Phase2State
 }
 
 /**
@@ -251,15 +249,14 @@ export async function createCompleteTestState(
 export async function createReadyToReviewState(
   request: APIRequestContext,
   config?: {
-    reviewerCount?: number;
-    authorCount?: number;
-    conferenceDomain?: string[];
-    submissionsPerAuthor?: number;
-    autoAccept?: boolean;
-  }
+    reviewerCount?: number
+    authorCount?: number
+    conferenceDomain?: string[]
+    submissionsPerAuthor?: number
+    autoAccept?: boolean
+  },
 ): Promise<Phase3State> {
-  return await StateBuilder
-    .create(request)
+  return (await StateBuilder.create(request)
     .withUsers({
       reviewerCount: config?.reviewerCount || 5,
       authorCount: config?.authorCount || 3,
@@ -273,5 +270,5 @@ export async function createReadyToReviewState(
     .withAcceptedReviewers({
       autoAccept: config?.autoAccept !== false, // Default true
     })
-    .build() as Phase3State;
+    .build()) as Phase3State
 }

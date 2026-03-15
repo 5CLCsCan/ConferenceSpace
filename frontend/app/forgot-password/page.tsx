@@ -66,7 +66,10 @@ export default function ForgotPasswordPage() {
       <div className="auth-brand-panel">
         <div className="auth-brand-inner">
           <div className="auth-logo-mark">
-            <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "#ffffff" }}>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: "28px", color: "#ffffff" }}
+            >
               lock_reset
             </span>
           </div>
@@ -82,7 +85,9 @@ export default function ForgotPasswordPage() {
               { icon: "lock", text: "Set a new password" },
             ].map(({ icon, text }) => (
               <div key={text} className="auth-feature-row">
-                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>{icon}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                  {icon}
+                </span>
                 <span>{text}</span>
               </div>
             ))}
@@ -97,19 +102,25 @@ export default function ForgotPasswordPage() {
             <>
               <div className="auth-form-header">
                 <h2 className="auth-form-title">Forgot password?</h2>
-                <p className="auth-form-desc">Enter your email and we&apos;ll send you a reset link.</p>
+                <p className="auth-form-desc">
+                  Enter your email and we&apos;ll send you a reset link.
+                </p>
               </div>
 
               {error && (
                 <div className="auth-notice auth-notice--error">
-                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>error</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                    error
+                  </span>
                   <span>{error}</span>
                 </div>
               )}
 
               <form onSubmit={handleEmailSubmit} className="auth-form-fields">
                 <div className="auth-field">
-                  <label htmlFor="email" className="auth-label">Email</label>
+                  <label htmlFor="email" className="auth-label">
+                    Email
+                  </label>
                   <input
                     id="email"
                     type="email"
@@ -124,7 +135,10 @@ export default function ForgotPasswordPage() {
                 </div>
                 <button type="submit" disabled={isLoading} className="auth-submit-btn">
                   {isLoading ? (
-                    <><Loader2 className="h-3 w-3 animate-spin" /><span>Sending…</span></>
+                    <>
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      <span>Sending…</span>
+                    </>
                   ) : (
                     "Send reset link"
                   )}
@@ -138,13 +152,16 @@ export default function ForgotPasswordPage() {
               <div className="auth-form-header">
                 <h2 className="auth-form-title">Check your email</h2>
                 <p className="auth-form-desc">
-                  We sent a password reset link to <strong>{email}</strong>. Check your inbox and follow the link.
+                  We sent a password reset link to <strong>{email}</strong>. Check your inbox and
+                  follow the link.
                 </p>
               </div>
 
               {resendSuccess && (
                 <div className="auth-notice auth-notice--success">
-                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>check_circle</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                    check_circle
+                  </span>
                   <span>Reset link resent.</span>
                 </div>
               )}
@@ -157,7 +174,10 @@ export default function ForgotPasswordPage() {
                   className="auth-submit-btn"
                 >
                   {resendLoading ? (
-                    <><Loader2 className="h-3 w-3 animate-spin" /><span>Resending…</span></>
+                    <>
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      <span>Resending…</span>
+                    </>
                   ) : (
                     "Resend link"
                   )}
@@ -168,7 +188,9 @@ export default function ForgotPasswordPage() {
 
           <p className="auth-switch-text">
             Remember it?{" "}
-            <Link href={ROUTES.LOGIN} className="auth-switch-link">Sign in</Link>
+            <Link href={ROUTES.LOGIN} className="auth-switch-link">
+              Sign in
+            </Link>
           </p>
         </div>
       </div>

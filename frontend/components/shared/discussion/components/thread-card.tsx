@@ -19,14 +19,20 @@ export function ThreadCard({
   const [isExpanded, setIsExpanded] = useState(!thread.isCollapsed)
   const [replyText, setReplyText] = useState("")
   const [showReplyBox, setShowReplyBox] = useState(false)
-  const [quotedMessage, setQuotedMessage] = useState<{ id: string; author: string; content: string } | null>(null)
+  const [quotedMessage, setQuotedMessage] = useState<{
+    id: string
+    author: string
+    content: string
+  } | null>(null)
   const [localMessages, setLocalMessages] = useState(thread.messages)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [showLinkInput, setShowLinkInput] = useState(false)
   const [linkUrl, setLinkUrl] = useState("")
   const [linkText, setLinkText] = useState("")
-  const [pendingAttachments, setPendingAttachments] = useState<Array<{ name: string; url: string }>>([])
+  const [pendingAttachments, setPendingAttachments] = useState<
+    Array<{ name: string; url: string }>
+  >([])
   const [isUploading, setIsUploading] = useState(false)
 
   const handleToggle = () => {
@@ -262,14 +268,20 @@ export function ThreadCard({
               {quotedMessage && (
                 <div className="flex items-start gap-2 pl-3 border-l-4 border-[#1B3C53]/40 bg-[#1B3C53]/5 rounded-r-lg py-2 pr-3">
                   <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-bold text-[#1B3C53] mb-0.5">{quotedMessage.author}</p>
-                    <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">{quotedMessage.content}</p>
+                    <p className="text-[10px] font-bold text-[#1B3C53] mb-0.5">
+                      {quotedMessage.author}
+                    </p>
+                    <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">
+                      {quotedMessage.content}
+                    </p>
                   </div>
                   <button
                     onClick={() => setQuotedMessage(null)}
                     className="shrink-0 p-0.5 rounded hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors mt-0.5"
                   >
-                    <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>close</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                      close
+                    </span>
                   </button>
                 </div>
               )}
@@ -292,14 +304,20 @@ export function ThreadCard({
                       key={idx}
                       className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#1B3C53]/10 border border-[#1B3C53]/20 rounded text-[10px] font-medium text-[#1B3C53]"
                     >
-                      <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>attach_file</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
+                        attach_file
+                      </span>
                       {att.name}
                       <button
                         type="button"
-                        onClick={() => setPendingAttachments((prev) => prev.filter((_, i) => i !== idx))}
+                        onClick={() =>
+                          setPendingAttachments((prev) => prev.filter((_, i) => i !== idx))
+                        }
                         className="ml-0.5 text-[#1B3C53]/60 hover:text-[#1B3C53] leading-none"
                       >
-                        <span className="material-symbols-outlined" style={{ fontSize: "10px" }}>close</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: "10px" }}>
+                          close
+                        </span>
                       </button>
                     </span>
                   ))}
@@ -344,9 +362,15 @@ export function ThreadCard({
                   </button>
                   <button
                     type="button"
-                    onClick={() => { setShowLinkInput((v) => !v); setLinkUrl(""); setLinkText("") }}
+                    onClick={() => {
+                      setShowLinkInput((v) => !v)
+                      setLinkUrl("")
+                      setLinkText("")
+                    }}
                     className={`p-1.5 rounded hover:bg-slate-200 transition-colors ${
-                      showLinkInput ? "text-[#1B3C53] bg-slate-200" : "text-slate-400 hover:text-slate-600"
+                      showLinkInput
+                        ? "text-[#1B3C53] bg-slate-200"
+                        : "text-slate-400 hover:text-slate-600"
                     }`}
                     title="Insert link"
                   >
@@ -402,7 +426,12 @@ export function ThreadCard({
               {/* Link input panel */}
               {showLinkInput && (
                 <div className="flex items-center gap-2 p-2 bg-white border border-slate-200 rounded-lg">
-                  <span className="material-symbols-outlined text-slate-400 shrink-0" style={{ fontSize: "14px" }}>link</span>
+                  <span
+                    className="material-symbols-outlined text-slate-400 shrink-0"
+                    style={{ fontSize: "14px" }}
+                  >
+                    link
+                  </span>
                   <input
                     type="url"
                     value={linkUrl}

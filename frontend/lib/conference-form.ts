@@ -253,7 +253,6 @@ export function applyConferenceTemplateSections(
     supplementaryTypes: [...current.supplementaryTypes],
     gatingRequiredSections: [...current.gatingRequiredSections],
     gatingBannedPhrases: [...current.gatingBannedPhrases],
-    gatingScopeKeywords: [...current.gatingScopeKeywords],
   }
 
   if (selected.has("basics")) {

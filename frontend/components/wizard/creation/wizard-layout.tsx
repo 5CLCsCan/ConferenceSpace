@@ -21,6 +21,7 @@ interface WizardLayoutProps {
   saveDraftLabel?: string
   submitLabel?: string
   submittingLabel?: string
+  onLogoClick?: (e: React.MouseEvent) => void
 }
 
 const STEP_NEXT_LABELS: Record<number, string> = {
@@ -55,6 +56,7 @@ export function WizardLayout({
   saveDraftLabel,
   submitLabel,
   submittingLabel,
+  onLogoClick,
 }: WizardLayoutProps) {
   return (
     <div className="font-[Inter] bg-[#f8fafc] dark:bg-[#191919] text-[#141414] dark:text-white flex flex-col h-screen overflow-hidden">
@@ -65,31 +67,34 @@ export function WizardLayout({
           currentStep={currentStep}
           onStepClick={onStepClick}
           maxStepReached={maxStepReached}
+          onLogoClick={onLogoClick}
         />
 
-        {/* Main Content */}
-        <main className="flex-1 h-full overflow-y-auto bg-[#f8fafc] dark:bg-[#191919] scroll-smooth py-6 md:py-8 px-8 md:px-12">
-          <div className="w-full">{children}</div>
-        </main>
+        {/* Main Content Area Wrapper */}
+        <div className="flex-1 flex flex-col relative min-w-0">
+          <main className="flex-1 h-full overflow-y-auto bg-[#f8fafc] dark:bg-[#191919] scroll-smooth py-6 md:py-8 px-8 md:px-12">
+            <div className="w-full pb-20">{children}</div>
+          </main>
 
-        {/* Action Bar */}
-        <WizardActionBar
-          currentStep={currentStep}
-          totalSteps={WIZARD_STEPS.length}
-          nextStepLabel={STEP_NEXT_LABELS[currentStep]}
-          previousStepLabel={STEP_PREVIOUS_LABELS[currentStep]}
-          onCancel={onCancel}
-          onSaveDraft={onSaveDraft}
-          onNext={onNext}
-          onPrevious={onPrevious}
-          onSubmit={onSubmit}
-          onOpenTemplate={onOpenTemplate}
-          isSubmitting={isSubmitting}
-          canSubmit={canSubmit}
-          saveDraftLabel={saveDraftLabel}
-          submitLabel={submitLabel}
-          submittingLabel={submittingLabel}
-        />
+          {/* Action Bar */}
+          <WizardActionBar
+            currentStep={currentStep}
+            totalSteps={WIZARD_STEPS.length}
+            nextStepLabel={STEP_NEXT_LABELS[currentStep]}
+            previousStepLabel={STEP_PREVIOUS_LABELS[currentStep]}
+            onCancel={onCancel}
+            onSaveDraft={onSaveDraft}
+            onNext={onNext}
+            onPrevious={onPrevious}
+            onSubmit={onSubmit}
+            onOpenTemplate={onOpenTemplate}
+            isSubmitting={isSubmitting}
+            canSubmit={canSubmit}
+            saveDraftLabel={saveDraftLabel}
+            submitLabel={submitLabel}
+            submittingLabel={submittingLabel}
+          />
+        </div>
       </div>
     </div>
   )

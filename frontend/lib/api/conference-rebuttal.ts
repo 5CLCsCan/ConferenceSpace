@@ -33,7 +33,10 @@ export async function getRebuttalOverview(
     )
     return { data: data.data, error: null }
   } catch (e) {
-    return { data: null, error: e instanceof Error ? e.message : "Failed to load rebuttal overview" }
+    return {
+      data: null,
+      error: e instanceof Error ? e.message : "Failed to load rebuttal overview",
+    }
   }
 }
 
@@ -55,9 +58,7 @@ export async function saveRebuttalSettings(
   }
 }
 
-export async function openRebuttal(
-  conferenceId: string,
-): Promise<{ error: string | null }> {
+export async function openRebuttal(conferenceId: string): Promise<{ error: string | null }> {
   try {
     await apiFetch(`/api/v1/conferences/${conferenceId}/rebuttal/open`, { method: "POST" })
     return { error: null }
@@ -66,9 +67,7 @@ export async function openRebuttal(
   }
 }
 
-export async function finalizeRebuttal(
-  conferenceId: string,
-): Promise<{ error: string | null }> {
+export async function finalizeRebuttal(conferenceId: string): Promise<{ error: string | null }> {
   try {
     await apiFetch(`/api/v1/conferences/${conferenceId}/rebuttal/finalize`, { method: "POST" })
     return { error: null }
@@ -77,11 +76,11 @@ export async function finalizeRebuttal(
   }
 }
 
-export async function openDiscussion(
-  conferenceId: string,
-): Promise<{ error: string | null }> {
+export async function openDiscussion(conferenceId: string): Promise<{ error: string | null }> {
   try {
-    await apiFetch(`/api/v1/conferences/${conferenceId}/rebuttal/open-discussion`, { method: "POST" })
+    await apiFetch(`/api/v1/conferences/${conferenceId}/rebuttal/open-discussion`, {
+      method: "POST",
+    })
     return { error: null }
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Failed to open discussion" }

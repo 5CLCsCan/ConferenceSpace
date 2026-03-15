@@ -86,7 +86,10 @@ function ResetPasswordForm() {
       <div className="auth-brand-panel">
         <div className="auth-brand-inner">
           <div className="auth-logo-mark">
-            <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "#ffffff" }}>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: "28px", color: "#ffffff" }}
+            >
               lock_reset
             </span>
           </div>
@@ -102,7 +105,9 @@ function ResetPasswordForm() {
               { icon: "check_circle", text: "Access restored" },
             ].map(({ icon, text }) => (
               <div key={text} className="auth-feature-row">
-                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>{icon}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                  {icon}
+                </span>
                 <span>{text}</span>
               </div>
             ))}
@@ -120,10 +125,18 @@ function ResetPasswordForm() {
 
           {error && (
             <div className="auth-notice auth-notice--error">
-              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>error</span>
+              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                error
+              </span>
               <span>{error}</span>
-              {(error.includes("expired") || error.includes("invalid") || error.includes("used")) && (
-                <Link href={ROUTES.FORGOT_PASSWORD} className="auth-switch-link" style={{ marginLeft: "4px" }}>
+              {(error.includes("expired") ||
+                error.includes("invalid") ||
+                error.includes("used")) && (
+                <Link
+                  href={ROUTES.FORGOT_PASSWORD}
+                  className="auth-switch-link"
+                  style={{ marginLeft: "4px" }}
+                >
                   Request a new link
                 </Link>
               )}
@@ -137,16 +150,21 @@ function ResetPasswordForm() {
                   key={i}
                   className="auth-strength-bar"
                   style={{
-                    background: i < passwordStrength
-                      ? (["#ef4444", "#f97316", "#eab308", "#22c55e", "#16a34a"][passwordStrength - 1])
-                      : "#e5e7eb",
+                    background:
+                      i < passwordStrength
+                        ? ["#ef4444", "#f97316", "#eab308", "#22c55e", "#16a34a"][
+                            passwordStrength - 1
+                          ]
+                        : "#e5e7eb",
                   }}
                 />
               ))}
             </div>
 
             <div className="auth-field">
-              <label htmlFor="newPassword" className="auth-label">New password</label>
+              <label htmlFor="newPassword" className="auth-label">
+                New password
+              </label>
               <div className="auth-input-wrap">
                 <input
                   id="newPassword"
@@ -174,7 +192,9 @@ function ResetPasswordForm() {
             </div>
 
             <div className="auth-field">
-              <label htmlFor="confirmPassword" className="auth-label">Confirm password</label>
+              <label htmlFor="confirmPassword" className="auth-label">
+                Confirm password
+              </label>
               <div className="auth-input-wrap">
                 <input
                   id="confirmPassword"
@@ -203,7 +223,10 @@ function ResetPasswordForm() {
 
             <div className="auth-password-rules">
               {passwordRuleOrder.map((rule) => (
-                <span key={rule} className={`auth-rule ${passwordChecks[rule] ? "auth-rule--met" : ""}`}>
+                <span
+                  key={rule}
+                  className={`auth-rule ${passwordChecks[rule] ? "auth-rule--met" : ""}`}
+                >
                   <span className="material-symbols-outlined" style={{ fontSize: "10px" }}>
                     {passwordChecks[rule] ? "check" : "circle"}
                   </span>
@@ -214,7 +237,10 @@ function ResetPasswordForm() {
 
             <button type="submit" disabled={isLoading} className="auth-submit-btn">
               {isLoading ? (
-                <><Loader2 className="h-3 w-3 animate-spin" /><span>Resetting…</span></>
+                <>
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <span>Resetting…</span>
+                </>
               ) : (
                 "Reset password"
               )}
@@ -222,7 +248,9 @@ function ResetPasswordForm() {
           </form>
 
           <p className="auth-switch-text">
-            <Link href={ROUTES.LOGIN} className="auth-switch-link">Back to sign in</Link>
+            <Link href={ROUTES.LOGIN} className="auth-switch-link">
+              Back to sign in
+            </Link>
           </p>
         </div>
       </div>

@@ -336,6 +336,11 @@
     }
   },
   "runtime": {
+    "common": {
+      "cancel": "Hủy",
+      "save_changes": "Lưu thay đổi",
+      "discard": "Bỏ qua"
+    },
     "app": {
       "forgot-password": {
         "page": {
@@ -1254,6 +1259,7 @@
       },
       "chair": {
         "chair-conferences": {
+          "prop_label_drafts": "Bản nháp",
           "prop_label_archived": "Đã lưu trữ",
           "prop_label_date_newest": "Ngày (Mới nhất)",
           "prop_label_date_upcoming": "Ngày (Sắp tới)",
@@ -1310,7 +1316,10 @@
           "text_loading_conference": "Đang tải hội nghị...",
           "text_open_templates": "Mẫu cấu hình",
           "text_reuse_settings": "Tái sử dụng cấu hình",
-          "text_reuse_settings_description": "Áp dụng mẫu đã lưu hoặc sao chép cấu hình từ hội nghị khác mà không thay đổi phần nhận diện của hội nghị này."
+          "text_reuse_settings_description": "Áp dụng mẫu đã lưu hoặc sao chép cấu hình từ hội nghị khác mà không thay đổi phần nhận diện của hội nghị này.",
+          "text_unsaved_changes": "Thay đổi chưa lưu",
+          "text_confirm_discard_changes_desc": "Bạn có thay đổi chưa lưu. Bạn có muốn lưu bản nháp trước khi rời đi, hoặc hủy bỏ chúng?",
+          "text_discard_changes": "Hủy bỏ thay đổi"
         },
         "conference-template-sheet": {
           "placeholder_search_conferences": "Tìm hội nghị theo tên hoặc chữ viết tắt",
@@ -1328,9 +1337,10 @@
           "text_co_chairs": "Đồng chủ trì",
           "text_co_chairs_description": "Sao chép email đồng chủ trì vào cấu hình hiện tại.",
           "text_choose_action": "Chọn việc bạn muốn làm",
-          "text_choose_action_description": "Bắt đầu với mẫu đã lưu, sao chép cấu hình từ hội nghị khác, hoặc lưu biểu mẫu hiện tại để dùng lại sau.",
+          "text_choose_action_description": "Khám phá các mẫu đã lưu, sao chép từ hội nghị khác, hoặc tạo một mẫu mới hoàn toàn.",
           "text_conference": "Hội nghị",
           "text_copy_from_conference": "Sao chép từ hội nghị",
+          "text_copy_from_conference_desc": "Sử dụng lại mốc thời gian, track, CFP và các chính sách từ một hội nghị hiện có của bạn.",
           "text_copy_from_conference_card_description": "Tái sử dụng mốc thời gian, track, nội dung CFP và các chính sách từ một hội nghị khác của bạn.",
           "text_delete": "Xóa",
           "text_delete_template": "Xóa mẫu cấu hình",
@@ -1342,13 +1352,16 @@
           "text_failed_to_load_templates": "Không thể tải mẫu cấu hình.",
           "text_failed_to_save_template": "Không thể lưu mẫu cấu hình",
           "text_failed_to_save_template_description": "Vui lòng kiểm tra lại thông tin mẫu rồi thử lại.",
+          "text_create_new_template": "Tạo mẫu mới",
+          "text_create_template_from_scratch_desc": "Xây dựng mẫu cấu hình hoàn chỉnh từ đầu mà không cần hội nghị sẵn có.",
           "text_file_formats": "Định dạng tệp",
-          "text_identity_preserved": "Luồng này sẽ giữ nguyên tên hội nghị, chữ viết tắt, website và email liên hệ hiện tại.",
+          "text_identity_preserved": "",
           "text_important_dates": "Mốc thời gian",
           "text_important_dates_description": "Ngày hội nghị và các hạn nộp bài quan trọng.",
           "text_last_used": "Cập nhật hội nghị",
           "text_loading_conferences": "Đang tải các hội nghị của bạn...",
           "text_loading_templates": "Đang tải các mẫu đã lưu...",
+          "text_browse_saved_templates_desc": "Sử dụng lại cấu hình hội nghị mà bạn đã lưu từ trước.",
           "text_name_required": "Cần tên mẫu cấu hình",
           "text_name_required_description": "Hãy nhập tên mẫu trước khi lưu cấu hình này.",
           "text_no_conference_description": "Chưa có mô tả cho hội nghị này.",
@@ -1356,7 +1369,7 @@
           "text_no_conferences_found_description": "Hãy tạo hoặc cập nhật một hội nghị khác trước, rồi quay lại đây để tái sử dụng cấu hình.",
           "text_no_template_description": "Mẫu này chưa có mô tả.",
           "text_no_templates_yet": "Chưa có mẫu cấu hình nào",
-          "text_no_templates_yet_description": "Lưu cấu hình hiện tại một lần, sau đó bạn có thể tái sử dụng cho các hội nghị sau.",
+          "text_no_templates_yet_description": "Bắt đầu bằng cách tạo một mẫu mới hoặc sao chép cấu hình từ một hội nghị hiện có.",
           "text_only_you_can_use_it": "Chỉ tài khoản của bạn dùng được",
           "text_pick_source_description": "Chọn một nguồn, rồi chỉ áp dụng những phần bạn muốn tái sử dụng.",
           "text_rebuttal_and_decision": "Phản hồi & quyết định",
@@ -1389,7 +1402,9 @@
           "text_template_deleted_description": "Mẫu đã lưu đã được gỡ khỏi danh sách.",
           "text_template_name": "Tên mẫu",
           "text_template_saved": "Đã lưu mẫu cấu hình",
-          "text_template_saved_description": "\"{name}\" đã sẵn sàng để tái sử dụng.",
+          "text_template_saved_title": "Đã tạo mẫu thành công",
+          "text_template_saved_description": "Mẫu cấu hình mới đã sẵn sàng để sử dụng cho các hội nghị tiếp theo.",
+          "text_template_name_required": "Vui lòng nhập tên mẫu",
           "text_template_scope": "Phạm vi sử dụng",
           "text_templates_and_copying": "Mẫu cấu hình",
           "text_templates_and_copying_description": "Lưu cấu hình này hoặc sao chép từng phần từ một hội nghị khác.",
@@ -1409,8 +1424,14 @@
             "text_chair_actions": "Hành động của chủ trì",
             "text_created_assignment_suggestions": "Đã tạo {assignments} gợi ý cho {submissions} bài nộp",
             "text_failed_to_run_auto_assignment": "Không thể chạy phân công tự động",
+            "text_failed_to_update_conference_status": "Không thể cập nhật trạng thái hội nghị",
+            "text_failed_to_update_conference_status_description": "Vui lòng thử lại sau ít phút.",
             "text_next_milestone": "Cột mốc tiếp theo",
-            "text_running": "Đang chạy..."
+            "text_running": "Đang chạy...",
+            "text_archive_conference": "Lưu trữ hội nghị",
+            "text_unarchive_conference": "Khôi phục hội nghị",
+            "text_archived_success": "Đã lưu trữ hội nghị",
+            "text_unarchived_success": "Đã khôi phục hội nghị về trạng thái hoàn tất"
           },
           "conference-assignments": {
             "prop_label_accepted": "Đã chấp nhận",
@@ -1804,6 +1825,7 @@
           "text_continue_editing": "Tiếp tục chỉnh sửa",
           "text_dashboard": "Bảng điều khiển",
           "text_edit_details": "Chỉnh sửa chi tiết",
+          "text_more_actions": "Thao tác khác",
           "text_settings": "Cài đặt",
           "text_setup": "Cài đặt",
           "text_view_archive": "Xem lưu trữ"
@@ -1834,6 +1856,8 @@
           "prop_title_no_archived_conferences": "Không có hội nghị được lưu trữ",
           "prop_title_no_conferences_to_explore": "Không có hội nghị nào để khám phá",
           "prop_title_no_conferences_yet": "Chưa có hội nghị nào",
+          "prop_title_no_draft_conferences": "Không có hội nghị bản nháp",
+          "prop_description_conferences_you_save_as_drafts_will_appear_here": "Những hội nghị bạn lưu dưới dạng bản nháp sẽ xuất hiện tại đây.",
           "text_no_results_found": "Không tìm thấy kết quả nào",
           "text_try_adjusting_your_search_terms": "Hãy thử điều chỉnh cụm từ tìm kiếm của bạn"
         },
@@ -1872,12 +1896,18 @@
       },
       "dashboard-sidebar": {
         "text_account_settings": "Cài đặt tài khoản",
+        "text_active": "Hoạt động",
+        "text_change_role": "Đổi vai trò",
         "text_all_recent_conferences_archived": "Tất cả hội nghị gần đây đã được ẩn khỏi thanh bên.",
         "text_archive_recent_conference": "Ẩn khỏi hội nghị gần đây",
         "text_archived_recent_conferences": "Đã ẩn",
         "text_change": "Thay đổi",
         "text_change_language": "Thay đổi ngôn ngữ",
         "text_conferencespace": "ConferenceSpace",
+        "text_failed_to_archive_recent_conference": "Không thể lưu trữ hội nghị gần đây",
+        "text_failed_to_archive_recent_conference_description": "Hội nghị chưa được lưu trữ. Vui lòng thử lại.",
+        "text_failed_to_restore_recent_conference": "Không thể khôi phục hội nghị gần đây",
+        "text_failed_to_restore_recent_conference_description": "Hội nghị chưa được khôi phục. Vui lòng thử lại.",
         "text_guest": "Khách",
         "text_hide_archived_recent": "Ẩn mục đã ẩn",
         "text_loading_conferences": "Đang tải hội nghị...",

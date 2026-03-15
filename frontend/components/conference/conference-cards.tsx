@@ -1,5 +1,6 @@
 "use client"
 
+import type { ReactNode } from "react"
 import type { Conference } from "./types"
 import { ConferenceCardBase, ActionButton } from "./conference-card-base"
 import {
@@ -13,18 +14,20 @@ import { useTranslation } from "@/lib/i18n/translation-context"
 interface ConferenceCardProps {
   conference: Conference
   onNavigate: (id: string) => void
+  moreMenu?: ReactNode
 }
 
 // -------------------------------------------------------------------------
 // Active Conference Card
 // -------------------------------------------------------------------------
 
-export function ActiveConferenceCard({ conference, onNavigate }: ConferenceCardProps) {
+export function ActiveConferenceCard({ conference, onNavigate, moreMenu }: ConferenceCardProps) {
   const { t } = useTranslation()
   return (
     <ConferenceCardBase
       conference={conference}
       onClick={() => onNavigate(conference.id)}
+      moreMenu={moreMenu}
       footer={
         <div className="flex gap-2">
           <ActionButton
@@ -57,12 +60,13 @@ export function ActiveConferenceCard({ conference, onNavigate }: ConferenceCardP
 // Planning Conference Card
 // -------------------------------------------------------------------------
 
-export function PlanningConferenceCard({ conference, onNavigate }: ConferenceCardProps) {
+export function PlanningConferenceCard({ conference, onNavigate, moreMenu }: ConferenceCardProps) {
   const { t } = useTranslation()
   return (
     <ConferenceCardBase
       conference={conference}
       onClick={() => onNavigate(conference.id)}
+      moreMenu={moreMenu}
       footer={
         <div className="flex gap-2">
           <ActionButton
@@ -95,12 +99,13 @@ export function PlanningConferenceCard({ conference, onNavigate }: ConferenceCar
 // Draft Conference Card
 // -------------------------------------------------------------------------
 
-export function DraftConferenceCard({ conference, onNavigate }: ConferenceCardProps) {
+export function DraftConferenceCard({ conference, onNavigate, moreMenu }: ConferenceCardProps) {
   const { t } = useTranslation()
   return (
     <ConferenceCardBase
       conference={conference}
       onClick={() => onNavigate(conference.id)}
+      moreMenu={moreMenu}
       footer={
         <ActionButton
           variant="primary"
@@ -123,12 +128,13 @@ export function DraftConferenceCard({ conference, onNavigate }: ConferenceCardPr
 // Completed Conference Card
 // -------------------------------------------------------------------------
 
-export function CompletedConferenceCard({ conference, onNavigate }: ConferenceCardProps) {
+export function CompletedConferenceCard({ conference, onNavigate, moreMenu }: ConferenceCardProps) {
   const { t } = useTranslation()
   return (
     <ConferenceCardBase
       conference={conference}
       onClick={() => onNavigate(conference.id)}
+      moreMenu={moreMenu}
       footer={
         <ActionButton
           variant="secondary"
@@ -151,16 +157,32 @@ export function CompletedConferenceCard({ conference, onNavigate }: ConferenceCa
 // Conference Card Router - selects the right variant based on status
 // -------------------------------------------------------------------------
 
-export function ConferenceCard({ conference, onNavigate }: ConferenceCardProps) {
+export function ConferenceCard({ conference, onNavigate, moreMenu }: ConferenceCardProps) {
   switch (conference.status) {
     case "active":
-      return <ActiveConferenceCard conference={conference} onNavigate={onNavigate} />
+      return (
+        <ActiveConferenceCard conference={conference} onNavigate={onNavigate} moreMenu={moreMenu} />
+      )
     case "planning":
-      return <PlanningConferenceCard conference={conference} onNavigate={onNavigate} />
+      return (
+        <PlanningConferenceCard
+          conference={conference}
+          onNavigate={onNavigate}
+          moreMenu={moreMenu}
+        />
+      )
     case "draft":
-      return <DraftConferenceCard conference={conference} onNavigate={onNavigate} />
+      return (
+        <DraftConferenceCard conference={conference} onNavigate={onNavigate} moreMenu={moreMenu} />
+      )
     case "completed":
-      return <CompletedConferenceCard conference={conference} onNavigate={onNavigate} />
+      return (
+        <CompletedConferenceCard
+          conference={conference}
+          onNavigate={onNavigate}
+          moreMenu={moreMenu}
+        />
+      )
     default:
       return null
   }

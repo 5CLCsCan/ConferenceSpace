@@ -23,6 +23,13 @@ const content: Record<TabType, { icon: string; title: string; description: strin
       "runtime.components.conference.empty-state.prop_description_there_are_no_public_conferences_available",
     ),
   },
+  drafts: {
+    icon: "note",
+    title: t("runtime.components.conference.empty-state.prop_title_no_draft_conferences"),
+    description: t(
+      "runtime.components.conference.empty-state.prop_description_conferences_you_save_as_drafts_will_appear_here",
+    ),
+  },
   archived: {
     icon: "archive",
     title: t("runtime.components.conference.empty-state.prop_title_no_archived_conferences"),

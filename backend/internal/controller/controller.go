@@ -80,7 +80,7 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 	return &Controller{
 		Auth:            auth.New(orch, serverEnv),
 		User:            user.New(store, assignmentService, semanticScholarCtrl), // Pass assignment service for COI checks
-		Conference:      conference.NewWithNotifications(store, assignmentService, notifSvc),                // Pass assignment service for auto-assign on status change
+		Conference:      conference.NewWithNotifications(store, assignmentService, notifSvc), // Pass assignment service for auto-assign on status change
 		Submission:      submission.NewWithNotifications(store, fileStore, getAIServiceClient(clients), coiSvc, notifSvc),
 		Reviewer:        reviewer.NewWithNotifications(store, coiSvc, notifSvc),
 		Assignment:      assignmentController.NewWithNotifications(store, assignmentService, notifSvc, coiSvc),

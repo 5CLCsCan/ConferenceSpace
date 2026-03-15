@@ -129,7 +129,9 @@ export function MessageItem({ message, isFirst, onReact, onQuote, onDelete }: Me
                   <div className="flex items-start gap-0 pl-3 border-l-4 border-slate-300 bg-slate-50 rounded-r py-1.5 pr-2">
                     <div className="min-w-0">
                       <p className="text-[10px] font-bold text-slate-500 mb-0.5">{quotedAuthor}</p>
-                      <p className="text-[11px] text-slate-500 line-clamp-3 leading-relaxed italic">{quotedContent}</p>
+                      <p className="text-[11px] text-slate-500 line-clamp-3 leading-relaxed italic">
+                        {quotedContent}
+                      </p>
                     </div>
                   </div>
                   <div className="text-xs text-slate-700 leading-relaxed">
@@ -341,15 +343,22 @@ export function MessageItem({ message, isFirst, onReact, onQuote, onDelete }: Me
                   onClick={handleCopy}
                   className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50 transition-colors"
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>content_copy</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                    content_copy
+                  </span>
                   Copy text
                 </button>
                 {message.author.isCurrentUser && (
                   <button
-                    onClick={() => { onDelete?.(message.id); setShowMoreMenu(false) }}
+                    onClick={() => {
+                      onDelete?.(message.id)
+                      setShowMoreMenu(false)
+                    }}
                     className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-red-500 hover:bg-red-50 transition-colors"
                   >
-                    <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>delete</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                      delete
+                    </span>
                     Delete
                   </button>
                 )}

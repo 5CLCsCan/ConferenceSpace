@@ -1,5 +1,6 @@
 "use client"
 
+import type { ReactNode } from "react"
 import type { ExploreConference, ExploreStatus } from "./types"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useTranslation } from "@/lib/i18n/translation-context"
@@ -168,9 +169,14 @@ export function ExploreConferenceCard({
 interface ArchivedConferenceCardProps {
   conference: ExploreConference
   onViewDetails: (id: string) => void
+  moreMenu?: ReactNode
 }
 
-export function ArchivedConferenceCard({ conference, onViewDetails }: ArchivedConferenceCardProps) {
+export function ArchivedConferenceCard({
+  conference,
+  onViewDetails,
+  moreMenu,
+}: ArchivedConferenceCardProps) {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 group flex flex-col h-full opacity-90 hover:opacity-100">
       {/* Card Content */}
@@ -186,12 +192,7 @@ export function ArchivedConferenceCard({ conference, onViewDetails }: ArchivedCo
             </span>
             {t("runtime.components.conference.explore-cards.text_archived")}{" "}
           </span>
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="text-slate-300 hover:text-[#1B3C53] dark:hover:text-white transition-colors"
-          >
-            <span className="material-symbols-outlined text-[14px]">more_horiz</span>
-          </button>
+          {moreMenu}
         </div>
 
         {/* Title */}
@@ -557,17 +558,7 @@ function ExploreListRow({
       <div className="lg:hidden p-4">
         <div className="flex items-start justify-between gap-3 mb-2">
           <ExploreStatusBadge status={conference.exploreStatus} />
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all shrink-0"
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: "18px", width: "18px", height: "18px", lineHeight: "1" }}
-            >
-              more_horiz
-            </span>
-          </button>
+          {moreMenu}
         </div>
 
         <h3 className="text-[13px] font-bold leading-[1.3] tracking-tight text-[#1B3C53] dark:text-white mb-0.5">
@@ -631,6 +622,7 @@ function ExploreListRow({
 interface ArchivedConferenceListProps {
   conferences: ExploreConference[]
   onViewDetails: (id: string) => void
+  renderMoreMenu?: (conference: ExploreConference) => ReactNode
   /** Pagination props */
   currentPage?: number
   totalPages?: number
@@ -642,6 +634,7 @@ interface ArchivedConferenceListProps {
 export function ArchivedConferenceList({
   conferences,
   onViewDetails,
+  renderMoreMenu,
   currentPage = 1,
   totalPages = 1,
   totalItems,
@@ -738,6 +731,7 @@ export function ArchivedConferenceList({
             key={conference.id}
             conference={conference}
             onViewDetails={onViewDetails}
+            renderMoreMenu={renderMoreMenu}
           />
         ))}
       </div>
@@ -819,9 +813,11 @@ export function ArchivedConferenceList({
 function ArchivedListRow({
   conference,
   onViewDetails,
+  renderMoreMenu,
 }: {
   conference: ExploreConference
   onViewDetails: (id: string) => void
+  renderMoreMenu?: (conference: ExploreConference) => ReactNode
 }) {
   return (
     <div
@@ -869,17 +865,19 @@ function ArchivedListRow({
 
         {/* Actions */}
         <div className="px-2 py-3 pr-4 flex justify-center">
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all"
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: "18px", width: "18px", height: "18px", lineHeight: "1" }}
+          {renderMoreMenu?.(conference) ?? (
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all"
             >
-              more_horiz
-            </span>
-          </button>
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: "18px", width: "18px", height: "18px", lineHeight: "1" }}
+              >
+                more_horiz
+              </span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -895,17 +893,19 @@ function ArchivedListRow({
             </span>
             {t("runtime.components.conference.explore-cards.text_archived")}{" "}
           </span>
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all shrink-0"
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: "18px", width: "18px", height: "18px", lineHeight: "1" }}
+          {renderMoreMenu?.(conference) ?? (
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all shrink-0"
             >
-              more_horiz
-            </span>
-          </button>
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: "18px", width: "18px", height: "18px", lineHeight: "1" }}
+              >
+                more_horiz
+              </span>
+            </button>
+          )}
         </div>
 
         <h3 className="text-[13px] font-bold leading-[1.3] tracking-tight text-slate-600 dark:text-slate-400 mb-2">

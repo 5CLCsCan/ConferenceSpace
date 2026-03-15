@@ -1,25 +1,25 @@
-import { APIRequestContext } from '@playwright/test';
-import { faker } from '@faker-js/faker';
+import { APIRequestContext } from "@playwright/test"
+import { faker } from "@faker-js/faker"
 
-const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8080/api/v1';
+const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:8080/api/v1"
 
 export interface UserData {
-  email: string;
-  first_name: string;
-  last_name: string;
-  domain: string[];
-  password: string;
+  email: string
+  first_name: string
+  last_name: string
+  domain: string[]
+  password: string
 }
 
 export interface RegisteredUser {
-  id: number;
-  email: string;
-  first_name: string;
-  last_name: string;
-  domain: string[];
-  access_token: string;
-  created_at: string;
-  updated_at: string;
+  id: number
+  email: string
+  first_name: string
+  last_name: string
+  domain: string[]
+  access_token: string
+  created_at: string
+  updated_at: string
 }
 
 /**
@@ -30,7 +30,7 @@ export interface RegisteredUser {
  */
 export async function registerUser(
   request: APIRequestContext,
-  userData: UserData
+  userData: UserData,
 ): Promise<RegisteredUser> {
   const response = await request.post(`${API_BASE_URL}/auth/register`, {
     data: {
@@ -42,24 +42,24 @@ export async function registerUser(
       },
       password: userData.password,
     },
-  });
+  })
 
   if (!response.ok()) {
-    const errorBody = await response.text();
+    const errorBody = await response.text()
     throw new Error(
-      `Failed to register user ${userData.email}: ${response.status()} - ${errorBody}`
-    );
+      `Failed to register user ${userData.email}: ${response.status()} - ${errorBody}`,
+    )
   }
 
-  const registerData = await response.json();
-  
+  const registerData = await response.json()
+
   // Now login to get the token
-  const loginResponse = await loginUser(request, userData.email, userData.password);
-  
+  const loginResponse = await loginUser(request, userData.email, userData.password)
+
   return {
     ...registerData.data,
     access_token: loginResponse.access_token,
-  };
+  }
 }
 
 /**
@@ -72,28 +72,26 @@ export async function registerUser(
 export async function loginUser(
   request: APIRequestContext,
   email: string,
-  password: string
+  password: string,
 ): Promise<RegisteredUser> {
   const response = await request.post(`${API_BASE_URL}/auth/login`, {
     data: {
       email,
       password,
     },
-  });
+  })
 
   if (!response.ok()) {
-    const errorBody = await response.text();
-    throw new Error(
-      `Failed to login user ${email}: ${response.status()} - ${errorBody}`
-    );
+    const errorBody = await response.text()
+    throw new Error(`Failed to login user ${email}: ${response.status()} - ${errorBody}`)
   }
 
-  const loginData = await response.json();
-  
+  const loginData = await response.json()
+
   return {
     ...loginData.data.user,
     access_token: loginData.data.token,
-  };
+  }
 }
 
 /**
@@ -101,12 +99,12 @@ export async function loginUser(
  * @param domain - User domain/expertise areas
  * @returns UserData object
  */
-export function generateUserData(domain: string[] = ['Computer Science']): UserData {
+export function generateUserData(domain: string[] = ["Computer Science"]): UserData {
   return {
     email: faker.internet.email().toLowerCase(),
     first_name: faker.person.firstName(),
     last_name: faker.person.lastName(),
     domain,
-    password: 'TestPassword123!', // Use consistent password for tests
-  };
+    password: "TestPassword123!", // Use consistent password for tests
+  }
 }

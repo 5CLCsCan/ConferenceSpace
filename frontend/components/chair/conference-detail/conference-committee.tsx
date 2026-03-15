@@ -230,15 +230,17 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     searchDebounce.current = setTimeout(async () => {
       try {
         const { data } = await apiFetch<{
-          data?: { users?: { id: number; email: string; first_name?: string; last_name?: string }[] }
-        }>(`/api/v1/users/search?q=${encodeURIComponent(value.trim())}&limit=10`)
+          data?: {
+            users?: { id: number; email: string; first_name?: string; last_name?: string }[]
+          }
+        }>(`/api/v1/users/search?q=${encodeURIComponent(q.trim())}&limit=10`)
         const users = data?.data?.users || []
         setSearchResults(
-          users.map((user) => ({
-            id: Number(user.id),
-            email: user.email,
-            first_name: user.first_name,
-            last_name: user.last_name,
+          users.map((u) => ({
+            id: Number(u.id),
+            email: u.email,
+            first_name: u.first_name,
+            last_name: u.last_name,
           })),
         )
       } catch {
@@ -466,9 +468,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                   </select>
                   <select
                     value={statusFilter}
-                    onChange={(event) =>
-                      setStatusFilter(event.target.value as MemberStatusFilter)
-                    }
+                    onChange={(event) => setStatusFilter(event.target.value as MemberStatusFilter)}
                     className="bg-white border border-slate-200 text-slate-700 text-[11px] rounded-md py-2 px-2.5 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] shadow-sm min-w-[110px] outline-none"
                   >
                     <option value="all">All Statuses</option>
@@ -540,7 +540,9 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                                 {user.last_name?.[0] || ""}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium text-[#141414] truncate">{user.email}</p>
+                                <p className="text-xs font-medium text-[#141414] truncate">
+                                  {user.email}
+                                </p>
                                 {(user.first_name || user.last_name) && (
                                   <p className="text-[10px] text-slate-500 truncate">
                                     {`${user.first_name || ""} ${user.last_name || ""}`.trim()}
@@ -592,7 +594,9 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                       key={user.email}
                       className={cn(
                         "inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full",
-                        user.id != null ? "bg-[#1B3C53]/10 text-[#1B3C53]" : "bg-amber-100 text-amber-700",
+                        user.id != null
+                          ? "bg-[#1B3C53]/10 text-[#1B3C53]"
+                          : "bg-amber-100 text-amber-700",
                       )}
                     >
                       {user.id == null && <Icon name="warning" size={10} />}
@@ -718,8 +722,18 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
             {filteredReviewers.length > 0 && (
               <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-between">
                 <div className="text-[11px] text-slate-500">
-                  Showing <span className="font-bold text-[#1B3C53]">{Math.min((currentPage - 1) * PAGE_SIZE + 1, filteredReviewers.length)}</span>-<span className="font-bold text-[#1B3C53]">{Math.min(currentPage * PAGE_SIZE, filteredReviewers.length)}</span> of{" "}
-                  <span className="font-bold text-[#1B3C53]">{filteredReviewers.length.toLocaleString()}</span>{" "}
+                  Showing{" "}
+                  <span className="font-bold text-[#1B3C53]">
+                    {Math.min((currentPage - 1) * PAGE_SIZE + 1, filteredReviewers.length)}
+                  </span>
+                  -
+                  <span className="font-bold text-[#1B3C53]">
+                    {Math.min(currentPage * PAGE_SIZE, filteredReviewers.length)}
+                  </span>{" "}
+                  of{" "}
+                  <span className="font-bold text-[#1B3C53]">
+                    {filteredReviewers.length.toLocaleString()}
+                  </span>{" "}
                   members
                 </div>
                 <div className="flex gap-1">

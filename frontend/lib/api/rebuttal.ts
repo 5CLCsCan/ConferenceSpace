@@ -216,6 +216,8 @@ export async function updatePostRebuttalScore(
     )
     return { error: null }
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "Failed to update post-rebuttal score" }
+    return {
+      error: error instanceof Error ? error.message : "Failed to update post-rebuttal score",
+    }
   }
 }

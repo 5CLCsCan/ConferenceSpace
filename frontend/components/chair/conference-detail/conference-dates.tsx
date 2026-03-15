@@ -88,12 +88,18 @@ function DateEventCard({ event, phaseStatus }: { event: ImportantDate; phaseStat
           )}
         >
           <span
-            className={cn("text-[8px] uppercase font-bold", isUpcoming ? "opacity-80" : "text-slate-500")}
+            className={cn(
+              "text-[8px] uppercase font-bold",
+              isUpcoming ? "opacity-80" : "text-slate-500",
+            )}
           >
             {month}
           </span>
           <span
-            className={cn("text-sm font-bold", isUpcoming ? "" : "text-slate-700 dark:text-slate-300")}
+            className={cn(
+              "text-sm font-bold",
+              isUpcoming ? "" : "text-slate-700 dark:text-slate-300",
+            )}
           >
             {day}
           </span>
@@ -116,7 +122,9 @@ function DateEventCard({ event, phaseStatus }: { event: ImportantDate; phaseStat
           <p
             className={cn(
               "text-[11px]",
-              isUpcoming ? "text-slate-600 dark:text-slate-300" : "text-slate-500 dark:text-slate-400",
+              isUpcoming
+                ? "text-slate-600 dark:text-slate-300"
+                : "text-slate-500 dark:text-slate-400",
             )}
           >
             {event.description}
@@ -197,7 +205,13 @@ function TimelinePhase({ phase }: { phase: Phase }) {
   )
 }
 
-function NextDeadlineCard({ nextDeadline, daysUntil }: { nextDeadline: ImportantDate; daysUntil: number }) {
+function NextDeadlineCard({
+  nextDeadline,
+  daysUntil,
+}: {
+  nextDeadline: ImportantDate
+  daysUntil: number
+}) {
   return (
     <div className="bg-[#1B3C53] dark:bg-slate-800 text-white rounded-lg p-4 shadow-lg relative overflow-hidden">
       <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-8 -mt-8 pointer-events-none" />

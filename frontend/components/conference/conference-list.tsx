@@ -1,5 +1,6 @@
 "use client"
 
+import type { ReactNode } from "react"
 import type { Conference, ConferenceStatus } from "./types"
 import { StatusBadge } from "./status-badge"
 import { useTranslation } from "@/lib/i18n/translation-context"
@@ -22,6 +23,7 @@ const ACTION_LABELS: Record<ConferenceStatus, { primary: string; secondary?: str
 interface ConferenceListProps {
   conferences: Conference[]
   onNavigate: (id: string) => void
+  renderMoreMenu?: (conference: Conference) => ReactNode
   /** Pagination props */
   currentPage?: number
   totalPages?: number
@@ -33,6 +35,7 @@ interface ConferenceListProps {
 export function ConferenceList({
   conferences,
   onNavigate,
+  renderMoreMenu,
   currentPage = 1,
   totalPages = 1,
   totalItems,
@@ -132,7 +135,12 @@ export function ConferenceList({
       {/* List Rows */}
       <div className="divide-y divide-slate-100 dark:divide-slate-700">
         {conferences.map((conference) => (
-          <ConferenceListRow key={conference.id} conference={conference} onNavigate={onNavigate} />
+          <ConferenceListRow
+            key={conference.id}
+            conference={conference}
+            onNavigate={onNavigate}
+            renderMoreMenu={renderMoreMenu}
+          />
         ))}
       </div>
 
@@ -210,9 +218,10 @@ export function ConferenceList({
 interface ConferenceListRowProps {
   conference: Conference
   onNavigate: (id: string) => void
+  renderMoreMenu?: (conference: Conference) => ReactNode
 }
 
-function ConferenceListRow({ conference, onNavigate }: ConferenceListRowProps) {
+function ConferenceListRow({ conference, onNavigate, renderMoreMenu }: ConferenceListRowProps) {
   const isCompleted = conference.status === "completed"
   const actionLabels = ACTION_LABELS[conference.status]
 
@@ -272,24 +281,26 @@ function ConferenceListRow({ conference, onNavigate }: ConferenceListRowProps) {
 
         {/* Actions */}
         <div className="px-2 py-3 flex justify-center">
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-            }}
-            className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all"
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{
-                fontSize: "18px",
-                width: "18px",
-                height: "18px",
-                lineHeight: "1",
+          {renderMoreMenu?.(conference) ?? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
               }}
+              className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all"
             >
-              more_horiz
-            </span>
-          </button>
+              <span
+                className="material-symbols-outlined"
+                style={{
+                  fontSize: "18px",
+                  width: "18px",
+                  height: "18px",
+                  lineHeight: "1",
+                }}
+              >
+                more_horiz
+              </span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -297,24 +308,26 @@ function ConferenceListRow({ conference, onNavigate }: ConferenceListRowProps) {
       <div className="lg:hidden p-4">
         <div className="flex items-start justify-between gap-3 mb-2">
           <StatusBadge status={conference.status} />
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-            }}
-            className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all shrink-0"
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{
-                fontSize: "18px",
-                width: "18px",
-                height: "18px",
-                lineHeight: "1",
+          {renderMoreMenu?.(conference) ?? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
               }}
+              className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all shrink-0"
             >
-              more_horiz
-            </span>
-          </button>
+              <span
+                className="material-symbols-outlined"
+                style={{
+                  fontSize: "18px",
+                  width: "18px",
+                  height: "18px",
+                  lineHeight: "1",
+                }}
+              >
+                more_horiz
+              </span>
+            </button>
+          )}
         </div>
 
         <h3

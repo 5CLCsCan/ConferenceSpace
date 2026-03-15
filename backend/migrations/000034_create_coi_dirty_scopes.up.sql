@@ -15,5 +15,5 @@ CREATE TABLE IF NOT EXISTS coi_dirty_scopes (
     )
 );
 
-CREATE INDEX idx_coi_dirty_scopes_conference_updated
+CREATE INDEX IF NOT EXISTS idx_coi_dirty_scopes_conference_updated
     ON coi_dirty_scopes(conference_id, updated_at);

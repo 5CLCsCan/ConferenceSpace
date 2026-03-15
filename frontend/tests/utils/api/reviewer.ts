@@ -1,29 +1,29 @@
-import { APIRequestContext } from '@playwright/test';
+import { APIRequestContext } from "@playwright/test"
 
-const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8080/api/v1';
+const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:8080/api/v1"
 
 export interface ReviewerInvite {
-  user_id: number;
-  domain?: string[];
+  user_id: number
+  domain?: string[]
 }
 
 export interface Reviewer {
-  id: number;
-  user_id: number;
-  conference_id: number;
-  email: string;
-  status: 'pending' | 'accepted' | 'rejected';
-  domain: string[];
-  created_at: string;
-  updated_at: string;
+  id: number
+  user_id: number
+  conference_id: number
+  email: string
+  status: "pending" | "accepted" | "rejected"
+  domain: string[]
+  created_at: string
+  updated_at: string
 }
 
 export interface BatchInviteResponse {
-  success: Reviewer[];
+  success: Reviewer[]
   failed: Array<{
-    email: string;
-    error: string;
-  }>;
+    email: string
+    error: string
+  }>
 }
 
 /**
@@ -38,34 +38,29 @@ export async function batchInviteReviewers(
   request: APIRequestContext,
   chairToken: string,
   conferenceId: number,
-  reviewers: ReviewerInvite[]
+  reviewers: ReviewerInvite[],
 ): Promise<BatchInviteResponse> {
-  const response = await request.post(
-    `${API_BASE_URL}/conferences/${conferenceId}/reviewers`,
-    {
-      headers: {
-        'Authorization': `Bearer ${chairToken}`,
-        'Content-Type': 'application/json',
-      },
-      data: {
-        reviewers,
-      },
-    }
-  );
+  const response = await request.post(`${API_BASE_URL}/conferences/${conferenceId}/reviewers`, {
+    headers: {
+      Authorization: `Bearer ${chairToken}`,
+      "Content-Type": "application/json",
+    },
+    data: {
+      reviewers,
+    },
+  })
 
   if (!response.ok()) {
-    const errorBody = await response.text();
-    throw new Error(
-      `Failed to invite reviewers: ${response.status()} - ${errorBody}`
-    );
+    const errorBody = await response.text()
+    throw new Error(`Failed to invite reviewers: ${response.status()} - ${errorBody}`)
   }
 
-  const responseData = await response.json();
+  const responseData = await response.json()
   // Backend uses `omitempty` on failed field, so it may be undefined
   return {
     success: responseData.data.success || [],
     failed: responseData.data.failed || [],
-  };
+  }
 }
 
 /**
@@ -82,17 +77,17 @@ export async function inviteReviewer(
   chairToken: string,
   conferenceId: number,
   reviewerEmail: string,
-  domain?: string[]
+  domain?: string[],
 ): Promise<Reviewer> {
   const result = await batchInviteReviewers(request, chairToken, conferenceId, [
     { email: reviewerEmail, domain },
-  ]);
+  ])
 
   if (result.failed.length > 0) {
-    throw new Error(`Failed to invite reviewer: ${result.failed[0].error}`);
+    throw new Error(`Failed to invite reviewer: ${result.failed[0].error}`)
   }
 
-  return result.success[0];
+  return result.success[0]
 }
 
 /**
@@ -109,30 +104,28 @@ export async function updateReviewerStatus(
   reviewerToken: string,
   conferenceId: number,
   reviewerId: number,
-  status: 'accepted' | 'rejected'
+  status: "accepted" | "rejected",
 ): Promise<Reviewer> {
   const response = await request.put(
     `${API_BASE_URL}/conferences/${conferenceId}/reviewers/${reviewerId}/status`,
     {
       headers: {
-        'Authorization': `Bearer ${reviewerToken}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${reviewerToken}`,
+        "Content-Type": "application/json",
       },
       data: {
         status,
       },
-    }
-  );
+    },
+  )
 
   if (!response.ok()) {
-    const errorBody = await response.text();
-    throw new Error(
-      `Failed to update reviewer status: ${response.status()} - ${errorBody}`
-    );
+    const errorBody = await response.text()
+    throw new Error(`Failed to update reviewer status: ${response.status()} - ${errorBody}`)
   }
 
-  const responseData = await response.json();
-  return responseData.data;
+  const responseData = await response.json()
+  return responseData.data
 }
 
 /**
@@ -147,15 +140,9 @@ export async function acceptInvitation(
   request: APIRequestContext,
   reviewerToken: string,
   conferenceId: number,
-  reviewerId: number
+  reviewerId: number,
 ): Promise<Reviewer> {
-  return await updateReviewerStatus(
-    request,
-    reviewerToken,
-    conferenceId,
-    reviewerId,
-    'accepted'
-  );
+  return await updateReviewerStatus(request, reviewerToken, conferenceId, reviewerId, "accepted")
 }
 
 /**
@@ -170,15 +157,9 @@ export async function rejectInvitation(
   request: APIRequestContext,
   reviewerToken: string,
   conferenceId: number,
-  reviewerId: number
+  reviewerId: number,
 ): Promise<Reviewer> {
-  return await updateReviewerStatus(
-    request,
-    reviewerToken,
-    conferenceId,
-    reviewerId,
-    'rejected'
-  );
+  return await updateReviewerStatus(request, reviewerToken, conferenceId, reviewerId, "rejected")
 }
 
 /**
@@ -193,26 +174,24 @@ export async function getReviewer(
   request: APIRequestContext,
   token: string,
   conferenceId: number,
-  reviewerId: number
+  reviewerId: number,
 ): Promise<Reviewer> {
   const response = await request.get(
     `${API_BASE_URL}/conferences/${conferenceId}/reviewers/${reviewerId}`,
     {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
-    }
-  );
+    },
+  )
 
   if (!response.ok()) {
-    const errorBody = await response.text();
-    throw new Error(
-      `Failed to get reviewer ${reviewerId}: ${response.status()} - ${errorBody}`
-    );
+    const errorBody = await response.text()
+    throw new Error(`Failed to get reviewer ${reviewerId}: ${response.status()} - ${errorBody}`)
   }
 
-  const responseData = await response.json();
-  return responseData.data;
+  const responseData = await response.json()
+  return responseData.data
 }
 
 /**
@@ -228,38 +207,36 @@ export async function listReviewers(
   token: string,
   conferenceId: number,
   filters?: {
-    status?: 'pending' | 'accepted' | 'rejected';
-    limit?: number;
-    offset?: number;
-  }
+    status?: "pending" | "accepted" | "rejected"
+    limit?: number
+    offset?: number
+  },
 ): Promise<{ reviewers: Reviewer[]; total: number }> {
-  const params = new URLSearchParams();
-  if (filters?.status) params.append('status', filters.status);
-  if (filters?.limit) params.append('limit', filters.limit.toString());
-  if (filters?.offset) params.append('offset', filters.offset.toString());
+  const params = new URLSearchParams()
+  if (filters?.status) params.append("status", filters.status)
+  if (filters?.limit) params.append("limit", filters.limit.toString())
+  if (filters?.offset) params.append("offset", filters.offset.toString())
 
   const url = `${API_BASE_URL}/conferences/${conferenceId}/reviewers${
-    params.toString() ? '?' + params.toString() : ''
-  }`;
+    params.toString() ? "?" + params.toString() : ""
+  }`
 
   const response = await request.get(url, {
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
-  });
+  })
 
   if (!response.ok()) {
-    const errorBody = await response.text();
-    throw new Error(
-      `Failed to list reviewers: ${response.status()} - ${errorBody}`
-    );
+    const errorBody = await response.text()
+    throw new Error(`Failed to list reviewers: ${response.status()} - ${errorBody}`)
   }
 
-  const responseData = await response.json();
+  const responseData = await response.json()
   return {
     reviewers: responseData.data.reviewers,
     total: responseData.data.total,
-  };
+  }
 }
 
 /**
@@ -273,21 +250,19 @@ export async function deleteReviewer(
   request: APIRequestContext,
   chairToken: string,
   conferenceId: number,
-  reviewerId: number
+  reviewerId: number,
 ): Promise<void> {
   const response = await request.delete(
     `${API_BASE_URL}/conferences/${conferenceId}/reviewers/${reviewerId}`,
     {
       headers: {
-        'Authorization': `Bearer ${chairToken}`,
+        Authorization: `Bearer ${chairToken}`,
       },
-    }
-  );
+    },
+  )
 
   if (!response.ok()) {
-    const errorBody = await response.text();
-    throw new Error(
-      `Failed to delete reviewer ${reviewerId}: ${response.status()} - ${errorBody}`
-    );
+    const errorBody = await response.text()
+    throw new Error(`Failed to delete reviewer ${reviewerId}: ${response.status()} - ${errorBody}`)
   }
 }
