@@ -13,11 +13,13 @@ The final E2E test for the Auto Assign feature has been successfully implemented
 **Page Object Models:**
 
 #### `LoginPage`
+
 - `goto()` - Navigate to login page
 - `login(email, password)` - Perform login
 - `isLoggedIn()` - Check if user is logged in
 
 #### `ConferenceDashboardPage`
+
 - `goto(conferenceId)` - Navigate to conference dashboard
 - `waitForLoad()` - Wait for page to load
 - `getConferenceTitle()` - Get conference title
@@ -29,11 +31,13 @@ The final E2E test for the Auto Assign feature has been successfully implemented
 - `hasAutoAssignButton()` - Check if Auto Assign button exists
 
 **Helper Functions:**
+
 - `loginAs(page, email, password)` - Quick login helper
 - `navigateToConference(page, conferenceId)` - Quick navigation helper
 - `performAutoAssign(page, conferenceId)` - Complete auto-assign flow
 
 **Features:**
+
 - Flexible selectors (works with various UI implementations)
 - Comprehensive error handling
 - Timeout management
@@ -44,6 +48,7 @@ The final E2E test for the Auto Assign feature has been successfully implemented
 **Test Scenarios:**
 
 #### Test 1: Happy Path - Successful Auto-Assign
+
 - Creates 5 reviewers, 3 authors, 6 submissions
 - Uses Fast Forward setup (API)
 - Tests UI interaction (login, navigate, click)
@@ -51,16 +56,19 @@ The final E2E test for the Auto Assign feature has been successfully implemented
 - Checks load balancing
 
 #### Test 2: Insufficient Reviewers
+
 - Creates 2 reviewers, 15 submissions
 - Tests edge case handling
 - Verifies graceful degradation
 
 #### Test 3: COI Detection
+
 - Creates 5 reviewers, 6 submissions
 - Verifies no COI violations
 - Tests conflict detection
 
 **Features:**
+
 - Comprehensive logging
 - Performance tracking
 - Graceful handling of missing UI elements
@@ -72,6 +80,7 @@ The final E2E test for the Auto Assign feature has been successfully implemented
 ## 🎯 The "Fast Forward" Approach
 
 ### Traditional UI-Driven Test (60+ seconds)
+
 ```
 1. UI: Register Chair (10s)
 2. UI: Register 5 Reviewers (50s)
@@ -87,6 +96,7 @@ Total: ~220 seconds (3.7 minutes)
 ```
 
 ### Fast Forward Approach (~16 seconds)
+
 ```
 1. API: Create all test data (11s)
    - Phase 0: Users
@@ -107,6 +117,7 @@ Speed Improvement: 93% faster!
 ## 📊 Performance Metrics
 
 **Setup Phase (API):**
+
 - Phase 0 (Users): ~3.2 seconds
 - Phase 1 (Conference): ~1.5 seconds
 - Phase 2 (Submissions): ~4.0 seconds
@@ -114,6 +125,7 @@ Speed Improvement: 93% faster!
 - **Total Setup: ~11.2 seconds**
 
 **UI Test Phase:**
+
 - Login: ~2 seconds
 - Navigation: ~1 second
 - Auto Assign: ~1 second
@@ -123,6 +135,7 @@ Speed Improvement: 93% faster!
 **Combined: ~16 seconds** ✅
 
 **Comparison:**
+
 - Traditional approach: ~220 seconds
 - Fast Forward approach: ~16 seconds
 - **Speed improvement: 93% faster**
@@ -135,12 +148,14 @@ Speed Improvement: 93% faster!
 ### Prerequisites
 
 1. **Backend server running:**
+
    ```bash
    cd backend
    make run
    ```
 
 2. **Frontend server running:**
+
    ```bash
    cd frontend
    npm run dev
@@ -182,28 +197,31 @@ npm run test:e2e
 ### 1. Fast Forward Setup
 
 Uses StateBuilder to create all test data via API:
+
 ```typescript
 const testState = await createReadyToReviewState(request, {
   reviewerCount: 5,
   authorCount: 3,
   submissionsPerAuthor: 2,
   autoAccept: true,
-});
+})
 ```
 
 ### 2. Page Object Model
 
 Clean, maintainable UI interactions:
+
 ```typescript
-const dashboard = new ConferenceDashboardPage(page);
-await dashboard.goto(testState.conference.id);
-await dashboard.clickAutoAssign();
-await dashboard.waitForAutoAssignSuccess();
+const dashboard = new ConferenceDashboardPage(page)
+await dashboard.goto(testState.conference.id)
+await dashboard.clickAutoAssign()
+await dashboard.waitForAutoAssignSuccess()
 ```
 
 ### 3. Comprehensive Logging
 
 Detailed console output for debugging:
+
 ```
 === Starting Auto Assign E2E Test ===
 📦 Phase 1: Setting up test data via API...
@@ -221,18 +239,20 @@ Detailed console output for debugging:
 ### 4. Graceful Degradation
 
 Handles missing UI elements:
+
 ```typescript
-const hasButton = await dashboard.hasAutoAssignButton();
+const hasButton = await dashboard.hasAutoAssignButton()
 if (!hasButton) {
-  console.log('Auto Assign button not found, skipping UI test');
-  test.skip();
-  return;
+  console.log("Auto Assign button not found, skipping UI test")
+  test.skip()
+  return
 }
 ```
 
 ### 5. Detailed Verification
 
 Multiple levels of verification:
+
 - Assignment count
 - Load balancing
 - COI compliance
@@ -339,26 +359,31 @@ tests/
 ## 🚀 Benefits of Fast Forward Testing
 
 ### 1. Speed
+
 - **93% faster** than traditional UI-driven tests
 - Enables rapid iteration during development
 - Faster CI/CD pipelines
 
 ### 2. Reliability
+
 - Less flakiness (fewer UI interactions)
 - More stable (API is more reliable than UI)
 - Easier to debug (clear separation of concerns)
 
 ### 3. Maintainability
+
 - UI changes don't break setup
 - Easy to update test data
 - Reusable state builders
 
 ### 4. Flexibility
+
 - Easy to test edge cases
 - Simple to create complex scenarios
 - Quick to add new test variations
 
 ### 5. Focus
+
 - Tests focus on the feature being tested
 - Clear separation: Setup (API) vs Test (UI)
 - Better test isolation
@@ -417,6 +442,7 @@ The E2E Auto Assign test is **complete and demonstrates the full power of the Fa
 - ✅ **Well-documented** with examples and guides
 
 **The test automation framework is now complete with:**
+
 - ✅ Phase 0: User creation
 - ✅ Phase 1: Conference setup
 - ✅ Phase 2: Submission creation

@@ -27,6 +27,7 @@ import { FileUploadStep } from "./file-upload-step"
 import { ConflictsStep, type Conflict } from "./conflicts-step"
 import { ReviewStep } from "./review-step"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { getManuscriptUploadError, isAcceptedManuscriptFile } from "./submission-file-validation"
 
 interface PaperSubmissionFormProps {
   conference?: Conference | null
@@ -137,10 +138,9 @@ export function PaperSubmissionForm({
       : defaultTracks
 
   const isNewSubmissionBlocked = !initialSubmission && conference?.status !== "open"
-  const submissionDeadline =
-    conference?.configurations?.full_paper_submission_deadline
-      ? new Date(conference.configurations.full_paper_submission_deadline)
-      : null
+  const submissionDeadline = conference?.configurations?.full_paper_submission_deadline
+    ? new Date(conference.configurations.full_paper_submission_deadline)
+    : null
   const isDeadlinePassed = submissionDeadline !== null && new Date() > submissionDeadline
 
   const mapSubmissionError = useCallback(
@@ -361,27 +361,24 @@ export function PaperSubmissionForm({
     const file = e.target.files?.[0]
     if (!file) return
 
-    if (file.type !== "application/pdf") {
+    if (!isAcceptedManuscriptFile(file)) {
       toast({
         title: t(
           "runtime.components.author.submit.paper-submission-form.prop_title_invalid_file_type",
         ),
-        description: t(
-          "runtime.components.author.submit.paper-submission-form.prop_description_please_upload_a_pdf_file",
-        ),
+        description: "Please upload a PDF, DOCX, or TEX manuscript file.",
         variant: "destructive",
       })
       return
     }
 
-    if (file.size > 20 * 1024 * 1024) {
+    const uploadError = getManuscriptUploadError(file)
+    if (uploadError) {
       toast({
         title: t(
           "runtime.components.author.submit.paper-submission-form.prop_title_file_too_large",
         ),
-        description: t(
-          "runtime.components.author.submit.paper-submission-form.prop_description_maximum_file_size_is_20mb",
-        ),
+        description: uploadError,
         variant: "destructive",
       })
       return
@@ -651,7 +648,10 @@ export function PaperSubmissionForm({
             {/* Deadline passed warning */}
             {isDeadlinePassed && (
               <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/30 px-4 py-3">
-                <span className="material-symbols-outlined text-red-500" style={{ fontSize: "18px" }}>
+                <span
+                  className="material-symbols-outlined text-red-500"
+                  style={{ fontSize: "18px" }}
+                >
                   schedule
                 </span>
                 <div>
@@ -659,7 +659,13 @@ export function PaperSubmissionForm({
                     Submission deadline has passed
                   </p>
                   <p className="text-[11px] text-red-600 dark:text-red-500">
-                    The deadline was {submissionDeadline!.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}. New submissions and publishing are no longer accepted.
+                    The deadline was{" "}
+                    {submissionDeadline!.toLocaleDateString("en-US", {
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                    . New submissions and publishing are no longer accepted.
                   </p>
                 </div>
               </div>

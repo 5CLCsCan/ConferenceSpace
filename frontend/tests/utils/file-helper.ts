@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from "fs"
+import * as path from "path"
 
 /**
  * Generate a dummy PDF file for testing
@@ -66,18 +66,18 @@ trailer
 >>
 startxref
 410
-%%EOF`;
+%%EOF`
 
   // Ensure directory exists
-  const dir = path.dirname(filePath);
+  const dir = path.dirname(filePath)
   if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+    fs.mkdirSync(dir, { recursive: true })
   }
 
   // Write the PDF file
-  fs.writeFileSync(filePath, pdfContent, 'utf-8');
-  
-  return filePath;
+  fs.writeFileSync(filePath, pdfContent, "utf-8")
+
+  return filePath
 }
 
 /**
@@ -85,17 +85,17 @@ startxref
  * @param filename - Name of the PDF file (default: 'sample.pdf')
  * @returns Path to the PDF file
  */
-export function getOrCreateDummyPDF(filename: string = 'sample.pdf'): string {
-  const fixturesDir = path.join(__dirname, '..', 'fixtures', 'files');
-  const filePath = path.join(fixturesDir, filename);
+export function getOrCreateDummyPDF(filename: string = "sample.pdf"): string {
+  const fixturesDir = path.join(__dirname, "..", "fixtures", "files")
+  const filePath = path.join(fixturesDir, filename)
 
   // If file already exists, return it
   if (fs.existsSync(filePath)) {
-    return filePath;
+    return filePath
   }
 
   // Otherwise, create it
-  return generateDummyPDF(filePath);
+  return generateDummyPDF(filePath)
 }
 
 /**
@@ -104,7 +104,7 @@ export function getOrCreateDummyPDF(filename: string = 'sample.pdf'): string {
  * @returns File buffer
  */
 export function readFileAsBuffer(filePath: string): Buffer {
-  return fs.readFileSync(filePath);
+  return fs.readFileSync(filePath)
 }
 
 /**
@@ -113,8 +113,8 @@ export function readFileAsBuffer(filePath: string): Buffer {
  * @returns File size in bytes
  */
 export function getFileSize(filePath: string): number {
-  const stats = fs.statSync(filePath);
-  return stats.size;
+  const stats = fs.statSync(filePath)
+  return stats.size
 }
 
 /**
@@ -123,6 +123,6 @@ export function getFileSize(filePath: string): number {
  */
 export function cleanupFile(filePath: string): void {
   if (fs.existsSync(filePath)) {
-    fs.unlinkSync(filePath);
+    fs.unlinkSync(filePath)
   }
 }

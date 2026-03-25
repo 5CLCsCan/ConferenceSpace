@@ -58,7 +58,7 @@ type ConferenceConfigTemplateCreateRequest struct {
 
 type ConferenceConfigTemplateUpdateRequest struct {
 	TemplateID int64                     `uri:"template_id" binding:"required"`
-	Template   *ConferenceConfigTemplate `json:"template" binding:"required"`
+	Template   *ConferenceConfigTemplate `json:"template"`
 }
 
 type ConferenceConfigTemplateDeleteRequest struct {

@@ -31,8 +31,13 @@ const (
 	NotificationTypePaperRejected      = "paper_rejected"
 	NotificationTypeDeadlineReminder   = "deadline_reminder"
 	NotificationTypeStatusChange       = "status_change"
-	NotificationTypeDiscussionThread   = "discussion_thread"
-	NotificationTypeDiscussionMessage  = "discussion_message"
+	NotificationTypeDiscussionThread    = "discussion_thread"
+	NotificationTypeDiscussionMessage   = "discussion_message"
+	NotificationTypeRebuttalOpened      = "rebuttal_opened"
+	NotificationTypeRebuttalSubmitted   = "rebuttal_submitted"
+	NotificationTypeRebuttalAcknowledged = "rebuttal_acknowledged"
+	NotificationTypeRebuttalFinalized   = "rebuttal_finalized"
+	NotificationTypeRebuttalReminder    = "rebuttal_reminder"
 )
 
 // Notification represents a notification in the database

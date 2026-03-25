@@ -10,6 +10,7 @@ import { useTranslation } from "@/lib/i18n/translation-context"
 import { useDebounce } from "@/hooks/use-debounce"
 
 type SubmissionStatus = "under_review" | "accepted" | "pending" | "rejected" | "withdrawn"
+type SortOption = "id" | "score" | "title"
 
 interface SubmissionReviewProgress {
   completed: number
@@ -53,22 +54,22 @@ function statusClass(status: SubmissionStatus) {
 function ReviewProgress({ completed, total }: { completed: number; total: number }) {
   const { t } = useTranslation()
   const percentage = total > 0 ? Math.round((completed / total) * 100) : 0
+  const isComplete = total > 0 && completed === total
+
   return (
     <div className="w-full max-w-[120px]">
       <div className="flex justify-between text-[10px] mb-1">
-        <span className="text-slate-600 dark:text-slate-400">
+        <span className="text-slate-600">
           {completed}/{total}{" "}
-          {t("runtime.components.chair.conference-detail.conference-submissions.text_done")}{" "}
+          {t("runtime.components.chair.conference-detail.conference-submissions.text_done")}
         </span>
-        <span
-          className={cn("font-medium", completed === total ? "text-green-600" : "text-slate-400")}
-        >
+        <span className={cn("font-medium", isComplete ? "text-green-600" : "text-slate-400")}>
           {percentage}%
         </span>
       </div>
-      <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1">
+      <div className="w-full bg-slate-100 rounded-full h-1">
         <div
-          className={cn("h-1 rounded-full", completed === total ? "bg-green-600" : "bg-[#1B3C53]")}
+          className={cn("h-1 rounded-full transition-all", isComplete ? "bg-green-600" : "bg-[#1B3C53]")}
           style={{ width: `${percentage}%` }}
         />
       </div>
@@ -107,7 +108,9 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [selectedTrack, setSelectedTrack] = useState("all")
   const [selectedStatus, setSelectedStatus] = useState("all")
+  const [sortBy, setSortBy] = useState<SortOption>("id")
   const [currentPage, setCurrentPage] = useState(1)
   const [totalEntries, setTotalEntries] = useState(0)
 
@@ -144,9 +147,7 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
             offset: 0,
           })
           const reviewList = reviews.data || []
-          const completed = reviewList.filter(
-            (review) => review.review_status === "submitted",
-          ).length
+          const completed = reviewList.filter((review) => review.review_status === "submitted").length
           const total = reviewList.length
           const score =
             completed > 0
@@ -173,34 +174,85 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
     void loadSubmissions()
   }, [conferenceId, currentPage, debouncedSearch, selectedStatus])
 
-  const totalPages = useMemo(() => {
-    return Math.max(1, Math.ceil(totalEntries / entriesPerPage))
-  }, [totalEntries])
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(totalEntries / entriesPerPage)), [totalEntries])
+
+  const displayRows = useMemo(() => {
+    const nextRows = [...rows]
+
+    if (sortBy === "score") {
+      nextRows.sort((left, right) => (right.progress.score ?? -1) - (left.progress.score ?? -1))
+    } else if (sortBy === "title") {
+      nextRows.sort((left, right) => left.submission.title.localeCompare(right.submission.title))
+    } else {
+      nextRows.sort((left, right) => Number(left.submission.id) - Number(right.submission.id))
+    }
+
+    return nextRows
+  }, [rows, sortBy])
+
+  const getVisiblePages = () => {
+    const pages: (number | "ellipsis")[] = []
+    if (totalPages <= 5) {
+      for (let index = 1; index <= totalPages; index += 1) pages.push(index)
+      return pages
+    }
+
+    pages.push(1)
+    if (currentPage > 3) pages.push("ellipsis")
+    for (
+      let index = Math.max(2, currentPage - 1);
+      index <= Math.min(totalPages - 1, currentPage + 1);
+      index += 1
+    ) {
+      pages.push(index)
+    }
+    if (currentPage < totalPages - 2) pages.push("ellipsis")
+    pages.push(totalPages)
+    return pages
+  }
 
   return (
     <div className={cn("space-y-4", className)}>
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          <h2 className="text-lg font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            {t(
-              "runtime.components.chair.conference-detail.conference-submissions.text_submissions",
-            )}{" "}
+          <h2 className="text-lg font-bold text-[#1B3C53] tracking-tight">
+            {t("runtime.components.chair.conference-detail.conference-submissions.text_submissions")}
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
             {t(
               "runtime.components.chair.conference-detail.conference-submissions.text_manage_and_review_conference_submissions_with",
-            )}{" "}
+            )}
           </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            className="h-8 px-3 bg-white border border-slate-200 text-slate-700 text-[11px] font-medium rounded-md hover:bg-slate-50 transition-colors flex items-center gap-1.5"
+          >
+            <span className="material-symbols-outlined text-[14px]">download</span>
+            Export CSV
+          </button>
+          <button
+            type="button"
+            className="h-8 px-3 bg-white border border-slate-200 text-slate-700 text-[11px] font-medium rounded-md hover:bg-slate-50 transition-colors flex items-center gap-1.5"
+          >
+            <span className="material-symbols-outlined text-[14px]">send</span>
+            Notifications
+          </button>
+          <button
+            type="button"
+            className="h-8 px-3 bg-[#1B3C53] text-white text-[11px] font-medium rounded-md hover:bg-[#234C6A] transition-colors flex items-center gap-1.5 shadow-sm"
+          >
+            <span className="material-symbols-outlined text-[14px]">group_add</span>
+            Assign Reviewers
+          </button>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-        <div className="p-3 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row gap-3 justify-between items-center bg-slate-50/50 dark:bg-slate-800/30">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="p-3 border-b border-slate-200 flex flex-col md:flex-row gap-3 justify-between items-center bg-slate-50/50">
           <div className="relative w-full md:w-80">
-            <span
-              className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
-              style={{ fontSize: "16px" }}
-            >
+            <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[16px]">
               search
             </span>
             <input
@@ -210,53 +262,62 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
                 setCurrentPage(1)
                 setSearchQuery(event.target.value)
               }}
-              placeholder={t(
-                "runtime.components.chair.conference-detail.conference-submissions.placeholder_search_by_title",
-              )}
-              className="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-[11px] focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] dark:text-white outline-none transition-colors"
+              placeholder="Search by ID, title, or author..."
+              className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-md text-[11px] focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none transition-colors"
             />
           </div>
 
-          <select
-            value={selectedStatus}
-            onChange={(event) => {
-              setCurrentPage(1)
-              setSelectedStatus(event.target.value)
-            }}
-            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[11px] rounded-md py-1.5 pl-2.5 pr-6 focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none cursor-pointer"
-          >
-            <option value="all">
-              {t(
-                "runtime.components.chair.conference-detail.conference-submissions.text_all_statuses",
-              )}
-            </option>
-            <option value="draft">
-              {t("runtime.components.chair.conference-detail.conference-submissions.text_draft")}
-            </option>
-            <option value="published">
-              {t(
-                "runtime.components.chair.conference-detail.conference-submissions.text_published",
-              )}
-            </option>
-            <option value="reviewing">
-              {t(
-                "runtime.components.chair.conference-detail.conference-submissions.text_reviewing",
-              )}
-            </option>
-            <option value="accepted">
-              {t("runtime.components.chair.conference-detail.conference-submissions.text_accepted")}
-            </option>
-            <option value="rejected">
-              {t("runtime.components.chair.conference-detail.conference-submissions.text_rejected")}
-            </option>
-          </select>
+          <div className="flex gap-2 w-full md:w-auto overflow-x-auto">
+            <select
+              value={selectedTrack}
+              onChange={(event) => setSelectedTrack(event.target.value)}
+              className="bg-white border border-slate-200 text-slate-600 text-[11px] rounded-md py-1.5 pl-2.5 pr-6 focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none cursor-pointer"
+            >
+              <option value="all">All Tracks</option>
+              <option value="general">General</option>
+            </select>
+            <select
+              value={selectedStatus}
+              onChange={(event) => {
+                setCurrentPage(1)
+                setSelectedStatus(event.target.value)
+              }}
+              className="bg-white border border-slate-200 text-slate-600 text-[11px] rounded-md py-1.5 pl-2.5 pr-6 focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none cursor-pointer"
+            >
+              <option value="all">
+                {t("runtime.components.chair.conference-detail.conference-submissions.text_all_statuses")}
+              </option>
+              <option value="draft">
+                {t("runtime.components.chair.conference-detail.conference-submissions.text_draft")}
+              </option>
+              <option value="published">
+                {t("runtime.components.chair.conference-detail.conference-submissions.text_published")}
+              </option>
+              <option value="reviewing">
+                {t("runtime.components.chair.conference-detail.conference-submissions.text_reviewing")}
+              </option>
+              <option value="accepted">
+                {t("runtime.components.chair.conference-detail.conference-submissions.text_accepted")}
+              </option>
+              <option value="rejected">
+                {t("runtime.components.chair.conference-detail.conference-submissions.text_rejected")}
+              </option>
+            </select>
+            <select
+              value={sortBy}
+              onChange={(event) => setSortBy(event.target.value as SortOption)}
+              className="bg-white border border-slate-200 text-slate-600 text-[11px] rounded-md py-1.5 pl-2.5 pr-6 focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none cursor-pointer"
+            >
+              <option value="id">Sort by ID</option>
+              <option value="score">Sort by Score</option>
+              <option value="title">Sort by Title</option>
+            </select>
+          </div>
         </div>
 
         {loading ? (
           <div className="p-6 text-xs text-slate-500">
-            {t(
-              "runtime.components.chair.conference-detail.conference-submissions.text_loading_submissions",
-            )}
+            {t("runtime.components.chair.conference-detail.conference-submissions.text_loading_submissions")}
           </div>
         ) : error ? (
           <div className="p-6 text-xs text-red-700 bg-red-50 border-t border-red-200">{error}</div>
@@ -264,37 +325,33 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
           <>
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+                <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
                     <th className="px-3 py-2.5 text-[10px] uppercase font-bold text-slate-400 tracking-widest w-16">
-                      {t(
-                        "runtime.components.chair.conference-detail.conference-submissions.text_id",
-                      )}{" "}
+                      <div className="flex items-center gap-1 cursor-pointer hover:text-[#1B3C53]">
+                        {t("runtime.components.chair.conference-detail.conference-submissions.text_id")}
+                        <span className="material-symbols-outlined text-[12px]">unfold_more</span>
+                      </div>
                     </th>
                     <th className="px-3 py-2.5 text-[10px] uppercase font-bold text-slate-400 tracking-widest">
-                      {t(
-                        "runtime.components.chair.conference-detail.conference-submissions.text_paper_details",
-                      )}{" "}
+                      {t("runtime.components.chair.conference-detail.conference-submissions.text_paper_details")}
                     </th>
                     <th className="px-3 py-2.5 text-[10px] uppercase font-bold text-slate-400 tracking-widest w-32">
-                      {t(
-                        "runtime.components.chair.conference-detail.conference-submissions.text_status",
-                      )}{" "}
+                      {t("runtime.components.chair.conference-detail.conference-submissions.text_status")}
                     </th>
                     <th className="px-3 py-2.5 text-[10px] uppercase font-bold text-slate-400 tracking-widest w-[168px]">
-                      {t(
-                        "runtime.components.chair.conference-detail.conference-submissions.text_reviews",
-                      )}{" "}
+                      {t("runtime.components.chair.conference-detail.conference-submissions.text_reviews")}
                     </th>
                     <th className="px-3 py-2.5 text-[10px] uppercase font-bold text-slate-400 tracking-widest w-20 text-center">
-                      {t(
-                        "runtime.components.chair.conference-detail.conference-submissions.text_score",
-                      )}{" "}
+                      {t("runtime.components.chair.conference-detail.conference-submissions.text_score")}
+                    </th>
+                    <th className="px-3 py-2.5 text-[10px] uppercase font-bold text-slate-400 tracking-widest w-[62px] text-right">
+                      Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-[12px]">
-                  {rows.map(({ submission, progress }) => {
+                <tbody className="divide-y divide-slate-100 text-[12px]">
+                  {displayRows.map(({ submission, progress }) => {
                     const status = mapStatus(submission.status)
                     return (
                       <tr
@@ -304,14 +361,12 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
                             ROUTES.CHAIR.SUBMISSION_DETAIL(conferenceId, String(submission.id)),
                           )
                         }
-                        className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group cursor-pointer"
+                        className="hover:bg-slate-50 transition-colors group cursor-pointer"
                       >
-                        <td className="px-3 py-3 font-mono text-[11px] text-slate-400">
-                          #{submission.id}
-                        </td>
+                        <td className="px-3 py-3 font-mono text-[11px] text-slate-400">#{submission.id}</td>
                         <td className="px-3 py-3">
                           <div className="flex flex-col">
-                            <span className="text-[13px] font-semibold text-slate-900 dark:text-white group-hover:text-[#456882] transition-colors line-clamp-1 tracking-tight leading-[1.3]">
+                            <span className="text-[13px] font-semibold text-slate-900 group-hover:text-[#456882] transition-colors line-clamp-1 tracking-tight leading-[1.3]">
                               {submission.title}
                             </span>
                             <span className="text-[10px] text-slate-500 mt-0.5 truncate max-w-[200px]">
@@ -335,6 +390,14 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
                         <td className="px-3 py-3 text-center">
                           <ScoreBadge score={progress.score} />
                         </td>
+                        <td className="px-3 py-3 text-right" onClick={(event) => event.stopPropagation()}>
+                          <button
+                            type="button"
+                            className="p-1.5 text-slate-400 hover:text-[#1B3C53] hover:bg-slate-100 rounded transition-colors"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">more_vert</span>
+                          </button>
+                        </td>
                       </tr>
                     )
                   })}
@@ -342,39 +405,55 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
               </table>
             </div>
 
-            <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-between">
               <div className="text-[11px] text-slate-500">
-                {t(
-                  "runtime.components.chair.conference-detail.conference-submissions.text_showing",
-                )}{" "}
-                <span className="font-bold text-[#1B3C53] dark:text-white">
+                {t("runtime.components.chair.conference-detail.conference-submissions.text_showing")}{" "}
+                <span className="font-bold text-[#1B3C53]">
                   {Math.min((currentPage - 1) * entriesPerPage + 1, totalEntries)}
                 </span>{" "}
                 to{" "}
-                <span className="font-bold text-[#1B3C53] dark:text-white">
+                <span className="font-bold text-[#1B3C53]">
                   {Math.min(currentPage * entriesPerPage, totalEntries)}
                 </span>{" "}
-                of <span className="font-bold text-[#1B3C53] dark:text-white">{totalEntries}</span>{" "}
-                entries
+                of <span className="font-bold text-[#1B3C53]">{totalEntries}</span> entries
               </div>
               <div className="flex gap-1">
                 <button
+                  type="button"
                   onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
                   className="px-2.5 py-1 border border-slate-200 rounded text-[10px] text-slate-500 hover:bg-slate-50 disabled:opacity-50"
                 >
-                  {t(
-                    "runtime.components.chair.conference-detail.conference-submissions.text_previous",
-                  )}{" "}
+                  {t("runtime.components.chair.conference-detail.conference-submissions.text_previous")}
                 </button>
+                {getVisiblePages().map((page, index) =>
+                  page === "ellipsis" ? (
+                    <span key={`ellipsis-${index}`} className="px-1.5 text-slate-400 text-[10px]">
+                      ...
+                    </span>
+                  ) : (
+                    <button
+                      key={page}
+                      type="button"
+                      onClick={() => setCurrentPage(page)}
+                      className={cn(
+                        "px-2.5 py-1 rounded text-[10px]",
+                        currentPage === page
+                          ? "bg-[#1B3C53] text-white hover:bg-[#234C6A]"
+                          : "border border-slate-200 text-slate-500 hover:bg-slate-50",
+                      )}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
                 <button
+                  type="button"
                   onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
                   className="px-2.5 py-1 border border-slate-200 rounded text-[10px] text-slate-500 hover:bg-slate-50 disabled:opacity-50"
                 >
-                  {t(
-                    "runtime.components.chair.conference-detail.conference-submissions.text_next",
-                  )}{" "}
+                  {t("runtime.components.chair.conference-detail.conference-submissions.text_next")}
                 </button>
               </div>
             </div>

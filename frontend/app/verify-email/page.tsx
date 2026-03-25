@@ -55,7 +55,10 @@ function VerifyEmailContent() {
       <div className="auth-brand-panel">
         <div className="auth-brand-inner">
           <div className="auth-logo-mark">
-            <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "#ffffff" }}>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: "28px", color: "#ffffff" }}
+            >
               mark_email_read
             </span>
           </div>
@@ -71,7 +74,9 @@ function VerifyEmailContent() {
               { icon: "person", text: "Access your account" },
             ].map(({ icon, text }) => (
               <div key={text} className="auth-feature-row">
-                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>{icon}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                  {icon}
+                </span>
                 <span>{text}</span>
               </div>
             ))}
@@ -98,14 +103,27 @@ function VerifyEmailContent() {
             <>
               <div className="auth-form-header">
                 <h2 className="auth-form-title">Email verified!</h2>
-                <p className="auth-form-desc">Your email address has been confirmed. You can now sign in.</p>
+                <p className="auth-form-desc">
+                  Your email address has been confirmed. You can now sign in.
+                </p>
               </div>
               <div className="auth-notice auth-notice--success">
-                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>check_circle</span>
+                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                  check_circle
+                </span>
                 <span>Verification successful.</span>
               </div>
               <div className="auth-form-fields">
-                <Link href={ROUTES.LOGIN} className="auth-submit-btn" style={{ display: "flex", justifyContent: "center", alignItems: "center", textDecoration: "none" }}>
+                <Link
+                  href={ROUTES.LOGIN}
+                  className="auth-submit-btn"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    textDecoration: "none",
+                  }}
+                >
                   Go to sign in
                 </Link>
               </div>
@@ -119,13 +137,17 @@ function VerifyEmailContent() {
                 <p className="auth-form-desc">The link may have expired or already been used.</p>
               </div>
               <div className="auth-notice auth-notice--error">
-                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>error</span>
+                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                  error
+                </span>
                 <span>{errorMessage}</span>
               </div>
               {!resendDone ? (
                 <form onSubmit={handleResend} className="auth-form-fields">
                   <div className="auth-field">
-                    <label htmlFor="resendEmail" className="auth-label">Request a new link</label>
+                    <label htmlFor="resendEmail" className="auth-label">
+                      Request a new link
+                    </label>
                     <input
                       id="resendEmail"
                       type="email"
@@ -140,7 +162,10 @@ function VerifyEmailContent() {
                   </div>
                   <button type="submit" disabled={resendLoading} className="auth-submit-btn">
                     {resendLoading ? (
-                      <><Loader2 className="h-3 w-3 animate-spin" /><span>Sending…</span></>
+                      <>
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        <span>Sending…</span>
+                      </>
                     ) : (
                       "Resend verification email"
                     )}
@@ -148,7 +173,9 @@ function VerifyEmailContent() {
                 </form>
               ) : (
                 <div className="auth-notice auth-notice--success">
-                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>check_circle</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                    check_circle
+                  </span>
                   <span>New verification email sent. Check your inbox.</span>
                 </div>
               )}
@@ -156,7 +183,9 @@ function VerifyEmailContent() {
           )}
 
           <p className="auth-switch-text">
-            <Link href={ROUTES.LOGIN} className="auth-switch-link">Back to sign in</Link>
+            <Link href={ROUTES.LOGIN} className="auth-switch-link">
+              Back to sign in
+            </Link>
           </p>
         </div>
       </div>

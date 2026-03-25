@@ -41,6 +41,8 @@ const BASE_ROUTES = {
     SUBMISSION_DETAIL: (cId: string, sId: string) =>
       `/role/chair/conferences/${cId}/submissions/${sId}`,
     SCHEDULES: "/role/chair/schedules",
+    TEMPLATES: "/role/chair/templates",
+    NEW_TEMPLATE: "/role/chair/templates/new",
   },
 } as const
 

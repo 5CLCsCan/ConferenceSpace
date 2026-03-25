@@ -82,6 +82,7 @@ type Conference struct {
 	Tracks         []string                 `json:"tracks"`
 	Venue          string                   `json:"venue"`
 	Configurations *ConferenceConfiguration `json:"configurations"`
+	Status         string                   `json:"status,omitempty"`
 }
 
 type ConferenceResponse struct {
@@ -95,7 +96,7 @@ type ConferenceResponse struct {
 	Tracks         []string                 `json:"tracks"`
 	Venue          string                   `json:"venue"`
 	Configurations *ConferenceConfiguration `json:"configurations"`
-	Status         string                   `json:"status"` // open, reviewing, completed
+	Status         string                   `json:"status"` // draft, open, reviewing, completed, archived
 	CreatedAt      time.Time                `json:"created_at"`
 	UpdatedAt      time.Time                `json:"updated_at"`
 	UserRole       string                   `json:"user_role,omitempty"` // User's role in this conference (if queried)
@@ -157,7 +158,7 @@ type ConferenceBookmarkResponse struct {
 // ConferenceTransitionStatusRequest represents the request to transition conference status
 type ConferenceTransitionStatusRequest struct {
 	ConferenceID int64  `uri:"conference_id" json:"conference_id" binding:"required"`
-	NewStatus    string `json:"new_status" binding:"required,oneof=open reviewing completed"`
+	NewStatus    string `json:"new_status" binding:"required,oneof=draft open reviewing completed archived"`
 }
 
 // ConferenceTransitionStatusResponse represents the response after status transition
@@ -201,4 +202,48 @@ type ConferenceStatsResponse struct {
 	Submissions ConferenceSubmissionStats `json:"submissions"`
 	Reviews     ConferenceReviewStats     `json:"reviews"`
 	Tracks      []ConferenceTrackStats    `json:"tracks"`
+}
+
+// ConferenceRebuttalConfig represents the dedicated rebuttal configuration columns on conferences table.
+// This is separate from the legacy RebuttalSettings inside ConferenceConfiguration (JSONB).
+type ConferenceRebuttalConfig struct {
+	Enabled           bool       `json:"enabled"`
+	Phase             string     `json:"phase"`
+	StartAt           *time.Time `json:"start_at,omitempty"`
+	Deadline          *time.Time `json:"deadline,omitempty"`
+	CharLimitGeneral  int        `json:"char_limit_general"`
+	CharLimitPerPoint int        `json:"char_limit_per_point"`
+	AllowDiscussion   bool       `json:"allow_discussion"`
+}
+
+// SaveRebuttalConfigRequest is the body for PATCH /conferences/:id/rebuttal/settings
+type SaveRebuttalConfigRequest struct {
+	ConferenceID      int64      `uri:"conference_id"`
+	Enabled           bool       `json:"enabled"`
+	StartAt           *time.Time `json:"start_at,omitempty"`
+	Deadline          *time.Time `json:"deadline,omitempty"`
+	CharLimitGeneral  int        `json:"char_limit_general"`
+	CharLimitPerPoint int        `json:"char_limit_per_point"`
+	AllowDiscussion   bool       `json:"allow_discussion"`
+}
+
+// RebuttalPhaseRequest is the URI for phase transition endpoints
+type RebuttalPhaseRequest struct {
+	ConferenceID int64 `uri:"conference_id"`
+}
+
+// RebuttalOverviewRow is one row in the chair's rebuttal management table
+type RebuttalOverviewRow struct {
+	SubmissionID   int64  `json:"submission_id"`
+	Title          string `json:"title"`
+	RebuttalPhase  string `json:"rebuttal_phase"`
+	HasResponse    bool   `json:"has_response"`
+	TotalReviewers int    `json:"total_reviewers"`
+	AckedReviewers int    `json:"acked_reviewers"`
+}
+
+// RebuttalOverviewResponse is returned by GET .../rebuttal/settings
+type RebuttalOverviewResponse struct {
+	Settings    ConferenceRebuttalConfig `json:"settings"`
+	Submissions []RebuttalOverviewRow    `json:"submissions"`
 }

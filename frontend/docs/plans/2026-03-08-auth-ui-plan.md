@@ -26,6 +26,7 @@
 ## Task 1: Add Auth API Module
 
 **Files:**
+
 - Create: `lib/api/auth.ts`
 
 **Step 1: Create the file**
@@ -63,9 +64,12 @@ export const authApi = {
     }),
 
   verifyEmail: (token: string) =>
-    apiFetch<{ data: { message: string } }>(`/api/v1/auth/verify-email?token=${encodeURIComponent(token)}`, {
-      method: "GET",
-    }),
+    apiFetch<{ data: { message: string } }>(
+      `/api/v1/auth/verify-email?token=${encodeURIComponent(token)}`,
+      {
+        method: "GET",
+      },
+    ),
 
   resendVerification: (email: string) =>
     apiFetch<{ data: ResendVerificationResponse }>("/api/v1/auth/resend-verification", {
@@ -80,6 +84,7 @@ export const authApi = {
 ```bash
 cd /path/to/frontend && npm run build 2>&1 | head -30
 ```
+
 Expected: no TypeScript errors in `lib/api/auth.ts`
 
 ---
@@ -87,11 +92,13 @@ Expected: no TypeScript errors in `lib/api/auth.ts`
 ## Task 2: Add Routes
 
 **Files:**
+
 - Modify: `lib/routes.ts`
 
 **Step 1: Add two new routes to `BASE_ROUTES`**
 
 After `FORGOT_PASSWORD: "/forgot-password"`, add:
+
 ```typescript
 RESET_PASSWORD: "/reset-password",
 VERIFY_EMAIL: "/verify-email",
@@ -108,11 +115,13 @@ npm run build 2>&1 | grep -E "routes|error" | head -10
 ## Task 3: Rewrite `/forgot-password`
 
 **Files:**
+
 - Modify: `app/forgot-password/page.tsx`
 
 **Step 1: Replace the entire file content**
 
 The new flow has only 2 steps: `"email"` and `"sent"`.
+
 - Step `"email"`: email input form → calls `authApi.forgotPassword(email)`
   - If response includes `token` → redirect to `/reset-password?token=TOKEN` (dev mode — skip email step)
   - If no token → go to step `"sent"`
@@ -190,7 +199,10 @@ export default function ForgotPasswordPage() {
       <div className="auth-brand-panel">
         <div className="auth-brand-inner">
           <div className="auth-logo-mark">
-            <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "#ffffff" }}>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: "28px", color: "#ffffff" }}
+            >
               lock_reset
             </span>
           </div>
@@ -206,7 +218,9 @@ export default function ForgotPasswordPage() {
               { icon: "lock", text: "Set a new password" },
             ].map(({ icon, text }) => (
               <div key={text} className="auth-feature-row">
-                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>{icon}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                  {icon}
+                </span>
                 <span>{text}</span>
               </div>
             ))}
@@ -221,19 +235,25 @@ export default function ForgotPasswordPage() {
             <>
               <div className="auth-form-header">
                 <h2 className="auth-form-title">Forgot password?</h2>
-                <p className="auth-form-desc">Enter your email and we&apos;ll send you a reset link.</p>
+                <p className="auth-form-desc">
+                  Enter your email and we&apos;ll send you a reset link.
+                </p>
               </div>
 
               {error && (
                 <div className="auth-notice auth-notice--error">
-                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>error</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                    error
+                  </span>
                   <span>{error}</span>
                 </div>
               )}
 
               <form onSubmit={handleEmailSubmit} className="auth-form-fields">
                 <div className="auth-field">
-                  <label htmlFor="email" className="auth-label">Email</label>
+                  <label htmlFor="email" className="auth-label">
+                    Email
+                  </label>
                   <input
                     id="email"
                     type="email"
@@ -248,7 +268,10 @@ export default function ForgotPasswordPage() {
                 </div>
                 <button type="submit" disabled={isLoading} className="auth-submit-btn">
                   {isLoading ? (
-                    <><Loader2 className="h-3 w-3 animate-spin" /><span>Sending…</span></>
+                    <>
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      <span>Sending…</span>
+                    </>
                   ) : (
                     "Send reset link"
                   )}
@@ -262,13 +285,16 @@ export default function ForgotPasswordPage() {
               <div className="auth-form-header">
                 <h2 className="auth-form-title">Check your email</h2>
                 <p className="auth-form-desc">
-                  We sent a password reset link to <strong>{email}</strong>. Check your inbox and follow the link.
+                  We sent a password reset link to <strong>{email}</strong>. Check your inbox and
+                  follow the link.
                 </p>
               </div>
 
               {resendSuccess && (
                 <div className="auth-notice auth-notice--success">
-                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>check_circle</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                    check_circle
+                  </span>
                   <span>Reset link resent.</span>
                 </div>
               )}
@@ -281,7 +307,10 @@ export default function ForgotPasswordPage() {
                   className="auth-submit-btn"
                 >
                   {resendLoading ? (
-                    <><Loader2 className="h-3 w-3 animate-spin" /><span>Resending…</span></>
+                    <>
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      <span>Resending…</span>
+                    </>
                   ) : (
                     "Resend link"
                   )}
@@ -292,7 +321,9 @@ export default function ForgotPasswordPage() {
 
           <p className="auth-switch-text">
             Remember it?{" "}
-            <Link href={ROUTES.LOGIN} className="auth-switch-link">Sign in</Link>
+            <Link href={ROUTES.LOGIN} className="auth-switch-link">
+              Sign in
+            </Link>
           </p>
         </div>
       </div>
@@ -311,6 +342,7 @@ Visit `http://localhost:3000/forgot-password` — should show email form.
 ## Task 4: Create `/reset-password` Page
 
 **Files:**
+
 - Create: `app/reset-password/page.tsx`
 
 **Step 1: Create directory and file**
@@ -412,7 +444,10 @@ function ResetPasswordForm() {
       <div className="auth-brand-panel">
         <div className="auth-brand-inner">
           <div className="auth-logo-mark">
-            <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "#ffffff" }}>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: "28px", color: "#ffffff" }}
+            >
               lock_reset
             </span>
           </div>
@@ -428,7 +463,9 @@ function ResetPasswordForm() {
               { icon: "check_circle", text: "Access restored" },
             ].map(({ icon, text }) => (
               <div key={text} className="auth-feature-row">
-                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>{icon}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                  {icon}
+                </span>
                 <span>{text}</span>
               </div>
             ))}
@@ -446,10 +483,18 @@ function ResetPasswordForm() {
 
           {error && (
             <div className="auth-notice auth-notice--error">
-              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>error</span>
+              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                error
+              </span>
               <span>{error}</span>
-              {(error.includes("expired") || error.includes("invalid") || error.includes("used")) && (
-                <Link href={ROUTES.FORGOT_PASSWORD} className="auth-switch-link" style={{ marginLeft: "4px" }}>
+              {(error.includes("expired") ||
+                error.includes("invalid") ||
+                error.includes("used")) && (
+                <Link
+                  href={ROUTES.FORGOT_PASSWORD}
+                  className="auth-switch-link"
+                  style={{ marginLeft: "4px" }}
+                >
                   Request a new link
                 </Link>
               )}
@@ -464,16 +509,21 @@ function ResetPasswordForm() {
                   key={i}
                   className="auth-strength-bar"
                   style={{
-                    background: i < passwordStrength
-                      ? ["#ef4444", "#f97316", "#eab308", "#22c55e", "#16a34a"][passwordStrength - 1]
-                      : "#e5e7eb",
+                    background:
+                      i < passwordStrength
+                        ? ["#ef4444", "#f97316", "#eab308", "#22c55e", "#16a34a"][
+                            passwordStrength - 1
+                          ]
+                        : "#e5e7eb",
                   }}
                 />
               ))}
             </div>
 
             <div className="auth-field">
-              <label htmlFor="newPassword" className="auth-label">New password</label>
+              <label htmlFor="newPassword" className="auth-label">
+                New password
+              </label>
               <div className="auth-input-wrap">
                 <input
                   id="newPassword"
@@ -501,7 +551,9 @@ function ResetPasswordForm() {
             </div>
 
             <div className="auth-field">
-              <label htmlFor="confirmPassword" className="auth-label">Confirm password</label>
+              <label htmlFor="confirmPassword" className="auth-label">
+                Confirm password
+              </label>
               <div className="auth-input-wrap">
                 <input
                   id="confirmPassword"
@@ -530,7 +582,10 @@ function ResetPasswordForm() {
 
             <div className="auth-password-rules">
               {passwordRuleOrder.map((rule) => (
-                <span key={rule} className={`auth-rule ${passwordChecks[rule] ? "auth-rule--met" : ""}`}>
+                <span
+                  key={rule}
+                  className={`auth-rule ${passwordChecks[rule] ? "auth-rule--met" : ""}`}
+                >
                   <span className="material-symbols-outlined" style={{ fontSize: "10px" }}>
                     {passwordChecks[rule] ? "check" : "circle"}
                   </span>
@@ -541,7 +596,10 @@ function ResetPasswordForm() {
 
             <button type="submit" disabled={isLoading} className="auth-submit-btn">
               {isLoading ? (
-                <><Loader2 className="h-3 w-3 animate-spin" /><span>Resetting…</span></>
+                <>
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <span>Resetting…</span>
+                </>
               ) : (
                 "Reset password"
               )}
@@ -549,7 +607,9 @@ function ResetPasswordForm() {
           </form>
 
           <p className="auth-switch-text">
-            <Link href={ROUTES.LOGIN} className="auth-switch-link">Back to sign in</Link>
+            <Link href={ROUTES.LOGIN} className="auth-switch-link">
+              Back to sign in
+            </Link>
           </p>
         </div>
       </div>
@@ -576,6 +636,7 @@ Visit `http://localhost:3000/reset-password?token=abc` → should show password 
 ## Task 5: Create `/verify-email` Page
 
 **Files:**
+
 - Create: `app/verify-email/page.tsx`
 
 **Step 1: Create directory and file**
@@ -645,7 +706,10 @@ function VerifyEmailContent() {
       <div className="auth-brand-panel">
         <div className="auth-brand-inner">
           <div className="auth-logo-mark">
-            <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "#ffffff" }}>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: "28px", color: "#ffffff" }}
+            >
               mark_email_read
             </span>
           </div>
@@ -661,7 +725,9 @@ function VerifyEmailContent() {
               { icon: "person", text: "Access your account" },
             ].map(({ icon, text }) => (
               <div key={text} className="auth-feature-row">
-                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>{icon}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                  {icon}
+                </span>
                 <span>{text}</span>
               </div>
             ))}
@@ -688,14 +754,27 @@ function VerifyEmailContent() {
             <>
               <div className="auth-form-header">
                 <h2 className="auth-form-title">Email verified!</h2>
-                <p className="auth-form-desc">Your email address has been confirmed. You can now sign in.</p>
+                <p className="auth-form-desc">
+                  Your email address has been confirmed. You can now sign in.
+                </p>
               </div>
               <div className="auth-notice auth-notice--success">
-                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>check_circle</span>
+                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                  check_circle
+                </span>
                 <span>Verification successful.</span>
               </div>
               <div className="auth-form-fields">
-                <Link href={ROUTES.LOGIN} className="auth-submit-btn" style={{ display: "flex", justifyContent: "center", alignItems: "center", textDecoration: "none" }}>
+                <Link
+                  href={ROUTES.LOGIN}
+                  className="auth-submit-btn"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    textDecoration: "none",
+                  }}
+                >
                   Go to sign in
                 </Link>
               </div>
@@ -709,13 +788,17 @@ function VerifyEmailContent() {
                 <p className="auth-form-desc">The link may have expired or already been used.</p>
               </div>
               <div className="auth-notice auth-notice--error">
-                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>error</span>
+                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                  error
+                </span>
                 <span>{errorMessage}</span>
               </div>
               {!resendDone ? (
                 <form onSubmit={handleResend} className="auth-form-fields">
                   <div className="auth-field">
-                    <label htmlFor="resendEmail" className="auth-label">Request a new link</label>
+                    <label htmlFor="resendEmail" className="auth-label">
+                      Request a new link
+                    </label>
                     <input
                       id="resendEmail"
                       type="email"
@@ -730,7 +813,10 @@ function VerifyEmailContent() {
                   </div>
                   <button type="submit" disabled={resendLoading} className="auth-submit-btn">
                     {resendLoading ? (
-                      <><Loader2 className="h-3 w-3 animate-spin" /><span>Sending…</span></>
+                      <>
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        <span>Sending…</span>
+                      </>
                     ) : (
                       "Resend verification email"
                     )}
@@ -738,7 +824,9 @@ function VerifyEmailContent() {
                 </form>
               ) : (
                 <div className="auth-notice auth-notice--success">
-                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>check_circle</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                    check_circle
+                  </span>
                   <span>New verification email sent. Check your inbox.</span>
                 </div>
               )}
@@ -746,7 +834,9 @@ function VerifyEmailContent() {
           )}
 
           <p className="auth-switch-text">
-            <Link href={ROUTES.LOGIN} className="auth-switch-link">Back to sign in</Link>
+            <Link href={ROUTES.LOGIN} className="auth-switch-link">
+              Back to sign in
+            </Link>
           </p>
         </div>
       </div>
@@ -772,6 +862,7 @@ Visit `http://localhost:3000/verify-email?token=badtoken` → should show loadin
 ## Task 6: Add Change-Password Card to Profile Page
 
 **Files:**
+
 - Modify: `app/profile/[user_id]/page.tsx`
 
 **Step 1: Add state variables for change-password**
@@ -791,6 +882,7 @@ const [showPwNext, setShowPwNext] = useState(false)
 **Step 2: Add import for `authApi`**
 
 At the top of the file, add:
+
 ```tsx
 import { authApi } from "@/lib/api/auth"
 ```
@@ -858,6 +950,7 @@ const handleChangePassword = async () => {
 **Step 5: Add `Eye` icon import**
 
 In the existing lucide-react import line, add `Eye` and `EyeOff`:
+
 ```tsx
 import { Loader2, ArrowLeft, BookOpen, ExternalLink, Unlink, Eye, EyeOff } from "lucide-react"
 ```
@@ -867,137 +960,202 @@ import { Loader2, ArrowLeft, BookOpen, ExternalLink, Unlink, Eye, EyeOff } from 
 Find where the existing cards end in the JSX (look for the last `</Card>` before the closing `</div>` of the main content). After it, add the Security card — but **only when `isOwnProfile` is true**:
 
 ```tsx
-{isOwnProfile && (
-  <Card>
-    <CardHeader>
-      <CardTitle style={{ fontSize: "14px", fontWeight: 700, color: "#1B3C53" }}>
-        Security
-      </CardTitle>
-      <p style={{ fontSize: "12px", color: "#64748b", marginTop: "2px" }}>
-        Change your account password
-      </p>
-    </CardHeader>
-    <CardContent>
-      <div style={{ display: "flex", flexDirection: "column", gap: "12px", maxWidth: "400px" }}>
-        {/* Current password */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-          <Label style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#374151" }}>
-            Current password
-          </Label>
-          <div style={{ position: "relative" }}>
-            <Input
-              type={showPwCurrent ? "text" : "password"}
-              placeholder="••••••••"
-              value={pwForm.current}
-              onChange={(e) => setPwForm((f) => ({ ...f, current: e.target.value }))}
-              disabled={pwLoading}
-              style={{ height: "34px", fontSize: "12px", paddingRight: "36px" }}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPwCurrent((v) => !v)}
-              style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#9ca3af", padding: 0 }}
-              tabIndex={-1}
+{
+  isOwnProfile && (
+    <Card>
+      <CardHeader>
+        <CardTitle style={{ fontSize: "14px", fontWeight: 700, color: "#1B3C53" }}>
+          Security
+        </CardTitle>
+        <p style={{ fontSize: "12px", color: "#64748b", marginTop: "2px" }}>
+          Change your account password
+        </p>
+      </CardHeader>
+      <CardContent>
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px", maxWidth: "400px" }}>
+          {/* Current password */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            <Label
+              style={{
+                fontSize: "11px",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                color: "#374151",
+              }}
             >
-              {showPwCurrent ? <EyeOff size={14} /> : <Eye size={14} />}
-            </button>
-          </div>
-        </div>
-
-        {/* New password + strength */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-          <Label style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#374151" }}>
-            New password
-          </Label>
-          {/* Strength bars */}
-          <div style={{ display: "flex", gap: "3px", marginBottom: "4px" }}>
-            {[0, 1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                style={{
-                  height: "3px",
-                  flex: 1,
-                  borderRadius: "2px",
-                  background: i < pwStrength
-                    ? (["#ef4444", "#f97316", "#eab308", "#22c55e", "#16a34a"][pwStrength - 1])
-                    : "#e5e7eb",
-                  transition: "background 0.15s",
-                }}
+              Current password
+            </Label>
+            <div style={{ position: "relative" }}>
+              <Input
+                type={showPwCurrent ? "text" : "password"}
+                placeholder="••••••••"
+                value={pwForm.current}
+                onChange={(e) => setPwForm((f) => ({ ...f, current: e.target.value }))}
+                disabled={pwLoading}
+                style={{ height: "34px", fontSize: "12px", paddingRight: "36px" }}
               />
-            ))}
-          </div>
-          <div style={{ position: "relative" }}>
-            <Input
-              type={showPwNext ? "text" : "password"}
-              placeholder="••••••••"
-              value={pwForm.next}
-              onChange={(e) => setPwForm((f) => ({ ...f, next: e.target.value }))}
-              disabled={pwLoading}
-              style={{ height: "34px", fontSize: "12px", paddingRight: "36px" }}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPwNext((v) => !v)}
-              style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#9ca3af", padding: 0 }}
-              tabIndex={-1}
-            >
-              {showPwNext ? <EyeOff size={14} /> : <Eye size={14} />}
-            </button>
-          </div>
-          {/* Password rules */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "4px" }}>
-            {pwRuleOrder.map((rule) => (
-              <span
-                key={rule}
+              <button
+                type="button"
+                onClick={() => setShowPwCurrent((v) => !v)}
                 style={{
-                  fontSize: "10px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "3px",
-                  color: pwChecks[rule] ? "#16a34a" : "#9ca3af",
-                  transition: "color 0.15s",
+                  position: "absolute",
+                  right: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#9ca3af",
+                  padding: 0,
                 }}
+                tabIndex={-1}
               >
-                {pwChecks[rule]
-                  ? <span className="material-symbols-outlined" style={{ fontSize: "10px" }}>check</span>
-                  : <span className="material-symbols-outlined" style={{ fontSize: "10px" }}>circle</span>}
-                {pwRuleLabels[rule]}
-              </span>
-            ))}
+                {showPwCurrent ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
           </div>
+
+          {/* New password + strength */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            <Label
+              style={{
+                fontSize: "11px",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                color: "#374151",
+              }}
+            >
+              New password
+            </Label>
+            {/* Strength bars */}
+            <div style={{ display: "flex", gap: "3px", marginBottom: "4px" }}>
+              {[0, 1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  style={{
+                    height: "3px",
+                    flex: 1,
+                    borderRadius: "2px",
+                    background:
+                      i < pwStrength
+                        ? ["#ef4444", "#f97316", "#eab308", "#22c55e", "#16a34a"][pwStrength - 1]
+                        : "#e5e7eb",
+                    transition: "background 0.15s",
+                  }}
+                />
+              ))}
+            </div>
+            <div style={{ position: "relative" }}>
+              <Input
+                type={showPwNext ? "text" : "password"}
+                placeholder="••••••••"
+                value={pwForm.next}
+                onChange={(e) => setPwForm((f) => ({ ...f, next: e.target.value }))}
+                disabled={pwLoading}
+                style={{ height: "34px", fontSize: "12px", paddingRight: "36px" }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPwNext((v) => !v)}
+                style={{
+                  position: "absolute",
+                  right: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#9ca3af",
+                  padding: 0,
+                }}
+                tabIndex={-1}
+              >
+                {showPwNext ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
+            {/* Password rules */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "4px" }}>
+              {pwRuleOrder.map((rule) => (
+                <span
+                  key={rule}
+                  style={{
+                    fontSize: "10px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "3px",
+                    color: pwChecks[rule] ? "#16a34a" : "#9ca3af",
+                    transition: "color 0.15s",
+                  }}
+                >
+                  {pwChecks[rule] ? (
+                    <span className="material-symbols-outlined" style={{ fontSize: "10px" }}>
+                      check
+                    </span>
+                  ) : (
+                    <span className="material-symbols-outlined" style={{ fontSize: "10px" }}>
+                      circle
+                    </span>
+                  )}
+                  {pwRuleLabels[rule]}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Confirm password */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            <Label
+              style={{
+                fontSize: "11px",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                color: "#374151",
+              }}
+            >
+              Confirm new password
+            </Label>
+            <Input
+              type="password"
+              placeholder="••••••••"
+              value={pwForm.confirm}
+              onChange={(e) => setPwForm((f) => ({ ...f, confirm: e.target.value }))}
+              disabled={pwLoading}
+              style={{ height: "34px", fontSize: "12px" }}
+            />
+          </div>
+
+          {pwError && <p style={{ fontSize: "11px", color: "#ef4444" }}>{pwError}</p>}
+
+          <Button
+            onClick={handleChangePassword}
+            disabled={pwLoading || !pwForm.current || !pwForm.next || !pwForm.confirm}
+            size="sm"
+            style={{
+              height: "32px",
+              fontSize: "11px",
+              fontWeight: 600,
+              background: "#1B3C53",
+              color: "#fff",
+              alignSelf: "flex-start",
+            }}
+          >
+            {pwLoading ? (
+              <>
+                <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                Saving…
+              </>
+            ) : (
+              "Change password"
+            )}
+          </Button>
         </div>
-
-        {/* Confirm password */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-          <Label style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#374151" }}>
-            Confirm new password
-          </Label>
-          <Input
-            type="password"
-            placeholder="••••••••"
-            value={pwForm.confirm}
-            onChange={(e) => setPwForm((f) => ({ ...f, confirm: e.target.value }))}
-            disabled={pwLoading}
-            style={{ height: "34px", fontSize: "12px" }}
-          />
-        </div>
-
-        {pwError && (
-          <p style={{ fontSize: "11px", color: "#ef4444" }}>{pwError}</p>
-        )}
-
-        <Button
-          onClick={handleChangePassword}
-          disabled={pwLoading || !pwForm.current || !pwForm.next || !pwForm.confirm}
-          size="sm"
-          style={{ height: "32px", fontSize: "11px", fontWeight: 600, background: "#1B3C53", color: "#fff", alignSelf: "flex-start" }}
-        >
-          {pwLoading ? <><Loader2 className="h-3 w-3 animate-spin mr-1" />Saving…</> : "Change password"}
-        </Button>
-      </div>
-    </CardContent>
-  </Card>
-)}
+      </CardContent>
+    </Card>
+  )
+}
 ```
 
 **Step 7: Verify in browser**
@@ -1013,6 +1171,7 @@ Visit `/profile/[your-user-id]` while logged in → scroll down → Security car
 ```bash
 cd /path/to/frontend && npm run build 2>&1 | tail -20
 ```
+
 Expected: `✓ Compiled successfully` with no TypeScript errors
 
 **Step 2: Lint check**
@@ -1020,6 +1179,7 @@ Expected: `✓ Compiled successfully` with no TypeScript errors
 ```bash
 npm run lint 2>&1 | tail -20
 ```
+
 Expected: no errors (warnings OK)
 
 **Step 3: Manual smoke test — forgot password flow (dev mode)**

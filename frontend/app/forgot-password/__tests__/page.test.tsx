@@ -86,17 +86,13 @@ describe("ForgotPasswordPage", () => {
 
     await waitFor(() => {
       expect(mockAuthApi.forgotPassword).toHaveBeenCalledWith("test@example.com")
-      expect(mockPush).toHaveBeenCalledWith(
-        expect.stringContaining("/reset-password?token="),
-      )
+      expect(mockPush).toHaveBeenCalledWith(expect.stringContaining("/reset-password?token="))
     })
   })
 
   it("shows error message on API error", async () => {
     const { ApiError } = await import("@/lib/api/client")
-    mockAuthApi.forgotPassword.mockRejectedValueOnce(
-      new ApiError("User not found", 404),
-    )
+    mockAuthApi.forgotPassword.mockRejectedValueOnce(new ApiError("User not found", 404))
 
     render(<ForgotPasswordPage />)
 

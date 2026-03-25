@@ -116,9 +116,7 @@ describe("ResetPasswordPage", () => {
 
   it("shows error message on API error", async () => {
     const { ApiError } = await import("@/lib/api/client")
-    mockAuthApi.resetPassword.mockRejectedValueOnce(
-      new ApiError("Token expired or invalid", 400),
-    )
+    mockAuthApi.resetPassword.mockRejectedValueOnce(new ApiError("Token expired or invalid", 400))
 
     render(<ResetPasswordPage />)
     await screen.findByRole("heading", { name: "New password" })

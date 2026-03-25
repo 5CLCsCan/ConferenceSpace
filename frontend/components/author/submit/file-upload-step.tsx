@@ -1,9 +1,14 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { downloadPaperFile } from "@/lib/api/papers"
-import type { Conference } from "@/lib/types"
+import { precheckPaper, downloadPaperFile } from "@/lib/api/papers"
+import type { Conference, PrecheckResult } from "@/lib/types"
+import { PreCheckResults } from "./precheck-results"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import {
+  ACCEPTED_MANUSCRIPT_FILE_INPUT,
+  getManuscriptUploadError,
+} from "./submission-file-validation"
 
 interface FileUploadStepProps {
   uploadedFile: File | null
@@ -21,6 +26,7 @@ interface FileUploadStepProps {
   }
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void
   onRemoveFile: () => void
+  onPrecheckUpdate?: (result: PrecheckResult | null, error: string | null) => void
 }
 
 export function FileUploadStep({
@@ -32,13 +38,52 @@ export function FileUploadStep({
   existingFile,
   onFileUpload,
   onRemoveFile,
+  onPrecheckUpdate,
 }: FileUploadStepProps) {
   const { t } = useTranslation()
+  const [isPrechecking, setIsPrechecking] = useState(false)
+  const [precheckResult, setPrecheckResult] = useState<PrecheckResult | null>(null)
+  const [precheckError, setPrecheckError] = useState<string | null>(null)
   const [isDownloading, setIsDownloading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Run precheck when file is uploaded
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
     onFileUpload(e)
+
+    if (file && getManuscriptUploadError(file)) {
+      onPrecheckUpdate?.(null, null)
+      return
+    }
+
+    if (file && conference?.id) {
+      setIsPrechecking(true)
+      setPrecheckError(null)
+      setPrecheckResult(null)
+      onPrecheckUpdate?.(null, null)
+
+      try {
+        const conferenceId = String(conference.id)
+        const response = await precheckPaper(conferenceId, file)
+
+        if (response.error) {
+          setPrecheckError(response.error)
+          onPrecheckUpdate?.(null, response.error)
+        } else if (response.data) {
+          setPrecheckResult(response.data)
+          onPrecheckUpdate?.(response.data, null)
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Precheck failed"
+        setPrecheckError(message)
+        onPrecheckUpdate?.(null, message)
+      } finally {
+        setIsPrechecking(false)
+      }
+    } else {
+      onPrecheckUpdate?.(null, null)
+    }
   }
 
   const handleDownloadExisting = async () => {
@@ -95,10 +140,10 @@ export function FileUploadStep({
         <div className="border-b border-slate-100 dark:border-slate-700 pb-3 mb-4">
           <div className="flex justify-between items-center">
             <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
-              {t("runtime.components.author.submit.file-upload-step.text_manuscript_pdf")}{" "}
+              Manuscript File
             </h3>
             <span className="text-[9px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded uppercase tracking-wider">
-              {t("runtime.components.author.submit.file-upload-step.text_max_20mb")}{" "}
+              Max 20MB
             </span>
           </div>
         </div>
@@ -106,7 +151,7 @@ export function FileUploadStep({
           <input
             ref={fileInputRef}
             type="file"
-            accept=".pdf"
+            accept={ACCEPTED_MANUSCRIPT_FILE_INPUT}
             onChange={handleFileChange}
             className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer"
           />
@@ -160,17 +205,36 @@ export function FileUploadStep({
                   )}{" "}
                 </p>
                 <p className="text-[11px] text-slate-500 mt-1">
-                  {t(
-                    "runtime.components.author.submit.file-upload-step.text_only_pdf_files_are_allowed",
-                  )}
+                  PDF, DOCX, and TEX files are allowed
                 </p>
               </>
             )}
           </div>
         </div>
 
+        {/* Precheck Loading */}
+        {isPrechecking && (
+          <div className="mt-4 flex items-center justify-center gap-2 p-3 bg-[#1B3C53]/5 dark:bg-slate-700/50 rounded-lg">
+            <span className="material-symbols-outlined animate-spin text-[#1B3C53] text-[16px]">
+              sync
+            </span>
+            <span className="text-xs font-medium text-[#1B3C53] dark:text-slate-300">
+              {t(
+                "runtime.components.author.submit.file-upload-step.text_running_quality_check_on_your_paper",
+              )}{" "}
+            </span>
+          </div>
+        )}
+
+        {/* Precheck Error */}
+        {precheckError && (
+          <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <p className="text-xs text-red-700 dark:text-red-300">{precheckError}</p>
+          </div>
+        )}
+
         {/* Uploaded File Preview */}
-        {uploadedFile && (
+        {uploadedFile && !isPrechecking && (
           <div className="mt-4 flex flex-col gap-3">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 flex items-center gap-3 shadow-sm relative overflow-hidden group">
               <div
@@ -220,6 +284,9 @@ export function FileUploadStep({
                 <button
                   onClick={() => {
                     onRemoveFile()
+                    onPrecheckUpdate?.(null, null)
+                    setPrecheckResult(null)
+                    setPrecheckError(null)
                     if (fileInputRef.current) fileInputRef.current.value = ""
                   }}
                   className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg text-slate-400 hover:text-red-600 transition-colors"
@@ -234,6 +301,11 @@ export function FileUploadStep({
         )}
 
         {/* Precheck Results */}
+        {precheckResult && (
+          <div className="mt-4">
+            <PreCheckResults result={precheckResult} />
+          </div>
+        )}
       </div>
 
       {/* Supplementary Material */}
@@ -271,7 +343,7 @@ export function FileUploadStep({
 
       {/* Validation Status */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {fileValidation.format && (
+        {(fileValidation.format || (precheckResult && precheckResult.overall_score >= 60)) && (
           <div className="bg-green-50 dark:bg-green-900/10 rounded-lg px-4 py-3 border border-green-100 dark:border-green-900/20 flex items-start gap-3">
             <span className="material-symbols-outlined text-green-600 text-[16px]">verified</span>
             <div>
@@ -279,9 +351,7 @@ export function FileUploadStep({
                 {t("runtime.components.author.submit.file-upload-step.text_format_validated")}{" "}
               </p>
               <p className="text-[10px] text-green-700/70 dark:text-green-400/70 font-light">
-                {t(
-                  "runtime.components.author.submit.file-upload-step.text_the_uploaded_pdf_meets_the_conference",
-                )}{" "}
+                The uploaded manuscript meets the conference submission requirements.
               </p>
             </div>
           </div>

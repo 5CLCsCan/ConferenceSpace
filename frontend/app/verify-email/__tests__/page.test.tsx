@@ -78,9 +78,7 @@ describe("VerifyEmailPage", () => {
 
   it("shows Verification failed heading and error message on API error", async () => {
     const { ApiError } = await import("@/lib/api/client")
-    mockAuthApi.verifyEmail.mockRejectedValueOnce(
-      new ApiError("Token has expired", 400),
-    )
+    mockAuthApi.verifyEmail.mockRejectedValueOnce(new ApiError("Token has expired", 400))
 
     const { default: VerifyEmailPage } = await import("../page")
     render(<VerifyEmailPage />)
@@ -101,9 +99,7 @@ describe("VerifyEmailPage", () => {
 
   it("resend form submits to authApi.resendVerification", async () => {
     const { ApiError } = await import("@/lib/api/client")
-    mockAuthApi.verifyEmail.mockRejectedValueOnce(
-      new ApiError("Token has expired", 400),
-    )
+    mockAuthApi.verifyEmail.mockRejectedValueOnce(new ApiError("Token has expired", 400))
     mockAuthApi.resendVerification.mockResolvedValueOnce({
       data: { data: { message: "Resent" } },
     })

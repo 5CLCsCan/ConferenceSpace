@@ -1,14 +1,18 @@
 "use client"
 
+import Link from "next/link"
 import { WizardStepper } from "./wizard-stepper"
 import { WizardStep } from "./types"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { useAuth } from "@/lib/auth-context"
+import { ROUTES } from "@/lib/routes"
 
 interface WizardSidebarProps {
   steps: WizardStep[]
   currentStep: number
   onStepClick: (step: number) => void
   maxStepReached: number
+  onLogoClick?: (e: React.MouseEvent) => void
 }
 
 export function WizardSidebar({
@@ -16,14 +20,25 @@ export function WizardSidebar({
   currentStep,
   onStepClick,
   maxStepReached,
+  onLogoClick,
 }: WizardSidebarProps) {
   const { t } = useTranslation()
+  const { currentRole } = useAuth()
+
+  const dashboardHref = currentRole
+    ? (ROUTES.ROLE_ROUTE_MAP[currentRole] ?? ROUTES.ROLE_SELECT)
+    : ROUTES.ROLE_SELECT
+
   return (
     <aside className="hidden lg:flex w-[240px] flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-full overflow-y-auto z-10">
       {/* Logo */}
-      <div className="px-5 pt-8 pb-8">
+      <Link
+        href={dashboardHref}
+        onClick={onLogoClick}
+        className="px-5 pt-8 pb-8 transition-opacity hover:opacity-80 block group"
+      >
         <div className="flex items-center gap-2.5">
-          <div className="bg-[#141414] text-white rounded-lg flex items-center justify-center shadow-lg shadow-slate-900/10 w-9 h-9">
+          <div className="bg-[#141414] text-white rounded-lg flex items-center justify-center shadow-lg shadow-slate-900/10 w-9 h-9 group-hover:scale-105 transition-transform">
             <span className="material-symbols-outlined text-[20px]">school</span>
           </div>
           <div className="flex flex-col">
@@ -32,7 +47,7 @@ export function WizardSidebar({
             </h1>
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* Wizard Header */}
       <div className="px-4">

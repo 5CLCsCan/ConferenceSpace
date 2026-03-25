@@ -105,14 +105,14 @@ export default function RegisterPage() {
       {/* Left panel - branding */}
       <div className="auth-brand-panel">
         <div className="auth-brand-inner">
-          <div className="auth-logo-mark">
+          <Link href={ROUTES.HOME} className="auth-logo-mark hover:opacity-80 transition-opacity">
             <span
               className="material-symbols-outlined"
               style={{ fontSize: "28px", color: "#ffffff" }}
             >
               school
             </span>
-          </div>
+          </Link>
           <div className="auth-brand-content">
             <p className="auth-brand-label">
               {t("runtime.app.register.page.text_conferencespace")}

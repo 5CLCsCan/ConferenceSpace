@@ -7,7 +7,7 @@
  * 3. reviewer identity (isCurrentUser) not being set
  */
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { getRebuttal, submitRebuttal, acknowledgePoint } from "../rebuttal"
+import { getRebuttal, submitRebuttal, acknowledgePoint, updatePostRebuttalScore } from "../rebuttal"
 
 // Mock apiFetch at module level
 vi.mock("@/lib/api/client", () => ({
@@ -46,6 +46,13 @@ const BACKEND_RESPONSE_WITH_POINTS = {
         reviewer_note: "Good response.",
       },
     ],
+    assignments: [
+      { assignment_id: 42, rebuttal_status: "submitted" },
+      { assignment_id: 99, rebuttal_status: "acknowledged" },
+    ],
+    char_limit_general: 2000,
+    char_limit_per_point: 500,
+    deadline: null,
   },
 }
 
@@ -55,6 +62,10 @@ const BACKEND_RESPONSE_AWAITING = {
     general_response: "",
     submitted_at: null,
     points: [],
+    assignments: [],
+    char_limit_general: 3000,
+    char_limit_per_point: 1000,
+    deadline: null,
   },
 }
 
@@ -69,7 +80,10 @@ describe("getRebuttal", () => {
    * nothing renders. getRebuttal MUST derive ReviewerInfo[] from point assignment_ids.
    */
   it("derives reviewers from point assignment_ids so points can be rendered", async () => {
-    mockApiFetch.mockResolvedValue({ data: BACKEND_RESPONSE_WITH_POINTS, response: { status: 200 } })
+    mockApiFetch.mockResolvedValue({
+      data: BACKEND_RESPONSE_WITH_POINTS,
+      response: { status: 200 },
+    })
 
     const result = await getRebuttal("1", "10")
 
@@ -92,7 +106,10 @@ describe("getRebuttal", () => {
   })
 
   it("maps points correctly — reviewerId matches assignment_id as string", async () => {
-    mockApiFetch.mockResolvedValue({ data: BACKEND_RESPONSE_WITH_POINTS, response: { status: 200 } })
+    mockApiFetch.mockResolvedValue({
+      data: BACKEND_RESPONSE_WITH_POINTS,
+      response: { status: 200 },
+    })
 
     const result = await getRebuttal("1", "10")
 
@@ -111,7 +128,10 @@ describe("getRebuttal", () => {
    * Without this the reviewer sees no "Your Comments" section and can't acknowledge points.
    */
   it("marks the current reviewer isCurrentUser=true when currentAssignmentId matches", async () => {
-    mockApiFetch.mockResolvedValue({ data: BACKEND_RESPONSE_WITH_POINTS, response: { status: 200 } })
+    mockApiFetch.mockResolvedValue({
+      data: BACKEND_RESPONSE_WITH_POINTS,
+      response: { status: 200 },
+    })
 
     const result = await getRebuttal("1", "10", "42")
 
@@ -124,7 +144,10 @@ describe("getRebuttal", () => {
   })
 
   it("sets all reviewers isCurrentUser=false when no currentAssignmentId provided", async () => {
-    mockApiFetch.mockResolvedValue({ data: BACKEND_RESPONSE_WITH_POINTS, response: { status: 200 } })
+    mockApiFetch.mockResolvedValue({
+      data: BACKEND_RESPONSE_WITH_POINTS,
+      response: { status: 200 },
+    })
 
     const result = await getRebuttal("1", "10")
 
@@ -142,7 +165,10 @@ describe("getRebuttal", () => {
   })
 
   it("returns submission with general response for submitted phase", async () => {
-    mockApiFetch.mockResolvedValue({ data: BACKEND_RESPONSE_WITH_POINTS, response: { status: 200 } })
+    mockApiFetch.mockResolvedValue({
+      data: BACKEND_RESPONSE_WITH_POINTS,
+      response: { status: 200 },
+    })
 
     const result = await getRebuttal("1", "10")
 
@@ -269,6 +295,129 @@ describe("acknowledgePoint", () => {
     mockApiFetch.mockRejectedValue(new Error("Forbidden"))
 
     const result = await acknowledgePoint("1", "42", "p1", "addressed")
+
+    expect(result.error).toBe("Forbidden")
+  })
+})
+
+describe("getRebuttal — new fields (charLimits, assignments, rebuttalStatus)", () => {
+  it("maps charLimitGeneral and charLimitPerPoint from backend", async () => {
+    mockApiFetch.mockResolvedValue({
+      data: BACKEND_RESPONSE_WITH_POINTS,
+      response: { status: 200 },
+    })
+
+    const result = await getRebuttal("1", "10")
+
+    expect(result.data!.settings.charLimitGeneral).toBe(2000)
+    expect(result.data!.settings.charLimitPerPoint).toBe(500)
+  })
+
+  it("maps rebuttalStatus onto each ReviewerInfo from the assignments array", async () => {
+    mockApiFetch.mockResolvedValue({
+      data: BACKEND_RESPONSE_WITH_POINTS,
+      response: { status: 200 },
+    })
+
+    const result = await getRebuttal("1", "10")
+
+    const reviewer42 = result.data!.reviewers.find((r) => r.id === "42")
+    const reviewer99 = result.data!.reviewers.find((r) => r.id === "99")
+    expect(reviewer42?.rebuttalStatus).toBe("submitted")
+    expect(reviewer99?.rebuttalStatus).toBe("acknowledged")
+  })
+
+  it("defaults rebuttalStatus to 'none' for reviewers not in assignments array", async () => {
+    const responseWithExtraPoint = {
+      data: {
+        ...BACKEND_RESPONSE_WITH_POINTS.data,
+        points: [
+          ...BACKEND_RESPONSE_WITH_POINTS.data.points,
+          {
+            point_id: "p3",
+            assignment_id: 777,
+            category: "suggestion",
+            section: "Suggestions",
+            original_comment: "Add more details.",
+            author_response: "",
+            status: "pending_review",
+            reviewer_acknowledged: false,
+            reviewer_note: "",
+          },
+        ],
+        // assignments only covers 42 and 99, not 777
+      },
+    }
+    mockApiFetch.mockResolvedValue({ data: responseWithExtraPoint, response: { status: 200 } })
+
+    const result = await getRebuttal("1", "10")
+
+    const reviewer777 = result.data!.reviewers.find((r) => r.id === "777")
+    expect(reviewer777?.rebuttalStatus).toBe("none")
+  })
+
+  it("uses default char limits when not provided by backend", async () => {
+    mockApiFetch.mockResolvedValue({ data: BACKEND_RESPONSE_AWAITING, response: { status: 200 } })
+
+    const result = await getRebuttal("1", "10")
+
+    expect(result.data!.settings.charLimitGeneral).toBe(3000)
+    expect(result.data!.settings.charLimitPerPoint).toBe(1000)
+  })
+
+  it("calls the correct backend URL for getRebuttal", async () => {
+    mockApiFetch.mockResolvedValue({ data: BACKEND_RESPONSE_AWAITING, response: { status: 200 } })
+
+    await getRebuttal("5", "99")
+
+    expect(mockApiFetch).toHaveBeenCalledWith("/api/v1/conferences/5/submissions/99/rebuttal")
+  })
+})
+
+describe("updatePostRebuttalScore", () => {
+  it("calls the correct backend endpoint with score, recommendation, and comment", async () => {
+    mockApiFetch.mockResolvedValue({
+      data: { message: "post-rebuttal score updated" },
+      response: { status: 200 },
+    })
+
+    await updatePostRebuttalScore("1", "42", {
+      score: 7,
+      recommendation: "accept",
+      comment: "The rebuttal addressed all concerns.",
+    })
+
+    expect(mockApiFetch).toHaveBeenCalledWith(
+      "/api/v1/conferences/1/assignments/42/post-rebuttal-score",
+      expect.objectContaining({ method: "PUT" }),
+    )
+
+    const body = JSON.parse((mockApiFetch.mock.calls[0][1] as { body: string }).body)
+    expect(body.score).toBe(7)
+    expect(body.recommendation).toBe("accept")
+    expect(body.comment).toBe("The rebuttal addressed all concerns.")
+  })
+
+  it("returns no error on success", async () => {
+    mockApiFetch.mockResolvedValue({ data: {}, response: { status: 200 } })
+
+    const result = await updatePostRebuttalScore("1", "42", {
+      score: 5,
+      recommendation: "borderline",
+      comment: "",
+    })
+
+    expect(result.error).toBeNull()
+  })
+
+  it("returns error on failure", async () => {
+    mockApiFetch.mockRejectedValue(new Error("Forbidden"))
+
+    const result = await updatePostRebuttalScore("1", "42", {
+      score: 5,
+      recommendation: "borderline",
+      comment: "",
+    })
 
     expect(result.error).toBe("Forbidden")
   })

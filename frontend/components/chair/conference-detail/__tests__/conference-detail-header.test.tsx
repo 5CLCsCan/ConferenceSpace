@@ -46,10 +46,39 @@ function getTabButtons(container: HTMLElement) {
   return tabBar ? tabBar.querySelectorAll("button") : []
 }
 
-const TOTAL_TABS = 8 // dashboard, overview, cfp, dates, committee, submissions, assignments, coi
-const CHAIR_ONLY_TAB_COUNT = 1 // coi
+const TOTAL_TABS = 9 // dashboard, overview, cfp, dates, committee, submissions, assignments, coi, rebuttal
+const CHAIR_ONLY_TAB_COUNT = 2 // coi, rebuttal
 
 describe("ConferenceDetailHeader — tab visibility by role", () => {
+  it("uses the legacy direct overflow tab shell instead of the scroll-area wrapper", () => {
+    const { container } = render(
+      <ConferenceDetailHeader
+        conference={mockConference}
+        activeTab="dashboard"
+        onTabChange={vi.fn()}
+        userRole="chair"
+      />,
+    )
+
+    expect(screen.getByText("Test Conference")).toBeInTheDocument()
+    expect(screen.getByText("Paris")).toBeInTheDocument()
+    expect(screen.getByText(/Jan 01/)).toBeInTheDocument()
+    expect(
+      screen.getByRole("button", {
+        name: /Assignments/i,
+      }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole("button", {
+        name: /Rebuttal/i,
+      }),
+    ).toBeInTheDocument()
+    expect(container.querySelector('[data-slot="scroll-area-viewport"]')).toBeNull()
+    expect(
+      container.querySelector(".px-8.border-t.border-slate-100.overflow-x-auto"),
+    ).not.toBeNull()
+  })
+
   it("shows all tabs (including COI) for chair role", () => {
     const { container } = render(
       <ConferenceDetailHeader
@@ -106,7 +135,9 @@ describe("ConferenceDetailHeader — tab visibility by role", () => {
         userRole="chair"
       />,
     )
-    const chairViewport = chairContainer.querySelector('[data-slot="scroll-area-viewport"]') ?? chairContainer.querySelector(".border-t")
+    const chairViewport =
+      chairContainer.querySelector('[data-slot="scroll-area-viewport"]') ??
+      chairContainer.querySelector(".border-t")
     expect(chairViewport?.textContent).toContain("warning")
 
     const { container: authorContainer } = render(
@@ -117,7 +148,9 @@ describe("ConferenceDetailHeader — tab visibility by role", () => {
         userRole="author"
       />,
     )
-    const authorViewport = authorContainer.querySelector('[data-slot="scroll-area-viewport"]') ?? authorContainer.querySelector(".border-t")
+    const authorViewport =
+      authorContainer.querySelector('[data-slot="scroll-area-viewport"]') ??
+      authorContainer.querySelector(".border-t")
     expect(authorViewport?.textContent).not.toContain("warning")
   })
 })

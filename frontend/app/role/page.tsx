@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import Link from "next/link"
+import { useEffect, useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import type { UserRole } from "@/lib/types"
@@ -21,51 +22,58 @@ function AbstractShape({ className, style }: { className?: string; style?: React
 /* ------------------------------------------------------------------ */
 /*  Role card configuration                                            */
 /* ------------------------------------------------------------------ */
-const ROLE_CONFIG = {
-  author: {
-    icon: "edit_document",
-    label: t("runtime.app.role.page.prop_label_submissions"),
-    title: t("runtime.app.role.page.prop_title_author"),
-    description: t(
-      "runtime.app.role.page.prop_description_manage_submissions_view_reviews_and_upload",
-    ),
-    gradient: "from-emerald-500 via-green-600 to-teal-700",
-    accentColor: "#16a34a",
-    shadowColor: "rgba(22,163,74,0.25)",
-    borderGlow: "rgba(22,163,74,0.4)",
-    btnClass: "bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-600/20",
-  },
-  reviewer: {
-    icon: "rate_review",
-    label: t("runtime.app.role.page.prop_label_evaluations"),
-    title: t("runtime.app.role.page.prop_title_reviewer"),
-    description: t(
-      "runtime.app.role.page.prop_description_evaluate_assigned_papers_submit_scores_and",
-    ),
-    gradient: "from-blue-500 via-blue-600 to-indigo-700",
-    accentColor: "#2563eb",
-    shadowColor: "rgba(37,99,235,0.25)",
-    borderGlow: "rgba(37,99,235,0.4)",
-    btnClass:
-      "bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 dark:bg-transparent dark:text-blue-400 dark:border-blue-500 dark:hover:bg-blue-900/20",
-  },
-  chair: {
-    icon: "gavel",
-    label: t("runtime.app.role.page.prop_label_management"),
-    title: t("runtime.app.role.page.prop_title_chair"),
-    description: t(
-      "runtime.app.role.page.prop_description_oversee_conference_tracks_manage_committees_and",
-    ),
-    gradient: "from-violet-500 via-purple-600 to-purple-800",
-    accentColor: "#9333ea",
-    shadowColor: "rgba(147,51,234,0.25)",
-    borderGlow: "rgba(147,51,234,0.4)",
-    btnClass:
-      "bg-white border-2 border-purple-600 text-purple-600 hover:bg-purple-50 dark:bg-transparent dark:text-purple-400 dark:border-purple-500 dark:hover:bg-purple-900/20",
-  },
-} as const
+// ROLE_CONFIG moved inside component to support dynamic translation and avoid build-time errors
 
 export default function RoleSelectionPage() {
+  const { t } = useTranslation()
+
+  const ROLE_CONFIG = useMemo(
+    () => ({
+      author: {
+        icon: "edit_document",
+        label: t("runtime.app.role.page.prop_label_submissions"),
+        title: t("runtime.app.role.page.prop_title_author"),
+        description: t(
+          "runtime.app.role.page.prop_description_manage_submissions_view_reviews_and_upload",
+        ),
+        gradient: "from-emerald-500 via-green-600 to-teal-700",
+        accentColor: "#16a34a",
+        shadowColor: "rgba(22,163,74,0.25)",
+        borderGlow: "rgba(22,163,74,0.4)",
+        btnClass: "bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-600/20",
+      },
+      reviewer: {
+        icon: "rate_review",
+        label: t("runtime.app.role.page.prop_label_evaluations"),
+        title: t("runtime.app.role.page.prop_title_reviewer"),
+        description: t(
+          "runtime.app.role.page.prop_description_evaluate_assigned_papers_submit_scores_and",
+        ),
+        gradient: "from-blue-500 via-blue-600 to-indigo-700",
+        accentColor: "#2563eb",
+        shadowColor: "rgba(37,99,235,0.25)",
+        borderGlow: "rgba(37,99,235,0.4)",
+        btnClass:
+          "bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 dark:bg-transparent dark:text-blue-400 dark:border-blue-500 dark:hover:bg-blue-900/20",
+      },
+      chair: {
+        icon: "gavel",
+        label: t("runtime.app.role.page.prop_label_management"),
+        title: t("runtime.app.role.page.prop_title_chair"),
+        description: t(
+          "runtime.app.role.page.prop_description_oversee_conference_tracks_manage_committees_and",
+        ),
+        gradient: "from-violet-500 via-purple-600 to-purple-800",
+        accentColor: "#9333ea",
+        shadowColor: "rgba(147,51,234,0.25)",
+        borderGlow: "rgba(147,51,234,0.4)",
+        btnClass:
+          "bg-white border-2 border-purple-600 text-purple-600 hover:bg-purple-50 dark:bg-transparent dark:text-purple-400 dark:border-purple-500 dark:hover:bg-purple-900/20",
+      },
+    }),
+    [t],
+  )
+
   const { user, isAuthenticated, isAuthLoading, switchRole, resetRole } = useAuth()
   const router = useRouter()
   const [hoveredRole, setHoveredRole] = useState<string | null>(null)
@@ -225,14 +233,17 @@ export default function RoleSelectionPage() {
       {/* Mobile Header */}
       <header className="w-full border-b border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 sticky top-0 z-50 md:hidden flex-shrink-0">
         <div className="px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <Link
+            href={ROUTES.ROLE_SELECT}
+            className="flex items-center gap-3 transition-opacity hover:opacity-80"
+          >
             <div className="bg-[#0f172a] text-white p-1.5 rounded-lg flex items-center justify-center">
               <span className="material-symbols-outlined text-2xl">school</span>
             </div>
             <h1 className="text-xl font-bold tracking-tight text-[#0f172a] dark:text-white">
               {t("runtime.app.role.page.text_conferencespace")}{" "}
             </h1>
-          </div>
+          </Link>
           <button className="text-slate-500">
             <span className="material-symbols-outlined">menu</span>
           </button>

@@ -14,8 +14,11 @@ from app.core.auth import IdentityProvider
 from app.core.config import Settings, get_settings
 from app.core.logging import configure_logging
 from app.db import create_engine, create_session_factory
+from app.repositories import GatingRunRepository
 from app.repositories.runtime_store import RuntimeStore
 from app.services import AgentRuntime, LLMClient, MetricsStore
+from app.workflows.submission_gating.runner import SubmissionGatingRunner
+from app.workflows.submission_gating.router import router as submission_gating_router
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +34,8 @@ class AppContainer:
     llm_client: LLMClient
     metrics: MetricsStore
     runtime: AgentRuntime
+    submission_gating_repo: GatingRunRepository
+    submission_gating_runner: SubmissionGatingRunner
 
 
 @asynccontextmanager
@@ -51,6 +56,11 @@ async def lifespan(app: FastAPI):
     runtime_store = RuntimeStore(redis, tool_result_timeout_seconds=settings.tool_result_timeout_seconds)
     llm_client = LLMClient(api_key=settings.openrouter_api_key, model=settings.agent_model)
     metrics = MetricsStore()
+    submission_gating_repo = GatingRunRepository(session_factory)
+    submission_gating_runner = SubmissionGatingRunner(
+        repo=submission_gating_repo,
+        llm_client=llm_client,
+    )
     runtime = AgentRuntime(
         settings=settings,
         session_factory=session_factory,
@@ -69,6 +79,8 @@ async def lifespan(app: FastAPI):
         llm_client=llm_client,
         metrics=metrics,
         runtime=runtime,
+        submission_gating_repo=submission_gating_repo,
+        submission_gating_runner=submission_gating_runner,
     )
 
     try:
@@ -94,6 +106,7 @@ def create_app() -> FastAPI:
     )
     app.include_router(status_router)
     app.include_router(agent_router)
+    app.include_router(submission_gating_router)
     return app
 
 

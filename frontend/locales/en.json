@@ -336,6 +336,11 @@
     }
   },
   "runtime": {
+    "common": {
+      "cancel": "Cancel",
+      "save_changes": "Save changes",
+      "discard": "Discard"
+    },
     "app": {
       "forgot-password": {
         "page": {
@@ -453,7 +458,7 @@
         },
         "text_a_single_registered_account_can_operate": "A single registered account can operate as Author, Reviewer, or Chair simultaneously. Switch active role context at any time — permissions and workspaces adjust accordingly.",
         "text_academic_conference_operations_platform": "Academic Conference Operations Platform",
-        "text_academic_conference_operations_platform_role_based": "Academic conference operations platform &mdash; Role-based, lifecycle-aware.",
+        "text_academic_conference_operations_platform_role_based": "Academic conference operations platform, Role-based, lifecycle-aware.",
         "text_built_for_conference_operations": "Built for conference operations",
         "text_conferencespace": "ConferenceSpace",
         "text_conferencespace_coordinates_conferences_end_to_end": "ConferenceSpace coordinates conferences end-to-end — from the call for papers through submission, peer review, decision, and result notification — in a single, role-aware system for authors, reviewers, and chairs.",
@@ -719,7 +724,8 @@
                 "prop_description_please_provide_at_least_the_conference": "Please provide at least the conference name and acronym.",
                 "prop_description_your_conference_draft_has_been_saved": "Your conference draft has been saved.",
                 "prop_title_draft_saved": "Draft saved",
-                "prop_title_missing_required_fields": "Missing required fields"
+                "prop_title_missing_required_fields": "Missing required fields",
+                "text_discard_changes": "Discard changes"
               }
             },
             "page": {
@@ -828,7 +834,7 @@
           "text_submit_paper": "Submit Paper",
           "text_submit_revision": "Submit Revision",
           "text_submitted_on": "Submitted on",
-          "text_text": "&quot;",
+          "text_text": "\"",
           "text_track_progress": "Track Progress",
           "text_track_status": "Track Status",
           "text_view_cfp": "View CFP",
@@ -855,7 +861,7 @@
           "text_status": "Status",
           "text_submission_due": "Submission Due",
           "text_submitted": "Submitted",
-          "text_text": "&quot;"
+          "text_text": "\""
         },
         "author-conferences": {
           "prop_label_archived": "Archived",
@@ -973,7 +979,7 @@
             "text_passed": "Passed",
             "text_sync_to_calendar": "Sync to Calendar",
             "text_target_date": "Target Date",
-            "text_text": "&bull;",
+            "text_text": "•",
             "text_timezone": "Timezone",
             "text_until": "Until",
             "text_upcoming": "Upcoming"
@@ -1254,6 +1260,7 @@
       },
       "chair": {
         "chair-conferences": {
+          "prop_label_drafts": "Drafts",
           "prop_label_archived": "Archived",
           "prop_label_date_newest": "Date (Newest)",
           "prop_label_date_upcoming": "Date (Upcoming)",
@@ -1297,7 +1304,7 @@
           "text_no_conference_actions_found": "No conference actions found.",
           "text_open_conference": "Open Conference",
           "text_overdue": "Overdue",
-          "text_overview_amp_management_across_your_conferences": "Overview &amp; management across your conferences.",
+          "text_overview_amp_management_across_your_conferences": "Overview & management across your conferences.",
           "text_reviews_completed": "Reviews Completed",
           "text_submission_count_description": "{count} submissions in this conference.",
           "text_submission_count_description_one": "1 submission in this conference.",
@@ -1310,7 +1317,10 @@
           "text_loading_conference": "Loading conference...",
           "text_open_templates": "Templates",
           "text_reuse_settings": "Reuse Setup",
-          "text_reuse_settings_description": "Apply a saved template or copy settings from another conference without replacing this conference's identity."
+          "text_reuse_settings_description": "Apply a saved template or copy settings from another conference without replacing this conference's identity.",
+          "text_unsaved_changes": "Unsaved changes",
+          "text_confirm_discard_changes_desc": "You have unsaved changes. Would you like to save them as a draft before leaving, or discard them?",
+          "text_discard_changes": "Discard changes"
         },
         "conference-template-sheet": {
           "placeholder_search_conferences": "Search conferences by title or acronym",
@@ -1327,11 +1337,12 @@
           "text_close": "Close",
           "text_co_chairs": "Co-chairs",
           "text_co_chairs_description": "Copy committee co-chair emails into this setup.",
-          "text_choose_action": "Choose what you want to do",
-          "text_choose_action_description": "Start with a saved template, copy settings from another conference, or save the current form for later.",
+          "text_choose_action": "Choose what to do next",
+          "text_choose_action_description": "Explore saved templates, copy from existing conferences, or create a brand new template from scratch.",
           "text_conference": "Conference",
           "text_copy_from_conference": "Copy from conference",
-          "text_copy_from_conference_card_description": "Reuse dates, tracks, CFP text, and policies from one of your conferences.",
+          "text_copy_from_conference_desc": "Reuse deadlines, tracks, CFP text, and policies from one of your existing conferences.",
+          "text_copy_from_conference_card_description": "Reuse deadlines, tracks, CFP text, and policies from one of your existing conferences.",
           "text_delete": "Delete",
           "text_delete_template": "Delete template",
           "text_delete_template_description": "Delete \"{name}\" from your saved templates? This cannot be undone.",
@@ -1341,7 +1352,9 @@
           "text_failed_to_load_conferences": "Failed to load conferences.",
           "text_failed_to_load_templates": "Failed to load templates.",
           "text_failed_to_save_template": "Failed to save template",
-          "text_failed_to_save_template_description": "Please review the template details and try again.",
+          "text_failed_to_save_template_description": "Please check the template details and try again.",
+          "text_create_new_template": "Create new template",
+          "text_create_template_from_scratch_desc": "Build a complete conference configuration from scratch without needing an existing conference.",
           "text_file_formats": "File formats",
           "text_identity_preserved": "This flow keeps the current conference name, acronym, website, and contact email unchanged.",
           "text_important_dates": "Important dates",
@@ -1349,6 +1362,7 @@
           "text_last_used": "Updated conference",
           "text_loading_conferences": "Loading your conferences...",
           "text_loading_templates": "Loading saved templates...",
+          "text_browse_saved_templates_desc": "Reuse a conference configuration you have previously saved.",
           "text_name_required": "Template name required",
           "text_name_required_description": "Add a template name before saving this setup.",
           "text_no_conference_description": "No conference description available.",
@@ -1356,7 +1370,7 @@
           "text_no_conferences_found_description": "Create or edit another conference first, then come back here to reuse its setup.",
           "text_no_template_description": "No template description yet.",
           "text_no_templates_yet": "No saved templates yet",
-          "text_no_templates_yet_description": "Save the current configuration once, then reuse it for future conferences.",
+          "text_no_templates_yet_description": "Start by creating a new template or copying settings from an existing conference.",
           "text_only_you_can_use_it": "Private to your account",
           "text_pick_source_description": "Choose a source, then apply only the sections you want to reuse.",
           "text_rebuttal_and_decision": "Rebuttal & decisions",
@@ -1389,7 +1403,9 @@
           "text_template_deleted_description": "The saved template has been removed.",
           "text_template_name": "Template name",
           "text_template_saved": "Template saved",
-          "text_template_saved_description": "\"{name}\" is ready to reuse.",
+          "text_template_saved_title": "Template created successfully",
+          "text_template_saved_description": "Your new conference template is now ready to use for future conferences.",
+          "text_template_name_required": "Please enter a template name",
           "text_template_scope": "Visibility",
           "text_templates_and_copying": "Conference templates",
           "text_templates_and_copying_description": "Save this setup or copy selected sections from another conference.",
@@ -1409,8 +1425,14 @@
             "text_chair_actions": "Chair Actions",
             "text_created_assignment_suggestions": "Created {assignments} suggestions for {submissions} papers",
             "text_failed_to_run_auto_assignment": "Failed to run auto-assignment",
+            "text_failed_to_update_conference_status": "Failed to update conference status",
+            "text_failed_to_update_conference_status_description": "Please try again in a moment.",
             "text_next_milestone": "Next Milestone",
-            "text_running": "Running..."
+            "text_running": "Running...",
+            "text_archive_conference": "Archive conference",
+            "text_unarchive_conference": "Unarchive conference",
+            "text_archived_success": "Conference archived",
+            "text_unarchived_success": "Conference restored to completed"
           },
           "conference-assignments": {
             "prop_label_accepted": "Accepted",
@@ -1432,7 +1454,7 @@
             "text_assigned_reviewer": "assigned reviewer",
             "text_cancel": "Cancel",
             "text_confirm": "Confirm",
-            "text_confirm_suggestions_from_the_ldquo_pending": "Confirm suggestions from the &ldquo;Pending Suggestions&rdquo; tab to see them here.",
+            "text_confirm_suggestions_from_the_ldquo_pending": "Confirm suggestions from the Pending Suggestions tab to see them here.",
             "text_confirmed_assignments": "Confirmed Assignments",
             "text_conflict_of_interest_warning": "Conflict of Interest Warning",
             "text_expertise": "Expertise:",
@@ -1444,12 +1466,12 @@
             "text_no_confirmed_assignments": "No Confirmed Assignments",
             "text_no_pending_suggestions": "No Pending Suggestions",
             "text_pending_suggestions": "Pending Suggestions",
-            "text_rdquo": "&rdquo;",
+            "text_rdquo": " ",
             "text_remove": "Remove",
             "text_review_and_manage_reviewer_assignments_for": "Review and manage reviewer assignments for submissions.",
             "text_reviewer_assignments": "Reviewer Assignments",
             "text_run_auto_assignment_from_the_actions": "Run auto-assignment from the Actions panel to generate reviewer suggestions, or all suggestions have been confirmed.",
-            "text_select_a_reviewer_to_assign_to": "Select a reviewer to assign to &ldquo;",
+            "text_select_a_reviewer_to_assign_to": "Select a reviewer to assign to",
             "text_suggested_reviewer": "suggested reviewer",
             "text_the_assignment_has_been_created_you": "The assignment has been created. You may want to review this assignment before confirming.",
             "text_the_reviewer_was_added_but_has": "The reviewer was added but has potential conflicts of interest:",
@@ -1487,6 +1509,7 @@
           },
           "conference-committee": {
             "text_accepted": "Accepted",
+            "text_committee_subtitle": "Invite and manage reviewers for this conference.",
             "text_add_directly": "Add directly",
             "text_area_chairs": "Area Chairs",
             "text_committee_members": "Committee Members",
@@ -1803,6 +1826,7 @@
           "text_continue_editing": "Continue Editing",
           "text_dashboard": "Dashboard",
           "text_edit_details": "Edit Details",
+          "text_more_actions": "More actions",
           "text_settings": "Settings",
           "text_setup": "Setup",
           "text_view_archive": "View Archive"
@@ -1833,6 +1857,8 @@
           "prop_title_no_archived_conferences": "No archived conferences",
           "prop_title_no_conferences_to_explore": "No conferences to explore",
           "prop_title_no_conferences_yet": "No conferences yet",
+          "prop_title_no_draft_conferences": "No draft conferences",
+          "prop_description_conferences_you_save_as_drafts_will_appear_here": "Conferences you save as drafts will appear here.",
           "text_no_results_found": "No results found",
           "text_try_adjusting_your_search_terms": "Try adjusting your search terms"
         },
@@ -1871,12 +1897,18 @@
       },
       "dashboard-sidebar": {
         "text_account_settings": "Account Settings",
+        "text_active": "Active",
+        "text_change_role": "Switch Role",
         "text_all_recent_conferences_archived": "All recent conferences are archived from your sidebar.",
         "text_archive_recent_conference": "Archive from recent conferences",
         "text_archived_recent_conferences": "Archived Recent",
         "text_change": "Change",
         "text_change_language": "Change Language",
         "text_conferencespace": "ConferenceSpace",
+        "text_failed_to_archive_recent_conference": "Failed to archive recent conference",
+        "text_failed_to_archive_recent_conference_description": "The conference was not archived. Please try again.",
+        "text_failed_to_restore_recent_conference": "Failed to restore recent conference",
+        "text_failed_to_restore_recent_conference_description": "The conference was not restored. Please try again.",
         "text_guest": "Guest",
         "text_hide_archived_recent": "Hide archived",
         "text_loading_conferences": "Loading conferences...",
@@ -1892,14 +1924,14 @@
       "notifications": {
         "empty-state": {
           "text_no_new_notifications_at_the_moment": "No new notifications at the moment. Check back later for updates on your submissions and reviews.",
-          "text_you_apos_re_all_caught_up": "You&apos;re all caught up!"
+          "text_you_apos_re_all_caught_up": "You're all caught up!"
         },
         "notification-list": {
           "text_failed_to_load_notifications": "Failed to load notifications",
           "text_load_more": "Load more",
           "text_mark_all_as_read": "Mark all as read",
           "text_notifications": "Notifications",
-          "text_you_apos_ll_see_notifications_about": "You&apos;ll see notifications about submissions, reviews, and more here."
+          "text_you_apos_ll_see_notifications_about": "You'll see notifications about submissions, reviews, and more here."
         }
       },
       "profile": {
@@ -1960,17 +1992,20 @@
         },
         "completed-reviews": {
           "text_a_z": "(A-Z)",
+          "text_date": "Date",
+          "text_sort_by": "Sort by:",
+          "text_title": "Title",
           "text_action": "Action",
           "text_clear": "Clear",
           "text_done": "Done",
-          "text_for_ldquo": "for &ldquo;",
+          "text_for_ldquo": "for",
           "text_loading_completed_reviews": "Loading completed reviews...",
           "text_next": "Next",
           "text_newest": "(Newest)",
           "text_oldest": "(Oldest)",
           "text_paper": "Paper",
           "text_previous": "Previous",
-          "text_rdquo": "&rdquo;",
+          "text_rdquo": "",
           "text_showing": "Showing",
           "text_version": "Version",
           "text_view": "View",
@@ -2100,7 +2135,7 @@
             "text_ai_analysis_configuration": "AI Analysis Configuration",
             "text_ai_analysis_results": "AI Analysis Results",
             "text_ai_assistant": "AI Assistant",
-            "text_analysis_based_on_your_input": "Analysis based on your input: &quot;",
+            "text_analysis_based_on_your_input": "Analysis based on your input:",
             "text_analysis_is_still_processing": "Analysis is still processing...",
             "text_beta": "Beta",
             "text_cancel": "Cancel",
@@ -2112,9 +2147,9 @@
             "text_scoring_guide": "Scoring Guide",
             "text_start": "Start",
             "text_supplementary_material": "Supplementary Material",
-            "text_text": "&quot;",
+            "text_text": "",
             "text_view_analysis": "View analysis",
-            "text_view_full_reviewer_guide_rarr": "View full reviewer guide &rarr;"
+            "text_view_full_reviewer_guide_rarr": "View full reviewer guide"
           },
           "scoring-criteria": {
             "text_average_score": "Average Score",
@@ -2129,7 +2164,7 @@
           "text_last_draft_saved": "Last draft saved:",
           "text_scoring_criteria": "Scoring Criteria",
           "text_scoring_guide": "Scoring Guide",
-          "text_view_full_reviewer_guide_rarr": "View full reviewer guide &rarr;"
+          "text_view_full_reviewer_guide_rarr": "View full reviewer guide"
         }
       },
       "shared": {
@@ -2368,7 +2403,7 @@
               "text_both_author_and_reviewer_identities_are": "Both author and reviewer identities are hidden. Authors must anonymize their submissions.",
               "text_double_blind": "Double-Blind",
               "text_double_blind_2": "Double-blind:",
-              "text_reviewers_know_author_identities_but_authors": "Reviewers know author identities, but authors don&apos;t know reviewer identities.",
+              "text_reviewers_know_author_identities_but_authors": "Reviewers know author identities, but authors don't know reviewer identities.",
               "text_single_blind": "Single-Blind",
               "text_single_blind_2": "Single-blind:",
               "title_policy_guidelines": "Policy & Guidelines",
@@ -2406,6 +2441,7 @@
           "wizard-action-bar": {
             "text_back": "Back",
             "text_create_conference": "Create Conference",
+            "text_template": "Template",
             "text_creating": "Creating...",
             "text_save_changes": "Save Changes",
             "text_save_draft": "Save Draft",

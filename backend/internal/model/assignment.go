@@ -36,7 +36,11 @@ type Assignment struct {
 	ReviewSubmittedAt      *time.Time      `db:"review_submitted_at"`
 	RebuttalStatus         string          `db:"rebuttal_status"`
 	RebuttalSubmittedAt    *time.Time      `db:"rebuttal_submitted_at"`
-	RebuttalAcknowledgedAt *time.Time      `db:"rebuttal_acknowledged_at"`
+	RebuttalAcknowledgedAt        *time.Time      `db:"rebuttal_acknowledged_at"`
+	PostRebuttalScore             *int            `db:"post_rebuttal_score"`
+	PostRebuttalRecommendation    *string         `db:"post_rebuttal_recommendation"`
+	PostRebuttalComment           *string         `db:"post_rebuttal_comment"`
+	PostRebuttalUpdatedAt         *time.Time      `db:"post_rebuttal_updated_at"`
 	CreatedAt              time.Time       `db:"created_at"`
 	UpdatedAt              time.Time       `db:"updated_at"`
 	ReviewerEmail          string          `db:"reviewer_email"`
@@ -82,6 +86,13 @@ const (
 	ConfidenceLow    = "low"
 )
 
+// Post-rebuttal recommendation constants
+const (
+	PostRebuttalRecommendationAccept     = "accept"
+	PostRebuttalRecommendationReject     = "reject"
+	PostRebuttalRecommendationBorderline = "borderline"
+)
+
 // ToDTO converts model to DTO
 func (a *Assignment) ToDTO() *dto.Assignment {
 	result := &dto.Assignment{
@@ -118,6 +129,12 @@ func (a *Assignment) ToDTO() *dto.Assignment {
 	result.RebuttalStatus = a.RebuttalStatus
 	result.RebuttalSubmittedAt = a.RebuttalSubmittedAt
 	result.RebuttalAcknowledgedAt = a.RebuttalAcknowledgedAt
+
+	// Add post-rebuttal fields
+	result.PostRebuttalScore = a.PostRebuttalScore
+	result.PostRebuttalRecommendation = a.PostRebuttalRecommendation
+	result.PostRebuttalComment = a.PostRebuttalComment
+	result.PostRebuttalUpdatedAt = a.PostRebuttalUpdatedAt
 
 	return result
 }

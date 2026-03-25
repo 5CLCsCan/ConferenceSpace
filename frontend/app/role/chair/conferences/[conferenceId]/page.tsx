@@ -14,6 +14,8 @@ import {
   ConferenceCOI,
   ConferenceSubmissions,
   ConferenceAssignments,
+  ConferenceRebuttalSettings,
+  ConferenceRebuttalManagement,
   type TabId,
   type ConferenceInfo,
 } from "@/components/chair/conference-detail"
@@ -55,13 +57,13 @@ export default function ChairConferenceDetailPage() {
       setLoading(true)
       setError(null)
       const response = await getConferenceById(conferenceId)
-      
+
       // Handle 403 Forbidden - redirect to unauthorized page
       if (response.status === 403) {
         router.push("/")
         return
       }
-      
+
       if (response.error || !response.data) {
         setError(response.error || "Failed to load conference")
         setLoading(false)
@@ -107,6 +109,13 @@ export default function ChairConferenceDetailPage() {
         return <ConferenceAssignments conferenceId={conferenceId} />
       case "coi":
         return <ConferenceCOI conferenceId={conferenceId} />
+      case "rebuttal":
+        return (
+          <div className="space-y-6">
+            <ConferenceRebuttalSettings conferenceId={conferenceId} />
+            <ConferenceRebuttalManagement conferenceId={conferenceId} />
+          </div>
+        )
       default:
         return null
     }

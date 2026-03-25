@@ -2,6 +2,10 @@
 
 > Source: Platform Reconnaissance — [platform-recon.md](./platform-recon.md)
 > Revision basis: Product-owner review feedback (workflow vs core-agent skill split).
+>
+> Canonical per-integration lifecycle records now live under [`docs/ai-integration/`](./ai-integration/).
+> Use [`docs/ai-integration/procedure.md`](./ai-integration/procedure.md) for folder rules and lifecycle handling.
+> Use the relevant `AI-xxx` document in that folder for current implementation state and evidence-backed verdicts.
 
 ---
 
@@ -35,11 +39,14 @@ This revision applies your requested boundary consistently.
 | Dependency      | Server-side tool layer for authenticated actions + approval gates + audit logs.                 |
 | Recon reference | Section 2, Section 3, Section 4, Section 6                                                      |
 
+**Canonical Detail Record:** [`docs/ai-integration/AI-001-conference-agent.md`](./ai-integration/AI-001-conference-agent.md)
+**Current Documentation Status:** AI-001 has a shipped implementation in the codebase, but the lifecycle record is the source of truth for the exact verdict, delivered scope, and remaining gaps.
+
 **Description:**
 This remains the core AI integration and control plane across roles. It is the correct place for conversational orchestration, while other "skill-like" features can be loaded into it instead of becoming standalone workflows.
 
 **Implementation Notes:**
-Current baseline exists in `frontend/app/layout.tsx`, `frontend/components/chatbot/chat-view.tsx`, and `frontend/app/api/chat/route.ts`. Current tooling is DOM-oriented (`getPageContext`, `performAction`), so production-safe state mutations should be added as server-backed tools mapped to typed API clients.
+Shipped v1 now spans the global frontend chatbot shell, Next.js chat/session proxy routes, and the dedicated `ai-service` runtime. The current tool surface remains DOM-oriented (`getPageContext`, `performAction`), while the detailed AI-001 lifecycle record documents what is shipped versus what still needs server-backed role-aware tools and approval-gated actions.
 
 ---
 
@@ -64,6 +71,9 @@ This is still a high-priority workflow because it affects pipeline quality and r
 
 **Implementation Notes:**
 Existing precheck API and UI are already integrated: `frontend/lib/api/papers.ts` (`precheckPaper`) and `frontend/components/author/submit/file-upload-step.tsx`. Needed step is moving from advisory precheck to formal gating policy.
+
+**Canonical Detail Record:** [`docs/ai-integration/AI-002-submission-material-gating.md`](./ai-integration/AI-002-submission-material-gating.md)
+**Current Documentation Status:** AI-002 currently has an advisory precursor in the frontend and Go backend, but the lifecycle record is the source of truth for the implementation-ready design baseline, current `needs work` verdict, and remaining gap to a deterministic `ai-service` workflow.
 
 ---
 

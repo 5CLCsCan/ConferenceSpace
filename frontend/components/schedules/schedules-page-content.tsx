@@ -257,9 +257,7 @@ function TimelineView({ events }: { events: ScheduleEvent[] }) {
         >
           event_busy
         </span>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          No upcoming events found
-        </p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">No upcoming events found</p>
         <p className="text-xs text-slate-400 mt-1">
           Events will appear here when conferences have deadlines configured
         </p>
@@ -273,9 +271,7 @@ function TimelineView({ events }: { events: ScheduleEvent[] }) {
         <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
           Event Timeline
         </h3>
-        <p className="text-[10px] text-slate-400 mt-0.5">
-          {sortedEvents.length} upcoming events
-        </p>
+        <p className="text-[10px] text-slate-400 mt-0.5">{sortedEvents.length} upcoming events</p>
       </div>
 
       <div className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -577,9 +573,8 @@ export function SchedulesPageContent({ role }: SchedulesPageContentProps) {
         <QuickStatCard
           label="Upcoming Events"
           value={
-            filteredEvents.filter(
-              (e) => getDaysUntil(e.date) >= 0 && getDaysUntil(e.date) <= 30,
-            ).length
+            filteredEvents.filter((e) => getDaysUntil(e.date) >= 0 && getDaysUntil(e.date) <= 30)
+              .length
           }
           sublabel="Next 30 days"
         />

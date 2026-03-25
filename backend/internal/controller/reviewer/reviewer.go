@@ -16,6 +16,7 @@ import (
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	rebuttalStorage "github.com/dcao/conferencespace/internal/storage/rebuttal"
 	reviewerStorage "github.com/dcao/conferencespace/internal/storage/reviewer"
+	submissionStorage "github.com/dcao/conferencespace/internal/storage/submission"
 	userStorage "github.com/dcao/conferencespace/internal/storage/user"
 	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
@@ -28,6 +29,7 @@ type Controller struct {
 	roleStorage         conferenceuserrole.StorageInterface
 	userStorage         userStorage.StorageInterface
 	conferenceStorage   conferenceStorage.StorageInterface
+	submissionStorage   submissionStorage.StorageInterface
 	coiService          *coiService.Service
 	notificationService *notificationService.Service
 }
@@ -40,6 +42,7 @@ func New(store *storage.Storage, coiSvc *coiService.Service) *Controller {
 		roleStorage:       store.ConferenceUserRole,
 		userStorage:       store.User,
 		conferenceStorage: store.Conference,
+		submissionStorage: store.Submission,
 		coiService:        coiSvc,
 	}
 }
@@ -53,6 +56,7 @@ func NewWithNotifications(store *storage.Storage, coiSvc *coiService.Service, no
 		roleStorage:         store.ConferenceUserRole,
 		userStorage:         store.User,
 		conferenceStorage:   store.Conference,
+		submissionStorage:   store.Submission,
 		coiService:          coiSvc,
 		notificationService: notifService,
 	}
@@ -596,9 +600,35 @@ func (c *Controller) AcknowledgeRebuttal(ginCtx *gin.Context, req *dto.Acknowled
 		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
 	}
 
+	// Phase guard: conference rebuttal must be open (awaiting or submitted)
+	confRebuttal, err := c.conferenceStorage.GetRebuttalSettings(ctx, req.ConferenceID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to check rebuttal phase")
+	}
+	if confRebuttal.Phase == model.ConferenceRebuttalPhaseNotStarted || confRebuttal.Phase == model.ConferenceRebuttalPhaseFinalized {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest,
+			fmt.Sprintf("rebuttal acknowledgment not allowed in phase: %s", confRebuttal.Phase))
+	}
+
 	assignment, err := c.assignmentStorage.AcknowledgeRebuttal(ctx, req.AssignmentID)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	// Notify author that their rebuttal was acknowledged (fire-and-forget)
+	if c.notificationService != nil {
+		go func() {
+			bgCtx := context.Background()
+			conf, _ := c.conferenceStorage.GetByID(bgCtx, req.ConferenceID)
+			if conf != nil {
+				sub, _ := c.submissionStorage.GetByID(bgCtx, assignment.SubmissionID)
+				if sub != nil {
+					if err := c.notificationService.NotifyRebuttalAcknowledged(bgCtx, sub.Author, sub.Title, conf.Title, req.ConferenceID, assignment.SubmissionID); err != nil {
+						fmt.Printf("Warning: failed to notify author %s: %v\n", sub.Author, err)
+					}
+				}
+			}
+		}()
 	}
 
 	return &dto.RebuttalStatusResponse{

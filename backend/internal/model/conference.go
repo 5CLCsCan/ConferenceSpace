@@ -36,9 +36,20 @@ const (
 
 // Conference status constants
 const (
+	ConferenceStatusDraft     = "draft"     // Draft, not visible to authors/reviewers
 	ConferenceStatusOpen      = "open"      // Accepting submissions
 	ConferenceStatusReviewing = "reviewing" // Submissions closed, under review
 	ConferenceStatusCompleted = "completed" // Conference finished
+	ConferenceStatusArchived  = "archived"  // Explicitly archived by chair
+)
+
+// Conference-level rebuttal phase constants (for new dedicated columns)
+const (
+	ConferenceRebuttalPhaseNotStarted = "not_started"
+	ConferenceRebuttalPhaseAwaiting   = "awaiting"
+	ConferenceRebuttalPhaseSubmitted  = "submitted"
+	ConferenceRebuttalPhaseDiscussion = "discussion"
+	ConferenceRebuttalPhaseFinalized  = "finalized"
 )
 
 type Conference struct {
@@ -51,8 +62,15 @@ type Conference struct {
 	Domain         pq.StringArray `db:"domain"`
 	Tracks         pq.StringArray `db:"tracks"`
 	Venue          string         `db:"venue"`
-	Configurations []byte         `db:"configurations"`
-	Status         string         `db:"status"`
+	Configurations   []byte         `db:"configurations"`
+	Status           string         `db:"status"`
+	RebuttalEnabled   bool       `db:"rebuttal_enabled"`
+	RebuttalPhase     string     `db:"rebuttal_phase"`
+	RebuttalStartAt   *time.Time `db:"rebuttal_start_at"`
+	RebuttalDeadline  *time.Time `db:"rebuttal_deadline"`
+	CharLimitGeneral  int        `db:"char_limit_general"`
+	CharLimitPerPoint int        `db:"char_limit_per_point"`
+	AllowDiscussion   bool       `db:"allow_discussion"`
 	CreatedAt      time.Time      `db:"created_at"`
 	UpdatedAt      time.Time      `db:"updated_at"`
 

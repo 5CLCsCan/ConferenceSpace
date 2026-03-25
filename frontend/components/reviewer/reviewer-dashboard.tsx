@@ -75,9 +75,18 @@ export function ReviewerDashboard() {
           label={t("runtime.components.reviewer.reviewer-dashboard.text_total_assigned")}
           value={(stats?.pending || 0) + (stats?.in_progress || 0) + (stats?.completed || 0)}
         />
-        <StatCard label={t("runtime.components.reviewer.reviewer-dashboard.text_pending")} value={stats?.pending || 0} />
-        <StatCard label={t("runtime.components.reviewer.reviewer-dashboard.text_in_progress")} value={stats?.in_progress || 0} />
-        <StatCard label={t("runtime.components.reviewer.reviewer-dashboard.text_completed")} value={stats?.completed || 0} />
+        <StatCard
+          label={t("runtime.components.reviewer.reviewer-dashboard.text_pending")}
+          value={stats?.pending || 0}
+        />
+        <StatCard
+          label={t("runtime.components.reviewer.reviewer-dashboard.text_in_progress")}
+          value={stats?.in_progress || 0}
+        />
+        <StatCard
+          label={t("runtime.components.reviewer.reviewer-dashboard.text_completed")}
+          value={stats?.completed || 0}
+        />
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
@@ -87,7 +96,7 @@ export function ReviewerDashboard() {
           </h2>
         </div>
         {recentAssignments.length === 0 ? (
-          <div className="px-4 py-6 text-sm text-slate-500 dark:text-slate-400">
+          <div className="px-4 py-6 text-[12px] text-slate-500 dark:text-slate-400">
             {t("runtime.components.reviewer.reviewer-dashboard.text_no_recent_assignments")}{" "}
           </div>
         ) : (

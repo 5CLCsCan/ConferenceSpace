@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/dcao/conferencespace/internal/clients/ai_service"
 	"github.com/dcao/conferencespace/internal/clients/gemini"
 	"github.com/dcao/conferencespace/internal/clients/neo4j"
 	"github.com/dcao/conferencespace/internal/clients/semantic_scholar"
@@ -14,6 +15,7 @@ import (
 type Clients struct {
 	Neo4j           *neo4j.Client
 	Gemini          *gemini.Client
+	AIService       *ai_service.Client
 	SemanticScholar *semantic_scholar.Client
 }
 
@@ -42,6 +44,11 @@ func NewClients(cfg *config.Config) (*Clients, error) {
 			Model:  cfg.Gemini.Model,
 		})
 	}
+
+	clients.AIService = ai_service.NewClient(ai_service.Config{
+		BaseURL:        cfg.AIService.BaseURL,
+		TimeoutSeconds: cfg.AIService.TimeoutSeconds,
+	})
 
 	// Initialize Semantic Scholar client if enabled
 	if cfg.SemanticScholar.Enabled {

@@ -444,6 +444,92 @@ func TestGetConferencePapers(t *testing.T) {
 	})
 }
 
+// TestReviewerDashboard_OffsetBeyondTotal verifies that requesting a page far
+// beyond the total result count returns 200 with empty (non-nil) slices.
+func TestReviewerDashboard_OffsetBeyondTotal(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	reviewerClient := NewClient(ctx)
+	reviewerToken, reviewer, err := ctx.RegisterUniqueUser("reviewer", "password123", "Reviewer", "User", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register reviewer: %v", err)
+	}
+
+	params := &DashboardParams{
+		ConferenceOffset: 9999,
+		ConferenceLimit:  10,
+		InvitationOffset: 9999,
+		InvitationLimit:  10,
+	}
+	resp, err := reviewerClient.GetDashboard(reviewer.Email, params, reviewerToken)
+	if err != nil {
+		t.Fatalf("Request failed: %v", err)
+	}
+	testutils.AssertStatusCode(t, resp, http.StatusOK)
+
+	var data struct {
+		Data *dto.ReviewerDashboardResponseWithPagination `json:"data"`
+	}
+	testutils.DecodeResponse(t, resp, &data)
+
+	if data.Data == nil {
+		t.Fatal("Response data is nil")
+	}
+	// Empty slices, not nil — callers must not need nil checks.
+	if data.Data.Conferences.Data == nil {
+		t.Error("Conferences.Data should be an empty slice, not nil")
+	}
+	if len(data.Data.Conferences.Data) != 0 {
+		t.Errorf("Expected 0 conferences at offset 9999, got %d", len(data.Data.Conferences.Data))
+	}
+	if data.Data.Invitations.Data == nil {
+		t.Error("Invitations.Data should be an empty slice, not nil")
+	}
+	if len(data.Data.Invitations.Data) != 0 {
+		t.Errorf("Expected 0 invitations at offset 9999, got %d", len(data.Data.Invitations.Data))
+	}
+}
+
+// TestReviewerDashboard_LimitZero verifies that limit=0 query params do not
+// cause a server error. The server should treat it as the default limit or
+// return an empty result — but must return 200.
+func TestReviewerDashboard_LimitZero(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	reviewerToken, reviewer, err := ctx.RegisterUniqueUser("reviewer", "password123", "Reviewer", "User", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register reviewer: %v", err)
+	}
+
+	// The reviewer client omits limit=0 (treats 0 as "unset"), so we call
+	// MakeRequest directly with explicit zero-limit query params.
+	path := fmt.Sprintf(
+		"/api/v1/reviewer/%s/dashboard?conference_limit=0&invitation_limit=0",
+		reviewer.Email,
+	)
+	resp, err := ctx.MakeRequest("GET", path, nil, reviewerToken)
+	if err != nil {
+		t.Fatalf("Request failed: %v", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("Expected 200, got %d", resp.StatusCode)
+	}
+
+	var data struct {
+		Data *dto.ReviewerDashboardResponseWithPagination `json:"data"`
+	}
+	testutils.DecodeResponse(t, resp, &data)
+	if data.Data == nil {
+		t.Fatal("Response data should not be nil")
+	}
+	t.Logf("limit=0 returned %d conferences, %d invitations",
+		len(data.Data.Conferences.Data),
+		len(data.Data.Invitations.Data),
+	)
+}
+
 // TestGetCompletedPapers tests the GET /api/v1/reviewer/:reviewer_email/completed-papers endpoint
 func TestGetCompletedPapers(t *testing.T) {
 	ctx := testutils.NewTestContext(t)

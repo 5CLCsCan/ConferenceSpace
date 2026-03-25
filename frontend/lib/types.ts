@@ -85,7 +85,7 @@ export interface User {
 }
 
 // Conference status type - matches backend enum
-export type ConferenceStatus = "open" | "reviewing" | "completed"
+export type ConferenceStatus = "draft" | "open" | "reviewing" | "completed" | "archived"
 
 // Conference interface
 export interface Conference {

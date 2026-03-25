@@ -1,9 +1,20 @@
 "use client"
 
+import type { ReactNode } from "react"
 import type { ExploreConference, ExploreStatus } from "./types"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { tStatic as t } from "@/lib/i18n/static-translate"
+
+const PREVIEW_TEXT_LIMIT = 50
+
+function truncatePreviewText(value: string, limit = PREVIEW_TEXT_LIMIT) {
+  if (value.length <= limit) {
+    return value
+  }
+
+  return `${value.slice(0, Math.max(limit - 3, 0)).trimEnd()}...`
+}
 
 // -------------------------------------------------------------------------
 // Explore Status Badge
@@ -69,6 +80,8 @@ export function ExploreConferenceCard({
   primaryActionLabel,
   onPrimaryAction,
 }: ExploreConferenceCardProps) {
+  const descriptionPreview = truncatePreviewText(conference.fullDescription)
+  const locationPreview = truncatePreviewText(conference.location)
   const canUsePrimaryAction =
     conference.exploreStatus === "call-for-papers" &&
     typeof primaryActionLabel === "string" &&
@@ -96,13 +109,13 @@ export function ExploreConferenceCard({
 
         {/* Full Description */}
         <p className="text-[8px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-4">
-          {conference.fullDescription}
+          {descriptionPreview}
         </p>
 
         {/* Location */}
         <div className="space-y-1.5 mb-4">
           <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 leading-snug">
-            {conference.location}
+            {locationPreview}
           </p>
           <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500">
             {conference.dates}
@@ -156,9 +169,14 @@ export function ExploreConferenceCard({
 interface ArchivedConferenceCardProps {
   conference: ExploreConference
   onViewDetails: (id: string) => void
+  moreMenu?: ReactNode
 }
 
-export function ArchivedConferenceCard({ conference, onViewDetails }: ArchivedConferenceCardProps) {
+export function ArchivedConferenceCard({
+  conference,
+  onViewDetails,
+  moreMenu,
+}: ArchivedConferenceCardProps) {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 group flex flex-col h-full opacity-90 hover:opacity-100">
       {/* Card Content */}
@@ -174,12 +192,7 @@ export function ArchivedConferenceCard({ conference, onViewDetails }: ArchivedCo
             </span>
             {t("runtime.components.conference.explore-cards.text_archived")}{" "}
           </span>
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="text-slate-300 hover:text-[#1B3C53] dark:hover:text-white transition-colors"
-          >
-            <span className="material-symbols-outlined text-[14px]">more_horiz</span>
-          </button>
+          {moreMenu}
         </div>
 
         {/* Title */}
@@ -434,6 +447,8 @@ function ExploreListRow({
   primaryActionLabel?: string
   onPrimaryAction?: (id: string) => void
 }) {
+  const descriptionPreview = truncatePreviewText(conference.fullDescription)
+  const locationPreview = truncatePreviewText(conference.location)
   const canUsePrimaryAction =
     conference.exploreStatus === "call-for-papers" &&
     typeof primaryActionLabel === "string" &&
@@ -452,14 +467,14 @@ function ExploreListRow({
             {conference.name}
           </h3>
           <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 mt-0.5 line-clamp-1">
-            {conference.fullDescription}
+            {descriptionPreview}
           </p>
         </div>
 
         {/* Location */}
         <div className="px-4 py-3">
           <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 line-clamp-2">
-            {conference.location}
+            {locationPreview}
           </span>
         </div>
 
@@ -543,28 +558,18 @@ function ExploreListRow({
       <div className="lg:hidden p-4">
         <div className="flex items-start justify-between gap-3 mb-2">
           <ExploreStatusBadge status={conference.exploreStatus} />
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all shrink-0"
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: "18px", width: "18px", height: "18px", lineHeight: "1" }}
-            >
-              more_horiz
-            </span>
-          </button>
+          {moreMenu}
         </div>
 
         <h3 className="text-[13px] font-bold leading-[1.3] tracking-tight text-[#1B3C53] dark:text-white mb-0.5">
           {conference.name}
         </h3>
         <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 line-clamp-1 mb-2">
-          {conference.fullDescription}
+          {descriptionPreview}
         </p>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-slate-400 dark:text-slate-500 mb-2">
-          <span>{conference.location}</span>
+          <span>{locationPreview}</span>
           <span>{conference.dates}</span>
         </div>
 
@@ -617,6 +622,7 @@ function ExploreListRow({
 interface ArchivedConferenceListProps {
   conferences: ExploreConference[]
   onViewDetails: (id: string) => void
+  renderMoreMenu?: (conference: ExploreConference) => ReactNode
   /** Pagination props */
   currentPage?: number
   totalPages?: number
@@ -628,6 +634,7 @@ interface ArchivedConferenceListProps {
 export function ArchivedConferenceList({
   conferences,
   onViewDetails,
+  renderMoreMenu,
   currentPage = 1,
   totalPages = 1,
   totalItems,
@@ -724,6 +731,7 @@ export function ArchivedConferenceList({
             key={conference.id}
             conference={conference}
             onViewDetails={onViewDetails}
+            renderMoreMenu={renderMoreMenu}
           />
         ))}
       </div>
@@ -805,9 +813,11 @@ export function ArchivedConferenceList({
 function ArchivedListRow({
   conference,
   onViewDetails,
+  renderMoreMenu,
 }: {
   conference: ExploreConference
   onViewDetails: (id: string) => void
+  renderMoreMenu?: (conference: ExploreConference) => ReactNode
 }) {
   return (
     <div
@@ -855,17 +865,19 @@ function ArchivedListRow({
 
         {/* Actions */}
         <div className="px-2 py-3 pr-4 flex justify-center">
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all"
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: "18px", width: "18px", height: "18px", lineHeight: "1" }}
+          {renderMoreMenu?.(conference) ?? (
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all"
             >
-              more_horiz
-            </span>
-          </button>
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: "18px", width: "18px", height: "18px", lineHeight: "1" }}
+              >
+                more_horiz
+              </span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -881,17 +893,19 @@ function ArchivedListRow({
             </span>
             {t("runtime.components.conference.explore-cards.text_archived")}{" "}
           </span>
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all shrink-0"
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: "18px", width: "18px", height: "18px", lineHeight: "1" }}
+          {renderMoreMenu?.(conference) ?? (
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all shrink-0"
             >
-              more_horiz
-            </span>
-          </button>
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: "18px", width: "18px", height: "18px", lineHeight: "1" }}
+              >
+                more_horiz
+              </span>
+            </button>
+          )}
         </div>
 
         <h3 className="text-[13px] font-bold leading-[1.3] tracking-tight text-slate-600 dark:text-slate-400 mb-2">
