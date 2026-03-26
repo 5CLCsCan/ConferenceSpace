@@ -27,6 +27,8 @@ func (s *Storage) GetRebuttalSettings(ctx context.Context, conferenceID int64) (
 
 // SaveRebuttalSettings persists rebuttal configuration (does not change phase).
 func (s *Storage) SaveRebuttalSettings(ctx context.Context, conferenceID int64, req *dto.SaveRebuttalConfigRequest) (*dto.ConferenceRebuttalConfig, error) {
+	allowDiscussion := false
+
 	if req.CharLimitGeneral <= 0 {
 		req.CharLimitGeneral = 3000
 	}
@@ -43,7 +45,7 @@ func (s *Storage) SaveRebuttalSettings(ctx context.Context, conferenceID int64, 
 		    allow_discussion     = $6,
 		    updated_at           = NOW()
 		WHERE conference_id = $7
-	`, req.Enabled, req.StartAt, req.Deadline, req.CharLimitGeneral, req.CharLimitPerPoint, req.AllowDiscussion, conferenceID)
+	`, req.Enabled, req.StartAt, req.Deadline, req.CharLimitGeneral, req.CharLimitPerPoint, allowDiscussion, conferenceID)
 	if err != nil {
 		return nil, fmt.Errorf("save rebuttal settings: %w", err)
 	}
@@ -61,14 +63,14 @@ func (s *Storage) OpenRebuttal(ctx context.Context, conferenceID int64) error {
 
 	res, err := tx.ExecContext(ctx, `
 		UPDATE conferences SET rebuttal_phase = $1, updated_at = NOW()
-		WHERE conference_id = $2 AND rebuttal_phase = $3
+		WHERE conference_id = $2 AND rebuttal_phase = $3 AND rebuttal_enabled = TRUE
 	`, model.ConferenceRebuttalPhaseAwaiting, conferenceID, model.ConferenceRebuttalPhaseNotStarted)
 	if err != nil {
 		return fmt.Errorf("set conference rebuttal phase: %w", err)
 	}
 	affected, _ := res.RowsAffected()
 	if affected == 0 {
-		return fmt.Errorf("cannot open rebuttal: current phase is not 'not_started'")
+		return fmt.Errorf("cannot open rebuttal: ensure rebuttal is enabled and current phase is 'not_started'")
 	}
 
 	_, err = tx.ExecContext(ctx, `
