@@ -10,6 +10,7 @@ import {
 
 interface ConferenceRebuttalManagementProps {
   conferenceId: string
+  refreshKey?: number
 }
 
 const PHASE_LABELS: Record<string, { label: string; color: string }> = {
@@ -40,7 +41,10 @@ const SUBMISSION_PHASE_LABELS: Record<string, { text: string; color: string }> =
 
 type FilterType = "all" | "has_response" | "no_response"
 
-export function ConferenceRebuttalManagement({ conferenceId }: ConferenceRebuttalManagementProps) {
+export function ConferenceRebuttalManagement({
+  conferenceId,
+  refreshKey = 0,
+}: ConferenceRebuttalManagementProps) {
   const [overview, setOverview] = useState<RebuttalOverviewResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -62,7 +66,7 @@ export function ConferenceRebuttalManagement({ conferenceId }: ConferenceRebutta
   useEffect(() => {
     void load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conferenceId])
+  }, [conferenceId, refreshKey])
 
   async function handleAction(action: () => Promise<{ error: string | null }>) {
     setActionLoading(true)
@@ -78,6 +82,7 @@ export function ConferenceRebuttalManagement({ conferenceId }: ConferenceRebutta
 
   const phase = overview?.settings.phase ?? "not_started"
   const phaseInfo = PHASE_LABELS[phase] ?? PHASE_LABELS.not_started
+  const isRebuttalOff = !overview?.settings.enabled
 
   const filteredSubmissions = (overview?.submissions ?? []).filter((s) => {
     if (filter === "has_response") return s.has_response
@@ -109,7 +114,7 @@ export function ConferenceRebuttalManagement({ conferenceId }: ConferenceRebutta
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {phase === "not_started" && (
+            {phase === "not_started" && !isRebuttalOff && (
               <button
                 disabled={actionLoading}
                 onClick={() => handleAction(() => openRebuttal(conferenceId))}
@@ -117,6 +122,12 @@ export function ConferenceRebuttalManagement({ conferenceId }: ConferenceRebutta
               >
                 Open Rebuttal Period
               </button>
+            )}
+
+            {phase === "not_started" && isRebuttalOff && (
+              <span className="text-xs text-slate-500 dark:text-slate-400 italic">
+              Rebuttal is Off. Enable rebuttal in settings to open rebuttal period.
+              </span>
             )}
 
             {phase !== "not_started" && phase !== "finalized" && (

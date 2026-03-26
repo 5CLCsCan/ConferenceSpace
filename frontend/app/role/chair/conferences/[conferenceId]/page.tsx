@@ -51,6 +51,7 @@ export default function ChairConferenceDetailPage() {
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [rebuttalRefreshKey, setRebuttalRefreshKey] = useState(0)
 
   useEffect(() => {
     async function loadConference() {
@@ -112,8 +113,14 @@ export default function ChairConferenceDetailPage() {
       case "rebuttal":
         return (
           <div className="space-y-6">
-            <ConferenceRebuttalSettings conferenceId={conferenceId} />
-            <ConferenceRebuttalManagement conferenceId={conferenceId} />
+            <ConferenceRebuttalSettings
+              conferenceId={conferenceId}
+              onSaved={() => setRebuttalRefreshKey((prev) => prev + 1)}
+            />
+            <ConferenceRebuttalManagement
+              conferenceId={conferenceId}
+              refreshKey={rebuttalRefreshKey}
+            />
           </div>
         )
       default:

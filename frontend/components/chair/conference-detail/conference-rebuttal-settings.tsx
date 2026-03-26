@@ -26,7 +26,6 @@ export function ConferenceRebuttalSettings({
   const [deadline, setDeadline] = useState("")
   const [charLimitGeneral, setCharLimitGeneral] = useState(3000)
   const [charLimitPerPoint, setCharLimitPerPoint] = useState(1000)
-  const [allowDiscussion, setAllowDiscussion] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -43,7 +42,6 @@ export function ConferenceRebuttalSettings({
       setDeadline(s.deadline ? s.deadline.slice(0, 10) : "")
       setCharLimitGeneral(s.char_limit_general || 3000)
       setCharLimitPerPoint(s.char_limit_per_point || 1000)
-      setAllowDiscussion(s.allow_discussion)
     }
     void load()
   }, [conferenceId])
@@ -59,7 +57,7 @@ export function ConferenceRebuttalSettings({
       deadline: deadline ? new Date(deadline).toISOString() : null,
       char_limit_general: charLimitGeneral,
       char_limit_per_point: charLimitPerPoint,
-      allow_discussion: allowDiscussion,
+      allow_discussion: false,
     }
 
     const result = await saveRebuttalSettings(conferenceId, settings)
