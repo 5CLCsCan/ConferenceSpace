@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	aiServiceClient "github.com/dcao/conferencespace/internal/clients/ai_service"
 	"github.com/dcao/conferencespace/internal/assignment"
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
@@ -16,6 +17,7 @@ import (
 	assignmentStorage "github.com/dcao/conferencespace/internal/storage/assignment"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
+	fileStorage "github.com/dcao/conferencespace/internal/storage/file"
 	reviewerStorage "github.com/dcao/conferencespace/internal/storage/reviewer"
 	submissionStorage "github.com/dcao/conferencespace/internal/storage/submission"
 	"github.com/dcao/conferencespace/internal/utils"
@@ -28,36 +30,57 @@ type Controller struct {
 	assignmentStorage   assignmentStorage.StorageInterface
 	reviewerStorage     reviewerStorage.StorageInterface
 	submissionStorage   submissionStorage.StorageInterface
+	fileStorage         fileStorage.StorageInterface
 	conferenceStorage   conferenceStorage.StorageInterface
 	notificationService *notificationService.Service
 	coiService          *coiService.Service
 	roleStorage         conferenceuserrole.StorageInterface
+	briefingClient      reviewerBriefingClient
+}
+
+type reviewerBriefingClient interface {
+	LookupReviewerBriefing(
+		ctx context.Context,
+		token string,
+		requestPayload *aiServiceClient.ReviewerBriefingResolveRequest,
+	) (*aiServiceClient.ReviewerBriefingResolveResponse, error)
+	GenerateReviewerBriefing(
+		ctx context.Context,
+		token string,
+		requestPayload *aiServiceClient.ReviewerBriefingResolveRequest,
+		filename string,
+		fileContent []byte,
+	) (*aiServiceClient.ReviewerBriefingResolveResponse, error)
 }
 
 // New creates a new assignment controller
-func New(store *storage.Storage, assignmentService *assignment.Service, coiSvc *coiService.Service) *Controller {
+func New(store *storage.Storage, fileStore fileStorage.StorageInterface, briefingClient reviewerBriefingClient, assignmentService *assignment.Service, coiSvc *coiService.Service) *Controller {
 	return &Controller{
 		assignmentService: assignmentService,
 		assignmentStorage: store.Assignment,
 		reviewerStorage:   store.Reviewer,
 		submissionStorage: store.Submission,
+		fileStorage:       fileStore,
 		conferenceStorage: store.Conference,
 		coiService:        coiSvc,
 		roleStorage:       store.ConferenceUserRole,
+		briefingClient:    briefingClient,
 	}
 }
 
 // NewWithNotifications creates a new assignment controller with notification support
-func NewWithNotifications(store *storage.Storage, assignmentService *assignment.Service, notifSvc *notificationService.Service, coiSvc *coiService.Service) *Controller {
+func NewWithNotifications(store *storage.Storage, fileStore fileStorage.StorageInterface, briefingClient reviewerBriefingClient, assignmentService *assignment.Service, notifSvc *notificationService.Service, coiSvc *coiService.Service) *Controller {
 	return &Controller{
 		assignmentService:   assignmentService,
 		assignmentStorage:   store.Assignment,
 		reviewerStorage:     store.Reviewer,
 		submissionStorage:   store.Submission,
+		fileStorage:         fileStore,
 		conferenceStorage:   store.Conference,
 		notificationService: notifSvc,
 		coiService:          coiSvc,
 		roleStorage:         store.ConferenceUserRole,
+		briefingClient:      briefingClient,
 	}
 }
 

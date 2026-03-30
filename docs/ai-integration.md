@@ -85,19 +85,22 @@ Existing precheck API and UI are already integrated: `frontend/lib/api/papers.ts
 | Category        | text-analysis                                                                   |
 | Impact          | High                                                                            |
 | Feasibility     | Medium                                                                          |
-| Role(s)         | Reviewer (primary), Chair (secondary)                                           |
-| Trigger         | Reviewer opens assignment/review context.                                       |
-| Input           | Submission + metadata + optional precheck outputs + discussion summary.         |
-| Output          | Structured reviewer briefing (summary, contributions, weaknesses, focus areas). |
-| Risk/Concern    | Reviewer anchoring bias.                                                        |
-| Dependency      | Async analysis generation + caching by submission/version.                      |
+| Role(s)         | Reviewer (primary)                                                              |
+| Trigger         | Reviewer opens an assigned submission, selects AI Analysis, and clicks Start generating. |
+| Input           | Reviewer-visible submission only: manuscript content plus core submission metadata needed to orient the paper. No discussion, rebuttal, precheck, or chair-only context. |
+| Output          | Structured neutral pre-read briefing (summary, claimed contributions, notable parts, reviewer attention points). |
+| Risk/Concern    | Reviewer anchoring bias if the output becomes evaluative, predictive, or decision-oriented. |
+| Dependency      | Reviewer-safe manuscript access or extraction + synchronous generation + cache keyed by submission-state fingerprint. |
 | Recon reference | Section 3 (Reviewer), Section 4 (Review Execution)                              |
 
 **Description:**
-This remains a valid workflow because it is pre-computed, structured, and reused in the review process. It is more than ad hoc chat assistance.
+This remains a valid workflow because it produces a reusable structured artifact from the submission itself before the human review is written. It is not ad hoc chat and it is not a review-process context summary.
 
 **Implementation Notes:**
-Reviewer page already has a placeholder AI panel in `frontend/components/reviewer/submission-review/review-sidebar.tsx`, with mock output and TODO markers. Assignment context and review contracts already exist.
+The reviewer page already has the intended UI placement in `frontend/components/reviewer/submission-review/review-sidebar.tsx`, and assignment context resolution already exists. The previous AI-003 baseline that used abstract-only plus discussion or rebuttal context is invalidated; a real pre-read must ingest the actual manuscript content.
+
+**Canonical Detail Record:** [`docs/ai-integration/AI-003-reviewer-pre-read-briefing.md`](./ai-integration/AI-003-reviewer-pre-read-briefing.md)
+**Current Documentation Status:** AI-003 has been re-baselined as a submission-only neutral pre-read workflow. The lifecycle record is the source of truth for the corrected design, the current `needs work` verdict, and the required compatibility fixes.
 
 ---
 

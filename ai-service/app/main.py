@@ -14,9 +14,11 @@ from app.core.auth import IdentityProvider
 from app.core.config import Settings, get_settings
 from app.core.logging import configure_logging
 from app.db import create_engine, create_session_factory
-from app.repositories import GatingRunRepository
+from app.repositories import GatingRunRepository, ReviewerBriefingRepository
 from app.repositories.runtime_store import RuntimeStore
 from app.services import AgentRuntime, LLMClient, MetricsStore
+from app.workflows.reviewer_pre_read_briefing.runner import ReviewerPreReadBriefingRunner
+from app.workflows.reviewer_pre_read_briefing.router import router as reviewer_briefing_router
 from app.workflows.submission_gating.runner import SubmissionGatingRunner
 from app.workflows.submission_gating.router import router as submission_gating_router
 
@@ -36,6 +38,8 @@ class AppContainer:
     runtime: AgentRuntime
     submission_gating_repo: GatingRunRepository
     submission_gating_runner: SubmissionGatingRunner
+    reviewer_briefing_repo: ReviewerBriefingRepository
+    reviewer_briefing_runner: ReviewerPreReadBriefingRunner
 
 
 @asynccontextmanager
@@ -57,8 +61,13 @@ async def lifespan(app: FastAPI):
     llm_client = LLMClient(api_key=settings.openrouter_api_key, model=settings.agent_model)
     metrics = MetricsStore()
     submission_gating_repo = GatingRunRepository(session_factory)
+    reviewer_briefing_repo = ReviewerBriefingRepository(session_factory)
     submission_gating_runner = SubmissionGatingRunner(
         repo=submission_gating_repo,
+        llm_client=llm_client,
+    )
+    reviewer_briefing_runner = ReviewerPreReadBriefingRunner(
+        repo=reviewer_briefing_repo,
         llm_client=llm_client,
     )
     runtime = AgentRuntime(
@@ -81,6 +90,8 @@ async def lifespan(app: FastAPI):
         runtime=runtime,
         submission_gating_repo=submission_gating_repo,
         submission_gating_runner=submission_gating_runner,
+        reviewer_briefing_repo=reviewer_briefing_repo,
+        reviewer_briefing_runner=reviewer_briefing_runner,
     )
 
     try:
@@ -107,6 +118,7 @@ def create_app() -> FastAPI:
     app.include_router(status_router)
     app.include_router(agent_router)
     app.include_router(submission_gating_router)
+    app.include_router(reviewer_briefing_router)
     return app
 
 

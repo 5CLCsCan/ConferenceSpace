@@ -90,6 +90,95 @@ type FileMetadataPayload struct {
 	ContentType      string `json:"content_type,omitempty"`
 }
 
+type ReviewerBriefingSubmissionPayload struct {
+	Title    string   `json:"title"`
+	Abstract string   `json:"abstract"`
+	Keywords []string `json:"keywords,omitempty"`
+	Track    string   `json:"track,omitempty"`
+}
+
+type ReviewerBriefingFileMetadataPayload struct {
+	OriginalFilename string `json:"original_filename"`
+	SizeBytes        int64  `json:"size_bytes,omitempty"`
+	ContentType      string `json:"content_type,omitempty"`
+}
+
+type ReviewerBriefingResolveRequest struct {
+	Action                     string                              `json:"action"`
+	ConferenceID               int64                               `json:"conference_id"`
+	AssignmentID               int64                               `json:"assignment_id"`
+	SubmissionID               int64                               `json:"submission_id"`
+	Actor                      ActorPayload                        `json:"actor"`
+	SubmissionStateFingerprint string                              `json:"submission_state_fingerprint"`
+	Submission                 ReviewerBriefingSubmissionPayload   `json:"submission"`
+	FileMetadata               ReviewerBriefingFileMetadataPayload `json:"file_metadata"`
+}
+
+type ReviewerBriefingCachePayload struct {
+	Hit                        bool   `json:"hit"`
+	SubmissionStateFingerprint string `json:"submission_state_fingerprint"`
+}
+
+type ReviewerBriefingSubmissionSnapshot struct {
+	Title             string   `json:"title"`
+	AbstractSummary   string   `json:"abstract_summary"`
+	ManuscriptOverview string  `json:"manuscript_overview"`
+	Keywords          []string `json:"keywords,omitempty"`
+	Track             string   `json:"track,omitempty"`
+}
+
+type ReviewerBriefingContribution struct {
+	Label    string   `json:"label"`
+	Evidence []string `json:"evidence,omitempty"`
+	Source   string   `json:"source,omitempty"`
+}
+
+type ReviewerBriefingNotableElement struct {
+	Label  string `json:"label"`
+	Detail string `json:"detail"`
+	Source string `json:"source,omitempty"`
+}
+
+type ReviewerBriefingAttentionPoint struct {
+	Focus  string `json:"focus"`
+	Reason string `json:"reason,omitempty"`
+	Source string `json:"source,omitempty"`
+}
+
+type ReviewerBriefingScopeLimitation struct {
+	Label  string `json:"label"`
+	Detail string `json:"detail"`
+	Source string `json:"source,omitempty"`
+}
+
+type ReviewerBriefingGuardrails struct {
+	NoRecommendation bool   `json:"no_recommendation"`
+	NoScore          bool   `json:"no_score"`
+	BiasNotice       string `json:"bias_notice"`
+}
+
+type ReviewerBriefingArtifact struct {
+	SubmissionSnapshot      ReviewerBriefingSubmissionSnapshot `json:"submission_snapshot"`
+	ClaimedContributions    []ReviewerBriefingContribution     `json:"claimed_contributions,omitempty"`
+	NotableElements         []ReviewerBriefingNotableElement   `json:"notable_elements,omitempty"`
+	ReviewerAttentionPoints []ReviewerBriefingAttentionPoint   `json:"reviewer_attention_points,omitempty"`
+	StatedScopeLimitations  []ReviewerBriefingScopeLimitation  `json:"stated_scope_and_limitations,omitempty"`
+	Guardrails              ReviewerBriefingGuardrails         `json:"guardrails"`
+}
+
+type ReviewerBriefingErrorPayload struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+type ReviewerBriefingResolveResponse struct {
+	Status   string                        `json:"status"`
+	RunID    string                        `json:"run_id,omitempty"`
+	Cache    ReviewerBriefingCachePayload  `json:"cache"`
+	Artifact *ReviewerBriefingArtifact     `json:"artifact,omitempty"`
+	Error    *ReviewerBriefingErrorPayload `json:"error,omitempty"`
+}
+
 type GatingRunRequest struct {
 	Mode         string              `json:"mode"`
 	Source       string              `json:"source"`
@@ -249,6 +338,123 @@ func (c *Client) RunSubmissionMaterialGating(
 		return nil, fmt.Errorf("decode ai-service gating response: %w", err)
 	}
 
+	return &payload, nil
+}
+
+func (c *Client) LookupReviewerBriefing(
+	ctx context.Context,
+	token string,
+	requestPayload *ReviewerBriefingResolveRequest,
+) (*ReviewerBriefingResolveResponse, error) {
+	if c == nil || strings.TrimSpace(c.baseURL) == "" {
+		return nil, fmt.Errorf("ai-service client is not configured")
+	}
+	if requestPayload == nil {
+		return nil, fmt.Errorf("reviewer briefing request payload is required")
+	}
+
+	requestJSON, err := json.Marshal(requestPayload)
+	if err != nil {
+		return nil, fmt.Errorf("marshal reviewer briefing request: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		c.baseURL+"/api/v1/workflows/reviewer-pre-read-briefing/resolve",
+		bytes.NewReader(requestJSON),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("create reviewer briefing request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if normalizedToken := normalizeBearerToken(token); normalizedToken != "" {
+		req.Header.Set("Authorization", "Bearer "+normalizedToken)
+	}
+
+	return doJSONRequest[ReviewerBriefingResolveResponse](c.httpClient, req, "reviewer briefing workflow")
+}
+
+func (c *Client) GenerateReviewerBriefing(
+	ctx context.Context,
+	token string,
+	requestPayload *ReviewerBriefingResolveRequest,
+	filename string,
+	fileContent []byte,
+) (*ReviewerBriefingResolveResponse, error) {
+	if c == nil || strings.TrimSpace(c.baseURL) == "" {
+		return nil, fmt.Errorf("ai-service client is not configured")
+	}
+	if requestPayload == nil {
+		return nil, fmt.Errorf("reviewer briefing request payload is required")
+	}
+	if len(fileContent) == 0 {
+		return nil, fmt.Errorf("reviewer briefing file content is required")
+	}
+
+	requestJSON, err := json.Marshal(requestPayload)
+	if err != nil {
+		return nil, fmt.Errorf("marshal reviewer briefing request: %w", err)
+	}
+
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	if err := writer.WriteField("request_payload", string(requestJSON)); err != nil {
+		return nil, fmt.Errorf("write reviewer briefing request field: %w", err)
+	}
+	part, err := writer.CreateFormFile("file", filename)
+	if err != nil {
+		return nil, fmt.Errorf("create reviewer briefing file part: %w", err)
+	}
+	if _, err := part.Write(fileContent); err != nil {
+		return nil, fmt.Errorf("write reviewer briefing file content: %w", err)
+	}
+	if err := writer.Close(); err != nil {
+		return nil, fmt.Errorf("close reviewer briefing multipart body: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		c.baseURL+"/api/v1/workflows/reviewer-pre-read-briefing/resolve",
+		bytes.NewReader(body.Bytes()),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("create reviewer briefing request: %w", err)
+	}
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	if normalizedToken := normalizeBearerToken(token); normalizedToken != "" {
+		req.Header.Set("Authorization", "Bearer "+normalizedToken)
+	}
+
+	return doJSONRequest[ReviewerBriefingResolveResponse](c.httpClient, req, "reviewer briefing workflow")
+}
+
+func doJSONRequest[T any](httpClient *http.Client, req *http.Request, operation string) (*T, error) {
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("call ai-service %s: %w", operation, err)
+	}
+	defer resp.Body.Close()
+
+	responseBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read ai-service %s response: %w", operation, err)
+	}
+
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
+		return nil, fmt.Errorf(
+			"ai-service %s failed: status=%d detail=%s",
+			operation,
+			resp.StatusCode,
+			extractErrorDetail(responseBody),
+		)
+	}
+
+	var payload T
+	if err := json.Unmarshal(responseBody, &payload); err != nil {
+		return nil, fmt.Errorf("decode ai-service %s response: %w", operation, err)
+	}
 	return &payload, nil
 }
 

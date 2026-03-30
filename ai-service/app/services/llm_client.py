@@ -4,6 +4,7 @@ import logging
 import json
 from typing import Any, AsyncIterator
 
+from pydantic import BaseModel, ValidationError
 logger = logging.getLogger(__name__)
 
 
@@ -163,6 +164,92 @@ class LLMClient:
         if not isinstance(parsed, list):
             return []
         return [item for item in parsed if isinstance(item, dict)]
+
+    async def complete_structured(
+        self,
+        *,
+        messages: list[dict[str, Any]],
+        response_model: type[BaseModel],
+        max_validation_retries: int = 1,
+    ) -> BaseModel:
+        acompletion = _get_acompletion()
+        response_format = None
+        if self._supports_native_structured_output():
+            response_format = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": response_model.__name__,
+                    "strict": True,
+                    "schema": response_model.model_json_schema(),
+                },
+            }
+
+        base_messages = list(messages)
+        if response_format is None:
+            schema_text = json.dumps(response_model.model_json_schema(), ensure_ascii=True)
+            base_messages = [
+                *base_messages,
+                {
+                    "role": "system",
+                    "content": (
+                        "Return only JSON matching this schema exactly. "
+                        f"Schema: {schema_text}"
+                    ),
+                },
+            ]
+
+        attempts = max_validation_retries + 1
+        last_error: Exception | None = None
+        current_messages = base_messages
+        for attempt in range(attempts):
+            request_kwargs: dict[str, Any] = {
+                "model": self.model,
+                "api_key": self.api_key,
+                "messages": current_messages,
+                "stream": False,
+                "temperature": 0,
+            }
+            if response_format is not None:
+                request_kwargs["response_format"] = response_format
+
+            response = await acompletion(**request_kwargs)
+            content = _extract_message_content(response)
+            try:
+                return response_model.model_validate_json(content)
+            except ValidationError as exc:
+                last_error = exc
+                if attempt >= max_validation_retries:
+                    raise
+                current_messages = [
+                    *base_messages,
+                    {
+                        "role": "system",
+                        "content": (
+                            "Corrective retry: the previous output failed schema validation. "
+                            "Return only valid JSON that matches the schema exactly."
+                        ),
+                    },
+                ]
+        if last_error is not None:
+            raise last_error
+        raise RuntimeError("structured completion failed without a validation error")
+
+    def _supports_native_structured_output(self) -> bool:
+        model = self.model.strip().lower()
+        return model.startswith("openrouter/") or model.startswith("openai/")
+
+
+def _extract_message_content(response: Any) -> str:
+    choices = response.get("choices") if isinstance(response, dict) else getattr(response, "choices", [])
+    if not choices:
+        return ""
+    message = choices[0].get("message") if isinstance(choices[0], dict) else getattr(choices[0], "message", None)
+    if not message:
+        return ""
+    content = message.get("content") if isinstance(message, dict) else getattr(message, "content", "")
+    if isinstance(content, list):
+        return " ".join(str(c.get("text", "")) for c in content if isinstance(c, dict)).strip()
+    return str(content or "").strip()
 
 
 def _get_acompletion():

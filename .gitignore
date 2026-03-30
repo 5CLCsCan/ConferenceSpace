@@ -44,3 +44,6 @@ __pycache__
 .pytest_cache
 chatbot-architecture
 .venv
+
+*.docx
+.gitnexus
