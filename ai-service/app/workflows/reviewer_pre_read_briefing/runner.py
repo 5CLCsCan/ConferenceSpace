@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import datetime, timezone
 from uuid import uuid4
 
@@ -11,6 +12,7 @@ from app.workflows.reviewer_pre_read_briefing.schemas import (
     ReviewerBriefingArtifact,
     ReviewerBriefingCacheMetadata,
     ReviewerBriefingError,
+    ReviewerBriefingReadinessSignal,
     ReviewerBriefingResolveRequest,
     ReviewerBriefingResolveResponse,
 )
@@ -25,6 +27,7 @@ MAX_MANUSCRIPT_CHARS = 24000
 MAX_MANUSCRIPT_ABSTRACT_CHARS = 3000
 MAX_SECTION_COUNT = 24
 MIN_TEXT_COVERAGE_RATIO = 0.01
+MAX_SIGNAL_EVIDENCE = 3
 
 EXTRACTORS = {
     "pdf": PDFExtractor(),
@@ -160,13 +163,14 @@ class ReviewerPreReadBriefingRunner:
         request: ReviewerBriefingResolveRequest,
         extracted_document: ExtractedDocument,
     ) -> ReviewerBriefingArtifact:
+        inference_payload = build_inference_payload(request=request, extracted_document=extracted_document)
         payload = await self._llm_client.complete_structured(
             messages=[
                 {"role": "system", "content": REVIEWER_BRIEFING_SYSTEM_PROMPT},
                 {
                     "role": "user",
                     "content": json.dumps(
-                        build_inference_payload(request=request, extracted_document=extracted_document),
+                        inference_payload,
                         ensure_ascii=True,
                         sort_keys=True,
                         separators=(",", ":"),
@@ -175,9 +179,14 @@ class ReviewerPreReadBriefingRunner:
             ],
             response_model=ReviewerBriefingArtifact,
         )
-        if isinstance(payload, BaseModel):
-            return ReviewerBriefingArtifact.model_validate(payload.model_dump(mode="json"))
-        return ReviewerBriefingArtifact.model_validate(payload)
+        artifact_payload = payload.model_dump(mode="json") if isinstance(payload, BaseModel) else payload
+        artifact = ReviewerBriefingArtifact.model_validate(artifact_payload)
+        if not artifact.review_readiness_signals:
+            artifact.review_readiness_signals = _build_fallback_readiness_signals(
+                hints=inference_payload["manuscript"]["review_readiness_hints"],
+                extracted_document=extracted_document,
+            )
+        return artifact
 
     async def _save_failed(
         self,
@@ -210,6 +219,7 @@ def build_inference_payload(
     request: ReviewerBriefingResolveRequest,
     extracted_document: ExtractedDocument,
 ) -> dict:
+    raw_text = _normalize_text(extracted_document.raw_text, MAX_MANUSCRIPT_CHARS)
     return {
         "submission": {
             "title": _normalize_text(request.submission.title, MAX_TITLE_CHARS),
@@ -226,7 +236,11 @@ def build_inference_payload(
             "figure_count": extracted_document.figure_count,
             "reference_count": extracted_document.reference_count,
             "text_coverage_ratio": extracted_document.text_coverage_ratio,
-            "raw_text": _normalize_text(extracted_document.raw_text, MAX_MANUSCRIPT_CHARS),
+            "raw_text": raw_text,
+            "review_readiness_hints": _derive_review_readiness_hints(
+                raw_text=raw_text,
+                section_headings=_normalize_sections(extracted_document.sections),
+            ),
         },
         "guardrails": {
             "no_recommendation": True,
@@ -288,3 +302,197 @@ def _dedupe_strings(values: list[str]) -> list[str]:
         seen.add(key)
         output.append(normalized.lower())
     return output
+
+
+def _derive_review_readiness_hints(*, raw_text: str, section_headings: list[str]) -> dict:
+    normalized_headings = [heading.casefold() for heading in section_headings]
+    normalized_text = raw_text.casefold()
+
+    section_presence = {
+        "related_work": _has_heading(normalized_headings, ["related work", "background"]),
+        "methodology": _has_heading(normalized_headings, ["method", "methods", "approach", "model", "system"]),
+        "experiments_or_evaluation": _has_heading(
+            normalized_headings,
+            ["experiment", "experiments", "evaluation", "results", "benchmarks"],
+        ),
+        "limitations": _has_heading(normalized_headings, ["limitation", "limitations", "scope"]),
+        "ethics_or_broader_impact": _has_heading(
+            normalized_headings,
+            ["ethic", "broader impact", "societal impact", "safety", "privacy", "fairness"],
+        ),
+        "appendix_or_supplement": _has_heading(normalized_headings, ["appendix", "supplement"]),
+    }
+
+    signal_specs = {
+        "baseline_or_comparison_mentions": [r"\bbaseline", r"\bcompare(?:d|s|ison)?\b", r"\bvs\.\b"],
+        "ablation_or_sensitivity_mentions": [r"\bablation", r"\bsensitivity\b", r"\berror analysis\b", r"\bfailure analysis\b"],
+        "reproducibility_path_mentions": [r"\bcode\b", r"\breproduc", r"\bimplementation details?\b", r"\bcheckpoint\b", r"\bgithub\b"],
+        "data_or_artifact_mentions": [r"\bdataset\b", r"\bdata\b", r"\bartifact\b", r"\bbenchmark\b"],
+        "statistics_or_uncertainty_mentions": [r"\berror bars?\b", r"\bconfidence interval", r"\bstatistical significance\b", r"\bp[- ]value", r"\bstandard deviation\b", r"\bstd\.?\b"],
+        "limitations_or_assumptions_mentions": [r"\blimitation", r"\bassumption", r"\bwe caution", r"\bdoes not generalize\b"],
+        "ethics_or_risk_mentions": [r"\bethic", r"\bfairness\b", r"\bprivacy\b", r"\bsafety\b", r"\bbroader impact\b", r"\bmisuse\b"],
+        "human_subjects_or_irb_mentions": [r"\bhuman subjects?\b", r"\birb\b", r"\binstitutional review board\b", r"\bcrowdsourc"],
+    }
+
+    signal_presence = {}
+    for label, patterns in signal_specs.items():
+        evidence = _collect_pattern_evidence(normalized_text, raw_text, patterns)
+        signal_presence[label] = {
+            "present": len(evidence) > 0,
+            "evidence": evidence,
+        }
+
+    return {
+        "section_presence": section_presence,
+        "signal_presence": signal_presence,
+    }
+
+
+def _build_fallback_readiness_signals(
+    *, hints: dict, extracted_document: ExtractedDocument
+) -> list[ReviewerBriefingReadinessSignal]:
+    section_presence = hints["section_presence"]
+    signal_presence = hints["signal_presence"]
+
+    evaluation_present = section_presence["experiments_or_evaluation"]
+    limitations_present = section_presence["limitations"] or signal_presence["limitations_or_assumptions_mentions"]["present"]
+
+    return [
+        _signal_item(
+            label="Claim-evidence alignment",
+            status="present" if evaluation_present else "partial",
+            detail=(
+                "The manuscript includes a visible evaluation/results section that appears to support the main system claims."
+                if evaluation_present
+                else "A concrete evaluation/results section is not clearly visible, so the reviewer should verify how strongly the central claims are supported."
+            ),
+        ),
+        _signal_item(
+            label="Evaluation coverage",
+            status="present" if evaluation_present and (extracted_document.table_count > 0 or extracted_document.figure_count > 0) else "partial" if evaluation_present else "not_found",
+            detail=(
+                f"The manuscript shows evaluation structure with {extracted_document.table_count} tables and {extracted_document.figure_count} figures available for inspection."
+                if evaluation_present and (extracted_document.table_count > 0 or extracted_document.figure_count > 0)
+                else "An evaluation/results section is visible, but the reviewer should inspect how complete the benchmark and analysis coverage actually is."
+                if evaluation_present
+                else "No clear evaluation/results section was detected in the extracted manuscript structure."
+            ),
+        ),
+        _signal_item(
+            label="Baseline or comparator coverage",
+            status="present" if signal_presence["baseline_or_comparison_mentions"]["present"] else "not_found",
+            detail=_signal_detail(
+                present_text="Baseline or comparison language is explicitly visible in the manuscript.",
+                missing_text="No explicit baseline/comparison cues were detected from the extracted manuscript hints.",
+                evidence=signal_presence["baseline_or_comparison_mentions"]["evidence"],
+                is_present=signal_presence["baseline_or_comparison_mentions"]["present"],
+            ),
+        ),
+        _signal_item(
+            label="Reproducibility path",
+            status="present" if signal_presence["reproducibility_path_mentions"]["present"] else "partial" if section_presence["methodology"] else "not_found",
+            detail=(
+                _signal_detail(
+                    present_text="Implementation or reproducibility cues are visible in the manuscript.",
+                    missing_text="No direct code/model/checkpoint/instructions cues were detected, so the reviewer should verify reproducibility support manually.",
+                    evidence=signal_presence["reproducibility_path_mentions"]["evidence"],
+                    is_present=signal_presence["reproducibility_path_mentions"]["present"],
+                )
+                if signal_presence["reproducibility_path_mentions"]["present"]
+                else "Methodology structure is visible, but the reproducibility path is not explicit in the extracted hints."
+                if section_presence["methodology"]
+                else "Neither a clear methodology structure nor explicit reproducibility cues were detected."
+            ),
+        ),
+        _signal_item(
+            label="Limitations transparency",
+            status="present" if limitations_present else "not_found",
+            detail=(
+                "The manuscript exposes explicit limitation or assumption cues that the reviewer can inspect directly."
+                if limitations_present
+                else "No clear limitations section or limitation-language cues were detected from the extracted manuscript hints."
+            ),
+        ),
+        _signal_item(
+            label="Ablation or failure analysis",
+            status="present" if signal_presence["ablation_or_sensitivity_mentions"]["present"] else "partial" if evaluation_present else "not_found",
+            detail=(
+                _signal_detail(
+                    present_text="Ablation, sensitivity, or failure-analysis cues are visible in the manuscript.",
+                    missing_text="No direct ablation or failure-analysis cues were detected from the extracted hints.",
+                    evidence=signal_presence["ablation_or_sensitivity_mentions"]["evidence"],
+                    is_present=signal_presence["ablation_or_sensitivity_mentions"]["present"],
+                )
+                if signal_presence["ablation_or_sensitivity_mentions"]["present"]
+                else "Evaluation structure exists, but ablation/failure-analysis coverage is not explicit from the extracted hints."
+                if evaluation_present
+                else "No evaluation structure was detected, so ablation/failure-analysis coverage is also not visible."
+            ),
+        ),
+        _signal_item(
+            label="Statistics or uncertainty reporting",
+            status="present" if signal_presence["statistics_or_uncertainty_mentions"]["present"] else "not_applicable" if not evaluation_present else "not_found",
+            detail=(
+                _signal_detail(
+                    present_text="Statistical or uncertainty-reporting cues are visible in the manuscript.",
+                    missing_text="No direct error-bar, confidence-interval, or statistical-test cues were detected from the extracted hints.",
+                    evidence=signal_presence["statistics_or_uncertainty_mentions"]["evidence"],
+                    is_present=signal_presence["statistics_or_uncertainty_mentions"]["present"],
+                )
+                if signal_presence["statistics_or_uncertainty_mentions"]["present"]
+                else "No empirical evaluation structure was detected, so this category may not apply."
+                if not evaluation_present
+                else "An evaluation section is visible, but uncertainty/statistics reporting cues were not detected in the extracted hints."
+            ),
+        ),
+        _signal_item(
+            label="Ethics or risk disclosure",
+            status="present" if signal_presence["ethics_or_risk_mentions"]["present"] or section_presence["ethics_or_broader_impact"] else "not_found",
+            detail=(
+                _signal_detail(
+                    present_text="Ethics, safety, fairness, privacy, or broader-impact cues are visible in the manuscript.",
+                    missing_text="No ethics/safety/fairness/privacy cues were detected from the extracted manuscript hints.",
+                    evidence=signal_presence["ethics_or_risk_mentions"]["evidence"],
+                    is_present=signal_presence["ethics_or_risk_mentions"]["present"] or section_presence["ethics_or_broader_impact"],
+                )
+            ),
+        ),
+    ]
+
+
+def _has_heading(headings: list[str], terms: list[str]) -> bool:
+    return any(any(term in heading for term in terms) for heading in headings)
+
+
+def _collect_pattern_evidence(normalized_text: str, raw_text: str, patterns: list[str]) -> list[str]:
+    evidence: list[str] = []
+    for pattern in patterns:
+        match = re.search(pattern, normalized_text)
+        if match is None:
+            continue
+        start = max(match.start() - 48, 0)
+        end = min(match.end() + 80, len(raw_text))
+        snippet = _normalize_text(raw_text[start:end], 160)
+        if not snippet or snippet in evidence:
+            continue
+        evidence.append(snippet)
+        if len(evidence) >= MAX_SIGNAL_EVIDENCE:
+            break
+    return evidence
+
+
+def _signal_item(*, label: str, status: str, detail: str) -> ReviewerBriefingReadinessSignal:
+    return ReviewerBriefingReadinessSignal(
+        label=label,
+        status=status,
+        detail=detail,
+        source="derived",
+    )
+
+
+def _signal_detail(*, present_text: str, missing_text: str, evidence: list[str], is_present: bool) -> str:
+    if not is_present:
+        return missing_text
+    if not evidence:
+        return present_text
+    return f"{present_text} Example cue: {evidence[0]}"

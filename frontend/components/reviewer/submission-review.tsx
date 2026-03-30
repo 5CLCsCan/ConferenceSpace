@@ -259,7 +259,12 @@ export function SubmissionReviewScreen({
 
               {/* Guide/Actionable Cards - 25% */}
               <div className="xl:col-span-1 space-y-4">
-                <AIAssistantCard conferenceId={conferenceId} assignmentId={assignmentId} />
+                <AIAssistantCard
+                  conferenceId={conferenceId}
+                  assignmentId={assignmentId}
+                  submissionId={submission.submissionId}
+                  submissionTitle={submission.title}
+                />
               </div>
             </div>
 

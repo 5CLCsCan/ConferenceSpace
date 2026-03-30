@@ -153,6 +153,33 @@ async def test_runner_generate_preprocesses_submission_and_manuscript_before_llm
     assert "rebuttal_context" not in normalized
     assert '"keywords":["review","workflow"]' in normalized
     assert "repeated   text" not in normalized
+    assert "review_readiness_hints" in normalized
+    assert "baseline_or_comparison_mentions" in normalized
+
+
+@pytest.mark.asyncio
+async def test_runner_populates_fallback_readiness_signals_when_model_returns_none(monkeypatch) -> None:
+    request = _make_valid_request(action="generate")
+
+    monkeypatch.setattr(
+        "app.workflows.reviewer_pre_read_briefing.runner.extract_document",
+        lambda *args, **kwargs: _make_extracted_document(),
+    )
+
+    payload = make_artifact_payload()
+    payload["review_readiness_signals"] = []
+
+    runner = ReviewerPreReadBriefingRunner(repo=_FakeRepo(), llm_client=_StructuredLLM(payload=payload))
+    response = await runner.resolve(
+        request=request,
+        file_bytes=b"%PDF-1.4",
+        filename="submission.pdf",
+    )
+
+    assert response.status == "ready"
+    assert response.artifact is not None
+    assert len(response.artifact.review_readiness_signals) >= 6
+    assert any(item.label == "Reproducibility path" for item in response.artifact.review_readiness_signals)
 
 
 @pytest.mark.asyncio

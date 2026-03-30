@@ -22,6 +22,13 @@ export interface ReviewerBriefingContribution {
   source?: "submission" | "derived"
 }
 
+export interface ReviewerBriefingReadinessSignal {
+  label: string
+  status: "present" | "partial" | "not_found" | "not_applicable"
+  detail: string
+  source?: "submission" | "derived"
+}
+
 export interface ReviewerBriefingNotableElement {
   label: string
   detail: string
@@ -42,6 +49,7 @@ export interface ReviewerBriefingScopeLimitation {
 
 export interface ReviewerBriefingArtifact {
   submission_snapshot: ReviewerBriefingSubmissionSnapshot
+  review_readiness_signals?: ReviewerBriefingReadinessSignal[]
   claimed_contributions: ReviewerBriefingContribution[]
   notable_elements: ReviewerBriefingNotableElement[]
   reviewer_attention_points: ReviewerBriefingAttentionPoint[]

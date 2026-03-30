@@ -101,9 +101,29 @@ class ReviewerBriefingGuardrails(BaseModel):
     bias_notice: str = Field(description="Reviewer-facing reminder that the briefing is assistive and non-binding.")
 
 
+class ReviewerBriefingReadinessSignal(BaseModel):
+    label: str = Field(
+        description="Neutral reviewer-useful signal category such as claim support, evaluation coverage, reproducibility path, or limitations disclosure."
+    )
+    status: Literal["present", "partial", "not_found", "not_applicable"] = Field(
+        description="Evidence status for this signal based only on the supplied submission and manuscript content."
+    )
+    detail: str = Field(
+        description="Compact factual note describing what evidence was found, missing, or only partially visible."
+    )
+    source: Literal["submission", "derived"] = Field(
+        default="derived",
+        description="Primary provenance for this readiness signal.",
+    )
+
+
 class ReviewerBriefingArtifact(BaseModel):
     submission_snapshot: ReviewerBriefingSubmissionSnapshot = Field(
         description="High-level submission orientation for the reviewer."
+    )
+    review_readiness_signals: list[ReviewerBriefingReadinessSignal] = Field(
+        default_factory=list,
+        description="Neutral evidence signals that help the reviewer understand what appears well-supported versus what may need closer verification.",
     )
     claimed_contributions: list[ReviewerBriefingContribution] = Field(
         default_factory=list,

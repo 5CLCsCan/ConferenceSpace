@@ -1,8 +1,16 @@
 "use client"
 
-import type { ReactNode } from "react"
+import { useEffect, useMemo, useState, type ReactNode } from "react"
 
 import useAssignmentBriefing from "@/hooks/use-assignment-briefing"
+import { downloadPaperFile } from "@/lib/api/papers"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import type { SubmissionDetails } from "./types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
@@ -56,135 +64,457 @@ export function AbstractCard({ submission }: AbstractCardProps) {
 interface AIAssistantCardProps {
   conferenceId: string
   assignmentId: string
+  submissionId: string
+  submissionTitle: string
 }
 
-export function AIAssistantCard({ conferenceId, assignmentId }: AIAssistantCardProps) {
+export function AIAssistantCard({
+  conferenceId,
+  assignmentId,
+  submissionId,
+  submissionTitle,
+}: AIAssistantCardProps) {
   const { t } = useTranslation()
   const { briefing, loading, generating, error, generateBriefing } = useAssignmentBriefing(
     conferenceId,
     assignmentId,
   )
+  const [open, setOpen] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [previewFilename, setPreviewFilename] = useState<string | null>(null)
+  const [previewLoading, setPreviewLoading] = useState(false)
+  const [previewError, setPreviewError] = useState<string | null>(null)
 
   const status = briefing?.status ?? "idle"
   const artifact = briefing?.artifact
+  const canView = status === "ready" && Boolean(artifact)
+  const readinessSignals = artifact?.review_readiness_signals ?? []
+  const notableElements = artifact?.notable_elements ?? []
+  const claimedContributions = artifact?.claimed_contributions ?? []
+  const attentionPoints = artifact?.reviewer_attention_points ?? []
+  const scopeLimitations = artifact?.stated_scope_and_limitations ?? []
+
+  useEffect(() => {
+    if (!open || previewUrl || previewLoading) {
+      return
+    }
+
+    let cancelled = false
+    setPreviewLoading(true)
+    setPreviewError(null)
+
+    void downloadPaperFile(submissionId, conferenceId)
+      .then((response) => {
+        if (cancelled) {
+          return
+        }
+        if (response.error || !response.data) {
+          setPreviewError(response.error || "Failed to load manuscript preview")
+          return
+        }
+        const objectUrl = window.URL.createObjectURL(response.data)
+        setPreviewUrl(objectUrl)
+        setPreviewFilename(response.filename)
+      })
+      .catch((previewIssue: unknown) => {
+        if (!cancelled) {
+          setPreviewError(
+            previewIssue instanceof Error
+              ? previewIssue.message
+              : "Failed to load manuscript preview",
+          )
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setPreviewLoading(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [conferenceId, open, previewLoading, previewUrl, submissionId])
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        window.URL.revokeObjectURL(previewUrl)
+      }
+    }
+  }, [previewUrl])
+
+  const statusCopy = useMemo(() => {
+    switch (status) {
+      case "ready":
+        return {
+          title: "Report generated",
+          body: "Submission pre-read is ready for you to inspect alongside the manuscript.",
+        }
+      case "stale":
+        return {
+          title: "Report out of date",
+          body: "The submission changed. Regenerate the analysis before relying on it.",
+        }
+      case "failed":
+        return {
+          title: "Generation failed",
+          body: "The system could not build the manuscript briefing. Retry once the source is available.",
+        }
+      case "idle":
+        return {
+          title: "No analysis yet",
+          body: "Generate a neutral manuscript briefing before you begin writing the review.",
+        }
+      default:
+        return {
+          title: "Checking analysis status",
+          body: "Looking up the latest reviewer pre-read artifact for this submission.",
+        }
+    }
+  }, [status])
 
   return (
-    <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl border border-cyan-100 p-4 relative overflow-hidden">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="font-bold text-[11px] text-cyan-950 flex items-center gap-1.5 uppercase tracking-wider">
-          <span className="material-symbols-outlined text-cyan-700 text-base">analytics</span>
-          {t("runtime.components.reviewer.submission-review.review-sidebar.text_ai_assistant")}
-        </h3>
-        <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-cyan-200 text-cyan-900 uppercase">
-          {status}
-        </span>
+    <>
+      <div className="rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50 via-fuchsia-50 to-white px-4 pt-4 pb-3 shadow-sm">
+        <div className="flex items-center justify-between">
+          <h3 className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#1B3C53]">
+            <span className="material-symbols-outlined text-[14px] text-violet-600">analytics</span>
+            {t("runtime.components.reviewer.submission-review.review-sidebar.text_ai_assistant")}
+          </h3>
+          <span className={statusBadgeClass(status)}>{status}</span>
+        </div>
+
+        <p className="mt-3 text-[8px] font-black uppercase tracking-[0.24em] text-violet-600/70">
+          Submission pre-read
+        </p>
+        <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#1B3C53]">
+          {statusCopy.title}
+        </p>
+        <p className="mt-2 text-[10px] font-normal leading-relaxed text-slate-700">
+          {statusCopy.body}
+        </p>
+
+        {loading ? (
+          <p className="mt-3 text-[10px] font-normal text-slate-500">
+            Checking existing submission pre-read.
+          </p>
+        ) : (
+          <>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              {(status === "idle" || status === "failed" || status === "stale") && (
+                <button
+                  type="button"
+                  onClick={() => void generateBriefing()}
+                  disabled={generating}
+                  className="inline-flex h-8 items-center justify-center gap-2 rounded-md bg-violet-600 px-4 text-[11px] font-bold tracking-wider text-white transition-all duration-200 hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-violet-300"
+                >
+                  <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
+                  {generating
+                    ? "Generating..."
+                    : status === "stale"
+                      ? "Regenerate report"
+                      : "Start generating"}
+                </button>
+              )}
+
+              {canView && (
+                <button
+                  type="button"
+                  onClick={() => setOpen(true)}
+                  className="inline-flex h-8 items-center justify-center gap-2 rounded-md border border-violet-200 bg-white/90 px-4 text-[11px] font-bold tracking-wider text-[#1B3C53] transition-all duration-200 hover:border-violet-300 hover:bg-white"
+                >
+                  <span className="material-symbols-outlined text-[14px]">visibility</span>
+                  View Analysis
+                </button>
+              )}
+            </div>
+
+            {error && (
+              <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[10px] text-red-700">
+                {error}
+              </div>
+            )}
+          </>
+        )}
       </div>
 
-      {loading ? (
-        <p className="text-[10px] text-cyan-900 leading-relaxed">Checking existing submission pre-read.</p>
-      ) : (
-        <>
-          <p className="text-[10px] text-cyan-900 mb-3 leading-relaxed">
-            Neutral manuscript-grounded pre-read for faster reviewer orientation. No score, no recommendation.
-          </p>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent
+          showCloseButton
+          className="h-[calc(100vh-2rem)] w-[min(1680px,calc(100vw-2rem))] max-w-none gap-0 overflow-y-auto border border-slate-200 bg-white p-0 shadow-2xl sm:max-w-none"
+        >
+          <DialogHeader className="sr-only">
+            <DialogTitle>Reviewer Pre-Read Analysis</DialogTitle>
+            <DialogDescription>
+              Read the manuscript and the neutral briefing side by side.
+            </DialogDescription>
+          </DialogHeader>
 
-          {(status === "idle" || status === "failed" || status === "stale") && (
-            <button
-              type="button"
-              onClick={() => void generateBriefing()}
-              disabled={generating}
-              className="w-full h-8 px-3 bg-cyan-700 hover:bg-cyan-800 disabled:bg-cyan-300 text-white text-[10px] font-bold rounded-md shadow-sm transition-all flex items-center justify-center gap-1.5"
-            >
-              <span className="material-symbols-outlined text-base">auto_awesome</span>
-              {generating
-                ? "Generating..."
-                : status === "stale"
-                  ? "Refresh briefing"
-                  : "Start generating"}
-            </button>
-          )}
-
-          {error && (
-            <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[10px] text-red-700">
-              {error}
-            </div>
-          )}
-
-          {artifact && (
-            <div className="mt-4 space-y-4">
-              <Section title="Summary">
-                <p className="text-[11px] text-slate-700 leading-relaxed">
-                  {artifact.submission_snapshot.abstract_summary}
-                </p>
-                <p className="mt-2 text-[10px] text-slate-600 leading-relaxed">
-                  {artifact.submission_snapshot.manuscript_overview}
-                </p>
-              </Section>
-
-              <Section title="Highlights">
-                <ItemList
-                  items={artifact.notable_elements.map((item) => `${item.label}: ${item.detail}`)}
-                />
-              </Section>
-
-              <Section title="Contributions">
-                <ItemList items={artifact.claimed_contributions.map((item) => item.label)} />
-              </Section>
-
-              <Section title="Attention Points">
-                <ItemList
-                  items={artifact.reviewer_attention_points.map((item) =>
-                    item.reason ? `${item.focus}: ${item.reason}` : item.focus,
-                  )}
-                />
-              </Section>
-
-              <Section title="Scope">
-                <ItemList
-                  items={artifact.stated_scope_and_limitations.map(
-                    (item) => `${item.label}: ${item.detail}`,
-                  )}
-                />
-              </Section>
-
-              <div className="rounded-md border border-slate-200 bg-white/80 px-3 py-2 text-[10px] text-slate-600">
-                {artifact.guardrails.bias_notice}
+          <div className="grid min-h-full grid-cols-1 xl:grid-cols-[0.42fr_0.58fr]">
+            <section className="flex min-h-0 flex-col border-b border-slate-200 bg-slate-100 xl:border-r xl:border-b-0">
+              <div className="min-h-0 flex-1 p-4">
+                <div className="flex h-full min-h-[320px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                  <div className="min-h-0 flex-1 bg-slate-100">
+                    {previewLoading ? (
+                      <div className="flex h-full items-center justify-center px-6">
+                        <div className="max-w-sm space-y-3 text-center">
+                          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">
+                            Loading preview
+                          </p>
+                          <p className="text-[11px] font-normal leading-relaxed text-slate-500">
+                            Fetching reviewer-visible manuscript file and preparing the reading
+                            pane.
+                          </p>
+                        </div>
+                      </div>
+                    ) : previewError ? (
+                      <div className="flex h-full items-center justify-center px-6">
+                        <div className="max-w-sm space-y-3 text-center">
+                          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-red-500">
+                            Preview unavailable
+                          </p>
+                          <p className="text-[11px] font-normal leading-relaxed text-slate-500">
+                            {previewError}
+                          </p>
+                        </div>
+                      </div>
+                    ) : previewUrl ? (
+                      <object
+                        aria-label={previewFilename || "Submission manuscript preview"}
+                        data={previewUrl}
+                        type="application/pdf"
+                        className="h-full w-full"
+                      >
+                        <div className="flex h-full items-center justify-center px-6">
+                          <div className="max-w-sm space-y-3 text-center">
+                            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">
+                              Preview unavailable
+                            </p>
+                            <p className="text-[11px] font-normal leading-relaxed text-slate-500">
+                              This browser could not render the PDF inline. Use the PDF button above
+                              to open the manuscript directly.
+                            </p>
+                          </div>
+                        </div>
+                      </object>
+                    ) : (
+                      <div className="flex h-full items-center justify-center px-6">
+                        <div className="max-w-sm space-y-3 text-center">
+                          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">
+                            Preview standby
+                          </p>
+                          <p className="text-[13px] font-medium leading-relaxed text-slate-500">
+                            The manuscript preview will appear here once the file has loaded.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
-        </>
-      )}
-    </div>
+            </section>
+
+            <section className="flex min-h-0 flex-col bg-white">
+              <div className="shrink-0 border-b border-slate-200 bg-white px-6 py-4">
+                <h2 className="text-sm font-bold tracking-tight text-[#1B3C53]">
+                  Submission Analysis
+                </h2>
+              </div>
+
+              <div className="min-h-0 flex-1 overflow-y-auto bg-[#F8FBFD] px-6 py-6">
+                {artifact ? (
+                  <div className="space-y-5">
+                    <div className="space-y-3 px-1">
+                      <div className="flex items-start gap-3">
+                        <h3 className="min-w-0 flex-1 text-lg font-black leading-tight tracking-tight text-slate-950">
+                          {artifact.submission_snapshot.title}
+                        </h3>
+                        {artifact.submission_snapshot.track ? (
+                          <span className="mt-1 shrink-0 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-slate-500">
+                            {artifact.submission_snapshot.track}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#456882]">
+                        Orientation snapshot
+                      </p>
+                      <p className="mt-3 text-[12px] font-medium leading-relaxed tracking-tight text-slate-900">
+                        {artifact.submission_snapshot.abstract_summary}
+                      </p>
+                      <p className="mt-3 text-[11px] font-normal leading-relaxed text-slate-600">
+                        {artifact.submission_snapshot.manuscript_overview}
+                      </p>
+                    </div>
+
+                    <SectionBlock title="Review Readiness Signals">
+                      {readinessSignals.length === 0 ? (
+                        <EmptyState text="No readiness signals were generated." />
+                      ) : (
+                        <div className="grid gap-3 md:grid-cols-2">
+                          {readinessSignals.map((signal) => (
+                            <div
+                              key={`${signal.label}-${signal.status}`}
+                              className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                            >
+                              <div className="flex items-center justify-between gap-3">
+                                <h5 className="text-[11px] font-bold tracking-tight text-slate-900">
+                                  {signal.label}
+                                </h5>
+                                <span className={signalPillClass(signal.status)}>
+                                  {signal.status}
+                                </span>
+                              </div>
+                              <p className="mt-2 text-[11px] font-normal leading-relaxed text-slate-600">
+                                {signal.detail}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </SectionBlock>
+
+                    <div className="grid gap-5 xl:grid-cols-2">
+                      <SectionBlock title="Claimed Contributions">
+                        <RichItemList
+                          items={claimedContributions.map((item) => ({
+                            title: item.label,
+                            body: item.evidence.join(" "),
+                          }))}
+                          emptyText="No contribution claims were extracted."
+                        />
+                      </SectionBlock>
+
+                      <SectionBlock title="Notable Elements">
+                        <RichItemList
+                          items={notableElements.map((item) => ({
+                            title: item.label,
+                            body: item.detail,
+                          }))}
+                          emptyText="No notable elements were extracted."
+                        />
+                      </SectionBlock>
+                    </div>
+
+                    <div className="grid gap-5 xl:grid-cols-2">
+                      <SectionBlock title="Reviewer Attention Points">
+                        <RichItemList
+                          items={attentionPoints.map((item) => ({
+                            title: item.focus,
+                            body: item.reason || "",
+                          }))}
+                          emptyText="No reviewer attention points were extracted."
+                        />
+                      </SectionBlock>
+
+                      <SectionBlock title="Scope And Limitations">
+                        <RichItemList
+                          items={scopeLimitations.map((item) => ({
+                            title: item.label,
+                            body: item.detail,
+                          }))}
+                          emptyText="No explicit scope boundaries were extracted."
+                        />
+                      </SectionBlock>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <p className="text-[10px] font-normal text-slate-500">
+                      No analysis artifact is available for viewing.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </section>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 
-function Section({
-  title,
-  children,
-}: {
-  title: string
-  children: ReactNode
-}) {
+function MetricBadge({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-white/70 bg-white/70 px-3 py-3">
-      <h4 className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">{title}</h4>
-      {children}
+    <div className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1.5">
+      <p className="text-[8px] font-black uppercase tracking-[0.22em] text-slate-400">{label}</p>
+      <p className="mt-0.5 text-xs font-bold tracking-tight text-slate-900">{value}</p>
     </div>
   )
 }
 
-function ItemList({ items }: { items: string[] }) {
+function statusBadgeClass(status: string) {
+  const tones: Record<string, string> = {
+    ready: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    stale: "border-amber-200 bg-amber-50 text-amber-700",
+    failed: "border-red-200 bg-red-50 text-red-700",
+    idle: "border-slate-200 bg-slate-100 text-slate-600",
+  }
+
+  return `inline-flex rounded-md border px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em] ${
+    tones[status] || tones.idle
+  }`
+}
+
+function signalPillClass(status: "present" | "partial" | "not_found" | "not_applicable") {
+  const tones = {
+    present: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    partial: "border-amber-200 bg-amber-50 text-amber-700",
+    not_found: "border-slate-200 bg-slate-100 text-slate-600",
+    not_applicable: "border-slate-200 bg-white text-slate-500",
+  }
+
+  return `inline-flex rounded-md border px-2 py-0.5 text-[8px] font-black uppercase tracking-[0.18em] ${
+    tones[status]
+  }`
+}
+
+function EmptyState({ text }: { text: string }) {
+  return <p className="text-[11px] font-medium leading-relaxed text-slate-500">{text}</p>
+}
+
+function RichItemList({
+  items,
+  emptyText,
+}: {
+  items: { title: string; body: string }[]
+  emptyText: string
+}) {
   if (items.length === 0) {
-    return <p className="text-[10px] text-slate-500">No items available.</p>
+    return <EmptyState text={emptyText} />
   }
 
   return (
-    <ul className="space-y-2">
+    <div className="space-y-3">
       {items.map((item) => (
-        <li key={item} className="text-[11px] text-slate-700 leading-relaxed">
-          {item}
-        </li>
+        <div
+          key={`${item.title}-${item.body}`}
+          className="rounded-xl border border-slate-200 bg-slate-50/70 p-3"
+        >
+          <p className="text-[12px] font-bold tracking-tight text-slate-900">{item.title}</p>
+          {item.body ? (
+            <p className="mt-1.5 text-[11px] font-normal leading-relaxed text-slate-600">
+              {item.body}
+            </p>
+          ) : null}
+        </div>
       ))}
-    </ul>
+    </div>
+  )
+}
+
+function SectionBlock({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="border-b border-slate-100 pb-3">
+        <h4 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#456882]">
+          {title}
+        </h4>
+      </div>
+      <div className="pt-4">{children}</div>
+    </div>
   )
 }

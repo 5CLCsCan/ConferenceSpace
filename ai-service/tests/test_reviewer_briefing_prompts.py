@@ -13,8 +13,10 @@ def test_system_prompt_is_single_runtime_contract() -> None:
     prompt = REVIEWER_BRIEFING_SYSTEM_PROMPT
 
     assert "reviewer pre-read briefing" in prompt.lower()
-    assert "submission and extracted manuscript content" in prompt.lower()
+    assert "submission, extracted manuscript content, and derived manuscript hints" in prompt.lower()
     assert "do not provide acceptance, rejection, or score predictions" in prompt.lower()
+    assert "review readiness" in prompt.lower()
+    assert "reproducibility path" in prompt.lower()
     assert "structured-output schema supplied with the request" in prompt.lower()
     assert "discussion" not in prompt.lower()
     assert "rebuttal" not in prompt.lower()
@@ -25,11 +27,14 @@ def test_response_schema_carries_field_guidance() -> None:
 
     assert parsed["type"] == "object"
     assert "submission_snapshot" in parsed["properties"]
+    assert "review_readiness_signals" in parsed["properties"]
     assert "guardrails" in parsed["properties"]
     snapshot = parsed["$defs"]["ReviewerBriefingSubmissionSnapshot"]["properties"]
     assert "abstract" in snapshot["abstract_summary"]["description"].lower()
     attention_point = parsed["$defs"]["ReviewerBriefingAttentionPoint"]["properties"]
     assert "reviewer should verify" in attention_point["focus"]["description"].lower()
+    signal = parsed["$defs"]["ReviewerBriefingReadinessSignal"]["properties"]
+    assert "evidence status" in signal["status"]["description"].lower()
 
 
 def test_user_payload_serialization_is_deterministic_and_minimal() -> None:
@@ -61,3 +66,5 @@ def test_user_payload_serialization_is_deterministic_and_minimal() -> None:
     assert set(parsed.keys()) == {"guardrails", "manuscript", "submission"}
     assert parsed["guardrails"]["no_recommendation"] is True
     assert parsed["manuscript"]["section_headings"] == ["Introduction", "Method", "Results"]
+    assert parsed["manuscript"]["review_readiness_hints"]["section_presence"]["methodology"] is True
+    assert "signal_presence" in parsed["manuscript"]["review_readiness_hints"]

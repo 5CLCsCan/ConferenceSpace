@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
 import { AIAssistantCard } from "../review-sidebar"
@@ -16,6 +16,14 @@ vi.mock("@/hooks/use-assignment-briefing", () => ({
           keywords: ["review"],
           track: "main",
         },
+        review_readiness_signals: [
+          {
+            label: "Claim support visibility",
+            status: "present",
+            detail: "Claims are tied to concrete manuscript evidence.",
+            source: "derived",
+          },
+        ],
         claimed_contributions: [{ label: "Structured pre-read workflow", evidence: [], source: "submission" }],
         notable_elements: [{ label: "Reviewer orientation", detail: "Focuses on reducing rereading effort.", source: "submission" }],
         reviewer_attention_points: [{ focus: "Verify manuscript support", reason: "Core claims depend on manuscript evidence.", source: "derived" }],
@@ -34,6 +42,14 @@ vi.mock("@/hooks/use-assignment-briefing", () => ({
   }),
 }))
 
+vi.mock("@/lib/api/papers", () => ({
+  downloadPaperFile: vi.fn(async () => ({
+    data: new Blob(["pdf"], { type: "application/pdf" }),
+    filename: "paper.pdf",
+    error: null,
+  })),
+}))
+
 vi.mock("@/lib/i18n/translation-context", () => ({
   useTranslation: () => ({
     t: (value: string) => value,
@@ -41,13 +57,30 @@ vi.mock("@/lib/i18n/translation-context", () => ({
 }))
 
 describe("AIAssistantCard", () => {
-  it("renders typed reviewer briefing sections without prompt textarea", () => {
-    render(<AIAssistantCard conferenceId="1" assignmentId="42" />)
+  it("renders a ready-state card and opens the modal analysis view on demand", () => {
+    vi.stubGlobal("URL", {
+      createObjectURL: vi.fn(() => "blob:preview"),
+      revokeObjectURL: vi.fn(),
+    })
 
-    expect(screen.getByText("Summary")).toBeInTheDocument()
-    expect(screen.getByText("Highlights")).toBeInTheDocument()
-    expect(screen.getByText("Attention Points")).toBeInTheDocument()
-    expect(screen.getByText("Structured reviewer pre-read workflow.")).toBeInTheDocument()
+    render(
+      <AIAssistantCard
+        conferenceId="1"
+        assignmentId="42"
+        submissionId="7"
+        submissionTitle="Reliable Systems"
+      />,
+    )
+
+    expect(screen.getByText("Report generated")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "View Analysis" })).toBeInTheDocument()
+    expect(screen.queryByText("Review Readiness Signals")).not.toBeInTheDocument()
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("button", { name: "View Analysis" }))
+
+    expect(screen.getByText("Reviewer Pre-Read Analysis")).toBeInTheDocument()
+    expect(screen.getByText("Review Readiness Signals")).toBeInTheDocument()
+    expect(screen.getByText("Claim support visibility")).toBeInTheDocument()
   })
 })

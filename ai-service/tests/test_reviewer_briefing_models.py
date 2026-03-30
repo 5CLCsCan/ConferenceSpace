@@ -42,6 +42,14 @@ def make_artifact_payload() -> dict:
             "keywords": ["review", "workflow"],
             "track": "main",
         },
+        "review_readiness_signals": [
+            {
+                "label": "Claim support visibility",
+                "status": "present",
+                "detail": "The manuscript links the workflow claim to concrete design rationale and reviewer workflow framing.",
+                "source": "derived",
+            }
+        ],
         "claimed_contributions": [
             {
                 "label": "Structured reviewer pre-read workflow",
