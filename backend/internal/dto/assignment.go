@@ -117,6 +117,11 @@ type ReviewGetRequest struct {
 	ConferenceID int64 `uri:"conference_id" binding:"required"`
 }
 
+type ReviewerBriefingRequest struct {
+	AssignmentID int64 `uri:"assignment_id" binding:"required"`
+	ConferenceID int64 `uri:"conference_id" binding:"required"`
+}
+
 // ReviewListRequest represents the request to list reviews for a submission
 type ReviewListRequest struct {
 	ConferenceID int64 `uri:"conference_id"`

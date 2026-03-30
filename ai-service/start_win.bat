@@ -3,6 +3,8 @@
 :: Requires: backend stack running (docker compose up in /backend)
 :: Usage: .\start_win.bat
 
+pip install .
+
 if not exist .env (
     echo [INFO] .env not found, initializing from .env.example...
     copy .env.example .env

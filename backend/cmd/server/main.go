@@ -355,8 +355,10 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 		// Assignment review routes (authentication required)
 		assignments := conferences.Group("/:conference_id/assignments")
 		{
-			assignments.PUT("/:assignment_id/review", handler.HandleRequestWithAll(ctrl.Assignment.SaveReview))
-			assignments.GET("/:assignment_id/review", handler.HandleRequestWithURI(ctrl.Assignment.GetReview))
+	assignments.PUT("/:assignment_id/review", handler.HandleRequestWithAll(ctrl.Assignment.SaveReview))
+	assignments.GET("/:assignment_id/review", handler.HandleRequestWithURI(ctrl.Assignment.GetReview))
+	assignments.GET("/:assignment_id/briefing", handler.HandleRequestWithURI(ctrl.Assignment.GetReviewerBriefing))
+	assignments.POST("/:assignment_id/briefing/generate", handler.HandleRequestWithURI(ctrl.Assignment.GenerateReviewerBriefing))
 			assignments.PUT("/:assignment_id/rebuttal/acknowledge", handler.HandleRequestWithURI(ctrl.Reviewer.AcknowledgeRebuttal))
 			assignments.PUT("/:assignment_id/rebuttal/points/:point_id/acknowledge", handler.HandleRequestWithAll(ctrl.Reviewer.AcknowledgePoint))
 
