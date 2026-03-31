@@ -2,9 +2,9 @@
 
 ## Status
 
-- State: corrected after full re-evaluation of product meaning, current code, and system compatibility.
-- Last updated: 2026-03-30
-- Purpose: lock the real AI-003 boundary so implementation stops drifting between "submission pre-read" and "review-process briefing."
+- State: implemented and verified as the shipped AI-003 baseline.
+- Last updated: 2026-03-31
+- Purpose: preserve the final design baseline that was implemented after the product-boundary reset.
 
 ## Primary References
 
@@ -200,9 +200,9 @@ Required `ai-service` verification:
 - cache hit and stale behavior match the corrected source contract
 - recommendation or scoring language is rejected or stripped
 
-## Readiness Verdict
+## Implementation Outcome
 
-This design is implementation-ready only in the corrected sense:
+This design was implemented on the corrected terms:
 
 - submission-only input
 - real manuscript ingestion
@@ -210,4 +210,4 @@ This design is implementation-ready only in the corrected sense:
 - reviewer-safe manuscript access in Go
 - synchronous generation with cache
 
-Anything that reintroduces discussion, rebuttal, abstract-only input, or fictional `submission_version` semantics is a regression from this design.
+Anything that reintroduces discussion, rebuttal, abstract-only input, or fictional `submission_version` semantics remains a regression from the shipped baseline.

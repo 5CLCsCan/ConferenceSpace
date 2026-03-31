@@ -100,7 +100,7 @@ This remains a valid workflow because it produces a reusable structured artifact
 The reviewer page already has the intended UI placement in `frontend/components/reviewer/submission-review/review-sidebar.tsx`, and assignment context resolution already exists. The previous AI-003 baseline that used abstract-only plus discussion or rebuttal context is invalidated; a real pre-read must ingest the actual manuscript content.
 
 **Canonical Detail Record:** [`docs/ai-integration/AI-003-reviewer-pre-read-briefing.md`](./ai-integration/AI-003-reviewer-pre-read-briefing.md)
-**Current Documentation Status:** AI-003 has been re-baselined as a submission-only neutral pre-read workflow. The lifecycle record is the source of truth for the corrected design, the current `needs work` verdict, and the required compatibility fixes.
+**Current Documentation Status:** AI-003 is now shipped as a submission-only neutral pre-read workflow. The lifecycle record is the source of truth for the delivered scope, verification status, and any remaining follow-up notes.
 
 ---
 
@@ -115,7 +115,7 @@ The reviewer page already has the intended UI placement in `frontend/components/
 | Role(s)         | Chair                                                                                                                        |
 | Trigger         | Chair opens submission decision context.                                                                                     |
 | Input           | Reviews, analytics, discussion history, submission timeline.                                                                 |
-| Output          | Non-binding recommendation package (evidence summary, disagreement map, suggested note); final decision remains chair-owned. |
+| Output          | Non-binding evidence package (evidence summary, disagreement map, suggested note); final decision remains chair-owned. |
 | Risk/Concern    | Automation bias in acceptance decisions; users may over-trust AI phrasing if authority boundaries are unclear.               |
 | Dependency      | Hard guardrail: no automatic decision commit and no autonomous status mutation.                                              |
 | Recon reference | Section 3 (Chair), Section 4 (Decision Workflow)                                                                             |
@@ -125,6 +125,9 @@ This remains one of the strongest workflow candidates: high impact and already d
 
 **Implementation Notes:**
 Chair detail loader already aggregates reviews, analytics, discussion, and history in `frontend/app/role/chair/conferences/[conferenceId]/submissions/[submissionId]/page.tsx`. Persisted decision states are currently accept/reject in `frontend/components/chair/submission-review-tab.tsx`; the copilot must never call `updateSubmissionStatus` automatically and should only support explicit chair-triggered decision actions.
+
+**Canonical Detail Record:** [`docs/ai-integration/AI-006-chair-decision-copilot.md`](./ai-integration/AI-006-chair-decision-copilot.md)
+**Current Documentation Status:** AI-006 is now shipped as a persisted, submission-scoped, advisory-only evidence synthesis workflow. The lifecycle record is the source of truth for the delivered boundary, verification status, and remaining follow-up notes.
 
 ---
 

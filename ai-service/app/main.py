@@ -14,11 +14,13 @@ from app.core.auth import IdentityProvider
 from app.core.config import Settings, get_settings
 from app.core.logging import configure_logging
 from app.db import create_engine, create_session_factory
-from app.repositories import GatingRunRepository, ReviewerBriefingRepository
+from app.repositories import DecisionCopilotRepository, GatingRunRepository, ReviewerBriefingRepository
 from app.repositories.runtime_store import RuntimeStore
 from app.services import AgentRuntime, LLMClient, MetricsStore
 from app.workflows.reviewer_pre_read_briefing.runner import ReviewerPreReadBriefingRunner
 from app.workflows.reviewer_pre_read_briefing.router import router as reviewer_briefing_router
+from app.workflows.chair_decision_copilot.runner import DecisionCopilotRunner
+from app.workflows.chair_decision_copilot.router import router as decision_copilot_router
 from app.workflows.submission_gating.runner import SubmissionGatingRunner
 from app.workflows.submission_gating.router import router as submission_gating_router
 
@@ -40,6 +42,8 @@ class AppContainer:
     submission_gating_runner: SubmissionGatingRunner
     reviewer_briefing_repo: ReviewerBriefingRepository
     reviewer_briefing_runner: ReviewerPreReadBriefingRunner
+    decision_copilot_repo: DecisionCopilotRepository
+    decision_copilot_runner: DecisionCopilotRunner
 
 
 @asynccontextmanager
@@ -62,12 +66,17 @@ async def lifespan(app: FastAPI):
     metrics = MetricsStore()
     submission_gating_repo = GatingRunRepository(session_factory)
     reviewer_briefing_repo = ReviewerBriefingRepository(session_factory)
+    decision_copilot_repo = DecisionCopilotRepository(session_factory)
     submission_gating_runner = SubmissionGatingRunner(
         repo=submission_gating_repo,
         llm_client=llm_client,
     )
     reviewer_briefing_runner = ReviewerPreReadBriefingRunner(
         repo=reviewer_briefing_repo,
+        llm_client=llm_client,
+    )
+    decision_copilot_runner = DecisionCopilotRunner(
+        repo=decision_copilot_repo,
         llm_client=llm_client,
     )
     runtime = AgentRuntime(
@@ -92,6 +101,8 @@ async def lifespan(app: FastAPI):
         submission_gating_runner=submission_gating_runner,
         reviewer_briefing_repo=reviewer_briefing_repo,
         reviewer_briefing_runner=reviewer_briefing_runner,
+        decision_copilot_repo=decision_copilot_repo,
+        decision_copilot_runner=decision_copilot_runner,
     )
 
     try:
@@ -119,6 +130,7 @@ def create_app() -> FastAPI:
     app.include_router(agent_router)
     app.include_router(submission_gating_router)
     app.include_router(reviewer_briefing_router)
+    app.include_router(decision_copilot_router)
     return app
 
 

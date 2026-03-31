@@ -79,7 +79,7 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 
 	return &Controller{
 		Auth:            auth.New(orch, serverEnv),
-		User:            user.New(store, assignmentService, semanticScholarCtrl), // Pass assignment service for COI checks
+		User:            user.New(store, assignmentService, semanticScholarCtrl),             // Pass assignment service for COI checks
 		Conference:      conference.NewWithNotifications(store, assignmentService, notifSvc), // Pass assignment service for auto-assign on status change
 		Submission:      submission.NewWithNotifications(store, fileStore, getAIServiceClient(clients), coiSvc, notifSvc),
 		Reviewer:        reviewer.NewWithNotifications(store, coiSvc, notifSvc),
@@ -147,7 +147,7 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 	}
 }
 
-func getAIServiceClient(clients *clients.Clients) submission.GatingClient {
+func getAIServiceClient(clients *clients.Clients) submission.AIWorkflowClient {
 	if clients == nil {
 		return nil
 	}

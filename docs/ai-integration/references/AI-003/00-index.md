@@ -2,15 +2,15 @@
 
 ## Purpose
 
-This folder is the curated navigation layer for AI-003. The main lifecycle record remains [`AI-003-reviewer-pre-read-briefing.md`](../../AI-003-reviewer-pre-read-briefing.md); these notes point implementers to the corrected product boundary, the current code anchors, and the blockers that must be handled before AI-003 is a real submission pre-read.
+This folder is the curated navigation layer for AI-003. The main lifecycle record remains [`AI-003-reviewer-pre-read-briefing.md`](../../AI-003-reviewer-pre-read-briefing.md); these notes now point readers to the corrected product boundary, the shipped execution baseline, and the historical reset that produced the final implementation.
 
 ## Reference Notes
 
 | Note | Role |
 | ---- | ---- |
 | [`01-spec-and-recon.md`](./01-spec-and-recon.md) | Restates AI-003 as a submission-only pre-read and records the design reset from the earlier invalid baseline. |
-| [`02-current-state-audit.md`](./02-current-state-audit.md) | Maps the shipped reviewer card, assignment page, manuscript-storage surfaces, extraction precedent, and current blockers. |
-| [`03-design-and-execution.md`](./03-design-and-execution.md) | Summarizes the corrected runtime split, source contract, cache basis, and rollout boundary. |
+| [`02-current-state-audit.md`](./02-current-state-audit.md) | Maps the current shipped reviewer card, assignment page, manuscript-loading boundary, and `ai-service` workflow anchors. |
+| [`03-design-and-execution.md`](./03-design-and-execution.md) | Summarizes the shipped runtime split, source contract, cache basis, and retained v1 limits. |
 
 ## Primary Source Trail
 
@@ -46,6 +46,6 @@ This folder is the curated navigation layer for AI-003. The main lifecycle recor
 
 1. Read [`01-spec-and-recon.md`](./01-spec-and-recon.md) to understand what AI-003 is supposed to do.
 2. Read [`02-current-state-audit.md`](./02-current-state-audit.md) to see what already exists, what is reusable, and what is currently unsafe or mis-scoped.
-3. Read [`03-design-and-execution.md`](./03-design-and-execution.md) before implementation starts.
-4. Read the implementation plan before coding: [`../../../plans/2026-03-30-ai-003-reviewer-pre-read-briefing-implementation-plan.md`](../../../plans/2026-03-30-ai-003-reviewer-pre-read-briefing-implementation-plan.md).
-5. Use the main lifecycle record as the canonical verdict and artifact index: [`../../AI-003-reviewer-pre-read-briefing.md`](../../AI-003-reviewer-pre-read-briefing.md).
+3. Read [`03-design-and-execution.md`](./03-design-and-execution.md) for the shipped execution baseline.
+4. Use the implementation plan as the historical execution checklist that produced the delivered feature: [`../../../plans/2026-03-30-ai-003-reviewer-pre-read-briefing-implementation-plan.md`](../../../plans/2026-03-30-ai-003-reviewer-pre-read-briefing-implementation-plan.md).
+5. Use the main lifecycle record as the canonical shipped verdict and artifact index: [`../../AI-003-reviewer-pre-read-briefing.md`](../../AI-003-reviewer-pre-read-briefing.md).
