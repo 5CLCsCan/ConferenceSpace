@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-03-31T14:24:17+00:00",
+  "base_url": "http://localhost:8080",
+  "status": "pass",
+  "input": {
+    "prefix": "ai010c",
+    "state_conference_ids": [],
+    "prefix_conference_ids": [
+      75,
+      76
+    ]
+  },
+  "summary": {
+    "target_count": 2,
+    "deleted_count": 2,
+    "already_absent_count": 0,
+    "failure_count": 0
+  },
+  "results": {
+    "deleted_conference_ids": [
+      75,
+      76
+    ],
+    "already_absent_conference_ids": [],
+    "failed": []
+  }
+}

@@ -1811,6 +1811,7 @@
           "aria_label_back_to_conversations": "Back to conversations",
           "aria_label_close_assistant": "Close assistant",
           "aria_label_open_assistant": "Open assistant",
+          "aria_label_recent_chats": "Open recent chats",
           "aria_label_resize_sidebar": "Resize sidebar",
           "text_recent_conversations": "Recent Conversations"
         },

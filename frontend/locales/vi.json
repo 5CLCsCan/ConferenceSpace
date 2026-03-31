@@ -1810,6 +1810,7 @@
           "aria_label_back_to_conversations": "Quay lại cuộc trò chuyện",
           "aria_label_close_assistant": "Đóng trợ lý",
           "aria_label_open_assistant": "Trợ lý mở",
+          "aria_label_recent_chats": "Mở danh sách cuộc trò chuyện gần đây",
           "aria_label_resize_sidebar": "Thay đổi kích thước thanh bên",
           "text_recent_conversations": "Cuộc trò chuyện gần đây"
         },

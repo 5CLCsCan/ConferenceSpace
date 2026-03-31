@@ -14,13 +14,28 @@ from app.core.auth import IdentityProvider
 from app.core.config import Settings, get_settings
 from app.core.logging import configure_logging
 from app.db import create_engine, create_session_factory
-from app.repositories import DecisionCopilotRepository, GatingRunRepository, ReviewerBriefingRepository
+from app.repositories import (
+    DecisionCopilotRepository,
+    GatingRunRepository,
+    ReviewQualityAuditRepository,
+    ReviewerBriefingRepository,
+)
 from app.repositories.runtime_store import RuntimeStore
 from app.services import AgentRuntime, LLMClient, MetricsStore
-from app.workflows.reviewer_pre_read_briefing.runner import ReviewerPreReadBriefingRunner
-from app.workflows.reviewer_pre_read_briefing.router import router as reviewer_briefing_router
+from app.workflows.reviewer_pre_read_briefing.runner import (
+    ReviewerPreReadBriefingRunner,
+)
+from app.workflows.reviewer_pre_read_briefing.router import (
+    router as reviewer_briefing_router,
+)
+from app.workflows.review_quality_auditor.runner import ReviewQualityAuditRunner
+from app.workflows.review_quality_auditor.router import (
+    router as review_quality_audit_router,
+)
 from app.workflows.chair_decision_copilot.runner import DecisionCopilotRunner
-from app.workflows.chair_decision_copilot.router import router as decision_copilot_router
+from app.workflows.chair_decision_copilot.router import (
+    router as decision_copilot_router,
+)
 from app.workflows.submission_gating.runner import SubmissionGatingRunner
 from app.workflows.submission_gating.router import router as submission_gating_router
 
@@ -42,6 +57,8 @@ class AppContainer:
     submission_gating_runner: SubmissionGatingRunner
     reviewer_briefing_repo: ReviewerBriefingRepository
     reviewer_briefing_runner: ReviewerPreReadBriefingRunner
+    review_quality_audit_repo: ReviewQualityAuditRepository
+    review_quality_audit_runner: ReviewQualityAuditRunner
     decision_copilot_repo: DecisionCopilotRepository
     decision_copilot_runner: DecisionCopilotRunner
 
@@ -61,11 +78,16 @@ async def lifespan(app: FastAPI):
         ttl_seconds=settings.auth_cache_ttl_seconds,
         request_timeout_seconds=settings.identity_request_timeout_seconds,
     )
-    runtime_store = RuntimeStore(redis, tool_result_timeout_seconds=settings.tool_result_timeout_seconds)
-    llm_client = LLMClient(api_key=settings.openrouter_api_key, model=settings.agent_model)
+    runtime_store = RuntimeStore(
+        redis, tool_result_timeout_seconds=settings.tool_result_timeout_seconds
+    )
+    llm_client = LLMClient(
+        api_key=settings.openrouter_api_key, model=settings.agent_model
+    )
     metrics = MetricsStore()
     submission_gating_repo = GatingRunRepository(session_factory)
     reviewer_briefing_repo = ReviewerBriefingRepository(session_factory)
+    review_quality_audit_repo = ReviewQualityAuditRepository(session_factory)
     decision_copilot_repo = DecisionCopilotRepository(session_factory)
     submission_gating_runner = SubmissionGatingRunner(
         repo=submission_gating_repo,
@@ -73,6 +95,10 @@ async def lifespan(app: FastAPI):
     )
     reviewer_briefing_runner = ReviewerPreReadBriefingRunner(
         repo=reviewer_briefing_repo,
+        llm_client=llm_client,
+    )
+    review_quality_audit_runner = ReviewQualityAuditRunner(
+        repo=review_quality_audit_repo,
         llm_client=llm_client,
     )
     decision_copilot_runner = DecisionCopilotRunner(
@@ -101,6 +127,8 @@ async def lifespan(app: FastAPI):
         submission_gating_runner=submission_gating_runner,
         reviewer_briefing_repo=reviewer_briefing_repo,
         reviewer_briefing_runner=reviewer_briefing_runner,
+        review_quality_audit_repo=review_quality_audit_repo,
+        review_quality_audit_runner=review_quality_audit_runner,
         decision_copilot_repo=decision_copilot_repo,
         decision_copilot_runner=decision_copilot_runner,
     )
@@ -130,6 +158,7 @@ def create_app() -> FastAPI:
     app.include_router(agent_router)
     app.include_router(submission_gating_router)
     app.include_router(reviewer_briefing_router)
+    app.include_router(review_quality_audit_router)
     app.include_router(decision_copilot_router)
     return app
 

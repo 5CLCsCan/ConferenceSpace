@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
-	aiServiceClient "github.com/dcao/conferencespace/internal/clients/ai_service"
 	"github.com/dcao/conferencespace/internal/assignment"
+	aiServiceClient "github.com/dcao/conferencespace/internal/clients/ai_service"
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/model"
@@ -35,10 +36,10 @@ type Controller struct {
 	notificationService *notificationService.Service
 	coiService          *coiService.Service
 	roleStorage         conferenceuserrole.StorageInterface
-	briefingClient      reviewerBriefingClient
+	workflowClient      reviewerWorkflowClient
 }
 
-type reviewerBriefingClient interface {
+type reviewerWorkflowClient interface {
 	LookupReviewerBriefing(
 		ctx context.Context,
 		token string,
@@ -51,10 +52,15 @@ type reviewerBriefingClient interface {
 		filename string,
 		fileContent []byte,
 	) (*aiServiceClient.ReviewerBriefingResolveResponse, error)
+	ResolveReviewQualityAudit(
+		ctx context.Context,
+		token string,
+		requestPayload *aiServiceClient.ReviewQualityAuditResolveRequest,
+	) (*aiServiceClient.ReviewQualityAuditResolveResponse, error)
 }
 
 // New creates a new assignment controller
-func New(store *storage.Storage, fileStore fileStorage.StorageInterface, briefingClient reviewerBriefingClient, assignmentService *assignment.Service, coiSvc *coiService.Service) *Controller {
+func New(store *storage.Storage, fileStore fileStorage.StorageInterface, workflowClient reviewerWorkflowClient, assignmentService *assignment.Service, coiSvc *coiService.Service) *Controller {
 	return &Controller{
 		assignmentService: assignmentService,
 		assignmentStorage: store.Assignment,
@@ -64,12 +70,12 @@ func New(store *storage.Storage, fileStore fileStorage.StorageInterface, briefin
 		conferenceStorage: store.Conference,
 		coiService:        coiSvc,
 		roleStorage:       store.ConferenceUserRole,
-		briefingClient:    briefingClient,
+		workflowClient:    workflowClient,
 	}
 }
 
 // NewWithNotifications creates a new assignment controller with notification support
-func NewWithNotifications(store *storage.Storage, fileStore fileStorage.StorageInterface, briefingClient reviewerBriefingClient, assignmentService *assignment.Service, notifSvc *notificationService.Service, coiSvc *coiService.Service) *Controller {
+func NewWithNotifications(store *storage.Storage, fileStore fileStorage.StorageInterface, workflowClient reviewerWorkflowClient, assignmentService *assignment.Service, notifSvc *notificationService.Service, coiSvc *coiService.Service) *Controller {
 	return &Controller{
 		assignmentService:   assignmentService,
 		assignmentStorage:   store.Assignment,
@@ -80,7 +86,7 @@ func NewWithNotifications(store *storage.Storage, fileStore fileStorage.StorageI
 		notificationService: notifSvc,
 		coiService:          coiSvc,
 		roleStorage:         store.ConferenceUserRole,
-		briefingClient:      briefingClient,
+		workflowClient:      workflowClient,
 	}
 }
 
@@ -181,28 +187,17 @@ func (c *Controller) AutoAssign(ginCtx *gin.Context, req *dto.AutoAssignRequest)
 // @Router       /conferences/{conference_id}/assignments/{assignment_id}/review [put]
 func (c *Controller) SaveReview(ginCtx *gin.Context, req *dto.ReviewSaveRequest) (*dto.Assignment, error) {
 	ctx := ginCtx.Request.Context()
-
-	// CRITICAL: Extract authenticated user email
-	userEmail, exists := utils.GetEmail(ginCtx)
-	if !exists {
-		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	if err := assignReviewPathScope(ginCtx, &req.AssignmentID, &req.ConferenceID); err != nil {
+		return nil, err
 	}
 
-	// CRITICAL: Fetch assignment and verify reviewer ownership
-	assignment, err := c.assignmentStorage.GetByID(ctx, req.AssignmentID)
+	assignment, _, userID, userEmail, _, err := c.loadOwnedReviewScope(ginCtx, req.AssignmentID, req.ConferenceID)
 	if err != nil {
-		return nil, handler.NewErrorResponse(http.StatusNotFound, "assignment not found")
+		return nil, err
 	}
-
-	// Get reviewer details to check email
 	reviewer, err := c.reviewerStorage.GetByID(ctx, assignment.ReviewerID)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to get reviewer info")
-	}
-
-	// CRITICAL: Verify user is the assigned reviewer
-	if reviewer.Email != userEmail {
-		return nil, handler.NewErrorResponse(http.StatusForbidden, "you are not authorized to review this submission")
 	}
 
 	// Check if review is already submitted (cannot edit submitted reviews)
@@ -212,19 +207,53 @@ func (c *Controller) SaveReview(ginCtx *gin.Context, req *dto.ReviewSaveRequest)
 
 	// Validation for submitted reviews
 	if req.Status == model.ReviewStatusSubmitted {
-		if req.ReviewScore == nil {
-			return nil, handler.NewErrorResponse(http.StatusBadRequest, "review_score is required for submitted reviews")
-		}
-		if req.ReviewData == nil {
-			return nil, handler.NewErrorResponse(http.StatusBadRequest, "review_data is required for submitted reviews")
-		}
-		if req.ReviewData.Feedback.Strengths == "" {
-			return nil, handler.NewErrorResponse(http.StatusBadRequest, "feedback strengths is required for submitted reviews")
+		if err := validateSubmittedReviewRequest(req); err != nil {
+			return nil, err
 		}
 
-		// Validate score range
-		if *req.ReviewScore < 0.0 || *req.ReviewScore > 10.0 {
-			return nil, handler.NewErrorResponse(http.StatusBadRequest, "review_score must be between 0.00 and 10.00")
+		auditResponse, _, _, _, auditFailed, auditFailureMessage, err := c.executeReviewAudit(
+			ginCtx,
+			req.AssignmentID,
+			req.ConferenceID,
+			dto.ReviewAuditModeSubmitEnforcement,
+			req.ReviewData,
+			req.ReviewScore,
+		)
+		if err != nil {
+			return nil, err
+		}
+		if auditFailed {
+			if !req.AuditFailureOverrideConfirmed {
+				return nil, handler.NewDetailedErrorResponse(
+					http.StatusConflict,
+					"review audit could not be completed",
+					map[string]interface{}{
+						"code":             "review_audit_failed",
+						"override_allowed": true,
+						"message":          auditFailureMessage,
+					},
+				)
+			}
+			_ = c.assignmentStorage.AppendReviewAuditEvent(ctx, &dto.ReviewAuditEvent{
+				AssignmentID: assignment.ID,
+				ConferenceID: assignment.ConferenceID,
+				ActorID:      userID,
+				ActorEmail:   userEmail,
+				EventType:    reviewAuditEventSubmitOverrideAfterAuditFailed,
+				Payload: map[string]interface{}{
+					"reason": auditFailureMessage,
+				},
+			})
+		}
+		if !auditFailed && auditResponse != nil && auditResponse.Status == "block" {
+			return nil, handler.NewDetailedErrorResponse(
+				http.StatusConflict,
+				"review audit found blocking issues",
+				map[string]interface{}{
+					"code":  "review_audit_blocked",
+					"audit": auditResponse,
+				},
+			)
 		}
 	}
 
@@ -279,6 +308,28 @@ func (c *Controller) SaveReview(ginCtx *gin.Context, req *dto.ReviewSaveRequest)
 	}
 
 	return updatedAssignment, nil
+}
+
+func validateSubmittedReviewRequest(req *dto.ReviewSaveRequest) error {
+	if req.ReviewScore == nil {
+		return handler.NewErrorResponse(http.StatusBadRequest, "review_score is required for submitted reviews")
+	}
+	if req.ReviewData == nil {
+		return handler.NewErrorResponse(http.StatusBadRequest, "review_data is required for submitted reviews")
+	}
+	if *req.ReviewScore < 0.0 || *req.ReviewScore > 10.0 {
+		return handler.NewErrorResponse(http.StatusBadRequest, "review_score must be between 0.00 and 10.00")
+	}
+	if strings.TrimSpace(req.ReviewData.Feedback.Summary) == "" {
+		return handler.NewErrorResponse(http.StatusBadRequest, "feedback summary is required for submitted reviews")
+	}
+	if strings.TrimSpace(req.ReviewData.Feedback.Strengths) == "" {
+		return handler.NewErrorResponse(http.StatusBadRequest, "feedback strengths is required for submitted reviews")
+	}
+	if strings.TrimSpace(req.ReviewData.Feedback.Weaknesses) == "" {
+		return handler.NewErrorResponse(http.StatusBadRequest, "feedback weaknesses is required for submitted reviews")
+	}
+	return nil
 }
 
 // GetReview godoc

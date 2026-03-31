@@ -20,7 +20,7 @@ func (c *Controller) GetReviewerBriefing(
 	ginCtx *gin.Context,
 	req *dto.ReviewerBriefingRequest,
 ) (*aiServiceClient.ReviewerBriefingResolveResponse, error) {
-	if c.briefingClient == nil {
+	if c.workflowClient == nil {
 		return nil, handler.NewErrorResponse(503, "reviewer briefing service is not configured")
 	}
 
@@ -31,7 +31,7 @@ func (c *Controller) GetReviewerBriefing(
 	_ = assignment
 	_ = submission
 
-	response, err := c.briefingClient.LookupReviewerBriefing(ginCtx.Request.Context(), authHeader, requestPayload)
+	response, err := c.workflowClient.LookupReviewerBriefing(ginCtx.Request.Context(), authHeader, requestPayload)
 	if err != nil {
 		return nil, handler.NewErrorResponse(502, "reviewer briefing workflow failed")
 	}
@@ -42,7 +42,7 @@ func (c *Controller) GenerateReviewerBriefing(
 	ginCtx *gin.Context,
 	req *dto.ReviewerBriefingRequest,
 ) (*aiServiceClient.ReviewerBriefingResolveResponse, error) {
-	if c.briefingClient == nil {
+	if c.workflowClient == nil {
 		return nil, handler.NewErrorResponse(503, "reviewer briefing service is not configured")
 	}
 	if c.fileStorage == nil {
@@ -72,7 +72,7 @@ func (c *Controller) GenerateReviewerBriefing(
 		return nil, handler.NewErrorResponse(400, "submission manuscript is too large for reviewer briefing")
 	}
 
-	response, err := c.briefingClient.GenerateReviewerBriefing(
+	response, err := c.workflowClient.GenerateReviewerBriefing(
 		ginCtx.Request.Context(),
 		authHeader,
 		requestPayload,

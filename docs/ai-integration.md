@@ -165,17 +165,20 @@ Persisted discussion contracts exist in `frontend/lib/api/discussions.ts` with r
 | Feasibility     | Medium                                                              |
 | Role(s)         | Reviewer, Chair                                                     |
 | Trigger         | Review draft save and submit attempt.                               |
-| Input           | Scores, recommendation, confidence, and narrative review text.      |
-| Output          | Inconsistency/missing-justification alerts before final submission. |
+| Input           | Current review payload: scores, recommendation, confidence, narrative review text, optional AI-003 context, and optional policy context. |
+| Output          | Structured semantic audit findings before final submission.         |
 | Risk/Concern    | Over-standardized review style.                                     |
 | Dependency      | Optional rubric policy controls from 5b for strict enforcement.     |
 | Recon reference | Section 4 (Review Execution), Section 5b (Review Policy)            |
 
+**Canonical Detail Record:** [`docs/ai-integration/AI-010-review-quality-consistency-auditor.md`](./ai-integration/AI-010-review-quality-consistency-auditor.md)
+**Current Documentation Status:** AI-010 now has a canonical lifecycle record. The feature is partially shipped as an assignment-scoped reviewer semantic-audit workflow, and that lifecycle record is the source of truth for the corrected boundary, delivered implementation, and remaining follow-up work.
+
 **Description:**
-Retained as workflow because it is a quality gate in a high-value core process. It should be deterministic and integrated into submit-time validation.
+Retained as workflow because it is a quality gate in a high-value core process. AI-010 is an LLM-driven semantic audit over review consistency, justification, coverage, and related quality signals. Basic required-field and schema validation belong to the reviewer UI and backend validation layers, not to AI-010 itself.
 
 **Implementation Notes:**
-Review persistence and submit path already exist in `frontend/components/reviewer/submission-review.tsx`, `frontend/hooks/use-assignment-review.ts`, and `frontend/lib/api/reviews.ts`.
+The shipped path now spans the reviewer audit panel and audit client in `frontend/components/reviewer/submission-review.tsx`, `frontend/components/reviewer/submission-review/review-audit-panel.tsx`, `frontend/hooks/use-review-audit.ts`, and `frontend/lib/api/review-audit.ts`, backend audit and submit-enforcement handlers in `backend/internal/controller/assignment/review_audit.go` and `backend/internal/controller/assignment/assignment.go`, and the `ai-service` workflow in `ai-service/app/workflows/review_quality_auditor/*`. AI-003 remains optional additional material for coverage only and must not steer recommendation or score output.
 
 ---
 

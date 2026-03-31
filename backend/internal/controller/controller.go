@@ -4,6 +4,7 @@ import (
 	"github.com/dcao/conferencespace/internal/assignment"
 	"github.com/dcao/conferencespace/internal/assignment/coi/detectors"
 	"github.com/dcao/conferencespace/internal/clients"
+	aiServiceClient "github.com/dcao/conferencespace/internal/clients/ai_service"
 	assignmentController "github.com/dcao/conferencespace/internal/controller/assignment"
 	"github.com/dcao/conferencespace/internal/controller/auth"
 	coiController "github.com/dcao/conferencespace/internal/controller/coi"
@@ -83,7 +84,7 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 		Conference:      conference.NewWithNotifications(store, assignmentService, notifSvc), // Pass assignment service for auto-assign on status change
 		Submission:      submission.NewWithNotifications(store, fileStore, getAIServiceClient(clients), coiSvc, notifSvc),
 		Reviewer:        reviewer.NewWithNotifications(store, coiSvc, notifSvc),
-		Assignment:      assignmentController.NewWithNotifications(store, fileStore, clients.AIService, assignmentService, notifSvc, coiSvc),
+		Assignment:      assignmentController.NewWithNotifications(store, fileStore, getReviewerWorkflowClient(clients), assignmentService, notifSvc, coiSvc),
 		COI:             coiController.New(coiSvc, store.ConferenceUserRole),
 		Notification:    notificationController.New(store),
 		SemanticScholar: semanticScholarCtrl,
@@ -139,7 +140,7 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 		Conference:      conference.NewWithNotifications(store, assignmentService, notifSvc),
 		Submission:      submission.NewWithNotifications(store, fileStore, getAIServiceClient(clients), coiSvc, notifSvc),
 		Reviewer:        reviewer.NewWithNotifications(store, coiSvc, notifSvc),
-		Assignment:      assignmentController.NewWithNotifications(store, fileStore, clients.AIService, assignmentService, notifSvc, coiSvc),
+		Assignment:      assignmentController.NewWithNotifications(store, fileStore, getReviewerWorkflowClient(clients), assignmentService, notifSvc, coiSvc),
 		COI:             coiController.New(coiSvc, store.ConferenceUserRole),
 		Notification:    notificationController.New(store),
 		SemanticScholar: semanticScholarCtrl,
@@ -148,6 +149,13 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 }
 
 func getAIServiceClient(clients *clients.Clients) submission.AIWorkflowClient {
+	if clients == nil {
+		return nil
+	}
+	return clients.AIService
+}
+
+func getReviewerWorkflowClient(clients *clients.Clients) *aiServiceClient.Client {
 	if clients == nil {
 		return nil
 	}
