@@ -35,20 +35,20 @@ type SubmissionFileMetadata struct {
 }
 
 type Submission struct {
-	ID           int64                   `json:"id"`
-	ConferenceID int64                   `json:"conference_id"`                              // Set by controller from path parameter
-	Author       string                  `json:"author,omitempty" binding:"omitempty,email"` // Set by controller from auth context
-	Title        string                  `json:"title"`
-	Abstract     string                  `json:"abstract"`
-	Link         string                  `json:"link"`
-	Domain       []string                `json:"domain"`
-	Track        string                  `json:"track"`                                                                                  // Must be one of the conference's tracks
-	Status       string                  `json:"status,omitempty" binding:"omitempty,oneof=draft published reviewing accepted rejected"` // Optional for updates
-	Information  *SubmissionInformation  `json:"information"`
+	ID                      int64                   `json:"id"`
+	ConferenceID            int64                   `json:"conference_id"`                              // Set by controller from path parameter
+	Author                  string                  `json:"author,omitempty" binding:"omitempty,email"` // Set by controller from auth context
+	Title                   string                  `json:"title"`
+	Abstract                string                  `json:"abstract"`
+	Link                    string                  `json:"link"`
+	Domain                  []string                `json:"domain"`
+	Track                   string                  `json:"track"`                                                                                  // Must be one of the conference's tracks
+	Status                  string                  `json:"status,omitempty" binding:"omitempty,oneof=draft published reviewing accepted rejected"` // Optional for updates
+	Information             *SubmissionInformation  `json:"information"`
 	File                    *SubmissionFileMetadata `json:"file,omitempty"`
-	CoverLetter             *SubmissionFileMetadata `json:"cover_letter,omitempty"`  // Optional cover letter (PDF, DOCX, or TXT)
-	CameraReady             *SubmissionFileMetadata `json:"camera_ready,omitempty"`  // Camera-ready final version
-	Reviewers               []Reviewer              `json:"reviewers,omitempty"`     // Only populated when includeReviewers=true
+	CoverLetter             *SubmissionFileMetadata `json:"cover_letter,omitempty"` // Optional cover letter (PDF, DOCX, or TXT)
+	CameraReady             *SubmissionFileMetadata `json:"camera_ready,omitempty"` // Camera-ready final version
+	Reviewers               []Reviewer              `json:"reviewers,omitempty"`    // Only populated when includeReviewers=true
 	RebuttalPhase           string                  `json:"rebuttal_phase,omitempty"`
 	RebuttalGeneralResponse *string                 `json:"rebuttal_general_response,omitempty"`
 	CreatedAt               time.Time               `json:"created_at"`
@@ -64,6 +64,11 @@ type SubmissionGetRequest struct {
 	ConferenceID     int64 `uri:"conference_id" binding:"required"`
 	ID               int64 `uri:"submission_id" binding:"required"`
 	IncludeReviewers bool  `form:"includeReviewers" json:"includeReviewers"`
+}
+
+type DecisionCopilotRequest struct {
+	ConferenceID int64 `uri:"conference_id" binding:"required"`
+	SubmissionID int64 `uri:"submission_id" binding:"required"`
 }
 
 type SubmissionUpdateRequest struct {

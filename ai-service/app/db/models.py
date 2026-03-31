@@ -242,3 +242,52 @@ class ReviewerBriefingStageRecord(Base):
     status: Mapped[str] = mapped_column(VARCHAR(16), nullable=False)
     detail: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class DecisionCopilotRun(Base):
+    __tablename__ = "decision_copilot_runs"
+    __table_args__ = (
+        CheckConstraint("status IN ('completed', 'failed')", name="ck_decision_copilot_runs_status"),
+        CheckConstraint("action IN ('lookup', 'generate', 'regenerate')", name="ck_decision_copilot_runs_action"),
+        Index("idx_decision_copilot_runs_scope_created", "conference_id", "submission_id", "created_at"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    conference_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    submission_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    actor_id: Mapped[str] = mapped_column(Text, nullable=False)
+    action: Mapped[str] = mapped_column(VARCHAR(16), nullable=False)
+    evidence_fingerprint: Mapped[str] = mapped_column(Text, nullable=False)
+    component_fingerprints: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    status: Mapped[str] = mapped_column(VARCHAR(16), nullable=False)
+    request_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    artifact_json: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    error_detail: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class DecisionCopilotCurrentArtifact(Base):
+    __tablename__ = "decision_copilot_current_artifacts"
+    __table_args__ = (
+        UniqueConstraint("conference_id", "submission_id", name="uq_decision_copilot_current_scope"),
+        Index("idx_decision_copilot_current_scope", "conference_id", "submission_id"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    conference_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    submission_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    run_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False),
+        ForeignKey(f"{SCHEMA}.decision_copilot_runs.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    evidence_fingerprint: Mapped[str] = mapped_column(Text, nullable=False)
+    component_fingerprints: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    artifact_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now()
+    )

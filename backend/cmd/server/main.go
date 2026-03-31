@@ -14,8 +14,8 @@ import (
 	"github.com/dcao/conferencespace/internal/clients"
 	"github.com/dcao/conferencespace/internal/config"
 	"github.com/dcao/conferencespace/internal/controller"
-	"github.com/dcao/conferencespace/internal/cron"
 	"github.com/dcao/conferencespace/internal/controller/auth"
+	"github.com/dcao/conferencespace/internal/cron"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/middleware"
 	"github.com/dcao/conferencespace/internal/orchestrator"
@@ -307,6 +307,9 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 				submissions.PUT("/:submission_id/status", handler.HandleRequestWithAll(ctrl.Submission.UpdateStatus))
 				submissions.PUT("/:submission_id/rebuttal", handler.HandleRequestWithAll(ctrl.Submission.SubmitRebuttal))
 				submissions.GET("/:submission_id/rebuttal", handler.HandleRequestWithURI(ctrl.Submission.GetRebuttal))
+				submissions.GET("/:submission_id/decision-copilot", handler.HandleRequestWithURI(ctrl.Submission.GetDecisionCopilot))
+				submissions.POST("/:submission_id/decision-copilot/generate", handler.HandleRequestWithURI(ctrl.Submission.GenerateDecisionCopilot))
+				submissions.POST("/:submission_id/decision-copilot/regenerate", handler.HandleRequestWithURI(ctrl.Submission.RegenerateDecisionCopilot))
 				submissions.POST("/:submission_id/camera-ready", ctrl.Submission.UploadCameraReady)
 				submissions.GET("/:submission_id/camera-ready", ctrl.Submission.GetCameraReady)
 				submissions.DELETE("/:submission_id", handler.HandleNoRequestWithMessage("submission deleted successfully", ctrl.Submission.Delete))
@@ -355,10 +358,10 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 		// Assignment review routes (authentication required)
 		assignments := conferences.Group("/:conference_id/assignments")
 		{
-	assignments.PUT("/:assignment_id/review", handler.HandleRequestWithAll(ctrl.Assignment.SaveReview))
-	assignments.GET("/:assignment_id/review", handler.HandleRequestWithURI(ctrl.Assignment.GetReview))
-	assignments.GET("/:assignment_id/briefing", handler.HandleRequestWithURI(ctrl.Assignment.GetReviewerBriefing))
-	assignments.POST("/:assignment_id/briefing/generate", handler.HandleRequestWithURI(ctrl.Assignment.GenerateReviewerBriefing))
+			assignments.PUT("/:assignment_id/review", handler.HandleRequestWithAll(ctrl.Assignment.SaveReview))
+			assignments.GET("/:assignment_id/review", handler.HandleRequestWithURI(ctrl.Assignment.GetReview))
+			assignments.GET("/:assignment_id/briefing", handler.HandleRequestWithURI(ctrl.Assignment.GetReviewerBriefing))
+			assignments.POST("/:assignment_id/briefing/generate", handler.HandleRequestWithURI(ctrl.Assignment.GenerateReviewerBriefing))
 			assignments.PUT("/:assignment_id/rebuttal/acknowledge", handler.HandleRequestWithURI(ctrl.Reviewer.AcknowledgeRebuttal))
 			assignments.PUT("/:assignment_id/rebuttal/points/:point_id/acknowledge", handler.HandleRequestWithAll(ctrl.Reviewer.AcknowledgePoint))
 

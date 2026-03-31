@@ -1,5 +1,11 @@
 # AI-003 Spec And Recon
 
+## Status
+
+- State: historical recon feeding the shipped AI-003 baseline.
+- Last updated: 2026-03-31
+- Note: this document captures the reasoning that reset AI-003 to a submission-only pre-read workflow. The shipped contract is summarized in `03-design-and-execution.md`.
+
 ## Roadmap Scope
 
 After re-evaluation, AI-003 is defined as a reviewer-triggered submission pre-read workflow. It starts only when the reviewer selects the feature and clicks `Start generating`, consumes reviewer-visible submission material only, and produces a neutral structured briefing that helps the reviewer know what the paper claims, what is notable, and what deserves careful manual attention (`docs/ai-integration.md:80-103`).
@@ -11,7 +17,7 @@ After re-evaluation, AI-003 is defined as a reviewer-triggered submission pre-re
 - The feature story is about reducing reviewer reading effort on the submission itself. Therefore the model input must include actual manuscript content; abstract-only input is not enough to justify the product promise.
 - To reduce anchoring risk, AI-003 must stay descriptive rather than evaluative. It should not emit recommendations, predicted scores, or accept or reject priors.
 - Discussion and rebuttal are real reviewer workflow surfaces, but they are not part of the corrected AI-003 contract. Using them would change the feature from a submission pre-read into a process-context interpreter.
-- The roadmap positions AI-003 as more than ad hoc chat assistance. That means the current mock card behavior must be replaced with a persisted structured artifact and cache model rather than a prompt-driven markdown result.
+- The roadmap positions AI-003 as more than ad hoc chat assistance. That means the earlier mock card behavior had to be replaced with a persisted structured artifact and cache model rather than a prompt-driven markdown result.
 
 ## Scope Boundaries Locked For V1
 

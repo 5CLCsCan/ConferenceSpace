@@ -8,6 +8,8 @@ import { getRebuttal, type RebuttalPanelData } from "@/lib/api/rebuttal"
 import { updateSubmissionStatus } from "@/lib/api/submissions"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { tStatic as t } from "@/lib/i18n/static-translate"
+import useChairDecisionCopilot from "@/hooks/use-chair-decision-copilot"
+import { ChairDecisionCopilotPanel } from "./chair-decision-copilot-panel"
 
 // --- Types ---
 interface ReviewerScore {
@@ -862,6 +864,15 @@ export function ChairReviewsTab({
   const [rebuttalData, setRebuttalData] = useState<RebuttalPanelData | null>(null)
   const [rebuttalLoading, setRebuttalLoading] = useState(true)
   const [rebuttalError, setRebuttalError] = useState<string | null>(null)
+  const {
+    copilot,
+    loading: copilotLoading,
+    generating: copilotGenerating,
+    regenerating: copilotRegenerating,
+    error: copilotError,
+    generateCopilot,
+    regenerateCopilot,
+  } = useChairDecisionCopilot(conferenceId, submissionId)
 
   useEffect(() => {
     setCurrentDecision(mapSubmissionStatusToDecision(submission.status))
@@ -927,7 +938,21 @@ export function ChairReviewsTab({
   return (
     <div className="flex flex-col xl:flex-row gap-6">
       {/* Main Content */}
-      <div className="flex-[7] min-w-0">
+      <div className="flex-[7] min-w-0 space-y-5">
+        <ChairDecisionCopilotPanel
+          copilot={copilot}
+          loading={copilotLoading}
+          generating={copilotGenerating}
+          regenerating={copilotRegenerating}
+          error={copilotError}
+          onGenerate={() => {
+            void generateCopilot()
+          }}
+          onRegenerate={() => {
+            void regenerateCopilot()
+          }}
+        />
+
         {/* Reviewer Scores Panel */}
         <ReviewerScoresPanel reviewers={reviewers} />
 
@@ -941,7 +966,7 @@ export function ChairReviewsTab({
       </div>
 
       {/* Sidebar - Decision Making */}
-      <div className="flex-[3]">
+      <div className="xl:w-[340px] xl:flex-none">
         <DecisionMakingPanel
           currentDecision={currentDecision}
           onDecision={setCurrentDecision}

@@ -8,6 +8,12 @@
 
 **Tech Stack:** Next.js 15, React 18, TypeScript, Vitest, Go 1.24, Gin, FastAPI, SQLAlchemy, Alembic, OpenRouter-backed `LLMClient`.
 
+## Status
+
+- State: complete
+- Last updated: 2026-03-31
+- Outcome: the plan was executed end-to-end and AI-003 is now shipped as a reviewer-triggered submission-only pre-read workflow.
+
 ---
 
 ## Implementation Locks

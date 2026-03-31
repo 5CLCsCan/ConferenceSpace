@@ -120,11 +120,11 @@ type ReviewerBriefingCachePayload struct {
 }
 
 type ReviewerBriefingSubmissionSnapshot struct {
-	Title             string   `json:"title"`
-	AbstractSummary   string   `json:"abstract_summary"`
-	ManuscriptOverview string  `json:"manuscript_overview"`
-	Keywords          []string `json:"keywords,omitempty"`
-	Track             string   `json:"track,omitempty"`
+	Title              string   `json:"title"`
+	AbstractSummary    string   `json:"abstract_summary"`
+	ManuscriptOverview string   `json:"manuscript_overview"`
+	Keywords           []string `json:"keywords,omitempty"`
+	Track              string   `json:"track,omitempty"`
 }
 
 type ReviewerBriefingContribution struct {
@@ -177,6 +177,197 @@ type ReviewerBriefingResolveResponse struct {
 	Cache    ReviewerBriefingCachePayload  `json:"cache"`
 	Artifact *ReviewerBriefingArtifact     `json:"artifact,omitempty"`
 	Error    *ReviewerBriefingErrorPayload `json:"error,omitempty"`
+}
+
+type DecisionCopilotResolveRequest struct {
+	Action                string                                      `json:"action"`
+	ConferenceID          int64                                       `json:"conference_id"`
+	SubmissionID          int64                                       `json:"submission_id"`
+	Actor                 ActorPayload                                `json:"actor"`
+	EvidenceFingerprint   string                                      `json:"evidence_fingerprint,omitempty"`
+	ComponentFingerprints DecisionCopilotComponentFingerprintsPayload `json:"component_fingerprints"`
+	Evidence              DecisionCopilotEvidencePayload              `json:"evidence,omitempty"`
+}
+
+type DecisionCopilotComponentFingerprintsPayload struct {
+	Submission string `json:"submission"`
+	Reviews    string `json:"reviews"`
+	Discussion string `json:"discussion"`
+	Rebuttal   string `json:"rebuttal"`
+}
+
+type DecisionCopilotSubmissionContextPayload struct {
+	Title         string   `json:"title,omitempty"`
+	Track         string   `json:"track,omitempty"`
+	Status        string   `json:"status,omitempty"`
+	Keywords      []string `json:"keywords,omitempty"`
+	LastUpdatedAt string   `json:"last_updated_at,omitempty"`
+}
+
+type DecisionCopilotReviewPayload struct {
+	ReviewerID                 string         `json:"reviewer_id"`
+	Recommendation             string         `json:"recommendation,omitempty"`
+	Confidence                 string         `json:"confidence,omitempty"`
+	Score                      *float64       `json:"score,omitempty"`
+	SubmittedAt                string         `json:"submitted_at,omitempty"`
+	Summary                    string         `json:"summary,omitempty"`
+	Strengths                  string         `json:"strengths,omitempty"`
+	Weaknesses                 string         `json:"weaknesses,omitempty"`
+	Questions                  string         `json:"questions,omitempty"`
+	Criteria                   map[string]int `json:"criteria,omitempty"`
+	PostRebuttalScore          *int           `json:"post_rebuttal_score,omitempty"`
+	PostRebuttalRecommendation string         `json:"post_rebuttal_recommendation,omitempty"`
+	PostRebuttalComment        string         `json:"post_rebuttal_comment,omitempty"`
+	PostRebuttalUpdatedAt      string         `json:"post_rebuttal_updated_at,omitempty"`
+}
+
+type DecisionCopilotAnalyticsPayload struct {
+	ReviewDistribution         []DecisionCopilotCountMetric `json:"review_distribution,omitempty"`
+	ConfidenceMix              []DecisionCopilotCountMetric `json:"confidence_mix,omitempty"`
+	StrongestCriteria          []string                     `json:"strongest_criteria,omitempty"`
+	WeakestCriteria            []string                     `json:"weakest_criteria,omitempty"`
+	ReviewCoverageCompleteness string                       `json:"review_coverage_completeness,omitempty"`
+	ScoreChangesAfterRebuttal  *string                      `json:"score_changes_after_rebuttal,omitempty"`
+	LastEvidenceUpdate         string                       `json:"last_evidence_update,omitempty"`
+}
+
+type DecisionCopilotDiscussionMessagePayload struct {
+	AuthorEmail string `json:"author_email,omitempty"`
+	Content     string `json:"content,omitempty"`
+	CreatedAt   string `json:"created_at,omitempty"`
+}
+
+type DecisionCopilotDiscussionThreadPayload struct {
+	Title         string                                    `json:"title,omitempty"`
+	Visibility    string                                    `json:"visibility,omitempty"`
+	MessageCount  int                                       `json:"message_count,omitempty"`
+	LastMessageAt string                                    `json:"last_message_at,omitempty"`
+	Messages      []DecisionCopilotDiscussionMessagePayload `json:"messages,omitempty"`
+}
+
+type DecisionCopilotDiscussionPayload struct {
+	ThreadCount    int                                      `json:"thread_count,omitempty"`
+	MessageCount   int                                      `json:"message_count,omitempty"`
+	LastActivityAt string                                   `json:"last_activity_at,omitempty"`
+	Threads        []DecisionCopilotDiscussionThreadPayload `json:"threads,omitempty"`
+}
+
+type DecisionCopilotRebuttalPointPayload struct {
+	AssignmentID         int64  `json:"assignment_id"`
+	Category             string `json:"category,omitempty"`
+	Section              string `json:"section,omitempty"`
+	OriginalComment      string `json:"original_comment,omitempty"`
+	AuthorResponse       string `json:"author_response,omitempty"`
+	Status               string `json:"status,omitempty"`
+	ReviewerAcknowledged bool   `json:"reviewer_acknowledged"`
+	ReviewerNote         string `json:"reviewer_note,omitempty"`
+}
+
+type DecisionCopilotRebuttalAssignmentPayload struct {
+	AssignmentID   int64  `json:"assignment_id"`
+	RebuttalStatus string `json:"rebuttal_status,omitempty"`
+}
+
+type DecisionCopilotRebuttalPayload struct {
+	Status          string                                     `json:"status"`
+	GeneralResponse *string                                    `json:"general_response,omitempty"`
+	Points          []DecisionCopilotRebuttalPointPayload      `json:"points,omitempty"`
+	Assignments     []DecisionCopilotRebuttalAssignmentPayload `json:"assignments,omitempty"`
+	SummaryHint     string                                     `json:"summary_hint,omitempty"`
+}
+
+type DecisionCopilotEvidencePayload struct {
+	SchemaVersion   string                                  `json:"schema_version,omitempty"`
+	Submission      DecisionCopilotSubmissionContextPayload `json:"submission"`
+	Reviews         []DecisionCopilotReviewPayload          `json:"reviews,omitempty"`
+	ReviewAnalytics DecisionCopilotAnalyticsPayload         `json:"review_analytics"`
+	Discussion      DecisionCopilotDiscussionPayload        `json:"discussion"`
+	Rebuttal        DecisionCopilotRebuttalPayload          `json:"rebuttal"`
+}
+
+type DecisionCopilotCachePayload struct {
+	Hit                 bool     `json:"hit"`
+	EvidenceFingerprint string   `json:"evidence_fingerprint"`
+	IsStale             bool     `json:"is_stale"`
+	StaleReasons        []string `json:"stale_reasons,omitempty"`
+}
+
+type DecisionCopilotEvidenceSummary struct {
+	Overview      string   `json:"overview"`
+	EvidenceBasis []string `json:"evidence_basis,omitempty"`
+}
+
+type DecisionCopilotReviewFeedbackSynthesis struct {
+	Summary    string   `json:"summary"`
+	Strengths  []string `json:"strengths,omitempty"`
+	Weaknesses []string `json:"weaknesses,omitempty"`
+	Questions  []string `json:"questions,omitempty"`
+}
+
+type DecisionCopilotCountMetric struct {
+	Label string `json:"label"`
+	Count int    `json:"count"`
+}
+
+type DecisionCopilotReviewAnalytics struct {
+	ReviewDistribution         []DecisionCopilotCountMetric `json:"review_distribution,omitempty"`
+	ConfidenceMix              []DecisionCopilotCountMetric `json:"confidence_mix,omitempty"`
+	StrongestCriteria          []string                     `json:"strongest_criteria,omitempty"`
+	WeakestCriteria            []string                     `json:"weakest_criteria,omitempty"`
+	ReviewCoverageCompleteness string                       `json:"review_coverage_completeness,omitempty"`
+	ScoreChangesAfterRebuttal  string                       `json:"score_changes_after_rebuttal,omitempty"`
+}
+
+type DecisionCopilotDiscussionSignals struct {
+	Summary        string `json:"summary"`
+	ThreadCount    int    `json:"thread_count,omitempty"`
+	MessageCount   int    `json:"message_count,omitempty"`
+	LastActivityAt string `json:"last_activity_at,omitempty"`
+}
+
+type DecisionCopilotRebuttalSignals struct {
+	Status  string `json:"status"`
+	Summary string `json:"summary"`
+}
+
+type DecisionCopilotDisagreementMap struct {
+	AreasOfAgreement    []string `json:"areas_of_agreement,omitempty"`
+	AreasOfDisagreement []string `json:"areas_of_disagreement,omitempty"`
+	UnresolvedConcerns  []string `json:"unresolved_concerns,omitempty"`
+	ConfidenceLimits    []string `json:"confidence_limits,omitempty"`
+}
+
+type DecisionCopilotGuardrails struct {
+	AdvisoryOnly            bool   `json:"advisory_only"`
+	NoDecision              bool   `json:"no_decision"`
+	NoAutomaticStatusChange bool   `json:"no_automatic_status_change"`
+	HumanJudgmentRequired   string `json:"human_judgment_required"`
+}
+
+type DecisionCopilotArtifact struct {
+	EvidenceSummary         DecisionCopilotEvidenceSummary         `json:"evidence_summary"`
+	ReviewFeedbackSynthesis DecisionCopilotReviewFeedbackSynthesis `json:"review_feedback_synthesis"`
+	ReviewAnalytics         DecisionCopilotReviewAnalytics         `json:"review_analytics"`
+	DiscussionSignals       DecisionCopilotDiscussionSignals       `json:"discussion_signals"`
+	RebuttalSignals         DecisionCopilotRebuttalSignals         `json:"rebuttal_signals"`
+	DisagreementMap         DecisionCopilotDisagreementMap         `json:"disagreement_map"`
+	SuggestedChairNote      string                                 `json:"suggested_chair_note"`
+	Guardrails              DecisionCopilotGuardrails              `json:"guardrails"`
+	EvidenceFingerprint     string                                 `json:"evidence_fingerprint"`
+	GeneratedAt             string                                 `json:"generated_at"`
+}
+
+type DecisionCopilotErrorPayload struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+type DecisionCopilotResolveResponse struct {
+	Status   string                       `json:"status"`
+	RunID    string                       `json:"run_id,omitempty"`
+	Cache    DecisionCopilotCachePayload  `json:"cache"`
+	Artifact *DecisionCopilotArtifact     `json:"artifact,omitempty"`
+	Error    *DecisionCopilotErrorPayload `json:"error,omitempty"`
 }
 
 type GatingRunRequest struct {
@@ -428,6 +619,64 @@ func (c *Client) GenerateReviewerBriefing(
 	}
 
 	return doJSONRequest[ReviewerBriefingResolveResponse](c.httpClient, req, "reviewer briefing workflow")
+}
+
+func (c *Client) LookupDecisionCopilot(
+	ctx context.Context,
+	token string,
+	requestPayload *DecisionCopilotResolveRequest,
+) (*DecisionCopilotResolveResponse, error) {
+	return c.resolveDecisionCopilot(ctx, token, requestPayload)
+}
+
+func (c *Client) GenerateDecisionCopilot(
+	ctx context.Context,
+	token string,
+	requestPayload *DecisionCopilotResolveRequest,
+) (*DecisionCopilotResolveResponse, error) {
+	return c.resolveDecisionCopilot(ctx, token, requestPayload)
+}
+
+func (c *Client) RegenerateDecisionCopilot(
+	ctx context.Context,
+	token string,
+	requestPayload *DecisionCopilotResolveRequest,
+) (*DecisionCopilotResolveResponse, error) {
+	return c.resolveDecisionCopilot(ctx, token, requestPayload)
+}
+
+func (c *Client) resolveDecisionCopilot(
+	ctx context.Context,
+	token string,
+	requestPayload *DecisionCopilotResolveRequest,
+) (*DecisionCopilotResolveResponse, error) {
+	if c == nil || strings.TrimSpace(c.baseURL) == "" {
+		return nil, fmt.Errorf("ai-service client is not configured")
+	}
+	if requestPayload == nil {
+		return nil, fmt.Errorf("decision copilot request payload is required")
+	}
+
+	requestJSON, err := json.Marshal(requestPayload)
+	if err != nil {
+		return nil, fmt.Errorf("marshal decision copilot request: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		c.baseURL+"/api/v1/workflows/chair-decision-copilot/resolve",
+		bytes.NewReader(requestJSON),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("create decision copilot request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if normalizedToken := normalizeBearerToken(token); normalizedToken != "" {
+		req.Header.Set("Authorization", "Bearer "+normalizedToken)
+	}
+
+	return doJSONRequest[DecisionCopilotResolveResponse](c.httpClient, req, "decision copilot workflow")
 }
 
 func doJSONRequest[T any](httpClient *http.Client, req *http.Request, operation string) (*T, error) {
