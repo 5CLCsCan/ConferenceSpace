@@ -10,9 +10,9 @@ The platform needs a reviewer-facing quality gate that improves review coherence
 
 Add AI-010 as an assignment-scoped review quality and consistency auditor in the reviewer workflow.
 
-The reviewer can receive advisory findings while drafting and a stricter pre-submit audit before final submission. The feature evaluates the current review payload using deterministic-first checks across consistency, justification, completeness, coverage, and optional conference policy rules. When available, AI-003 is used only as optional additional material to improve coverage checks.
+The reviewer can receive advisory findings while drafting and a structured pre-submit audit before final submission. The feature evaluates the current review payload using AI-driven semantic analysis across consistency, justification, completeness, coverage, and optional conference policy dimensions. When available, AI-003 is used only as optional additional material to improve coverage checks.
 
-The result is a structured audit response with actionable field-level findings. Blocking findings prevent a clean submit. Warning findings can be dismissed and that dismissal persists with the draft until the finding materially changes or reappears.
+The result is a structured audit response with actionable field-level findings. Warning findings can be dismissed and that dismissal persists with the draft until the finding materially changes or reappears. Blocking findings are reserved for explicit policy-backed or platform-defined enforcement, not generic heuristic disagreement with the reviewer.
 
 If the AI-010 workflow itself fails during submit enforcement, the system must clearly tell the reviewer that the audit did not complete and require explicit confirmation before allowing the submission to continue. That override is recorded for later visibility.
 
@@ -46,12 +46,14 @@ If the AI-010 workflow itself fails during submit enforcement, the system must c
 - A dedicated assignment-scoped audit API is introduced for draft-save and submit-preflight checks.
 - Final submission still uses the existing review save route, but the backend reruns AI-010 before persisting a submitted review.
 - The current unsaved review payload is the source input for every audit run.
+- Basic form and schema validation remain the responsibility of the frontend and backend, not AI-010.
 - The audit contract uses three invocation modes: `draft_save`, `submit_preflight`, and `submit_enforcement`.
 - Findings use a fixed field taxonomy and two severities only: `warning` and `blocking`.
 - Warning dismissals persist with the assignment draft and reopen when the same finding code returns with a changed condition fingerprint.
 - Dismissal state is backend-owned metadata, not part of the reviewer-authored review content.
 - Browser-facing responses distinguish active findings from dismissed warnings after backend reconciliation.
 - AI-003 is optional additional material only and may affect coverage checks only.
+- AI-010 must actually use model-based semantic judgment for review-quality findings; heuristic linting alone is out of scope for the intended feature.
 - If AI-010 fails during submit enforcement, the reviewer may explicitly continue submission, and that override is logged for later visibility.
 
 ## Testing Decisions
@@ -63,6 +65,7 @@ If the AI-010 workflow itself fails during submit enforcement, the system must c
 - Verify that warning dismissals persist and reopen only when the condition fingerprint changes.
 - Verify that AI-003-dependent coverage checks are skipped cleanly when AI-003 is absent.
 - Verify that AI-003 never introduces verdict-like or recommendation-steering behavior into AI-010 findings.
+- Verify that missing required fields and malformed payloads are handled by normal UI/backend validation before AI-010 is called.
 - Verify that multiple findings can target the same field and render correctly.
 - Verify that backend enforcement cannot be bypassed by skipping frontend preflight.
 - Reuse existing assignment review, reviewer workflow, and AI workflow testing patterns as prior art.

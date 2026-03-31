@@ -18,32 +18,33 @@ const (
 	ColReviewScore       = "review_score"
 	ColReviewData        = "review_data"
 	ColReviewSubmittedAt = "review_submitted_at"
+	ColReviewAuditState  = "review_audit_state"
 )
 
 // Assignment represents the paper_assignments database entity
 type Assignment struct {
-	ID                int64           `db:"id"`
-	ConferenceID      int64           `db:"conference_id"`
-	SubmissionID      int64           `db:"submission_id"`
-	ReviewerID        int64           `db:"reviewer_id"`
-	Score             float64         `db:"score"`
-	Status            string          `db:"status"`
-	AssignedAt        time.Time       `db:"assigned_at"`
-	CompletedAt       *time.Time      `db:"completed_at"`
-	ReviewStatus           *string         `db:"review_status"`
-	ReviewScore            *float64        `db:"review_score"`
-	ReviewData             json.RawMessage `db:"review_data"`
-	ReviewSubmittedAt      *time.Time      `db:"review_submitted_at"`
-	RebuttalStatus         string          `db:"rebuttal_status"`
-	RebuttalSubmittedAt    *time.Time      `db:"rebuttal_submitted_at"`
-	RebuttalAcknowledgedAt        *time.Time      `db:"rebuttal_acknowledged_at"`
-	PostRebuttalScore             *int            `db:"post_rebuttal_score"`
-	PostRebuttalRecommendation    *string         `db:"post_rebuttal_recommendation"`
-	PostRebuttalComment           *string         `db:"post_rebuttal_comment"`
-	PostRebuttalUpdatedAt         *time.Time      `db:"post_rebuttal_updated_at"`
-	CreatedAt              time.Time       `db:"created_at"`
-	UpdatedAt              time.Time       `db:"updated_at"`
-	ReviewerEmail          string          `db:"reviewer_email"`
+	ID                         int64           `db:"id"`
+	ConferenceID               int64           `db:"conference_id"`
+	SubmissionID               int64           `db:"submission_id"`
+	ReviewerID                 int64           `db:"reviewer_id"`
+	Score                      float64         `db:"score"`
+	Status                     string          `db:"status"`
+	AssignedAt                 time.Time       `db:"assigned_at"`
+	CompletedAt                *time.Time      `db:"completed_at"`
+	ReviewStatus               *string         `db:"review_status"`
+	ReviewScore                *float64        `db:"review_score"`
+	ReviewData                 json.RawMessage `db:"review_data"`
+	ReviewSubmittedAt          *time.Time      `db:"review_submitted_at"`
+	RebuttalStatus             string          `db:"rebuttal_status"`
+	RebuttalSubmittedAt        *time.Time      `db:"rebuttal_submitted_at"`
+	RebuttalAcknowledgedAt     *time.Time      `db:"rebuttal_acknowledged_at"`
+	PostRebuttalScore          *int            `db:"post_rebuttal_score"`
+	PostRebuttalRecommendation *string         `db:"post_rebuttal_recommendation"`
+	PostRebuttalComment        *string         `db:"post_rebuttal_comment"`
+	PostRebuttalUpdatedAt      *time.Time      `db:"post_rebuttal_updated_at"`
+	CreatedAt                  time.Time       `db:"created_at"`
+	UpdatedAt                  time.Time       `db:"updated_at"`
+	ReviewerEmail              string          `db:"reviewer_email"`
 }
 
 // Rebuttal status constants (per assignment)

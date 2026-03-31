@@ -2,13 +2,14 @@
 
 ## Summary
 
-AI-010 adds a deterministic-first review auditing workflow to the reviewer submission path. The reviewer can request advisory audit results while drafting and receive stricter pre-submit feedback before final submission. The Go backend remains the enforcement boundary, while `ai-service` owns the typed audit workflow. AI-003 is optional additional input for coverage checks only.
+AI-010 adds an AI-driven semantic review auditing workflow to the reviewer submission path. The reviewer can request advisory audit results while drafting and receive structured pre-submit feedback before final submission. The Go backend remains the enforcement boundary, while `ai-service` owns the typed semantic audit workflow. AI-003 is optional additional input for coverage checks only.
 
 The v1 implementation persists warning dismissals in backend-owned assignment audit metadata, logs reviewer-confirmed submit overrides when audit enforcement fails, and keeps the reviewer-authored review payload separate from system audit state.
 
 ## Final Module Responsibilities
 
 - Reviewer frontend workflow
+  - catch immediate form integrity issues locally before calling AI-010
   - send the current unsaved review payload to the review-audit endpoint for `draft_save` and `submit_preflight`
   - render active findings and dismissed warnings separately
   - allow dismissal and undismissal of warning findings
@@ -16,6 +17,7 @@ The v1 implementation persists warning dismissals in backend-owned assignment au
 
 - Go backend review-audit boundary
   - authenticate the assigned reviewer
+  - revalidate request schema and submit invariants before calling `ai-service`
   - accept the current review payload from the browser-facing request or submit request
   - load optional AI-003 artifact and optional policy context
   - call the `ai-service` AI-010 workflow
@@ -25,7 +27,7 @@ The v1 implementation persists warning dismissals in backend-owned assignment au
 
 - `ai-service` review-quality-auditor workflow
   - validate the typed request contract
-  - run deterministic-first checks across consistency, justification, completeness, coverage, and optional policy categories
+  - run structured LLM-driven semantic analysis across consistency, justification, completeness, coverage, and optional policy dimensions
   - use AI-003 only for optional additional coverage checks
   - return typed findings with stable code, field, severity, message, suggestion, and condition fingerprint
   - persist workflow run history for debugging and operational tracing
@@ -104,6 +106,7 @@ The v1 implementation persists warning dismissals in backend-owned assignment au
     - persist draft as today
     - no hard dependency on audit success
   - when `status=submitted`:
+    - reject malformed or incomplete submit payloads before AI-010 is called
     - derive `submit_enforcement`
     - run AI-010 using the current request payload before persistence
     - if audit returns blocking findings, reject the submit
@@ -144,20 +147,21 @@ The v1 implementation persists warning dismissals in backend-owned assignment au
 ## Execution Flow
 
 1. Reviewer edits review fields in the submission review workspace.
-2. On draft save or explicit pre-submit check, frontend sends the current unsaved review payload to `review-audit`.
-3. Go backend authenticates reviewer ownership and loads optional AI-003 plus policy context.
-4. Go backend calls the `ai-service` workflow with the current review payload and audit mode.
-5. `ai-service` executes deterministic-first rules and returns typed findings.
-6. Go backend reconciles returned warning findings against stored dismissal metadata:
+2. Frontend catches obvious missing or malformed local state before invoking AI-010.
+3. On draft save or explicit pre-submit check, frontend sends the current unsaved review payload to `review-audit`.
+4. Go backend authenticates reviewer ownership, revalidates request shape, and loads optional AI-003 plus policy context.
+5. Go backend calls the `ai-service` workflow with the current review payload and audit mode.
+6. `ai-service` executes structured semantic audit and returns typed findings.
+7. Go backend reconciles returned warning findings against stored dismissal metadata:
    - unchanged dismissed warnings move to `dismissed_findings`
    - new or changed warnings remain in `active_findings`
    - blocking findings always remain active
-7. Frontend renders active findings and optionally collapsed dismissed warnings.
-8. Reviewer may dismiss or undismiss warnings through the dismissal endpoint.
-9. On final submit, backend reruns AI-010 in `submit_enforcement` using the current submit request payload.
-10. If blocking findings exist, backend rejects submission.
-11. If workflow execution fails, backend returns an audit-failure response that requires explicit reviewer confirmation before a follow-up override submit.
-12. If reviewer confirms override, backend logs the event and completes the submission.
+8. Frontend renders active findings and optionally collapsed dismissed warnings.
+9. Reviewer may dismiss or undismiss warnings through the dismissal endpoint.
+10. On final submit, backend first revalidates the submit request and only then reruns AI-010 in `submit_enforcement` using the current submit payload.
+11. If blocking findings exist, backend rejects submission.
+12. If workflow execution fails, backend returns an audit-failure response that requires explicit reviewer confirmation before a follow-up override submit.
+13. If reviewer confirms override, backend logs the event and completes the submission.
 
 ## Migration Notes
 
@@ -187,7 +191,7 @@ The v1 implementation persists warning dismissals in backend-owned assignment au
 
 - `ai-service`
   - request contract validation
-  - deterministic rule coverage across all five categories
+  - semantic finding quality across all five audit dimensions
   - optional AI-003 behavior
   - prohibition on recommendation or score steering
   - stable `code` and `condition_fingerprint` generation
@@ -206,6 +210,7 @@ The v1 implementation persists warning dismissals in backend-owned assignment au
 - Condition fingerprints that are too coarse will keep warnings dismissed when they should reopen.
 - Condition fingerprints that are too fine will reopen warnings too often and make dismissals feel unreliable.
 - Policy checks can drift into over-enforcement if policy modeling remains vague.
+- If AI-010 is reduced to heuristics instead of real semantic analysis, the feature will fail its core purpose even if the plumbing works.
 - Optional AI-003 coverage checks can become noisy if AI-003 extraction quality is weak.
 - Override confirmation after audit failure can be abused if not logged clearly and bounded to actual workflow failure cases.
 

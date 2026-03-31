@@ -36,10 +36,10 @@
 
 ### D-005
 - Question: How should AI-010 evaluate the review?
-- Decision: The primary evaluation logic should be deterministic and rule-driven, with narrow structured checks that compare review coverage against AI-003. It should not be a freeform "AI judges your review" pass.
-- Why: This feature is a workflow quality gate in a core review path. Deterministic behavior is more inspectable, testable, and defensible than broad subjective generation.
-- Alternatives Rejected: Pure LLM judgment with vague rationale; opaque model-only scoring; style-only linting.
-- Follow-up: Define rule categories later, including score-to-recommendation consistency, confidence-to-text consistency, minimum evidence coverage, and policy-based enforcement.
+- Decision: The core of AI-010 must be LLM-driven semantic audit, not deterministic rule evaluation. Deterministic checks are limited to ordinary UI/backend validation and workflow-state handling outside the AI layer. AI-010 itself should use structured prompting and typed outputs to assess review coherence, justification quality, and coverage.
+- Why: Review quality is fundamentally semantic. Contradiction, weak justification, shallow feedback, and missed engagement with the paper cannot be reduced to defensible deterministic rules in the general case. If AI-010 does not actually use AI for those judgments, the feature boundary is wrong.
+- Alternatives Rejected: Deterministic-first quality scoring; pure heuristic linting dressed up as AI; freeform model output with no schema.
+- Follow-up: Define the semantic audit dimensions later, and keep structural form validation explicitly outside AI-010.
 
 ### D-006
 - Question: What should the auditor output?
@@ -64,15 +64,15 @@
 
 ### D-009
 - Question: How should conference review policy affect AI-010?
-- Decision: Review-policy controls are optional for v1. AI-010 should work with baseline consistency checks without them, and only add stricter enforcement when explicit conference policy or rubric controls exist.
-- Why: The repo already has conference-configuration surfaces, but current review-policy modeling does not yet expose a clear assignment-time audit contract for reviewer-quality enforcement.
+- Decision: Review-policy controls are optional for v1. AI-010 should still run without them, but policy is what may later justify turning some semantic findings into true blocking enforcement. Without explicit policy, AI-010 findings should remain primarily advisory.
+- Why: The repo already has conference-configuration surfaces, but current review-policy modeling does not yet expose a clear assignment-time audit contract for reviewer-quality enforcement. Blocking a reviewer on semantic judgment without explicit policy is not defensible.
 - Alternatives Rejected: Blocking AI-010 on a fully built policy system; pretending policy strictness already exists in the current review flow.
 - Follow-up: Discovery and later design should call out the policy contract as a dependency gap, not as assumed existing infrastructure.
 
 ### D-010
 - Question: Where should the AI-010 workflow live?
 - Decision: AI-010 will ship as a full `frontend -> Go backend -> ai-service` workflow from v1. The frontend triggers and renders the audit, the Go backend owns auth and enforcement, and `ai-service` owns the typed audit workflow.
-- Why: This fits the repo's existing AI workflow pattern, keeps submit-time enforcement server-side, and leaves room for deterministic-first auditing plus AI-003-assisted coverage checks without overloading the reviewer page or inventing a second validation stack.
+- Why: This fits the repo's existing AI workflow pattern, keeps submit-time enforcement server-side, and gives the platform a proper place to run structured semantic audit with optional AI-003-assisted coverage checks without overloading the reviewer page or inventing a second validation stack.
 - Alternatives Rejected: Frontend-only validation; Go-only validator with no dedicated workflow boundary.
 - Follow-up: Lock the exact API surface next, including whether draft-save and submit-time audit share one resolve-style route or use separate invocation paths.
 
@@ -134,15 +134,15 @@
 
 ### D-019
 - Question: How should AI-010 distinguish draft-time auditing from submit-time enforcement?
-- Decision: Use one audit contract with three explicit invocation modes: `draft_save`, `submit_preflight`, and `submit_enforcement`. The same underlying rule engine runs in all three modes, but only `submit_enforcement` has authority to reject final submission.
-- Why: This preserves one coherent rule system while allowing draft UX, pre-submit UX, and backend enforcement to use the workflow differently without duplicating logic.
+- Decision: Use one audit contract with three explicit invocation modes: `draft_save`, `submit_preflight`, and `submit_enforcement`. The same semantic audit workflow runs in all three modes, but the platform may apply findings differently depending on mode and policy.
+- Why: This preserves one coherent audit workflow while allowing draft UX, pre-submit UX, and backend enforcement to use the same semantic analysis differently without duplicating prompts or contracts.
 - Alternatives Rejected: Separate draft and submit validators; implicit mode inference from route only; frontend-only preflight with no backend enforcement rerun.
-- Follow-up: Lock the rule categories next so the workflow boundary is complete enough to design backend and frontend module responsibilities cleanly.
+- Follow-up: Lock the audit dimensions next so the workflow boundary is complete enough to design backend and frontend module responsibilities cleanly.
 
 ### D-020
-- Question: What rule categories should AI-010 support in v1?
-- Decision: AI-010 v1 will use five rule categories: `consistency`, `justification`, `coverage`, `completeness`, and optional `policy`.
-- Why: These categories cover the actual review-quality problems the feature is meant to catch without sprawling into stylistic or recommendation-oriented behavior. They also cleanly separate deterministic audit concerns from future policy strictness.
+- Question: What audit dimensions should AI-010 support in v1?
+- Decision: AI-010 v1 will use five semantic audit dimensions: `consistency`, `justification`, `coverage`, `completeness`, and optional `policy`.
+- Why: These dimensions cover the actual review-quality problems the feature is meant to catch without sprawling into stylistic or recommendation-oriented behavior. `Completeness` here refers to reviewer-visible missing substance surfaced semantically, not basic form-schema validation that should already be enforced in UI and backend.
 - Alternatives Rejected: Style-only linting; a single undifferentiated finding pool with no semantic grouping; discussion- or rebuttal-based rules in v1.
 - Follow-up: Lock the AI-003 usage boundary inside the `coverage` category next so the workflow cannot drift into verdict guidance.
 

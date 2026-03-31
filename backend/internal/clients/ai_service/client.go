@@ -179,6 +179,61 @@ type ReviewerBriefingResolveResponse struct {
 	Error    *ReviewerBriefingErrorPayload `json:"error,omitempty"`
 }
 
+type ReviewQualityAuditResolveRequest struct {
+	Mode             string                            `json:"mode"`
+	ConferenceID     int64                             `json:"conference_id"`
+	AssignmentID     int64                             `json:"assignment_id"`
+	SubmissionID     int64                             `json:"submission_id"`
+	Actor            ActorPayload                      `json:"actor"`
+	Submission       ReviewerBriefingSubmissionPayload `json:"submission"`
+	ReviewScore      *float64                          `json:"review_score,omitempty"`
+	Review           ReviewQualityAuditReviewPayload   `json:"review"`
+	Policy           *ReviewQualityAuditPolicyPayload  `json:"policy,omitempty"`
+	BriefingArtifact *ReviewerBriefingArtifact         `json:"briefing_artifact,omitempty"`
+}
+
+type ReviewQualityAuditReviewPayload struct {
+	Criteria       ReviewCriteriaPayload `json:"criteria"`
+	Feedback       ReviewFeedbackPayload `json:"feedback"`
+	Recommendation string                `json:"recommendation"`
+	Confidence     string                `json:"confidence"`
+}
+
+type ReviewCriteriaPayload struct {
+	Originality      int `json:"originality"`
+	TechnicalQuality int `json:"technical_quality"`
+	Clarity          int `json:"clarity"`
+	Significance     int `json:"significance"`
+	Methodology      int `json:"methodology"`
+}
+
+type ReviewFeedbackPayload struct {
+	Summary    string `json:"summary,omitempty"`
+	Strengths  string `json:"strengths,omitempty"`
+	Weaknesses string `json:"weaknesses,omitempty"`
+	Questions  string `json:"questions,omitempty"`
+}
+
+type ReviewQualityAuditPolicyPayload struct {
+	RequiredSections []string `json:"required_sections,omitempty"`
+	Strict           bool     `json:"strict,omitempty"`
+}
+
+type ReviewQualityAuditFinding struct {
+	Code                 string `json:"code"`
+	Severity             string `json:"severity"`
+	Field                string `json:"field"`
+	Message              string `json:"message"`
+	Suggestion           string `json:"suggestion"`
+	ConditionFingerprint string `json:"condition_fingerprint"`
+}
+
+type ReviewQualityAuditResolveResponse struct {
+	Status   string                      `json:"status"`
+	RunID    string                      `json:"run_id,omitempty"`
+	Findings []ReviewQualityAuditFinding `json:"findings,omitempty"`
+}
+
 type DecisionCopilotResolveRequest struct {
 	Action                string                                      `json:"action"`
 	ConferenceID          int64                                       `json:"conference_id"`
@@ -619,6 +674,40 @@ func (c *Client) GenerateReviewerBriefing(
 	}
 
 	return doJSONRequest[ReviewerBriefingResolveResponse](c.httpClient, req, "reviewer briefing workflow")
+}
+
+func (c *Client) ResolveReviewQualityAudit(
+	ctx context.Context,
+	token string,
+	requestPayload *ReviewQualityAuditResolveRequest,
+) (*ReviewQualityAuditResolveResponse, error) {
+	if c == nil || strings.TrimSpace(c.baseURL) == "" {
+		return nil, fmt.Errorf("ai-service client is not configured")
+	}
+	if requestPayload == nil {
+		return nil, fmt.Errorf("review quality audit request payload is required")
+	}
+
+	requestJSON, err := json.Marshal(requestPayload)
+	if err != nil {
+		return nil, fmt.Errorf("marshal review quality audit request: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		c.baseURL+"/api/v1/workflows/review-quality-auditor/resolve",
+		bytes.NewReader(requestJSON),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("create review quality audit request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if normalizedToken := normalizeBearerToken(token); normalizedToken != "" {
+		req.Header.Set("Authorization", "Bearer "+normalizedToken)
+	}
+
+	return doJSONRequest[ReviewQualityAuditResolveResponse](c.httpClient, req, "review quality audit workflow")
 }
 
 func (c *Client) LookupDecisionCopilot(

@@ -31,6 +31,8 @@ The current submit path only performs minimal frontend validation before persist
 
 That means AI-010 is not filling a nonexistent flow. It is tightening an existing review submission path that currently lacks consistency or justification checks.
 
+It also means AI-010 should not absorb basic form validation responsibilities. Missing required fields, invalid score ranges, and malformed submit payloads belong in normal UI and backend validation, not in the semantic audit workflow itself.
+
 AI-003 already exists as a reviewer-side structured pre-read artifact in the same review workspace:
 
 - `frontend/components/reviewer/submission-review/review-sidebar.tsx`
@@ -77,7 +79,7 @@ So "strict enforcement from review policy" is a real future dependency, not a cu
 - AI-010 should output actionable findings tied to concrete review fields, not a rewritten review.
 - AI-003 may be used only as neutral structured context for coverage and traceability checks.
 - v1 should not depend on discussion, rebuttal, other reviewers' comments, or chair-only context.
-- Baseline consistency validation must work even if rubric or strict policy controls are not yet fully modeled.
+- The platform still needs baseline UI and backend validation even if AI-010 is unavailable or policy controls are not yet fully modeled.
 
 ## Risks and Unknowns
 
@@ -89,15 +91,18 @@ So "strict enforcement from review policy" is a real future dependency, not a cu
 
 ## Initial Solution Direction
 
-- Treat AI-010 as a deterministic review-quality workflow integrated into the existing reviewer draft and submit path.
-- Use the current review payload as the primary source of truth.
+- Treat AI-010 as an LLM-driven semantic review-quality workflow integrated into the existing reviewer draft and submit path.
+- Keep the current review payload as the primary source of truth.
 - Use AI-003 only to verify whether the written review meaningfully engages with the submission's central claims, limitations, and attention points.
-- Evaluate four main areas:
+- Keep basic form integrity outside AI-010:
+  - frontend should catch missing required fields and invalid local state early
+  - backend should revalidate request schema and submit invariants before invoking `ai-service`
+- Use AI-010 to evaluate the parts that are actually semantic:
   - internal consistency between scores, recommendation, confidence, and narrative text
-  - justification quality for extreme or important judgments
+  - justification quality for important judgments
   - coverage of core paper issues and claimed contributions
-  - missing required content or policy-driven gaps
+  - completeness of reviewer reasoning, not just raw field presence
 - Return a structured audit result with field-level findings and clear remediation guidance.
 - Keep draft-save results advisory and lightweight.
-- Keep submit-attempt results explicit, severity-grouped, and capable of blocking submission when required checks fail.
+- Keep submit-attempt results explicit and severity-grouped, but reserve blocking behavior for explicit policy-backed or platform-defined enforcement rather than heuristic math rules.
 - Keep rewrite assistance, tone normalization, and generic review templating out of scope for this feature.

@@ -10,8 +10,7 @@ type SaveReviewPayload = {
   review_score?: number
   review_data?: ReviewData
   status: "draft" | "submitted"
-  assignment_id?: number
-  conference_id?: number
+  audit_failure_override_confirmed?: boolean
 }
 
 export default function useAssignmentReview(conferenceId: string, assignmentId: string) {
@@ -52,15 +51,14 @@ export default function useAssignmentReview(conferenceId: string, assignmentId: 
       try {
         // Backend only supports PUT method for saving reviews
         const method = "PUT"
-        const { data, error: e } = await saveAssignmentReview(
-          conferenceId,
-          assignmentId,
-          payload,
-          method,
-        )
+        const {
+          data,
+          error: e,
+          errorData,
+        } = await saveAssignmentReview(conferenceId, assignmentId, payload, method)
         if (e) {
           setError(e)
-          return { success: false, error: e }
+          return { success: false, error: e, errorData }
         }
         setReview(data)
         return { success: true, data }

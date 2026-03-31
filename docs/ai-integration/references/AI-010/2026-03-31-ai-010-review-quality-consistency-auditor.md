@@ -2,9 +2,9 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Build AI-010 as a reviewer-facing audit workflow that evaluates the current review payload, supports dismissible warnings, enforces blocking findings on submit, and logs reviewer-confirmed submit overrides when audit enforcement fails.
+**Goal:** Build AI-010 as a reviewer-facing AI semantic audit workflow that evaluates the current review payload, supports dismissible warnings, enforces only justified blocking findings on submit, and logs reviewer-confirmed submit overrides when audit enforcement fails.
 
-**Architecture:** The frontend sends the current review payload to a dedicated backend audit route for `draft_save` and `submit_preflight`. The Go backend owns assignment auth, dismissal state, submit enforcement, and override logging, while `ai-service` owns the typed deterministic-first audit workflow and run history. AI-003 is optional additional coverage context only.
+**Architecture:** The frontend sends the current review payload to a dedicated backend audit route for `draft_save` and `submit_preflight` after local form validation. The Go backend owns assignment auth, dismissal state, submit enforcement, and override logging, and revalidates request integrity before invoking `ai-service`. `ai-service` owns the typed AI-driven semantic audit workflow and run history. AI-003 is optional additional coverage context only.
 
 **Tech Stack:** Next.js 15, React 18, TypeScript, Vitest, Go 1.24, Gin, PostgreSQL 15, FastAPI, Pydantic, SQLAlchemy, Alembic
 
@@ -91,7 +91,7 @@ git add backend/internal/dto/assignment.go backend/internal/model/review_audit.g
 git commit -m "feat: add review audit storage and dto types"
 ```
 
-### Task 3: AI-Service Contract and Workflow Tests
+### Task 3: AI-Service Contract and Semantic Workflow Tests
 
 **Files:**
 - Create: `ai-service/tests/test_review_quality_auditor_models.py`
@@ -115,8 +115,8 @@ git commit -m "feat: add review audit storage and dto types"
 
 **Step 2: Write failing runner tests**
 
-- consistency mismatch produces finding
-- completeness gap produces finding
+- semantic contradiction between narrative and recommendation produces finding
+- weak justification for strong judgment produces finding
 - AI-003 absent still returns non-coverage findings
 - AI-003 present adds optional coverage findings
 - recommendation-steering language is rejected
@@ -156,15 +156,16 @@ git commit -m "test: add review quality auditor workflow tests"
 - Add request and response models matching the locked contract.
 - Keep AI-003 input optional.
 
-**Step 2: Implement deterministic-first runner**
+**Step 2: Implement semantic runner**
 
-- Add rule evaluators for:
+- Add structured prompting and response parsing for:
   - `consistency`
   - `justification`
   - `coverage`
   - `completeness`
   - `policy`
 - Generate stable `code` and `condition_fingerprint`.
+- Keep raw malformed-payload handling outside AI-010 and in frontend/backend validation.
 
 **Step 3: Implement route and repository**
 
@@ -283,7 +284,8 @@ git commit -m "feat: add review audit dismissal lifecycle"
 **Step 2: Add enforcement flow**
 
 - On `status=submitted`, run `submit_enforcement` before persistence.
-- Reject on blocking findings.
+- Reject malformed or incomplete submit payloads before AI-010 is called.
+- Reject only on blocking findings that are justified by explicit policy or platform-defined enforcement.
 - If workflow fails:
   - return explicit audit failure response
   - allow follow-up submit only with override flag
@@ -416,6 +418,7 @@ Expected: PASS or only known unrelated failures documented.
 - submit blocks on blocking findings
 - audit failure requires explicit override
 - override is logged
+- missing required fields are stopped by UI/backend validation before AI-010
 
 **Step 5: Commit**
 

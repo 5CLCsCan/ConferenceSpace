@@ -1,4 +1,4 @@
-import { apiFetch } from "./client"
+import { ApiError, apiFetch } from "./client"
 import type { AssignedPaper } from "@/lib/types"
 
 /**
@@ -211,9 +211,10 @@ export async function saveAssignmentReview(
     review_score?: number
     review_data?: ReviewData
     status: "draft" | "submitted"
+    audit_failure_override_confirmed?: boolean
   },
   method: "POST" | "PUT" = "POST",
-): Promise<{ data: AssignmentReview | null; error: string | null; status: number }> {
+): Promise<{ data: AssignmentReview | null; error: string | null; status: number; errorData?: unknown }> {
   try {
     const endpoint = `/api/v1/conferences/${conferenceId}/assignments/${assignmentId}/review`
     const { data, response } = await apiFetch<{ data: AssignmentReview }>(endpoint, {
@@ -226,6 +227,7 @@ export async function saveAssignmentReview(
       data: null,
       error: error.message || "Failed to save review",
       status: error.status || 500,
+      errorData: error instanceof ApiError ? error.body : undefined,
     }
   }
 }

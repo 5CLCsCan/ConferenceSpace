@@ -5,6 +5,7 @@
 - Improve reviewer draft quality before final submission by detecting contradictions, missing justification, and missing coverage.
 - Keep review-quality enforcement inside the existing reviewer review workflow rather than adding a separate workspace.
 - Provide structured, field-level findings that a reviewer can act on quickly.
+- Use actual AI-driven semantic analysis for review-quality judgments instead of reducing the feature to heuristics.
 - Use AI-003 as optional neutral coverage context without turning AI-010 into a recommendation or scoring assistant.
 - Ensure final submit enforcement is server-owned rather than dependent on frontend-only checks.
 
@@ -14,6 +15,7 @@
 - Suggesting what recommendation or scores the reviewer should choose.
 - Using discussion, rebuttal, other reviewers' reviews, or chair-only context in v1.
 - Replacing the existing review save or submit flow with a separate submission mechanism.
+- Owning basic form-schema validation such as missing required fields or invalid score ranges.
 - Blocking basic AI-010 rollout on a fully developed rubric or review-policy engine.
 
 ## Actors and Workflows
@@ -49,7 +51,7 @@
   - `message`
   - `suggestion`
   - `condition_fingerprint`
-- Audit rule categories:
+- Audit dimensions:
   - `consistency`
   - `justification`
   - `coverage`
@@ -78,19 +80,21 @@
 
 - Frontend:
   - stays in the existing reviewer submission review screen
+  - catches immediate form integrity issues before AI-010 is called
   - triggers AI-010 audit on draft save and submit attempt
   - renders advisory and blocking findings
   - does not own final audit authority
 - Go backend:
   - remains the public browser-facing API boundary
   - verifies reviewer ownership for the assignment
+  - revalidates request schema and submit invariants before invoking AI-010
   - accepts the current review payload from the browser-facing audit or submit request
   - loads optional AI-003 artifact and any policy context needed for the audit request
   - owns submit-time enforcement before review persistence
   - proxies typed audit requests into `ai-service`
 - `ai-service`:
   - owns the AI-010 workflow contract and typed audit result schema
-  - runs deterministic-first review-quality checks across consistency, justification, coverage, completeness, and optional policy categories
+  - runs structured LLM-driven semantic audit across consistency, justification, coverage, completeness, and optional policy dimensions
   - uses AI-003 only as optional additional material for narrow coverage checks
   - returns structured findings suitable for direct UI rendering and backend enforcement
 
@@ -118,8 +122,8 @@
   - `POST /api/v1/conferences/{conference_id}/assignments/{assignment_id}/review-audit`
   - keep `PUT /api/v1/conferences/{conference_id}/assignments/{assignment_id}/review`
 - Browser-facing audit behavior:
-  - draft save may call `review-audit` explicitly with the current unsaved review payload to fetch advisory findings
-  - submit attempt may call `review-audit` with the current unsaved review payload for preflight UX, but the backend must still enforce the audit again inside final submit
+  - draft save may call `review-audit` explicitly with the current unsaved review payload to fetch advisory findings after local form integrity checks pass
+  - submit attempt may call `review-audit` with the current unsaved review payload for preflight UX, but the backend must still enforce the audit again inside final submit after backend request validation passes
   - after merging workflow findings with stored dismissal metadata, the browser-facing response should distinguish active findings from dismissed warnings
 - Internal `ai-service` contract direction:
   - typed resolve-style request carrying `mode`, the current review payload, optional AI-003 context, and optional policy context
@@ -146,6 +150,7 @@
 ## Lifecycle and Failure Modes
 
 - Draft-save audit is advisory and should not prevent draft persistence.
+- Basic required-field and schema validation should be caught in UI first and revalidated in backend before AI-010 is invoked.
 - Submit-time audit must run on the server before a review is accepted as submitted.
 - Warning-level findings are dismissible in v1.
 - Blocking findings are not dismissible.
@@ -159,6 +164,7 @@
 - AI-003-dependent coverage checks must degrade gracefully when the AI-003 artifact is absent.
 - Audit-failed-but-user-confirmed submissions must be recorded in backend metadata or audit logs for later chair and operational visibility.
 - The exact storage shape and visibility surface for that override record are not locked yet.
+- Default semantic findings should remain advisory unless explicit policy or platform rules justify blocking enforcement.
 
 ## AI-003 Usage Boundary
 
@@ -188,8 +194,9 @@
 ## Testing and Observability
 
 - Expected focus areas are:
-  - deterministic finding correctness
+  - semantic finding quality and schema correctness
   - AI-003 coverage-boundary correctness
+  - correct separation between UI/backend validation and AI-010 semantic audit
   - submit-time enforcement behavior
   - draft-save advisory behavior
   - explicit failure handling when audit execution is unavailable
