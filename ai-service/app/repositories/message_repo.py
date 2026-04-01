@@ -78,9 +78,10 @@ class MessageRepository:
             message_id = str(message["message_id"])
             existing = existing_by_id.get(message_id)
             if existing is not None:
-                if existing.role != str(message["role"]) or existing.parts != message["parts"]:
+                merged_parts = self._merge_message_parts(existing.parts, message["parts"])
+                if existing.role != str(message["role"]) or existing.parts != merged_parts:
                     existing.role = str(message["role"])
-                    existing.parts = message["parts"]
+                    existing.parts = merged_parts
                     mutated = True
                 continue
 
@@ -151,9 +152,64 @@ class MessageRepository:
                 ordered_messages.append(message)
                 continue
 
-            ordered_messages[existing_index] = message
+            existing_message = ordered_messages[existing_index]
+            ordered_messages[existing_index] = {
+                **message,
+                "parts": self._merge_message_parts(existing_message["parts"], message["parts"]),
+            }
 
         return ordered_messages
+
+    def _merge_message_parts(self, existing_parts: Any, incoming_parts: Any) -> list[Any]:
+        existing_list = list(existing_parts) if isinstance(existing_parts, list) else [existing_parts]
+        incoming_list = list(incoming_parts) if isinstance(incoming_parts, list) else [incoming_parts]
+
+        merged = list(existing_list)
+        tool_index_by_call_id: dict[str, int] = {}
+        seen_part_signatures = {self._part_signature(part) for part in merged}
+
+        for index, part in enumerate(merged):
+            if not isinstance(part, dict):
+                continue
+            tool_call_id = str(part.get("toolCallId") or part.get("id") or "").strip()
+            part_type = str(part.get("type") or "")
+            if tool_call_id and part_type.startswith("tool-"):
+                tool_index_by_call_id[tool_call_id] = index
+
+        for part in incoming_list:
+            if not isinstance(part, dict):
+                signature = self._part_signature(part)
+                if signature not in seen_part_signatures:
+                    merged.append(part)
+                    seen_part_signatures.add(signature)
+                continue
+
+            tool_call_id = str(part.get("toolCallId") or part.get("id") or "").strip()
+            part_type = str(part.get("type") or "")
+            if tool_call_id and part_type.startswith("tool-"):
+                existing_index = tool_index_by_call_id.get(tool_call_id)
+                if existing_index is not None:
+                    merged[existing_index] = part
+                    seen_part_signatures = {self._part_signature(item) for item in merged}
+                    continue
+
+                tool_index_by_call_id[tool_call_id] = len(merged)
+
+            signature = self._part_signature(part)
+            if signature in seen_part_signatures:
+                continue
+
+            merged.append(part)
+            seen_part_signatures.add(signature)
+
+        return merged
+
+    def _part_signature(self, part: Any) -> Any:
+        if isinstance(part, dict):
+            return tuple(sorted((str(key), self._part_signature(value)) for key, value in part.items()))
+        if isinstance(part, list):
+            return tuple(self._part_signature(item) for item in part)
+        return part
 
     def _to_iso(self, value: datetime) -> str:
         if value.tzinfo is None:

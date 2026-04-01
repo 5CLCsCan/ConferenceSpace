@@ -3,10 +3,10 @@
 import * as React from "react"
 import { usePathname } from "next/navigation"
 import type { UIMessage } from "ai"
-import { History, Plus } from "lucide-react"
+import { History, Plus, Trash2 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { getConversationHistory, listConversations } from "@/lib/chatbot/conversations"
+import { deleteConversation, getConversationHistory, listConversations } from "@/lib/chatbot/conversations"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
 import { useChatbot } from "./chatbot-provider"
@@ -262,8 +262,41 @@ export function Chatbot() {
   }, [setIsOpen])
 
   const handleNewConversation = React.useCallback(() => {
+    const current = conversationsRef.current.find((c) => c.id === currentConversationIdRef.current)
+    if (current && current.messages.length === 0) {
+      return
+    }
     ensureDraftConversation()
   }, [ensureDraftConversation])
+
+  const handleDeleteConversation = React.useCallback(
+    async (conversationId: string) => {
+      const isLocal = conversationsRef.current.find((c) => c.id === conversationId)?.status === "local-draft"
+      if (!isLocal) {
+        try {
+          await deleteConversation(conversationId)
+        } catch (error) {
+          console.error("chatbot.deleteConversation failed", error)
+          return
+        }
+      }
+
+      setConversationsState((previous) => {
+        const next = previous.filter((c) => c.id !== conversationId)
+        return sortConversations(next)
+      })
+
+      if (currentConversationIdRef.current === conversationId) {
+        const remaining = conversationsRef.current.filter((c) => c.id !== conversationId)
+        if (remaining.length > 0) {
+          setCurrentConversationIdState(remaining[0].id)
+        } else {
+          ensureDraftConversation()
+        }
+      }
+    },
+    [setConversationsState, setCurrentConversationIdState, ensureDraftConversation],
+  )
 
   const handleSendMessage = React.useCallback(
     (message: string, _attachments?: ChatAttachment[]) => {
@@ -523,41 +556,60 @@ export function Chatbot() {
                       })()
                     : null
                   return (
-                    <button
+                    <div
                       key={conversation.id}
-                      type="button"
-                      onClick={() => {
-                        void loadConversation(conversation.id)
-                        setIsHistoryOpen(false)
-                      }}
                       className={cn(
-                        "group w-full rounded-lg px-3 py-2 text-left transition-all duration-150",
+                        "group relative rounded-lg px-3 py-2 transition-all duration-150",
                         isActive ? "bg-[#1B3C53]/[0.07]" : "hover:bg-slate-50",
                       )}
                     >
-                      <div className="flex items-baseline justify-between gap-2">
-                        <span
-                          className={cn(
-                            "truncate text-[11px] font-semibold leading-tight transition-colors",
-                            isActive
-                              ? "text-[#1B3C53]"
-                              : "text-slate-700 group-hover:text-slate-900",
-                          )}
-                        >
-                          {conversation.title}
-                        </span>
-                        <span className="shrink-0 text-[9px] tabular-nums text-slate-400">
-                          {formatRelativeTime(conversation.updatedAt)}
-                        </span>
-                      </div>
-                      {preview ? (
-                        <p className="mt-0.5 truncate text-[10px] leading-relaxed text-slate-400">
-                          {preview}
-                        </p>
-                      ) : (
-                        <p className="mt-0.5 text-[10px] italic text-slate-300">No messages yet</p>
-                      )}
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          void loadConversation(conversation.id)
+                          setIsHistoryOpen(false)
+                        }}
+                        className="w-full text-left"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <span
+                            className={cn(
+                              "truncate text-[11px] font-semibold leading-tight transition-colors",
+                              isActive
+                                ? "text-[#1B3C53]"
+                                : "text-slate-700 group-hover:text-slate-900",
+                            )}
+                          >
+                            {conversation.title}
+                          </span>
+                          <span className="text-[9px] tabular-nums text-slate-400">
+                            {formatRelativeTime(conversation.updatedAt)}
+                          </span>
+                        </div>
+                        <div className="mt-0.5 flex items-center justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            {preview ? (
+                              <p className="truncate text-[10px] leading-relaxed text-slate-400">
+                                {preview}
+                              </p>
+                            ) : (
+                              <p className="text-[10px] italic text-slate-300">No messages yet</p>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              void handleDeleteConversation(conversation.id)
+                            }}
+                            className="flex h-4 w-4 shrink-0 items-center justify-center rounded text-slate-300 opacity-0 transition-all group-hover:opacity-100 hover:bg-red-50 hover:text-red-500"
+                            aria-label="Delete conversation"
+                          >
+                            <Trash2 className="h-2.5 w-2.5" />
+                          </button>
+                        </div>
+                      </button>
+                    </div>
                   )
                 })}
               </div>

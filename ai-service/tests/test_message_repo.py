@@ -111,11 +111,14 @@ async def test_append_unseen_messages_updates_existing_message_when_same_id_reap
 
     assert appended == 0
     assert len(db.added) == 0
-    assert existing.parts == [{"type": "text", "text": "Here is the final answer."}]
+    assert existing.parts == [
+        {"type": "tool-getPageContext", "toolCallId": "call-1", "state": "input-available", "input": {}},
+        {"type": "text", "text": "Here is the final answer."},
+    ]
     assert db.flush_calls == 1
 
 
-async def test_append_unseen_messages_keeps_latest_duplicate_payload_within_batch() -> None:
+async def test_append_unseen_messages_merges_duplicate_payloads_within_batch() -> None:
     db = _FakeDB(
         responses=[
             _ExecuteResult(scalars_values=[]),
@@ -143,7 +146,10 @@ async def test_append_unseen_messages_keeps_latest_duplicate_payload_within_batc
     assert appended == 1
     assert len(db.added) == 1
     assert db.added[0].sequence_no == 3
-    assert db.added[0].parts == [{"type": "text", "text": "Resolved response"}]
+    assert db.added[0].parts == [
+        {"type": "tool-getPageContext", "toolCallId": "call-2", "state": "input-available", "input": {}},
+        {"type": "text", "text": "Resolved response"},
+    ]
     assert db.flush_calls == 1
 
 
