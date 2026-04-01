@@ -533,7 +533,9 @@ def _system_prompt() -> str:
 You can answer platform questions and execute browser actions by requesting client tools.
 
 Tool policy:
-- Use getPageContext first before performing actions.
+- Use getCurrentNavigation first when route awareness matters.
+- Use navigate for route changes between known sitemap destinations.
+- Use getPageContext after navigation before performing actions on the page.
 - Use performAction one step at a time with refs returned by getPageContext.
 - If performAction returns failure or verified=false, re-check context before retrying.
 - Never claim actions succeeded without tool evidence.
@@ -665,12 +667,37 @@ def _pick_tool_call(tool_buffers: dict[int, dict[str, Any]]) -> dict[str, Any] |
             continue
         args_raw = str(buffer.get("args_raw", "")).strip()
         tool_input = _safe_json_loads(args_raw)
+        normalized_input = _normalize_tool_input(tool_name=tool_name, tool_input=tool_input)
         return {
             "tool_call_id": str(buffer["tool_call_id"]),
             "tool_name": tool_name,
-            "input": tool_input if isinstance(tool_input, dict) else {},
+            "input": normalized_input,
         }
     return None
+
+
+def _normalize_tool_input(*, tool_name: str, tool_input: Any) -> dict[str, Any]:
+    if not isinstance(tool_input, dict):
+        return {}
+
+    if tool_name not in {"performAction", "navigate"}:
+        return tool_input
+
+    nested_properties = tool_input.get("properties")
+    if not isinstance(nested_properties, dict):
+        return tool_input
+
+    normalized: dict[str, Any] = {}
+    keys = ("action", "ref", "text", "key", "value")
+    if tool_name == "navigate":
+        keys = ("destinationId", "params")
+
+    for key in keys:
+        value = tool_input.get(key, nested_properties.get(key))
+        if value is not None:
+            normalized[key] = value
+
+    return normalized or tool_input
 
 
 def _safe_json_loads(value: str) -> Any:

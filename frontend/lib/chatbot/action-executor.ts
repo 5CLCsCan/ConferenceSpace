@@ -12,6 +12,11 @@ export interface ActionParams {
   value?: string // Select option value
 }
 
+export interface ActionInvocationInput extends ActionParams {
+  action?: ActionType
+  properties?: Partial<ActionInvocationInput>
+}
+
 export interface ActionResult {
   success: boolean
   message: string
@@ -24,28 +29,48 @@ export interface ActionResult {
  * Execute a browser action on an element
  */
 export async function executeAction(
-  action: ActionType,
+  action: ActionType | undefined,
   refMap: Map<string, Element>,
-  params: ActionParams,
+  params: ActionInvocationInput,
 ): Promise<ActionResult> {
+  const normalized = normalizeActionInvocation(action, params)
+
   try {
-    switch (action) {
+    switch (normalized.action) {
       case "click":
-        return handleClick(refMap, params)
+        return handleClick(refMap, normalized.params)
       case "type":
-        return await handleType(refMap, params)
+        return await handleType(refMap, normalized.params)
       case "press":
-        return handlePress(params)
+        return handlePress(normalized.params)
       case "select":
-        return handleSelect(refMap, params)
+        return handleSelect(refMap, normalized.params)
       case "clear":
-        return handleClear(refMap, params)
+        return handleClear(refMap, normalized.params)
       default:
-        return { success: false, message: `Unknown action: ${action}` }
+        return { success: false, message: `Unknown action: ${String(normalized.action)}` }
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error"
     return { success: false, message: `Action failed: ${message}` }
+  }
+}
+
+export function normalizeActionInvocation(
+  action: ActionType | undefined,
+  params: ActionInvocationInput,
+): { action: ActionType | undefined; params: ActionParams } {
+  const nested = params.properties
+  const normalizedParams: ActionParams = {
+    ref: params.ref ?? nested?.ref,
+    text: params.text ?? nested?.text,
+    key: params.key ?? nested?.key,
+    value: params.value ?? nested?.value,
+  }
+
+  return {
+    action: action ?? params.action ?? nested?.action,
+    params: normalizedParams,
   }
 }
 

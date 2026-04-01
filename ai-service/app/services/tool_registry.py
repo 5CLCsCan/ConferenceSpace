@@ -13,6 +13,29 @@ class ToolSpec:
 
 
 TOOL_REGISTRY: dict[str, ToolSpec] = {
+    "getCurrentNavigation": ToolSpec(
+        name="getCurrentNavigation",
+        execution_mode="client",
+        input_schema={"type": "object", "properties": {}, "additionalProperties": False},
+        timeout_seconds=90,
+    ),
+    "navigate": ToolSpec(
+        name="navigate",
+        execution_mode="client",
+        input_schema={
+            "type": "object",
+            "properties": {
+                "destinationId": {"type": "string"},
+                "params": {
+                    "type": "object",
+                    "additionalProperties": {"type": "string"},
+                },
+            },
+            "required": ["destinationId"],
+            "additionalProperties": False,
+        },
+        timeout_seconds=90,
+    ),
     "getPageContext": ToolSpec(
         name="getPageContext",
         execution_mode="client",

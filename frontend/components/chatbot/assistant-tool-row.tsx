@@ -110,7 +110,9 @@ export function AssistantToolRow({ item }: AssistantToolRowProps) {
 function getToolDisplayName(toolName: string): string {
   const aliases: Record<string, string> = {
     getPageContext: "Get Page Context",
+    getCurrentNavigation: "Get Current Navigation",
     performAction: "Perform Action",
+    navigate: "Navigate",
   }
 
   return aliases[toolName] || toolName
