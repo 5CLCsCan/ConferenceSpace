@@ -56,25 +56,32 @@ class MessageRepository:
                 }
             )
 
-        message_ids = [msg["message_id"] for msg in normalized_messages]
+        coalesced_messages = self._coalesce_messages_by_id(normalized_messages)
+        message_ids = [msg["message_id"] for msg in coalesced_messages]
         existing_result = await self.db.execute(
-            select(AiMessage.message_id).where(
+            select(AiMessage).where(
                 AiMessage.thread_id == thread_id,
                 AiMessage.message_id.in_(message_ids),
             )
         )
-        existing_ids = {str(message_id) for message_id in existing_result.scalars().all()}
+        existing_rows = list(existing_result.scalars().all())
+        existing_by_id = {str(row.message_id): row for row in existing_rows}
 
         sequence_result = await self.db.execute(
             select(func.max(AiMessage.sequence_no)).where(AiMessage.thread_id == thread_id)
         )
         next_sequence = int(sequence_result.scalar() or 0) + 1
-        seen_batch_ids: set[str] = set()
+        mutated = False
         appended = 0
 
-        for message in normalized_messages:
+        for message in coalesced_messages:
             message_id = str(message["message_id"])
-            if message_id in existing_ids or message_id in seen_batch_ids:
+            existing = existing_by_id.get(message_id)
+            if existing is not None:
+                if existing.role != str(message["role"]) or existing.parts != message["parts"]:
+                    existing.role = str(message["role"])
+                    existing.parts = message["parts"]
+                    mutated = True
                 continue
 
             self.db.add(
@@ -87,11 +94,11 @@ class MessageRepository:
                     token_count=None,
                 )
             )
-            seen_batch_ids.add(message_id)
             next_sequence += 1
             appended += 1
+            mutated = True
 
-        if appended:
+        if mutated:
             await self.db.flush()
         return appended
 
@@ -131,6 +138,22 @@ class MessageRepository:
         if raw_id:
             return raw_id
         return f"{thread_id}-msg-{idx + 1}"
+
+    def _coalesce_messages_by_id(self, messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        ordered_messages: list[dict[str, Any]] = []
+        index_by_id: dict[str, int] = {}
+
+        for message in messages:
+            message_id = str(message["message_id"])
+            existing_index = index_by_id.get(message_id)
+            if existing_index is None:
+                index_by_id[message_id] = len(ordered_messages)
+                ordered_messages.append(message)
+                continue
+
+            ordered_messages[existing_index] = message
+
+        return ordered_messages
 
     def _to_iso(self, value: datetime) -> str:
         if value.tzinfo is None:

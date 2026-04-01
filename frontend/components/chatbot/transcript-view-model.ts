@@ -82,13 +82,22 @@ export function buildTranscriptTurns(messages: UIMessage[]): TranscriptTurn[] {
       for (const part of message.parts) {
         const normalized = normalizePart(message.id, part)
         if (normalized) {
+          if (normalized.kind === "tool" && normalized.toolCallId) {
+            const existingIndex = currentAssistantTurn.items.findIndex(
+              (item) => item.kind === "tool" && item.toolCallId === normalized.toolCallId
+            )
+            if (existingIndex !== -1) {
+              currentAssistantTurn.items[existingIndex] = normalized
+              continue
+            }
+          }
           currentAssistantTurn.items.push(normalized)
         }
       }
       continue
     }
 
-    if (message.role === "tool") {
+    if ((message.role as string) === "tool") {
       if (!currentAssistantTurn) {
         currentAssistantTurn = createAssistantTurn({ isOrphanActivity: true })
       }
@@ -96,6 +105,15 @@ export function buildTranscriptTurns(messages: UIMessage[]): TranscriptTurn[] {
       for (const part of message.parts) {
         const normalized = normalizePart(message.id, part)
         if (normalized) {
+          if (normalized.kind === "tool" && normalized.toolCallId) {
+            const existingIndex = currentAssistantTurn.items.findIndex(
+              (item) => item.kind === "tool" && item.toolCallId === normalized.toolCallId
+            )
+            if (existingIndex !== -1) {
+              currentAssistantTurn.items[existingIndex] = normalized
+              continue
+            }
+          }
           currentAssistantTurn.items.push(normalized)
         }
       }
