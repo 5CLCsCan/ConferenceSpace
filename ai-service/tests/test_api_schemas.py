@@ -4,6 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.api.schemas import HistorySessionMeta, ToolResultEnvelope
+from app.services.tool_registry import TOOL_REGISTRY
 
 
 def test_tool_result_envelope_allows_output_available_without_error() -> None:
@@ -34,3 +35,26 @@ def test_history_session_meta_requires_title() -> None:
             model="openrouter/google/gemini-2.5-flash-lite",
             trace_id="trace-1",
         )
+
+
+def test_tool_registry_includes_get_current_navigation_client_tool() -> None:
+    spec = TOOL_REGISTRY["getCurrentNavigation"]
+
+    assert spec.execution_mode == "client"
+    assert spec.input_schema == {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": False,
+    }
+
+
+def test_tool_registry_includes_navigate_client_tool() -> None:
+    spec = TOOL_REGISTRY["navigate"]
+
+    assert spec.execution_mode == "client"
+    assert spec.input_schema["required"] == ["destinationId"]
+    assert spec.input_schema["properties"]["destinationId"] == {"type": "string"}
+    assert spec.input_schema["properties"]["params"] == {
+        "type": "object",
+        "additionalProperties": {"type": "string"},
+    }

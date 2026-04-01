@@ -1,17 +1,19 @@
 /**
- * Accessibility Tree Snapshot Generator
- * Captures a hierarchical representation of the DOM with refs for element targeting
+ * Page context snapshot generator.
+ * Captures a pruned, semantically useful tree plus executable refs for actionable elements.
  */
 
 export interface A11yNode {
-  ref: string // Unique identifier for targeting (e.g., "btn-1", "input-2")
-  role: string // ARIA/semantic role
-  name: string // Accessible name (label, aria-label, text content)
-  value?: string // Input value, checkbox state, etc.
-  checked?: boolean // Checkbox/radio state
-  disabled?: boolean // Disabled state
-  expanded?: boolean // Collapsible state
-  children?: A11yNode[] // Child nodes
+  role: string
+  ref?: string
+  accessibleName?: string
+  visibleText?: string
+  value?: string
+  checked?: boolean
+  disabled?: boolean
+  expanded?: boolean
+  level?: number
+  children?: A11yNode[]
 }
 
 export interface PageContext {
@@ -19,10 +21,8 @@ export interface PageContext {
   refMap: Map<string, Element>
 }
 
-// Counter for generating unique refs
 let refCounter = 0
 
-// Interactive element selectors
 const INTERACTIVE_SELECTORS = [
   "button",
   "a[href]",
@@ -40,85 +40,97 @@ const INTERACTIVE_SELECTORS = [
 ].join(", ")
 
 const CONTEXT_EXCLUDED_SELECTOR = '[data-chatbot-ui="true"], [data-chatbot-ignore-context="true"]'
+const HIDDEN_SELECTOR = '[aria-hidden="true"], [hidden], [inert], [role="presentation"], [role="none"]'
+const NON_CONTENT_TAGS = new Set(["script", "style", "template", "noscript"])
+const NAME_FROM_CONTENT_ROLES = new Set([
+  "button",
+  "checkbox",
+  "heading",
+  "link",
+  "menuitem",
+  "option",
+  "radio",
+  "tab",
+])
 
-/**
- * Capture the current page's accessibility tree
- */
 export function capturePageContext(): PageContext {
-  refCounter = 0 // Reset counter
+  refCounter = 0
   const refMap = new Map<string, Element>()
-
-  const tree = buildA11yTree(document.body, refMap)
+  const tree = buildA11yTree(document.body, refMap) ?? { role: "generic" }
 
   return { tree, refMap }
 }
 
-/**
- * Recursively build the accessibility tree
- */
-function buildA11yTree(element: Element, refMap: Map<string, Element>): A11yNode {
-  const isInteractive = element.matches(INTERACTIVE_SELECTORS)
-  const ref = isInteractive ? generateRef(element) : `elem-${refCounter++}`
+function buildA11yTree(element: Element, refMap: Map<string, Element>): A11yNode | null {
+  const isRoot = element === document.body
 
-  if (isInteractive) {
+  if (element !== document.body && isExcludedFromContext(element)) {
+    return null
+  }
+
+  const children = Array.from(element.children)
+    .map((child) => buildA11yTree(child, refMap))
+    .filter((child): child is A11yNode => Boolean(child))
+
+  const role = getRole(element)
+  const accessibleName = getAccessibleName(element, role)
+  const visibleText = getVisibleText(element, children, accessibleName)
+  const actionable = isActionableElement(element)
+  const node: A11yNode = { role }
+
+  if (actionable) {
+    const ref = generateRef(element)
+    node.ref = ref
     refMap.set(ref, element)
   }
 
-  const node: A11yNode = {
-    ref,
-    role: getRole(element),
-    name: getAccessibleName(element),
+  if (accessibleName) {
+    node.accessibleName = accessibleName
   }
 
-  // Add state attributes
-  if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
-    node.value = element.value
+  if (visibleText) {
+    node.visibleText = visibleText
   }
 
-  if (
-    element instanceof HTMLInputElement &&
-    (element.type === "checkbox" || element.type === "radio")
-  ) {
-    node.checked = element.checked
+  const value = getElementValue(element)
+  if (value) {
+    node.value = value
   }
 
-  if (
-    element instanceof HTMLButtonElement ||
-    element instanceof HTMLInputElement ||
-    element instanceof HTMLSelectElement ||
-    element instanceof HTMLTextAreaElement
-  ) {
-    node.disabled = element.disabled
+  const checked = getCheckedState(element)
+  if (checked !== undefined) {
+    node.checked = checked
+  }
+
+  if (isDisabledElement(element)) {
+    node.disabled = true
   }
 
   const ariaExpanded = element.getAttribute("aria-expanded")
-  if (ariaExpanded !== null) {
+  if (ariaExpanded === "true" || ariaExpanded === "false") {
     node.expanded = ariaExpanded === "true"
   }
 
-  // Traverse children (only visible, non-script elements)
-  const children: A11yNode[] = []
-  const childElements = Array.from(element.children).filter((child) => {
-    if (!(child instanceof HTMLElement)) return false
-    if (isExcludedFromContext(child)) return false
-    const style = window.getComputedStyle(child)
-    return style.display !== "none" && style.visibility !== "hidden"
-  })
-
-  for (const child of childElements) {
-    children.push(buildA11yTree(child, refMap))
+  const level = getHeadingLevel(element)
+  if (level !== undefined) {
+    node.level = level
   }
 
   if (children.length > 0) {
     node.children = children
   }
 
+  if (!isRoot && shouldDropNode(node)) {
+    return null
+  }
+
+  if (!isRoot && shouldCollapseNode(node)) {
+    return node.children?.[0] ?? null
+  }
+
   return node
 }
 
-/**
- * Generate a unique ref for an element
- */
 function generateRef(element: Element): string {
   const tagName = element.tagName.toLowerCase()
 
@@ -137,120 +149,271 @@ function generateRef(element: Element): string {
   return `elem-${refCounter++}`
 }
 
-/**
- * Get the semantic role of an element
- */
 function getRole(element: Element): string {
-  // Explicit ARIA role
   const ariaRole = element.getAttribute("role")
   if (ariaRole) return ariaRole
 
-  // Implicit semantic roles
   const tagName = element.tagName.toLowerCase()
 
+  if (element instanceof HTMLInputElement) {
+    const inputType = element.type
+    if (inputType === "checkbox") return "checkbox"
+    if (inputType === "radio") return "radio"
+    if (inputType === "submit" || inputType === "button" || inputType === "reset") {
+      return "button"
+    }
+    return "textbox"
+  }
+
   const roleMap: Record<string, string> = {
-    button: "button",
     a: "link",
-    input: "textbox",
-    select: "combobox",
-    textarea: "textbox",
+    aside: "complementary",
+    button: "button",
+    footer: "contentinfo",
+    form: "form",
     h1: "heading",
     h2: "heading",
     h3: "heading",
     h4: "heading",
     h5: "heading",
     h6: "heading",
-    nav: "navigation",
-    main: "main",
-    aside: "complementary",
     header: "banner",
-    footer: "contentinfo",
-    form: "form",
     img: "img",
-  }
-
-  if (element instanceof HTMLInputElement) {
-    const inputType = element.type
-    if (inputType === "checkbox") return "checkbox"
-    if (inputType === "radio") return "radio"
-    if (inputType === "submit") return "button"
-    if (inputType === "button") return "button"
-    return "textbox"
+    li: "listitem",
+    main: "main",
+    nav: "navigation",
+    ol: "list",
+    select: "combobox",
+    textarea: "textbox",
+    ul: "list",
   }
 
   return roleMap[tagName] || "generic"
 }
 
-/**
- * Get the accessible name of an element
- */
-function getAccessibleName(element: Element): string {
-  // aria-label takes precedence
-  const ariaLabel = element.getAttribute("aria-label")
-  if (ariaLabel) return ariaLabel
-
-  // aria-labelledby
-  const ariaLabelledBy = element.getAttribute("aria-labelledby")
-  if (ariaLabelledBy) {
-    const labelElement = document.getElementById(ariaLabelledBy)
-    if (labelElement) return labelElement.textContent?.trim() || ""
+function getAccessibleName(element: Element, role: string): string {
+  const ariaLabel = normalizeText(element.getAttribute("aria-label"))
+  if (ariaLabel) {
+    return ariaLabel
   }
 
-  // Label element (for inputs and textareas)
+  const ariaLabelledBy = element.getAttribute("aria-labelledby")
+  if (ariaLabelledBy) {
+    const labelledText = getTextFromIds(ariaLabelledBy)
+    if (labelledText) {
+      return labelledText
+    }
+  }
+
   if (
     element instanceof HTMLInputElement ||
     element instanceof HTMLTextAreaElement ||
     element instanceof HTMLSelectElement
   ) {
-    const id = element.id
-    if (id) {
-      const label = document.querySelector(`label[for="${id}"]`)
-      if (label) return label.textContent?.trim() || ""
+    const labelText = getLabelText(element)
+    if (labelText) {
+      return labelText
     }
 
-    // Parent label
-    const parentLabel = element.closest("label")
-    if (parentLabel) {
-      const labelText = parentLabel.textContent?.trim() || ""
-      // For textareas, also check if there's a sibling label or description
-      if (labelText) return labelText
-    }
-
-    // For textareas, check for associated description or helper text
-    if (element instanceof HTMLTextAreaElement) {
-      const ariaDescribedBy = element.getAttribute("aria-describedby")
-      if (ariaDescribedBy) {
-        const descElement = document.getElementById(ariaDescribedBy)
-        if (descElement) {
-          const descText = descElement.textContent?.trim()
-          if (descText) return descText
+    if (element instanceof HTMLInputElement) {
+      if (["button", "submit", "reset"].includes(element.type)) {
+        const buttonValue = normalizeText(element.value)
+        if (buttonValue) {
+          return buttonValue
         }
       }
     }
+
+    const placeholder = normalizeText(element.getAttribute("placeholder"))
+    if (placeholder) {
+      return placeholder
+    }
   }
 
-  // Text content
-  const textContent = element.textContent?.trim()
-  if (textContent && textContent.length < 100) return textContent
-
-  // Placeholder for inputs
-  if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
-    const placeholder = element.placeholder
-    if (placeholder) return placeholder
-  }
-
-  // Alt text for images
   if (element instanceof HTMLImageElement) {
-    return element.alt || ""
+    const alt = normalizeText(element.alt)
+    if (alt) {
+      return alt
+    }
   }
 
-  // Title attribute
-  const title = element.getAttribute("title")
-  if (title) return title
+  if (NAME_FROM_CONTENT_ROLES.has(role)) {
+    const textContent = getElementText(element)
+    if (textContent) {
+      return textContent
+    }
+  }
+
+  const title = normalizeText(element.getAttribute("title"))
+  if (title) {
+    return title
+  }
 
   return ""
 }
 
+function getVisibleText(
+  element: Element,
+  children: A11yNode[],
+  accessibleName?: string,
+): string {
+  const candidate =
+    children.length === 0 ? getElementText(element) : getDirectTextContent(element)
+
+  if (!candidate || candidate === accessibleName) {
+    return ""
+  }
+
+  return truncateText(candidate, 200)
+}
+
+function getElementValue(element: Element): string {
+  if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+    return normalizeText(element.value)
+  }
+
+  if (element instanceof HTMLSelectElement) {
+    return normalizeText(element.selectedOptions[0]?.textContent)
+  }
+
+  return ""
+}
+
+function getCheckedState(element: Element): boolean | undefined {
+  if (
+    element instanceof HTMLInputElement &&
+    (element.type === "checkbox" || element.type === "radio")
+  ) {
+    return element.checked
+  }
+
+  return undefined
+}
+
+function getHeadingLevel(element: Element): number | undefined {
+  const tagName = element.tagName.toLowerCase()
+  if (!/^h[1-6]$/.test(tagName)) {
+    return undefined
+  }
+
+  return Number.parseInt(tagName.slice(1), 10)
+}
+
+function getLabelText(
+  element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement,
+): string {
+  if (element.id) {
+    const explicitLabel = Array.from(document.querySelectorAll("label[for]")).find(
+      (label) => label.getAttribute("for") === element.id,
+    )
+    const explicitText = normalizeText(explicitLabel?.textContent)
+    if (explicitText) {
+      return explicitText
+    }
+  }
+
+  const parentLabel = element.closest("label")
+  return normalizeText(parentLabel?.textContent)
+}
+
+function getTextFromIds(ids: string): string {
+  const text = ids
+    .split(/\s+/)
+    .map((id) => document.getElementById(id))
+    .map((element) => normalizeText(element?.textContent))
+    .filter(Boolean)
+    .join(" ")
+
+  return normalizeText(text)
+}
+
+function getElementText(element: Element): string {
+  return truncateText(normalizeText(element.textContent), 200)
+}
+
+function getDirectTextContent(element: Element): string {
+  const text = Array.from(element.childNodes)
+    .filter((child) => child.nodeType === Node.TEXT_NODE)
+    .map((child) => child.textContent || "")
+    .join(" ")
+
+  return truncateText(normalizeText(text), 200)
+}
+
+function truncateText(value: string, maxLength: number): string {
+  if (value.length <= maxLength) {
+    return value
+  }
+
+  return `${value.slice(0, maxLength - 1).trimEnd()}...`
+}
+
+function normalizeText(value: string | null | undefined): string {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
+function isActionableElement(element: Element): boolean {
+  return element.matches(INTERACTIVE_SELECTORS) && !isDisabledElement(element)
+}
+
+function isDisabledElement(element: Element): boolean {
+  if (element.getAttribute("aria-disabled") === "true") {
+    return true
+  }
+
+  return Boolean(
+    (element instanceof HTMLButtonElement ||
+      element instanceof HTMLInputElement ||
+      element instanceof HTMLSelectElement ||
+      element instanceof HTMLTextAreaElement) &&
+      element.disabled,
+  )
+}
+
+function shouldDropNode(node: A11yNode): boolean {
+  if (node.role === "img" && !node.accessibleName && !node.visibleText) {
+    return true
+  }
+
+  return !hasNodeDetails(node) && !node.children?.length
+}
+
+function shouldCollapseNode(node: A11yNode): boolean {
+  return node.role === "generic" && !hasNodeDetails(node) && (node.children?.length ?? 0) === 1
+}
+
+function hasNodeDetails(node: A11yNode): boolean {
+  return Boolean(
+    node.ref ||
+      node.accessibleName ||
+      node.visibleText ||
+      node.value ||
+      node.checked !== undefined ||
+      node.disabled ||
+      node.expanded !== undefined ||
+      node.level !== undefined,
+  )
+}
+
 function isExcludedFromContext(element: Element): boolean {
-  return Boolean(element.closest(CONTEXT_EXCLUDED_SELECTOR))
+  if (NON_CONTENT_TAGS.has(element.tagName.toLowerCase())) {
+    return true
+  }
+
+  if (element.closest(CONTEXT_EXCLUDED_SELECTOR) || element.closest(HIDDEN_SELECTOR)) {
+    return true
+  }
+
+  if (!(element instanceof HTMLElement)) {
+    return false
+  }
+
+  const style = window.getComputedStyle(element)
+  return (
+    style.display === "none" ||
+    style.visibility === "hidden" ||
+    style.visibility === "collapse"
+  )
 }

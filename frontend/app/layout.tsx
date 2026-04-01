@@ -4,7 +4,7 @@ import { Inter, Merriweather } from "next/font/google"
 import "./globals.css"
 import { AuthProvider } from "@/lib/auth-context"
 import { TranslationProvider } from "@/lib/i18n/translation-context"
-import { ChatbotProvider, Chatbot } from "@/components/chatbot"
+import { ChatbotProvider, Chatbot, ChatbotNavigationMask } from "@/components/chatbot"
 import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({
@@ -40,9 +40,12 @@ export default function RootLayout({
           <AuthProvider>
             <ChatbotProvider>
               <div className="flex h-screen overflow-hidden">
-                <main className="flex-1 transition-all duration-300 ease-out overflow-y-auto overflow-x-hidden">
-                  {children}
-                </main>
+                <div className="relative flex-1 overflow-hidden">
+                  <main className="h-full transition-all duration-300 ease-out overflow-y-auto overflow-x-hidden">
+                    {children}
+                  </main>
+                  <ChatbotNavigationMask />
+                </div>
                 <Chatbot />
               </div>
               <Toaster />

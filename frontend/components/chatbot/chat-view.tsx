@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { X } from "lucide-react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithToolCalls,
@@ -19,9 +20,15 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { executeAction, type ActionParams, type ActionType } from "@/lib/chatbot/action-executor"
+import {
+  getCurrentNavigationSnapshot,
+  navigateToDestination,
+} from "@/lib/chatbot/navigation-executor"
 import { capturePageContext } from "@/lib/chatbot/page-context"
+import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
+import { useChatbot } from "./chatbot-provider"
 import { ChatTranscript } from "./chat-transcript"
 import type { ChatAttachment, ChatConversation } from "./types"
 
@@ -39,6 +46,11 @@ export function ChatView({
   onConversationSynced,
 }: ChatViewProps) {
   const { t } = useTranslation()
+  const { currentRole, switchRole } = useAuth()
+  const { showNavigationMask } = useChatbot()
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [input, setInput] = React.useState("")
   const [attachments, setAttachments] = React.useState<ChatAttachment[]>([])
   const [mode, setMode] = React.useState<"agentic" | "standard">("agentic")
@@ -54,6 +66,62 @@ export function ChatView({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
+      if (toolCall.toolName === "getCurrentNavigation") {
+        try {
+          const snapshot = getCurrentNavigationSnapshot({
+            href: typeof window !== "undefined" ? window.location.href : pathname,
+            pathname,
+            searchParams: new URLSearchParams(searchParams.toString()),
+          })
+          addToolOutput({
+            tool: "getCurrentNavigation",
+            toolCallId: toolCall.toolCallId,
+            output: snapshot,
+          })
+        } catch (error) {
+          addToolOutput({
+            tool: "getCurrentNavigation",
+            toolCallId: toolCall.toolCallId,
+            state: "output-error",
+            errorText:
+              error instanceof Error ? error.message : "Failed to resolve current navigation",
+          })
+        }
+      }
+
+      if (toolCall.toolName === "navigate") {
+        try {
+          const input = toolCall.input as {
+            destinationId?: string
+            params?: Record<string, string>
+          }
+          const result = navigateToDestination({
+            currentRole,
+            destinationId: String(input.destinationId || ""),
+            params:
+              input.params && typeof input.params === "object"
+                ? input.params
+                : {},
+            push: router.push,
+            activateRole: switchRole,
+            onBeforePush: ({ destinationLabel, path }) => {
+              showNavigationMask({
+                destinationLabel,
+                targetPath: path,
+              })
+            },
+          })
+          addToolOutput({ tool: "navigate", toolCallId: toolCall.toolCallId, output: result })
+        } catch (error) {
+          addToolOutput({
+            tool: "navigate",
+            toolCallId: toolCall.toolCallId,
+            state: "output-error",
+            errorText: error instanceof Error ? error.message : "Failed to navigate",
+          })
+        }
+      }
+
       if (toolCall.toolName === "getPageContext") {
         try {
           const { tree, refMap } = capturePageContext()

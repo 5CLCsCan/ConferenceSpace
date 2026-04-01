@@ -1,6 +1,13 @@
 from __future__ import annotations
 
-from app.services.agent_runtime import _derive_conversation_title, _extract_resume_from_messages, _ui_to_openai_messages
+from app.services.agent_runtime import (
+    _derive_conversation_title,
+    _extract_resume_from_messages,
+    _normalize_tool_input,
+    _pick_tool_call,
+    _system_prompt,
+    _ui_to_openai_messages,
+)
 
 
 def test_extract_resume_from_messages_matches_pending_call() -> None:
@@ -79,3 +86,46 @@ def test_ui_to_openai_messages_falls_back_when_tool_metadata_missing() -> None:
     assert len(converted) == 1
     assert converted[0]["role"] == "assistant"
     assert converted[0]["content"].startswith("Tool output:")
+
+
+def test_pick_tool_call_unwraps_properties_wrapped_perform_action_input() -> None:
+    tool_buffers = {
+        0: {
+            "tool_call_id": "call_1",
+            "tool_name": "performAction",
+            "args_raw": '{"properties":{"action":"click","ref":"btn-78"}}',
+        }
+    }
+
+    picked = _pick_tool_call(tool_buffers)
+
+    assert picked == {
+        "tool_call_id": "call_1",
+        "tool_name": "performAction",
+        "input": {"action": "click", "ref": "btn-78"},
+    }
+
+
+def test_normalize_tool_input_unwraps_properties_wrapped_navigate_input() -> None:
+    normalized = _normalize_tool_input(
+        tool_name="navigate",
+        tool_input={
+            "properties": {
+                "destinationId": "chair.conference.detail",
+                "params": {"conferenceId": "conf-1"},
+            }
+        },
+    )
+
+    assert normalized == {
+        "destinationId": "chair.conference.detail",
+        "params": {"conferenceId": "conf-1"},
+    }
+
+
+def test_system_prompt_mentions_navigation_tools() -> None:
+    prompt = _system_prompt()
+
+    assert "Use getCurrentNavigation first when route awareness matters." in prompt
+    assert "Use navigate for route changes between known sitemap destinations." in prompt
+    assert "Use getPageContext after navigation before performing actions on the page." in prompt
