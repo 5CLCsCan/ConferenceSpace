@@ -117,6 +117,27 @@ describe("Chatbot shell", () => {
     ).toBeInTheDocument()
   })
 
+  it("uses a compact single-row header instead of a labeled two-line heading block", async () => {
+    render(
+      <ChatbotProvider>
+        <Chatbot />
+      </ChatbotProvider>,
+    )
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "runtime.components.chatbot.chatbot.aria_label_open_assistant",
+      }),
+    )
+
+    await waitFor(() => expect(listConversations).toHaveBeenCalled())
+    await waitFor(() => expect(screen.getByTestId("chat-view")).toBeInTheDocument())
+
+    expect(
+      screen.queryByText("runtime.components.chatbot.chatbot.text_recent_conversations"),
+    ).not.toBeInTheDocument()
+  })
+
   it("does not refetch current conversation history immediately after local messages were synced", async () => {
     render(
       <ChatbotProvider>
