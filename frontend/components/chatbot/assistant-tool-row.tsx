@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { ChevronDown, Loader2 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -10,6 +11,8 @@ type AssistantToolRowProps = {
 }
 
 export function AssistantToolRow({ item }: AssistantToolRowProps) {
+  const [showOutput, setShowOutput] = React.useState(false)
+  
   const isRunning = item.state === "input-streaming" || item.state === "input-available"
   const isError = item.state === "output-error" || item.state === "timeout"
 
@@ -39,7 +42,16 @@ export function AssistantToolRow({ item }: AssistantToolRowProps) {
             {isError ? "error" : "settings"}
           </span>
         )}
-        <span className="min-w-0 flex-1 truncate">{`Tool: ${getToolDisplayName(item.toolName)}`}</span>
+        <span className="min-w-0 truncate">{`Tool: ${getToolDisplayName(item.toolName)}`}</span>
+        
+        <div className="flex-1" />
+        <span className={cn(
+          "shrink-0 rounded px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider",
+          isRunning ? "bg-blue-100 text-blue-600" : isError ? "bg-red-100 text-red-600" : "bg-green-100 text-green-700"
+        )}>
+          {isRunning ? "Executing" : isError ? "Error" : "Finished"}
+        </span>
+
         <ChevronDown className="h-3 w-3 shrink-0 transition-transform duration-200 group-open:rotate-180" />
       </summary>
 
@@ -60,12 +72,26 @@ export function AssistantToolRow({ item }: AssistantToolRowProps) {
         )}
         {item.output !== undefined && (
           <div>
-            <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400">
-              Output
-            </span>
-            <pre className="mt-0.5 overflow-auto rounded border border-slate-200 bg-white p-1 text-[9px] leading-relaxed whitespace-pre-wrap break-words">
-              {JSON.stringify(item.output, null, 2)}
-            </pre>
+            <div className="flex items-center justify-between">
+              <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400">
+                Output
+              </span>
+              <button 
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  setShowOutput(!showOutput)
+                }} 
+                className="rounded px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-widest text-slate-500 hover:bg-slate-200 hover:text-[#1B3C53] transition-colors"
+              >
+                {showOutput ? "Hide" : "View"}
+              </button>
+            </div>
+            {showOutput && (
+              <pre className="mt-0.5 overflow-auto rounded border border-slate-200 bg-white p-1 text-[9px] leading-relaxed whitespace-pre-wrap break-words">
+                {JSON.stringify(item.output, null, 2)}
+              </pre>
+            )}
           </div>
         )}
         {item.errorText && (

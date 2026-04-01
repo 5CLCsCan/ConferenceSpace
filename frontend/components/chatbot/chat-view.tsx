@@ -2,7 +2,11 @@
 
 import * as React from "react"
 import { X } from "lucide-react"
-import { DefaultChatTransport, lastAssistantMessageIsCompleteWithToolCalls, type UIMessage } from "ai"
+import {
+  DefaultChatTransport,
+  lastAssistantMessageIsCompleteWithToolCalls,
+  type UIMessage,
+} from "ai"
 import { useChat } from "@ai-sdk/react"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -174,15 +178,28 @@ export function ChatView({
       <ScrollArea ref={scrollAreaRef} className="flex-1 overflow-hidden">
         <div className="space-y-4 px-4 py-4">
           {messages.length === 0 ? (
-            <div className="flex min-h-[180px] flex-col justify-center">
-              <p className="text-xs font-medium text-slate-600">
-                {t("runtime.components.chatbot.chat-view.text_start_a_conversation")}
-              </p>
-              <p className="mt-1 max-w-[240px] text-[10px] leading-relaxed text-slate-400">
-                {t(
-                  "runtime.components.chatbot.chat-view.text_ask_me_anything_about_the_conference",
-                )}
-              </p>
+            <div className="flex min-h-[200px] flex-col items-center justify-center py-4">
+              <div className="w-full max-w-[288px] rounded-xl border border-slate-200 bg-white px-5 py-5 text-center shadow-sm">
+                <div
+                  className="mx-auto mb-3 flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-[#1B3C53]"
+                  aria-hidden
+                >
+                  <span
+                    className="material-symbols-outlined text-[18px] leading-none"
+                    style={{ fontVariationSettings: '"FILL" 0, "wght" 300' }}
+                  >
+                    chat_bubble
+                  </span>
+                </div>
+                <p className="text-xs font-semibold tracking-tight text-slate-800">
+                  {t("runtime.components.chatbot.chat-view.text_start_a_conversation")}
+                </p>
+                <p className="mx-auto mt-2 max-w-[240px] text-[10px] leading-relaxed text-slate-500">
+                  {t(
+                    "runtime.components.chatbot.chat-view.text_ask_me_anything_about_the_conference",
+                  )}
+                </p>
+              </div>
             </div>
           ) : (
             <ChatTranscript messages={messages} status={status} />
@@ -197,7 +214,7 @@ export function ChatView({
         </div>
       </ScrollArea>
 
-      <div className="border-t border-slate-200 bg-white px-4 py-3">
+      <div className="bg-white px-4 py-3">
         <form
           onSubmit={handleSubmit}
           className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 focus-within:border-[#1B3C53] transition-colors"
@@ -211,16 +228,17 @@ export function ChatView({
             aria-label={t("runtime.components.chatbot.chat-view.aria_label_attach_files")}
           />
 
-          <div className="min-h-[48px] px-3 pt-3">
+          <div className="min-h-[48px] px-2 pt-2">
             <Textarea
               value={input}
               onChange={(event) => setInput(event.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={t("runtime.components.chatbot.chat-view.placeholder_ask_the_assistant")}
-              className="min-h-[28px] w-full resize-none border-0 bg-transparent px-0 py-0 text-[11px] text-[#141414] shadow-none placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="min-h-[28px] w-full resize-none border-0 bg-transparent px-0 py-0 text-[10px] md:text-[10px] text-[#141414] shadow-none placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0"
               rows={2}
               spellCheck={false}
               disabled={status !== "ready"}
+              style={{ fontSize: "10px" }}
             />
 
             {attachments.length > 0 && (
@@ -255,20 +273,32 @@ export function ChatView({
             )}
           </div>
 
-          <div className="flex items-center justify-between px-3 pb-3 pt-1">
-            <Select value={mode} onValueChange={(value) => setMode(value as "agentic" | "standard")}>
+          <div className="flex items-center justify-between px-2 pb-[6px] pt-[6px]">
+            <Select
+              value={mode}
+              onValueChange={(value) => setMode(value as "agentic" | "standard")}
+            >
               <SelectTrigger
                 size="xs"
-                iconClassName="size-2.5 opacity-100 transition-colors group-hover:text-slate-100"
-                className="h-6 w-auto min-w-0 gap-0.5 rounded-xl border-0 bg-slate-200 px-1.5 text-[9px] text-slate-500 shadow-none transition-colors hover:bg-slate-400 hover:text-slate-100"
+                iconClassName="size-[10px] opacity-100 transition-colors group-hover:text-slate-100"
+                className="h-[20px] w-auto min-w-0 gap-0.5 rounded-xl border-0 bg-slate-200 px-1.5 text-[8px] text-slate-500 shadow-none transition-colors hover:bg-slate-400 hover:text-slate-100"
               >
-                <SelectValue />
+                <SelectValue className="text-[10px]" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="agentic" className="text-[9px]">
+              <SelectContent
+                className="rounded-xl border border-slate-200 bg-slate-100 p-0 text-slate-600 shadow-sm [&_[data-slot=select-item]]:mb-1 [&_[data-slot=select-item]:last-child]:mb-0"
+                position="popper"
+              >
+                <SelectItem
+                  value="agentic"
+                  className="rounded-lg py-0.5 pl-2 pr-7 text-[9px] text-slate-600 focus:bg-slate-200 focus:text-slate-700 data-[highlighted]:bg-slate-200 data-[highlighted]:text-slate-700 data-[state=checked]:bg-slate-200 data-[state=checked]:text-slate-700 [&_svg]:size-3 [&_svg]:text-slate-500"
+                >
                   {t("runtime.components.chatbot.chat-view.text_agentic")}
                 </SelectItem>
-                <SelectItem value="standard" className="text-[9px]">
+                <SelectItem
+                  value="standard"
+                  className="rounded-lg py-0.5 pl-2 pr-7 text-[9px] text-slate-600 focus:bg-slate-200 focus:text-slate-700 data-[highlighted]:bg-slate-200 data-[highlighted]:text-slate-700 data-[state=checked]:bg-slate-200 data-[state=checked]:text-slate-700 [&_svg]:size-3 [&_svg]:text-slate-500"
+                >
                   {t("runtime.components.chatbot.chat-view.text_standard")}
                 </SelectItem>
               </SelectContent>
@@ -278,12 +308,12 @@ export function ChatView({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-600"
+                className="flex h-[30px] w-[30px] items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-600"
                 aria-label={t("runtime.components.chatbot.chat-view.aria_label_attach_file")}
               >
                 <span
                   className="material-symbols-outlined"
-                  style={{ fontSize: "14px", fontVariationSettings: '"FILL" 0, "wght" 400' }}
+                  style={{ fontSize: "12px", fontVariationSettings: '"FILL" 0, "wght" 400' }}
                 >
                   attach_file
                 </span>
@@ -291,12 +321,12 @@ export function ChatView({
               <button
                 type="submit"
                 disabled={status !== "ready" || (!input.trim() && attachments.length === 0)}
-                className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1B3C53] text-white transition-all hover:bg-[#234C6A] disabled:cursor-not-allowed disabled:bg-slate-300"
+                className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1B3C53] text-white transition-all hover:bg-[#234C6A] disabled:cursor-not-allowed disabled:bg-slate-300"
                 aria-label={t("runtime.components.chatbot.chat-view.aria_label_send_message")}
               >
                 <span
                   className="material-symbols-outlined"
-                  style={{ fontSize: "14px", fontVariationSettings: '"FILL" 1, "wght" 400' }}
+                  style={{ fontSize: "10px", fontVariationSettings: '"FILL" 1, "wght" 400' }}
                 >
                   arrow_upward
                 </span>

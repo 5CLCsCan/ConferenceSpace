@@ -48,7 +48,7 @@ describe("buildTranscriptTurns", () => {
     expect(turns).toHaveLength(2)
     expect(turns[0]).toMatchObject({ kind: "user-turn", messageId: "user-1" })
     expect(turns[1]).toMatchObject({ kind: "assistant-turn" })
-    expect(turns[1].items.map((item) => item.kind)).toEqual(["text", "tool", "tool", "text"])
+    expect(turns[1].items.map((item) => item.kind)).toEqual(["text", "tool", "text"])
   })
 
   it("folds persisted tool-role messages into the preceding assistant turn", () => {
@@ -83,7 +83,7 @@ describe("buildTranscriptTurns", () => {
 
     expect(turns).toHaveLength(1)
     expect(turns[0]).toMatchObject({ kind: "assistant-turn" })
-    expect(turns[0].items.map((item) => item.kind)).toEqual(["tool", "tool"])
+    expect(turns[0].items.map((item) => item.kind)).toEqual(["tool"])
   })
 
   it("preserves orphaned tool messages as a fallback activity turn", () => {

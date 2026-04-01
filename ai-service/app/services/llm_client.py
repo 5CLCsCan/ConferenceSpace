@@ -27,6 +27,7 @@ class LLMClient:
             tools=tools,
             stream=True,
         )
+        thinking_parser = _ThinkingTagStreamParser()
 
         async for chunk in response:
             if isinstance(chunk, str):
@@ -49,19 +50,17 @@ class LLMClient:
 
             normalized: dict[str, Any] = {}
             content = payload.get("content")
-            if isinstance(content, str) and content:
-                normalized["content"] = content
-            elif isinstance(content, list):
-                text_chunks: list[str] = []
-                for part in content:
-                    if isinstance(part, dict) and part.get("type") == "text":
-                        text_chunks.append(str(part.get("text", "")))
-                if text_chunks:
-                    normalized["content"] = "".join(text_chunks)
+            content_text = _extract_content_text(content)
 
             reasoning = payload.get("reasoning_content") or payload.get("reasoning") or payload.get("thinking")
             if isinstance(reasoning, str) and reasoning:
                 normalized["reasoning"] = reasoning
+                thinking_parser.force_plain_text_mode()
+
+            if content_text:
+                parts = thinking_parser.consume(content_text, has_structured_reasoning="reasoning" in normalized)
+                for part in parts:
+                    yield part
 
             tool_calls = payload.get("tool_calls")
             if isinstance(tool_calls, list) and tool_calls:
@@ -84,6 +83,9 @@ class LLMClient:
 
             if normalized:
                 yield normalized
+
+        for remainder in thinking_parser.flush():
+            yield remainder
 
     async def summarize(self, *, prompt: str) -> str:
         acompletion = _get_acompletion()
@@ -258,3 +260,85 @@ def _get_acompletion():
     except ModuleNotFoundError as exc:
         raise RuntimeError("litellm is not installed. Run `poetry install` in ai-service.") from exc
     return acompletion
+
+
+def _extract_content_text(content: Any) -> str:
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        text_chunks: list[str] = []
+        for part in content:
+            if isinstance(part, dict) and part.get("type") == "text":
+                text_chunks.append(str(part.get("text", "")))
+        return "".join(text_chunks)
+    return ""
+
+
+class _ThinkingTagStreamParser:
+    _OPEN = "<think>"
+    _CLOSE = "</think>"
+
+    def __init__(self) -> None:
+        self._pending = ""
+        self._in_reasoning = False
+
+    def force_plain_text_mode(self) -> None:
+        self._pending = ""
+        self._in_reasoning = False
+
+    def consume(self, chunk: str, *, has_structured_reasoning: bool) -> list[dict[str, Any]]:
+        if not chunk:
+            return []
+        if has_structured_reasoning:
+            return [{"content": chunk}]
+
+        buffer = self._pending + chunk
+        self._pending = ""
+        parts: list[dict[str, Any]] = []
+
+        while buffer:
+            if self._in_reasoning:
+                close_index = buffer.find(self._CLOSE)
+                if close_index == -1:
+                    emit_text, self._pending = _split_partial_tag_suffix(buffer, self._CLOSE)
+                    if emit_text:
+                        parts.append({"reasoning": emit_text})
+                    break
+
+                if close_index > 0:
+                    parts.append({"reasoning": buffer[:close_index]})
+                buffer = buffer[close_index + len(self._CLOSE) :]
+                self._in_reasoning = False
+                continue
+
+            open_index = buffer.find(self._OPEN)
+            if open_index == -1:
+                emit_text, self._pending = _split_partial_tag_suffix(buffer, self._OPEN)
+                if emit_text:
+                    parts.append({"content": emit_text})
+                break
+
+            if open_index > 0:
+                parts.append({"content": buffer[:open_index]})
+            buffer = buffer[open_index + len(self._OPEN) :]
+            self._in_reasoning = True
+
+        return parts
+
+    def flush(self) -> list[dict[str, Any]]:
+        if not self._pending:
+            return []
+
+        final_text = self._pending
+        self._pending = ""
+        if self._in_reasoning:
+            return [{"reasoning": final_text}]
+        return [{"content": final_text}]
+
+
+def _split_partial_tag_suffix(text: str, tag: str) -> tuple[str, str]:
+    max_suffix_length = min(len(text), len(tag) - 1)
+    for suffix_length in range(max_suffix_length, 0, -1):
+        if text.endswith(tag[:suffix_length]):
+            return text[:-suffix_length], text[-suffix_length:]
+    return text, ""

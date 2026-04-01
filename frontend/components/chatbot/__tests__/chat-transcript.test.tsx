@@ -63,6 +63,27 @@ describe("ChatTranscript", () => {
 
     const assistantTurn = screen.getByTestId("chat-assistant-turn")
     expect(within(assistantTurn).getByText("I am checking the page first.")).toBeInTheDocument()
-    expect(within(assistantTurn).getAllByText("Tool: Get Page Context")).toHaveLength(2)
+    expect(within(assistantTurn).getAllByText("Tool: Get Page Context")).toHaveLength(1)
+  })
+
+  it("renders reasoning inside a user-facing Thoughts block", () => {
+    const messages = [
+      {
+        id: "assistant-1",
+        role: "assistant",
+        parts: [
+          { type: "reasoning", text: "I should inspect the submission context first.", state: "streaming" },
+          { type: "text", text: "I can help with that." },
+        ],
+      },
+    ] satisfies UIMessage[]
+
+    render(<ChatTranscript messages={messages} status="streaming" />)
+
+    const assistantTurn = screen.getByTestId("chat-assistant-turn")
+    expect(within(assistantTurn).getByText("Thoughts")).toBeInTheDocument()
+    expect(
+      within(assistantTurn).getByText("I should inspect the submission context first."),
+    ).toBeInTheDocument()
   })
 })
