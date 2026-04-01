@@ -428,38 +428,6 @@ export default function RoleSelectionPage() {
                         {cfg.description}
                       </p>
 
-                      {/* Stats / Meta row */}
-                      <div className="flex items-center gap-4 mb-5">
-                        <div className="flex items-center gap-1.5">
-                          <div
-                            className="w-1 h-1 rounded-full"
-                            style={{
-                              backgroundColor: cfg.accentColor,
-                              opacity: 0.6,
-                            }}
-                          />
-                          <span className="text-[10px] font-medium text-slate-400">
-                            {roleKey === "author"
-                              ? "Submit & Track"
-                              : roleKey === "reviewer"
-                                ? "Review & Score"
-                                : "Govern & Manage"}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <div
-                            className="w-1 h-1 rounded-full"
-                            style={{
-                              backgroundColor: cfg.accentColor,
-                              opacity: 0.4,
-                            }}
-                          />
-                          <span className="text-[10px] font-medium text-slate-400">
-                            {t("runtime.app.role.page.text_full_access")}{" "}
-                          </span>
-                        </div>
-                      </div>
-
                       {/* Enter Button */}
                       <div className="mt-auto">
                         <button

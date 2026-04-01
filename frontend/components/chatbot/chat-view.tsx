@@ -178,15 +178,28 @@ export function ChatView({
       <ScrollArea ref={scrollAreaRef} className="flex-1 overflow-hidden">
         <div className="space-y-4 px-4 py-4">
           {messages.length === 0 ? (
-            <div className="flex min-h-[180px] flex-col justify-center">
-              <p className="text-xs font-medium text-slate-600">
-                {t("runtime.components.chatbot.chat-view.text_start_a_conversation")}
-              </p>
-              <p className="mt-1 max-w-[240px] text-[10px] leading-relaxed text-slate-400">
-                {t(
-                  "runtime.components.chatbot.chat-view.text_ask_me_anything_about_the_conference",
-                )}
-              </p>
+            <div className="flex min-h-[200px] flex-col items-center justify-center py-4">
+              <div className="w-full max-w-[288px] rounded-xl border border-slate-200 bg-white px-5 py-5 text-center shadow-sm">
+                <div
+                  className="mx-auto mb-3 flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-[#1B3C53]"
+                  aria-hidden
+                >
+                  <span
+                    className="material-symbols-outlined text-[18px] leading-none"
+                    style={{ fontVariationSettings: '"FILL" 0, "wght" 300' }}
+                  >
+                    chat_bubble
+                  </span>
+                </div>
+                <p className="text-xs font-semibold tracking-tight text-slate-800">
+                  {t("runtime.components.chatbot.chat-view.text_start_a_conversation")}
+                </p>
+                <p className="mx-auto mt-2 max-w-[240px] text-[10px] leading-relaxed text-slate-500">
+                  {t(
+                    "runtime.components.chatbot.chat-view.text_ask_me_anything_about_the_conference",
+                  )}
+                </p>
+              </div>
             </div>
           ) : (
             <ChatTranscript messages={messages} status={status} />
@@ -272,11 +285,20 @@ export function ChatView({
               >
                 <SelectValue className="text-[10px]" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="agentic" className="text-[9px]">
+              <SelectContent
+                className="rounded-xl border border-slate-200 bg-slate-100 p-0 text-slate-600 shadow-sm [&_[data-slot=select-item]]:mb-1 [&_[data-slot=select-item]:last-child]:mb-0"
+                position="popper"
+              >
+                <SelectItem
+                  value="agentic"
+                  className="rounded-lg py-0.5 pl-2 pr-7 text-[9px] text-slate-600 focus:bg-slate-200 focus:text-slate-700 data-[highlighted]:bg-slate-200 data-[highlighted]:text-slate-700 data-[state=checked]:bg-slate-200 data-[state=checked]:text-slate-700 [&_svg]:size-3 [&_svg]:text-slate-500"
+                >
                   {t("runtime.components.chatbot.chat-view.text_agentic")}
                 </SelectItem>
-                <SelectItem value="standard" className="text-[9px]">
+                <SelectItem
+                  value="standard"
+                  className="rounded-lg py-0.5 pl-2 pr-7 text-[9px] text-slate-600 focus:bg-slate-200 focus:text-slate-700 data-[highlighted]:bg-slate-200 data-[highlighted]:text-slate-700 data-[state=checked]:bg-slate-200 data-[state=checked]:text-slate-700 [&_svg]:size-3 [&_svg]:text-slate-500"
+                >
                   {t("runtime.components.chatbot.chat-view.text_standard")}
                 </SelectItem>
               </SelectContent>

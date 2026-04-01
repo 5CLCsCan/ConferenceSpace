@@ -109,6 +109,7 @@ export function Chatbot() {
   const [isResizing, setIsResizing] = React.useState(false)
   const [conversations, setConversations] = React.useState<ChatConversation[]>([])
   const [currentConversationId, setCurrentConversationId] = React.useState<string | null>(null)
+  const [chatViewKey, setChatViewKey] = React.useState<string | null>(null)
   const [isWindowAnimating, setIsWindowAnimating] = React.useState(false)
   const [isHistoryOpen, setIsHistoryOpen] = React.useState(false)
 
@@ -135,8 +136,16 @@ export function Chatbot() {
   )
 
   const setCurrentConversationIdState = React.useCallback((nextConversationId: string | null) => {
+    const previousConversationId = currentConversationIdRef.current
     currentConversationIdRef.current = nextConversationId
     setCurrentConversationId(nextConversationId)
+    if (!nextConversationId) {
+      setChatViewKey(null)
+      return
+    }
+    if (previousConversationId !== nextConversationId) {
+      setChatViewKey(nextConversationId)
+    }
   }, [])
 
   const ensureDraftConversation = React.useCallback(() => {
@@ -164,6 +173,9 @@ export function Chatbot() {
         setConversationsState((previous) =>
           sortConversations(previous.map((item) => (item.id === conversationId ? history : item))),
         )
+        if (currentConversationIdRef.current === conversationId) {
+          setChatViewKey(`${conversationId}:${history.updatedAt.getTime()}`)
+        }
       } catch (error) {
         console.error("chatbot.getConversationHistory failed", error)
       }
@@ -182,8 +194,16 @@ export function Chatbot() {
       conversationsRef.current = mergedConversations
       setConversations(mergedConversations)
 
+      if (!currentConversationIdRef.current) {
+        const draft = createDraftConversation()
+        const nextConversations = sortConversations([draft, ...mergedConversations])
+        conversationsRef.current = nextConversations
+        setConversations(nextConversations)
+        setCurrentConversationIdState(draft.id)
+        return
+      }
+
       const nextConversationId =
-        currentConversationIdRef.current &&
         mergedConversations.some((item) => item.id === currentConversationIdRef.current)
           ? currentConversationIdRef.current
           : (mergedConversations[0]?.id ?? null)
@@ -199,6 +219,9 @@ export function Chatbot() {
                 previous.map((item) => (item.id === nextConversationId ? history : item)),
               ),
             )
+            if (currentConversationIdRef.current === nextConversationId) {
+              setChatViewKey(`${nextConversationId}:${history.updatedAt.getTime()}`)
+            }
           } catch (error) {
             console.error("chatbot.getConversationHistory failed", error)
           }
@@ -545,7 +568,7 @@ export function Chatbot() {
         <div className="min-h-0 flex-1">
           {currentConversation ? (
             <ChatView
-              key={currentConversation.id}
+              key={chatViewKey ?? currentConversation.id}
               conversation={currentConversation}
               onSendMessage={handleSendMessage}
               onMessagesChange={(messages) =>

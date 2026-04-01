@@ -15,7 +15,9 @@
   }
 
   .chatbot-markdown p {
-    @apply my-0.5 leading-relaxed;
+    @apply leading-relaxed;
+    margin-top: 0.125rem !important;
+    margin-bottom: 0.125rem !important;
   }
 
   .chatbot-markdown li {
@@ -71,7 +73,9 @@
 
   .chatbot-markdown ul,
   .chatbot-markdown ol {
-    @apply my-0.5 text-[13px];
+    @apply text-[13px];
+    margin-top: 0.125rem !important;
+    margin-bottom: 0.125rem !important;
   }
 
   .chatbot-markdown ul {

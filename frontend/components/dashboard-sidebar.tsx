@@ -428,14 +428,14 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
       <div className="mt-auto border-t border-slate-100 dark:border-neutral-800">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-100/80 dark:hover:bg-neutral-800 transition-all duration-300 group outline-none border-none text-left">
-              <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-neutral-800 overflow-hidden border border-slate-200 dark:border-neutral-700 shrink-0 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-300">
-                <span className="material-symbols-outlined text-slate-500 group-hover:text-[#1B3C53] dark:group-hover:text-white transition-colors text-xl">
+            <button className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-slate-100/80 dark:hover:bg-neutral-800 transition-all duration-300 group outline-none border-none text-left">
+              <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-neutral-800 overflow-hidden border border-slate-200 dark:border-neutral-700 shrink-0 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-300">
+                <span className="material-symbols-outlined text-slate-500 group-hover:text-[#1B3C53] dark:group-hover:text-white transition-colors text-[16px]">
                   person
                 </span>
               </div>
               <div className="flex flex-col min-w-0 flex-1">
-                <span className="text-xs font-black text-slate-900 dark:text-white group-hover:text-[#1B3C53] dark:group-hover:text-white transition-colors leading-tight truncate tracking-tight">
+                <span className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-[#1B3C53] dark:group-hover:text-white transition-colors leading-tight truncate tracking-tight">
                   {user?.name || t("runtime.components.dashboard-sidebar.text_guest")}
                 </span>
                 <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors truncate mt-0.5">
@@ -445,56 +445,46 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
                 </span>
               </div>
               <div className="flex items-center justify-center text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-                <span className="material-symbols-outlined text-[18px] leading-none transition-transform duration-300 group-hover:translate-x-1">
+                <span className="material-symbols-outlined text-[14px] leading-none transition-transform duration-300 group-hover:translate-x-1">
                   chevron_right
                 </span>
               </div>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-56 py-1.5 rounded-lg shadow-xl border-slate-200 dark:border-neutral-800"
+            className="w-[180px] rounded-xl border border-slate-200/70 dark:border-white/10 bg-white/95 dark:bg-neutral-900/95 shadow-sm dark:shadow-black/20 backdrop-blur-sm p-2 data-[state=open]:duration-150 data-[state=closed]:duration-100"
             align="start"
             side="right"
-            sideOffset={8}
+            // sideOffset={12}
           >
-            <div className="px-2.5 py-1.5 border-b border-slate-50 dark:border-neutral-800/50 mb-1">
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                {t("runtime.components.dashboard-sidebar.text_account_settings")}{" "}
-              </span>
-            </div>
-
             <DropdownMenuItem
               onClick={() => router.push(profileHref)}
-              className="flex items-center gap-2.5 px-2.5 py-2 rounded-md text-slate-600 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-neutral-800 cursor-pointer transition-colors"
+              className="group/menu flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 pl-2 text-[12px] text-slate-700 transition-colors focus:bg-slate-100 focus:text-slate-900 data-[highlighted]:bg-slate-100 data-[highlighted]:text-slate-900 dark:text-slate-200 dark:focus:bg-neutral-800 dark:focus:text-slate-50 dark:data-[highlighted]:bg-neutral-800 dark:data-[highlighted]:text-slate-50"
             >
-              <span className="material-symbols-outlined text-lg">person</span>
-              <span className="text-xs font-medium">
+              <span className="font-medium tracking-tight">
                 {t("runtime.components.dashboard-sidebar.text_view_profile")}
               </span>
             </DropdownMenuItem>
 
             <DropdownMenuItem
               onClick={() => setLocale(locale === "en" ? "vi" : "en")}
-              className="flex items-center gap-2.5 px-2.5 py-2 rounded-md text-slate-600 dark:text-slate-300 focus:bg-slate-50 dark:focus:bg-neutral-800 cursor-pointer transition-colors"
+              className="group/menu flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 pl-2 text-[12px] text-slate-700 transition-colors focus:bg-slate-100 focus:text-slate-900 data-[highlighted]:bg-slate-100 data-[highlighted]:text-slate-900 dark:text-slate-200 dark:focus:bg-neutral-800 dark:focus:text-slate-50 dark:data-[highlighted]:bg-neutral-800 dark:data-[highlighted]:text-slate-50"
             >
-              <Globe className="w-3.5 h-3.5" />
-              <span className="text-xs font-medium">
+              <span className="font-medium tracking-tight">
                 {t("runtime.components.dashboard-sidebar.text_change_language")}
               </span>
-              <span className="text-[9px] font-bold text-slate-400 ml-auto uppercase tracking-tighter">
+              <span className="ml-auto text-[8px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-tighter">
                 {locale.toUpperCase()}
               </span>
-              <Check className="w-3.5 h-3.5 text-slate-400" />
             </DropdownMenuItem>
 
-            <DropdownMenuSeparator className="bg-slate-50 dark:bg-neutral-800 my-1" />
+            <DropdownMenuSeparator className="bg-slate-50 dark:bg-neutral-800 my-0.5" />
 
             <DropdownMenuItem
               onClick={logout}
-              className="flex items-center gap-2.5 px-2.5 py-2 rounded-md text-red-600 focus:bg-red-50 dark:focus:bg-red-900/10 cursor-pointer transition-colors"
+              className="group/menu flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-[12px] text-red-600 transition-colors focus:bg-red-50 focus:text-red-700 data-[highlighted]:bg-red-50 data-[highlighted]:text-red-700 dark:text-red-300 dark:focus:bg-red-950/35 dark:focus:text-red-200 dark:data-[highlighted]:bg-red-950/35 dark:data-[highlighted]:text-red-200"
             >
-              <span className="material-symbols-outlined text-lg">logout</span>
-              <span className="text-xs font-semibold">
+              <span className="font-semibold tracking-tight">
                 {t("runtime.components.dashboard-sidebar.text_sign_out")}
               </span>
             </DropdownMenuItem>
