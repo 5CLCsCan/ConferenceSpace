@@ -125,4 +125,17 @@ TOOL_REGISTRY: dict[str, ToolSpec] = {
         },
         timeout_seconds=30,
     ),
+    "get_skill": ToolSpec(
+        name="get_skill",
+        execution_mode="server",
+        input_schema={
+            "type": "object",
+            "properties": {
+                "skill_name": {"type": "string"},
+            },
+            "required": ["skill_name"],
+            "additionalProperties": False,
+        },
+        timeout_seconds=30,
+    ),
 }

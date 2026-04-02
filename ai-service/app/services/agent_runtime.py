@@ -35,6 +35,7 @@ from app.services.llm_client import LLMClient
 from app.services.metrics import MetricsStore
 from app.services.prompt import SYSTEM_PROMPT
 from app.services.query_engine_client import QueryEngineClient, QueryEngineClientError
+from app.services.skill_index import load_skill_content
 from app.services.tool_registry import TOOL_REGISTRY
 
 logger = logging.getLogger(__name__)
@@ -408,6 +409,13 @@ class AgentRuntime:
                 "status": "output-available",
                 "output": output,
                 "error_text": None,
+                "display_output": _build_get_skill_display_output(
+                    tool_name=tool_name,
+                    status="output-available",
+                    skill_name=str(output.get("skill_name", "")).strip() or None
+                    if isinstance(output, dict)
+                    else None,
+                ),
             }
         except QueryEngineClientError as exc:
             result = {
@@ -417,6 +425,19 @@ class AgentRuntime:
                 "output": None,
                 "error_text": str(exc),
             }
+        except (ValueError, FileNotFoundError) as exc:
+            result = {
+                "tool_call_id": tool_call_id,
+                "tool_name": tool_name,
+                "status": "output-error",
+                "output": None,
+                "error_text": str(exc),
+                "display_output": _build_get_skill_display_output(
+                    tool_name=tool_name,
+                    status="output-error",
+                    skill_name=str(tool_input.get("skill_name", "")).strip() or None,
+                ),
+            }
         except Exception as exc:  # noqa: BLE001
             logger.exception("runtime.server_tool_failed tool=%s thread_id=%s error=%s", tool_name, thread_id, str(exc))
             result = {
@@ -425,6 +446,11 @@ class AgentRuntime:
                 "status": "output-error",
                 "output": None,
                 "error_text": "internal server tool error",
+                "display_output": _build_get_skill_display_output(
+                    tool_name=tool_name,
+                    status="output-error",
+                    skill_name=str(tool_input.get("skill_name", "")).strip() or None,
+                ),
             }
 
         await self._emit_tool_end(thread_id=thread_id, result=result, event_emitter=event_emitter)
@@ -455,6 +481,8 @@ class AgentRuntime:
     ) -> dict[str, Any]:
         if tool_name == "query_engine":
             return await self.query_engine_client.execute(access_token=access_token, payload=tool_input)
+        if tool_name == "get_skill":
+            return load_skill_content(str(tool_input.get("skill_name", "")).strip())
         raise QueryEngineClientError(f"Tool '{tool_name}' is not supported for server execution")
 
     async def _apply_tool_result(
@@ -622,7 +650,10 @@ class AgentRuntime:
             "status": str(result["status"]),
             "finished_at": _iso_now(),
         }
-        if str(result["status"]) == "output-available":
+        display_output = result.get("display_output")
+        if display_output is not None:
+            payload["result"] = display_output
+        elif str(result["status"]) == "output-available":
             payload["result"] = result.get("output")
         else:
             payload["error"] = result.get("error_text")
@@ -692,3 +723,18 @@ class _IterationResult:
     rolling_summary: str | None
     pending_tool_call: dict[str, Any] | None = None
     continue_turn: bool = False
+
+
+def _build_get_skill_display_output(
+    *,
+    tool_name: str,
+    status: str,
+    skill_name: str | None,
+) -> dict[str, Any] | None:
+    if tool_name != "get_skill":
+        return None
+
+    payload: dict[str, Any] = {"status": status}
+    if skill_name:
+        payload["skill_name"] = skill_name
+    return payload

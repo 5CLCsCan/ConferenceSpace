@@ -9,7 +9,7 @@ const AI_SERVICE_BASE_URL = process.env.AI_SERVICE_BASE_URL ?? "http://localhost
 const AI_SERVICE_ENABLED = process.env.AI_SERVICE_ENABLED !== "false"
 const AGENT_CHAT_ENDPOINT = `${AI_SERVICE_BASE_URL}/api/v1/agent/chat`
 const AGENT_TOOL_RESULT_ENDPOINT = `${AI_SERVICE_BASE_URL}/api/v1/agent/tool-result`
-const SERVER_MANAGED_TOOL_NAMES = new Set(["query_engine"])
+const SERVER_MANAGED_TOOL_NAMES = new Set(["query_engine", "get_skill"])
 
 type ChatTransportRequest = {
   id?: string
@@ -82,6 +82,7 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify(toolSubmission),
       cache: "no-store",
+      signal: req.signal,
     })
 
     if (!toolResultResponse.ok && ![404, 409, 422].includes(toolResultResponse.status)) {
@@ -116,6 +117,7 @@ export async function POST(req: NextRequest) {
       request_metadata: requestMetadata,
     }),
     cache: "no-store",
+    signal: req.signal,
   })
 
   if (!upstreamResponse.ok || !upstreamResponse.body) {

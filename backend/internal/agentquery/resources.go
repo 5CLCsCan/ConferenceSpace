@@ -346,7 +346,7 @@ func buildAssignmentsResource() *resourceDefinition {
 						  AND cur_reviewer.user_email = ?
 						  AND cur_reviewer.status = 'active'
 						  AND cur_reviewer.role IN ('chair', 'co_chair')
-					) OR a.reviewer_email = ? THEN a.reviewer_email ELSE NULL END`,
+					) OR u.email = ? THEN u.email ELSE NULL END`,
 					args: []interface{}{actor.UserEmail, actor.UserEmail},
 				}
 			},
@@ -362,7 +362,7 @@ func buildAssignmentsResource() *resourceDefinition {
 				return sqlFragment{
 					sql: `CASE
 						WHEN EXISTS (SELECT 1 FROM conference_user_roles cur_role WHERE cur_role.conference_id = a.conference_id AND cur_role.user_email = ? AND cur_role.status = 'active' AND cur_role.role IN ('chair', 'co_chair')) THEN 'chair'
-						WHEN a.reviewer_email = ? THEN 'reviewer'
+						WHEN u.email = ? THEN 'reviewer'
 						ELSE NULL
 					END`,
 					args: []interface{}{actor.UserEmail, actor.UserEmail},
@@ -385,13 +385,15 @@ func buildAssignmentsResource() *resourceDefinition {
 		joins: []string{
 			"JOIN conference_submissions s ON s.submission_id = a.submission_id",
 			"JOIN conferences c ON c.conference_id = a.conference_id",
+			"JOIN conference_reviewers cr ON cr.id = a.reviewer_id",
+			"JOIN users u ON u.user_id = cr.user_id",
 		},
 		defaultLimit: 25,
 		maxLimit:     100,
 		scope: func(actor Actor) sqlFragment {
 			return sqlFragment{
 				sql: `(EXISTS (SELECT 1 FROM conference_user_roles cur WHERE cur.conference_id = a.conference_id AND cur.user_email = ? AND cur.status = ? AND cur.role IN (?, ?))
-					OR a.reviewer_email = ?)`,
+					OR u.email = ?)`,
 				args: []interface{}{actor.UserEmail, model.RoleStatusActive, model.RoleChair, model.RoleCoChair, actor.UserEmail},
 			}
 		},

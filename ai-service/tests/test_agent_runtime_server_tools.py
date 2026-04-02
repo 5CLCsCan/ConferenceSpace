@@ -83,6 +83,11 @@ class _FakeQueryEngineClient:
         }
 
 
+class _UnexpectedQueryEngineClient:
+    async def execute(self, *, access_token: str, payload: dict[str, object]):
+        raise AssertionError(f"query engine should not have been called: {access_token=} {payload=}")
+
+
 class _FakeLLMClient:
     def __init__(self) -> None:
         self.calls = 0
@@ -186,3 +191,106 @@ async def test_run_chat_turn_executes_server_tool_and_continues(monkeypatch) -> 
     assert tool_part["type"] == "tool-query_engine"
     assert tool_part["state"] == "output-available"
     assert tool_part["output"]["rows"] == [{"id": 7, "status": "reviewing"}]
+
+
+class _FakeSkillLLMClient:
+    def __init__(self) -> None:
+        self.calls = 0
+
+    async def stream_chat(self, *, messages, tools):  # type: ignore[override]
+        self.calls += 1
+        if self.calls == 1:
+            yield {
+                "tool_calls": [
+                    {
+                        "id": "call_skill_1",
+                        "index": 0,
+                        "function": {
+                            "name": "get_skill",
+                            "arguments": '{"skill_name":"workload_risk_insight"}',
+                        },
+                    }
+                ]
+            }
+            return
+
+        yield {"content": "Skill loaded."}
+
+    async def summarize(self, *, prompt: str) -> str:
+        return prompt
+
+
+async def test_run_chat_turn_executes_get_skill_server_tool_and_trims_ui_result(monkeypatch) -> None:
+    fake_session = _FakeSession()
+    fake_db = _FakeDBSession()
+    fake_message_repo = _FakeMessageRepo(
+        [{"id": "user-1", "role": "user", "parts": [{"type": "text", "text": "Help me assess review risk"}]}]
+    )
+    fake_session_repo = _FakeSessionRepo(fake_session)
+    fake_audit_repo = _FakeAuditRepo()
+
+    monkeypatch.setattr("app.services.agent_runtime.SessionRepository", lambda _db: fake_session_repo)
+    monkeypatch.setattr("app.services.agent_runtime.MessageRepository", lambda _db: fake_message_repo)
+    monkeypatch.setattr("app.services.agent_runtime.ToolAuditRepository", lambda _db: fake_audit_repo)
+    monkeypatch.setattr(
+        "app.services.agent_runtime.load_skill_content",
+        lambda skill_name: {
+            "skill_name": skill_name,
+            "content": "# workload risk insight\nUse query_engine.",
+        },
+    )
+
+    @asynccontextmanager
+    async def _session_factory():
+        yield fake_db
+
+    runtime = AgentRuntime(
+        settings=SimpleNamespace(
+            agent_model="openrouter/google/gemini-2.5-flash-lite",
+            keep_recent_exchanges=12,
+            max_iterations=4,
+            max_turn_duration_seconds=120,
+            tool_result_timeout_seconds=90,
+            context_compaction_threshold=0.7,
+            enable_reasoning_stream=False,
+        ),
+        session_factory=_session_factory,
+        runtime_store=_FakeRuntimeStore(),
+        llm_client=_FakeSkillLLMClient(),
+        metrics=MetricsStore(),
+        query_engine_client=_UnexpectedQueryEngineClient(),
+    )
+
+    events: list[dict[str, object]] = []
+
+    async def _emit(event: dict[str, object]) -> None:
+        events.append(event)
+
+    await runtime.run_chat_turn(
+        thread_id="thread-1",
+        identity=Identity(user_id=123, user_email="reviewer@example.com"),
+        access_token="user-token",
+        incoming_messages=[
+            {"id": "user-1", "role": "user", "parts": [{"type": "text", "text": "Help me assess review risk"}]}
+        ],
+        message_id="assistant-1",
+        event_emitter=_emit,
+    )
+
+    tool_messages = [message for batch in fake_message_repo.appended for message in batch if message.get("role") == "tool"]
+    assert tool_messages, "expected get_skill tool output to be appended as a tool message"
+    tool_part = tool_messages[-1]["parts"][0]
+    assert tool_part["type"] == "tool-get_skill"
+    assert tool_part["state"] == "output-available"
+    assert tool_part["output"] == {
+        "skill_name": "workload_risk_insight",
+        "content": "# workload risk insight\nUse query_engine.",
+    }
+
+    skill_end_events = [event for event in events if event.get("type") == "tool_end" and event.get("tool") == "get_skill"]
+    assert len(skill_end_events) == 1
+    assert skill_end_events[0]["status"] == "output-available"
+    assert skill_end_events[0]["result"] == {
+        "skill_name": "workload_risk_insight",
+        "status": "output-available",
+    }

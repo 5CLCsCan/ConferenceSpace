@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { X } from "lucide-react"
+import { Square, X } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import {
   DefaultChatTransport,
@@ -60,7 +60,7 @@ export function ChatView({
   const previousStatusRef = React.useRef<string>("ready")
   const lastEmittedMessagesRef = React.useRef<UIMessage[] | null>(null)
 
-  const { messages, sendMessage, status, addToolOutput } = useChat({
+  const { messages, sendMessage, status, stop, addToolOutput } = useChat({
     id: conversation.id,
     messages: conversation.messages,
     transport: new DefaultChatTransport({ api: "/api/chat" }),
@@ -373,32 +373,45 @@ export function ChatView({
             </Select>
 
             <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex h-[30px] w-[30px] items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-600"
-                aria-label={t("runtime.components.chatbot.chat-view.aria_label_attach_file")}
-              >
-                <span
-                  className="material-symbols-outlined"
-                  style={{ fontSize: "12px", fontVariationSettings: '"FILL" 0, "wght" 400' }}
+              {status === "ready" && (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex h-[30px] w-[30px] items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-600"
+                  aria-label={t("runtime.components.chatbot.chat-view.aria_label_attach_file")}
                 >
-                  attach_file
-                </span>
-              </button>
-              <button
-                type="submit"
-                disabled={status !== "ready" || (!input.trim() && attachments.length === 0)}
-                className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1B3C53] text-white transition-all hover:bg-[#234C6A] disabled:cursor-not-allowed disabled:bg-slate-300"
-                aria-label={t("runtime.components.chatbot.chat-view.aria_label_send_message")}
-              >
-                <span
-                  className="material-symbols-outlined"
-                  style={{ fontSize: "10px", fontVariationSettings: '"FILL" 1, "wght" 400' }}
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: "12px", fontVariationSettings: '"FILL" 0, "wght" 400' }}
+                  >
+                    attach_file
+                  </span>
+                </button>
+              )}
+              {status !== "ready" ? (
+                <button
+                  type="button"
+                  onClick={() => stop()}
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white transition-all hover:bg-red-600"
+                  aria-label="Cancel generation"
                 >
-                  arrow_upward
-                </span>
-              </button>
+                  <Square className="h-2.5 w-2.5 fill-white" />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={!input.trim() && attachments.length === 0}
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1B3C53] text-white transition-all hover:bg-[#234C6A] disabled:cursor-not-allowed disabled:bg-slate-300"
+                  aria-label={t("runtime.components.chatbot.chat-view.aria_label_send_message")}
+                >
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: "10px", fontVariationSettings: '"FILL" 1, "wght" 400' }}
+                  >
+                    arrow_upward
+                  </span>
+                </button>
+              )}
             </div>
           </div>
         </form>

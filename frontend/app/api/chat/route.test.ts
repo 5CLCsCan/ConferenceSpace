@@ -137,4 +137,61 @@ describe("chat api route", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(String(fetchMock.mock.calls[0]?.[0] ?? "")).toContain("/api/v1/agent/chat")
   })
+
+  it("does not resubmit completed get_skill results to the ai-service tool-result endpoint", async () => {
+    const fetchMock = vi.fn(async (input: string | URL | Request) => {
+      const url = String(input)
+      if (url.endsWith("/api/v1/agent/chat")) {
+        return new Response(makeInternalSse([{ type: "start" }, { type: "done" }]), {
+          status: 200,
+          headers: { "Content-Type": "text/event-stream" },
+        })
+      }
+
+      if (url.endsWith("/api/v1/agent/tool-result")) {
+        return new Response(JSON.stringify({ status: "accepted" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        })
+      }
+
+      throw new Error(`Unexpected fetch to ${url}`)
+    })
+
+    vi.stubGlobal("fetch", fetchMock)
+    const { POST } = await importRouteModule()
+
+    const response = await POST(
+      new NextRequest("http://localhost/api/chat", {
+        method: "POST",
+        body: JSON.stringify({
+          id: "thread-1",
+          messages: [
+            {
+              id: "tool-1",
+              role: "tool",
+              parts: [
+                {
+                  type: "tool-get_skill",
+                  toolCallId: "call_skill_1",
+                  state: "output-available",
+                  output: {
+                    skill_name: "workload_risk_insight",
+                    content: "# skill",
+                  },
+                },
+              ],
+            },
+          ],
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }),
+    )
+
+    expect(response.status).toBe(200)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(String(fetchMock.mock.calls[0]?.[0] ?? "")).toContain("/api/v1/agent/chat")
+  })
 })

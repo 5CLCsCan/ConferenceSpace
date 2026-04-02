@@ -8,6 +8,7 @@ from app.services.agent_runtime import (
     _ui_to_openai_messages,
 )
 from app.services.prompt import SYSTEM_PROMPT
+from app.services.skill_index import SKILL_INDEX, serialize_skill_index
 
 
 def test_extract_resume_from_messages_matches_pending_call() -> None:
@@ -147,37 +148,35 @@ def test_normalize_tool_input_coerces_query_engine_select_string_array() -> None
 def test_system_prompt_mentions_navigation_tools() -> None:
     prompt = SYSTEM_PROMPT
 
-    assert "Use getCurrentNavigation first when route awareness matters." in prompt
-    assert "Use navigate for route changes between known sitemap destinations." in prompt
-    assert "Use getPageContext after navigation before performing actions on the page." in prompt
+    assert "Page tools (`getCurrentNavigation` → `navigate` → `getPageContext` → `performAction`)" in prompt
+    assert "<page_workflow>" in prompt
+    assert "<tool_priority_order>" in prompt
 
 
 def test_system_prompt_guides_query_engine_discovery_and_public_resources() -> None:
     prompt = SYSTEM_PROMPT
 
-    assert 'call {"op":"describe"} first' in prompt
+    assert "Call `{\"op\":\"describe\"}` before querying" in prompt
+    assert "Never use `group_by` without `aggregates`" in prompt
     assert "public_conferences" in prompt
-    assert "Use public_conferences for platform-wide discovery" in prompt
-    assert "Use conferences for actor-scoped conference access" in prompt
+    assert "Platform-wide discovery, recommendations, CFP/deadline search, public exploration" in prompt
+    assert "My conferences, my role/status in accessible conferences" in prompt
 
 
-def test_system_prompt_is_substantial_runtime_asset() -> None:
+def test_system_prompt_injects_skill_index_and_usage_contract() -> None:
     prompt = SYSTEM_PROMPT
 
-    assert len(prompt.splitlines()) >= 250
-    assert "ConferenceSpace assistant" in prompt
-    assert "<identity>" in prompt
-    assert "<query_engine_workflow>" in prompt
-    assert "<action_tool_workflow>" in prompt
-    assert "<retry_and_failure_rules>" in prompt
+    assert "ConferenceSpace Assistant" in prompt
+    assert "<skill_index>" in prompt
+    assert "<skill_usage_rules>" in prompt
+    assert serialize_skill_index() in prompt
+    assert SKILL_INDEX[0]["skill_name"] in prompt
+    assert "request matches a skill description" in prompt
+    assert "`get_skill`" in prompt
 
 
-def test_system_prompt_uses_structured_sections_and_examples() -> None:
+def test_system_prompt_keeps_skill_usage_simple_without_override_tags() -> None:
     prompt = SYSTEM_PROMPT
 
-    assert "<tool_selection>" in prompt
-    assert "<resource_routing>" in prompt
-    assert "<examples>" in prompt
-    assert prompt.count("<example>") >= 4
-    assert "<user_request>" in prompt
-    assert "<preferred_tool_path>" in prompt
+    assert 'can_be_override_by_skill=' not in prompt
+    assert "follow that skill strictly for the task-specific workflow and output format" in prompt

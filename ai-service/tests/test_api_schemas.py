@@ -70,3 +70,17 @@ def test_tool_registry_includes_query_engine_server_tool() -> None:
         "enum": ["describe", "query"],
     }
     assert spec.input_schema["properties"]["resource"] == {"type": "string"}
+
+
+def test_tool_registry_includes_get_skill_server_tool() -> None:
+    spec = TOOL_REGISTRY["get_skill"]
+
+    assert spec.execution_mode == "server"
+    assert spec.input_schema == {
+        "type": "object",
+        "properties": {
+            "skill_name": {"type": "string"},
+        },
+        "required": ["skill_name"],
+        "additionalProperties": False,
+    }
