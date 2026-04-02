@@ -15,10 +15,11 @@ from app.repositories.message_repo import MessageRepository
 from app.repositories.runtime_store import RuntimeStore
 from app.repositories.session_repo import SessionRepository
 from app.repositories.tool_audit_repo import ToolAuditRepository
-from app.services.backend_query_client import BackendQueryClient, BackendQueryClientError
+from app.services.query_engine_client import QueryEngineClient, QueryEngineClientError
 from app.services.compaction import CompactionPolicy, estimate_tokens_from_messages
 from app.services.llm_client import LLMClient
 from app.services.metrics import MetricsStore
+from app.services.prompt import SYSTEM_PROMPT
 from app.services.tool_registry import TOOL_REGISTRY
 
 logger = logging.getLogger(__name__)
@@ -33,7 +34,7 @@ class AgentRuntime:
     runtime_store: RuntimeStore
     llm_client: LLMClient
     metrics: MetricsStore
-    backend_query_client: BackendQueryClient
+    query_engine_client: QueryEngineClient
 
     async def run_chat_turn(
         self,
@@ -196,7 +197,7 @@ class AgentRuntime:
         iteration: int,
     ) -> "_IterationResult":
         model_messages = [
-            {"role": "system", "content": _system_prompt()},
+            {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "system", "content": _runtime_instructions(rolling_summary)},
             *_ui_to_openai_messages(messages),
         ]
@@ -431,7 +432,7 @@ class AgentRuntime:
                 "output": output,
                 "error_text": None,
             }
-        except BackendQueryClientError as exc:
+        except QueryEngineClientError as exc:
             result = {
                 "tool_call_id": tool_call_id,
                 "tool_name": tool_name,
@@ -497,9 +498,9 @@ class AgentRuntime:
         tool_input: dict[str, Any],
         access_token: str,
     ) -> dict[str, Any]:
-        if tool_name == "query_backend":
-            return await self.backend_query_client.execute(access_token=access_token, payload=tool_input)
-        raise BackendQueryClientError(f"Tool '{tool_name}' is not supported for server execution")
+        if tool_name == "query_engine":
+            return await self.query_engine_client.execute(access_token=access_token, payload=tool_input)
+        raise QueryEngineClientError(f"Tool '{tool_name}' is not supported for server execution")
 
     async def _apply_tool_result(
         self,
@@ -671,24 +672,6 @@ def _derive_conversation_title(messages: list[dict[str, Any]]) -> str:
             if text:
                 return text[:80]
     return "New Conversation"
-
-
-def _system_prompt() -> str:
-    return """You are ConferenceSpace assistant.
-
-You can answer platform questions, inspect user-scoped conference data, and execute tools.
-
-Tool policy:
-- Use query_backend when the user asks about submission status, conference status, workload, counts, summaries, or notifications.
-- Use query_backend with op=describe before querying if you need to inspect the available resources and fields.
-- Use getCurrentNavigation first when route awareness matters.
-- Use navigate for route changes between known sitemap destinations.
-- Use getPageContext after navigation before performing actions on the page.
-- Use performAction one step at a time with refs returned by getPageContext.
-- If performAction returns failure or verified=false, re-check context before retrying.
-- Never claim actions succeeded without tool evidence.
-"""
-
 
 def _runtime_instructions(rolling_summary: str | None) -> str:
     if not rolling_summary:

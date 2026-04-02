@@ -60,8 +60,8 @@ def test_tool_registry_includes_navigate_client_tool() -> None:
     }
 
 
-def test_tool_registry_includes_query_backend_server_tool() -> None:
-    spec = TOOL_REGISTRY["query_backend"]
+def test_tool_registry_includes_query_engine_server_tool() -> None:
+    spec = TOOL_REGISTRY["query_engine"]
 
     assert spec.execution_mode == "server"
     assert spec.input_schema["required"] == ["op"]

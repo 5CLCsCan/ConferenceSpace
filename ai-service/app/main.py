@@ -21,7 +21,7 @@ from app.repositories import (
     ReviewerBriefingRepository,
 )
 from app.repositories.runtime_store import RuntimeStore
-from app.services import AgentRuntime, BackendQueryClient, LLMClient, MetricsStore
+from app.services import AgentRuntime, QueryEngineClient, LLMClient, MetricsStore
 from app.workflows.reviewer_pre_read_briefing.runner import (
     ReviewerPreReadBriefingRunner,
 )
@@ -52,7 +52,7 @@ class AppContainer:
     runtime_store: RuntimeStore
     llm_client: LLMClient
     metrics: MetricsStore
-    backend_query_client: BackendQueryClient
+    query_engine_client: QueryEngineClient
     runtime: AgentRuntime
     submission_gating_repo: GatingRunRepository
     submission_gating_runner: SubmissionGatingRunner
@@ -86,7 +86,7 @@ async def lifespan(app: FastAPI):
         api_key=settings.openrouter_api_key, model=settings.agent_model
     )
     metrics = MetricsStore()
-    backend_query_client = BackendQueryClient(
+    query_engine_client = QueryEngineClient(
         base_url=settings.backend_api_base_url,
         service_token=settings.agent_service_token,
         timeout_seconds=settings.backend_query_timeout_seconds,
@@ -117,7 +117,7 @@ async def lifespan(app: FastAPI):
         runtime_store=runtime_store,
         llm_client=llm_client,
         metrics=metrics,
-        backend_query_client=backend_query_client,
+        query_engine_client=query_engine_client,
     )
 
     app.state.container = AppContainer(
@@ -129,7 +129,7 @@ async def lifespan(app: FastAPI):
         runtime_store=runtime_store,
         llm_client=llm_client,
         metrics=metrics,
-        backend_query_client=backend_query_client,
+        query_engine_client=query_engine_client,
         runtime=runtime,
         submission_gating_repo=submission_gating_repo,
         submission_gating_runner=submission_gating_runner,

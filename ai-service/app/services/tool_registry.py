@@ -59,8 +59,8 @@ TOOL_REGISTRY: dict[str, ToolSpec] = {
         },
         timeout_seconds=90,
     ),
-    "query_backend": ToolSpec(
-        name="query_backend",
+    "query_engine": ToolSpec(
+        name="query_engine",
         execution_mode="server",
         input_schema={
             "type": "object",

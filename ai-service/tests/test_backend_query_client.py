@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from app.services.backend_query_client import BackendQueryClient, BackendQueryClientError
+from app.services.query_engine_client import QueryEngineClient, QueryEngineClientError
 
 
 async def test_backend_query_client_posts_payload_with_service_token() -> None:
@@ -41,7 +41,7 @@ async def test_backend_query_client_posts_payload_with_service_token() -> None:
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://testserver") as http_client:
-        client = BackendQueryClient(
+        client = QueryEngineClient(
             base_url="http://testserver",
             service_token="agent-secret",
             timeout_seconds=5.0,
@@ -83,14 +83,14 @@ async def test_backend_query_client_raises_error_on_non_success() -> None:
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://testserver") as http_client:
-        client = BackendQueryClient(
+        client = QueryEngineClient(
             base_url="http://testserver",
             service_token="agent-secret",
             timeout_seconds=5.0,
             http_client=http_client,
         )
 
-        with pytest.raises(BackendQueryClientError) as exc:
+        with pytest.raises(QueryEngineClientError) as exc:
             await client.execute(
                 access_token="user-token",
                 payload={"op": "query", "resource": "submissions"},

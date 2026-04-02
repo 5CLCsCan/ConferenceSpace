@@ -27,9 +27,11 @@ class LLMClient:
             tools=tools,
             stream=True,
         )
+        print(f"[DEBUG] LiteLLM stream_chat started: {response}")
         thinking_parser = _ThinkingTagStreamParser()
 
         async for chunk in response:
+            print(f"[DEBUG] LiteLLM stream chunk: {chunk}")
             if isinstance(chunk, str):
                 continue
 
@@ -102,6 +104,7 @@ class LLMClient:
             stream=False,
             temperature=0,
         )
+        print(f"[DEBUG] LiteLLM summarize response: {response}")
 
         choices = response.get("choices") if isinstance(response, dict) else getattr(response, "choices", [])
         if not choices:
@@ -146,6 +149,7 @@ class LLMClient:
             stream=False,
             temperature=0,
         )
+        print(f"[DEBUG] LiteLLM extract_structured_findings response: {response}")
 
         choices = response.get("choices") if isinstance(response, dict) else getattr(response, "choices", [])
         if not choices:
@@ -215,6 +219,7 @@ class LLMClient:
                 request_kwargs["response_format"] = response_format
 
             response = await acompletion(**request_kwargs)
+            print(f"[DEBUG] LiteLLM complete_structured response: {response}")
             content = _extract_message_content(response)
             try:
                 return response_model.model_validate_json(content)

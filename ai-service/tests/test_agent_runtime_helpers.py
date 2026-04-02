@@ -5,9 +5,9 @@ from app.services.agent_runtime import (
     _extract_resume_from_messages,
     _normalize_tool_input,
     _pick_tool_call,
-    _system_prompt,
     _ui_to_openai_messages,
 )
+from app.services.prompt import SYSTEM_PROMPT
 
 
 def test_extract_resume_from_messages_matches_pending_call() -> None:
@@ -124,8 +124,39 @@ def test_normalize_tool_input_unwraps_properties_wrapped_navigate_input() -> Non
 
 
 def test_system_prompt_mentions_navigation_tools() -> None:
-    prompt = _system_prompt()
+    prompt = SYSTEM_PROMPT
 
     assert "Use getCurrentNavigation first when route awareness matters." in prompt
     assert "Use navigate for route changes between known sitemap destinations." in prompt
     assert "Use getPageContext after navigation before performing actions on the page." in prompt
+
+
+def test_system_prompt_guides_query_engine_discovery_and_public_resources() -> None:
+    prompt = SYSTEM_PROMPT
+
+    assert 'call {"op":"describe"} first' in prompt
+    assert "public_conferences" in prompt
+    assert "Use public_conferences for platform-wide discovery" in prompt
+    assert "Use conferences for actor-scoped conference access" in prompt
+
+
+def test_system_prompt_is_substantial_runtime_asset() -> None:
+    prompt = SYSTEM_PROMPT
+
+    assert len(prompt.splitlines()) >= 250
+    assert "ConferenceSpace assistant" in prompt
+    assert "<identity>" in prompt
+    assert "<query_engine_workflow>" in prompt
+    assert "<action_tool_workflow>" in prompt
+    assert "<retry_and_failure_rules>" in prompt
+
+
+def test_system_prompt_uses_structured_sections_and_examples() -> None:
+    prompt = SYSTEM_PROMPT
+
+    assert "<tool_selection>" in prompt
+    assert "<resource_routing>" in prompt
+    assert "<examples>" in prompt
+    assert prompt.count("<example>") >= 4
+    assert "<user_request>" in prompt
+    assert "<preferred_tool_path>" in prompt

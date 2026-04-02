@@ -8,11 +8,11 @@ import httpx
 logger = logging.getLogger(__name__)
 
 
-class BackendQueryClientError(Exception):
+class QueryEngineClientError(Exception):
     pass
 
 
-class BackendQueryClient:
+class QueryEngineClient:
     def __init__(
         self,
         *,
@@ -28,7 +28,7 @@ class BackendQueryClient:
 
     async def execute(self, *, access_token: str, payload: dict[str, Any]) -> dict[str, Any]:
         if not self._service_token:
-            raise BackendQueryClientError("agent backend service token is not configured")
+            raise QueryEngineClientError("agent backend service token is not configured")
 
         headers = {
             "Authorization": f"Bearer {access_token.strip()}",
@@ -42,17 +42,17 @@ class BackendQueryClient:
                 async with httpx.AsyncClient(base_url=self._base_url, timeout=self._timeout_seconds) as client:
                     response = await client.post("/api/v1/agent/query", json=payload, headers=headers)
         except httpx.HTTPError as exc:
-            logger.exception("backend_query.request_failed error=%s", str(exc))
-            raise BackendQueryClientError("backend query engine unavailable") from exc
+            logger.exception("query_engine.request_failed error=%s", str(exc))
+            raise QueryEngineClientError("backend query engine unavailable") from exc
 
         data = _parse_response_json(response)
         if response.status_code != 200:
             message = _extract_error_message(data) or response.text or "backend query failed"
-            raise BackendQueryClientError(f"backend query failed status={response.status_code}: {message}")
+            raise QueryEngineClientError(f"backend query failed status={response.status_code}: {message}")
 
         candidate = data.get("data", data)
         if not isinstance(candidate, dict):
-            raise BackendQueryClientError("backend query response missing object payload")
+            raise QueryEngineClientError("backend query response missing object payload")
         return candidate
 
 

@@ -70,7 +70,7 @@ class _FakeRuntimeStore:
         return None
 
 
-class _FakeBackendQueryClient:
+class _FakeQueryEngineClient:
     def __init__(self) -> None:
         self.calls: list[dict[str, object]] = []
 
@@ -98,7 +98,7 @@ class _FakeLLMClient:
                         "id": "call_query_1",
                         "index": 0,
                         "function": {
-                            "name": "query_backend",
+                            "name": "query_engine",
                             "arguments": '{"op":"query","resource":"submissions","select":[{"field":"id"}]}',
                         },
                     }
@@ -129,7 +129,7 @@ async def test_run_chat_turn_executes_server_tool_and_continues(monkeypatch) -> 
     async def _session_factory():
         yield fake_db
 
-    backend_query_client = _FakeBackendQueryClient()
+    query_engine_client = _FakeQueryEngineClient()
     llm_client = _FakeLLMClient()
     runtime = AgentRuntime(
         settings=SimpleNamespace(
@@ -145,7 +145,7 @@ async def test_run_chat_turn_executes_server_tool_and_continues(monkeypatch) -> 
         runtime_store=_FakeRuntimeStore(),
         llm_client=llm_client,
         metrics=MetricsStore(),
-        backend_query_client=backend_query_client,
+        query_engine_client=query_engine_client,
     )
 
     events: list[dict[str, object]] = []
@@ -164,17 +164,17 @@ async def test_run_chat_turn_executes_server_tool_and_continues(monkeypatch) -> 
         event_emitter=_emit,
     )
 
-    assert backend_query_client.calls == [
+    assert query_engine_client.calls == [
         {
             "access_token": "user-token",
             "payload": {"op": "query", "resource": "submissions", "select": [{"field": "id"}]},
         }
     ]
     assert llm_client.calls == 2
-    assert any(event["type"] == "tool_start" and event["tool"] == "query_backend" for event in events)
+    assert any(event["type"] == "tool_start" and event["tool"] == "query_engine" for event in events)
     assert any(
         event["type"] == "tool_end"
-        and event["tool"] == "query_backend"
+        and event["tool"] == "query_engine"
         and event["status"] == "output-available"
         for event in events
     )
@@ -183,6 +183,6 @@ async def test_run_chat_turn_executes_server_tool_and_continues(monkeypatch) -> 
     tool_messages = [message for batch in fake_message_repo.appended for message in batch if message.get("role") == "tool"]
     assert tool_messages, "expected server tool output to be appended as a tool message"
     tool_part = tool_messages[-1]["parts"][0]
-    assert tool_part["type"] == "tool-query_backend"
+    assert tool_part["type"] == "tool-query_engine"
     assert tool_part["state"] == "output-available"
     assert tool_part["output"]["rows"] == [{"id": 7, "status": "reviewing"}]
