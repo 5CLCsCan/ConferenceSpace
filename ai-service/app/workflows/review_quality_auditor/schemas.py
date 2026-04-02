@@ -110,10 +110,10 @@ ReviewAuditCode = Literal[
 
 class ReviewQualityAuditModelFinding(BaseModel):
     code: ReviewAuditCode = Field(
-        description="Issue class only. Choose the code that best matches the semantic problem in the review."
+        description="Semantic issue class only. Choose the code that best matches the semantic problem in the review."
     )
     severity: Literal["warning", "blocking"] = Field(
-        description="Use warning for reviewer-attention issues. Use blocking only when the review is not fit to submit as written."
+        description="Semantic seriousness only. Use warning for reviewer-attention issues. Use blocking only when the review itself is not fit as an academic review as written. The runtime decides submit blocking policy."
     )
     field: ReviewAuditField = Field(
         description="Target the narrowest field that best matches the issue. Use review only when the issue spans the whole review."

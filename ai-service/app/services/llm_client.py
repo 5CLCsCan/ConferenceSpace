@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-import logging
 import json
+import logging
 from typing import Any, AsyncIterator
 
 from pydantic import BaseModel, ValidationError
+
 logger = logging.getLogger(__name__)
 
 
@@ -19,81 +20,41 @@ class LLMClient:
         messages: list[dict[str, Any]],
         tools: list[dict[str, Any]] | None = None,
     ) -> AsyncIterator[dict[str, Any]]:
-        acompletion = _get_acompletion()
-        response = await acompletion(
-            model=self.model,
-            api_key=self.api_key,
-            messages=messages,
-            tools=tools,
-            stream=True,
-        )
-        print(f"[DEBUG] LiteLLM stream_chat started: {response}")
+        response = await self._acompletion(messages=messages, tools=tools, stream=True)
         thinking_parser = _ThinkingTagStreamParser()
 
         async for chunk in response:
-            print(f"[DEBUG] LiteLLM stream chunk: {chunk}")
-            if isinstance(chunk, str):
+            normalized = _normalize_stream_chunk(chunk)
+            if not normalized:
                 continue
 
-            choices = getattr(chunk, "choices", None)
-            if not choices:
-                continue
-
-            delta = getattr(choices[0], "delta", None)
-            if delta is None:
-                continue
-
-            if hasattr(delta, "model_dump"):
-                payload = delta.model_dump(exclude_none=True)
-            elif isinstance(delta, dict):
-                payload = {k: v for k, v in delta.items() if v is not None}
-            else:
-                payload = {}
-
-            normalized: dict[str, Any] = {}
-            content = payload.get("content")
-            content_text = _extract_content_text(content)
-
-            reasoning = payload.get("reasoning_content") or payload.get("reasoning") or payload.get("thinking")
+            reasoning = normalized.get("reasoning")
             if isinstance(reasoning, str) and reasoning:
-                normalized["reasoning"] = reasoning
                 thinking_parser.force_plain_text_mode()
 
+            content_text = _extract_content_text(normalized.get("content"))
             if content_text:
-                parts = thinking_parser.consume(content_text, has_structured_reasoning="reasoning" in normalized)
+                parts = thinking_parser.consume(
+                    content_text,
+                    has_structured_reasoning=isinstance(reasoning, str) and bool(reasoning),
+                )
                 for part in parts:
                     yield part
 
-            tool_calls = payload.get("tool_calls")
-            if isinstance(tool_calls, list) and tool_calls:
-                normalized_calls: list[dict[str, Any]] = []
-                for item in tool_calls:
-                    if hasattr(item, "model_dump"):
-                        call = item.model_dump(exclude_none=True)
-                    elif isinstance(item, dict):
-                        call = dict(item)
-                    else:
-                        continue
-
-                    function = call.get("function")
-                    if hasattr(function, "model_dump"):
-                        call["function"] = function.model_dump(exclude_none=True)
-                    normalized_calls.append(call)
-
-                if normalized_calls:
-                    normalized["tool_calls"] = normalized_calls
-
-            if normalized:
-                yield normalized
+            payload: dict[str, Any] = {}
+            if isinstance(reasoning, str) and reasoning:
+                payload["reasoning"] = reasoning
+            tool_calls = normalized.get("tool_calls")
+            if tool_calls:
+                payload["tool_calls"] = tool_calls
+            if payload:
+                yield payload
 
         for remainder in thinking_parser.flush():
             yield remainder
 
     async def summarize(self, *, prompt: str) -> str:
-        acompletion = _get_acompletion()
-        response = await acompletion(
-            model=self.model,
-            api_key=self.api_key,
+        response = await self._acompletion(
             messages=[
                 {
                     "role": "system",
@@ -104,18 +65,7 @@ class LLMClient:
             stream=False,
             temperature=0,
         )
-        print(f"[DEBUG] LiteLLM summarize response: {response}")
-
-        choices = response.get("choices") if isinstance(response, dict) else getattr(response, "choices", [])
-        if not choices:
-            return ""
-        message = choices[0].get("message") if isinstance(choices[0], dict) else getattr(choices[0], "message", None)
-        if not message:
-            return ""
-        content = message.get("content") if isinstance(message, dict) else getattr(message, "content", "")
-        if isinstance(content, list):
-            return " ".join(str(c.get("text", "")) for c in content if isinstance(c, dict)).strip()
-        return str(content or "").strip()
+        return _extract_message_content(response)
 
     async def extract_structured_findings(
         self,
@@ -124,10 +74,7 @@ class LLMClient:
         extracted_text: str,
         submission_facts: dict[str, Any],
     ) -> list[dict[str, Any]]:
-        acompletion = _get_acompletion()
-        response = await acompletion(
-            model=self.model,
-            api_key=self.api_key,
+        response = await self._acompletion(
             messages=[
                 {
                     "role": "system",
@@ -149,17 +96,7 @@ class LLMClient:
             stream=False,
             temperature=0,
         )
-        print(f"[DEBUG] LiteLLM extract_structured_findings response: {response}")
-
-        choices = response.get("choices") if isinstance(response, dict) else getattr(response, "choices", [])
-        if not choices:
-            return []
-        message = choices[0].get("message") if isinstance(choices[0], dict) else getattr(choices[0], "message", None)
-        if not message:
-            return []
-        content = message.get("content") if isinstance(message, dict) else getattr(message, "content", "")
-        if isinstance(content, list):
-            content = " ".join(str(c.get("text", "")) for c in content if isinstance(c, dict)).strip()
+        content = _extract_message_content(response)
         if not content:
             return []
         try:
@@ -178,7 +115,6 @@ class LLMClient:
         response_model: type[BaseModel],
         max_validation_retries: int = 1,
     ) -> BaseModel:
-        acompletion = _get_acompletion()
         response_format = None
         if self._supports_native_structured_output():
             response_format = {
@@ -209,8 +145,6 @@ class LLMClient:
         current_messages = base_messages
         for attempt in range(attempts):
             request_kwargs: dict[str, Any] = {
-                "model": self.model,
-                "api_key": self.api_key,
                 "messages": current_messages,
                 "stream": False,
                 "temperature": 0,
@@ -218,8 +152,7 @@ class LLMClient:
             if response_format is not None:
                 request_kwargs["response_format"] = response_format
 
-            response = await acompletion(**request_kwargs)
-            print(f"[DEBUG] LiteLLM complete_structured response: {response}")
+            response = await self._acompletion(**request_kwargs)
             content = _extract_message_content(response)
             try:
                 return response_model.model_validate_json(content)
@@ -245,18 +178,39 @@ class LLMClient:
         model = self.model.strip().lower()
         return model.startswith("openrouter/") or model.startswith("openai/")
 
+    async def _acompletion(
+        self,
+        *,
+        messages: list[dict[str, Any]],
+        stream: bool,
+        tools: list[dict[str, Any]] | None = None,
+        temperature: int | float | None = None,
+        response_format: dict[str, Any] | None = None,
+    ) -> Any:
+        acompletion = _get_acompletion()
+        request_kwargs: dict[str, Any] = {
+            "model": self.model,
+            "api_key": self.api_key,
+            "messages": messages,
+            "stream": stream,
+        }
+        if tools is not None:
+            request_kwargs["tools"] = tools
+        if temperature is not None:
+            request_kwargs["temperature"] = temperature
+        if response_format is not None:
+            request_kwargs["response_format"] = response_format
+        return await acompletion(**request_kwargs)
+
 
 def _extract_message_content(response: Any) -> str:
-    choices = response.get("choices") if isinstance(response, dict) else getattr(response, "choices", [])
+    choices = _get_value(response, "choices", [])
     if not choices:
         return ""
-    message = choices[0].get("message") if isinstance(choices[0], dict) else getattr(choices[0], "message", None)
+    message = _get_value(choices[0], "message")
     if not message:
         return ""
-    content = message.get("content") if isinstance(message, dict) else getattr(message, "content", "")
-    if isinstance(content, list):
-        return " ".join(str(c.get("text", "")) for c in content if isinstance(c, dict)).strip()
-    return str(content or "").strip()
+    return _extract_content_text(_get_value(message, "content", "")).strip()
 
 
 def _get_acompletion():
@@ -271,12 +225,79 @@ def _extract_content_text(content: Any) -> str:
     if isinstance(content, str):
         return content
     if isinstance(content, list):
-        text_chunks: list[str] = []
-        for part in content:
-            if isinstance(part, dict) and part.get("type") == "text":
-                text_chunks.append(str(part.get("text", "")))
-        return "".join(text_chunks)
+        return "".join(_extract_text_part(part) for part in content)
     return ""
+
+
+def _extract_text_part(part: Any) -> str:
+    if _get_value(part, "type") != "text":
+        return ""
+    return str(_get_value(part, "text", ""))
+
+
+def _normalize_stream_chunk(chunk: Any) -> dict[str, Any]:
+    if isinstance(chunk, str):
+        return {}
+
+    choices = _get_value(chunk, "choices", [])
+    if not choices:
+        return {}
+
+    delta = _get_value(choices[0], "delta")
+    if delta is None:
+        return {}
+
+    payload = _to_dict(delta)
+    if not payload:
+        return {}
+
+    normalized: dict[str, Any] = {}
+    content = payload.get("content")
+    if content is not None:
+        normalized["content"] = content
+
+    reasoning = payload.get("reasoning_content") or payload.get("reasoning") or payload.get("thinking")
+    if isinstance(reasoning, str) and reasoning:
+        normalized["reasoning"] = reasoning
+
+    tool_calls = _normalize_tool_calls(payload.get("tool_calls"))
+    if tool_calls:
+        normalized["tool_calls"] = tool_calls
+
+    return normalized
+
+
+def _normalize_tool_calls(tool_calls: Any) -> list[dict[str, Any]]:
+    if not isinstance(tool_calls, list):
+        return []
+
+    normalized_calls: list[dict[str, Any]] = []
+    for item in tool_calls:
+        call = _to_dict(item)
+        if not call:
+            continue
+        function = _to_dict(call.get("function"))
+        if function:
+            call["function"] = function
+        normalized_calls.append(call)
+    return normalized_calls
+
+
+def _to_dict(value: Any) -> dict[str, Any]:
+    if hasattr(value, "model_dump"):
+        dumped = value.model_dump(exclude_none=True)
+        if isinstance(dumped, dict):
+            return dumped
+        return {}
+    if isinstance(value, dict):
+        return {key: item for key, item in value.items() if item is not None}
+    return {}
+
+
+def _get_value(value: Any, key: str, default: Any = None) -> Any:
+    if isinstance(value, dict):
+        return value.get(key, default)
+    return getattr(value, key, default)
 
 
 class _ThinkingTagStreamParser:

@@ -18,8 +18,38 @@ def test_system_prompt_is_single_runtime_contract() -> None:
     assert "review readiness" in prompt.lower()
     assert "reproducibility path" in prompt.lower()
     assert "structured-output schema supplied with the request" in prompt.lower()
-    assert "discussion" not in prompt.lower()
-    assert "rebuttal" not in prompt.lower()
+    assert "role" in prompt.lower()
+    assert "task" in prompt.lower()
+    assert "framework" in prompt.lower()
+    assert "## role" in prompt.lower()
+    assert "## task" in prompt.lower()
+    assert "## framework" in prompt.lower()
+    assert "## constraints" in prompt.lower()
+    assert "## output" in prompt.lower()
+    assert "## validation" in prompt.lower()
+    assert "<role>" in prompt.lower()
+    assert "</role>" in prompt.lower()
+    assert "<task>" in prompt.lower()
+    assert "</task>" in prompt.lower()
+    assert "<framework>" in prompt.lower()
+    assert "</framework>" in prompt.lower()
+    assert "<routing_table>" in prompt.lower()
+    assert "</routing_table>" in prompt.lower()
+    assert "<hard_limits>" in prompt.lower()
+    assert "</hard_limits>" in prompt.lower()
+    assert "<output>" in prompt.lower()
+    assert "</output>" in prompt.lower()
+    assert "<validation_checklist>" in prompt.lower()
+    assert "</validation_checklist>" in prompt.lower()
+    assert "claimed_contributions" in prompt
+    assert "notable_elements" in prompt
+    assert "reviewer_attention_points" in prompt
+    assert "stated_scope_and_limitations" in prompt
+    assert "prefer not_found over speculation" in prompt.lower()
+    assert "use not_applicable only when the category genuinely does not fit the paper" in prompt.lower()
+    assert "do not repeat the same fact across multiple fields unless the fields serve different reviewer needs" in prompt.lower()
+    assert "discussion_context" not in prompt.lower()
+    assert "rebuttal_context" not in prompt.lower()
 
 
 def test_response_schema_carries_field_guidance() -> None:
