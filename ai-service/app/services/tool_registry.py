@@ -59,8 +59,8 @@ TOOL_REGISTRY: dict[str, ToolSpec] = {
         },
         timeout_seconds=90,
     ),
-    "query_backend": ToolSpec(
-        name="query_backend",
+    "query_engine": ToolSpec(
+        name="query_engine",
         execution_mode="server",
         input_schema={
             "type": "object",
@@ -121,6 +121,19 @@ TOOL_REGISTRY: dict[str, ToolSpec] = {
                 "offset": {"type": "integer", "minimum": 0},
             },
             "required": ["op"],
+            "additionalProperties": False,
+        },
+        timeout_seconds=30,
+    ),
+    "get_skill": ToolSpec(
+        name="get_skill",
+        execution_mode="server",
+        input_schema={
+            "type": "object",
+            "properties": {
+                "skill_name": {"type": "string"},
+            },
+            "required": ["skill_name"],
             "additionalProperties": False,
         },
         timeout_seconds=30,

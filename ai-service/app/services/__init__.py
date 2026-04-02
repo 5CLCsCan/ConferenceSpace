@@ -1,6 +1,6 @@
 from .llm_client import LLMClient
 from .agent_runtime import AgentRuntime
-from .backend_query_client import BackendQueryClient, BackendQueryClientError
+from .query_engine_client import QueryEngineClient, QueryEngineClientError
 from .metrics import MetricsStore
 
-__all__ = ["LLMClient", "AgentRuntime", "BackendQueryClient", "BackendQueryClientError", "MetricsStore"]
+__all__ = ["LLMClient", "AgentRuntime", "QueryEngineClient", "QueryEngineClientError", "MetricsStore"]

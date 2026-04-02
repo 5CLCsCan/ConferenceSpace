@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -15,10 +14,28 @@ from app.repositories.message_repo import MessageRepository
 from app.repositories.runtime_store import RuntimeStore
 from app.repositories.session_repo import SessionRepository
 from app.repositories.tool_audit_repo import ToolAuditRepository
-from app.services.backend_query_client import BackendQueryClient, BackendQueryClientError
+from app.services.agent_messages import (
+    context_message_limit as _context_message_limit,
+    derive_conversation_title as _derive_conversation_title,
+    flatten_for_summary as _flatten_for_summary,
+    model_context_window as _model_context_window,
+    runtime_instructions as _runtime_instructions,
+    summary_prompt as _summary_prompt,
+    ui_to_openai_messages as _ui_to_openai_messages,
+)
+from app.services.agent_tools import (
+    extract_resume_from_messages as _extract_resume_from_messages,
+    has_fresh_user_message as _has_fresh_user_message,
+    normalize_tool_input as _normalize_tool_input,  # noqa: F401
+    pick_tool_call as _pick_tool_call,
+    tool_part_from_result as _tool_part_from_result,
+)
 from app.services.compaction import CompactionPolicy, estimate_tokens_from_messages
 from app.services.llm_client import LLMClient
 from app.services.metrics import MetricsStore
+from app.services.prompt import SYSTEM_PROMPT
+from app.services.query_engine_client import QueryEngineClient, QueryEngineClientError
+from app.services.skill_index import load_skill_content
 from app.services.tool_registry import TOOL_REGISTRY
 
 logger = logging.getLogger(__name__)
@@ -33,7 +50,7 @@ class AgentRuntime:
     runtime_store: RuntimeStore
     llm_client: LLMClient
     metrics: MetricsStore
-    backend_query_client: BackendQueryClient
+    query_engine_client: QueryEngineClient
 
     async def run_chat_turn(
         self,
@@ -196,7 +213,7 @@ class AgentRuntime:
         iteration: int,
     ) -> "_IterationResult":
         model_messages = [
-            {"role": "system", "content": _system_prompt()},
+            {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "system", "content": _runtime_instructions(rolling_summary)},
             *_ui_to_openai_messages(messages),
         ]
@@ -320,46 +337,23 @@ class AgentRuntime:
                 "timeout_at": timeout.isoformat(),
             }
 
-            await event_emitter(
-                {
-                    "type": "tool_start",
-                    "thread_id": thread_id,
-                    "tool_call_id": tool_call_id,
-                    "tool": tool_name,
-                    "input": tool_input,
-                    "started_at": now.isoformat(),
-                }
+            await self._announce_and_record_tool_start(
+                thread_id=thread_id,
+                identity=identity,
+                tool_call_id=tool_call_id,
+                tool_name=tool_name,
+                tool_input=tool_input,
+                started_at=now,
+                event_emitter=event_emitter,
             )
 
-            messages = list(messages)
-            messages.append(
-                {
-                    "id": message_id,
-                    "role": "assistant",
-                    "parts": [
-                        {
-                            "type": f"tool-{tool_name}",
-                            "toolCallId": tool_call_id,
-                            "state": "input-available",
-                            "input": tool_input,
-                        }
-                    ],
-                }
+            messages = self._append_tool_request_message(
+                messages=messages,
+                message_id=message_id,
+                tool_name=tool_name,
+                tool_call_id=tool_call_id,
+                tool_input=tool_input,
             )
-
-            async with self.session_factory() as db:
-                audit_repo = ToolAuditRepository(db)
-                await audit_repo.create_requested(
-                    thread_id=thread_id,
-                    tool_call_id=tool_call_id,
-                    tool_name=tool_name,
-                    tool_input=tool_input,
-                    user_id=identity.user_id,
-                    user_email=identity.user_email,
-                    trace_id=str(uuid4()),
-                    requested_at=now,
-                )
-                await db.commit()
 
             return _IterationResult(
                 messages=messages,
@@ -393,30 +387,15 @@ class AgentRuntime:
         event_emitter: EventEmitter,
     ) -> "_IterationResult":
         started_at = _utc_now()
-        await event_emitter(
-            {
-                "type": "tool_start",
-                "thread_id": thread_id,
-                "tool_call_id": tool_call_id,
-                "tool": tool_name,
-                "input": tool_input,
-                "started_at": started_at.isoformat(),
-            }
+        await self._announce_and_record_tool_start(
+            thread_id=thread_id,
+            identity=identity,
+            tool_call_id=tool_call_id,
+            tool_name=tool_name,
+            tool_input=tool_input,
+            started_at=started_at,
+            event_emitter=event_emitter,
         )
-
-        async with self.session_factory() as db:
-            audit_repo = ToolAuditRepository(db)
-            await audit_repo.create_requested(
-                thread_id=thread_id,
-                tool_call_id=tool_call_id,
-                tool_name=tool_name,
-                tool_input=tool_input,
-                user_id=identity.user_id,
-                user_email=identity.user_email,
-                trace_id=str(uuid4()),
-                requested_at=started_at,
-            )
-            await db.commit()
 
         try:
             output = await self._dispatch_server_tool(
@@ -430,14 +409,34 @@ class AgentRuntime:
                 "status": "output-available",
                 "output": output,
                 "error_text": None,
+                "display_output": _build_get_skill_display_output(
+                    tool_name=tool_name,
+                    status="output-available",
+                    skill_name=str(output.get("skill_name", "")).strip() or None
+                    if isinstance(output, dict)
+                    else None,
+                ),
             }
-        except BackendQueryClientError as exc:
+        except QueryEngineClientError as exc:
             result = {
                 "tool_call_id": tool_call_id,
                 "tool_name": tool_name,
                 "status": "output-error",
                 "output": None,
                 "error_text": str(exc),
+            }
+        except (ValueError, FileNotFoundError) as exc:
+            result = {
+                "tool_call_id": tool_call_id,
+                "tool_name": tool_name,
+                "status": "output-error",
+                "output": None,
+                "error_text": str(exc),
+                "display_output": _build_get_skill_display_output(
+                    tool_name=tool_name,
+                    status="output-error",
+                    skill_name=str(tool_input.get("skill_name", "")).strip() or None,
+                ),
             }
         except Exception as exc:  # noqa: BLE001
             logger.exception("runtime.server_tool_failed tool=%s thread_id=%s error=%s", tool_name, thread_id, str(exc))
@@ -447,21 +446,14 @@ class AgentRuntime:
                 "status": "output-error",
                 "output": None,
                 "error_text": "internal server tool error",
+                "display_output": _build_get_skill_display_output(
+                    tool_name=tool_name,
+                    status="output-error",
+                    skill_name=str(tool_input.get("skill_name", "")).strip() or None,
+                ),
             }
 
-        payload = {
-            "type": "tool_end",
-            "thread_id": thread_id,
-            "tool_call_id": tool_call_id,
-            "tool": tool_name,
-            "status": str(result["status"]),
-            "finished_at": _iso_now(),
-        }
-        if result["status"] == "output-available":
-            payload["result"] = result["output"]
-        else:
-            payload["error"] = result["error_text"]
-        await event_emitter(payload)
+        await self._emit_tool_end(thread_id=thread_id, result=result, event_emitter=event_emitter)
 
         updated_messages = list(messages)
         updated_messages.append(
@@ -472,17 +464,7 @@ class AgentRuntime:
             }
         )
 
-        async with self.session_factory() as db:
-            audit_repo = ToolAuditRepository(db)
-            await audit_repo.mark_completed(
-                thread_id=thread_id,
-                tool_call_id=tool_call_id,
-                status=str(result["status"]),
-                output=result.get("output"),
-                error_text=result.get("error_text"),
-                completed_at=_utc_now(),
-            )
-            await db.commit()
+        await self._mark_tool_completed(thread_id=thread_id, result=result)
 
         return _IterationResult(
             messages=updated_messages,
@@ -497,9 +479,11 @@ class AgentRuntime:
         tool_input: dict[str, Any],
         access_token: str,
     ) -> dict[str, Any]:
-        if tool_name == "query_backend":
-            return await self.backend_query_client.execute(access_token=access_token, payload=tool_input)
-        raise BackendQueryClientError(f"Tool '{tool_name}' is not supported for server execution")
+        if tool_name == "query_engine":
+            return await self.query_engine_client.execute(access_token=access_token, payload=tool_input)
+        if tool_name == "get_skill":
+            return load_skill_content(str(tool_input.get("skill_name", "")).strip())
+        raise QueryEngineClientError(f"Tool '{tool_name}' is not supported for server execution")
 
     async def _apply_tool_result(
         self,
@@ -511,24 +495,9 @@ class AgentRuntime:
         result: dict[str, Any],
         event_emitter: EventEmitter,
     ) -> list[dict[str, Any]]:
-        tool_name = str(result["tool_name"])
         tool_call_id = str(result["tool_call_id"])
-        status = str(result["status"])
 
-        payload = {
-            "type": "tool_end",
-            "thread_id": thread_id,
-            "tool_call_id": tool_call_id,
-            "tool": tool_name,
-            "status": status,
-            "finished_at": _iso_now(),
-        }
-        if status == "output-available":
-            payload["result"] = result.get("output")
-        else:
-            payload["error"] = result.get("error_text")
-
-        await event_emitter(payload)
+        await self._emit_tool_end(thread_id=thread_id, result=result, event_emitter=event_emitter)
 
         messages = list(messages)
         messages.append(
@@ -540,16 +509,9 @@ class AgentRuntime:
         )
 
         async with self.session_factory() as db:
-            audit_repo = ToolAuditRepository(db)
-            await audit_repo.mark_completed(
-                thread_id=thread_id,
-                tool_call_id=tool_call_id,
-                status=status,
-                output=result.get("output"),
-                error_text=result.get("error_text"),
-                completed_at=_utc_now(),
-            )
             sessions = SessionRepository(db)
+            audit_repo = ToolAuditRepository(db)
+            await self._mark_tool_completed(thread_id=thread_id, result=result, audit_repo=audit_repo)
             await sessions.update_runtime(thread_id, pending_tool_call=None, status="active")
             await db.commit()
 
@@ -637,6 +599,115 @@ class AgentRuntime:
                 await sessions.update_runtime(thread_id, pending_tool_call=None, status="active")
                 await db.commit()
 
+    async def _announce_and_record_tool_start(
+        self,
+        *,
+        thread_id: str,
+        identity: Identity,
+        tool_call_id: str,
+        tool_name: str,
+        tool_input: dict[str, Any],
+        started_at: datetime,
+        event_emitter: EventEmitter,
+    ) -> None:
+        await event_emitter(
+            {
+                "type": "tool_start",
+                "thread_id": thread_id,
+                "tool_call_id": tool_call_id,
+                "tool": tool_name,
+                "input": tool_input,
+                "started_at": started_at.isoformat(),
+            }
+        )
+
+        async with self.session_factory() as db:
+            audit_repo = ToolAuditRepository(db)
+            await audit_repo.create_requested(
+                thread_id=thread_id,
+                tool_call_id=tool_call_id,
+                tool_name=tool_name,
+                tool_input=tool_input,
+                user_id=identity.user_id,
+                user_email=identity.user_email,
+                trace_id=str(uuid4()),
+                requested_at=started_at,
+            )
+            await db.commit()
+
+    async def _emit_tool_end(
+        self,
+        *,
+        thread_id: str,
+        result: dict[str, Any],
+        event_emitter: EventEmitter,
+    ) -> None:
+        payload = {
+            "type": "tool_end",
+            "thread_id": thread_id,
+            "tool_call_id": str(result["tool_call_id"]),
+            "tool": str(result["tool_name"]),
+            "status": str(result["status"]),
+            "finished_at": _iso_now(),
+        }
+        display_output = result.get("display_output")
+        if display_output is not None:
+            payload["result"] = display_output
+        elif str(result["status"]) == "output-available":
+            payload["result"] = result.get("output")
+        else:
+            payload["error"] = result.get("error_text")
+        await event_emitter(payload)
+
+    async def _mark_tool_completed(
+        self,
+        *,
+        thread_id: str,
+        result: dict[str, Any],
+        audit_repo: ToolAuditRepository | None = None,
+    ) -> None:
+        if audit_repo is not None:
+            await audit_repo.mark_completed(
+                thread_id=thread_id,
+                tool_call_id=str(result["tool_call_id"]),
+                status=str(result["status"]),
+                output=result.get("output"),
+                error_text=result.get("error_text"),
+                completed_at=_utc_now(),
+            )
+            return
+
+        async with self.session_factory() as db:
+            owned_audit_repo = ToolAuditRepository(db)
+            await self._mark_tool_completed(thread_id=thread_id, result=result, audit_repo=owned_audit_repo)
+            await db.commit()
+
+    def _append_tool_request_message(
+        self,
+        *,
+        messages: list[dict[str, Any]],
+        message_id: str,
+        tool_name: str,
+        tool_call_id: str,
+        tool_input: dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        updated_messages = list(messages)
+        updated_messages.append(
+            {
+                "id": message_id,
+                "role": "assistant",
+                "parts": [
+                    {
+                        "type": f"tool-{tool_name}",
+                        "toolCallId": tool_call_id,
+                        "state": "input-available",
+                        "input": tool_input,
+                    }
+                ],
+            }
+        )
+        return updated_messages
+
 
 def _utc_now() -> datetime:
     return datetime.now(tz=timezone.utc)
@@ -644,257 +715,6 @@ def _utc_now() -> datetime:
 
 def _iso_now() -> str:
     return _utc_now().isoformat()
-
-
-def _model_context_window(model_name: str) -> int:
-    if "gemini-2.5" in model_name or "gemini-3" in model_name:
-        return 1_000_000
-    return 128_000
-
-
-def _context_message_limit(keep_recent_exchanges: int) -> int:
-    # One exchange is user + assistant, but tool interactions add extra messages.
-    return max(20, int(keep_recent_exchanges) * 4)
-
-
-def _derive_conversation_title(messages: list[dict[str, Any]]) -> str:
-    for message in messages:
-        if str(message.get("role", "")).strip() != "user":
-            continue
-        parts = message.get("parts", [])
-        if not isinstance(parts, list):
-            continue
-        for part in parts:
-            if not isinstance(part, dict) or part.get("type") != "text":
-                continue
-            text = " ".join(str(part.get("text", "")).split()).strip()
-            if text:
-                return text[:80]
-    return "New Conversation"
-
-
-def _system_prompt() -> str:
-    return """You are ConferenceSpace assistant.
-
-You can answer platform questions, inspect user-scoped conference data, and execute tools.
-
-Tool policy:
-- Use query_backend when the user asks about submission status, conference status, workload, counts, summaries, or notifications.
-- Use query_backend with op=describe before querying if you need to inspect the available resources and fields.
-- Use getCurrentNavigation first when route awareness matters.
-- Use navigate for route changes between known sitemap destinations.
-- Use getPageContext after navigation before performing actions on the page.
-- Use performAction one step at a time with refs returned by getPageContext.
-- If performAction returns failure or verified=false, re-check context before retrying.
-- Never claim actions succeeded without tool evidence.
-"""
-
-
-def _runtime_instructions(rolling_summary: str | None) -> str:
-    if not rolling_summary:
-        return "No prior summary."
-    return f"Conversation summary:\n{rolling_summary}"
-
-
-def _summary_prompt(*, existing_summary: str | None, history_to_summarize: str) -> str:
-    prior = existing_summary or "No previous summary."
-    return f"""Update the summary with new history.
-
-Previous summary:
-{prior}
-
-New history:
-{history_to_summarize}
-
-Output only the updated summary.
-"""
-
-
-def _flatten_for_summary(messages: list[dict[str, Any]]) -> str:
-    lines: list[str] = []
-    for msg in messages:
-        role = msg.get("role", "unknown")
-        lines.append(f"{role}: {_flatten_ui_parts(msg.get('parts', []))}")
-    return "\n".join(lines)
-
-
-def _flatten_ui_parts(parts: list[dict[str, Any]] | Any) -> str:
-    if not isinstance(parts, list):
-        return ""
-    chunks: list[str] = []
-    for part in parts:
-        if not isinstance(part, dict):
-            continue
-        part_type = str(part.get("type", ""))
-        if part_type == "text":
-            chunks.append(str(part.get("text", "")))
-        elif part_type.startswith("tool-"):
-            chunks.append(f"{part_type} input={part.get('input')} output={part.get('output')} error={part.get('errorText')}")
-    return " ".join(chunks).strip()
-
-
-def _ui_to_openai_messages(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    out: list[dict[str, Any]] = []
-    for msg in messages:
-        role = str(msg.get("role", "user"))
-        if role not in {"system", "user", "assistant", "tool"}:
-            role = "user"
-        parts = msg.get("parts", [])
-
-        if role == "tool":
-            out.extend(_tool_parts_to_openai_messages(parts=parts))
-            continue
-
-        content = _flatten_ui_parts(parts)
-        if not content:
-            continue
-        out.append({"role": role, "content": content})
-    return out
-
-
-def _tool_parts_to_openai_messages(*, parts: Any) -> list[dict[str, Any]]:
-    if not isinstance(parts, list):
-        return []
-
-    out: list[dict[str, Any]] = []
-    for part in parts:
-        if not isinstance(part, dict):
-            continue
-
-        content = _tool_part_content(part)
-        if not content:
-            continue
-
-        tool_call_id = str(part.get("toolCallId") or part.get("id") or "").strip()
-        tool_name = str(part.get("toolName") or _tool_name_from_part_type(str(part.get("type", ""))) or "").strip()
-
-        if not tool_call_id and not tool_name:
-            # Providers reject role=tool without metadata; keep context as assistant text instead.
-            out.append({"role": "assistant", "content": f"Tool output: {content}"})
-            continue
-
-        payload: dict[str, Any] = {"role": "tool", "content": content}
-        if tool_call_id:
-            payload["tool_call_id"] = tool_call_id
-        if tool_name:
-            payload["name"] = tool_name
-        out.append(payload)
-
-    return out
-
-
-def _tool_part_content(part: dict[str, Any]) -> str:
-    state = str(part.get("state") or "")
-    if state == "output-available":
-        return _safe_json_dumps(part.get("output", part.get("result")))
-    if state in {"output-error", "timeout"}:
-        error_text = str(part.get("errorText") or "").strip()
-        if error_text:
-            return error_text
-    return _flatten_ui_parts([part])
-
-
-def _tool_name_from_part_type(part_type: str) -> str:
-    if part_type.startswith("tool-") and len(part_type) > 5:
-        return part_type[5:]
-    return ""
-
-
-def _safe_json_dumps(value: Any) -> str:
-    try:
-        return json.dumps(value, ensure_ascii=True)
-    except TypeError:
-        return str(value)
-
-
-def _pick_tool_call(tool_buffers: dict[int, dict[str, Any]]) -> dict[str, Any] | None:
-    for idx in sorted(tool_buffers.keys()):
-        buffer = tool_buffers[idx]
-        tool_name = str(buffer.get("tool_name", "")).strip()
-        if not tool_name:
-            continue
-        args_raw = str(buffer.get("args_raw", "")).strip()
-        tool_input = _safe_json_loads(args_raw)
-        normalized_input = _normalize_tool_input(tool_name=tool_name, tool_input=tool_input)
-        return {
-            "tool_call_id": str(buffer["tool_call_id"]),
-            "tool_name": tool_name,
-            "input": normalized_input,
-        }
-    return None
-
-
-def _normalize_tool_input(*, tool_name: str, tool_input: Any) -> dict[str, Any]:
-    if not isinstance(tool_input, dict):
-        return {}
-
-    if tool_name not in {"performAction", "navigate"}:
-        return tool_input
-
-    nested_properties = tool_input.get("properties")
-    if not isinstance(nested_properties, dict):
-        return tool_input
-
-    normalized: dict[str, Any] = {}
-    keys = ("action", "ref", "text", "key", "value")
-    if tool_name == "navigate":
-        keys = ("destinationId", "params")
-
-    for key in keys:
-        value = tool_input.get(key, nested_properties.get(key))
-        if value is not None:
-            normalized[key] = value
-
-    return normalized or tool_input
-
-
-def _safe_json_loads(value: str) -> Any:
-    if not value:
-        return {}
-    try:
-        return json.loads(value)
-    except json.JSONDecodeError:
-        return {}
-
-
-def _extract_resume_from_messages(*, messages: list[dict[str, Any]], pending_tool: dict[str, Any]) -> dict[str, Any] | None:
-    pending_call_id = str(pending_tool.get("tool_call_id", ""))
-    pending_tool_name = str(pending_tool.get("tool_name", ""))
-    if not pending_call_id or not pending_tool_name:
-        return None
-
-    for msg in reversed(messages):
-        parts = msg.get("parts", [])
-        if not isinstance(parts, list):
-            continue
-
-        for part in reversed(parts):
-            if not isinstance(part, dict):
-                continue
-            state = part.get("state")
-            if state not in {"output-available", "output-error", "timeout"}:
-                continue
-            part_type = str(part.get("type", ""))
-            if not part_type.startswith("tool-") and part_type != "dynamic-tool":
-                continue
-
-            tool_name = str(part.get("toolName") or part_type.replace("tool-", ""))
-            tool_call_id = str(part.get("toolCallId") or part.get("id") or "")
-            if tool_call_id != pending_call_id:
-                continue
-            if tool_name and tool_name != pending_tool_name:
-                continue
-
-            return {
-                "tool_call_id": pending_call_id,
-                "tool_name": pending_tool_name,
-                "status": state,
-                "output": part.get("output", part.get("result")),
-                "error_text": part.get("errorText"),
-                "received_at": _iso_now(),
-            }
-
-    return None
 
 
 @dataclass(slots=True)
@@ -905,34 +725,16 @@ class _IterationResult:
     continue_turn: bool = False
 
 
-def _tool_part_from_result(*, pending_tool_call: dict[str, Any], result: dict[str, Any]) -> dict[str, Any]:
-    tool_name = str(result["tool_name"])
-    tool_call_id = str(result["tool_call_id"])
-    status = str(result["status"])
+def _build_get_skill_display_output(
+    *,
+    tool_name: str,
+    status: str,
+    skill_name: str | None,
+) -> dict[str, Any] | None:
+    if tool_name != "get_skill":
+        return None
 
-    tool_part: dict[str, Any] = {
-        "type": f"tool-{tool_name}",
-        "toolCallId": tool_call_id,
-        "input": pending_tool_call.get("input", {}),
-        "state": status,
-    }
-    if status == "output-available":
-        tool_part["output"] = result.get("output")
-    else:
-        tool_part["errorText"] = result.get("error_text")
-    return tool_part
-
-
-def _has_fresh_user_message(messages: list[dict[str, Any]]) -> bool:
-    if not messages:
-        return False
-    last = messages[-1]
-    if last.get("role") != "user":
-        return False
-    parts = last.get("parts", [])
-    if not isinstance(parts, list):
-        return False
-    for part in parts:
-        if isinstance(part, dict) and part.get("type") == "text" and str(part.get("text", "")).strip():
-            return True
-    return False
+    payload: dict[str, Any] = {"status": status}
+    if skill_name:
+        payload["skill_name"] = skill_name
+    return payload

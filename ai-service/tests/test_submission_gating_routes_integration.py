@@ -21,7 +21,7 @@ from tests.submission_gating_helpers import MINIMAL_PDF_BYTES, make_request_payl
 
 
 class _NoopLLM:
-    async def extract_structured_findings(self, *_args, **_kwargs):
+    async def complete_json(self, *_args, **_kwargs):
         return []
 
 

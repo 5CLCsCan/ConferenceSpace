@@ -189,11 +189,9 @@ async def test_content_evaluation_timeout_returns_empty_findings() -> None:
     state.submission_facts = SubmissionFacts(
         page_count=2,
         section_presence={"Abstract": True, "Introduction": True, "Conclusion": True},
-        title_word_count=2,
         abstract_present=True,
         reference_count_estimate=0,
         anonymization_signals={},
-        keyword_coverage={},
         table_count=0,
         figure_count=0,
         text_coverage_ratio=1.0,
@@ -203,7 +201,7 @@ async def test_content_evaluation_timeout_returns_empty_findings() -> None:
     ]
 
     class _TimeoutLLM:
-        async def extract_structured_findings(self, *_args, **_kwargs):
+        async def complete_json(self, *_args, **_kwargs):
             raise TimeoutError("timed out")
 
     result = await content_evaluation.run(state, llm_client=_TimeoutLLM())
@@ -211,6 +209,68 @@ async def test_content_evaluation_timeout_returns_empty_findings() -> None:
     assert result.content_findings == []
     assert result.error is None
     assert result.determinism_metadata["content_evaluation"] == "timeout"
+
+
+@pytest.mark.asyncio
+async def test_content_evaluation_uses_complete_json_and_maps_findings() -> None:
+    state = _normalized_state()
+    state.extracted_document = ExtractedDocument(
+        format="pdf",
+        raw_text="Abstract\nIntroduction\nConclusion",
+        sections=["Abstract", "Introduction", "Conclusion"],
+        title="Title",
+        abstract="Abstract",
+        authors=[],
+        metadata={},
+        table_count=0,
+        figure_count=0,
+        page_count=2,
+        text_coverage_ratio=1.0,
+        core_properties={},
+    )
+    state.submission_facts = SubmissionFacts(
+        page_count=2,
+        section_presence={"Abstract": True, "Introduction": True, "Conclusion": True},
+        abstract_present=True,
+        reference_count_estimate=0,
+        anonymization_signals={},
+        table_count=0,
+        figure_count=0,
+        text_coverage_ratio=1.0,
+    )
+    state.policy_snapshot.desk_rejection_settings.prompt_fragments = [
+        "Warn if no ethics statement is present."
+    ]
+
+    captured: dict[str, object] = {}
+
+    class _FakeLLM:
+        async def complete_json(self, **kwargs):
+            captured.update(kwargs)
+            return [
+                {
+                    "rule_id": "ethics_statement",
+                    "severity": "warn",
+                    "reason": "No ethics statement was found.",
+                    "excerpt": "",
+                    "remediation": "Add an ethics statement.",
+                }
+            ]
+
+    result = await content_evaluation.run(state, llm_client=_FakeLLM())
+
+    assert result.content_findings == [
+        ContentFinding(
+            rule_id="ethics_statement",
+            source="llm_content_evaluation",
+            severity="warn",
+            message="No ethics statement was found.",
+            excerpt=None,
+            remediation="Add an ethics statement.",
+        )
+    ]
+    assert result.determinism_metadata["content_evaluation"] == "used"
+    assert "messages" in captured
 
 
 def test_policy_evaluation_blocks_min_references() -> None:

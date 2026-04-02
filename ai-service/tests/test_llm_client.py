@@ -100,3 +100,82 @@ async def test_stream_chat_handles_think_tags_split_across_chunk_boundaries(
         {"content": "Ans"},
         {"content": "wer"},
     ]
+
+
+@pytest.mark.asyncio
+async def test_stream_chat_reads_text_parts_from_object_content_lists(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def fake_acompletion(**kwargs):
+        return _FakeStreamResponse(
+            [
+                _make_chunk(
+                    {
+                        "content": [
+                            SimpleNamespace(type="text", text="Hello"),
+                            SimpleNamespace(type="text", text=" world"),
+                        ]
+                    }
+                )
+            ]
+        )
+
+    monkeypatch.setattr("app.services.llm_client._get_acompletion", lambda: fake_acompletion)
+
+    client = LLMClient(api_key="test-key", model="openrouter/google/gemini-2.5-flash-lite")
+    chunks = [chunk async for chunk in client.stream_chat(messages=[])]
+
+    assert chunks == [{"content": "Hello world"}]
+
+
+@pytest.mark.asyncio
+async def test_summarize_reads_text_parts_from_object_content_lists(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def fake_acompletion(**kwargs):
+        return {
+            "choices": [
+                {
+                    "message": {
+                        "content": [
+                            SimpleNamespace(type="text", text="Short"),
+                            SimpleNamespace(type="text", text=" summary"),
+                        ]
+                    }
+                }
+            ]
+        }
+
+    monkeypatch.setattr("app.services.llm_client._get_acompletion", lambda: fake_acompletion)
+
+    client = LLMClient(api_key="test-key", model="openrouter/google/gemini-2.5-flash-lite")
+    summary = await client.summarize(prompt="Summarize this")
+
+    assert summary == "Short summary"
+
+
+@pytest.mark.asyncio
+async def test_complete_json_parses_json_array_response(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, object] = {}
+
+    async def fake_acompletion(**kwargs):
+        captured.update(kwargs)
+        return {"choices": [{"message": {"content": '[{"rule_id":"page_limit"}]'}}]}
+
+    monkeypatch.setattr("app.services.llm_client._get_acompletion", lambda: fake_acompletion)
+
+    client = LLMClient(api_key="test-key", model="openrouter/google/gemini-2.5-flash-lite")
+    payload = await client.complete_json(
+        messages=[
+            {"role": "system", "content": "Return JSON only."},
+            {"role": "user", "content": "Check the page limit."},
+        ]
+    )
+
+    assert payload == [{"rule_id": "page_limit"}]
+    messages = captured["messages"]
+    assert isinstance(messages, list)
+    assert messages[0]["role"] == "system"
+    assert messages[1]["role"] == "user"

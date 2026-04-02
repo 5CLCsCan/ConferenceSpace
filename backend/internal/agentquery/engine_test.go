@@ -214,8 +214,51 @@ func TestPlanQueryRedactsReviewerIdentityOutsideChairScope(t *testing.T) {
 	if !strings.Contains(plan.SQL, "CASE WHEN EXISTS") {
 		t.Fatalf("expected conditional redaction in SQL, got %s", plan.SQL)
 	}
-	if !strings.Contains(plan.SQL, "THEN a.reviewer_email ELSE NULL END") {
+	if !strings.Contains(plan.SQL, "THEN u.email ELSE NULL END") {
 		t.Fatalf("expected reviewer identity masking expression, got %s", plan.SQL)
+	}
+	if strings.Contains(plan.SQL, "a.reviewer_email") {
+		t.Fatalf("assignments query should not reference nonexistent a.reviewer_email column, got %s", plan.SQL)
+	}
+	if !strings.Contains(plan.SQL, "JOIN conference_reviewers cr ON cr.id = a.reviewer_id") {
+		t.Fatalf("expected reviewer join in assignments query, got %s", plan.SQL)
+	}
+	if !strings.Contains(plan.SQL, "JOIN users u ON u.user_id = cr.user_id") {
+		t.Fatalf("expected user join in assignments query, got %s", plan.SQL)
+	}
+}
+
+func TestPlanQueryAssignmentsUsesJoinedReviewerIdentityForScopeAndConferenceFields(t *testing.T) {
+	t.Parallel()
+
+	engine := NewEngine(nil)
+
+	plan, err := engine.planQuery(Actor{UserID: 23, UserEmail: "reviewer@example.com"}, &Request{
+		Op:       "query",
+		Resource: "assignments",
+		Select: []SelectField{
+			{Field: "conference.acronym"},
+			{Field: "conference.title"},
+			{Field: "status"},
+			{Field: "review_status"},
+			{Field: "review_submitted_at"},
+		},
+	})
+	if err != nil {
+		t.Fatalf("planQuery returned error: %v", err)
+	}
+
+	if strings.Contains(plan.SQL, "a.reviewer_email") {
+		t.Fatalf("assignments query should not reference nonexistent a.reviewer_email column, got %s", plan.SQL)
+	}
+	if !strings.Contains(plan.SQL, "u.email = $") {
+		t.Fatalf("expected reviewer scope to use joined user email, got %s", plan.SQL)
+	}
+	if !strings.Contains(plan.SQL, "c.acronym AS conference_acronym") {
+		t.Fatalf("expected conference acronym projection, got %s", plan.SQL)
+	}
+	if !strings.Contains(plan.SQL, "c.title AS conference_title") {
+		t.Fatalf("expected conference title projection, got %s", plan.SQL)
 	}
 }
 
