@@ -558,7 +558,6 @@ function ExploreListRow({
       <div className="lg:hidden p-4">
         <div className="flex items-start justify-between gap-3 mb-2">
           <ExploreStatusBadge status={conference.exploreStatus} />
-          {moreMenu}
         </div>
 
         <h3 className="text-[13px] font-bold leading-[1.3] tracking-tight text-[#1B3C53] dark:text-white mb-0.5">

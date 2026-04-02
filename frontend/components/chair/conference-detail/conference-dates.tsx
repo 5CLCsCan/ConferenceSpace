@@ -422,9 +422,6 @@ export function ConferenceDates({ conferenceId, className }: ConferenceDatesProp
           <h2 className="text-lg font-bold text-[#1B3C53] dark:text-white tracking-tight">
             Conference Timeline
           </h2>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-            API-backed schedule from conference configuration.
-          </p>
         </div>
         <div className="flex items-center gap-2">
           <button
