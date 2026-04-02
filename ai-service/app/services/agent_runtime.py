@@ -15,6 +15,7 @@ from app.repositories.message_repo import MessageRepository
 from app.repositories.runtime_store import RuntimeStore
 from app.repositories.session_repo import SessionRepository
 from app.repositories.tool_audit_repo import ToolAuditRepository
+from app.services.backend_query_client import BackendQueryClient, BackendQueryClientError
 from app.services.compaction import CompactionPolicy, estimate_tokens_from_messages
 from app.services.llm_client import LLMClient
 from app.services.metrics import MetricsStore
@@ -32,12 +33,14 @@ class AgentRuntime:
     runtime_store: RuntimeStore
     llm_client: LLMClient
     metrics: MetricsStore
+    backend_query_client: BackendQueryClient
 
     async def run_chat_turn(
         self,
         *,
         thread_id: str,
         identity: Identity,
+        access_token: str,
         incoming_messages: list[dict[str, Any]],
         message_id: str,
         event_emitter: EventEmitter,
@@ -91,15 +94,19 @@ class AgentRuntime:
                 self.metrics.add_stream_duration(int((_utc_now() - stream_started_at).total_seconds() * 1000))
                 return
 
-            messages, rolling_summary, pending = await self._llm_iteration(
+            iteration_result = await self._llm_iteration(
                 thread_id=thread_id,
                 identity=identity,
+                access_token=access_token,
                 messages=messages,
                 rolling_summary=rolling_summary,
                 message_id=message_id,
                 event_emitter=event_emitter,
                 iteration=iteration,
             )
+            messages = iteration_result.messages
+            rolling_summary = iteration_result.rolling_summary
+            pending = iteration_result.pending_tool_call
             if pending is not None:
                 await self._persist_pending(
                     thread_id=thread_id,
@@ -111,6 +118,9 @@ class AgentRuntime:
                 await event_emitter({"type": "done", "thread_id": thread_id})
                 self.metrics.add_stream_duration(int((_utc_now() - stream_started_at).total_seconds() * 1000))
                 return
+
+            if iteration_result.continue_turn:
+                continue
 
             await self._finalize_and_persist(
                 thread_id=thread_id,
@@ -178,12 +188,13 @@ class AgentRuntime:
         *,
         thread_id: str,
         identity: Identity,
+        access_token: str,
         messages: list[dict[str, Any]],
         rolling_summary: str | None,
         message_id: str,
         event_emitter: EventEmitter,
         iteration: int,
-    ) -> tuple[list[dict[str, Any]], str | None, dict[str, Any] | None]:
+    ) -> "_IterationResult":
         model_messages = [
             {"role": "system", "content": _system_prompt()},
             {"role": "system", "content": _runtime_instructions(rolling_summary)},
@@ -283,7 +294,21 @@ class AgentRuntime:
                         "parts": [{"type": "text", "text": f"Tool '{tool_name}' is not registered."}],
                     }
                 )
-                return messages, rolling_summary, None
+                return _IterationResult(messages=messages, rolling_summary=rolling_summary)
+
+            spec = TOOL_REGISTRY[tool_name]
+            if spec.execution_mode == "server":
+                return await self._execute_server_tool(
+                    thread_id=thread_id,
+                    identity=identity,
+                    access_token=access_token,
+                    messages=messages,
+                    rolling_summary=rolling_summary,
+                    tool_name=tool_name,
+                    tool_call_id=tool_call_id,
+                    tool_input=tool_input,
+                    event_emitter=event_emitter,
+                )
 
             now = _utc_now()
             timeout = now + timedelta(seconds=self.settings.tool_result_timeout_seconds)
@@ -336,7 +361,11 @@ class AgentRuntime:
                 )
                 await db.commit()
 
-            return messages, rolling_summary, pending
+            return _IterationResult(
+                messages=messages,
+                rolling_summary=rolling_summary,
+                pending_tool_call=pending,
+            )
 
         if text_buffer:
             messages = list(messages)
@@ -348,7 +377,129 @@ class AgentRuntime:
                 }
             )
 
-        return messages, rolling_summary, None
+        return _IterationResult(messages=messages, rolling_summary=rolling_summary)
+
+    async def _execute_server_tool(
+        self,
+        *,
+        thread_id: str,
+        identity: Identity,
+        access_token: str,
+        messages: list[dict[str, Any]],
+        rolling_summary: str | None,
+        tool_name: str,
+        tool_call_id: str,
+        tool_input: dict[str, Any],
+        event_emitter: EventEmitter,
+    ) -> "_IterationResult":
+        started_at = _utc_now()
+        await event_emitter(
+            {
+                "type": "tool_start",
+                "thread_id": thread_id,
+                "tool_call_id": tool_call_id,
+                "tool": tool_name,
+                "input": tool_input,
+                "started_at": started_at.isoformat(),
+            }
+        )
+
+        async with self.session_factory() as db:
+            audit_repo = ToolAuditRepository(db)
+            await audit_repo.create_requested(
+                thread_id=thread_id,
+                tool_call_id=tool_call_id,
+                tool_name=tool_name,
+                tool_input=tool_input,
+                user_id=identity.user_id,
+                user_email=identity.user_email,
+                trace_id=str(uuid4()),
+                requested_at=started_at,
+            )
+            await db.commit()
+
+        try:
+            output = await self._dispatch_server_tool(
+                tool_name=tool_name,
+                tool_input=tool_input,
+                access_token=access_token,
+            )
+            result = {
+                "tool_call_id": tool_call_id,
+                "tool_name": tool_name,
+                "status": "output-available",
+                "output": output,
+                "error_text": None,
+            }
+        except BackendQueryClientError as exc:
+            result = {
+                "tool_call_id": tool_call_id,
+                "tool_name": tool_name,
+                "status": "output-error",
+                "output": None,
+                "error_text": str(exc),
+            }
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("runtime.server_tool_failed tool=%s thread_id=%s error=%s", tool_name, thread_id, str(exc))
+            result = {
+                "tool_call_id": tool_call_id,
+                "tool_name": tool_name,
+                "status": "output-error",
+                "output": None,
+                "error_text": "internal server tool error",
+            }
+
+        payload = {
+            "type": "tool_end",
+            "thread_id": thread_id,
+            "tool_call_id": tool_call_id,
+            "tool": tool_name,
+            "status": str(result["status"]),
+            "finished_at": _iso_now(),
+        }
+        if result["status"] == "output-available":
+            payload["result"] = result["output"]
+        else:
+            payload["error"] = result["error_text"]
+        await event_emitter(payload)
+
+        updated_messages = list(messages)
+        updated_messages.append(
+            {
+                "id": f"tool-{tool_call_id}",
+                "role": "tool",
+                "parts": [_tool_part_from_result(pending_tool_call={"input": tool_input}, result=result)],
+            }
+        )
+
+        async with self.session_factory() as db:
+            audit_repo = ToolAuditRepository(db)
+            await audit_repo.mark_completed(
+                thread_id=thread_id,
+                tool_call_id=tool_call_id,
+                status=str(result["status"]),
+                output=result.get("output"),
+                error_text=result.get("error_text"),
+                completed_at=_utc_now(),
+            )
+            await db.commit()
+
+        return _IterationResult(
+            messages=updated_messages,
+            rolling_summary=rolling_summary,
+            continue_turn=True,
+        )
+
+    async def _dispatch_server_tool(
+        self,
+        *,
+        tool_name: str,
+        tool_input: dict[str, Any],
+        access_token: str,
+    ) -> dict[str, Any]:
+        if tool_name == "query_backend":
+            return await self.backend_query_client.execute(access_token=access_token, payload=tool_input)
+        raise BackendQueryClientError(f"Tool '{tool_name}' is not supported for server execution")
 
     async def _apply_tool_result(
         self,
@@ -379,19 +530,14 @@ class AgentRuntime:
 
         await event_emitter(payload)
 
-        tool_part: dict[str, Any] = {
-            "type": f"tool-{tool_name}",
-            "toolCallId": tool_call_id,
-            "input": pending_tool_call.get("input", {}),
-            "state": status,
-        }
-        if status == "output-available":
-            tool_part["output"] = result.get("output")
-        else:
-            tool_part["errorText"] = result.get("error_text")
-
         messages = list(messages)
-        messages.append({"id": f"tool-{tool_call_id}", "role": "tool", "parts": [tool_part]})
+        messages.append(
+            {
+                "id": f"tool-{tool_call_id}",
+                "role": "tool",
+                "parts": [_tool_part_from_result(pending_tool_call=pending_tool_call, result=result)],
+            }
+        )
 
         async with self.session_factory() as db:
             audit_repo = ToolAuditRepository(db)
@@ -530,9 +676,11 @@ def _derive_conversation_title(messages: list[dict[str, Any]]) -> str:
 def _system_prompt() -> str:
     return """You are ConferenceSpace assistant.
 
-You can answer platform questions and execute browser actions by requesting client tools.
+You can answer platform questions, inspect user-scoped conference data, and execute tools.
 
 Tool policy:
+- Use query_backend when the user asks about submission status, conference status, workload, counts, summaries, or notifications.
+- Use query_backend with op=describe before querying if you need to inspect the available resources and fields.
 - Use getCurrentNavigation first when route awareness matters.
 - Use navigate for route changes between known sitemap destinations.
 - Use getPageContext after navigation before performing actions on the page.
@@ -747,6 +895,32 @@ def _extract_resume_from_messages(*, messages: list[dict[str, Any]], pending_too
             }
 
     return None
+
+
+@dataclass(slots=True)
+class _IterationResult:
+    messages: list[dict[str, Any]]
+    rolling_summary: str | None
+    pending_tool_call: dict[str, Any] | None = None
+    continue_turn: bool = False
+
+
+def _tool_part_from_result(*, pending_tool_call: dict[str, Any], result: dict[str, Any]) -> dict[str, Any]:
+    tool_name = str(result["tool_name"])
+    tool_call_id = str(result["tool_call_id"])
+    status = str(result["status"])
+
+    tool_part: dict[str, Any] = {
+        "type": f"tool-{tool_name}",
+        "toolCallId": tool_call_id,
+        "input": pending_tool_call.get("input", {}),
+        "state": status,
+    }
+    if status == "output-available":
+        tool_part["output"] = result.get("output")
+    else:
+        tool_part["errorText"] = result.get("error_text")
+    return tool_part
 
 
 def _has_fresh_user_message(messages: list[dict[str, Any]]) -> bool:

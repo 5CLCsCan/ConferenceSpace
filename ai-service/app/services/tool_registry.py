@@ -59,4 +59,70 @@ TOOL_REGISTRY: dict[str, ToolSpec] = {
         },
         timeout_seconds=90,
     ),
+    "query_backend": ToolSpec(
+        name="query_backend",
+        execution_mode="server",
+        input_schema={
+            "type": "object",
+            "properties": {
+                "op": {"type": "string", "enum": ["describe", "query"]},
+                "resource": {"type": "string"},
+                "select": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "field": {"type": "string"},
+                            "as": {"type": "string"},
+                        },
+                        "required": ["field"],
+                        "additionalProperties": False,
+                    },
+                },
+                "filter": {"type": "object"},
+                "group_by": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "field": {"type": "string"},
+                            "as": {"type": "string"},
+                        },
+                        "required": ["field"],
+                        "additionalProperties": False,
+                    },
+                },
+                "aggregates": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "fn": {"type": "string"},
+                            "field": {"type": "string"},
+                            "as": {"type": "string"},
+                        },
+                        "required": ["fn", "field"],
+                        "additionalProperties": False,
+                    },
+                },
+                "sort": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "field": {"type": "string"},
+                            "dir": {"type": "string", "enum": ["asc", "desc"]},
+                        },
+                        "required": ["field"],
+                        "additionalProperties": False,
+                    },
+                },
+                "limit": {"type": "integer", "minimum": 1},
+                "offset": {"type": "integer", "minimum": 0},
+            },
+            "required": ["op"],
+            "additionalProperties": False,
+        },
+        timeout_seconds=30,
+    ),
 }

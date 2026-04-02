@@ -53,6 +53,9 @@ async def ready(request: Request) -> Response:
 @agent_router.post("/chat")
 async def chat(request: Request, body: ChatRequest) -> StreamingResponse:
     container = _get_container(request)
+    access_token = _extract_bearer_token(request.headers.get("Authorization"))
+    if not access_token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="missing bearer token")
     identity = await _require_identity(request)
 
     checks = await _dependency_checks(container, include_identity_backend=False)
@@ -93,6 +96,7 @@ async def chat(request: Request, body: ChatRequest) -> StreamingResponse:
                 await container.runtime.run_chat_turn(
                     thread_id=body.thread_id,
                     identity=identity,
+                    access_token=access_token,
                     incoming_messages=messages,
                     message_id=message_id,
                     event_emitter=emit,

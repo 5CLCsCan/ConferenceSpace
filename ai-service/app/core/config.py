@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     backend_api_base_url: str = Field(default="http://localhost:8080", alias="BACKEND_API_BASE_URL")
     identity_request_timeout_seconds: float = Field(default=3.0, alias="IDENTITY_REQUEST_TIMEOUT_SECONDS")
     auth_cache_ttl_seconds: int = Field(default=60, alias="AUTH_CACHE_TTL_SECONDS")
+    backend_query_timeout_seconds: float = Field(default=10.0, alias="BACKEND_QUERY_TIMEOUT_SECONDS")
+    agent_service_token: str = Field(default="", alias="AGENT_SERVICE_TOKEN")
 
     redis_url: str = Field(default="redis://localhost:6379/0", alias="REDIS_URL")
     postgres_dsn: str = Field(
