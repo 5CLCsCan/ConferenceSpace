@@ -19,7 +19,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { executeAction, type ActionParams, type ActionType } from "@/lib/chatbot/action-executor"
+import {
+  executeActions,
+  type BatchActionInvocationInput,
+} from "@/lib/chatbot/action-executor"
 import {
   getCurrentNavigationSnapshot,
   navigateToDestination,
@@ -137,20 +140,19 @@ export function ChatView({
         }
       }
 
-      if (toolCall.toolName === "performAction") {
+      if (toolCall.toolName === "performActions") {
         try {
-          const result = await executeAction(
-            (toolCall.input as { action?: ActionType }).action as ActionType,
+          const result = await executeActions(
             refMapRef.current,
-            toolCall.input as ActionParams,
+            toolCall.input as BatchActionInvocationInput,
           )
-          addToolOutput({ tool: "performAction", toolCallId: toolCall.toolCallId, output: result })
+          addToolOutput({ tool: "performActions", toolCallId: toolCall.toolCallId, output: result })
         } catch (error) {
           addToolOutput({
-            tool: "performAction",
+            tool: "performActions",
             toolCallId: toolCall.toolCallId,
             state: "output-error",
-            errorText: error instanceof Error ? error.message : "Failed to execute action",
+            errorText: error instanceof Error ? error.message : "Failed to execute actions",
           })
         }
       }

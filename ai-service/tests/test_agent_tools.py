@@ -15,7 +15,7 @@ def test_extract_resume_from_messages_matches_pending_call() -> None:
             "parts": [
                 {
                     "type": "dynamic-tool",
-                    "toolName": "performAction",
+                    "toolName": "performActions",
                     "toolCallId": "call_1",
                     "state": "output-available",
                     "output": {"success": True},
@@ -23,7 +23,7 @@ def test_extract_resume_from_messages_matches_pending_call() -> None:
             ],
         }
     ]
-    pending = {"tool_call_id": "call_1", "tool_name": "performAction"}
+    pending = {"tool_call_id": "call_1", "tool_name": "performActions"}
 
     result = extract_resume_from_messages(messages=messages, pending_tool=pending)
 
@@ -33,12 +33,12 @@ def test_extract_resume_from_messages_matches_pending_call() -> None:
     assert result["output"] == {"success": True}
 
 
-def test_pick_tool_call_unwraps_properties_wrapped_perform_action_input() -> None:
+def test_pick_tool_call_unwraps_properties_wrapped_perform_actions_input() -> None:
     tool_buffers = {
         0: {
             "tool_call_id": "call_1",
-            "tool_name": "performAction",
-            "args_raw": '{"properties":{"action":"click","ref":"btn-78"}}',
+            "tool_name": "performActions",
+            "args_raw": '{"properties":{"actions":[{"action":"click","ref":"btn-78"}]}}',
         }
     }
 
@@ -46,8 +46,27 @@ def test_pick_tool_call_unwraps_properties_wrapped_perform_action_input() -> Non
 
     assert picked == {
         "tool_call_id": "call_1",
-        "tool_name": "performAction",
-        "input": {"action": "click", "ref": "btn-78"},
+        "tool_name": "performActions",
+        "input": {"actions": [{"action": "click", "ref": "btn-78"}]},
+    }
+
+
+def test_normalize_tool_input_preserves_valid_perform_actions_input() -> None:
+    normalized = normalize_tool_input(
+        tool_name="performActions",
+        tool_input={
+            "actions": [
+                {"action": "clear", "ref": "input-1"},
+                {"action": "type", "ref": "input-1", "text": "hello"},
+            ]
+        },
+    )
+
+    assert normalized == {
+        "actions": [
+            {"action": "clear", "ref": "input-1"},
+            {"action": "type", "ref": "input-1", "text": "hello"},
+        ]
     }
 
 

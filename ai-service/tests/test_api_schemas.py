@@ -20,7 +20,7 @@ def test_tool_result_envelope_allows_output_available_without_error() -> None:
 def test_tool_result_envelope_requires_error_text_for_non_success(status: str) -> None:
     with pytest.raises(ValidationError):
         ToolResultEnvelope(
-            tool_name="performAction",
+            tool_name="performActions",
             status=status,  # type: ignore[arg-type]
             output=None,
         )
@@ -57,6 +57,28 @@ def test_tool_registry_includes_navigate_client_tool() -> None:
     assert spec.input_schema["properties"]["params"] == {
         "type": "object",
         "additionalProperties": {"type": "string"},
+    }
+
+
+def test_tool_registry_replaces_perform_action_with_perform_actions() -> None:
+    assert "performAction" not in TOOL_REGISTRY
+
+    spec = TOOL_REGISTRY["performActions"]
+
+    assert spec.execution_mode == "client"
+    assert spec.input_schema["required"] == ["actions"]
+    assert spec.input_schema["properties"]["actions"]["type"] == "array"
+    assert spec.input_schema["properties"]["actions"]["minItems"] == 1
+
+    item_schema = spec.input_schema["properties"]["actions"]["items"]
+    assert item_schema["required"] == ["action"]
+    assert item_schema["additionalProperties"] is False
+    assert item_schema["properties"] == {
+        "action": {"type": "string", "enum": ["click", "type", "press", "select", "clear"]},
+        "ref": {"type": "string"},
+        "text": {"type": "string"},
+        "key": {"type": "string"},
+        "value": {"type": "string"},
     }
 
 

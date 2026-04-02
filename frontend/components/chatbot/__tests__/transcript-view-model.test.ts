@@ -17,10 +17,10 @@ describe("buildTranscriptTurns", () => {
         parts: [
           { type: "text", text: "I can do that." },
           {
-            type: "tool-performAction",
+            type: "tool-performActions",
             toolCallId: "call-1",
             state: "input-available",
-            input: { action: "click" },
+            input: { actions: [{ action: "click", ref: "btn-1" }] },
           },
         ],
       },
@@ -29,7 +29,7 @@ describe("buildTranscriptTurns", () => {
         role: "tool",
         parts: [
           {
-            type: "tool-performAction",
+            type: "tool-performActions",
             toolCallId: "call-1",
             state: "output-available",
             output: { success: true },
@@ -93,7 +93,7 @@ describe("buildTranscriptTurns", () => {
         role: "tool",
         parts: [
           {
-            type: "tool-performAction",
+            type: "tool-performActions",
             toolCallId: "call-3",
             state: "output-error",
             errorText: "Execution failed",
@@ -109,7 +109,7 @@ describe("buildTranscriptTurns", () => {
     expect(turns[0].items).toHaveLength(1)
     expect(turns[0].items[0]).toMatchObject({
       kind: "tool",
-      toolName: "performAction",
+      toolName: "performActions",
       state: "output-error",
     })
   })

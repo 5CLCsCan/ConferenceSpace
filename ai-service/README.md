@@ -43,6 +43,6 @@ FastAPI-based AI service for ConferenceSpace with deterministic loop orchestrati
 
 ## Notes
 
-- v1 tool surface is client-only: `getPageContext`, `performAction`.
+- v1 tool surface is client-only for page/navigation interactions: `getCurrentNavigation`, `navigate`, `getPageContext`, `performActions`.
 - Memory/attachments/RAG/background workers are intentionally deferred.
 - Alembic uses its own version table: `ai_service_alembic_version` (avoids conflict with backend migrations in the same DB).

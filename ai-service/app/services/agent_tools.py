@@ -33,7 +33,7 @@ def normalize_tool_input(*, tool_name: str, tool_input: Any) -> dict[str, Any]:
         normalized["sort"] = _normalize_query_engine_sort_list(tool_input.get("sort"))
         return {key: value for key, value in normalized.items() if value is not None}
 
-    if tool_name not in {"performAction", "navigate"}:
+    if tool_name not in {"performActions", "navigate"}:
         return tool_input
 
     nested_properties = tool_input.get("properties")
@@ -41,7 +41,7 @@ def normalize_tool_input(*, tool_name: str, tool_input: Any) -> dict[str, Any]:
         return tool_input
 
     normalized: dict[str, Any] = {}
-    keys = ("action", "ref", "text", "key", "value")
+    keys = ("actions",)
     if tool_name == "navigate":
         keys = ("destinationId", "params")
 
