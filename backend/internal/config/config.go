@@ -24,9 +24,10 @@ type Config struct {
 
 // ServerConfig holds server-related configuration
 type ServerConfig struct {
-	Port       string
-	Env        string
-	AdminToken string // Admin token to bypass authentication
+	Port              string
+	Env               string
+	AdminToken        string // Admin token to bypass authentication
+	AgentServiceToken string
 }
 
 // JWTConfig holds JWT-related configuration
@@ -96,9 +97,10 @@ func Load() (*Config, error) {
 
 	cfg := &Config{
 		Server: ServerConfig{
-			Port:       getEnv("SERVER_PORT", "8080"),
-			Env:        getEnv("SERVER_ENV", "development"),
-			AdminToken: getEnv("ADMIN_TOKEN", ""),
+			Port:              getEnv("SERVER_PORT", "8080"),
+			Env:               getEnv("SERVER_ENV", "development"),
+			AdminToken:        getEnv("ADMIN_TOKEN", ""),
+			AgentServiceToken: getEnv("AGENT_SERVICE_TOKEN", ""),
 		},
 		Database: DatabaseConfig{
 			Host:     getEnv("DB_HOST", "localhost"),

@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/dcao/conferencespace/internal/agentquery"
 	"github.com/dcao/conferencespace/internal/clients"
 	"github.com/dcao/conferencespace/internal/config"
 	"github.com/dcao/conferencespace/internal/controller"
@@ -105,9 +106,10 @@ func main() {
 
 // AppContext holds application-level dependencies
 type AppContext struct {
-	Controller *controller.Controller
-	Hub        *websocket.Hub
-	Store      *storage.Storage
+	Controller       *controller.Controller
+	AgentQueryEngine *agentquery.Engine
+	Hub              *websocket.Hub
+	Store            *storage.Storage
 }
 
 // initializeApp sets up all dependencies using dependency injection pattern
@@ -157,9 +159,10 @@ func initializeApp(cfg *config.Config) (*AppContext, func(), error) {
 	}
 
 	appCtx := &AppContext{
-		Controller: ctrl,
-		Hub:        hub,
-		Store:      store,
+		Controller:       ctrl,
+		AgentQueryEngine: agentquery.NewEngine(db),
+		Hub:              hub,
+		Store:            store,
 	}
 
 	return appCtx, cleanup, nil
@@ -268,6 +271,57 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			users.GET("/:email/coi-check", handler.HandleRequestWithURIAndQuery(ctrl.User.CheckCOI))
 			users.PUT("/:email", handler.HandleRequest(ctrl.User.Update))
 			users.DELETE("/:email", handler.HandleNoRequestWithMessage("user deleted successfully", ctrl.User.Delete))
+		}
+
+		agentQuery := v1.Group("/agent")
+		agentQuery.Use(middleware.UserAuthMiddleware(cfg.JWT.Secret))
+		agentQuery.Use(middleware.RequireAgentServiceTokenMiddleware(cfg.Server.AgentServiceToken))
+		{
+			agentQuery.POST("/query", func(c *gin.Context) {
+				var req agentquery.Request
+				if err := c.ShouldBindJSON(&req); err != nil {
+					c.JSON(http.StatusBadRequest, handler.Response{Error: err.Error()})
+					return
+				}
+
+				response, err := appCtx.AgentQueryEngine.Execute(
+					c.Request.Context(),
+					agentquery.Actor{
+						UserID:    c.GetInt64("user_id"),
+						UserEmail: c.GetString("user_email"),
+					},
+					&req,
+				)
+				if err != nil {
+					if apiErr, ok := err.(*agentquery.Error); ok {
+						if apiErr.StatusCode >= http.StatusInternalServerError {
+							log.Printf(
+								"[api-error] status=%d method=%s path=%s message=%s",
+								apiErr.StatusCode,
+								c.Request.Method,
+								c.Request.URL.Path,
+								apiErr.Message,
+							)
+							c.JSON(apiErr.StatusCode, handler.Response{Error: "Something went wrong. Please try again later."})
+							return
+						}
+						c.JSON(apiErr.StatusCode, handler.Response{Error: apiErr.Message})
+						return
+					}
+
+					log.Printf(
+						"[api-error] status=%d method=%s path=%s message=%v",
+						http.StatusInternalServerError,
+						c.Request.Method,
+						c.Request.URL.Path,
+						err,
+					)
+					c.JSON(http.StatusInternalServerError, handler.Response{Error: "Something went wrong. Please try again later."})
+					return
+				}
+
+				c.JSON(http.StatusOK, handler.Response{Data: response})
+			})
 		}
 
 		// Conference routes (all protected - authentication required)
