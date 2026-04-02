@@ -811,6 +811,13 @@ def _normalize_tool_input(*, tool_name: str, tool_input: Any) -> dict[str, Any]:
     if not isinstance(tool_input, dict):
         return {}
 
+    if tool_name == "query_engine":
+        normalized = dict(tool_input)
+        normalized["select"] = _normalize_query_engine_field_list(tool_input.get("select"))
+        normalized["group_by"] = _normalize_query_engine_field_list(tool_input.get("group_by"))
+        normalized["sort"] = _normalize_query_engine_sort_list(tool_input.get("sort"))
+        return {key: value for key, value in normalized.items() if value is not None}
+
     if tool_name not in {"performAction", "navigate"}:
         return tool_input
 
@@ -829,6 +836,58 @@ def _normalize_tool_input(*, tool_name: str, tool_input: Any) -> dict[str, Any]:
             normalized[key] = value
 
     return normalized or tool_input
+
+
+def _normalize_query_engine_field_list(value: Any) -> list[dict[str, Any]] | None:
+    if value is None:
+        return None
+    if not isinstance(value, list):
+        return None
+
+    normalized: list[dict[str, Any]] = []
+    for item in value:
+        if isinstance(item, str):
+            field = item.strip()
+            if field:
+                normalized.append({"field": field})
+            continue
+        if isinstance(item, dict):
+            field = str(item.get("field", "")).strip()
+            if not field:
+                continue
+            candidate: dict[str, Any] = {"field": field}
+            alias = item.get("as")
+            if isinstance(alias, str) and alias.strip():
+                candidate["as"] = alias.strip()
+            normalized.append(candidate)
+
+    return normalized
+
+
+def _normalize_query_engine_sort_list(value: Any) -> list[dict[str, Any]] | None:
+    if value is None:
+        return None
+    if not isinstance(value, list):
+        return None
+
+    normalized: list[dict[str, Any]] = []
+    for item in value:
+        if isinstance(item, str):
+            field = item.strip()
+            if field:
+                normalized.append({"field": field})
+            continue
+        if isinstance(item, dict):
+            field = str(item.get("field", "")).strip()
+            if not field:
+                continue
+            candidate: dict[str, Any] = {"field": field}
+            direction = str(item.get("dir", "")).strip().lower()
+            if direction in {"asc", "desc"}:
+                candidate["dir"] = direction
+            normalized.append(candidate)
+
+    return normalized
 
 
 def _safe_json_loads(value: str) -> Any:

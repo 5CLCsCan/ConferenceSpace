@@ -123,6 +123,27 @@ def test_normalize_tool_input_unwraps_properties_wrapped_navigate_input() -> Non
     }
 
 
+def test_normalize_tool_input_coerces_query_engine_select_string_array() -> None:
+    normalized = _normalize_tool_input(
+        tool_name="query_engine",
+        tool_input={
+            "op": "query",
+            "resource": "public_conferences",
+            "select": ["title", "acronym", "cfp_text"],
+        },
+    )
+
+    assert normalized == {
+        "op": "query",
+        "resource": "public_conferences",
+        "select": [
+            {"field": "title"},
+            {"field": "acronym"},
+            {"field": "cfp_text"},
+        ],
+    }
+
+
 def test_system_prompt_mentions_navigation_tools() -> None:
     prompt = SYSTEM_PROMPT
 
