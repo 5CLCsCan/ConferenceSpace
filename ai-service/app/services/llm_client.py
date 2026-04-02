@@ -67,46 +67,43 @@ class LLMClient:
         )
         return _extract_message_content(response)
 
-    async def extract_structured_findings(
+    async def complete_json(
         self,
         *,
-        steering_prompt: str,
-        extracted_text: str,
-        submission_facts: dict[str, Any],
-    ) -> list[dict[str, Any]]:
-        response = await self._acompletion(
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You review submission content and return only JSON. "
-                        "Output a JSON array of objects with keys: rule_id, severity, reason, excerpt, remediation. "
-                        "Severity must be either 'warn' or 'pass'. Never emit 'block'."
-                    ),
-                },
-                {
-                    "role": "user",
-                    "content": (
-                        f"Steering prompt:\n{steering_prompt}\n\n"
-                        f"Submission facts:\n{json.dumps(submission_facts, ensure_ascii=True)}\n\n"
-                        f"Extracted text:\n{extracted_text}"
-                    ),
-                },
-            ],
-            stream=False,
-            temperature=0,
-        )
-        content = _extract_message_content(response)
-        if not content:
-            return []
-        try:
-            parsed = json.loads(str(content))
-        except json.JSONDecodeError:
-            logger.warning("llm.extract_structured_findings.invalid_json")
-            raise
-        if not isinstance(parsed, list):
-            return []
-        return [item for item in parsed if isinstance(item, dict)]
+        messages: list[dict[str, Any]],
+        max_validation_retries: int = 0,
+    ) -> Any:
+        attempts = max_validation_retries + 1
+        current_messages = list(messages)
+        last_error: json.JSONDecodeError | None = None
+
+        for attempt in range(attempts):
+            response = await self._acompletion(
+                messages=current_messages,
+                stream=False,
+                temperature=0,
+            )
+            content = _extract_message_content(response)
+            if not content:
+                return None
+            try:
+                return json.loads(str(content))
+            except json.JSONDecodeError as exc:
+                logger.warning("llm.complete_json.invalid_json")
+                last_error = exc
+                if attempt >= max_validation_retries:
+                    raise
+                current_messages = [
+                    *messages,
+                    {
+                        "role": "system",
+                        "content": "Corrective retry: return valid JSON only.",
+                    },
+                ]
+
+        if last_error is not None:
+            raise last_error
+        raise RuntimeError("json completion failed without a validation error")
 
     async def complete_structured(
         self,
@@ -201,6 +198,7 @@ class LLMClient:
         if response_format is not None:
             request_kwargs["response_format"] = response_format
         return await acompletion(**request_kwargs)
+
 
 
 def _extract_message_content(response: Any) -> str:

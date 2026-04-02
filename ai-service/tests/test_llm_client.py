@@ -152,3 +152,30 @@ async def test_summarize_reads_text_parts_from_object_content_lists(
     summary = await client.summarize(prompt="Summarize this")
 
     assert summary == "Short summary"
+
+
+@pytest.mark.asyncio
+async def test_complete_json_parses_json_array_response(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, object] = {}
+
+    async def fake_acompletion(**kwargs):
+        captured.update(kwargs)
+        return {"choices": [{"message": {"content": '[{"rule_id":"page_limit"}]'}}]}
+
+    monkeypatch.setattr("app.services.llm_client._get_acompletion", lambda: fake_acompletion)
+
+    client = LLMClient(api_key="test-key", model="openrouter/google/gemini-2.5-flash-lite")
+    payload = await client.complete_json(
+        messages=[
+            {"role": "system", "content": "Return JSON only."},
+            {"role": "user", "content": "Check the page limit."},
+        ]
+    )
+
+    assert payload == [{"rule_id": "page_limit"}]
+    messages = captured["messages"]
+    assert isinstance(messages, list)
+    assert messages[0]["role"] == "system"
+    assert messages[1]["role"] == "user"
