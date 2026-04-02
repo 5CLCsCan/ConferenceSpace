@@ -42,19 +42,33 @@ TOOL_REGISTRY: dict[str, ToolSpec] = {
         input_schema={"type": "object", "properties": {}, "additionalProperties": False},
         timeout_seconds=90,
     ),
-    "performAction": ToolSpec(
-        name="performAction",
+    "performActions": ToolSpec(
+        name="performActions",
         execution_mode="client",
         input_schema={
             "type": "object",
             "properties": {
-                "action": {"type": "string", "enum": ["click", "type", "press", "select", "clear"]},
-                "ref": {"type": "string"},
-                "text": {"type": "string"},
-                "key": {"type": "string"},
-                "value": {"type": "string"},
+                "actions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "action": {
+                                "type": "string",
+                                "enum": ["click", "type", "press", "select", "clear"],
+                            },
+                            "ref": {"type": "string"},
+                            "text": {"type": "string"},
+                            "key": {"type": "string"},
+                            "value": {"type": "string"},
+                        },
+                        "required": ["action"],
+                        "additionalProperties": False,
+                    },
+                }
             },
-            "required": ["action"],
+            "required": ["actions"],
             "additionalProperties": False,
         },
         timeout_seconds=90,

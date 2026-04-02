@@ -5,6 +5,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ChatView } from "../chat-view"
 
+const { executeActions, capturePageContext } = vi.hoisted(() => ({
+  executeActions: vi.fn(),
+  capturePageContext: vi.fn(),
+}))
+
 const addToolOutput = vi.fn()
 const sendMessage = vi.fn()
 const mockPush = vi.fn()
@@ -41,6 +46,14 @@ vi.mock("@/lib/auth-context", () => ({
   }),
 }))
 
+vi.mock("@/lib/chatbot/action-executor", () => ({
+  executeActions,
+}))
+
+vi.mock("@/lib/chatbot/page-context", () => ({
+  capturePageContext,
+}))
+
 vi.mock("../chatbot-provider", () => ({
   useChatbot: () => ({
     isOpen: true,
@@ -65,6 +78,8 @@ describe("ChatView navigation tools", () => {
     sendMessage.mockReset()
     mockPush.mockReset()
     showNavigationMask.mockReset()
+    executeActions.mockReset()
+    capturePageContext.mockReset()
     capturedOnToolCall = undefined
 
     useChatMock.mockImplementation((options: { onToolCall?: typeof capturedOnToolCall }) => {
@@ -75,6 +90,11 @@ describe("ChatView navigation tools", () => {
         status: "ready",
         addToolOutput,
       }
+    })
+
+    capturePageContext.mockReturnValue({
+      tree: { children: [] },
+      refMap: new Map([["input-1", document.createElement("input")]]),
     })
   })
 
@@ -149,6 +169,74 @@ describe("ChatView navigation tools", () => {
         message: "Navigated to chair.conference.detail",
         destinationId: "chair.conference.detail",
         path: "/role/chair/conferences/conf-9",
+      },
+    })
+  })
+
+  it("executes performActions and returns aggregated output", async () => {
+    executeActions.mockResolvedValue({
+      success: true,
+      completedCount: 2,
+      message: "Executed 2 actions.",
+      results: [
+        { index: 0, action: "clear", success: true, message: "Cleared input-1", ref: "input-1" },
+        { index: 1, action: "type", success: true, message: "Typed into input-1", ref: "input-1" },
+      ],
+    })
+
+    render(
+      <ChatView
+        conversation={{
+          id: "conv-1",
+          title: "Action test",
+          messages: [],
+          createdAt: new Date("2026-04-01T00:00:00Z"),
+          updatedAt: new Date("2026-04-01T00:00:00Z"),
+        }}
+      />,
+    )
+
+    await capturedOnToolCall?.({
+      toolCall: {
+        toolName: "getPageContext",
+        toolCallId: "call-page-1",
+        input: {},
+      },
+    })
+
+    await capturedOnToolCall?.({
+      toolCall: {
+        toolName: "performActions",
+        toolCallId: "call-actions-1",
+        input: {
+          actions: [
+            { action: "clear", ref: "input-1" },
+            { action: "type", ref: "input-1", text: "hello" },
+          ],
+        },
+      },
+    })
+
+    expect(executeActions).toHaveBeenCalledWith(
+      expect.any(Map),
+      {
+        actions: [
+          { action: "clear", ref: "input-1" },
+          { action: "type", ref: "input-1", text: "hello" },
+        ],
+      },
+    )
+    expect(addToolOutput).toHaveBeenCalledWith({
+      tool: "performActions",
+      toolCallId: "call-actions-1",
+      output: {
+        success: true,
+        completedCount: 2,
+        message: "Executed 2 actions.",
+        results: [
+          { index: 0, action: "clear", success: true, message: "Cleared input-1", ref: "input-1" },
+          { index: 1, action: "type", success: true, message: "Typed into input-1", ref: "input-1" },
+        ],
       },
     })
   })

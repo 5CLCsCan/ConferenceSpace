@@ -199,13 +199,6 @@ function CFPManagementCard() {
               </div>
             </div>
           </div>
-
-          <div className="rounded-lg border border-white/10 bg-white/10 px-3 py-2.5">
-            <p className="text-[10px] text-slate-200 leading-relaxed">
-              Publishing workflows remain API-backed and read-only. The legacy management shell is
-              restored without changing current production behavior.
-            </p>
-          </div>
         </div>
       </div>
     </div>
@@ -218,12 +211,11 @@ function ImportantDatesCard({ dates }: { dates: ImportantDate[] }) {
 
     return dates.map((item, index) => ({
       ...item,
-      status:
-        item.isPast
-          ? "passed"
-          : upcomingIndex === -1 || index !== upcomingIndex
-            ? "upcoming"
-            : "current",
+      status: item.isPast
+        ? "passed"
+        : upcomingIndex === -1 || index !== upcomingIndex
+          ? "upcoming"
+          : "current",
     }))
   }, [dates])
 

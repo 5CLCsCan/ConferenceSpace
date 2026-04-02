@@ -19,7 +19,7 @@ def test_extract_resume_from_messages_matches_pending_call() -> None:
             "parts": [
                 {
                     "type": "dynamic-tool",
-                    "toolName": "performAction",
+                    "toolName": "performActions",
                     "toolCallId": "call_1",
                     "state": "output-available",
                     "output": {"success": True},
@@ -27,7 +27,7 @@ def test_extract_resume_from_messages_matches_pending_call() -> None:
             ],
         }
     ]
-    pending = {"tool_call_id": "call_1", "tool_name": "performAction"}
+    pending = {"tool_call_id": "call_1", "tool_name": "performActions"}
 
     result = _extract_resume_from_messages(messages=messages, pending_tool=pending)
     assert result is not None
@@ -89,12 +89,12 @@ def test_ui_to_openai_messages_falls_back_when_tool_metadata_missing() -> None:
     assert converted[0]["content"].startswith("Tool output:")
 
 
-def test_pick_tool_call_unwraps_properties_wrapped_perform_action_input() -> None:
+def test_pick_tool_call_unwraps_properties_wrapped_perform_actions_input() -> None:
     tool_buffers = {
         0: {
             "tool_call_id": "call_1",
-            "tool_name": "performAction",
-            "args_raw": '{"properties":{"action":"click","ref":"btn-78"}}',
+            "tool_name": "performActions",
+            "args_raw": '{"properties":{"actions":[{"action":"click","ref":"btn-78"}]}}',
         }
     }
 
@@ -102,8 +102,8 @@ def test_pick_tool_call_unwraps_properties_wrapped_perform_action_input() -> Non
 
     assert picked == {
         "tool_call_id": "call_1",
-        "tool_name": "performAction",
-        "input": {"action": "click", "ref": "btn-78"},
+        "tool_name": "performActions",
+        "input": {"actions": [{"action": "click", "ref": "btn-78"}]},
     }
 
 
@@ -148,9 +148,12 @@ def test_normalize_tool_input_coerces_query_engine_select_string_array() -> None
 def test_system_prompt_mentions_navigation_tools() -> None:
     prompt = SYSTEM_PROMPT
 
-    assert "Page tools (`getCurrentNavigation` → `navigate` → `getPageContext` → `performAction`)" in prompt
+    assert "Page tools (`getCurrentNavigation` → `navigate` → `getPageContext` → `performActions`)" in prompt
     assert "<page_workflow>" in prompt
     assert "<tool_priority_order>" in prompt
+    assert "same-page actions using refs confirmed from the latest page context" in prompt
+    assert "Abort the batch on the first failure or stale ref" in prompt
+    assert "If `performActions` fails or reports stale DOM evidence, call `getPageContext` again before retrying." in prompt
 
 
 def test_system_prompt_guides_query_engine_discovery_and_public_resources() -> None:

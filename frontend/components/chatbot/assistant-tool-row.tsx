@@ -111,7 +111,7 @@ function getToolDisplayName(toolName: string): string {
   const aliases: Record<string, string> = {
     getPageContext: "Get Page Context",
     getCurrentNavigation: "Get Current Navigation",
-    performAction: "Perform Action",
+    performActions: "Perform Actions",
     navigate: "Navigate",
   }
 
