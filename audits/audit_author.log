@@ -1,0 +1,259 @@
+## A-001 Frontend role selector grants Author UI access to any authenticated user
+Role: Author
+Feature/Entity: Shared role selection and author route guard
+Frontend surface: `/role`, `/role/author/**`
+Backend surface: None at the frontend guard layer; backend relies on downstream API authorization
+Visible data: Any authenticated user is treated as eligible for the Author workspace in the role selector and route guard, so Author-only navigation and any frontend-rendered Author data/components become reachable in the browser.
+Available actions: Any authenticated user can select the Author role, persist it in session/local storage, and pass the client-side Author route guard.
+State/relationship gates: Authentication only. No actual backend-issued Author role is required.
+Frontend enforcement: `frontend/lib/role-access.ts` hardcodes `["author", "reviewer", "chair"]` in `BASE_PLATFORM_ROLES` and merges those into every authenticated user's accessible roles. `frontend/lib/use-role-route-guard.ts` trusts `canAccessRole`. `frontend/app/role/page.tsx` filters displayed role cards with the same `canAccessRole` check. `frontend/lib/session-manager.ts` also uses `canAccessRole` before persisting role choice.
+Backend enforcement: None at this layer. The frontend guard is purely client-side and is not backed by a server-issued role check.
+Verdict: ABNORMAL
+Evidence: `frontend/lib/role-access.ts:3-14`; `frontend/lib/use-role-route-guard.ts:14-46`; `frontend/app/role/page.tsx:220-227`; `frontend/lib/session-manager.ts:77-78,184-197`
+Expected behavior: The Author workspace should only be reachable when the authenticated user's server-derived roles or entitlements explicitly allow Author access, or when the product intentionally treats Author as universal and documents that as policy. The current implementation silently turns it into a universal role with no server confirmation.
+Remediation: Remove the hardcoded platform-wide role grant. Derive accessible roles from backend identity data only, or from an explicit product rule enforced consistently on both frontend and backend. If Author is intentionally universal, document it and keep backend checks aligned so UI visibility does not over-promise capabilities.
+
+## A-002 Submission read endpoints let an Author inspect other users' papers and files
+Role: Author
+Feature/Entity: Conference submission list, submission detail, manuscript download, cover-letter download, rebuttal read, camera-ready download
+Frontend surface: Any Author-facing or manually crafted request that targets `/api/v1/conferences/:conference_id/submissions/**`
+Backend surface: `GET /api/v1/conferences/:conference_id/submissions`; `GET /api/v1/conferences/:conference_id/submissions/:submission_id`; `GET /api/v1/conferences/:conference_id/submissions/:submission_id/file`; `GET /api/v1/conferences/:conference_id/submissions/:submission_id/cover_letter`; `GET /api/v1/conferences/:conference_id/submissions/:submission_id/rebuttal`; `GET /api/v1/conferences/:conference_id/submissions/:submission_id/camera-ready`
+Visible data: Submission metadata for arbitrary papers in a conference, assigned reviewers when `includeReviewers=true`, uploaded manuscript files, uploaded cover letters, rebuttal content and assignment rebuttal status, and camera-ready files.
+Available actions: An authenticated Author can enumerate submissions for a conference, fetch another submission by ID, and download stored artifacts if they know or can discover IDs.
+State/relationship gates: The controller only validates conference ID / submission ID consistency and file existence. It does not require the caller to be the submission author, an assigned reviewer, or a chair for read-only endpoints.
+Frontend enforcement: No trustworthy frontend restriction exists once the user is authenticated, because the generic backend proxy forwards any `/api/backend/...` path with the bearer token.
+Backend enforcement: `submission.go` applies author checks on mutating operations such as update/delete/rebuttal upload/camera-ready upload (`existing.Author != userEmail` / `sub.Author != userEmail`), but the read endpoints at `List`, `Get`, `GetFile`, `GetCoverLetter`, `GetRebuttal`, and `GetCameraReady` do not perform equivalent ownership or role checks.
+Verdict: ABNORMAL
+Evidence: Route exposure at `backend/cmd/server/main.go:354`; read handlers at `backend/internal/controller/submission/submission.go:382,443,870,1036,1199,1342`; only write paths enforce author ownership at `backend/internal/controller/submission/submission.go:532,673,840,1114,1294`
+Expected behavior: An Author should only be able to read their own submissions and related private artifacts, unless a conference policy intentionally exposes a narrower public subset. Private files such as manuscripts, cover letters, rebuttals, reviewer assignment status, and camera-ready uploads should not be globally readable by any authenticated user.
+Remediation: Add explicit authorization checks to every submission read endpoint. At minimum, allow access only to the submission author, assigned reviewers where policy permits, and chair/co-chair users for the conference. Split public conference-facing metadata into separate sanitized endpoints instead of reusing the full submission object.
+
+## A-003 Author conference explorer can request globally scoped conference records, including non-open statuses
+Role: Author
+Feature/Entity: Conference explorer and conference detail
+Frontend surface: `/role/author` explore and archived tabs; `/role/author/conferences/:conferenceId`
+Backend surface: `GET /api/v1/conferences`; `GET /api/v1/conferences/:conference_id`
+Visible data: Full conference DTOs including description, chair, co-chairs, venue, domain, tracks, configuration object, and status for any conference returned by the backend list/detail endpoints.
+Available actions: Browse the global conference list, open arbitrary conference detail pages, and bookmark conferences.
+State/relationship gates: Authentication only at the route group. Backend list/get do not require `myConferences=true`, do not force `status=open`, and `GetByID` returns the full object by ID without role/status checks. The Author explorer client further filters only `completed` conferences, so draft/archived leakage is not prevented on the server side.
+Frontend enforcement: `AuthorConferences` calls `listConferences(...)` with no status filter in explore mode and then filters only `c.status !== "completed"` client-side. Conference detail calls `getConferenceById(...)` directly.
+Backend enforcement: `conference.Controller.List` and `Get` do not perform ownership or publication-state checks; storage returns full conference rows unless the caller voluntarily passes filters.
+Verdict: ABNORMAL
+Evidence: Frontend explore/detail requests at `frontend/components/author/author-conferences.tsx:260-272` and `frontend/lib/api/conferences.ts:21-23,245-271`; backend open list/detail at `backend/internal/controller/conference/conference.go:133,187`; storage returns full rows and only applies `status`/`myConferences` when requested at `backend/internal/storage/conference/conference.go:150,254,312,334-385`
+Expected behavior: An Author explorer should receive only conferences intentionally visible to authors, typically open/public conferences and possibly archived public records, not draft/private conference objects or internal configuration payloads.
+Remediation: Create an author/public conference listing contract on the backend that enforces visibility by status and publication policy. Keep draft/private conference detail behind chair-scoped endpoints.
+
+## A-004 Author-owned submission mutations are meaningfully enforced on the backend
+Role: Author
+Feature/Entity: Submission update/delete/rebuttal upload/camera-ready upload
+Frontend surface: Author submission detail and edit flows under `/role/author/submissions/**`
+Backend surface: `PUT /api/v1/conferences/:conference_id/submissions/:submission_id`; `DELETE /api/v1/conferences/:conference_id/submissions/:submission_id`; `PUT /api/v1/conferences/:conference_id/submissions/:submission_id/rebuttal`; `POST /api/v1/conferences/:conference_id/submissions/:submission_id/camera-ready`
+Visible data: The author can reach their own edit/delete/rebuttal/camera-ready controls in the UI.
+Available actions: Update a draft submission, delete an unpublished submission, submit a rebuttal during the rebuttal phase, and upload a camera-ready file for an accepted paper.
+State/relationship gates: Authenticated user must match `submission.Author`; delete is blocked for published submissions; rebuttal is blocked unless the conference rebuttal phase is `awaiting`; camera-ready upload is blocked unless submission status is `accepted`.
+Frontend enforcement: The Author UI presents the relevant actions in submission-specific pages, but the important protection here is backend enforcement rather than UI hiding.
+Backend enforcement: The controller explicitly extracts `userEmail` and denies mutation when `existing.Author != userEmail` / `sub.Author != userEmail`. Additional state guards are applied for deletion, rebuttal phase, and accepted-only camera-ready upload.
+Verdict: NORMAL
+Evidence: Ownership/state checks at `backend/internal/controller/submission/submission.go:518-532,659-673,826-840,1100-1114,1283-1294`
+Expected behavior: Private author mutations should be bound to the submission owner and further limited by submission/conference state.
+Remediation: Keep these owner/state checks, and mirror the same discipline onto the read endpoints that currently lack equivalent authorization.
+
+## A-005 Chat session and history access is properly scoped to the authenticated user
+Role: Author
+Feature/Entity: AI chat transport, session list, session history, session deletion
+Frontend surface: `frontend/app/api/chat/route.ts`; `frontend/app/api/chat/sessions/route.ts`; `frontend/app/api/chat/sessions/[threadId]/route.ts`
+Backend surface: `POST /api/v1/agent/chat`; `GET /api/v1/agent/sessions`; `GET /api/v1/agent/sessions/:thread_id/history`; `DELETE /api/v1/agent/sessions/:thread_id`
+Visible data: Only the authenticated user's own AI chat sessions and their history.
+Available actions: Start/resume a chat turn, list owned sessions, fetch owned history, delete owned sessions, and submit tool results tied to the same owned thread.
+State/relationship gates: A valid bearer token is required, then ai-service resolves backend identity and compares `session.user_id` to the authenticated identity before allowing thread reuse/history/deletion/tool-result submission.
+Frontend enforcement: The Next.js chat routes refuse requests without the auth cookie and forward the bearer token to ai-service.
+Backend enforcement: ai-service requires identity on every route, rejects cross-user thread access when `session.user_id != identity.user_id`, and `SessionRepository` helpers are built around owned-session queries.
+Verdict: NORMAL
+Evidence: Frontend auth forwarding at `frontend/app/api/chat/route.ts:57-59,81,106-110`, `frontend/app/api/chat/sessions/route.ts:18-26`, `frontend/app/api/chat/sessions/[threadId]/route.ts:20-31,53-67`; ai-service ownership checks at `ai-service/app/api/routes.py:53,59,171-172,232,268,280,304,316,433-434`; owned-session repository methods at `ai-service/app/repositories/session_repo.py:24,30-42,67,124-125`
+Expected behavior: Chat threads should be private per authenticated user, with server-side ownership checks independent of frontend navigation.
+Remediation: Preserve this ownership model and add regression tests around cross-user thread access so it stays explicit.
+
+## A-001 Frontend role gating grants Author, Reviewer, and Chair UI to every authenticated user
+Role: Author
+Feature/Entity: Shared role selection and role-based route guards
+Frontend surface: `/role`, `/role/author/**`, `frontend/lib/role-access.ts`, `frontend/lib/use-role-route-guard.ts`, `frontend/lib/session-manager.ts`
+Backend surface: None at this layer; backend authorization is deferred to API handlers/controllers
+Visible data: Any authenticated user can see Author, Reviewer, and Chair role cards in `/role` and can satisfy the frontend `canAccessRole` checks for all three workspace layouts.
+Available actions: Any authenticated user can switch local session state into the Author role and navigate to Author-only pages; the same bug also exposes Reviewer and Chair page shells client-side.
+State/relationship gates: Authentication only. No actual role membership is required because `BASE_PLATFORM_ROLES` hardcodes `author`, `reviewer`, and `chair` for every authenticated user.
+Frontend enforcement: Broken. `frontend/lib/role-access.ts:3-14` returns `["author","reviewer","chair"]` plus any backend roles, `frontend/lib/use-role-route-guard.ts:28-42` trusts `canAccessRole`, `frontend/lib/session-manager.ts:78` uses the same helper for role switching, and `frontend/app/role/page.tsx:221-227` renders all three role cards based on that helper.
+Backend enforcement: Not applicable to this exact UI gate; backend checks may still block some API calls, but the frontend contract is already wrong and leaks page availability/navigation affordances.
+Verdict: ABNORMAL
+Evidence: `frontend/lib/role-access.ts:3,10,13-14`; `frontend/lib/use-role-route-guard.ts:28-42`; `frontend/lib/session-manager.ts:78`; `frontend/app/role/page.tsx:221-227`.
+Expected behavior: Only roles actually granted to the authenticated user should appear in role selection, be switchable in session state, and satisfy role route guards.
+Remediation: Remove the hardcoded base role grant. Derive accessible roles strictly from backend-authenticated role claims or an explicit allowlist returned by `/api/v1/users/me`, then make the role selector, route guard, and session manager consume that single authoritative source.
+
+## A-002 Discussion attachment endpoints are authenticated but not thread-authorized
+Role: Author
+Feature/Entity: Discussion thread attachments
+Frontend surface: Shared discussion client `frontend/lib/api/discussions.ts` exposes `uploadAttachment(threadId, formData)` against `/api/v1/threads/:thread_id/attachments`
+Backend surface: `POST /api/v1/threads/:thread_id/attachments`, `GET /api/v1/threads/:thread_id/attachments/:filename`
+Visible data: An authenticated Author who knows or guesses a thread ID and stored filename can attempt to download an attachment from a thread without the membership checks used for thread/message reads.
+Available actions: Upload arbitrary files into a thread-scoped attachment directory and download stored files by thread ID/filename pair.
+State/relationship gates: Authentication only inside the controller path inspected here. No thread participant check, submission ownership check, or discussion-phase check is enforced in `UploadAttachment` or `DownloadAttachment`.
+Frontend enforcement: No meaningful frontend guard in the shared API helper beyond requiring the caller to invoke the function. The client helper does not restrict calls by role or thread ownership.
+Backend enforcement: Inconsistent. `GetThread` and `GetMessages` delegate to service-level access control (`backend/internal/controller/discussion/discussion.go:171` and `:274`), but `UploadAttachment` and `DownloadAttachment` only check `utils.GetUserID(ginCtx)` (`:331` and `:403`) before writing files or serving `ginCtx.FileAttachment(...)` (`:419`).
+Verdict: ABNORMAL
+Evidence: `frontend/lib/api/discussions.ts:87-101`; `backend/internal/controller/discussion/discussion.go:153-177`; `backend/internal/controller/discussion/discussion.go:256-280`; `backend/internal/controller/discussion/discussion.go:330-398`; `backend/internal/controller/discussion/discussion.go:402-419`.
+Expected behavior: Only users authorized to access the thread should be able to upload or download its attachments, using the same thread-level authorization contract as `GetThread`/`GetMessages`.
+Remediation: Route attachment upload/download through the discussion service or a dedicated authorization helper that verifies the caller is an allowed thread participant before any filesystem access. Also return 404/403 consistently instead of directly serving arbitrary files under the thread directory.
+
+## A-003 Shared authenticated user directory/profile endpoints expose broad user data to any logged-in Author
+Role: Author
+Feature/Entity: Shared user directory and academic profile lookup
+Frontend surface: `/profile/[user_id]`, `frontend/lib/api/user.ts`, author submission/profile flows that can call `/api/v1/users`, `/api/v1/users/search`, `/api/v1/users/:email`, `/api/v1/users/:email/academic-profile`
+Backend surface: `GET /api/v1/users`, `GET /api/v1/users/search`, `GET /api/v1/users/:email`, `GET /api/v1/users/:email/academic-profile`
+Visible data: Any authenticated Author can enumerate users through list/search, fetch arbitrary user records by email, and retrieve academic profile details plus synced papers for any user email that exists.
+Available actions: List users with filters, search users for autocomplete/lookup, read arbitrary user profiles by email, and read arbitrary academic profiles by email.
+State/relationship gates: Authentication only at the route group. The controller methods inspected do not require self-access, conference relationship, role membership, or minimal field projection for public lookup.
+Frontend enforcement: The profile page distinguishes editability with `isOwnProfile`, but it still loads arbitrary profiles when the route resolves to another email. The frontend therefore reflects the backend’s broad read permissions rather than tightening them.
+Backend enforcement: Missing for broad reads. `backend/internal/controller/user/user.go:61-79` lists users directly from storage, `:96-106` returns any user by email, `:266-296` searches users by email, and `:460-470` returns any academic profile by email. None of those methods perform `utils.GetEmail` ownership comparison or conference-scoped authorization checks.
+Verdict: ABNORMAL
+Evidence: `frontend/app/profile/[user_id]/page.tsx:140-170`; `frontend/lib/api/user.ts:15-27`; `backend/internal/controller/user/user.go:61-79`; `backend/internal/controller/user/user.go:96-106`; `backend/internal/controller/user/user.go:266-296`; `backend/internal/controller/user/user.go:460-470`.
+Expected behavior: Shared user discovery should be intentionally scoped. If authors need collaborator lookup, expose only the minimum fields necessary and only in the workflows that need it. Full user records and academic profiles should require explicit authorization or an intentional public-profile contract.
+Remediation: Split public lookup from private profile APIs. Restrict `/users` and `/users/:email` to admins/chairs or return minimal collaborator-safe fields; gate `/users/:email/academic-profile` behind an explicit public-profile policy or relationship-based authorization.
+
+## A-004 Reviewer invitation and reviewer dashboard endpoints are callable by any authenticated Author via the generic proxy
+Role: Author
+Feature/Entity: Reviewer invitations, reviewer roster, reviewer dashboard, reviewer-assigned papers, completed papers
+Frontend surface: The generic proxy in `frontend/app/api/backend/[...path]/route.ts` forwards any authenticated request to backend paths. An Author does not need dedicated UI if they can call `/api/backend/api/v1/conferences/:conference_id/reviewers...` or `/api/backend/api/v1/reviewer/:reviewer_email/...` directly.
+Backend surface: `GET/POST/PUT/DELETE /api/v1/conferences/:conference_id/reviewers...`, `GET /api/v1/reviewer/:reviewer_email/dashboard`, `GET /api/v1/reviewer/:reviewer_email/conferences/:conference_id/papers`, `GET /api/v1/reviewer/:reviewer_email/completed-papers`
+Visible data: Conference reviewer rosters, individual reviewer invitation records, reviewer dashboards keyed by arbitrary reviewer email, conference-specific reviewer-assigned papers, and completed-paper history for arbitrary reviewer emails.
+Available actions: List reviewers, fetch reviewer records, batch-invite reviewers, change reviewer invitation status, delete reviewer invitations, fetch dashboard data for any reviewer email, and fetch assigned/completed papers for any reviewer email.
+State/relationship gates: JWT authentication only at the route group (`backend/cmd/server/main.go:329-347` and `:404-409`). In the controller methods inspected, there is no chair/co-chair check for reviewer roster management and no reviewer-self check for reviewer dashboard/data reads keyed by `req.ReviewerEmail`.
+Frontend enforcement: None at the proxy level. `frontend/app/api/backend/[...path]/route.ts:11-58` simply copies the auth cookie into an `Authorization` header and forwards the request; it does not constrain endpoint families by current role.
+Backend enforcement: Missing in controller paths inspected. `backend/internal/controller/reviewer/reviewer.go:79-116` (`BatchInvite`), `:131-154` (`List`), `:169-183` (`Get`), `:198-257` (`UpdateStatus`), `:272-290` (`Delete`), `:309-395` (`GetDashboard`), `:411-444` (`GetConferencePapers`), and `:460-491` (`GetCompletedPapers`) do not verify that the caller is chair/co-chair for the conference or that `req.ReviewerEmail` matches the authenticated principal. The downstream storage methods are plain data fetches keyed by reviewer/conference IDs (`backend/internal/storage/reviewer/reviewer.go:425-520`, `:725-826`, `:982-...`), not user-aware authorization filters.
+Verdict: ABNORMAL
+Evidence: `frontend/app/api/backend/[...path]/route.ts:11-58`; `backend/cmd/server/main.go:329-347`; `backend/cmd/server/main.go:404-409`; `backend/internal/controller/reviewer/reviewer.go:79-116`; `backend/internal/controller/reviewer/reviewer.go:131-154`; `backend/internal/controller/reviewer/reviewer.go:169-183`; `backend/internal/controller/reviewer/reviewer.go:198-257`; `backend/internal/controller/reviewer/reviewer.go:272-290`; `backend/internal/controller/reviewer/reviewer.go:309-395`; `backend/internal/controller/reviewer/reviewer.go:411-444`; `backend/internal/controller/reviewer/reviewer.go:460-491`; `backend/internal/storage/reviewer/reviewer.go:425-520`.
+Expected behavior: Reviewer roster mutation should be limited to conference chairs/co-chairs. Reviewer dashboard and assignment-history endpoints should only be callable by the reviewer whose email/identity is requested, unless an explicit chair/admin read path exists with separate authorization.
+Remediation: Add explicit chair/co-chair authorization to reviewer roster CRUD and invitation endpoints, and require `req.ReviewerEmail == authenticated user` for reviewer dashboard/paper-history endpoints unless a stronger admin/chair policy is intentionally introduced.
+
+## A-005 Assignment review listings, analytics, and suggestion-management endpoints lack chair checks and are exposed to any authenticated Author
+Role: Author
+Feature/Entity: Submission reviews, review analytics, reviewer assignment suggestions, confirmed assignments
+Frontend surface: No Author UI is required to reach these because the generic proxy forwards authenticated requests to nested assignment and submission routes.
+Backend surface: `GET /api/v1/conferences/:conference_id/submissions/:submission_id/reviews`, `GET /api/v1/conferences/:conference_id/submissions/:submission_id/reviews/analytics`, `GET/POST/DELETE /api/v1/conferences/:conference_id/assignments/suggestions...`, `POST /api/v1/conferences/:conference_id/assignments/suggestions/confirm`, `GET /api/v1/conferences/:conference_id/assignments/confirmed`
+Visible data: Submitted reviews with reviewer email, aggregate review analytics, suggested reviewer lists grouped by paper, confirmed assignments grouped by paper, and COI warning outcomes for manual suggestion creation.
+Available actions: Read all reviews for a submission, read review analytics, read suggested reviewer assignments, add manual suggestions, confirm suggestions into pending assignments, delete suggestions, and read confirmed assignments.
+State/relationship gates: JWT authentication only at the route group (`backend/cmd/server/main.go:413-437`). The controller methods inspected do not enforce chair/co-chair membership before calling storage methods keyed only by conference ID or submission ID.
+Frontend enforcement: None at the proxy layer; a logged-in Author can issue the same requests through `/api/backend/...`.
+Backend enforcement: Missing in the inspected controller paths. `backend/internal/controller/assignment/assignment.go:389-419` (`ListReviews`), `:436-454` (`GetReviewAnalytics`), `:469-487` (`GetSuggestions`), `:500-518` (`GetConfirmedAssignments`), `:531-613` (`ConfirmSuggestions`), `:624-641` (`DeleteSuggestion`), and `:654-736` (`AddSuggestion`) do not call `utils.IsUserChairOrCoChair` or otherwise compare the caller identity to an authorized conference role, while the storage methods are raw conference/submission queries (`backend/internal/storage/assignment/assignment.go:485-760`, `:821-865`).
+Verdict: ABNORMAL
+Evidence: `backend/cmd/server/main.go:413-437`; `backend/internal/controller/assignment/assignment.go:389-419`; `backend/internal/controller/assignment/assignment.go:436-454`; `backend/internal/controller/assignment/assignment.go:469-487`; `backend/internal/controller/assignment/assignment.go:500-518`; `backend/internal/controller/assignment/assignment.go:531-613`; `backend/internal/controller/assignment/assignment.go:624-641`; `backend/internal/controller/assignment/assignment.go:654-736`; `backend/internal/storage/assignment/assignment.go:485-760`; `backend/internal/storage/assignment/assignment.go:821-865`.
+Expected behavior: These endpoints are chair-only conference-management surfaces. An Author should not be able to enumerate peer reviews, inspect analytics, or manipulate reviewer assignment suggestions unless a very explicit policy says otherwise.
+Remediation: Add chair/co-chair authorization checks at controller entry for every review-listing, review-analytics, and suggestion-management endpoint. If any read is intended for authors, expose a separate, minimized author-safe DTO instead of reusing chair endpoints.
+
+## A-006 Submission list/detail/download/rebuttal/camera-ready read endpoints are broadly enumerable to any authenticated Author
+Role: Author
+Feature/Entity: Conference submissions, submission files, cover letters, rebuttal state, camera-ready artifacts
+Frontend surface: Generic proxy plus shared submission API helpers allow direct authenticated calls without an Author-only page path.
+Backend surface: `GET /api/v1/conferences/:conference_id/submissions`, `GET /api/v1/conferences/:conference_id/submissions/:submission_id`, `GET /api/v1/conferences/:conference_id/submissions/:submission_id/file`, `GET /api/v1/conferences/:conference_id/submissions/:submission_id/cover_letter`, `GET /api/v1/conferences/:conference_id/submissions/:submission_id/rebuttal`, `GET /api/v1/conferences/:conference_id/submissions/:submission_id/camera-ready`
+Visible data: Submission metadata, optional reviewer lists via `includeReviewers=true`, uploaded paper files, cover letters, rebuttal content/assignment statuses, and camera-ready PDFs for arbitrary submissions in the requested conference.
+Available actions: Enumerate submissions by conference and optional author filter, fetch any submission by ID, download paper files and cover letters, fetch rebuttal state, and download camera-ready files.
+State/relationship gates: Authentication only at the `/conferences` route group. The read controllers inspected generally validate conference/submission ID consistency but do not verify author ownership, reviewer assignment, or chair role before returning data or files.
+Frontend enforcement: None at the generic proxy layer. `frontend/lib/api/submissions.ts` and direct `/api/backend/...` calls can target arbitrary conference and submission IDs.
+Backend enforcement: Missing in the inspected read controllers. `backend/internal/controller/submission/submission.go:382-423` (`List`) forwards caller-supplied filters into `submissionStorage.List`; `:443-477` (`Get`) returns any submission in the conference and can include reviewers; `:870-910` (`GetFile`) and `:1036-1076` (`GetCoverLetter`) stream files after only conference/submission matching; `:1199-1245` (`GetRebuttal`) returns rebuttal state without caller identity checks; `:1342-1371` (`GetCameraReady`) serves the final artifact without author/chair/reviewer verification. The storage methods shown are plain ID/conference queries (`backend/internal/storage/submission/submission.go:109-170`, `:193-280`), not user-scoped filters.
+Verdict: ABNORMAL
+Evidence: `backend/cmd/server/main.go:353-369`; `backend/internal/controller/submission/submission.go:382-423`; `backend/internal/controller/submission/submission.go:443-477`; `backend/internal/controller/submission/submission.go:870-910`; `backend/internal/controller/submission/submission.go:1036-1076`; `backend/internal/controller/submission/submission.go:1199-1245`; `backend/internal/controller/submission/submission.go:1342-1371`; `backend/internal/storage/submission/submission.go:109-170`; `backend/internal/storage/submission/submission.go:193-280`.
+Expected behavior: Submission reads and artifact downloads should be scoped by caller relationship: authors to their own submissions, assigned reviewers to permitted blind-review materials, and chairs/co-chairs to management views. Camera-ready and rebuttal visibility should follow explicit lifecycle rules.
+Remediation: Introduce a shared submission access-policy helper used by `List`, `Get`, `GetFile`, `GetCoverLetter`, `GetRebuttal`, and `GetCameraReady`. Enforce ownership/assignment/chair-role checks before any metadata or file retrieval, and split chair-level detail fields like reviewer lists away from author-safe responses.
+
+## A-007 Author notifications and notification preferences are correctly scoped to the authenticated user
+Role: Author
+Feature/Entity: Notification list, unread count, per-notification actions, notification preferences
+Frontend surface: `/notifications`, `frontend/hooks/use-notifications.ts`, `frontend/lib/api/notifications.ts`
+Backend surface: `GET /api/v1/notifications`; `GET /api/v1/notifications/unread-count`; `GET /api/v1/notifications/{id}`; `PATCH /api/v1/notifications/{id}/read`; `PATCH /api/v1/notifications/read-all`; `GET /api/v1/notifications/preferences`; `PUT /api/v1/notifications/preferences`
+Visible data: Only notifications whose `user_email` matches the authenticated Author are returned, along with that Author's unread count and notification-preference settings.
+Available actions: List notifications with pagination and filters, inspect a single notification, mark one notification as read, mark all notifications as read, delete a notification, read notification preferences, and update notification preferences.
+State/relationship gates: Authentication only. Every controller method resolves `userEmail` from the bearer token before it queries or mutates notification state.
+Frontend enforcement: The notifications page only calls the user-scoped hooks and endpoints; it does not expose a cross-user selector or arbitrary notification lookup.
+Backend enforcement: Correctly enforced in both controller and storage. `backend/internal/controller/notification/notification.go:42-278` always binds the operation to `utils.GetEmail(ginCtx)`, and `backend/internal/storage/notification/notification.go:177-468` filters, updates, and deletes by `user_email`.
+Verdict: NORMAL
+Evidence: `frontend/app/notifications/page.tsx:99,214,222,267,446`; `frontend/lib/api/notifications.ts:1-129`; `backend/internal/controller/notification/notification.go:42-278`; `backend/internal/storage/notification/notification.go:177-468`
+Expected behavior: Notification data and preference state should remain private to the authenticated account and should not be enumerable or writable by other logged-in users.
+Remediation: Keep the current user-scoped controller/storage contract and add regression coverage around cross-user notification access and preference mutation.
+
+## A-008 Author new-submission flow is correctly blocked outside open conferences and the backend binds created submissions to the authenticated author
+Role: Author
+Feature/Entity: New submission form, draft autosave, publish flow, submission creation
+Frontend surface: `/role/author/submissions/new`, `frontend/components/author/submit/paper-submission-form.tsx`, `frontend/components/author/submit/submission-action-bar.tsx`
+Backend surface: `POST /api/v1/conferences/{conference_id}/submissions`; draft autosave and publish/update submission paths in the same submission controller
+Visible data: The form exposes paper metadata, authors, manuscript upload, conflict declarations, review confirmation, and draft/publish controls only after a conference object has been loaded.
+Available actions: Save a draft, update an existing draft, publish a new paper, or cancel out of the form. The page does not expose any cross-user submission selection.
+State/relationship gates: A new submission is blocked unless `conference.status === "open"`, and publishing is additionally blocked after the conference submission deadline. The backend also rejects non-open conferences and requires a valid author identity before persisting a submission.
+Frontend enforcement: `frontend/components/author/submit/paper-submission-form.tsx:143-147,225-305,464-576,821-822` stops draft creation and final submission when the conference is not open or the deadline has passed, and only renders the form once a conference object is available.
+Backend enforcement: Correctly enforced in `backend/internal/controller/submission/submission.go:160-344`. The controller requires authentication, checks `conference.Status != model.ConferenceStatusOpen`, sets `req.Submission.Author = userEmail`, validates deadline rules for published submissions, and adds the author role after creation.
+Verdict: NORMAL
+Evidence: `frontend/app/role/author/submissions/new/page.tsx:29-80`; `frontend/components/author/submit/paper-submission-form.tsx:143-147,225-305,464-576,821-822`; `backend/internal/controller/submission/submission.go:160-344`
+Expected behavior: A new author submission should only be accepted while the conference is open and should be persisted under the authenticated author's identity.
+Remediation: Keep the frontend precheck and backend open-status/author-binding checks aligned, and add tests for open, closed, and past-deadline submission attempts.
+
+## A-009 Author schedules are scoped to the Author's own conferences and derive events only from that filtered set
+Role: Author
+Feature/Entity: Author schedules calendar, deadline timeline, ICS export
+Frontend surface: `/role/author/schedules`, `frontend/components/schedules/schedules-page-content.tsx`, `frontend/lib/api/schedules.ts`
+Backend surface: `GET /api/v1/conferences` with `myConferences=true` and `role=author` filtering
+Visible data: Only conference dates, milestones, and deadlines from conferences returned for the authenticated user's Author memberships are shown in the calendar, timeline, stats cards, and exportable ICS payload.
+Available actions: Browse the calendar/timeline, filter by conference, and export the filtered schedule as an `.ics` file.
+State/relationship gates: The schedule service requests only `myConferences=true` conferences for the current role, so Author schedules cannot expand to unrelated conferences unless the backend conference list is already compromised.
+Frontend enforcement: `frontend/app/role/author/schedules/page.tsx:5-17` passes the Author role into the shared schedule content, and `frontend/lib/api/schedules.ts:141-146` requests `myConferences: true` with `role: author`.
+Backend enforcement: The schedule view inherits the conference-list contract rather than inventing its own broad read path. The filtered conference list is the only source used to derive the visible events.
+Verdict: NORMAL
+Evidence: `frontend/app/role/author/schedules/page.tsx:5-17`; `frontend/components/schedules/schedules-page-content.tsx:141-146`; `frontend/lib/api/conferences.ts:245-271`
+Expected behavior: An Author schedule should show deadlines and events only for conferences the Author is actually associated with.
+Remediation: Keep the `myConferences`/role filter and add regression coverage for the empty-state and multi-conference export paths.
+
+## A-010 Author submission-detail discussion flow correctly limits visibility to author-visible threads while allowing replies on those threads
+Role: Author
+Feature/Entity: Submission discussion threads, thread messages, author-visible discussion replies
+Frontend surface: `/role/author/submissions/[submissionId]` discussion tab, `frontend/components/author/submission-detail/discussion-tab.tsx`, `frontend/components/shared/discussion/DiscussionPanel.tsx`, `frontend/components/shared/discussion/components/thread-card.tsx`
+Backend surface: `GET /api/v1/conferences/:conference_id/submissions/:submission_id/threads`; `GET /api/v1/threads/:thread_id`; `GET /api/v1/threads/:thread_id/messages`; `POST /api/v1/threads/:thread_id/messages`
+Visible data: An Author sees only the threads returned for that submission by the discussion service, with message histories and visibility labels. The author wrapper restricts creation to `availableVisibilities={["authors"]}`.
+Available actions: Read author-visible thread history, quote and delete the Author's own messages in author-visible threads, and reply to author-visible threads. Committee-only and reviewer-only threads remain read-only for the Author UI.
+State/relationship gates: The backend only exposes threads when the caller is the submission author, the assigned reviewer, or a chair; message posting additionally requires the conference to be in the reviewing phase and the caller to be a thread participant.
+Frontend enforcement: `frontend/components/author/submission-detail/discussion-tab.tsx:77-80,182-186` loads threads/messages for the active submission and constrains creation to author-visible visibility. `frontend/components/shared/discussion/DiscussionPanel.tsx:116,212,282-307` and `frontend/components/shared/discussion/components/thread-card.tsx:256-263` suppress reply controls only on non-author-visible threads.
+Backend enforcement: Correctly enforced in `backend/internal/service/discussion/service.go:112-148,214-258`, where `GetThreadsForUser`, `GetMessages`, and `GetThread` check author/reviewer/chair membership, and `AddMessage` requires the user to be a participant during the reviewing phase.
+Verdict: NORMAL
+Evidence: `frontend/components/author/submission-detail/discussion-tab.tsx:77-80,182-186`; `frontend/components/shared/discussion/DiscussionPanel.tsx:116,212,282-307`; `frontend/components/shared/discussion/components/thread-card.tsx:256-263`; `backend/internal/service/discussion/service.go:112-148,214-258`
+Expected behavior: Author discussion access should expose only author-appropriate thread visibility while still permitting the author to participate in those threads when the conference discussion phase allows it.
+Remediation: Keep the existing visibility and participant checks, and add tests covering author-visible, reviewer-only, and committee-only thread mixes.
+
+## A-011 Author profile self-service, password change, academic-profile link/unlink, and Semantic Scholar onboarding are correctly tied to the authenticated user
+Role: Author
+Feature/Entity: Shared profile page account management, password change, academic-profile sync onboarding, Semantic Scholar author lookup
+Frontend surface: `/profile/[user_id]`, `frontend/components/profile/profile-onboarding-modal.tsx`, `frontend/components/profile/profile-change-password-modal.tsx`
+Backend surface: `GET /api/v1/users/me`; `GET /api/v1/users/me/profile-sync-status`; `GET /api/v1/users/me/academic-profile`; `POST /api/v1/users/link-academic-profile`; `POST /api/v1/users/unlink-academic-profile`; `POST /api/v1/auth/change-password`; `GET /api/v1/semantic-scholar/authors/search`; `GET /api/v1/semantic-scholar/authors/:authorId`; `GET /api/v1/semantic-scholar/authors/:authorId/papers`
+Visible data: The Author can read their own account profile, sync lifecycle state, linked academic profile, and candidate Semantic Scholar author records and papers returned by the search/details APIs during onboarding.
+Available actions: Load own profile data, poll sync status, change password, search Semantic Scholar authors by name, inspect candidate author details/papers, link a Semantic Scholar profile to the current account, and unlink the current account's linked profile.
+State/relationship gates: The profile page computes `isOwnProfile` before exposing edit, onboarding, unlink, and password-change controls. Server-side account mutations derive the acting user from the authenticated token email rather than from caller-supplied target identifiers. Semantic Scholar search/detail routes are authenticated-only but do not mutate another local user's record.
+Frontend enforcement: `frontend/app/profile/[user_id]/page.tsx:70-73,120-133,184-196,246-283,367-397` only shows onboarding, unlink, and password-change actions on the caller's own profile. `frontend/components/profile/profile-onboarding-modal.tsx:48-133` performs the search/select/link flow through the self-service profile modal, and `frontend/components/profile/profile-change-password-modal.tsx:20-198` sends the password-change request without exposing another-user target parameter.
+Backend enforcement: Present for the self-service operations. `backend/cmd/server/main.go:251-267,486-495` places these routes behind authentication. `backend/internal/controller/user/user.go:122-165,430-444` resolves `GetMe`, `GetProfileSyncStatus`, and `GetAcademicProfile` from the authenticated email. `backend/internal/controller/user/link_profile.go:31-152` links/unlinks using the authenticated email and current user record, not a caller-supplied user target. `backend/internal/controller/auth/auth.go:99-104` binds password change to the authenticated email. `backend/internal/controller/semantic_scholar/semantic_scholar.go:46-220` serves authenticated search/detail lookups only.
+Verdict: NORMAL
+Evidence: `frontend/app/profile/[user_id]/page.tsx:70-73,120-133,184-196,246-283,367-397`; `frontend/components/profile/profile-onboarding-modal.tsx:48-133`; `frontend/components/profile/profile-change-password-modal.tsx:20-198`; `backend/cmd/server/main.go:251-267,486-495`; `backend/internal/controller/user/user.go:122-165,430-444`; `backend/internal/controller/user/link_profile.go:31-152`; `backend/internal/controller/auth/auth.go:99-104`; `backend/internal/controller/semantic_scholar/semantic_scholar.go:46-220`
+Expected behavior: Shared profile self-service should let an Author manage only their own account and linked academic profile, while any external metadata search used during onboarding should remain authenticated and should not alter another local account.
+Remediation: Preserve the current authenticated-email binding for account mutations, and add regression tests covering own-profile-only onboarding, unlink, and password-change paths.
+
+## A-012 User-level COI preflight lookup is callable by any authenticated Author and exposes conference-wide author conflict data
+Role: Author
+Feature/Entity: Shared user COI-check endpoint for conference assignment preflight
+Frontend surface: No dedicated Author page in the current tree; callable through the shared authenticated client and generic backend proxy
+Backend surface: `GET /api/v1/users/:email/coi-check?conference_id=:conference_id`
+Visible data: Conflict-check summaries for an arbitrary user against all authors and co-authors in the target conference, including conflicting author names/emails, reasons, total author count, and conflicting-author count.
+Available actions: Ask the backend to evaluate any supplied user email against any conference's author set and retrieve the resulting conflict list.
+State/relationship gates: Authentication only. The controller requires a `conference_id` and target email but does not verify that the caller is a chair/co-chair of that conference, a reviewer invitation manager, or the same user being checked.
+Frontend enforcement: None in the current Author UI; the route remains callable through `/api/backend/...` or any shared authenticated fetch path.
+Backend enforcement: Missing. `backend/cmd/server/main.go:259-273` places the route under the generic authenticated `/users` group. `backend/internal/controller/user/user.go:342-417` validates inputs, loads the target user and conference, enumerates conference submissions/authors, and returns the conflict report without a chair/co-chair or self-ownership authorization check.
+Verdict: ABNORMAL
+Evidence: `backend/cmd/server/main.go:259-273`; `backend/internal/controller/user/user.go:342-417`
+Expected behavior: COI preflight over a conference's author population should be restricted to chair/co-chair assignment workflows or an internal service path, not exposed to arbitrary authenticated Authors.
+Remediation: Require chair/co-chair authorization for the target conference before returning any COI report, or move this contract behind an internal assignment-management surface with a narrower response shape.
+
+## Coverage
+Inspected frontend Author surfaces: `/role`, `/role/author/**`, `/role/author/conferences/[conferenceId]`, `/role/author/schedules`, `/role/author/submissions`, `/role/author/submissions/new`, `/role/author/submissions/[submissionId]`, `/notifications`, `/profile/[user_id]`, `frontend/app/api/backend/[...path]`, `frontend/app/api/chat/**`, `frontend/lib/api/conferences.ts`, `frontend/lib/api/submissions.ts`, `frontend/lib/api/notifications.ts`, `frontend/lib/api/discussions.ts`, `frontend/lib/api/rebuttal.ts`, `frontend/lib/api/schedules.ts`, `frontend/components/author/**`, `frontend/components/shared/discussion/**`, `frontend/components/shared/rebuttal/**`.
+Inspected backend Author-relevant controllers and support layers: `backend/internal/controller/conference/conference.go`, `backend/internal/controller/conference/rebuttal.go`, `backend/internal/controller/submission/submission.go`, `backend/internal/controller/notification/notification.go`, `backend/internal/controller/discussion/discussion.go`, `backend/internal/controller/user/user.go`, `backend/internal/controller/user/link_profile.go`, `backend/internal/controller/auth/auth.go`, `backend/internal/controller/reviewer/reviewer.go`, `backend/internal/controller/assignment/assignment.go`, `backend/internal/controller/semantic_scholar/**`, `backend/internal/service/discussion/service.go`, `backend/internal/storage/notification/notification.go`, `backend/internal/storage/conference/conference.go`, `backend/internal/storage/submission/submission.go`, `backend/internal/storage/discussion/discussion.go`, `backend/internal/storage/reviewer/reviewer.go`, `backend/internal/storage/assignment/assignment.go`, `ai-service/app/api/routes.py`, `ai-service/app/core/auth.py`, `ai-service/app/repositories/session_repo.py`.
+Gaps: `frontend/app/role/author/conferences/[conferenceId]/submissions/[submissionId]/page.tsx` is not present in this tree, so that nested author route could not be inspected. GitNexus MCP tools were not available in this session, so index-backed graph validation and impact analysis could not be re-run here.
