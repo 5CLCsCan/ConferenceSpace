@@ -16,6 +16,7 @@ type StorageInterface interface {
 	RemoveRole(ctx context.Context, conferenceID int64, userEmail string) error
 	UpdateRoleStatus(ctx context.Context, conferenceID int64, userEmail string, status string) error
 	GetUserRoles(ctx context.Context, conferenceID int64, userEmail string) ([]string, error)
+	GetAllUserRoles(ctx context.Context, userEmail string) ([]string, error)
 	HasRole(ctx context.Context, conferenceID int64, userEmail string, roles []string) (bool, error)
 }
 
@@ -210,6 +211,39 @@ func (s *Storage) GetUserRoles(ctx context.Context, conferenceID int64, userEmai
 			model.ColConferenceID: conferenceID,
 			model.ColUserEmail:    userEmail,
 			model.ColStatus:       model.RoleStatusActive,
+		}).
+		ToSql()
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to build query: %w", err)
+	}
+
+	rows, err := s.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query roles: %w", err)
+	}
+	defer rows.Close()
+
+	var roles []string
+	for rows.Next() {
+		var role string
+		if err := rows.Scan(&role); err != nil {
+			return nil, fmt.Errorf("failed to scan role: %w", err)
+		}
+		roles = append(roles, role)
+	}
+
+	return roles, nil
+}
+
+// GetAllUserRoles retrieves all distinct active roles for a user across all conferences
+func (s *Storage) GetAllUserRoles(ctx context.Context, userEmail string) ([]string, error) {
+	query, args, err := s.qb.
+		Select(fmt.Sprintf("DISTINCT %s", model.ColRole)).
+		From(model.ConferenceUserRoleTableName).
+		Where(sq.Eq{
+			model.ColUserEmail: userEmail,
+			model.ColStatus:    model.RoleStatusActive,
 		}).
 		ToSql()
 

@@ -149,6 +149,25 @@ func (c *Controller) GetMe(ginCtx *gin.Context) (*dto.UserResponse, error) {
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "user not found")
 	}
+
+	// Populate user's distinct active roles across all conferences
+	roles, err := c.roleStorage.GetAllUserRoles(ctx, userEmail)
+	if err == nil {
+		user.Roles = roles
+	}
+
+	// Author is always available as a base role (any user can submit papers)
+	hasAuthor := false
+	for _, r := range user.Roles {
+		if r == "author" {
+			hasAuthor = true
+			break
+		}
+	}
+	if !hasAuthor {
+		user.Roles = append([]string{"author"}, user.Roles...)
+	}
+
 	return user, nil
 }
 
