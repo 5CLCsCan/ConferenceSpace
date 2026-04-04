@@ -23,6 +23,7 @@ type QueryParams struct {
 	Role          string
 	UserEmail     string // User email - single source of truth
 	MyBookmark    bool   // Filter by bookmarked conferences
+	PublicOnly    bool   // Only return publicly visible statuses (open, reviewing, completed)
 }
 
 type StorageInterface interface {
@@ -313,6 +314,14 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Confere
 		statusCol := fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ColConferenceStatus)
 		baseQuery = baseQuery.Where(sq.Eq{statusCol: params.Status})
 		countQuery = countQuery.Where(sq.Eq{model.ColConferenceStatus: params.Status})
+	}
+
+	// PublicOnly: restrict to publicly visible statuses (open, reviewing, completed)
+	if params.PublicOnly {
+		statusCol := fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ColConferenceStatus)
+		publicStatuses := []string{model.ConferenceStatusOpen, model.ConferenceStatusReviewing, model.ConferenceStatusCompleted}
+		baseQuery = baseQuery.Where(sq.Eq{statusCol: publicStatuses})
+		countQuery = countQuery.Where(sq.Eq{model.ColConferenceStatus: publicStatuses})
 	}
 
 	// Apply bookmark filtering - only filter when myBookmark is true
