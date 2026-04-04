@@ -14,6 +14,7 @@ import (
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/storage"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
+	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	"github.com/dcao/conferencespace/internal/storage/scholar"
 	submissionStorage "github.com/dcao/conferencespace/internal/storage/submission"
 	userStorage "github.com/dcao/conferencespace/internal/storage/user"
@@ -25,6 +26,7 @@ type Controller struct {
 	userStorage         userStorage.StorageInterface
 	submissionStorage   submissionStorage.StorageInterface
 	conferenceStorage   conferenceStorage.StorageInterface
+	roleStorage         conferenceuserrole.StorageInterface
 	assignmentService   *assignment.Service
 	scholarStorage      scholar.StorageInterface
 	semanticScholarCtrl *semantic_scholar.Controller
@@ -35,6 +37,7 @@ func New(store *storage.Storage, assignmentService *assignment.Service, semantic
 		userStorage:         store.User,
 		submissionStorage:   store.Submission,
 		conferenceStorage:   store.Conference,
+		roleStorage:         store.ConferenceUserRole,
 		scholarStorage:      store.Scholar,
 		assignmentService:   assignmentService,
 		semanticScholarCtrl: semanticScholarCtrl,
@@ -74,6 +77,15 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.UserListRequest) (*dto.U
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
+	userEmail, _ := utils.GetEmail(ginCtx)
+
+	// Sanitize non-self user records
+	for _, u := range users {
+		if u.Email != userEmail {
+			sanitizeUserResponse(u)
+		}
+	}
+
 	return &dto.UserListResponse{
 		Users: users,
 		Total: total,
@@ -105,6 +117,12 @@ func (c *Controller) Get(ginCtx *gin.Context) (*dto.UserResponse, error) {
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "user not found")
 	}
+
+	userEmail, _ := utils.GetEmail(ginCtx)
+	if email != userEmail {
+		sanitizeUserResponse(user)
+	}
+
 	return user, nil
 }
 
@@ -290,6 +308,15 @@ func (c *Controller) Search(ginCtx *gin.Context) (*dto.UserSearchResponse, error
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
 
+	userEmail, _ := utils.GetEmail(ginCtx)
+
+	// Sanitize non-self user records
+	for _, u := range users {
+		if u.Email != userEmail {
+			sanitizeUserResponse(u)
+		}
+	}
+
 	return &dto.UserSearchResponse{
 		Users: users,
 		Total: total,
@@ -460,9 +487,19 @@ func (c *Controller) GetAcademicProfile(ginCtx *gin.Context) (*dto.AcademicProfi
 func (c *Controller) GetAcademicProfileByEmail(ginCtx *gin.Context) (*dto.AcademicProfileResponse, error) {
 	ctx := ginCtx.Request.Context()
 
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
 	email := ginCtx.Param("email")
 	if email == "" {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "email is required")
+	}
+
+	// Only allow self-access to academic profiles
+	if email != userEmail {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "you can only view your own academic profile")
 	}
 
 	user, err := c.userStorage.GetByEmail(ctx, email)
@@ -471,6 +508,14 @@ func (c *Controller) GetAcademicProfileByEmail(ginCtx *gin.Context) (*dto.Academ
 	}
 
 	return c.getAcademicProfileByUserID(ctx, user.ID)
+}
+
+// sanitizeUserResponse strips internal fields from user responses for non-self lookups
+func sanitizeUserResponse(u *dto.UserResponse) {
+	if u.User != nil {
+		u.User.SemanticScholarID = nil
+		u.User.ProfileSyncStatus = nil
+	}
 }
 
 // checkCOIWithRelationshipDetector checks COI using the graph-based relationship detector
