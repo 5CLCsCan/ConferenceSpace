@@ -12,9 +12,15 @@ vi.mock("@/hooks/use-toast", () => ({
   useToast: () => ({ toast: mockToast }),
 }))
 
-vi.mock("@/lib/i18n/translation-context", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
-}))
+vi.mock("@/lib/i18n/translation-context", async () => {
+  const { tStatic } = await vi.importActual<typeof import("@/lib/i18n/static-translate")>(
+    "@/lib/i18n/static-translate",
+  )
+
+  return {
+    useTranslation: () => ({ t: tStatic }),
+  }
+})
 
 vi.mock("@/hooks/use-assignment-review", () => ({
   default: () => ({
@@ -157,7 +163,7 @@ describe("SubmissionReviewScreen", () => {
       />,
     )
 
-    fireEvent.click(screen.getByRole("button", { name: "Submit Review" }))
+    fireEvent.click(screen.getByRole("button", { name: /submit review/i }))
 
     await waitFor(() => {
       expect(mockReplaceAudit).toHaveBeenCalledWith({

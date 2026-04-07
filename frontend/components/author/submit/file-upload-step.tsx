@@ -140,11 +140,9 @@ export function FileUploadStep({
         <div className="border-b border-slate-100 dark:border-slate-700 pb-3 mb-4">
           <div className="flex justify-between items-center">
             <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
-              Manuscript File
-            </h3>
+              {t("runtime.components.author.submit.file-upload-step.text_manuscript_file")}{" "}</h3>
             <span className="text-[9px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded uppercase tracking-wider">
-              Max 20MB
-            </span>
+              {t("runtime.components.author.submit.file-upload-step.text_max_20mb")}{" "}</span>
           </div>
         </div>
         <div className="relative group cursor-pointer">
@@ -205,8 +203,7 @@ export function FileUploadStep({
                   )}{" "}
                 </p>
                 <p className="text-[11px] text-slate-500 mt-1">
-                  PDF, DOCX, and TEX files are allowed
-                </p>
+                  {t("runtime.components.author.submit.file-upload-step.text_pdf_docx_and_tex_files_are")}{" "}</p>
               </>
             )}
           </div>
@@ -351,8 +348,7 @@ export function FileUploadStep({
                 {t("runtime.components.author.submit.file-upload-step.text_format_validated")}{" "}
               </p>
               <p className="text-[10px] text-green-700/70 dark:text-green-400/70 font-light">
-                The uploaded manuscript meets the conference submission requirements.
-              </p>
+                {t("runtime.components.author.submit.file-upload-step.text_the_uploaded_manuscript_meets_the_conference")}{" "}</p>
             </div>
           </div>
         )}

@@ -71,7 +71,7 @@ export function PreCheckResults({ result }: PreCheckResultsProps) {
     ? {
         label: t("dashboard.author.submit.precheck.decision.deskReject"),
         bg: "bg-red-50",
-        text: "text-red-600",
+        text: t("runtime.components.author.submit.precheck-results.prop_text_text_red_600"),
         border: "border-red-200",
         barColor: "bg-red-500",
       }
@@ -79,14 +79,14 @@ export function PreCheckResults({ result }: PreCheckResultsProps) {
       ? {
           label: t("dashboard.author.submit.precheck.decision.acceptForReview"),
           bg: "bg-emerald-50",
-          text: "text-emerald-600",
+          text: t("runtime.components.author.submit.precheck-results.prop_text_text_emerald_600"),
           border: "border-emerald-200",
           barColor: "bg-emerald-500",
         }
       : {
           label: t("dashboard.author.submit.precheck.decision.manualReview"),
           bg: "bg-amber-50",
-          text: "text-amber-600",
+          text: t("runtime.components.author.submit.precheck-results.prop_text_text_amber_600"),
           border: "border-amber-200",
           barColor: "bg-amber-500",
         }
@@ -200,12 +200,12 @@ export function PreCheckResults({ result }: PreCheckResultsProps) {
                     </span>
                     <span className="text-[9px] text-slate-400 dark:text-slate-500 tabular-nums">
                       {scores.passed}
-                      <span className="text-emerald-500">P</span>
+                      <span className="text-emerald-500">{t("runtime.components.author.submit.precheck-results.text_p")}</span>
                       {scores.failed > 0 && (
                         <>
                           {" / "}
                           {scores.failed}
-                          <span className="text-red-500">F</span>
+                          <span className="text-red-500">{t("runtime.components.author.submit.precheck-results.text_f")}</span>
                         </>
                       )}
                     </span>

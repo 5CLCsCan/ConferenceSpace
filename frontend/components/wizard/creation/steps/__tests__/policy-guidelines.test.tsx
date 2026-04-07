@@ -4,11 +4,17 @@ import { describe, expect, it, vi } from "vitest"
 import { initialFormData } from "../../types"
 import { PolicyGuidelinesStep } from "../policy-guidelines"
 
-vi.mock("@/lib/i18n/translation-context", () => ({
-  useTranslation: () => ({
-    t: (value: string) => value,
-  }),
-}))
+vi.mock("@/lib/i18n/translation-context", async () => {
+  const { tStatic } = await vi.importActual<typeof import("@/lib/i18n/static-translate")>(
+    "@/lib/i18n/static-translate",
+  )
+
+  return {
+    useTranslation: () => ({
+      t: tStatic,
+    }),
+  }
+})
 
 vi.mock("@/lib/i18n/static-translate", () => ({
   tStatic: (value: string) => value,

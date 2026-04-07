@@ -140,7 +140,9 @@ export function mapConferenceToFormData(conference: Conference): ConferenceFormD
     callForPaperText: conference.call_for_paper_text || "",
     gatingEnabled: deskSettings?.enabled ?? initialFormData.gatingEnabled,
     gatingMinReferences: deskSettings?.min_references ?? initialFormData.gatingMinReferences,
+    gatingTitleMaxWords: deskSettings?.title_max_words ?? initialFormData.gatingTitleMaxWords,
     gatingRequiredSections: mappedRequiredSections,
+    gatingScopeKeywords: normalizeStringList(deskSettings?.scope_keywords),
     gatingAnonymizationRequired:
       deskSettings?.custom_rules?.author_anonymization_required ??
       initialFormData.gatingAnonymizationRequired,
@@ -289,7 +291,9 @@ export function applyConferenceTemplateSections(
     next.strictDeadlines = source.strictDeadlines
     next.gatingEnabled = source.gatingEnabled
     next.gatingMinReferences = source.gatingMinReferences
+    next.gatingTitleMaxWords = source.gatingTitleMaxWords
     next.gatingRequiredSections = [...source.gatingRequiredSections]
+    next.gatingScopeKeywords = [...source.gatingScopeKeywords]
     next.gatingAnonymizationRequired = source.gatingAnonymizationRequired
     next.gatingBannedPhrases = [...source.gatingBannedPhrases]
     next.gatingPrompt = source.gatingPrompt
@@ -332,6 +336,7 @@ export function buildConferenceMutationPayload(
   const startDate = formData.conferenceStartDate || formData.dateRange.from
   const endDate = formData.conferenceEndDate || formData.dateRange.to
   const gatingRequiredSections = normalizeStringList(formData.gatingRequiredSections)
+  const gatingScopeKeywords = normalizeStringList(formData.gatingScopeKeywords)
   const gatingBannedPhrases = normalizeStringList(formData.gatingBannedPhrases)
   const gatingPrompt = formData.gatingPrompt.trim()
   const location =
@@ -377,13 +382,17 @@ export function buildConferenceMutationPayload(
       desk_rejection_settings: {
         enabled: formData.gatingEnabled,
         required_sections: gatingRequiredSections,
+        title_max_words: formData.gatingTitleMaxWords ?? undefined,
+        max_sentence_words: existingDeskSettings?.max_sentence_words || 25,
         min_references: formData.gatingMinReferences ?? undefined,
+        scope_keywords: gatingScopeKeywords,
         thresholds: existingDeskSettings?.thresholds || {
           desk_reject_score: 0.3,
           accept_score: 0.7,
         },
         weights: existingDeskSettings?.weights,
         custom_rules: {
+          min_datasets: existingDeskSettings?.custom_rules?.min_datasets || 1,
           ...existingDeskSettings?.custom_rules,
           author_anonymization_required: formData.gatingAnonymizationRequired ? true : undefined,
           banned_phrases: gatingBannedPhrases,

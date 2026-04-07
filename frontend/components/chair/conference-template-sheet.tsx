@@ -29,6 +29,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,6 +46,7 @@ import { useTranslation } from "@/lib/i18n/translation-context"
 import { listConferences } from "@/lib/api/conferences"
 import {
   createConferenceConfigTemplate,
+  deleteConferenceConfigTemplate,
   listConferenceConfigTemplates,
 } from "@/lib/api/conference-templates"
 import {
@@ -220,7 +222,7 @@ export function ConferenceTemplateSheet({
     setConferenceLoadError(null)
     setPendingDeleteTemplate(null)
     setShowSectionPicker(false)
-  }, [formData, open])
+  }, [currentFormData, open])
 
   useEffect(() => {
     if (!open) return
@@ -358,6 +360,8 @@ export function ConferenceTemplateSheet({
       ? t("runtime.components.chair.conference-template-sheet.placeholder_search_templates")
       : t("runtime.components.chair.conference-template-sheet.placeholder_search_conferences")
 
+  const isApplyFlow = flow === "templates" || flow === "conferences"
+
   const openFlow = (nextFlow: TemplateFlow) => {
     setFlow(nextFlow)
     setSearchQuery("")
@@ -381,7 +385,7 @@ export function ConferenceTemplateSheet({
   const handleApply = () => {
     if (!selectedSourceFormData || selectedSections.length === 0) return
     const nextFormData = applyConferenceTemplateSections(
-      formData,
+      currentFormData,
       selectedSourceFormData,
       selectedSections,
     )
@@ -408,6 +412,8 @@ export function ConferenceTemplateSheet({
       })
       return
     }
+
+    const payload = buildConferenceConfigTemplatePayload(currentFormData)
 
     setIsSavingTemplate(true)
     const response = await createConferenceConfigTemplate({
@@ -1027,19 +1033,19 @@ export function ConferenceTemplateSheet({
                           label: t(
                             "runtime.components.chair.conference-template-sheet.text_topics",
                           ),
-                          value: formData.topics.length,
+                          value: currentFormData.topics.length,
                         },
                         {
                           label: t(
                             "runtime.components.chair.conference-template-sheet.text_tracks",
                           ),
-                          value: formData.tracks.length,
+                          value: currentFormData.tracks.length,
                         },
                         {
                           label: t(
                             "runtime.components.chair.conference-template-sheet.text_file_formats",
                           ),
-                          value: formData.fileFormats.length,
+                          value: currentFormData.fileFormats.length,
                         },
                       ].map((stat) => (
                         <div

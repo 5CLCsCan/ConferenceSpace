@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { RebuttalPanel } from "@/components/shared/rebuttal"
 import { getRebuttal, submitRebuttal } from "@/lib/api/rebuttal"
 import type { RebuttalPanelData } from "@/lib/api/rebuttal"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface RebuttalTabProps {
   conferenceId: string
@@ -11,6 +12,7 @@ interface RebuttalTabProps {
 }
 
 export function RebuttalTab({ conferenceId, submissionId }: RebuttalTabProps) {
+  const { t } = useTranslation()
   const [data, setData] = useState<RebuttalPanelData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -64,7 +66,7 @@ export function RebuttalTab({ conferenceId, submissionId }: RebuttalTabProps) {
   }
 
   if (loading) {
-    return <div className="text-xs text-slate-500 py-4">Loading rebuttal…</div>
+    return <div className="text-xs text-slate-500 py-4">{t("runtime.components.author.submission-detail.rebuttal-tab.text_loading_rebuttal")}</div>
   }
 
   if (error) {
@@ -91,8 +93,7 @@ export function RebuttalTab({ conferenceId, submissionId }: RebuttalTabProps) {
     return (
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm px-4 py-6 text-center">
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          The rebuttal period has not started yet.
-        </p>
+          {t("runtime.components.author.submission-detail.rebuttal-tab.text_the_rebuttal_period_has_not_started")}{" "}</p>
       </div>
     )
   }
@@ -104,8 +105,7 @@ export function RebuttalTab({ conferenceId, submissionId }: RebuttalTabProps) {
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl px-4 py-3">
           <div className="flex items-center justify-between">
             <p className="text-xs font-medium text-blue-700 dark:text-blue-300">
-              Rebuttal period is open
-            </p>
+              {t("runtime.components.author.submission-detail.rebuttal-tab.text_rebuttal_period_is_open")}{" "}</p>
             {data.settings.deadline && (
               <span className="text-[10px] text-blue-600 dark:text-blue-400">
                 {data.settings.daysRemaining > 0
@@ -121,8 +121,7 @@ export function RebuttalTab({ conferenceId, submissionId }: RebuttalTabProps) {
         <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl px-4 py-3">
           <div className="flex items-center justify-between">
             <p className="text-xs font-medium text-green-700 dark:text-green-300">
-              Rebuttal submitted
-            </p>
+              {t("runtime.components.author.submission-detail.rebuttal-tab.text_rebuttal_submitted")}{" "}</p>
             {totalReviewers > 0 && (
               <span className="text-[10px] text-green-600 dark:text-green-400">
                 {ackedReviewers} of {totalReviewers} reviewer
@@ -136,8 +135,7 @@ export function RebuttalTab({ conferenceId, submissionId }: RebuttalTabProps) {
       {phase === "finalized" && (
         <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3">
           <p className="text-xs font-medium text-slate-600 dark:text-slate-400">
-            Rebuttal period is finalized. No further changes are possible.
-          </p>
+            {t("runtime.components.author.submission-detail.rebuttal-tab.text_rebuttal_period_is_finalized_no_further")}{" "}</p>
         </div>
       )}
 
@@ -145,11 +143,10 @@ export function RebuttalTab({ conferenceId, submissionId }: RebuttalTabProps) {
       {phase === "awaiting" && (
         <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-4">
           <label className="text-xs font-bold text-[#1B3C53] dark:text-white block mb-2">
-            General Response
-          </label>
+            {t("runtime.components.author.submission-detail.rebuttal-tab.text_general_response")}{" "}</label>
           <textarea
             className="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 min-h-[100px] resize-y focus:outline-none focus:ring-1 focus:ring-[#1B3C53]"
-            placeholder="Write your general response to all reviewers…"
+            placeholder={t("runtime.components.author.submission-detail.rebuttal-tab.placeholder_write_your_general_response_to_all")}
             value={generalResponse}
             onChange={(e) => setGeneralResponse(e.target.value)}
             disabled={submitting}
@@ -170,8 +167,7 @@ export function RebuttalTab({ conferenceId, submissionId }: RebuttalTabProps) {
           </div>
           {isOverLimit && (
             <p className="text-[10px] text-red-500 mt-1">
-              Response exceeds the {charLimit}-character limit.
-            </p>
+              {t("runtime.components.author.submission-detail.rebuttal-tab.text_response_exceeds_the")}{" "}{charLimit}{t("runtime.components.author.submission-detail.rebuttal-tab.text_character_limit")}{" "}</p>
           )}
         </div>
       )}

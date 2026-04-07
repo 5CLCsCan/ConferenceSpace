@@ -1,3 +1,5 @@
+"use client"
+
 import { useMemo } from "react"
 import { ArrowLeft, CheckCircle2, Copy, LayoutTemplate, Loader2, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -10,6 +12,7 @@ import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import type { ConferenceTemplateSection } from "@/lib/conference-form"
 import type { SharedActionProps, SectionMeta, SourceData } from "./types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface SelectionViewProps extends SharedActionProps {
   flow: "templates" | "conferences"
@@ -50,6 +53,7 @@ export function SelectionView({
   formatDate,
   t,
 }: SelectionViewProps) {
+  const { t } = useTranslation()
   const router = useRouter()
   const showEmptyState = !isLoading && sources.length === 0
 
@@ -245,21 +249,18 @@ export function SelectionView({
                                 variant="secondary"
                                 className="rounded bg-slate-100 px-1.5 py-0.5 text-[9px] font-bold text-slate-500 tracking-wider"
                               >
-                                {source.topicsCount} TOPICS
-                              </Badge>
+                                {source.topicsCount} {t("runtime.components.chair.template-sheet.selection-view.text_topics")}{" "}</Badge>
                               <Badge
                                 variant="secondary"
                                 className="rounded bg-slate-100 px-1.5 py-0.5 text-[9px] font-bold text-slate-500 tracking-wider"
                               >
-                                {source.tracksCount} TRACKS
-                              </Badge>
+                                {source.tracksCount} {t("runtime.components.chair.template-sheet.selection-view.text_tracks")}{" "}</Badge>
                               {source.hasDates && (
                                 <Badge
                                   variant="secondary"
                                   className="rounded bg-slate-100 px-1.5 py-0.5 text-[9px] font-bold text-slate-500 tracking-wider"
                                 >
-                                  SCHEDULE
-                                </Badge>
+                                  {t("runtime.components.chair.template-sheet.selection-view.text_schedule")}{" "}</Badge>
                               )}
                             </div>
                             <span className="text-[10px] font-medium text-slate-400">

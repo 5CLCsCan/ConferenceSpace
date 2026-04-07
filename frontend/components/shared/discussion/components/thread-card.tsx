@@ -372,7 +372,7 @@ export function ThreadCard({
                         ? "text-[#1B3C53] bg-slate-200"
                         : "text-slate-400 hover:text-slate-600"
                     }`}
-                    title="Insert link"
+                    title={t("runtime.components.shared.discussion.components.thread-card.title_insert_link")}
                   >
                     <span
                       className="material-symbols-outlined"
@@ -437,7 +437,7 @@ export function ThreadCard({
                     value={linkUrl}
                     onChange={(e) => setLinkUrl(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleInsertLink()}
-                    placeholder="https://..."
+                    placeholder={t("runtime.components.shared.discussion.components.thread-card.placeholder_https")}
                     className="flex-1 text-xs text-slate-700 placeholder-slate-400 bg-transparent outline-none border-r border-slate-200 pr-2 mr-1"
                     autoFocus
                   />
@@ -446,7 +446,7 @@ export function ThreadCard({
                     value={linkText}
                     onChange={(e) => setLinkText(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleInsertLink()}
-                    placeholder="Display text (optional)"
+                    placeholder={t("runtime.components.shared.discussion.components.thread-card.placeholder_display_text_optional")}
                     className="flex-1 text-xs text-slate-700 placeholder-slate-400 bg-transparent outline-none"
                   />
                   <button
@@ -454,8 +454,7 @@ export function ThreadCard({
                     disabled={!linkUrl.trim()}
                     className="shrink-0 h-6 px-2 bg-[#1B3C53] disabled:bg-slate-300 text-white text-[10px] font-medium rounded transition-colors"
                   >
-                    Insert
-                  </button>
+                    {t("runtime.components.shared.discussion.components.thread-card.text_insert")}{" "}</button>
                 </div>
               )}
             </div>

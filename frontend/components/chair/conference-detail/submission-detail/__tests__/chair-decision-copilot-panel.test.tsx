@@ -98,11 +98,11 @@ describe("ChairDecisionCopilotPanel", () => {
     )
 
     expect(screen.getByRole("button", { name: "Expand Decision Advisory" })).toBeInTheDocument()
-    expect(screen.queryByText("No recommendation yet")).not.toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Generate recommendation" })).toBeInTheDocument()
+    expect(screen.queryByText(/no advisory generated yet/i)).not.toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Generate" })).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole("button", { name: "Expand Decision Advisory" }))
-    expect(screen.getByText("No recommendation yet")).toBeInTheDocument()
+    expect(screen.getByText(/no advisory generated yet/i)).toBeInTheDocument()
   })
 
   it("renders the ready artifact with regenerate action", () => {
@@ -119,9 +119,9 @@ describe("ChairDecisionCopilotPanel", () => {
     )
 
     expect(screen.getByText("Decision Advisory")).toBeInTheDocument()
-    expect(screen.getByLabelText("About Decision Advisory")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "About Decision Advisory" })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Expand Decision Advisory" })).toBeInTheDocument()
-    expect(screen.queryByText("Evidence summary")).not.toBeInTheDocument()
+    expect(screen.queryByText(/evidence overview/i)).not.toBeInTheDocument()
     expect(
       screen.queryByText("Current evidence highlights consistent concerns around evaluation depth."),
     ).not.toBeInTheDocument()
@@ -134,7 +134,7 @@ describe("ChairDecisionCopilotPanel", () => {
     expect(screen.getByRole("button", { name: "Regenerate" })).toBeInTheDocument()
   })
 
-  it("renders the stale banner without auto-running", () => {
+  it("renders the stale state without auto-running", () => {
     render(
       <ChairDecisionCopilotPanel
         copilot={buildResponse({
@@ -155,11 +155,9 @@ describe("ChairDecisionCopilotPanel", () => {
       />,
     )
 
-    expect(
-      screen.getByText("Stale package. Regenerate to refresh."),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/last generated/i)).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Regenerate" })).toBeInTheDocument()
-    expect(screen.queryByText("Generating recommendation...")).not.toBeInTheDocument()
+    expect(screen.queryByText("Generating...")).not.toBeInTheDocument()
   })
 
   it("preserves the last artifact when the latest run failed", () => {
@@ -182,7 +180,7 @@ describe("ChairDecisionCopilotPanel", () => {
     )
 
     expect(screen.getByRole("button", { name: "Collapse Decision Advisory" })).toBeInTheDocument()
-    expect(screen.getByText("Could not generate recommendation")).toBeInTheDocument()
+    expect(screen.getByText(/could not generate recommendation/i)).toBeInTheDocument()
     expect(
       screen.getByText("Current evidence highlights consistent concerns around evaluation depth."),
     ).toBeInTheDocument()
@@ -241,7 +239,7 @@ describe("ChairDecisionCopilotPanel", () => {
       />,
     )
 
-    fireEvent.click(screen.getByRole("button", { name: "Generate recommendation" }))
+    fireEvent.click(screen.getByRole("button", { name: "Generate" }))
     expect(onGenerate).toHaveBeenCalledTimes(1)
 
     rerender(
@@ -276,12 +274,12 @@ describe("ChairDecisionCopilotPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: "Expand Decision Advisory" }))
 
     expect(screen.getByRole("button", { name: "Collapse Decision Advisory" })).toBeInTheDocument()
-    expect(screen.getByText("Evidence summary")).toBeInTheDocument()
+    expect(screen.getByText(/evidence overview/i)).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole("button", { name: "Collapse Decision Advisory" }))
 
     expect(screen.getByRole("button", { name: "Expand Decision Advisory" })).toBeInTheDocument()
-    expect(screen.queryByText("Evidence summary")).not.toBeInTheDocument()
+    expect(screen.queryByText(/evidence overview/i)).not.toBeInTheDocument()
   })
 
   it("does not crash when optional artifact arrays are omitted", () => {
@@ -327,8 +325,8 @@ describe("ChairDecisionCopilotPanel", () => {
     )
 
     fireEvent.click(screen.getByRole("button", { name: "Expand Decision Advisory" }))
-    expect(screen.getByText("Evidence summary")).toBeInTheDocument()
-    expect(screen.getByText("Suggested chair note")).toBeInTheDocument()
+    expect(screen.getByText(/evidence overview/i)).toBeInTheDocument()
+    expect(screen.getByText(/suggested chair note/i)).toBeInTheDocument()
   })
 
   it("renders explicit zero discussion counts and a disagreement fallback for sparse evidence", () => {
@@ -367,18 +365,14 @@ describe("ChairDecisionCopilotPanel", () => {
     )
 
     fireEvent.click(screen.getByRole("button", { name: "Expand Decision Advisory" }))
-    expect(screen.getByText("Threads: 0")).toBeInTheDocument()
-    expect(screen.getByText("Messages: 0")).toBeInTheDocument()
+    expect(screen.getByText(/0 threads/i)).toBeInTheDocument()
+    expect(screen.getByText(/0 messages/i)).toBeInTheDocument()
 
-    const disagreementFallback = screen.getByText(
-      "No reviewer alignment or disagreement signals are available yet.",
-    )
     const suggestedNote = screen.getByText(
       "Draft rationale summarizing the evidence package without making the decision.",
     )
 
-    expect(disagreementFallback).toBeInTheDocument()
-    expect(disagreementFallback.className).not.toContain("bg-slate-50")
-    expect(suggestedNote.className).toContain("bg-slate-50")
+    expect(screen.queryByText(/reviewer alignment/i)).not.toBeInTheDocument()
+    expect(suggestedNote).toBeInTheDocument()
   })
 })

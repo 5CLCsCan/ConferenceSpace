@@ -5,6 +5,7 @@ import { RebuttalPanel } from "@/components/shared/rebuttal"
 import { getRebuttal, acknowledgePoint, updatePostRebuttalScore } from "@/lib/api/rebuttal"
 import type { RebuttalPanelData } from "@/lib/api/rebuttal"
 import type { ResponseStatus } from "@/components/shared/rebuttal/types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface RebuttalTabProps {
   conferenceId: string
@@ -13,6 +14,7 @@ interface RebuttalTabProps {
 }
 
 export function RebuttalTab({ conferenceId, submissionId, assignmentId }: RebuttalTabProps) {
+  const { t } = useTranslation()
   const [data, setData] = useState<RebuttalPanelData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -79,7 +81,7 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
   }
 
   if (loading) {
-    return <div className="text-xs text-slate-500 py-4">Loading rebuttal…</div>
+    return <div className="text-xs text-slate-500 py-4">{t("runtime.components.reviewer.submission-review.rebuttal-tab.text_loading_rebuttal")}</div>
   }
 
   if (error) {
@@ -99,8 +101,7 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
     return (
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm px-4 py-6 text-center">
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          The author hasn&apos;t submitted their rebuttal yet.
-        </p>
+          {t("runtime.components.reviewer.submission-review.rebuttal-tab.text_the_author_hasn_apos_t_submitted")}{" "}</p>
       </div>
     )
   }
@@ -116,8 +117,7 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
       {phase === "finalized" && (
         <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3">
           <p className="text-xs font-medium text-slate-600 dark:text-slate-400">
-            Rebuttal period is finalized. No further changes are possible.
-          </p>
+            {t("runtime.components.reviewer.submission-review.rebuttal-tab.text_rebuttal_period_is_finalized_no_further")}{" "}</p>
         </div>
       )}
 
@@ -135,8 +135,7 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
                 onClick={handleMarkAllRead}
                 className="text-xs px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium"
               >
-                Mark all as read
-              </button>
+                {t("runtime.components.reviewer.submission-review.rebuttal-tab.text_mark_all_as_read")}{" "}</button>
             </div>
           )}
 
@@ -146,16 +145,14 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
               onClick={() => setScoreFormOpen(!scoreFormOpen)}
               className="text-xs font-medium text-[#1B3C53] dark:text-blue-300 hover:underline"
             >
-              {scoreFormOpen ? "▾ Hide" : "▸ Update"} post-rebuttal score
-            </button>
+              {scoreFormOpen ? "▾ Hide" : "▸ Update"} {t("runtime.components.reviewer.submission-review.rebuttal-tab.text_post_rebuttal_score")}{" "}</button>
 
             {scoreFormOpen && (
               <div className="mt-3 space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">
-                      Score (1–10)
-                    </label>
+                      {t("runtime.components.reviewer.submission-review.rebuttal-tab.text_score_1_10")}{" "}</label>
                     <input
                       type="number"
                       min={1}
@@ -167,32 +164,30 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">
-                      Recommendation
-                    </label>
+                      {t("runtime.components.reviewer.submission-review.rebuttal-tab.text_recommendation")}{" "}</label>
                     <select
                       value={recommendation}
                       onChange={(e) => setRecommendation(e.target.value)}
                       className="w-full text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#1B3C53]"
                     >
-                      <option value="accept">Accept</option>
-                      <option value="borderline">Borderline</option>
-                      <option value="reject">Reject</option>
+                      <option value="accept">{t("runtime.components.reviewer.submission-review.rebuttal-tab.text_accept")}</option>
+                      <option value="borderline">{t("runtime.components.reviewer.submission-review.rebuttal-tab.text_borderline")}</option>
+                      <option value="reject">{t("runtime.components.reviewer.submission-review.rebuttal-tab.text_reject")}</option>
                     </select>
                   </div>
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">
-                    Comment (optional)
-                  </label>
+                    {t("runtime.components.reviewer.submission-review.rebuttal-tab.text_comment_optional")}{" "}</label>
                   <textarea
                     value={scoreComment}
                     onChange={(e) => setScoreComment(e.target.value)}
-                    placeholder="Any additional comments after reading the rebuttal…"
+                    placeholder={t("runtime.components.reviewer.submission-review.rebuttal-tab.placeholder_any_additional_comments_after_reading_the")}
                     className="w-full text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 min-h-[60px] resize-y bg-white dark:bg-slate-800 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#1B3C53]"
                   />
                 </div>
                 {scoreSuccess && (
-                  <p className="text-[10px] text-green-600 dark:text-green-400">Score updated.</p>
+                  <p className="text-[10px] text-green-600 dark:text-green-400">{t("runtime.components.reviewer.submission-review.rebuttal-tab.text_score_updated")}</p>
                 )}
                 <div className="flex justify-end">
                   <button

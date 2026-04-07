@@ -9,9 +9,15 @@ vi.mock("@/lib/api/rebuttal", () => ({
 }))
 
 // Mock translation context
-vi.mock("@/lib/i18n/translation-context", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
-}))
+vi.mock("@/lib/i18n/translation-context", async () => {
+  const { tStatic } = await vi.importActual<typeof import("@/lib/i18n/static-translate")>(
+    "@/lib/i18n/static-translate",
+  )
+
+  return {
+    useTranslation: () => ({ t: tStatic }),
+  }
+})
 
 // Mock the shared RebuttalPanel
 vi.mock("@/components/shared/rebuttal", () => ({

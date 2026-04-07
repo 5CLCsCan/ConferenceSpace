@@ -50,11 +50,17 @@ vi.mock("@/lib/api/papers", () => ({
   })),
 }))
 
-vi.mock("@/lib/i18n/translation-context", () => ({
-  useTranslation: () => ({
-    t: (value: string) => value,
-  }),
-}))
+vi.mock("@/lib/i18n/translation-context", async () => {
+  const { tStatic } = await vi.importActual<typeof import("@/lib/i18n/static-translate")>(
+    "@/lib/i18n/static-translate",
+  )
+
+  return {
+    useTranslation: () => ({
+      t: tStatic,
+    }),
+  }
+})
 
 describe("AIAssistantCard", () => {
   it("renders a ready-state card and opens the modal analysis view on demand", () => {
@@ -72,15 +78,15 @@ describe("AIAssistantCard", () => {
       />,
     )
 
-    expect(screen.getByText("Report generated")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "View Analysis" })).toBeInTheDocument()
-    expect(screen.queryByText("Review Readiness Signals")).not.toBeInTheDocument()
+    expect(screen.getByText(/report generated/i)).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /view analysis/i })).toBeInTheDocument()
+    expect(screen.queryByText(/review readiness signals/i)).not.toBeInTheDocument()
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole("button", { name: "View Analysis" }))
+    fireEvent.click(screen.getByRole("button", { name: /view analysis/i }))
 
-    expect(screen.getByText("Reviewer Pre-Read Analysis")).toBeInTheDocument()
-    expect(screen.getByText("Review Readiness Signals")).toBeInTheDocument()
+    expect(screen.getByText(/reviewer pre-read analysis/i)).toBeInTheDocument()
+    expect(screen.getByText(/review readiness signals/i)).toBeInTheDocument()
     expect(screen.getByText("Claim support visibility")).toBeInTheDocument()
   })
 })

@@ -14,11 +14,17 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => mockSearchParams,
 }))
 
-vi.mock("@/lib/i18n/translation-context", () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
-}))
+vi.mock("@/lib/i18n/translation-context", async () => {
+  const { tStatic } = await vi.importActual<typeof import("@/lib/i18n/static-translate")>(
+    "@/lib/i18n/static-translate",
+  )
+
+  return {
+    useTranslation: () => ({
+      t: tStatic,
+    }),
+  }
+})
 
 function TriggerMask() {
   const { showNavigationMask } = useChatbot()

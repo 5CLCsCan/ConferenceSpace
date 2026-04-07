@@ -230,9 +230,9 @@ export function PaperSubmissionForm({
       if (isNewSubmissionBlocked) {
         if (manual) {
           toast({
-            title: "Submissions are closed",
+            title: t("runtime.components.author.submit.paper-submission-form.prop_title_submissions_are_closed"),
             description:
-              "Draft creation is disabled because this conference is not in open status.",
+              t("runtime.components.author.submit.paper-submission-form.prop_description_draft_creation_is_disabled_because_this"),
             variant: "destructive",
           })
         }
@@ -259,7 +259,7 @@ export function PaperSubmissionForm({
           setAutosaveStatus("error")
           if (manual) {
             toast({
-              title: "Failed to save draft",
+              title: t("runtime.components.author.submit.paper-submission-form.prop_title_failed_to_save_draft"),
               description: mapSubmissionError(response.error),
               variant: "destructive",
             })
@@ -278,16 +278,16 @@ export function PaperSubmissionForm({
 
         if (manual) {
           toast({
-            title: "Draft saved successfully",
-            description: "Your draft has been saved. You can continue editing anytime.",
+            title: t("runtime.components.author.submit.paper-submission-form.prop_title_draft_saved_successfully"),
+            description: t("runtime.components.author.submit.paper-submission-form.prop_description_your_draft_has_been_saved_you"),
           })
         }
       } catch {
         setAutosaveStatus("error")
         if (manual) {
           toast({
-            title: "Error saving draft",
-            description: "An unexpected error occurred. Please try again.",
+            title: t("runtime.components.author.submit.paper-submission-form.prop_title_error_saving_draft"),
+            description: t("runtime.components.author.submit.paper-submission-form.prop_description_an_unexpected_error_occurred_please_try"),
             variant: "destructive",
           })
         }
@@ -305,6 +305,7 @@ export function PaperSubmissionForm({
       mapSubmissionError,
       savingDraft,
       submitting,
+      t,
       toast,
       user,
     ],
@@ -377,7 +378,7 @@ export function PaperSubmissionForm({
         title: t(
           "runtime.components.author.submit.paper-submission-form.prop_title_invalid_file_type",
         ),
-        description: "Please upload a PDF, DOCX, or TEX manuscript file.",
+        description: t("runtime.components.author.submit.paper-submission-form.prop_description_please_upload_a_pdf_docx_or"),
         variant: "destructive",
       })
       return
@@ -504,9 +505,9 @@ export function PaperSubmissionForm({
     }
     if (isDeadlinePassed) {
       toast({
-        title: "Submission deadline has passed",
+        title: t("runtime.components.author.submit.paper-submission-form.prop_title_submission_deadline_has_passed"),
         description:
-          "Publishing is no longer available because the conference submission deadline has passed.",
+          t("runtime.components.author.submit.paper-submission-form.prop_description_publishing_is_no_longer_available_because"),
         variant: "destructive",
       })
       return
@@ -535,7 +536,7 @@ export function PaperSubmissionForm({
       if (response.error) {
         setLastPrecheckBlock(response.precheckBlocked || null)
         toast({
-          title: "Submission failed",
+          title: t("runtime.components.author.submit.paper-submission-form.prop_title_submission_failed"),
           description: mapSubmissionError(response.error, response.precheckBlocked),
           variant: "destructive",
         })
@@ -675,17 +676,15 @@ export function PaperSubmissionForm({
                 </span>
                 <div>
                   <p className="text-[12px] font-semibold text-red-700 dark:text-red-400">
-                    Submission deadline has passed
-                  </p>
+                    {t("runtime.components.author.submit.paper-submission-form.text_submission_deadline_has_passed")}{" "}</p>
                   <p className="text-[11px] text-red-600 dark:text-red-500">
-                    The deadline was{" "}
+                    {t("runtime.components.author.submit.paper-submission-form.text_the_deadline_was")}{" "}
                     {submissionDeadline!.toLocaleDateString("en-US", {
                       month: "long",
                       day: "numeric",
                       year: "numeric",
                     })}
-                    . New submissions and publishing are no longer accepted.
-                  </p>
+                    {t("runtime.components.author.submit.paper-submission-form.text_new_submissions_and_publishing_are_no")}{" "}</p>
                 </div>
               </div>
             )}

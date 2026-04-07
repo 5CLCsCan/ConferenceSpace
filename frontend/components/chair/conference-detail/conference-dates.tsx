@@ -57,6 +57,8 @@ const categories = [
 ]
 
 function DateEventCard({ event, phaseStatus }: { event: ImportantDate; phaseStatus: PhaseStatus }) {
+  const { t } = useTranslation()
+
   const eventDate = new Date(event.date)
   const month = eventDate.toLocaleString("en-US", { month: "short" })
   const day = eventDate.getDate()
@@ -134,13 +136,11 @@ function DateEventCard({ event, phaseStatus }: { event: ImportantDate; phaseStat
         <div className="text-right shrink-0 flex items-center gap-2">
           {isPassed && (
             <span className="inline-block px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 text-[9px] font-bold rounded uppercase">
-              Passed
-            </span>
+              {t("runtime.components.chair.conference-detail.conference-dates.text_passed")}{" "}</span>
           )}
           {isUpcoming && (
             <span className="inline-block px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-[#1B3C53] dark:text-blue-200 text-[9px] font-bold rounded-full border border-blue-100 dark:border-blue-900/50 uppercase">
-              Upcoming
-            </span>
+              {t("runtime.components.chair.conference-detail.conference-dates.text_upcoming")}{" "}</span>
           )}
         </div>
       </div>
@@ -149,6 +149,8 @@ function DateEventCard({ event, phaseStatus }: { event: ImportantDate; phaseStat
 }
 
 function TimelinePhase({ phase }: { phase: Phase }) {
+  const { t } = useTranslation()
+
   const isCompleted = phase.status === "completed"
   const isInProgress = phase.status === "in-progress"
   const isUpcoming = phase.status === "upcoming"
@@ -192,7 +194,7 @@ function TimelinePhase({ phase }: { phase: Phase }) {
         >
           {isCompleted && "Completed"}
           {isInProgress && "In Progress"}
-          {isUpcoming && "Upcoming"} &bull; {phase.period}
+          {isUpcoming && "Upcoming"} {t("runtime.components.chair.conference-detail.conference-dates.text_text")}{" "}{phase.period}
         </p>
       </div>
 
@@ -212,21 +214,22 @@ function NextDeadlineCard({
   nextDeadline: ImportantDate
   daysUntil: number
 }) {
+  const { t } = useTranslation()
+
   return (
     <div className="bg-[#1B3C53] dark:bg-slate-800 text-white rounded-lg p-4 shadow-lg relative overflow-hidden">
       <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-8 -mt-8 pointer-events-none" />
 
       <h3 className="text-[10px] font-medium text-slate-300 uppercase tracking-wider mb-1.5">
-        Next Major Deadline
-      </h3>
+        {t("runtime.components.chair.conference-detail.conference-dates.text_next_major_deadline")}{" "}</h3>
       <div className="text-3xl font-bold mb-0.5">
         {daysUntil} <span className="text-sm font-normal text-slate-400">days</span>
       </div>
-      <p className="text-sm font-normal text-white mb-4">Until {nextDeadline.title}</p>
+      <p className="text-sm font-normal text-white mb-4">{t("runtime.components.chair.conference-detail.conference-dates.text_until")}{" "}{nextDeadline.title}</p>
 
       <div className="space-y-2 pt-3 border-t border-white/10">
         <div className="flex justify-between text-[11px]">
-          <span className="text-slate-300 font-light">Target Date</span>
+          <span className="text-slate-300 font-light">{t("runtime.components.chair.conference-detail.conference-dates.text_target_date")}</span>
           <span className="font-light">
             {new Date(nextDeadline.date).toLocaleDateString("en-US", {
               month: "short",
@@ -236,8 +239,8 @@ function NextDeadlineCard({
           </span>
         </div>
         <div className="flex justify-between text-[11px]">
-          <span className="text-slate-300 font-light">Timezone</span>
-          <span className="font-light">AoE (UTC-12)</span>
+          <span className="text-slate-300 font-light">{t("runtime.components.chair.conference-detail.conference-dates.text_timezone")}</span>
+          <span className="font-light">{t("runtime.components.chair.conference-detail.conference-dates.text_aoe_utc_12")}</span>
         </div>
       </div>
     </div>
@@ -245,35 +248,34 @@ function NextDeadlineCard({
 }
 
 function SettingsCard() {
+  const { t } = useTranslation()
+
   return (
     <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm p-4">
       <h3 className="font-bold text-[#1B3C53] dark:text-white mb-3 flex items-center gap-2 text-sm tracking-tight">
         <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
           tune
         </span>
-        Settings
-      </h3>
+        {t("runtime.components.chair.conference-detail.conference-dates.text_settings")}{" "}</h3>
       <form className="space-y-3">
         <div>
           <label className="block text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1 tracking-wider">
-            Conference Timezone
-          </label>
+            {t("runtime.components.chair.conference-detail.conference-dates.text_conference_timezone")}{" "}</label>
           <select
             disabled
             className="w-full text-[11px] border border-[#E3E3E3] dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-md py-1.5 px-2 disabled:opacity-70"
           >
-            <option>Anywhere on Earth (AoE)</option>
+            <option>{t("runtime.components.chair.conference-detail.conference-dates.text_anywhere_on_earth_aoe")}</option>
           </select>
         </div>
         <div>
           <label className="block text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1 tracking-wider">
-            Date Format
-          </label>
+            {t("runtime.components.chair.conference-detail.conference-dates.text_date_format")}{" "}</label>
           <select
             disabled
             className="w-full text-[11px] border border-[#E3E3E3] dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-md py-1.5 px-2 disabled:opacity-70"
           >
-            <option>MMM D, YYYY</option>
+            <option>{t("runtime.components.chair.conference-detail.conference-dates.text_mmm_d_yyyy")}</option>
           </select>
         </div>
       </form>
@@ -282,13 +284,14 @@ function SettingsCard() {
 }
 
 function InternalDeadlinesCard({ dates }: { dates: ImportantDate[] }) {
+  const { t } = useTranslation()
+
   const upcomingDates = dates.filter((date) => !date.isPast).slice(0, 2)
 
   return (
     <div className="bg-white dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-800 p-4">
       <h3 className="font-bold text-slate-700 dark:text-slate-300 mb-2.5 text-[13px] tracking-tight">
-        Internal Deadlines
-      </h3>
+        {t("runtime.components.chair.conference-detail.conference-dates.text_internal_deadlines")}{" "}</h3>
       <ul className="space-y-2">
         {upcomingDates.length > 0 ? (
           upcomingDates.map((deadline) => (
@@ -307,15 +310,14 @@ function InternalDeadlinesCard({ dates }: { dates: ImportantDate[] }) {
             </li>
           ))
         ) : (
-          <li className="text-[11px] text-slate-500 dark:text-slate-400">No upcoming dates.</li>
+          <li className="text-[11px] text-slate-500 dark:text-slate-400">{t("runtime.components.chair.conference-detail.conference-dates.text_no_upcoming_dates")}</li>
         )}
       </ul>
       <button
         type="button"
         className="mt-3 w-full py-1.5 text-[10px] font-bold text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-md"
       >
-        Manage Internal Schedule
-      </button>
+        {t("runtime.components.chair.conference-detail.conference-dates.text_manage_internal_schedule")}{" "}</button>
     </div>
   )
 }
@@ -420,8 +422,7 @@ export function ConferenceDates({ conferenceId, className }: ConferenceDatesProp
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            Conference Timeline
-          </h2>
+            {t("runtime.components.chair.conference-detail.conference-dates.text_conference_timeline")}{" "}</h2>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -435,8 +436,7 @@ export function ConferenceDates({ conferenceId, className }: ConferenceDatesProp
             <span className="material-symbols-outlined" style={iconStyle}>
               calendar_add_on
             </span>
-            Sync to Calendar
-          </button>
+            {t("runtime.components.chair.conference-detail.conference-dates.text_sync_to_calendar")}{" "}</button>
         </div>
       </div>
 
@@ -446,8 +446,7 @@ export function ConferenceDates({ conferenceId, className }: ConferenceDatesProp
             phases.map((phase) => <TimelinePhase key={phase.id} phase={phase} />)
           ) : (
             <div className="rounded-xl border border-slate-200 bg-white px-4 py-6 text-xs text-slate-500 shadow-sm">
-              No schedule dates configured.
-            </div>
+              {t("runtime.components.chair.conference-detail.conference-dates.text_no_schedule_dates_configured")}{" "}</div>
           )}
         </div>
 

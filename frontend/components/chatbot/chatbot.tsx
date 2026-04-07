@@ -462,8 +462,7 @@ export function Chatbot() {
                 {currentConversation?.title ?? DEFAULT_TITLE}
               </span>
               <span className="text-[8px] font-semibold uppercase tracking-[0.12em] text-slate-400">
-                Conference Agent
-              </span>
+                {t("runtime.components.chatbot.chatbot.text_conference_agent")}{" "}</span>
             </div>
           </div>
 
@@ -541,7 +540,7 @@ export function Chatbot() {
 
           <div className="overflow-y-auto" style={{ maxHeight: "320px" }}>
             {conversations.length === 0 ? (
-              <div className="px-4 pb-4 text-[10px] text-slate-400">No conversations yet.</div>
+              <div className="px-4 pb-4 text-[10px] text-slate-400">{t("runtime.components.chatbot.chatbot.text_no_conversations_yet")}</div>
             ) : (
               <div className="space-y-px px-2 pb-4">
                 {conversations.map((conversation) => {
@@ -593,7 +592,7 @@ export function Chatbot() {
                                 {preview}
                               </p>
                             ) : (
-                              <p className="text-[10px] italic text-slate-300">No messages yet</p>
+                              <p className="text-[10px] italic text-slate-300">{t("runtime.components.chatbot.chatbot.text_no_messages_yet")}</p>
                             )}
                           </div>
                           <button
@@ -603,7 +602,7 @@ export function Chatbot() {
                               void handleDeleteConversation(conversation.id)
                             }}
                             className="flex h-4 w-4 shrink-0 items-center justify-center rounded text-slate-300 opacity-0 transition-all group-hover:opacity-100 hover:bg-red-50 hover:text-red-500"
-                            aria-label="Delete conversation"
+                            aria-label={t("runtime.components.chatbot.chatbot.aria_label_delete_conversation")}
                           >
                             <Trash2 className="h-2.5 w-2.5" />
                           </button>
@@ -630,7 +629,7 @@ export function Chatbot() {
             />
           ) : (
             <div className="flex h-full items-center px-4">
-              <p className="text-[10px] text-slate-400">Loading conversation...</p>
+              <p className="text-[10px] text-slate-400">{t("runtime.components.chatbot.chatbot.text_loading_conversation")}</p>
             </div>
           )}
         </div>

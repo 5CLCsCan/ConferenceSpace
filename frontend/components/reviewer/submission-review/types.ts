@@ -38,17 +38,52 @@ export interface ReviewFormData {
 export type TabType = "review" | "discussion" | "rebuttal"
 
 /** Score descriptor labels for academic reviewing */
-export const SCORE_DESCRIPTORS: Record<number, { label: string; color: string }> = {
-  1: { label: "Poor", color: "#dc2626" },
-  2: { label: "Weak", color: "#ea580c" },
-  3: { label: "Below Avg", color: "#f59e0b" },
-  4: { label: "Fair", color: "#eab308" },
-  5: { label: "Borderline", color: "#a3a3a3" },
-  6: { label: "Acceptable", color: "#84cc16" },
-  7: { label: "Good", color: "#22c55e" },
-  8: { label: "Strong", color: "#16a34a" },
-  9: { label: "Excellent", color: "#059669" },
-  10: { label: "Outstanding", color: "#0d9488" },
+export const SCORE_DESCRIPTORS: Record<number, { labelKey: string; color: string }> = {
+  1: {
+    labelKey: "runtime.components.reviewer.submission-review.scoring-criteria.text_score_poor",
+    color: "#dc2626",
+  },
+  2: {
+    labelKey: "runtime.components.reviewer.submission-review.scoring-criteria.text_score_weak",
+    color: "#ea580c",
+  },
+  3: {
+    labelKey:
+      "runtime.components.reviewer.submission-review.scoring-criteria.text_score_below_average",
+    color: "#f59e0b",
+  },
+  4: {
+    labelKey: "runtime.components.reviewer.submission-review.scoring-criteria.text_score_fair",
+    color: "#eab308",
+  },
+  5: {
+    labelKey:
+      "runtime.components.reviewer.submission-review.scoring-criteria.text_score_borderline",
+    color: "#a3a3a3",
+  },
+  6: {
+    labelKey:
+      "runtime.components.reviewer.submission-review.scoring-criteria.text_score_acceptable",
+    color: "#84cc16",
+  },
+  7: {
+    labelKey: "runtime.components.reviewer.submission-review.scoring-criteria.text_score_good",
+    color: "#22c55e",
+  },
+  8: {
+    labelKey: "runtime.components.reviewer.submission-review.scoring-criteria.text_score_strong",
+    color: "#16a34a",
+  },
+  9: {
+    labelKey:
+      "runtime.components.reviewer.submission-review.scoring-criteria.text_score_excellent",
+    color: "#059669",
+  },
+  10: {
+    labelKey:
+      "runtime.components.reviewer.submission-review.scoring-criteria.text_score_outstanding",
+    color: "#0d9488",
+  },
 }
 
 export const DEFAULT_REVIEW_SCORE = 5
@@ -71,26 +106,30 @@ export function getScoreDescriptor(raw: unknown) {
 }
 
 /** Criterion metadata with icons and descriptions */
-export const CRITERIA_META: Record<string, { icon: string; hint: string }> = {
+export const CRITERIA_META: Record<string, { icon: string; hintKey: string }> = {
   originality: {
     icon: "lightbulb",
-    hint: "Novel ideas, unique approach, or new perspective",
+    hintKey:
+      "runtime.components.reviewer.submission-review.scoring-criteria.text_hint_originality",
   },
   technicalQuality: {
     icon: "precision_manufacturing",
-    hint: "Sound methodology, correct analysis, reproducibility",
+    hintKey:
+      "runtime.components.reviewer.submission-review.scoring-criteria.text_hint_technical_quality",
   },
   clarity: {
     icon: "edit_document",
-    hint: "Well-written, organized, easy to follow",
+    hintKey: "runtime.components.reviewer.submission-review.scoring-criteria.text_hint_clarity",
   },
   significance: {
     icon: "trending_up",
-    hint: "Impact on the field, practical implications",
+    hintKey:
+      "runtime.components.reviewer.submission-review.scoring-criteria.text_hint_significance",
   },
   methodology: {
     icon: "science",
-    hint: "Experimental design, baselines, evaluation metrics",
+    hintKey:
+      "runtime.components.reviewer.submission-review.scoring-criteria.text_hint_methodology",
   },
 }
 

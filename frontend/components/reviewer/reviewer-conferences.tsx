@@ -90,9 +90,13 @@ function MyConferenceRow({
 
   // Mock deadline logic
   const getDeadline = () => {
-    if (isArchived) return "Closed"
-    if (urgency === "critical") return "2 days"
-    return "Nov 15"
+    if (isArchived) return t("runtime.components.reviewer.reviewer-conferences.text_closed")
+    if (urgency === "critical") {
+      return t("runtime.components.reviewer.reviewer-conferences.text_days_left_count", {
+        count: 2,
+      })
+    }
+    return t("runtime.components.reviewer.reviewer-conferences.text_mock_deadline_short")
   }
 
   return (
@@ -124,7 +128,7 @@ function MyConferenceRow({
 
       {/* Track */}
       <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400 truncate">
-        {conference.domain || "Computer Vision"}
+        {conference.domain || t("runtime.components.reviewer.reviewer-conferences.text_domain_fallback")}
       </div>
 
       {/* Deadline */}
@@ -168,7 +172,9 @@ function MyConferenceRow({
         }}
         className="flex items-center justify-end gap-0.5 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 hover:text-[#1B3C53] dark:hover:text-white transition-all"
       >
-        {isCompleted || isArchived ? "View" : "Review"}
+        {isCompleted || isArchived
+          ? t("runtime.components.reviewer.reviewer-conferences.text_view")
+          : t("runtime.components.reviewer.reviewer-conferences.text_review")}
         <span className="material-symbols-outlined text-[11px] group-hover:translate-x-0.5 transition-transform">
           chevron_right
         </span>
@@ -202,9 +208,13 @@ function MyConferenceCard({
   const urgency = getUrgency()
 
   const getDeadline = () => {
-    if (isArchived) return "Closed"
-    if (urgency === "critical") return "2 days left"
-    return "Nov 15, 2024"
+    if (isArchived) return t("runtime.components.reviewer.reviewer-conferences.text_closed")
+    if (urgency === "critical") {
+      return t("runtime.components.reviewer.reviewer-conferences.text_days_left_count", {
+        count: 2,
+      })
+    }
+    return t("runtime.components.reviewer.reviewer-conferences.text_mock_deadline_long")
   }
 
   return (
@@ -274,7 +284,8 @@ function MyConferenceCard({
               {t("runtime.components.reviewer.reviewer-conferences.text_track")}{" "}
             </div>
             <div className="text-[10px] font-medium text-slate-600 dark:text-slate-400 truncate">
-              {conference.domain || "Computer Vision"}
+              {conference.domain ||
+                t("runtime.components.reviewer.reviewer-conferences.text_domain_fallback")}
             </div>
           </div>
           <div>
@@ -297,7 +308,9 @@ function MyConferenceCard({
           }}
           className="w-full flex items-center justify-center gap-1.5 h-8 mt-1 rounded bg-slate-50 dark:bg-slate-700/50 hover:bg-[#1B3C53] dark:hover:bg-slate-600 text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 hover:text-white transition-all"
         >
-          {isCompleted || isArchived ? "View Papers" : "Review Papers"}
+          {isCompleted || isArchived
+            ? t("runtime.components.reviewer.reviewer-conferences.text_view_papers")
+            : t("runtime.components.reviewer.reviewer-conferences.text_review_papers")}
           <span className="material-symbols-outlined text-[12px]">arrow_forward</span>
         </button>
       </div>
@@ -315,7 +328,7 @@ function ExploreConferenceCard({
 }) {
   const { t } = useTranslation()
   const formatDate = (dateStr?: string) => {
-    if (!dateStr) return "TBA"
+    if (!dateStr) return t("runtime.components.reviewer.reviewer-conferences.text_tba")
     return new Date(dateStr).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
@@ -369,7 +382,8 @@ function ExploreConferenceCard({
               {t("runtime.components.reviewer.reviewer-conferences.text_location")}{" "}
             </div>
             <div className="text-[10px] font-medium text-slate-600 dark:text-slate-400 truncate">
-              {conference.location || "Virtual"}
+              {conference.location ||
+                t("runtime.components.reviewer.reviewer-conferences.text_virtual")}
             </div>
           </div>
           <div>
@@ -377,7 +391,8 @@ function ExploreConferenceCard({
               {t("runtime.components.reviewer.reviewer-conferences.text_domain")}{" "}
             </div>
             <div className="text-[10px] font-medium text-slate-600 dark:text-slate-400 truncate">
-              {conference.domain || "AI/ML"}
+              {conference.domain ||
+                t("runtime.components.reviewer.reviewer-conferences.text_domain_fallback_short")}
             </div>
           </div>
         </div>

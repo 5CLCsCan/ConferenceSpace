@@ -4,6 +4,7 @@ import { vi } from "vitest"
 
 function createStorageMock() {
   const store = new Map<string, string>()
+  store.set("conference_locale", "en")
 
   return {
     getItem: vi.fn((key: string) => (store.has(key) ? store.get(key)! : null)),

@@ -6,12 +6,14 @@ import { Streamdown } from "streamdown"
 import type { AssistantTurn as AssistantTurnModel } from "./transcript-view-model"
 import { AssistantToolRow } from "./assistant-tool-row"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 type AssistantTurnProps = {
   turn: AssistantTurnModel
 }
 
 export function AssistantTurn({ turn }: AssistantTurnProps) {
+  const { t } = useTranslation()
   return (
     <div data-chat-turn="assistant" data-testid="chat-assistant-turn" className="w-full">
       {turn.items.map((item, index) => {
@@ -45,6 +47,7 @@ type ThoughtsBlockProps = {
 }
 
 function ThoughtsBlock({ text, isStreaming }: ThoughtsBlockProps) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(isStreaming)
 
   useEffect(() => {
@@ -60,7 +63,7 @@ function ThoughtsBlock({ text, isStreaming }: ThoughtsBlockProps) {
       className="mt-2 overflow-hidden rounded-xl border border-amber-200 bg-amber-50/70 text-[10px]"
     >
       <CollapsibleTrigger className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left">
-        <span className="text-[10px] font-semibold tracking-tight text-amber-900">Thoughts</span>
+        <span className="text-[10px] font-semibold tracking-tight text-amber-900">{t("runtime.components.chatbot.assistant-turn.text_thoughts")}</span>
         <span className="text-[9px] font-medium uppercase tracking-[0.14em] text-amber-700/80">
           {open ? "Hide" : "Show"}
         </span>

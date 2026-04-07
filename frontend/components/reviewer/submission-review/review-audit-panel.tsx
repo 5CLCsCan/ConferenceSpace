@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import type { ReviewAuditFinding, ReviewAuditResponse } from "@/lib/api/review-audit"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 type ReviewAuditPanelProps = {
   audit: ReviewAuditResponse | null
@@ -32,6 +33,7 @@ export function ReviewAuditPanel({
   onDismiss,
   onUndismiss,
 }: ReviewAuditPanelProps) {
+  const { t } = useTranslation()
   const activeFindings = audit?.active_findings ?? []
   const dismissedFindings = audit?.dismissed_findings ?? []
   const blockingFindings = activeFindings.filter((finding) => finding.severity === "blocking")
@@ -42,19 +44,15 @@ export function ReviewAuditPanel({
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">
-            AI-010 Review Audit
-          </p>
+            {t("runtime.components.reviewer.submission-review.review-audit-panel.text_ai_010_review_audit")}{" "}</p>
           <h3 className="mt-2 text-sm font-bold tracking-tight text-[#1B3C53]">
-            Semantic consistency and justification audit
-          </h3>
+            {t("runtime.components.reviewer.submission-review.review-audit-panel.text_semantic_consistency_and_justification_audit")}{" "}</h3>
           <p className="mt-1 text-xs leading-relaxed text-slate-600">
-            AI-010 checks whether your narrative, scores, recommendation, and optional AI-003
-            context tell a coherent review story. It does not decide the paper for you.
-          </p>
+            {t("runtime.components.reviewer.submission-review.review-audit-panel.text_ai_010_checks_whether_your_narrative")}{" "}</p>
         </div>
         <div className="shrink-0 text-right">
           {auditing ? (
-            <span className="text-[11px] font-medium text-slate-500">Auditing...</span>
+            <span className="text-[11px] font-medium text-slate-500">{t("runtime.components.reviewer.submission-review.review-audit-panel.text_auditing")}</span>
           ) : audit ? (
             <span
               className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${statusTone[audit.status]}`}
@@ -62,7 +60,7 @@ export function ReviewAuditPanel({
               {audit.status}
             </span>
           ) : (
-            <span className="text-[11px] font-medium text-slate-400">Not run yet</span>
+            <span className="text-[11px] font-medium text-slate-400">{t("runtime.components.reviewer.submission-review.review-audit-panel.text_not_run_yet")}</span>
           )}
         </div>
       </div>
@@ -75,8 +73,7 @@ export function ReviewAuditPanel({
 
       {!audit ? (
         <div className="mt-4 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-xs leading-relaxed text-slate-500">
-          Save a draft or run submit preflight to populate semantic audit findings.
-        </div>
+          {t("runtime.components.reviewer.submission-review.review-audit-panel.text_save_a_draft_or_run_submit")}{" "}</div>
       ) : (
         <div className="mt-4 space-y-4">
           <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
@@ -91,7 +88,7 @@ export function ReviewAuditPanel({
           </div>
 
           <FindingSection
-            title="Submit blockers"
+            title={t("runtime.components.reviewer.submission-review.review-audit-panel.title_submit_blockers")}
             emptyLabel="No blocking issues."
             findings={blockingFindings}
             actionLabel="Dismiss"
@@ -99,7 +96,7 @@ export function ReviewAuditPanel({
             onAction={onDismiss}
           />
           <FindingSection
-            title="Advisory warnings"
+            title={t("runtime.components.reviewer.submission-review.review-audit-panel.title_advisory_warnings")}
             emptyLabel="No active warnings."
             findings={warningFindings}
             actionLabel="Dismiss"
@@ -107,7 +104,7 @@ export function ReviewAuditPanel({
             onAction={onDismiss}
           />
           <FindingSection
-            title="Dismissed warnings"
+            title={t("runtime.components.reviewer.submission-review.review-audit-panel.title_dismissed_warnings")}
             emptyLabel="No dismissed warnings."
             findings={dismissedFindings}
             actionLabel="Reopen"

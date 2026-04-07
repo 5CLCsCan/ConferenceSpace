@@ -461,6 +461,7 @@ function CameraReadySection({
   conferenceId: string
   onUploaded: (updated: Submission) => void
 }) {
+  const { t } = useTranslation()
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -484,8 +485,7 @@ function CameraReadySection({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-4 tracking-tight">
-        Camera-Ready Version
-      </h3>
+        {t("runtime.components.author.submission-detail.overview-tab.text_camera_ready_version")}{" "}</h3>
       {submission.camera_ready ? (
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-red-50 text-red-600">
@@ -496,12 +496,11 @@ function CameraReadySection({
               {submission.camera_ready.original_name}
             </p>
             <p className="text-xs text-slate-500">
-              {(submission.camera_ready.size / 1024 / 1024).toFixed(1)} MB
-            </p>
+              {(submission.camera_ready.size / 1024 / 1024).toFixed(1)} {t("runtime.components.author.submission-detail.overview-tab.text_mb")}{" "}</p>
           </div>
         </div>
       ) : (
-        <p className="text-xs text-slate-500 mb-4">No camera-ready version uploaded yet.</p>
+        <p className="text-xs text-slate-500 mb-4">{t("runtime.components.author.submission-detail.overview-tab.text_no_camera_ready_version_uploaded_yet")}</p>
       )}
       {error && <p className="text-xs text-red-600 mb-2">{error}</p>}
       <input

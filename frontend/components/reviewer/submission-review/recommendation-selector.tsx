@@ -3,9 +3,140 @@
 import { RECOMMENDATION_OPTIONS, confidenceOptions } from "./types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
-// =============================================================================
-// RecommendationSelector Component (Scholar-Compact)
-// =============================================================================
+type TFn = ReturnType<typeof useTranslation>["t"]
+
+function getRecommendationShortLabel(value: string, t: TFn) {
+  switch (value) {
+    case "strong_accept":
+      return t(
+        "runtime.components.reviewer.submission-review.recommendation-selector.text_short_strong_accept",
+      )
+    case "accept":
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_short_accept")
+    case "weak_accept":
+      return t(
+        "runtime.components.reviewer.submission-review.recommendation-selector.text_short_weak_accept",
+      )
+    case "borderline":
+      return t(
+        "runtime.components.reviewer.submission-review.recommendation-selector.text_short_borderline",
+      )
+    case "weak_reject":
+      return t(
+        "runtime.components.reviewer.submission-review.recommendation-selector.text_short_weak_reject",
+      )
+    case "reject":
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_short_reject")
+    case "strong_reject":
+      return t(
+        "runtime.components.reviewer.submission-review.recommendation-selector.text_short_strong_reject",
+      )
+    default:
+      return t(
+        "runtime.components.reviewer.submission-review.recommendation-selector.text_short_borderline",
+      )
+  }
+}
+
+function getRecommendationLabel(value: string, t: TFn) {
+  switch (value) {
+    case "strong_accept":
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_strong_accept")
+    case "accept":
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_accept")
+    case "weak_accept":
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_weak_accept")
+    case "borderline":
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_borderline")
+    case "weak_reject":
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_weak_reject")
+    case "reject":
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_reject")
+    case "strong_reject":
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_strong_reject")
+    default:
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_borderline")
+  }
+}
+
+function getRecommendationDescription(value: string, t: TFn) {
+  switch (value) {
+    case "strong_accept":
+      return t(
+        "runtime.components.reviewer.submission-review.recommendation-selector.text_desc_strong_accept",
+      )
+    case "accept":
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_desc_accept")
+    case "weak_accept":
+      return t(
+        "runtime.components.reviewer.submission-review.recommendation-selector.text_desc_weak_accept",
+      )
+    case "borderline":
+      return t(
+        "runtime.components.reviewer.submission-review.recommendation-selector.text_desc_borderline",
+      )
+    case "weak_reject":
+      return t(
+        "runtime.components.reviewer.submission-review.recommendation-selector.text_desc_weak_reject",
+      )
+    case "reject":
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_desc_reject")
+    case "strong_reject":
+      return t(
+        "runtime.components.reviewer.submission-review.recommendation-selector.text_desc_strong_reject",
+      )
+    default:
+      return t(
+        "runtime.components.reviewer.submission-review.recommendation-selector.text_desc_borderline",
+      )
+  }
+}
+
+function getConfidenceLabel(value: number, t: TFn) {
+  switch (value) {
+    case 5:
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_expert")
+    case 4:
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_high")
+    case 3:
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_medium")
+    case 2:
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_low")
+    case 1:
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_none")
+    default:
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_medium")
+  }
+}
+
+function getConfidenceDescription(value: number, t: TFn) {
+  switch (value) {
+    case 5:
+      return t(
+        "runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_desc_expert",
+      )
+    case 4:
+      return t(
+        "runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_desc_high",
+      )
+    case 3:
+      return t(
+        "runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_desc_medium",
+      )
+    case 2:
+      return t(
+        "runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_desc_low",
+      )
+    case 1:
+      return t(
+        "runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_desc_none",
+      )
+    default:
+      return t(
+        "runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_desc_medium",
+      )
+  }
+}
 
 interface RecommendationSelectorProps {
   value: string
@@ -19,7 +150,9 @@ export function RecommendationSelector({
   averageScore,
 }: RecommendationSelectorProps) {
   const { t } = useTranslation()
-  const selectedOption = RECOMMENDATION_OPTIONS.find((o) => o.value === value)
+  void averageScore
+
+  const hasSelection = RECOMMENDATION_OPTIONS.some((option) => option.value === value)
 
   return (
     <div className="space-y-3">
@@ -29,7 +162,6 @@ export function RecommendationSelector({
         )}{" "}
       </label>
 
-      {/* Recommendation Grid - 7 items in a row, compact */}
       <div className="flex gap-1">
         {RECOMMENDATION_OPTIONS.map((option) => {
           const isSelected = value === option.value
@@ -48,19 +180,20 @@ export function RecommendationSelector({
               `}
             >
               <span className="text-[7.5px] font-black uppercase tracking-tight leading-tight block">
-                {option.shortLabel}
+                {getRecommendationShortLabel(option.value, t)}
               </span>
             </button>
           )
         })}
       </div>
 
-      {/* Selected recommendation detail */}
-      {selectedOption ? (
+      {hasSelection ? (
         <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 rounded-lg border border-slate-200">
-          <span className="text-[10px] font-bold text-[#1B3C53]">{selectedOption.label}</span>
+          <span className="text-[10px] font-bold text-[#1B3C53]">
+            {getRecommendationLabel(value, t)}
+          </span>
           <span className="text-[9px] text-slate-500 font-medium tracking-tight">
-            ({selectedOption.description})
+            ({getRecommendationDescription(value, t)})
           </span>
         </div>
       ) : (
@@ -74,10 +207,6 @@ export function RecommendationSelector({
   )
 }
 
-// =============================================================================
-// ConfidenceSelector Component (Scholar-Compact)
-// =============================================================================
-
 interface ConfidenceSelectorProps {
   value: number
   onChange: (value: number) => void
@@ -85,7 +214,7 @@ interface ConfidenceSelectorProps {
 
 export function ConfidenceSelector({ value, onChange }: ConfidenceSelectorProps) {
   const { t } = useTranslation()
-  const selectedOption = confidenceOptions.find((o) => o.value === value)
+  const hasSelection = confidenceOptions.some((option) => option.value === value)
 
   return (
     <div className="space-y-3">
@@ -95,7 +224,6 @@ export function ConfidenceSelector({ value, onChange }: ConfidenceSelectorProps)
         )}{" "}
       </label>
 
-      {/* Confidence Segmented Control */}
       <div className="flex bg-slate-100 p-0.5 rounded-lg">
         {confidenceOptions
           .slice()
@@ -122,15 +250,14 @@ export function ConfidenceSelector({ value, onChange }: ConfidenceSelectorProps)
           })}
       </div>
 
-      {/* Selected confidence detail */}
-      {selectedOption ? (
+      {hasSelection ? (
         <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 rounded-lg border border-slate-200">
           <span className="text-[10px] font-bold text-[#1B3C53] uppercase tracking-tighter">
             {t("runtime.components.reviewer.submission-review.recommendation-selector.text_level")}{" "}
-            {selectedOption.value}
+            {value}
           </span>
           <span className="text-[9px] text-slate-500 font-medium tracking-tight">
-            ({selectedOption.fullLabel})
+            ({getConfidenceDescription(value, t)})
           </span>
         </div>
       ) : (
@@ -143,10 +270,6 @@ export function ConfidenceSelector({ value, onChange }: ConfidenceSelectorProps)
     </div>
   )
 }
-
-// =============================================================================
-// FinalRecommendationCard Component (Scholar-Compact)
-// =============================================================================
 
 interface FinalRecommendationCardProps {
   recommendation: string
@@ -166,12 +289,11 @@ export function FinalRecommendationCard({
   isComplete,
 }: FinalRecommendationCardProps) {
   const { t } = useTranslation()
-  const selectedRec = RECOMMENDATION_OPTIONS.find((o) => o.value === recommendation)
-  const selectedConf = confidenceOptions.find((o) => o.value === confidence)
+  const hasRecommendation = RECOMMENDATION_OPTIONS.some((option) => option.value === recommendation)
+  const hasConfidence = confidenceOptions.some((option) => option.value === confidence)
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 pt-4 pb-3">
-      {/* Header */}
       <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
         <h2 className="font-bold text-sm text-[#1B3C53] tracking-tight uppercase">
           {t(
@@ -183,11 +305,12 @@ export function FinalRecommendationCard({
             isComplete ? "bg-slate-100 text-slate-700" : "bg-slate-50 text-slate-300"
           }`}
         >
-          {isComplete ? "Ready" : "Pending"}
+          {isComplete
+            ? t("runtime.components.reviewer.submission-review.recommendation-selector.text_ready")
+            : t("runtime.components.reviewer.submission-review.recommendation-selector.text_pending")}
         </span>
       </div>
 
-      {/* Two-column layout */}
       <div className="grid md:grid-cols-2 gap-4">
         <RecommendationSelector
           value={recommendation}
@@ -197,8 +320,7 @@ export function FinalRecommendationCard({
         <ConfidenceSelector value={confidence} onChange={onConfidenceChange} />
       </div>
 
-      {/* Summary row when complete */}
-      {isComplete && selectedRec && selectedConf && (
+      {isComplete && hasRecommendation && hasConfidence && (
         <div className="mt-3 pt-2.5 border-t border-slate-200 border-dashed flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div>
@@ -208,7 +330,7 @@ export function FinalRecommendationCard({
                 )}{" "}
               </span>
               <p className="text-[11px] font-black text-[#1B3C53] leading-none">
-                {selectedRec.label}
+                {getRecommendationLabel(recommendation, t)}
               </p>
             </div>
             <div className="w-px h-5 bg-slate-100" />
@@ -219,7 +341,7 @@ export function FinalRecommendationCard({
                 )}{" "}
               </span>
               <p className="text-[11px] font-black text-[#1B3C53] leading-none">
-                {selectedConf.value}: {selectedConf.label}
+                {confidence}: {getConfidenceLabel(confidence, t)}
               </p>
             </div>
           </div>

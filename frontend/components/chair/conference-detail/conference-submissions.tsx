@@ -230,22 +230,19 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
             className="h-8 px-3 bg-white border border-slate-200 text-slate-700 text-[11px] font-medium rounded-md hover:bg-slate-50 transition-colors flex items-center gap-1.5"
           >
             <span className="material-symbols-outlined text-[14px]">download</span>
-            Export CSV
-          </button>
+            {t("runtime.components.chair.conference-detail.conference-submissions.text_export_csv")}{" "}</button>
           <button
             type="button"
             className="h-8 px-3 bg-white border border-slate-200 text-slate-700 text-[11px] font-medium rounded-md hover:bg-slate-50 transition-colors flex items-center gap-1.5"
           >
             <span className="material-symbols-outlined text-[14px]">send</span>
-            Notifications
-          </button>
+            {t("runtime.components.chair.conference-detail.conference-submissions.text_notifications")}{" "}</button>
           <button
             type="button"
             className="h-8 px-3 bg-[#1B3C53] text-white text-[11px] font-medium rounded-md hover:bg-[#234C6A] transition-colors flex items-center gap-1.5 shadow-sm"
           >
             <span className="material-symbols-outlined text-[14px]">group_add</span>
-            Assign Reviewers
-          </button>
+            {t("runtime.components.chair.conference-detail.conference-submissions.text_assign_reviewers")}{" "}</button>
         </div>
       </div>
 
@@ -262,7 +259,7 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
                 setCurrentPage(1)
                 setSearchQuery(event.target.value)
               }}
-              placeholder="Search by ID, title, or author..."
+              placeholder={t("runtime.components.chair.conference-detail.conference-submissions.placeholder_search_by_id_title_or_author")}
               className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-md text-[11px] focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none transition-colors"
             />
           </div>
@@ -273,8 +270,8 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
               onChange={(event) => setSelectedTrack(event.target.value)}
               className="bg-white border border-slate-200 text-slate-600 text-[11px] rounded-md py-1.5 pl-2.5 pr-6 focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none cursor-pointer"
             >
-              <option value="all">All Tracks</option>
-              <option value="general">General</option>
+              <option value="all">{t("runtime.components.chair.conference-detail.conference-submissions.text_all_tracks")}</option>
+              <option value="general">{t("runtime.components.chair.conference-detail.conference-submissions.text_general")}</option>
             </select>
             <select
               value={selectedStatus}
@@ -308,9 +305,9 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
               onChange={(event) => setSortBy(event.target.value as SortOption)}
               className="bg-white border border-slate-200 text-slate-600 text-[11px] rounded-md py-1.5 pl-2.5 pr-6 focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none cursor-pointer"
             >
-              <option value="id">Sort by ID</option>
-              <option value="score">Sort by Score</option>
-              <option value="title">Sort by Title</option>
+              <option value="id">{t("runtime.components.chair.conference-detail.conference-submissions.text_sort_by_id")}</option>
+              <option value="score">{t("runtime.components.chair.conference-detail.conference-submissions.text_sort_by_score")}</option>
+              <option value="title">{t("runtime.components.chair.conference-detail.conference-submissions.text_sort_by_title")}</option>
             </select>
           </div>
         </div>
@@ -346,8 +343,7 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
                       {t("runtime.components.chair.conference-detail.conference-submissions.text_score")}
                     </th>
                     <th className="px-3 py-2.5 text-[10px] uppercase font-bold text-slate-400 tracking-widest w-[62px] text-right">
-                      Actions
-                    </th>
+                      {t("runtime.components.chair.conference-detail.conference-submissions.text_actions")}{" "}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-[12px]">

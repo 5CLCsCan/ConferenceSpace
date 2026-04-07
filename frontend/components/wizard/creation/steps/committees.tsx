@@ -361,8 +361,7 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
                                 >
                                   person_add
                                 </span>
-                                Add directly: &ldquo;{searchQuery.trim()}&rdquo;
-                              </button>
+                                {t("runtime.components.wizard.creation.steps.committees.text_add_directly_ldquo")}{searchQuery.trim()}{t("runtime.components.wizard.creation.steps.committees.text_rdquo")}{" "}</button>
                             )}
                           </div>
                         )}
