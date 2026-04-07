@@ -67,6 +67,28 @@ services:
     networks:
       - conferencespace-network
 
+  ai-service:
+    build:
+      context: ../ai-service
+      dockerfile: Dockerfile
+    container_name: conferencespace-ai-service
+    env_file:
+      - ../ai-service/.env
+    environment:
+      REDIS_URL: "redis://redis:6379/0"
+      POSTGRES_DSN: "postgresql+asyncpg://postgres:postgres@postgres:5432/conferencespace"
+      BACKEND_API_BASE_URL: "http://host.docker.internal:8080"
+    ports:
+      - "8090:8090"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - conferencespace-network
+    restart: unless-stopped
+
   app:
     build:
       context: .

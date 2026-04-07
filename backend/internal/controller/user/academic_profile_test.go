@@ -168,6 +168,7 @@ func TestGetAcademicProfileByEmailReturnsMappedProfile(t *testing.T) {
 	w := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(w)
 	ctx.Params = gin.Params{{Key: "email", Value: "grace@example.com"}}
+	ctx.Set("user_email", "grace@example.com")
 	ctx.Request = httptest.NewRequest(http.MethodGet, "/api/v1/users/grace@example.com/academic-profile", nil)
 
 	response, err := controller.GetAcademicProfileByEmail(ctx)
@@ -198,7 +199,7 @@ func TestGetAcademicProfileByEmailValidation(t *testing.T) {
 		},
 	}
 
-	t.Run("missing email returns bad request", func(t *testing.T) {
+	t.Run("unauthenticated returns unauthorized", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		ctx, _ := gin.CreateTestContext(w)
 		ctx.Request = httptest.NewRequest(http.MethodGet, "/api/v1/users//academic-profile", nil)
@@ -209,7 +210,23 @@ func TestGetAcademicProfileByEmailValidation(t *testing.T) {
 
 		errorResponse, ok := err.(*handler.ErrorResponse)
 		require.True(t, ok)
-		assert.Equal(t, http.StatusBadRequest, errorResponse.StatusCode)
+		assert.Equal(t, http.StatusUnauthorized, errorResponse.StatusCode)
+	})
+
+	t.Run("accessing other user profile returns forbidden", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		ctx, _ := gin.CreateTestContext(w)
+		ctx.Params = gin.Params{{Key: "email", Value: "other@example.com"}}
+		ctx.Set("user_email", "self@example.com")
+		ctx.Request = httptest.NewRequest(http.MethodGet, "/api/v1/users/other@example.com/academic-profile", nil)
+
+		response, err := controller.GetAcademicProfileByEmail(ctx)
+		require.Nil(t, response)
+		require.Error(t, err)
+
+		errorResponse, ok := err.(*handler.ErrorResponse)
+		require.True(t, ok)
+		assert.Equal(t, http.StatusForbidden, errorResponse.StatusCode)
 	})
 
 	t.Run("missing user returns not found", func(t *testing.T) {
@@ -222,6 +239,7 @@ func TestGetAcademicProfileByEmailValidation(t *testing.T) {
 		w := httptest.NewRecorder()
 		ctx, _ := gin.CreateTestContext(w)
 		ctx.Params = gin.Params{{Key: "email", Value: "missing@example.com"}}
+		ctx.Set("user_email", "missing@example.com")
 		ctx.Request = httptest.NewRequest(http.MethodGet, "/api/v1/users/missing@example.com/academic-profile", nil)
 
 		response, err := controller.GetAcademicProfileByEmail(ctx)

@@ -149,6 +149,12 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.ConferenceListRequest) (
 		MyBookmark:    req.MyBookmark,
 	}
 
+	// For non-myConferences (explorer) requests: restrict to public statuses only
+	// unless a specific status filter is already applied
+	if !req.MyConferences && req.Status == "" {
+		params.PublicOnly = true
+	}
+
 	conferences, total, err := c.conferenceStorage.List(ctx, params)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
@@ -159,7 +165,12 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.ConferenceListRequest) (
 	for i, conf := range conferences {
 		userConf := &dto.UserConferenceResponse{
 			ConferenceResponse: *conf,
-			UserRole:           conf.UserRole, // Role already populated by storage layer JOIN
+			UserRole:           conf.UserRole,
+		}
+
+		// Sanitize sensitive fields for non-chair callers
+		if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, conf.ID, userEmail) {
+			userConf.Configurations = nil
 		}
 
 		userConferences[i] = userConf
@@ -191,6 +202,19 @@ func (c *Controller) Get(ginCtx *gin.Context, req *dto.ConferenceGetRequest) (*d
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
 	}
+
+	userEmail, _ := utils.GetEmail(ginCtx)
+	isChair := utils.IsUserChairOrCoChair(ctx, c.roleStorage, req.ConferenceID, userEmail)
+
+	// Non-chair callers can only see public conferences (open, reviewing, completed)
+	if !isChair {
+		if conference.Status == model.ConferenceStatusDraft || conference.Status == model.ConferenceStatusArchived {
+			return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
+		}
+		// Sanitize sensitive fields
+		conference.Configurations = nil
+	}
+
 	return conference, nil
 }
 

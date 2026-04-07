@@ -18,6 +18,7 @@ type UserResponse struct {
 	*User
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+	Roles     []string  `json:"roles,omitempty"` // Distinct active roles across all conferences (populated for /me)
 }
 
 type UserCreateRequest struct {

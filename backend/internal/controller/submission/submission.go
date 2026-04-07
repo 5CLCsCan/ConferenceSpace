@@ -382,6 +382,11 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.SubmissionCreateReques
 func (c *Controller) List(ginCtx *gin.Context, req *dto.SubmissionListRequest) (*dto.SubmissionListResponse, error) {
 	ctx := ginCtx.Request.Context()
 
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
 	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
@@ -397,26 +402,14 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.SubmissionListRequest) (
 		Track:        req.Track,
 	}
 
-	// Debug logging
-	fmt.Printf("[SUBMISSION LIST] Request received:\n")
-	fmt.Printf("  ConferenceID: %d\n", params.ConferenceID)
-	fmt.Printf("  Author filter: '%s'\n", params.Author)
-	fmt.Printf("  Status filter: '%s'\n", params.Status)
-	fmt.Printf("  Title filter: '%s'\n", params.Title)
-	fmt.Printf("  Track filter: '%s'\n", params.Track)
-	fmt.Printf("  Limit: %d, Offset: %d\n", params.Limit, params.Offset)
+	// Authorization: non-chair callers can only list their own submissions
+	if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, conferenceID, userEmail) {
+		params.Author = userEmail
+	}
 
 	submissions, total, err := c.submissionStorage.List(ctx, params)
 	if err != nil {
-		fmt.Printf("[SUBMISSION LIST] Storage error: %v\n", err)
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
-	}
-
-	fmt.Printf("[SUBMISSION LIST] Results:\n")
-	fmt.Printf("  Total found: %d\n", total)
-	fmt.Printf("  Submissions returned: %d\n", len(submissions))
-	for i, sub := range submissions {
-		fmt.Printf("  [%d] ID=%d, Author='%s', Title='%s', Status='%s'\n", i+1, sub.ID, sub.Author, sub.Title, sub.Status)
 	}
 
 	return &dto.SubmissionListResponse{

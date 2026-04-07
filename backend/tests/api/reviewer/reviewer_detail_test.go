@@ -39,11 +39,11 @@ func TestReviewerGetAndDeleteEndpoints(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 	})
 
-	t.Run("get reviewer with wrong conference returns not found", func(t *testing.T) {
+	t.Run("get reviewer with wrong conference returns forbidden", func(t *testing.T) {
 		path := fmt.Sprintf("/api/v1/conferences/%d/reviewers/%d", conferenceID+99999, reviewerID)
 		resp, err := ctx.MakeRequest(http.MethodGet, path, nil, chairToken)
 		require.NoError(t, err)
-		assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+		assert.Equal(t, http.StatusForbidden, resp.StatusCode)
 	})
 
 	t.Run("delete reviewer requires authentication", func(t *testing.T) {

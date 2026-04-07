@@ -211,6 +211,15 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 
 	ctrl := appCtx.Controller
 	hub := appCtx.Hub
+	store := appCtx.Store
+
+	// Authorization middleware instances
+	requireChair := middleware.RequireChairOrCoChair(store.ConferenceUserRole)
+	requireSubmissionAccess := middleware.RequireSubmissionAccess(store.Submission, store.Assignment, store.ConferenceUserRole, store.Reviewer)
+	requireThreadParticipant := middleware.RequireThreadParticipant(store.Discussion)
+	requireSelfReviewer := middleware.RequireSelfReviewerEmail()
+	requireAssignmentOwner := middleware.RequireAssignmentOwner(store.Assignment, store.Reviewer)
+	requireCOICheck := middleware.RequireCOICheckAuthorization(store.ConferenceUserRole)
 
 	// Swagger documentation
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -268,7 +277,7 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			users.GET("/search", handler.HandleNoRequest(ctrl.User.Search))
 			users.GET("", handler.HandleRequestWithQuery(ctrl.User.List))
 			users.GET("/:email", handler.HandleNoRequest(ctrl.User.Get))
-			users.GET("/:email/coi-check", handler.HandleRequestWithURIAndQuery(ctrl.User.CheckCOI))
+			users.GET("/:email/coi-check", requireCOICheck, handler.HandleRequestWithURIAndQuery(ctrl.User.CheckCOI))
 			users.PUT("/:email", handler.HandleRequest(ctrl.User.Update))
 			users.DELETE("/:email", handler.HandleNoRequestWithMessage("user deleted successfully", ctrl.User.Delete))
 		}
@@ -340,11 +349,11 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			// Reviewer routes nested under conferences (all protected - authentication required)
 			reviewers := conferences.Group("/:conference_id/reviewers")
 			{
-				reviewers.GET("", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.List))
-				reviewers.GET("/:reviewer_id", handler.HandleRequestWithURI(ctrl.Reviewer.Get))
-				reviewers.POST("", handler.HandleRequestWithURIAndJSONWithStatus(http.StatusCreated, ctrl.Reviewer.BatchInvite))
-				reviewers.PUT("/:reviewer_id/status", handler.HandleRequestWithURIAndJSON(ctrl.Reviewer.UpdateStatus))
-				reviewers.DELETE("/:reviewer_id", handler.HandleNoRequestWithURIMessage("reviewer removed successfully", ctrl.Reviewer.Delete))
+				reviewers.GET("", requireChair, handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.List))
+				reviewers.GET("/:reviewer_id", requireChair, handler.HandleRequestWithURI(ctrl.Reviewer.Get))
+				reviewers.POST("", requireChair, handler.HandleRequestWithURIAndJSONWithStatus(http.StatusCreated, ctrl.Reviewer.BatchInvite))
+				reviewers.PUT("/:reviewer_id/status", handler.HandleRequestWithURIAndJSON(ctrl.Reviewer.UpdateStatus)) // Auth in controller: chair or invited reviewer
+				reviewers.DELETE("/:reviewer_id", requireChair, handler.HandleNoRequestWithURIMessage("reviewer removed successfully", ctrl.Reviewer.Delete))
 			}
 
 			// Submission routes nested under conferences (all protected - authentication required)
@@ -352,28 +361,28 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			{
 				submissions.POST("/precheck", handler.HandleNoRequest(ctrl.Submission.PreCheck))
 				submissions.GET("", handler.HandleRequestWithURIAndQuery(ctrl.Submission.List))
-				submissions.GET("/:submission_id", handler.HandleNoRequest(ctrl.Submission.Get))
-				submissions.GET("/:submission_id/file", ctrl.Submission.GetFile)
-				submissions.GET("/:submission_id/cover_letter", ctrl.Submission.GetCoverLetter)
+				submissions.GET("/:submission_id", requireSubmissionAccess, handler.HandleNoRequest(ctrl.Submission.Get))
+				submissions.GET("/:submission_id/file", requireSubmissionAccess, ctrl.Submission.GetFile)
+				submissions.GET("/:submission_id/cover_letter", requireSubmissionAccess, ctrl.Submission.GetCoverLetter)
 				submissions.POST("", handler.HandleSubmissionCreate(ctrl.Submission.Create))
 				submissions.PUT("/:submission_id", handler.HandleSubmissionUpdate(ctrl.Submission.Update))
 				submissions.POST("/:submission_id/publish", handler.HandleSubmissionPublish(ctrl.Submission.Publish))
 				submissions.PUT("/:submission_id/status", handler.HandleRequestWithAll(ctrl.Submission.UpdateStatus))
 				submissions.PUT("/:submission_id/rebuttal", handler.HandleRequestWithAll(ctrl.Submission.SubmitRebuttal))
-				submissions.GET("/:submission_id/rebuttal", handler.HandleRequestWithURI(ctrl.Submission.GetRebuttal))
+				submissions.GET("/:submission_id/rebuttal", requireSubmissionAccess, handler.HandleRequestWithURI(ctrl.Submission.GetRebuttal))
 				submissions.GET("/:submission_id/decision-copilot", handler.HandleRequestWithURI(ctrl.Submission.GetDecisionCopilot))
 				submissions.POST("/:submission_id/decision-copilot/generate", handler.HandleRequestWithURI(ctrl.Submission.GenerateDecisionCopilot))
 				submissions.POST("/:submission_id/decision-copilot/regenerate", handler.HandleRequestWithURI(ctrl.Submission.RegenerateDecisionCopilot))
 				submissions.POST("/:submission_id/camera-ready", ctrl.Submission.UploadCameraReady)
-				submissions.GET("/:submission_id/camera-ready", ctrl.Submission.GetCameraReady)
+				submissions.GET("/:submission_id/camera-ready", requireSubmissionAccess, ctrl.Submission.GetCameraReady)
 				submissions.DELETE("/:submission_id", handler.HandleNoRequestWithMessage("submission deleted successfully", ctrl.Submission.Delete))
 
 				// Auto-assignment endpoint - automatically sets submissions to "reviewing" status
 				submissions.POST("/auto-assign", handler.HandleRequest(ctrl.Assignment.AutoAssign))
 
 				// Review endpoints for chair (list reviews and analytics)
-				submissions.GET("/:submission_id/reviews", handler.HandleRequestWithURIAndQuery(ctrl.Assignment.ListReviews))
-				submissions.GET("/:submission_id/reviews/analytics", handler.HandleNoRequest(ctrl.Assignment.GetReviewAnalytics))
+				submissions.GET("/:submission_id/reviews", requireChair, handler.HandleRequestWithURIAndQuery(ctrl.Assignment.ListReviews))
+				submissions.GET("/:submission_id/reviews/analytics", requireChair, handler.HandleNoRequest(ctrl.Assignment.GetReviewAnalytics))
 
 				// Discussion threads for submissions
 				submissions.POST("/:submission_id/threads", handler.HandleNoRequestWithStatus(http.StatusCreated, ctrl.Discussion.CreateThread))
@@ -404,9 +413,9 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 		reviewer := v1.Group("/reviewer")
 		reviewer.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
-			reviewer.GET("/:reviewer_email/dashboard", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetDashboard))
-			reviewer.GET("/:reviewer_email/conferences/:conference_id/papers", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetConferencePapers))
-			reviewer.GET("/:reviewer_email/completed-papers", handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetCompletedPapers))
+			reviewer.GET("/:reviewer_email/dashboard", requireSelfReviewer, handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetDashboard))
+			reviewer.GET("/:reviewer_email/conferences/:conference_id/papers", requireSelfReviewer, handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetConferencePapers))
+			reviewer.GET("/:reviewer_email/completed-papers", requireSelfReviewer, handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetCompletedPapers))
 		}
 
 		// Assignment review routes (authentication required)
@@ -418,23 +427,23 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			assignments.PUT("/:assignment_id/review-audit/dismissals", handler.HandleRequest(ctrl.Assignment.UpdateReviewAuditDismissal))
 			assignments.GET("/:assignment_id/briefing", handler.HandleRequestWithURI(ctrl.Assignment.GetReviewerBriefing))
 			assignments.POST("/:assignment_id/briefing/generate", handler.HandleRequestWithURI(ctrl.Assignment.GenerateReviewerBriefing))
-			assignments.PUT("/:assignment_id/rebuttal/acknowledge", handler.HandleRequestWithURI(ctrl.Reviewer.AcknowledgeRebuttal))
-			assignments.PUT("/:assignment_id/rebuttal/points/:point_id/acknowledge", handler.HandleRequestWithAll(ctrl.Reviewer.AcknowledgePoint))
+			assignments.PUT("/:assignment_id/rebuttal/acknowledge", requireAssignmentOwner, handler.HandleRequestWithURI(ctrl.Reviewer.AcknowledgeRebuttal))
+			assignments.PUT("/:assignment_id/rebuttal/points/:point_id/acknowledge", requireAssignmentOwner, handler.HandleRequestWithAll(ctrl.Reviewer.AcknowledgePoint))
 
 			// Suggestion routes (chair only)
 			suggestions := assignments.Group("/suggestions")
 			{
-				suggestions.GET("", handler.HandleNoRequest(ctrl.Assignment.GetSuggestions))
-				suggestions.POST("", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Assignment.AddSuggestion))
-				suggestions.POST("/confirm", handler.HandleRequest(ctrl.Assignment.ConfirmSuggestions))
-				suggestions.DELETE("/:assignment_id", handler.HandleNoRequestWithMessage("suggestion deleted successfully", ctrl.Assignment.DeleteSuggestion))
+				suggestions.GET("", requireChair, handler.HandleNoRequest(ctrl.Assignment.GetSuggestions))
+				suggestions.POST("", requireChair, handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Assignment.AddSuggestion))
+				suggestions.POST("/confirm", requireChair, handler.HandleRequest(ctrl.Assignment.ConfirmSuggestions))
+				suggestions.DELETE("/:assignment_id", requireChair, handler.HandleNoRequestWithMessage("suggestion deleted successfully", ctrl.Assignment.DeleteSuggestion))
 			}
 
 			// Post-rebuttal score route (reviewer)
 			assignments.PUT("/:assignment_id/post-rebuttal-score", handler.HandleRequestWithAll(ctrl.Reviewer.UpdatePostRebuttalScore))
 
 			// Confirmed assignments route (chair only)
-			assignments.GET("/confirmed", handler.HandleNoRequest(ctrl.Assignment.GetConfirmedAssignments))
+			assignments.GET("/confirmed", requireChair, handler.HandleNoRequest(ctrl.Assignment.GetConfirmedAssignments))
 		}
 
 		// COI (Conflict of Interest) routes (authentication required)
@@ -479,8 +488,8 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			threads.POST("/:thread_id/messages", handler.HandleNoRequestWithStatus(http.StatusCreated, ctrl.Discussion.CreateMessage))
 			threads.GET("/:thread_id/messages", handler.HandleNoRequest(ctrl.Discussion.GetMessages))
 			threads.DELETE("/:thread_id/messages/:message_id", handler.HandleNoRequestWithMessage("message deleted successfully", ctrl.Discussion.DeleteMessage))
-			threads.POST("/:thread_id/attachments", ctrl.Discussion.UploadAttachment)
-			threads.GET("/:thread_id/attachments/:filename", ctrl.Discussion.DownloadAttachment)
+			threads.POST("/:thread_id/attachments", requireThreadParticipant, ctrl.Discussion.UploadAttachment)
+			threads.GET("/:thread_id/attachments/:filename", requireThreadParticipant, ctrl.Discussion.DownloadAttachment)
 		}
 
 		// Semantic Scholar routes (authentication required)

@@ -8,6 +8,7 @@ export interface User {
   domain: string[]
   semantic_scholar_id?: string
   profile_sync_status?: string
+  roles?: string[]
 }
 
 export interface ProfileSyncStatus {
