@@ -117,6 +117,16 @@ func setupRebuttalScenario(t *testing.T, ctx *testutils.TestContext) (
 	}
 	assignmentID = papersData.Data.Papers[0].AssignmentID
 
+	// Enable rebuttal settings before opening
+	_, err = ctx.MakeRequest("PATCH",
+		fmt.Sprintf("/api/v1/conferences/%d/rebuttal/settings", conferenceID),
+		map[string]interface{}{
+			"enabled": true,
+		}, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to enable rebuttal: %v", err)
+	}
+
 	// Open rebuttal period so tests can submit rebuttals
 	openResp, err := ctx.MakeRequest("POST",
 		fmt.Sprintf("/api/v1/conferences/%d/rebuttal/open", conferenceID),
