@@ -58,12 +58,14 @@ function OperationsPanel({
   rebuilding: boolean
   onRebuild: () => void
 }) {
+  const { t } = useTranslation()
+
   return (
     <div className="bg-[#1B3C53] text-white px-4 pt-4 pb-4 rounded-xl shadow-lg relative overflow-hidden">
       <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none" />
 
       <div className="relative z-10">
-        <h3 className="text-sm font-bold mb-3 tracking-tight">Batch Operations</h3>
+        <h3 className="text-sm font-bold mb-3 tracking-tight">{t("runtime.components.chair.conference-detail.conference-coi.text_batch_operations")}</h3>
 
         <div className="space-y-2">
           <button
@@ -83,22 +85,21 @@ function OperationsPanel({
             type="button"
             className="w-full bg-white/10 border border-white/20 text-left px-3 py-2.5 rounded-lg flex items-center justify-between opacity-70 cursor-default"
           >
-            <span className="text-[11px] font-medium">Manual moderation actions</span>
-            <span className="text-[10px] text-slate-300">API-only</span>
+            <span className="text-[11px] font-medium">{t("runtime.components.chair.conference-detail.conference-coi.text_manual_moderation_actions")}</span>
+            <span className="text-[10px] text-slate-300">{t("runtime.components.chair.conference-detail.conference-coi.text_api_only")}</span>
           </button>
           <button
             type="button"
             className="w-full bg-white/10 border border-white/20 text-left px-3 py-2.5 rounded-lg flex items-center justify-between opacity-70 cursor-default"
           >
-            <span className="text-[11px] font-medium">Reviewer reassignment flow</span>
-            <span className="text-[10px] text-slate-300">Read-only</span>
+            <span className="text-[11px] font-medium">{t("runtime.components.chair.conference-detail.conference-coi.text_reviewer_reassignment_flow")}</span>
+            <span className="text-[10px] text-slate-300">{t("runtime.components.chair.conference-detail.conference-coi.text_read_only")}</span>
           </button>
         </div>
 
         <div className="mt-4 pt-3 border-t border-white/10">
           <p className="text-[10px] text-slate-300 leading-relaxed">
-            Use the rebuild action to refresh graph-derived relationships without changing the current moderation flow.
-          </p>
+            {t("runtime.components.chair.conference-detail.conference-coi.text_use_the_rebuild_action_to_refresh")}{" "}</p>
         </div>
       </div>
     </div>
@@ -112,27 +113,28 @@ function CoverageCard({
   stats: { totalConflicts: number; pendingReview: number; autoDetected: number; orphanedPapers: number }
   message: string | null
 }) {
+  const { t } = useTranslation()
+
   return (
     <div className="bg-white px-4 pt-4 pb-3 rounded-xl border border-slate-200 shadow-sm">
       <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">
-        Current Coverage
-      </h3>
+        {t("runtime.components.chair.conference-detail.conference-coi.text_current_coverage")}{" "}</h3>
 
       <div className="space-y-3">
         <div className="flex items-center justify-between text-[11px]">
-          <span className="text-slate-500">Total conflicts</span>
+          <span className="text-slate-500">{t("runtime.components.chair.conference-detail.conference-coi.text_total_conflicts")}</span>
           <span className="font-bold text-[#1B3C53]">{stats.totalConflicts}</span>
         </div>
         <div className="flex items-center justify-between text-[11px]">
-          <span className="text-slate-500">Pending review</span>
+          <span className="text-slate-500">{t("runtime.components.chair.conference-detail.conference-coi.text_pending_review")}</span>
           <span className="font-bold text-[#1B3C53]">{stats.pendingReview}</span>
         </div>
         <div className="flex items-center justify-between text-[11px]">
-          <span className="text-slate-500">Auto-detected</span>
+          <span className="text-slate-500">{t("runtime.components.chair.conference-detail.conference-coi.text_auto_detected")}</span>
           <span className="font-bold text-[#1B3C53]">{stats.autoDetected}</span>
         </div>
         <div className="flex items-center justify-between text-[11px]">
-          <span className="text-slate-500">Orphaned papers</span>
+          <span className="text-slate-500">{t("runtime.components.chair.conference-detail.conference-coi.text_orphaned_papers")}</span>
           <span className="font-bold text-[#1B3C53]">{stats.orphanedPapers}</span>
         </div>
       </div>
@@ -280,8 +282,7 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
             className="h-8 px-3 bg-white border border-slate-200 text-slate-700 text-[11px] font-medium rounded-md hover:bg-slate-50 transition-colors flex items-center gap-1.5"
           >
             <span className="material-symbols-outlined text-[14px]">file_download</span>
-            Export Report
-          </button>
+            {t("runtime.components.chair.conference-detail.conference-coi.text_export_report")}{" "}</button>
           <button
             type="button"
             disabled={rebuilding}
@@ -307,14 +308,11 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <div className="flex bg-slate-100 p-0.5 rounded-lg">
                 <button type="button" className="px-3 py-1 text-[10px] font-medium rounded bg-white text-[#1B3C53] shadow-sm">
-                  Pending
-                </button>
+                  {t("runtime.components.chair.conference-detail.conference-coi.text_pending")}{" "}</button>
                 <button type="button" className="px-3 py-1 text-[10px] font-medium rounded text-slate-500">
-                  Confirmed
-                </button>
+                  {t("runtime.components.chair.conference-detail.conference-coi.text_confirmed")}{" "}</button>
                 <button type="button" className="px-3 py-1 text-[10px] font-medium rounded text-slate-500">
-                  Dismissed
-                </button>
+                  {t("runtime.components.chair.conference-detail.conference-coi.text_dismissed")}{" "}</button>
               </div>
 
               <div className="h-5 w-px bg-slate-200 mx-1" />
@@ -366,11 +364,11 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
               <table className="w-full text-left border-collapse">
                 <thead className="bg-slate-50 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-200 tracking-widest">
                   <tr>
-                    <th className="px-3 py-2.5">Reviewer</th>
-                    <th className="px-3 py-2.5">Submission</th>
-                    <th className="px-3 py-2.5">Conflict Reason</th>
-                    <th className="px-3 py-2.5">Source</th>
-                    <th className="px-3 py-2.5 text-right">Actions</th>
+                    <th className="px-3 py-2.5">{t("runtime.components.chair.conference-detail.conference-coi.text_reviewer")}</th>
+                    <th className="px-3 py-2.5">{t("runtime.components.chair.conference-detail.conference-coi.text_submission")}</th>
+                    <th className="px-3 py-2.5">{t("runtime.components.chair.conference-detail.conference-coi.text_conflict_reason")}</th>
+                    <th className="px-3 py-2.5">{t("runtime.components.chair.conference-detail.conference-coi.text_source")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("runtime.components.chair.conference-detail.conference-coi.text_actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -423,14 +421,14 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
                         </td>
                         <td className="px-3 py-3 text-right">
                           <div className="flex items-center justify-end gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
-                            <button type="button" className="p-1 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors" title="Confirm Conflict">
+                            <button type="button" className="p-1 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors" title={t("runtime.components.chair.conference-detail.conference-coi.title_confirm_conflict")}>
                               <span className="material-symbols-outlined text-[16px]">check_circle</span>
                             </button>
-                            <button type="button" className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Dismiss as False Positive">
+                            <button type="button" className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title={t("runtime.components.chair.conference-detail.conference-coi.title_dismiss_as_false_positive")}>
                               <span className="material-symbols-outlined text-[16px]">cancel</span>
                             </button>
                             <div className="w-px h-4 bg-slate-200 mx-0.5" />
-                            <button type="button" className="p-1 text-slate-400 hover:text-[#1B3C53] hover:bg-slate-100 rounded transition-colors" title="Reassign Reviewer">
+                            <button type="button" className="p-1 text-slate-400 hover:text-[#1B3C53] hover:bg-slate-100 rounded transition-colors" title={t("runtime.components.chair.conference-detail.conference-coi.title_reassign_reviewer")}>
                               <span className="material-symbols-outlined text-[16px]">person_search</span>
                             </button>
                           </div>

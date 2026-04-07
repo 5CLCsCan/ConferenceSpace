@@ -5,9 +5,15 @@ import { OverviewTab } from "../overview-tab"
 import type { Submission } from "@/lib/api/submissions"
 
 // Mock translation context (required by all overview-tab sub-components).
-vi.mock("@/lib/i18n/translation-context", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
-}))
+vi.mock("@/lib/i18n/translation-context", async () => {
+  const { tStatic } = await vi.importActual<typeof import("@/lib/i18n/static-translate")>(
+    "@/lib/i18n/static-translate",
+  )
+
+  return {
+    useTranslation: () => ({ t: tStatic }),
+  }
+})
 
 // Mock the papers API module used by CameraReadySection (dynamic import).
 vi.mock("@/lib/api/papers", () => ({
@@ -57,7 +63,7 @@ describe("CameraReadySection (via OverviewTab)", () => {
         conferenceId="1"
       />,
     )
-    expect(screen.getByText("Camera-Ready Version")).toBeTruthy()
+    expect(screen.getAllByText(/camera[- ]ready version/i).length).toBeGreaterThan(0)
     expect(screen.getByText("Upload PDF")).toBeTruthy()
     expect(screen.queryByText("Replace File")).toBeNull()
   })

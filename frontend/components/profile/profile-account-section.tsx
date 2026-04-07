@@ -49,8 +49,7 @@ export function ProfileAccountSection({
               <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
                 edit
               </span>
-              Edit
-            </button>
+              {t("runtime.components.profile.profile-account-section.text_edit")}{" "}</button>
           )}
         </div>
 
@@ -118,10 +117,9 @@ export function ProfileAccountSection({
               </span>
             </div>
             <div className="text-left">
-              <p className="text-xs font-bold text-[#1B3C53] dark:text-white">Change password</p>
+              <p className="text-xs font-bold text-[#1B3C53] dark:text-white">{t("runtime.components.profile.profile-account-section.text_change_password")}</p>
               <p className="text-[10px] font-medium text-slate-400">
-                Update your account password securely.
-              </p>
+                {t("runtime.components.profile.profile-account-section.text_update_your_account_password_securely")}{" "}</p>
             </div>
           </div>
           <span

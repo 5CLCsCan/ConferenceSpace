@@ -1,3 +1,5 @@
+"use client"
+
 import { ArrowRight, Copy, LayoutTemplate, PlusCircle, Search, Sparkles } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
@@ -5,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import type { SharedActionProps } from "./types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface HomeViewProps extends SharedActionProps {
   templatesCount: number
@@ -13,11 +16,11 @@ interface HomeViewProps extends SharedActionProps {
 
 export function HomeView({
   onFlowChange,
-  t,
   templatesCount,
   conferencesCount,
   allowSave = true,
 }: HomeViewProps) {
+  const { t } = useTranslation()
   const router = useRouter()
 
   return (
@@ -69,8 +72,7 @@ export function HomeView({
                     </p>
                   </div>
                   <div className="mt-auto pt-6 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-[#1B3C53]">
-                    Browse Saved
-                    <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+                    {t("runtime.components.chair.template-sheet.home-view.text_browse_saved")}{" "}<ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
                   </div>
                 </CardContent>
               </Card>
@@ -111,8 +113,7 @@ export function HomeView({
                     </p>
                   </div>
                   <div className="mt-auto pt-6 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-[#1B3C53]">
-                    Copy Config
-                    <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+                    {t("runtime.components.chair.template-sheet.home-view.text_copy_config")}{" "}<ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
                   </div>
                 </CardContent>
               </Card>
@@ -144,8 +145,7 @@ export function HomeView({
                     </p>
                   </div>
                   <div className="mt-auto pt-6 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-[#1B3C53]">
-                    Build Template
-                    <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+                    {t("runtime.components.chair.template-sheet.home-view.text_build_template")}{" "}<ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
                   </div>
                 </CardContent>
               </Card>

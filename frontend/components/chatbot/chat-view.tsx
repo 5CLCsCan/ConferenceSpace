@@ -395,7 +395,7 @@ export function ChatView({
                   type="button"
                   onClick={() => stop()}
                   className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white transition-all hover:bg-red-600"
-                  aria-label="Cancel generation"
+                  aria-label={t("runtime.components.chatbot.chat-view.aria_label_cancel_generation")}
                 >
                   <Square className="h-2.5 w-2.5 fill-white" />
                 </button>

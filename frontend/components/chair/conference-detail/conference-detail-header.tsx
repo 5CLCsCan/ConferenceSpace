@@ -84,7 +84,7 @@ export function ConferenceDetailHeader({
     },
     {
       id: "rebuttal",
-      label: "Rebuttal",
+      label: t("runtime.components.chair.conference-detail.conference-detail-header.prop_label_rebuttal"),
       icon: "rate_review",
     },
   ]

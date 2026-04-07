@@ -109,7 +109,12 @@ export function AIAssistantCard({
           return
         }
         if (response.error || !response.data) {
-          setPreviewError(response.error || "Failed to load manuscript preview")
+          setPreviewError(
+            response.error ||
+              t(
+                "runtime.components.reviewer.submission-review.review-sidebar.text_failed_to_load_manuscript_preview",
+              ),
+          )
           return
         }
         const objectUrl = window.URL.createObjectURL(response.data)
@@ -121,7 +126,9 @@ export function AIAssistantCard({
           setPreviewError(
             previewIssue instanceof Error
               ? previewIssue.message
-              : "Failed to load manuscript preview",
+              : t(
+                  "runtime.components.reviewer.submission-review.review-sidebar.text_failed_to_load_manuscript_preview",
+                ),
           )
         }
       })
@@ -134,7 +141,14 @@ export function AIAssistantCard({
     return () => {
       cancelled = true
     }
-  }, [conferenceId, open, previewLoading, previewUrl, submissionId])
+  }, [conferenceId, open, previewLoading, previewUrl, submissionId, t])
+
+  const statusLabelMap: Record<string, string> = {
+    ready: t("runtime.components.reviewer.submission-review.review-sidebar.text_status_ready"),
+    stale: t("runtime.components.reviewer.submission-review.review-sidebar.text_status_stale"),
+    failed: t("runtime.components.reviewer.submission-review.review-sidebar.text_status_failed"),
+    idle: t("runtime.components.reviewer.submission-review.review-sidebar.text_status_idle"),
+  }
 
   useEffect(() => {
     return () => {
@@ -148,31 +162,41 @@ export function AIAssistantCard({
     switch (status) {
       case "ready":
         return {
-          title: "Report generated",
-          body: "Submission pre-read is ready for you to inspect alongside the manuscript.",
+          title: t("runtime.components.reviewer.submission-review.review-sidebar.prop_title_report_generated"),
+          body: t(
+            "runtime.components.reviewer.submission-review.review-sidebar.text_submission_pre_read_ready",
+          ),
         }
       case "stale":
         return {
-          title: "Report out of date",
-          body: "The submission changed. Regenerate the analysis before relying on it.",
+          title: t("runtime.components.reviewer.submission-review.review-sidebar.prop_title_report_out_of_date"),
+          body: t(
+            "runtime.components.reviewer.submission-review.review-sidebar.text_submission_changed_regenerate_analysis",
+          ),
         }
       case "failed":
         return {
-          title: "Generation failed",
-          body: "The system could not build the manuscript briefing. Retry once the source is available.",
+          title: t("runtime.components.reviewer.submission-review.review-sidebar.prop_title_generation_failed"),
+          body: t(
+            "runtime.components.reviewer.submission-review.review-sidebar.text_system_could_not_build_briefing",
+          ),
         }
       case "idle":
         return {
-          title: "No analysis yet",
-          body: "Generate a neutral manuscript briefing before you begin writing the review.",
+          title: t("runtime.components.reviewer.submission-review.review-sidebar.prop_title_no_analysis_yet"),
+          body: t(
+            "runtime.components.reviewer.submission-review.review-sidebar.text_generate_neutral_briefing_first",
+          ),
         }
       default:
         return {
-          title: "Checking analysis status",
-          body: "Looking up the latest reviewer pre-read artifact for this submission.",
+          title: t("runtime.components.reviewer.submission-review.review-sidebar.prop_title_checking_analysis_status"),
+          body: t(
+            "runtime.components.reviewer.submission-review.review-sidebar.text_looking_up_latest_pre_read_artifact",
+          ),
         }
     }
-  }, [status])
+  }, [status, t])
 
   return (
     <>
@@ -182,12 +206,11 @@ export function AIAssistantCard({
             <span className="material-symbols-outlined text-[14px] text-violet-600">analytics</span>
             {t("runtime.components.reviewer.submission-review.review-sidebar.text_ai_assistant")}
           </h3>
-          <span className={statusBadgeClass(status)}>{status}</span>
+          <span className={statusBadgeClass(status)}>{statusLabelMap[status] || status}</span>
         </div>
 
         <p className="mt-3 text-[8px] font-black uppercase tracking-[0.24em] text-violet-600/70">
-          Submission pre-read
-        </p>
+          {t("runtime.components.reviewer.submission-review.review-sidebar.text_submission_pre_read")}{" "}</p>
         <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#1B3C53]">
           {statusCopy.title}
         </p>
@@ -197,8 +220,7 @@ export function AIAssistantCard({
 
         {loading ? (
           <p className="mt-3 text-[10px] font-normal text-slate-500">
-            Checking existing submission pre-read.
-          </p>
+            {t("runtime.components.reviewer.submission-review.review-sidebar.text_checking_existing_submission_pre_read")}{" "}</p>
         ) : (
           <>
             <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -211,10 +233,16 @@ export function AIAssistantCard({
                 >
                   <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
                   {generating
-                    ? "Generating..."
+                    ? t(
+                        "runtime.components.reviewer.submission-review.review-sidebar.text_generating",
+                      )
                     : status === "stale"
-                      ? "Regenerate report"
-                      : "Start generating"}
+                      ? t(
+                          "runtime.components.reviewer.submission-review.review-sidebar.text_regenerate_report",
+                        )
+                      : t(
+                          "runtime.components.reviewer.submission-review.review-sidebar.text_start_generating",
+                        )}
                 </button>
               )}
 
@@ -225,8 +253,7 @@ export function AIAssistantCard({
                   className="inline-flex h-8 items-center justify-center gap-2 rounded-md border border-violet-200 bg-white/90 px-4 text-[11px] font-bold tracking-wider text-[#1B3C53] transition-all duration-200 hover:border-violet-300 hover:bg-white"
                 >
                   <span className="material-symbols-outlined text-[14px]">visibility</span>
-                  View Analysis
-                </button>
+                  {t("runtime.components.reviewer.submission-review.review-sidebar.text_view_analysis")}{" "}</button>
               )}
             </div>
 
@@ -245,10 +272,9 @@ export function AIAssistantCard({
           className="h-[calc(100vh-2rem)] w-[min(1680px,calc(100vw-2rem))] max-w-none gap-0 overflow-y-auto border border-slate-200 bg-white p-0 shadow-2xl sm:max-w-none"
         >
           <DialogHeader className="sr-only">
-            <DialogTitle>Reviewer Pre-Read Analysis</DialogTitle>
+            <DialogTitle>{t("runtime.components.reviewer.submission-review.review-sidebar.text_reviewer_pre_read_analysis")}</DialogTitle>
             <DialogDescription>
-              Read the manuscript and the neutral briefing side by side.
-            </DialogDescription>
+              {t("runtime.components.reviewer.submission-review.review-sidebar.text_read_the_manuscript_and_the_neutral")}{" "}</DialogDescription>
           </DialogHeader>
 
           <div className="grid min-h-full grid-cols-1 xl:grid-cols-[0.42fr_0.58fr]">
@@ -260,20 +286,16 @@ export function AIAssistantCard({
                       <div className="flex h-full items-center justify-center px-6">
                         <div className="max-w-sm space-y-3 text-center">
                           <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">
-                            Loading preview
-                          </p>
+                            {t("runtime.components.reviewer.submission-review.review-sidebar.text_loading_preview")}{" "}</p>
                           <p className="text-[11px] font-normal leading-relaxed text-slate-500">
-                            Fetching reviewer-visible manuscript file and preparing the reading
-                            pane.
-                          </p>
+                            {t("runtime.components.reviewer.submission-review.review-sidebar.text_fetching_reviewer_visible_manuscript_file_and")}{" "}</p>
                         </div>
                       </div>
                     ) : previewError ? (
                       <div className="flex h-full items-center justify-center px-6">
                         <div className="max-w-sm space-y-3 text-center">
                           <p className="text-[10px] font-black uppercase tracking-[0.24em] text-red-500">
-                            Preview unavailable
-                          </p>
+                            {t("runtime.components.reviewer.submission-review.review-sidebar.text_preview_unavailable")}{" "}</p>
                           <p className="text-[11px] font-normal leading-relaxed text-slate-500">
                             {previewError}
                           </p>
@@ -281,7 +303,12 @@ export function AIAssistantCard({
                       </div>
                     ) : previewUrl ? (
                       <object
-                        aria-label={previewFilename || "Submission manuscript preview"}
+                        aria-label={
+                          previewFilename ||
+                          t(
+                            "runtime.components.reviewer.submission-review.review-sidebar.aria_label_submission_manuscript_preview",
+                          )
+                        }
                         data={previewUrl}
                         type="application/pdf"
                         className="h-full w-full"
@@ -289,12 +316,9 @@ export function AIAssistantCard({
                         <div className="flex h-full items-center justify-center px-6">
                           <div className="max-w-sm space-y-3 text-center">
                             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">
-                              Preview unavailable
-                            </p>
+                              {t("runtime.components.reviewer.submission-review.review-sidebar.text_preview_unavailable")}{" "}</p>
                             <p className="text-[11px] font-normal leading-relaxed text-slate-500">
-                              This browser could not render the PDF inline. Use the PDF button above
-                              to open the manuscript directly.
-                            </p>
+                              {t("runtime.components.reviewer.submission-review.review-sidebar.text_this_browser_could_not_render_the")}{" "}</p>
                           </div>
                         </div>
                       </object>
@@ -302,11 +326,9 @@ export function AIAssistantCard({
                       <div className="flex h-full items-center justify-center px-6">
                         <div className="max-w-sm space-y-3 text-center">
                           <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">
-                            Preview standby
-                          </p>
+                            {t("runtime.components.reviewer.submission-review.review-sidebar.text_preview_standby")}{" "}</p>
                           <p className="text-[13px] font-medium leading-relaxed text-slate-500">
-                            The manuscript preview will appear here once the file has loaded.
-                          </p>
+                            {t("runtime.components.reviewer.submission-review.review-sidebar.text_the_manuscript_preview_will_appear_here")}{" "}</p>
                         </div>
                       </div>
                     )}
@@ -318,8 +340,7 @@ export function AIAssistantCard({
             <section className="flex min-h-0 flex-col bg-white">
               <div className="shrink-0 border-b border-slate-200 bg-white px-6 py-4">
                 <h2 className="text-sm font-bold tracking-tight text-[#1B3C53]">
-                  Submission Analysis
-                </h2>
+                  {t("runtime.components.reviewer.submission-review.review-sidebar.text_submission_analysis")}{" "}</h2>
               </div>
 
               <div className="min-h-0 flex-1 overflow-y-auto bg-[#F8FBFD] px-6 py-6">
@@ -340,8 +361,7 @@ export function AIAssistantCard({
 
                     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                       <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#456882]">
-                        Orientation snapshot
-                      </p>
+                        {t("runtime.components.reviewer.submission-review.review-sidebar.text_orientation_snapshot")}{" "}</p>
                       <p className="mt-3 text-[12px] font-medium leading-relaxed tracking-tight text-slate-900">
                         {artifact.submission_snapshot.abstract_summary}
                       </p>
@@ -350,9 +370,13 @@ export function AIAssistantCard({
                       </p>
                     </div>
 
-                    <SectionBlock title="Review Readiness Signals">
+                    <SectionBlock title={t("runtime.components.reviewer.submission-review.review-sidebar.title_review_readiness_signals")}>
                       {readinessSignals.length === 0 ? (
-                        <EmptyState text="No readiness signals were generated." />
+                        <EmptyState
+                          text={t(
+                            "runtime.components.reviewer.submission-review.review-sidebar.text_no_readiness_signals_were_generated",
+                          )}
+                        />
                       ) : (
                         <div className="grid gap-3 md:grid-cols-2">
                           {readinessSignals.map((signal) => (
@@ -365,7 +389,7 @@ export function AIAssistantCard({
                                   {signal.label}
                                 </h5>
                                 <span className={signalPillClass(signal.status)}>
-                                  {signal.status}
+                                  {signalStatusLabel(signal.status, t)}
                                 </span>
                               </div>
                               <p className="mt-2 text-[11px] font-normal leading-relaxed text-slate-600">
@@ -378,45 +402,53 @@ export function AIAssistantCard({
                     </SectionBlock>
 
                     <div className="grid gap-5 xl:grid-cols-2">
-                      <SectionBlock title="Claimed Contributions">
+                      <SectionBlock title={t("runtime.components.reviewer.submission-review.review-sidebar.title_claimed_contributions")}>
                         <RichItemList
                           items={claimedContributions.map((item) => ({
                             title: item.label,
                             body: item.evidence.join(" "),
                           }))}
-                          emptyText="No contribution claims were extracted."
+                          emptyText={t(
+                            "runtime.components.reviewer.submission-review.review-sidebar.text_no_contribution_claims_were_extracted",
+                          )}
                         />
                       </SectionBlock>
 
-                      <SectionBlock title="Notable Elements">
+                      <SectionBlock title={t("runtime.components.reviewer.submission-review.review-sidebar.title_notable_elements")}>
                         <RichItemList
                           items={notableElements.map((item) => ({
                             title: item.label,
                             body: item.detail,
                           }))}
-                          emptyText="No notable elements were extracted."
+                          emptyText={t(
+                            "runtime.components.reviewer.submission-review.review-sidebar.text_no_notable_elements_were_extracted",
+                          )}
                         />
                       </SectionBlock>
                     </div>
 
                     <div className="grid gap-5 xl:grid-cols-2">
-                      <SectionBlock title="Reviewer Attention Points">
+                      <SectionBlock title={t("runtime.components.reviewer.submission-review.review-sidebar.title_reviewer_attention_points")}>
                         <RichItemList
                           items={attentionPoints.map((item) => ({
                             title: item.focus,
                             body: item.reason || "",
                           }))}
-                          emptyText="No reviewer attention points were extracted."
+                          emptyText={t(
+                            "runtime.components.reviewer.submission-review.review-sidebar.text_no_reviewer_attention_points_were_extracted",
+                          )}
                         />
                       </SectionBlock>
 
-                      <SectionBlock title="Scope And Limitations">
+                      <SectionBlock title={t("runtime.components.reviewer.submission-review.review-sidebar.title_scope_and_limitations")}>
                         <RichItemList
                           items={scopeLimitations.map((item) => ({
                             title: item.label,
                             body: item.detail,
                           }))}
-                          emptyText="No explicit scope boundaries were extracted."
+                          emptyText={t(
+                            "runtime.components.reviewer.submission-review.review-sidebar.text_no_explicit_scope_boundaries_were_extracted",
+                          )}
                         />
                       </SectionBlock>
                     </div>
@@ -424,8 +456,7 @@ export function AIAssistantCard({
                 ) : (
                   <div className="flex h-full items-center justify-center">
                     <p className="text-[10px] font-normal text-slate-500">
-                      No analysis artifact is available for viewing.
-                    </p>
+                      {t("runtime.components.reviewer.submission-review.review-sidebar.text_no_analysis_artifact_is_available_for")}{" "}</p>
                   </div>
                 )}
               </div>
@@ -470,6 +501,24 @@ function signalPillClass(status: "present" | "partial" | "not_found" | "not_appl
   return `inline-flex rounded-md border px-2 py-0.5 text-[8px] font-black uppercase tracking-[0.18em] ${
     tones[status]
   }`
+}
+
+function signalStatusLabel(
+  status: "present" | "partial" | "not_found" | "not_applicable",
+  t: (key: string) => string,
+) {
+  const labels = {
+    present: t("runtime.components.reviewer.submission-review.review-sidebar.text_signal_present"),
+    partial: t("runtime.components.reviewer.submission-review.review-sidebar.text_signal_partial"),
+    not_found: t(
+      "runtime.components.reviewer.submission-review.review-sidebar.text_signal_not_found",
+    ),
+    not_applicable: t(
+      "runtime.components.reviewer.submission-review.review-sidebar.text_signal_not_applicable",
+    ),
+  }
+
+  return labels[status]
 }
 
 function EmptyState({ text }: { text: string }) {

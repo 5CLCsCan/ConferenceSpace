@@ -92,35 +92,46 @@ function StatCard({
   )
 }
 
-function RoleBadge() {
+function RoleBadge({ label }: { label: string }) {
   return (
     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-medium border bg-blue-50 text-blue-700 border-blue-100">
-      Reviewer
+      {label}
     </span>
   )
 }
 
-function StatusIndicator({ status }: { status?: string }) {
+function StatusIndicator({
+  status,
+  labels,
+}: {
+  status?: string
+  labels: {
+    active: string
+    declined: string
+    invited: string
+    pendingResponse: string
+  }
+}) {
   const config =
     status === "accepted"
       ? {
           dotClass: "bg-emerald-500",
-          label: "Active",
+          label: labels.active,
           labelClass: "text-slate-600 font-medium",
           detail: null,
         }
       : status === "rejected"
         ? {
             dotClass: "bg-slate-300",
-            label: "Declined",
+            label: labels.declined,
             labelClass: "text-slate-400 font-medium",
             detail: null,
           }
         : {
             dotClass: "bg-amber-400 animate-pulse",
-            label: "Invited",
+            label: labels.invited,
             labelClass: "text-slate-600 font-medium",
-            detail: "Pending response",
+            detail: labels.pendingResponse,
           }
 
   return (
@@ -154,8 +165,105 @@ function MemberAvatar({ email, name }: { email: string; name: string }) {
 
 export function ConferenceCommittee({ conferenceId, className }: ConferenceCommitteeProps) {
   const { t } = useTranslation()
-  const T = (key: string) =>
-    t(`runtime.components.chair.conference-detail.conference-committee.${key}`)
+  const labels = {
+    text_actions: t("runtime.components.chair.conference-detail.conference-committee.text_actions"),
+    text_active: t("runtime.components.chair.conference-detail.conference-committee.text_active"),
+    text_add_member: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_add_member",
+    ),
+    text_all_roles: t("runtime.components.chair.conference-detail.conference-committee.text_all_roles"),
+    text_all_statuses: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_all_statuses",
+    ),
+    text_area_chairs: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_area_chairs",
+    ),
+    text_assignments: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_assignments",
+    ),
+    text_committee_members: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_committee_members",
+    ),
+    text_committee_subtitle: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_committee_subtitle",
+    ),
+    text_declined: t("runtime.components.chair.conference-detail.conference-committee.text_declined"),
+    text_export: t("runtime.components.chair.conference-detail.conference-committee.text_export"),
+    text_failed_to_load_committee: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_failed_to_load_committee",
+    ),
+    text_general_track: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_general_track",
+    ),
+    text_import_csv: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_import_csv",
+    ),
+    text_invited: t("runtime.components.chair.conference-detail.conference-committee.text_invited"),
+    text_invite_error: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_invite_error",
+    ),
+    text_invite_selected: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_invite_selected",
+    ),
+    text_invite_success: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_invite_success",
+    ),
+    text_loading_committee: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_loading_committee",
+    ),
+    text_member: t("runtime.components.chair.conference-detail.conference-committee.text_member"),
+    text_next: t("runtime.components.chair.conference-detail.conference-committee.text_next"),
+    text_no_committee_members_found: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_no_committee_members_found",
+    ),
+    text_no_users_found: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_no_users_found",
+    ),
+    text_not_available: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_not_available",
+    ),
+    text_pending_invites: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_pending_invites",
+    ),
+    text_pending_response: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_pending_response",
+    ),
+    text_previous: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_previous",
+    ),
+    text_primary_track: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_primary_track",
+    ),
+    text_remove_reviewer: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_remove_reviewer",
+    ),
+    text_reviewer: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_reviewer",
+    ),
+    text_reviewers: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_reviewers",
+    ),
+    text_role: t("runtime.components.chair.conference-detail.conference-committee.text_role"),
+    text_search_by_email: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_search_by_email",
+    ),
+    text_searching: t("runtime.components.chair.conference-detail.conference-committee.text_searching"),
+    text_status: t("runtime.components.chair.conference-detail.conference-committee.text_status"),
+    text_total_members: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_total_members",
+    ),
+    placeholder_search_by_name_email_affiliation: t(
+      "runtime.components.chair.conference-detail.conference-committee.placeholder_search_by_name_email_affiliation",
+    ),
+    aria_label_select_all_committee_members: t(
+      "runtime.components.chair.conference-detail.conference-committee.aria_label_select_all_committee_members",
+    ),
+    title_edit_member: t(
+      "runtime.components.chair.conference-detail.conference-committee.title_edit_member",
+    ),
+  } as const
+
+  const T = (key: keyof typeof labels) => labels[key]
 
   const PAGE_SIZE = 8
   const [loading, setLoading] = useState(true)
@@ -178,6 +286,12 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
   const [showDropdown, setShowDropdown] = useState(false)
   const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const statusLabels = {
+    active: T("text_active"),
+    declined: T("text_declined"),
+    invited: T("text_invited"),
+    pendingResponse: T("text_pending_response"),
+  }
 
   const loadReviewers = useCallback(async () => {
     setLoading(true)
@@ -189,7 +303,10 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     ])
 
     if (allRes.error || !allRes.data) {
-      setError(allRes.error || "Failed to load committee")
+      setError(
+        allRes.error ||
+          t("runtime.components.chair.conference-detail.conference-committee.text_failed_to_load_committee"),
+      )
       setReviewers([])
       setLoading(false)
       return
@@ -198,7 +315,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     setReviewers(allRes.data.reviewers)
     setPendingCount(pendingRes.data?.total || 0)
     setLoading(false)
-  }, [conferenceId])
+  }, [conferenceId, t])
 
   useEffect(() => {
     void loadReviewers()
@@ -233,7 +350,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
           data?: {
             users?: { id: number; email: string; first_name?: string; last_name?: string }[]
           }
-        }>(`/api/v1/users/search?q=${encodeURIComponent(q.trim())}&limit=10`)
+        }>(`/api/v1/users/search?q=${encodeURIComponent(value.trim())}&limit=10`)
         const users = data?.data?.users || []
         setSearchResults(
           users.map((u) => ({
@@ -453,7 +570,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                     type="text"
                     value={tableSearch}
                     onChange={(event) => setTableSearch(event.target.value)}
-                    placeholder="Search by name, email, or affiliation..."
+                    placeholder={T("placeholder_search_by_name_email_affiliation")}
                     className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-[11px] focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none transition-colors"
                   />
                 </div>
@@ -463,18 +580,18 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                     onChange={(event) => setRoleFilter(event.target.value as MemberRoleFilter)}
                     className="bg-white border border-slate-200 text-slate-700 text-[11px] rounded-md py-2 px-2.5 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] shadow-sm min-w-[110px] outline-none"
                   >
-                    <option value="all">All Roles</option>
-                    <option value="reviewer">Reviewer</option>
+                    <option value="all">{T("text_all_roles")}</option>
+                    <option value="reviewer">{T("text_reviewer")}</option>
                   </select>
                   <select
                     value={statusFilter}
                     onChange={(event) => setStatusFilter(event.target.value as MemberStatusFilter)}
                     className="bg-white border border-slate-200 text-slate-700 text-[11px] rounded-md py-2 px-2.5 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] shadow-sm min-w-[110px] outline-none"
                   >
-                    <option value="all">All Statuses</option>
-                    <option value="accepted">Active</option>
-                    <option value="pending">Invited</option>
-                    <option value="rejected">Declined</option>
+                    <option value="all">{T("text_all_statuses")}</option>
+                    <option value="accepted">{T("text_active")}</option>
+                    <option value="pending">{T("text_invited")}</option>
+                    <option value="rejected">{T("text_declined")}</option>
                   </select>
                 </div>
               </div>
@@ -485,14 +602,14 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                   className="px-3 py-2 bg-white border border-slate-200 text-slate-700 font-medium text-[11px] rounded-md hover:bg-slate-50 transition-colors flex items-center gap-1.5 shadow-sm"
                 >
                   <Icon name="upload_file" />
-                  Import CSV
+                  {T("text_import_csv")}
                 </button>
                 <button
                   type="button"
                   className="px-3 py-2 bg-white border border-slate-200 text-slate-700 font-medium text-[11px] rounded-md hover:bg-slate-50 transition-colors flex items-center gap-1.5 shadow-sm"
                 >
                   <Icon name="download" />
-                  Export
+                  {T("text_export")}
                 </button>
                 <button
                   type="button"
@@ -500,7 +617,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                   className="px-3 py-2 bg-[#1B3C53] text-white font-medium text-[11px] rounded-md hover:bg-[#234C6A] transition-colors shadow-sm flex items-center gap-1.5"
                 >
                   <Icon name="person_add" />
-                  Add Member
+                  {T("text_add_member")}
                 </button>
               </div>
             </div>
@@ -567,7 +684,10 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                               className="w-full flex items-center gap-1.5 px-3 py-2 rounded hover:bg-[#1B3C53]/5 text-[#1B3C53] font-medium text-xs border-t border-slate-100 transition-colors"
                             >
                               <Icon name="person_add" size={12} />
-                              {T("text_add_directly")}: &ldquo;{searchQuery.trim()}&rdquo;
+                              {t(
+                                "runtime.components.chair.conference-detail.conference-committee.text_add_directly_with_query",
+                                { query: searchQuery.trim() },
+                              )}
                             </button>
                           )}
                         </div>
@@ -635,15 +755,15 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                       <input
                         type="checkbox"
                         className="rounded border-slate-300 text-[#1B3C53] focus:ring-[#1B3C53] h-3.5 w-3.5"
-                        aria-label="Select all committee members"
+                        aria-label={T("aria_label_select_all_committee_members")}
                       />
                     </th>
-                    <th className="px-4 py-2.5">Member</th>
-                    <th className="px-4 py-2.5">Role</th>
-                    <th className="px-4 py-2.5">Primary Track</th>
-                    <th className="px-4 py-2.5">Assignments</th>
-                    <th className="px-4 py-2.5">Status</th>
-                    <th className="px-4 py-2.5 text-right">Actions</th>
+                    <th className="px-4 py-2.5">{T("text_member")}</th>
+                    <th className="px-4 py-2.5">{T("text_role")}</th>
+                    <th className="px-4 py-2.5">{T("text_primary_track")}</th>
+                    <th className="px-4 py-2.5">{T("text_assignments")}</th>
+                    <th className="px-4 py-2.5">{T("text_status")}</th>
+                    <th className="px-4 py-2.5 text-right">{T("text_actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-[10px]">
@@ -657,7 +777,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                     paginatedReviewers.map((reviewer) => {
                       const email = reviewer.email || `user-${reviewer.user_id}@unknown.local`
                       const name = deriveNameFromEmail(email, reviewer.user_id)
-                      const primaryTrack = reviewer.domain?.[0] || "General"
+                      const primaryTrack = reviewer.domain?.[0] || T("text_general_track")
 
                       return (
                         <tr
@@ -668,7 +788,10 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                             <input
                               type="checkbox"
                               className="rounded border-slate-300 text-[#1B3C53] focus:ring-[#1B3C53] h-3.5 w-3.5"
-                              aria-label={`Select ${name}`}
+                              aria-label={t(
+                                "runtime.components.chair.conference-detail.conference-committee.aria_label_select_member",
+                                { name },
+                              )}
                             />
                           </td>
                           <td className="px-4 py-3">
@@ -681,21 +804,23 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <RoleBadge />
+                            <RoleBadge label={T("text_reviewer")} />
                           </td>
                           <td className="px-4 py-3 text-slate-600">{primaryTrack}</td>
                           <td className="px-4 py-3">
-                            <span className="text-[10px] text-slate-400 italic">N/A</span>
+                            <span className="text-[10px] text-slate-400 italic">
+                              {T("text_not_available")}
+                            </span>
                           </td>
                           <td className="px-4 py-3">
-                            <StatusIndicator status={reviewer.status} />
+                            <StatusIndicator status={reviewer.status} labels={statusLabels} />
                           </td>
                           <td className="px-4 py-3 text-right">
                             <div className="flex items-center justify-end gap-0.5">
                               <button
                                 type="button"
                                 className="p-1 text-slate-400 hover:text-[#1B3C53] hover:bg-slate-100 rounded transition-colors"
-                                title="Edit member"
+                                title={T("title_edit_member")}
                               >
                                 <Icon name="edit" size={18} />
                               </button>
@@ -722,19 +847,17 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
             {filteredReviewers.length > 0 && (
               <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-between">
                 <div className="text-[11px] text-slate-500">
-                  Showing{" "}
-                  <span className="font-bold text-[#1B3C53]">
-                    {Math.min((currentPage - 1) * PAGE_SIZE + 1, filteredReviewers.length)}
-                  </span>
-                  -
-                  <span className="font-bold text-[#1B3C53]">
-                    {Math.min(currentPage * PAGE_SIZE, filteredReviewers.length)}
-                  </span>{" "}
-                  of{" "}
-                  <span className="font-bold text-[#1B3C53]">
-                    {filteredReviewers.length.toLocaleString()}
-                  </span>{" "}
-                  members
+                  {t(
+                    "runtime.components.chair.conference-detail.conference-committee.text_showing_range",
+                    {
+                      from: Math.min(
+                        (currentPage - 1) * PAGE_SIZE + 1,
+                        filteredReviewers.length,
+                      ),
+                      to: Math.min(currentPage * PAGE_SIZE, filteredReviewers.length),
+                      total: filteredReviewers.length.toLocaleString(),
+                    },
+                  )}
                 </div>
                 <div className="flex gap-1">
                   <button

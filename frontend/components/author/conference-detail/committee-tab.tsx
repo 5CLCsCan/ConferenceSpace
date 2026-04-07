@@ -268,8 +268,7 @@ export function CommitteeTab({ conference }: TabProps) {
                 >
                   progress_activity
                 </span>
-                Loading members...
-              </div>
+                {t("runtime.components.author.conference-detail.committee-tab.text_loading_members")}{" "}</div>
             ) : reviewers.length === 0 ? (
               <p className="text-[11px] text-slate-400 py-2">
                 {t(

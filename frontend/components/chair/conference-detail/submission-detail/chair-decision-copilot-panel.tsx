@@ -11,6 +11,7 @@ import type {
   ChairDecisionCopilotCountMetric,
   ChairDecisionCopilotResponse,
 } from "@/lib/api/chair-decision-copilot"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ChairDecisionCopilotPanelProps {
   copilot: ChairDecisionCopilotResponse | null
@@ -118,26 +119,27 @@ function SubSection({ label, children }: { label: string; children: React.ReactN
 }
 
 function HelpTooltip() {
+  const { t } = useTranslation()
   return (
     <ScholarTooltip>
       <ScholarTooltipTrigger asChild>
         <button
           type="button"
-          aria-label="About Decision Advisory"
+          aria-label={t("runtime.components.chair.conference-detail.submission-detail.chair-decision-copilot-panel.aria_label_about_decision_advisory")}
           className="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-[7px] font-bold text-slate-400 transition-colors hover:border-[#456882]/40 hover:bg-[#1B3C53]/[0.04] hover:text-[#1B3C53]"
         >
           ?
         </button>
       </ScholarTooltipTrigger>
       <ScholarTooltipContent>
-        AI-generated synthesis of the current evidence. Final decision remains with the chair.
-      </ScholarTooltipContent>
+        {t("runtime.components.chair.conference-detail.submission-detail.chair-decision-copilot-panel.text_ai_generated_synthesis_of_the_current")}{" "}</ScholarTooltipContent>
     </ScholarTooltip>
   )
 }
 
 // --- Collapsed card signal chips ---
 function CollapsedSignals({ copilot }: { copilot: ChairDecisionCopilotResponse }) {
+  const { t } = useTranslation()
   const artifact = copilot.artifact
   if (!artifact) return null
 
@@ -158,8 +160,8 @@ function CollapsedSignals({ copilot }: { copilot: ChairDecisionCopilotResponse }
           {threadCount} thread{threadCount !== 1 ? "s" : ""}
         </MetricPill>
       )}
-      {hasRebuttal && <MetricPill>rebuttal available</MetricPill>}
-      {copilot.cache?.hit && !copilot.cache.is_stale && <MetricPill>evidence current</MetricPill>}
+      {hasRebuttal && <MetricPill>{t("runtime.components.chair.conference-detail.submission-detail.chair-decision-copilot-panel.text_rebuttal_available")}</MetricPill>}
+      {copilot.cache?.hit && !copilot.cache.is_stale && <MetricPill>{t("runtime.components.chair.conference-detail.submission-detail.chair-decision-copilot-panel.text_evidence_current")}</MetricPill>}
     </div>
   )
 }
@@ -175,6 +177,7 @@ export function ChairDecisionCopilotPanel({
   onGenerate,
   onRegenerate,
 }: ChairDecisionCopilotPanelProps) {
+  const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
   const artifact = copilot?.artifact ?? null
   const isIdle = !copilot || copilot.status === "idle"
@@ -231,7 +234,7 @@ export function ChairDecisionCopilotPanel({
             className="min-w-0 flex-1 text-left"
           >
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-bold tracking-tight text-[#1B3C53]">Decision Advisory</h2>
+              <h2 className="text-sm font-bold tracking-tight text-[#1B3C53]">{t("runtime.components.chair.conference-detail.submission-detail.chair-decision-copilot-panel.text_decision_advisory")}</h2>
               <HelpTooltip />
               <span
                 className="material-symbols-outlined ml-0.5 text-slate-400 transition-transform duration-200"
@@ -309,7 +312,7 @@ export function ChairDecisionCopilotPanel({
         <div id="decision-advisory-body" className="divide-y divide-slate-100">
           {/* Loading state */}
           {loading && !copilot && (
-            <div className="px-4 py-4 text-[11px] text-slate-400">Loading evidence package...</div>
+            <div className="px-4 py-4 text-[11px] text-slate-400">{t("runtime.components.chair.conference-detail.submission-detail.chair-decision-copilot-panel.text_loading_evidence_package")}</div>
           )}
 
           {/* Failed state */}
@@ -317,8 +320,7 @@ export function ChairDecisionCopilotPanel({
             <div className="px-4 py-3.5">
               <div className="rounded-lg border border-red-100 bg-red-50 px-3 py-3">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-red-700">
-                  Could not generate recommendation
-                </p>
+                  {t("runtime.components.chair.conference-detail.submission-detail.chair-decision-copilot-panel.text_could_not_generate_recommendation")}{" "}</p>
                 <p className="mt-1.5 text-[11px] leading-relaxed text-red-800">
                   {error ||
                     copilot?.error?.message ||
@@ -332,9 +334,7 @@ export function ChairDecisionCopilotPanel({
           {isIdle && !loading && (
             <div className="px-4 py-4">
               <p className="text-[11px] leading-relaxed text-slate-500">
-                No advisory generated yet. Generate one to get a synthesized view of the current
-                evidence.
-              </p>
+                {t("runtime.components.chair.conference-detail.submission-detail.chair-decision-copilot-panel.text_no_advisory_generated_yet_generate_one")}{" "}</p>
             </div>
           )}
 
@@ -344,7 +344,7 @@ export function ChairDecisionCopilotPanel({
               {/* 1. Evidence Overview */}
               <div className="px-4 py-4">
                 <div className="space-y-3">
-                  <SectionLabel>Evidence Overview</SectionLabel>
+                  <SectionLabel>{t("runtime.components.chair.conference-detail.submission-detail.chair-decision-copilot-panel.text_evidence_overview")}</SectionLabel>
                   <p className="text-[11px] leading-relaxed text-slate-600">
                     {artifact.evidence_summary.overview}
                   </p>
@@ -361,7 +361,7 @@ export function ChairDecisionCopilotPanel({
               {/* 2. Review Analytics */}
               <div className="px-4 py-4">
                 <div className="space-y-3">
-                  <SectionLabel>Review Analytics</SectionLabel>
+                  <SectionLabel>{t("runtime.components.chair.conference-detail.submission-detail.chair-decision-copilot-panel.text_review_analytics")}</SectionLabel>
                   <p className="text-[11px] leading-relaxed text-slate-600">
                     {artifact.review_analytics.review_coverage_completeness}
                   </p>
@@ -398,7 +398,7 @@ export function ChairDecisionCopilotPanel({
               {/* 3. Reviewer Feedback */}
               <div className="px-4 py-4">
                 <div className="space-y-3">
-                  <SectionLabel>Reviewer Feedback Synthesis</SectionLabel>
+                  <SectionLabel>{t("runtime.components.chair.conference-detail.submission-detail.chair-decision-copilot-panel.text_reviewer_feedback_synthesis")}</SectionLabel>
                   <p className="text-[11px] leading-relaxed text-slate-600">
                     {artifact.review_feedback_synthesis.summary}
                   </p>
@@ -427,7 +427,7 @@ export function ChairDecisionCopilotPanel({
                 {/* Discussion signals */}
                 <div className="px-4 py-4">
                   <div className="space-y-2">
-                    <SectionLabel>Discussion</SectionLabel>
+                    <SectionLabel>{t("runtime.components.chair.conference-detail.submission-detail.chair-decision-copilot-panel.text_discussion")}</SectionLabel>
                     <div className="flex flex-wrap gap-1.5">
                       <MetricPill>
                         {formatCount(artifact.discussion_signals.thread_count)} thread
@@ -449,7 +449,7 @@ export function ChairDecisionCopilotPanel({
                 {/* Rebuttal signals */}
                 <div className="px-4 py-4">
                   <div className="space-y-2">
-                    <SectionLabel>Rebuttal</SectionLabel>
+                    <SectionLabel>{t("runtime.components.chair.conference-detail.submission-detail.chair-decision-copilot-panel.text_rebuttal")}</SectionLabel>
                     <span
                       className={cn(
                         "inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider",
@@ -475,7 +475,7 @@ export function ChairDecisionCopilotPanel({
               {hasDisagreementContent && (
                 <div className="px-4 py-4">
                   <div className="space-y-3">
-                    <SectionLabel>Reviewer Alignment</SectionLabel>
+                    <SectionLabel>{t("runtime.components.chair.conference-detail.submission-detail.chair-decision-copilot-panel.text_reviewer_alignment")}</SectionLabel>
                     <div className="grid gap-4 sm:grid-cols-2">
                       {agreementItems.length > 0 && (
                         <SubSection label="Areas of agreement">
@@ -506,7 +506,7 @@ export function ChairDecisionCopilotPanel({
               {artifact.suggested_chair_note && (
                 <div className="px-4 py-4">
                   <div className="space-y-2">
-                    <SectionLabel>Suggested Chair Note</SectionLabel>
+                    <SectionLabel>{t("runtime.components.chair.conference-detail.submission-detail.chair-decision-copilot-panel.text_suggested_chair_note")}</SectionLabel>
                     <div className="rounded-lg border border-[#1B3C53]/10 bg-[#1B3C53]/[0.03] px-3 py-3">
                       <p className="text-[11px] leading-relaxed text-slate-700">
                         {artifact.suggested_chair_note}

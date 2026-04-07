@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react"
 import { Input } from "@/components/ui/input"
 import type { ProfileFormData } from "@/lib/types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 const normalizeDomains = (domains: unknown): string[] => {
   if (!Array.isArray(domains)) return []
@@ -22,6 +23,7 @@ export function ProfileEditDetailsModal({
   onClose: () => void
   saving: boolean
 }) {
+  const { t } = useTranslation()
   const [formData, setFormData] = useState<ProfileFormData>({
     ...initialData,
     domain: [...initialData.domain],
@@ -62,11 +64,9 @@ export function ProfileEditDetailsModal({
         <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
           <div>
             <h2 className="text-sm font-bold tracking-tight text-[#1B3C53] dark:text-white">
-              Edit account details
-            </h2>
+              {t("runtime.components.profile.profile-edit-details-modal.text_edit_account_details")}{" "}</h2>
             <p className="text-[10px] font-medium text-slate-400 mt-0.5">
-              Update your profile information.
-            </p>
+              {t("runtime.components.profile.profile-edit-details-modal.text_update_your_profile_information")}{" "}</p>
           </div>
           <button
             onClick={onClose}
@@ -86,8 +86,7 @@ export function ProfileEditDetailsModal({
                 htmlFor="edit-first-name"
                 className="text-[11px] font-bold uppercase tracking-wider text-slate-500"
               >
-                First name
-              </label>
+                {t("runtime.components.profile.profile-edit-details-modal.text_first_name")}{" "}</label>
               <Input
                 id="edit-first-name"
                 value={formData.firstName}
@@ -101,8 +100,7 @@ export function ProfileEditDetailsModal({
                 htmlFor="edit-last-name"
                 className="text-[11px] font-bold uppercase tracking-wider text-slate-500"
               >
-                Last name
-              </label>
+                {t("runtime.components.profile.profile-edit-details-modal.text_last_name")}{" "}</label>
               <Input
                 id="edit-last-name"
                 value={formData.lastName}
@@ -118,8 +116,7 @@ export function ProfileEditDetailsModal({
               htmlFor="edit-email"
               className="text-[11px] font-bold uppercase tracking-wider text-slate-500"
             >
-              Email
-            </label>
+              {t("runtime.components.profile.profile-edit-details-modal.text_email")}{" "}</label>
             <Input
               id="edit-email"
               type="email"
@@ -132,8 +129,7 @@ export function ProfileEditDetailsModal({
 
           <div className="space-y-2">
             <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-              Research domains
-            </label>
+              {t("runtime.components.profile.profile-edit-details-modal.text_research_domains")}{" "}</label>
             <div className="flex gap-2">
               <Input
                 value={domainInput}
@@ -145,7 +141,7 @@ export function ProfileEditDetailsModal({
                     addDomain()
                   }
                 }}
-                placeholder="Add a domain..."
+                placeholder={t("runtime.components.profile.profile-edit-details-modal.placeholder_add_a_domain")}
                 className="h-9 text-xs"
               />
               <button
@@ -154,8 +150,7 @@ export function ProfileEditDetailsModal({
                 disabled={saving || !domainInput.trim()}
                 className="h-9 px-4 rounded-md bg-slate-100 dark:bg-slate-700 text-[11px] font-medium text-[#1B3C53] dark:text-white hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors disabled:opacity-50 shrink-0"
               >
-                Add
-              </button>
+                {t("runtime.components.profile.profile-edit-details-modal.text_add")}{" "}</button>
             </div>
             <div className="flex flex-wrap gap-1.5 min-h-[24px]">
               {domains.length > 0 ? (
@@ -178,7 +173,7 @@ export function ProfileEditDetailsModal({
                   </span>
                 ))
               ) : (
-                <span className="text-[11px] text-slate-400">No domains listed.</span>
+                <span className="text-[11px] text-slate-400">{t("runtime.components.profile.profile-edit-details-modal.text_no_domains_listed")}</span>
               )}
             </div>
           </div>
@@ -191,8 +186,7 @@ export function ProfileEditDetailsModal({
             disabled={saving}
             className="h-8 px-4 rounded-full border border-slate-200 dark:border-slate-600 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
           >
-            Cancel
-          </button>
+            {t("runtime.components.profile.profile-edit-details-modal.text_cancel")}{" "}</button>
           <button
             onClick={() => onSave(formData)}
             disabled={saving || !isDirty}

@@ -307,10 +307,12 @@ function expandDynamicExpression(exprText, filePath) {
     return [
       "dashboard.sidebar.nav.author.conferences",
       "dashboard.sidebar.nav.author.mySubmissions",
+      "dashboard.sidebar.nav.author.schedules",
       "dashboard.sidebar.nav.reviewer.dashboard",
       "dashboard.sidebar.nav.reviewer.conferences",
       "dashboard.sidebar.nav.reviewer.invitations",
       "dashboard.sidebar.nav.reviewer.completed",
+      "dashboard.sidebar.nav.reviewer.schedules",
       "dashboard.sidebar.nav.chair.dashboard",
       "dashboard.sidebar.nav.chair.conferences",
       "dashboard.sidebar.nav.chair.schedules",

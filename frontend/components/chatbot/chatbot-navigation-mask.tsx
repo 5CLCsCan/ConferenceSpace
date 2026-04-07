@@ -5,10 +5,12 @@ import { Loader2 } from "lucide-react"
 import { usePathname, useSearchParams } from "next/navigation"
 
 import { useChatbot } from "./chatbot-provider"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 const MASK_TIMEOUT_MS = 8000
 
 export function ChatbotNavigationMask() {
+  const { t } = useTranslation()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const { navigationMask, clearNavigationMask } = useChatbot()
@@ -52,11 +54,10 @@ export function ChatbotNavigationMask() {
         </div>
         <div className="min-w-0">
           <p className="text-[11px] font-semibold tracking-tight text-slate-800">
-            Navigating to {navigationMask.destinationLabel}...
+            {t("runtime.components.chatbot.chatbot-navigation-mask.text_navigating_to")}{" "}{navigationMask.destinationLabel}...
           </p>
           <p className="mt-1 text-[10px] leading-relaxed text-slate-500">
-            Preparing the next screen.
-          </p>
+            {t("runtime.components.chatbot.chatbot-navigation-mask.text_preparing_the_next_screen")}{" "}</p>
         </div>
       </div>
     </div>

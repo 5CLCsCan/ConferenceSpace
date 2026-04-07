@@ -73,6 +73,11 @@ function formatDate(date: Date | undefined): string {
 
 export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewStepProps) {
   const { t } = useTranslation()
+  const getMemberLabel = (count: number) =>
+    count === 1
+      ? t("runtime.components.wizard.creation.steps.final-review.text_member")
+      : t("runtime.components.wizard.creation.steps.final-review.text_members")
+
   // Count organizers by role
   const organizerCounts = {
     generalChairs: 1, // Current user
@@ -117,17 +122,31 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
           onEdit={() => onEditStep?.(1)}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
-            <ReviewField label="Conference Name" value={data.title} />
-            <ReviewField label="Acronym" value={data.acronym} />
             <ReviewField
-              label="Location"
+              label={t("runtime.components.wizard.creation.steps.final-review.text_conference_name")}
+              value={data.title}
+            />
+            <ReviewField
+              label={t("runtime.components.wizard.creation.steps.final-review.text_acronym")}
+              value={data.acronym}
+            />
+            <ReviewField
+              label={t("runtime.components.wizard.creation.steps.final-review.text_location")}
               value={
-                data.locationType === "virtual" ? "Virtual Conference" : data.location || data.venue
+                data.locationType === "virtual"
+                  ? t("runtime.components.wizard.creation.steps.final-review.text_virtual_conference")
+                  : data.location || data.venue
               }
               fullWidth
             />
-            <ReviewField label="Start Date" value={formatDate(data.conferenceStartDate)} />
-            <ReviewField label="End Date" value={formatDate(data.conferenceEndDate)} />
+            <ReviewField
+              label={t("runtime.components.wizard.creation.steps.final-review.text_start_date")}
+              value={formatDate(data.conferenceStartDate)}
+            />
+            <ReviewField
+              label={t("runtime.components.wizard.creation.steps.final-review.text_end_date")}
+              value={formatDate(data.conferenceEndDate)}
+            />
           </div>
         </ReviewCard>
 
@@ -156,7 +175,10 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
                     ))}
                     {data.topics.length > 4 && (
                       <span className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-medium border border-slate-200 dark:border-slate-600">
-                        + {data.topics.length - 4} more
+                        {t(
+                          "runtime.components.wizard.creation.steps.final-review.text_more_count",
+                          { count: data.topics.length - 4 },
+                        )}
                       </span>
                     )}
                   </>
@@ -188,7 +210,9 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
                   ))}
                   {data.tracks.length > 3 && (
                     <span className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-medium border border-slate-200 dark:border-slate-600">
-                      + {data.tracks.length - 3} more
+                      {t("runtime.components.wizard.creation.steps.final-review.text_more_count", {
+                        count: data.tracks.length - 3,
+                      })}
                     </span>
                   )}
                 </div>
@@ -197,8 +221,18 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
 
             {/* Key Deadlines */}
             <div className="grid grid-cols-2 gap-4 mt-2 pt-3 border-t border-slate-100 dark:border-slate-700">
-              <ReviewField label="Abstract Deadline" value={formatDate(data.abstractDeadline)} />
-              <ReviewField label="Full Paper Deadline" value={formatDate(data.fullPaperDeadline)} />
+              <ReviewField
+                label={t(
+                  "runtime.components.wizard.creation.steps.final-review.text_abstract_deadline",
+                )}
+                value={formatDate(data.abstractDeadline)}
+              />
+              <ReviewField
+                label={t(
+                  "runtime.components.wizard.creation.steps.final-review.text_full_paper_deadline",
+                )}
+                value={formatDate(data.fullPaperDeadline)}
+              />
             </div>
           </div>
         </ReviewCard>
@@ -216,9 +250,7 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
                   {t("runtime.components.wizard.creation.steps.final-review.text_general_chairs")}
                 </span>
                 <span className="font-medium text-[#141414] dark:text-white text-xs">
-                  {organizerCounts.generalChairs}{" "}
-                  {t("runtime.components.wizard.creation.steps.final-review.text_member")}{" "}
-                  {organizerCounts.generalChairs !== 1 ? "s" : ""}
+                  {organizerCounts.generalChairs} {getMemberLabel(organizerCounts.generalChairs)}
                 </span>
               </div>
               <div className="flex justify-between items-center border-b border-slate-50 dark:border-slate-700 pb-2">
@@ -226,9 +258,7 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
                   {t("runtime.components.wizard.creation.steps.final-review.text_program_chairs")}
                 </span>
                 <span className="font-medium text-[#141414] dark:text-white text-xs">
-                  {organizerCounts.programChairs}{" "}
-                  {t("runtime.components.wizard.creation.steps.final-review.text_member")}{" "}
-                  {organizerCounts.programChairs !== 1 ? "s" : ""}
+                  {organizerCounts.programChairs} {getMemberLabel(organizerCounts.programChairs)}
                 </span>
               </div>
               <div className="flex justify-between items-center">
@@ -237,8 +267,8 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
                 </span>
                 <span className="font-medium text-[#141414] dark:text-white text-xs">
                   {organizerCounts.reviewers > 0
-                    ? `${organizerCounts.reviewers} Member${organizerCounts.reviewers !== 1 ? "s" : ""}`
-                    : "Pending Invite"}
+                    ? `${organizerCounts.reviewers} ${getMemberLabel(organizerCounts.reviewers)}`
+                    : t("runtime.components.wizard.creation.steps.final-review.text_pending_invite")}
                 </span>
               </div>
             </div>
@@ -262,7 +292,9 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
                     {data.anonymity === "double-blind" ? "visibility_off" : "visibility"}
                   </span>
                   <p className="text-xs font-medium text-[#141414] dark:text-white">
-                    {data.anonymity === "double-blind" ? "Double Blind" : "Single Blind"}
+                    {data.anonymity === "double-blind"
+                      ? t("runtime.components.wizard.creation.steps.final-review.text_double_blind")
+                      : t("runtime.components.wizard.creation.steps.final-review.text_single_blind")}
                   </p>
                 </div>
               </div>
@@ -311,7 +343,9 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
                 {t("runtime.components.wizard.creation.steps.final-review.text_file_formats")}{" "}
               </p>
               <p className="text-xs font-medium text-[#141414] dark:text-white">
-                {data.fileFormats.length > 0 ? data.fileFormats.join(", ") : "PDF"}
+                {data.fileFormats.length > 0
+                  ? data.fileFormats.join(", ")
+                  : t("runtime.components.wizard.creation.steps.final-review.text_pdf")}
               </p>
             </div>
             <div>
@@ -319,7 +353,9 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
                 {t("runtime.components.wizard.creation.steps.final-review.text_supplementary")}{" "}
               </p>
               <p className="text-xs font-medium text-[#141414] dark:text-white">
-                {data.allowSupplementary ? "Allowed" : "Not Allowed"}
+                {data.allowSupplementary
+                  ? t("runtime.components.wizard.creation.steps.final-review.text_allowed")
+                  : t("runtime.components.wizard.creation.steps.final-review.text_not_allowed")}
               </p>
             </div>
           </div>

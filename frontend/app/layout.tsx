@@ -1,5 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import { Inter, Merriweather } from "next/font/google"
 import "./globals.css"
 import { AuthProvider } from "@/lib/auth-context"
@@ -44,7 +45,9 @@ export default function RootLayout({
                   <main className="h-full transition-all duration-300 ease-out overflow-y-auto overflow-x-hidden">
                     {children}
                   </main>
-                  <ChatbotNavigationMask />
+                  <Suspense fallback={null}>
+                    <ChatbotNavigationMask />
+                  </Suspense>
                 </div>
                 <Chatbot />
               </div>

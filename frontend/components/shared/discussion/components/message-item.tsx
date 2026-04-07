@@ -346,8 +346,7 @@ export function MessageItem({ message, isFirst, onReact, onQuote, onDelete }: Me
                   <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
                     content_copy
                   </span>
-                  Copy text
-                </button>
+                  {t("runtime.components.shared.discussion.components.message-item.text_copy_text")}{" "}</button>
                 {message.author.isCurrentUser && (
                   <button
                     onClick={() => {
@@ -359,8 +358,7 @@ export function MessageItem({ message, isFirst, onReact, onQuote, onDelete }: Me
                     <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
                       delete
                     </span>
-                    Delete
-                  </button>
+                    {t("runtime.components.shared.discussion.components.message-item.text_delete")}{" "}</button>
                 )}
               </div>
             )}

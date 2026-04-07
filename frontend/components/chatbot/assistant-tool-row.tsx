@@ -5,12 +5,14 @@ import { ChevronDown, Loader2 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import type { TranscriptToolItem } from "./transcript-view-model"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 type AssistantToolRowProps = {
   item: TranscriptToolItem
 }
 
 export function AssistantToolRow({ item }: AssistantToolRowProps) {
+  const { t } = useTranslation()
   const [showOutput, setShowOutput] = React.useState(false)
   
   const isRunning = item.state === "input-streaming" || item.state === "input-available"
@@ -57,14 +59,13 @@ export function AssistantToolRow({ item }: AssistantToolRowProps) {
 
       <div className="space-y-1 border-t border-slate-200 px-2 pb-2 pt-1.5">
         <div>
-          <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400">State</span>
+          <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400">{t("runtime.components.chatbot.assistant-tool-row.text_state")}</span>
           <div className="mt-0.5 text-[9px] font-mono text-slate-600">{item.state}</div>
         </div>
         {item.input !== undefined && (
           <div>
             <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400">
-              Input
-            </span>
+              {t("runtime.components.chatbot.assistant-tool-row.text_input")}{" "}</span>
             <pre className="mt-0.5 overflow-auto rounded border border-slate-200 bg-white p-1 text-[9px] leading-relaxed whitespace-pre-wrap break-words">
               {JSON.stringify(item.input, null, 2)}
             </pre>
@@ -74,8 +75,7 @@ export function AssistantToolRow({ item }: AssistantToolRowProps) {
           <div>
             <div className="flex items-center justify-between">
               <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400">
-                Output
-              </span>
+                {t("runtime.components.chatbot.assistant-tool-row.text_output")}{" "}</span>
               <button 
                 type="button"
                 onClick={(e) => {
@@ -97,8 +97,7 @@ export function AssistantToolRow({ item }: AssistantToolRowProps) {
         {item.errorText && (
           <div>
             <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400">
-              Error
-            </span>
+              {t("runtime.components.chatbot.assistant-tool-row.text_error")}{" "}</span>
             <div className="mt-0.5 text-[9px] font-mono text-red-500">{item.errorText}</div>
           </div>
         )}

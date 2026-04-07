@@ -6,33 +6,32 @@ import { WizardFormField, WizardInput } from "../wizard-form-field"
 import { DateTimePicker } from "../date-time-picker"
 import { ConferenceFormData } from "../types"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { tStatic as t } from "@/lib/i18n/static-translate"
 
 interface BasicDetailsStepProps {
   data: ConferenceFormData
   updateData: (data: Partial<ConferenceFormData>) => void
 }
 
-const LOCATION_TYPES = [
-  {
-    value: "in-person",
-    label: t("runtime.components.wizard.creation.steps.basic-details.prop_label_in_person"),
-    icon: "location_on",
-  },
-  {
-    value: "virtual",
-    label: t("runtime.components.wizard.creation.steps.basic-details.prop_label_virtual"),
-    icon: "videocam",
-  },
-  {
-    value: "hybrid",
-    label: t("runtime.components.wizard.creation.steps.basic-details.prop_label_hybrid"),
-    icon: "sync_alt",
-  },
-] as const
-
 export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
   const { t } = useTranslation()
+  const locationTypes = [
+    {
+      value: "in-person",
+      label: t("runtime.components.wizard.creation.steps.basic-details.prop_label_in_person"),
+      icon: "location_on",
+    },
+    {
+      value: "virtual",
+      label: t("runtime.components.wizard.creation.steps.basic-details.prop_label_virtual"),
+      icon: "videocam",
+    },
+    {
+      value: "hybrid",
+      label: t("runtime.components.wizard.creation.steps.basic-details.prop_label_hybrid"),
+      icon: "sync_alt",
+    },
+  ] as const
+
   const handleDateChange = (field: keyof ConferenceFormData, date: Date | undefined) => {
     updateData({ [field]: date })
   }
@@ -41,7 +40,9 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
     <div className="flex flex-col gap-4 w-full min-w-0 pt-0 pb-0">
       <WizardHeader
         title={t("runtime.components.wizard.creation.steps.basic-details.title_basic_details")}
-        description="Provide the fundamental information for your new conference. This includes the conference identity, venue, and event dates."
+        description={t(
+          "runtime.components.wizard.creation.steps.basic-details.text_provide_the_fundamental_information_for_your_new_conference",
+        )}
       />
 
       <form className="flex flex-col gap-4 w-full pb-[64px]" onSubmit={(e) => e.preventDefault()}>
@@ -52,7 +53,10 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
           )}
         >
           <div className="flex flex-col gap-4">
-            <WizardFormField label="Conference Name" required>
+            <WizardFormField
+              label={t("runtime.components.wizard.creation.steps.basic-details.label_conference_name")}
+              required
+            >
               <WizardInput
                 type="text"
                 placeholder={t(
@@ -64,7 +68,13 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
             </WizardFormField>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <WizardFormField label="Acronym" required hint="Used in URLs and correspondence">
+              <WizardFormField
+                label={t("runtime.components.wizard.creation.steps.basic-details.label_acronym")}
+                required
+                hint={t(
+                  "runtime.components.wizard.creation.steps.basic-details.hint_used_in_urls_and_correspondence",
+                )}
+              >
                 <WizardInput
                   type="text"
                   placeholder={t(
@@ -75,7 +85,10 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
                 />
               </WizardFormField>
 
-              <WizardFormField label="Contact Email" required>
+              <WizardFormField
+                label={t("runtime.components.wizard.creation.steps.basic-details.label_contact_email")}
+                required
+              >
                 <WizardInput
                   type="email"
                   placeholder={t(
@@ -110,7 +123,9 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
               </WizardFormField>
             </div>
 
-            <WizardFormField label="Conference Website">
+            <WizardFormField
+              label={t("runtime.components.wizard.creation.steps.basic-details.label_conference_website")}
+            >
               <WizardInput
                 type="url"
                 placeholder={t(
@@ -154,9 +169,12 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
           >
             <div className="flex flex-col gap-4">
               {/* Format Selection */}
-              <WizardFormField label="Conference Format" required>
+              <WizardFormField
+                label={t("runtime.components.wizard.creation.steps.basic-details.label_conference_format")}
+                required
+              >
                 <div className="flex gap-2" style={{ paddingTop: "4px", paddingBottom: "4px" }}>
-                  {LOCATION_TYPES.map((type) => (
+                  {locationTypes.map((type) => (
                     <button
                       key={type.value}
                       type="button"
@@ -197,9 +215,11 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
               {/* Location - only show if not virtual */}
               {data.locationType !== "virtual" && (
                 <WizardFormField
-                  label="Venue Location"
+                  label={t("runtime.components.wizard.creation.steps.basic-details.label_venue_location")}
                   required
-                  hint="Full address of the conference venue"
+                  hint={t(
+                    "runtime.components.wizard.creation.steps.basic-details.hint_full_address_of_the_conference_venue",
+                  )}
                 >
                   <WizardInput
                     type="text"
@@ -240,8 +260,10 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
               {/* Virtual platform - only show if virtual or hybrid */}
               {(data.locationType === "virtual" || data.locationType === "hybrid") && (
                 <WizardFormField
-                  label="Virtual Platform"
-                  hint="Specify the virtual conferencing platform"
+                  label={t("runtime.components.wizard.creation.steps.basic-details.label_virtual_platform")}
+                  hint={t(
+                    "runtime.components.wizard.creation.steps.basic-details.hint_specify_the_virtual_conferencing_platform",
+                  )}
                 >
                   <WizardInput
                     type="text"
@@ -286,7 +308,10 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
             )}
           >
             <div className="flex flex-col gap-4">
-              <WizardFormField label="Start Date" required>
+              <WizardFormField
+                label={t("runtime.components.wizard.creation.steps.basic-details.label_start_date")}
+                required
+              >
                 <DateTimePicker
                   date={data.conferenceStartDate}
                   onDateChange={(date) => handleDateChange("conferenceStartDate", date)}
@@ -296,7 +321,10 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
                 />
               </WizardFormField>
 
-              <WizardFormField label="End Date" required>
+              <WizardFormField
+                label={t("runtime.components.wizard.creation.steps.basic-details.label_end_date")}
+                required
+              >
                 <DateTimePicker
                   date={data.conferenceEndDate}
                   onDateChange={(date) => handleDateChange("conferenceEndDate", date)}
@@ -320,7 +348,7 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
                         (data.conferenceEndDate.getTime() - data.conferenceStartDate.getTime()) /
                           (1000 * 60 * 60 * 24),
                       ) + 1}{" "}
-                      days
+                      {t("runtime.components.wizard.creation.steps.basic-details.text_days")}
                     </strong>
                   </span>
                 </div>

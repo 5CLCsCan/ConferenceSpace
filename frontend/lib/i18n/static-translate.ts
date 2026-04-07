@@ -1,5 +1,6 @@
 import en from "@/locales/en.json"
 import vi from "@/locales/vi.json"
+import { humanizeTranslationFallback } from "@/lib/i18n/fallback-key"
 
 type Locale = "en" | "vi"
 type TranslationValues = Record<string, string | number>
@@ -40,7 +41,7 @@ export function tStatic(key: string, values?: TranslationValues): string {
   const messages = locales[locale] ?? locales.en
   const resolved = getValueFromPath(key, messages)
   if (typeof resolved !== "string") {
-    return key
+    return humanizeTranslationFallback(key)
   }
 
   if (!values) {

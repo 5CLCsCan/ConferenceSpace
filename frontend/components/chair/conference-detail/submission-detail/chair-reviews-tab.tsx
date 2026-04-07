@@ -159,7 +159,7 @@ const CATEGORY_CONFIG: Record<string, { icon: string; color: string; label: stri
   clarification: {
     icon: "info",
     color: "text-sky-500",
-    label: "Clarification",
+    label: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_label_clarification"),
   },
   suggestion: {
     icon: "lightbulb",
@@ -353,8 +353,7 @@ function DecisionMakingPanel({
           )
         })}
         <p className="text-[10px] text-slate-400 leading-relaxed">
-          Only Accept and Reject can be saved with the current backend.
-        </p>
+          {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_only_accept_and_reject_can_be")}{" "}</p>
       </div>
 
       {/* Divider */}
@@ -389,9 +388,7 @@ function DecisionMakingPanel({
               )}
             />
             <div className="text-[9px] text-slate-400 mt-1">
-              Private notes are not persisted yet. They are shown here to preserve the approved
-              layout.
-            </div>
+              {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_private_notes_are_not_persisted_yet")}{" "}</div>
           </>
         )}
       </div>
@@ -456,7 +453,7 @@ function ReviewerScoresPanel({ reviewers }: { reviewers: ReviewerScore[] }) {
             )}{" "}
           </h3>
         </div>
-        <p className="text-xs text-slate-500">No submitted reviews yet.</p>
+        <p className="text-xs text-slate-500">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_no_submitted_reviews_yet")}</p>
       </div>
     )
   }
@@ -747,7 +744,7 @@ function PointByPointSection({
           )}{" "}
         </h3>
         <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <p className="text-xs text-slate-500">Loading point-by-point responses…</p>
+          <p className="text-xs text-slate-500">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_loading_point_by_point_responses")}</p>
         </div>
       </div>
     )

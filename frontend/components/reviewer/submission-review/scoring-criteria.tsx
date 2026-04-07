@@ -1,7 +1,68 @@
 "use client"
 
-import { SCORE_DESCRIPTORS, CRITERIA_META, getScoreDescriptor, normalizeReviewScore } from "./types"
+import { SCORE_DESCRIPTORS, getScoreDescriptor, normalizeReviewScore } from "./types"
 import { useTranslation } from "@/lib/i18n/translation-context"
+
+function getScoreDescriptorLabel(score: number, t: ReturnType<typeof useTranslation>["t"]) {
+  switch (normalizeReviewScore(score)) {
+    case 1:
+      return t("runtime.components.reviewer.submission-review.scoring-criteria.text_score_poor")
+    case 2:
+      return t("runtime.components.reviewer.submission-review.scoring-criteria.text_score_weak")
+    case 3:
+      return t(
+        "runtime.components.reviewer.submission-review.scoring-criteria.text_score_below_average",
+      )
+    case 4:
+      return t("runtime.components.reviewer.submission-review.scoring-criteria.text_score_fair")
+    case 5:
+      return t(
+        "runtime.components.reviewer.submission-review.scoring-criteria.text_score_borderline",
+      )
+    case 6:
+      return t(
+        "runtime.components.reviewer.submission-review.scoring-criteria.text_score_acceptable",
+      )
+    case 7:
+      return t("runtime.components.reviewer.submission-review.scoring-criteria.text_score_good")
+    case 8:
+      return t("runtime.components.reviewer.submission-review.scoring-criteria.text_score_strong")
+    case 9:
+      return t(
+        "runtime.components.reviewer.submission-review.scoring-criteria.text_score_excellent",
+      )
+    case 10:
+      return t(
+        "runtime.components.reviewer.submission-review.scoring-criteria.text_score_outstanding",
+      )
+    default:
+      return t(
+        "runtime.components.reviewer.submission-review.scoring-criteria.text_score_borderline",
+      )
+  }
+}
+
+function getCriterionHintLabel(
+  criterionKey: string,
+  t: ReturnType<typeof useTranslation>["t"],
+) {
+  switch (criterionKey) {
+    case "originality":
+      return t("runtime.components.reviewer.submission-review.scoring-criteria.text_hint_originality")
+    case "technicalQuality":
+      return t(
+        "runtime.components.reviewer.submission-review.scoring-criteria.text_hint_technical_quality",
+      )
+    case "clarity":
+      return t("runtime.components.reviewer.submission-review.scoring-criteria.text_hint_clarity")
+    case "significance":
+      return t("runtime.components.reviewer.submission-review.scoring-criteria.text_hint_significance")
+    case "methodology":
+      return t("runtime.components.reviewer.submission-review.scoring-criteria.text_hint_methodology")
+    default:
+      return ""
+  }
+}
 
 // =============================================================================
 // Criterion Score Card Component
@@ -21,9 +82,10 @@ export function CriterionScoreCard({
   onChange,
 }: CriterionScoreCardProps) {
   const { t } = useTranslation()
-  const meta = CRITERIA_META[criterionKey] || { icon: "grade", hint: "" }
   const normalizedValue = normalizeReviewScore(value)
   const descriptor = getScoreDescriptor(normalizedValue)
+  const hintText = getCriterionHintLabel(criterionKey, t)
+  const descriptorLabel = getScoreDescriptorLabel(normalizedValue, t)
 
   return (
     <div className="group relative">
@@ -75,7 +137,7 @@ export function CriterionScoreCard({
                     "--tw-ring-color": isSelected ? scoreDesc.color : undefined,
                   } as React.CSSProperties
                 }
-                title={`${score}: ${scoreDesc.label}`}
+                title={`${score}: ${getScoreDescriptorLabel(score, t)}`}
               >
                 {score}
               </button>
@@ -85,12 +147,12 @@ export function CriterionScoreCard({
 
         {/* Descriptor Label */}
         <div className="flex items-center justify-between">
-          <span className="text-[9px] text-slate-400 font-medium">{meta.hint}</span>
+          <span className="text-[9px] text-slate-400 font-medium">{hintText}</span>
           <span
             className="text-[9px] font-bold uppercase tracking-wider"
             style={{ color: descriptor.color }}
           >
-            {descriptor.label}
+            {descriptorLabel}
           </span>
         </div>
       </div>
@@ -144,7 +206,7 @@ export function ScoreSummary({ scores }: ScoreSummaryProps) {
               )}{" "}
             </div>
             <div className="text-sm font-bold" style={{ color: descriptor.color }}>
-              {descriptor.label}
+              {getScoreDescriptorLabel(Math.round(average), t)}
             </div>
           </div>
         </div>

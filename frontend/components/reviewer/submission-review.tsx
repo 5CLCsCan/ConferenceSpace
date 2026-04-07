@@ -106,9 +106,13 @@ export function SubmissionReviewScreen({
       id: assignmentId,
       submissionId,
       title: submissionFromApi?.title || `Submission #${submissionId}`,
-      abstract: submissionFromApi?.abstract || "No abstract available.",
+      abstract:
+        submissionFromApi?.abstract ||
+        t("runtime.components.reviewer.submission-review.text_no_abstract_available"),
       keywords: submissionFromApi?.keywords || [],
-      track: submissionFromApi?.track_id || "Unassigned",
+      track:
+        submissionFromApi?.track_id ||
+        t("runtime.components.reviewer.submission-review.text_unassigned"),
       status: "under_review" as const,
       dueDate: "",
       daysLeft: 0,
@@ -116,7 +120,7 @@ export function SubmissionReviewScreen({
       conference: {
         id: conferenceId,
         acronym: `CONF-${conferenceId}`,
-        name: "Conference",
+        name: t("runtime.components.reviewer.submission-review.text_conference"),
       },
     }
   }, [
@@ -127,6 +131,7 @@ export function SubmissionReviewScreen({
     submissionFromApi?.title,
     submissionFromApi?.track_id,
     submissionId,
+    t,
   ])
 
   const updateFormField = <K extends keyof ReviewFormData>(field: K, value: ReviewFormData[K]) => {
@@ -200,7 +205,7 @@ export function SubmissionReviewScreen({
       })
       updateFormField("lastSaved", now)
       toast({
-        title: "Draft saved",
+        title: t("runtime.components.reviewer.submission-review.prop_title_draft_saved"),
         description:
           auditResult.success === false && auditResult.error
             ? `Draft saved at ${now}. Audit was unavailable this time.`
@@ -209,7 +214,7 @@ export function SubmissionReviewScreen({
     } else {
       toast({
         variant: "destructive",
-        title: "Failed to save draft",
+        title: t("runtime.components.reviewer.submission-review.prop_title_failed_to_save_draft"),
         description: error || "An unexpected error occurred. Please try again.",
       })
     }
@@ -220,16 +225,16 @@ export function SubmissionReviewScreen({
     if (!formData.recommendation) {
       toast({
         variant: "destructive",
-        title: "Recommendation required",
-        description: "Please select an overall rating before submitting.",
+        title: t("runtime.components.reviewer.submission-review.prop_title_recommendation_required"),
+        description: t("runtime.components.reviewer.submission-review.prop_description_please_select_an_overall_rating_before"),
       })
       return
     }
     if (!formData.summary.trim() || !formData.strengths.trim() || !formData.weaknesses.trim()) {
       toast({
         variant: "destructive",
-        title: "Incomplete review",
-        description: "Please fill in the Summary, Strengths, and Weaknesses before submitting.",
+        title: t("runtime.components.reviewer.submission-review.prop_title_incomplete_review"),
+        description: t("runtime.components.reviewer.submission-review.prop_description_please_fill_in_the_summary_strengths"),
       })
       return
     }
@@ -243,8 +248,8 @@ export function SubmissionReviewScreen({
     if (preflight.success && preflight.data?.status === "block") {
       toast({
         variant: "destructive",
-        title: "Submission blocked",
-        description: "Resolve the active blocking audit findings before submitting.",
+        title: t("runtime.components.reviewer.submission-review.prop_title_submission_blocked"),
+        description: t("runtime.components.reviewer.submission-review.prop_description_resolve_the_active_blocking_audit_findings"),
       })
       return
     }
@@ -257,8 +262,8 @@ export function SubmissionReviewScreen({
 
     if (success) {
       toast({
-        title: "Review submitted",
-        description: "Your review has been submitted successfully.",
+        title: t("runtime.components.reviewer.submission-review.prop_title_review_submitted"),
+        description: t("runtime.components.reviewer.submission-review.prop_description_your_review_has_been_submitted_successfully"),
       })
     } else {
       const detail = parseReviewErrorDetail(errorData)
@@ -266,8 +271,8 @@ export function SubmissionReviewScreen({
         replaceAudit(detail.audit)
         toast({
           variant: "destructive",
-          title: "Submission blocked",
-          description: "Resolve the active blocking audit findings before submitting.",
+          title: t("runtime.components.reviewer.submission-review.prop_title_submission_blocked"),
+          description: t("runtime.components.reviewer.submission-review.prop_description_resolve_the_active_blocking_audit_findings"),
         })
         return
       }
@@ -277,7 +282,7 @@ export function SubmissionReviewScreen({
       }
       toast({
         variant: "destructive",
-        title: "Failed to submit review",
+        title: t("runtime.components.reviewer.submission-review.prop_title_failed_to_submit_review"),
         description: error || "An unexpected error occurred. Please try again.",
       })
     }
@@ -295,15 +300,15 @@ export function SubmissionReviewScreen({
     if (result.success) {
       setAuditOverridePrompt(null)
       toast({
-        title: "Review submitted",
-        description: "Your review was submitted without a completed audit check.",
+        title: t("runtime.components.reviewer.submission-review.prop_title_review_submitted"),
+        description: t("runtime.components.reviewer.submission-review.prop_description_your_review_was_submitted_without_a"),
       })
       return
     }
 
     toast({
       variant: "destructive",
-      title: "Failed to submit review",
+      title: t("runtime.components.reviewer.submission-review.prop_title_failed_to_submit_review"),
       description: result.error || "An unexpected error occurred. Please try again.",
     })
   }
@@ -317,7 +322,7 @@ export function SubmissionReviewScreen({
     if (!result.success) {
       toast({
         variant: "destructive",
-        title: "Failed to update audit finding",
+        title: t("runtime.components.reviewer.submission-review.prop_title_failed_to_update_audit_finding"),
         description: result.error || "An unexpected error occurred. Please try again.",
       })
     }
@@ -490,31 +495,33 @@ export function SubmissionReviewScreen({
                   <div className="space-y-3">
                     <CriterionScoreCard
                       criterionKey="originality"
-                      label="Originality"
+                      label={t("runtime.components.reviewer.submission-review.text_originality")}
                       value={formData.originality}
                       onChange={(v) => updateFormField("originality", v)}
                     />
                     <CriterionScoreCard
                       criterionKey="technicalQuality"
-                      label="Technical Quality"
+                      label={t(
+                        "runtime.components.reviewer.submission-review.text_technical_quality",
+                      )}
                       value={formData.technicalQuality}
                       onChange={(v) => updateFormField("technicalQuality", v)}
                     />
                     <CriterionScoreCard
                       criterionKey="clarity"
-                      label="Clarity"
+                      label={t("runtime.components.reviewer.submission-review.text_clarity")}
                       value={formData.clarity}
                       onChange={(v) => updateFormField("clarity", v)}
                     />
                     <CriterionScoreCard
                       criterionKey="significance"
-                      label="Significance"
+                      label={t("runtime.components.reviewer.submission-review.text_significance")}
                       value={formData.significance}
                       onChange={(v) => updateFormField("significance", v)}
                     />
                     <CriterionScoreCard
                       criterionKey="methodology"
-                      label="Methodology"
+                      label={t("runtime.components.reviewer.submission-review.text_methodology")}
                       value={formData.methodology}
                       onChange={(v) => updateFormField("methodology", v)}
                     />
@@ -591,7 +598,8 @@ export function SubmissionReviewScreen({
                   schedule
                 </span>
                 {t("runtime.components.reviewer.submission-review.text_last_draft_saved")}{" "}
-                {formData.lastSaved || "Not saved"}
+                  {formData.lastSaved ||
+                    t("runtime.components.reviewer.submission-review.text_not_saved")}
               </div>
               <div className="flex items-center gap-3">
                 <button
@@ -600,7 +608,9 @@ export function SubmissionReviewScreen({
                   disabled={saving || auditing}
                   className="h-8 px-3 rounded-md border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium text-[11px] hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 >
-                  {saving || auditing ? "Saving..." : "Save Draft"}
+                    {saving || auditing
+                      ? t("runtime.components.reviewer.submission-review.text_saving")
+                      : t("runtime.components.reviewer.submission-review.text_save_draft")}
                 </button>
                 <button
                   type="button"
@@ -629,7 +639,9 @@ export function SubmissionReviewScreen({
                   >
                     send
                   </span>
-                  {saving || auditing ? "Submitting..." : "Submit Review"}
+                  {saving || auditing
+                    ? t("runtime.components.reviewer.submission-review.text_submitting")
+                    : t("runtime.components.reviewer.submission-review.text_submit_review")}
                 </button>
               </div>
             </div>
@@ -662,17 +674,18 @@ export function SubmissionReviewScreen({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Submit without completed audit?</AlertDialogTitle>
+            <AlertDialogTitle>{t("runtime.components.reviewer.submission-review.text_submit_without_completed_audit")}</AlertDialogTitle>
             <AlertDialogDescription>
               {auditOverridePrompt ||
-                "The review audit workflow failed to complete. You can still submit, but this override will be logged."}
+                t(
+                  "runtime.components.reviewer.submission-review.text_audit_workflow_failed_override_logged",
+                )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("runtime.components.reviewer.submission-review.text_cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmAuditOverride}>
-              Submit anyway
-            </AlertDialogAction>
+              {t("runtime.components.reviewer.submission-review.text_submit_anyway")}{" "}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

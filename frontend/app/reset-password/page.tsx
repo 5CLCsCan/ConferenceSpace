@@ -8,10 +8,12 @@ import { Loader2 } from "lucide-react"
 import { ROUTES } from "@/lib/routes"
 import { authApi } from "@/lib/api/auth"
 import { ApiError } from "@/lib/api/client"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 type PasswordRuleKey = "length" | "lower" | "upper" | "number" | "special"
 
 function ResetPasswordForm() {
+  const { t } = useTranslation()
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get("token") ?? ""
@@ -94,15 +96,15 @@ function ResetPasswordForm() {
             </span>
           </div>
           <div className="auth-brand-content">
-            <p className="auth-brand-label">ConferenceSpace</p>
-            <h1 className="auth-brand-headline">Set a new password</h1>
-            <p className="auth-brand-sub">Choose a strong password to secure your account.</p>
+            <p className="auth-brand-label">{t("runtime.app.reset-password.page.text_conferencespace")}</p>
+            <h1 className="auth-brand-headline">{t("runtime.app.reset-password.page.text_set_a_new_password")}</h1>
+            <p className="auth-brand-sub">{t("runtime.app.reset-password.page.text_choose_a_strong_password_to_secure")}</p>
           </div>
           <div className="auth-brand-features">
             {[
-              { icon: "security", text: "Secure token verified" },
-              { icon: "lock", text: "Set your new password" },
-              { icon: "check_circle", text: "Access restored" },
+              { icon: "security", text: t("runtime.app.reset-password.page.prop_text_secure_token_verified") },
+              { icon: "lock", text: t("runtime.app.reset-password.page.prop_text_set_your_new_password") },
+              { icon: "check_circle", text: t("runtime.app.reset-password.page.prop_text_access_restored") },
             ].map(({ icon, text }) => (
               <div key={text} className="auth-feature-row">
                 <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
@@ -119,8 +121,8 @@ function ResetPasswordForm() {
       <div className="auth-form-panel">
         <div className="auth-form-inner">
           <div className="auth-form-header">
-            <h2 className="auth-form-title">New password</h2>
-            <p className="auth-form-desc">Enter and confirm your new password below.</p>
+            <h2 className="auth-form-title">{t("runtime.app.reset-password.page.text_new_password")}</h2>
+            <p className="auth-form-desc">{t("runtime.app.reset-password.page.text_enter_and_confirm_your_new_password")}</p>
           </div>
 
           {error && (
@@ -137,8 +139,7 @@ function ResetPasswordForm() {
                   className="auth-switch-link"
                   style={{ marginLeft: "4px" }}
                 >
-                  Request a new link
-                </Link>
+                  {t("runtime.app.reset-password.page.text_request_a_new_link")}{" "}</Link>
               )}
             </div>
           )}
@@ -163,8 +164,7 @@ function ResetPasswordForm() {
 
             <div className="auth-field">
               <label htmlFor="newPassword" className="auth-label">
-                New password
-              </label>
+                {t("runtime.app.reset-password.page.text_new_password")}{" "}</label>
               <div className="auth-input-wrap">
                 <input
                   id="newPassword"
@@ -193,8 +193,7 @@ function ResetPasswordForm() {
 
             <div className="auth-field">
               <label htmlFor="confirmPassword" className="auth-label">
-                Confirm password
-              </label>
+                {t("runtime.app.reset-password.page.text_confirm_password")}{" "}</label>
               <div className="auth-input-wrap">
                 <input
                   id="confirmPassword"
@@ -239,7 +238,7 @@ function ResetPasswordForm() {
               {isLoading ? (
                 <>
                   <Loader2 className="h-3 w-3 animate-spin" />
-                  <span>Resetting…</span>
+                  <span>{t("runtime.app.reset-password.page.text_resetting")}</span>
                 </>
               ) : (
                 "Reset password"
@@ -249,8 +248,7 @@ function ResetPasswordForm() {
 
           <p className="auth-switch-text">
             <Link href={ROUTES.LOGIN} className="auth-switch-link">
-              Back to sign in
-            </Link>
+              {t("runtime.app.reset-password.page.text_back_to_sign_in")}{" "}</Link>
           </p>
         </div>
       </div>

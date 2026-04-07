@@ -55,7 +55,7 @@ export function ReviewStep({
               {t("runtime.components.author.submit.review-step.text_title")}{" "}
             </label>
             <p className="text-sm font-bold text-[#141414] dark:text-white">
-              {title || "No title provided"}
+              {title || t("runtime.components.author.submit.review-step.text_no_title_provided")}
             </p>
           </div>
           <div className="md:col-span-2">
@@ -63,7 +63,8 @@ export function ReviewStep({
               {t("runtime.components.author.submit.review-step.text_abstract")}{" "}
             </label>
             <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-4">
-              {abstract || "No abstract provided"}
+              {abstract ||
+                t("runtime.components.author.submit.review-step.text_no_abstract_provided")}
             </p>
           </div>
           <div className="flex flex-col gap-4">
@@ -155,7 +156,9 @@ export function ReviewStep({
                       {author.affiliation}
                     </td>
                     <td className="px-3 py-2.5 text-slate-500">
-                      {index === 0 ? "Primary" : "Co-Author"}
+                      {index === 0
+                        ? t("runtime.components.author.submit.review-step.text_primary")
+                        : t("runtime.components.author.submit.review-step.text_co_author")}
                     </td>
                     <td className="px-3 py-2.5 text-right text-slate-500">{author.email}</td>
                   </tr>
@@ -243,8 +246,17 @@ export function ReviewStep({
                 </span>
                 <span>
                   {conflicts.length > 0
-                    ? `${conflicts.length} conflict(s) of interest declared.`
-                    : "No conflicts of interest declared."}
+                    ? conflicts.length === 1
+                      ? t(
+                          "runtime.components.author.submit.review-step.text_one_conflict_of_interest_declared",
+                        )
+                      : t(
+                          "runtime.components.author.submit.review-step.text_multiple_conflicts_of_interest_declared",
+                          { count: conflicts.length },
+                        )
+                    : t(
+                        "runtime.components.author.submit.review-step.text_no_conflicts_of_interest_declared",
+                      )}
                 </span>
               </div>
               <div className="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-300">
