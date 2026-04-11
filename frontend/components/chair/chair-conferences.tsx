@@ -216,8 +216,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
             setMyConferences(
               (res.data?.conferences || [])
                 .filter(
-                  (c) =>
-                    c.status !== "completed" && c.status !== "archived" && c.status !== "draft",
+                  (c) => c.status !== "archived" && c.status !== "draft",
                 )
                 .map(mapToChairConference),
             )

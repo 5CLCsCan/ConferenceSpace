@@ -46,6 +46,9 @@ export function ChairActionsPanel({
   const [autoAssignLoading, setAutoAssignLoading] = useState(false)
   const [autoAssignError, setAutoAssignError] = useState<string | null>(null)
   const [autoAssignSuccess, setAutoAssignSuccess] = useState<string | null>(null)
+  const [phaseLoading, setPhaseLoading] = useState(false)
+  const [phaseError, setPhaseError] = useState<string | null>(null)
+  const [phaseSuccess, setPhaseSuccess] = useState<string | null>(null)
   const [archiveLoading, setArchiveLoading] = useState(false)
   const [archiveError, setArchiveError] = useState<string | null>(null)
   const [archiveSuccess, setArchiveSuccess] = useState<string | null>(null)
@@ -108,6 +111,49 @@ export function ChairActionsPanel({
     }
   }
 
+  const getNextPhaseStatus = (): ConferenceStatus | null => {
+    if (conferenceStatus === "draft") return "open"
+    if (conferenceStatus === "open") return "reviewing"
+    if (conferenceStatus === "reviewing") return "completed"
+    return null
+  }
+
+  const getNextPhaseLabel = (): string | null => {
+    if (conferenceStatus === "draft") return "Publish Conference"
+    if (conferenceStatus === "open") return "Start Reviewing Now"
+    if (conferenceStatus === "reviewing") return "Mark Conference Completed"
+    return null
+  }
+
+  const handleAdvancePhase = async () => {
+    const nextStatus = getNextPhaseStatus()
+    if (!nextStatus) return
+
+    setPhaseLoading(true)
+    setPhaseError(null)
+    setPhaseSuccess(null)
+
+    try {
+      const response = await transitionConferenceStatus(conferenceId, nextStatus)
+      if (response.error || !response.data) {
+        setPhaseError(response.error || "Failed to update conference status")
+        return
+      }
+
+      if (nextStatus === "reviewing") {
+        setPhaseSuccess(
+          "Conference moved to reviewing. Auto-assign was triggered automatically.",
+        )
+      } else {
+        setPhaseSuccess("Conference status updated successfully.")
+      }
+
+      router.refresh()
+    } finally {
+      setPhaseLoading(false)
+    }
+  }
+
   const handleArchiveToggle = async () => {
     if (!conferenceStatus) return
 
@@ -143,6 +189,15 @@ export function ChairActionsPanel({
   }
 
   const defaultActions: ChairAction[] = [
+    {
+      id: "advance-phase",
+      label: phaseLoading
+        ? "Updating phase..."
+        : getNextPhaseLabel() || "Advance Phase",
+      icon: "fast_forward",
+      onClick: handleAdvancePhase,
+      loading: phaseLoading,
+    },
     {
       id: "auto-assign",
       label: autoAssignLoading
@@ -184,7 +239,7 @@ export function ChairActionsPanel({
       onClick: handleArchiveToggle,
       loading: archiveLoading,
     },
-  ]
+  ].filter((action) => !(action.id === "advance-phase" && !getNextPhaseStatus()))
 
   const displayActions = actions || defaultActions
 
@@ -209,9 +264,19 @@ export function ChairActionsPanel({
             {autoAssignError}
           </div>
         )}
+        {phaseError && (
+          <div className="mb-2 px-2 py-1.5 bg-red-500/20 border border-red-400/30 rounded text-[10px] text-red-200">
+            {phaseError}
+          </div>
+        )}
         {autoAssignSuccess && (
           <div className="mb-2 px-2 py-1.5 bg-green-500/20 border border-green-400/30 rounded text-[10px] text-green-200">
             {autoAssignSuccess}
+          </div>
+        )}
+        {phaseSuccess && (
+          <div className="mb-2 px-2 py-1.5 bg-green-500/20 border border-green-400/30 rounded text-[10px] text-green-200">
+            {phaseSuccess}
           </div>
         )}
         {archiveError && (
