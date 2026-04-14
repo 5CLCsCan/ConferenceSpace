@@ -29,6 +29,7 @@ type QueryParams struct {
 type StorageInterface interface {
 	Create(ctx context.Context, conf *dto.Conference) (*dto.ConferenceResponse, error)
 	GetByID(ctx context.Context, id int64) (*dto.ConferenceResponse, error)
+	GetByIDForUser(ctx context.Context, id int64, userEmail string) (*dto.ConferenceResponse, error)
 	GetByAcronym(ctx context.Context, acronym string) (*dto.ConferenceResponse, error)
 	List(ctx context.Context, params *QueryParams) ([]*dto.ConferenceResponse, int64, error)
 	Update(ctx context.Context, id int64, conf *dto.Conference) (*dto.ConferenceResponse, error)
@@ -200,6 +201,95 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.ConferenceRespons
 	return entity.ToDTO(), nil
 }
 
+// GetByIDForUser fetches a single conference by ID and also populates UserRole
+// for the given user email via a LEFT JOIN on conference_user_roles.
+func (s *Storage) GetByIDForUser(ctx context.Context, id int64, userEmail string) (*dto.ConferenceResponse, error) {
+	selectCols := []string{
+		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ColConferenceID),
+		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ColTitle),
+		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ColAcronym),
+		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ColDescription),
+		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ColChair),
+		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ColCoChairs),
+		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ConferenceColDomain),
+		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ColTracks),
+		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ColVenue),
+		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ColConfigurations),
+		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ColConferenceStatus),
+		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ConferenceColCreatedAt),
+		fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ConferenceColUpdatedAt),
+	}
+
+	q := s.qb.Select(selectCols...).
+		From(model.ConferenceTableName).
+		Where(sq.Eq{fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ColConferenceID): id})
+
+	if userEmail != "" {
+		selectCols = append(selectCols, fmt.Sprintf("%s.%s as user_role", model.ConferenceUserRoleTableName, model.ColRole))
+		q = s.qb.Select(selectCols...).
+			From(model.ConferenceTableName).
+			LeftJoin(
+				fmt.Sprintf("%s ON %s.%s = %s.%s AND %s.%s = ? AND %s.%s = ?",
+					model.ConferenceUserRoleTableName,
+					model.ConferenceTableName, model.ColConferenceID,
+					model.ConferenceUserRoleTableName, model.ColConferenceID,
+					model.ConferenceUserRoleTableName, model.ColUserEmail,
+					model.ConferenceUserRoleTableName, model.ColStatus,
+				),
+				userEmail,
+				model.RoleStatusActive,
+			).
+			Where(sq.Eq{fmt.Sprintf("%s.%s", model.ConferenceTableName, model.ColConferenceID): id})
+	}
+
+	query, args, err := q.ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("failed to build select query: %w", err)
+	}
+
+	entity := &model.Conference{}
+	scanArgs := []interface{}{
+		&entity.ConferenceID,
+		&entity.Title,
+		&entity.Acronym,
+		&entity.Description,
+		&entity.Chair,
+		&entity.CoChairs,
+		&entity.Domain,
+		&entity.Tracks,
+		&entity.Venue,
+		&entity.Configurations,
+		&entity.Status,
+		&entity.CreatedAt,
+		&entity.UpdatedAt,
+	}
+
+	if userEmail != "" {
+		var userRole sql.NullString
+		scanArgs = append(scanArgs, &userRole)
+		err = s.db.QueryRowContext(ctx, query, args...).Scan(scanArgs...)
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("conference not found")
+		}
+		if err != nil {
+			return nil, fmt.Errorf("failed to get conference: %w", err)
+		}
+		if userRole.Valid {
+			entity.UserRole = userRole.String
+		}
+	} else {
+		err = s.db.QueryRowContext(ctx, query, args...).Scan(scanArgs...)
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("conference not found")
+		}
+		if err != nil {
+			return nil, fmt.Errorf("failed to get conference: %w", err)
+		}
+	}
+
+	return entity.ToDTO(), nil
+}
+
 func (s *Storage) GetByAcronym(ctx context.Context, acronym string) (*dto.ConferenceResponse, error) {
 	query, args, err := s.qb.
 		Select(
@@ -351,7 +441,7 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Confere
 		if params.Role == "" {
 			// Check all roles - use OR condition
 			roleCond := sq.Expr(
-				fmt.Sprintf("EXISTS (SELECT 1 FROM %s WHERE %s = %s.%s AND %s = ? AND %s IN (?, ?, ?, ?) AND %s = ?)",
+				fmt.Sprintf("EXISTS (SELECT 1 FROM %s WHERE %s = %s.%s AND %s = ? AND %s IN (?, ?, ?, ?, ?) AND %s = ?)",
 					model.ConferenceUserRoleTableName,
 					model.ColConferenceID,
 					model.ConferenceTableName,
@@ -365,6 +455,7 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Confere
 				model.RoleCoChair,
 				model.RoleAuthor,
 				model.RoleReviewer,
+				model.RolePC,
 				model.RoleStatusActive,
 			)
 			conditions = append(conditions, roleCond)
