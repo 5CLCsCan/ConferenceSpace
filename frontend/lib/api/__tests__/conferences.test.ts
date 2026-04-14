@@ -1,8 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { getConferenceStats } from "../conferences"
+import { getConferenceById, getConferenceStats } from "../conferences"
 
 vi.mock("@/lib/api/client", () => ({
   apiFetch: vi.fn(),
+  ApiError: class ApiError extends Error {
+    status: number
+    constructor(message: string, status: number) {
+      super(message)
+      this.status = status
+    }
+  },
 }))
 
 import { apiFetch } from "@/lib/api/client"
@@ -21,6 +28,92 @@ const BACKEND_STATS_RESPONSE = {
 
 beforeEach(() => {
   mockApiFetch.mockReset()
+})
+
+// Minimal backend conference payload used by getConferenceById tests
+const makeBackendConference = (overrides: Record<string, unknown> = {}) => ({
+  id: 42,
+  title: "Test Conference",
+  acronym: "TC25",
+  description: "A test conference",
+  chair: "chair@test.com",
+  co_chairs: [],
+  domain: ["AI"],
+  tracks: [],
+  venue: "Online",
+  status: "open",
+  created_at: "2025-01-01T00:00:00Z",
+  updated_at: "2025-01-01T00:00:00Z",
+  configurations: null,
+  ...overrides,
+})
+
+describe("getConferenceById — user_role mapping", () => {
+  it("maps user_role=chair from backend to conference.userRole", async () => {
+    mockApiFetch.mockResolvedValue({
+      data: { data: makeBackendConference({ user_role: "chair" }) },
+      response: { status: 200 },
+    })
+
+    const result = await getConferenceById("42")
+
+    expect(result.data).not.toBeNull()
+    expect(result.data!.userRole).toBe("chair")
+  })
+
+  it("maps user_role=co_chair from backend to conference.userRole", async () => {
+    mockApiFetch.mockResolvedValue({
+      data: { data: makeBackendConference({ user_role: "co_chair" }) },
+      response: { status: 200 },
+    })
+
+    const result = await getConferenceById("42")
+
+    expect(result.data!.userRole).toBe("co_chair")
+  })
+
+  it("maps user_role=pc from backend to conference.userRole", async () => {
+    mockApiFetch.mockResolvedValue({
+      data: { data: makeBackendConference({ user_role: "pc" }) },
+      response: { status: 200 },
+    })
+
+    const result = await getConferenceById("42")
+
+    expect(result.data!.userRole).toBe("pc")
+  })
+
+  it("leaves userRole undefined when backend omits user_role (unauthenticated / non-member)", async () => {
+    mockApiFetch.mockResolvedValue({
+      data: { data: makeBackendConference() /* no user_role field */ },
+      response: { status: 200 },
+    })
+
+    const result = await getConferenceById("42")
+
+    // undefined because omitempty means the field is absent, not ""
+    expect(result.data!.userRole).toBeUndefined()
+  })
+
+  it("passes the conference id to the correct API endpoint", async () => {
+    mockApiFetch.mockResolvedValue({
+      data: { data: makeBackendConference({ user_role: "chair" }) },
+      response: { status: 200 },
+    })
+
+    await getConferenceById("99")
+
+    expect(mockApiFetch).toHaveBeenCalledWith("/api/v1/conferences/99")
+  })
+
+  it("returns error when fetch fails", async () => {
+    mockApiFetch.mockRejectedValue(new Error("Network error"))
+
+    const result = await getConferenceById("42")
+
+    expect(result.data).toBeNull()
+    expect(result.error).toBe("Network error")
+  })
 })
 
 describe("getConferenceStats", () => {

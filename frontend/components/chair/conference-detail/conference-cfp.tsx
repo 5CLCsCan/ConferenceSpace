@@ -444,6 +444,7 @@ export function ConferenceCFP({ conferenceId, className }: ConferenceCFPProps) {
 
         <div className="lg:col-span-3 space-y-4">
           <CFPManagementCard />
+          <ImportantDatesCard dates={dates} />
           <AuthorResourcesCard />
         </div>
       </div>
