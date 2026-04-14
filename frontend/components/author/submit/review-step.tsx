@@ -122,7 +122,7 @@ export function ReviewStep({
             <span className="material-symbols-outlined text-[14px]">edit</span>
           </button>
         </div>
-        <div className="px-4 py-3">
+        <div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs text-left">
               <thead className="bg-slate-50 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600">
@@ -277,7 +277,7 @@ export function ReviewStep({
       </div>
 
       {/* Final Confirmation Checkbox */}
-      <div className="px-4 pt-4 pb-3 bg-[#1B3C53]/5 dark:bg-[#1B3C53]/10 rounded-xl border border-[#1B3C53]/10 dark:border-[#1B3C53]/20 shadow-sm">
+      <div className="px-4 pt-4 pb-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
         <label className="flex items-start gap-3 cursor-pointer group">
           <input
             className="mt-0.5 size-4 rounded border-slate-300 text-[#1B3C53] focus:ring-[#1B3C53] transition-all"

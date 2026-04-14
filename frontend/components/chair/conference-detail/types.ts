@@ -8,6 +8,7 @@ export interface ConferenceInfo {
   startDate: string
   endDate: string
   year: string
+  userRole?: string
 }
 
 export interface ConferenceStat {

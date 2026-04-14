@@ -361,7 +361,14 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
                                 >
                                   person_add
                                 </span>
-                                {t("runtime.components.wizard.creation.steps.committees.text_add_directly_ldquo")}{searchQuery.trim()}{t("runtime.components.wizard.creation.steps.committees.text_rdquo")}{" "}</button>
+                                {t(
+                                  "runtime.components.wizard.creation.steps.committees.text_add_directly_ldquo",
+                                )}
+                                {searchQuery.trim()}
+                                {t(
+                                  "runtime.components.wizard.creation.steps.committees.text_rdquo",
+                                )}{" "}
+                              </button>
                             )}
                           </div>
                         )}
@@ -501,28 +508,6 @@ export function CommitteesStep({ data, updateData }: CommitteesStepProps) {
             )}
           </div>
         </WizardFormCard>
-
-        {/* Tip Card */}
-        <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
-          <span
-            className="material-symbols-outlined text-[#1B3C53] dark:text-slate-400 flex-shrink-0 mt-0.5"
-            style={{ fontSize: "14px", width: "14px", height: "14px" }}
-          >
-            lightbulb
-          </span>
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#1B3C53] dark:text-slate-300">
-              {t(
-                "runtime.components.wizard.creation.steps.committees.text_academic_best_practice",
-              )}{" "}
-            </span>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
-              {t(
-                "runtime.components.wizard.creation.steps.committees.text_for_top_tier_conferences_aim_for",
-              )}{" "}
-            </p>
-          </div>
-        </div>
       </form>
     </div>
   )

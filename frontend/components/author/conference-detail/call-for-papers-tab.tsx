@@ -571,7 +571,6 @@ export function CallForPapersTab({ conference }: TabProps) {
 
         {/* Right Column - 30% width */}
         <div className="lg:col-span-3 space-y-4">
-          <ImportantDatesCard conference={conference} />
           <AuthorResourcesCard />
         </div>
       </div>

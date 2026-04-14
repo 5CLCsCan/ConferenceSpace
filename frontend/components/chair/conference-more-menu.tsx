@@ -85,15 +85,25 @@ export function ConferenceMoreMenu({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-        <DropdownMenuItem onClick={() => router.push(ROUTES.CHAIR.CONFERENCE_DETAIL(conferenceId))}>
+        <DropdownMenuItem
+          className="text-[11px] font-medium"
+          onClick={() => router.push(ROUTES.CHAIR.CONFERENCE_DETAIL(conferenceId))}
+        >
           {t("runtime.components.conference.explore-cards.text_view_details")}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push(ROUTES.CHAIR.CONFERENCE_EDIT(conferenceId))}>
+        <DropdownMenuItem
+          className="text-[11px] font-medium"
+          onClick={() => router.push(ROUTES.CHAIR.CONFERENCE_EDIT(conferenceId))}
+        >
           {isDraft
             ? t("runtime.components.conference.conference-cards.text_continue_editing")
             : t("runtime.components.conference.conference-cards.text_edit_details")}
         </DropdownMenuItem>
-        <DropdownMenuItem disabled={isMutating} onClick={handleStatusToggle}>
+        <DropdownMenuItem
+          className="text-[11px] font-medium"
+          disabled={isMutating}
+          onClick={handleStatusToggle}
+        >
           {isArchived
             ? t(
                 "runtime.components.chair.conference-detail.chair-actions-panel.text_unarchive_conference",

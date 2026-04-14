@@ -171,7 +171,9 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     text_add_member: t(
       "runtime.components.chair.conference-detail.conference-committee.text_add_member",
     ),
-    text_all_roles: t("runtime.components.chair.conference-detail.conference-committee.text_all_roles"),
+    text_all_roles: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_all_roles",
+    ),
     text_all_statuses: t(
       "runtime.components.chair.conference-detail.conference-committee.text_all_statuses",
     ),
@@ -187,7 +189,9 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     text_committee_subtitle: t(
       "runtime.components.chair.conference-detail.conference-committee.text_committee_subtitle",
     ),
-    text_declined: t("runtime.components.chair.conference-detail.conference-committee.text_declined"),
+    text_declined: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_declined",
+    ),
     text_export: t("runtime.components.chair.conference-detail.conference-committee.text_export"),
     text_failed_to_load_committee: t(
       "runtime.components.chair.conference-detail.conference-committee.text_failed_to_load_committee",
@@ -247,7 +251,9 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     text_search_by_email: t(
       "runtime.components.chair.conference-detail.conference-committee.text_search_by_email",
     ),
-    text_searching: t("runtime.components.chair.conference-detail.conference-committee.text_searching"),
+    text_searching: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_searching",
+    ),
     text_status: t("runtime.components.chair.conference-detail.conference-committee.text_status"),
     text_total_members: t(
       "runtime.components.chair.conference-detail.conference-committee.text_total_members",
@@ -305,7 +311,9 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     if (allRes.error || !allRes.data) {
       setError(
         allRes.error ||
-          t("runtime.components.chair.conference-detail.conference-committee.text_failed_to_load_committee"),
+          t(
+            "runtime.components.chair.conference-detail.conference-committee.text_failed_to_load_committee",
+          ),
       )
       setReviewers([])
       setLoading(false)
@@ -513,9 +521,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
           <h2 className="text-lg font-bold text-[#1B3C53] dark:text-white tracking-tight">
             {T("text_committee_members")}
           </h2>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-            {T("text_committee_subtitle")}
-          </p>
+          <p className="text-xs text-slate-500 mt-0.5">{T("text_committee_subtitle")}</p>
         </div>
       </div>
 
@@ -700,7 +706,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                   type="button"
                   onClick={handleInvite}
                   disabled={!selectedUsers.length || inviting}
-                  className="h-9 px-4 bg-[#1B3C53] hover:bg-[#234C6A] disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 whitespace-nowrap"
+                  className="h-9 px-4 bg-[#1B3C53] hover:bg-[#234C6A] disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg text-[11px] flex items-center gap-1.5 whitespace-nowrap"
                 >
                   <Icon name={inviting ? "hourglass_empty" : "send"} size={14} />
                   {T("text_invite_selected")}
@@ -850,10 +856,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                   {t(
                     "runtime.components.chair.conference-detail.conference-committee.text_showing_range",
                     {
-                      from: Math.min(
-                        (currentPage - 1) * PAGE_SIZE + 1,
-                        filteredReviewers.length,
-                      ),
+                      from: Math.min((currentPage - 1) * PAGE_SIZE + 1, filteredReviewers.length),
                       to: Math.min(currentPage * PAGE_SIZE, filteredReviewers.length),
                       total: filteredReviewers.length.toLocaleString(),
                     },

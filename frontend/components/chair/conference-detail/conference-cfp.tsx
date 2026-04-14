@@ -140,7 +140,10 @@ function CFPContentCard({ content, conferenceName }: { content: string; conferen
       <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            {t("runtime.components.chair.conference-detail.conference-cfp.text_call_for_papers")}{" "}</h2>
+            {t(
+              "runtime.components.chair.conference-detail.conference-cfp.text_call_for_papers",
+            )}{" "}
+          </h2>
           <p className="text-[9px] text-slate-400 mt-0.5">{conferenceName}</p>
         </div>
         <div className="flex gap-1">
@@ -173,16 +176,20 @@ function CFPManagementCard() {
       <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-3xl -mr-6 -mt-6 pointer-events-none" />
 
       <div className="relative z-10">
-        <h3 className="text-xs font-bold mb-3 tracking-tight">{t("runtime.components.chair.conference-detail.conference-cfp.text_cfp_management")}</h3>
+        <h3 className="text-xs font-bold mb-3 tracking-tight">
+          {t("runtime.components.chair.conference-detail.conference-cfp.text_cfp_management")}
+        </h3>
 
         <div className="space-y-2">
           <div className="flex items-center justify-between p-2.5 bg-white/10 rounded-lg border border-white/10">
             <div>
               <div className="text-[8px] text-slate-300 uppercase tracking-widest font-bold">
-                {t("runtime.components.chair.conference-detail.conference-cfp.text_status")}{" "}</div>
+                {t("runtime.components.chair.conference-detail.conference-cfp.text_status")}{" "}
+              </div>
               <div className="font-bold text-white flex items-center gap-1 text-[11px] mt-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-white/80" />
-                {t("runtime.components.chair.conference-detail.conference-cfp.text_read_only")}{" "}</div>
+                {t("runtime.components.chair.conference-detail.conference-cfp.text_read_only")}{" "}
+              </div>
             </div>
           </div>
         </div>
@@ -211,7 +218,8 @@ function ImportantDatesCard({ dates }: { dates: ImportantDate[] }) {
     <div className="bg-white dark:bg-slate-900 px-4 pt-4 pb-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
       <div className="mb-3">
         <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-          {t("runtime.components.chair.conference-detail.conference-cfp.text_important_dates")}{" "}</h3>
+          {t("runtime.components.chair.conference-detail.conference-cfp.text_important_dates")}{" "}
+        </h3>
       </div>
 
       <div className="space-y-2.5 relative">
@@ -285,7 +293,9 @@ function ImportantDatesCard({ dates }: { dates: ImportantDate[] }) {
             </div>
           ))
         ) : (
-          <p className="text-xs text-slate-500 dark:text-slate-400">{t("runtime.components.chair.conference-detail.conference-cfp.text_no_dates_available")}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {t("runtime.components.chair.conference-detail.conference-cfp.text_no_dates_available")}
+          </p>
         )}
       </div>
     </div>
@@ -315,14 +325,23 @@ function AuthorResourcesCard() {
   ] as const
 
   const resourceColors: Record<string, { bg: string; text: string; hover: string }> = {
-    latex: { bg: "bg-blue-50", text: t("runtime.components.chair.conference-detail.conference-cfp.prop_text_text_blue_600"), hover: "group-hover:text-blue-700" },
-    word: { bg: "bg-red-50", text: t("runtime.components.chair.conference-detail.conference-cfp.prop_text_text_red_600"), hover: "group-hover:text-red-700" },
+    latex: {
+      bg: "bg-blue-50",
+      text: t("runtime.components.chair.conference-detail.conference-cfp.prop_text_text_blue_600"),
+      hover: "group-hover:text-blue-700",
+    },
+    word: {
+      bg: "bg-red-50",
+      text: t("runtime.components.chair.conference-detail.conference-cfp.prop_text_text_red_600"),
+      hover: "group-hover:text-red-700",
+    },
   }
 
   return (
     <div className="bg-white dark:bg-slate-900 px-4 pt-4 pb-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
       <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-3 tracking-tight">
-        {t("runtime.components.chair.conference-detail.conference-cfp.text_author_resources")}{" "}</h3>
+        {t("runtime.components.chair.conference-detail.conference-cfp.text_author_resources")}{" "}
+      </h3>
 
       <ul className="space-y-1.5">
         {resourceItems.map((resource) => {
@@ -425,7 +444,6 @@ export function ConferenceCFP({ conferenceId, className }: ConferenceCFPProps) {
 
         <div className="lg:col-span-3 space-y-4">
           <CFPManagementCard />
-          <ImportantDatesCard dates={dates} />
           <AuthorResourcesCard />
         </div>
       </div>

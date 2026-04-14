@@ -344,12 +344,12 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
     <div className={cn("space-y-4", className)}>
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          <h2 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
+          <h2 className="text-lg font-bold text-[#1B3C53] tracking-tight">
             {t(
               "runtime.components.chair.conference-detail.conference-assignments.text_reviewer_assignments",
             )}{" "}
           </h2>
-          <p className="text-xs font-medium text-slate-500 leading-relaxed mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             {t(
               "runtime.components.chair.conference-detail.conference-assignments.text_review_and_manage_reviewer_assignments_for",
             )}{" "}

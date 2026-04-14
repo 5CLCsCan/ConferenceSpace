@@ -6,7 +6,7 @@ import type { ConferenceInfo, TabId, TabItem } from "./types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { ROUTES } from "@/lib/routes"
 
-const CHAIR_ONLY_TABS: TabId[] = ["coi", "rebuttal"]
+const RESTRICTED_TABS: TabId[] = ["submissions", "assignments", "coi", "rebuttal"]
 
 interface ConferenceDetailHeaderProps {
   conference: ConferenceInfo
@@ -84,12 +84,18 @@ export function ConferenceDetailHeader({
     },
     {
       id: "rebuttal",
-      label: t("runtime.components.chair.conference-detail.conference-detail-header.prop_label_rebuttal"),
+      label: t(
+        "runtime.components.chair.conference-detail.conference-detail-header.prop_label_rebuttal",
+      ),
       icon: "rate_review",
     },
   ]
-  const visibleTabs =
-    userRole === "chair" ? tabs : tabs.filter((tab) => !CHAIR_ONLY_TABS.includes(tab.id))
+  const normalizedRole = (userRole || "").toLowerCase()
+  const canAccessRestrictedTabs =
+    normalizedRole === "chair" || normalizedRole === "co-chair" || normalizedRole === "co_chair"
+  const visibleTabs = canAccessRestrictedTabs
+    ? tabs
+    : tabs.filter((tab) => !RESTRICTED_TABS.includes(tab.id))
   return (
     <header
       className={cn(
@@ -123,11 +129,15 @@ export function ConferenceDetailHeader({
             >
               folder_open
             </span>
-            <span>
+            <button
+              type="button"
+              onClick={() => router.push(ROUTES.CHAIR.CONFERENCES)}
+              className="hover:text-[#1B3C53] dark:hover:text-white transition-colors"
+            >
               {t(
                 "runtime.components.chair.conference-detail.conference-detail-header.text_conferences",
               )}
-            </span>
+            </button>
             <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
               chevron_right
             </span>
