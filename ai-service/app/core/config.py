@@ -14,11 +14,15 @@ class Settings(BaseSettings):
     ai_service_env: str = Field(default="development", alias="AI_SERVICE_ENV")
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
 
+    openai_api_key: str = Field(default="", alias="OPENAI_API_KEY")
+    openai_base_url: str = Field(default="", alias="OPENAI_BASE_URL")
+    openai_model: str = Field(default="", alias="OPENAI_MODEL")
     openrouter_api_key: str = Field(default="", alias="OPENROUTER_API_KEY")
     agent_model: str = Field(
         default="openrouter/google/gemini-2.5-flash-lite",
         alias="AGENT_MODEL",
     )
+    llm_request_timeout_seconds: float = Field(default=60.0, alias="LLM_REQUEST_TIMEOUT_SECONDS")
 
     backend_api_base_url: str = Field(default="http://localhost:8080", alias="BACKEND_API_BASE_URL")
     identity_request_timeout_seconds: float = Field(default=3.0, alias="IDENTITY_REQUEST_TIMEOUT_SECONDS")

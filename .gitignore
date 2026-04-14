@@ -47,3 +47,7 @@ chatbot-architecture
 
 *.docx
 .gitnexus
+
+responses_probe.py
+error-logs/
+.autopilot.json

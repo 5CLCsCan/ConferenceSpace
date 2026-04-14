@@ -123,7 +123,9 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
             <ReviewField
-              label={t("runtime.components.wizard.creation.steps.final-review.text_conference_name")}
+              label={t(
+                "runtime.components.wizard.creation.steps.final-review.text_conference_name",
+              )}
               value={data.title}
             />
             <ReviewField
@@ -134,7 +136,9 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
               label={t("runtime.components.wizard.creation.steps.final-review.text_location")}
               value={
                 data.locationType === "virtual"
-                  ? t("runtime.components.wizard.creation.steps.final-review.text_virtual_conference")
+                  ? t(
+                      "runtime.components.wizard.creation.steps.final-review.text_virtual_conference",
+                    )
                   : data.location || data.venue
               }
               fullWidth
@@ -268,7 +272,9 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
                 <span className="font-medium text-[#141414] dark:text-white text-xs">
                   {organizerCounts.reviewers > 0
                     ? `${organizerCounts.reviewers} ${getMemberLabel(organizerCounts.reviewers)}`
-                    : t("runtime.components.wizard.creation.steps.final-review.text_pending_invite")}
+                    : t(
+                        "runtime.components.wizard.creation.steps.final-review.text_pending_invite",
+                      )}
                 </span>
               </div>
             </div>
@@ -294,7 +300,9 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
                   <p className="text-xs font-medium text-[#141414] dark:text-white">
                     {data.anonymity === "double-blind"
                       ? t("runtime.components.wizard.creation.steps.final-review.text_double_blind")
-                      : t("runtime.components.wizard.creation.steps.final-review.text_single_blind")}
+                      : t(
+                          "runtime.components.wizard.creation.steps.final-review.text_single_blind",
+                        )}
                   </p>
                 </div>
               </div>
@@ -362,7 +370,7 @@ export function FinalReviewStep({ data, updateData, onEditStep }: FinalReviewSte
         </ReviewCard>
 
         {/* Confirmation Checkbox */}
-        <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm">
           <label className="flex items-start gap-3 cursor-pointer">
             <input
               type="checkbox"

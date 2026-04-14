@@ -2,17 +2,46 @@ from __future__ import annotations
 
 import json
 import logging
+from dataclasses import dataclass
 from typing import Any, AsyncIterator
 
 from pydantic import BaseModel, ValidationError
 
 logger = logging.getLogger(__name__)
+_DEFAULT_REQUEST_TIMEOUT_SECONDS = 60.0
+
+
+@dataclass(frozen=True, slots=True)
+class _ProviderConfig:
+    name: str
+    litellm_model: str
+    public_model: str
+    api_key: str
+    api_base: str | None = None
 
 
 class LLMClient:
-    def __init__(self, *, api_key: str, model: str) -> None:
-        self.api_key = api_key
-        self.model = model
+    def __init__(
+        self,
+        *,
+        api_key: str,
+        model: str,
+        openai_api_key: str = "",
+        openai_base_url: str = "",
+        openai_model: str = "",
+        request_timeout_seconds: float = _DEFAULT_REQUEST_TIMEOUT_SECONDS,
+    ) -> None:
+        self.api_key = api_key.strip()
+        self.model = model.strip()
+        self.openai_api_key = openai_api_key.strip()
+        self.openai_base_url = openai_base_url.strip().rstrip("/")
+        self.openai_model = openai_model.strip()
+        self.request_timeout_seconds = float(request_timeout_seconds)
+        self._providers = self._build_provider_configs()
+
+    @property
+    def primary_model(self) -> str:
+        return self._providers[0].public_model
 
     async def stream_chat(
         self,
@@ -20,10 +49,9 @@ class LLMClient:
         messages: list[dict[str, Any]],
         tools: list[dict[str, Any]] | None = None,
     ) -> AsyncIterator[dict[str, Any]]:
-        response = await self._acompletion(messages=messages, tools=tools, stream=True)
         thinking_parser = _ThinkingTagStreamParser()
 
-        async for chunk in response:
+        async for chunk in self._astream_completion(messages=messages, tools=tools):
             normalized = _normalize_stream_chunk(chunk)
             if not normalized:
                 continue
@@ -172,8 +200,10 @@ class LLMClient:
         raise RuntimeError("structured completion failed without a validation error")
 
     def _supports_native_structured_output(self) -> bool:
-        model = self.model.strip().lower()
-        return model.startswith("openrouter/") or model.startswith("openai/")
+        return all(
+            provider.litellm_model.lower().startswith(("openrouter/", "openai/"))
+            for provider in self._providers
+        )
 
     async def _acompletion(
         self,
@@ -185,19 +215,136 @@ class LLMClient:
         response_format: dict[str, Any] | None = None,
     ) -> Any:
         acompletion = _get_acompletion()
+        last_error: Exception | None = None
+
+        for index, provider in enumerate(self._providers):
+            request_kwargs = self._build_request_kwargs(
+                provider=provider,
+                messages=messages,
+                stream=stream,
+                tools=tools,
+                temperature=temperature,
+                response_format=response_format,
+            )
+            try:
+                return await acompletion(**request_kwargs)
+            except Exception as exc:  # noqa: BLE001
+                last_error = exc
+                if index >= len(self._providers) - 1:
+                    raise
+                logger.warning(
+                    "llm.provider_request_failed provider=%s model=%s fallback_provider=%s",
+                    provider.name,
+                    provider.public_model,
+                    self._providers[index + 1].public_model,
+                )
+
+        if last_error is not None:
+            raise last_error
+        raise RuntimeError("llm completion failed without attempting a provider")
+
+    async def _astream_completion(
+        self,
+        *,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]] | None = None,
+        temperature: int | float | None = None,
+        response_format: dict[str, Any] | None = None,
+    ) -> AsyncIterator[Any]:
+        acompletion = _get_acompletion()
+        last_error: Exception | None = None
+
+        for index, provider in enumerate(self._providers):
+            request_kwargs = self._build_request_kwargs(
+                provider=provider,
+                messages=messages,
+                stream=True,
+                tools=tools,
+                temperature=temperature,
+                response_format=response_format,
+            )
+            emitted_any_chunk = False
+            try:
+                response = await acompletion(**request_kwargs)
+                async for chunk in response:
+                    emitted_any_chunk = True
+                    yield chunk
+                return
+            except Exception as exc:  # noqa: BLE001
+                if emitted_any_chunk:
+                    raise
+                last_error = exc
+                if index >= len(self._providers) - 1:
+                    raise
+                logger.warning(
+                    "llm.provider_stream_failed provider=%s model=%s fallback_provider=%s",
+                    provider.name,
+                    provider.public_model,
+                    self._providers[index + 1].public_model,
+                )
+
+        if last_error is not None:
+            raise last_error
+        raise RuntimeError("llm stream failed without attempting a provider")
+
+    def _build_provider_configs(self) -> list[_ProviderConfig]:
+        providers: list[_ProviderConfig] = []
+
+        if self.openai_api_key and self.openai_base_url and self.openai_model:
+            providers.append(
+                _ProviderConfig(
+                    name="openai",
+                    litellm_model=f"openai/{self.openai_model}",
+                    public_model=self.openai_model,
+                    api_key=self.openai_api_key,
+                    api_base=self.openai_base_url,
+                )
+            )
+
+        if self.api_key and self.model:
+            providers.append(
+                _ProviderConfig(
+                    name="openrouter",
+                    litellm_model=self.model,
+                    public_model=self.model,
+                    api_key=self.api_key,
+                )
+            )
+
+        if not providers:
+            raise ValueError("LLMClient requires at least one configured provider")
+
+        return providers
+
+    def _build_request_kwargs(
+        self,
+        *,
+        provider: _ProviderConfig,
+        messages: list[dict[str, Any]],
+        stream: bool,
+        tools: list[dict[str, Any]] | None,
+        temperature: int | float | None,
+        response_format: dict[str, Any] | None,
+    ) -> dict[str, Any]:
         request_kwargs: dict[str, Any] = {
-            "model": self.model,
-            "api_key": self.api_key,
+            "model": provider.litellm_model,
+            "api_key": provider.api_key,
             "messages": messages,
             "stream": stream,
+            "timeout": self.request_timeout_seconds,
+            "num_retries": 0,
         }
+        if provider.api_base:
+            request_kwargs["api_base"] = provider.api_base
+        if stream:
+            request_kwargs["stream_timeout"] = self.request_timeout_seconds
         if tools is not None:
             request_kwargs["tools"] = tools
         if temperature is not None:
             request_kwargs["temperature"] = temperature
         if response_format is not None:
             request_kwargs["response_format"] = response_format
-        return await acompletion(**request_kwargs)
+        return request_kwargs
 
 
 
