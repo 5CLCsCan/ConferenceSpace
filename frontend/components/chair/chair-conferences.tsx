@@ -283,7 +283,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
     return () => {
       cancelled = true
     }
-  }, [activeTab, debouncedSearch, currentPage, reloadKey])
+  }, [activeTab, debouncedSearch, currentPage, reloadKey, currentRole])
 
   const handleNavigate = (id: string) => {
     router.push(ROUTES.CHAIR.CONFERENCE_DETAIL(id))
