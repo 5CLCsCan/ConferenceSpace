@@ -103,17 +103,21 @@ Use a neutral sans-serif system stack. Do not introduce expressive display type 
 
 Use this scale consistently:
 
-| Role                           | Size             | Weight         | Line height     | Notes                                            |
-| ------------------------------ | ---------------- | -------------- | --------------- | ------------------------------------------------ |
-| Page title                     | `32px`           | `700`          | `1.1` to `1.15` | Strongest text on the screen                     |
-| Detail-page title              | `20px`           | `700`          | `1.2`           | Used inside sticky detail header                 |
-| Secondary page line / subtitle | `14px`           | `300` to `500` | relaxed         | Used below page title                            |
-| Section title                  | `14px`           | `700`          | tight           | Use navy                                         |
-| Card title in dense cards      | `13px` to `14px` | `700`          | `1.25` to `1.3` | Use when a row or card needs a local focal point |
-| Operational body               | `12px`           | `400` to `500` | relaxed         | Default dense body copy                          |
-| Supporting body                | `11px` to `12px` | `400` to `500` | relaxed         | Use for previews and helper copy                 |
-| Metadata                       | `10px` to `11px` | `400` to `500` | compact         | Use for timestamps, counts, labels               |
-| Tiny label                     | `8px` to `10px`  | `700`          | uppercase       | For pill labels, headers, tiny tags              |
+| Role                           | Size   | Weight         | Line height     | Notes                                                                 |
+| ------------------------------ | ------ | -------------- | --------------- | --------------------------------------------------------------------- |
+| Page title                     | `32px` | `700`          | `1.1` to `1.15` | Strongest text on the screen                                          |
+| Detail-page title              | `20px` | `700`          | `1.2`           | Used inside sticky detail header                                      |
+| Secondary page line / subtitle | `14px` | `300` to `500` | relaxed         | Used below page title                                                 |
+| Section title                  | `14px` | `700`          | tight           | Use navy                                                              |
+| Dense row title                | `13px` | `700`          | `1.25` to `1.3` | Default local focal point inside dense cards, rows, and record lists  |
+| Standard card header title     | `14px` | `700`          | `1.25` to `1.3` | Use for standard card headers and local section-style headers         |
+| Operational body               | `12px` | `400` to `500` | relaxed         | Default dense body copy                                               |
+| Supporting body                | `11px` | `400` to `500` | relaxed         | Use for previews and helper copy; do not let it become default body   |
+| Metadata                       | `10px` | `400` to `500` | compact         | Default for timestamps, counts, helper labels, and passive meta       |
+| Compact UI meta                | `11px` | `500`          | compact         | Use for tabs, breadcrumbs, pagination summaries, and compact controls |
+| Tiny label                     | `9px`  | `700`          | uppercase       | Default for compact pills, status labels, and routine tiny UI labels  |
+| Micro kicker                   | `8px`  | `700` to `900` | uppercase       | Reserve for very short metric labels and priority markers only        |
+| Table header label             | `10px` | `700`          | uppercase       | Use with wider tracking for table headers and segmented filter labels |
 
 ### Font weight system
 
@@ -155,6 +159,10 @@ Use each weight this way:
 - Secondary title lines under a detail-page title should stay at `500`, not bold.
 - Primary metric numbers should stay at `700`; the dashboard references do not use black weight for the numeric value itself.
 - If a tiny uppercase label feels like it needs `900` to read clearly, verify that it should be a tiny label at all before increasing the weight.
+- Primitive size tokens should stay fixed. When a component needs a different size for a specific role, use the matching semantic alias instead of widening the primitive token into a range.
+- Treat `13px` and `14px` as different jobs: `13px` for dense row titles, `14px` for standard card headers and local section-style headers.
+- Treat `10px` and `11px` metadata differently: `10px` is the default metadata layer; `11px` is reserved for compact UI chrome that must read one notch stronger.
+- Treat `8px`, `9px`, and `10px` uppercase labels differently: `9px` is the default tiny-label size, `8px` is for very short metric kickers only, and `10px` is for routine table headers or segmented filters that must remain easily scannable.
 
 ### Canonical title blocks
 
@@ -706,23 +714,27 @@ These are the raw color tokens that back all semantic aliases:
 
 Use raw typography tokens only as the backing layer:
 
-| Primitive alias             | Value            |
-| --------------------------- | ---------------- |
-| `--font-size-page-title`    | `32px`           |
-| `--font-size-detail-title`  | `20px`           |
-| `--font-size-page-subtitle` | `14px`           |
-| `--font-size-section-title` | `14px`           |
-| `--font-size-card-title`    | `13px` to `14px` |
-| `--font-size-body`          | `12px`           |
-| `--font-size-supporting`    | `11px` to `12px` |
-| `--font-size-meta`          | `10px` to `11px` |
-| `--font-size-tiny-label`    | `8px` to `10px`  |
-| `--font-weight-light`       | `300`            |
-| `--font-weight-regular`     | `400`            |
-| `--font-weight-medium`      | `500`            |
-| `--font-weight-semibold`    | `600`            |
-| `--font-weight-bold`        | `700`            |
-| `--font-weight-black`       | `900`            |
+| Primitive alias             | Value  |
+| --------------------------- | ------ |
+| `--font-size-page-title`    | `32px` |
+| `--font-size-detail-title`  | `20px` |
+| `--font-size-page-subtitle` | `14px` |
+| `--font-size-section-title` | `14px` |
+| `--font-size-card-title`    | `13px` |
+| `--font-size-card-header`   | `14px` |
+| `--font-size-body`          | `12px` |
+| `--font-size-supporting`    | `11px` |
+| `--font-size-meta`          | `10px` |
+| `--font-size-ui-meta`       | `11px` |
+| `--font-size-tiny-label`    | `9px`  |
+| `--font-size-kicker`        | `8px`  |
+| `--font-size-table-header`  | `10px` |
+| `--font-weight-light`       | `300`  |
+| `--font-weight-regular`     | `400`  |
+| `--font-weight-medium`      | `500`  |
+| `--font-weight-semibold`    | `600`  |
+| `--font-weight-bold`        | `700`  |
+| `--font-weight-black`       | `900`  |
 
 ### Spacing, radius, and shadow primitives
 
@@ -745,18 +757,22 @@ Use raw typography tokens only as the backing layer:
 
 These are the aliases builders should use most often in code:
 
-| Semantic alias          | Maps to                         | Use                                  |
-| ----------------------- | ------------------------------- | ------------------------------------ |
-| `text-page-title`       | `32px / 700 / tight`            | dashboard top-level title            |
-| `text-detail-title`     | `20px / 700 / tight`            | sticky detail header title           |
-| `text-page-subtitle`    | `14px / 300-500 / relaxed`      | subtitle under a page title          |
-| `text-detail-secondary` | `14px / 500 / tight`            | acronym-year or secondary title line |
-| `text-section-title`    | `14px / 700 / tight`            | section title in page or card header |
-| `text-card-title`       | `13px-14px / 700 / tight`       | dense row title or card title        |
-| `text-body`             | `12px / 400-500 / relaxed`      | default dense operational body       |
-| `text-supporting`       | `11px-12px / 400-500 / relaxed` | helper copy and previews             |
-| `text-meta`             | `10px-11px / 400-500 / compact` | timestamps, counts, secondary labels |
-| `text-tiny-label`       | `8px-10px / 700 / uppercase`    | pills, tiny headers, table headers   |
+| Semantic alias          | Maps to                             | Use                                                  |
+| ----------------------- | ----------------------------------- | ---------------------------------------------------- |
+| `text-page-title`       | `32px / 700 / tight`                | dashboard top-level title                            |
+| `text-detail-title`     | `20px / 700 / tight`                | sticky detail header title                           |
+| `text-page-subtitle`    | `14px / 300-500 / relaxed`          | subtitle under a page title                          |
+| `text-detail-secondary` | `14px / 500 / tight`                | acronym-year or secondary title line                 |
+| `text-section-title`    | `14px / 700 / tight`                | section title in page or card header                 |
+| `text-card-title`       | `13px / 700 / tight`                | dense row title or compact card title                |
+| `text-card-header`      | `14px / 700 / tight`                | standard card header title                           |
+| `text-body`             | `12px / 400-500 / relaxed`          | default dense operational body                       |
+| `text-supporting`       | `11px / 400-500 / relaxed`          | helper copy and previews                             |
+| `text-meta`             | `10px / 400-500 / compact`          | timestamps, counts, passive labels                   |
+| `text-ui-meta`          | `11px / 500 / compact`              | breadcrumbs, tabs, pagination summary, compact UI    |
+| `text-tiny-label`       | `9px / 700 / uppercase`             | compact pills, routine status labels, tiny UI labels |
+| `text-kicker`           | `8px / 700-900 / uppercase`         | very short metric labels and priority markers        |
+| `text-table-header`     | `10px / 700 / uppercase + tracking` | table headers and segmented filter labels            |
 
 ### Semantic surface aliases
 
@@ -778,8 +794,8 @@ These are the aliases builders should use most often in code:
 | `button-header`          | `32px` height + white + bordered + `11px` medium | sticky detail header action              |
 | `button-primary`         | standard button radius + primary ink emphasis    | primary action in normal cards and forms |
 | `button-secondary`       | standard button radius + white bordered shell    | secondary action                         |
-| `segment-filter`         | `28px` item height + uppercase tiny label        | segmented dense filters                  |
-| `badge-neutral`          | neutral fill/text/border + tiny uppercase label  | routine non-semantic badge               |
+| `segment-filter`         | `28px` item height + `text-table-header`         | segmented dense filters                  |
+| `badge-neutral`          | neutral fill/text/border + `text-tiny-label`     | routine non-semantic badge               |
 | `badge-semantic-success` | success semantic token set                       | real success state only                  |
 | `badge-semantic-warning` | warning semantic token set                       | real warning state only                  |
 | `badge-semantic-error`   | error semantic token set                         | destructive or blocking state only       |
@@ -814,7 +830,7 @@ These are the most important consistency rules:
 - Keep page titles at `32px` for top-level dashboard-style pages.
 - Keep section titles at `14px`, bold, navy.
 - Keep dense operational body copy at `12px`.
-- Keep metadata at `10px` to `11px`.
+- Keep metadata at `10px` by default; reserve `11px` for compact UI chrome that needs one notch more emphasis.
 - Keep cards white, rounded `12px`, bordered, and quiet.
 - Keep control heights compact: `32px`, `36px`, or `40px` depending on role.
 - Keep tabs thin and quiet, with color reserved for the active item.
@@ -842,9 +858,9 @@ When another builder reconstructs a screen from a sketch, they should be able to
 - Are all primary surfaces white cards with `12px` radius, `1px` slate border, and subtle shadow?
 - Are section headers `14px` bold navy?
 - Is body copy mostly `12px`?
-- Is metadata mostly `10px` to `11px`?
+- Is metadata mostly `10px`, with `11px` used only for compact UI chrome?
 - Are control heights compact and consistent?
-- Are tabs, pills, badges, and table headers using the documented compact sizing?
+- Are tabs, pills, badges, and table headers using the documented compact sizing and semantic text roles?
 - Is navy the main emphasis color, with semantic colors only where meaning requires them?
 - Does the screen feel dense but breathable rather than large, soft, or decorative?
 
