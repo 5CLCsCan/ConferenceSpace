@@ -81,8 +81,8 @@ func RequireSubmissionAccess(
 			return
 		}
 
-		// 2. Chair/co-chair of the conference
-		if utils.IsUserChairOrCoChair(ctx, roleStorage, conferenceID, userEmail) {
+		// 2. Chair/co-chair/PC of the conference
+		if utils.IsUserChairCoChairOrPC(ctx, roleStorage, conferenceID, userEmail) {
 			c.Next()
 			return
 		}
@@ -107,8 +107,8 @@ func RequireSubmissionAccess(
 }
 
 // RequireThreadParticipant checks that the authenticated user is a participant
-// (reviewer, author, or chair) of the discussion thread identified by :thread_id.
-func RequireThreadParticipant(discussionStorage discussion.StorageInterface) gin.HandlerFunc {
+// (reviewer, author, chair, co-chair, or PC) of the discussion thread identified by :thread_id.
+func RequireThreadParticipant(discussionStorage discussion.StorageInterface, roleStorage conferenceuserrole.StorageInterface) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userEmail, exists := utils.GetEmail(c)
 		if !exists {
@@ -144,9 +144,8 @@ func RequireThreadParticipant(discussionStorage discussion.StorageInterface) gin
 			return
 		}
 
-		// Chair of the conference
-		isChair, err := discussionStorage.IsUserConferenceChair(ctx, userEmail, thread.ConferenceID)
-		if err == nil && isChair {
+		// Chair, co-chair, or PC of the conference
+		if utils.IsUserChairCoChairOrPC(ctx, roleStorage, thread.ConferenceID, userEmail) {
 			c.Next()
 			return
 		}
@@ -217,6 +216,57 @@ func RequireAssignmentOwner(
 	}
 }
 
+// RequireChairCoChairOrPC checks that the authenticated user is a chair, co-chair,
+// or program committee member of the conference identified by the :conference_id path parameter.
+func RequireChairCoChairOrPC(roleStorage conferenceuserrole.StorageInterface) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userEmail, exists := utils.GetEmail(c)
+		if !exists {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user not authenticated"})
+			return
+		}
+
+		conferenceID, err := strconv.ParseInt(c.Param("conference_id"), 10, 64)
+		if err != nil || conferenceID <= 0 {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid conference_id"})
+			return
+		}
+
+		if !utils.IsUserChairCoChairOrPC(c.Request.Context(), roleStorage, conferenceID, userEmail) {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "only chair, co-chair, or program committee can perform this action"})
+			return
+		}
+
+		c.Next()
+	}
+}
+
+// RequireCOICheckAuthorizationOrPC checks that the caller is a chair/co-chair/PC member of the
+// conference specified in the query parameter conference_id.
+func RequireCOICheckAuthorizationOrPC(roleStorage conferenceuserrole.StorageInterface) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userEmail, exists := utils.GetEmail(c)
+		if !exists {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user not authenticated"})
+			return
+		}
+
+		conferenceIDStr := c.Query("conference_id")
+		conferenceID, err := strconv.ParseInt(conferenceIDStr, 10, 64)
+		if err != nil || conferenceID <= 0 {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "valid conference_id query parameter is required"})
+			return
+		}
+
+		if !utils.IsUserChairCoChairOrPC(c.Request.Context(), roleStorage, conferenceID, userEmail) {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "only chair, co-chair, or program committee can check COI for this conference"})
+			return
+		}
+
+		c.Next()
+	}
+}
+
 // RequireCOICheckAuthorization checks that the caller is a chair/co-chair of the
 // conference specified in the query parameter conference_id.
 func RequireCOICheckAuthorization(roleStorage conferenceuserrole.StorageInterface) gin.HandlerFunc {
@@ -245,5 +295,6 @@ func RequireCOICheckAuthorization(roleStorage conferenceuserrole.StorageInterfac
 
 // Commonly used role constants for middleware usage
 var (
-	ChairRoles = []string{model.RoleChair, model.RoleCoChair}
+	ChairRoles     = []string{model.RoleChair, model.RoleCoChair}
+	ChairOrPCRoles = []string{model.RoleChair, model.RoleCoChair, model.RolePC}
 )

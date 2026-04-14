@@ -12,6 +12,8 @@ import type {
   ChairDecisionCopilotResponse,
 } from "@/lib/api/chair-decision-copilot"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { useAuth } from "@/lib/auth-context"
+import { isReadOnlyRole } from "@/lib/role-helpers"
 
 interface ChairDecisionCopilotPanelProps {
   copilot: ChairDecisionCopilotResponse | null
@@ -178,6 +180,8 @@ export function ChairDecisionCopilotPanel({
   onRegenerate,
 }: ChairDecisionCopilotPanelProps) {
   const { t } = useTranslation()
+  const { currentRole } = useAuth()
+  const readOnly = isReadOnlyRole(currentRole)
   const [isExpanded, setIsExpanded] = useState(false)
   const artifact = copilot?.artifact ?? null
   const isIdle = !copilot || copilot.status === "idle"
@@ -273,37 +277,39 @@ export function ChairDecisionCopilotPanel({
           </button>
 
           {/* Right: action button */}
-          <div className="flex-shrink-0 pt-0.5">
-            {isIdle ? (
-              <button
-                type="button"
-                onClick={onGenerate}
-                disabled={generating}
-                className={cn(
-                  "h-6 rounded-md px-3.5 text-[9px] font-medium",
-                  generating
-                    ? "cursor-wait bg-slate-100 text-slate-400"
-                    : "bg-[#1B3C53] text-white hover:bg-[#234C6A]",
-                )}
-              >
-                {generating ? "Generating..." : "Generate"}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={onRegenerate}
-                disabled={regenerating}
-                className={cn(
-                  "h-8 rounded-md border px-3 text-[10px] font-bold uppercase tracking-[0.14em] transition-colors",
-                  regenerating
-                    ? "cursor-wait border-slate-200 bg-slate-50 text-slate-400"
-                    : "border-slate-200 bg-white text-[#1B3C53] hover:bg-slate-50",
-                )}
-              >
-                {regenerating ? "Generating..." : "Regenerate"}
-              </button>
-            )}
-          </div>
+          {!readOnly && (
+            <div className="flex-shrink-0 pt-0.5">
+              {isIdle ? (
+                <button
+                  type="button"
+                  onClick={onGenerate}
+                  disabled={generating}
+                  className={cn(
+                    "h-6 rounded-md px-3.5 text-[9px] font-medium",
+                    generating
+                      ? "cursor-wait bg-slate-100 text-slate-400"
+                      : "bg-[#1B3C53] text-white hover:bg-[#234C6A]",
+                  )}
+                >
+                  {generating ? "Generating..." : "Generate"}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onRegenerate}
+                  disabled={regenerating}
+                  className={cn(
+                    "h-8 rounded-md border px-3 text-[10px] font-bold uppercase tracking-[0.14em] transition-colors",
+                    regenerating
+                      ? "cursor-wait border-slate-200 bg-slate-50 text-slate-400"
+                      : "border-slate-200 bg-white text-[#1B3C53] hover:bg-slate-50",
+                  )}
+                >
+                  {regenerating ? "Generating..." : "Regenerate"}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

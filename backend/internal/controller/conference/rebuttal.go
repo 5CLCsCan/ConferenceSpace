@@ -20,7 +20,7 @@ import (
 // @Router       /conferences/{conference_id}/rebuttal/settings [get]
 func (c *Controller) GetRebuttalSettings(ginCtx *gin.Context, req *dto.RebuttalPhaseRequest) (*dto.RebuttalOverviewResponse, error) {
 	ctx := ginCtx.Request.Context()
-	if err := c.assertChairOrCoChair(ginCtx, req.ConferenceID); err != nil {
+	if err := c.assertChairCoChairOrPC(ginCtx, req.ConferenceID); err != nil {
 		return nil, err
 	}
 	return c.conferenceStorage.GetRebuttalOverview(ctx, req.ConferenceID)
@@ -150,4 +150,20 @@ func (c *Controller) assertChairOrCoChair(ginCtx *gin.Context, conferenceID int6
 		}
 	}
 	return handler.NewErrorResponse(http.StatusForbidden, "only chair or co-chair can perform this action")
+}
+
+// assertChairCoChairOrPC returns an error if the current user is not chair, co-chair, or PC.
+func (c *Controller) assertChairCoChairOrPC(ginCtx *gin.Context, conferenceID int64) error {
+	email, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return handler.NewErrorResponse(http.StatusUnauthorized, "not authenticated")
+	}
+	hasRole, err := c.roleStorage.HasRole(ginCtx.Request.Context(), conferenceID, email, []string{"chair", "co_chair", "pc"})
+	if err != nil {
+		return handler.NewErrorResponse(http.StatusInternalServerError, "failed to check role")
+	}
+	if hasRole {
+		return nil
+	}
+	return handler.NewErrorResponse(http.StatusForbidden, "only chair, co-chair, or program committee can perform this action")
 }

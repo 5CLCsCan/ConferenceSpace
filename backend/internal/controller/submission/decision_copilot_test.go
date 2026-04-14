@@ -125,6 +125,14 @@ func (m *decisionCopilotRoleStorageMock) HasRole(context.Context, int64, string,
 	return m.hasRole, m.err
 }
 
+func (m *decisionCopilotRoleStorageMock) GetAllUserRoles(context.Context, string) ([]string, error) {
+	panic("unexpected call")
+}
+
+func (m *decisionCopilotRoleStorageMock) GetEmailsByRole(context.Context, int64, string) ([]string, error) {
+	panic("unexpected call")
+}
+
 type decisionCopilotAssignmentStorageMock struct {
 	assignments []*dto.Assignment
 	analytics   *dto.ReviewAnalyticsResponse
@@ -211,6 +219,18 @@ func (m *decisionCopilotAssignmentStorageMock) UpdatePostRebuttalScore(context.C
 	panic("unexpected call")
 }
 
+func (m *decisionCopilotAssignmentStorageMock) AppendReviewAuditEvent(_ context.Context, _ *dto.ReviewAuditEvent) error {
+	panic("unexpected call")
+}
+
+func (m *decisionCopilotAssignmentStorageMock) GetReviewAuditState(_ context.Context, _ int64) (*dto.ReviewAuditState, error) {
+	panic("unexpected call")
+}
+
+func (m *decisionCopilotAssignmentStorageMock) UpdateReviewAuditDismissal(_ context.Context, _ int64, _ dto.ReviewAuditDismissal, _ bool) (*dto.ReviewAuditState, error) {
+	panic("unexpected call")
+}
+
 type decisionCopilotConferenceStorageMock struct {
 	rebuttalConfig *dto.ConferenceRebuttalConfig
 }
@@ -284,6 +304,10 @@ func (m *decisionCopilotConferenceStorageMock) GetRebuttalOverview(context.Conte
 }
 
 func (m *decisionCopilotConferenceStorageMock) GetOverdueRebuttalConferences(context.Context) ([]int64, error) {
+	panic("unexpected call")
+}
+
+func (m *decisionCopilotConferenceStorageMock) GetByIDForUser(context.Context, int64, string) (*dto.ConferenceResponse, error) {
 	panic("unexpected call")
 }
 

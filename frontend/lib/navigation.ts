@@ -8,7 +8,7 @@ export interface NavItem {
   badge?: number
 }
 
-type SidebarRole = Extract<UserRole, "author" | "reviewer" | "chair">
+type SidebarRole = Extract<UserRole, "author" | "reviewer" | "chair" | "pc">
 
 interface NavTemplateItem {
   labelKey: string
@@ -97,6 +97,29 @@ const SIDEBAR_NAV_TEMPLATES: Record<SidebarRole, NavTemplateItem[]> = {
       withUnreadBadge: true,
     },
   ],
+  pc: [
+    {
+      labelKey: "dashboard.sidebar.nav.chair.dashboard",
+      href: ROUTES.CHAIR.DASHBOARD,
+      icon: "dashboard",
+    },
+    {
+      labelKey: "dashboard.sidebar.nav.chair.conferences",
+      href: ROUTES.CHAIR.CONFERENCES,
+      icon: "folder_open",
+    },
+    {
+      labelKey: "dashboard.sidebar.nav.chair.schedules",
+      href: ROUTES.CHAIR.SCHEDULES,
+      icon: "calendar_month",
+    },
+    {
+      labelKey: "dashboard.sidebar.nav.common.notifications",
+      href: ROUTES.NOTIFICATIONS,
+      icon: "notifications",
+      withUnreadBadge: true,
+    },
+  ],
 }
 
 const FALLBACK_NAV_TEMPLATE: NavTemplateItem[] = [
@@ -114,7 +137,7 @@ const FALLBACK_NAV_TEMPLATE: NavTemplateItem[] = [
 ]
 
 const isSidebarRole = (role: UserRole | null | undefined): role is SidebarRole =>
-  role === "author" || role === "reviewer" || role === "chair"
+  role === "author" || role === "reviewer" || role === "chair" || role === "pc"
 
 export function getSidebarMenuItems(
   role: UserRole | null | undefined,

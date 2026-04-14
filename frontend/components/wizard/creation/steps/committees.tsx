@@ -30,6 +30,11 @@ const ROLE_OPTIONS = [
     icon: "workspace_premium",
   },
   {
+    value: "pc-member",
+    label: t("runtime.components.wizard.creation.steps.committees.prop_label_pc_members"),
+    icon: "groups",
+  },
+  {
     value: "reviewer",
     label: t("runtime.components.wizard.creation.steps.committees.prop_label_reviewers"),
     icon: "rate_review",

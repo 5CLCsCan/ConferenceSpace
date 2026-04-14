@@ -23,6 +23,8 @@ import {
 import { listConferences } from "@/lib/api/conferences"
 import type { Conference as ApiConference } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { useAuth } from "@/lib/auth-context"
+import { isReadOnlyRole } from "@/lib/role-helpers"
 import { Sparkles } from "lucide-react"
 import { ConferenceTemplateSheet } from "@/components/chair/conference-template-sheet"
 import type { ConferenceFormData } from "@/components/wizard/creation"
@@ -172,6 +174,8 @@ function PaginationBar({
 
 export function ChairConferences({ conferences: initialConferences }: ChairConferencesProps) {
   const { t } = useTranslation()
+  const { currentRole } = useAuth()
+  const readOnly = isReadOnlyRole(currentRole)
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<TabType>("my-conferences")
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
@@ -207,7 +211,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
         if (activeTab === "my-conferences") {
           const res = await listConferences({
             myConferences: true,
-            role: "chair",
+            role: currentRole === "pc" ? "pc" : "chair",
             title: debouncedSearch || undefined,
             limit: ITEMS_PER_PAGE,
             offset,
@@ -242,7 +246,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
         } else if (activeTab === "drafts") {
           const res = await listConferences({
             myConferences: true,
-            role: "chair",
+            role: currentRole === "pc" ? "pc" : "chair",
             status: "draft",
             title: debouncedSearch || undefined,
             limit: ITEMS_PER_PAGE,
@@ -255,7 +259,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
         } else if (activeTab === "archived") {
           const res = await listConferences({
             myConferences: true,
-            role: "chair",
+            role: currentRole === "pc" ? "pc" : "chair",
             status: "archived",
             title: debouncedSearch || undefined,
             limit: ITEMS_PER_PAGE,
@@ -279,7 +283,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
     return () => {
       cancelled = true
     }
-  }, [activeTab, debouncedSearch, currentPage, reloadKey])
+  }, [activeTab, debouncedSearch, currentPage, reloadKey, currentRole])
 
   const handleNavigate = (id: string) => {
     router.push(ROUTES.CHAIR.CONFERENCE_DETAIL(id))
@@ -391,7 +395,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
                 moreMenu={renderMoreMenu(conference)}
               />
             ))}
-            <CreateConferenceCard onClick={handleCreateConference} />
+            {!readOnly && <CreateConferenceCard onClick={handleCreateConference} />}
           </div>
           <PaginationBar
             currentPage={currentPage}
@@ -526,6 +530,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
       <Header
         onCreateConference={handleCreateConference}
         onManageTemplates={() => setIsTemplateSheetOpen(true)}
+        readOnly={readOnly}
       />
 
       {/* Tabs */}
@@ -562,9 +567,10 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
 interface HeaderProps {
   onCreateConference: () => void
   onManageTemplates: () => void
+  readOnly?: boolean
 }
 
-function Header({ onCreateConference, onManageTemplates }: HeaderProps) {
+function Header({ onCreateConference, onManageTemplates, readOnly }: HeaderProps) {
   const { t } = useTranslation()
   return (
     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6">
@@ -578,29 +584,31 @@ function Header({ onCreateConference, onManageTemplates }: HeaderProps) {
           )}
         </p>
       </div>
-      <div className="flex items-center gap-3">
-        <button
-          onClick={onManageTemplates}
-          className="h-9 px-4 bg-white dark:bg-slate-800 text-[#1B3C53] dark:text-white border border-slate-200 dark:border-slate-700 text-[10px] font-bold uppercase tracking-wider rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 flex items-center gap-2 shadow-sm"
-        >
-          <Sparkles className="size-4" />
-          {t("runtime.components.chair.conference-form-page.text_open_templates") ||
-            "Manage Templates"}
-        </button>
-
-        <button
-          onClick={onCreateConference}
-          className="h-9 px-4 bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] text-[10px] font-bold uppercase tracking-wider rounded-md hover:bg-[#234C6A] dark:hover:bg-slate-100 transition-all duration-200 flex items-center gap-2"
-        >
-          <span
-            className="material-symbols-outlined"
-            style={{ fontSize: "16px", width: "16px", height: "16px" }}
+      {!readOnly && (
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onManageTemplates}
+            className="h-9 px-4 bg-white dark:bg-slate-800 text-[#1B3C53] dark:text-white border border-slate-200 dark:border-slate-700 text-[10px] font-bold uppercase tracking-wider rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 flex items-center gap-2 shadow-sm"
           >
-            add
-          </span>
-          {t("runtime.components.chair.chair-conferences.text_create_conference")}
-        </button>
-      </div>
+            <Sparkles className="size-4" />
+            {t("runtime.components.chair.conference-form-page.text_open_templates") ||
+              "Manage Templates"}
+          </button>
+
+          <button
+            onClick={onCreateConference}
+            className="h-9 px-4 bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] text-[10px] font-bold uppercase tracking-wider rounded-md hover:bg-[#234C6A] dark:hover:bg-slate-100 transition-all duration-200 flex items-center gap-2"
+          >
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: "16px", width: "16px", height: "16px" }}
+            >
+              add
+            </span>
+            {t("runtime.components.chair.chair-conferences.text_create_conference")}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

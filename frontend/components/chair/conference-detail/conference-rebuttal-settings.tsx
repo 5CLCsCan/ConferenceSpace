@@ -7,6 +7,8 @@ import {
   type ConferenceRebuttalConfig,
 } from "@/lib/api/conference-rebuttal"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { useAuth } from "@/lib/auth-context"
+import { isReadOnlyRole } from "@/lib/role-helpers"
 
 interface ConferenceRebuttalSettingsProps {
   conferenceId: string
@@ -18,6 +20,8 @@ export function ConferenceRebuttalSettings({
   onSaved,
 }: ConferenceRebuttalSettingsProps) {
   const { t } = useTranslation()
+  const { currentRole } = useAuth()
+  const readOnly = isReadOnlyRole(currentRole)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -172,15 +176,17 @@ export function ConferenceRebuttalSettings({
             {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_settings_saved_successfully")}{" "}</div>
         )}
 
-        <div className="flex justify-end pt-1">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="text-xs px-4 py-1.5 rounded-lg bg-[#1B3C53] text-white hover:bg-[#1B3C53]/90 disabled:opacity-50 font-medium"
-          >
-            {saving ? "Saving…" : "Save Settings"}
-          </button>
-        </div>
+        {!readOnly && (
+          <div className="flex justify-end pt-1">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="text-xs px-4 py-1.5 rounded-lg bg-[#1B3C53] text-white hover:bg-[#1B3C53]/90 disabled:opacity-50 font-medium"
+            >
+              {saving ? "Saving…" : "Save Settings"}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

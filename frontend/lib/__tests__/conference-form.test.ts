@@ -151,8 +151,77 @@ describe("conference-form submission gating mapping", () => {
         author_anonymization_required: undefined,
         banned_phrases: [],
       },
-      scope_keywords: [],
+        scope_keywords: [],
       prompt_fragments: [],
     })
+  })
+})
+
+describe("conference-form PC member mapping", () => {
+  it("includes pc_members in mutation payload from organizers with pc-member role", () => {
+    const formData = {
+      ...initialFormData,
+      title: "PC Test Conference",
+      acronym: "PCTEST",
+      organizers: [
+        { id: "1", name: "Co Chair", email: "cochair@example.com", role: "co-chair" },
+        { id: "2", name: "PC One", email: "pc1@example.com", role: "pc-member" },
+        { id: "3", name: "PC Two", email: "pc2@example.com", role: "pc-member" },
+        { id: "4", name: "Reviewer", email: "reviewer@example.com", role: "reviewer" },
+      ],
+    }
+
+    const payload = buildConferenceMutationPayload(formData)
+
+    expect(payload.co_chairs).toEqual(["cochair@example.com"])
+    expect(payload.pc_members).toEqual(["pc1@example.com", "pc2@example.com"])
+  })
+
+  it("returns empty pc_members when no pc-member organizers exist", () => {
+    const formData = {
+      ...initialFormData,
+      title: "No PC Conference",
+      acronym: "NOPC",
+      organizers: [
+        { id: "1", name: "Co Chair", email: "cochair@example.com", role: "co-chair" },
+      ],
+    }
+
+    const payload = buildConferenceMutationPayload(formData)
+
+    expect(payload.pc_members).toEqual([])
+  })
+
+  it("deduplicates pc_members emails", () => {
+    const formData = {
+      ...initialFormData,
+      title: "Dedup PC",
+      acronym: "DDUP",
+      organizers: [
+        { id: "1", name: "PC One", email: "pc@example.com", role: "pc-member" },
+        { id: "2", name: "PC Duplicate", email: "PC@EXAMPLE.COM", role: "pc-member" },
+      ],
+    }
+
+    const payload = buildConferenceMutationPayload(formData)
+
+    expect(payload.pc_members).toEqual(["pc@example.com"])
+  })
+
+  it("maps pc_members from conference response back to organizers", () => {
+    const conference = makeConference({
+      co_chairs: ["cochair@example.com"],
+      pc_members: ["pc1@example.com", "pc2@example.com"],
+    })
+
+    const formData = mapConferenceToFormData(conference)
+
+    const pcOrganizers = formData.organizers.filter((o) => o.role === "pc-member")
+    expect(pcOrganizers).toHaveLength(2)
+    expect(pcOrganizers[0].email).toBe("pc1@example.com")
+    expect(pcOrganizers[1].email).toBe("pc2@example.com")
+
+    const coChairOrganizers = formData.organizers.filter((o) => o.role === "co-chair")
+    expect(coChairOrganizers).toHaveLength(1)
   })
 })
