@@ -50,7 +50,7 @@ const TOTAL_TABS = 9 // dashboard, overview, cfp, dates, committee, submissions,
 const CHAIR_ONLY_TAB_COUNT = 2 // coi, rebuttal
 
 describe("ConferenceDetailHeader — tab visibility by role", () => {
-  it("uses the legacy direct overflow tab shell instead of the scroll-area wrapper", () => {
+  it("uses the semantic detail header shell instead of the legacy scroll wrapper", () => {
     const { container } = render(
       <ConferenceDetailHeader
         conference={mockConference}
@@ -74,9 +74,9 @@ describe("ConferenceDetailHeader — tab visibility by role", () => {
       }),
     ).toBeInTheDocument()
     expect(container.querySelector('[data-slot="scroll-area-viewport"]')).toBeNull()
-    expect(
-      container.querySelector(".px-8.border-t.border-slate-100.overflow-x-auto"),
-    ).not.toBeNull()
+    expect(screen.getByRole("heading", { name: "Test Conference" })).toHaveClass("text-page-title")
+    expect(screen.getAllByText("CONF 2026")[1]).toHaveClass("text-detail-secondary")
+    expect(screen.getByRole("button", { name: /settings/i })).toHaveClass("button-header")
   })
 
   it("shows all tabs (including COI) for chair role", () => {

@@ -5,26 +5,25 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius)] text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "cursor-pointer inline-flex items-center justify-center gap-[var(--space-tight)] whitespace-nowrap transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[1px] aria-invalid:ring-destructive/20 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default: "button-primary control-standard px-[var(--space-card)]",
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+          "button-secondary control-standard px-[var(--space-card)] border-[var(--color-error-border)] bg-[var(--color-error-fill)] text-[var(--color-error-text)] hover:bg-[var(--color-error-fill)]/80",
+        outline: "button-secondary control-standard px-[var(--space-card)]",
+        secondary: "button-secondary control-standard px-[var(--space-card)]",
+        ghost: "button-header bg-transparent border-transparent px-[var(--space-standard)]",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-10 px-5 py-2 has-[>svg]:px-3",
-        sm: "h-9 rounded-[var(--radius)] gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-12 rounded-[var(--radius)] px-8 text-base has-[>svg]:px-5",
-        icon: "size-10",
-        "icon-sm": "size-9",
-        "icon-lg": "size-12",
+        default: "",
+        sm: "control-dense px-[var(--space-standard)]",
+        lg: "control-standard px-[var(--space-major)]",
+        icon: "control-dense h-9 w-9 px-0",
+        "icon-sm": "button-header h-8 w-8 px-0",
+        "icon-lg": "control-standard h-10 w-10 px-0",
       },
     },
     defaultVariants: {

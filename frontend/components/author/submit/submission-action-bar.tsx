@@ -64,13 +64,13 @@ export function SubmissionActionBar({
   }
 
   return (
-    <div className="absolute bottom-0 left-0 lg:left-60 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-3 px-4 z-30">
+    <div className="absolute bottom-0 left-0 right-0 z-30 border-t border-[var(--color-border-strong)] bg-[var(--color-surface)] px-4 py-3 lg:left-60">
       <div className="max-w-4xl mx-auto flex items-center justify-between">
         {/* Return Button */}
         <button
           type="button"
           onClick={handleCancel}
-          className="flex items-center gap-1.5 h-8 px-3 rounded-full text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors uppercase tracking-wider"
+          className="button-header text-ui-meta inline-flex h-8 items-center gap-1.5 px-3"
         >
           <span
             className="material-symbols-outlined"
@@ -103,7 +103,7 @@ export function SubmissionActionBar({
             type="button"
             onClick={onSaveDraft}
             disabled={submitting || savingDraft}
-            className="hidden sm:flex items-center gap-1.5 h-8 px-3 rounded-full text-[10px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors uppercase tracking-wider disabled:opacity-50"
+            className="button-header text-ui-meta hidden h-8 items-center gap-1.5 px-3 disabled:opacity-50 sm:inline-flex"
           >
             <span
               className="material-symbols-outlined"
@@ -137,7 +137,7 @@ export function SubmissionActionBar({
               type="button"
               onClick={onSubmit}
               disabled={!canSubmit || submitting}
-              className="flex items-center gap-1.5 h-9 px-4 bg-[#1B3C53] hover:bg-[#234C6A] text-white rounded-md text-[10px] font-medium shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider"
+              className="button-primary text-ui-meta inline-flex h-9 items-center gap-1.5 px-4 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {submitting ? (
                 <>
@@ -176,7 +176,7 @@ export function SubmissionActionBar({
               type="button"
               onClick={handleNext}
               disabled={submitting}
-              className="flex items-center gap-1.5 h-9 px-4 bg-[#1B3C53] hover:bg-[#234C6A] text-white rounded-md text-[10px] font-medium shadow-md transition-all uppercase tracking-wider disabled:opacity-50"
+              className="button-primary text-ui-meta inline-flex h-9 items-center gap-1.5 px-4 disabled:opacity-50"
             >
               {nextStepLabels[currentStep]}
               <span className="material-symbols-outlined text-[14px]">arrow_forward</span>

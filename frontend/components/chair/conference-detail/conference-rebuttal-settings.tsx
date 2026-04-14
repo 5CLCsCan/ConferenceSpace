@@ -74,31 +74,49 @@ export function ConferenceRebuttalSettings({
   }
 
   if (loading) {
-    return <div className="text-xs text-slate-500 py-4">{t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_loading_settings")}</div>
+    return (
+      <div className="text-body py-4">
+        {t(
+          "runtime.components.chair.conference-detail.conference-rebuttal-settings.text_loading_settings",
+        )}
+      </div>
+    )
   }
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-      <div className="px-4 pt-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-        <h2 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-          {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_rebuttal_configuration")}{" "}</h2>
-        <p className="text-xs font-light text-slate-500 dark:text-slate-400 leading-relaxed mt-0.5">
-          {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_configure_the_rebuttal_period_settings_for")}{" "}</p>
+    <div className="surface-card overflow-hidden">
+      <div className="border-b border-[var(--color-border-soft)] px-4 pb-3 pt-4">
+        <h2 className="text-card-header">
+          {t(
+            "runtime.components.chair.conference-detail.conference-rebuttal-settings.text_rebuttal_configuration",
+          )}{" "}
+        </h2>
+        <p className="text-body mt-0.5 leading-relaxed">
+          {t(
+            "runtime.components.chair.conference-detail.conference-rebuttal-settings.text_configure_the_rebuttal_period_settings_for",
+          )}{" "}
+        </p>
       </div>
 
       <div className="px-4 py-4 space-y-5">
         {/* Enable toggle */}
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
-              {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_enable_rebuttal_phase")}{" "}</p>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_allow_authors_to_submit_rebuttals_to")}{" "}</p>
+            <p className="text-ui-meta font-[700] text-[var(--color-primary-ink)]">
+              {t(
+                "runtime.components.chair.conference-detail.conference-rebuttal-settings.text_enable_rebuttal_phase",
+              )}{" "}
+            </p>
+            <p className="text-meta">
+              {t(
+                "runtime.components.chair.conference-detail.conference-rebuttal-settings.text_allow_authors_to_submit_rebuttals_to",
+              )}{" "}
+            </p>
           </div>
           <button
             onClick={() => setEnabled(!enabled)}
             className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-              enabled ? "bg-[#1B3C53]" : "bg-slate-300 dark:bg-slate-600"
+              enabled ? "bg-[var(--color-primary-ink)]" : "bg-[var(--color-border-strong)]"
             }`}
           >
             <span
@@ -112,23 +130,29 @@ export function ConferenceRebuttalSettings({
         {/* Date fields */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">
-              {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_start_date")}{" "}</label>
+            <label className="text-table-header mb-1 block">
+              {t(
+                "runtime.components.chair.conference-detail.conference-rebuttal-settings.text_start_date",
+              )}{" "}
+            </label>
             <input
               type="date"
               value={startAt}
               onChange={(e) => setStartAt(e.target.value)}
-              className="w-full text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#1B3C53]"
+              className="control-standard text-body w-full px-3 py-1.5 focus:border-[var(--color-primary-ink)] focus:outline-none"
             />
           </div>
           <div>
-            <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">
-              {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_deadline")}{" "}</label>
+            <label className="text-table-header mb-1 block">
+              {t(
+                "runtime.components.chair.conference-detail.conference-rebuttal-settings.text_deadline",
+              )}{" "}
+            </label>
             <input
               type="date"
               value={deadline}
               onChange={(e) => setDeadline(e.target.value)}
-              className="w-full text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#1B3C53]"
+              className="control-standard text-body w-full px-3 py-1.5 focus:border-[var(--color-primary-ink)] focus:outline-none"
             />
           </div>
         </div>
@@ -136,47 +160,56 @@ export function ConferenceRebuttalSettings({
         {/* Char limits */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">
-              {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_general_response_limit_chars")}{" "}</label>
+            <label className="text-table-header mb-1 block">
+              {t(
+                "runtime.components.chair.conference-detail.conference-rebuttal-settings.text_general_response_limit_chars",
+              )}{" "}
+            </label>
             <input
               type="number"
               min={100}
               max={10000}
               value={charLimitGeneral}
               onChange={(e) => setCharLimitGeneral(Number(e.target.value))}
-              className="w-full text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#1B3C53]"
+              className="control-standard text-body w-full px-3 py-1.5 focus:border-[var(--color-primary-ink)] focus:outline-none"
             />
           </div>
           <div>
-            <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">
-              {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_per_point_response_limit_chars")}{" "}</label>
+            <label className="text-table-header mb-1 block">
+              {t(
+                "runtime.components.chair.conference-detail.conference-rebuttal-settings.text_per_point_response_limit_chars",
+              )}{" "}
+            </label>
             <input
               type="number"
               min={100}
               max={5000}
               value={charLimitPerPoint}
               onChange={(e) => setCharLimitPerPoint(Number(e.target.value))}
-              className="w-full text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#1B3C53]"
+              className="control-standard text-body w-full px-3 py-1.5 focus:border-[var(--color-primary-ink)] focus:outline-none"
             />
           </div>
         </div>
 
         {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+          <div className="badge-semantic-error rounded-[var(--radius-button)] px-3 py-2 text-ui-meta">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-xs text-green-700">
-            {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_settings_saved_successfully")}{" "}</div>
+          <div className="badge-semantic-success rounded-[var(--radius-button)] px-3 py-2 text-ui-meta">
+            {t(
+              "runtime.components.chair.conference-detail.conference-rebuttal-settings.text_settings_saved_successfully",
+            )}{" "}
+          </div>
         )}
 
         <div className="flex justify-end pt-1">
           <button
             onClick={handleSave}
             disabled={saving}
-            className="text-xs px-4 py-1.5 rounded-lg bg-[#1B3C53] text-white hover:bg-[#1B3C53]/90 disabled:opacity-50 font-medium"
+            className="button-primary text-ui-meta px-4 py-1.5 font-[500] disabled:opacity-50"
           >
             {saving ? "Saving…" : "Save Settings"}
           </button>

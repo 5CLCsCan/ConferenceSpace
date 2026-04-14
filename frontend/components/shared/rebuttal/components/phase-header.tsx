@@ -35,14 +35,14 @@ export function PhaseHeader({ settings, userRole = "reviewer" }: PhaseHeaderProp
             >
               {phase.icon}
             </span>
-            <h2 className="text-sm font-bold text-[#1B3C53] tracking-tight">{phase.label}</h2>
+            <h2 className="text-card-header">{phase.label}</h2>
           </div>
-          <p className="text-xs text-slate-500 leading-relaxed max-w-xl">{description}</p>
+          <p className="text-body max-w-xl leading-relaxed">{description}</p>
         </div>
 
         {/* Deadline Counter */}
         {settings.phase !== "finalized" && (
-          <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
+          <div className="badge-semantic-warning flex items-center gap-2 rounded-[var(--radius-button)] px-3 py-2">
             <span
               className="material-symbols-outlined text-amber-600"
               style={{
@@ -65,12 +65,12 @@ export function PhaseHeader({ settings, userRole = "reviewer" }: PhaseHeaderProp
               schedule
             </span>
             <div className="text-right">
-              <div className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
+              <div className="text-tiny-label text-amber-700">
                 {t(
                   "runtime.components.shared.rebuttal.components.phase-header.text_response_deadline",
                 )}{" "}
               </div>
-              <div className="text-[11px] font-medium text-amber-600">
+              <div className="text-ui-meta font-[700] text-amber-700">
                 {settings.daysRemaining}{" "}
                 {t(
                   "runtime.components.shared.rebuttal.components.phase-header.text_days_remaining",

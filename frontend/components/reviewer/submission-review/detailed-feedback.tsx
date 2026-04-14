@@ -90,31 +90,29 @@ function FeedbackCard({ field, value, onChange, isLast = false }: FeedbackCardPr
     <div className={isLast ? "flex-1 flex flex-col min-h-0" : "space-y-2"}>
       {/* Header */}
       <div className="flex items-center justify-between shrink-0 mb-2">
-        <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">
-          {field.label}
-        </label>
+        <label className="text-table-header">{field.label}</label>
         <div className="flex items-center gap-3">
-          <span className="text-[8px] font-medium text-slate-400">
+          <span className="text-meta">
             {wordCount} {wordCount === 1 ? "word" : "words"}
           </span>
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 type="button"
-                className="flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors"
+                className="button-header inline-flex h-7 w-7 items-center justify-center p-0"
               >
                 <span className="material-symbols-outlined text-[14px] leading-none">info</span>
               </button>
             </TooltipTrigger>
             <TooltipContent
               side="right"
-              className="bg-white text-slate-900 border border-slate-200 shadow-lg p-4 max-w-[280px]"
+              className="surface-card text-body max-w-[280px] p-4"
               sideOffset={8}
             >
               <ul className="space-y-1">
                 {field.tips.map((tip, i) => (
-                  <li key={i} className="text-[10px] text-slate-500 flex items-start gap-1.5">
-                    <span className="text-slate-400 mt-0.5">-</span>
+                  <li key={i} className="text-ui-meta flex items-start gap-1.5">
+                    <span className="text-meta mt-0.5">-</span>
                     {tip}
                   </li>
                 ))}
@@ -129,9 +127,9 @@ function FeedbackCard({ field, value, onChange, isLast = false }: FeedbackCardPr
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={field.placeholder}
-        className={`w-full rounded-lg border border-slate-200 bg-slate-50/50 text-[11px] leading-relaxed 
-          focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] focus:bg-white
-          ${isLast ? "flex-1 min-h-0" : field.minHeight} px-3 py-2 resize-none placeholder:text-slate-400 font-medium`}
+        className={`control-standard text-body w-full resize-none px-3 py-2 leading-relaxed placeholder:text-[var(--color-text-meta)]
+          focus:border-[var(--color-primary-ink)] focus:bg-[var(--color-surface)] focus:outline-none
+          ${isLast ? "flex-1 min-h-0" : field.minHeight}`}
       />
     </div>
   )
@@ -173,15 +171,15 @@ export function DetailedFeedbackSection({
   const completedCount = [summary, strengths, weaknesses, questions].filter((v) => v.trim()).length
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 pt-4 pb-4 h-[866px] flex flex-col">
+    <div className="surface-card flex h-[866px] flex-col px-4 pb-4 pt-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3 mt-3 border-b border-slate-100 pb-2 shrink-0">
-        <h2 className="font-bold text-sm text-[#1B3C53] tracking-tight uppercase">
+      <div className="mb-3 mt-3 flex shrink-0 items-center justify-between border-b border-[var(--color-border-soft)] pb-2">
+        <h2 className="text-card-header">
           {t(
             "runtime.components.reviewer.submission-review.detailed-feedback.text_review_synthesis",
           )}{" "}
         </h2>
-        <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">
+        <span className="text-kicker text-[var(--color-text-meta)]">
           {completedCount}
           {t(
             "runtime.components.reviewer.submission-review.detailed-feedback.text_4_completed",

@@ -16,34 +16,32 @@ export function ScoreSummaryPanel({
   const updatedCount = reviewers.filter((r) => r.scores.updated).length
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-4 mb-5">
+    <div className="surface-card mb-5 p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+        <h3 className="text-table-header">
           {t(
             "runtime.components.shared.rebuttal.components.score-summary-panel.text_reviewer_scores",
           )}{" "}
         </h3>
         {updatedCount > 0 && (
-          <span className="text-[9px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+          <span className="badge-semantic-success text-tiny-label">
             {updatedCount} score{updatedCount > 1 ? "s" : ""} updated
           </span>
         )}
       </div>
 
       {/* Average Score Display */}
-      <div className="flex items-center gap-4 mb-4 pb-4 border-b border-slate-100">
+      <div className="mb-4 flex items-center gap-4 border-b border-[var(--color-border-soft)] pb-4">
         <div className="flex items-baseline gap-2">
-          <span className="text-[28px] font-black text-[#1B3C53] leading-none">
-            {avgCurrent.toFixed(1)}
-          </span>
-          <span className="text-[10px] text-slate-400 font-medium">
+          <span className="text-detail-title leading-none">{avgCurrent.toFixed(1)}</span>
+          <span className="text-tiny-label text-[var(--color-text-meta)]">
             {t("runtime.components.shared.rebuttal.components.score-summary-panel.text_avg_score")}
           </span>
         </div>
         {scoreChanged && (
-          <div className="flex items-center gap-1 text-[10px] text-emerald-600">
+          <div className="text-ui-meta flex items-center gap-1 text-[var(--color-success-text)]">
             <span className="material-symbols-outlined text-[14px]">trending_up</span>
-            <span className="font-medium">
+            <span className="font-[700]">
               +{(avgCurrent - avgOriginal).toFixed(1)}{" "}
               {t(
                 "runtime.components.shared.rebuttal.components.score-summary-panel.text_from_initial",

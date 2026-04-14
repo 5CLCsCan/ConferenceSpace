@@ -54,6 +54,13 @@ describe("ReviewAuditPanel", () => {
     expect(screen.getByText("Dismissed warnings")).toBeInTheDocument()
     expect(screen.getByText("Blockers: 1")).toBeInTheDocument()
     expect(screen.getByText("Warnings: 1")).toBeInTheDocument()
+    expect(screen.getByText(/semantic consistency and justification audit/i)).toHaveClass(
+      "text-card-header",
+    )
+    expect(screen.getByText(/not ready to submit until the blockers are resolved/i)).toHaveClass(
+      "text-body",
+    )
+    expect(screen.getByRole("button", { name: "Dismiss" })).toHaveClass("button-secondary")
 
     fireEvent.click(screen.getByRole("button", { name: "Dismiss" }))
     fireEvent.click(screen.getByRole("button", { name: "Reopen" }))

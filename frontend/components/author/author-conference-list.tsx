@@ -93,31 +93,31 @@ export function AuthorConferenceList({
   }
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <div className="surface-table">
       {/* Header Row */}
-      <div className="hidden lg:grid lg:grid-cols-[1fr_200px_190px_200px_minmax(120px,200px)_96px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
-        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+      <div className="hidden border-b border-[var(--color-border-soft)] bg-[var(--color-fill-quiet)] lg:grid lg:grid-cols-[1fr_200px_190px_200px_minmax(120px,200px)_96px]">
+        <div className="text-table-header px-4 py-3">
           {t("runtime.components.author.author-conference-list.text_conference")}{" "}
         </div>
-        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+        <div className="text-table-header px-4 py-3">
           {t("runtime.components.author.author-conference-list.text_paper_title")}{" "}
         </div>
-        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+        <div className="text-table-header px-4 py-3">
           {t("runtime.components.author.author-conference-list.text_status")}{" "}
         </div>
-        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+        <div className="text-table-header px-4 py-3">
           {t("runtime.components.author.author-conference-list.text_dates")}{" "}
         </div>
-        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+        <div className="text-table-header px-4 py-3">
           {t("runtime.components.author.author-conference-list.text_deadline")}{" "}
         </div>
-        <div className="px-4 py-3 pr-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">
+        <div className="text-table-header px-4 py-3 pr-4 text-right">
           {t("runtime.components.author.author-conference-list.text_actions")}{" "}
         </div>
       </div>
 
       {/* List Rows */}
-      <div className="divide-y divide-slate-100 dark:divide-slate-700">
+      <div className="divide-y divide-[var(--color-border-soft)]">
         {conferences.map((conference) => (
           <AuthorConferenceListRow
             key={conference.id}
@@ -129,15 +129,15 @@ export function AuthorConferenceList({
 
       {/* Pagination */}
       {showPagination && (
-        <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div className="flex items-center justify-between border-t border-[var(--color-border-soft)] px-4 py-3">
           {/* Left: Item count */}
-          <div className="text-[11px] text-slate-500">
+          <div className="text-ui-meta">
             {t("runtime.components.author.author-conference-list.text_showing")}{" "}
-            <span className="font-bold text-[#1B3C53] dark:text-white">
+            <span className="font-[700] text-[var(--color-primary-ink)]">
               {startItem}-{endItem}
             </span>{" "}
             of{" "}
-            <span className="font-bold text-[#1B3C53] dark:text-white">
+            <span className="font-[700] text-[var(--color-primary-ink)]">
               {(totalItems || conferences.length).toLocaleString()}
             </span>{" "}
             submissions
@@ -149,7 +149,7 @@ export function AuthorConferenceList({
               <button
                 onClick={handlePrevPage}
                 disabled={currentPage <= 1}
-                className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="button-secondary text-ui-meta px-2.5 py-1 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {t("runtime.components.author.author-conference-list.text_previous")}{" "}
               </button>
@@ -168,10 +168,8 @@ export function AuthorConferenceList({
                   <button
                     key={page}
                     onClick={() => handlePageClick(page)}
-                    className={`px-2.5 py-1 rounded text-[10px] ${
-                      isActive
-                        ? "bg-[#1B3C53] text-white hover:bg-[#234C6A]"
-                        : "border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    className={`text-ui-meta px-2.5 py-1 ${
+                      isActive ? "button-primary" : "button-secondary"
                     }`}
                   >
                     {page}
@@ -182,7 +180,7 @@ export function AuthorConferenceList({
               <button
                 onClick={handleNextPage}
                 disabled={currentPage >= totalPages}
-                className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="button-secondary text-ui-meta px-2.5 py-1 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {t("runtime.components.author.author-conference-list.text_next")}{" "}
               </button>
@@ -210,7 +208,7 @@ function AuthorConferenceListRow({ conference, onNavigate }: AuthorConferenceLis
   return (
     <div
       onClick={() => onNavigate(conference.id)}
-      className={`group cursor-pointer transition-all duration-150 hover:bg-slate-50 dark:hover:bg-slate-700/50 ${
+      className={`group cursor-pointer transition-all duration-150 hover:bg-[var(--color-fill-quiet)] ${
         isCompleted ? "opacity-70 hover:opacity-100" : ""
       }`}
     >
@@ -221,22 +219,18 @@ function AuthorConferenceListRow({ conference, onNavigate }: AuthorConferenceLis
           <h3
             className={`text-[13px] font-bold leading-[1.3] tracking-tight line-clamp-1 transition-colors ${
               isCompleted
-                ? "text-slate-600 dark:text-slate-400 group-hover:text-[#1B3C53] dark:group-hover:text-white"
-                : "text-[#1B3C53] dark:text-white group-hover:text-[#234C6A] dark:group-hover:text-slate-200"
+                ? "text-card-title text-[var(--color-neutral-text)] group-hover:text-[var(--color-primary-ink)]"
+                : "text-card-title text-[var(--color-primary-ink)] group-hover:text-[var(--color-primary-hover)]"
             }`}
           >
             {conference.acronym || conference.name}
           </h3>
-          {conference.acronym && (
-            <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 mt-0.5 line-clamp-1">
-              {conference.name}
-            </p>
-          )}
+          {conference.acronym && <p className="text-meta mt-0.5 line-clamp-1">{conference.name}</p>}
         </div>
 
         {/* Paper Title */}
         <div className="px-4 py-3">
-          <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400 line-clamp-2">
+          <span className="text-ui-meta line-clamp-2 text-[var(--color-text-body)]">
             {conference.paperTitle || "-"}
           </span>
         </div>
@@ -248,9 +242,7 @@ function AuthorConferenceListRow({ conference, onNavigate }: AuthorConferenceLis
 
         {/* Dates */}
         <div className="px-4 py-3">
-          <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-            {conference.dates || "-"}
-          </span>
+          <span className="text-ui-meta">{conference.dates || "-"}</span>
         </div>
 
         {/* Deadline */}
@@ -262,7 +254,7 @@ function AuthorConferenceListRow({ conference, onNavigate }: AuthorConferenceLis
         <div className="px-2 py-3 pr-4 flex justify-center">
           <button
             onClick={(e) => e.stopPropagation()}
-            className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all"
+            className="button-header inline-flex h-7 w-7 items-center justify-center p-0"
           >
             <span
               className="material-symbols-outlined"
@@ -293,26 +285,24 @@ function AuthorConferenceListRow({ conference, onNavigate }: AuthorConferenceLis
 
         <h3
           className={`text-[13px] font-bold leading-[1.3] tracking-tight mb-0.5 ${
-            isCompleted ? "text-slate-600 dark:text-slate-400" : "text-[#1B3C53] dark:text-white"
+            isCompleted
+              ? "text-card-title text-[var(--color-neutral-text)]"
+              : "text-card-title text-[var(--color-primary-ink)]"
           }`}
         >
           {conference.acronym || conference.name}
         </h3>
-        {conference.acronym && (
-          <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 line-clamp-1 mb-1">
-            {conference.name}
-          </p>
-        )}
+        {conference.acronym && <p className="text-meta mb-1 line-clamp-1">{conference.name}</p>}
 
         {conference.paperTitle && (
-          <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 line-clamp-1 mb-2">
+          <p className="text-ui-meta mb-2 line-clamp-1">
             {t("runtime.components.author.author-conference-list.text_text")}
             {conference.paperTitle}
             {t("runtime.components.author.author-conference-list.text_text")}{" "}
           </p>
         )}
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-slate-400 dark:text-slate-500">
+        <div className="text-meta flex flex-wrap items-center gap-x-4 gap-y-1">
           {conference.location && (
             <span className="flex items-center gap-1">
               <span

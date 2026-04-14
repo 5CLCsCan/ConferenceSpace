@@ -44,26 +44,24 @@ export function EmptyState({ type }: EmptyStateProps) {
   const { icon, title, description } = content[type]
 
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4">
-      <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
+    <div className="flex flex-col items-center justify-center px-4 py-16">
+      <div className="surface-card-quiet-strip mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-border-soft)]">
         <span className="material-symbols-outlined text-[20px] text-slate-400">{icon}</span>
       </div>
-      <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-1 tracking-tight">
-        {title}
-      </h3>
-      <p className="text-[10px] font-medium text-slate-400 text-center max-w-xs">{description}</p>
+      <h3 className="text-card-title mb-1">{title}</h3>
+      <p className="text-supporting max-w-xs text-center">{description}</p>
     </div>
   )
 }
 
 export function NoResultsState() {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4">
-      <span className="material-symbols-outlined text-[28px] text-slate-300 mb-2">search_off</span>
-      <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-1 tracking-tight">
+    <div className="flex flex-col items-center justify-center px-4 py-16">
+      <span className="material-symbols-outlined mb-2 text-[40px] text-slate-300">search_off</span>
+      <h3 className="text-card-title mb-1">
         {t("runtime.components.conference.empty-state.text_no_results_found")}{" "}
       </h3>
-      <p className="text-[10px] font-medium text-slate-400 text-center">
+      <p className="text-supporting text-center">
         {t("runtime.components.conference.empty-state.text_try_adjusting_your_search_terms")}{" "}
       </p>
     </div>

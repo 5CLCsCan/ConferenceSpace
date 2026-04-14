@@ -225,8 +225,12 @@ export function SubmissionReviewScreen({
     if (!formData.recommendation) {
       toast({
         variant: "destructive",
-        title: t("runtime.components.reviewer.submission-review.prop_title_recommendation_required"),
-        description: t("runtime.components.reviewer.submission-review.prop_description_please_select_an_overall_rating_before"),
+        title: t(
+          "runtime.components.reviewer.submission-review.prop_title_recommendation_required",
+        ),
+        description: t(
+          "runtime.components.reviewer.submission-review.prop_description_please_select_an_overall_rating_before",
+        ),
       })
       return
     }
@@ -234,7 +238,9 @@ export function SubmissionReviewScreen({
       toast({
         variant: "destructive",
         title: t("runtime.components.reviewer.submission-review.prop_title_incomplete_review"),
-        description: t("runtime.components.reviewer.submission-review.prop_description_please_fill_in_the_summary_strengths"),
+        description: t(
+          "runtime.components.reviewer.submission-review.prop_description_please_fill_in_the_summary_strengths",
+        ),
       })
       return
     }
@@ -249,7 +255,9 @@ export function SubmissionReviewScreen({
       toast({
         variant: "destructive",
         title: t("runtime.components.reviewer.submission-review.prop_title_submission_blocked"),
-        description: t("runtime.components.reviewer.submission-review.prop_description_resolve_the_active_blocking_audit_findings"),
+        description: t(
+          "runtime.components.reviewer.submission-review.prop_description_resolve_the_active_blocking_audit_findings",
+        ),
       })
       return
     }
@@ -263,7 +271,9 @@ export function SubmissionReviewScreen({
     if (success) {
       toast({
         title: t("runtime.components.reviewer.submission-review.prop_title_review_submitted"),
-        description: t("runtime.components.reviewer.submission-review.prop_description_your_review_has_been_submitted_successfully"),
+        description: t(
+          "runtime.components.reviewer.submission-review.prop_description_your_review_has_been_submitted_successfully",
+        ),
       })
     } else {
       const detail = parseReviewErrorDetail(errorData)
@@ -272,7 +282,9 @@ export function SubmissionReviewScreen({
         toast({
           variant: "destructive",
           title: t("runtime.components.reviewer.submission-review.prop_title_submission_blocked"),
-          description: t("runtime.components.reviewer.submission-review.prop_description_resolve_the_active_blocking_audit_findings"),
+          description: t(
+            "runtime.components.reviewer.submission-review.prop_description_resolve_the_active_blocking_audit_findings",
+          ),
         })
         return
       }
@@ -282,7 +294,9 @@ export function SubmissionReviewScreen({
       }
       toast({
         variant: "destructive",
-        title: t("runtime.components.reviewer.submission-review.prop_title_failed_to_submit_review"),
+        title: t(
+          "runtime.components.reviewer.submission-review.prop_title_failed_to_submit_review",
+        ),
         description: error || "An unexpected error occurred. Please try again.",
       })
     }
@@ -301,7 +315,9 @@ export function SubmissionReviewScreen({
       setAuditOverridePrompt(null)
       toast({
         title: t("runtime.components.reviewer.submission-review.prop_title_review_submitted"),
-        description: t("runtime.components.reviewer.submission-review.prop_description_your_review_was_submitted_without_a"),
+        description: t(
+          "runtime.components.reviewer.submission-review.prop_description_your_review_was_submitted_without_a",
+        ),
       })
       return
     }
@@ -322,31 +338,29 @@ export function SubmissionReviewScreen({
     if (!result.success) {
       toast({
         variant: "destructive",
-        title: t("runtime.components.reviewer.submission-review.prop_title_failed_to_update_audit_finding"),
+        title: t(
+          "runtime.components.reviewer.submission-review.prop_title_failed_to_update_audit_finding",
+        ),
         description: result.error || "An unexpected error occurred. Please try again.",
       })
     }
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f7f7f7]">
+    <div className="surface-page-detail flex min-h-screen flex-col">
       {/* Top Header Bar */}
       <ReviewHeaderBar submission={submission} />
 
       {onBack && (
         <div className="px-4 md:px-8 xl:px-12 pt-4">
-          <button
-            type="button"
-            className="text-[11px] font-semibold text-slate-500 hover:text-slate-900"
-            onClick={onBack}
-          >
+          <button type="button" className="button-header text-ui-meta px-3" onClick={onBack}>
             {t("runtime.components.reviewer.submission-review.text_back")}{" "}
           </button>
         </div>
       )}
 
       {/* Main Content */}
-      <main className="flex-1 px-4 md:px-8 xl:px-12 py-8 max-w-[1600px] mx-auto w-full">
+      <main className="surface-page-detail mx-auto w-full max-w-[1600px] flex-1 px-4 py-8 md:px-8 xl:px-12">
         {/* Paper Header Section */}
         <PaperHeader submission={submission} />
 
@@ -382,10 +396,10 @@ export function SubmissionReviewScreen({
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
               {/* Scoring Criteria - Left 50% */}
               <div>
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+                <div className="surface-card p-4">
                   {/* Header */}
-                  <div className="flex items-center justify-between mt-3 mb-3 border-b border-slate-100 pb-2">
-                    <h2 className="font-bold text-sm text-[#1B3C53] tracking-tight uppercase leading-none">
+                  <div className="mb-3 mt-3 flex items-center justify-between border-b border-[var(--color-border-soft)] pb-2">
+                    <h2 className="text-card-header leading-none">
                       {t(
                         "runtime.components.reviewer.submission-review.text_scoring_criteria",
                       )}{" "}
@@ -394,7 +408,7 @@ export function SubmissionReviewScreen({
                       <TooltipTrigger asChild>
                         <button
                           type="button"
-                          className="flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors"
+                          className="button-header inline-flex h-7 w-7 items-center justify-center p-0"
                         >
                           <span
                             className="material-symbols-outlined leading-none"
@@ -421,11 +435,11 @@ export function SubmissionReviewScreen({
                       </TooltipTrigger>
                       <TooltipContent
                         side="right"
-                        className="bg-white text-slate-900 border border-slate-200 shadow-lg p-4 max-w-[280px]"
+                        className="surface-card text-body max-w-[280px] p-4"
                         sideOffset={8}
                       >
                         <div className="space-y-3">
-                          <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                          <h4 className="text-table-header">
                             {t(
                               "runtime.components.reviewer.submission-review.text_scoring_guide",
                             )}{" "}
@@ -436,7 +450,7 @@ export function SubmissionReviewScreen({
                                 <span className="w-2 h-2 rounded-full bg-[#0d9488]" />
                                 <span className="w-2 h-2 rounded-full bg-[#16a34a]" />
                               </div>
-                              <span className="text-[9px] text-slate-600">
+                              <span className="text-meta">
                                 {t(
                                   "runtime.components.reviewer.submission-review.text_8_10_strong_contribution_recommend",
                                 )}{" "}
@@ -447,7 +461,7 @@ export function SubmissionReviewScreen({
                                 <span className="w-2 h-2 rounded-full bg-[#84cc16]" />
                                 <span className="w-2 h-2 rounded-full bg-[#a3a3a3]" />
                               </div>
-                              <span className="text-[9px] text-slate-600">
+                              <span className="text-meta">
                                 {t(
                                   "runtime.components.reviewer.submission-review.text_5_7_acceptable_with_caveats",
                                 )}{" "}
@@ -458,17 +472,17 @@ export function SubmissionReviewScreen({
                                 <span className="w-2 h-2 rounded-full bg-[#f59e0b]" />
                                 <span className="w-2 h-2 rounded-full bg-[#dc2626]" />
                               </div>
-                              <span className="text-[9px] text-slate-600">
+                              <span className="text-meta">
                                 {t(
                                   "runtime.components.reviewer.submission-review.text_1_4_significant_issues_present",
                                 )}{" "}
                               </span>
                             </div>
                           </div>
-                          <div className="pt-2 border-t border-slate-100">
+                          <div className="border-t border-[var(--color-border-soft)] pt-2">
                             <a
                               href="#"
-                              className="text-[9px] text-[#2563eb] hover:underline font-medium"
+                              className="text-ui-meta font-[500] text-[var(--color-primary-ink)] hover:underline"
                             >
                               {t(
                                 "runtime.components.reviewer.submission-review.text_view_full_reviewer_guide_rarr",
@@ -574,8 +588,8 @@ export function SubmissionReviewScreen({
             />
 
             {/* Sticky Action Bar */}
-            <div className="sticky bottom-6 z-20 flex items-center justify-between bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-lg shadow-sm mt-8">
-              <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
+            <div className="surface-card sticky bottom-6 z-20 mt-8 flex items-center justify-between rounded-[var(--radius-card)] p-4">
+              <div className="text-ui-meta flex items-center gap-1.5 font-[500]">
                 <span
                   className="material-symbols-outlined"
                   style={{
@@ -598,25 +612,25 @@ export function SubmissionReviewScreen({
                   schedule
                 </span>
                 {t("runtime.components.reviewer.submission-review.text_last_draft_saved")}{" "}
-                  {formData.lastSaved ||
-                    t("runtime.components.reviewer.submission-review.text_not_saved")}
+                {formData.lastSaved ||
+                  t("runtime.components.reviewer.submission-review.text_not_saved")}
               </div>
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={handleSaveDraft}
                   disabled={saving || auditing}
-                  className="h-8 px-3 rounded-md border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium text-[11px] hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                  className="button-secondary text-ui-meta px-3"
                 >
-                    {saving || auditing
-                      ? t("runtime.components.reviewer.submission-review.text_saving")
-                      : t("runtime.components.reviewer.submission-review.text_save_draft")}
+                  {saving || auditing
+                    ? t("runtime.components.reviewer.submission-review.text_saving")
+                    : t("runtime.components.reviewer.submission-review.text_save_draft")}
                 </button>
                 <button
                   type="button"
                   onClick={handleSubmitReview}
                   disabled={saving || auditing}
-                  className="h-8 px-3 rounded-md bg-[#1B3C53] dark:bg-white hover:bg-[#234C6A] dark:hover:bg-slate-200 text-white dark:text-[#1B3C53] font-medium text-[11px] shadow-sm transition-all flex items-center gap-2"
+                  className="button-primary text-ui-meta flex items-center gap-2 px-3"
                 >
                   <span
                     className="material-symbols-outlined"
@@ -674,7 +688,11 @@ export function SubmissionReviewScreen({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("runtime.components.reviewer.submission-review.text_submit_without_completed_audit")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t(
+                "runtime.components.reviewer.submission-review.text_submit_without_completed_audit",
+              )}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {auditOverridePrompt ||
                 t(
@@ -683,9 +701,12 @@ export function SubmissionReviewScreen({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t("runtime.components.reviewer.submission-review.text_cancel")}</AlertDialogCancel>
+            <AlertDialogCancel>
+              {t("runtime.components.reviewer.submission-review.text_cancel")}
+            </AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmAuditOverride}>
-              {t("runtime.components.reviewer.submission-review.text_submit_anyway")}{" "}</AlertDialogAction>
+              {t("runtime.components.reviewer.submission-review.text_submit_anyway")}{" "}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

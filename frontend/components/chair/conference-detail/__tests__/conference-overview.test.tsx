@@ -50,9 +50,10 @@ describe("ConferenceOverview", () => {
   it("renders the restored legacy overview shell", async () => {
     render(<ConferenceOverview conferenceId="1" />)
 
-    expect(await screen.findByText(/About the Conference/i)).toBeInTheDocument()
-    expect(screen.getByText(/Conference Tracks/i)).toBeInTheDocument()
-    expect(screen.getByText(/Details/i)).toBeInTheDocument()
-    expect(screen.getByText(/Keywords/i)).toBeInTheDocument()
+    expect(await screen.findByText(/About the Conference/i)).toHaveClass("text-card-header")
+    expect(screen.getByText(/Conference Tracks/i)).toHaveClass("text-card-header")
+    expect(screen.getByText(/Details/i)).toHaveClass("text-card-header")
+    expect(screen.getByText(/Keywords/i)).toHaveClass("text-card-header")
+    expect(screen.getByText(/Scope and objectives\./i)).toHaveClass("text-body")
   })
 })
