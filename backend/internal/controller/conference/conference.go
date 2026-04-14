@@ -1,6 +1,7 @@
 package conference
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -44,6 +45,22 @@ func NewWithNotifications(store *storage.Storage, assignmentSvc *assignment.Serv
 		assignmentService:   assignmentSvc,
 		notificationService: notifSvc,
 	}
+}
+
+// enrichWithPCMembers populates the PCMembers field on a ConferenceResponse
+func (c *Controller) enrichWithPCMembers(ctx context.Context, conf *dto.ConferenceResponse) {
+	if conf == nil {
+		return
+	}
+	emails, err := c.roleStorage.GetEmailsByRole(ctx, conf.ID, model.RolePC)
+	if err != nil {
+		conf.PCMembers = []string{}
+		return
+	}
+	if emails == nil {
+		emails = []string{}
+	}
+	conf.PCMembers = emails
 }
 
 // Create godoc
@@ -113,13 +130,11 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.ConferenceCreateReques
 		}
 	}
 
-	err = c.roleStorage.AddRoles(ctx, roles)
-	if err != nil {
-		// Log error but don't fail the conference creation
-		// The chair/co_chairs fields in conferences table still have the data
-		_ = err
+	if err := c.roleStorage.AddRoles(ctx, roles); err != nil {
+		return nil, handler.NewErrorResponse(http.StatusConflict, err.Error())
 	}
 
+	c.enrichWithPCMembers(ctx, conference)
 	return conference, nil
 }
 
@@ -211,16 +226,19 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.ConferenceListRequest) (
 func (c *Controller) Get(ginCtx *gin.Context, req *dto.ConferenceGetRequest) (*dto.ConferenceResponse, error) {
 	ctx := ginCtx.Request.Context()
 
-	conference, err := c.conferenceStorage.GetByID(ctx, req.ConferenceID)
+	userEmail, _ := utils.GetEmail(ginCtx)
+
+	conference, err := c.conferenceStorage.GetByIDForUser(ctx, req.ConferenceID, userEmail)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
 	}
 
-	userEmail, _ := utils.GetEmail(ginCtx)
-	isChair := utils.IsUserChairOrCoChair(ctx, c.roleStorage, req.ConferenceID, userEmail)
+	c.enrichWithPCMembers(ctx, conference)
 
-	// Non-chair callers can only see public conferences (open, reviewing, completed)
-	if !isChair {
+	isPrivileged := utils.IsUserChairCoChairOrPC(ctx, c.roleStorage, req.ConferenceID, userEmail)
+
+	// Non-privileged callers can only see public conferences (open, reviewing, completed)
+	if !isPrivileged {
 		if conference.Status == model.ConferenceStatusDraft || conference.Status == model.ConferenceStatusArchived {
 			return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
 		}
@@ -273,16 +291,48 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.ConferenceUpdateReques
 		req.Conference.Chair = existing.Chair
 	}
 
-	// Update PC member roles if PCMembers is provided in the update request
+	// Sync PC member roles if PCMembers is provided in the update request
 	if req.Conference.PCMembers != nil {
-		for _, pcEmail := range req.Conference.PCMembers {
-			if pcEmail != "" {
-				_ = c.roleStorage.AddRole(ctx, req.ConferenceID, pcEmail, model.RolePC)
+		currentPC, err := c.roleStorage.GetEmailsByRole(ctx, req.ConferenceID, model.RolePC)
+		if err != nil {
+			currentPC = []string{}
+		}
+
+		// Build sets for diff
+		requestedSet := make(map[string]bool)
+		for _, email := range req.Conference.PCMembers {
+			if email != "" {
+				requestedSet[email] = true
+			}
+		}
+		currentSet := make(map[string]bool)
+		for _, email := range currentPC {
+			currentSet[email] = true
+		}
+
+		// Remove PC members no longer in the list
+		for _, email := range currentPC {
+			if !requestedSet[email] {
+				_ = c.roleStorage.RemoveRole(ctx, req.ConferenceID, email)
+			}
+		}
+
+		// Add new PC members
+		for _, email := range req.Conference.PCMembers {
+			if email != "" && !currentSet[email] {
+				if err := c.roleStorage.AddRole(ctx, req.ConferenceID, email, model.RolePC); err != nil {
+					return nil, handler.NewErrorResponse(http.StatusConflict, err.Error())
+				}
 			}
 		}
 	}
 
-	return c.conferenceStorage.Update(ctx, req.ConferenceID, req.Conference)
+	result, err := c.conferenceStorage.Update(ctx, req.ConferenceID, req.Conference)
+	if err != nil {
+		return nil, err
+	}
+	c.enrichWithPCMembers(ctx, result)
+	return result, nil
 }
 
 // Delete godoc
