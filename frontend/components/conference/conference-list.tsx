@@ -4,7 +4,6 @@ import type { ReactNode } from "react"
 import type { Conference, ConferenceStatus } from "./types"
 import { StatusBadge } from "./status-badge"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { cn } from "@/lib/utils"
 
 // -------------------------------------------------------------------------
 // Types & Constants
@@ -110,25 +109,25 @@ export function ConferenceList({
   }
 
   return (
-    <div className="surface-table table-standard">
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
       {/* Header Row */}
-      <div className="hidden border-b border-[var(--color-border-soft)] bg-[var(--color-fill-quiet)] lg:grid lg:grid-cols-[1fr_190px_130px_190px_minmax(120px,240px)_88px]">
-        <div className="text-table-header px-3 py-[10px]">
+      <div className="hidden lg:grid lg:grid-cols-[1fr_190px_130px_190px_minmax(120px,240px)_88px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
+        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
           {t("runtime.components.conference.conference-list.text_conference")}{" "}
         </div>
-        <div className="text-table-header px-3 py-[10px]">
+        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
           {t("runtime.components.conference.conference-list.text_role")}{" "}
         </div>
-        <div className="text-table-header px-3 py-[10px]">
+        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
           {t("runtime.components.conference.conference-list.text_status")}{" "}
         </div>
-        <div className="text-table-header px-3 py-[10px]">
+        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
           {t("runtime.components.conference.conference-list.text_dates")}{" "}
         </div>
-        <div className="text-table-header px-3 py-[10px]">
+        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
           {t("runtime.components.conference.conference-list.text_progress")}{" "}
         </div>
-        <div className="text-table-header px-3 py-[10px] text-right">
+        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">
           {t("runtime.components.conference.conference-list.text_actions")}{" "}
         </div>
       </div>
@@ -147,15 +146,15 @@ export function ConferenceList({
 
       {/* Pagination */}
       {showPagination && (
-        <div className="flex items-center justify-between border-t border-[var(--color-border-strong)] px-[var(--space-card)] py-[var(--space-standard)]">
+        <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
           {/* Left: Item count */}
-          <div className="text-ui-meta">
+          <div className="text-[11px] text-slate-500">
             {t("runtime.components.conference.conference-list.text_showing")}{" "}
-            <span className="font-[700] text-[var(--color-primary-ink)]">
+            <span className="font-bold text-[#1B3C53] dark:text-white">
               {startItem}-{endItem}
             </span>{" "}
             of{" "}
-            <span className="font-[700] text-[var(--color-primary-ink)]">
+            <span className="font-bold text-[#1B3C53] dark:text-white">
               {(totalItems || conferences.length).toLocaleString()}
             </span>{" "}
             conferences
@@ -167,7 +166,7 @@ export function ConferenceList({
               <button
                 onClick={handlePrevPage}
                 disabled={currentPage <= 1}
-                className="button-secondary text-table-header min-h-[28px] rounded-[var(--radius-button)] px-2.5 py-1 disabled:cursor-not-allowed disabled:opacity-50"
+                className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t("runtime.components.conference.conference-list.text_previous")}{" "}
               </button>
@@ -175,7 +174,7 @@ export function ConferenceList({
               {getPageNumbers().map((page, idx) => {
                 if (page === "ellipsis") {
                   return (
-                    <span key={`ellipsis-${idx}`} className="text-table-header px-1.5">
+                    <span key={`ellipsis-${idx}`} className="px-1.5 text-slate-400 text-[10px]">
                       ...
                     </span>
                   )
@@ -186,11 +185,11 @@ export function ConferenceList({
                   <button
                     key={page}
                     onClick={() => handlePageClick(page)}
-                    className={cn("text-table-header min-h-[28px] rounded-[var(--radius-button)] px-2.5 py-1", {
+                    className={`px-2.5 py-1 rounded text-[10px] ${
                       isActive
-                        ? "button-primary"
-                        : "button-secondary",
-                    })}
+                        ? "bg-[#1B3C53] text-white hover:bg-[#234C6A]"
+                        : "border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    }`}
                   >
                     {page}
                   </button>
@@ -200,7 +199,7 @@ export function ConferenceList({
               <button
                 onClick={handleNextPage}
                 disabled={currentPage >= totalPages}
-                className="button-secondary text-table-header min-h-[28px] rounded-[var(--radius-button)] px-2.5 py-1 disabled:cursor-not-allowed disabled:opacity-50"
+                className="px-2.5 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t("runtime.components.conference.conference-list.text_next")}{" "}
               </button>
@@ -229,29 +228,35 @@ function ConferenceListRow({ conference, onNavigate, renderMoreMenu }: Conferenc
   return (
     <div
       onClick={() => onNavigate(conference.id)}
-      className={cn("group cursor-pointer transition-colors duration-150 hover:bg-[var(--color-fill-quiet)]", {
-        "opacity-70 hover:opacity-100": isCompleted,
-      })}
+      className={`group cursor-pointer transition-all duration-150 hover:bg-slate-50 dark:hover:bg-slate-700/50 ${
+        isCompleted ? "opacity-70 hover:opacity-100" : ""
+      }`}
     >
       {/* Desktop Layout */}
-      <div className="hidden min-h-[72px] items-center lg:grid lg:grid-cols-[1fr_190px_130px_190px_minmax(120px,240px)_88px]">
+      <div className="hidden lg:grid lg:grid-cols-[1fr_190px_130px_190px_minmax(120px,240px)_88px] items-center min-h-[60px]">
         {/* Conference (Acronym + Full Name) */}
-        <div className="px-3 py-[14px]">
-          <h3 className="text-card-title line-clamp-1 transition-colors group-hover:text-[var(--color-primary-hover)]">
+        <div className="px-4 py-3">
+          <h3
+            className={`text-[13px] font-bold leading-[1.3] tracking-tight line-clamp-1 transition-colors ${
+              isCompleted
+                ? "text-slate-600 dark:text-slate-400 group-hover:text-[#1B3C53] dark:group-hover:text-white"
+                : "text-[#1B3C53] dark:text-white group-hover:text-[#234C6A] dark:group-hover:text-slate-200"
+            }`}
+          >
             {conference.acronym || conference.name}
           </h3>
-          <p className="text-meta mt-0.5">
+          <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 mt-0.5">
             {conference.acronym ? conference.name : ""}
           </p>
         </div>
 
         {/* Role + Track */}
-        <div className="px-3 py-[14px]">
-          <span className="text-ui-meta">
+        <div className="px-4 py-3">
+          <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400">
             {conference.role}
           </span>
           {conference.track && (
-            <p className="text-meta mt-0.5">
+            <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 mt-0.5">
               {conference.track}
             </p>
           )}
@@ -263,25 +268,25 @@ function ConferenceListRow({ conference, onNavigate, renderMoreMenu }: Conferenc
         </div>
 
         {/* Dates */}
-        <div className="px-3 py-[14px]">
-          <span className="text-ui-meta">
+        <div className="px-4 py-3">
+          <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
             {conference.dates || "-"}
           </span>
         </div>
 
         {/* Progress */}
-        <div className="px-3 py-[14px]">
+        <div className="px-4 py-3">
           <ProgressIndicator conference={conference} />
         </div>
 
         {/* Actions */}
-        <div className="flex justify-center px-2 py-[14px]">
+        <div className="px-2 py-3 flex justify-center">
           {renderMoreMenu?.(conference) ?? (
             <button
               onClick={(e) => {
                 e.stopPropagation()
               }}
-              className="button-secondary h-7 w-7 px-0 text-[var(--color-text-meta)] hover:text-[var(--color-primary-ink)]"
+              className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all"
             >
               <span
                 className="material-symbols-outlined"
@@ -300,7 +305,7 @@ function ConferenceListRow({ conference, onNavigate, renderMoreMenu }: Conferenc
       </div>
 
       {/* Mobile/Tablet Layout */}
-      <div className="p-[var(--space-card)] lg:hidden">
+      <div className="lg:hidden p-4">
         <div className="flex items-start justify-between gap-3 mb-2">
           <StatusBadge status={conference.status} />
           {renderMoreMenu?.(conference) ?? (
@@ -308,7 +313,7 @@ function ConferenceListRow({ conference, onNavigate, renderMoreMenu }: Conferenc
               onClick={(e) => {
                 e.stopPropagation()
               }}
-              className="button-secondary h-7 w-7 shrink-0 px-0 text-[var(--color-text-meta)] hover:text-[var(--color-primary-ink)]"
+              className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-[#1B3C53] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-all shrink-0"
             >
               <span
                 className="material-symbols-outlined"
@@ -325,23 +330,27 @@ function ConferenceListRow({ conference, onNavigate, renderMoreMenu }: Conferenc
           )}
         </div>
 
-        <h3 className="text-card-title mb-0.5">
+        <h3
+          className={`text-[13px] font-bold leading-[1.3] tracking-tight mb-0.5 ${
+            isCompleted ? "text-slate-600 dark:text-slate-400" : "text-[#1B3C53] dark:text-white"
+          }`}
+        >
           {conference.acronym || conference.name}
         </h3>
         {conference.acronym && (
-          <p className="text-meta mb-1 line-clamp-1">
+          <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 line-clamp-1 mb-1">
             {conference.name}
           </p>
         )}
 
-        <p className="text-meta mb-2">
+        <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-2">
           {conference.role}
           {conference.track && (
-            <span className="text-[var(--color-text-meta)]"> | {conference.track}</span>
+            <span className="text-slate-300 dark:text-slate-600"> | {conference.track}</span>
           )}
         </p>
 
-        <div className="text-meta flex flex-wrap items-center gap-x-4 gap-y-1">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-slate-400 dark:text-slate-500">
           {conference.location && (
             <span className="flex items-center gap-1">
               <span
@@ -393,19 +402,19 @@ function ProgressIndicator({ conference }: ProgressIndicatorProps) {
     return (
       <div className="flex flex-col gap-1">
         {/* Row 1: Label */}
-        <span className="text-meta">{label}</span>
+        <span className="text-[9px] font-medium text-slate-400 dark:text-slate-500">{label}</span>
         {/* Row 2: Progress bar */}
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-border-strong)]">
+        <div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-1.5 overflow-hidden">
           <div
-            className="h-1.5 rounded-full bg-[var(--color-primary-ink)] transition-all"
+            className="bg-[#1B3C53] dark:bg-slate-300 h-1.5 rounded-full transition-all"
             style={{ width: `${value}%` }}
           />
         </div>
         {/* Row 3: Percentage + time */}
         <div className="flex items-center gap-2">
-          <span className="text-meta font-[700] text-[var(--color-primary-ink)]">{value}%</span>
+          <span className="text-[10px] font-bold text-[#1B3C53] dark:text-white">{value}%</span>
           {daysLeft > 0 && (
-            <span className="text-meta">
+            <span className="text-[9px] font-medium text-slate-400">
               {daysLeft}
               {t("runtime.components.conference.conference-list.text_d_left")}
             </span>
@@ -421,21 +430,21 @@ function ProgressIndicator({ conference }: ProgressIndicatorProps) {
     return (
       <div className="flex flex-col gap-1">
         {/* Row 1: Phase */}
-        <span className="text-meta">{phase}</span>
+        <span className="text-[9px] font-medium text-slate-400 dark:text-slate-500">{phase}</span>
         {/* Row 2: Progress bar */}
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-border-strong)]">
+        <div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-1.5 overflow-hidden">
           <div
-            className="h-1.5 rounded-full bg-[var(--color-secondary-accent)] transition-all"
+            className="bg-blue-500 dark:bg-blue-400 h-1.5 rounded-full transition-all"
             style={{ width: `${progress}%` }}
           />
         </div>
         {/* Row 3: Percentage + action */}
         <div className="flex items-center gap-2">
-          <span className="text-meta font-[700] text-[var(--color-primary-ink)]">
+          <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400">
             {progress}%
           </span>
           {actionRequired && (
-            <span className="text-kicker text-[var(--color-warning-text)]">
+            <span className="text-[8px] font-black text-orange-600 uppercase tracking-wider">
               {t("runtime.components.conference.conference-list.text_action")}{" "}
             </span>
           )}
@@ -447,7 +456,7 @@ function ProgressIndicator({ conference }: ProgressIndicatorProps) {
   // Draft: Show last saved
   if (conference.status === "draft" && conference.draftSavedDaysAgo !== undefined) {
     return (
-      <span className="text-meta italic">
+      <span className="text-[10px] font-medium text-slate-400 italic">
         {t("runtime.components.conference.conference-list.text_saved")}{" "}
         {conference.draftSavedDaysAgo}
         {t("runtime.components.conference.conference-list.text_d_ago")}{" "}
@@ -458,8 +467,8 @@ function ProgressIndicator({ conference }: ProgressIndicatorProps) {
   // Completed: Show accepted papers
   if (conference.status === "completed" && conference.acceptedPapers) {
     return (
-      <span className="text-meta">
-        <strong className="font-[700] text-[var(--color-primary-ink)]">
+      <span className="text-[10px] font-medium text-slate-500">
+        <strong className="text-slate-600 dark:text-slate-400">
           {conference.acceptedPapers.toLocaleString()}
         </strong>{" "}
         papers
@@ -467,5 +476,5 @@ function ProgressIndicator({ conference }: ProgressIndicatorProps) {
     )
   }
 
-  return <span className="text-meta">-</span>
+  return <span className="text-[10px] text-slate-300">-</span>
 }

@@ -60,11 +60,7 @@ describe("ChairActionsPanel", () => {
       />,
     )
 
-    expect(screen.getByText("Chair Actions")).toHaveClass("text-card-header")
-    expect(screen.getByRole("button", { name: /auto-assign reviewers/i })).toHaveClass(
-      "button-secondary",
-      "text-ui-meta",
-    )
+    expect(screen.getByText("Chair Actions")).toBeInTheDocument()
   })
 
   it("should render default action buttons", () => {

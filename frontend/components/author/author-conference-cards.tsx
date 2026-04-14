@@ -45,32 +45,38 @@ const STATUS_CONFIG: Record<
 > = {
   submitted: {
     label: t("runtime.components.author.author-conference-cards.prop_label_submitted"),
-    className: "badge-neutral text-tiny-label",
+    className:
+      "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
     icon: "send",
   },
   "under-review": {
     label: t("runtime.components.author.author-conference-cards.prop_label_under_review"),
-    className: "badge-semantic-warning text-tiny-label",
+    className:
+      "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700",
     icon: "hourglass_top",
   },
   accepted: {
     label: t("runtime.components.author.author-conference-cards.prop_label_accepted"),
-    className: "badge-semantic-success text-tiny-label",
+    className:
+      "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700",
     icon: "check_circle",
   },
   rejected: {
     label: t("runtime.components.author.author-conference-cards.prop_label_rejected"),
-    className: "badge-semantic-error text-tiny-label",
+    className:
+      "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700",
     icon: "cancel",
   },
   "revision-requested": {
     label: t("runtime.components.author.author-conference-cards.prop_label_revision_requested"),
-    className: "badge-semantic-warning text-tiny-label",
+    className:
+      "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700",
     icon: "edit_note",
   },
   bookmarked: {
     label: t("runtime.components.author.author-conference-cards.prop_label_bookmarked"),
-    className: "badge-neutral text-tiny-label",
+    className:
+      "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600",
     icon: "bookmark",
   },
 }
@@ -84,10 +90,15 @@ interface StatusBadgeProps {
 }
 
 export function AuthorStatusBadge({ status }: StatusBadgeProps) {
-  void useTranslation()
+  const { t } = useTranslation()
   const config = STATUS_CONFIG[status]
   return (
-    <span className={cn("inline-flex items-center gap-1", config.className)}>
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border",
+        config.className,
+      )}
+    >
       {config.icon && (
         <span
           className="material-symbols-outlined"
@@ -141,7 +152,7 @@ export function AuthorConferenceCardBase({
     <div
       onClick={onClick}
       className={cn(
-        "surface-card group flex h-full cursor-pointer flex-col transition-all duration-200 hover:border-[var(--color-border-strong)] hover:shadow-md",
+        "bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 group flex flex-col h-full cursor-pointer",
         isCompleted && "opacity-80 hover:opacity-100",
         className,
       )}
@@ -153,7 +164,7 @@ export function AuthorConferenceCardBase({
           <AuthorStatusBadge status={conference.status} />
           <button
             onClick={(e) => e.stopPropagation()}
-            className="button-header inline-flex h-7 w-7 items-center justify-center p-0"
+            className="text-slate-300 hover:text-[#1B3C53] dark:hover:text-white transition-colors"
           >
             <span className="material-symbols-outlined text-[14px]">more_horiz</span>
           </button>
@@ -162,10 +173,10 @@ export function AuthorConferenceCardBase({
         {/* Conference Name */}
         <h3
           className={cn(
-            "text-card-title mb-1 transition-colors",
+            "text-sm font-bold leading-[1.2] tracking-tight mb-1 transition-colors",
             isCompleted
-              ? "text-[var(--color-neutral-text)] group-hover:text-[var(--color-primary-ink)]"
-              : "text-[var(--color-primary-ink)] group-hover:text-[var(--color-primary-hover)]",
+              ? "text-slate-700 dark:text-slate-300 group-hover:text-[#1B3C53] dark:group-hover:text-white"
+              : "text-[#1B3C53] dark:text-white group-hover:text-[#234C6A] dark:group-hover:text-slate-200",
           )}
         >
           {conference.acronym || conference.name}
@@ -173,14 +184,23 @@ export function AuthorConferenceCardBase({
 
         {/* Full name if acronym exists */}
         {conference.acronym && (
-          <p className={cn("text-kicker mb-4", isCompleted && "text-[var(--color-text-meta)]")}>
+          <p
+            className={cn(
+              "text-[8px] font-black uppercase tracking-widest mb-4",
+              isCompleted
+                ? "text-slate-400 dark:text-slate-500"
+                : "text-slate-500 dark:text-slate-400",
+            )}
+          >
             {conference.name}
           </p>
         )}
 
         {/* Track */}
         {conference.trackName && (
-          <p className="text-kicker mb-4 text-[var(--color-text-meta)]">{conference.trackName}</p>
+          <p className="text-[8px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-4">
+            {conference.trackName}
+          </p>
         )}
 
         {/* Location & Dates */}
@@ -188,15 +208,24 @@ export function AuthorConferenceCardBase({
           {conference.location && (
             <p
               className={cn(
-                "text-meta leading-snug",
-                isCompleted && "text-[var(--color-text-meta)]",
+                "text-[10px] font-medium leading-snug",
+                isCompleted
+                  ? "text-slate-400 dark:text-slate-500"
+                  : "text-slate-400 dark:text-slate-500",
               )}
             >
               {conference.location}
             </p>
           )}
           {conference.dates && (
-            <p className={cn("text-meta", isCompleted && "text-[var(--color-text-meta)]")}>
+            <p
+              className={cn(
+                "text-[10px] font-medium",
+                isCompleted
+                  ? "text-slate-400 dark:text-slate-500"
+                  : "text-slate-400 dark:text-slate-500",
+              )}
+            >
               {conference.dates}
             </p>
           )}
@@ -207,7 +236,7 @@ export function AuthorConferenceCardBase({
       </div>
 
       {/* Footer Actions */}
-      <div className="surface-card-quiet-strip rounded-b-[var(--radius-card)] border-t border-[var(--color-border-soft)] px-4 py-3">
+      <div className="border-t border-slate-100 dark:border-slate-700 px-4 py-3 bg-slate-50/50 dark:bg-slate-800/50 rounded-b-xl">
         {footer}
       </div>
     </div>
@@ -225,10 +254,10 @@ interface ReviewProgressSectionProps {
 
 export function ReviewProgressSection({ progress, paperTitle }: ReviewProgressSectionProps) {
   return (
-    <div className="rounded-[var(--radius-button)] border border-[var(--color-border-soft)] bg-[var(--color-fill-quiet)] p-3">
+    <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3 border border-slate-100 dark:border-slate-600">
       <div className="space-y-2">
         {paperTitle && (
-          <p className="text-ui-meta line-clamp-1">
+          <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 line-clamp-1">
             {t("runtime.components.author.author-conference-cards.text_text")}
             {paperTitle}
             {t("runtime.components.author.author-conference-cards.text_text")}{" "}
@@ -241,11 +270,11 @@ export function ReviewProgressSection({ progress, paperTitle }: ReviewProgressSe
               style={{ width: `${progress}%` }}
             />
           </div>
-          <span className="text-ui-meta font-[700] text-[var(--color-warning-text)]">
+          <span className="text-[10px] font-bold text-yellow-600 dark:text-yellow-400">
             {progress}%
           </span>
         </div>
-        <p className="text-meta">
+        <p className="text-[9px] text-slate-400">
           {t("runtime.components.author.author-conference-cards.text_review_in_progress")}
         </p>
       </div>
@@ -261,7 +290,7 @@ interface DeadlineSectionProps {
 
 export function DeadlineSection({ deadline, label, isUrgent }: DeadlineSectionProps) {
   return (
-    <div className="rounded-[var(--radius-button)] border border-[var(--color-border-soft)] bg-[var(--color-fill-quiet)] p-3">
+    <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3 border border-slate-100 dark:border-slate-600">
       <div className="flex items-center gap-2">
         <span
           className={cn(
@@ -288,11 +317,20 @@ export function DeadlineSection({ deadline, label, isUrgent }: DeadlineSectionPr
           schedule
         </span>
         <div>
-          <p className={cn("text-meta", isUrgent && "text-[var(--color-warning-text)]")}>{label}</p>
           <p
             className={cn(
-              "text-ui-meta font-[700]",
-              isUrgent ? "text-[var(--color-warning-text)]" : "text-[var(--color-primary-ink)]",
+              "text-[9px] font-medium",
+              isUrgent ? "text-orange-600 dark:text-orange-400" : "text-slate-400",
+            )}
+          >
+            {label}
+          </p>
+          <p
+            className={cn(
+              "text-[10px] font-bold",
+              isUrgent
+                ? "text-orange-700 dark:text-orange-300"
+                : "text-slate-600 dark:text-slate-300",
             )}
           >
             {deadline}
@@ -309,7 +347,7 @@ interface AcceptedSectionProps {
 
 export function AcceptedSection({ paperTitle }: AcceptedSectionProps) {
   return (
-    <div className="rounded-[var(--radius-button)] border border-[var(--color-border-soft)] bg-[var(--color-fill-quiet)] p-3">
+    <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3 border border-slate-100 dark:border-slate-600">
       <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
         <span
           className="material-symbols-outlined"
@@ -318,11 +356,11 @@ export function AcceptedSection({ paperTitle }: AcceptedSectionProps) {
           celebration
         </span>
         <div>
-          <p className="text-ui-meta font-[700] text-[var(--color-success-text)]">
+          <p className="text-[10px] font-bold">
             {t("runtime.components.author.author-conference-cards.text_paper_accepted")}
           </p>
           {paperTitle && (
-            <p className="text-meta line-clamp-1">
+            <p className="text-[9px] text-slate-400 dark:text-slate-500 line-clamp-1">
               {t("runtime.components.author.author-conference-cards.text_text")}
               {paperTitle}
               {t("runtime.components.author.author-conference-cards.text_text")}{" "}
@@ -340,7 +378,7 @@ interface RejectedSectionProps {
 
 export function RejectedSection({ paperTitle }: RejectedSectionProps) {
   return (
-    <div className="rounded-[var(--radius-button)] border border-[var(--color-border-soft)] bg-[var(--color-fill-quiet)] p-3">
+    <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3 border border-slate-100 dark:border-slate-600">
       <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
         <span
           className="material-symbols-outlined"
@@ -349,11 +387,11 @@ export function RejectedSection({ paperTitle }: RejectedSectionProps) {
           info
         </span>
         <div>
-          <p className="text-ui-meta font-[700] text-[var(--color-neutral-text)]">
+          <p className="text-[10px] font-medium">
             {t("runtime.components.author.author-conference-cards.text_decision_not_accepted")}
           </p>
           {paperTitle && (
-            <p className="text-meta line-clamp-1">
+            <p className="text-[9px] text-slate-400 dark:text-slate-500 line-clamp-1">
               {t("runtime.components.author.author-conference-cards.text_text")}
               {paperTitle}
               {t("runtime.components.author.author-conference-cards.text_text")}{" "}
@@ -372,17 +410,17 @@ interface SubmittedSectionProps {
 
 export function SubmittedSection({ paperTitle, submissionDate }: SubmittedSectionProps) {
   return (
-    <div className="rounded-[var(--radius-button)] border border-[var(--color-border-soft)] bg-[var(--color-fill-quiet)] p-3">
+    <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3 border border-slate-100 dark:border-slate-600">
       <div className="space-y-2">
         {paperTitle && (
-          <p className="text-ui-meta line-clamp-2">
+          <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 line-clamp-2">
             {t("runtime.components.author.author-conference-cards.text_text")}
             {paperTitle}
             {t("runtime.components.author.author-conference-cards.text_text")}{" "}
           </p>
         )}
         {submissionDate && (
-          <p className="text-meta">
+          <p className="text-[9px] text-slate-400">
             {t("runtime.components.author.author-conference-cards.text_submitted_on")}{" "}
             {submissionDate}
           </p>
@@ -409,10 +447,13 @@ export function ActionButton({
   variant = "secondary",
   className = "",
 }: ActionButtonProps) {
-  const baseClasses = "text-ui-meta flex-1 px-3"
+  const baseClasses =
+    "flex-1 h-8 px-3 text-[11px] font-medium rounded-full transition-all duration-200"
   const variants = {
-    primary: "button-primary",
-    secondary: "button-secondary",
+    primary:
+      "bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] hover:bg-[#234C6A] dark:hover:bg-slate-100",
+    secondary:
+      "bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 hover:text-[#1B3C53] dark:hover:text-white hover:border-slate-300",
   }
 
   return (

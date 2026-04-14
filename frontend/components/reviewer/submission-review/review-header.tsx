@@ -16,12 +16,70 @@ interface ReviewHeaderBarProps {
 export function ReviewHeaderBar({ submission }: ReviewHeaderBarProps) {
   const { t } = useTranslation()
   return (
-    <header className="sticky top-0 z-30 border-b border-[var(--color-border-strong)] bg-white px-4 py-2 md:px-8 xl:px-12">
-      <div className="flex items-center justify-between gap-4">
-        <nav className="text-ui-meta flex items-center gap-2">
-          <a href="#" className="transition-colors hover:text-[var(--color-primary-ink)]">
-            {submission.conference.acronym}
-          </a>
+    <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 px-4 md:px-8 xl:px-12 py-2 flex items-center justify-between">
+      <nav className="flex items-center gap-2 text-xs text-slate-500">
+        <a href="#" className="hover:text-[#2563eb] transition-colors">
+          {submission.conference.acronym}
+        </a>
+        <span
+          className="material-symbols-outlined"
+          style={{
+            fontSize: "16px",
+            width: "16px",
+            height: "16px",
+            maxWidth: "16px",
+            maxHeight: "16px",
+            minWidth: "16px",
+            minHeight: "16px",
+            lineHeight: "1",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            transform: "none",
+            boxSizing: "border-box",
+          }}
+        >
+          chevron_right
+        </span>
+        <a href="#" className="hover:text-[#2563eb] transition-colors">
+          {t("runtime.components.reviewer.submission-review.review-header.text_my_reviews")}{" "}
+        </a>
+        <span
+          className="material-symbols-outlined"
+          style={{
+            fontSize: "16px",
+            width: "16px",
+            height: "16px",
+            maxWidth: "16px",
+            maxHeight: "16px",
+            minWidth: "16px",
+            minHeight: "16px",
+            lineHeight: "1",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            transform: "none",
+            boxSizing: "border-box",
+          }}
+        >
+          chevron_right
+        </span>
+        <span className="text-slate-900 font-medium">
+          {t("runtime.components.reviewer.submission-review.review-header.text_paper")}
+          {submission.id}
+        </span>
+      </nav>
+      <div className="flex items-center gap-4">
+        <span className="flex items-center gap-2 text-[8px] font-semibold uppercase tracking-widest px-3 py-1.5 rounded-full bg-slate-100 text-slate-700">
+          <span className="w-2 h-2 rounded-full bg-slate-500 animate-pulse" />
+          {t("runtime.components.reviewer.submission-review.review-header.text_deadline")}{" "}
+          {submission.daysLeft}{" "}
+          {t("runtime.components.reviewer.submission-review.review-header.text_days_left")}{" "}
+        </span>
+        <div className="h-6 w-px bg-slate-200" />
+        <button className="text-slate-500 hover:text-slate-900 transition-colors">
           <span
             className="material-symbols-outlined"
             style={{
@@ -41,69 +99,9 @@ export function ReviewHeaderBar({ submission }: ReviewHeaderBarProps) {
               boxSizing: "border-box",
             }}
           >
-            chevron_right
+            help
           </span>
-          <a href="#" className="transition-colors hover:text-[var(--color-primary-ink)]">
-            {t("runtime.components.reviewer.submission-review.review-header.text_my_reviews")}{" "}
-          </a>
-          <span
-            className="material-symbols-outlined"
-            style={{
-              fontSize: "16px",
-              width: "16px",
-              height: "16px",
-              maxWidth: "16px",
-              maxHeight: "16px",
-              minWidth: "16px",
-              minHeight: "16px",
-              lineHeight: "1",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              transform: "none",
-              boxSizing: "border-box",
-            }}
-          >
-            chevron_right
-          </span>
-          <span className="font-[600] text-[var(--color-primary-ink)]">
-            {t("runtime.components.reviewer.submission-review.review-header.text_paper")}
-            {submission.id}
-          </span>
-        </nav>
-        <div className="flex items-center gap-4">
-          <span className="badge-neutral text-tiny-label flex items-center gap-2 px-3 py-1.5 text-[var(--color-neutral-text)]">
-            <span className="w-2 h-2 rounded-full bg-slate-500 animate-pulse" />
-            {t("runtime.components.reviewer.submission-review.review-header.text_deadline")}{" "}
-            {submission.daysLeft}{" "}
-            {t("runtime.components.reviewer.submission-review.review-header.text_days_left")}{" "}
-          </span>
-          <div className="h-6 w-px bg-slate-200" />
-          <button className="transition-colors text-[var(--color-neutral-text)] hover:text-[var(--color-primary-ink)]">
-            <span
-              className="material-symbols-outlined"
-              style={{
-                fontSize: "16px",
-                width: "16px",
-                height: "16px",
-                maxWidth: "16px",
-                maxHeight: "16px",
-                minWidth: "16px",
-                minHeight: "16px",
-                lineHeight: "1",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-                transform: "none",
-                boxSizing: "border-box",
-              }}
-            >
-              help
-            </span>
-          </button>
-        </div>
+        </button>
       </div>
     </header>
   )
@@ -150,22 +148,24 @@ export function PaperHeader({ submission }: PaperHeaderProps) {
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
         <div className="space-y-3 max-w-4xl">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-ui-meta uppercase tracking-[0.08em]">
+            <span className="text-[11px] font-bold tracking-wider text-slate-500 uppercase">
               {t("runtime.components.reviewer.submission-review.review-header.text_paper")}
               {submission.id}
             </span>
-            <span className="badge-neutral text-tiny-label rounded-[var(--radius-button)]">
+            <span className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[9px] font-semibold uppercase tracking-widest border border-slate-200">
               {t(
                 "runtime.components.reviewer.submission-review.review-header.text_under_review",
               )}{" "}
             </span>
-            <span className="badge-neutral text-tiny-label rounded-[var(--radius-button)]">
+            <span className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[9px] font-semibold uppercase tracking-widest border border-slate-200">
               {t("runtime.components.reviewer.submission-review.review-header.text_track")}{" "}
               {submission.track}
             </span>
           </div>
-          <h1 className="text-detail-title text-[var(--color-text-strong)]">{submission.title}</h1>
-          <div className="text-meta flex items-center gap-2">
+          <h1 className="text-[32px] font-bold text-slate-900 tracking-tight leading-tight">
+            {submission.title}
+          </h1>
+          <div className="flex items-center gap-2 text-[10px] font-medium text-slate-400">
             <span
               className="material-symbols-outlined"
               style={{
@@ -194,11 +194,11 @@ export function PaperHeader({ submission }: PaperHeaderProps) {
             </span>
           </div>
         </div>
-        <div className="flex shrink-0 gap-3">
+        <div className="flex-shrink-0 flex gap-3">
           <button
             onClick={handleDownloadPdf}
             disabled={downloading}
-            className="button-secondary control-dense flex items-center gap-2 px-4 text-ui-meta disabled:opacity-50"
+            className="flex items-center gap-2 h-9 px-4 bg-white border border-slate-200 rounded-md text-[11px] font-bold tracking-wider hover:bg-slate-50 transition-all duration-200 shadow-sm disabled:opacity-50"
           >
             <span
               className="material-symbols-outlined text-red-500"
@@ -244,13 +244,13 @@ interface TabNavigationProps {
 export function TabNavigation({ activeTab, onTabChange, discussionCount }: TabNavigationProps) {
   const { t } = useTranslation()
   return (
-    <div className="mb-4 flex items-center overflow-x-auto border-b border-[var(--color-border-soft)]">
+    <div className="flex items-center border-b border-slate-200 mb-4 overflow-x-auto">
       <button
         onClick={() => onTabChange("review")}
-        className={`text-ui-meta flex items-center gap-2 border-b-2 px-4 py-[var(--space-standard)] transition-colors ${
+        className={`flex items-center gap-2 px-4 py-1.5 text-[11px] font-semibold tracking-wider transition-all duration-200 ${
           activeTab === "review"
-            ? "border-[var(--color-primary-ink)] text-[var(--color-primary-ink)]"
-            : "border-transparent hover:text-[var(--color-primary-ink)]"
+            ? "text-[#456882] border-b-2 border-[#456882] bg-[#f7f7f7]"
+            : "text-slate-500 hover:text-slate-900"
         }`}
       >
         <span
@@ -278,10 +278,10 @@ export function TabNavigation({ activeTab, onTabChange, discussionCount }: TabNa
       </button>
       <button
         onClick={() => onTabChange("discussion")}
-        className={`text-ui-meta flex items-center gap-2 border-b-2 px-4 py-[var(--space-standard)] transition-colors ${
+        className={`flex items-center gap-2 px-4 py-1.5 text-[11px] font-semibold tracking-wider transition-all duration-200 ${
           activeTab === "discussion"
-            ? "border-[var(--color-primary-ink)] text-[var(--color-primary-ink)]"
-            : "border-transparent hover:text-[var(--color-primary-ink)]"
+            ? "text-[#456882] border-b-2 border-[#456882] bg-[#f7f7f7]"
+            : "text-slate-500 hover:text-slate-900"
         }`}
       >
         <span
@@ -306,14 +306,16 @@ export function TabNavigation({ activeTab, onTabChange, discussionCount }: TabNa
           forum
         </span>
         {t("runtime.components.reviewer.submission-review.review-header.text_discussion")}{" "}
-        <span className="badge-neutral text-tiny-label ml-1">{discussionCount}</span>
+        <span className="ml-1 px-1.5 py-0.5 rounded-full bg-slate-100 text-[8px] font-black uppercase tracking-widest text-slate-700">
+          {discussionCount}
+        </span>
       </button>
       <button
         onClick={() => onTabChange("rebuttal")}
-        className={`text-ui-meta flex items-center gap-2 border-b-2 px-4 py-[var(--space-standard)] transition-colors ${
+        className={`flex items-center gap-2 px-4 py-1.5 text-[11px] font-semibold tracking-wider transition-all duration-200 ${
           activeTab === "rebuttal"
-            ? "border-[var(--color-primary-ink)] text-[var(--color-primary-ink)]"
-            : "border-transparent hover:text-[var(--color-primary-ink)]"
+            ? "text-[#456882] border-b-2 border-[#456882] bg-[#f7f7f7]"
+            : "text-slate-500 hover:text-slate-900"
         }`}
       >
         <span

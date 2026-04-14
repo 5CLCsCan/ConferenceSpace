@@ -84,9 +84,7 @@ export function ConferenceDetailHeader({
     },
     {
       id: "rebuttal",
-      label: t(
-        "runtime.components.chair.conference-detail.conference-detail-header.prop_label_rebuttal",
-      ),
+      label: t("runtime.components.chair.conference-detail.conference-detail-header.prop_label_rebuttal"),
       icon: "rate_review",
     },
   ]
@@ -95,7 +93,7 @@ export function ConferenceDetailHeader({
   return (
     <header
       className={cn(
-        "sticky top-0 z-30 border-b border-[var(--color-border-strong)] bg-[var(--color-surface)]",
+        "bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30",
         className,
       )}
     >
@@ -103,7 +101,7 @@ export function ConferenceDetailHeader({
       <div className="px-8 py-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
           {/* Breadcrumb */}
-          <div className="text-ui-meta mb-1 flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mb-1">
             <span
               className="material-symbols-outlined"
               style={{
@@ -133,21 +131,23 @@ export function ConferenceDetailHeader({
             <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
               chevron_right
             </span>
-            <span className="font-[600] text-[var(--color-primary-ink)]">
+            <span className="font-semibold text-[#1B3C53] dark:text-white">
               {conference.acronym} {conference.year}
             </span>
           </div>
 
           {/* Title */}
           <div className="flex flex-col">
-            <h1 className="text-page-title">{conference.fullName}</h1>
-            <span className="text-detail-secondary">
+            <h1 className="text-xl font-bold text-[#1B3C53] dark:text-white tracking-tight">
+              {conference.fullName}
+            </h1>
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400 tracking-tight">
               {conference.acronym} {conference.year}
             </span>
           </div>
 
           {/* Meta */}
-          <p className="text-meta mt-0.5 flex items-center gap-2">
+          <p className="text-[11px] text-slate-400 mt-0.5 flex items-center gap-2">
             <span className="flex items-center gap-1">
               <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
                 location_on
@@ -169,7 +169,7 @@ export function ConferenceDetailHeader({
           <button
             type="button"
             onClick={() => router.push(ROUTES.CHAIR.CONFERENCE_EDIT(conference.id))}
-            className="button-header inline-flex items-center gap-1.5 px-3"
+            className="h-8 px-3 bg-white border border-slate-200 text-slate-600 font-medium text-[11px] rounded-md hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center gap-1.5"
           >
             <span
               className="material-symbols-outlined"
@@ -200,17 +200,17 @@ export function ConferenceDetailHeader({
       </div>
 
       {/* Tabs */}
-      <div className="overflow-x-auto border-t border-[var(--color-border-soft)] px-8">
+      <div className="px-8 border-t border-slate-100 dark:border-slate-800 overflow-x-auto">
         <div className="flex space-x-6 min-w-max">
           {visibleTabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={cn(
-                "text-ui-meta flex items-center gap-1.5 border-b-2 py-3 transition-colors",
+                "py-3 border-b-2 font-medium text-[11px] tracking-wider transition-colors flex items-center gap-1.5",
                 activeTab === tab.id
-                  ? "border-[var(--color-primary-ink)] text-[var(--color-primary-ink)]"
-                  : "border-transparent hover:text-[var(--color-primary-ink)]",
+                  ? "border-[#1B3C53] text-[#1B3C53] dark:border-white dark:text-white"
+                  : "border-transparent text-slate-400 hover:text-[#1B3C53] dark:hover:text-white",
               )}
             >
               <span
@@ -236,7 +236,7 @@ export function ConferenceDetailHeader({
               </span>
               {tab.label}
               {tab.badge && (
-                <span className="badge-neutral text-tiny-label ml-0.5">
+                <span className="bg-slate-100 text-slate-500 text-[9px] py-0.5 px-1.5 rounded-full ml-0.5 font-bold">
                   {tab.badge.toLocaleString()}
                 </span>
               )}

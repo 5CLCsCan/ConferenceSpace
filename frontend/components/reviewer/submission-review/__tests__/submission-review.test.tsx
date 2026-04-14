@@ -111,13 +111,9 @@ vi.mock("@/components/ui/alert-dialog", () => ({
   AlertDialogDescription: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   AlertDialogFooter: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   AlertDialogCancel: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
-  AlertDialogAction: ({
-    children,
-    onClick,
-  }: {
-    children: React.ReactNode
-    onClick?: () => void
-  }) => <button onClick={onClick}>{children}</button>,
+  AlertDialogAction: ({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) => (
+    <button onClick={onClick}>{children}</button>
+  ),
 }))
 
 describe("SubmissionReviewScreen", () => {
@@ -185,20 +181,5 @@ describe("SubmissionReviewScreen", () => {
         dismissed_findings: [],
       })
     })
-  })
-
-  it("uses the semantic page shell for the review workspace", () => {
-    render(
-      <SubmissionReviewScreen
-        conferenceId="62"
-        assignmentId="13"
-        submissionId="43"
-        submission={null}
-      />,
-    )
-
-    expect(screen.getByRole("main")).toHaveClass("surface-page-detail")
-    expect(screen.getByRole("button", { name: /submit review/i })).toHaveClass("button-primary")
-    expect(screen.getByRole("button", { name: /save draft/i })).toHaveClass("button-secondary")
   })
 })

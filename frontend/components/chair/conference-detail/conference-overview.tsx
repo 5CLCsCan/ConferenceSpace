@@ -32,19 +32,16 @@ function AboutSection({ description }: { description?: string }) {
   const { t } = useTranslation()
 
   return (
-    <section className="surface-card overflow-hidden">
-      <div className="flex items-center justify-between border-b border-[var(--color-border-soft)] px-4 py-3">
-        <h2 className="text-card-header flex items-center gap-2">
+    <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+        <h2 className="text-sm font-bold text-[#1B3C53] dark:text-white flex items-center gap-2 tracking-tight">
           <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
             description
           </span>
-          {t(
-            "runtime.components.chair.conference-detail.conference-overview.text_about_the_conference",
-          )}{" "}
-        </h2>
+          {t("runtime.components.chair.conference-detail.conference-overview.text_about_the_conference")}{" "}</h2>
       </div>
       <div className="p-4">
-        <p className="text-body">
+        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
           {description ||
             t(
               "runtime.components.chair.conference-detail.conference-overview.text_no_conference_description_provided",
@@ -59,22 +56,15 @@ function TracksSection({ tracks }: { tracks: Track[] }) {
   const { t } = useTranslation()
 
   return (
-    <section className="surface-card overflow-hidden">
-      <div className="flex items-center justify-between border-b border-[var(--color-border-soft)] px-4 py-3">
-        <h2 className="text-card-header flex items-center gap-2">
+    <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+        <h2 className="text-sm font-bold text-[#1B3C53] dark:text-white flex items-center gap-2 tracking-tight">
           <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
             alt_route
           </span>
-          {t(
-            "runtime.components.chair.conference-detail.conference-overview.text_conference_tracks",
-          )}{" "}
-        </h2>
-        <span className="badge-neutral text-tiny-label">
-          {tracks.length}{" "}
-          {t(
-            "runtime.components.chair.conference-detail.conference-overview.text_active_tracks",
-          )}{" "}
-        </span>
+          {t("runtime.components.chair.conference-detail.conference-overview.text_conference_tracks")}{" "}</h2>
+        <span className="text-[9px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full uppercase tracking-wider">
+          {tracks.length} {t("runtime.components.chair.conference-detail.conference-overview.text_active_tracks")}{" "}</span>
       </div>
       <div className="p-4">
         {tracks.length > 0 ? (
@@ -83,16 +73,16 @@ function TracksSection({ tracks }: { tracks: Track[] }) {
               <div
                 key={track.id}
                 className={cn(
-                  "flex items-center gap-2 rounded-[var(--radius-button)] px-2 py-2 transition-colors hover:bg-[var(--color-fill-quiet)]",
+                  "flex items-center gap-2 px-2 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-md transition-colors",
                   idx === tracks.length - 1 && "italic",
                 )}
               >
                 <span
                   className={cn(
-                    "text-card-title",
+                    "text-[13px] font-semibold tracking-tight",
                     idx === tracks.length - 1
-                      ? "text-[var(--color-neutral-text)]"
-                      : "text-[var(--color-primary-ink)]",
+                      ? "text-slate-500 dark:text-slate-400"
+                      : "text-[#1B3C53] dark:text-white",
                   )}
                 >
                   {track.name}
@@ -101,11 +91,7 @@ function TracksSection({ tracks }: { tracks: Track[] }) {
             ))}
           </div>
         ) : (
-          <p className="text-body">
-            {t(
-              "runtime.components.chair.conference-detail.conference-overview.text_no_tracks_configured",
-            )}
-          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{t("runtime.components.chair.conference-detail.conference-overview.text_no_tracks_configured")}</p>
         )}
       </div>
     </section>
@@ -116,30 +102,27 @@ function DetailsCard({ conference }: { conference: Conference }) {
   const { t } = useTranslation()
 
   return (
-    <section className="surface-card overflow-hidden">
-      <div className="border-b border-[var(--color-border-soft)] px-4 py-3">
-        <h2 className="text-card-header flex items-center gap-2">
+    <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+        <h2 className="text-sm font-bold text-[#1B3C53] dark:text-white flex items-center gap-2 tracking-tight">
           <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
             info
           </span>
-          {t("runtime.components.chair.conference-detail.conference-overview.text_details")}{" "}
-        </h2>
+          {t("runtime.components.chair.conference-detail.conference-overview.text_details")}{" "}</h2>
       </div>
       <div className="p-4 space-y-4">
         <div>
-          <span className="text-table-header mb-1 block">
-            {t("runtime.components.chair.conference-detail.conference-overview.text_synonym")}{" "}
-          </span>
-          <div className="badge-neutral text-ui-meta inline-flex rounded-[var(--radius-button)] px-2 py-1 text-[var(--color-primary-ink)]">
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
+            {t("runtime.components.chair.conference-detail.conference-overview.text_synonym")}{" "}</span>
+          <div className="text-[11px] font-semibold text-[#1B3C53] dark:text-white bg-slate-50 dark:bg-slate-800 inline-block px-2 py-1 rounded border border-slate-200 dark:border-slate-700">
             {conference.acronym} {conference.year}
           </div>
         </div>
 
         <div>
-          <span className="text-table-header mb-1 block">
-            {t("runtime.components.chair.conference-detail.conference-overview.text_venue")}{" "}
-          </span>
-          <div className="text-ui-meta flex items-start gap-1.5 text-[var(--color-primary-ink)]">
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
+            {t("runtime.components.chair.conference-detail.conference-overview.text_venue")}{" "}</span>
+          <div className="text-[11px] font-medium text-[#1B3C53] dark:text-white flex items-start gap-1.5">
             <span className="material-symbols-outlined text-slate-400 mt-0.5" style={iconStyle}>
               apartment
             </span>
@@ -149,11 +132,8 @@ function DetailsCard({ conference }: { conference: Conference }) {
 
         {conference.website && (
           <div>
-            <span className="text-table-header mb-1 block">
-              {t(
-                "runtime.components.chair.conference-detail.conference-overview.text_website",
-              )}{" "}
-            </span>
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
+              {t("runtime.components.chair.conference-detail.conference-overview.text_website")}{" "}</span>
             <a
               href={
                 conference.website.startsWith("http")
@@ -162,7 +142,7 @@ function DetailsCard({ conference }: { conference: Conference }) {
               }
               target="_blank"
               rel="noopener noreferrer"
-              className="text-ui-meta flex items-center gap-1 text-[var(--color-primary-ink)] hover:underline"
+              className="text-[11px] font-medium text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1"
             >
               {conference.website}
               <span className="material-symbols-outlined" style={iconStyle}>
@@ -174,12 +154,9 @@ function DetailsCard({ conference }: { conference: Conference }) {
 
         {conference.primary_contact && (
           <div>
-            <span className="text-table-header mb-1 block">
-              {t(
-                "runtime.components.chair.conference-detail.conference-overview.text_organizer_contact",
-              )}{" "}
-            </span>
-            <div className="text-ui-meta flex items-center gap-1">
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
+              {t("runtime.components.chair.conference-detail.conference-overview.text_organizer_contact")}{" "}</span>
+            <div className="text-[11px] font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1">
               <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
                 call
               </span>
@@ -189,12 +166,10 @@ function DetailsCard({ conference }: { conference: Conference }) {
         )}
       </div>
 
-      <div className="surface-card-quiet-strip border-t border-[var(--color-border-soft)] px-4 py-3">
+      <div className="bg-slate-50 dark:bg-slate-800/50 px-4 py-3 border-t border-slate-200 dark:border-slate-800">
         <div className="flex items-center justify-between">
-          <span className="text-ui-meta">
-            {t("runtime.components.chair.conference-detail.conference-overview.text_conference_id")}
-          </span>
-          <span className="text-meta font-mono">#{conference.id}</span>
+          <span className="text-[9px] text-slate-500 font-medium">{t("runtime.components.chair.conference-detail.conference-overview.text_conference_id")}</span>
+          <span className="text-[9px] text-slate-400 font-mono">#{conference.id}</span>
         </div>
       </div>
     </section>
@@ -205,29 +180,27 @@ function KeywordsCard({ keywords }: { keywords?: string[] }) {
   const { t } = useTranslation()
 
   return (
-    <section className="surface-card overflow-hidden">
-      <div className="border-b border-[var(--color-border-soft)] px-4 py-3">
-        <h2 className="text-card-header flex items-center gap-2">
+    <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+        <h2 className="text-sm font-bold text-[#1B3C53] dark:text-white flex items-center gap-2 tracking-tight">
           <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
             label
           </span>
-          {t("runtime.components.chair.conference-detail.conference-overview.text_keywords")}{" "}
-        </h2>
+          {t("runtime.components.chair.conference-detail.conference-overview.text_keywords")}{" "}</h2>
       </div>
       <div className="p-4">
         <div className="flex flex-wrap gap-1.5">
           {keywords && keywords.length > 0 ? (
             keywords.map((keyword) => (
-              <span key={keyword} className="badge-neutral text-ui-meta">
+              <span
+                key={keyword}
+                className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+              >
                 {keyword}
               </span>
             ))
           ) : (
-            <p className="text-body">
-              {t(
-                "runtime.components.chair.conference-detail.conference-overview.text_no_keywords_specified",
-              )}
-            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">{t("runtime.components.chair.conference-detail.conference-overview.text_no_keywords_specified")}</p>
           )}
         </div>
       </div>

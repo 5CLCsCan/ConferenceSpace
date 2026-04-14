@@ -40,73 +40,55 @@ export function ReviewAuditPanel({
   const warningFindings = activeFindings.filter((finding) => finding.severity === "warning")
 
   return (
-    <div className="surface-card p-4">
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-kicker">
-            {t(
-              "runtime.components.reviewer.submission-review.review-audit-panel.text_ai_010_review_audit",
-            )}{" "}
-          </p>
-          <h3 className="text-card-header mt-2">
-            {t(
-              "runtime.components.reviewer.submission-review.review-audit-panel.text_semantic_consistency_and_justification_audit",
-            )}{" "}
-          </h3>
-          <p className="text-body mt-1 leading-relaxed">
-            {t(
-              "runtime.components.reviewer.submission-review.review-audit-panel.text_ai_010_checks_whether_your_narrative",
-            )}{" "}
-          </p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">
+            {t("runtime.components.reviewer.submission-review.review-audit-panel.text_ai_010_review_audit")}{" "}</p>
+          <h3 className="mt-2 text-sm font-bold tracking-tight text-[#1B3C53]">
+            {t("runtime.components.reviewer.submission-review.review-audit-panel.text_semantic_consistency_and_justification_audit")}{" "}</h3>
+          <p className="mt-1 text-xs leading-relaxed text-slate-600">
+            {t("runtime.components.reviewer.submission-review.review-audit-panel.text_ai_010_checks_whether_your_narrative")}{" "}</p>
         </div>
         <div className="shrink-0 text-right">
           {auditing ? (
-            <span className="text-ui-meta">
-              {t("runtime.components.reviewer.submission-review.review-audit-panel.text_auditing")}
-            </span>
+            <span className="text-[11px] font-medium text-slate-500">{t("runtime.components.reviewer.submission-review.review-audit-panel.text_auditing")}</span>
           ) : audit ? (
             <span
-              className={`text-tiny-label inline-flex rounded-[var(--radius-button)] border px-2.5 py-1 ${statusTone[audit.status]}`}
+              className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${statusTone[audit.status]}`}
             >
               {audit.status}
             </span>
           ) : (
-            <span className="text-meta">
-              {t(
-                "runtime.components.reviewer.submission-review.review-audit-panel.text_not_run_yet",
-              )}
-            </span>
+            <span className="text-[11px] font-medium text-slate-400">{t("runtime.components.reviewer.submission-review.review-audit-panel.text_not_run_yet")}</span>
           )}
         </div>
       </div>
 
       {error && (
-        <div className="badge-semantic-warning text-ui-meta mt-4 rounded-[var(--radius-button)] px-4 py-3 leading-relaxed">
+        <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-800">
           {error}
         </div>
       )}
 
       {!audit ? (
-        <div className="surface-card-quiet-strip text-body mt-4 rounded-[var(--radius-card)] border border-dashed border-[var(--color-border-soft)] px-4 py-5 leading-relaxed">
-          {t(
-            "runtime.components.reviewer.submission-review.review-audit-panel.text_save_a_draft_or_run_submit",
-          )}{" "}
-        </div>
+        <div className="mt-4 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-xs leading-relaxed text-slate-500">
+          {t("runtime.components.reviewer.submission-review.review-audit-panel.text_save_a_draft_or_run_submit")}{" "}</div>
       ) : (
         <div className="mt-4 space-y-4">
-          <div className="surface-card-quiet-strip rounded-[var(--radius-card)] border border-[var(--color-border-soft)] px-4 py-3">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
             <div className="flex flex-wrap items-center gap-2">
               <CountPill label="Blockers" value={blockingFindings.length} tone="rose" />
               <CountPill label="Warnings" value={warningFindings.length} tone="amber" />
               <CountPill label="Dismissed" value={dismissedFindings.length} tone="slate" />
             </div>
-            <p className="text-body mt-2 leading-relaxed">{statusCopy[audit.status]}</p>
+            <p className="mt-2 text-xs leading-relaxed text-slate-600">
+              {statusCopy[audit.status]}
+            </p>
           </div>
 
           <FindingSection
-            title={t(
-              "runtime.components.reviewer.submission-review.review-audit-panel.title_submit_blockers",
-            )}
+            title={t("runtime.components.reviewer.submission-review.review-audit-panel.title_submit_blockers")}
             emptyLabel="No blocking issues."
             findings={blockingFindings}
             actionLabel="Dismiss"
@@ -114,9 +96,7 @@ export function ReviewAuditPanel({
             onAction={onDismiss}
           />
           <FindingSection
-            title={t(
-              "runtime.components.reviewer.submission-review.review-audit-panel.title_advisory_warnings",
-            )}
+            title={t("runtime.components.reviewer.submission-review.review-audit-panel.title_advisory_warnings")}
             emptyLabel="No active warnings."
             findings={warningFindings}
             actionLabel="Dismiss"
@@ -124,9 +104,7 @@ export function ReviewAuditPanel({
             onAction={onDismiss}
           />
           <FindingSection
-            title={t(
-              "runtime.components.reviewer.submission-review.review-audit-panel.title_dismissed_warnings",
-            )}
+            title={t("runtime.components.reviewer.submission-review.review-audit-panel.title_dismissed_warnings")}
             emptyLabel="No dismissed warnings."
             findings={dismissedFindings}
             actionLabel="Reopen"
@@ -156,9 +134,7 @@ function CountPill({
         : "bg-slate-100 text-slate-600"
 
   return (
-    <span
-      className={`text-ui-meta inline-flex rounded-[var(--radius-button)] px-2.5 py-1 font-[500] ${toneClass}`}
-    >
+    <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-medium ${toneClass}`}>
       {label}: {value}
     </span>
   )
@@ -182,12 +158,12 @@ function FindingSection({
   return (
     <section>
       <div className="flex items-center justify-between">
-        <h4 className="text-kicker">{title}</h4>
-        <span className="text-meta">{findings.length}</span>
+        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">{title}</h4>
+        <span className="text-[10px] text-slate-400">{findings.length}</span>
       </div>
 
       {findings.length === 0 ? (
-        <div className="surface-card-quiet-strip text-body mt-3 rounded-[var(--radius-card)] border border-[var(--color-border-soft)] px-4 py-3 leading-relaxed">
+        <div className="mt-3 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-xs leading-relaxed text-slate-500">
           {emptyLabel}
         </div>
       ) : (
@@ -195,13 +171,13 @@ function FindingSection({
           {findings.map((finding) => (
             <div
               key={`${finding.code}-${finding.condition_fingerprint}`}
-              className="surface-card rounded-[var(--radius-card)] px-4 py-3"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-3"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <span
-                      className={`text-tiny-label inline-flex rounded-[var(--radius-button)] px-2 py-0.5 ${
+                      className={`inline-flex rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em] ${
                         finding.severity === "blocking"
                           ? "bg-rose-100 text-rose-700"
                           : "bg-amber-100 text-amber-700"
@@ -209,22 +185,26 @@ function FindingSection({
                     >
                       {finding.severity}
                     </span>
-                    <span className="badge-neutral text-ui-meta rounded-[var(--radius-button)] px-2 py-0.5">
+                    <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">
                       {formatFieldLabel(finding.field)}
                     </span>
-                    <span className="text-meta">{formatFamilyLabel(finding.code)}</span>
+                    <span className="text-[10px] text-slate-400">
+                      {formatFamilyLabel(finding.code)}
+                    </span>
                   </div>
-                  <p className="text-body mt-2 font-[700] leading-relaxed text-[var(--color-text-strong)]">
+                  <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-900">
                     {finding.message}
                   </p>
-                  <p className="text-body mt-1 leading-relaxed">{finding.suggestion}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                    {finding.suggestion}
+                  </p>
                 </div>
                 {finding.severity === "warning" && (
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="button-secondary text-ui-meta h-8 shrink-0 px-3"
+                    className="h-8 shrink-0 rounded-md border-slate-200 px-3 text-[10px]"
                     disabled={actionDisabled}
                     onClick={() => onAction(finding)}
                   >

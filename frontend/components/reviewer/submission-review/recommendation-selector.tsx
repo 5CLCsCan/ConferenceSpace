@@ -12,9 +12,7 @@ function getRecommendationShortLabel(value: string, t: TFn) {
         "runtime.components.reviewer.submission-review.recommendation-selector.text_short_strong_accept",
       )
     case "accept":
-      return t(
-        "runtime.components.reviewer.submission-review.recommendation-selector.text_short_accept",
-      )
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_short_accept")
     case "weak_accept":
       return t(
         "runtime.components.reviewer.submission-review.recommendation-selector.text_short_weak_accept",
@@ -28,9 +26,7 @@ function getRecommendationShortLabel(value: string, t: TFn) {
         "runtime.components.reviewer.submission-review.recommendation-selector.text_short_weak_reject",
       )
     case "reject":
-      return t(
-        "runtime.components.reviewer.submission-review.recommendation-selector.text_short_reject",
-      )
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_short_reject")
     case "strong_reject":
       return t(
         "runtime.components.reviewer.submission-review.recommendation-selector.text_short_strong_reject",
@@ -45,33 +41,21 @@ function getRecommendationShortLabel(value: string, t: TFn) {
 function getRecommendationLabel(value: string, t: TFn) {
   switch (value) {
     case "strong_accept":
-      return t(
-        "runtime.components.reviewer.submission-review.recommendation-selector.text_strong_accept",
-      )
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_strong_accept")
     case "accept":
       return t("runtime.components.reviewer.submission-review.recommendation-selector.text_accept")
     case "weak_accept":
-      return t(
-        "runtime.components.reviewer.submission-review.recommendation-selector.text_weak_accept",
-      )
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_weak_accept")
     case "borderline":
-      return t(
-        "runtime.components.reviewer.submission-review.recommendation-selector.text_borderline",
-      )
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_borderline")
     case "weak_reject":
-      return t(
-        "runtime.components.reviewer.submission-review.recommendation-selector.text_weak_reject",
-      )
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_weak_reject")
     case "reject":
       return t("runtime.components.reviewer.submission-review.recommendation-selector.text_reject")
     case "strong_reject":
-      return t(
-        "runtime.components.reviewer.submission-review.recommendation-selector.text_strong_reject",
-      )
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_strong_reject")
     default:
-      return t(
-        "runtime.components.reviewer.submission-review.recommendation-selector.text_borderline",
-      )
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_borderline")
   }
 }
 
@@ -82,9 +66,7 @@ function getRecommendationDescription(value: string, t: TFn) {
         "runtime.components.reviewer.submission-review.recommendation-selector.text_desc_strong_accept",
       )
     case "accept":
-      return t(
-        "runtime.components.reviewer.submission-review.recommendation-selector.text_desc_accept",
-      )
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_desc_accept")
     case "weak_accept":
       return t(
         "runtime.components.reviewer.submission-review.recommendation-selector.text_desc_weak_accept",
@@ -98,9 +80,7 @@ function getRecommendationDescription(value: string, t: TFn) {
         "runtime.components.reviewer.submission-review.recommendation-selector.text_desc_weak_reject",
       )
     case "reject":
-      return t(
-        "runtime.components.reviewer.submission-review.recommendation-selector.text_desc_reject",
-      )
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_desc_reject")
     case "strong_reject":
       return t(
         "runtime.components.reviewer.submission-review.recommendation-selector.text_desc_strong_reject",
@@ -115,29 +95,17 @@ function getRecommendationDescription(value: string, t: TFn) {
 function getConfidenceLabel(value: number, t: TFn) {
   switch (value) {
     case 5:
-      return t(
-        "runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_expert",
-      )
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_expert")
     case 4:
-      return t(
-        "runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_high",
-      )
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_high")
     case 3:
-      return t(
-        "runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_medium",
-      )
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_medium")
     case 2:
-      return t(
-        "runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_low",
-      )
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_low")
     case 1:
-      return t(
-        "runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_none",
-      )
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_none")
     default:
-      return t(
-        "runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_medium",
-      )
+      return t("runtime.components.reviewer.submission-review.recommendation-selector.text_confidence_medium")
   }
 }
 
@@ -188,7 +156,7 @@ export function RecommendationSelector({
 
   return (
     <div className="space-y-3">
-      <label className="text-table-header block">
+      <label className="block text-[10px] font-bold text-slate-700 uppercase tracking-wider">
         {t(
           "runtime.components.reviewer.submission-review.recommendation-selector.text_overall_rating",
         )}{" "}
@@ -203,15 +171,15 @@ export function RecommendationSelector({
               type="button"
               onClick={() => onChange(option.value)}
               className={`
-                text-ui-meta flex-1 rounded-[var(--radius-button)] border px-1 py-2 text-center transition-all duration-150
+                flex-1 py-2 px-1 rounded-md text-center transition-all duration-150 border
                 ${
                   isSelected
-                    ? "button-primary border-[var(--color-primary-ink)] shadow-sm"
-                    : "bg-[var(--color-fill-quiet)] text-[var(--color-neutral-text)] border-[var(--color-border-soft)] hover:border-[var(--color-border-strong)]"
+                    ? "bg-[#1B3C53] text-white border-[#1B3C53] shadow-sm"
+                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:border-slate-300"
                 }
               `}
             >
-              <span className="text-tiny-label block leading-tight tracking-tight">
+              <span className="text-[7.5px] font-black uppercase tracking-tight leading-tight block">
                 {getRecommendationShortLabel(option.value, t)}
               </span>
             </button>
@@ -220,16 +188,16 @@ export function RecommendationSelector({
       </div>
 
       {hasSelection ? (
-        <div className="surface-card-quiet-strip flex items-center gap-1.5 rounded-[var(--radius-button)] border border-[var(--color-border-soft)] px-2.5 py-1.5">
-          <span className="text-ui-meta font-[700] text-[var(--color-primary-ink)]">
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 rounded-lg border border-slate-200">
+          <span className="text-[10px] font-bold text-[#1B3C53]">
             {getRecommendationLabel(value, t)}
           </span>
-          <span className="text-meta font-[500] tracking-tight">
+          <span className="text-[9px] text-slate-500 font-medium tracking-tight">
             ({getRecommendationDescription(value, t)})
           </span>
         </div>
       ) : (
-        <p className="text-meta italic">
+        <p className="text-[9px] text-slate-400 italic">
           {t(
             "runtime.components.reviewer.submission-review.recommendation-selector.text_select_overall_rating",
           )}
@@ -250,13 +218,13 @@ export function ConfidenceSelector({ value, onChange }: ConfidenceSelectorProps)
 
   return (
     <div className="space-y-3">
-      <label className="text-table-header block">
+      <label className="block text-[10px] font-bold text-slate-700 uppercase tracking-wider">
         {t(
           "runtime.components.reviewer.submission-review.recommendation-selector.text_reviewer_confidence",
         )}{" "}
       </label>
 
-      <div className="segment-filter flex p-0.5">
+      <div className="flex bg-slate-100 p-0.5 rounded-lg">
         {confidenceOptions
           .slice()
           .reverse()
@@ -268,32 +236,32 @@ export function ConfidenceSelector({ value, onChange }: ConfidenceSelectorProps)
                 type="button"
                 onClick={() => onChange(option.value)}
                 className={`
-                  text-ui-meta flex-1 rounded-[var(--radius-button)] px-1 py-1.5 text-center transition-all duration-150
+                  flex-1 py-1.5 px-1 rounded-md text-center transition-all duration-150
                   ${
                     isSelected
-                      ? "bg-[var(--color-surface)] text-[var(--color-primary-ink)] shadow-sm"
-                      : "text-[var(--color-neutral-text)] hover:text-[var(--color-primary-ink)]"
+                      ? "bg-white text-[#1B3C53] shadow-sm shadow-slate-200/50"
+                      : "text-slate-500 hover:text-slate-700"
                   }
                 `}
               >
-                <span className="text-tiny-label block">{option.value}</span>
+                <span className="text-[9px] font-black block">{option.value}</span>
               </button>
             )
           })}
       </div>
 
       {hasSelection ? (
-        <div className="surface-card-quiet-strip flex items-center gap-1.5 rounded-[var(--radius-button)] border border-[var(--color-border-soft)] px-2.5 py-1.5">
-          <span className="text-ui-meta font-[700] uppercase tracking-tighter text-[var(--color-primary-ink)]">
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 rounded-lg border border-slate-200">
+          <span className="text-[10px] font-bold text-[#1B3C53] uppercase tracking-tighter">
             {t("runtime.components.reviewer.submission-review.recommendation-selector.text_level")}{" "}
             {value}
           </span>
-          <span className="text-meta font-[500] tracking-tight">
+          <span className="text-[9px] text-slate-500 font-medium tracking-tight">
             ({getConfidenceDescription(value, t)})
           </span>
         </div>
       ) : (
-        <p className="text-meta italic">
+        <p className="text-[9px] text-slate-400 italic">
           {t(
             "runtime.components.reviewer.submission-review.recommendation-selector.text_select_confidence_level",
           )}
@@ -325,25 +293,21 @@ export function FinalRecommendationCard({
   const hasConfidence = confidenceOptions.some((option) => option.value === confidence)
 
   return (
-    <div className="surface-card px-4 pb-3 pt-4">
-      <div className="mb-3 flex items-center justify-between border-b border-[var(--color-border-soft)] pb-2">
-        <h2 className="text-card-header">
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 pt-4 pb-3">
+      <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
+        <h2 className="font-bold text-sm text-[#1B3C53] tracking-tight uppercase">
           {t(
             "runtime.components.reviewer.submission-review.recommendation-selector.text_final_assessment",
           )}{" "}
         </h2>
         <span
-          className={`text-tiny-label rounded-[var(--radius-button)] px-1.5 py-0.5 ${
-            isComplete
-              ? "badge-neutral text-[var(--color-neutral-text)]"
-              : "bg-[var(--color-fill-quiet)] text-[var(--color-text-meta)]"
+          className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${
+            isComplete ? "bg-slate-100 text-slate-700" : "bg-slate-50 text-slate-300"
           }`}
         >
           {isComplete
             ? t("runtime.components.reviewer.submission-review.recommendation-selector.text_ready")
-            : t(
-                "runtime.components.reviewer.submission-review.recommendation-selector.text_pending",
-              )}
+            : t("runtime.components.reviewer.submission-review.recommendation-selector.text_pending")}
         </span>
       </div>
 
@@ -357,26 +321,26 @@ export function FinalRecommendationCard({
       </div>
 
       {isComplete && hasRecommendation && hasConfidence && (
-        <div className="mt-3 flex items-center justify-between border-t border-dashed border-[var(--color-border-soft)] pt-2.5">
+        <div className="mt-3 pt-2.5 border-t border-slate-200 border-dashed flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div>
-              <span className="text-tiny-label text-[var(--color-text-meta)]">
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">
                 {t(
                   "runtime.components.reviewer.submission-review.recommendation-selector.text_global_rating",
                 )}{" "}
               </span>
-              <p className="text-ui-meta font-[700] leading-none text-[var(--color-primary-ink)]">
+              <p className="text-[11px] font-black text-[#1B3C53] leading-none">
                 {getRecommendationLabel(recommendation, t)}
               </p>
             </div>
             <div className="w-px h-5 bg-slate-100" />
             <div>
-              <span className="text-tiny-label text-[var(--color-text-meta)]">
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">
                 {t(
                   "runtime.components.reviewer.submission-review.recommendation-selector.text_confidence",
                 )}{" "}
               </span>
-              <p className="text-ui-meta font-[700] leading-none text-[var(--color-primary-ink)]">
+              <p className="text-[11px] font-black text-[#1B3C53] leading-none">
                 {confidence}: {getConfidenceLabel(confidence, t)}
               </p>
             </div>

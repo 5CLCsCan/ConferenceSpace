@@ -1,12 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act, fireEvent } from "@testing-library/react"
+import { render, screen, waitFor, act } from "@testing-library/react"
 import React from "react"
 
 // Mock the rebuttal API module
 vi.mock("@/lib/api/rebuttal", () => ({
   getRebuttal: vi.fn(),
   acknowledgePoint: vi.fn(),
-  updatePostRebuttalScore: vi.fn(),
 }))
 
 // Mock translation context
@@ -53,7 +52,6 @@ import { RebuttalTab } from "../rebuttal-tab"
 
 const mockGetRebuttal = rebuttalApi.getRebuttal as ReturnType<typeof vi.fn>
 const mockAcknowledgePoint = rebuttalApi.acknowledgePoint as ReturnType<typeof vi.fn>
-const mockUpdatePostRebuttalScore = rebuttalApi.updatePostRebuttalScore as ReturnType<typeof vi.fn>
 
 const SUBMITTED_DATA = {
   settings: { phase: "submitted", conferenceId: "1", submissionId: "10" },
@@ -81,7 +79,6 @@ const SUBMITTED_DATA = {
 beforeEach(() => {
   mockGetRebuttal.mockReset()
   mockAcknowledgePoint.mockReset()
-  mockUpdatePostRebuttalScore.mockReset()
   capturedOnPointStatusChange = null
 })
 
@@ -140,29 +137,5 @@ describe("Reviewer RebuttalTab", () => {
       "addressed",
       "Good response.",
     )
-  })
-
-  it("uses semantic aliases for rebuttal action controls", async () => {
-    mockGetRebuttal.mockResolvedValue({ data: SUBMITTED_DATA, error: null })
-    mockUpdatePostRebuttalScore.mockResolvedValue({ data: {}, error: null })
-
-    render(<RebuttalTab conferenceId="1" submissionId="10" assignmentId="42" />)
-
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: /mark all as read/i })).toBeInTheDocument()
-    })
-
-    expect(screen.getByRole("button", { name: /mark all as read/i })).toHaveClass(
-      "button-secondary",
-      "text-ui-meta",
-    )
-
-    const toggle = screen.getByRole("button", { name: /update.*post-rebuttal score/i })
-    expect(toggle).toHaveClass("text-ui-meta")
-    fireEvent.click(toggle)
-
-    expect(screen.getByRole("spinbutton")).toHaveClass("control-standard", "text-body")
-    expect(screen.getByRole("combobox")).toHaveClass("control-standard", "text-body")
-    expect(screen.getByRole("button", { name: /update score/i })).toHaveClass("button-primary")
   })
 })

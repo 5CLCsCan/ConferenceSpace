@@ -42,12 +42,13 @@ function getScoreDescriptorLabel(score: number, t: ReturnType<typeof useTranslat
   }
 }
 
-function getCriterionHintLabel(criterionKey: string, t: ReturnType<typeof useTranslation>["t"]) {
+function getCriterionHintLabel(
+  criterionKey: string,
+  t: ReturnType<typeof useTranslation>["t"],
+) {
   switch (criterionKey) {
     case "originality":
-      return t(
-        "runtime.components.reviewer.submission-review.scoring-criteria.text_hint_originality",
-      )
+      return t("runtime.components.reviewer.submission-review.scoring-criteria.text_hint_originality")
     case "technicalQuality":
       return t(
         "runtime.components.reviewer.submission-review.scoring-criteria.text_hint_technical_quality",
@@ -55,13 +56,9 @@ function getCriterionHintLabel(criterionKey: string, t: ReturnType<typeof useTra
     case "clarity":
       return t("runtime.components.reviewer.submission-review.scoring-criteria.text_hint_clarity")
     case "significance":
-      return t(
-        "runtime.components.reviewer.submission-review.scoring-criteria.text_hint_significance",
-      )
+      return t("runtime.components.reviewer.submission-review.scoring-criteria.text_hint_significance")
     case "methodology":
-      return t(
-        "runtime.components.reviewer.submission-review.scoring-criteria.text_hint_methodology",
-      )
+      return t("runtime.components.reviewer.submission-review.scoring-criteria.text_hint_methodology")
     default:
       return ""
   }
@@ -93,15 +90,17 @@ export function CriterionScoreCard({
   return (
     <div className="group relative">
       {/* Card Container */}
-      <div className="surface-card-quiet-strip rounded-[var(--radius-card)] border border-[var(--color-border-soft)] p-4 transition-all duration-200 hover:bg-[var(--color-fill-quiet)]">
+      <div className="bg-slate-50/80 hover:bg-slate-100/80 border border-slate-200 rounded-xl p-4 transition-all duration-200">
         {/* Header: Label */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className="text-table-header text-[var(--color-primary-ink)]">{label}</span>
+            <span className="text-[11px] font-bold text-[#1B3C53] uppercase tracking-wider">
+              {label}
+            </span>
           </div>
           {/* Current Score Badge */}
           <div
-            className="text-ui-meta flex items-center gap-1.5 rounded-[var(--radius-button)] px-2 py-0.5 font-[700]"
+            className="flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold"
             style={{
               backgroundColor: `${descriptor.color}15`,
               color: descriptor.color,
@@ -124,7 +123,7 @@ export function CriterionScoreCard({
                 type="button"
                 onClick={() => onChange(score)}
                 className={`
-                  text-ui-meta relative flex-1 rounded-[var(--radius-button)] transition-all duration-150
+                  relative flex-1 h-8 rounded-md text-[10px] font-bold transition-all duration-150
                   ${
                     isSelected
                       ? "ring-2 ring-offset-1 shadow-md scale-105 z-10"
@@ -148,8 +147,11 @@ export function CriterionScoreCard({
 
         {/* Descriptor Label */}
         <div className="flex items-center justify-between">
-          <span className="text-meta font-[500]">{hintText}</span>
-          <span className="text-tiny-label" style={{ color: descriptor.color }}>
+          <span className="text-[9px] text-slate-400 font-medium">{hintText}</span>
+          <span
+            className="text-[9px] font-bold uppercase tracking-wider"
+            style={{ color: descriptor.color }}
+          >
             {descriptorLabel}
           </span>
         </div>
@@ -187,7 +189,7 @@ export function ScoreSummary({ scores }: ScoreSummaryProps) {
   }
 
   return (
-    <div className="mb-4 rounded-[var(--radius-card)] border border-[var(--color-border-strong)] bg-[var(--color-primary-ink)] p-4 text-white">
+    <div className="bg-gradient-to-br from-[#1B3C53] to-[#234C6A] rounded-xl p-4 text-white mb-4">
       <div className="flex items-center justify-between">
         {/* Average Score */}
         <div className="flex items-center gap-3">
@@ -198,12 +200,12 @@ export function ScoreSummary({ scores }: ScoreSummaryProps) {
             {roundedAvg}
           </div>
           <div>
-            <div className="text-tiny-label text-white/60">
+            <div className="text-[10px] font-medium text-white/60 uppercase tracking-wider">
               {t(
                 "runtime.components.reviewer.submission-review.scoring-criteria.text_average_score",
               )}{" "}
             </div>
-            <div className="text-card-header text-white" style={{ color: descriptor.color }}>
+            <div className="text-sm font-bold" style={{ color: descriptor.color }}>
               {getScoreDescriptorLabel(Math.round(average), t)}
             </div>
           </div>
@@ -228,19 +230,19 @@ export function ScoreSummary({ scores }: ScoreSummaryProps) {
           {/* Distribution Badges */}
           <div className="flex gap-1.5">
             {distribution.high > 0 && (
-              <span className="text-tiny-label rounded-[var(--radius-button)] bg-emerald-500/20 px-1.5 py-0.5 text-emerald-300">
+              <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[9px] font-bold">
                 {distribution.high}{" "}
                 {t("runtime.components.reviewer.submission-review.scoring-criteria.text_high")}{" "}
               </span>
             )}
             {distribution.mid > 0 && (
-              <span className="text-tiny-label rounded-[var(--radius-button)] bg-slate-500/20 px-1.5 py-0.5 text-slate-300">
+              <span className="px-1.5 py-0.5 rounded bg-slate-500/20 text-slate-300 text-[9px] font-bold">
                 {distribution.mid}{" "}
                 {t("runtime.components.reviewer.submission-review.scoring-criteria.text_mid")}{" "}
               </span>
             )}
             {distribution.low > 0 && (
-              <span className="text-tiny-label rounded-[var(--radius-button)] bg-red-500/20 px-1.5 py-0.5 text-red-300">
+              <span className="px-1.5 py-0.5 rounded bg-red-500/20 text-red-300 text-[9px] font-bold">
                 {distribution.low}{" "}
                 {t("runtime.components.reviewer.submission-review.scoring-criteria.text_low")}{" "}
               </span>

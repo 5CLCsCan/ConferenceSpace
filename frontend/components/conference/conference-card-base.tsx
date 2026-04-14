@@ -1,7 +1,6 @@
 import type { ReactNode } from "react"
 import type { Conference, ConferenceStatus } from "./types"
 import { StatusBadge } from "./status-badge"
-import { cn } from "@/lib/utils"
 
 interface ConferenceCardBaseProps {
   conference: Conference
@@ -34,47 +33,60 @@ export function ConferenceCardBase({
   return (
     <div
       onClick={onClick}
-      className={cn(
-        "surface-card card-standard group flex h-full flex-col transition-shadow duration-200",
-        onClick && "cursor-pointer hover:shadow-[var(--shadow-hover)]",
-        isCompleted && "opacity-80 hover:opacity-100",
-        className,
-      )}
+      className={`bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 group flex flex-col h-full ${onClick ? "cursor-pointer" : ""} ${isCompleted ? "opacity-80 hover:opacity-100" : ""} ${className}`}
     >
       {/* Static Card Content */}
-      <div className="flex-1 px-[var(--space-card)] pt-[var(--space-card)] pb-[var(--space-standard)]">
+      <div className="px-4 pt-4 pb-3 flex-1">
         {/* Header */}
-        <div className="mb-2 flex items-start justify-between">
+        <div className="flex justify-between items-start mb-1.5">
           <StatusBadge status={conference.status} />
           {moreMenu}
         </div>
 
         {/* Title */}
         <h3
-          className={cn("text-card-title mb-1 transition-colors", {
+          className={`text-sm font-bold leading-[1.2] tracking-tight mb-1 transition-colors ${
             isCompleted
-              ? "text-slate-700 group-hover:text-[var(--color-primary-ink)]"
-              : "group-hover:text-[var(--color-primary-hover)]",
-          })}
+              ? "text-slate-700 dark:text-slate-300 group-hover:text-[#1B3C53] dark:group-hover:text-white"
+              : "text-[#1B3C53] dark:text-white group-hover:text-[#234C6A] dark:group-hover:text-slate-200"
+          }`}
         >
           {conference.name}
         </h3>
 
         {/* Role & Track */}
-        <p className="text-kicker mb-4 text-[var(--color-text-meta)]">
+        <p
+          className={`text-[8px] font-black uppercase tracking-widest mb-4 ${
+            isCompleted
+              ? "text-slate-400 dark:text-slate-500"
+              : "text-slate-500 dark:text-slate-400"
+          }`}
+        >
           {conference.role}
           {conference.track && ` • ${conference.track}`}
         </p>
 
         {/* Meta: Location & Dates - minimal, no icons per Icon Thinning */}
-        <div className="mb-4 space-y-1.5">
+        <div className="space-y-1.5 mb-4">
           {conference.location && (
-            <p className="text-meta leading-snug">
+            <p
+              className={`text-[10px] font-medium leading-snug ${
+                isCompleted
+                  ? "text-slate-400 dark:text-slate-500"
+                  : "text-slate-400 dark:text-slate-500"
+              }`}
+            >
               {conference.location}
             </p>
           )}
           {conference.dates && (
-            <p className="text-meta">
+            <p
+              className={`text-[10px] font-medium ${
+                isCompleted
+                  ? "text-slate-400 dark:text-slate-500"
+                  : "text-slate-400 dark:text-slate-500"
+              }`}
+            >
               {conference.dates}
             </p>
           )}
@@ -85,7 +97,7 @@ export function ConferenceCardBase({
       </div>
 
       {/* Footer Actions */}
-      <div className="surface-card-quiet-strip rounded-b-[var(--radius-card)] border-t border-[var(--color-border-soft)] px-[var(--space-card)] py-[var(--space-standard)]">
+      <div className="border-t border-slate-100 dark:border-slate-700 px-4 py-3 bg-slate-50/50 dark:bg-slate-800/50 rounded-b-xl">
         {footer}
       </div>
     </div>
@@ -109,10 +121,13 @@ export function ActionButton({
   variant = "secondary",
   className = "",
 }: ActionButtonProps) {
-  const baseClasses = "button-secondary button-header flex-1 transition-colors duration-200"
+  const baseClasses =
+    "flex-1 h-8 px-3 text-[11px] font-medium rounded-full transition-all duration-200"
   const variants = {
-    primary: "button-primary",
-    secondary: "button-secondary",
+    primary:
+      "bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] hover:bg-[#234C6A] dark:hover:bg-slate-100",
+    secondary:
+      "bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 hover:text-[#1B3C53] dark:hover:text-white hover:border-slate-300",
   }
 
   return (

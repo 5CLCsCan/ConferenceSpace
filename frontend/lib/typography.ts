@@ -1,78 +1,70 @@
 /**
  * Typography and Spacing Constants
- * Mirrors the semantic aliases defined in docs/design.md.
+ * Based on COI Dashboard styling for consistency across the application
  */
 
 export const typography = {
-  pageTitle: "text-page-title",
-  detailTitle: "text-detail-title",
-  pageSubtitle: "text-page-subtitle",
-  detailSecondary: "text-detail-secondary",
-  sectionTitle: "text-section-title",
-  cardTitle: "text-card-title",
-  cardHeader: "text-card-header",
-  body: "text-body",
-  supporting: "text-supporting",
-  meta: "text-meta",
-  uiMeta: "text-ui-meta",
-  tinyLabel: "text-tiny-label",
-  kicker: "text-kicker",
-  tableHeader: "text-table-header",
-  muted: "text-meta",
+  // Headings
+  h1: "text-3xl font-bold", // Main page titles
+  h2: "text-2xl font-bold", // Section titles
+  h3: "text-xl font-bold", // Subsection titles
+  h4: "text-lg font-semibold", // Card titles, small section headers
+  h5: "text-base font-semibold", // Smaller card titles
+  h6: "text-sm font-semibold", // Smallest headings
 
-  // Backward-compatible aliases that now map to the canonical spec roles.
-  h1: "text-page-title",
-  h2: "text-section-title",
-  h3: "text-card-header",
-  h4: "text-card-title",
-  h5: "text-body",
-  h6: "text-ui-meta",
-  bodyLarge: "text-card-header",
-  bodySmall: "text-supporting",
-  stats: "text-page-title",
-  label: "text-ui-meta",
-  caption: "text-meta",
-  bold: "font-[700]",
-  semibold: "font-[600]",
-  medium: "font-[500]",
-  normal: "font-[400]",
+  // Body text
+  body: "text-sm", // Default body text
+  bodyLarge: "text-base", // Larger body text
+  bodySmall: "text-xs", // Smaller body text, captions
+
+  // Special text
+  stats: "text-2xl font-bold", // Large numbers (stats, metrics)
+  label: "text-sm font-medium", // Form labels, card labels
+  caption: "text-xs text-muted-foreground", // Captions, helper text
+  muted: "text-muted-foreground", // Muted text color
+
+  // Font weights
+  bold: "font-bold",
+  semibold: "font-semibold",
+  medium: "font-medium",
+  normal: "font-normal",
 
   // Markdown styling for chatbot
   markdown: {
     // Container for all markdown content
-    container: "text-supporting leading-relaxed",
+    container: "text-xs leading-relaxed",
     // All markdown elements should inherit small font size
-    all: "[&_p]:text-supporting [&_li]:text-supporting [&_strong]:text-supporting [&_em]:text-supporting [&_code]:text-supporting [&_pre]:text-supporting [&_h1]:text-card-header [&_h2]:text-card-title [&_h3]:text-card-title [&_h4]:text-body [&_h5]:text-body [&_h6]:text-supporting [&_ul]:text-supporting [&_ol]:text-supporting [&_blockquote]:text-supporting [&_a]:text-supporting [&_span]:text-supporting",
+    all: "[&_p]:text-xs [&_li]:text-xs [&_strong]:text-xs [&_em]:text-xs [&_code]:text-xs [&_pre]:text-xs [&_h1]:text-xs [&_h2]:text-xs [&_h3]:text-xs [&_h4]:text-xs [&_h5]:text-xs [&_h6]:text-xs [&_ul]:text-xs [&_ol]:text-xs [&_blockquote]:text-xs [&_a]:text-xs [&_span]:text-xs",
     // Specific element styles
-    paragraph: "text-supporting mb-1 last:mb-0",
-    list: "text-supporting my-1",
-    listItem: "text-supporting py-0.5",
-    strong: "text-supporting font-[600]",
-    em: "text-supporting italic",
-    code: "text-supporting font-mono bg-muted px-1 py-0.5 rounded",
-    heading: "text-card-title my-1",
+    paragraph: "text-xs mb-1 last:mb-0",
+    list: "text-xs my-1",
+    listItem: "text-xs py-0.5",
+    strong: "text-xs font-semibold",
+    em: "text-xs italic",
+    code: "text-xs font-mono bg-muted px-1 py-0.5 rounded",
+    heading: "text-xs font-semibold my-1",
   },
 } as const
 
 export const spacing = {
   // Vertical spacing between sections
-  section: "space-y-[var(--space-section)]",
-  subsection: "space-y-[var(--space-card)]",
+  section: "space-y-6", // Between major sections
+  subsection: "space-y-4", // Between subsections
   item: "space-y-2", // Between items in a list
   tight: "space-y-1", // Tight spacing
 
   // Gaps
   gap: {
-    sm: "gap-[var(--space-compact)]",
-    md: "gap-[var(--space-standard)]",
-    lg: "gap-[var(--space-section)]",
+    sm: "gap-2", // Small gap
+    md: "gap-4", // Medium gap (default)
+    lg: "gap-6", // Large gap
   },
 
   // Padding
   padding: {
-    card: "p-[var(--space-card)]",
-    cardLarge: "p-[var(--space-section)]",
-    section: "p-[var(--space-card)]",
+    card: "p-4", // Card padding
+    cardLarge: "p-6", // Large card padding
+    section: "p-5", // Section padding
     tight: "p-2", // Tight padding
   },
 
@@ -89,7 +81,7 @@ export const spacing = {
 
 export const iconSizes = {
   xs: "h-3 w-3", // Extra small icons
-  sm: "h-4 w-4", // Small icons (default for dense controls)
-  md: "h-[18px] w-[18px]", // Navigation or stronger action icons
+  sm: "h-4 w-4", // Small icons (default for cards)
+  md: "h-5 w-5", // Medium icons
   lg: "h-6 w-6", // Large icons
 } as const

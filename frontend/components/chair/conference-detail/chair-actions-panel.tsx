@@ -141,7 +141,9 @@ export function ChairActionsPanel({
       }
 
       if (nextStatus === "reviewing") {
-        setPhaseSuccess("Conference moved to reviewing. Auto-assign was triggered automatically.")
+        setPhaseSuccess(
+          "Conference moved to reviewing. Auto-assign was triggered automatically.",
+        )
       } else {
         setPhaseSuccess("Conference status updated successfully.")
       }
@@ -189,7 +191,9 @@ export function ChairActionsPanel({
   const defaultActions: ChairAction[] = [
     {
       id: "advance-phase",
-      label: phaseLoading ? "Updating phase..." : getNextPhaseLabel() || "Advance Phase",
+      label: phaseLoading
+        ? "Updating phase..."
+        : getNextPhaseLabel() || "Advance Phase",
       icon: "fast_forward",
       onClick: handleAdvancePhase,
       loading: phaseLoading,
@@ -240,43 +244,48 @@ export function ChairActionsPanel({
   const displayActions = actions || defaultActions
 
   return (
-    <div className={cn("surface-card relative overflow-hidden px-4 pb-4 pt-4", className)}>
+    <div
+      className={cn(
+        "bg-[#1B3C53] text-white px-4 pt-4 pb-4 rounded-xl shadow-lg relative overflow-hidden",
+        className,
+      )}
+    >
       {/* Decorative blur */}
-      <div className="pointer-events-none absolute right-0 top-0 -mr-8 -mt-8 h-24 w-24 rounded-full bg-[var(--color-fill-quiet)] blur-2xl" />
+      <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none" />
 
       <div className="relative z-10">
-        <h3 className="text-card-header mb-3">
+        <h3 className="text-sm font-bold mb-3 tracking-tight">
           {t("runtime.components.chair.conference-detail.chair-actions-panel.text_chair_actions")}
         </h3>
 
         {/* Status messages */}
         {autoAssignError && (
-          <div className="badge-semantic-error mb-2 flex rounded-[var(--radius-button)] px-2 py-1.5 text-ui-meta">
+          <div className="mb-2 px-2 py-1.5 bg-red-500/20 border border-red-400/30 rounded text-[10px] text-red-200">
             {autoAssignError}
           </div>
         )}
         {phaseError && (
-          <div className="badge-semantic-error mb-2 flex rounded-[var(--radius-button)] px-2 py-1.5 text-ui-meta">
+          <div className="mb-2 px-2 py-1.5 bg-red-500/20 border border-red-400/30 rounded text-[10px] text-red-200">
             {phaseError}
           </div>
         )}
         {autoAssignSuccess && (
-          <div className="badge-semantic-success mb-2 flex rounded-[var(--radius-button)] px-2 py-1.5 text-ui-meta">
+          <div className="mb-2 px-2 py-1.5 bg-green-500/20 border border-green-400/30 rounded text-[10px] text-green-200">
             {autoAssignSuccess}
           </div>
         )}
         {phaseSuccess && (
-          <div className="badge-semantic-success mb-2 flex rounded-[var(--radius-button)] px-2 py-1.5 text-ui-meta">
+          <div className="mb-2 px-2 py-1.5 bg-green-500/20 border border-green-400/30 rounded text-[10px] text-green-200">
             {phaseSuccess}
           </div>
         )}
         {archiveError && (
-          <div className="badge-semantic-error mb-2 flex rounded-[var(--radius-button)] px-2 py-1.5 text-ui-meta">
+          <div className="mb-2 px-2 py-1.5 bg-red-500/20 border border-red-400/30 rounded text-[10px] text-red-200">
             {archiveError}
           </div>
         )}
         {archiveSuccess && (
-          <div className="badge-semantic-success mb-2 flex rounded-[var(--radius-button)] px-2 py-1.5 text-ui-meta">
+          <div className="mb-2 px-2 py-1.5 bg-green-500/20 border border-green-400/30 rounded text-[10px] text-green-200">
             {archiveSuccess}
           </div>
         )}
@@ -289,12 +298,12 @@ export function ChairActionsPanel({
               onClick={action.onClick}
               disabled={action.loading}
               className={cn(
-                "button-secondary text-ui-meta flex w-full items-center justify-between px-3 py-2.5 text-left",
+                "w-full bg-white/10 hover:bg-white/20 border border-white/20 text-left px-3 py-2.5 rounded-lg flex items-center justify-between transition-all",
                 action.loading && "opacity-50 cursor-not-allowed",
               )}
             >
-              <span>{action.label}</span>
-              <span className="material-symbols-outlined text-[14px] text-[var(--color-primary-ink)]">
+              <span className="text-[11px] font-medium">{action.label}</span>
+              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
                 {action.loading ? "sync" : action.icon}
               </span>
             </button>
@@ -302,15 +311,15 @@ export function ChairActionsPanel({
         </div>
 
         {/* Next Milestone */}
-        <div className="mt-4 border-t border-[var(--color-border-soft)] pt-3">
-          <p className="text-table-header mb-1.5">
+        <div className="mt-4 pt-3 border-t border-white/10">
+          <p className="text-[9px] text-slate-300 mb-1.5 uppercase tracking-widest font-medium">
             {t(
               "runtime.components.chair.conference-detail.chair-actions-panel.text_next_milestone",
             )}{" "}
           </p>
           <div className="flex items-center justify-between">
-            <span className="text-card-title">{displayMilestone.label}</span>
-            <span className="badge-neutral text-ui-meta rounded-[var(--radius-button)] px-2 py-0.5">
+            <span className="text-[12px] font-bold">{displayMilestone.label}</span>
+            <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded text-white font-medium">
               {displayMilestone.date}
             </span>
           </div>
