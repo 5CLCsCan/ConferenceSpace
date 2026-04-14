@@ -249,6 +249,11 @@ func TestPCRoleExclusivity(t *testing.T) {
 	}
 
 	t.Run("cannot assign PC to existing reviewer", func(t *testing.T) {
+		reviewerToken, reviewerUser, err := ctx.RegisterUniqueUser("pcexcl-reviewer", "password123", "Reviewer", "User", []string{"AI"})
+		if err != nil {
+			t.Fatalf("Failed to register reviewer user: %v", err)
+		}
+
 		conf := &dto.Conference{
 			Title:   "Exclusivity Test 1",
 			Acronym: testutils.UniqueString("PCEX1"),
@@ -266,11 +271,11 @@ func TestPCRoleExclusivity(t *testing.T) {
 		testutils.DecodeResponse(t, createResp, &confData)
 		confID := confData.Data.ID
 
-		// Invite as reviewer first
+		// Invite as reviewer
 		inviteResp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/reviewers", confID),
 			map[string]interface{}{
 				"reviewers": []map[string]interface{}{
-					{"user_id": testUser.ID},
+					{"user_id": reviewerUser.ID},
 				},
 			}, chairToken)
 		if err != nil {
@@ -278,13 +283,34 @@ func TestPCRoleExclusivity(t *testing.T) {
 		}
 		testutils.AssertStatusCode(t, inviteResp, http.StatusCreated)
 
+		// Reviewer accepts invitation — this creates the reviewer role entry
+		var inviteData struct {
+			Data *dto.ReviewerBatchInviteResponse `json:"data"`
+		}
+		testutils.DecodeResponse(t, inviteResp, &inviteData)
+		if len(inviteData.Data.Success) > 0 {
+			reviewerID := inviteData.Data.Success[0].ID
+			acceptReq := map[string]interface{}{
+				"conference_id": confID,
+				"reviewer_id":   reviewerID,
+				"status":        "accepted",
+			}
+			acceptResp, err := ctx.MakeRequest("PUT",
+				fmt.Sprintf("/api/v1/conferences/%d/reviewers/%d/status", confID, reviewerID),
+				acceptReq, reviewerToken)
+			if err != nil {
+				t.Fatalf("Failed to accept reviewer invitation: %v", err)
+			}
+			testutils.AssertStatusCode(t, acceptResp, http.StatusOK)
+		}
+
 		// Try to assign PC via update — should fail with 409
 		updated := &dto.Conference{
 			Title:     conf.Title,
 			Acronym:   conf.Acronym,
 			Chair:     chair.Email,
 			Domain:    []string{"AI"},
-			PCMembers: []string{testUser.Email},
+			PCMembers: []string{reviewerUser.Email},
 		}
 		updateResp, err := conferenceClient.Update(confID, updated, chairToken)
 		if err != nil {
