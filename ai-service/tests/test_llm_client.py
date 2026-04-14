@@ -179,3 +179,104 @@ async def test_complete_json_parses_json_array_response(
     assert isinstance(messages, list)
     assert messages[0]["role"] == "system"
     assert messages[1]["role"] == "user"
+
+
+@pytest.mark.asyncio
+async def test_complete_json_prefers_openai_compatible_primary_when_configured(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[dict[str, object]] = []
+
+    async def fake_acompletion(**kwargs):
+        calls.append(kwargs)
+        return {"choices": [{"message": {"content": '{"provider":"openai"}'}}]}
+
+    monkeypatch.setattr("app.services.llm_client._get_acompletion", lambda: fake_acompletion)
+
+    client = LLMClient(
+        api_key="openrouter-key",
+        model="openrouter/google/gemini-2.5-flash-lite",
+        openai_api_key="openai-key",
+        openai_base_url="http://localhost:20128/v1",
+        openai_model="cx/gpt-5.4-mini",
+    )
+    payload = await client.complete_json(messages=[{"role": "user", "content": "hello"}])
+
+    assert payload == {"provider": "openai"}
+    assert len(calls) == 1
+    assert calls[0]["model"] == "openai/cx/gpt-5.4-mini"
+    assert calls[0]["api_key"] == "openai-key"
+    assert calls[0]["api_base"] == "http://localhost:20128/v1"
+    assert calls[0]["timeout"] == 60
+    assert calls[0]["num_retries"] == 0
+
+
+@pytest.mark.asyncio
+async def test_complete_json_falls_back_to_openrouter_when_primary_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[dict[str, object]] = []
+
+    async def fake_acompletion(**kwargs):
+        calls.append(kwargs)
+        if len(calls) == 1:
+            raise TimeoutError("primary provider timed out")
+        return {"choices": [{"message": {"content": '{"provider":"openrouter"}'}}]}
+
+    monkeypatch.setattr("app.services.llm_client._get_acompletion", lambda: fake_acompletion)
+
+    client = LLMClient(
+        api_key="openrouter-key",
+        model="openrouter/google/gemini-2.5-flash-lite",
+        openai_api_key="openai-key",
+        openai_base_url="http://localhost:20128/v1",
+        openai_model="cx/gpt-5.4-mini",
+    )
+    payload = await client.complete_json(messages=[{"role": "user", "content": "hello"}])
+
+    assert payload == {"provider": "openrouter"}
+    assert [call["model"] for call in calls] == [
+        "openai/cx/gpt-5.4-mini",
+        "openrouter/google/gemini-2.5-flash-lite",
+    ]
+    assert calls[0]["api_key"] == "openai-key"
+    assert calls[1]["api_key"] == "openrouter-key"
+    assert calls[0]["timeout"] == 60
+    assert calls[1]["timeout"] == 60
+    assert calls[0]["num_retries"] == 0
+    assert calls[1]["num_retries"] == 0
+    assert "api_base" not in calls[1]
+
+
+@pytest.mark.asyncio
+async def test_stream_chat_falls_back_to_openrouter_when_primary_stream_times_out(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[dict[str, object]] = []
+
+    async def fake_acompletion(**kwargs):
+        calls.append(kwargs)
+        if len(calls) == 1:
+            raise TimeoutError("no primary stream response")
+        return _FakeStreamResponse([_make_chunk({"content": "Fallback answer"})])
+
+    monkeypatch.setattr("app.services.llm_client._get_acompletion", lambda: fake_acompletion)
+
+    client = LLMClient(
+        api_key="openrouter-key",
+        model="openrouter/google/gemini-2.5-flash-lite",
+        openai_api_key="openai-key",
+        openai_base_url="http://localhost:20128/v1",
+        openai_model="cx/gpt-5.4-mini",
+    )
+    chunks = [chunk async for chunk in client.stream_chat(messages=[])]
+
+    assert chunks == [{"content": "Fallback answer"}]
+    assert [call["model"] for call in calls] == [
+        "openai/cx/gpt-5.4-mini",
+        "openrouter/google/gemini-2.5-flash-lite",
+    ]
+    assert calls[0]["stream"] is True
+    assert calls[1]["stream"] is True
+    assert calls[0]["stream_timeout"] == 60
+    assert calls[1]["stream_timeout"] == 60

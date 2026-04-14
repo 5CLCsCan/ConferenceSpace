@@ -43,6 +43,13 @@ logger = logging.getLogger(__name__)
 EventEmitter = Callable[[dict[str, Any]], Awaitable[None]]
 
 
+def _effective_agent_model(settings: Settings, llm_client: LLMClient) -> str:
+    primary_model = getattr(llm_client, "primary_model", "")
+    if isinstance(primary_model, str) and primary_model.strip():
+        return primary_model
+    return settings.agent_model
+
+
 @dataclass(slots=True)
 class AgentRuntime:
     settings: Settings
@@ -74,7 +81,7 @@ class AgentRuntime:
                 thread_id=thread_id,
                 user_id=identity.user_id,
                 user_email=identity.user_email,
-                model=self.settings.agent_model,
+                model=_effective_agent_model(self.settings, self.llm_client),
                 initial_title=initial_title,
             )
             await message_repo.append_unseen_messages(thread_id, incoming_messages)
@@ -558,7 +565,7 @@ class AgentRuntime:
             keep_recent_exchanges=self.settings.keep_recent_exchanges,
         )
         estimated_tokens = estimate_tokens_from_messages(messages)
-        context_window = _model_context_window(self.settings.agent_model)
+        context_window = _model_context_window(_effective_agent_model(self.settings, self.llm_client))
 
         if policy.should_compact(estimated_tokens, context_window):
             older, _ = policy.split(messages)

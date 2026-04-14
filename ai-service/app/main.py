@@ -68,8 +68,18 @@ class AppContainer:
 async def lifespan(app: FastAPI):
     settings = get_settings()
     configure_logging(settings.log_level)
-    if not settings.openrouter_api_key.strip():
-        raise RuntimeError("OPENROUTER_API_KEY is required")
+    has_openai_primary = bool(
+        settings.openai_api_key.strip()
+        and settings.openai_base_url.strip()
+        and settings.openai_model.strip()
+    )
+    has_openrouter_fallback = bool(settings.openrouter_api_key.strip() and settings.agent_model.strip())
+    if not has_openai_primary and not has_openrouter_fallback:
+        raise RuntimeError(
+            "Configure OPENAI_API_KEY + OPENAI_BASE_URL + OPENAI_MODEL or OPENROUTER_API_KEY + AGENT_MODEL"
+        )
+    if has_openai_primary and not has_openrouter_fallback:
+        raise RuntimeError("OPENROUTER_API_KEY and AGENT_MODEL are required for fallback when OpenAI is primary")
 
     engine = create_engine(settings)
     session_factory = create_session_factory(engine)
@@ -83,7 +93,12 @@ async def lifespan(app: FastAPI):
         redis, tool_result_timeout_seconds=settings.tool_result_timeout_seconds
     )
     llm_client = LLMClient(
-        api_key=settings.openrouter_api_key, model=settings.agent_model
+        api_key=settings.openrouter_api_key,
+        model=settings.agent_model,
+        openai_api_key=settings.openai_api_key,
+        openai_base_url=settings.openai_base_url,
+        openai_model=settings.openai_model,
+        request_timeout_seconds=settings.llm_request_timeout_seconds,
     )
     metrics = MetricsStore()
     query_engine_client = QueryEngineClient(
