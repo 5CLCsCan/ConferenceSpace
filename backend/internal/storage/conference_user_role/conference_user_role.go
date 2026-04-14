@@ -10,6 +10,9 @@ import (
 	"github.com/dcao/conferencespace/internal/model"
 )
 
+// ErrRoleConflict is returned when assigning a role that conflicts with an existing role
+var ErrRoleConflict = fmt.Errorf("role conflict")
+
 type StorageInterface interface {
 	AddRole(ctx context.Context, conferenceID int64, userEmail string, role string) error
 	AddRoles(ctx context.Context, roles []model.RoleAssignment) error
@@ -18,6 +21,7 @@ type StorageInterface interface {
 	GetUserRoles(ctx context.Context, conferenceID int64, userEmail string) ([]string, error)
 	GetAllUserRoles(ctx context.Context, userEmail string) ([]string, error)
 	HasRole(ctx context.Context, conferenceID int64, userEmail string, roles []string) (bool, error)
+	GetEmailsByRole(ctx context.Context, conferenceID int64, role string) ([]string, error)
 }
 
 type Storage struct {
@@ -34,6 +38,17 @@ func New(db *sql.DB) *Storage {
 
 // AddRole adds or updates a role for a user in a conference
 func (s *Storage) AddRole(ctx context.Context, conferenceID int64, userEmail string, role string) error {
+	// Exclusivity check: PC cannot coexist with other roles in the same conference
+	existingRole, err := s.getExistingRole(ctx, conferenceID, userEmail)
+	if err != nil {
+		return err
+	}
+	if existingRole != "" && existingRole != role {
+		if role == model.RolePC || existingRole == model.RolePC {
+			return fmt.Errorf("%w: user %s already has role '%s' in this conference; cannot assign '%s'", ErrRoleConflict, userEmail, existingRole, role)
+		}
+	}
+
 	query, args, err := s.qb.
 		Insert(model.ConferenceUserRoleTableName).
 		Columns(
@@ -99,7 +114,17 @@ func (s *Storage) AddRoles(ctx context.Context, roles []model.RoleAssignment) er
 	now := time.Now()
 	for _, assignment := range roles {
 		if assignment.UserEmail == "" || assignment.ConferenceID == 0 {
-			continue // Skip invalid assignments
+			continue
+		}
+		// Exclusivity check for PC role
+		existingRole, err := s.getExistingRole(ctx, assignment.ConferenceID, assignment.UserEmail)
+		if err != nil {
+			return err
+		}
+		if existingRole != "" && existingRole != assignment.Role {
+			if assignment.Role == model.RolePC || existingRole == model.RolePC {
+				return fmt.Errorf("%w: user %s already has role '%s'; cannot assign '%s'", ErrRoleConflict, assignment.UserEmail, existingRole, assignment.Role)
+			}
 		}
 		insertBuilder = insertBuilder.Values(
 			assignment.ConferenceID,
@@ -267,6 +292,67 @@ func (s *Storage) GetAllUserRoles(ctx context.Context, userEmail string) ([]stri
 	}
 
 	return roles, nil
+}
+
+// GetEmailsByRole returns all active user emails with the given role in a conference
+func (s *Storage) GetEmailsByRole(ctx context.Context, conferenceID int64, role string) ([]string, error) {
+	query, args, err := s.qb.
+		Select(model.ColUserEmail).
+		From(model.ConferenceUserRoleTableName).
+		Where(sq.Eq{
+			model.ColConferenceID: conferenceID,
+			model.ColRole:         role,
+			model.ColStatus:       model.RoleStatusActive,
+		}).
+		OrderBy(model.ColUserEmail).
+		ToSql()
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to build query: %w", err)
+	}
+
+	rows, err := s.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query emails by role: %w", err)
+	}
+	defer rows.Close()
+
+	var emails []string
+	for rows.Next() {
+		var email string
+		if err := rows.Scan(&email); err != nil {
+			return nil, fmt.Errorf("failed to scan email: %w", err)
+		}
+		emails = append(emails, email)
+	}
+	return emails, rows.Err()
+}
+
+// getExistingRole returns the current active role for a user in a conference, or "" if none
+func (s *Storage) getExistingRole(ctx context.Context, conferenceID int64, userEmail string) (string, error) {
+	query, args, err := s.qb.
+		Select(model.ColRole).
+		From(model.ConferenceUserRoleTableName).
+		Where(sq.Eq{
+			model.ColConferenceID: conferenceID,
+			model.ColUserEmail:    userEmail,
+			model.ColStatus:       model.RoleStatusActive,
+		}).
+		ToSql()
+
+	if err != nil {
+		return "", fmt.Errorf("failed to build query: %w", err)
+	}
+
+	var existingRole string
+	err = s.db.QueryRowContext(ctx, query, args...).Scan(&existingRole)
+	if err == sql.ErrNoRows {
+		return "", nil
+	}
+	if err != nil {
+		return "", fmt.Errorf("failed to query existing role: %w", err)
+	}
+	return existingRole, nil
 }
 
 // HasRole checks if a user has any of the specified roles in a conference

@@ -100,6 +100,19 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.ConferenceCreateReques
 		}
 	}
 
+	// Add PC members if provided
+	if len(req.Conference.PCMembers) > 0 {
+		for _, pcEmail := range req.Conference.PCMembers {
+			if pcEmail != "" && pcEmail != userEmail {
+				roles = append(roles, model.RoleAssignment{
+					ConferenceID: conference.ID,
+					UserEmail:    pcEmail,
+					Role:         model.RolePC,
+				})
+			}
+		}
+	}
+
 	err = c.roleStorage.AddRoles(ctx, roles)
 	if err != nil {
 		// Log error but don't fail the conference creation
@@ -258,6 +271,15 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.ConferenceUpdateReques
 	// Preserve the main chair if not being explicitly changed
 	if req.Conference.Chair == "" {
 		req.Conference.Chair = existing.Chair
+	}
+
+	// Update PC member roles if PCMembers is provided in the update request
+	if req.Conference.PCMembers != nil {
+		for _, pcEmail := range req.Conference.PCMembers {
+			if pcEmail != "" {
+				_ = c.roleStorage.AddRole(ctx, req.ConferenceID, pcEmail, model.RolePC)
+			}
+		}
 	}
 
 	return c.conferenceStorage.Update(ctx, req.ConferenceID, req.Conference)

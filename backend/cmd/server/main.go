@@ -215,8 +215,9 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 
 	// Authorization middleware instances
 	requireChair := middleware.RequireChairOrCoChair(store.ConferenceUserRole)
+	requireChairOrPC := middleware.RequireChairCoChairOrPC(store.ConferenceUserRole)
 	requireSubmissionAccess := middleware.RequireSubmissionAccess(store.Submission, store.Assignment, store.ConferenceUserRole, store.Reviewer)
-	requireThreadParticipant := middleware.RequireThreadParticipant(store.Discussion)
+	requireThreadParticipant := middleware.RequireThreadParticipant(store.Discussion, store.ConferenceUserRole)
 	requireSelfReviewer := middleware.RequireSelfReviewerEmail()
 	requireAssignmentOwner := middleware.RequireAssignmentOwner(store.Assignment, store.Reviewer)
 	requireCOICheck := middleware.RequireCOICheckAuthorization(store.ConferenceUserRole)
@@ -349,8 +350,8 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			// Reviewer routes nested under conferences (all protected - authentication required)
 			reviewers := conferences.Group("/:conference_id/reviewers")
 			{
-				reviewers.GET("", requireChair, handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.List))
-				reviewers.GET("/:reviewer_id", requireChair, handler.HandleRequestWithURI(ctrl.Reviewer.Get))
+				reviewers.GET("", requireChairOrPC, handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.List))
+				reviewers.GET("/:reviewer_id", requireChairOrPC, handler.HandleRequestWithURI(ctrl.Reviewer.Get))
 				reviewers.POST("", requireChair, handler.HandleRequestWithURIAndJSONWithStatus(http.StatusCreated, ctrl.Reviewer.BatchInvite))
 				reviewers.PUT("/:reviewer_id/status", handler.HandleRequestWithURIAndJSON(ctrl.Reviewer.UpdateStatus)) // Auth in controller: chair or invited reviewer
 				reviewers.DELETE("/:reviewer_id", requireChair, handler.HandleNoRequestWithURIMessage("reviewer removed successfully", ctrl.Reviewer.Delete))
@@ -381,8 +382,8 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 				submissions.POST("/auto-assign", handler.HandleRequest(ctrl.Assignment.AutoAssign))
 
 				// Review endpoints for chair (list reviews and analytics)
-				submissions.GET("/:submission_id/reviews", requireChair, handler.HandleRequestWithURIAndQuery(ctrl.Assignment.ListReviews))
-				submissions.GET("/:submission_id/reviews/analytics", requireChair, handler.HandleNoRequest(ctrl.Assignment.GetReviewAnalytics))
+				submissions.GET("/:submission_id/reviews", requireChairOrPC, handler.HandleRequestWithURIAndQuery(ctrl.Assignment.ListReviews))
+				submissions.GET("/:submission_id/reviews/analytics", requireChairOrPC, handler.HandleNoRequest(ctrl.Assignment.GetReviewAnalytics))
 
 				// Discussion threads for submissions
 				submissions.POST("/:submission_id/threads", handler.HandleNoRequestWithStatus(http.StatusCreated, ctrl.Discussion.CreateThread))
@@ -430,10 +431,10 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			assignments.PUT("/:assignment_id/rebuttal/acknowledge", requireAssignmentOwner, handler.HandleRequestWithURI(ctrl.Reviewer.AcknowledgeRebuttal))
 			assignments.PUT("/:assignment_id/rebuttal/points/:point_id/acknowledge", requireAssignmentOwner, handler.HandleRequestWithAll(ctrl.Reviewer.AcknowledgePoint))
 
-			// Suggestion routes (chair only)
+			// Suggestion routes (chair only for writes, chair/PC for reads)
 			suggestions := assignments.Group("/suggestions")
 			{
-				suggestions.GET("", requireChair, handler.HandleNoRequest(ctrl.Assignment.GetSuggestions))
+				suggestions.GET("", requireChairOrPC, handler.HandleNoRequest(ctrl.Assignment.GetSuggestions))
 				suggestions.POST("", requireChair, handler.HandleRequestWithStatus(http.StatusCreated, ctrl.Assignment.AddSuggestion))
 				suggestions.POST("/confirm", requireChair, handler.HandleRequest(ctrl.Assignment.ConfirmSuggestions))
 				suggestions.DELETE("/:assignment_id", requireChair, handler.HandleNoRequestWithMessage("suggestion deleted successfully", ctrl.Assignment.DeleteSuggestion))
@@ -442,8 +443,8 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			// Post-rebuttal score route (reviewer)
 			assignments.PUT("/:assignment_id/post-rebuttal-score", handler.HandleRequestWithAll(ctrl.Reviewer.UpdatePostRebuttalScore))
 
-			// Confirmed assignments route (chair only)
-			assignments.GET("/confirmed", requireChair, handler.HandleNoRequest(ctrl.Assignment.GetConfirmedAssignments))
+			// Confirmed assignments route (chair and PC for reads)
+			assignments.GET("/confirmed", requireChairOrPC, handler.HandleNoRequest(ctrl.Assignment.GetConfirmedAssignments))
 		}
 
 		// COI (Conflict of Interest) routes (authentication required)

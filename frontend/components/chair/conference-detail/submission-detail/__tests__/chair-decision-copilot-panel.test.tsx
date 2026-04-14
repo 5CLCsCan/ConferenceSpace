@@ -73,6 +73,10 @@ function buildResponse(
   }
 }
 
+vi.mock("@/lib/auth-context", () => ({
+  useAuth: vi.fn(() => ({ currentRole: "chair" })),
+}))
+
 describe("ChairDecisionCopilotPanel", () => {
   it("renders the idle empty state and generate action", () => {
     render(

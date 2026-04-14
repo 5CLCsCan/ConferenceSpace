@@ -34,7 +34,7 @@ interface RegisterData {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 // Valid user roles - used for validation
-const VALID_USER_ROLES: UserRole[] = ["author", "reviewer", "chair", "admin"]
+const VALID_USER_ROLES: UserRole[] = ["author", "reviewer", "chair", "pc", "admin"]
 const TECHNICAL_ERROR_PATTERN =
   /(pq:|sqlstate|duplicate key value|violates unique constraint|constraint|database|failed to [a-z_ ]+:)/i
 

@@ -78,6 +78,7 @@ type Conference struct {
 	Description    string                   `json:"description"`
 	Chair          string                   `json:"chair"`
 	CoChairs       []string                 `json:"co_chairs"`
+	PCMembers      []string                 `json:"pc_members"`
 	Domain         []string                 `json:"domain"`
 	Tracks         []string                 `json:"tracks"`
 	Venue          string                   `json:"venue"`
@@ -92,6 +93,7 @@ type ConferenceResponse struct {
 	Description    string                   `json:"description"`
 	Chair          string                   `json:"chair"`
 	CoChairs       []string                 `json:"co_chairs"`
+	PCMembers      []string                 `json:"pc_members"`
 	Domain         []string                 `json:"domain"`
 	Tracks         []string                 `json:"tracks"`
 	Venue          string                   `json:"venue"`

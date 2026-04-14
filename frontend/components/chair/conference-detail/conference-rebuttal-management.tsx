@@ -8,6 +8,8 @@ import {
   type RebuttalOverviewResponse,
 } from "@/lib/api/conference-rebuttal"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { useAuth } from "@/lib/auth-context"
+import { isReadOnlyRole } from "@/lib/role-helpers"
 
 interface ConferenceRebuttalManagementProps {
   conferenceId: string
@@ -77,6 +79,8 @@ export function ConferenceRebuttalManagement({
   refreshKey = 0,
 }: ConferenceRebuttalManagementProps) {
   const { t } = useTranslation()
+  const { currentRole } = useAuth()
+  const readOnly = isReadOnlyRole(currentRole)
   const phaseLabels = getPhaseLabels(t)
   const submissionPhaseLabels = getSubmissionPhaseLabels(t)
   const [overview, setOverview] = useState<RebuttalOverviewResponse | null>(null)
@@ -147,7 +151,7 @@ export function ConferenceRebuttalManagement({
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {phase === "not_started" && !isRebuttalOff && (
+            {phase === "not_started" && !isRebuttalOff && !readOnly && (
               <button
                 disabled={actionLoading}
                 onClick={() => handleAction(() => openRebuttal(conferenceId))}
@@ -161,7 +165,7 @@ export function ConferenceRebuttalManagement({
               {t("runtime.components.chair.conference-detail.conference-rebuttal-management.text_rebuttal_is_off_enable_rebuttal_in")}{" "}</span>
             )}
 
-            {phase !== "not_started" && phase !== "finalized" && (
+            {phase !== "not_started" && phase !== "finalized" && !readOnly && (
               <>
                 {confirmFinalize ? (
                   <div className="flex items-center gap-2">

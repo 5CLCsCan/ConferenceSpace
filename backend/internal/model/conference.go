@@ -32,6 +32,7 @@ const (
 	RoleCoChair  = "co_chair"
 	RoleAuthor   = "author"
 	RoleReviewer = "reviewer"
+	RolePC       = "pc"
 )
 
 // Conference status constants

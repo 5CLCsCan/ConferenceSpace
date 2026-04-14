@@ -6,6 +6,8 @@ import { getConferenceReviewers, inviteReviewers, removeReviewer } from "@/lib/a
 import type { Reviewer } from "@/lib/api/conferences"
 import { apiFetch } from "@/lib/api/client"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { useAuth } from "@/lib/auth-context"
+import { isReadOnlyRole } from "@/lib/role-helpers"
 
 interface ConferenceCommitteeProps {
   conferenceId: string
@@ -165,6 +167,8 @@ function MemberAvatar({ email, name }: { email: string; name: string }) {
 
 export function ConferenceCommittee({ conferenceId, className }: ConferenceCommitteeProps) {
   const { t } = useTranslation()
+  const { currentRole } = useAuth()
+  const readOnly = isReadOnlyRole(currentRole)
   const labels = {
     text_actions: t("runtime.components.chair.conference-detail.conference-committee.text_actions"),
     text_active: t("runtime.components.chair.conference-detail.conference-committee.text_active"),
@@ -617,18 +621,20 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                   <Icon name="download" />
                   {T("text_export")}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setShowDropdown(true)}
-                  className="px-3 py-2 bg-[#1B3C53] text-white font-medium text-[11px] rounded-md hover:bg-[#234C6A] transition-colors shadow-sm flex items-center gap-1.5"
-                >
-                  <Icon name="person_add" />
-                  {T("text_add_member")}
-                </button>
+                {!readOnly && (
+                  <button
+                    type="button"
+                    onClick={() => setShowDropdown(true)}
+                    className="px-3 py-2 bg-[#1B3C53] text-white font-medium text-[11px] rounded-md hover:bg-[#234C6A] transition-colors shadow-sm flex items-center gap-1.5"
+                  >
+                    <Icon name="person_add" />
+                    {T("text_add_member")}
+                  </button>
+                )}
               </div>
             </div>
 
-            <div className="px-4 py-4 border-b border-slate-200 bg-slate-50/60 space-y-3">
+            {!readOnly && <div className="px-4 py-4 border-b border-slate-200 bg-slate-50/60 space-y-3">
               <div className="flex flex-col lg:flex-row gap-2 items-start">
                 <div className="relative flex-1 w-full" ref={dropdownRef}>
                   <input
@@ -751,7 +757,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                   {inviteMsg.text}
                 </div>
               )}
-            </div>
+            </div>}
 
             <div className="overflow-x-auto flex-grow">
               <table className="w-full text-left border-collapse">
@@ -830,7 +836,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                               >
                                 <Icon name="edit" size={18} />
                               </button>
-                              {reviewer.id != null && (
+                              {reviewer.id != null && !readOnly && (
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveReviewer(reviewer.id!)}

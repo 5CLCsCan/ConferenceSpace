@@ -22,6 +22,10 @@ vi.mock("@/lib/api/client", () => ({
   apiFetch: vi.fn(),
 }))
 
+vi.mock("@/lib/auth-context", () => ({
+  useAuth: vi.fn(() => ({ currentRole: "chair" })),
+}))
+
 vi.mock("@/lib/api/conferences", () => ({
   getConferenceReviewers: vi.fn(async (_conferenceId: string, params?: { status?: string }) => ({
     data: {
