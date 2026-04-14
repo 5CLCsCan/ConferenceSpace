@@ -110,6 +110,7 @@ export interface Conference {
   call_for_paper_text?: string // Call for paper content
   chair?: string
   co_chairs?: string[] // Co-chair email addresses
+  pc_members?: string[] // PC member email addresses
   primary_contact?: number
   area_chair?: number
   userRole?: string // "chair", "author", "reviewer", or undefined

@@ -211,7 +211,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
         if (activeTab === "my-conferences") {
           const res = await listConferences({
             myConferences: true,
-            role: "chair",
+            role: currentRole === "pc" ? "pc" : "chair",
             title: debouncedSearch || undefined,
             limit: ITEMS_PER_PAGE,
             offset,
@@ -246,7 +246,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
         } else if (activeTab === "drafts") {
           const res = await listConferences({
             myConferences: true,
-            role: "chair",
+            role: currentRole === "pc" ? "pc" : "chair",
             status: "draft",
             title: debouncedSearch || undefined,
             limit: ITEMS_PER_PAGE,
@@ -259,7 +259,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
         } else if (activeTab === "archived") {
           const res = await listConferences({
             myConferences: true,
-            role: "chair",
+            role: currentRole === "pc" ? "pc" : "chair",
             status: "archived",
             title: debouncedSearch || undefined,
             limit: ITEMS_PER_PAGE,

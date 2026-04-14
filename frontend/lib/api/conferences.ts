@@ -45,9 +45,10 @@ export async function getConferenceById(conferenceId: string): Promise<ApiRespon
       domain: data.data.domain || [], // Research domains/keywords/topics
       call_for_paper_text: data.data.configurations?.call_for_paper_text || undefined,
       chair: data.data.chair,
-      co_chairs: data.data.co_chairs || [], // Include co-chairs
+      co_chairs: data.data.co_chairs || [],
       primary_contact: data.data.primary_contact,
       area_chair: data.data.area_chair,
+      userRole: data.data.user_role,
       configurations: {
         start_date: data.data.configurations?.start_date,
         end_date: data.data.configurations?.end_date,
@@ -347,6 +348,7 @@ export async function createConference(conferenceData: {
   tracks?: string[]
   venue: string
   co_chairs?: string[]
+  pc_members?: string[]
   status?: ConferenceStatus
   configurations: {
     start_date?: string
@@ -378,6 +380,7 @@ export async function createConference(conferenceData: {
         tracks: conferenceData.tracks || [],
         venue: conferenceData.venue,
         co_chairs: conferenceData.co_chairs || [],
+        pc_members: conferenceData.pc_members || [],
         configurations: conferenceData.configurations,
         status: conferenceData.status,
       },
@@ -440,6 +443,7 @@ export async function updateConference(
     tracks: string[]
     venue: string
     co_chairs: string[]
+    pc_members: string[]
     configurations: Partial<{
       start_date?: string
       end_date?: string

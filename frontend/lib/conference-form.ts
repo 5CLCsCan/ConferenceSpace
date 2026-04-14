@@ -44,6 +44,15 @@ function buildOrganizersFromEmails(emails?: string[]) {
   }))
 }
 
+function buildOrganizersFromPCEmails(emails?: string[]) {
+  return (emails || []).map((email) => ({
+    id: email,
+    name: email.split("@")[0].replace(/[._-]/g, " "),
+    email,
+    role: "pc-member",
+  }))
+}
+
 export type ConferenceTemplateSection =
   | "basics"
   | "topics_tracks"
@@ -71,6 +80,7 @@ export interface ConferenceMutationPayload {
   tracks: string[]
   venue: string
   co_chairs: string[]
+  pc_members: string[]
   configurations: {
     start_date?: string
     end_date?: string
@@ -122,7 +132,10 @@ export function mapConferenceToFormData(conference: Conference): ConferenceFormD
     supplementaryTypes: initialFormData.supplementaryTypes,
     allowSupplementary: (deskSettings?.custom_rules?.min_datasets || 0) > 0,
     strictDeadlines: config?.workflow_settings?.strict_deadlines ?? initialFormData.strictDeadlines,
-    organizers: buildOrganizersFromEmails(conference.co_chairs),
+    organizers: [
+      ...buildOrganizersFromEmails(conference.co_chairs),
+      ...buildOrganizersFromPCEmails(conference.pc_members),
+    ],
     anonymity: normalizedReviewType === "single-blind" ? "single-blind" : "double-blind",
     rebuttalStartDate: parseDate(config?.rebuttal_settings?.start_at),
     rebuttalEndDate: parseDate(config?.rebuttal_settings?.end_at),
@@ -351,6 +364,15 @@ export function buildConferenceMutationPayload(
     ),
   )
 
+  const pcMembers = Array.from(
+    new Set(
+      formData.organizers
+        .filter((organizer) => organizer.role === "pc-member")
+        .map((organizer) => organizer.email.trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  )
+
   return {
     title: formData.title.trim(),
     acronym: formData.acronym.trim(),
@@ -359,6 +381,7 @@ export function buildConferenceMutationPayload(
     tracks: formData.tracks,
     venue: location || formData.venue || existingConference?.location || "",
     co_chairs: coChairs,
+    pc_members: pcMembers,
     configurations: {
       start_date: startDate?.toISOString() || existingConfig?.start_date,
       end_date: endDate?.toISOString() || existingConfig?.end_date,
