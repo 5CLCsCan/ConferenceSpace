@@ -114,6 +114,28 @@ describe("getConferenceById — user_role mapping", () => {
     expect(result.data).toBeNull()
     expect(result.error).toBe("Network error")
   })
+
+  it("maps pc_members from backend to conference.pc_members", async () => {
+    mockApiFetch.mockResolvedValue({
+      data: { data: makeBackendConference({ pc_members: ["pc1@test.com", "pc2@test.com"] }) },
+      response: { status: 200 },
+    })
+
+    const result = await getConferenceById("42")
+
+    expect(result.data!.pc_members).toEqual(["pc1@test.com", "pc2@test.com"])
+  })
+
+  it("defaults pc_members to empty array when backend omits it", async () => {
+    mockApiFetch.mockResolvedValue({
+      data: { data: makeBackendConference() },
+      response: { status: 200 },
+    })
+
+    const result = await getConferenceById("42")
+
+    expect(result.data!.pc_members).toEqual([])
+  })
 })
 
 describe("getConferenceStats", () => {
