@@ -46,6 +46,7 @@ export async function getConferenceById(conferenceId: string): Promise<ApiRespon
       call_for_paper_text: data.data.configurations?.call_for_paper_text || undefined,
       chair: data.data.chair,
       co_chairs: data.data.co_chairs || [],
+      pc_members: data.data.pc_members || [],
       primary_contact: data.data.primary_contact,
       area_chair: data.data.area_chair,
       userRole: data.data.user_role,

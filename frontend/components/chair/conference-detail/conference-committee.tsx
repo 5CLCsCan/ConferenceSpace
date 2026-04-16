@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
-import { getConferenceReviewers, inviteReviewers, removeReviewer } from "@/lib/api/conferences"
-import type { Reviewer } from "@/lib/api/conferences"
+import { getConferenceById, updateConference } from "@/lib/api/conferences"
+import type { Conference } from "@/lib/api/conferences"
 import { apiFetch } from "@/lib/api/client"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { useAuth } from "@/lib/auth-context"
 import { isReadOnlyRole } from "@/lib/role-helpers"
+import type { User } from "@/lib/api/user"
+import { userApi } from "@/lib/api/user"
 
 interface ConferenceCommitteeProps {
   conferenceId: string
@@ -26,17 +28,14 @@ interface SelectedUser {
   email: string
 }
 
-type MemberRoleFilter = "all" | "reviewer"
-type MemberStatusFilter = "all" | "accepted" | "pending" | "rejected"
-
-function deriveNameFromEmail(email: string, userId: number) {
-  const localPart = email.split("@")[0] || `User ${userId}`
-  return localPart
-    .split(/[._-]/g)
-    .filter(Boolean)
-    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
-    .join(" ")
+interface CommitteeMember {
+  email: string
+  name: string
+  role: "chair" | "co_chair" | "pc"
+  domain?: string[]
 }
+
+type MemberRoleFilter = "all" | "chair" | "co_chair" | "pc"
 
 function Icon({ name, className, size = 16 }: { name: string; className?: string; size?: number }) {
   return (
@@ -94,58 +93,25 @@ function StatCard({
   )
 }
 
-function RoleBadge({ label }: { label: string }) {
+function RoleBadge({ label, role }: { label: string; role?: "chair" | "co_chair" | "pc" }) {
+  const colorClass =
+    role === "chair"
+      ? "bg-amber-50 text-amber-700 border-amber-100"
+      : role === "co_chair"
+        ? "bg-purple-50 text-purple-700 border-purple-100"
+        : "bg-blue-50 text-blue-700 border-blue-100"
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-medium border bg-blue-50 text-blue-700 border-blue-100">
+    <span
+      className={cn(
+        "inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-medium border",
+        colorClass,
+      )}
+    >
       {label}
     </span>
   )
 }
 
-function StatusIndicator({
-  status,
-  labels,
-}: {
-  status?: string
-  labels: {
-    active: string
-    declined: string
-    invited: string
-    pendingResponse: string
-  }
-}) {
-  const config =
-    status === "accepted"
-      ? {
-          dotClass: "bg-emerald-500",
-          label: labels.active,
-          labelClass: "text-slate-600 font-medium",
-          detail: null,
-        }
-      : status === "rejected"
-        ? {
-            dotClass: "bg-slate-300",
-            label: labels.declined,
-            labelClass: "text-slate-400 font-medium",
-            detail: null,
-          }
-        : {
-            dotClass: "bg-amber-400 animate-pulse",
-            label: labels.invited,
-            labelClass: "text-slate-600 font-medium",
-            detail: labels.pendingResponse,
-          }
-
-  return (
-    <div>
-      <div className="flex items-center gap-1.5">
-        <span className={cn("w-1.5 h-1.5 rounded-full", config.dotClass)} />
-        <span className={cn("text-[11px]", config.labelClass)}>{config.label}</span>
-      </div>
-      {config.detail && <div className="text-[9px] text-slate-400 mt-0.5">{config.detail}</div>}
-    </div>
-  )
-}
 
 function MemberAvatar({ email, name }: { email: string; name: string }) {
   const initials = name
@@ -171,21 +137,17 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
   const readOnly = isReadOnlyRole(currentRole)
   const labels = {
     text_actions: t("runtime.components.chair.conference-detail.conference-committee.text_actions"),
-    text_active: t("runtime.components.chair.conference-detail.conference-committee.text_active"),
     text_add_member: t(
       "runtime.components.chair.conference-detail.conference-committee.text_add_member",
     ),
     text_all_roles: t(
       "runtime.components.chair.conference-detail.conference-committee.text_all_roles",
     ),
-    text_all_statuses: t(
-      "runtime.components.chair.conference-detail.conference-committee.text_all_statuses",
+    text_chair: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_chair",
     ),
-    text_area_chairs: t(
-      "runtime.components.chair.conference-detail.conference-committee.text_area_chairs",
-    ),
-    text_assignments: t(
-      "runtime.components.chair.conference-detail.conference-committee.text_assignments",
+    text_co_chair: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_co_chair",
     ),
     text_committee_members: t(
       "runtime.components.chair.conference-detail.conference-committee.text_committee_members",
@@ -193,20 +155,13 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     text_committee_subtitle: t(
       "runtime.components.chair.conference-detail.conference-committee.text_committee_subtitle",
     ),
-    text_declined: t(
-      "runtime.components.chair.conference-detail.conference-committee.text_declined",
-    ),
     text_export: t("runtime.components.chair.conference-detail.conference-committee.text_export"),
     text_failed_to_load_committee: t(
       "runtime.components.chair.conference-detail.conference-committee.text_failed_to_load_committee",
     ),
-    text_general_track: t(
-      "runtime.components.chair.conference-detail.conference-committee.text_general_track",
-    ),
     text_import_csv: t(
       "runtime.components.chair.conference-detail.conference-committee.text_import_csv",
     ),
-    text_invited: t("runtime.components.chair.conference-detail.conference-committee.text_invited"),
     text_invite_error: t(
       "runtime.components.chair.conference-detail.conference-committee.text_invite_error",
     ),
@@ -227,29 +182,20 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     text_no_users_found: t(
       "runtime.components.chair.conference-detail.conference-committee.text_no_users_found",
     ),
-    text_not_available: t(
-      "runtime.components.chair.conference-detail.conference-committee.text_not_available",
-    ),
-    text_pending_invites: t(
-      "runtime.components.chair.conference-detail.conference-committee.text_pending_invites",
-    ),
-    text_pending_response: t(
-      "runtime.components.chair.conference-detail.conference-committee.text_pending_response",
+    text_pc_members: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_pc_members",
     ),
     text_previous: t(
       "runtime.components.chair.conference-detail.conference-committee.text_previous",
     ),
-    text_primary_track: t(
-      "runtime.components.chair.conference-detail.conference-committee.text_primary_track",
+    text_domain: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_domain",
     ),
-    text_remove_reviewer: t(
-      "runtime.components.chair.conference-detail.conference-committee.text_remove_reviewer",
+    text_remove_member: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_remove_member",
     ),
-    text_reviewer: t(
-      "runtime.components.chair.conference-detail.conference-committee.text_reviewer",
-    ),
-    text_reviewers: t(
-      "runtime.components.chair.conference-detail.conference-committee.text_reviewers",
+    text_pc: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_pc",
     ),
     text_role: t("runtime.components.chair.conference-detail.conference-committee.text_role"),
     text_search_by_email: t(
@@ -258,9 +204,11 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     text_searching: t(
       "runtime.components.chair.conference-detail.conference-committee.text_searching",
     ),
-    text_status: t("runtime.components.chair.conference-detail.conference-committee.text_status"),
     text_total_members: t(
       "runtime.components.chair.conference-detail.conference-committee.text_total_members",
+    ),
+    text_chairs: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_chairs",
     ),
     placeholder_search_by_name_email_affiliation: t(
       "runtime.components.chair.conference-detail.conference-committee.placeholder_search_by_name_email_affiliation",
@@ -268,9 +216,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     aria_label_select_all_committee_members: t(
       "runtime.components.chair.conference-detail.conference-committee.aria_label_select_all_committee_members",
     ),
-    title_edit_member: t(
-      "runtime.components.chair.conference-detail.conference-committee.title_edit_member",
-    ),
+    text_showing_range: "text_showing_range",
   } as const
 
   const T = (key: keyof typeof labels) => labels[key]
@@ -278,12 +224,11 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
   const PAGE_SIZE = 8
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [reviewers, setReviewers] = useState<Reviewer[]>([])
-  const [pendingCount, setPendingCount] = useState(0)
+  const [conference, setConference] = useState<Conference | null>(null)
+  const [resolvedUsers, setResolvedUsers] = useState<Map<string, User>>(new Map())
   const [currentPage, setCurrentPage] = useState(1)
   const [tableSearch, setTableSearch] = useState("")
   const [roleFilter, setRoleFilter] = useState<MemberRoleFilter>("all")
-  const [statusFilter, setStatusFilter] = useState<MemberStatusFilter>("all")
 
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<UserSearchResult[]>([])
@@ -296,42 +241,87 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
   const [showDropdown, setShowDropdown] = useState(false)
   const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const statusLabels = {
-    active: T("text_active"),
-    declined: T("text_declined"),
-    invited: T("text_invited"),
-    pendingResponse: T("text_pending_response"),
-  }
 
-  const loadReviewers = useCallback(async () => {
+  const loadCommittee = useCallback(async () => {
     setLoading(true)
     setError(null)
 
-    const [allRes, pendingRes] = await Promise.all([
-      getConferenceReviewers(conferenceId, { limit: 200 }),
-      getConferenceReviewers(conferenceId, { limit: 1, status: "pending" }),
-    ])
-
-    if (allRes.error || !allRes.data) {
+    const confRes = await getConferenceById(conferenceId)
+    if (confRes.error || !confRes.data) {
       setError(
-        allRes.error ||
+        confRes.error ||
           t(
             "runtime.components.chair.conference-detail.conference-committee.text_failed_to_load_committee",
           ),
       )
-      setReviewers([])
+      setConference(null)
       setLoading(false)
       return
     }
 
-    setReviewers(allRes.data.reviewers)
-    setPendingCount(pendingRes.data?.total || 0)
+    setConference(confRes.data)
+
+    const allEmails = [
+      confRes.data.chair,
+      ...(confRes.data.co_chairs ?? []),
+      ...(confRes.data.pc_members ?? []),
+    ].filter(Boolean) as string[]
+    const uniqueEmails = [...new Set(allEmails)]
+
+    const userResults = await Promise.all(
+      uniqueEmails.map((email) => userApi.getByEmail(email).catch(() => null)),
+    )
+
+    const map = new Map<string, User>()
+    uniqueEmails.forEach((email, i) => {
+      const result = userResults[i] as { data: { data: User } } | null
+      const user = result?.data?.data
+      if (user) map.set(email, user)
+    })
+    setResolvedUsers(map)
     setLoading(false)
   }, [conferenceId, t])
 
   useEffect(() => {
-    void loadReviewers()
-  }, [loadReviewers])
+    void loadCommittee()
+  }, [loadCommittee])
+
+  const committeeMembers = useMemo((): CommitteeMember[] => {
+    if (!conference) return []
+    const members: CommitteeMember[] = []
+
+    if (conference.chair) {
+      const u = resolvedUsers.get(conference.chair)
+      members.push({
+        email: conference.chair,
+        name: u ? `${u.first_name} ${u.last_name}`.trim() || conference.chair : conference.chair,
+        role: "chair",
+        domain: u?.domain,
+      })
+    }
+
+    for (const co of conference.co_chairs ?? []) {
+      const u = resolvedUsers.get(co)
+      members.push({
+        email: co,
+        name: u ? `${u.first_name} ${u.last_name}`.trim() || co : co,
+        role: "co_chair",
+        domain: u?.domain,
+      })
+    }
+
+    for (const pc of conference.pc_members ?? []) {
+      const u = resolvedUsers.get(pc)
+      members.push({
+        email: pc,
+        name: u ? `${u.first_name} ${u.last_name}`.trim() || pc : pc,
+        role: "pc",
+        domain: u?.domain,
+      })
+    }
+
+    return members
+  }, [conference, resolvedUsers])
 
   useEffect(() => {
     function handleClick(event: MouseEvent) {
@@ -399,45 +389,17 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     setSelectedUsers((previous) => previous.filter((entry) => entry.email !== email))
   }
 
-  const handleInvite = async () => {
-    if (!selectedUsers.length) return
+  const handleAddPCMembers = async () => {
+    if (!selectedUsers.length || !conference) return
 
     setInviting(true)
     setInviteMsg(null)
 
-    const toInvite: { user_id: number }[] = []
-    const unresolvedEmails: string[] = []
+    const newEmails = selectedUsers.map((u) => u.email.toLowerCase())
+    const existingPC = conference.pc_members ?? []
+    const merged = [...new Set([...existingPC, ...newEmails])]
 
-    for (const user of selectedUsers) {
-      if (user.id != null) {
-        toInvite.push({ user_id: user.id })
-        continue
-      }
-
-      try {
-        const { data } = await apiFetch<{ data?: { users?: { id: number; email: string }[] } }>(
-          `/api/v1/users/search?q=${encodeURIComponent(user.email)}&limit=5`,
-        )
-        const users = data?.data?.users || []
-        const match = users.find((entry) => entry.email.toLowerCase() === user.email.toLowerCase())
-
-        if (match) {
-          toInvite.push({ user_id: Number(match.id) })
-        } else {
-          unresolvedEmails.push(user.email)
-        }
-      } catch {
-        unresolvedEmails.push(user.email)
-      }
-    }
-
-    if (toInvite.length === 0) {
-      setInviting(false)
-      setInviteMsg({ type: "error", text: T("text_invite_error") })
-      return
-    }
-
-    const response = await inviteReviewers(conferenceId, toInvite)
+    const response = await updateConference(conferenceId, { pc_members: merged })
     setInviting(false)
 
     if (response.error) {
@@ -445,50 +407,50 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
       return
     }
 
-    const backendFailed = response.data?.failed?.length ?? 0
-    if (backendFailed > 0 || unresolvedEmails.length > 0) {
-      setInviteMsg({ type: "error", text: T("text_invite_error") })
-    } else {
-      setInviteMsg({ type: "success", text: T("text_invite_success") })
-    }
-
-    setSelectedUsers(unresolvedEmails.map((email) => ({ email })))
-    void loadReviewers()
+    setInviteMsg({ type: "success", text: T("text_invite_success") })
+    setSelectedUsers([])
+    void loadCommittee()
   }
 
-  const handleRemoveReviewer = async (reviewerId: number) => {
-    await removeReviewer(conferenceId, String(reviewerId))
-    void loadReviewers()
+  const handleRemovePCMember = async (email: string) => {
+    if (!conference) return
+    const updated = (conference.pc_members ?? []).filter(
+      (e) => e.toLowerCase() !== email.toLowerCase(),
+    )
+    await updateConference(conferenceId, { pc_members: updated })
+    void loadCommittee()
   }
 
-  const acceptedCount = reviewers.filter((reviewer) => reviewer.status === "accepted").length
+  const getRoleLabel = (role: "chair" | "co_chair" | "pc") => {
+    if (role === "chair") return T("text_chair")
+    if (role === "co_chair") return T("text_co_chair")
+    return T("text_pc")
+  }
 
-  const filteredReviewers = useMemo(() => {
-    return reviewers.filter((reviewer) => {
-      const email = reviewer.email || `user-${reviewer.user_id}@unknown.local`
-      const name = deriveNameFromEmail(email, reviewer.user_id)
+  const chairCount = committeeMembers.filter((m) => m.role === "chair" || m.role === "co_chair").length
+  const pcCount = committeeMembers.filter((m) => m.role === "pc").length
+
+  const filteredMembers = useMemo(() => {
+    return committeeMembers.filter((member) => {
       const matchesSearch =
         !tableSearch.trim() ||
-        name.toLowerCase().includes(tableSearch.toLowerCase()) ||
-        email.toLowerCase().includes(tableSearch.toLowerCase()) ||
-        (reviewer.domain || []).some((domain) =>
-          domain.toLowerCase().includes(tableSearch.toLowerCase()),
-        )
-      const matchesRole = roleFilter === "all" || roleFilter === "reviewer"
-      const matchesStatus = statusFilter === "all" || reviewer.status === statusFilter
-      return matchesSearch && matchesRole && matchesStatus
+        member.name.toLowerCase().includes(tableSearch.toLowerCase()) ||
+        member.email.toLowerCase().includes(tableSearch.toLowerCase()) ||
+        (member.domain || []).some((d) => d.toLowerCase().includes(tableSearch.toLowerCase()))
+      const matchesRole = roleFilter === "all" || member.role === roleFilter
+      return matchesSearch && matchesRole
     })
-  }, [reviewers, roleFilter, statusFilter, tableSearch])
+  }, [committeeMembers, roleFilter, tableSearch])
 
-  const totalPages = Math.max(1, Math.ceil(filteredReviewers.length / PAGE_SIZE))
-  const paginatedReviewers = filteredReviewers.slice(
+  const totalPages = Math.max(1, Math.ceil(filteredMembers.length / PAGE_SIZE))
+  const paginatedMembers = filteredMembers.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE,
   )
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [tableSearch, roleFilter, statusFilter])
+  }, [tableSearch, roleFilter])
 
   const getPageNumbers = () => {
     const pages: (number | "ellipsis")[] = []
@@ -537,34 +499,27 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <StatCard
               label={T("text_total_members")}
-              value={reviewers.length}
+              value={committeeMembers.length}
               icon="group"
               iconBgClass="bg-slate-50"
               iconTextClass="text-[#1B3C53]"
             />
             <StatCard
-              label={T("text_reviewers")}
-              value={acceptedCount}
-              icon="rate_review"
+              label={T("text_chairs")}
+              value={chairCount}
+              icon="manage_accounts"
+              iconBgClass="bg-amber-50"
+              iconTextClass="text-amber-700"
+            />
+            <StatCard
+              label={T("text_pc_members")}
+              value={pcCount}
+              icon="groups"
               iconBgClass="bg-blue-50"
               iconTextClass="text-blue-700"
-            />
-            <StatCard
-              label={T("text_area_chairs")}
-              value={0}
-              icon="manage_accounts"
-              iconBgClass="bg-purple-50"
-              iconTextClass="text-purple-700"
-            />
-            <StatCard
-              label={T("text_pending_invites")}
-              value={pendingCount}
-              icon="pending_actions"
-              iconBgClass="bg-yellow-50"
-              iconTextClass="text-yellow-700"
             />
           </div>
 
@@ -591,17 +546,9 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                     className="bg-white border border-slate-200 text-slate-700 text-[11px] rounded-md py-2 px-2.5 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] shadow-sm min-w-[110px] outline-none"
                   >
                     <option value="all">{T("text_all_roles")}</option>
-                    <option value="reviewer">{T("text_reviewer")}</option>
-                  </select>
-                  <select
-                    value={statusFilter}
-                    onChange={(event) => setStatusFilter(event.target.value as MemberStatusFilter)}
-                    className="bg-white border border-slate-200 text-slate-700 text-[11px] rounded-md py-2 px-2.5 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] shadow-sm min-w-[110px] outline-none"
-                  >
-                    <option value="all">{T("text_all_statuses")}</option>
-                    <option value="accepted">{T("text_active")}</option>
-                    <option value="pending">{T("text_invited")}</option>
-                    <option value="rejected">{T("text_declined")}</option>
+                    <option value="chair">{T("text_chair")}</option>
+                    <option value="co_chair">{T("text_co_chair")}</option>
+                    <option value="pc">{T("text_pc")}</option>
                   </select>
                 </div>
               </div>
@@ -710,12 +657,12 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
 
                 <button
                   type="button"
-                  onClick={handleInvite}
+                  onClick={handleAddPCMembers}
                   disabled={!selectedUsers.length || inviting}
                   className="h-9 px-4 bg-[#1B3C53] hover:bg-[#234C6A] disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg text-[11px] flex items-center gap-1.5 whitespace-nowrap"
                 >
-                  <Icon name={inviting ? "hourglass_empty" : "send"} size={14} />
-                  {T("text_invite_selected")}
+                  <Icon name={inviting ? "hourglass_empty" : "person_add"} size={14} />
+                  {T("text_add_member")}
                 </button>
               </div>
 
@@ -772,99 +719,78 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                     </th>
                     <th className="px-4 py-2.5">{T("text_member")}</th>
                     <th className="px-4 py-2.5">{T("text_role")}</th>
-                    <th className="px-4 py-2.5">{T("text_primary_track")}</th>
-                    <th className="px-4 py-2.5">{T("text_assignments")}</th>
-                    <th className="px-4 py-2.5">{T("text_status")}</th>
+                    <th className="px-4 py-2.5">{T("text_domain")}</th>
                     <th className="px-4 py-2.5 text-right">{T("text_actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-[10px]">
-                  {paginatedReviewers.length === 0 ? (
+                  {paginatedMembers.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="px-4 py-8 text-center text-xs text-slate-500">
+                      <td colSpan={5} className="px-4 py-8 text-center text-xs text-slate-500">
                         {T("text_no_committee_members_found")}
                       </td>
                     </tr>
                   ) : (
-                    paginatedReviewers.map((reviewer) => {
-                      const email = reviewer.email || `user-${reviewer.user_id}@unknown.local`
-                      const name = deriveNameFromEmail(email, reviewer.user_id)
-                      const primaryTrack = reviewer.domain?.[0] || T("text_general_track")
-
-                      return (
-                        <tr
-                          key={reviewer.id ?? reviewer.user_id}
-                          className="hover:bg-slate-50 transition-colors group"
-                        >
-                          <td className="px-4 py-3">
-                            <input
-                              type="checkbox"
-                              className="rounded border-slate-300 text-[#1B3C53] focus:ring-[#1B3C53] h-3.5 w-3.5"
-                              aria-label={t(
-                                "runtime.components.chair.conference-detail.conference-committee.aria_label_select_member",
-                                { name },
-                              )}
-                            />
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-2.5">
-                              <MemberAvatar email={email} name={name} />
-                              <div>
-                                <div className="font-bold text-[#1B3C53] text-[12px]">{name}</div>
-                                <div className="text-[10px] text-slate-500">{email}</div>
-                              </div>
+                    paginatedMembers.map((member) => (
+                      <tr
+                        key={member.email}
+                        className="hover:bg-slate-50 transition-colors group"
+                      >
+                        <td className="px-4 py-3">
+                          <input
+                            type="checkbox"
+                            className="rounded border-slate-300 text-[#1B3C53] focus:ring-[#1B3C53] h-3.5 w-3.5"
+                            aria-label={t(
+                              "runtime.components.chair.conference-detail.conference-committee.aria_label_select_member",
+                              { name: member.name },
+                            )}
+                          />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2.5">
+                            <MemberAvatar email={member.email} name={member.name} />
+                            <div>
+                              <div className="font-bold text-[#1B3C53] text-[12px]">{member.name}</div>
+                              <div className="text-[10px] text-slate-500">{member.email}</div>
                             </div>
-                          </td>
-                          <td className="px-4 py-3">
-                            <RoleBadge label={T("text_reviewer")} />
-                          </td>
-                          <td className="px-4 py-3 text-slate-600">{primaryTrack}</td>
-                          <td className="px-4 py-3">
-                            <span className="text-[10px] text-slate-400 italic">
-                              {T("text_not_available")}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <StatusIndicator status={reviewer.status} labels={statusLabels} />
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <div className="flex items-center justify-end gap-0.5">
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <RoleBadge label={getRoleLabel(member.role)} role={member.role} />
+                        </td>
+                        <td className="px-4 py-3 text-slate-600 text-[11px]">
+                          {member.domain?.join(", ") || "—"}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <div className="flex items-center justify-end gap-0.5">
+                            {member.role === "pc" && !readOnly && (
                               <button
                                 type="button"
-                                className="p-1 text-slate-400 hover:text-[#1B3C53] hover:bg-slate-100 rounded transition-colors"
-                                title={T("title_edit_member")}
+                                onClick={() => handleRemovePCMember(member.email)}
+                                title={T("text_remove_member")}
+                                className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                               >
-                                <Icon name="edit" size={18} />
+                                <Icon name="delete" size={18} />
                               </button>
-                              {reviewer.id != null && !readOnly && (
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemoveReviewer(reviewer.id!)}
-                                  title={T("text_remove_reviewer")}
-                                  className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                                >
-                                  <Icon name="delete" size={18} />
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      )
-                    })
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
                   )}
                 </tbody>
               </table>
             </div>
 
-            {filteredReviewers.length > 0 && (
+            {filteredMembers.length > 0 && (
               <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-between">
                 <div className="text-[11px] text-slate-500">
                   {t(
                     "runtime.components.chair.conference-detail.conference-committee.text_showing_range",
                     {
-                      from: Math.min((currentPage - 1) * PAGE_SIZE + 1, filteredReviewers.length),
-                      to: Math.min(currentPage * PAGE_SIZE, filteredReviewers.length),
-                      total: filteredReviewers.length.toLocaleString(),
+                      from: Math.min((currentPage - 1) * PAGE_SIZE + 1, filteredMembers.length),
+                      to: Math.min(currentPage * PAGE_SIZE, filteredMembers.length),
+                      total: filteredMembers.length.toLocaleString(),
                     },
                   )}
                 </div>

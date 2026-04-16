@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { render, screen } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
 import { ConferenceCommittee } from "../conference-committee"
 
 vi.mock("@/lib/i18n/translation-context", async () => {
@@ -27,28 +27,36 @@ vi.mock("@/lib/auth-context", () => ({
 }))
 
 vi.mock("@/lib/api/conferences", () => ({
-  getConferenceReviewers: vi.fn(async (_conferenceId: string, params?: { status?: string }) => ({
+  getConferenceById: vi.fn(async () => ({
     data: {
-      reviewers:
-        params?.status === "pending"
-          ? []
-          : [
-              {
-                id: 1,
-                user_id: 1,
-                email: "reviewer@example.com",
-                status: "accepted",
-                domain: ["AI Systems"],
-              },
-            ],
-      total: params?.status === "pending" ? 0 : 1,
-      limit: 200,
-      offset: 0,
+      id: "1",
+      name: "Test Conference",
+      chair: "chair@example.com",
+      co_chairs: ["cochair@example.com"],
+      pc_members: ["pc@example.com"],
+      status: "open",
+      tracks: [],
     },
     error: null,
+    status: 200,
   })),
-  inviteReviewers: vi.fn(),
-  removeReviewer: vi.fn(),
+  updateConference: vi.fn(async () => ({ data: {}, error: null, status: 200 })),
+}))
+
+vi.mock("@/lib/api/user", () => ({
+  userApi: {
+    getByEmail: vi.fn(async (email: string) => ({
+      data: {
+        data: {
+          id: 1,
+          email,
+          first_name: email.split("@")[0],
+          last_name: "User",
+          domain: [],
+        },
+      },
+    })),
+  },
 }))
 
 describe("ConferenceCommittee", () => {
@@ -56,10 +64,91 @@ describe("ConferenceCommittee", () => {
     localStorage.setItem("conference_locale", "en")
   })
 
-  it("renders the restored committee management shell", async () => {
+  it("renders committee management with chairs and PC members", async () => {
     render(<ConferenceCommittee conferenceId="1" />)
 
-    expect(await screen.findByText(/Committee Members/i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument()
+    })
+
+    expect(screen.getByText("Committee Members")).toBeInTheDocument()
+    expect(screen.getByText("Total Members")).toBeInTheDocument()
+    expect(screen.getByText("PC Members")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Import CSV/i })).toBeInTheDocument()
+  })
+
+  it("shows chair, co-chair, and pc members in the table", async () => {
+    render(<ConferenceCommittee conferenceId="1" />)
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument()
+    })
+
+    expect(screen.getByText("chair@example.com")).toBeInTheDocument()
+    expect(screen.getByText("cochair@example.com")).toBeInTheDocument()
+    expect(screen.getByText("pc@example.com")).toBeInTheDocument()
+  })
+
+  it("displays correct role badges for each member type", async () => {
+    render(<ConferenceCommittee conferenceId="1" />)
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument()
+    })
+
+    const badges = screen.getAllByText(/^(Chair|Co-Chair|Program Committee)$/)
+    const badgeLabels = badges
+      .filter((el) => el.tagName === "SPAN" && el.className.includes("rounded-full"))
+      .map((el) => el.textContent)
+
+    expect(badgeLabels).toContain("Chair")
+    expect(badgeLabels).toContain("Co-Chair")
+    expect(badgeLabels).toContain("Program Committee")
+  })
+
+  it("does not show any reviewer-related content", async () => {
+    render(<ConferenceCommittee conferenceId="1" />)
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument()
+    })
+
+    expect(screen.queryByText("Reviewer")).not.toBeInTheDocument()
+    expect(screen.queryByText("Reviewers")).not.toBeInTheDocument()
+    expect(screen.queryByText(/Pending Invites/i)).not.toBeInTheDocument()
+  })
+
+  it("shows correct stat card counts", async () => {
+    render(<ConferenceCommittee conferenceId="1" />)
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument()
+    })
+
+    const totalMembersCard = screen.getByText("Total Members").closest("div")!
+    expect(totalMembersCard.parentElement!.textContent).toContain("3")
+
+    const chairsCard = screen.getByText("Chairs").closest("div")!
+    expect(chairsCard.parentElement!.textContent).toContain("2")
+
+    const pcCard = screen.getByText("PC Members").closest("div")!
+    expect(pcCard.parentElement!.textContent).toContain("1")
+  })
+
+  it("has role filter with chair, co-chair, and pc options", async () => {
+    render(<ConferenceCommittee conferenceId="1" />)
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument()
+    })
+
+    const select = screen.getByRole("combobox") as HTMLSelectElement
+    const options = Array.from(select.options).map((o) => o.value)
+
+    expect(options).toContain("all")
+    expect(options).toContain("chair")
+    expect(options).toContain("co_chair")
+    expect(options).toContain("pc")
+    expect(options).not.toContain("reviewer")
   })
 })

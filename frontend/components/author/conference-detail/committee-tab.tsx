@@ -1,11 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { cn } from "@/lib/utils"
 import type { TabProps } from "./types"
 import { MemberAvatar } from "./components/member-avatar"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { getConferenceReviewers, type Reviewer } from "@/lib/api/conferences"
 import { userApi, type User } from "@/lib/api/user"
 
 // Consistent icon styling for 16px material symbols
@@ -147,48 +145,48 @@ function MemberCard({
 
 export function CommitteeTab({ conference }: TabProps) {
   const { t } = useTranslation()
-  const [reviewers, setReviewers] = useState<Reviewer[]>([])
   const [loading, setLoading] = useState(true)
-  const [chairUsers, setChairUsers] = useState<Map<string, User>>(new Map())
+  const [resolvedUsers, setResolvedUsers] = useState<Map<string, User>>(new Map())
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true)
 
-      // Fetch reviewers and chair user info in parallel
-      const emailsToFetch = [conference.chair, ...(conference.co_chairs ?? [])].filter(
-        Boolean,
-      ) as string[]
+      const allEmails = [
+        conference.chair,
+        ...(conference.co_chairs ?? []),
+        ...(conference.pc_members ?? []),
+      ].filter(Boolean) as string[]
 
-      const [reviewersRes, ...userResults] = await Promise.all([
-        getConferenceReviewers(conference.id, { status: "accepted", limit: 100 }),
-        ...emailsToFetch.map((email) => userApi.getByEmail(email).catch(() => null)),
-      ])
+      const uniqueEmails = [...new Set(allEmails)]
 
-      setReviewers(reviewersRes.data?.reviewers ?? [])
+      const userResults = await Promise.all(
+        uniqueEmails.map((email) => userApi.getByEmail(email).catch(() => null)),
+      )
 
       const map = new Map<string, User>()
-      emailsToFetch.forEach((email, i) => {
+      uniqueEmails.forEach((email, i) => {
         const result = userResults[i] as { data: { data: User } } | null
         const user = result?.data?.data
         if (user) map.set(email, user)
       })
-      setChairUsers(map)
+      setResolvedUsers(map)
 
       setLoading(false)
     }
     void fetchData()
-  }, [conference.id, conference.chair, conference.co_chairs])
+  }, [conference.id, conference.chair, conference.co_chairs, conference.pc_members])
 
-  const getChairName = (email: string): string => {
-    const u = chairUsers.get(email)
+  const getDisplayName = (email: string): string => {
+    const u = resolvedUsers.get(email)
     if (u) return `${u.first_name} ${u.last_name}`.trim() || email
     return email
   }
 
-  const getDisplayName = (r: Reviewer) => {
-    if (r.first_name || r.last_name) return `${r.first_name ?? ""} ${r.last_name ?? ""}`.trim()
-    return r.email ?? `User #${r.user_id}`
+  const getOrganization = (email: string): string | undefined => {
+    const u = resolvedUsers.get(email)
+    if (u?.domain?.length) return u.domain[0]
+    return undefined
   }
 
   return (
@@ -223,9 +221,10 @@ export function CommitteeTab({ conference }: TabProps) {
               {conference.chair && (
                 <MemberCard
                   member={{
-                    name: getChairName(conference.chair),
+                    name: getDisplayName(conference.chair),
                     email: conference.chair,
                     role: "General Chair",
+                    organization: getOrganization(conference.chair),
                   }}
                   variant="featured"
                 />
@@ -235,9 +234,10 @@ export function CommitteeTab({ conference }: TabProps) {
                 <MemberCard
                   key={idx}
                   member={{
-                    name: getChairName(co),
+                    name: getDisplayName(co),
                     email: co,
                     role: "Co-Chair",
+                    organization: getOrganization(co),
                   }}
                   variant="featured"
                 />
@@ -253,7 +253,7 @@ export function CommitteeTab({ conference }: TabProps) {
             </div>
           </div>
 
-          {/* Program Committee (Reviewers) */}
+          {/* Program Committee */}
           <div>
             <h3 className="text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
               {t(
@@ -269,7 +269,7 @@ export function CommitteeTab({ conference }: TabProps) {
                   progress_activity
                 </span>
                 {t("runtime.components.author.conference-detail.committee-tab.text_loading_members")}{" "}</div>
-            ) : reviewers.length === 0 ? (
+            ) : !conference.pc_members?.length ? (
               <p className="text-[11px] text-slate-400 py-2">
                 {t(
                   "runtime.components.author.conference-detail.committee-tab.text_no_committee_members",
@@ -277,13 +277,13 @@ export function CommitteeTab({ conference }: TabProps) {
               </p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {reviewers.map((r) => (
+                {conference.pc_members.map((email) => (
                   <MemberCard
-                    key={r.id ?? r.user_id}
+                    key={email}
                     member={{
-                      name: getDisplayName(r),
-                      email: r.email,
-                      role: r.domain?.join(", ") || "Reviewer",
+                      name: getDisplayName(email),
+                      email: email,
+                      role: getOrganization(email) || "Program Committee",
                     }}
                     variant="default"
                   />
