@@ -17,6 +17,7 @@ from app.db import create_engine, create_session_factory
 from app.repositories import (
     DecisionCopilotRepository,
     GatingRunRepository,
+    PaperAnnotationRepository,
     ReviewQualityAuditRepository,
     ReviewerBriefingRepository,
 )
@@ -36,6 +37,8 @@ from app.workflows.chair_decision_copilot.runner import DecisionCopilotRunner
 from app.workflows.chair_decision_copilot.router import (
     router as decision_copilot_router,
 )
+from app.workflows.paper_annotation.runner import PaperAnnotationRunner
+from app.workflows.paper_annotation.router import router as paper_annotation_router
 from app.workflows.submission_gating.runner import SubmissionGatingRunner
 from app.workflows.submission_gating.router import router as submission_gating_router
 
@@ -62,6 +65,8 @@ class AppContainer:
     review_quality_audit_runner: ReviewQualityAuditRunner
     decision_copilot_repo: DecisionCopilotRepository
     decision_copilot_runner: DecisionCopilotRunner
+    paper_annotation_repo: PaperAnnotationRepository
+    paper_annotation_runner: PaperAnnotationRunner
 
 
 @asynccontextmanager
@@ -126,6 +131,11 @@ async def lifespan(app: FastAPI):
         repo=decision_copilot_repo,
         llm_client=llm_client,
     )
+    paper_annotation_repo = PaperAnnotationRepository(session_factory)
+    paper_annotation_runner = PaperAnnotationRunner(
+        repo=paper_annotation_repo,
+        llm_client=llm_client,
+    )
     runtime = AgentRuntime(
         settings=settings,
         session_factory=session_factory,
@@ -154,6 +164,8 @@ async def lifespan(app: FastAPI):
         review_quality_audit_runner=review_quality_audit_runner,
         decision_copilot_repo=decision_copilot_repo,
         decision_copilot_runner=decision_copilot_runner,
+        paper_annotation_repo=paper_annotation_repo,
+        paper_annotation_runner=paper_annotation_runner,
     )
 
     try:
@@ -183,6 +195,7 @@ def create_app() -> FastAPI:
     app.include_router(reviewer_briefing_router)
     app.include_router(review_quality_audit_router)
     app.include_router(decision_copilot_router)
+    app.include_router(paper_annotation_router)
     return app
 
 

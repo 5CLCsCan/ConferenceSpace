@@ -2307,6 +2307,7 @@
             "text_checking_existing_submission_pre_read": "Checking existing submission pre-read.",
             "text_failed_to_load_manuscript_preview": "Failed to load manuscript preview",
             "text_fetching_reviewer_visible_manuscript_file_and": "Fetching reviewer-visible manuscript file and preparing the reading pane.",
+            "text_generate_annotations": "Generate annotations",
             "text_generate_neutral_briefing_first": "Generate a neutral manuscript briefing before you begin writing the review.",
             "text_generating": "Generating...",
             "text_keywords": "Keywords",
@@ -2322,6 +2323,7 @@
             "text_preview_standby": "Preview standby",
             "text_preview_unavailable": "Preview unavailable",
             "text_read_the_manuscript_and_the_neutral": "Read the manuscript and the neutral briefing side by side.",
+            "text_regenerate_annotations": "Regenerate annotations",
             "text_regenerate_report": "Regenerate report",
             "text_reviewer_pre_read_analysis": "Reviewer Pre-Read Analysis",
             "text_signal_not_applicable": "Not applicable",
@@ -2346,7 +2348,12 @@
             "title_notable_elements": "Notable Elements",
             "title_review_readiness_signals": "Review Readiness Signals",
             "title_reviewer_attention_points": "Reviewer Attention Points",
+            "text_paper_annotations": "Paper Annotations",
             "title_scope_and_limitations": "Scope And Limitations"
+          },
+          "paper-annotation-panel": {
+            "text_overall_impression": "Overall Impression",
+            "text_domain_context_prefix": "Domain context:"
           },
           "scoring-criteria": {
             "text_average_score": "Average Score",

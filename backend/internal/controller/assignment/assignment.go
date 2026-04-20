@@ -57,6 +57,18 @@ type reviewerWorkflowClient interface {
 		token string,
 		requestPayload *aiServiceClient.ReviewQualityAuditResolveRequest,
 	) (*aiServiceClient.ReviewQualityAuditResolveResponse, error)
+	LookupPaperAnnotation(
+		ctx context.Context,
+		token string,
+		requestPayload *aiServiceClient.PaperAnnotationResolveRequest,
+	) (*aiServiceClient.PaperAnnotationResolveResponse, error)
+	GeneratePaperAnnotation(
+		ctx context.Context,
+		token string,
+		requestPayload *aiServiceClient.PaperAnnotationResolveRequest,
+		filename string,
+		fileContent []byte,
+	) (*aiServiceClient.PaperAnnotationResolveResponse, error)
 }
 
 // New creates a new assignment controller

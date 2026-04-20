@@ -123,6 +123,11 @@ type ReviewerBriefingRequest struct {
 	ConferenceID int64 `uri:"conference_id" binding:"required"`
 }
 
+type PaperAnnotationRequest struct {
+	AssignmentID int64 `uri:"assignment_id" binding:"required"`
+	ConferenceID int64 `uri:"conference_id" binding:"required"`
+}
+
 type ReviewAuditMode string
 
 const (
