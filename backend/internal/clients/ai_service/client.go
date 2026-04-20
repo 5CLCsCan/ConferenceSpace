@@ -179,6 +179,65 @@ type ReviewerBriefingResolveResponse struct {
 	Error    *ReviewerBriefingErrorPayload `json:"error,omitempty"`
 }
 
+// --- Paper Annotation types ---
+
+type PaperAnnotationResolveRequest struct {
+	Action                     string                              `json:"action"`
+	ConferenceID               int64                               `json:"conference_id"`
+	AssignmentID               int64                               `json:"assignment_id"`
+	SubmissionID               int64                               `json:"submission_id"`
+	Actor                      ActorPayload                        `json:"actor"`
+	SubmissionStateFingerprint string                              `json:"submission_state_fingerprint"`
+	Submission                 ReviewerBriefingSubmissionPayload   `json:"submission"`
+	FileMetadata               ReviewerBriefingFileMetadataPayload `json:"file_metadata"`
+	DomainTags                 []string                            `json:"domain_tags,omitempty"`
+}
+
+type PaperAnnotationCachePayload struct {
+	Hit                        bool   `json:"hit"`
+	SubmissionStateFingerprint string `json:"submission_state_fingerprint"`
+}
+
+type PaperAnnotationItem struct {
+	Category      string  `json:"category"`
+	Severity      *string `json:"severity,omitempty"`
+	QuotedPassage string  `json:"quoted_passage"`
+	Commentary    string  `json:"commentary"`
+	ReviewerHint  *string `json:"reviewer_hint,omitempty"`
+}
+
+type PaperAnnotationSection struct {
+	SectionName string                `json:"section_name"`
+	Summary     string                `json:"summary"`
+	Annotations []PaperAnnotationItem `json:"annotations,omitempty"`
+}
+
+type PaperAnnotationGuardrails struct {
+	AdvisoryOnly     bool     `json:"advisory_only"`
+	NoRecommendation bool     `json:"no_recommendation"`
+	BiasNotices      []string `json:"bias_notices,omitempty"`
+}
+
+type PaperAnnotationArtifact struct {
+	OverallImpression string                    `json:"overall_impression"`
+	DomainContext     *string                   `json:"domain_context,omitempty"`
+	Sections          []PaperAnnotationSection  `json:"sections,omitempty"`
+	Guardrails        PaperAnnotationGuardrails `json:"guardrails"`
+}
+
+type PaperAnnotationErrorPayload struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+type PaperAnnotationResolveResponse struct {
+	Status   string                       `json:"status"`
+	RunID    string                       `json:"run_id,omitempty"`
+	Cache    PaperAnnotationCachePayload  `json:"cache"`
+	Artifact *PaperAnnotationArtifact     `json:"artifact,omitempty"`
+	Error    *PaperAnnotationErrorPayload `json:"error,omitempty"`
+}
+
 type ReviewQualityAuditResolveRequest struct {
 	Mode             string                            `json:"mode"`
 	ConferenceID     int64                             `json:"conference_id"`
@@ -674,6 +733,95 @@ func (c *Client) GenerateReviewerBriefing(
 	}
 
 	return doJSONRequest[ReviewerBriefingResolveResponse](c.httpClient, req, "reviewer briefing workflow")
+}
+
+func (c *Client) LookupPaperAnnotation(
+	ctx context.Context,
+	token string,
+	requestPayload *PaperAnnotationResolveRequest,
+) (*PaperAnnotationResolveResponse, error) {
+	if c == nil || strings.TrimSpace(c.baseURL) == "" {
+		return nil, fmt.Errorf("ai-service client is not configured")
+	}
+	if requestPayload == nil {
+		return nil, fmt.Errorf("paper annotation request payload is required")
+	}
+
+	requestJSON, err := json.Marshal(requestPayload)
+	if err != nil {
+		return nil, fmt.Errorf("marshal paper annotation request: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		c.baseURL+"/api/v1/workflows/paper-annotation/resolve",
+		bytes.NewReader(requestJSON),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("create paper annotation request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if normalizedToken := normalizeBearerToken(token); normalizedToken != "" {
+		req.Header.Set("Authorization", "Bearer "+normalizedToken)
+	}
+
+	return doJSONRequest[PaperAnnotationResolveResponse](c.httpClient, req, "paper annotation workflow")
+}
+
+func (c *Client) GeneratePaperAnnotation(
+	ctx context.Context,
+	token string,
+	requestPayload *PaperAnnotationResolveRequest,
+	filename string,
+	fileContent []byte,
+) (*PaperAnnotationResolveResponse, error) {
+	if c == nil || strings.TrimSpace(c.baseURL) == "" {
+		return nil, fmt.Errorf("ai-service client is not configured")
+	}
+	if requestPayload == nil {
+		return nil, fmt.Errorf("paper annotation request payload is required")
+	}
+	if len(fileContent) == 0 {
+		return nil, fmt.Errorf("paper annotation file content is required")
+	}
+
+	requestJSON, err := json.Marshal(requestPayload)
+	if err != nil {
+		return nil, fmt.Errorf("marshal paper annotation request: %w", err)
+	}
+
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	if err := writer.WriteField("request_payload", string(requestJSON)); err != nil {
+		return nil, fmt.Errorf("write paper annotation request field: %w", err)
+	}
+	part, err := writer.CreateFormFile("file", filename)
+	if err != nil {
+		return nil, fmt.Errorf("create paper annotation file part: %w", err)
+	}
+	if _, err := part.Write(fileContent); err != nil {
+		return nil, fmt.Errorf("write paper annotation file content: %w", err)
+	}
+	if err := writer.Close(); err != nil {
+		return nil, fmt.Errorf("close paper annotation multipart body: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		c.baseURL+"/api/v1/workflows/paper-annotation/resolve",
+		bytes.NewReader(body.Bytes()),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("create paper annotation request: %w", err)
+	}
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	if normalizedToken := normalizeBearerToken(token); normalizedToken != "" {
+		req.Header.Set("Authorization", "Bearer "+normalizedToken)
+	}
+
+	return doJSONRequest[PaperAnnotationResolveResponse](c.httpClient, req, "paper annotation workflow")
 }
 
 func (c *Client) ResolveReviewQualityAudit(

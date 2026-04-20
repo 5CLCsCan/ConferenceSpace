@@ -6,11 +6,13 @@ from .gating_run_repo import GatingRunRepository
 from .decision_copilot_repo import DecisionCopilotRepository
 from .reviewer_briefing_repo import ReviewerBriefingRepository
 from .review_quality_audit_repo import ReviewQualityAuditRepository
+from .paper_annotation_repo import PaperAnnotationRepository
 
 __all__ = [
     "DecisionCopilotRepository",
     "GatingRunRepository",
     "MessageRepository",
+    "PaperAnnotationRepository",
     "ReviewQualityAuditRepository",
     "ReviewerBriefingRepository",
     "RuntimeStore",

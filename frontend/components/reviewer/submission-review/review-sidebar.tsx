@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react"
 
 import useAssignmentBriefing from "@/hooks/use-assignment-briefing"
+import usePaperAnnotation from "@/hooks/use-paper-annotation"
+import { PaperAnnotationPanel } from "./paper-annotation-panel"
 import { downloadPaperFile } from "@/lib/api/papers"
 import {
   Dialog,
@@ -79,6 +81,13 @@ export function AIAssistantCard({
     conferenceId,
     assignmentId,
   )
+  const {
+    annotation,
+    loading: annotationLoading,
+    generating: annotationGenerating,
+    error: annotationError,
+    generateAnnotation,
+  } = usePaperAnnotation(conferenceId, assignmentId)
   const [open, setOpen] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [previewFilename, setPreviewFilename] = useState<string | null>(null)
@@ -94,8 +103,32 @@ export function AIAssistantCard({
   const attentionPoints = artifact?.reviewer_attention_points ?? []
   const scopeLimitations = artifact?.stated_scope_and_limitations ?? []
 
+  const annotationStatus = annotation?.status ?? "idle"
+  const annotationArtifact = annotation?.artifact
+  const canViewAnnotation = annotationStatus === "ready" && Boolean(annotationArtifact)
+  const briefingPending = status === "idle" || status === "failed" || status === "stale"
+  const annotationPending =
+    annotationStatus === "idle" || annotationStatus === "failed" || annotationStatus === "stale"
+  const showGenerateButton = briefingPending || annotationPending
+
+  const generateButtonLabel = () => {
+    if (generating || annotationGenerating) {
+      return t("runtime.components.reviewer.submission-review.review-sidebar.text_generating")
+    }
+    if (briefingPending) {
+      return status === "stale"
+        ? t("runtime.components.reviewer.submission-review.review-sidebar.text_regenerate_report")
+        : t("runtime.components.reviewer.submission-review.review-sidebar.text_start_generating")
+    }
+    return annotationStatus === "stale"
+      ? t(
+          "runtime.components.reviewer.submission-review.review-sidebar.text_regenerate_annotations",
+        )
+      : t("runtime.components.reviewer.submission-review.review-sidebar.text_generate_annotations")
+  }
+
   useEffect(() => {
-    if (!open || previewUrl || previewLoading) {
+    if (!open || previewUrl) {
       return
     }
 
@@ -141,7 +174,7 @@ export function AIAssistantCard({
     return () => {
       cancelled = true
     }
-  }, [conferenceId, open, previewLoading, previewUrl, submissionId, t])
+  }, [conferenceId, open, previewUrl, submissionId, t])
 
   const statusLabelMap: Record<string, string> = {
     ready: t("runtime.components.reviewer.submission-review.review-sidebar.text_status_ready"),
@@ -224,25 +257,22 @@ export function AIAssistantCard({
         ) : (
           <>
             <div className="mt-4 flex flex-wrap items-center gap-2">
-              {(status === "idle" || status === "failed" || status === "stale") && (
+              {showGenerateButton && (
                 <button
                   type="button"
-                  onClick={() => void generateBriefing()}
-                  disabled={generating}
+                  onClick={() => {
+                    if (briefingPending) {
+                      void generateBriefing()
+                    }
+                    if (annotationPending) {
+                      void generateAnnotation()
+                    }
+                  }}
+                  disabled={generating || annotationGenerating}
                   className="inline-flex h-8 items-center justify-center gap-2 rounded-md bg-violet-600 px-4 text-[11px] font-bold tracking-wider text-white transition-all duration-200 hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-violet-300"
                 >
                   <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
-                  {generating
-                    ? t(
-                        "runtime.components.reviewer.submission-review.review-sidebar.text_generating",
-                      )
-                    : status === "stale"
-                      ? t(
-                          "runtime.components.reviewer.submission-review.review-sidebar.text_regenerate_report",
-                        )
-                      : t(
-                          "runtime.components.reviewer.submission-review.review-sidebar.text_start_generating",
-                        )}
+                  {generateButtonLabel()}
                 </button>
               )}
 
@@ -260,6 +290,11 @@ export function AIAssistantCard({
             {error && (
               <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[10px] text-red-700">
                 {error}
+              </div>
+            )}
+            {annotationError && (
+              <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] text-amber-700">
+                Paper annotation: {annotationError}
               </div>
             )}
           </>
@@ -452,6 +487,19 @@ export function AIAssistantCard({
                         />
                       </SectionBlock>
                     </div>
+                    {canViewAnnotation && annotationArtifact && (
+                      <>
+                        <div className="border-t border-slate-200 pt-5">
+                          <div className="mb-4 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[16px] text-violet-600">rate_review</span>
+                            <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#456882]">
+                              {t("runtime.components.reviewer.submission-review.review-sidebar.text_paper_annotations")}
+                            </h3>
+                          </div>
+                          <PaperAnnotationPanel artifact={annotationArtifact} />
+                        </div>
+                      </>
+                    )}
                   </div>
                 ) : (
                   <div className="flex h-full items-center justify-center">

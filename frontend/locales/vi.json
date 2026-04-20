@@ -2307,6 +2307,7 @@
             "text_checking_existing_submission_pre_read": "Kiểm tra trình đọc trước hiện có.",
             "text_failed_to_load_manuscript_preview": "Không thể tải bản xem trước bản thảo",
             "text_fetching_reviewer_visible_manuscript_file_and": "Đang tìm nạp tệp bản thảo mà phản biện có thể nhìn thấy và chuẩn bị ngăn đọc.",
+            "text_generate_annotations": "Tạo chú thích",
             "text_generate_neutral_briefing_first": "Tạo bản tóm lược bản thảo trung lập trước khi bạn bắt đầu viết đánh giá.",
             "text_generating": "Đang tạo...",
             "text_keywords": "Từ khóa",
@@ -2322,6 +2323,7 @@
             "text_preview_standby": "Xem trước chế độ chờ",
             "text_preview_unavailable": "Xem trước không có sẵn",
             "text_read_the_manuscript_and_the_neutral": "Đọc bản thảo và bản tóm tắt trung lập cạnh nhau.",
+            "text_regenerate_annotations": "Tạo lại chú thích",
             "text_regenerate_report": "Tạo lại báo cáo",
             "text_reviewer_pre_read_analysis": "Phân tích trước khi đọc của phản biện",
             "text_signal_not_applicable": "Không áp dụng",
@@ -2346,7 +2348,12 @@
             "title_notable_elements": "Yếu tố đáng chú ý",
             "title_review_readiness_signals": "Xem lại tín hiệu sẵn sàng",
             "title_reviewer_attention_points": "Điểm chú ý của phản biện",
+            "text_paper_annotations": "Chú thích bài báo",
             "title_scope_and_limitations": "Phạm vi và hạn chế"
+          },
+          "paper-annotation-panel": {
+            "text_overall_impression": "Ấn tượng tổng thể",
+            "text_domain_context_prefix": "Bối cảnh lĩnh vực:"
           },
           "scoring-criteria": {
             "text_average_score": "Điểm trung bình",
