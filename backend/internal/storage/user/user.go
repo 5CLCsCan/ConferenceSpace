@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
@@ -401,7 +402,50 @@ func (s *Storage) Update(ctx context.Context, id int64, user *dto.User) (*dto.Us
 }
 
 func (s *Storage) UpdateByEmail(ctx context.Context, email string, user *dto.User) (*dto.UserResponse, error) {
+	oldEmail := strings.TrimSpace(email)
+	newEmail := strings.TrimSpace(user.Email)
+
+	if oldEmail == "" {
+		return nil, ErrUserNotFound
+	}
+	if newEmail == "" {
+		return nil, fmt.Errorf("email is required")
+	}
+
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to begin transaction: %w", err)
+	}
+
+	committed := false
+	defer func() {
+		if !committed {
+			_ = tx.Rollback()
+		}
+	}()
+
+	if !strings.EqualFold(oldEmail, newEmail) {
+		var exists bool
+		err = tx.QueryRowContext(
+			ctx,
+			"SELECT EXISTS(SELECT 1 FROM users WHERE LOWER(email) = LOWER($1) AND LOWER(email) <> LOWER($2))",
+			newEmail,
+			oldEmail,
+		).Scan(&exists)
+		if err != nil {
+			return nil, fmt.Errorf("failed to check email uniqueness: %w", err)
+		}
+		if exists {
+			return nil, ErrEmailAlreadyExists
+		}
+
+		if err := s.updateEmailReferences(ctx, tx, oldEmail, newEmail); err != nil {
+			return nil, err
+		}
+	}
+
 	updateMap := map[string]interface{}{
+		model.UserColEmail:     newEmail,
 		model.UserColFirstName: user.FirstName,
 		model.UserColLastName:  user.LastName,
 		model.UserColDomain:    pq.Array(user.Domain),
@@ -426,7 +470,7 @@ func (s *Storage) UpdateByEmail(ctx context.Context, email string, user *dto.Use
 	query, args, err := s.qb.
 		Update(model.UserTableName).
 		SetMap(updateMap).
-		Where(sq.Eq{model.UserColEmail: email}).
+		Where(sq.Expr("LOWER("+model.UserColEmail+") = LOWER(?)", oldEmail)).
 		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s",
 			model.UserColUserID,
 			model.UserColEmail,
@@ -445,7 +489,7 @@ func (s *Storage) UpdateByEmail(ctx context.Context, email string, user *dto.Use
 	}
 
 	entity := &model.User{}
-	err = s.db.QueryRowContext(ctx, query, args...).Scan(
+	err = tx.QueryRowContext(ctx, query, args...).Scan(
 		&entity.UserID,
 		&entity.Email,
 		&entity.FirstName,
@@ -461,10 +505,144 @@ func (s *Storage) UpdateByEmail(ctx context.Context, email string, user *dto.Use
 		return nil, ErrUserNotFound
 	}
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok && string(pqErr.Code) == "23505" && pqErr.Constraint == "users_email_key" {
+			return nil, ErrEmailAlreadyExists
+		}
 		return nil, fmt.Errorf("failed to update user: %w", err)
 	}
 
+	if err := tx.Commit(); err != nil {
+		return nil, fmt.Errorf("failed to commit update transaction: %w", err)
+	}
+	committed = true
+
 	return entity.ToDTO(), nil
+}
+
+func (s *Storage) updateEmailReferences(ctx context.Context, tx *sql.Tx, oldEmail string, newEmail string) error {
+	statements := []struct {
+		name string
+		sql  string
+	}{
+		{
+			name: "conference chair email",
+			sql: `
+				UPDATE conferences
+				SET chair = $2,
+				    updated_at = NOW()
+				WHERE LOWER(chair) = LOWER($1)
+			`,
+		},
+		{
+			name: "conference co-chairs email",
+			sql: `
+				UPDATE conferences
+				SET co_chairs = (
+					SELECT COALESCE(ARRAY(
+						SELECT CASE
+							WHEN LOWER(co_chair_email) = LOWER($1) THEN $2
+							ELSE co_chair_email
+						END
+						FROM unnest(co_chairs) AS co_chair_email
+					), '{}')
+				),
+				updated_at = NOW()
+				WHERE EXISTS (
+					SELECT 1
+					FROM unnest(co_chairs) AS co_chair_email
+					WHERE LOWER(co_chair_email) = LOWER($1)
+				)
+			`,
+		},
+		{
+			name: "dedupe role rows",
+			sql: `
+				DELETE FROM conference_user_roles old
+				USING conference_user_roles new
+				WHERE LOWER(old.user_email) = LOWER($1)
+				  AND LOWER(new.user_email) = LOWER($2)
+				  AND old.conference_id = new.conference_id
+			`,
+		},
+		{
+			name: "conference user roles email",
+			sql: `
+				UPDATE conference_user_roles
+				SET user_email = $2,
+				    updated_at = NOW()
+				WHERE LOWER(user_email) = LOWER($1)
+			`,
+		},
+		{
+			name: "conference submission author email",
+			sql: `
+				UPDATE conference_submissions
+				SET author = $2,
+				    updated_at = NOW()
+				WHERE LOWER(author) = LOWER($1)
+			`,
+		},
+		{
+			name: "dedupe conference bookmarks",
+			sql: `
+				DELETE FROM conference_bookmarks old
+				USING conference_bookmarks new
+				WHERE LOWER(old.user_email) = LOWER($1)
+				  AND LOWER(new.user_email) = LOWER($2)
+				  AND old.conference_id = new.conference_id
+			`,
+		},
+		{
+			name: "conference bookmarks email",
+			sql: `
+				UPDATE conference_bookmarks
+				SET user_email = $2
+				WHERE LOWER(user_email) = LOWER($1)
+			`,
+		},
+		{
+			name: "notifications email",
+			sql: `
+				UPDATE notifications
+				SET user_email = $2
+				WHERE LOWER(user_email) = LOWER($1)
+			`,
+		},
+		{
+			name: "dedupe notification preferences",
+			sql: `
+				DELETE FROM notification_preferences old
+				USING notification_preferences new
+				WHERE LOWER(old.user_email) = LOWER($1)
+				  AND LOWER(new.user_email) = LOWER($2)
+			`,
+		},
+		{
+			name: "notification preferences email",
+			sql: `
+				UPDATE notification_preferences
+				SET user_email = $2,
+				    updated_at = NOW()
+				WHERE LOWER(user_email) = LOWER($1)
+			`,
+		},
+		{
+			name: "auth tokens email",
+			sql: `
+				UPDATE auth_tokens
+				SET user_email = $2
+				WHERE LOWER(user_email) = LOWER($1)
+			`,
+		},
+	}
+
+	for _, statement := range statements {
+		if _, err := tx.ExecContext(ctx, statement.sql, oldEmail, newEmail); err != nil {
+			return fmt.Errorf("failed to migrate %s: %w", statement.name, err)
+		}
+	}
+
+	return nil
 }
 
 func (s *Storage) Delete(ctx context.Context, id int64) error {

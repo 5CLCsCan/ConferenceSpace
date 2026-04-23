@@ -2,8 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
-import { getConferenceById, updateConference } from "@/lib/api/conferences"
-import type { Conference } from "@/lib/api/conferences"
+import {
+  getConferenceById,
+  getConferenceReviewers,
+  inviteReviewers,
+  removeReviewer,
+  updateConference,
+} from "@/lib/api/conferences"
+import type { Conference, Reviewer } from "@/lib/api/conferences"
 import { apiFetch } from "@/lib/api/client"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { useAuth } from "@/lib/auth-context"
@@ -31,11 +37,14 @@ interface SelectedUser {
 interface CommitteeMember {
   email: string
   name: string
-  role: "chair" | "co_chair" | "pc"
+  role: "chair" | "co_chair" | "pc" | "reviewer"
   domain?: string[]
+  reviewerId?: number
+  invitationStatus?: string
 }
 
-type MemberRoleFilter = "all" | "chair" | "co_chair" | "pc"
+type MemberRoleFilter = "all" | "chair" | "co_chair" | "pc" | "reviewer"
+type AddMemberRole = "pc" | "reviewer"
 
 function Icon({ name, className, size = 16 }: { name: string; className?: string; size?: number }) {
   return (
@@ -93,12 +102,14 @@ function StatCard({
   )
 }
 
-function RoleBadge({ label, role }: { label: string; role?: "chair" | "co_chair" | "pc" }) {
+function RoleBadge({ label, role }: { label: string; role?: "chair" | "co_chair" | "pc" | "reviewer" }) {
   const colorClass =
     role === "chair"
       ? "bg-amber-50 text-amber-700 border-amber-100"
       : role === "co_chair"
         ? "bg-purple-50 text-purple-700 border-purple-100"
+        : role === "reviewer"
+          ? "bg-emerald-50 text-emerald-700 border-emerald-100"
         : "bg-blue-50 text-blue-700 border-blue-100"
   return (
     <span
@@ -225,10 +236,12 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [conference, setConference] = useState<Conference | null>(null)
+  const [conferenceReviewers, setConferenceReviewers] = useState<Reviewer[]>([])
   const [resolvedUsers, setResolvedUsers] = useState<Map<string, User>>(new Map())
   const [currentPage, setCurrentPage] = useState(1)
   const [tableSearch, setTableSearch] = useState("")
   const [roleFilter, setRoleFilter] = useState<MemberRoleFilter>("all")
+  const [memberRoleToAdd, setMemberRoleToAdd] = useState<AddMemberRole>("pc")
 
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<UserSearchResult[]>([])
@@ -261,10 +274,19 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
 
     setConference(confRes.data)
 
+    const reviewerRes = await getConferenceReviewers(conferenceId, { limit: 200, offset: 0 })
+    const reviewers = reviewerRes.data?.reviewers ?? []
+    setConferenceReviewers(reviewers)
+
+    const reviewerEmails = reviewers
+      .map((reviewerItem) => reviewerItem.email?.trim().toLowerCase())
+      .filter(Boolean) as string[]
+
     const allEmails = [
       confRes.data.chair,
       ...(confRes.data.co_chairs ?? []),
       ...(confRes.data.pc_members ?? []),
+      ...reviewerEmails,
     ].filter(Boolean) as string[]
     const uniqueEmails = [...new Set(allEmails)]
 
@@ -320,8 +342,30 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
       })
     }
 
+    for (const reviewerItem of conferenceReviewers) {
+      const reviewerEmail = (reviewerItem.email || "").trim().toLowerCase()
+      if (!reviewerEmail) {
+        continue
+      }
+
+      const user = resolvedUsers.get(reviewerEmail)
+      const reviewerName =
+        user && (user.first_name || user.last_name)
+          ? `${user.first_name} ${user.last_name}`.trim()
+          : `${reviewerItem.first_name || ""} ${reviewerItem.last_name || ""}`.trim()
+
+      members.push({
+        email: reviewerEmail,
+        name: reviewerName || reviewerEmail,
+        role: "reviewer",
+        domain: reviewerItem.domain,
+        reviewerId: reviewerItem.id,
+        invitationStatus: reviewerItem.status,
+      })
+    }
+
     return members
-  }, [conference, resolvedUsers])
+  }, [conference, conferenceReviewers, resolvedUsers])
 
   useEffect(() => {
     function handleClick(event: MouseEvent) {
@@ -389,25 +433,89 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     setSelectedUsers((previous) => previous.filter((entry) => entry.email !== email))
   }
 
-  const handleAddPCMembers = async () => {
+  const resolveUserId = async (selectedUser: SelectedUser): Promise<number | null> => {
+    if (typeof selectedUser.id === "number" && selectedUser.id > 0) {
+      return selectedUser.id
+    }
+
+    try {
+      const response = await userApi.getByEmail(selectedUser.email)
+      const userId = response.data?.data?.id
+      return typeof userId === "number" && userId > 0 ? userId : null
+    } catch {
+      return null
+    }
+  }
+
+  const handleAddMembers = async () => {
     if (!selectedUsers.length || !conference) return
 
     setInviting(true)
     setInviteMsg(null)
 
-    const newEmails = selectedUsers.map((u) => u.email.toLowerCase())
-    const existingPC = conference.pc_members ?? []
-    const merged = [...new Set([...existingPC, ...newEmails])]
+    if (memberRoleToAdd === "pc") {
+      const newEmails = selectedUsers.map((u) => u.email.toLowerCase())
+      const existingPC = conference.pc_members ?? []
+      const merged = [...new Set([...existingPC, ...newEmails])]
 
-    const response = await updateConference(conferenceId, { pc_members: merged })
-    setInviting(false)
+      const response = await updateConference(conferenceId, { pc_members: merged })
+      setInviting(false)
 
-    if (response.error) {
-      setInviteMsg({ type: "error", text: T("text_invite_error") })
+      if (response.error) {
+        setInviteMsg({ type: "error", text: T("text_invite_error") })
+        return
+      }
+
+      setInviteMsg({ type: "success", text: T("text_invite_success") })
+      setSelectedUsers([])
+      void loadCommittee()
       return
     }
 
-    setInviteMsg({ type: "success", text: T("text_invite_success") })
+    const resolvedIds: number[] = []
+    let unresolvedCount = 0
+    for (const selectedUser of selectedUsers) {
+      const userId = await resolveUserId(selectedUser)
+      if (userId == null) {
+        unresolvedCount += 1
+      } else {
+        resolvedIds.push(userId)
+      }
+    }
+
+    if (resolvedIds.length === 0) {
+      setInviting(false)
+      setInviteMsg({
+        type: "error",
+        text: "Cannot invite reviewer: selected users are missing valid user IDs.",
+      })
+      return
+    }
+
+    const response = await inviteReviewers(
+      conferenceId,
+      resolvedIds.map((userId) => ({ user_id: userId })),
+    )
+    setInviting(false)
+
+    if (response.error || !response.data) {
+      setInviteMsg({ type: "error", text: response.error || T("text_invite_error") })
+      return
+    }
+
+    const failedCount = (response.data.failed || []).length + unresolvedCount
+    const successCount = (response.data.success || []).length
+    if (successCount > 0 && failedCount === 0) {
+      setInviteMsg({ type: "success", text: `Invited ${successCount} reviewer(s).` })
+    } else if (successCount > 0) {
+      setInviteMsg({
+        type: "success",
+        text: `Invited ${successCount} reviewer(s). ${failedCount} invite(s) failed or skipped.`,
+      })
+    } else {
+      setInviteMsg({ type: "error", text: "No reviewer was invited." })
+    }
+
     setSelectedUsers([])
     void loadCommittee()
   }
@@ -421,14 +529,26 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     void loadCommittee()
   }
 
-  const getRoleLabel = (role: "chair" | "co_chair" | "pc") => {
+  const handleRemoveReviewer = async (reviewerId: number) => {
+    const response = await removeReviewer(conferenceId, String(reviewerId))
+    if (response.error) {
+      setInviteMsg({ type: "error", text: response.error || T("text_invite_error") })
+      return
+    }
+    setInviteMsg({ type: "success", text: "Reviewer removed." })
+    void loadCommittee()
+  }
+
+  const getRoleLabel = (role: "chair" | "co_chair" | "pc" | "reviewer") => {
     if (role === "chair") return T("text_chair")
     if (role === "co_chair") return T("text_co_chair")
+    if (role === "reviewer") return "Reviewer"
     return T("text_pc")
   }
 
   const chairCount = committeeMembers.filter((m) => m.role === "chair" || m.role === "co_chair").length
   const pcCount = committeeMembers.filter((m) => m.role === "pc").length
+  const reviewerCount = committeeMembers.filter((m) => m.role === "reviewer").length
 
   const filteredMembers = useMemo(() => {
     return committeeMembers.filter((member) => {
@@ -499,7 +619,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <StatCard
               label={T("text_total_members")}
               value={committeeMembers.length}
@@ -520,6 +640,13 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
               icon="groups"
               iconBgClass="bg-blue-50"
               iconTextClass="text-blue-700"
+            />
+            <StatCard
+              label="Reviewers"
+              value={reviewerCount}
+              icon="rate_review"
+              iconBgClass="bg-emerald-50"
+              iconTextClass="text-emerald-700"
             />
           </div>
 
@@ -549,6 +676,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                     <option value="chair">{T("text_chair")}</option>
                     <option value="co_chair">{T("text_co_chair")}</option>
                     <option value="pc">{T("text_pc")}</option>
+                    <option value="reviewer">Reviewer</option>
                   </select>
                 </div>
               </div>
@@ -655,14 +783,23 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                   )}
                 </div>
 
+                <select
+                  value={memberRoleToAdd}
+                  onChange={(event) => setMemberRoleToAdd(event.target.value as AddMemberRole)}
+                  className="h-9 px-2.5 bg-white border border-slate-300 text-slate-700 text-[11px] rounded-lg focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none"
+                >
+                  <option value="pc">Program Committee</option>
+                  <option value="reviewer">Reviewer</option>
+                </select>
+
                 <button
                   type="button"
-                  onClick={handleAddPCMembers}
+                  onClick={handleAddMembers}
                   disabled={!selectedUsers.length || inviting}
                   className="h-9 px-4 bg-[#1B3C53] hover:bg-[#234C6A] disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg text-[11px] flex items-center gap-1.5 whitespace-nowrap"
                 >
                   <Icon name={inviting ? "hourglass_empty" : "person_add"} size={14} />
-                  {T("text_add_member")}
+                  {memberRoleToAdd === "reviewer" ? "Invite Reviewer" : T("text_add_member")}
                 </button>
               </div>
 
@@ -673,12 +810,14 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                       key={user.email}
                       className={cn(
                         "inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full",
-                        user.id != null
+                        user.id != null || memberRoleToAdd !== "reviewer"
                           ? "bg-[#1B3C53]/10 text-[#1B3C53]"
                           : "bg-amber-100 text-amber-700",
                       )}
                     >
-                      {user.id == null && <Icon name="warning" size={10} />}
+                      {user.id == null && memberRoleToAdd === "reviewer" && (
+                        <Icon name="warning" size={10} />
+                      )}
                       {user.email}
                       <button
                         type="button"
@@ -733,7 +872,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                   ) : (
                     paginatedMembers.map((member) => (
                       <tr
-                        key={member.email}
+                        key={`${member.role}-${member.email}-${member.reviewerId ?? "0"}`}
                         className="hover:bg-slate-50 transition-colors group"
                       >
                         <td className="px-4 py-3">
@@ -752,6 +891,11 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                             <div>
                               <div className="font-bold text-[#1B3C53] text-[12px]">{member.name}</div>
                               <div className="text-[10px] text-slate-500">{member.email}</div>
+                              {member.role === "reviewer" && member.invitationStatus && (
+                                <div className="text-[10px] text-emerald-700 capitalize">
+                                  invitation: {member.invitationStatus}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </td>
@@ -767,6 +911,20 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                               <button
                                 type="button"
                                 onClick={() => handleRemovePCMember(member.email)}
+                                title={T("text_remove_member")}
+                                className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                              >
+                                <Icon name="delete" size={18} />
+                              </button>
+                            )}
+                            {member.role === "reviewer" && member.reviewerId && !readOnly && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (member.reviewerId != null) {
+                                    void handleRemoveReviewer(member.reviewerId)
+                                  }
+                                }}
                                 title={T("text_remove_member")}
                                 className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                               >

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/tests/api/testutils"
@@ -181,5 +182,89 @@ func TestGetConferenceUserRoleUnrelatedUser(t *testing.T) {
 
 	if body.Data.UserRole != "" {
 		t.Errorf("user with no role should get empty user_role, got %q", body.Data.UserRole)
+	}
+}
+
+// TestGetConferenceNonPrivilegedGetsPublicDates verifies that non-privileged users
+// can still access public timeline fields while sensitive configuration stays hidden.
+func TestGetConferenceNonPrivilegedGetsPublicDates(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	client := NewClient(ctx)
+
+	chairToken, chair, err := ctx.RegisterUniqueUser("pubcfg-chair", "password123", "Chair", "User", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register chair: %v", err)
+	}
+
+	authorToken, _, err := ctx.RegisterUniqueUser("pubcfg-author", "password123", "Author", "User", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register author: %v", err)
+	}
+
+	now := time.Now().UTC()
+	startDate := now.Add(40 * 24 * time.Hour)
+	endDate := now.Add(43 * 24 * time.Hour)
+	paperDeadline := now.Add(12 * 24 * time.Hour)
+	reviewType := "double_blind"
+	maxPages := 12
+
+	conf := &dto.Conference{
+		Title:   "Public Config Visibility Conference",
+		Acronym: testutils.UniqueString("PUBCFG"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI"},
+		Configurations: &dto.ConferenceConfiguration{
+			StartDate:                   &startDate,
+			EndDate:                     &endDate,
+			FullPaperSubmissionDeadline: &paperDeadline,
+			ReviewType:                  &reviewType,
+			MaximumPages:                &maxPages,
+		},
+	}
+	confResp, err := client.CreateSuccess(conf, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to create conference: %v", err)
+	}
+
+	chairView, err := client.GetSuccess(confResp.ID, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to get conference as chair: %v", err)
+	}
+	if chairView.Configurations == nil || chairView.Configurations.StartDate == nil {
+		t.Fatalf("Expected stored conference configuration in chair view")
+	}
+
+	resp, err := client.Get(confResp.ID, authorToken)
+	if err != nil {
+		t.Fatalf("Request failed: %v", err)
+	}
+	testutils.AssertStatusCode(t, resp, http.StatusOK)
+
+	var body struct {
+		Data *dto.ConferenceResponse `json:"data"`
+	}
+	testutils.DecodeResponse(t, resp, &body)
+	if body.Data == nil {
+		t.Fatalf("Expected conference data in response")
+	}
+	if body.Data.Configurations == nil {
+		t.Fatalf("Expected public configurations for non-privileged user")
+	}
+
+	if body.Data.Configurations.StartDate == nil || !body.Data.Configurations.StartDate.Equal(startDate) {
+		t.Fatalf("expected start_date to be visible for non-privileged user")
+	}
+	if body.Data.Configurations.FullPaperSubmissionDeadline == nil ||
+		!body.Data.Configurations.FullPaperSubmissionDeadline.Equal(paperDeadline) {
+		t.Fatalf("expected full_paper_submission_deadline to be visible for non-privileged user")
+	}
+
+	if body.Data.Configurations.ReviewType != nil {
+		t.Fatalf("expected review_type to be hidden for non-privileged user")
+	}
+	if body.Data.Configurations.MaximumPages != nil {
+		t.Fatalf("expected maximum_pages to be hidden for non-privileged user")
 	}
 }

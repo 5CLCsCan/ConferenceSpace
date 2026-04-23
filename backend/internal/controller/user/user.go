@@ -284,7 +284,18 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.UserUpdateRequest) (*d
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "user data is required")
 	}
 
-	return c.userStorage.UpdateByEmail(ctx, email, req.User)
+	updated, err := c.userStorage.UpdateByEmail(ctx, email, req.User)
+	if err != nil {
+		if err == userStorage.ErrUserNotFound {
+			return nil, handler.NewErrorResponse(http.StatusNotFound, "user not found")
+		}
+		if err == userStorage.ErrEmailAlreadyExists {
+			return nil, handler.NewErrorResponse(http.StatusConflict, "email already exists")
+		}
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	return updated, nil
 }
 
 // Search godoc
