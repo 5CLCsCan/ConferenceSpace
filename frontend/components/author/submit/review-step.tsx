@@ -2,6 +2,7 @@
 
 import type { Author } from "./types"
 import type { Conflict } from "./conflicts-step"
+import type { PrecheckResult } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ReviewStepProps {
@@ -11,6 +12,8 @@ interface ReviewStepProps {
   keywords: string[]
   authors: Author[]
   uploadedFile: File | null
+  precheckResult: PrecheckResult | null
+  precheckError: string | null
   conflicts: Conflict[]
   coiConfirmed: boolean
   submissionConfirmed: boolean
@@ -25,6 +28,8 @@ export function ReviewStep({
   keywords,
   authors,
   uploadedFile,
+  precheckResult,
+  precheckError,
   conflicts,
   coiConfirmed,
   submissionConfirmed,
@@ -32,6 +37,9 @@ export function ReviewStep({
   onSubmissionConfirmedChange,
 }: ReviewStepProps) {
   const { t } = useTranslation()
+
+  const hasPrecheckApproval = precheckResult?.decision === "accept_for_review"
+  const precheckFailed = !!precheckError || (precheckResult && !hasPrecheckApproval)
   return (
     <div className="flex flex-col gap-4 w-full">
       {/* Paper Details Card */}
@@ -201,12 +209,28 @@ export function ReviewStep({
                     {t("runtime.components.author.submit.review-step.text_mb")}{" "}
                   </p>
                 </div>
-                <span
-                  className="material-symbols-outlined text-green-500 text-[18px]"
-                  title={t("runtime.components.author.submit.review-step.title_passed_validation")}
-                >
-                  check_circle
-                </span>
+                {precheckFailed ? (
+                  <span
+                    className="material-symbols-outlined text-red-500 text-[18px]"
+                    title={precheckError || t("runtime.components.author.submit.review-step.title_failed_validation")}
+                  >
+                    cancel
+                  </span>
+                ) : hasPrecheckApproval ? (
+                  <span
+                    className="material-symbols-outlined text-green-500 text-[18px]"
+                    title={t("runtime.components.author.submit.review-step.title_passed_validation")}
+                  >
+                    check_circle
+                  </span>
+                ) : (
+                  <span
+                    className="material-symbols-outlined text-amber-500 text-[18px]"
+                    title={t("runtime.components.author.submit.review-step.title_pending_validation")}
+                  >
+                    pending
+                  </span>
+                )}
               </div>
             ) : (
               <div className="flex items-center gap-3 p-3 rounded-lg border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50">

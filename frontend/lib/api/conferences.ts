@@ -32,7 +32,7 @@ export async function getConferenceById(conferenceId: string): Promise<ApiRespon
       submission_deadline: data.data.configurations?.full_paper_submission_deadline || "",
       review_deadline: "", // TODO: Map if available
       camera_ready_deadline: data.data.configurations?.camera_ready_deadline || "",
-      notification_date: "", // TODO: Map if available
+      notification_date: data.data.configurations?.discussion_settings?.end_at || "",
       conference_date: data.data.configurations?.start_date || "",
       conference_end_date: data.data.configurations?.end_date || undefined,
       // Prefer explicit backend venue/location fields if present
@@ -286,7 +286,7 @@ export async function listConferences(filters?: {
       submission_deadline: conf.configurations?.full_paper_submission_deadline || "",
       review_deadline: "", // TODO: Map if available
       camera_ready_deadline: conf.configurations?.camera_ready_deadline || "",
-      notification_date: "", // TODO: Map if available
+      notification_date: conf.configurations?.discussion_settings?.end_at || "",
       conference_date: conf.configurations?.start_date || "",
       conference_end_date: conf.configurations?.end_date || undefined,
       location: conf.venue || conf.location || "",
@@ -402,7 +402,7 @@ export async function createConference(conferenceData: {
       submission_deadline: data.data.configurations?.full_paper_submission_deadline || "",
       review_deadline: "",
       camera_ready_deadline: data.data.configurations?.camera_ready_deadline || "",
-      notification_date: "",
+      notification_date: data.data.configurations?.discussion_settings?.end_at || "",
       conference_date: data.data.configurations?.start_date || "",
       conference_end_date: data.data.configurations?.end_date || undefined,
       location: data.data.venue || data.data.location || "",
@@ -488,7 +488,7 @@ export async function updateConference(
       submission_deadline: data.data.configurations?.full_paper_submission_deadline || "",
       review_deadline: "",
       camera_ready_deadline: data.data.configurations?.camera_ready_deadline || "",
-      notification_date: "",
+      notification_date: data.data.configurations?.discussion_settings?.end_at || "",
       conference_date: data.data.configurations?.start_date || "",
       conference_end_date: data.data.configurations?.end_date || undefined,
       location: data.data.venue || "",
@@ -862,6 +862,51 @@ export async function getConferenceDates(
       })
     }
 
+    if (config.discussion_settings?.start_at) {
+      const dateStr = config.discussion_settings.start_at
+      dates.push({
+        id: "review-deadline",
+        title: "Review Deadline",
+        date: dateStr,
+        description: "Reviews are completed and discussion phase begins",
+        type: "deadline",
+        isPast: new Date(dateStr) < now,
+      })
+    }
+
+    if (config.discussion_settings?.end_at) {
+      const dateStr = config.discussion_settings.end_at
+      dates.push({
+        id: "notification-date",
+        title: "Notification of Acceptance",
+        date: dateStr,
+        description: "Authors are notified of paper acceptance/rejection",
+        type: "event",
+        isPast: new Date(dateStr) < now,
+      })
+    }
+
+    if (config.rebuttal_settings?.start_at && config.rebuttal_settings?.end_at) {
+      const startStr = config.rebuttal_settings.start_at
+      const endStr = config.rebuttal_settings.end_at
+      dates.push({
+        id: "rebuttal-period-start",
+        title: "Rebuttal Period Starts",
+        date: startStr,
+        description: "Authors can begin responding to reviews",
+        type: "event",
+        isPast: new Date(startStr) < now,
+      })
+      dates.push({
+        id: "rebuttal-period-end",
+        title: "Rebuttal Period Ends",
+        date: endStr,
+        description: "Final deadline for author rebuttals",
+        type: "deadline",
+        isPast: new Date(endStr) < now,
+      })
+    }
+
     if (config.start_date) {
       const dateStr = config.start_date
       dates.push({
@@ -964,7 +1009,7 @@ export async function updateConferenceStatus(
       submission_deadline: data.data.configurations?.full_paper_submission_deadline || "",
       review_deadline: "",
       camera_ready_deadline: data.data.configurations?.camera_ready_deadline || "",
-      notification_date: "",
+      notification_date: data.data.configurations?.discussion_settings?.end_at || "",
       conference_date: data.data.configurations?.start_date || "",
       conference_end_date: data.data.configurations?.end_date || undefined,
       location: data.data.venue || data.data.location || "",

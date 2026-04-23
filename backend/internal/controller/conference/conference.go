@@ -77,6 +77,9 @@ func publicConferenceConfigurations(config *dto.ConferenceConfiguration) *dto.Co
 		FullPaperSubmissionDeadline: config.FullPaperSubmissionDeadline,
 		CameraReadyDeadline:         config.CameraReadyDeadline,
 		CallForPaperText:            config.CallForPaperText,
+		// Include date-related nested settings so authors can see timeline events
+		DiscussionSettings: config.DiscussionSettings,
+		RebuttalSettings:   config.RebuttalSettings,
 	}
 
 	if publicConfig.StartDate == nil &&
@@ -84,7 +87,9 @@ func publicConferenceConfigurations(config *dto.ConferenceConfiguration) *dto.Co
 		publicConfig.AbstractSubmissionDeadline == nil &&
 		publicConfig.FullPaperSubmissionDeadline == nil &&
 		publicConfig.CameraReadyDeadline == nil &&
-		publicConfig.CallForPaperText == nil {
+		publicConfig.CallForPaperText == nil &&
+		publicConfig.DiscussionSettings == nil &&
+		publicConfig.RebuttalSettings == nil {
 		return nil
 	}
 

@@ -129,6 +129,7 @@ export interface Conference {
     submission_format?: string
     require_complete_author_profile?: boolean
     allow_paper_withdrawls?: boolean
+    website?: string
     desk_rejection_settings?: {
       enabled?: boolean
       min_references?: number
