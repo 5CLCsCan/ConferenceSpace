@@ -1098,6 +1098,8 @@
             "text_mb_click_to_replace": "MB - Click to replace",
             "text_mb_existing_file": "MB - Existing file",
             "text_optional": "(Optional)",
+            "text_failed": "Precheck Failed",
+            "text_checking": "Checking...",
             "text_pdf_docx_and_tex_files_are": "PDF, DOCX, and TEX files are allowed",
             "text_ready": "Ready",
             "text_running_quality_check_on_your_paper": "Running quality check on your paper...",
@@ -1200,7 +1202,9 @@
             "text_multiple_conflicts_of_interest_declared": "{count} conflicts of interest declared.",
             "text_title": "Title",
             "text_track": "Track",
-            "title_passed_validation": "Passed validation"
+            "title_passed_validation": "Passed validation",
+            "title_failed_validation": "Failed validation",
+            "title_pending_validation": "Pending validation"
           },
           "submission-action-bar": {
             "text_next_authors": "Next: Authors",

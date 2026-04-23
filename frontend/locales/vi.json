@@ -1200,7 +1200,9 @@
             "text_multiple_conflicts_of_interest_declared": "Đã khai báo {count} xung đột lợi ích.",
             "text_title": "Tiêu đề",
             "text_track": "Theo dõi",
-            "title_passed_validation": "Đã vượt qua xác thực"
+            "title_passed_validation": "Đã vượt qua xác thực",
+            "title_failed_validation": "Kiểm tra không đạt",
+            "title_pending_validation": "Đang kiểm tra"
           },
           "submission-action-bar": {
             "text_next_authors": "Tiếp: Tác giả",

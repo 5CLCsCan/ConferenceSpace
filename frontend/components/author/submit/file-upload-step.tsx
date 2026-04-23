@@ -24,6 +24,9 @@ interface FileUploadStepProps {
     size: number
     type: string
   }
+  // Controlled from parent so values survive tab switching (unmount/remount)
+  precheckResult?: PrecheckResult | null
+  precheckError?: string | null
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void
   onRemoveFile: () => void
   onPrecheckUpdate?: (result: PrecheckResult | null, error: string | null) => void
@@ -36,14 +39,14 @@ export function FileUploadStep({
   conference,
   submissionId,
   existingFile,
+  precheckResult = null,
+  precheckError = null,
   onFileUpload,
   onRemoveFile,
   onPrecheckUpdate,
 }: FileUploadStepProps) {
   const { t } = useTranslation()
   const [isPrechecking, setIsPrechecking] = useState(false)
-  const [precheckResult, setPrecheckResult] = useState<PrecheckResult | null>(null)
-  const [precheckError, setPrecheckError] = useState<string | null>(null)
   const [isDownloading, setIsDownloading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -59,8 +62,7 @@ export function FileUploadStep({
 
     if (file && conference?.id) {
       setIsPrechecking(true)
-      setPrecheckError(null)
-      setPrecheckResult(null)
+      // Clear via parent so state is consistent even if tab is switched mid-flight
       onPrecheckUpdate?.(null, null)
 
       try {
@@ -68,15 +70,12 @@ export function FileUploadStep({
         const response = await precheckPaper(conferenceId, file)
 
         if (response.error) {
-          setPrecheckError(response.error)
           onPrecheckUpdate?.(null, response.error)
         } else if (response.data) {
-          setPrecheckResult(response.data)
           onPrecheckUpdate?.(response.data, null)
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : "Precheck failed"
-        setPrecheckError(message)
         onPrecheckUpdate?.(null, message)
       } finally {
         setIsPrechecking(false)
@@ -248,12 +247,28 @@ export function FileUploadStep({
                   <p className="text-xs font-bold text-[#141414] dark:text-white truncate">
                     {uploadedFile.name}
                   </p>
-                  <span className="text-[10px] font-bold text-green-600 flex items-center gap-1 uppercase tracking-wide">
-                    <span className="material-symbols-outlined text-[14px] icon-filled">
-                      check_circle
+                  {precheckError ? (
+                    <span className="text-[10px] font-bold text-red-600 flex items-center gap-1 uppercase tracking-wide">
+                      <span className="material-symbols-outlined text-[14px] icon-filled">
+                        cancel
+                      </span>
+                      {t("runtime.components.author.submit.file-upload-step.text_failed")}
                     </span>
-                    {t("runtime.components.author.submit.file-upload-step.text_ready")}{" "}
-                  </span>
+                  ) : precheckResult?.decision === "accept_for_review" ? (
+                    <span className="text-[10px] font-bold text-green-600 flex items-center gap-1 uppercase tracking-wide">
+                      <span className="material-symbols-outlined text-[14px] icon-filled">
+                        check_circle
+                      </span>
+                      {t("runtime.components.author.submit.file-upload-step.text_ready")}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold text-amber-600 flex items-center gap-1 uppercase tracking-wide">
+                      <span className="material-symbols-outlined text-[14px] icon-filled">
+                        pending
+                      </span>
+                      {t("runtime.components.author.submit.file-upload-step.text_checking")}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 text-[10px] text-slate-500">
                   <span>
@@ -282,8 +297,6 @@ export function FileUploadStep({
                   onClick={() => {
                     onRemoveFile()
                     onPrecheckUpdate?.(null, null)
-                    setPrecheckResult(null)
-                    setPrecheckError(null)
                     if (fileInputRef.current) fileInputRef.current.value = ""
                   }}
                   className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg text-slate-400 hover:text-red-600 transition-colors"

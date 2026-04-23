@@ -199,6 +199,36 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
   const ITEMS_PER_PAGE = 6
   const debouncedSearch = useDebounce(searchQuery, 400)
 
+  // Sort raw ApiConference list before mapping
+  function sortApiConferences(list: import("@/lib/types").Conference[], sort: string) {
+    const sorted = [...list]
+    if (sort === "name-asc") {
+      sorted.sort((a, b) => (a.name || "").localeCompare(b.name || ""))
+    } else if (sort === "name-desc") {
+      sorted.sort((a, b) => (b.name || "").localeCompare(a.name || ""))
+    } else if (sort === "deadline") {
+      sorted.sort((a, b) => {
+        const da = a.submission_deadline ? new Date(a.submission_deadline).getTime() : 0
+        const db = b.submission_deadline ? new Date(b.submission_deadline).getTime() : 0
+        return da - db
+      })
+    } else if (sort === "date-upcoming" || sort === "popularity") {
+      sorted.sort((a, b) => {
+        const da = a.conference_date ? new Date(a.conference_date).getTime() : 0
+        const db = b.conference_date ? new Date(b.conference_date).getTime() : 0
+        return da - db
+      })
+    } else {
+      // date-newest (default)
+      sorted.sort((a, b) => {
+        const da = a.created_at ? new Date(a.created_at).getTime() : 0
+        const db = b.created_at ? new Date(b.created_at).getTime() : 0
+        return db - da
+      })
+    }
+    return sorted
+  }
+
   useEffect(() => {
     let cancelled = false
 
@@ -206,42 +236,38 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
       setLoading(true)
       setError(null)
       try {
-        const offset = (currentPage - 1) * ITEMS_PER_PAGE
-
         if (activeTab === "my-conferences") {
           const res = await listConferences({
             myConferences: true,
             role: currentRole === "pc" ? "pc" : "chair",
             title: debouncedSearch || undefined,
-            limit: ITEMS_PER_PAGE,
-            offset,
+            limit: 500,
+            offset: 0,
           })
           if (!cancelled) {
-            setMyConferences(
-              (res.data?.conferences || [])
-                .filter(
-                  (c) => c.status !== "archived" && c.status !== "draft",
-                )
-                .map(mapToChairConference),
+            const filtered = (res.data?.conferences || []).filter(
+              (c) => c.status !== "archived" && c.status !== "draft",
             )
-            setMyTotal(res.data?.total || 0)
+            const sorted = sortApiConferences(filtered, sortBy)
+            const page = currentPage
+            const start = (page - 1) * ITEMS_PER_PAGE
+            setMyConferences(sorted.slice(start, start + ITEMS_PER_PAGE).map(mapToChairConference))
+            setMyTotal(sorted.length)
           }
         } else if (activeTab === "explore") {
           const res = await listConferences({
             title: debouncedSearch || undefined,
-            limit: ITEMS_PER_PAGE,
-            offset,
+            limit: 500,
+            offset: 0,
           })
           if (!cancelled) {
-            setExploreConferences(
-              (res.data?.conferences || [])
-                .filter(
-                  (c) =>
-                    c.status !== "completed" && c.status !== "archived" && c.status !== "draft",
-                )
-                .map(mapToExploreConference),
+            const filtered = (res.data?.conferences || []).filter(
+              (c) => c.status !== "completed" && c.status !== "archived" && c.status !== "draft",
             )
-            setExploreTotal(res.data?.total || 0)
+            const sorted = sortApiConferences(filtered, sortBy)
+            const start = (currentPage - 1) * ITEMS_PER_PAGE
+            setExploreConferences(sorted.slice(start, start + ITEMS_PER_PAGE).map(mapToExploreConference))
+            setExploreTotal(sorted.length)
           }
         } else if (activeTab === "drafts") {
           const res = await listConferences({
@@ -249,12 +275,14 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
             role: currentRole === "pc" ? "pc" : "chair",
             status: "draft",
             title: debouncedSearch || undefined,
-            limit: ITEMS_PER_PAGE,
-            offset,
+            limit: 500,
+            offset: 0,
           })
           if (!cancelled) {
-            setDraftConferences((res.data?.conferences || []).map(mapToChairConference))
-            setDraftTotal(res.data?.total || 0)
+            const sorted = sortApiConferences(res.data?.conferences || [], sortBy)
+            const start = (currentPage - 1) * ITEMS_PER_PAGE
+            setDraftConferences(sorted.slice(start, start + ITEMS_PER_PAGE).map(mapToChairConference))
+            setDraftTotal(sorted.length)
           }
         } else if (activeTab === "archived") {
           const res = await listConferences({
@@ -262,12 +290,14 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
             role: currentRole === "pc" ? "pc" : "chair",
             status: "archived",
             title: debouncedSearch || undefined,
-            limit: ITEMS_PER_PAGE,
-            offset,
+            limit: 500,
+            offset: 0,
           })
           if (!cancelled) {
-            setArchivedConferences((res.data?.conferences || []).map(mapToExploreConference))
-            setArchivedTotal(res.data?.total || 0)
+            const sorted = sortApiConferences(res.data?.conferences || [], sortBy)
+            const start = (currentPage - 1) * ITEMS_PER_PAGE
+            setArchivedConferences(sorted.slice(start, start + ITEMS_PER_PAGE).map(mapToExploreConference))
+            setArchivedTotal(sorted.length)
           }
         }
       } catch (err) {
@@ -283,7 +313,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
     return () => {
       cancelled = true
     }
-  }, [activeTab, debouncedSearch, currentPage, reloadKey, currentRole])
+  }, [activeTab, debouncedSearch, currentPage, reloadKey, currentRole, sortBy])
 
   const handleNavigate = (id: string) => {
     router.push(ROUTES.CHAIR.CONFERENCE_DETAIL(id))
@@ -300,10 +330,16 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab)
     setCurrentPage(1)
+    setSortBy("date-newest")
   }
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query)
+    setCurrentPage(1)
+  }
+
+  const handleSortChange = (sort: string) => {
+    setSortBy(sort)
     setCurrentPage(1)
   }
 
@@ -542,7 +578,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
         sortBy={sortBy}
-        onSortChange={setSortBy}
+        onSortChange={handleSortChange}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
       />

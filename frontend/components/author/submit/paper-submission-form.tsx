@@ -750,6 +750,8 @@ export function PaperSubmissionForm({
                         }
                       : undefined
                 }
+                precheckResult={precheckResult}
+                precheckError={precheckError}
                 onFileUpload={handleFileUpload}
                 onRemoveFile={handleRemoveFile}
                 onPrecheckUpdate={(result, error) => {
@@ -787,6 +789,8 @@ export function PaperSubmissionForm({
                 keywords={keywords}
                 authors={authors}
                 uploadedFile={uploadedFile}
+                precheckResult={precheckResult}
+                precheckError={precheckError}
                 conflicts={conflicts}
                 coiConfirmed={coiConfirmed}
                 submissionConfirmed={submissionConfirmed}

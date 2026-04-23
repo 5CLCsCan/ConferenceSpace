@@ -95,6 +95,7 @@ export interface ConferenceMutationPayload {
     require_complete_author_profile: boolean
     allow_paper_withdrawls: boolean
     call_for_paper_text?: string
+    website?: string
     desk_rejection_settings?: Record<string, unknown>
     discussion_settings?: Record<string, unknown>
     rebuttal_settings?: Record<string, unknown>
@@ -108,12 +109,17 @@ export function mapConferenceToFormData(conference: Conference): ConferenceFormD
   const normalizedReviewType = (config?.review_type || "").replace(/_/g, "-").toLowerCase()
   const mappedRequiredSections = normalizeStringList(deskSettings?.required_sections)
 
+  // notification of acceptance comes from discussion_settings.end_at
+  const notificationDate = parseDate(config?.discussion_settings?.end_at)
+
   return {
     ...initialFormData,
     title: conference.name || "",
     acronym: conference.acronym || "",
+    contactEmail: conference.chair || "",
     description: conference.description || "",
     location: conference.location || "",
+    website: conference.website || config?.website || "",
     locationType:
       config?.format === "virtual" || config?.format === "hybrid" || config?.format === "in-person"
         ? config.format
@@ -125,6 +131,7 @@ export function mapConferenceToFormData(conference: Conference): ConferenceFormD
     abstractDeadline: parseDate(config?.abstract_submission_deadline),
     fullPaperDeadline: parseDate(config?.full_paper_submission_deadline),
     cameraReadyDeadline: parseDate(config?.camera_ready_deadline),
+    authorNotificationDate: notificationDate,
     maxPages: config?.maximum_pages || initialFormData.maxPages,
     minKeywords: deskSettings?.min_references || initialFormData.minKeywords,
     maxKeywords: initialFormData.maxKeywords,
@@ -139,7 +146,7 @@ export function mapConferenceToFormData(conference: Conference): ConferenceFormD
     anonymity: normalizedReviewType === "single-blind" ? "single-blind" : "double-blind",
     rebuttalStartDate: parseDate(config?.rebuttal_settings?.start_at),
     rebuttalEndDate: parseDate(config?.rebuttal_settings?.end_at),
-    finalDecisionDate: parseDate(config?.discussion_settings?.end_at),
+    finalDecisionDate: notificationDate,
     confirmed: true,
     dateRange: {
       from: parseDate(config?.start_date),
@@ -148,7 +155,7 @@ export function mapConferenceToFormData(conference: Conference): ConferenceFormD
     venue: conference.location || "",
     submissionsOpen: parseDate(config?.abstract_submission_deadline),
     submissionDeadline: parseDate(config?.full_paper_submission_deadline),
-    authorNotification: parseDate(config?.discussion_settings?.end_at),
+    authorNotification: notificationDate,
     fileFormats: splitSubmissionFormats(config?.submission_format),
     callForPaperText: conference.call_for_paper_text || "",
     gatingEnabled: deskSettings?.enabled ?? initialFormData.gatingEnabled,
@@ -402,6 +409,7 @@ export function buildConferenceMutationPayload(
       require_complete_author_profile: existingConfig?.require_complete_author_profile ?? true,
       allow_paper_withdrawls: existingConfig?.allow_paper_withdrawls ?? true,
       call_for_paper_text: formData.callForPaperText || existingConference?.call_for_paper_text,
+      website: formData.website || existingConfig?.website,
       desk_rejection_settings: {
         enabled: formData.gatingEnabled,
         required_sections: gatingRequiredSections,
@@ -426,7 +434,9 @@ export function buildConferenceMutationPayload(
         enabled: existingDiscussionSettings?.enabled ?? true,
         allow_author_response: existingDiscussionSettings?.allow_author_response ?? true,
         start_at: fullPaperDeadline?.toISOString() || existingDiscussionSettings?.start_at,
-        end_at: formData.finalDecisionDate?.toISOString() || existingDiscussionSettings?.end_at,
+        end_at:
+          (formData.authorNotificationDate || formData.finalDecisionDate || formData.authorNotification)?.toISOString() ||
+          existingDiscussionSettings?.end_at,
       },
       rebuttal_settings: {
         enabled:

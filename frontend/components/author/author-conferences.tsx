@@ -176,6 +176,36 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
   const ITEMS_PER_PAGE = 6
   const debouncedSearch = useDebounce(searchQuery, 400)
 
+  // Sort raw ApiConference list before mapping
+  function sortApiConferences(list: import("@/lib/types").Conference[], sort: string) {
+    const sorted = [...list]
+    if (sort === "name-asc") {
+      sorted.sort((a, b) => (a.name || "").localeCompare(b.name || ""))
+    } else if (sort === "name-desc") {
+      sorted.sort((a, b) => (b.name || "").localeCompare(a.name || ""))
+    } else if (sort === "deadline") {
+      sorted.sort((a, b) => {
+        const da = a.submission_deadline ? new Date(a.submission_deadline).getTime() : 0
+        const db = b.submission_deadline ? new Date(b.submission_deadline).getTime() : 0
+        return da - db
+      })
+    } else if (sort === "date-upcoming" || sort === "popularity") {
+      sorted.sort((a, b) => {
+        const da = a.conference_date ? new Date(a.conference_date).getTime() : 0
+        const db = b.conference_date ? new Date(b.conference_date).getTime() : 0
+        return da - db
+      })
+    } else {
+      // date-newest (default)
+      sorted.sort((a, b) => {
+        const da = a.created_at ? new Date(a.created_at).getTime() : 0
+        const db = b.created_at ? new Date(b.created_at).getTime() : 0
+        return db - da
+      })
+    }
+    return sorted
+  }
+
   // my-conferences: N+1 approach (conferences + check submissions per conference)
   useEffect(() => {
     async function loadMyConferences() {
@@ -255,23 +285,20 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
     let cancelled = false
 
     async function fetchExploreOrArchived() {
-      const offset = (currentPage - 1) * ITEMS_PER_PAGE
-
       if (activeTab === "explore") {
         setExploreLoading(true)
         try {
           const res = await listConferences({
             title: debouncedSearch || undefined,
-            limit: ITEMS_PER_PAGE,
-            offset,
+            limit: 500,
+            offset: 0,
           })
           if (!cancelled) {
-            setExploreConferences(
-              (res.data?.conferences || [])
-                .filter((c) => c.status !== "completed")
-                .map(mapConferenceToExplore),
-            )
-            setExploreTotal(res.data?.total || 0)
+            const filtered = (res.data?.conferences || []).filter((c) => c.status !== "completed")
+            const sorted = sortApiConferences(filtered, sortBy)
+            const start = (currentPage - 1) * ITEMS_PER_PAGE
+            setExploreConferences(sorted.slice(start, start + ITEMS_PER_PAGE).map(mapConferenceToExplore))
+            setExploreTotal(sorted.length)
           }
         } finally {
           if (!cancelled) setExploreLoading(false)
@@ -282,12 +309,14 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
           const res = await listConferences({
             status: "completed",
             title: debouncedSearch || undefined,
-            limit: ITEMS_PER_PAGE,
-            offset,
+            limit: 500,
+            offset: 0,
           })
           if (!cancelled) {
-            setArchivedConferences((res.data?.conferences || []).map(mapConferenceToExplore))
-            setArchivedTotal(res.data?.total || 0)
+            const sorted = sortApiConferences(res.data?.conferences || [], sortBy)
+            const start = (currentPage - 1) * ITEMS_PER_PAGE
+            setArchivedConferences(sorted.slice(start, start + ITEMS_PER_PAGE).map(mapConferenceToExplore))
+            setArchivedTotal(sorted.length)
           }
         } finally {
           if (!cancelled) setArchivedLoading(false)
@@ -299,7 +328,7 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
     return () => {
       cancelled = true
     }
-  }, [activeTab, debouncedSearch, currentPage])
+  }, [activeTab, debouncedSearch, currentPage, sortBy])
 
   const handleNavigate = (id: string) => {
     router.push(ROUTES.AUTHOR.CONFERENCE_DETAIL(id))
@@ -352,10 +381,16 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
   const handleTabChange = (tab: AuthorTabType) => {
     setActiveTab(tab)
     setCurrentPage(1)
+    setSortBy("date-newest")
   }
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query)
+    setCurrentPage(1)
+  }
+
+  const handleSortChange = (sort: string) => {
+    setSortBy(sort)
     setCurrentPage(1)
   }
 
@@ -550,7 +585,7 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
         sortBy={sortBy}
-        onSortChange={setSortBy}
+        onSortChange={handleSortChange}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
       />
