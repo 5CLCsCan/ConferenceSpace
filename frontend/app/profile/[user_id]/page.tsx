@@ -34,7 +34,7 @@ export default function UserProfilePage() {
   const params = useParams()
   const router = useRouter()
   const { toast } = useToast()
-  const { user: authUser, refreshUser, isAuthenticated, currentRole } = useAuth()
+  const { user: authUser, refreshUser, logout, isAuthenticated, currentRole } = useAuth()
   const { unreadCount } = useNotifications({ limit: 1 })
 
   const userId = String(params.user_id || "")
@@ -218,10 +218,28 @@ export default function UserProfilePage() {
     }
     try {
       setSaving(true)
+      const previousEmail = profile.email
+      const nextEmail = payload.user.email
+
       await apiFetch(`/api/v1/users/${profile.email}`, {
         method: "PUT",
         body: JSON.stringify(payload),
       })
+
+      const emailChanged =
+        previousEmail.trim().toLowerCase() !== nextEmail.trim().toLowerCase()
+
+      if (emailChanged) {
+        toast({
+          title: t("runtime.app.profile.user_id.page.prop_title_profile_updated"),
+          description: "Email updated. Please sign in again with your new email.",
+        })
+
+        logout()
+        router.push(ROUTES.LOGIN)
+        return
+      }
+
       toast({
         title: t("runtime.app.profile.user_id.page.prop_title_profile_updated"),
         description: t(
@@ -254,6 +272,16 @@ export default function UserProfilePage() {
         router.push(ROUTES.LOGIN)
         return
       }
+
+      if (error instanceof ApiError && error.message) {
+        toast({
+          title: t("runtime.app.profile.user_id.page.prop_title_unable_to_save"),
+          description: error.message,
+          variant: "destructive",
+        })
+        return
+      }
+
       toast({
         title: t("runtime.app.profile.user_id.page.prop_title_unable_to_save"),
         description: t("runtime.app.profile.user_id.page.prop_description_please_try_again"),

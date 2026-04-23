@@ -10,11 +10,11 @@ import (
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/model"
+	notificationService "github.com/dcao/conferencespace/internal/service/notification"
 	"github.com/dcao/conferencespace/internal/storage"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
 	conferencetemplate "github.com/dcao/conferencespace/internal/storage/conference_template"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
-	notificationService "github.com/dcao/conferencespace/internal/service/notification"
 	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -61,6 +61,34 @@ func (c *Controller) enrichWithPCMembers(ctx context.Context, conf *dto.Conferen
 		emails = []string{}
 	}
 	conf.PCMembers = emails
+}
+
+// publicConferenceConfigurations keeps only non-sensitive fields that are
+// safe for non-privileged users (e.g., authors) to view.
+func publicConferenceConfigurations(config *dto.ConferenceConfiguration) *dto.ConferenceConfiguration {
+	if config == nil {
+		return nil
+	}
+
+	publicConfig := &dto.ConferenceConfiguration{
+		StartDate:                   config.StartDate,
+		EndDate:                     config.EndDate,
+		AbstractSubmissionDeadline:  config.AbstractSubmissionDeadline,
+		FullPaperSubmissionDeadline: config.FullPaperSubmissionDeadline,
+		CameraReadyDeadline:         config.CameraReadyDeadline,
+		CallForPaperText:            config.CallForPaperText,
+	}
+
+	if publicConfig.StartDate == nil &&
+		publicConfig.EndDate == nil &&
+		publicConfig.AbstractSubmissionDeadline == nil &&
+		publicConfig.FullPaperSubmissionDeadline == nil &&
+		publicConfig.CameraReadyDeadline == nil &&
+		publicConfig.CallForPaperText == nil {
+		return nil
+	}
+
+	return publicConfig
 }
 
 // Create godoc
@@ -198,7 +226,7 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.ConferenceListRequest) (
 
 		// Sanitize sensitive fields for non-chair callers
 		if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, conf.ID, userEmail) {
-			userConf.Configurations = nil
+			userConf.Configurations = publicConferenceConfigurations(userConf.Configurations)
 		}
 
 		userConferences[i] = userConf
@@ -243,7 +271,7 @@ func (c *Controller) Get(ginCtx *gin.Context, req *dto.ConferenceGetRequest) (*d
 			return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
 		}
 		// Sanitize sensitive fields
-		conference.Configurations = nil
+		conference.Configurations = publicConferenceConfigurations(conference.Configurations)
 	}
 
 	return conference, nil
