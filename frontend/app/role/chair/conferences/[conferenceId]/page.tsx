@@ -24,6 +24,8 @@ import { getSidebarMenuItems } from "@/lib/navigation"
 import { getConferenceById, type Conference } from "@/lib/api/conferences"
 import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { recordRecentConference } from "@/lib/recent-conferences"
+import { ROUTES } from "@/lib/routes"
 
 function formatDate(value?: string) {
   if (!value) return "-"
@@ -37,7 +39,7 @@ export default function ChairConferenceDetailPage() {
   const params = useParams()
   const router = useRouter()
   const conferenceId = params.conferenceId as string
-  const { currentRole, isAuthLoading } = useAuth()
+  const { currentRole, isAuthLoading, user } = useAuth()
 
   const { unreadCount } = useNotifications({ limit: 1 })
   const [activeTab, setActiveTab] = useState<TabId>("dashboard")
@@ -76,6 +78,21 @@ export default function ChairConferenceDetailPage() {
 
       const data = response.data
       setConferenceData(data)
+      if (currentRole === "chair" || currentRole === "pc") {
+        recordRecentConference({
+          userKey: user?.email || "guest",
+          role: currentRole,
+          conference: {
+            id: conferenceId,
+            name: data.name || "Conference",
+            acronym: data.acronym,
+            year: data.year,
+            role: currentRole,
+            href: ROUTES.CHAIR.CONFERENCE_DETAIL(conferenceId),
+            viewedAt: new Date().toISOString(),
+          },
+        })
+      }
       setConference({
         id: conferenceId,
         acronym: data.acronym || data.name || "CONF",
@@ -90,7 +107,7 @@ export default function ChairConferenceDetailPage() {
     }
 
     void loadConference()
-  }, [conferenceId, router])
+  }, [conferenceId, currentRole, router, user?.email])
 
   useEffect(() => {
     const normalizedRole = (conference.userRole || "").toLowerCase()

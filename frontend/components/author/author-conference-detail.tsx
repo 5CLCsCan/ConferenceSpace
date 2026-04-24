@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/auth-context"
+import { recordRecentConference } from "@/lib/recent-conferences"
+import { ROUTES } from "@/lib/routes"
 import {
   getConferenceById,
   getConferenceDates,
@@ -52,6 +54,19 @@ export function AuthorConferenceDetail({ conferenceId }: AuthorConferenceDetailP
         }
 
         setConference(conferenceResponse.data)
+        recordRecentConference({
+          userKey: user?.email || "guest",
+          role: "author",
+          conference: {
+            id: conferenceId,
+            name: conferenceResponse.data.name || "Conference",
+            acronym: conferenceResponse.data.acronym,
+            year: conferenceResponse.data.year,
+            role: "author",
+            href: ROUTES.AUTHOR.CONFERENCE_DETAIL(conferenceId),
+            viewedAt: new Date().toISOString(),
+          },
+        })
         setDates(datesResponse.data || [])
         setHasSubmission((submissionsResponse.data?.submissions || []).length > 0)
       } catch (fetchError) {
