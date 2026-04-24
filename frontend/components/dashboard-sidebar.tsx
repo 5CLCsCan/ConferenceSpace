@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useEffect, useMemo, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
@@ -15,9 +15,7 @@ import {
 import { cn } from "@/lib/utils"
 import { ROUTES } from "@/lib/routes"
 import type { NavItem } from "@/lib/navigation"
-import { listConferences, transitionConferenceStatus } from "@/lib/api/conferences"
-import type { Conference, ConferenceStatus } from "@/lib/types"
-import { useToast } from "@/hooks/use-toast"
+import { getRecentConferences, type RecentConferenceRecord } from "@/lib/recent-conferences"
 
 interface DashboardSidebarProps {
   menuItems: NavItem[]
@@ -28,14 +26,9 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
   const { t, locale, setLocale } = useTranslation()
   const { user, logout, currentRole } = useAuth()
   const router = useRouter()
-  const { toast } = useToast()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const [recentConferences, setRecentConferences] = useState<Conference[]>([])
-  const [loadingRecent, setLoadingRecent] = useState(false)
-  const [recentError, setRecentError] = useState<string | null>(null)
-  const [archivedRecentConferenceIds, setArchivedRecentConferenceIds] = useState<string[]>([])
-  const [showArchivedRecent, setShowArchivedRecent] = useState(false)
+  const [recentConferences, setRecentConferences] = useState<RecentConferenceRecord[]>([])
 
   const isRolePage = pathname === ROUTES.ROLE_SELECT
 
@@ -56,170 +49,17 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
   }
 
   useEffect(() => {
-    let cancelled = false
-
-    async function loadRecentConferences() {
-      if (!currentRole || currentRole === "admin") {
-        setRecentConferences([])
-        return
-      }
-
-      setLoadingRecent(true)
-      setRecentError(null)
-      const response = await listConferences({
-        myConferences: true,
-        role: currentRole,
-        limit: 20,
-      })
-
-      if (cancelled) {
-        return
-      }
-
-      if (response.error || !response.data) {
-        setRecentError(response.error || "Failed to load conferences")
-        setRecentConferences([])
-        setLoadingRecent(false)
-        return
-      }
-
-      // Exclude non-active conferences from the recent list by default
-      const nonArchived = (response.data.conferences || []).filter(
-        (conf) => conf.status !== "archived" && conf.status !== "draft",
-      )
-
-      const sorted = [...nonArchived].sort((a, b) => {
-        const updatedA = Date.parse(a.updated_at || a.created_at || "")
-        const updatedB = Date.parse(b.updated_at || b.created_at || "")
-        if (updatedA !== updatedB) {
-          return updatedB - updatedA
-        }
-        const createdA = Date.parse(a.created_at || "")
-        const createdB = Date.parse(b.created_at || "")
-        return createdB - createdA
-      })
-
-      setRecentConferences(sorted.slice(0, 5))
-      setLoadingRecent(false)
-    }
-
-    void loadRecentConferences()
-
-    return () => {
-      cancelled = true
-    }
-  }, [currentRole])
-
-  const roleLabel = useMemo(() => {
-    if (!currentRole) return ""
-    return currentRole.charAt(0).toUpperCase() + currentRole.slice(1)
-  }, [currentRole])
-
-  const recentConferenceArchiveStorageKey = useMemo(() => {
-    const userKey = user?.email || "guest"
-    const roleKey = currentRole || "none"
-    return `recent-conferences:archived:${userKey}:${roleKey}`
-  }, [currentRole, user?.email])
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
+    if (!currentRole || currentRole === "admin") {
+      setRecentConferences([])
       return
     }
 
-    try {
-      const rawValue = window.localStorage.getItem(recentConferenceArchiveStorageKey)
-      if (!rawValue) {
-        setArchivedRecentConferenceIds([])
-        return
-      }
-
-      const parsed = JSON.parse(rawValue)
-      if (Array.isArray(parsed)) {
-        setArchivedRecentConferenceIds(
-          parsed.filter((value): value is string => typeof value === "string"),
-        )
-        return
-      }
-    } catch {
-      // Ignore malformed local state and reset to empty.
-    }
-
-    setArchivedRecentConferenceIds([])
-  }, [recentConferenceArchiveStorageKey])
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return
-    }
-
-    window.localStorage.setItem(
-      recentConferenceArchiveStorageKey,
-      JSON.stringify(archivedRecentConferenceIds),
+    setRecentConferences(
+      getRecentConferences({ userKey: user?.email || "guest", role: currentRole }),
     )
-  }, [archivedRecentConferenceIds, recentConferenceArchiveStorageKey])
-
-  const conferenceDetailHref = (conferenceId: string) => {
-    if (currentRole === "chair") return ROUTES.CHAIR.CONFERENCE_DETAIL(conferenceId)
-    if (currentRole === "reviewer") return ROUTES.REVIEWER.CONFERENCE_SUBMISSIONS(conferenceId)
-    return ROUTES.AUTHOR.CONFERENCE_DETAIL(conferenceId)
-  }
+  }, [currentRole, pathname, user?.email])
 
   const profileHref = ROUTES.PROFILE(user?.id ? String(user.id) : "me")
-  const visibleRecentConferences = useMemo(
-    () => recentConferences.filter((conf) => !archivedRecentConferenceIds.includes(conf.id)),
-    [archivedRecentConferenceIds, recentConferences],
-  )
-  const archivedRecentConferences = useMemo(
-    () => recentConferences.filter((conf) => archivedRecentConferenceIds.includes(conf.id)),
-    [archivedRecentConferenceIds, recentConferences],
-  )
-
-  const archiveRecentConference = async (conferenceId: string, status?: ConferenceStatus) => {
-    // Optimistically hide from recent list
-    setArchivedRecentConferenceIds((current) =>
-      current.includes(conferenceId) ? current : [...current, conferenceId],
-    )
-
-    const targetStatus: ConferenceStatus = status === "archived" ? "completed" : "archived"
-
-    const response = await transitionConferenceStatus(conferenceId, targetStatus)
-    if (response.error || !response.data) {
-      setArchivedRecentConferenceIds((current) => current.filter((id) => id !== conferenceId))
-      toast({
-        title: t("runtime.components.dashboard-sidebar.text_failed_to_archive_recent_conference"),
-        description:
-          response.error ||
-          t(
-            "runtime.components.dashboard-sidebar.text_failed_to_archive_recent_conference_description",
-          ),
-        variant: "destructive",
-      })
-    }
-  }
-
-  const restoreRecentConference = async (
-    conferenceId: string,
-    restoreStatus: ConferenceStatus = "completed",
-  ) => {
-    // Optimistically restore in recent list
-    setArchivedRecentConferenceIds((current) => current.filter((id) => id !== conferenceId))
-
-    const response = await transitionConferenceStatus(conferenceId, restoreStatus)
-    if (response.error || !response.data) {
-      setArchivedRecentConferenceIds((current) =>
-        current.includes(conferenceId) ? current : [...current, conferenceId],
-      )
-      toast({
-        title: t("runtime.components.dashboard-sidebar.text_failed_to_restore_recent_conference"),
-        description:
-          response.error ||
-          t(
-            "runtime.components.dashboard-sidebar.text_failed_to_restore_recent_conference_description",
-          ),
-        variant: "destructive",
-      })
-    }
-  }
 
   return (
     <aside
@@ -321,107 +161,32 @@ function DashboardSidebarContent({ menuItems, className }: DashboardSidebarProps
             <h3 className="px-0 text-[10px] font-[700] uppercase leading-[1.35] tracking-[0.12em] text-[#94a3b8]">
               {t("runtime.components.dashboard-sidebar.text_recent_conferences")}{" "}
             </h3>
-            {archivedRecentConferences.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setShowArchivedRecent((current) => !current)}
-                className="text-[9px] font-[700] uppercase leading-[1.2] tracking-[0.08em] text-[#94a3b8] transition-colors hover:text-[#64748b]"
-              >
-                {showArchivedRecent
-                  ? t("runtime.components.dashboard-sidebar.text_hide_archived_recent")
-                  : t("runtime.components.dashboard-sidebar.text_show_archived_recent").replace(
-                      "{count}",
-                      String(archivedRecentConferences.length),
-                    )}
-              </button>
-            )}
           </div>
           <nav className="space-y-5">
-            {loadingRecent ? (
+            {recentConferences.length === 0 ? (
               <p className="px-1.5 text-[10px] font-normal leading-[1.35] text-[#94a3b8]">
-                {t("runtime.components.dashboard-sidebar.text_loading_conferences")}
-              </p>
-            ) : recentError ? (
-              <p className="px-1.5 text-[12px] font-normal leading-[1.5] text-[#b91c1c]">
-                {t("runtime.components.dashboard-sidebar.text_unable_to_load_recent_conferences")}
-              </p>
-            ) : visibleRecentConferences.length === 0 ? (
-              <p className="px-1.5 text-[10px] font-normal leading-[1.35] text-[#94a3b8]">
-                {archivedRecentConferences.length > 0
-                  ? t("runtime.components.dashboard-sidebar.text_all_recent_conferences_archived")
-                  : t("runtime.components.dashboard-sidebar.text_no_recent_conferences_yet")}
+                {t("runtime.components.dashboard-sidebar.text_no_recent_conferences_yet")}
               </p>
             ) : (
-              visibleRecentConferences.map((conf) => (
+              recentConferences.map((conf) => (
                 <div key={conf.id} className="group relative px-1.5">
                   <Link
-                    href={conferenceDetailHref(conf.id)}
-                    className="block cursor-pointer transition-all duration-200 pr-6"
+                    href={conf.href}
+                    className="block cursor-pointer transition-all duration-200"
                   >
                     <h4 className="text-[13px] font-[700] leading-[1.3] tracking-[-0.01em] text-[#141414] transition-colors group-hover:text-[#1b3c53]">
                       {conf.acronym ? `${conf.acronym} ${conf.year}` : conf.name}
                     </h4>
                     <div className="flex items-center gap-1.5 mt-0">
                       <span className="text-[10px] font-[500] uppercase leading-[1.35] tracking-[0.08em] text-[#94a3b8]">
-                        {(conf.userRole || roleLabel || "").toUpperCase()}
+                        {conf.role.toUpperCase()}
                       </span>
                     </div>
                   </Link>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      archiveRecentConference(conf.id, conf.status as ConferenceStatus)
-                    }
-                    aria-label={t(
-                      "runtime.components.dashboard-sidebar.text_archive_recent_conference",
-                    )}
-                    className="absolute right-1 top-0 flex h-5 w-5 items-center justify-center rounded-md text-[#94a3b8] opacity-0 transition-[opacity,color,background-color] hover:bg-[#f1f5f9] hover:text-[#1b3c53] group-hover:opacity-100"
-                  >
-                    <span className="material-symbols-outlined text-[14px] leading-none">archive</span>
-                  </button>
                 </div>
               ))
             )}
           </nav>
-
-          {showArchivedRecent && archivedRecentConferences.length > 0 && (
-            <div className="mt-5 space-y-3 border-t border-[#f1f5f9] pt-4">
-              <p className="px-1.5 text-[9px] font-[700] uppercase leading-[1.2] tracking-[0.08em] text-[#94a3b8]">
-                {t("runtime.components.dashboard-sidebar.text_archived_recent_conferences")}
-              </p>
-              {archivedRecentConferences.map((conf) => (
-                <div key={conf.id} className="group relative px-1.5 opacity-80">
-                  <Link
-                    href={conferenceDetailHref(conf.id)}
-                    className="block cursor-pointer transition-all duration-200 pr-6"
-                  >
-                    <h4 className="text-[13px] font-[700] leading-[1.3] tracking-[-0.01em] text-[#64748b] transition-colors group-hover:text-[#1b3c53]">
-                      {conf.acronym ? `${conf.acronym} ${conf.year}` : conf.name}
-                    </h4>
-                    <div className="flex items-center gap-1.5 mt-0">
-                      <span className="text-[10px] font-[500] uppercase leading-[1.35] tracking-[0.08em] text-[#94a3b8]">
-                        {(conf.userRole || roleLabel || "").toUpperCase()}
-                      </span>
-                    </div>
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      restoreRecentConference(conf.id, conf.status as ConferenceStatus)
-                    }
-                    aria-label={t(
-                      "runtime.components.dashboard-sidebar.text_restore_recent_conference",
-                    )}
-                    className="absolute right-1 top-0 flex h-5 w-5 items-center justify-center rounded-md text-[#94a3b8] opacity-0 transition-[opacity,color,background-color] hover:bg-[#f1f5f9] hover:text-[#1b3c53] group-hover:opacity-100"
-                  >
-                    <span className="material-symbols-outlined text-[14px] leading-none">
-                      unarchive
-                    </span>
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </nav>
 

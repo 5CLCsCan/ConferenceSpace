@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useConferencePapers } from "@/hooks/use-conference-papers"
 import { useReviewerDashboard } from "@/hooks/use-reviewer-dashboard"
@@ -13,6 +13,7 @@ import { ROUTES } from "@/lib/routes"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { PapersSkeleton } from "./loading-skeletons"
 import { setAssignmentConferenceContext } from "@/lib/reviewer/assignment-context-cache"
+import { recordRecentConference } from "@/lib/recent-conferences"
 
 const PAGE_SIZE = 8
 
@@ -166,6 +167,26 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
     () => dashboard?.conferences?.find((item) => String(item.id) === String(conferenceId)),
     [conferenceId, dashboard?.conferences],
   )
+
+  useEffect(() => {
+    if (!conference) {
+      return
+    }
+
+    recordRecentConference({
+      userKey: user?.email || "guest",
+      role: "reviewer",
+      conference: {
+        id: String(conference.id),
+        name: conference.name || "Conference",
+        acronym: conference.acronym,
+        year: conference.year,
+        role: "reviewer",
+        href: ROUTES.REVIEWER.CONFERENCE_SUBMISSIONS(String(conference.id)),
+        viewedAt: new Date().toISOString(),
+      },
+    })
+  }, [conference, user?.email])
 
   const filteredPapers = useMemo(() => {
     if (statusFilter === "all") {

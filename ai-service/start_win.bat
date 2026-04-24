@@ -3,7 +3,7 @@
 :: Requires: backend stack running (docker compose up in /backend)
 :: Usage: .\start_win.bat
 
-pip install .
+python -m pip install .
 
 if not exist .env (
     echo [INFO] .env not found, initializing from .env.example...
@@ -19,7 +19,7 @@ for /f "usebackq tokens=1* delims==" %%A in (".env") do (
 )
 
 echo [INFO] Syncing database migrations...
-call poetry run alembic upgrade head
+call python -m alembic upgrade head
 
 echo [INFO] Launching ai-service on http://%AI_SERVICE_HOST%:%AI_SERVICE_PORT%...
-call poetry run uvicorn app.main:app --reload --host %AI_SERVICE_HOST% --port %AI_SERVICE_PORT%
+call python -m uvicorn app.main:app --reload --host %AI_SERVICE_HOST% --port %AI_SERVICE_PORT%
