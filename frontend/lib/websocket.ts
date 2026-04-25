@@ -7,6 +7,16 @@ interface WebSocketMessage {
   payload: Notification
 }
 
+function buildNotificationWebSocketUrl(token: string): string {
+  const fallbackOrigin = "http://localhost:8080"
+  const baseUrl =
+    typeof window !== "undefined"
+      ? new URL(process.env.NEXT_PUBLIC_API_BASE_URL ?? fallbackOrigin, window.location.origin)
+      : new URL(process.env.NEXT_PUBLIC_API_BASE_URL ?? fallbackOrigin)
+  const wsProtocol = baseUrl.protocol === "https:" ? "wss:" : "ws:"
+  return `${wsProtocol}//${baseUrl.host}/ws/notifications?token=${encodeURIComponent(token)}`
+}
+
 export class NotificationWebSocket {
   private ws: WebSocket | null = null
   private reconnectAttempts = 0
@@ -20,13 +30,7 @@ export class NotificationWebSocket {
 
   constructor(token: string) {
     this.token = token
-    // Determine WebSocket URL based on environment
-    const wsProtocol =
-      typeof window !== "undefined" && window.location.protocol === "https:" ? "wss:" : "ws:"
-    const apiHost = process.env.NEXT_PUBLIC_API_BASE_URL
-      ? new URL(process.env.NEXT_PUBLIC_API_BASE_URL).host
-      : "localhost:8080"
-    this.url = `${wsProtocol}//${apiHost}/ws/notifications?token=${encodeURIComponent(token)}`
+    this.url = buildNotificationWebSocketUrl(token)
   }
 
   connect(): void {
@@ -143,12 +147,7 @@ export class NotificationWebSocket {
 
   updateToken(token: string): void {
     this.token = token
-    const wsProtocol =
-      typeof window !== "undefined" && window.location.protocol === "https:" ? "wss:" : "ws:"
-    const apiHost = process.env.NEXT_PUBLIC_API_BASE_URL
-      ? new URL(process.env.NEXT_PUBLIC_API_BASE_URL).host
-      : "localhost:8080"
-    this.url = `${wsProtocol}//${apiHost}/ws/notifications?token=${encodeURIComponent(token)}`
+    this.url = buildNotificationWebSocketUrl(token)
 
     // Reconnect with new token
     if (this.ws) {
