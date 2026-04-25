@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DEPLOY_USER="${DEPLOY_USER:-deploy}"
+DEPLOY_USER="${DEPLOY_USER:-ubuntu}"
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/conferencespace}"
 FRONTEND_PORT="${FRONTEND_PORT:-3000}"
 
@@ -26,7 +26,8 @@ apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 if ! id "${DEPLOY_USER}" >/dev/null 2>&1; then
-  adduser --disabled-password --gecos "" "${DEPLOY_USER}"
+  echo "User '${DEPLOY_USER}' does not exist. Set DEPLOY_USER to an existing SSH user." >&2
+  exit 1
 fi
 
 usermod -aG docker "${DEPLOY_USER}"
