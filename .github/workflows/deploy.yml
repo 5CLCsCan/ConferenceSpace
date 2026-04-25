@@ -95,6 +95,7 @@ jobs:
     name: Build and push frontend image
     runs-on: ubuntu-latest
     needs: validate-frontend
+    environment: production
     outputs:
       image: ${{ steps.images.outputs.image }}
       digest: ${{ steps.build.outputs.digest }}
@@ -133,6 +134,7 @@ jobs:
     name: Build and push backend image
     runs-on: ubuntu-latest
     needs: validate-backend
+    environment: production
     outputs:
       image: ${{ steps.images.outputs.image }}
       digest: ${{ steps.build.outputs.digest }}
@@ -169,6 +171,7 @@ jobs:
     name: Build and push AI service image
     runs-on: ubuntu-latest
     needs: validate-ai-service
+    environment: production
     outputs:
       image: ${{ steps.images.outputs.image }}
       digest: ${{ steps.build.outputs.digest }}
