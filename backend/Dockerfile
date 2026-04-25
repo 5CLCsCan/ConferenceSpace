@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Install build dependencies
 RUN apk add --no-cache git
-RUN go install github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
 # Copy go mod files
 COPY go.mod go.sum ./
@@ -13,6 +13,7 @@ RUN go mod download
 
 # Copy source code
 COPY . .
+RUN go run github.com/swaggo/swag/cmd/swag@latest init -g cmd/server/main.go -o ./docs
 
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/server
