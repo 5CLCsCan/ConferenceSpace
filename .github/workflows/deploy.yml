@@ -12,7 +12,6 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/conferencespace
 
 jobs:
   validate-frontend:
@@ -118,9 +117,11 @@ jobs:
       - name: Set image names
         id: images
         run: |
-          echo "frontend=${IMAGE_PREFIX}-frontend:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
-          echo "backend=${IMAGE_PREFIX}-backend:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
-          echo "ai-service=${IMAGE_PREFIX}-ai-service:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          image_prefix="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/conferencespace"
+          echo "prefix=${image_prefix}" >> "$GITHUB_OUTPUT"
+          echo "frontend=${image_prefix}-frontend:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          echo "backend=${image_prefix}-backend:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          echo "ai-service=${image_prefix}-ai-service:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
       - name: Build and push frontend
         id: build-frontend
@@ -133,7 +134,7 @@ jobs:
           push: true
           tags: |
             ${{ steps.images.outputs.frontend }}
-            ${{ env.IMAGE_PREFIX }}-frontend:latest
+            ${{ steps.images.outputs.prefix }}-frontend:latest
 
       - name: Build and push backend
         id: build-backend
@@ -144,7 +145,7 @@ jobs:
           push: true
           tags: |
             ${{ steps.images.outputs.backend }}
-            ${{ env.IMAGE_PREFIX }}-backend:latest
+            ${{ steps.images.outputs.prefix }}-backend:latest
 
       - name: Build and push AI service
         id: build-ai-service
@@ -155,7 +156,7 @@ jobs:
           push: true
           tags: |
             ${{ steps.images.outputs.ai-service }}
-            ${{ env.IMAGE_PREFIX }}-ai-service:latest
+            ${{ steps.images.outputs.prefix }}-ai-service:latest
 
       - name: Print image digests
         run: |
