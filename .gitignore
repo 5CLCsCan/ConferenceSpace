@@ -51,3 +51,4 @@ chatbot-architecture
 responses_probe.py
 error-logs/
 .autopilot.json
+secret/

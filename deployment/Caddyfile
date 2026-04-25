@@ -1,0 +1,4 @@
+:3000 {
+	reverse_proxy /ws/* backend:8080
+	reverse_proxy web:3000
+}

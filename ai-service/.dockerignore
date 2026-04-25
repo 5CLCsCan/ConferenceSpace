@@ -7,5 +7,5 @@ __pycache__
 .mypy_cache
 .pytest_cache
 tests/
-README.md
 *.md
+!README.md
