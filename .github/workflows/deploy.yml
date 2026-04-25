@@ -8,7 +8,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 env:
   REGISTRY: ghcr.io
@@ -108,7 +107,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Set image names
         id: images
@@ -124,7 +123,7 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           build-args: |
-            NEXT_PUBLIC_API_BASE_URL=${{ vars.PUBLIC_API_BASE_URL || '/api/backend' }}
+            NEXT_PUBLIC_API_BASE_URL=/api/backend
           push: true
           tags: |
             ${{ steps.images.outputs.image }}
@@ -146,7 +145,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Set image names
         id: images
@@ -182,7 +181,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Set image names
         id: images
@@ -258,83 +257,44 @@ jobs:
           FRONTEND_IMAGE: ${{ needs.build-frontend-image.outputs.image }}
           BACKEND_IMAGE: ${{ needs.build-backend-image.outputs.image }}
           AI_SERVICE_IMAGE: ${{ needs.build-ai-service-image.outputs.image }}
-          FRONTEND_PORT: ${{ vars.FRONTEND_PORT || '3000' }}
-          PUBLIC_API_BASE_URL: ${{ vars.PUBLIC_API_BASE_URL || '/api/backend' }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          NEO4J_USERNAME: ${{ secrets.NEO4J_USERNAME }}
-          NEO4J_PASSWORD: ${{ secrets.NEO4J_PASSWORD }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
-          AGENT_SERVICE_TOKEN: ${{ secrets.AGENT_SERVICE_TOKEN }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-1.5-pro' }}
-          GEMINI_ENABLED: ${{ vars.GEMINI_ENABLED || 'true' }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          AGENT_MODEL: ${{ vars.AGENT_MODEL || 'openrouter/google/gemini-2.5-flash-lite' }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_BASE_URL: ${{ vars.OPENAI_BASE_URL || '' }}
-          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || '' }}
-          SEMANTIC_SCHOLAR_API_KEY: ${{ secrets.SEMANTIC_SCHOLAR_API_KEY }}
-          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
-          BREVO_FROM_EMAIL: ${{ vars.BREVO_FROM_EMAIL || 'noreply@conferencespace.io' }}
-          BREVO_FROM_NAME: ${{ vars.BREVO_FROM_NAME || 'ConferenceSpace' }}
-          APP_BASE_URL: ${{ vars.APP_BASE_URL || format('http://{0}:{1}', secrets.DEPLOY_HOST, vars.FRONTEND_PORT || '3000') }}
           GHCR_USERNAME: ${{ github.actor }}
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          envs: FRONTEND_IMAGE,BACKEND_IMAGE,AI_SERVICE_IMAGE,FRONTEND_PORT,PUBLIC_API_BASE_URL,POSTGRES_USER,POSTGRES_PASSWORD,POSTGRES_DB,NEO4J_USERNAME,NEO4J_PASSWORD,JWT_SECRET,ADMIN_TOKEN,AGENT_SERVICE_TOKEN,GEMINI_API_KEY,GEMINI_MODEL,GEMINI_ENABLED,OPENROUTER_API_KEY,AGENT_MODEL,OPENAI_API_KEY,OPENAI_BASE_URL,OPENAI_MODEL,SEMANTIC_SCHOLAR_API_KEY,BREVO_API_KEY,BREVO_FROM_EMAIL,BREVO_FROM_NAME,APP_BASE_URL,GHCR_USERNAME,GHCR_TOKEN
+          envs: FRONTEND_IMAGE,BACKEND_IMAGE,AI_SERVICE_IMAGE,GHCR_USERNAME,GHCR_TOKEN
           script: |
             set -eu
             cd /opt/conferencespace
 
-            umask 077
-            cat > .env.production <<EOF
-            FRONTEND_IMAGE=${FRONTEND_IMAGE}
-            BACKEND_IMAGE=${BACKEND_IMAGE}
-            AI_SERVICE_IMAGE=${AI_SERVICE_IMAGE}
-            FRONTEND_PORT=${FRONTEND_PORT}
-            PUBLIC_API_BASE_URL=${PUBLIC_API_BASE_URL}
+            if [ ! -f .env.production ]; then
+              echo ".env.production is missing on the server. Copy deployment/.env.production.example to /opt/conferencespace/.env.production, fill real values, then rerun deploy." >&2
+              exit 1
+            fi
 
-            POSTGRES_USER=${POSTGRES_USER}
-            POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-            POSTGRES_DB=${POSTGRES_DB}
+            set_env() {
+              key="$1"
+              value="$2"
+              tmp="$(mktemp)"
+              if grep -q "^${key}=" .env.production; then
+                awk -v key="${key}" -v value="${value}" '
+                  BEGIN { prefix = key "=" }
+                  index($0, prefix) == 1 { $0 = prefix value }
+                  { print }
+                ' .env.production > "${tmp}"
+              else
+                cp .env.production "${tmp}"
+                printf "%s=%s\n" "${key}" "${value}" >> "${tmp}"
+              fi
+              cat "${tmp}" > .env.production
+              rm -f "${tmp}"
+            }
 
-            NEO4J_USERNAME=${NEO4J_USERNAME}
-            NEO4J_PASSWORD=${NEO4J_PASSWORD}
-
-            SERVER_ENV=production
-            JWT_SECRET=${JWT_SECRET}
-            ADMIN_TOKEN=${ADMIN_TOKEN}
-            AGENT_SERVICE_TOKEN=${AGENT_SERVICE_TOKEN}
-            APP_BASE_URL=${APP_BASE_URL}
-
-            GEMINI_API_KEY=${GEMINI_API_KEY}
-            GEMINI_MODEL=${GEMINI_MODEL}
-            GEMINI_ENABLED=${GEMINI_ENABLED}
-
-            OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-            AGENT_MODEL=${AGENT_MODEL}
-            OPENAI_API_KEY=${OPENAI_API_KEY}
-            OPENAI_BASE_URL=${OPENAI_BASE_URL}
-            OPENAI_MODEL=${OPENAI_MODEL}
-
-            SEMANTIC_SCHOLAR_API_KEY=${SEMANTIC_SCHOLAR_API_KEY}
-            BREVO_API_KEY=${BREVO_API_KEY}
-            BREVO_FROM_EMAIL=${BREVO_FROM_EMAIL}
-            BREVO_FROM_NAME=${BREVO_FROM_NAME}
-
-            FILE_STORAGE_PROVIDER=local
-            FILE_STORAGE_LOCAL_BASE_PATH=/data/uploads/submissions
-            AI_SERVICE_BASE_URL=http://ai-service:8090
-            AI_SERVICE_TIMEOUT_SECONDS=180
-            BACKEND_API_BASE_URL=http://backend:8080
-            REDIS_URL=redis://redis:6379/0
-            EOF
+            chmod 600 .env.production
+            set_env FRONTEND_IMAGE "${FRONTEND_IMAGE}"
+            set_env BACKEND_IMAGE "${BACKEND_IMAGE}"
+            set_env AI_SERVICE_IMAGE "${AI_SERVICE_IMAGE}"
 
             echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
             docker compose -f docker-compose.prod.yml pull
