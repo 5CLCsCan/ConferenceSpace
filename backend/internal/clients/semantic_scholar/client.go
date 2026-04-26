@@ -163,7 +163,7 @@ func (c *Client) SearchAuthors(ctx context.Context, query string, limit int) (*S
 // GetAuthorDetails retrieves detailed information about an author including papers
 func (c *Client) GetAuthorDetails(ctx context.Context, authorID string) (*AuthorWithPapers, error) {
 	// Request all fields including papers
-	fields := "authorId,name,affiliations,homepage,paperCount,citationCount,hIndex,url,papers,papers.paperId,papers.title,papers.year,papers.citationCount,papers.abstract,papers.venue,papers.url,papers.authors,papers.authors.authorId,papers.authors.name"
+	fields := "authorId,name,affiliations,homepage,paperCount,citationCount,hIndex,url,papers,papers.paperId,papers.title,papers.year,papers.citationCount,papers.abstract,papers.venue,papers.url,papers.authors"
 	path := fmt.Sprintf("/author/%s?fields=%s", authorID, fields)
 
 	respBody, err := c.doRequest(ctx, "GET", path, nil)
