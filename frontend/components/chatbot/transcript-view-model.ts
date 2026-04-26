@@ -28,13 +28,27 @@ export type TranscriptReasoningItem = {
   rawPart: MessagePart
 }
 
-export type TranscriptTurnItem = TranscriptTextItem | TranscriptReasoningItem | TranscriptToolItem
+export type TranscriptFileItem = {
+  kind: "file"
+  messageId: string
+  filename: string
+  mediaType?: string
+  url?: string
+  rawPart: MessagePart
+}
+
+export type TranscriptTurnItem =
+  | TranscriptTextItem
+  | TranscriptReasoningItem
+  | TranscriptToolItem
+  | TranscriptFileItem
+export type UserTurnItem = TranscriptTextItem | TranscriptFileItem
 
 export type UserTurn = {
   kind: "user-turn"
   messageId: string
   message: UIMessage
-  items: TranscriptTextItem[]
+  items: UserTurnItem[]
 }
 
 export type AssistantTurn = {
@@ -69,7 +83,7 @@ export function buildTranscriptTurns(messages: UIMessage[]): TranscriptTurn[] {
         message,
         items: message.parts
           .map((part) => normalizePart(message.id, part))
-          .filter((part): part is TranscriptTextItem => part?.kind === "text"),
+          .filter((part): part is UserTurnItem => part?.kind === "text" || part?.kind === "file"),
       })
       continue
     }
@@ -84,7 +98,7 @@ export function buildTranscriptTurns(messages: UIMessage[]): TranscriptTurn[] {
         if (normalized) {
           if (normalized.kind === "tool" && normalized.toolCallId) {
             const existingIndex = currentAssistantTurn.items.findIndex(
-              (item) => item.kind === "tool" && item.toolCallId === normalized.toolCallId
+              (item) => item.kind === "tool" && item.toolCallId === normalized.toolCallId,
             )
             if (existingIndex !== -1) {
               currentAssistantTurn.items[existingIndex] = normalized
@@ -107,7 +121,7 @@ export function buildTranscriptTurns(messages: UIMessage[]): TranscriptTurn[] {
         if (normalized) {
           if (normalized.kind === "tool" && normalized.toolCallId) {
             const existingIndex = currentAssistantTurn.items.findIndex(
-              (item) => item.kind === "tool" && item.toolCallId === normalized.toolCallId
+              (item) => item.kind === "tool" && item.toolCallId === normalized.toolCallId,
             )
             if (existingIndex !== -1) {
               currentAssistantTurn.items[existingIndex] = normalized
@@ -148,6 +162,23 @@ function normalizePart(messageId: string, part: MessagePart): TranscriptTurnItem
       kind: "reasoning",
       messageId,
       text: part.text,
+      rawPart: part,
+    }
+  }
+
+  if (part.type === "file") {
+    const filePart = part as MessagePart & {
+      filename?: string
+      mediaType?: string
+      url?: string
+      data?: string
+    }
+    return {
+      kind: "file",
+      messageId,
+      filename: String(filePart.filename || "Attached file"),
+      mediaType: filePart.mediaType,
+      url: filePart.url || filePart.data,
       rawPart: part,
     }
   }

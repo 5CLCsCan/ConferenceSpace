@@ -280,3 +280,77 @@ async def test_stream_chat_falls_back_to_openrouter_when_primary_stream_times_ou
     assert calls[1]["stream"] is True
     assert calls[0]["stream_timeout"] == 60
     assert calls[1]["stream_timeout"] == 60
+
+
+@pytest.mark.asyncio
+async def test_stream_chat_with_file_inputs_uses_openai_responses_stream(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, object] = {}
+
+    class _FakeAsyncResponses:
+        async def create(self, **kwargs):
+            captured.update(kwargs)
+            return _FakeStreamResponse(
+                [
+                    SimpleNamespace(type="response.output_text.delta", delta="File "),
+                    SimpleNamespace(type="response.output_text.delta", delta="summary"),
+                    SimpleNamespace(type="response.completed"),
+                ]
+            )
+
+    class _FakeAsyncOpenAI:
+        def __init__(self, **kwargs):
+            captured["client"] = kwargs
+            self.responses = _FakeAsyncResponses()
+
+    monkeypatch.setattr("app.services.llm_client._get_async_openai", lambda: _FakeAsyncOpenAI)
+
+    client = LLMClient(
+        api_key="openrouter-key",
+        model="openrouter/google/gemini-2.5-flash-lite",
+        openai_api_key="openai-key",
+        openai_base_url="https://api.openai.com/v1",
+        openai_model="gpt-5.5",
+    )
+    chunks = [
+        chunk
+        async for chunk in client.stream_chat(
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "input_text", "text": "Summarize this."},
+                        {
+                            "type": "input_file",
+                            "filename": "paper.pdf",
+                            "file_data": "JVBERi0x",
+                        },
+                    ],
+                }
+            ]
+        )
+    ]
+
+    assert chunks == [{"content": "File "}, {"content": "summary"}]
+    assert captured["client"] == {
+        "api_key": "openai-key",
+        "base_url": "https://api.openai.com/v1",
+        "timeout": 60,
+        "max_retries": 0,
+    }
+    assert captured["model"] == "gpt-5.5"
+    assert captured["stream"] is True
+    assert captured["input"] == [
+        {
+            "role": "user",
+            "content": [
+                {"type": "input_text", "text": "Summarize this."},
+                {
+                    "type": "input_file",
+                    "filename": "paper.pdf",
+                    "file_data": "JVBERi0x",
+                },
+            ],
+        }
+    ]

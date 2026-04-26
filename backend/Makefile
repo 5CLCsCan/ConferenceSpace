@@ -63,31 +63,31 @@ redis-down: ## Stop Redis cache
 redis-logs: ## View Redis logs
 	docker-compose logs -f redis
 
-ai-service-up: ## Start ai-service via Docker (builds image if needed)
-	@echo "Starting ai-service..."
-	docker-compose up -d ai-service
-	@echo "Waiting for ai-service to be ready..."
-	@for i in 1 2 3 4 5 6 7 8 9 10; do \
-		if curl -sf http://localhost:8090/health > /dev/null 2>&1; then \
-			echo "ai-service is ready!"; \
-			break; \
-		fi; \
-		echo "Waiting for ai-service... ($$i/10)"; \
-		sleep 3; \
-	done
-	@curl -sf http://localhost:8090/health > /dev/null 2>&1 || echo "ai-service may still be starting, check: make ai-service-logs"
+# ai-service-up: ## Start ai-service via Docker (builds image if needed)
+# 	@echo "Starting ai-service..."
+# 	docker-compose up -d ai-service
+# 	@echo "Waiting for ai-service to be ready..."
+# 	@for i in 1 2 3 4 5 6 7 8 9 10; do \
+# 		if curl -sf http://localhost:8090/health > /dev/null 2>&1; then \
+# 			echo "ai-service is ready!"; \
+# 			break; \
+# 		fi; \
+# 		echo "Waiting for ai-service... ($$i/10)"; \
+# 		sleep 3; \
+# 	done
+# 	@curl -sf http://localhost:8090/health > /dev/null 2>&1 || echo "ai-service may still be starting, check: make ai-service-logs"
 
-ai-service-down: ## Stop ai-service
-	@echo "Stopping ai-service..."
-	docker-compose stop ai-service
+# ai-service-down: ## Stop ai-service
+# 	@echo "Stopping ai-service..."
+# 	docker-compose stop ai-service
 
-ai-service-logs: ## View ai-service logs
-	docker-compose logs -f ai-service
+# ai-service-logs: ## View ai-service logs
+# 	docker-compose logs -f ai-service
 
-ai-service-rebuild: ## Rebuild and restart ai-service
-	@echo "Rebuilding ai-service..."
-	docker-compose build ai-service
-	docker-compose up -d ai-service
+# ai-service-rebuild: ## Rebuild and restart ai-service
+# 	@echo "Rebuilding ai-service..."
+# 	docker-compose build ai-service
+# 	docker-compose up -d ai-service
 
 server: ## Run the server locally (requires DB to be running)
 	@echo "Starting server..."

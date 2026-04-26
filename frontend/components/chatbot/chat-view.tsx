@@ -19,10 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  executeActions,
-  type BatchActionInvocationInput,
-} from "@/lib/chatbot/action-executor"
+import { executeActions, type BatchActionInvocationInput } from "@/lib/chatbot/action-executor"
 import {
   getCurrentNavigationSnapshot,
   navigateToDestination,
@@ -33,6 +30,7 @@ import { useTranslation } from "@/lib/i18n/translation-context"
 
 import { useChatbot } from "./chatbot-provider"
 import { ChatTranscript } from "./chat-transcript"
+import { FilePreviewDialog, type PreviewableFile } from "./file-preview-dialog"
 import type { ChatAttachment, ChatConversation } from "./types"
 
 interface ChatViewProps {
@@ -56,12 +54,15 @@ export function ChatView({
   const searchParams = useSearchParams()
   const [input, setInput] = React.useState("")
   const [attachments, setAttachments] = React.useState<ChatAttachment[]>([])
+  const [previewFile, setPreviewFile] = React.useState<PreviewableFile | null>(null)
+  const [isDraggingFiles, setIsDraggingFiles] = React.useState(false)
   const [mode, setMode] = React.useState<"agentic" | "standard">("agentic")
   const scrollAreaRef = React.useRef<HTMLDivElement>(null)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const refMapRef = React.useRef<Map<string, Element>>(new Map())
   const previousStatusRef = React.useRef<string>("ready")
   const lastEmittedMessagesRef = React.useRef<UIMessage[] | null>(null)
+  const attachmentUrlsRef = React.useRef<Set<string>>(new Set())
 
   const { messages, sendMessage, status, stop, addToolOutput } = useChat({
     id: conversation.id,
@@ -101,10 +102,7 @@ export function ChatView({
           const result = navigateToDestination({
             currentRole,
             destinationId: String(input.destinationId || ""),
-            params:
-              input.params && typeof input.params === "object"
-                ? input.params
-                : {},
+            params: input.params && typeof input.params === "object" ? input.params : {},
             push: router.push,
             activateRole: switchRole,
             onBeforePush: ({ destinationLabel, path }) => {
@@ -198,39 +196,118 @@ export function ChatView({
     previousStatusRef.current = status
   }, [status, onConversationSynced])
 
-  const handleFileSelect = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || [])
+  const addFiles = React.useCallback((files: File[]) => {
     const nextAttachments: ChatAttachment[] = files.map((file) => ({
       id: `att-${Date.now()}-${Math.random()}`,
       name: file.name,
       type: file.type,
       size: file.size,
+      url: URL.createObjectURL(file),
       file,
     }))
 
+    nextAttachments.forEach((attachment) => {
+      if (attachment.url) {
+        attachmentUrlsRef.current.add(attachment.url)
+      }
+    })
     setAttachments((previous) => [...previous, ...nextAttachments])
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+  }, [])
+
+  const handleFileSelect = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      addFiles(Array.from(event.target.files || []))
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
+    },
+    [addFiles],
+  )
+
+  const handleRemoveAttachment = React.useCallback((id: string) => {
+    setAttachments((previous) => {
+      const attachment = previous.find((item) => item.id === id)
+      if (attachment?.url) {
+        URL.revokeObjectURL(attachment.url)
+        attachmentUrlsRef.current.delete(attachment.url)
+      }
+      return previous.filter((item) => item.id !== id)
+    })
+  }, [])
+
+  const handleComposerDragOver = React.useCallback((event: React.DragEvent<HTMLFormElement>) => {
+    if (!hasDraggedFiles(event)) {
+      return
+    }
+    event.preventDefault()
+    event.dataTransfer.dropEffect = "copy"
+    setIsDraggingFiles(true)
+  }, [])
+
+  const handleComposerDragLeave = React.useCallback((event: React.DragEvent<HTMLFormElement>) => {
+    if (event.currentTarget.contains(event.relatedTarget as Node | null)) {
+      return
+    }
+    setIsDraggingFiles(false)
+  }, [])
+
+  const handleComposerDrop = React.useCallback(
+    (event: React.DragEvent<HTMLFormElement>) => {
+      if (!hasDraggedFiles(event)) {
+        return
+      }
+      event.preventDefault()
+      setIsDraggingFiles(false)
+      addFiles(Array.from(event.dataTransfer.files || []))
+    },
+    [addFiles],
+  )
+
+  React.useEffect(() => {
+    const attachmentUrls = attachmentUrlsRef.current
+    return () => {
+      attachmentUrls.forEach((url) => {
+        URL.revokeObjectURL(url)
+      })
+      attachmentUrls.clear()
     }
   }, [])
 
-  const handleRemoveAttachment = React.useCallback((id: string) => {
-    setAttachments((previous) => previous.filter((attachment) => attachment.id !== id))
+  const toFilePart = React.useCallback(async (attachment: ChatAttachment) => {
+    if (!attachment.file) {
+      return null
+    }
+    return {
+      type: "file" as const,
+      filename: attachment.name,
+      mediaType: attachment.type || "application/octet-stream",
+      url: await readFileAsDataUrl(attachment.file),
+    }
   }, [])
 
   const handleSubmit = React.useCallback(
-    (event: React.FormEvent) => {
+    async (event: React.FormEvent) => {
       event.preventDefault()
       if (!input.trim() && attachments.length === 0) {
         return
       }
 
-      sendMessage({ text: input })
+      const files = (await Promise.all(attachments.map(toFilePart))).filter(
+        (file): file is NonNullable<typeof file> => file !== null,
+      )
+      sendMessage(files.length > 0 ? { text: input, files } : { text: input })
+      attachments.forEach((attachment) => {
+        if (attachment.url) {
+          URL.revokeObjectURL(attachment.url)
+          attachmentUrlsRef.current.delete(attachment.url)
+        }
+      })
       setInput("")
       setAttachments([])
+      setPreviewFile(null)
       onSendMessage?.(input, attachments.length > 0 ? attachments : undefined)
     },
-    [attachments, input, onSendMessage, sendMessage],
+    [attachments, input, onSendMessage, sendMessage, toFilePart],
   )
 
   const handleKeyDown = React.useCallback(
@@ -284,11 +361,72 @@ export function ChatView({
         </div>
       </ScrollArea>
 
-      <div className="bg-white px-4 py-3">
+      <div className="space-y-1.5 bg-white px-4 py-3">
+        {attachments.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {attachments.map((attachment) => (
+              <div
+                key={attachment.id}
+                className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2 py-0.5 shadow-sm"
+              >
+                <span
+                  className="material-symbols-outlined text-slate-400"
+                  style={{ fontSize: "10px", fontVariationSettings: '"FILL" 0, "wght" 400' }}
+                >
+                  attach_file
+                </span>
+                <button
+                  type="button"
+                  data-testid="chat-pending-attachment-preview"
+                  className="max-w-[160px] truncate text-left text-[10px] text-slate-600 transition-colors hover:text-[#1B3C53]"
+                  onClick={() =>
+                    setPreviewFile({
+                      filename: attachment.name,
+                      mediaType: attachment.type,
+                      url: attachment.url,
+                    })
+                  }
+                >
+                  {attachment.name}
+                </button>
+                <button
+                  type="button"
+                  className="flex h-3.5 w-3.5 items-center justify-center rounded-full transition-colors hover:bg-slate-200"
+                  onClick={() => handleRemoveAttachment(attachment.id)}
+                  aria-label={t(
+                    "runtime.components.chatbot.chat-view.aria_label_remove_attachment",
+                  )}
+                >
+                  <X className="h-2.5 w-2.5 text-slate-400" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
         <form
+          data-testid="chat-composer-form"
           onSubmit={handleSubmit}
-          className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 focus-within:border-[#1B3C53] transition-colors"
+          onDragOver={handleComposerDragOver}
+          onDragLeave={handleComposerDragLeave}
+          onDrop={handleComposerDrop}
+          className={`relative overflow-hidden rounded-xl border bg-slate-50 transition-colors focus-within:border-[#1B3C53] ${
+            isDraggingFiles ? "border-[#1B3C53] bg-[#1B3C53]/5" : "border-slate-200"
+          }`}
         >
+          {isDraggingFiles && (
+            <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center bg-white/80 backdrop-blur-[1px]">
+              <div className="flex items-center gap-1.5 rounded-full border border-[#1B3C53]/20 bg-white px-3 py-1 text-[10px] font-semibold text-[#1B3C53] shadow-sm">
+                <span
+                  className="material-symbols-outlined text-[14px] leading-none"
+                  aria-hidden
+                  style={{ fontVariationSettings: '"FILL" 0, "wght" 500' }}
+                >
+                  upload_file
+                </span>
+                Drop to add file
+              </div>
+            </div>
+          )}
           <input
             ref={fileInputRef}
             type="file"
@@ -310,37 +448,6 @@ export function ChatView({
               disabled={status !== "ready"}
               style={{ fontSize: "10px" }}
             />
-
-            {attachments.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 pb-2 pt-2">
-                {attachments.map((attachment) => (
-                  <div
-                    key={attachment.id}
-                    className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2 py-0.5"
-                  >
-                    <span
-                      className="material-symbols-outlined text-slate-400"
-                      style={{ fontSize: "10px", fontVariationSettings: '"FILL" 0, "wght" 400' }}
-                    >
-                      attach_file
-                    </span>
-                    <span className="max-w-[120px] truncate text-[10px] text-slate-600">
-                      {attachment.name}
-                    </span>
-                    <button
-                      type="button"
-                      className="flex h-3.5 w-3.5 items-center justify-center rounded-full transition-colors hover:bg-slate-200"
-                      onClick={() => handleRemoveAttachment(attachment.id)}
-                      aria-label={t(
-                        "runtime.components.chatbot.chat-view.aria_label_remove_attachment",
-                      )}
-                    >
-                      <X className="h-2.5 w-2.5 text-slate-400" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
 
           <div className="flex items-center justify-between px-2 pb-[6px] pt-[6px]">
@@ -395,7 +502,9 @@ export function ChatView({
                   type="button"
                   onClick={() => stop()}
                   className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white transition-all hover:bg-red-600"
-                  aria-label={t("runtime.components.chatbot.chat-view.aria_label_cancel_generation")}
+                  aria-label={t(
+                    "runtime.components.chatbot.chat-view.aria_label_cancel_generation",
+                  )}
                 >
                   <Square className="h-2.5 w-2.5 fill-white" />
                 </button>
@@ -418,6 +527,26 @@ export function ChatView({
           </div>
         </form>
       </div>
+      <FilePreviewDialog
+        file={previewFile}
+        onOpenChange={(open) => !open && setPreviewFile(null)}
+      />
     </div>
+  )
+}
+
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result || ""))
+    reader.onerror = () => reject(reader.error || new Error("Failed to read attachment"))
+    reader.readAsDataURL(file)
+  })
+}
+
+function hasDraggedFiles(event: React.DragEvent<HTMLElement>): boolean {
+  return (
+    Array.from(event.dataTransfer.types || []).includes("Files") ||
+    event.dataTransfer.files.length > 0
   )
 }

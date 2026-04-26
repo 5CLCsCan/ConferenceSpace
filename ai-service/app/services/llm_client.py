@@ -49,6 +49,11 @@ class LLMClient:
         messages: list[dict[str, Any]],
         tools: list[dict[str, Any]] | None = None,
     ) -> AsyncIterator[dict[str, Any]]:
+        if _has_file_inputs(messages):
+            async for chunk in self._astream_openai_responses(messages=messages, tools=tools):
+                yield chunk
+            return
+
         thinking_parser = _ThinkingTagStreamParser()
 
         async for chunk in self._astream_completion(messages=messages, tools=tools):
@@ -287,6 +292,34 @@ class LLMClient:
             raise last_error
         raise RuntimeError("llm stream failed without attempting a provider")
 
+    async def _astream_openai_responses(
+        self,
+        *,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]] | None = None,
+    ) -> AsyncIterator[dict[str, Any]]:
+        if not self.openai_api_key or not self.openai_model:
+            raise RuntimeError("OpenAI file inputs require OPENAI_API_KEY and OPENAI_MODEL")
+
+        async_openai = _get_async_openai()
+        client = async_openai(
+            api_key=self.openai_api_key,
+            base_url=self.openai_base_url or None,
+            timeout=self.request_timeout_seconds,
+            max_retries=0,
+        )
+        request_kwargs: dict[str, Any] = {
+            "model": self.openai_model,
+            "input": messages,
+            "stream": True,
+        }
+
+        stream = await client.responses.create(**request_kwargs)
+        async for event in stream:
+            normalized = _normalize_response_stream_event(event)
+            if normalized:
+                yield normalized
+
     def _build_provider_configs(self) -> list[_ProviderConfig]:
         providers: list[_ProviderConfig] = []
 
@@ -366,12 +399,42 @@ def _get_acompletion():
     return acompletion
 
 
+def _get_async_openai():
+    try:
+        from openai import AsyncOpenAI
+    except ModuleNotFoundError as exc:
+        raise RuntimeError("openai is not installed. Run `poetry add openai` in ai-service.") from exc
+    return AsyncOpenAI
+
+
 def _extract_content_text(content: Any) -> str:
     if isinstance(content, str):
         return content
     if isinstance(content, list):
         return "".join(_extract_text_part(part) for part in content)
     return ""
+
+
+def _has_file_inputs(messages: list[dict[str, Any]]) -> bool:
+    for message in messages:
+        content = message.get("content")
+        if not isinstance(content, list):
+            continue
+        for part in content:
+            if _get_value(part, "type") == "input_file":
+                return True
+    return False
+
+
+def _normalize_response_stream_event(event: Any) -> dict[str, Any]:
+    event_type = str(_get_value(event, "type", ""))
+    if event_type == "response.output_text.delta":
+        delta = str(_get_value(event, "delta", ""))
+        return {"content": delta} if delta else {}
+    if event_type == "response.reasoning_text.delta":
+        delta = str(_get_value(event, "delta", ""))
+        return {"reasoning": delta} if delta else {}
+    return {}
 
 
 def _extract_text_part(part: Any) -> str:

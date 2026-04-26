@@ -59,3 +59,37 @@ def test_ui_to_openai_messages_falls_back_when_tool_metadata_missing() -> None:
     assert len(converted) == 1
     assert converted[0]["role"] == "assistant"
     assert converted[0]["content"].startswith("Tool output:")
+
+
+def test_ui_to_openai_messages_preserves_user_file_parts_for_responses_api() -> None:
+    messages = [
+        {
+            "id": "m-1",
+            "role": "user",
+            "parts": [
+                {"type": "text", "text": "Summarize this paper."},
+                {
+                    "type": "file",
+                    "filename": "paper.pdf",
+                    "mediaType": "application/pdf",
+                    "url": "data:application/pdf;base64,JVBERi0x",
+                },
+            ],
+        }
+    ]
+
+    converted = ui_to_openai_messages(messages)
+
+    assert converted == [
+        {
+            "role": "user",
+            "content": [
+                {"type": "input_text", "text": "Summarize this paper."},
+                {
+                    "type": "input_file",
+                    "filename": "paper.pdf",
+                    "file_data": "data:application/pdf;base64,JVBERi0x",
+                },
+            ],
+        }
+    ]

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json
 from typing import Any
 
@@ -69,6 +70,10 @@ def flatten_ui_parts(parts: list[dict[str, Any]] | Any) -> str:
         part_type = str(part.get("type", ""))
         if part_type == "text":
             chunks.append(str(part.get("text", "")))
+        elif part_type == "file":
+            filename = str(part.get("filename") or part.get("name") or "attached file").strip()
+            if filename:
+                chunks.append(f"[Attached file: {filename}]")
         elif part_type.startswith("tool-"):
             chunks.append(
                 f"{part_type} input={part.get('input')} output={part.get('output')} error={part.get('errorText')}"
@@ -88,11 +93,69 @@ def ui_to_openai_messages(messages: list[dict[str, Any]]) -> list[dict[str, Any]
             out.extend(_tool_parts_to_openai_messages(parts=parts))
             continue
 
-        content = flatten_ui_parts(parts)
+        content = _ui_parts_to_openai_content(parts)
         if not content:
             continue
         out.append({"role": role, "content": content})
     return out
+
+
+def _ui_parts_to_openai_content(parts: Any) -> str | list[dict[str, Any]]:
+    if not isinstance(parts, list):
+        return ""
+
+    content: list[dict[str, Any]] = []
+    for part in parts:
+        if not isinstance(part, dict):
+            continue
+        part_type = str(part.get("type", ""))
+        if part_type == "text":
+            text = str(part.get("text", ""))
+            if text:
+                content.append({"type": "input_text", "text": text})
+        elif part_type == "file":
+            file_part = _file_part_to_openai_input(part)
+            if file_part is not None:
+                content.append(file_part)
+
+    if not content:
+        return ""
+    if all(item.get("type") == "input_text" for item in content):
+        return "".join(str(item.get("text", "")) for item in content).strip()
+    return content
+
+
+def _file_part_to_openai_input(part: dict[str, Any]) -> dict[str, Any] | None:
+    filename = str(part.get("filename") or part.get("name") or "attachment").strip()
+    url = str(part.get("url") or part.get("data") or "").strip()
+    file_id = str(part.get("fileId") or part.get("file_id") or "").strip()
+
+    payload: dict[str, Any] = {"type": "input_file"}
+    if filename:
+        payload["filename"] = filename
+    if file_id:
+        payload["file_id"] = file_id
+        return payload
+    if url.startswith("data:"):
+        file_data = _base64_payload_from_data_url(url)
+        if file_data:
+            payload["file_data"] = file_data
+            return payload
+    if url.startswith(("http://", "https://")):
+        payload["file_url"] = url
+        return payload
+    return None
+
+
+def _base64_payload_from_data_url(value: str) -> str:
+    _header, separator, payload = value.partition(",")
+    if not separator:
+        return ""
+    try:
+        base64.b64decode(payload, validate=True)
+    except Exception:  # noqa: BLE001
+        return ""
+    return value
 
 
 def _tool_parts_to_openai_messages(*, parts: Any) -> list[dict[str, Any]]:
