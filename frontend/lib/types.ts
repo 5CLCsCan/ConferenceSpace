@@ -111,6 +111,7 @@ export interface Conference {
   chair?: string
   co_chairs?: string[] // Co-chair email addresses
   pc_members?: string[] // PC member email addresses
+  reviewers?: string[] // Invited reviewer email addresses
   primary_contact?: number
   area_chair?: number
   userRole?: string // "chair", "author", "reviewer", or undefined

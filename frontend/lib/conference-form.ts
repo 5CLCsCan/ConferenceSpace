@@ -53,6 +53,15 @@ function buildOrganizersFromPCEmails(emails?: string[]) {
   }))
 }
 
+function buildOrganizersFromReviewerEmails(emails?: string[]) {
+  return (emails || []).map((email) => ({
+    id: email,
+    name: email.split("@")[0].replace(/[._-]/g, " "),
+    email,
+    role: "reviewer",
+  }))
+}
+
 export type ConferenceTemplateSection =
   | "basics"
   | "topics_tracks"
@@ -81,6 +90,7 @@ export interface ConferenceMutationPayload {
   venue: string
   co_chairs: string[]
   pc_members: string[]
+  reviewers: string[]
   configurations: {
     start_date?: string
     end_date?: string
@@ -142,6 +152,7 @@ export function mapConferenceToFormData(conference: Conference): ConferenceFormD
     organizers: [
       ...buildOrganizersFromEmails(conference.co_chairs),
       ...buildOrganizersFromPCEmails(conference.pc_members),
+      ...buildOrganizersFromReviewerEmails(conference.reviewers),
     ],
     anonymity: normalizedReviewType === "single-blind" ? "single-blind" : "double-blind",
     rebuttalStartDate: parseDate(config?.rebuttal_settings?.start_at),
@@ -380,6 +391,15 @@ export function buildConferenceMutationPayload(
     ),
   )
 
+  const reviewers = Array.from(
+    new Set(
+      formData.organizers
+        .filter((organizer) => organizer.role === "reviewer")
+        .map((organizer) => organizer.email.trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  )
+
   return {
     title: formData.title.trim(),
     acronym: formData.acronym.trim(),
@@ -389,6 +409,7 @@ export function buildConferenceMutationPayload(
     venue: location || formData.venue || existingConference?.location || "",
     co_chairs: coChairs,
     pc_members: pcMembers,
+    reviewers: reviewers,
     configurations: {
       start_date: startDate?.toISOString() || existingConfig?.start_date,
       end_date: endDate?.toISOString() || existingConfig?.end_date,
