@@ -38,7 +38,8 @@ func NewClient(cfg Config) *Client {
 
 // GenerateContentRequest represents the request payload for Gemini API
 type GenerateContentRequest struct {
-	Contents []Content `json:"contents"`
+	Contents         []Content         `json:"contents"`
+	GenerationConfig *GenerationConfig `json:"generationConfig,omitempty"`
 }
 
 // Content represents a content item in the request
@@ -56,6 +57,11 @@ type Part struct {
 type GenerateContentResponse struct {
 	Candidates []Candidate `json:"candidates"`
 	Error      *APIError   `json:"error,omitempty"`
+}
+
+type GenerationConfig struct {
+	ResponseMimeType string         `json:"responseMimeType,omitempty"`
+	ResponseSchema   map[string]any `json:"responseSchema,omitempty"`
 }
 
 // Candidate represents a candidate response
@@ -77,6 +83,27 @@ type apiErrorEnvelope struct {
 
 // GenerateText sends a prompt to Gemini and returns the generated text
 func (c *Client) GenerateText(ctx context.Context, prompt string) (string, error) {
+	return c.generate(ctx, prompt, nil)
+}
+
+// GenerateJSON sends a prompt to Gemini, requests JSON output, and unmarshals it into out.
+func (c *Client) GenerateJSON(ctx context.Context, prompt string, schema map[string]any, out any) error {
+	response, err := c.generate(ctx, prompt, &GenerationConfig{
+		ResponseMimeType: "application/json",
+		ResponseSchema:   schema,
+	})
+	if err != nil {
+		return err
+	}
+
+	if err := json.Unmarshal([]byte(response), out); err != nil {
+		return fmt.Errorf("failed to unmarshal gemini JSON response: %w", err)
+	}
+
+	return nil
+}
+
+func (c *Client) generate(ctx context.Context, prompt string, generationConfig *GenerationConfig) (string, error) {
 	if c.apiKey == "" {
 		return "", fmt.Errorf("gemini API key not configured")
 	}
@@ -91,6 +118,7 @@ func (c *Client) GenerateText(ctx context.Context, prompt string) (string, error
 				},
 			},
 		},
+		GenerationConfig: generationConfig,
 	}
 
 	jsonData, err := json.Marshal(reqBody)

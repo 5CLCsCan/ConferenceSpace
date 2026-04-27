@@ -74,12 +74,12 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 	// Create Semantic Scholar controller (only if client is available)
 	var semanticScholarCtrl *semanticscholarController.Controller
 	if clients != nil && clients.SemanticScholar != nil {
-		semanticScholarCtrl = semanticscholarController.New(clients.SemanticScholar, store.Cache, store.Scholar)
+		semanticScholarCtrl = semanticscholarController.New(clients.SemanticScholar, store.Cache, store.Scholar, store.User, clients.Gemini)
 	}
 
 	return &Controller{
 		Auth:            auth.New(orch, serverEnv),
-		User:            user.New(store, assignmentService, semanticScholarCtrl), // Pass assignment service for COI checks
+		User:            user.New(store, assignmentService, semanticScholarCtrl),             // Pass assignment service for COI checks
 		Conference:      conference.NewWithNotifications(store, assignmentService, notifSvc), // Pass assignment service for auto-assign on status change
 		Submission:      submission.NewWithNotifications(store, fileStore, getAIServiceClient(clients), coiSvc, notifSvc),
 		Reviewer:        reviewer.NewWithNotifications(store, coiSvc, notifSvc),
@@ -130,7 +130,7 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 	// Create Semantic Scholar controller (only if client is available)
 	var semanticScholarCtrl *semanticscholarController.Controller
 	if clients != nil && clients.SemanticScholar != nil {
-		semanticScholarCtrl = semanticscholarController.New(clients.SemanticScholar, store.Cache, store.Scholar)
+		semanticScholarCtrl = semanticscholarController.New(clients.SemanticScholar, store.Cache, store.Scholar, store.User, clients.Gemini)
 	}
 
 	return &Controller{

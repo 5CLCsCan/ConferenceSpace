@@ -31,6 +31,7 @@ type StorageInterface interface {
 	GetByEmailWithPassword(ctx context.Context, email string) (*dto.UserResponse, string, error)
 	List(ctx context.Context, params *QueryParams) ([]*dto.UserResponse, int64, error)
 	Update(ctx context.Context, id int64, user *dto.User) (*dto.UserResponse, error)
+	UpdateDomain(ctx context.Context, id int64, domain []string) (*dto.UserResponse, error)
 	UpdateByEmail(ctx context.Context, email string, user *dto.User) (*dto.UserResponse, error)
 	Delete(ctx context.Context, id int64) error
 	DeleteByEmail(ctx context.Context, email string) error
@@ -395,6 +396,50 @@ func (s *Storage) Update(ctx context.Context, id int64, user *dto.User) (*dto.Us
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to update user: %w", err)
+	}
+
+	return entity.ToDTO(), nil
+}
+
+func (s *Storage) UpdateDomain(ctx context.Context, id int64, domain []string) (*dto.UserResponse, error) {
+	query, args, err := s.qb.
+		Update(model.UserTableName).
+		Set(model.UserColDomain, pq.Array(domain)).
+		Set(model.UserColUpdatedAt, time.Now()).
+		Where(sq.Eq{model.UserColUserID: id}).
+		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s",
+			model.UserColUserID,
+			model.UserColEmail,
+			model.UserColFirstName,
+			model.UserColLastName,
+			model.UserColDomain,
+			model.UserColSemanticScholarID,
+			model.UserColProfileSyncStatus,
+			model.UserColCreatedAt,
+			model.UserColUpdatedAt,
+		)).
+		ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("failed to build update domain query: %w", err)
+	}
+
+	entity := &model.User{}
+	err = s.db.QueryRowContext(ctx, query, args...).Scan(
+		&entity.UserID,
+		&entity.Email,
+		&entity.FirstName,
+		&entity.LastName,
+		&entity.Domain,
+		&entity.SemanticScholarID,
+		&entity.ProfileSyncStatus,
+		&entity.CreatedAt,
+		&entity.UpdatedAt,
+	)
+	if err == sql.ErrNoRows {
+		return nil, ErrUserNotFound
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to update user domain: %w", err)
 	}
 
 	return entity.ToDTO(), nil

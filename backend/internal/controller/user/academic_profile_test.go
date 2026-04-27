@@ -49,6 +49,10 @@ func (f *fakeUserStorage) Update(context.Context, int64, *dto.User) (*dto.UserRe
 	panic("unexpected call to Update")
 }
 
+func (f *fakeUserStorage) UpdateDomain(context.Context, int64, []string) (*dto.UserResponse, error) {
+	panic("unexpected call to UpdateDomain")
+}
+
 func (f *fakeUserStorage) UpdateByEmail(context.Context, string, *dto.User) (*dto.UserResponse, error) {
 	panic("unexpected call to UpdateByEmail")
 }
