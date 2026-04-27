@@ -23,6 +23,8 @@ import {
 import { listConferences } from "@/lib/api/conferences"
 import type { Conference as ApiConference } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { useAuth } from "@/lib/auth-context"
+import { isReadOnlyRole } from "@/lib/role-helpers"
 import { Sparkles } from "lucide-react"
 import { ConferenceTemplateSheet } from "@/components/chair/conference-template-sheet"
 import type { ConferenceFormData } from "@/components/wizard/creation"
@@ -172,6 +174,8 @@ function PaginationBar({
 
 export function ChairConferences({ conferences: initialConferences }: ChairConferencesProps) {
   const { t } = useTranslation()
+  const { currentRole } = useAuth()
+  const readOnly = isReadOnlyRole(currentRole)
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<TabType>("my-conferences")
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
@@ -195,6 +199,36 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
   const ITEMS_PER_PAGE = 6
   const debouncedSearch = useDebounce(searchQuery, 400)
 
+  // Sort raw ApiConference list before mapping
+  function sortApiConferences(list: import("@/lib/types").Conference[], sort: string) {
+    const sorted = [...list]
+    if (sort === "name-asc") {
+      sorted.sort((a, b) => (a.name || "").localeCompare(b.name || ""))
+    } else if (sort === "name-desc") {
+      sorted.sort((a, b) => (b.name || "").localeCompare(a.name || ""))
+    } else if (sort === "deadline") {
+      sorted.sort((a, b) => {
+        const da = a.submission_deadline ? new Date(a.submission_deadline).getTime() : 0
+        const db = b.submission_deadline ? new Date(b.submission_deadline).getTime() : 0
+        return da - db
+      })
+    } else if (sort === "date-upcoming" || sort === "popularity") {
+      sorted.sort((a, b) => {
+        const da = a.conference_date ? new Date(a.conference_date).getTime() : 0
+        const db = b.conference_date ? new Date(b.conference_date).getTime() : 0
+        return da - db
+      })
+    } else {
+      // date-newest (default)
+      sorted.sort((a, b) => {
+        const da = a.created_at ? new Date(a.created_at).getTime() : 0
+        const db = b.created_at ? new Date(b.created_at).getTime() : 0
+        return db - da
+      })
+    }
+    return sorted
+  }
+
   useEffect(() => {
     let cancelled = false
 
@@ -202,69 +236,68 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
       setLoading(true)
       setError(null)
       try {
-        const offset = (currentPage - 1) * ITEMS_PER_PAGE
-
         if (activeTab === "my-conferences") {
           const res = await listConferences({
             myConferences: true,
-            role: "chair",
+            role: currentRole === "pc" ? "pc" : "chair",
             title: debouncedSearch || undefined,
-            limit: ITEMS_PER_PAGE,
-            offset,
+            limit: 500,
+            offset: 0,
           })
           if (!cancelled) {
-            setMyConferences(
-              (res.data?.conferences || [])
-                .filter(
-                  (c) =>
-                    c.status !== "completed" && c.status !== "archived" && c.status !== "draft",
-                )
-                .map(mapToChairConference),
+            const filtered = (res.data?.conferences || []).filter(
+              (c) => c.status !== "archived" && c.status !== "draft",
             )
-            setMyTotal(res.data?.total || 0)
+            const sorted = sortApiConferences(filtered, sortBy)
+            const page = currentPage
+            const start = (page - 1) * ITEMS_PER_PAGE
+            setMyConferences(sorted.slice(start, start + ITEMS_PER_PAGE).map(mapToChairConference))
+            setMyTotal(sorted.length)
           }
         } else if (activeTab === "explore") {
           const res = await listConferences({
             title: debouncedSearch || undefined,
-            limit: ITEMS_PER_PAGE,
-            offset,
+            limit: 500,
+            offset: 0,
           })
           if (!cancelled) {
-            setExploreConferences(
-              (res.data?.conferences || [])
-                .filter(
-                  (c) =>
-                    c.status !== "completed" && c.status !== "archived" && c.status !== "draft",
-                )
-                .map(mapToExploreConference),
+            const filtered = (res.data?.conferences || []).filter(
+              (c) => c.status !== "completed" && c.status !== "archived" && c.status !== "draft",
             )
-            setExploreTotal(res.data?.total || 0)
+            const sorted = sortApiConferences(filtered, sortBy)
+            const start = (currentPage - 1) * ITEMS_PER_PAGE
+            setExploreConferences(sorted.slice(start, start + ITEMS_PER_PAGE).map(mapToExploreConference))
+            setExploreTotal(sorted.length)
           }
         } else if (activeTab === "drafts") {
           const res = await listConferences({
             myConferences: true,
-            role: "chair",
+            role: currentRole === "pc" ? "pc" : "chair",
             status: "draft",
             title: debouncedSearch || undefined,
-            limit: ITEMS_PER_PAGE,
-            offset,
+            limit: 500,
+            offset: 0,
           })
           if (!cancelled) {
-            setDraftConferences((res.data?.conferences || []).map(mapToChairConference))
-            setDraftTotal(res.data?.total || 0)
+            const sorted = sortApiConferences(res.data?.conferences || [], sortBy)
+            const start = (currentPage - 1) * ITEMS_PER_PAGE
+            setDraftConferences(sorted.slice(start, start + ITEMS_PER_PAGE).map(mapToChairConference))
+            setDraftTotal(sorted.length)
           }
         } else if (activeTab === "archived") {
           const res = await listConferences({
             myConferences: true,
-            role: "chair",
+            role: currentRole === "pc" ? "pc" : "chair",
             status: "archived",
             title: debouncedSearch || undefined,
-            limit: ITEMS_PER_PAGE,
-            offset,
+            limit: 500,
+            offset: 0,
           })
           if (!cancelled) {
-            setArchivedConferences((res.data?.conferences || []).map(mapToExploreConference))
-            setArchivedTotal(res.data?.total || 0)
+            const sorted = sortApiConferences(res.data?.conferences || [], sortBy)
+            const start = (currentPage - 1) * ITEMS_PER_PAGE
+            setArchivedConferences(sorted.slice(start, start + ITEMS_PER_PAGE).map(mapToExploreConference))
+            setArchivedTotal(sorted.length)
           }
         }
       } catch (err) {
@@ -280,7 +313,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
     return () => {
       cancelled = true
     }
-  }, [activeTab, debouncedSearch, currentPage, reloadKey])
+  }, [activeTab, debouncedSearch, currentPage, reloadKey, currentRole, sortBy])
 
   const handleNavigate = (id: string) => {
     router.push(ROUTES.CHAIR.CONFERENCE_DETAIL(id))
@@ -297,10 +330,16 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab)
     setCurrentPage(1)
+    setSortBy("date-newest")
   }
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query)
+    setCurrentPage(1)
+  }
+
+  const handleSortChange = (sort: string) => {
+    setSortBy(sort)
     setCurrentPage(1)
   }
 
@@ -392,7 +431,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
                 moreMenu={renderMoreMenu(conference)}
               />
             ))}
-            <CreateConferenceCard onClick={handleCreateConference} />
+            {!readOnly && <CreateConferenceCard onClick={handleCreateConference} />}
           </div>
           <PaginationBar
             currentPage={currentPage}
@@ -527,6 +566,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
       <Header
         onCreateConference={handleCreateConference}
         onManageTemplates={() => setIsTemplateSheetOpen(true)}
+        readOnly={readOnly}
       />
 
       {/* Tabs */}
@@ -538,7 +578,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
         sortBy={sortBy}
-        onSortChange={setSortBy}
+        onSortChange={handleSortChange}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
       />
@@ -563,9 +603,10 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
 interface HeaderProps {
   onCreateConference: () => void
   onManageTemplates: () => void
+  readOnly?: boolean
 }
 
-function Header({ onCreateConference, onManageTemplates }: HeaderProps) {
+function Header({ onCreateConference, onManageTemplates, readOnly }: HeaderProps) {
   const { t } = useTranslation()
   return (
     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6">
@@ -579,29 +620,31 @@ function Header({ onCreateConference, onManageTemplates }: HeaderProps) {
           )}
         </p>
       </div>
-      <div className="flex items-center gap-3">
-        <button
-          onClick={onManageTemplates}
-          className="h-9 px-4 bg-white dark:bg-slate-800 text-[#1B3C53] dark:text-white border border-slate-200 dark:border-slate-700 text-[10px] font-bold uppercase tracking-wider rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 flex items-center gap-2 shadow-sm"
-        >
-          <Sparkles className="size-4" />
-          {t("runtime.components.chair.conference-form-page.text_open_templates") ||
-            "Manage Templates"}
-        </button>
-
-        <button
-          onClick={onCreateConference}
-          className="h-9 px-4 bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] text-[10px] font-bold uppercase tracking-wider rounded-md hover:bg-[#234C6A] dark:hover:bg-slate-100 transition-all duration-200 flex items-center gap-2"
-        >
-          <span
-            className="material-symbols-outlined"
-            style={{ fontSize: "16px", width: "16px", height: "16px" }}
+      {!readOnly && (
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onManageTemplates}
+            className="h-9 px-4 bg-white dark:bg-slate-800 text-[#1B3C53] dark:text-white border border-slate-200 dark:border-slate-700 text-[10px] font-bold uppercase tracking-wider rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 flex items-center gap-2 shadow-sm"
           >
-            add
-          </span>
-          {t("runtime.components.chair.chair-conferences.text_create_conference")}
-        </button>
-      </div>
+            <Sparkles className="size-4" />
+            {t("runtime.components.chair.conference-form-page.text_open_templates") ||
+              "Manage Templates"}
+          </button>
+
+          <button
+            onClick={onCreateConference}
+            className="h-9 px-4 bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] text-[10px] font-bold uppercase tracking-wider rounded-md hover:bg-[#234C6A] dark:hover:bg-slate-100 transition-all duration-200 flex items-center gap-2"
+          >
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: "16px", width: "16px", height: "16px" }}
+            >
+              add
+            </span>
+            {t("runtime.components.chair.chair-conferences.text_create_conference")}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

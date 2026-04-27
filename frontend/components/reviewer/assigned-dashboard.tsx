@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useConferencePapers } from "@/hooks/use-conference-papers"
 import { useReviewerDashboard } from "@/hooks/use-reviewer-dashboard"
@@ -13,6 +13,7 @@ import { ROUTES } from "@/lib/routes"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { PapersSkeleton } from "./loading-skeletons"
 import { setAssignmentConferenceContext } from "@/lib/reviewer/assignment-context-cache"
+import { recordRecentConference } from "@/lib/recent-conferences"
 
 const PAGE_SIZE = 8
 
@@ -23,8 +24,27 @@ interface AssignedDashboardProps {
   conferenceId: string
 }
 
-function statusRank(status: string) {
+function normalizeAssignmentStatus(status: string): Exclude<StatusFilter, "all"> {
   switch (status) {
+    case "not_started":
+    case "in_progress":
+    case "pending":
+      return "pending"
+    case "accepted":
+      return "accepted"
+    case "rejected":
+    case "declined":
+      return "declined"
+    case "submitted":
+    case "completed":
+      return "completed"
+    default:
+      return "pending"
+  }
+}
+
+function statusRank(status: string) {
+  switch (normalizeAssignmentStatus(status)) {
     case "pending":
       return 0
     case "accepted":
@@ -38,22 +58,43 @@ function statusRank(status: string) {
   }
 }
 
-const statusLabelKeys: Record<StatusFilter, string> = {
-  all: "runtime.components.reviewer.assigned-dashboard.filters.all",
-  pending: "runtime.components.reviewer.assigned-dashboard.filters.pending",
-  accepted: "runtime.components.reviewer.assigned-dashboard.filters.accepted",
-  declined: "runtime.components.reviewer.assigned-dashboard.filters.declined",
-  completed: "runtime.components.reviewer.assigned-dashboard.filters.completed",
+function getStatusFilterLabel(status: StatusFilter, t: ReturnType<typeof useTranslation>["t"]) {
+  switch (status) {
+    case "all":
+      return t("runtime.components.reviewer.assigned-dashboard.filters.all")
+    case "pending":
+      return t("runtime.components.reviewer.assigned-dashboard.filters.pending")
+    case "accepted":
+      return t("runtime.components.reviewer.assigned-dashboard.filters.accepted")
+    case "declined":
+      return t("runtime.components.reviewer.assigned-dashboard.filters.declined")
+    case "completed":
+      return t("runtime.components.reviewer.assigned-dashboard.filters.completed")
+    default:
+      return t("runtime.components.reviewer.assigned-dashboard.filters.all")
+  }
 }
 
-const assignmentStatusLabelKeys: Record<string, string> = {
-  not_started: "dashboard.roles.reviewer.papers.statusValues.not_started",
-  in_progress: "dashboard.roles.reviewer.papers.statusValues.in_progress",
-  completed: "dashboard.roles.reviewer.papers.statusValues.completed",
-  pending: "dashboard.roles.reviewer.papers.statusValues.pending",
-  accepted: "dashboard.roles.reviewer.papers.statusValues.accepted",
-  declined: "dashboard.roles.reviewer.papers.statusValues.declined",
-  submitted: "dashboard.roles.reviewer.papers.statusValues.submitted",
+function getAssignmentStatusLabel(status: string, t: ReturnType<typeof useTranslation>["t"]) {
+  switch (status) {
+    case "not_started":
+      return t("dashboard.roles.reviewer.papers.statusValues.not_started")
+    case "in_progress":
+      return t("dashboard.roles.reviewer.papers.statusValues.in_progress")
+    case "completed":
+      return t("dashboard.roles.reviewer.papers.statusValues.completed")
+    case "pending":
+      return t("dashboard.roles.reviewer.papers.statusValues.pending")
+    case "accepted":
+      return t("dashboard.roles.reviewer.papers.statusValues.accepted")
+    case "declined":
+    case "rejected":
+      return t("dashboard.roles.reviewer.papers.statusValues.declined")
+    case "submitted":
+      return t("dashboard.roles.reviewer.papers.statusValues.submitted")
+    default:
+      return t("dashboard.roles.reviewer.papers.statusValues.pending")
+  }
 }
 
 export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
@@ -79,14 +120,11 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
     setCurrentPage(1)
   }
 
-  const { papers, total, isLoading, error } = useConferencePapers(reviewerEmail, conferenceId, {
-    limit: PAGE_SIZE,
-    offset: (currentPage - 1) * PAGE_SIZE,
+  const { papers, isLoading, error } = useConferencePapers(reviewerEmail, conferenceId, {
+    limit: 500,
+    offset: 0,
     search: debouncedSearch || undefined,
-    status: statusFilter === "all" ? undefined : statusFilter,
   })
-
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -130,8 +168,38 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
     [conferenceId, dashboard?.conferences],
   )
 
+  useEffect(() => {
+    if (!conference) {
+      return
+    }
+
+    recordRecentConference({
+      userKey: user?.email || "guest",
+      role: "reviewer",
+      conference: {
+        id: String(conference.id),
+        name: conference.name || "Conference",
+        acronym: conference.acronym,
+        year: conference.year,
+        role: "reviewer",
+        href: ROUTES.REVIEWER.CONFERENCE_SUBMISSIONS(String(conference.id)),
+        viewedAt: new Date().toISOString(),
+      },
+    })
+  }, [conference, user?.email])
+
+  const filteredPapers = useMemo(() => {
+    if (statusFilter === "all") {
+      return papers
+    }
+
+    return papers.filter(
+      (paper) => normalizeAssignmentStatus(paper.assignment_status) === statusFilter,
+    )
+  }, [papers, statusFilter])
+
   const sortedPapers = useMemo(() => {
-    const next = [...papers]
+    const next = [...filteredPapers]
     next.sort((a, b) => {
       if (sortBy === "title") {
         return a.title.localeCompare(b.title)
@@ -144,7 +212,15 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
       return aDate - bDate
     })
     return next
-  }, [papers, sortBy])
+  }, [filteredPapers, sortBy])
+
+  const filteredTotal = sortedPapers.length
+  const totalPages = Math.max(1, Math.ceil(filteredTotal / PAGE_SIZE))
+
+  const paginatedPapers = useMemo(
+    () => sortedPapers.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [currentPage, sortedPapers],
+  )
 
   const handleOpenAssignment = (assignmentId: number) => {
     setAssignmentConferenceContext(String(assignmentId), String(conferenceId))
@@ -196,7 +272,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
           {conference?.acronym || conference?.name || `Conference ${conferenceId}`}
         </h1>
         <p className="text-sm font-light text-slate-500 dark:text-slate-400 mt-2">
-          {t("dashboard.roles.reviewer.papers.description", { count: total })}
+          {t("dashboard.roles.reviewer.papers.description", { count: filteredTotal })}
         </p>
       </div>
 
@@ -213,8 +289,10 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
                     : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
                 }`}
               >
-                {t(statusLabelKeys[status])}
-                {statusFilter === status && <span className="ml-1 opacity-60">{total}</span>}
+                {getStatusFilterLabel(status, t)}
+                {statusFilter === status && (
+                  <span className="ml-1 opacity-60">{filteredTotal}</span>
+                )}
               </button>
             ),
           )}
@@ -247,7 +325,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-        {sortedPapers.length === 0 ? (
+        {filteredTotal === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 px-4">
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               {t("dashboard.roles.reviewer.papers.empty.title")}
@@ -278,7 +356,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
               </tr>
             </thead>
             <tbody>
-              {sortedPapers.map((paper, index) => (
+              {paginatedPapers.map((paper, index) => (
                 <tr
                   key={paper.assignment_id}
                   className="border-b border-slate-100 dark:border-slate-700/50"
@@ -292,10 +370,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
                     </div>
                   </td>
                   <td className="py-3 px-3 text-[11px] text-slate-600 dark:text-slate-300">
-                    {t(
-                      assignmentStatusLabelKeys[paper.assignment_status] ||
-                        "dashboard.roles.reviewer.papers.statusValues.pending",
-                    )}
+                    {getAssignmentStatusLabel(paper.assignment_status, t)}
                   </td>
                   <td className="py-3 px-3 text-[11px] text-slate-600 dark:text-slate-300">
                     {paper.due_date ? new Date(paper.due_date).toLocaleDateString() : "-"}
@@ -317,17 +392,17 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
       </div>
 
       {/* Pagination */}
-      {!isLoading && total > 0 && (
+      {!isLoading && filteredTotal > 0 && (
         <div className="flex items-center justify-between">
           <p className="text-[11px] text-slate-500 dark:text-slate-400">
             {t("runtime.components.reviewer.assigned-dashboard.text_showing")}{" "}
             <span className="font-bold text-[#1B3C53] dark:text-white">
-              {Math.min((currentPage - 1) * PAGE_SIZE + 1, total)}–
-              {Math.min(currentPage * PAGE_SIZE, total)}
+              {Math.min((currentPage - 1) * PAGE_SIZE + 1, filteredTotal)}–
+              {Math.min(currentPage * PAGE_SIZE, filteredTotal)}
             </span>{" "}
             {t("runtime.components.reviewer.assigned-dashboard.text_of")}{" "}
-            <span className="font-bold text-[#1B3C53] dark:text-white">{total}</span>{" "}
-            {total === 1
+            <span className="font-bold text-[#1B3C53] dark:text-white">{filteredTotal}</span>{" "}
+            {filteredTotal === 1
               ? t("runtime.components.reviewer.assigned-dashboard.text_paper")
               : t("runtime.components.reviewer.assigned-dashboard.text_papers")}
           </p>

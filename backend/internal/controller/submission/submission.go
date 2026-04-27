@@ -20,10 +20,11 @@ import (
 	notificationService "github.com/dcao/conferencespace/internal/service/notification"
 
 	"github.com/dcao/conferencespace/internal/storage"
+	assignmentStorage "github.com/dcao/conferencespace/internal/storage/assignment"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
+	discussionStorage "github.com/dcao/conferencespace/internal/storage/discussion"
 	fileStorage "github.com/dcao/conferencespace/internal/storage/file"
-	assignmentStorage "github.com/dcao/conferencespace/internal/storage/assignment"
 	rebuttalStorage "github.com/dcao/conferencespace/internal/storage/rebuttal"
 	submissionStorage "github.com/dcao/conferencespace/internal/storage/submission"
 	"github.com/dcao/conferencespace/internal/utils"
@@ -31,15 +32,17 @@ import (
 )
 
 type Controller struct {
-	submissionStorage   submissionStorage.StorageInterface
-	assignmentStorage   assignmentStorage.StorageInterface
-	rebuttalStorage     rebuttalStorage.StorageInterface
-	conferenceStorage   conferenceStorage.StorageInterface
-	fileStorage         fileStorage.StorageInterface
-	roleStorage         conferenceuserrole.StorageInterface
-	gatingClient        GatingClient
-	coiService          *coiService.Service
-	notificationService *notificationService.Service
+	submissionStorage     submissionStorage.StorageInterface
+	assignmentStorage     assignmentStorage.StorageInterface
+	rebuttalStorage       rebuttalStorage.StorageInterface
+	conferenceStorage     conferenceStorage.StorageInterface
+	discussionStorage     discussionStorage.StorageInterface
+	fileStorage           fileStorage.StorageInterface
+	roleStorage           conferenceuserrole.StorageInterface
+	gatingClient          GatingClient
+	decisionCopilotClient DecisionCopilotClient
+	coiService            *coiService.Service
+	notificationService   *notificationService.Service
 }
 
 type GatingClient interface {
@@ -52,16 +55,41 @@ type GatingClient interface {
 	) (*aiServiceClient.GatingRunResponse, error)
 }
 
-func New(store *storage.Storage, fileStore fileStorage.StorageInterface, gatingClient GatingClient, coiSvc *coiService.Service) *Controller {
+type DecisionCopilotClient interface {
+	LookupDecisionCopilot(
+		ctx context.Context,
+		token string,
+		requestPayload *aiServiceClient.DecisionCopilotResolveRequest,
+	) (*aiServiceClient.DecisionCopilotResolveResponse, error)
+	GenerateDecisionCopilot(
+		ctx context.Context,
+		token string,
+		requestPayload *aiServiceClient.DecisionCopilotResolveRequest,
+	) (*aiServiceClient.DecisionCopilotResolveResponse, error)
+	RegenerateDecisionCopilot(
+		ctx context.Context,
+		token string,
+		requestPayload *aiServiceClient.DecisionCopilotResolveRequest,
+	) (*aiServiceClient.DecisionCopilotResolveResponse, error)
+}
+
+type AIWorkflowClient interface {
+	GatingClient
+	DecisionCopilotClient
+}
+
+func New(store *storage.Storage, fileStore fileStorage.StorageInterface, aiWorkflowClient AIWorkflowClient, coiSvc *coiService.Service) *Controller {
 	return &Controller{
-		submissionStorage: store.Submission,
-		assignmentStorage: store.Assignment,
-		rebuttalStorage:   store.RebuttalPoint,
-		conferenceStorage: store.Conference,
-		fileStorage:       fileStore,
-		roleStorage:       store.ConferenceUserRole,
-		gatingClient:      gatingClient,
-		coiService:        coiSvc,
+		submissionStorage:     store.Submission,
+		assignmentStorage:     store.Assignment,
+		rebuttalStorage:       store.RebuttalPoint,
+		conferenceStorage:     store.Conference,
+		discussionStorage:     store.Discussion,
+		fileStorage:           fileStore,
+		roleStorage:           store.ConferenceUserRole,
+		gatingClient:          aiWorkflowClient,
+		decisionCopilotClient: aiWorkflowClient,
+		coiService:            coiSvc,
 	}
 }
 
@@ -69,20 +97,22 @@ func New(store *storage.Storage, fileStore fileStorage.StorageInterface, gatingC
 func NewWithNotifications(
 	store *storage.Storage,
 	fileStore fileStorage.StorageInterface,
-	gatingClient GatingClient,
+	aiWorkflowClient AIWorkflowClient,
 	coiSvc *coiService.Service,
 	notifSvc *notificationService.Service,
 ) *Controller {
 	return &Controller{
-		submissionStorage:   store.Submission,
-		assignmentStorage:   store.Assignment,
-		rebuttalStorage:     store.RebuttalPoint,
-		conferenceStorage:   store.Conference,
-		fileStorage:         fileStore,
-		roleStorage:         store.ConferenceUserRole,
-		gatingClient:        gatingClient,
-		coiService:          coiSvc,
-		notificationService: notifSvc,
+		submissionStorage:     store.Submission,
+		assignmentStorage:     store.Assignment,
+		rebuttalStorage:       store.RebuttalPoint,
+		conferenceStorage:     store.Conference,
+		discussionStorage:     store.Discussion,
+		fileStorage:           fileStore,
+		roleStorage:           store.ConferenceUserRole,
+		gatingClient:          aiWorkflowClient,
+		decisionCopilotClient: aiWorkflowClient,
+		coiService:            coiSvc,
+		notificationService:   notifSvc,
 	}
 }
 
@@ -352,6 +382,11 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.SubmissionCreateReques
 func (c *Controller) List(ginCtx *gin.Context, req *dto.SubmissionListRequest) (*dto.SubmissionListResponse, error) {
 	ctx := ginCtx.Request.Context()
 
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
 	conferenceID, err := strconv.ParseInt(ginCtx.Param("conference_id"), 10, 64)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference ID")
@@ -367,26 +402,14 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.SubmissionListRequest) (
 		Track:        req.Track,
 	}
 
-	// Debug logging
-	fmt.Printf("[SUBMISSION LIST] Request received:\n")
-	fmt.Printf("  ConferenceID: %d\n", params.ConferenceID)
-	fmt.Printf("  Author filter: '%s'\n", params.Author)
-	fmt.Printf("  Status filter: '%s'\n", params.Status)
-	fmt.Printf("  Title filter: '%s'\n", params.Title)
-	fmt.Printf("  Track filter: '%s'\n", params.Track)
-	fmt.Printf("  Limit: %d, Offset: %d\n", params.Limit, params.Offset)
+	// Authorization: non-chair callers can only list their own submissions
+	if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, conferenceID, userEmail) {
+		params.Author = userEmail
+	}
 
 	submissions, total, err := c.submissionStorage.List(ctx, params)
 	if err != nil {
-		fmt.Printf("[SUBMISSION LIST] Storage error: %v\n", err)
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
-	}
-
-	fmt.Printf("[SUBMISSION LIST] Results:\n")
-	fmt.Printf("  Total found: %d\n", total)
-	fmt.Printf("  Submissions returned: %d\n", len(submissions))
-	for i, sub := range submissions {
-		fmt.Printf("  [%d] ID=%d, Author='%s', Title='%s', Status='%s'\n", i+1, sub.ID, sub.Author, sub.Title, sub.Status)
 	}
 
 	return &dto.SubmissionListResponse{

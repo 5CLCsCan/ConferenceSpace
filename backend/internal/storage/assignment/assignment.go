@@ -22,6 +22,9 @@ type StorageInterface interface {
 	DeleteBySubmission(ctx context.Context, submissionID int64) error
 	DeleteByReviewer(ctx context.Context, reviewerID int64) error
 	SaveReview(ctx context.Context, assignmentID int64, reviewScore *float64, reviewData *dto.ReviewData, status string) (*dto.Assignment, error)
+	GetReviewAuditState(ctx context.Context, assignmentID int64) (*dto.ReviewAuditState, error)
+	UpdateReviewAuditDismissal(ctx context.Context, assignmentID int64, dismissal dto.ReviewAuditDismissal, dismiss bool) (*dto.ReviewAuditState, error)
+	AppendReviewAuditEvent(ctx context.Context, event *dto.ReviewAuditEvent) error
 	GetReview(ctx context.Context, assignmentID int64) (*dto.Assignment, error)
 	GetReviewsBySubmission(ctx context.Context, submissionID int64, limit, offset int) ([]*dto.Assignment, int64, error)
 	GetReviewAnalytics(ctx context.Context, submissionID int64) (*dto.ReviewAnalyticsResponse, error)
@@ -933,4 +936,3 @@ func (s *Storage) AcknowledgeRebuttal(ctx context.Context, assignmentID int64) (
 	}
 	return result.ToDTO(), nil
 }
-

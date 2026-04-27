@@ -247,32 +247,26 @@ func TestGetReviewerDashboard(t *testing.T) {
 		t.Log("✓ Dashboard works with email containing special characters")
 	})
 
-	// Test 5: Unauthorized access
+	// Test 5: Unauthorized access - another user cannot access your dashboard
 	t.Run("GetDashboard_Unauthorized", func(t *testing.T) {
-		// Try to access another user's dashboard
 		resp, err := reviewerClient.GetDashboard(reviewer.Email, nil, otherToken)
 		if err != nil {
 			t.Fatalf("Failed to make request: %v", err)
 		}
-		// The endpoint should return data but the user won't have access to the reviewer's conferences
-		// This is expected behavior - the endpoint doesn't restrict by user, it just shows data for the email
-		testutils.AssertStatusCode(t, resp, http.StatusOK)
+		testutils.AssertStatusCode(t, resp, http.StatusForbidden)
 
-		t.Log("✓ Unauthorized access handled correctly")
+		t.Log("✓ Unauthorized access correctly blocked with 403")
 	})
 
-	// Test 6: Non-existent user
+	// Test 6: Non-existent user - middleware blocks because email doesn't match
 	t.Run("GetDashboard_NonExistentUser", func(t *testing.T) {
 		resp, err := reviewerClient.GetDashboard("nonexistent@test.com", nil, reviewerToken)
 		if err != nil {
 			t.Fatalf("Failed to make request: %v", err)
 		}
-		// Should return 500 or 404
-		if resp.StatusCode != http.StatusInternalServerError && resp.StatusCode != http.StatusNotFound {
-			t.Errorf("Expected status 500 or 404 for non-existent user, got %d", resp.StatusCode)
-		}
+		testutils.AssertStatusCode(t, resp, http.StatusForbidden)
 
-		t.Log("✓ Non-existent user handled correctly")
+		t.Log("✓ Non-existent user correctly blocked with 403")
 	})
 }
 
@@ -608,18 +602,15 @@ func TestGetCompletedPapers(t *testing.T) {
 		t.Log("✓ Search works correctly")
 	})
 
-	// Test 4: Non-existent user
+	// Test 4: Non-existent user - middleware blocks because email doesn't match
 	t.Run("GetCompletedPapers_NonExistentUser", func(t *testing.T) {
 		resp, err := reviewerClient.GetCompletedPapers("nonexistent@test.com", nil, reviewerToken)
 		if err != nil {
 			t.Fatalf("Failed to make request: %v", err)
 		}
-		// Should return 500 or 404
-		if resp.StatusCode != http.StatusInternalServerError && resp.StatusCode != http.StatusNotFound {
-			t.Errorf("Expected status 500 or 404 for non-existent user, got %d", resp.StatusCode)
-		}
+		testutils.AssertStatusCode(t, resp, http.StatusForbidden)
 
-		t.Log("✓ Non-existent user handled correctly")
+		t.Log("✓ Non-existent user correctly blocked with 403")
 	})
 }
 

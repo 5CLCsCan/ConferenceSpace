@@ -2,7 +2,6 @@
 
 import type { StepType } from "./types"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import { tStatic as t } from "@/lib/i18n/static-translate"
 
 interface SubmissionProgressSidebarProps {
   currentStep: StepType
@@ -15,59 +14,59 @@ interface SubmissionStep {
   description: string
 }
 
-const SUBMISSION_STEPS: SubmissionStep[] = [
-  {
-    id: "paper",
-    title: t(
-      "runtime.components.author.submit.submission-progress-sidebar.prop_title_paper_details",
-    ),
-    description: t(
-      "runtime.components.author.submit.submission-progress-sidebar.prop_description_title_abstract_keywords",
-    ),
-  },
-  {
-    id: "authors",
-    title: t(
-      "runtime.components.author.submit.submission-progress-sidebar.prop_title_authors_affiliations",
-    ),
-    description: t(
-      "runtime.components.author.submit.submission-progress-sidebar.prop_description_add_co_authors",
-    ),
-  },
-  {
-    id: "file",
-    title: t(
-      "runtime.components.author.submit.submission-progress-sidebar.prop_title_upload_manuscript",
-    ),
-    description: t(
-      "runtime.components.author.submit.submission-progress-sidebar.prop_description_pdf_and_materials",
-    ),
-  },
-  {
-    id: "coi",
-    title: t(
-      "runtime.components.author.submit.submission-progress-sidebar.prop_title_conflicts_of_interest",
-    ),
-    description: t(
-      "runtime.components.author.submit.submission-progress-sidebar.prop_description_declare_conflicts",
-    ),
-  },
-  {
-    id: "review",
-    title: t(
-      "runtime.components.author.submit.submission-progress-sidebar.prop_title_review_submit",
-    ),
-    description: t(
-      "runtime.components.author.submit.submission-progress-sidebar.prop_description_final_check",
-    ),
-  },
-]
-
 export function SubmissionProgressSidebar({
   currentStep,
   onStepChange,
 }: SubmissionProgressSidebarProps) {
   const { t } = useTranslation()
+  const submissionSteps: SubmissionStep[] = [
+    {
+      id: "paper",
+      title: t(
+        "runtime.components.author.submit.submission-progress-sidebar.prop_title_paper_details",
+      ),
+      description: t(
+        "runtime.components.author.submit.submission-progress-sidebar.prop_description_title_abstract_keywords",
+      ),
+    },
+    {
+      id: "authors",
+      title: t(
+        "runtime.components.author.submit.submission-progress-sidebar.prop_title_authors_affiliations",
+      ),
+      description: t(
+        "runtime.components.author.submit.submission-progress-sidebar.prop_description_add_co_authors",
+      ),
+    },
+    {
+      id: "file",
+      title: t(
+        "runtime.components.author.submit.submission-progress-sidebar.prop_title_upload_manuscript",
+      ),
+      description: t(
+        "runtime.components.author.submit.submission-progress-sidebar.prop_description_pdf_and_materials",
+      ),
+    },
+    {
+      id: "coi",
+      title: t(
+        "runtime.components.author.submit.submission-progress-sidebar.prop_title_conflicts_of_interest",
+      ),
+      description: t(
+        "runtime.components.author.submit.submission-progress-sidebar.prop_description_declare_conflicts",
+      ),
+    },
+    {
+      id: "review",
+      title: t(
+        "runtime.components.author.submit.submission-progress-sidebar.prop_title_review_submit",
+      ),
+      description: t(
+        "runtime.components.author.submit.submission-progress-sidebar.prop_description_final_check",
+      ),
+    },
+  ]
+
   return (
     <aside className="hidden lg:flex w-[240px] flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-full overflow-y-auto z-10">
       {/* Logo */}
@@ -103,9 +102,9 @@ export function SubmissionProgressSidebar({
 
         {/* Steps */}
         <div className="relative flex flex-col gap-0.5">
-          {SUBMISSION_STEPS.map((step, index) => {
+          {submissionSteps.map((step, index) => {
             const isActive = currentStep === step.id
-            const isLast = index === SUBMISSION_STEPS.length - 1
+            const isLast = index === submissionSteps.length - 1
 
             return (
               <button

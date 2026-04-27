@@ -1,6 +1,7 @@
 package conference
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -9,11 +10,13 @@ import (
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/model"
+	notificationService "github.com/dcao/conferencespace/internal/service/notification"
 	"github.com/dcao/conferencespace/internal/storage"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
 	conferencetemplate "github.com/dcao/conferencespace/internal/storage/conference_template"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
-	notificationService "github.com/dcao/conferencespace/internal/service/notification"
+	reviewerStorage "github.com/dcao/conferencespace/internal/storage/reviewer"
+	userStorage "github.com/dcao/conferencespace/internal/storage/user"
 	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -22,6 +25,8 @@ type Controller struct {
 	conferenceStorage   conferenceStorage.StorageInterface
 	templateStorage     conferencetemplate.StorageInterface
 	roleStorage         conferenceuserrole.StorageInterface
+	reviewerStorage     reviewerStorage.StorageInterface
+	userStorage         userStorage.StorageInterface
 	assignmentService   *assignment.Service
 	notificationService *notificationService.Service
 }
@@ -31,6 +36,8 @@ func New(store *storage.Storage, assignmentSvc *assignment.Service) *Controller 
 		conferenceStorage: store.Conference,
 		templateStorage:   store.ConferenceTemplate,
 		roleStorage:       store.ConferenceUserRole,
+		reviewerStorage:   store.Reviewer,
+		userStorage:       store.User,
 		assignmentService: assignmentSvc,
 	}
 }
@@ -41,9 +48,117 @@ func NewWithNotifications(store *storage.Storage, assignmentSvc *assignment.Serv
 		conferenceStorage:   store.Conference,
 		templateStorage:     store.ConferenceTemplate,
 		roleStorage:         store.ConferenceUserRole,
+		reviewerStorage:     store.Reviewer,
+		userStorage:         store.User,
 		assignmentService:   assignmentSvc,
 		notificationService: notifSvc,
 	}
+}
+
+func (c *Controller) enrichWithPCMembers(ctx context.Context, conf *dto.ConferenceResponse) {
+	if conf == nil {
+		return
+	}
+	emails, err := c.roleStorage.GetEmailsByRole(ctx, conf.ID, model.RolePC)
+	if err != nil {
+		conf.PCMembers = []string{}
+		return
+	}
+	if emails == nil {
+		emails = []string{}
+	}
+	conf.PCMembers = emails
+}
+
+// enrichWithReviewers populates the Reviewers field on a ConferenceResponse
+func (c *Controller) enrichWithReviewers(ctx context.Context, conf *dto.ConferenceResponse) {
+	if conf == nil {
+		return
+	}
+	reviewers, _, err := c.reviewerStorage.List(ctx, conf.ID, &reviewerStorage.ListParams{Limit: 1000})
+	if err != nil {
+		conf.Reviewers = []string{}
+		return
+	}
+	emails := make([]string, len(reviewers))
+	for i, r := range reviewers {
+		emails[i] = r.Email
+	}
+	conf.Reviewers = emails
+}
+
+func (c *Controller) inviteReviewers(ctx context.Context, conferenceID int64, emails []string, conferenceName string) {
+	if len(emails) == 0 {
+		return
+	}
+
+	var invites []dto.Reviewer
+	for _, email := range emails {
+		user, err := c.userStorage.GetByEmail(ctx, email)
+		if err != nil {
+			fmt.Printf("Warning: user %s not found, skipping reviewer invitation\n", email)
+			continue
+		}
+		invites = append(invites, dto.Reviewer{
+			UserID: user.ID,
+			Status: model.ReviewerStatusPending,
+		})
+	}
+
+	if len(invites) == 0 {
+		return
+	}
+
+	result, err := c.reviewerStorage.BatchCreate(ctx, conferenceID, invites)
+	if err != nil {
+		fmt.Printf("Warning: failed to batch invite reviewers: %v\n", err)
+		return
+	}
+
+	// Send notifications
+	if c.notificationService != nil && len(result.Success) > 0 {
+		go func() {
+			bgCtx := context.Background()
+			for _, reviewer := range result.Success {
+				if err := c.notificationService.NotifyReviewerInvited(bgCtx, reviewer.Email, conferenceName, conferenceID); err != nil {
+					fmt.Printf("Warning: failed to send invitation notification to %s: %v\n", reviewer.Email, err)
+				}
+			}
+		}()
+	}
+}
+
+// publicConferenceConfigurations keeps only non-sensitive fields that are
+// safe for non-privileged users (e.g., authors) to view.
+func publicConferenceConfigurations(config *dto.ConferenceConfiguration) *dto.ConferenceConfiguration {
+	if config == nil {
+		return nil
+	}
+
+	publicConfig := &dto.ConferenceConfiguration{
+		StartDate:                   config.StartDate,
+		EndDate:                     config.EndDate,
+		AbstractSubmissionDeadline:  config.AbstractSubmissionDeadline,
+		FullPaperSubmissionDeadline: config.FullPaperSubmissionDeadline,
+		CameraReadyDeadline:         config.CameraReadyDeadline,
+		CallForPaperText:            config.CallForPaperText,
+		// Include date-related nested settings so authors can see timeline events
+		DiscussionSettings: config.DiscussionSettings,
+		RebuttalSettings:   config.RebuttalSettings,
+	}
+
+	if publicConfig.StartDate == nil &&
+		publicConfig.EndDate == nil &&
+		publicConfig.AbstractSubmissionDeadline == nil &&
+		publicConfig.FullPaperSubmissionDeadline == nil &&
+		publicConfig.CameraReadyDeadline == nil &&
+		publicConfig.CallForPaperText == nil &&
+		publicConfig.DiscussionSettings == nil &&
+		publicConfig.RebuttalSettings == nil {
+		return nil
+	}
+
+	return publicConfig
 }
 
 // Create godoc
@@ -100,13 +215,30 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.ConferenceCreateReques
 		}
 	}
 
-	err = c.roleStorage.AddRoles(ctx, roles)
-	if err != nil {
-		// Log error but don't fail the conference creation
-		// The chair/co_chairs fields in conferences table still have the data
-		_ = err
+	// Add PC members if provided
+	if len(req.Conference.PCMembers) > 0 {
+		for _, pcEmail := range req.Conference.PCMembers {
+			if pcEmail != "" && pcEmail != userEmail {
+				roles = append(roles, model.RoleAssignment{
+					ConferenceID: conference.ID,
+					UserEmail:    pcEmail,
+					Role:         model.RolePC,
+				})
+			}
+		}
 	}
 
+	if err := c.roleStorage.AddRoles(ctx, roles); err != nil {
+		return nil, handler.NewErrorResponse(http.StatusConflict, err.Error())
+	}
+
+	// Invite reviewers if provided
+	if len(req.Conference.Reviewers) > 0 {
+		c.inviteReviewers(ctx, conference.ID, req.Conference.Reviewers, conference.Title)
+	}
+
+	c.enrichWithPCMembers(ctx, conference)
+	c.enrichWithReviewers(ctx, conference)
 	return conference, nil
 }
 
@@ -149,6 +281,12 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.ConferenceListRequest) (
 		MyBookmark:    req.MyBookmark,
 	}
 
+	// For non-myConferences (explorer) requests: restrict to public statuses only
+	// unless a specific status filter is already applied
+	if !req.MyConferences && req.Status == "" {
+		params.PublicOnly = true
+	}
+
 	conferences, total, err := c.conferenceStorage.List(ctx, params)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
@@ -159,7 +297,12 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.ConferenceListRequest) (
 	for i, conf := range conferences {
 		userConf := &dto.UserConferenceResponse{
 			ConferenceResponse: *conf,
-			UserRole:           conf.UserRole, // Role already populated by storage layer JOIN
+			UserRole:           conf.UserRole,
+		}
+
+		// Sanitize sensitive fields for non-chair callers
+		if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, conf.ID, userEmail) {
+			userConf.Configurations = publicConferenceConfigurations(userConf.Configurations)
 		}
 
 		userConferences[i] = userConf
@@ -187,10 +330,27 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.ConferenceListRequest) (
 func (c *Controller) Get(ginCtx *gin.Context, req *dto.ConferenceGetRequest) (*dto.ConferenceResponse, error) {
 	ctx := ginCtx.Request.Context()
 
-	conference, err := c.conferenceStorage.GetByID(ctx, req.ConferenceID)
+	userEmail, _ := utils.GetEmail(ginCtx)
+
+	conference, err := c.conferenceStorage.GetByIDForUser(ctx, req.ConferenceID, userEmail)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
 	}
+
+	c.enrichWithPCMembers(ctx, conference)
+	c.enrichWithReviewers(ctx, conference)
+
+	isPrivileged := utils.IsUserChairCoChairOrPC(ctx, c.roleStorage, req.ConferenceID, userEmail)
+
+	// Non-privileged callers can only see public conferences (open, reviewing, completed)
+	if !isPrivileged {
+		if conference.Status == model.ConferenceStatusDraft || conference.Status == model.ConferenceStatusArchived {
+			return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
+		}
+		// Sanitize sensitive fields
+		conference.Configurations = publicConferenceConfigurations(conference.Configurations)
+	}
+
 	return conference, nil
 }
 
@@ -236,7 +396,89 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.ConferenceUpdateReques
 		req.Conference.Chair = existing.Chair
 	}
 
-	return c.conferenceStorage.Update(ctx, req.ConferenceID, req.Conference)
+	// Sync PC member roles if PCMembers is provided in the update request
+	if req.Conference.PCMembers != nil {
+		currentPC, err := c.roleStorage.GetEmailsByRole(ctx, req.ConferenceID, model.RolePC)
+		if err != nil {
+			currentPC = []string{}
+		}
+
+		// Build sets for diff
+		requestedSet := make(map[string]bool)
+		for _, email := range req.Conference.PCMembers {
+			if email != "" {
+				requestedSet[email] = true
+			}
+		}
+		currentSet := make(map[string]bool)
+		for _, email := range currentPC {
+			currentSet[email] = true
+		}
+
+		// Remove PC members no longer in the list
+		for _, email := range currentPC {
+			if !requestedSet[email] {
+				_ = c.roleStorage.RemoveRole(ctx, req.ConferenceID, email)
+			}
+		}
+
+		// Add new PC members
+		for _, email := range req.Conference.PCMembers {
+			if email != "" && !currentSet[email] {
+				if err := c.roleStorage.AddRole(ctx, req.ConferenceID, email, model.RolePC); err != nil {
+					return nil, handler.NewErrorResponse(http.StatusConflict, err.Error())
+				}
+			}
+		}
+	}
+
+	// Sync Reviewer invitations if Reviewers is provided in the update request
+	if req.Conference.Reviewers != nil {
+		currentReviewers, _, err := c.reviewerStorage.List(ctx, req.ConferenceID, &reviewerStorage.ListParams{Limit: 1000})
+		if err != nil {
+			currentReviewers = []*dto.Reviewer{}
+		}
+
+		currentSet := make(map[string]int64)
+		for _, r := range currentReviewers {
+			currentSet[r.Email] = r.ID
+		}
+
+		requestedSet := make(map[string]bool)
+		for _, email := range req.Conference.Reviewers {
+			if email != "" {
+				requestedSet[email] = true
+			}
+		}
+
+		// Remove reviewers no longer in the list
+		for email, id := range currentSet {
+			if !requestedSet[email] {
+				_ = c.reviewerStorage.Delete(ctx, id)
+			}
+		}
+
+		// Add new reviewers
+		var newEmails []string
+		for _, email := range req.Conference.Reviewers {
+			if email != "" {
+				if _, exists := currentSet[email]; !exists {
+					newEmails = append(newEmails, email)
+				}
+			}
+		}
+		if len(newEmails) > 0 {
+			c.inviteReviewers(ctx, req.ConferenceID, newEmails, existing.Title)
+		}
+	}
+
+	result, err := c.conferenceStorage.Update(ctx, req.ConferenceID, req.Conference)
+	if err != nil {
+		return nil, err
+	}
+	c.enrichWithPCMembers(ctx, result)
+	c.enrichWithReviewers(ctx, result)
+	return result, nil
 }
 
 // Delete godoc

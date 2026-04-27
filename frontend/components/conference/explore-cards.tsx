@@ -327,39 +327,44 @@ export function ExploreConferenceList({
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-      {/* Header Row */}
-      <div className="hidden lg:grid lg:grid-cols-[1fr_200px_190px_210px_minmax(100px,180px)_180px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
-        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.explore-cards.text_conference")}{" "}
-        </div>
-        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.explore-cards.text_location")}{" "}
-        </div>
-        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.explore-cards.text_status")}{" "}
-        </div>
-        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.explore-cards.text_dates")}{" "}
-        </div>
-        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.explore-cards.text_topics")}{" "}
-        </div>
-        <div className="px-4 py-3 pr-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">
-          {t("runtime.components.conference.explore-cards.text_actions")}{" "}
-        </div>
-      </div>
+      {/* Table & List Rows Container */}
+      <div className="overflow-x-auto w-full">
+        <div className="lg:min-w-[1024px]">
+          {/* Header Row */}
+          <div className="hidden lg:grid lg:grid-cols-[1fr_200px_190px_210px_minmax(100px,180px)_180px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
+            <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+              {t("runtime.components.conference.explore-cards.text_conference")}{" "}
+            </div>
+            <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+              {t("runtime.components.conference.explore-cards.text_location")}{" "}
+            </div>
+            <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+              {t("runtime.components.conference.explore-cards.text_status")}{" "}
+            </div>
+            <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+              {t("runtime.components.conference.explore-cards.text_dates")}{" "}
+            </div>
+            <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+              {t("runtime.components.conference.explore-cards.text_topics")}{" "}
+            </div>
+            <div className="px-4 py-3 pr-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">
+              {t("runtime.components.conference.explore-cards.text_actions")}{" "}
+            </div>
+          </div>
 
-      {/* List Rows */}
-      <div className="divide-y divide-slate-100 dark:divide-slate-700">
-        {conferences.map((conference) => (
-          <ExploreListRow
-            key={conference.id}
-            conference={conference}
-            onViewDetails={onViewDetails}
-            primaryActionLabel={primaryActionLabel}
-            onPrimaryAction={onPrimaryAction}
-          />
-        ))}
+          {/* List Rows */}
+          <div className="divide-y divide-slate-100 dark:divide-slate-700">
+            {conferences.map((conference) => (
+              <ExploreListRow
+                key={conference.id}
+                conference={conference}
+                onViewDetails={onViewDetails}
+                primaryActionLabel={primaryActionLabel}
+                onPrimaryAction={onPrimaryAction}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Pagination */}
@@ -558,7 +563,6 @@ function ExploreListRow({
       <div className="lg:hidden p-4">
         <div className="flex items-start justify-between gap-3 mb-2">
           <ExploreStatusBadge status={conference.exploreStatus} />
-          {moreMenu}
         </div>
 
         <h3 className="text-[13px] font-bold leading-[1.3] tracking-tight text-[#1B3C53] dark:text-white mb-0.5">
@@ -708,32 +712,37 @@ export function ArchivedConferenceList({
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-      {/* Header Row */}
-      <div className="hidden lg:grid lg:grid-cols-[1fr_200px_210px_96px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
-        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.explore-cards.text_conference")}{" "}
-        </div>
-        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.explore-cards.text_location")}{" "}
-        </div>
-        <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          {t("runtime.components.conference.explore-cards.text_dates")}{" "}
-        </div>
-        <div className="px-4 py-3 pr-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">
-          {t("runtime.components.conference.explore-cards.text_actions")}{" "}
-        </div>
-      </div>
+      {/* Table & List Rows Container */}
+      <div className="overflow-x-auto w-full">
+        <div className="lg:min-w-[1024px]">
+          {/* Header Row */}
+          <div className="hidden lg:grid lg:grid-cols-[1fr_200px_210px_96px] border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80">
+            <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+              {t("runtime.components.conference.explore-cards.text_conference")}{" "}
+            </div>
+            <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+              {t("runtime.components.conference.explore-cards.text_location")}{" "}
+            </div>
+            <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+              {t("runtime.components.conference.explore-cards.text_dates")}{" "}
+            </div>
+            <div className="px-4 py-3 pr-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-right">
+              {t("runtime.components.conference.explore-cards.text_actions")}{" "}
+            </div>
+          </div>
 
-      {/* List Rows */}
-      <div className="divide-y divide-slate-100 dark:divide-slate-700">
-        {conferences.map((conference) => (
-          <ArchivedListRow
-            key={conference.id}
-            conference={conference}
-            onViewDetails={onViewDetails}
-            renderMoreMenu={renderMoreMenu}
-          />
-        ))}
+          {/* List Rows */}
+          <div className="divide-y divide-slate-100 dark:divide-slate-700">
+            {conferences.map((conference) => (
+              <ArchivedListRow
+                key={conference.id}
+                conference={conference}
+                onViewDetails={onViewDetails}
+                renderMoreMenu={renderMoreMenu}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Pagination */}

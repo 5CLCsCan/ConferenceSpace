@@ -53,7 +53,7 @@ func (s *Service) NotifyReviewerInvited(ctx context.Context, reviewerEmail strin
 		Metadata: map[string]interface{}{
 			"conference_name": conferenceName,
 		},
-		ActionURL:    fmt.Sprintf("/dashboard/conference/%d", conferenceID),
+		ActionURL:    "/role/reviewer/invitations",
 		ConferenceID: &conferenceID,
 	}
 
@@ -78,7 +78,7 @@ func (s *Service) NotifyReviewerAccepted(ctx context.Context, chairEmail string,
 			"reviewer_email":  reviewerEmail,
 			"conference_name": conferenceName,
 		},
-		ActionURL:    fmt.Sprintf("/dashboard/conference/%d/reviewers", conferenceID),
+		ActionURL:    fmt.Sprintf("/role/chair/conferences/%d", conferenceID),
 		ConferenceID: &conferenceID,
 	}
 
@@ -103,7 +103,7 @@ func (s *Service) NotifyReviewerRejected(ctx context.Context, chairEmail string,
 			"reviewer_email":  reviewerEmail,
 			"conference_name": conferenceName,
 		},
-		ActionURL:    fmt.Sprintf("/dashboard/conference/%d/reviewers", conferenceID),
+		ActionURL:    fmt.Sprintf("/role/chair/conferences/%d", conferenceID),
 		ConferenceID: &conferenceID,
 	}
 
@@ -127,7 +127,7 @@ func (s *Service) NotifySubmissionReceived(ctx context.Context, chairEmail strin
 			"submission_id":    submissionID,
 			"submission_title": submissionTitle,
 		},
-		ActionURL:    fmt.Sprintf("/dashboard/conference/%d/submission/%d", conferenceID, submissionID),
+		ActionURL:    fmt.Sprintf("/role/chair/conferences/%d/submissions/%d", conferenceID, submissionID),
 		ConferenceID: &conferenceID,
 	}
 
@@ -153,7 +153,7 @@ func (s *Service) NotifyReviewAssigned(ctx context.Context, reviewerEmail string
 			"assignment_id": assignmentID,
 			"paper_title":   paperTitle,
 		},
-		ActionURL:    fmt.Sprintf("/dashboard/reviewer/papers/%d?conference_id=%d", assignmentID, conferenceID),
+		ActionURL:    fmt.Sprintf("/role/reviewer/assignments/%d", assignmentID),
 		ConferenceID: &conferenceID,
 	}
 
@@ -178,7 +178,7 @@ func (s *Service) NotifyReviewSubmitted(ctx context.Context, chairEmail string, 
 			"reviewer_name": reviewerName,
 			"paper_title":   paperTitle,
 		},
-		ActionURL:    fmt.Sprintf("/dashboard/conference/%d/submission/%d", conferenceID, submissionID),
+		ActionURL:    fmt.Sprintf("/role/chair/conferences/%d/submissions/%d", conferenceID, submissionID),
 		ConferenceID: &conferenceID,
 	}
 
@@ -202,7 +202,7 @@ func (s *Service) NotifyPaperAccepted(ctx context.Context, authorEmail string, p
 			"submission_id": submissionID,
 			"paper_title":   paperTitle,
 		},
-		ActionURL:    fmt.Sprintf("/dashboard/author/papers/%d", submissionID),
+		ActionURL:    fmt.Sprintf("/role/author/submissions/%d", submissionID),
 		ConferenceID: &conferenceID,
 	}
 
@@ -226,7 +226,7 @@ func (s *Service) NotifyPaperRejected(ctx context.Context, authorEmail string, p
 			"submission_id": submissionID,
 			"paper_title":   paperTitle,
 		},
-		ActionURL:    fmt.Sprintf("/dashboard/author/papers/%d", submissionID),
+		ActionURL:    fmt.Sprintf("/role/author/submissions/%d", submissionID),
 		ConferenceID: &conferenceID,
 	}
 
@@ -258,7 +258,7 @@ func (s *Service) NotifyDeadlineReminder(ctx context.Context, userEmail string, 
 			"conference_name": conferenceName,
 			"days_left":       daysLeft,
 		},
-		ActionURL:    fmt.Sprintf("/dashboard/conference/%d", conferenceID),
+		ActionURL:    fmt.Sprintf("/role/author/conferences/%d", conferenceID),
 		ConferenceID: &conferenceID,
 	}
 
@@ -284,7 +284,7 @@ func (s *Service) NotifyStatusChange(ctx context.Context, userEmail string, enti
 			"old_status":  oldStatus,
 			"new_status":  newStatus,
 		},
-		ActionURL:    fmt.Sprintf("/dashboard/conference/%d", conferenceID),
+		ActionURL:    fmt.Sprintf("/role/chair/conferences/%d", conferenceID),
 		ConferenceID: &conferenceID,
 	}
 
@@ -321,7 +321,7 @@ func (s *Service) NotifyDiscussionThreadCreated(ctx context.Context, authorEmail
 			"submission_id":    submissionID,
 			"submission_title": paperTitle,
 		},
-		ActionURL:    fmt.Sprintf("/dashboard/conference/%d/submission/%d?tab=discussion&thread=%d", conferenceID, submissionID, threadID),
+		ActionURL:    fmt.Sprintf("/role/author/submissions/%d?tab=discussion&thread=%d", submissionID, threadID),
 		ConferenceID: &conferenceID,
 	}
 
@@ -347,7 +347,7 @@ func (s *Service) NotifyDiscussionMessageCreated(ctx context.Context, recipientE
 			"submission_id":    submissionID,
 			"submission_title": paperTitle,
 		},
-		ActionURL:    fmt.Sprintf("/dashboard/conference/%d/submission/%d?tab=discussion&thread=%d", conferenceID, submissionID, threadID),
+		ActionURL:    fmt.Sprintf("/role/author/submissions/%d?tab=discussion&thread=%d", submissionID, threadID),
 		ConferenceID: &conferenceID,
 	}
 

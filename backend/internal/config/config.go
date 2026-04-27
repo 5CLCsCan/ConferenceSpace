@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -24,9 +25,11 @@ type Config struct {
 
 // ServerConfig holds server-related configuration
 type ServerConfig struct {
-	Port       string
-	Env        string
-	AdminToken string // Admin token to bypass authentication
+	Port               string
+	Env                string
+	AdminToken         string // Admin token to bypass authentication
+	AgentServiceToken  string
+	CORSAllowedOrigins []string
 }
 
 // JWTConfig holds JWT-related configuration
@@ -96,9 +99,11 @@ func Load() (*Config, error) {
 
 	cfg := &Config{
 		Server: ServerConfig{
-			Port:       getEnv("SERVER_PORT", "8080"),
-			Env:        getEnv("SERVER_ENV", "development"),
-			AdminToken: getEnv("ADMIN_TOKEN", ""),
+			Port:               getEnv("SERVER_PORT", "8080"),
+			Env:                getEnv("SERVER_ENV", "development"),
+			AdminToken:         getEnv("ADMIN_TOKEN", ""),
+			AgentServiceToken:  getEnv("AGENT_SERVICE_TOKEN", ""),
+			CORSAllowedOrigins: getEnvList("CORS_ALLOWED_ORIGINS", []string{"http://localhost:3000", "http://localhost:5173"}),
 		},
 		Database: DatabaseConfig{
 			Host:     getEnv("DB_HOST", "localhost"),
@@ -165,6 +170,26 @@ func getEnv(key, defaultValue string) string {
 		return value
 	}
 	return defaultValue
+}
+
+func getEnvList(key string, defaultValue []string) []string {
+	value := os.Getenv(key)
+	if strings.TrimSpace(value) == "" {
+		return defaultValue
+	}
+
+	parts := strings.Split(value, ",")
+	result := make([]string, 0, len(parts))
+	for _, part := range parts {
+		trimmed := strings.TrimSpace(part)
+		if trimmed != "" {
+			result = append(result, trimmed)
+		}
+	}
+	if len(result) == 0 {
+		return defaultValue
+	}
+	return result
 }
 
 // getEnvAsInt gets an environment variable as int or returns a default value

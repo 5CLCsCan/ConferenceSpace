@@ -1,5 +1,5 @@
 // User roles
-export type UserRole = "author" | "reviewer" | "chair" | "admin"
+export type UserRole = "author" | "reviewer" | "chair" | "pc" | "admin"
 
 // Paper status
 export type PaperStatus =
@@ -110,6 +110,8 @@ export interface Conference {
   call_for_paper_text?: string // Call for paper content
   chair?: string
   co_chairs?: string[] // Co-chair email addresses
+  pc_members?: string[] // PC member email addresses
+  reviewers?: string[] // Invited reviewer email addresses
   primary_contact?: number
   area_chair?: number
   userRole?: string // "chair", "author", "reviewer", or undefined
@@ -128,6 +130,7 @@ export interface Conference {
     submission_format?: string
     require_complete_author_profile?: boolean
     allow_paper_withdrawls?: boolean
+    website?: string
     desk_rejection_settings?: {
       enabled?: boolean
       min_references?: number

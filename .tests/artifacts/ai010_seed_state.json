@@ -1,0 +1,73 @@
+{
+  "generated_at": "2026-03-31T12:43:08+00:00",
+  "base_url": "http://localhost:8080",
+  "seed_options": {
+    "prefix": "ai010",
+    "include_discussion_seed": false,
+    "include_draft_review_seed": true,
+    "chair_decision": null
+  },
+  "users": {
+    "chair": {
+      "email": "test.discussion.chair@example.com",
+      "first_name": "Test",
+      "last_name": "Chair",
+      "id": 164
+    },
+    "reviewer": {
+      "email": "test.discussion.reviewer@example.com",
+      "first_name": "Test",
+      "last_name": "Reviewer",
+      "id": 165
+    },
+    "author": {
+      "email": "test.discussion.author@example.com",
+      "first_name": "Test",
+      "last_name": "Author",
+      "id": 166
+    },
+    "profile": {
+      "email": "test.profile@example.com",
+      "first_name": "Test",
+      "last_name": "ProfileUser",
+      "id": 167
+    }
+  },
+  "entities": {
+    "conference_id": 62,
+    "open_conference_id": 63,
+    "conference_ids": [
+      62,
+      63
+    ],
+    "submission_id": 43,
+    "reviewer_record_id": 37,
+    "assignment_id": 13,
+    "thread_id": null
+  },
+  "cleanup_targets": {
+    "prefix": "ai010",
+    "conference_ids": [
+      62,
+      63
+    ]
+  },
+  "frontend_urls": {
+    "author_submission_discussion": "/role/author/submissions/43?conferenceId=62&tab=discussion",
+    "reviewer_assignment_discussion": "/role/reviewer/assignments/13?conferenceId=62&tab=discussion",
+    "chair_submission_detail": "/role/chair/conferences/62/submissions/43",
+    "conference_detail_chair": "/role/chair/conferences/62",
+    "conference_detail_author": "/role/author/conferences/62",
+    "conference_detail_author_open": "/role/author/conferences/63",
+    "author_new_submission_open": "/role/author/submissions/new?conferenceId=63",
+    "test_login_author": "/test/login?role=author",
+    "test_login_reviewer": "/test/login?role=reviewer",
+    "test_login_chair": "/test/login?role=chair",
+    "test_login_profile": "/test/login?role=profile"
+  },
+  "known_backend_blockers": [
+    "BR-001: /api/v1/conferences/:conference_id/stats missing authoritative analytics contract",
+    "BR-003: camera-ready upload contract missing",
+    "BR-004: rebuttal persistence write APIs missing for author/reviewer"
+  ]
+}

@@ -148,7 +148,8 @@ export function WizardActionBar({
               className="flex items-center gap-1.5 h-9 px-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-md text-[10px] font-medium shadow-sm transition-all uppercase tracking-wider"
             >
               <span className="material-symbols-outlined text-[14px]">arrow_back</span>
-              {previousStepLabel || "Previous"}
+              {previousStepLabel ||
+                t("runtime.components.wizard.creation.wizard-layout.text_previous")}
             </button>
           )}
 
@@ -202,7 +203,7 @@ export function WizardActionBar({
               onClick={onNext}
               className="flex items-center gap-1.5 h-9 px-4 bg-[#1B3C53] hover:bg-[#234C6A] text-white rounded-md text-[10px] font-medium shadow-md transition-all uppercase tracking-wider"
             >
-              {nextStepLabel || "Next"}
+              {nextStepLabel || t("runtime.components.wizard.creation.wizard-layout.text_next")}
               <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
             </button>
           )}

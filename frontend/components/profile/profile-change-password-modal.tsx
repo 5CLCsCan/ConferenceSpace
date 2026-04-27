@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast"
 import { authApi } from "@/lib/api/auth"
 import { cn } from "@/lib/utils"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 type PwRuleKey = "length" | "lower" | "upper" | "number" | "special"
 const PW_RULE_ORDER: PwRuleKey[] = ["length", "lower", "upper", "number", "special"]
@@ -18,6 +19,7 @@ const PW_RULE_LABELS: Record<PwRuleKey, string> = {
 }
 
 export function ProfileChangePasswordModal({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation()
   const { toast } = useToast()
   const [form, setForm] = useState({ current: "", next: "", confirm: "" })
   const [loading, setLoading] = useState(false)
@@ -47,7 +49,7 @@ export function ProfileChangePasswordModal({ onClose }: { onClose: () => void })
     setLoading(true)
     try {
       await authApi.changePassword(form.current, form.next)
-      toast({ title: "Password changed", description: "Your password was updated successfully." })
+      toast({ title: t("runtime.components.profile.profile-change-password-modal.prop_title_password_changed"), description: t("runtime.components.profile.profile-change-password-modal.prop_description_your_password_was_updated_successfully") })
       onClose()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to change password.")
@@ -66,11 +68,9 @@ export function ProfileChangePasswordModal({ onClose }: { onClose: () => void })
         <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
           <div>
             <h2 className="text-sm font-bold tracking-tight text-[#1B3C53] dark:text-white">
-              Change password
-            </h2>
+              {t("runtime.components.profile.profile-change-password-modal.text_change_password")}{" "}</h2>
             <p className="text-[10px] font-medium text-slate-400 mt-0.5">
-              Update your account password securely.
-            </p>
+              {t("runtime.components.profile.profile-change-password-modal.text_update_your_account_password_securely")}{" "}</p>
           </div>
           <button
             onClick={onClose}
@@ -87,8 +87,7 @@ export function ProfileChangePasswordModal({ onClose }: { onClose: () => void })
           {/* Current */}
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-              Current password
-            </label>
+              {t("runtime.components.profile.profile-change-password-modal.text_current_password")}{" "}</label>
             <div className="relative">
               <Input
                 type={showCurrent ? "text" : "password"}
@@ -112,8 +111,7 @@ export function ProfileChangePasswordModal({ onClose }: { onClose: () => void })
           {/* New */}
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-              New password
-            </label>
+              {t("runtime.components.profile.profile-change-password-modal.text_new_password")}{" "}</label>
             <div className="flex gap-1 mb-1.5">
               {[0, 1, 2, 3, 4].map((i) => (
                 <div
@@ -151,8 +149,7 @@ export function ProfileChangePasswordModal({ onClose }: { onClose: () => void })
           {/* Confirm */}
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-              Confirm new password
-            </label>
+              {t("runtime.components.profile.profile-change-password-modal.text_confirm_new_password")}{" "}</label>
             <Input
               type="password"
               placeholder="--------"
@@ -193,8 +190,7 @@ export function ProfileChangePasswordModal({ onClose }: { onClose: () => void })
             disabled={loading}
             className="h-8 px-4 rounded-full border border-slate-200 dark:border-slate-600 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
           >
-            Cancel
-          </button>
+            {t("runtime.components.profile.profile-change-password-modal.text_cancel")}{" "}</button>
           <button
             onClick={handleSubmit}
             disabled={loading || !form.current || !form.next || !form.confirm}
@@ -203,8 +199,7 @@ export function ProfileChangePasswordModal({ onClose }: { onClose: () => void })
             {loading ? (
               <>
                 <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin inline" />
-                Saving...
-              </>
+                {t("runtime.components.profile.profile-change-password-modal.text_saving")}{" "}</>
             ) : (
               "Change password"
             )}

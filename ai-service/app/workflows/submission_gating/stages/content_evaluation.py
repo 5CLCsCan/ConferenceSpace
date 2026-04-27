@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from app.workflows.submission_gating.prompts import build_content_evaluation_messages
 from app.workflows.submission_gating.models.findings import ContentFinding
 from app.workflows.submission_gating.models.state import GatingState
 
@@ -15,15 +16,21 @@ async def run(state: GatingState, *, llm_client) -> GatingState:
         raise ValueError("content evaluation requires extracted document and submission facts")
 
     try:
-        findings_payload = await llm_client.extract_structured_findings(
-            steering_prompt=prompt,
-            extracted_text=state.extracted_document.raw_text,
-            submission_facts={
-                "page_count": state.submission_facts.page_count,
-                "section_presence": state.submission_facts.section_presence,
-                "reference_count_estimate": state.submission_facts.reference_count_estimate,
-                "keyword_coverage": state.submission_facts.keyword_coverage,
-            },
+        findings_payload = await llm_client.complete_json(
+            messages=build_content_evaluation_messages(
+                steering_prompt=prompt,
+                extracted_text=state.extracted_document.raw_text,
+                submission_facts={
+                    "page_count": state.submission_facts.page_count,
+                    "section_presence": state.submission_facts.section_presence,
+                    "reference_count_estimate": state.submission_facts.reference_count_estimate,
+                    "abstract_present": state.submission_facts.abstract_present,
+                    "anonymization_signals": state.submission_facts.anonymization_signals,
+                    "table_count": state.submission_facts.table_count,
+                    "figure_count": state.submission_facts.figure_count,
+                    "text_coverage_ratio": state.submission_facts.text_coverage_ratio,
+                },
+            ),
         )
     except TimeoutError:
         state.content_findings = []

@@ -16,3 +16,13 @@ func IsUserChairOrCoChair(ctx context.Context, roleStorage conferenceuserrole.St
 
 	return hasRole
 }
+
+// IsUserChairCoChairOrPC checks if a user has chair, co-chair, or PC permissions in a conference
+func IsUserChairCoChairOrPC(ctx context.Context, roleStorage conferenceuserrole.StorageInterface, conferenceID int64, userEmail string) bool {
+	hasRole, err := roleStorage.HasRole(ctx, conferenceID, userEmail, []string{model.RoleChair, model.RoleCoChair, model.RolePC})
+	if err != nil {
+		return false
+	}
+
+	return hasRole
+}

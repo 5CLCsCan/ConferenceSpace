@@ -19,10 +19,13 @@ import {
   type TabId,
   type ConferenceInfo,
 } from "@/components/chair/conference-detail"
+import { CommitteeTab as PublicCommitteeTab } from "@/components/author/conference-detail/committee-tab"
 import { getSidebarMenuItems } from "@/lib/navigation"
-import { getConferenceById } from "@/lib/api/conferences"
+import { getConferenceById, type Conference } from "@/lib/api/conferences"
 import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { recordRecentConference } from "@/lib/recent-conferences"
+import { ROUTES } from "@/lib/routes"
 
 function formatDate(value?: string) {
   if (!value) return "-"
@@ -36,7 +39,7 @@ export default function ChairConferenceDetailPage() {
   const params = useParams()
   const router = useRouter()
   const conferenceId = params.conferenceId as string
-  const { currentRole, isAuthLoading } = useAuth()
+  const { currentRole, isAuthLoading, user } = useAuth()
 
   const { unreadCount } = useNotifications({ limit: 1 })
   const [activeTab, setActiveTab] = useState<TabId>("dashboard")
@@ -48,9 +51,12 @@ export default function ChairConferenceDetailPage() {
     startDate: "-",
     endDate: "-",
     year: "2026",
+    userRole: undefined,
   })
+  const [conferenceData, setConferenceData] = useState<Conference | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [rebuttalRefreshKey, setRebuttalRefreshKey] = useState(0)
 
   useEffect(() => {
     async function loadConference() {
@@ -71,6 +77,22 @@ export default function ChairConferenceDetailPage() {
       }
 
       const data = response.data
+      setConferenceData(data)
+      if (currentRole === "chair" || currentRole === "pc") {
+        recordRecentConference({
+          userKey: user?.email || "guest",
+          role: currentRole,
+          conference: {
+            id: conferenceId,
+            name: data.name || "Conference",
+            acronym: data.acronym,
+            year: data.year,
+            role: currentRole,
+            href: ROUTES.CHAIR.CONFERENCE_DETAIL(conferenceId),
+            viewedAt: new Date().toISOString(),
+          },
+        })
+      }
       setConference({
         id: conferenceId,
         acronym: data.acronym || data.name || "CONF",
@@ -79,12 +101,35 @@ export default function ChairConferenceDetailPage() {
         startDate: formatDate(data.conference_date),
         endDate: formatDate(data.conference_end_date),
         year: String(data.year || new Date().getFullYear()),
+        userRole: data.userRole,
       })
       setLoading(false)
     }
 
     void loadConference()
-  }, [conferenceId, router])
+  }, [conferenceId, currentRole, router, user?.email])
+
+  useEffect(() => {
+    const normalizedRole = (conference.userRole || "").toLowerCase()
+    const canAccessRestrictedTabs =
+      normalizedRole === "chair" || normalizedRole === "co-chair" || normalizedRole === "co_chair"
+
+    if (
+      !canAccessRestrictedTabs &&
+      (activeTab === "submissions" ||
+        activeTab === "assignments" ||
+        activeTab === "coi" ||
+        activeTab === "rebuttal")
+    ) {
+      setActiveTab("overview")
+    }
+  }, [activeTab, conference.userRole])
+
+  const normalizedConferenceRole = (conference.userRole || "").toLowerCase()
+  const canManageConference =
+    normalizedConferenceRole === "chair" ||
+    normalizedConferenceRole === "co-chair" ||
+    normalizedConferenceRole === "co_chair"
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -102,6 +147,9 @@ export default function ChairConferenceDetailPage() {
       case "dates":
         return <ConferenceDates conferenceId={conferenceId} />
       case "committee":
+        if (!canManageConference && conferenceData) {
+          return <PublicCommitteeTab conference={conferenceData} />
+        }
         return <ConferenceCommittee conferenceId={conferenceId} />
       case "submissions":
         return <ConferenceSubmissions conferenceId={conferenceId} />
@@ -112,8 +160,21 @@ export default function ChairConferenceDetailPage() {
       case "rebuttal":
         return (
           <div className="space-y-6">
-            <ConferenceRebuttalSettings conferenceId={conferenceId} />
-            <ConferenceRebuttalManagement conferenceId={conferenceId} />
+            <div>
+              <h2 className="text-lg font-bold text-[#1B3C53] tracking-tight">Rebuttal</h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Configure the rebuttal period and monitor author responses during the rebuttal
+                phase.
+              </p>
+            </div>
+            <ConferenceRebuttalSettings
+              conferenceId={conferenceId}
+              onSaved={() => setRebuttalRefreshKey((prev) => prev + 1)}
+            />
+            <ConferenceRebuttalManagement
+              conferenceId={conferenceId}
+              refreshKey={rebuttalRefreshKey}
+            />
           </div>
         )
       default:
@@ -136,7 +197,7 @@ export default function ChairConferenceDetailPage() {
           conference={conference}
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          userRole={currentRole ?? undefined}
+          userRole={conference.userRole}
         />
 
         <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-black">

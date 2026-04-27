@@ -13,27 +13,143 @@ class ToolSpec:
 
 
 TOOL_REGISTRY: dict[str, ToolSpec] = {
+    "getCurrentNavigation": ToolSpec(
+        name="getCurrentNavigation",
+        execution_mode="client",
+        input_schema={"type": "object", "properties": {}, "additionalProperties": False},
+        timeout_seconds=90,
+    ),
+    "navigate": ToolSpec(
+        name="navigate",
+        execution_mode="client",
+        input_schema={
+            "type": "object",
+            "properties": {
+                "destinationId": {"type": "string"},
+                "params": {
+                    "type": "object",
+                    "additionalProperties": {"type": "string"},
+                },
+            },
+            "required": ["destinationId"],
+            "additionalProperties": False,
+        },
+        timeout_seconds=90,
+    ),
     "getPageContext": ToolSpec(
         name="getPageContext",
         execution_mode="client",
         input_schema={"type": "object", "properties": {}, "additionalProperties": False},
         timeout_seconds=90,
     ),
-    "performAction": ToolSpec(
-        name="performAction",
+    "performActions": ToolSpec(
+        name="performActions",
         execution_mode="client",
         input_schema={
             "type": "object",
             "properties": {
-                "action": {"type": "string", "enum": ["click", "type", "press", "select", "clear"]},
-                "ref": {"type": "string"},
-                "text": {"type": "string"},
-                "key": {"type": "string"},
-                "value": {"type": "string"},
+                "actions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "action": {
+                                "type": "string",
+                                "enum": ["click", "type", "press", "select", "clear"],
+                            },
+                            "ref": {"type": "string"},
+                            "text": {"type": "string"},
+                            "key": {"type": "string"},
+                            "value": {"type": "string"},
+                        },
+                        "required": ["action"],
+                        "additionalProperties": False,
+                    },
+                }
             },
-            "required": ["action"],
+            "required": ["actions"],
             "additionalProperties": False,
         },
         timeout_seconds=90,
+    ),
+    "query_engine": ToolSpec(
+        name="query_engine",
+        execution_mode="server",
+        input_schema={
+            "type": "object",
+            "properties": {
+                "op": {"type": "string", "enum": ["describe", "query"]},
+                "resource": {"type": "string"},
+                "select": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "field": {"type": "string"},
+                            "as": {"type": "string"},
+                        },
+                        "required": ["field"],
+                        "additionalProperties": False,
+                    },
+                },
+                "filter": {"type": "object"},
+                "group_by": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "field": {"type": "string"},
+                            "as": {"type": "string"},
+                        },
+                        "required": ["field"],
+                        "additionalProperties": False,
+                    },
+                },
+                "aggregates": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "fn": {"type": "string"},
+                            "field": {"type": "string"},
+                            "as": {"type": "string"},
+                        },
+                        "required": ["fn", "field"],
+                        "additionalProperties": False,
+                    },
+                },
+                "sort": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "field": {"type": "string"},
+                            "dir": {"type": "string", "enum": ["asc", "desc"]},
+                        },
+                        "required": ["field"],
+                        "additionalProperties": False,
+                    },
+                },
+                "limit": {"type": "integer", "minimum": 1},
+                "offset": {"type": "integer", "minimum": 0},
+            },
+            "required": ["op"],
+            "additionalProperties": False,
+        },
+        timeout_seconds=30,
+    ),
+    "get_skill": ToolSpec(
+        name="get_skill",
+        execution_mode="server",
+        input_schema={
+            "type": "object",
+            "properties": {
+                "skill_name": {"type": "string"},
+            },
+            "required": ["skill_name"],
+            "additionalProperties": False,
+        },
+        timeout_seconds=30,
     ),
 }

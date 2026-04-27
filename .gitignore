@@ -44,3 +44,11 @@ __pycache__
 .pytest_cache
 chatbot-architecture
 .venv
+
+*.docx
+.gitnexus
+
+responses_probe.py
+error-logs/
+.autopilot.json
+secret/

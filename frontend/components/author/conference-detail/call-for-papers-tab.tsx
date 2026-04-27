@@ -88,7 +88,7 @@ const MOCK_RESOURCES = [
   },
   {
     name: "Word Template",
-    description: "IEEE conference (.docx)",
+    description: t("runtime.components.author.conference-detail.call-for-papers-tab.prop_description_ieee_conference_docx"),
     type: "word",
     icon: "picture_as_pdf",
     url: "/templates/ieee-word-template.docx",
@@ -571,7 +571,6 @@ export function CallForPapersTab({ conference }: TabProps) {
 
         {/* Right Column - 30% width */}
         <div className="lg:col-span-3 space-y-4">
-          <ImportantDatesCard conference={conference} />
           <AuthorResourcesCard />
         </div>
       </div>

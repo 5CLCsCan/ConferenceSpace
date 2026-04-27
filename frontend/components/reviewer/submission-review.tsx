@@ -2,6 +2,16 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useToast } from "@/hooks/use-toast"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 // Import from extracted modules
 import {
@@ -13,13 +23,16 @@ import {
 import { CriterionScoreCard, ScoreSummary } from "./submission-review/scoring-criteria"
 import { ReviewHeaderBar, PaperHeader, TabNavigation } from "./submission-review/review-header"
 import { AbstractCard, AIAssistantCard } from "./submission-review/review-sidebar"
+import { ReviewAuditPanel } from "./submission-review/review-audit-panel"
 import { DetailedFeedbackSection } from "./submission-review/detailed-feedback"
 import { FinalRecommendationCard } from "./submission-review/recommendation-selector"
 import { DiscussionTab } from "./submission-review/discussion-tab"
 import { RebuttalTab } from "./submission-review/rebuttal-tab"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import useAssignmentReview from "@/hooks/use-assignment-review"
+import useReviewAudit from "@/hooks/use-review-audit"
 import type { Paper } from "@/lib/types"
+import type { ReviewAuditFinding, ReviewAuditResponse } from "@/lib/api/review-audit"
 import type { ReviewData } from "@/lib/api/reviews"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
@@ -48,7 +61,18 @@ export function SubmissionReviewScreen({
   const [activeTab, setActiveTab] = useState<TabType>(initialTab)
   const [formData, setFormData] = useState<ReviewFormData>(INITIAL_FORM_DATA)
   const [discussionCount, setDiscussionCount] = useState(0)
+  const [auditOverridePrompt, setAuditOverridePrompt] = useState<string | null>(null)
   const { review, saving, saveReview } = useAssignmentReview(conferenceId, assignmentId)
+  const {
+    audit,
+    auditing,
+    updatingDismissal,
+    error: auditError,
+    runAudit,
+    dismissFinding,
+    undismissFinding,
+    replaceAudit,
+  } = useReviewAudit(conferenceId, assignmentId)
   const { toast } = useToast()
   const hasInitialized = useRef(false)
 
@@ -82,9 +106,13 @@ export function SubmissionReviewScreen({
       id: assignmentId,
       submissionId,
       title: submissionFromApi?.title || `Submission #${submissionId}`,
-      abstract: submissionFromApi?.abstract || "No abstract available.",
+      abstract:
+        submissionFromApi?.abstract ||
+        t("runtime.components.reviewer.submission-review.text_no_abstract_available"),
       keywords: submissionFromApi?.keywords || [],
-      track: submissionFromApi?.track_id || "Unassigned",
+      track:
+        submissionFromApi?.track_id ||
+        t("runtime.components.reviewer.submission-review.text_unassigned"),
       status: "under_review" as const,
       dueDate: "",
       daysLeft: 0,
@@ -92,7 +120,7 @@ export function SubmissionReviewScreen({
       conference: {
         id: conferenceId,
         acronym: `CONF-${conferenceId}`,
-        name: "Conference",
+        name: t("runtime.components.reviewer.submission-review.text_conference"),
       },
     }
   }, [
@@ -103,15 +131,22 @@ export function SubmissionReviewScreen({
     submissionFromApi?.title,
     submissionFromApi?.track_id,
     submissionId,
+    t,
   ])
 
   const updateFormField = <K extends keyof ReviewFormData>(field: K, value: ReviewFormData[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const toReviewPayload = (
-    status: "draft" | "submitted",
-  ): ReviewData & { status: "draft" | "submitted" } => {
+  const reviewScore =
+    (formData.originality +
+      formData.technicalQuality +
+      formData.clarity +
+      formData.significance +
+      formData.methodology) /
+    5
+
+  const toReviewPayload = (): ReviewData => {
     const confidenceValue =
       formData.confidence >= 4 ? "high" : formData.confidence >= 2 ? "medium" : "low"
     return {
@@ -130,24 +165,36 @@ export function SubmissionReviewScreen({
       },
       recommendation: (formData.recommendation as ReviewData["recommendation"]) || "borderline",
       confidence: confidenceValue,
-      status,
     }
   }
 
+  const parseReviewErrorDetail = (errorData: unknown) => {
+    return (
+      (
+        errorData as {
+          data?: {
+            code?: string
+            message?: string
+            override_allowed?: boolean
+            audit?: ReviewAuditResponse
+          }
+        }
+      )?.data ?? null
+    )
+  }
+
   const handleSaveDraft = async () => {
-    const payload = toReviewPayload("draft")
-    const { success, error } = await saveReview({
-      assignment_id: Number(assignmentId),
-      conference_id: Number(conferenceId),
-      review_score:
-        (formData.originality +
-          formData.technicalQuality +
-          formData.clarity +
-          formData.significance +
-          formData.methodology) /
-        5,
+    const payload = toReviewPayload()
+    const auditResult = await runAudit({
+      mode: "draft_save",
+      review_score: reviewScore,
       review_data: payload,
-      status: payload.status,
+    })
+
+    const { success, error } = await saveReview({
+      review_score: reviewScore,
+      review_data: payload,
+      status: "draft",
     })
 
     if (success) {
@@ -158,13 +205,16 @@ export function SubmissionReviewScreen({
       })
       updateFormField("lastSaved", now)
       toast({
-        title: "Draft saved",
-        description: `Your review draft was saved at ${now}.`,
+        title: t("runtime.components.reviewer.submission-review.prop_title_draft_saved"),
+        description:
+          auditResult.success === false && auditResult.error
+            ? `Draft saved at ${now}. Audit was unavailable this time.`
+            : `Your review draft was saved at ${now}.`,
       })
     } else {
       toast({
         variant: "destructive",
-        title: "Failed to save draft",
+        title: t("runtime.components.reviewer.submission-review.prop_title_failed_to_save_draft"),
         description: error || "An unexpected error occurred. Please try again.",
       })
     }
@@ -175,45 +225,105 @@ export function SubmissionReviewScreen({
     if (!formData.recommendation) {
       toast({
         variant: "destructive",
-        title: "Recommendation required",
-        description: "Please select an overall rating before submitting.",
+        title: t("runtime.components.reviewer.submission-review.prop_title_recommendation_required"),
+        description: t("runtime.components.reviewer.submission-review.prop_description_please_select_an_overall_rating_before"),
       })
       return
     }
     if (!formData.summary.trim() || !formData.strengths.trim() || !formData.weaknesses.trim()) {
       toast({
         variant: "destructive",
-        title: "Incomplete review",
-        description: "Please fill in the Summary, Strengths, and Weaknesses before submitting.",
+        title: t("runtime.components.reviewer.submission-review.prop_title_incomplete_review"),
+        description: t("runtime.components.reviewer.submission-review.prop_description_please_fill_in_the_summary_strengths"),
       })
       return
     }
 
-    const payload = toReviewPayload("submitted")
-    const { success, error } = await saveReview({
-      assignment_id: Number(assignmentId),
-      conference_id: Number(conferenceId),
-      review_score:
-        (formData.originality +
-          formData.technicalQuality +
-          formData.clarity +
-          formData.significance +
-          formData.methodology) /
-        5,
+    const payload = toReviewPayload()
+    const preflight = await runAudit({
+      mode: "submit_preflight",
+      review_score: reviewScore,
       review_data: payload,
-      status: payload.status,
+    })
+    if (preflight.success && preflight.data?.status === "block") {
+      toast({
+        variant: "destructive",
+        title: t("runtime.components.reviewer.submission-review.prop_title_submission_blocked"),
+        description: t("runtime.components.reviewer.submission-review.prop_description_resolve_the_active_blocking_audit_findings"),
+      })
+      return
+    }
+
+    const { success, error, errorData } = await saveReview({
+      review_score: reviewScore,
+      review_data: payload,
+      status: "submitted",
     })
 
     if (success) {
       toast({
-        title: "Review submitted",
-        description: "Your review has been submitted successfully.",
+        title: t("runtime.components.reviewer.submission-review.prop_title_review_submitted"),
+        description: t("runtime.components.reviewer.submission-review.prop_description_your_review_has_been_submitted_successfully"),
       })
     } else {
+      const detail = parseReviewErrorDetail(errorData)
+      if (detail?.code === "review_audit_blocked" && detail.audit) {
+        replaceAudit(detail.audit)
+        toast({
+          variant: "destructive",
+          title: t("runtime.components.reviewer.submission-review.prop_title_submission_blocked"),
+          description: t("runtime.components.reviewer.submission-review.prop_description_resolve_the_active_blocking_audit_findings"),
+        })
+        return
+      }
+      if (detail?.code === "review_audit_failed" && detail.override_allowed) {
+        setAuditOverridePrompt(detail.message || "Review audit could not be completed.")
+        return
+      }
       toast({
         variant: "destructive",
-        title: "Failed to submit review",
+        title: t("runtime.components.reviewer.submission-review.prop_title_failed_to_submit_review"),
         description: error || "An unexpected error occurred. Please try again.",
+      })
+    }
+  }
+
+  const handleConfirmAuditOverride = async () => {
+    const payload = toReviewPayload()
+    const result = await saveReview({
+      review_score: reviewScore,
+      review_data: payload,
+      status: "submitted",
+      audit_failure_override_confirmed: true,
+    })
+
+    if (result.success) {
+      setAuditOverridePrompt(null)
+      toast({
+        title: t("runtime.components.reviewer.submission-review.prop_title_review_submitted"),
+        description: t("runtime.components.reviewer.submission-review.prop_description_your_review_was_submitted_without_a"),
+      })
+      return
+    }
+
+    toast({
+      variant: "destructive",
+      title: t("runtime.components.reviewer.submission-review.prop_title_failed_to_submit_review"),
+      description: result.error || "An unexpected error occurred. Please try again.",
+    })
+  }
+
+  const handleDismissFinding = async (
+    code: "dismiss" | "undismiss",
+    finding: ReviewAuditFinding,
+  ) => {
+    const result =
+      code === "dismiss" ? await dismissFinding(finding) : await undismissFinding(finding)
+    if (!result.success) {
+      toast({
+        variant: "destructive",
+        title: t("runtime.components.reviewer.submission-review.prop_title_failed_to_update_audit_finding"),
+        description: result.error || "An unexpected error occurred. Please try again.",
       })
     }
   }
@@ -259,7 +369,12 @@ export function SubmissionReviewScreen({
 
               {/* Guide/Actionable Cards - 25% */}
               <div className="xl:col-span-1 space-y-4">
-                <AIAssistantCard />
+                <AIAssistantCard
+                  conferenceId={conferenceId}
+                  assignmentId={assignmentId}
+                  submissionId={submission.submissionId}
+                  submissionTitle={submission.title}
+                />
               </div>
             </div>
 
@@ -380,31 +495,33 @@ export function SubmissionReviewScreen({
                   <div className="space-y-3">
                     <CriterionScoreCard
                       criterionKey="originality"
-                      label="Originality"
+                      label={t("runtime.components.reviewer.submission-review.text_originality")}
                       value={formData.originality}
                       onChange={(v) => updateFormField("originality", v)}
                     />
                     <CriterionScoreCard
                       criterionKey="technicalQuality"
-                      label="Technical Quality"
+                      label={t(
+                        "runtime.components.reviewer.submission-review.text_technical_quality",
+                      )}
                       value={formData.technicalQuality}
                       onChange={(v) => updateFormField("technicalQuality", v)}
                     />
                     <CriterionScoreCard
                       criterionKey="clarity"
-                      label="Clarity"
+                      label={t("runtime.components.reviewer.submission-review.text_clarity")}
                       value={formData.clarity}
                       onChange={(v) => updateFormField("clarity", v)}
                     />
                     <CriterionScoreCard
                       criterionKey="significance"
-                      label="Significance"
+                      label={t("runtime.components.reviewer.submission-review.text_significance")}
                       value={formData.significance}
                       onChange={(v) => updateFormField("significance", v)}
                     />
                     <CriterionScoreCard
                       criterionKey="methodology"
-                      label="Methodology"
+                      label={t("runtime.components.reviewer.submission-review.text_methodology")}
                       value={formData.methodology}
                       onChange={(v) => updateFormField("methodology", v)}
                     />
@@ -447,6 +564,15 @@ export function SubmissionReviewScreen({
               }
             />
 
+            <ReviewAuditPanel
+              audit={audit}
+              auditing={auditing}
+              updatingDismissal={updatingDismissal}
+              error={auditError}
+              onDismiss={(finding) => handleDismissFinding("dismiss", finding)}
+              onUndismiss={(finding) => handleDismissFinding("undismiss", finding)}
+            />
+
             {/* Sticky Action Bar */}
             <div className="sticky bottom-6 z-20 flex items-center justify-between bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-lg shadow-sm mt-8">
               <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
@@ -472,21 +598,24 @@ export function SubmissionReviewScreen({
                   schedule
                 </span>
                 {t("runtime.components.reviewer.submission-review.text_last_draft_saved")}{" "}
-                {formData.lastSaved || "Not saved"}
+                  {formData.lastSaved ||
+                    t("runtime.components.reviewer.submission-review.text_not_saved")}
               </div>
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={handleSaveDraft}
-                  disabled={saving}
+                  disabled={saving || auditing}
                   className="h-8 px-3 rounded-md border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium text-[11px] hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 >
-                  {saving ? "Saving..." : "Save Draft"}
+                    {saving || auditing
+                      ? t("runtime.components.reviewer.submission-review.text_saving")
+                      : t("runtime.components.reviewer.submission-review.text_save_draft")}
                 </button>
                 <button
                   type="button"
                   onClick={handleSubmitReview}
-                  disabled={saving}
+                  disabled={saving || auditing}
                   className="h-8 px-3 rounded-md bg-[#1B3C53] dark:bg-white hover:bg-[#234C6A] dark:hover:bg-slate-200 text-white dark:text-[#1B3C53] font-medium text-[11px] shadow-sm transition-all flex items-center gap-2"
                 >
                   <span
@@ -510,7 +639,9 @@ export function SubmissionReviewScreen({
                   >
                     send
                   </span>
-                  {saving ? "Submitting..." : "Submit Review"}
+                  {saving || auditing
+                    ? t("runtime.components.reviewer.submission-review.text_submitting")
+                    : t("runtime.components.reviewer.submission-review.text_submit_review")}
                 </button>
               </div>
             </div>
@@ -536,6 +667,28 @@ export function SubmissionReviewScreen({
           />
         )}
       </main>
+
+      <AlertDialog
+        open={!!auditOverridePrompt}
+        onOpenChange={(open) => !open && setAuditOverridePrompt(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("runtime.components.reviewer.submission-review.text_submit_without_completed_audit")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {auditOverridePrompt ||
+                t(
+                  "runtime.components.reviewer.submission-review.text_audit_workflow_failed_override_logged",
+                )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("runtime.components.reviewer.submission-review.text_cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmAuditOverride}>
+              {t("runtime.components.reviewer.submission-review.text_submit_anyway")}{" "}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

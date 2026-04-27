@@ -1,4 +1,4 @@
-.PHONY: help dev db-up db-down db-reset redis-up redis-down redis-logs neo4j-up neo4j-down neo4j-init neo4j-shell neo4j-logs server build run test clean docker-build docker-up docker-down docker-logs-redis migrate-up migrate-down test-api test-api-coverage
+.PHONY: help dev db-up db-down db-reset redis-up redis-down redis-logs neo4j-up neo4j-down neo4j-init neo4j-shell neo4j-logs ai-service-up ai-service-down ai-service-logs ai-service-rebuild server build run test clean docker-build docker-up docker-down docker-logs-redis migrate-up migrate-down test-api test-api-coverage
 
 # Go binary path
 GOBIN := $(shell go env GOPATH)/bin
@@ -19,12 +19,13 @@ help: ## Show this help message
 # Development Workflow
 # ============================================================================
 
-dev: db-up redis-up neo4j-up migrate-up neo4j-init swagger server ## Start all databases, run migrations, init Neo4j, generate swagger docs, and start server
+dev: db-up redis-up neo4j-up migrate-up neo4j-init ai-service-up swagger server ## Start all databases, ai-service, and backend server
 
 restart: ## Restart all services (kill current server, stop databases, and run make dev)
 	@echo "Stopping existing server..."
 	@pkill -f "go run ./cmd/server/main.go" || true
 	@pkill -f "bin/server" || true
+	@docker-compose stop ai-service 2>/dev/null || true
 	@echo "Killing any process on port 8080..."
 	@lsof -ti:8080 | xargs kill -9 2>/dev/null || true
 	@echo "Waiting for processes to terminate..."
@@ -61,6 +62,32 @@ redis-down: ## Stop Redis cache
 
 redis-logs: ## View Redis logs
 	docker-compose logs -f redis
+
+# ai-service-up: ## Start ai-service via Docker (builds image if needed)
+# 	@echo "Starting ai-service..."
+# 	docker-compose up -d ai-service
+# 	@echo "Waiting for ai-service to be ready..."
+# 	@for i in 1 2 3 4 5 6 7 8 9 10; do \
+# 		if curl -sf http://localhost:8090/health > /dev/null 2>&1; then \
+# 			echo "ai-service is ready!"; \
+# 			break; \
+# 		fi; \
+# 		echo "Waiting for ai-service... ($$i/10)"; \
+# 		sleep 3; \
+# 	done
+# 	@curl -sf http://localhost:8090/health > /dev/null 2>&1 || echo "ai-service may still be starting, check: make ai-service-logs"
+
+# ai-service-down: ## Stop ai-service
+# 	@echo "Stopping ai-service..."
+# 	docker-compose stop ai-service
+
+# ai-service-logs: ## View ai-service logs
+# 	docker-compose logs -f ai-service
+
+# ai-service-rebuild: ## Rebuild and restart ai-service
+# 	@echo "Rebuilding ai-service..."
+# 	docker-compose build ai-service
+# 	docker-compose up -d ai-service
 
 server: ## Run the server locally (requires DB to be running)
 	@echo "Starting server..."
@@ -412,6 +439,9 @@ status: ## Check status of services
 	@echo ""
 	@echo "=== API Health Check ==="
 	@curl -s http://localhost:8080/health 2>/dev/null | grep -q "healthy" && echo "API is healthy!" || echo "API not accessible"
+	@echo ""
+	@echo "=== AI Service Status ==="
+	@curl -sf http://localhost:8090/health > /dev/null 2>&1 && echo "AI Service is healthy!" || echo "AI Service not accessible"
 	@echo ""
 	@echo "=== GROBID Status ==="
 	@curl -sf http://localhost:8070/api/isalive > /dev/null 2>&1 && echo "[OK] GROBID is ready" || echo "[WARN] GROBID not accessible"

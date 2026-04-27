@@ -25,7 +25,7 @@ class _FakeRepo:
 
 
 class _NoopLLM:
-    async def extract_structured_findings(self, *_args, **_kwargs):
+    async def complete_json(self, *_args, **_kwargs):
         return []
 
 

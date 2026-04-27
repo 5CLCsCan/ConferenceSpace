@@ -13,6 +13,7 @@ import {
 } from "@/lib/api/schedules"
 import { downloadAllSchedulesICS } from "@/lib/utils/ics-calendar"
 import type { UserRole } from "@/lib/types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 // ============================================================================
 // VARIANTS
@@ -48,13 +49,24 @@ const getDaysUntil = (date: Date) => {
   return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 }
 
-const formatCountdown = (days: number) => {
-  if (days < 0) return "Passed"
-  if (days === 0) return "Today"
-  if (days === 1) return "Tomorrow"
-  if (days < 7) return `${days} days`
-  if (days < 30) return `${Math.floor(days / 7)} weeks`
-  return `${Math.floor(days / 30)} months`
+const formatCountdown = (
+  days: number,
+  t: ReturnType<typeof useTranslation>["t"],
+) => {
+  if (days < 0) return t("runtime.components.schedules.schedules-page-content.text_passed")
+  if (days === 0) return t("runtime.components.schedules.schedules-page-content.text_today")
+  if (days === 1) return t("runtime.components.schedules.schedules-page-content.text_tomorrow")
+  if (days < 7) {
+    return t("runtime.components.schedules.schedules-page-content.text_days_count", { count: days })
+  }
+  if (days < 30) {
+    return t("runtime.components.schedules.schedules-page-content.text_weeks_count", {
+      count: Math.floor(days / 7),
+    })
+  }
+  return t("runtime.components.schedules.schedules-page-content.text_months_count", {
+    count: Math.floor(days / 30),
+  })
 }
 
 // ============================================================================
@@ -93,9 +105,15 @@ function QuickStatCard({
 }
 
 function EventCard({ event, compact = false }: { event: ScheduleEvent; compact?: boolean }) {
+  const { t } = useTranslation()
   const daysUntil = getDaysUntil(event.date)
   const isToday = daysUntil === 0
   const isPast = daysUntil < 0
+  const eventTypeLabel: Record<EventType, string> = {
+    deadline: t("runtime.components.schedules.schedules-page-content.text_deadline"),
+    milestone: t("runtime.components.schedules.schedules-page-content.text_milestone"),
+    event: t("runtime.components.schedules.schedules-page-content.text_event"),
+  }
 
   return (
     <div
@@ -108,7 +126,9 @@ function EventCard({ event, compact = false }: { event: ScheduleEvent; compact?:
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className={eventTypeVariants({ type: event.type })}>{event.type}</span>
+            <span className={eventTypeVariants({ type: event.type })}>
+              {eventTypeLabel[event.type]}
+            </span>
             <span className="text-[10px] font-medium text-slate-400">
               {event.conferenceAcronym}
             </span>
@@ -141,7 +161,7 @@ function EventCard({ event, compact = false }: { event: ScheduleEvent; compact?:
                   : "text-[#1B3C53] dark:text-white",
             )}
           >
-            {event.date.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+            {event.date.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
           </span>
           {!compact && (
             <span
@@ -150,7 +170,7 @@ function EventCard({ event, compact = false }: { event: ScheduleEvent; compact?:
                 isToday && event.type === "deadline" ? "text-red-500" : "text-slate-400",
               )}
             >
-              {formatCountdown(daysUntil)}
+              {formatCountdown(daysUntil, t)}
             </span>
           )}
         </div>
@@ -168,6 +188,7 @@ function AgendaPanel({
   events: ScheduleEvent[]
   upcomingDeadlines: ScheduleEvent[]
 }) {
+  const { t } = useTranslation()
   const selectedEvents = events.filter((e) => isSameDay(e.date, selectedDate))
 
   return (
@@ -176,14 +197,17 @@ function AgendaPanel({
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            {selectedDate.toLocaleDateString("en-US", {
+            {selectedDate.toLocaleDateString(undefined, {
               weekday: "long",
               month: "short",
               day: "numeric",
             })}
           </h3>
           <p className="text-[10px] text-slate-400">
-            {selectedEvents.length} event{selectedEvents.length !== 1 ? "s" : ""}
+            {selectedEvents.length}{" "}
+            {selectedEvents.length === 1
+              ? t("runtime.components.schedules.schedules-page-content.text_event")
+              : t("runtime.components.schedules.schedules-page-content.text_events")}
           </p>
         </div>
         <div className="p-3">
@@ -201,7 +225,7 @@ function AgendaPanel({
               >
                 event_available
               </span>
-              <p className="text-xs text-slate-400">No events scheduled</p>
+              <p className="text-xs text-slate-400">{t("runtime.components.schedules.schedules-page-content.text_no_events_scheduled")}</p>
             </div>
           )}
         </div>
@@ -211,17 +235,15 @@ function AgendaPanel({
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            Upcoming Deadlines
-          </h3>
-          <span className="text-[10px] text-slate-400 font-medium">Next 7 days</span>
+            {t("runtime.components.schedules.schedules-page-content.text_upcoming_deadlines")}{" "}</h3>
+          <span className="text-[10px] text-slate-400 font-medium">{t("runtime.components.schedules.schedules-page-content.text_next_7_days")}</span>
         </div>
         <div className="p-3 space-y-2">
           {upcomingDeadlines.length > 0 ? (
             upcomingDeadlines.map((event) => <EventCard key={event.id} event={event} compact />)
           ) : (
             <p className="text-xs text-slate-400 text-center py-4">
-              No deadlines in the next 7 days
-            </p>
+              {t("runtime.components.schedules.schedules-page-content.text_no_deadlines_in_the_next_7")}{" "}</p>
           )}
         </div>
       </div>
@@ -230,6 +252,7 @@ function AgendaPanel({
 }
 
 function TimelineView({ events }: { events: ScheduleEvent[] }) {
+  const { t } = useTranslation()
   const sortedEvents = [...events]
     .filter((e) => getDaysUntil(e.date) >= -7)
     .sort((a, b) => a.date.getTime() - b.date.getTime())
@@ -257,10 +280,9 @@ function TimelineView({ events }: { events: ScheduleEvent[] }) {
         >
           event_busy
         </span>
-        <p className="text-sm text-slate-500 dark:text-slate-400">No upcoming events found</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">{t("runtime.components.schedules.schedules-page-content.text_no_upcoming_events_found")}</p>
         <p className="text-xs text-slate-400 mt-1">
-          Events will appear here when conferences have deadlines configured
-        </p>
+          {t("runtime.components.schedules.schedules-page-content.text_events_will_appear_here_when_conferences")}{" "}</p>
       </div>
     )
   }
@@ -269,9 +291,8 @@ function TimelineView({ events }: { events: ScheduleEvent[] }) {
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
       <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
         <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-          Event Timeline
-        </h3>
-        <p className="text-[10px] text-slate-400 mt-0.5">{sortedEvents.length} upcoming events</p>
+          {t("runtime.components.schedules.schedules-page-content.text_event_timeline")}{" "}</h3>
+        <p className="text-[10px] text-slate-400 mt-0.5">{sortedEvents.length} {t("runtime.components.schedules.schedules-page-content.text_upcoming_events")}</p>
       </div>
 
       <div className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -300,7 +321,7 @@ function TimelineView({ events }: { events: ScheduleEvent[] }) {
                         : "text-slate-400",
                   )}
                 >
-                  {date.toLocaleDateString("en-US", { weekday: "short" })}
+                  {date.toLocaleDateString(undefined, { weekday: "short" })}
                 </div>
                 <div
                   className={cn(
@@ -320,7 +341,7 @@ function TimelineView({ events }: { events: ScheduleEvent[] }) {
                     isPast ? "text-slate-300 dark:text-slate-600" : "text-slate-400",
                   )}
                 >
-                  {date.toLocaleDateString("en-US", { month: "short" })}
+                  {date.toLocaleDateString(undefined, { month: "short" })}
                 </div>
               </div>
 
@@ -347,6 +368,7 @@ interface SchedulesPageContentProps {
 }
 
 export function SchedulesPageContent({ role }: SchedulesPageContentProps) {
+  const { t } = useTranslation()
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [viewMode, setViewMode] = useState<"calendar" | "timeline">("calendar")
   const [selectedConference, setSelectedConference] = useState<string>("all")
@@ -422,7 +444,7 @@ export function SchedulesPageContent({ role }: SchedulesPageContentProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-sm text-slate-400">Loading schedules...</div>
+        <div className="text-sm text-slate-400">{t("runtime.components.schedules.schedules-page-content.text_loading_schedules")}</div>
       </div>
     )
   }
@@ -431,7 +453,7 @@ export function SchedulesPageContent({ role }: SchedulesPageContentProps) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          Failed to load schedules: {error}
+          {t("runtime.components.schedules.schedules-page-content.text_failed_to_load_schedules")}{" "}{error}
         </div>
       </div>
     )
@@ -443,11 +465,9 @@ export function SchedulesPageContent({ role }: SchedulesPageContentProps) {
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
         <div>
           <h1 className="text-[32px] font-bold tracking-tight text-[#1B3C53] dark:text-white leading-[1.1]">
-            Schedules
-          </h1>
+            {t("runtime.components.schedules.schedules-page-content.text_schedules")}{" "}</h1>
           <p className="text-sm font-light leading-relaxed text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
-            Conference deadlines, milestones, and events at a glance
-          </p>
+            {t("runtime.components.schedules.schedules-page-content.text_conference_deadlines_milestones_and_events_at")}{" "}</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -462,16 +482,14 @@ export function SchedulesPageContent({ role }: SchedulesPageContentProps) {
                   <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
                     calendar_add_on
                   </span>
-                  Export .ics
-                </button>
+                  {t("runtime.components.schedules.schedules-page-content.text_export_ics")}{" "}</button>
               </TooltipTrigger>
               <TooltipContent
                 side="bottom"
                 sideOffset={8}
                 className="border-0 rounded-xl text-[10px] text-slate-500 dark:text-slate-300"
               >
-                Download calendar file for import
-              </TooltipContent>
+                {t("runtime.components.schedules.schedules-page-content.text_download_calendar_file_for_import")}{" "}</TooltipContent>
             </Tooltip>
           )}
 
@@ -486,7 +504,11 @@ export function SchedulesPageContent({ role }: SchedulesPageContentProps) {
                 >
                   {conferenceOptions.map((conf) => (
                     <option key={conf} value={conf}>
-                      {conf === "all" ? "All Conferences" : conf}
+                      {conf === "all"
+                        ? t(
+                            "runtime.components.schedules.schedules-page-content.text_all_conferences",
+                          )
+                        : conf}
                     </option>
                   ))}
                 </select>
@@ -496,8 +518,7 @@ export function SchedulesPageContent({ role }: SchedulesPageContentProps) {
                 sideOffset={8}
                 className="border-0 rounded-xl text-[10px] text-slate-500 dark:text-slate-300"
               >
-                Filter events by conference
-              </TooltipContent>
+                {t("runtime.components.schedules.schedules-page-content.text_filter_events_by_conference")}{" "}</TooltipContent>
             </Tooltip>
           )}
 
@@ -513,7 +534,7 @@ export function SchedulesPageContent({ role }: SchedulesPageContentProps) {
                       ? "bg-white dark:bg-slate-700 shadow-sm text-[#1B3C53] dark:text-white"
                       : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300",
                   )}
-                  aria-label="Switch to calendar view"
+                  aria-label={t("runtime.components.schedules.schedules-page-content.aria_label_switch_to_calendar_view")}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
                     calendar_month
@@ -525,8 +546,7 @@ export function SchedulesPageContent({ role }: SchedulesPageContentProps) {
                 sideOffset={8}
                 className="border-0 rounded-xl text-[10px] text-slate-500 dark:text-slate-300"
               >
-                Calendar view
-              </TooltipContent>
+                {t("runtime.components.schedules.schedules-page-content.text_calendar_view")}{" "}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -538,7 +558,7 @@ export function SchedulesPageContent({ role }: SchedulesPageContentProps) {
                       ? "bg-white dark:bg-slate-700 shadow-sm text-[#1B3C53] dark:text-white"
                       : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300",
                   )}
-                  aria-label="Switch to timeline view"
+                  aria-label={t("runtime.components.schedules.schedules-page-content.aria_label_switch_to_timeline_view")}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
                     view_timeline
@@ -550,8 +570,7 @@ export function SchedulesPageContent({ role }: SchedulesPageContentProps) {
                 sideOffset={8}
                 className="border-0 rounded-xl text-[10px] text-slate-500 dark:text-slate-300"
               >
-                Timeline view
-              </TooltipContent>
+                {t("runtime.components.schedules.schedules-page-content.text_timeline_view")}{" "}</TooltipContent>
             </Tooltip>
           </div>
         </div>
@@ -560,31 +579,41 @@ export function SchedulesPageContent({ role }: SchedulesPageContentProps) {
       {/* Quick Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <QuickStatCard
-          label="Next Deadline"
-          value={nextDeadline ? formatCountdown(getDaysUntil(nextDeadline.date)) : "None"}
+          label={t("runtime.components.schedules.schedules-page-content.text_next_deadline")}
+          value={
+            nextDeadline
+              ? formatCountdown(getDaysUntil(nextDeadline.date), t)
+              : t("runtime.components.schedules.schedules-page-content.text_none")
+          }
           sublabel={nextDeadline?.title}
           urgent={!!nextDeadline && getDaysUntil(nextDeadline.date) <= 3}
         />
         <QuickStatCard
-          label="Active Conferences"
+          label={
+            t("runtime.components.schedules.schedules-page-content.text_active_conferences")
+          }
           value={conferences.length}
-          sublabel="Currently tracking"
+          sublabel={t("runtime.components.schedules.schedules-page-content.text_currently_tracking")}
         />
         <QuickStatCard
-          label="Upcoming Events"
+          label={t("runtime.components.schedules.schedules-page-content.text_upcoming_events_title")}
           value={
             filteredEvents.filter((e) => getDaysUntil(e.date) >= 0 && getDaysUntil(e.date) <= 30)
               .length
           }
-          sublabel="Next 30 days"
+          sublabel={t("runtime.components.schedules.schedules-page-content.text_next_30_days")}
         />
         <QuickStatCard
-          label="Deadlines This Week"
+          label={
+            t("runtime.components.schedules.schedules-page-content.text_deadlines_this_week")
+          }
           value={upcomingDeadlines.length}
           sublabel={
             upcomingDeadlines.length > 0
-              ? `Next: ${upcomingDeadlines[0]?.conferenceAcronym}`
-              : "All clear"
+              ? t("runtime.components.schedules.schedules-page-content.text_next_conference", {
+                  conference: upcomingDeadlines[0]?.conferenceAcronym,
+                })
+              : t("runtime.components.schedules.schedules-page-content.text_all_clear")
           }
           urgent={upcomingDeadlines.length > 2}
         />
@@ -600,12 +629,15 @@ export function SchedulesPageContent({ role }: SchedulesPageContentProps) {
             calendar_month
           </span>
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-1">
-            No schedules yet
-          </h3>
+            {t("runtime.components.schedules.schedules-page-content.text_no_schedules_yet")}{" "}</h3>
           <p className="text-xs text-slate-400 max-w-sm mx-auto">
             {role === "chair"
-              ? "Create a conference and configure deadlines to see your schedule here."
-              : "Join a conference to see important deadlines and events here."}
+              ? t(
+                  "runtime.components.schedules.schedules-page-content.text_create_a_conference_and_configure_deadlines_to_see_your_schedule_here",
+                )
+              : t(
+                  "runtime.components.schedules.schedules-page-content.text_join_a_conference_to_see_important_deadlines_and_events_here",
+                )}
           </p>
         </div>
       ) : viewMode === "calendar" ? (
@@ -663,15 +695,15 @@ export function SchedulesPageContent({ role }: SchedulesPageContentProps) {
               <div className="flex items-center justify-center gap-4 mt-0 pt-4">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-red-500" />
-                  <span className="text-[10px] font-medium text-slate-500">Deadline</span>
+                  <span className="text-[10px] font-medium text-slate-500">{t("runtime.components.schedules.schedules-page-content.text_deadline")}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-blue-500" />
-                  <span className="text-[10px] font-medium text-slate-500">Event</span>
+                  <span className="text-[10px] font-medium text-slate-500">{t("runtime.components.schedules.schedules-page-content.text_event")}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span className="text-[10px] font-medium text-slate-500">Milestone</span>
+                  <span className="text-[10px] font-medium text-slate-500">{t("runtime.components.schedules.schedules-page-content.text_milestone")}</span>
                 </div>
               </div>
             </div>

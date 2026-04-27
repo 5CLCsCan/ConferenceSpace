@@ -14,6 +14,8 @@ import { useToast } from "@/hooks/use-toast"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { ROUTES } from "@/lib/routes"
 import type { ConferenceStatus } from "@/lib/types"
+import { useAuth } from "@/lib/auth-context"
+import { isReadOnlyRole } from "@/lib/role-helpers"
 
 interface ConferenceMoreMenuProps {
   conferenceId: string
@@ -31,6 +33,8 @@ export function ConferenceMoreMenu({
   const router = useRouter()
   const { toast } = useToast()
   const { t } = useTranslation()
+  const { currentRole } = useAuth()
+  const readOnly = isReadOnlyRole(currentRole)
   const [isMutating, setIsMutating] = useState(false)
 
   const isArchived = conferenceStatus === "archived"
@@ -85,23 +89,37 @@ export function ConferenceMoreMenu({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-        <DropdownMenuItem onClick={() => router.push(ROUTES.CHAIR.CONFERENCE_DETAIL(conferenceId))}>
+        <DropdownMenuItem
+          className="text-[11px] font-medium"
+          onClick={() => router.push(ROUTES.CHAIR.CONFERENCE_DETAIL(conferenceId))}
+        >
           {t("runtime.components.conference.explore-cards.text_view_details")}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push(ROUTES.CHAIR.CONFERENCE_EDIT(conferenceId))}>
-          {isDraft
-            ? t("runtime.components.conference.conference-cards.text_continue_editing")
-            : t("runtime.components.conference.conference-cards.text_edit_details")}
-        </DropdownMenuItem>
-        <DropdownMenuItem disabled={isMutating} onClick={handleStatusToggle}>
-          {isArchived
-            ? t(
-                "runtime.components.chair.conference-detail.chair-actions-panel.text_unarchive_conference",
-              )
-            : t(
-                "runtime.components.chair.conference-detail.chair-actions-panel.text_archive_conference",
-              )}
-        </DropdownMenuItem>
+        {!readOnly && (
+          <DropdownMenuItem
+            className="text-[11px] font-medium"
+            onClick={() => router.push(ROUTES.CHAIR.CONFERENCE_EDIT(conferenceId))}
+          >
+            {isDraft
+              ? t("runtime.components.conference.conference-cards.text_continue_editing")
+              : t("runtime.components.conference.conference-cards.text_edit_details")}
+          </DropdownMenuItem>
+        )}
+        {!readOnly && (
+          <DropdownMenuItem
+            className="text-[11px] font-medium"
+            disabled={isMutating}
+            onClick={handleStatusToggle}
+          >
+            {isArchived
+              ? t(
+                  "runtime.components.chair.conference-detail.chair-actions-panel.text_unarchive_conference",
+                )
+              : t(
+                  "runtime.components.chair.conference-detail.chair-actions-panel.text_archive_conference",
+                )}
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )

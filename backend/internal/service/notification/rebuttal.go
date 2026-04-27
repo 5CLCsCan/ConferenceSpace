@@ -16,7 +16,7 @@ func (s *Service) NotifyRebuttalOpened(ctx context.Context, authorEmail, confere
 		Title:        "Rebuttal Period Open",
 		Message:      fmt.Sprintf("The rebuttal period for \"%s\" is now open. Submit your response before the deadline.", conferenceTitle),
 		Metadata:     map[string]interface{}{"conference_name": conferenceTitle},
-		ActionURL:    fmt.Sprintf("/dashboard/conference/%d", conferenceID),
+		ActionURL:    fmt.Sprintf("/role/author/conferences/%d", conferenceID),
 		ConferenceID: &conferenceID,
 	}
 	n, err := s.storage.Create(ctx, req)
@@ -35,7 +35,7 @@ func (s *Service) NotifyRebuttalSubmitted(ctx context.Context, reviewerEmail, pa
 		Title:        "Author Submitted Rebuttal",
 		Message:      fmt.Sprintf("The author of \"%s\" has submitted a rebuttal for \"%s\".", paperTitle, conferenceTitle),
 		Metadata:     map[string]interface{}{"paper_title": paperTitle, "conference_name": conferenceTitle},
-		ActionURL:    fmt.Sprintf("/dashboard/conference/%d/submissions/%d", conferenceID, submissionID),
+		ActionURL:    "/role/reviewer/assignments",
 		ConferenceID: &conferenceID,
 	}
 	n, err := s.storage.Create(ctx, req)
@@ -54,7 +54,7 @@ func (s *Service) NotifyRebuttalAcknowledged(ctx context.Context, authorEmail, p
 		Title:        "Reviewer Acknowledged Rebuttal",
 		Message:      fmt.Sprintf("A reviewer has acknowledged your rebuttal for \"%s\" in \"%s\".", paperTitle, conferenceTitle),
 		Metadata:     map[string]interface{}{"paper_title": paperTitle, "conference_name": conferenceTitle},
-		ActionURL:    fmt.Sprintf("/dashboard/conference/%d/submissions/%d", conferenceID, submissionID),
+		ActionURL:    fmt.Sprintf("/role/author/submissions/%d", submissionID),
 		ConferenceID: &conferenceID,
 	}
 	n, err := s.storage.Create(ctx, req)
@@ -73,7 +73,7 @@ func (s *Service) NotifyRebuttalFinalized(ctx context.Context, userEmail, confer
 		Title:        "Rebuttal Period Finalized",
 		Message:      fmt.Sprintf("The rebuttal period for \"%s\" has been finalized. No further changes are possible.", conferenceTitle),
 		Metadata:     map[string]interface{}{"conference_name": conferenceTitle},
-		ActionURL:    fmt.Sprintf("/dashboard/conference/%d", conferenceID),
+		ActionURL:    fmt.Sprintf("/role/author/conferences/%d", conferenceID),
 		ConferenceID: &conferenceID,
 	}
 	n, err := s.storage.Create(ctx, req)
@@ -92,7 +92,7 @@ func (s *Service) NotifyRebuttalDeadlineReminder(ctx context.Context, authorEmai
 		Title:        "Rebuttal Deadline in 24 Hours",
 		Message:      fmt.Sprintf("The rebuttal deadline for \"%s\" is in 24 hours. Submit your response now.", conferenceTitle),
 		Metadata:     map[string]interface{}{"conference_name": conferenceTitle},
-		ActionURL:    fmt.Sprintf("/dashboard/conference/%d", conferenceID),
+		ActionURL:    fmt.Sprintf("/role/author/conferences/%d", conferenceID),
 		ConferenceID: &conferenceID,
 	}
 	n, err := s.storage.Create(ctx, req)

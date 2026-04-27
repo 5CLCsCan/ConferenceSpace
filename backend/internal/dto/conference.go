@@ -66,6 +66,7 @@ type ConferenceConfiguration struct {
 	RequireCompleteAuthorProfile *bool                  `json:"require_complete_author_profile,omitempty"`
 	AllowPaperWithDrawls         *bool                  `json:"allow_paper_withdrawls,omitempty"`
 	CallForPaperText             *string                `json:"call_for_paper_text,omitempty"`
+	Website                      *string                `json:"website,omitempty"`
 	DeskRejectionSettings        *DeskRejectionSettings `json:"desk_rejection_settings,omitempty"`
 	DiscussionSettings           *DiscussionSettings    `json:"discussion_settings,omitempty"`
 	RebuttalSettings             *RebuttalSettings      `json:"rebuttal_settings,omitempty"`
@@ -78,6 +79,8 @@ type Conference struct {
 	Description    string                   `json:"description"`
 	Chair          string                   `json:"chair"`
 	CoChairs       []string                 `json:"co_chairs"`
+	PCMembers      []string                 `json:"pc_members"`
+	Reviewers      []string                 `json:"reviewers"`
 	Domain         []string                 `json:"domain"`
 	Tracks         []string                 `json:"tracks"`
 	Venue          string                   `json:"venue"`
@@ -92,6 +95,8 @@ type ConferenceResponse struct {
 	Description    string                   `json:"description"`
 	Chair          string                   `json:"chair"`
 	CoChairs       []string                 `json:"co_chairs"`
+	PCMembers      []string                 `json:"pc_members"`
+	Reviewers      []string                 `json:"reviewers"`
 	Domain         []string                 `json:"domain"`
 	Tracks         []string                 `json:"tracks"`
 	Venue          string                   `json:"venue"`

@@ -1,0 +1,222 @@
+import type { UIMessage } from "ai"
+
+type MessagePart = UIMessage["parts"][number]
+
+export type TranscriptToolItem = {
+  kind: "tool"
+  messageId: string
+  toolCallId: string
+  toolName: string
+  state: string
+  input?: unknown
+  output?: unknown
+  errorText?: string
+  rawPart: MessagePart
+}
+
+export type TranscriptTextItem = {
+  kind: "text"
+  messageId: string
+  text: string
+  rawPart: MessagePart
+}
+
+export type TranscriptReasoningItem = {
+  kind: "reasoning"
+  messageId: string
+  text: string
+  rawPart: MessagePart
+}
+
+export type TranscriptFileItem = {
+  kind: "file"
+  messageId: string
+  filename: string
+  mediaType?: string
+  url?: string
+  rawPart: MessagePart
+}
+
+export type TranscriptTurnItem =
+  | TranscriptTextItem
+  | TranscriptReasoningItem
+  | TranscriptToolItem
+  | TranscriptFileItem
+export type UserTurnItem = TranscriptTextItem | TranscriptFileItem
+
+export type UserTurn = {
+  kind: "user-turn"
+  messageId: string
+  message: UIMessage
+  items: UserTurnItem[]
+}
+
+export type AssistantTurn = {
+  kind: "assistant-turn"
+  messageIds: string[]
+  items: TranscriptTurnItem[]
+  isOrphanActivity?: boolean
+}
+
+export type TranscriptTurn = UserTurn | AssistantTurn
+
+export function buildTranscriptTurns(messages: UIMessage[]): TranscriptTurn[] {
+  const turns: TranscriptTurn[] = []
+  let currentAssistantTurn: AssistantTurn | null = null
+
+  const flushAssistantTurn = () => {
+    if (!currentAssistantTurn) {
+      return
+    }
+    if (currentAssistantTurn.items.length > 0) {
+      turns.push(currentAssistantTurn)
+    }
+    currentAssistantTurn = null
+  }
+
+  for (const message of messages) {
+    if (message.role === "user") {
+      flushAssistantTurn()
+      turns.push({
+        kind: "user-turn",
+        messageId: message.id,
+        message,
+        items: message.parts
+          .map((part) => normalizePart(message.id, part))
+          .filter((part): part is UserTurnItem => part?.kind === "text" || part?.kind === "file"),
+      })
+      continue
+    }
+
+    if (message.role === "assistant") {
+      if (!currentAssistantTurn) {
+        currentAssistantTurn = createAssistantTurn()
+      }
+      currentAssistantTurn.messageIds.push(message.id)
+      for (const part of message.parts) {
+        const normalized = normalizePart(message.id, part)
+        if (normalized) {
+          if (normalized.kind === "tool" && normalized.toolCallId) {
+            const existingIndex = currentAssistantTurn.items.findIndex(
+              (item) => item.kind === "tool" && item.toolCallId === normalized.toolCallId,
+            )
+            if (existingIndex !== -1) {
+              currentAssistantTurn.items[existingIndex] = normalized
+              continue
+            }
+          }
+          currentAssistantTurn.items.push(normalized)
+        }
+      }
+      continue
+    }
+
+    if ((message.role as string) === "tool") {
+      if (!currentAssistantTurn) {
+        currentAssistantTurn = createAssistantTurn({ isOrphanActivity: true })
+      }
+      currentAssistantTurn.messageIds.push(message.id)
+      for (const part of message.parts) {
+        const normalized = normalizePart(message.id, part)
+        if (normalized) {
+          if (normalized.kind === "tool" && normalized.toolCallId) {
+            const existingIndex = currentAssistantTurn.items.findIndex(
+              (item) => item.kind === "tool" && item.toolCallId === normalized.toolCallId,
+            )
+            if (existingIndex !== -1) {
+              currentAssistantTurn.items[existingIndex] = normalized
+              continue
+            }
+          }
+          currentAssistantTurn.items.push(normalized)
+        }
+      }
+    }
+  }
+
+  flushAssistantTurn()
+  return turns
+}
+
+function createAssistantTurn(options?: { isOrphanActivity?: boolean }): AssistantTurn {
+  return {
+    kind: "assistant-turn",
+    messageIds: [],
+    items: [],
+    isOrphanActivity: options?.isOrphanActivity,
+  }
+}
+
+function normalizePart(messageId: string, part: MessagePart): TranscriptTurnItem | null {
+  if (part.type === "text") {
+    return {
+      kind: "text",
+      messageId,
+      text: part.text,
+      rawPart: part,
+    }
+  }
+
+  if (part.type === "reasoning") {
+    return {
+      kind: "reasoning",
+      messageId,
+      text: part.text,
+      rawPart: part,
+    }
+  }
+
+  if (part.type === "file") {
+    const filePart = part as MessagePart & {
+      filename?: string
+      mediaType?: string
+      url?: string
+      data?: string
+    }
+    return {
+      kind: "file",
+      messageId,
+      filename: String(filePart.filename || "Attached file"),
+      mediaType: filePart.mediaType,
+      url: filePart.url || filePart.data,
+      rawPart: part,
+    }
+  }
+
+  const toolName = getToolName(part)
+  if (!toolName) {
+    return null
+  }
+
+  const toolPart = part as MessagePart & {
+    toolCallId?: string
+    state?: string
+    input?: unknown
+    output?: unknown
+    errorText?: string
+  }
+
+  return {
+    kind: "tool",
+    messageId,
+    toolCallId: String(toolPart.toolCallId ?? ""),
+    toolName,
+    state: String(toolPart.state ?? ""),
+    input: toolPart.input,
+    output: toolPart.output,
+    errorText: toolPart.errorText,
+    rawPart: part,
+  }
+}
+
+function getToolName(part: MessagePart): string {
+  if (part.type === "dynamic-tool") {
+    return part.toolName
+  }
+
+  if (part.type.startsWith("tool-")) {
+    return part.type.slice("tool-".length)
+  }
+
+  return ""
+}

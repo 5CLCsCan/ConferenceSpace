@@ -5,8 +5,11 @@ import { cn } from "@/lib/utils"
 import type { ConferenceInfo, TabId, TabItem } from "./types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { ROUTES } from "@/lib/routes"
+import { isReadOnlyRole } from "@/lib/role-helpers"
+import type { UserRole } from "@/lib/types"
 
-const CHAIR_ONLY_TABS: TabId[] = ["coi", "rebuttal"]
+const RESTRICTED_TABS: TabId[] = ["submissions", "assignments", "coi", "rebuttal"]
+
 
 interface ConferenceDetailHeaderProps {
   conference: ConferenceInfo
@@ -84,12 +87,22 @@ export function ConferenceDetailHeader({
     },
     {
       id: "rebuttal",
-      label: "Rebuttal",
+      label: t(
+        "runtime.components.chair.conference-detail.conference-detail-header.prop_label_rebuttal",
+      ),
       icon: "rate_review",
     },
   ]
-  const visibleTabs =
-    userRole === "chair" ? tabs : tabs.filter((tab) => !CHAIR_ONLY_TABS.includes(tab.id))
+  const normalizedRole = (userRole || "").toLowerCase()
+  const canAccessRestrictedTabs =
+    normalizedRole === "chair" ||
+    normalizedRole === "co-chair" ||
+    normalizedRole === "co_chair" ||
+    normalizedRole === "pc"
+  const visibleTabs = canAccessRestrictedTabs
+    ? tabs
+    : tabs.filter((tab) => !RESTRICTED_TABS.includes(tab.id))
+  const readOnly = isReadOnlyRole(userRole as UserRole)
   return (
     <header
       className={cn(
@@ -123,11 +136,15 @@ export function ConferenceDetailHeader({
             >
               folder_open
             </span>
-            <span>
+            <button
+              type="button"
+              onClick={() => router.push(ROUTES.CHAIR.CONFERENCES)}
+              className="hover:text-[#1B3C53] dark:hover:text-white transition-colors"
+            >
               {t(
                 "runtime.components.chair.conference-detail.conference-detail-header.text_conferences",
               )}
-            </span>
+            </button>
             <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
               chevron_right
             </span>
@@ -166,7 +183,7 @@ export function ConferenceDetailHeader({
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <button
+          {!readOnly && <button
             type="button"
             onClick={() => router.push(ROUTES.CHAIR.CONFERENCE_EDIT(conference.id))}
             className="h-8 px-3 bg-white border border-slate-200 text-slate-600 font-medium text-[11px] rounded-md hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center gap-1.5"
@@ -195,7 +212,7 @@ export function ConferenceDetailHeader({
             {t(
               "runtime.components.chair.conference-detail.conference-detail-header.text_settings",
             )}{" "}
-          </button>
+          </button>}
         </div>
       </div>
 

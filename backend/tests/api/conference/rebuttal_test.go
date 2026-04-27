@@ -102,8 +102,8 @@ func TestSaveRebuttalSettings(t *testing.T) {
 	if body.Data.CharLimitGeneral != 2000 {
 		t.Errorf("expected 2000, got %d", body.Data.CharLimitGeneral)
 	}
-	if !body.Data.AllowDiscussion {
-		t.Error("expected allow_discussion=true")
+	if body.Data.AllowDiscussion {
+		t.Error("expected allow_discussion=false")
 	}
 }
 
@@ -111,6 +111,8 @@ func TestOpenRebuttal_Success(t *testing.T) {
 	ctx := testutils.NewTestContext(t)
 	defer ctx.Close()
 	chairToken, confID := setupConferenceForRebuttal(t, ctx)
+	ctx.MakeRequest("PATCH", fmt.Sprintf("/api/v1/conferences/%d/rebuttal/settings", confID),
+		map[string]interface{}{"enabled": true, "char_limit_general": 3000, "char_limit_per_point": 1000}, chairToken)
 
 	resp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/rebuttal/open", confID), nil, chairToken)
 	if err != nil {
@@ -146,6 +148,8 @@ func TestOpenRebuttal_CannotOpenTwice(t *testing.T) {
 	ctx := testutils.NewTestContext(t)
 	defer ctx.Close()
 	chairToken, confID := setupConferenceForRebuttal(t, ctx)
+	ctx.MakeRequest("PATCH", fmt.Sprintf("/api/v1/conferences/%d/rebuttal/settings", confID),
+		map[string]interface{}{"enabled": true, "char_limit_general": 3000, "char_limit_per_point": 1000}, chairToken)
 
 	// Open first time — should succeed
 	resp, _ := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/rebuttal/open", confID), nil, chairToken)
@@ -160,6 +164,8 @@ func TestFinalizeRebuttal_Success(t *testing.T) {
 	ctx := testutils.NewTestContext(t)
 	defer ctx.Close()
 	chairToken, confID := setupConferenceForRebuttal(t, ctx)
+	ctx.MakeRequest("PATCH", fmt.Sprintf("/api/v1/conferences/%d/rebuttal/settings", confID),
+		map[string]interface{}{"enabled": true, "char_limit_general": 3000, "char_limit_per_point": 1000}, chairToken)
 
 	// Open first
 	ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/rebuttal/open", confID), nil, chairToken)
@@ -186,6 +192,8 @@ func TestOpenDiscussion_RequiresAllowDiscussion(t *testing.T) {
 	ctx := testutils.NewTestContext(t)
 	defer ctx.Close()
 	chairToken, confID := setupConferenceForRebuttal(t, ctx)
+	ctx.MakeRequest("PATCH", fmt.Sprintf("/api/v1/conferences/%d/rebuttal/settings", confID),
+		map[string]interface{}{"enabled": true, "char_limit_general": 3000, "char_limit_per_point": 1000}, chairToken)
 
 	// Open rebuttal (allow_discussion is false by default)
 	ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/rebuttal/open", confID), nil, chairToken)
@@ -198,29 +206,18 @@ func TestOpenDiscussion_RequiresAllowDiscussion(t *testing.T) {
 	testutils.AssertStatusCode(t, resp, http.StatusBadRequest)
 }
 
-func TestOpenDiscussion_SuccessWhenEnabled(t *testing.T) {
+func TestOpenRebuttal_DisabledShouldFail(t *testing.T) {
 	ctx := testutils.NewTestContext(t)
 	defer ctx.Close()
 	chairToken, confID := setupConferenceForRebuttal(t, ctx)
 
-	// Enable discussion and open rebuttal
+	// Ensure rebuttal is explicitly disabled
 	ctx.MakeRequest("PATCH", fmt.Sprintf("/api/v1/conferences/%d/rebuttal/settings", confID),
-		map[string]interface{}{"enabled": true, "allow_discussion": true, "char_limit_general": 3000, "char_limit_per_point": 1000}, chairToken)
-	ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/rebuttal/open", confID), nil, chairToken)
+		map[string]interface{}{"enabled": false, "char_limit_general": 3000, "char_limit_per_point": 1000}, chairToken)
 
-	resp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/rebuttal/open-discussion", confID), nil, chairToken)
+	resp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/rebuttal/open", confID), nil, chairToken)
 	if err != nil {
 		t.Fatal(err)
 	}
-	testutils.AssertStatusCode(t, resp, http.StatusOK)
-
-	var body struct {
-		Data struct {
-			Phase string `json:"phase"`
-		} `json:"data"`
-	}
-	testutils.DecodeResponse(t, resp, &body)
-	if body.Data.Phase != "discussion" {
-		t.Errorf("expected discussion, got %s", body.Data.Phase)
-	}
+	testutils.AssertStatusCode(t, resp, http.StatusBadRequest)
 }

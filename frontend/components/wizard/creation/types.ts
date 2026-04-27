@@ -7,6 +7,13 @@ export interface WizardStep {
   description: string
 }
 
+export interface WizardStepDefinition {
+  number: number
+  id: string
+  titleKey: string
+  descriptionKey: string
+}
+
 export interface ConferenceFormData {
   // Step 1: Basic Details - Identity
   title: string
@@ -41,7 +48,9 @@ export interface ConferenceFormData {
   strictDeadlines: boolean
   gatingEnabled: boolean
   gatingMinReferences: number | null
+  gatingTitleMaxWords: number | null
   gatingRequiredSections: string[]
+  gatingScopeKeywords: string[]
   gatingAnonymizationRequired: boolean
   gatingBannedPhrases: string[]
   gatingPrompt: string
@@ -79,23 +88,44 @@ export interface ConferenceFormData {
   callForPaperText: string
 }
 
-export const WIZARD_STEPS: WizardStep[] = [
-  { number: 1, id: "basic-details", title: "Basic Details", description: "Name, acronym, dates" },
+export const WIZARD_STEPS: WizardStepDefinition[] = [
+  {
+    number: 1,
+    id: "basic-details",
+    titleKey: "runtime.components.wizard.creation.types.title_basic_details",
+    descriptionKey:
+      "runtime.components.wizard.creation.types.description_name_acronym_dates",
+  },
   {
     number: 2,
     id: "topics-deadlines",
-    title: "Topics & Deadlines",
-    description: "Scope & timeline",
+    titleKey: "runtime.components.wizard.creation.types.title_topics_deadlines",
+    descriptionKey: "runtime.components.wizard.creation.types.description_scope_timeline",
   },
   {
     number: 3,
     id: "policy-guidelines",
-    title: "Policy & Guidelines",
-    description: "Format & rules",
+    titleKey: "runtime.components.wizard.creation.types.title_policy_guidelines",
+    descriptionKey: "runtime.components.wizard.creation.types.description_format_rules",
   },
-  { number: 4, id: "call-for-papers", title: "Call for Papers", description: "CFP content" },
-  { number: 5, id: "committees", title: "Committees", description: "Add members" },
-  { number: 6, id: "final-review", title: "Final Review", description: "Publish conference" },
+  {
+    number: 4,
+    id: "call-for-papers",
+    titleKey: "runtime.components.wizard.creation.types.title_call_for_papers",
+    descriptionKey: "runtime.components.wizard.creation.types.description_cfp_content",
+  },
+  {
+    number: 5,
+    id: "committees",
+    titleKey: "runtime.components.wizard.creation.types.title_committees",
+    descriptionKey: "runtime.components.wizard.creation.types.description_add_members",
+  },
+  {
+    number: 6,
+    id: "final-review",
+    titleKey: "runtime.components.wizard.creation.types.title_final_review",
+    descriptionKey: "runtime.components.wizard.creation.types.description_publish_conference",
+  },
 ]
 
 export const initialFormData: ConferenceFormData = {
@@ -132,7 +162,9 @@ export const initialFormData: ConferenceFormData = {
   strictDeadlines: false,
   gatingEnabled: false,
   gatingMinReferences: null,
+  gatingTitleMaxWords: null,
   gatingRequiredSections: [],
+  gatingScopeKeywords: [],
   gatingAnonymizationRequired: false,
   gatingBannedPhrases: [],
   gatingPrompt: "",

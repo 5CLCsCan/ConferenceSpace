@@ -361,9 +361,9 @@ func TestUserCOICheck_InvalidInputs(t *testing.T) {
 		expectedStatus int
 	}{
 		{
-			name:           "Non-existent user",
+			name:           "Non-existent user with non-chair caller returns forbidden",
 			path:           fmt.Sprintf("/api/v1/users/%s/coi-check?conference_id=1", url.PathEscape("nonexistent@example.com")),
-			expectedStatus: http.StatusNotFound,
+			expectedStatus: http.StatusForbidden,
 		},
 		{
 			name:           "Missing conference_id",
@@ -371,9 +371,9 @@ func TestUserCOICheck_InvalidInputs(t *testing.T) {
 			expectedStatus: http.StatusBadRequest,
 		},
 		{
-			name:           "Non-existent conference",
+			name:           "Non-existent conference with non-chair caller returns forbidden",
 			path:           fmt.Sprintf("/api/v1/users/%s/coi-check?conference_id=999999", url.PathEscape("test@example.com")),
-			expectedStatus: http.StatusNotFound,
+			expectedStatus: http.StatusForbidden,
 		},
 	}
 

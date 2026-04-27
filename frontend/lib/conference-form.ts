@@ -44,6 +44,24 @@ function buildOrganizersFromEmails(emails?: string[]) {
   }))
 }
 
+function buildOrganizersFromPCEmails(emails?: string[]) {
+  return (emails || []).map((email) => ({
+    id: email,
+    name: email.split("@")[0].replace(/[._-]/g, " "),
+    email,
+    role: "pc-member",
+  }))
+}
+
+function buildOrganizersFromReviewerEmails(emails?: string[]) {
+  return (emails || []).map((email) => ({
+    id: email,
+    name: email.split("@")[0].replace(/[._-]/g, " "),
+    email,
+    role: "reviewer",
+  }))
+}
+
 export type ConferenceTemplateSection =
   | "basics"
   | "topics_tracks"
@@ -71,6 +89,8 @@ export interface ConferenceMutationPayload {
   tracks: string[]
   venue: string
   co_chairs: string[]
+  pc_members: string[]
+  reviewers: string[]
   configurations: {
     start_date?: string
     end_date?: string
@@ -85,6 +105,7 @@ export interface ConferenceMutationPayload {
     require_complete_author_profile: boolean
     allow_paper_withdrawls: boolean
     call_for_paper_text?: string
+    website?: string
     desk_rejection_settings?: Record<string, unknown>
     discussion_settings?: Record<string, unknown>
     rebuttal_settings?: Record<string, unknown>
@@ -98,12 +119,17 @@ export function mapConferenceToFormData(conference: Conference): ConferenceFormD
   const normalizedReviewType = (config?.review_type || "").replace(/_/g, "-").toLowerCase()
   const mappedRequiredSections = normalizeStringList(deskSettings?.required_sections)
 
+  // notification of acceptance comes from discussion_settings.end_at
+  const notificationDate = parseDate(config?.discussion_settings?.end_at)
+
   return {
     ...initialFormData,
     title: conference.name || "",
     acronym: conference.acronym || "",
+    contactEmail: conference.chair || "",
     description: conference.description || "",
     location: conference.location || "",
+    website: conference.website || config?.website || "",
     locationType:
       config?.format === "virtual" || config?.format === "hybrid" || config?.format === "in-person"
         ? config.format
@@ -115,6 +141,7 @@ export function mapConferenceToFormData(conference: Conference): ConferenceFormD
     abstractDeadline: parseDate(config?.abstract_submission_deadline),
     fullPaperDeadline: parseDate(config?.full_paper_submission_deadline),
     cameraReadyDeadline: parseDate(config?.camera_ready_deadline),
+    authorNotificationDate: notificationDate,
     maxPages: config?.maximum_pages || initialFormData.maxPages,
     minKeywords: deskSettings?.min_references || initialFormData.minKeywords,
     maxKeywords: initialFormData.maxKeywords,
@@ -122,11 +149,15 @@ export function mapConferenceToFormData(conference: Conference): ConferenceFormD
     supplementaryTypes: initialFormData.supplementaryTypes,
     allowSupplementary: (deskSettings?.custom_rules?.min_datasets || 0) > 0,
     strictDeadlines: config?.workflow_settings?.strict_deadlines ?? initialFormData.strictDeadlines,
-    organizers: buildOrganizersFromEmails(conference.co_chairs),
+    organizers: [
+      ...buildOrganizersFromEmails(conference.co_chairs),
+      ...buildOrganizersFromPCEmails(conference.pc_members),
+      ...buildOrganizersFromReviewerEmails(conference.reviewers),
+    ],
     anonymity: normalizedReviewType === "single-blind" ? "single-blind" : "double-blind",
     rebuttalStartDate: parseDate(config?.rebuttal_settings?.start_at),
     rebuttalEndDate: parseDate(config?.rebuttal_settings?.end_at),
-    finalDecisionDate: parseDate(config?.discussion_settings?.end_at),
+    finalDecisionDate: notificationDate,
     confirmed: true,
     dateRange: {
       from: parseDate(config?.start_date),
@@ -135,12 +166,14 @@ export function mapConferenceToFormData(conference: Conference): ConferenceFormD
     venue: conference.location || "",
     submissionsOpen: parseDate(config?.abstract_submission_deadline),
     submissionDeadline: parseDate(config?.full_paper_submission_deadline),
-    authorNotification: parseDate(config?.discussion_settings?.end_at),
+    authorNotification: notificationDate,
     fileFormats: splitSubmissionFormats(config?.submission_format),
     callForPaperText: conference.call_for_paper_text || "",
     gatingEnabled: deskSettings?.enabled ?? initialFormData.gatingEnabled,
     gatingMinReferences: deskSettings?.min_references ?? initialFormData.gatingMinReferences,
+    gatingTitleMaxWords: deskSettings?.title_max_words ?? initialFormData.gatingTitleMaxWords,
     gatingRequiredSections: mappedRequiredSections,
+    gatingScopeKeywords: normalizeStringList(deskSettings?.scope_keywords),
     gatingAnonymizationRequired:
       deskSettings?.custom_rules?.author_anonymization_required ??
       initialFormData.gatingAnonymizationRequired,
@@ -289,7 +322,9 @@ export function applyConferenceTemplateSections(
     next.strictDeadlines = source.strictDeadlines
     next.gatingEnabled = source.gatingEnabled
     next.gatingMinReferences = source.gatingMinReferences
+    next.gatingTitleMaxWords = source.gatingTitleMaxWords
     next.gatingRequiredSections = [...source.gatingRequiredSections]
+    next.gatingScopeKeywords = [...source.gatingScopeKeywords]
     next.gatingAnonymizationRequired = source.gatingAnonymizationRequired
     next.gatingBannedPhrases = [...source.gatingBannedPhrases]
     next.gatingPrompt = source.gatingPrompt
@@ -332,6 +367,7 @@ export function buildConferenceMutationPayload(
   const startDate = formData.conferenceStartDate || formData.dateRange.from
   const endDate = formData.conferenceEndDate || formData.dateRange.to
   const gatingRequiredSections = normalizeStringList(formData.gatingRequiredSections)
+  const gatingScopeKeywords = normalizeStringList(formData.gatingScopeKeywords)
   const gatingBannedPhrases = normalizeStringList(formData.gatingBannedPhrases)
   const gatingPrompt = formData.gatingPrompt.trim()
   const location =
@@ -346,6 +382,24 @@ export function buildConferenceMutationPayload(
     ),
   )
 
+  const pcMembers = Array.from(
+    new Set(
+      formData.organizers
+        .filter((organizer) => organizer.role === "pc-member")
+        .map((organizer) => organizer.email.trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  )
+
+  const reviewers = Array.from(
+    new Set(
+      formData.organizers
+        .filter((organizer) => organizer.role === "reviewer")
+        .map((organizer) => organizer.email.trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  )
+
   return {
     title: formData.title.trim(),
     acronym: formData.acronym.trim(),
@@ -354,6 +408,8 @@ export function buildConferenceMutationPayload(
     tracks: formData.tracks,
     venue: location || formData.venue || existingConference?.location || "",
     co_chairs: coChairs,
+    pc_members: pcMembers,
+    reviewers: reviewers,
     configurations: {
       start_date: startDate?.toISOString() || existingConfig?.start_date,
       end_date: endDate?.toISOString() || existingConfig?.end_date,
@@ -374,16 +430,21 @@ export function buildConferenceMutationPayload(
       require_complete_author_profile: existingConfig?.require_complete_author_profile ?? true,
       allow_paper_withdrawls: existingConfig?.allow_paper_withdrawls ?? true,
       call_for_paper_text: formData.callForPaperText || existingConference?.call_for_paper_text,
+      website: formData.website || existingConfig?.website,
       desk_rejection_settings: {
         enabled: formData.gatingEnabled,
         required_sections: gatingRequiredSections,
+        title_max_words: formData.gatingTitleMaxWords ?? undefined,
+        max_sentence_words: existingDeskSettings?.max_sentence_words || 25,
         min_references: formData.gatingMinReferences ?? undefined,
+        scope_keywords: gatingScopeKeywords,
         thresholds: existingDeskSettings?.thresholds || {
           desk_reject_score: 0.3,
           accept_score: 0.7,
         },
         weights: existingDeskSettings?.weights,
         custom_rules: {
+          min_datasets: existingDeskSettings?.custom_rules?.min_datasets || 1,
           ...existingDeskSettings?.custom_rules,
           author_anonymization_required: formData.gatingAnonymizationRequired ? true : undefined,
           banned_phrases: gatingBannedPhrases,
@@ -394,7 +455,9 @@ export function buildConferenceMutationPayload(
         enabled: existingDiscussionSettings?.enabled ?? true,
         allow_author_response: existingDiscussionSettings?.allow_author_response ?? true,
         start_at: fullPaperDeadline?.toISOString() || existingDiscussionSettings?.start_at,
-        end_at: formData.finalDecisionDate?.toISOString() || existingDiscussionSettings?.end_at,
+        end_at:
+          (formData.authorNotificationDate || formData.finalDecisionDate || formData.authorNotification)?.toISOString() ||
+          existingDiscussionSettings?.end_at,
       },
       rebuttal_settings: {
         enabled:

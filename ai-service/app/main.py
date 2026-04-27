@@ -14,9 +14,31 @@ from app.core.auth import IdentityProvider
 from app.core.config import Settings, get_settings
 from app.core.logging import configure_logging
 from app.db import create_engine, create_session_factory
-from app.repositories import GatingRunRepository
+from app.repositories import (
+    DecisionCopilotRepository,
+    GatingRunRepository,
+    PaperAnnotationRepository,
+    ReviewQualityAuditRepository,
+    ReviewerBriefingRepository,
+)
 from app.repositories.runtime_store import RuntimeStore
-from app.services import AgentRuntime, LLMClient, MetricsStore
+from app.services import AgentRuntime, QueryEngineClient, LLMClient, MetricsStore
+from app.workflows.reviewer_pre_read_briefing.runner import (
+    ReviewerPreReadBriefingRunner,
+)
+from app.workflows.reviewer_pre_read_briefing.router import (
+    router as reviewer_briefing_router,
+)
+from app.workflows.review_quality_auditor.runner import ReviewQualityAuditRunner
+from app.workflows.review_quality_auditor.router import (
+    router as review_quality_audit_router,
+)
+from app.workflows.chair_decision_copilot.runner import DecisionCopilotRunner
+from app.workflows.chair_decision_copilot.router import (
+    router as decision_copilot_router,
+)
+from app.workflows.paper_annotation.runner import PaperAnnotationRunner
+from app.workflows.paper_annotation.router import router as paper_annotation_router
 from app.workflows.submission_gating.runner import SubmissionGatingRunner
 from app.workflows.submission_gating.router import router as submission_gating_router
 
@@ -33,17 +55,36 @@ class AppContainer:
     runtime_store: RuntimeStore
     llm_client: LLMClient
     metrics: MetricsStore
+    query_engine_client: QueryEngineClient
     runtime: AgentRuntime
     submission_gating_repo: GatingRunRepository
     submission_gating_runner: SubmissionGatingRunner
+    reviewer_briefing_repo: ReviewerBriefingRepository
+    reviewer_briefing_runner: ReviewerPreReadBriefingRunner
+    review_quality_audit_repo: ReviewQualityAuditRepository
+    review_quality_audit_runner: ReviewQualityAuditRunner
+    decision_copilot_repo: DecisionCopilotRepository
+    decision_copilot_runner: DecisionCopilotRunner
+    paper_annotation_repo: PaperAnnotationRepository
+    paper_annotation_runner: PaperAnnotationRunner
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
     configure_logging(settings.log_level)
-    if not settings.openrouter_api_key.strip():
-        raise RuntimeError("OPENROUTER_API_KEY is required")
+    has_openai_primary = bool(
+        settings.openai_api_key.strip()
+        and settings.openai_base_url.strip()
+        and settings.openai_model.strip()
+    )
+    has_openrouter_fallback = bool(settings.openrouter_api_key.strip() and settings.agent_model.strip())
+    if not has_openai_primary and not has_openrouter_fallback:
+        raise RuntimeError(
+            "Configure OPENAI_API_KEY + OPENAI_BASE_URL + OPENAI_MODEL or OPENROUTER_API_KEY + AGENT_MODEL"
+        )
+    if has_openai_primary and not has_openrouter_fallback:
+        raise RuntimeError("OPENROUTER_API_KEY and AGENT_MODEL are required for fallback when OpenAI is primary")
 
     engine = create_engine(settings)
     session_factory = create_session_factory(engine)
@@ -53,12 +94,46 @@ async def lifespan(app: FastAPI):
         ttl_seconds=settings.auth_cache_ttl_seconds,
         request_timeout_seconds=settings.identity_request_timeout_seconds,
     )
-    runtime_store = RuntimeStore(redis, tool_result_timeout_seconds=settings.tool_result_timeout_seconds)
-    llm_client = LLMClient(api_key=settings.openrouter_api_key, model=settings.agent_model)
+    runtime_store = RuntimeStore(
+        redis, tool_result_timeout_seconds=settings.tool_result_timeout_seconds
+    )
+    llm_client = LLMClient(
+        api_key=settings.openrouter_api_key,
+        model=settings.agent_model,
+        openai_api_key=settings.openai_api_key,
+        openai_base_url=settings.openai_base_url,
+        openai_model=settings.openai_model,
+        request_timeout_seconds=settings.llm_request_timeout_seconds,
+    )
     metrics = MetricsStore()
+    query_engine_client = QueryEngineClient(
+        base_url=settings.backend_api_base_url,
+        service_token=settings.agent_service_token,
+        timeout_seconds=settings.backend_query_timeout_seconds,
+    )
     submission_gating_repo = GatingRunRepository(session_factory)
+    reviewer_briefing_repo = ReviewerBriefingRepository(session_factory)
+    review_quality_audit_repo = ReviewQualityAuditRepository(session_factory)
+    decision_copilot_repo = DecisionCopilotRepository(session_factory)
     submission_gating_runner = SubmissionGatingRunner(
         repo=submission_gating_repo,
+        llm_client=llm_client,
+    )
+    reviewer_briefing_runner = ReviewerPreReadBriefingRunner(
+        repo=reviewer_briefing_repo,
+        llm_client=llm_client,
+    )
+    review_quality_audit_runner = ReviewQualityAuditRunner(
+        repo=review_quality_audit_repo,
+        llm_client=llm_client,
+    )
+    decision_copilot_runner = DecisionCopilotRunner(
+        repo=decision_copilot_repo,
+        llm_client=llm_client,
+    )
+    paper_annotation_repo = PaperAnnotationRepository(session_factory)
+    paper_annotation_runner = PaperAnnotationRunner(
+        repo=paper_annotation_repo,
         llm_client=llm_client,
     )
     runtime = AgentRuntime(
@@ -67,6 +142,7 @@ async def lifespan(app: FastAPI):
         runtime_store=runtime_store,
         llm_client=llm_client,
         metrics=metrics,
+        query_engine_client=query_engine_client,
     )
 
     app.state.container = AppContainer(
@@ -78,9 +154,18 @@ async def lifespan(app: FastAPI):
         runtime_store=runtime_store,
         llm_client=llm_client,
         metrics=metrics,
+        query_engine_client=query_engine_client,
         runtime=runtime,
         submission_gating_repo=submission_gating_repo,
         submission_gating_runner=submission_gating_runner,
+        reviewer_briefing_repo=reviewer_briefing_repo,
+        reviewer_briefing_runner=reviewer_briefing_runner,
+        review_quality_audit_repo=review_quality_audit_repo,
+        review_quality_audit_runner=review_quality_audit_runner,
+        decision_copilot_repo=decision_copilot_repo,
+        decision_copilot_runner=decision_copilot_runner,
+        paper_annotation_repo=paper_annotation_repo,
+        paper_annotation_runner=paper_annotation_runner,
     )
 
     try:
@@ -107,6 +192,10 @@ def create_app() -> FastAPI:
     app.include_router(status_router)
     app.include_router(agent_router)
     app.include_router(submission_gating_router)
+    app.include_router(reviewer_briefing_router)
+    app.include_router(review_quality_audit_router)
+    app.include_router(decision_copilot_router)
+    app.include_router(paper_annotation_router)
     return app
 
 

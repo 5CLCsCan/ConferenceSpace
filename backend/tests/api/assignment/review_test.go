@@ -310,11 +310,12 @@ func TestSaveReview_AfterSubmitted(t *testing.T) {
 			Criteria: dto.ReviewCriteria{
 				Originality: 8, TechnicalQuality: 7, Clarity: 8, Significance: 7, Methodology: 7,
 			},
-			Feedback:       dto.ReviewFeedback{Summary: "Good paper", Strengths: "Clear writing"},
+			Feedback:       dto.ReviewFeedback{Summary: "Good paper", Strengths: "Clear writing", Weaknesses: "Evaluation can be broader"},
 			Recommendation: "accept",
 			Confidence:     "high",
 		},
-		Status: model.ReviewStatusSubmitted,
+		Status:                        model.ReviewStatusSubmitted,
+		AuditFailureOverrideConfirmed: true,
 	}
 
 	// First submit — must succeed.
@@ -337,6 +338,86 @@ func TestSaveReview_AfterSubmitted(t *testing.T) {
 	}
 	if resp2.StatusCode != http.StatusBadRequest {
 		t.Fatalf("Expected 400, got %d", resp2.StatusCode)
+	}
+}
+
+func TestSaveReview_SubmitRequiresAuditFailureOverrideWhenAuditWorkflowUnavailable(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	assignmentID, conferenceID, _, reviewerToken, _ := setupReviewingScenario(t, ctx)
+
+	score := float64(8)
+	reviewReq := dto.ReviewSaveRequest{
+		AssignmentID: assignmentID,
+		ConferenceID: conferenceID,
+		ReviewScore:  &score,
+		ReviewData: &dto.ReviewData{
+			Criteria: dto.ReviewCriteria{
+				Originality: 8, TechnicalQuality: 8, Clarity: 8, Significance: 8, Methodology: 8,
+			},
+			Feedback: dto.ReviewFeedback{
+				Summary:    "This is a complete review summary for the submission.",
+				Strengths:  "Strong motivation and a coherent workflow design.",
+				Weaknesses: "Evaluation breadth could still be stronger.",
+			},
+			Recommendation: "accept",
+			Confidence:     "high",
+		},
+		Status: model.ReviewStatusSubmitted,
+	}
+
+	resp, err := ctx.MakeRequest(
+		"PUT",
+		fmt.Sprintf("/api/v1/conferences/%d/assignments/%d/review", conferenceID, assignmentID),
+		reviewReq,
+		reviewerToken,
+	)
+	if err != nil {
+		t.Fatalf("Request failed: %v", err)
+	}
+	if resp.StatusCode != http.StatusConflict {
+		t.Fatalf("Expected 409, got %d", resp.StatusCode)
+	}
+}
+
+func TestRunReviewAudit_UsesPathScopeWithoutBodyIDs(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	assignmentID, conferenceID, _, reviewerToken, _ := setupReviewingScenario(t, ctx)
+
+	resp, err := ctx.MakeRequest(
+		"POST",
+		fmt.Sprintf("/api/v1/conferences/%d/assignments/%d/review-audit", conferenceID, assignmentID),
+		map[string]interface{}{
+			"mode": "draft_save",
+			"review_data": map[string]interface{}{
+				"criteria": map[string]interface{}{
+					"originality":       8,
+					"technical_quality": 8,
+					"clarity":           8,
+					"significance":      8,
+					"methodology":       8,
+				},
+				"feedback": map[string]interface{}{
+					"summary":    "The review contains enough text to reach the audit layer.",
+					"strengths":  "Clear motivation and workable framing.",
+					"weaknesses": "Evaluation breadth could improve.",
+				},
+				"recommendation": "accept",
+				"confidence":     "high",
+			},
+		},
+		reviewerToken,
+	)
+	if err != nil {
+		t.Fatalf("Request failed: %v", err)
+	}
+
+	// Audit service may return 503 (not configured) or 502 (workflow failed) depending on environment
+	if resp.StatusCode != http.StatusServiceUnavailable && resp.StatusCode != http.StatusBadGateway {
+		t.Fatalf("Expected 502 or 503 from audit service after successful path binding, got %d", resp.StatusCode)
 	}
 }
 
@@ -367,6 +448,43 @@ func TestSaveReview_ScoreOutOfRange(t *testing.T) {
 	resp, err := ctx.MakeRequest("PUT",
 		fmt.Sprintf("/api/v1/conferences/%d/assignments/%d/review", conferenceID, assignmentID),
 		reviewReq, reviewerToken,
+	)
+	if err != nil {
+		t.Fatalf("Request failed: %v", err)
+	}
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("Expected 400, got %d", resp.StatusCode)
+	}
+}
+
+func TestSaveReview_SubmitRejectsMissingSummaryBeforeAudit(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	assignmentID, conferenceID, _, reviewerToken, _ := setupReviewingScenario(t, ctx)
+
+	score := float64(8)
+	reviewReq := dto.ReviewSaveRequest{
+		ReviewScore: &score,
+		ReviewData: &dto.ReviewData{
+			Criteria: dto.ReviewCriteria{
+				Originality: 8, TechnicalQuality: 8, Clarity: 8, Significance: 8, Methodology: 8,
+			},
+			Feedback: dto.ReviewFeedback{
+				Strengths:  "Strong problem framing and a coherent workflow.",
+				Weaknesses: "The evaluation breadth could be stronger.",
+			},
+			Recommendation: "accept",
+			Confidence:     "medium",
+		},
+		Status: model.ReviewStatusSubmitted,
+	}
+
+	resp, err := ctx.MakeRequest(
+		"PUT",
+		fmt.Sprintf("/api/v1/conferences/%d/assignments/%d/review", conferenceID, assignmentID),
+		reviewReq,
+		reviewerToken,
 	)
 	if err != nil {
 		t.Fatalf("Request failed: %v", err)

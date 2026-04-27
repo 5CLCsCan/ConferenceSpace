@@ -33,6 +33,10 @@ vi.mock("@/lib/api/conferences", () => ({
   getConferenceReviewers: vi.fn(),
 }))
 
+vi.mock("@/lib/auth-context", () => ({
+  useAuth: vi.fn(() => ({ currentRole: "chair" })),
+}))
+
 describe("ConferenceAssignments", () => {
   const mockGetSuggestions = suggestionsApi.getSuggestions as ReturnType<typeof vi.fn>
   const mockGetConfirmedAssignments = suggestionsApi.getConfirmedAssignments as ReturnType<

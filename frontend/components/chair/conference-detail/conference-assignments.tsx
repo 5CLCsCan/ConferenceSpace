@@ -33,6 +33,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { useAuth } from "@/lib/auth-context"
+import { isReadOnlyRole } from "@/lib/role-helpers"
 
 interface ConferenceAssignmentsProps {
   conferenceId: string
@@ -180,6 +182,8 @@ function ReviewStatusBadge({ status }: { status: string }) {
 
 export function ConferenceAssignments({ conferenceId, className }: ConferenceAssignmentsProps) {
   const { t } = useTranslation()
+  const { currentRole } = useAuth()
+  const readOnly = isReadOnlyRole(currentRole)
   const [activeTab, setActiveTab] = useState<TabType>("suggestions")
 
   // Suggestions state
@@ -344,19 +348,19 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
     <div className={cn("space-y-4", className)}>
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          <h2 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
+          <h2 className="text-lg font-bold text-[#1B3C53] tracking-tight">
             {t(
               "runtime.components.chair.conference-detail.conference-assignments.text_reviewer_assignments",
             )}{" "}
           </h2>
-          <p className="text-xs font-medium text-slate-500 leading-relaxed mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             {t(
               "runtime.components.chair.conference-detail.conference-assignments.text_review_and_manage_reviewer_assignments_for",
             )}{" "}
           </p>
         </div>
 
-        {activeTab === "suggestions" && !suggestionsEmpty && (
+        {activeTab === "suggestions" && !suggestionsEmpty && !readOnly && (
           <Button
             onClick={() => setConfirmDialog({ show: true, type: "confirm-all", data: null })}
             disabled={confirmingAll || totalSuggestions === 0}
@@ -462,19 +466,21 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
                         {group.reviewers.length !== 1 ? "s" : ""}
                       </p>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => openAddDialog(group)}
-                      className="text-[9px] font-bold uppercase tracking-wider h-7 px-2.5 gap-1.5"
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
-                        person_add
-                      </span>
-                      {t(
-                        "runtime.components.chair.conference-detail.conference-assignments.text_add_reviewer",
-                      )}{" "}
-                    </Button>
+                    {!readOnly && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openAddDialog(group)}
+                        className="text-[9px] font-bold uppercase tracking-wider h-7 px-2.5 gap-1.5"
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                          person_add
+                        </span>
+                        {t(
+                          "runtime.components.chair.conference-detail.conference-assignments.text_add_reviewer",
+                        )}{" "}
+                      </Button>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -502,47 +508,49 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleConfirmSingle(reviewer.assignment_id)}
-                            className="text-green-600 hover:text-green-700 hover:bg-green-50 text-[9px] font-bold uppercase tracking-wider h-7 px-2.5 gap-1.5"
-                          >
-                            <span
-                              className="material-symbols-outlined"
-                              style={{ fontSize: "14px" }}
+                        {!readOnly && (
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleConfirmSingle(reviewer.assignment_id)}
+                              className="text-green-600 hover:text-green-700 hover:bg-green-50 text-[9px] font-bold uppercase tracking-wider h-7 px-2.5 gap-1.5"
                             >
-                              check
-                            </span>
-                            {t(
-                              "runtime.components.chair.conference-detail.conference-assignments.text_confirm",
-                            )}{" "}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              setConfirmDialog({
-                                show: true,
-                                type: "delete",
-                                data: reviewer.assignment_id,
-                              })
-                            }
-                            disabled={deletingId === reviewer.assignment_id}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 text-[9px] font-bold uppercase tracking-wider h-7 px-2.5 gap-1.5"
-                          >
-                            <span
-                              className="material-symbols-outlined"
-                              style={{ fontSize: "14px" }}
+                              <span
+                                className="material-symbols-outlined"
+                                style={{ fontSize: "14px" }}
+                              >
+                                check
+                              </span>
+                              {t(
+                                "runtime.components.chair.conference-detail.conference-assignments.text_confirm",
+                              )}{" "}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                setConfirmDialog({
+                                  show: true,
+                                  type: "delete",
+                                  data: reviewer.assignment_id,
+                                })
+                              }
+                              disabled={deletingId === reviewer.assignment_id}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 text-[9px] font-bold uppercase tracking-wider h-7 px-2.5 gap-1.5"
                             >
-                              close
-                            </span>
-                            {t(
-                              "runtime.components.chair.conference-detail.conference-assignments.text_remove",
-                            )}{" "}
-                          </Button>
-                        </div>
+                              <span
+                                className="material-symbols-outlined"
+                                style={{ fontSize: "14px" }}
+                              >
+                                close
+                              </span>
+                              {t(
+                                "runtime.components.chair.conference-detail.conference-assignments.text_remove",
+                              )}{" "}
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

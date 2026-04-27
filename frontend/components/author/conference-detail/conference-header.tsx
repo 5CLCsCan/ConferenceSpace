@@ -88,9 +88,13 @@ export function ConferenceHeader({
             >
               folder_open
             </span>
-            <span>
+            <button
+              type="button"
+              onClick={() => router.push(ROUTES.AUTHOR.DASHBOARD)}
+              className="rounded-sm transition-colors hover:text-[#1B3C53] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1B3C53]/30"
+            >
               {t("runtime.components.author.conference-detail.conference-header.text_conferences")}
-            </span>
+            </button>
             <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
               chevron_right
             </span>

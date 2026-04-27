@@ -2,6 +2,7 @@
 
 import type { Author } from "./types"
 import type { Conflict } from "./conflicts-step"
+import type { PrecheckResult } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface ReviewStepProps {
@@ -11,6 +12,8 @@ interface ReviewStepProps {
   keywords: string[]
   authors: Author[]
   uploadedFile: File | null
+  precheckResult: PrecheckResult | null
+  precheckError: string | null
   conflicts: Conflict[]
   coiConfirmed: boolean
   submissionConfirmed: boolean
@@ -25,6 +28,8 @@ export function ReviewStep({
   keywords,
   authors,
   uploadedFile,
+  precheckResult,
+  precheckError,
   conflicts,
   coiConfirmed,
   submissionConfirmed,
@@ -32,6 +37,9 @@ export function ReviewStep({
   onSubmissionConfirmedChange,
 }: ReviewStepProps) {
   const { t } = useTranslation()
+
+  const hasPrecheckApproval = precheckResult?.decision === "accept_for_review"
+  const precheckFailed = !!precheckError || (precheckResult && !hasPrecheckApproval)
   return (
     <div className="flex flex-col gap-4 w-full">
       {/* Paper Details Card */}
@@ -55,7 +63,7 @@ export function ReviewStep({
               {t("runtime.components.author.submit.review-step.text_title")}{" "}
             </label>
             <p className="text-sm font-bold text-[#141414] dark:text-white">
-              {title || "No title provided"}
+              {title || t("runtime.components.author.submit.review-step.text_no_title_provided")}
             </p>
           </div>
           <div className="md:col-span-2">
@@ -63,7 +71,8 @@ export function ReviewStep({
               {t("runtime.components.author.submit.review-step.text_abstract")}{" "}
             </label>
             <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-4">
-              {abstract || "No abstract provided"}
+              {abstract ||
+                t("runtime.components.author.submit.review-step.text_no_abstract_provided")}
             </p>
           </div>
           <div className="flex flex-col gap-4">
@@ -121,7 +130,7 @@ export function ReviewStep({
             <span className="material-symbols-outlined text-[14px]">edit</span>
           </button>
         </div>
-        <div className="px-4 py-3">
+        <div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs text-left">
               <thead className="bg-slate-50 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600">
@@ -155,7 +164,9 @@ export function ReviewStep({
                       {author.affiliation}
                     </td>
                     <td className="px-3 py-2.5 text-slate-500">
-                      {index === 0 ? "Primary" : "Co-Author"}
+                      {index === 0
+                        ? t("runtime.components.author.submit.review-step.text_primary")
+                        : t("runtime.components.author.submit.review-step.text_co_author")}
                     </td>
                     <td className="px-3 py-2.5 text-right text-slate-500">{author.email}</td>
                   </tr>
@@ -198,12 +209,28 @@ export function ReviewStep({
                     {t("runtime.components.author.submit.review-step.text_mb")}{" "}
                   </p>
                 </div>
-                <span
-                  className="material-symbols-outlined text-green-500 text-[18px]"
-                  title={t("runtime.components.author.submit.review-step.title_passed_validation")}
-                >
-                  check_circle
-                </span>
+                {precheckFailed ? (
+                  <span
+                    className="material-symbols-outlined text-red-500 text-[18px]"
+                    title={precheckError || t("runtime.components.author.submit.review-step.title_failed_validation")}
+                  >
+                    cancel
+                  </span>
+                ) : hasPrecheckApproval ? (
+                  <span
+                    className="material-symbols-outlined text-green-500 text-[18px]"
+                    title={t("runtime.components.author.submit.review-step.title_passed_validation")}
+                  >
+                    check_circle
+                  </span>
+                ) : (
+                  <span
+                    className="material-symbols-outlined text-amber-500 text-[18px]"
+                    title={t("runtime.components.author.submit.review-step.title_pending_validation")}
+                  >
+                    pending
+                  </span>
+                )}
               </div>
             ) : (
               <div className="flex items-center gap-3 p-3 rounded-lg border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50">
@@ -243,8 +270,17 @@ export function ReviewStep({
                 </span>
                 <span>
                   {conflicts.length > 0
-                    ? `${conflicts.length} conflict(s) of interest declared.`
-                    : "No conflicts of interest declared."}
+                    ? conflicts.length === 1
+                      ? t(
+                          "runtime.components.author.submit.review-step.text_one_conflict_of_interest_declared",
+                        )
+                      : t(
+                          "runtime.components.author.submit.review-step.text_multiple_conflicts_of_interest_declared",
+                          { count: conflicts.length },
+                        )
+                    : t(
+                        "runtime.components.author.submit.review-step.text_no_conflicts_of_interest_declared",
+                      )}
                 </span>
               </div>
               <div className="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-300">
@@ -265,7 +301,7 @@ export function ReviewStep({
       </div>
 
       {/* Final Confirmation Checkbox */}
-      <div className="px-4 pt-4 pb-3 bg-[#1B3C53]/5 dark:bg-[#1B3C53]/10 rounded-xl border border-[#1B3C53]/10 dark:border-[#1B3C53]/20 shadow-sm">
+      <div className="px-4 pt-4 pb-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
         <label className="flex items-start gap-3 cursor-pointer group">
           <input
             className="mt-0.5 size-4 rounded border-slate-300 text-[#1B3C53] focus:ring-[#1B3C53] transition-all"

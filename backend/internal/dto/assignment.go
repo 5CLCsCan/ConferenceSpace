@@ -4,28 +4,28 @@ import "time"
 
 // Assignment represents a paper assignment for both request and response
 type Assignment struct {
-	ID                int64       `json:"id,omitempty"`
-	ConferenceID      int64       `json:"conference_id,omitempty"`
-	SubmissionID      int64       `json:"submission_id" binding:"required"`
-	ReviewerID        int64       `json:"reviewer_id" binding:"required"`
-	Score             float64     `json:"score,omitempty"`
-	Status            string      `json:"status,omitempty"` // pending, accepted, declined, completed
-	AssignedAt        time.Time   `json:"assigned_at,omitempty"`
-	CompletedAt       *time.Time  `json:"completed_at,omitempty"`
-	ReviewStatus           *string     `json:"review_status,omitempty"` // draft, submitted
-	ReviewScore            *float64    `json:"review_score,omitempty"`
-	ReviewData             *ReviewData `json:"review_data,omitempty"`
-	ReviewSubmittedAt      *time.Time  `json:"review_submitted_at,omitempty"`
-	RebuttalStatus              string     `json:"rebuttal_status,omitempty"`
-	RebuttalSubmittedAt         *time.Time `json:"rebuttal_submitted_at,omitempty"`
-	RebuttalAcknowledgedAt      *time.Time `json:"rebuttal_acknowledged_at,omitempty"`
-	PostRebuttalScore           *int       `json:"post_rebuttal_score,omitempty"`
-	PostRebuttalRecommendation  *string    `json:"post_rebuttal_recommendation,omitempty"`
-	PostRebuttalComment         *string    `json:"post_rebuttal_comment,omitempty"`
-	PostRebuttalUpdatedAt       *time.Time `json:"post_rebuttal_updated_at,omitempty"`
-	CreatedAt              time.Time   `json:"created_at,omitempty"`
-	UpdatedAt              time.Time   `json:"updated_at,omitempty"`
-	ReviewerEmail          string      `json:"reviewer_email,omitempty"`
+	ID                         int64       `json:"id,omitempty"`
+	ConferenceID               int64       `json:"conference_id,omitempty"`
+	SubmissionID               int64       `json:"submission_id" binding:"required"`
+	ReviewerID                 int64       `json:"reviewer_id" binding:"required"`
+	Score                      float64     `json:"score,omitempty"`
+	Status                     string      `json:"status,omitempty"` // pending, accepted, declined, completed
+	AssignedAt                 time.Time   `json:"assigned_at,omitempty"`
+	CompletedAt                *time.Time  `json:"completed_at,omitempty"`
+	ReviewStatus               *string     `json:"review_status,omitempty"` // draft, submitted
+	ReviewScore                *float64    `json:"review_score,omitempty"`
+	ReviewData                 *ReviewData `json:"review_data,omitempty"`
+	ReviewSubmittedAt          *time.Time  `json:"review_submitted_at,omitempty"`
+	RebuttalStatus             string      `json:"rebuttal_status,omitempty"`
+	RebuttalSubmittedAt        *time.Time  `json:"rebuttal_submitted_at,omitempty"`
+	RebuttalAcknowledgedAt     *time.Time  `json:"rebuttal_acknowledged_at,omitempty"`
+	PostRebuttalScore          *int        `json:"post_rebuttal_score,omitempty"`
+	PostRebuttalRecommendation *string     `json:"post_rebuttal_recommendation,omitempty"`
+	PostRebuttalComment        *string     `json:"post_rebuttal_comment,omitempty"`
+	PostRebuttalUpdatedAt      *time.Time  `json:"post_rebuttal_updated_at,omitempty"`
+	CreatedAt                  time.Time   `json:"created_at,omitempty"`
+	UpdatedAt                  time.Time   `json:"updated_at,omitempty"`
+	ReviewerEmail              string      `json:"reviewer_email,omitempty"`
 }
 
 // AssignmentCreateRequest represents the request to create a single assignment
@@ -104,17 +104,97 @@ type ReviewFeedback struct {
 
 // ReviewSaveRequest represents the request to save or submit a review
 type ReviewSaveRequest struct {
-	AssignmentID int64       `uri:"assignment_id" json:"assignment_id" binding:"required"`
-	ConferenceID int64       `uri:"conference_id" json:"conference_id" binding:"required"`
-	ReviewScore  *float64    `json:"review_score" binding:"omitempty,min=0,max=10"`
-	ReviewData   *ReviewData `json:"review_data,omitempty"`
-	Status       string      `json:"status" binding:"required,oneof=draft submitted"`
+	AssignmentID                  int64       `json:"-"`
+	ConferenceID                  int64       `json:"-"`
+	ReviewScore                   *float64    `json:"review_score" binding:"omitempty,min=0,max=10"`
+	ReviewData                    *ReviewData `json:"review_data,omitempty"`
+	Status                        string      `json:"status" binding:"required,oneof=draft submitted"`
+	AuditFailureOverrideConfirmed bool        `json:"audit_failure_override_confirmed,omitempty"`
 }
 
 // ReviewGetRequest represents the request to get a review
 type ReviewGetRequest struct {
 	AssignmentID int64 `uri:"assignment_id" binding:"required"`
 	ConferenceID int64 `uri:"conference_id" binding:"required"`
+}
+
+type ReviewerBriefingRequest struct {
+	AssignmentID int64 `uri:"assignment_id" binding:"required"`
+	ConferenceID int64 `uri:"conference_id" binding:"required"`
+}
+
+type PaperAnnotationRequest struct {
+	AssignmentID int64 `uri:"assignment_id" binding:"required"`
+	ConferenceID int64 `uri:"conference_id" binding:"required"`
+}
+
+type ReviewAuditMode string
+
+const (
+	ReviewAuditModeDraftSave         ReviewAuditMode = "draft_save"
+	ReviewAuditModeSubmitPreflight   ReviewAuditMode = "submit_preflight"
+	ReviewAuditModeSubmitEnforcement ReviewAuditMode = "submit_enforcement"
+)
+
+type ReviewAuditRequest struct {
+	AssignmentID int64           `json:"-"`
+	ConferenceID int64           `json:"-"`
+	Mode         ReviewAuditMode `json:"mode" binding:"required,oneof=draft_save submit_preflight submit_enforcement"`
+	ReviewScore  *float64        `json:"review_score" binding:"omitempty,min=0,max=10"`
+	ReviewData   *ReviewData     `json:"review_data" binding:"required"`
+}
+
+type ReviewAuditFinding struct {
+	Code                 string `json:"code"`
+	Severity             string `json:"severity"`
+	Field                string `json:"field"`
+	Message              string `json:"message"`
+	Suggestion           string `json:"suggestion"`
+	ConditionFingerprint string `json:"condition_fingerprint"`
+}
+
+type ReviewAuditResponse struct {
+	Status            string               `json:"status"`
+	RunID             string               `json:"run_id,omitempty"`
+	ActiveFindings    []ReviewAuditFinding `json:"active_findings,omitempty"`
+	DismissedFindings []ReviewAuditFinding `json:"dismissed_findings,omitempty"`
+}
+
+type ReviewAuditDismissal struct {
+	Code                 string    `json:"code"`
+	ConditionFingerprint string    `json:"condition_fingerprint"`
+	DismissedAt          time.Time `json:"dismissed_at"`
+}
+
+type ReviewAuditState struct {
+	DismissedWarnings []ReviewAuditDismissal `json:"dismissed_warnings,omitempty"`
+}
+
+type ReviewAuditDismissalRequest struct {
+	AssignmentID int64                   `json:"-"`
+	ConferenceID int64                   `json:"-"`
+	Action       string                  `json:"action" binding:"required,oneof=dismiss undismiss"`
+	Finding      ReviewAuditDismissalRef `json:"finding" binding:"required"`
+}
+
+type ReviewAuditDismissalRef struct {
+	Code                 string `json:"code" binding:"required"`
+	Severity             string `json:"severity" binding:"required,oneof=warning blocking"`
+	Field                string `json:"field" binding:"required"`
+	ConditionFingerprint string `json:"condition_fingerprint" binding:"required"`
+}
+
+type ReviewAuditDismissalResponse struct {
+	State ReviewAuditState `json:"state"`
+}
+
+type ReviewAuditEvent struct {
+	AssignmentID int64                  `json:"assignment_id"`
+	ConferenceID int64                  `json:"conference_id"`
+	ActorID      int64                  `json:"actor_id"`
+	ActorEmail   string                 `json:"actor_email"`
+	EventType    string                 `json:"event_type"`
+	Payload      map[string]interface{} `json:"payload,omitempty"`
 }
 
 // ReviewListRequest represents the request to list reviews for a submission
@@ -325,14 +405,14 @@ type RebuttalAssignmentStatus struct {
 
 // GetRebuttalResponse is the full rebuttal state returned by GET .../rebuttal
 type GetRebuttalResponse struct {
-	Phase              string                     `json:"phase"`
-	GeneralResponse    string                     `json:"general_response"`
-	SubmittedAt        *time.Time                 `json:"submitted_at,omitempty"`
-	Points             []RebuttalPointDTO         `json:"points"`
-	Assignments        []RebuttalAssignmentStatus `json:"assignments"`
-	CharLimitGeneral   int                        `json:"char_limit_general"`
-	CharLimitPerPoint  int                        `json:"char_limit_per_point"`
-	Deadline           *time.Time                 `json:"deadline,omitempty"`
+	Phase             string                     `json:"phase"`
+	GeneralResponse   string                     `json:"general_response"`
+	SubmittedAt       *time.Time                 `json:"submitted_at,omitempty"`
+	Points            []RebuttalPointDTO         `json:"points"`
+	Assignments       []RebuttalAssignmentStatus `json:"assignments"`
+	CharLimitGeneral  int                        `json:"char_limit_general"`
+	CharLimitPerPoint int                        `json:"char_limit_per_point"`
+	Deadline          *time.Time                 `json:"deadline,omitempty"`
 }
 
 // AcknowledgePointRequest is URI + body for PUT .../rebuttal/points/:point_id/acknowledge

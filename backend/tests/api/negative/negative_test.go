@@ -1196,13 +1196,15 @@ func TestTC_NEG_05_ReviewerCannotSubmitInvalidScoring(t *testing.T) {
 					"methodology":       10, // Valid: 1-10
 				},
 				"feedback": map[string]interface{}{
+					"summary":    "Well-written paper with strong contributions",
 					"strengths":  "Excellent research",
 					"weaknesses": "Minor presentation issues",
 				},
 				"recommendation": "accept",
 				"confidence":     "high",
 			},
-			"status": "submitted",
+			"status":                           "submitted",
+			"audit_failure_override_confirmed": true,
 		}
 
 		resp, err := ctx.MakeRequest("PUT", reviewPath, reviewReq, reviewerToken)

@@ -70,6 +70,20 @@ export default function RoleSelectionPage() {
         btnClass:
           "bg-white border-2 border-purple-600 text-purple-600 hover:bg-purple-50 dark:bg-transparent dark:text-purple-400 dark:border-purple-500 dark:hover:bg-purple-900/20",
       },
+      pc: {
+        icon: "groups",
+        label: t("runtime.app.role.page.prop_label_oversight"),
+        title: t("runtime.app.role.page.prop_title_pc"),
+        description: t(
+          "runtime.app.role.page.prop_description_read_only_access_to_conference",
+        ),
+        gradient: "from-amber-500 via-orange-600 to-orange-700",
+        accentColor: "#d97706",
+        shadowColor: "rgba(217,119,6,0.25)",
+        borderGlow: "rgba(217,119,6,0.4)",
+        btnClass:
+          "bg-white border-2 border-amber-600 text-amber-600 hover:bg-amber-50 dark:bg-transparent dark:text-amber-400 dark:border-amber-500 dark:hover:bg-amber-900/20",
+      },
     }),
     [t],
   )
@@ -171,6 +185,13 @@ export default function RoleSelectionPage() {
         radial-gradient(ellipse at 60% 80%, rgba(126,34,206,0.5) 0%, transparent 50%),
         linear-gradient(135deg, #8b5cf6, #9333ea, #7e22ce);
     }
+    .mesh-pc {
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(245,158,11,0.6) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(217,119,6,0.4) 0%, transparent 50%),
+        radial-gradient(ellipse at 60% 80%, rgba(234,88,12,0.5) 0%, transparent 50%),
+        linear-gradient(135deg, #f59e0b, #d97706, #ea580c);
+    }
 
     /* Icon badge glassmorphism */
     .glass-badge {
@@ -189,6 +210,7 @@ export default function RoleSelectionPage() {
     .card-enter-1 { animation-delay: 0.08s; }
     .card-enter-2 { animation-delay: 0.16s; }
     .card-enter-3 { animation-delay: 0.24s; }
+    .card-enter-4 { animation-delay: 0.32s; }
 
     @keyframes header-enter {
       from { opacity: 0; transform: translateY(12px); }
@@ -224,7 +246,7 @@ export default function RoleSelectionPage() {
     router.push(ROUTES.ROLE_ROUTE_MAP[role] ?? ROUTES.ROLE_SELECT)
   }
 
-  const roles = (["author", "reviewer", "chair"] as const).filter((r) => canAccessRole(user, r))
+  const roles = (["author", "reviewer", "chair", "pc"] as const).filter((r) => canAccessRole(user, r))
 
   return (
     <div className="bg-white dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
@@ -337,7 +359,9 @@ export default function RoleSelectionPage() {
                     ? "mesh-author"
                     : roleKey === "reviewer"
                       ? "mesh-reviewer"
-                      : "mesh-chair"
+                      : roleKey === "pc"
+                        ? "mesh-pc"
+                        : "mesh-chair"
 
                 return (
                   <div
@@ -397,6 +421,15 @@ export default function RoleSelectionPage() {
                           <div className="absolute bottom-6 left-1/2 w-1 h-1 rounded-full bg-white/15" />
                         </>
                       )}
+                      {roleKey === "pc" && (
+                        <>
+                          {/* Overlapping rectangles - oversight */}
+                          <div className="absolute -right-4 top-4 w-24 h-16 rounded-lg border border-white/10" style={{ transform: "rotate(10deg)" }} />
+                          <div className="absolute right-8 -top-2 w-20 h-14 rounded-lg border border-white/[0.07]" style={{ transform: "rotate(-5deg)" }} />
+                          <div className="absolute -left-4 -bottom-4 w-28 h-28 rounded-full bg-white/[0.04]" />
+                          <div className="absolute top-8 left-[50%] w-1.5 h-1.5 rounded-full bg-white/25" />
+                        </>
+                      )}
 
                       {/* Icon + label in the gradient zone */}
                       <div className="absolute bottom-4 left-5 z-20 flex items-end gap-3">
@@ -427,38 +460,6 @@ export default function RoleSelectionPage() {
                       <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed mb-5">
                         {cfg.description}
                       </p>
-
-                      {/* Stats / Meta row */}
-                      <div className="flex items-center gap-4 mb-5">
-                        <div className="flex items-center gap-1.5">
-                          <div
-                            className="w-1 h-1 rounded-full"
-                            style={{
-                              backgroundColor: cfg.accentColor,
-                              opacity: 0.6,
-                            }}
-                          />
-                          <span className="text-[10px] font-medium text-slate-400">
-                            {roleKey === "author"
-                              ? "Submit & Track"
-                              : roleKey === "reviewer"
-                                ? "Review & Score"
-                                : "Govern & Manage"}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <div
-                            className="w-1 h-1 rounded-full"
-                            style={{
-                              backgroundColor: cfg.accentColor,
-                              opacity: 0.4,
-                            }}
-                          />
-                          <span className="text-[10px] font-medium text-slate-400">
-                            {t("runtime.app.role.page.text_full_access")}{" "}
-                          </span>
-                        </div>
-                      </div>
 
                       {/* Enter Button */}
                       <div className="mt-auto">

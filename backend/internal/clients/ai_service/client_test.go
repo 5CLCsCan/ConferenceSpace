@@ -144,6 +144,120 @@ func TestRunSubmissionMaterialGating(t *testing.T) {
 	})
 }
 
+func TestReviewerBriefingClient(t *testing.T) {
+	t.Run("lookup posts json payload and decodes response", func(t *testing.T) {
+		var gotAuth string
+		var gotMethod string
+		var gotContentType string
+		var gotBody []byte
+
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			gotAuth = r.Header.Get("Authorization")
+			gotMethod = r.Method
+			gotContentType = r.Header.Get("Content-Type")
+			var err error
+			gotBody, err = io.ReadAll(r.Body)
+			require.NoError(t, err)
+
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"status":"idle","cache":{"hit":false,"submission_state_fingerprint":"sha256:test"}}`))
+		}))
+		defer server.Close()
+
+		client := NewClient(Config{BaseURL: server.URL, TimeoutSeconds: 5})
+		response, err := client.LookupReviewerBriefing(
+			context.Background(),
+			"Bearer token-123",
+			&ReviewerBriefingResolveRequest{
+				Action:                     "lookup",
+				ConferenceID:               42,
+				AssignmentID:               11,
+				SubmissionID:               7,
+				Actor:                      ActorPayload{UserID: 7, Email: "reviewer@example.com", Role: "reviewer"},
+				SubmissionStateFingerprint: "sha256:test",
+				Submission: ReviewerBriefingSubmissionPayload{
+					Title:    "Reliable Systems",
+					Abstract: "A structured reviewer pre-read workflow.",
+					Keywords: []string{"review"},
+					Track:    "main",
+				},
+				FileMetadata: ReviewerBriefingFileMetadataPayload{
+					OriginalFilename: "submission.pdf",
+					ContentType:      "application/pdf",
+					SizeBytes:        4096,
+				},
+			},
+		)
+		require.NoError(t, err)
+		require.NotNil(t, response)
+
+		assert.Equal(t, http.MethodPost, gotMethod)
+		assert.Equal(t, "Bearer token-123", gotAuth)
+		assert.Contains(t, gotContentType, "application/json")
+		assert.Contains(t, string(gotBody), `"action":"lookup"`)
+		assert.Equal(t, "idle", response.Status)
+	})
+
+	t.Run("generate posts multipart payload and decodes response", func(t *testing.T) {
+		var gotRequestField string
+		var gotFileName string
+		var gotFileContent []byte
+
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.NoError(t, r.ParseMultipartForm(1<<20))
+			gotRequestField = r.FormValue("request_payload")
+
+			file, header, err := r.FormFile("file")
+			require.NoError(t, err)
+			defer file.Close()
+
+			gotFileName = header.Filename
+			gotFileContent, err = io.ReadAll(file)
+			require.NoError(t, err)
+
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"status":"ready","run_id":"run-1","cache":{"hit":false,"submission_state_fingerprint":"sha256:test"},"artifact":{"submission_snapshot":{"title":"Reliable Systems","abstract_summary":"Summary","manuscript_overview":"Overview","keywords":["review"],"track":"main"},"claimed_contributions":[],"notable_elements":[],"reviewer_attention_points":[],"stated_scope_and_limitations":[],"guardrails":{"no_recommendation":true,"no_score":true,"bias_notice":"assistive only"}}}`))
+		}))
+		defer server.Close()
+
+		client := NewClient(Config{BaseURL: server.URL, TimeoutSeconds: 5})
+		response, err := client.GenerateReviewerBriefing(
+			context.Background(),
+			"token-123",
+			&ReviewerBriefingResolveRequest{
+				Action:                     "generate",
+				ConferenceID:               42,
+				AssignmentID:               11,
+				SubmissionID:               7,
+				Actor:                      ActorPayload{UserID: 7, Email: "reviewer@example.com", Role: "reviewer"},
+				SubmissionStateFingerprint: "sha256:test",
+				Submission: ReviewerBriefingSubmissionPayload{
+					Title:    "Reliable Systems",
+					Abstract: "A structured reviewer pre-read workflow.",
+					Keywords: []string{"review"},
+					Track:    "main",
+				},
+				FileMetadata: ReviewerBriefingFileMetadataPayload{
+					OriginalFilename: "submission.pdf",
+					ContentType:      "application/pdf",
+					SizeBytes:        4096,
+				},
+			},
+			"submission.pdf",
+			[]byte("%PDF-1.4"),
+		)
+		require.NoError(t, err)
+		require.NotNil(t, response)
+
+		assert.Contains(t, gotRequestField, `"action":"generate"`)
+		assert.Equal(t, "submission.pdf", gotFileName)
+		assert.Equal(t, []byte("%PDF-1.4"), gotFileContent)
+		assert.Equal(t, "ready", response.Status)
+		require.NotNil(t, response.Artifact)
+		assert.Equal(t, "Reliable Systems", response.Artifact.SubmissionSnapshot.Title)
+	})
+}
+
 type roundTripFunc func(*http.Request) (*http.Response, error)
 
 func (fn roundTripFunc) RoundTrip(r *http.Request) (*http.Response, error) {

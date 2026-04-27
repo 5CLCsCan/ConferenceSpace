@@ -9,6 +9,7 @@ const AI_SERVICE_BASE_URL = process.env.AI_SERVICE_BASE_URL ?? "http://localhost
 const AI_SERVICE_ENABLED = process.env.AI_SERVICE_ENABLED !== "false"
 const AGENT_CHAT_ENDPOINT = `${AI_SERVICE_BASE_URL}/api/v1/agent/chat`
 const AGENT_TOOL_RESULT_ENDPOINT = `${AI_SERVICE_BASE_URL}/api/v1/agent/tool-result`
+const SERVER_MANAGED_TOOL_NAMES = new Set(["query_engine", "get_skill"])
 
 type ChatTransportRequest = {
   id?: string
@@ -81,6 +82,7 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify(toolSubmission),
       cache: "no-store",
+      signal: req.signal,
     })
 
     if (!toolResultResponse.ok && ![404, 409, 422].includes(toolResultResponse.status)) {
@@ -115,6 +117,7 @@ export async function POST(req: NextRequest) {
       request_metadata: requestMetadata,
     }),
     cache: "no-store",
+    signal: req.signal,
   })
 
   if (!upstreamResponse.ok || !upstreamResponse.body) {
@@ -244,16 +247,19 @@ function mapInternalEventsToUiStream(upstream: ReadableStream<Uint8Array>) {
               const toolCallId = String(event.tool_call_id ?? "")
               const toolName = String(event.tool ?? "")
               if (!toolCallId || !toolName) break
+              const providerExecuted = isServerManagedTool(toolName) ? true : undefined
               emit({
                 type: "tool-input-start",
                 toolCallId,
                 toolName,
+                providerExecuted,
               })
               emit({
                 type: "tool-input-available",
                 toolCallId,
                 toolName,
                 input: event.input ?? {},
+                providerExecuted,
               })
               break
             }
@@ -261,18 +267,22 @@ function mapInternalEventsToUiStream(upstream: ReadableStream<Uint8Array>) {
               ensureStart(event)
               const toolCallId = String(event.tool_call_id ?? "")
               if (!toolCallId) break
+              const toolName = String(event.tool ?? "").trim()
+              const providerExecuted = isServerManagedTool(toolName) ? true : undefined
               const status = String(event.status ?? "")
               if (status === "output-available") {
                 emit({
                   type: "tool-output-available",
                   toolCallId,
                   output: event.result ?? null,
+                  providerExecuted,
                 })
               } else {
                 emit({
                   type: "tool-output-error",
                   toolCallId,
                   errorText: String(event.error ?? "Tool execution failed"),
+                  providerExecuted,
                 })
               }
               break
@@ -380,6 +390,7 @@ function findLatestCompletedToolResult(
           (partType.startsWith("tool-") ? partType.slice("tool-".length) : ""),
       ).trim()
       if (!toolName) continue
+      if (isServerManagedTool(toolName)) continue
 
       const output =
         (part as { output?: unknown; result?: unknown }).output ??
@@ -404,6 +415,10 @@ function findLatestCompletedToolResult(
     }
   }
   return null
+}
+
+function isServerManagedTool(toolName: string): boolean {
+  return SERVER_MANAGED_TOOL_NAMES.has(toolName)
 }
 
 function parsePathname(req: NextRequest): string | undefined {

@@ -228,6 +228,25 @@ func (c *Controller) UpdateStatus(ginCtx *gin.Context, req *dto.ReviewerUpdateSt
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "reviewer not found in this conference")
 	}
 
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	// Authorization: caller must be chair/co-chair OR the invited reviewer themselves
+	isChair := utils.IsUserChairOrCoChair(ctx, c.roleStorage, req.ConferenceID, userEmail)
+	isSelf := existing.Email == userEmail
+	if !isChair && !isSelf {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "only the chair or the invited reviewer can update invitation status")
+	}
+
+	// Self-service reviewers can only accept or reject
+	if isSelf && !isChair {
+		if req.Status != model.ReviewerStatusAccepted && req.Status != model.ReviewerStatusRejected {
+			return nil, handler.NewErrorResponse(http.StatusForbidden, "reviewers can only accept or reject their own invitation")
+		}
+	}
+
 	result, err := c.reviewerStorage.UpdateStatus(ctx, req.ReviewerID, req.Status)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())

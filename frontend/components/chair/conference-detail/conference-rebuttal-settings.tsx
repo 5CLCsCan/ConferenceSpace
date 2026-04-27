@@ -6,6 +6,9 @@ import {
   saveRebuttalSettings,
   type ConferenceRebuttalConfig,
 } from "@/lib/api/conference-rebuttal"
+import { useTranslation } from "@/lib/i18n/translation-context"
+import { useAuth } from "@/lib/auth-context"
+import { isReadOnlyRole } from "@/lib/role-helpers"
 
 interface ConferenceRebuttalSettingsProps {
   conferenceId: string
@@ -16,6 +19,9 @@ export function ConferenceRebuttalSettings({
   conferenceId,
   onSaved,
 }: ConferenceRebuttalSettingsProps) {
+  const { t } = useTranslation()
+  const { currentRole } = useAuth()
+  const readOnly = isReadOnlyRole(currentRole)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -26,7 +32,6 @@ export function ConferenceRebuttalSettings({
   const [deadline, setDeadline] = useState("")
   const [charLimitGeneral, setCharLimitGeneral] = useState(3000)
   const [charLimitPerPoint, setCharLimitPerPoint] = useState(1000)
-  const [allowDiscussion, setAllowDiscussion] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -43,7 +48,6 @@ export function ConferenceRebuttalSettings({
       setDeadline(s.deadline ? s.deadline.slice(0, 10) : "")
       setCharLimitGeneral(s.char_limit_general || 3000)
       setCharLimitPerPoint(s.char_limit_per_point || 1000)
-      setAllowDiscussion(s.allow_discussion)
     }
     void load()
   }, [conferenceId])
@@ -59,7 +63,7 @@ export function ConferenceRebuttalSettings({
       deadline: deadline ? new Date(deadline).toISOString() : null,
       char_limit_general: charLimitGeneral,
       char_limit_per_point: charLimitPerPoint,
-      allow_discussion: allowDiscussion,
+      allow_discussion: false,
     }
 
     const result = await saveRebuttalSettings(conferenceId, settings)
@@ -74,18 +78,16 @@ export function ConferenceRebuttalSettings({
   }
 
   if (loading) {
-    return <div className="text-xs text-slate-500 py-4">Loading settings…</div>
+    return <div className="text-xs text-slate-500 py-4">{t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_loading_settings")}</div>
   }
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
       <div className="px-4 pt-4 pb-3 border-b border-slate-100 dark:border-slate-800">
         <h2 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-          Rebuttal Configuration
-        </h2>
+          {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_rebuttal_configuration")}{" "}</h2>
         <p className="text-xs font-light text-slate-500 dark:text-slate-400 leading-relaxed mt-0.5">
-          Configure the rebuttal period settings for this conference.
-        </p>
+          {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_configure_the_rebuttal_period_settings_for")}{" "}</p>
       </div>
 
       <div className="px-4 py-4 space-y-5">
@@ -93,11 +95,9 @@ export function ConferenceRebuttalSettings({
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
-              Enable Rebuttal Phase
-            </p>
+              {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_enable_rebuttal_phase")}{" "}</p>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              Allow authors to submit rebuttals to reviewer comments
-            </p>
+              {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_allow_authors_to_submit_rebuttals_to")}{" "}</p>
           </div>
           <button
             onClick={() => setEnabled(!enabled)}
@@ -117,8 +117,7 @@ export function ConferenceRebuttalSettings({
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">
-              Start Date
-            </label>
+              {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_start_date")}{" "}</label>
             <input
               type="date"
               value={startAt}
@@ -128,8 +127,7 @@ export function ConferenceRebuttalSettings({
           </div>
           <div>
             <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">
-              Deadline
-            </label>
+              {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_deadline")}{" "}</label>
             <input
               type="date"
               value={deadline}
@@ -143,8 +141,7 @@ export function ConferenceRebuttalSettings({
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">
-              General Response Limit (chars)
-            </label>
+              {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_general_response_limit_chars")}{" "}</label>
             <input
               type="number"
               min={100}
@@ -156,8 +153,7 @@ export function ConferenceRebuttalSettings({
           </div>
           <div>
             <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1">
-              Per-Point Response Limit (chars)
-            </label>
+              {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_per_point_response_limit_chars")}{" "}</label>
             <input
               type="number"
               min={100}
@@ -177,19 +173,20 @@ export function ConferenceRebuttalSettings({
 
         {success && (
           <div className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-xs text-green-700">
-            Settings saved successfully.
-          </div>
+            {t("runtime.components.chair.conference-detail.conference-rebuttal-settings.text_settings_saved_successfully")}{" "}</div>
         )}
 
-        <div className="flex justify-end pt-1">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="text-xs px-4 py-1.5 rounded-lg bg-[#1B3C53] text-white hover:bg-[#1B3C53]/90 disabled:opacity-50 font-medium"
-          >
-            {saving ? "Saving…" : "Save Settings"}
-          </button>
-        </div>
+        {!readOnly && (
+          <div className="flex justify-end pt-1">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="text-xs px-4 py-1.5 rounded-lg bg-[#1B3C53] text-white hover:bg-[#1B3C53]/90 disabled:opacity-50 font-medium"
+            >
+              {saving ? "Saving…" : "Save Settings"}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

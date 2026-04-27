@@ -47,7 +47,18 @@ class _FakeDB:
 async def test_append_unseen_messages_deduplicates_existing_and_batch_duplicates() -> None:
     db = _FakeDB(
         responses=[
-            _ExecuteResult(scalars_values=["m-1"]),
+            _ExecuteResult(
+                scalars_values=[
+                    AiMessage(
+                        thread_id="thread-1",
+                        sequence_no=7,
+                        message_id="m-1",
+                        role="user",
+                        parts=[{"type": "text", "text": "a"}],
+                        token_count=None,
+                    )
+                ]
+            ),
             _ExecuteResult(scalar_value=7),
         ]
     )
@@ -67,6 +78,78 @@ async def test_append_unseen_messages_deduplicates_existing_and_batch_duplicates
     assert isinstance(db.added[0], AiMessage)
     assert db.added[0].sequence_no == 8
     assert db.added[0].message_id == "m-2"
+    assert db.flush_calls == 1
+
+
+async def test_append_unseen_messages_updates_existing_message_when_same_id_reappears() -> None:
+    existing = AiMessage(
+        thread_id="thread-1",
+        sequence_no=4,
+        message_id="assistant-1",
+        role="assistant",
+        parts=[{"type": "tool-getPageContext", "toolCallId": "call-1", "state": "input-available", "input": {}}],
+        token_count=None,
+    )
+    db = _FakeDB(
+        responses=[
+            _ExecuteResult(scalars_values=[existing]),
+            _ExecuteResult(scalar_value=4),
+        ]
+    )
+    repo = MessageRepository(db)  # type: ignore[arg-type]
+
+    appended = await repo.append_unseen_messages(
+        "thread-1",
+        [
+            {
+                "id": "assistant-1",
+                "role": "assistant",
+                "parts": [{"type": "text", "text": "Here is the final answer."}],
+            }
+        ],
+    )
+
+    assert appended == 0
+    assert len(db.added) == 0
+    assert existing.parts == [
+        {"type": "tool-getPageContext", "toolCallId": "call-1", "state": "input-available", "input": {}},
+        {"type": "text", "text": "Here is the final answer."},
+    ]
+    assert db.flush_calls == 1
+
+
+async def test_append_unseen_messages_merges_duplicate_payloads_within_batch() -> None:
+    db = _FakeDB(
+        responses=[
+            _ExecuteResult(scalars_values=[]),
+            _ExecuteResult(scalar_value=2),
+        ]
+    )
+    repo = MessageRepository(db)  # type: ignore[arg-type]
+
+    appended = await repo.append_unseen_messages(
+        "thread-1",
+        [
+            {
+                "id": "assistant-2",
+                "role": "assistant",
+                "parts": [{"type": "tool-getPageContext", "toolCallId": "call-2", "state": "input-available", "input": {}}],
+            },
+            {
+                "id": "assistant-2",
+                "role": "assistant",
+                "parts": [{"type": "text", "text": "Resolved response"}],
+            },
+        ],
+    )
+
+    assert appended == 1
+    assert len(db.added) == 1
+    assert db.added[0].sequence_no == 3
+    assert db.added[0].parts == [
+        {"type": "tool-getPageContext", "toolCallId": "call-2", "state": "input-available", "input": {}},
+        {"type": "text", "text": "Resolved response"},
+    ]
     assert db.flush_calls == 1
 
 

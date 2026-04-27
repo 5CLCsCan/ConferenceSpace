@@ -12,6 +12,18 @@ export interface ActionParams {
   value?: string // Select option value
 }
 
+export interface ActionInvocationInput extends ActionParams {
+  action?: ActionType
+  properties?: Partial<ActionInvocationInput>
+}
+
+export interface BatchActionInvocationInput {
+  actions?: ActionInvocationInput[]
+  properties?: {
+    actions?: ActionInvocationInput[]
+  }
+}
+
 export interface ActionResult {
   success: boolean
   message: string
@@ -20,32 +32,135 @@ export interface ActionResult {
   currentValue?: string // Current value after action
 }
 
+export interface BatchActionStepResult extends ActionResult {
+  index: number
+  action?: ActionType
+  ref?: string
+  stale?: boolean
+}
+
+export interface BatchActionResult {
+  success: boolean
+  completedCount: number
+  message: string
+  results: BatchActionStepResult[]
+  abortedAt?: number
+}
+
 /**
  * Execute a browser action on an element
  */
 export async function executeAction(
-  action: ActionType,
+  action: ActionType | undefined,
   refMap: Map<string, Element>,
-  params: ActionParams,
+  params: ActionInvocationInput,
 ): Promise<ActionResult> {
+  const normalized = normalizeActionInvocation(action, params)
+
   try {
-    switch (action) {
+    switch (normalized.action) {
       case "click":
-        return handleClick(refMap, params)
+        return handleClick(refMap, normalized.params)
       case "type":
-        return await handleType(refMap, params)
+        return await handleType(refMap, normalized.params)
       case "press":
-        return handlePress(params)
+        return handlePress(normalized.params)
       case "select":
-        return handleSelect(refMap, params)
+        return handleSelect(refMap, normalized.params)
       case "clear":
-        return handleClear(refMap, params)
+        return handleClear(refMap, normalized.params)
       default:
-        return { success: false, message: `Unknown action: ${action}` }
+        return { success: false, message: `Unknown action: ${String(normalized.action)}` }
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error"
     return { success: false, message: `Action failed: ${message}` }
+  }
+}
+
+export async function executeActions(
+  refMap: Map<string, Element>,
+  input: BatchActionInvocationInput,
+): Promise<BatchActionResult> {
+  const normalized = normalizeBatchActionInvocation(input)
+  if (normalized.actions.length === 0) {
+    return {
+      success: false,
+      completedCount: 0,
+      abortedAt: 0,
+      message: "No actions provided.",
+      results: [],
+    }
+  }
+  const results: BatchActionStepResult[] = []
+
+  for (const [index, rawAction] of normalized.actions.entries()) {
+    const action = rawAction.action
+    const normalizedAction = normalizeActionInvocation(action, rawAction)
+    const staleResult = buildStaleRefResult(index, refMap, normalizedAction)
+    if (staleResult) {
+      results.push(staleResult)
+      return {
+        success: false,
+        completedCount: index,
+        abortedAt: index,
+        message: staleResult.message,
+        results,
+      }
+    }
+
+    const result = await executeAction(action, refMap, rawAction)
+    const stepResult: BatchActionStepResult = {
+      index,
+      action: normalizedAction.action,
+      ref: normalizedAction.params.ref,
+      ...result,
+    }
+    results.push(stepResult)
+
+    if (!result.success) {
+      return {
+        success: false,
+        completedCount: index,
+        abortedAt: index,
+        message: result.message,
+        results,
+      }
+    }
+  }
+
+  const completedCount = results.filter((result) => result.success).length
+  return {
+    success: true,
+    completedCount,
+    message: `Executed ${completedCount} actions.`,
+    results,
+  }
+}
+
+export function normalizeActionInvocation(
+  action: ActionType | undefined,
+  params: ActionInvocationInput,
+): { action: ActionType | undefined; params: ActionParams } {
+  const nested = params.properties
+  const normalizedParams: ActionParams = {
+    ref: params.ref ?? nested?.ref,
+    text: params.text ?? nested?.text,
+    key: params.key ?? nested?.key,
+    value: params.value ?? nested?.value,
+  }
+
+  return {
+    action: action ?? params.action ?? nested?.action,
+    params: normalizedParams,
+  }
+}
+
+export function normalizeBatchActionInvocation(
+  input: BatchActionInvocationInput,
+): { actions: ActionInvocationInput[] } {
+  return {
+    actions: input.actions ?? input.properties?.actions ?? [],
   }
 }
 
@@ -357,4 +472,48 @@ function handleClear(refMap: Map<string, Element>, params: ActionParams): Action
   element.dispatchEvent(new Event("change", { bubbles: true }))
 
   return { success: true, message: `Cleared ${params.ref}` }
+}
+
+function buildStaleRefResult(
+  index: number,
+  refMap: Map<string, Element>,
+  normalizedAction: { action: ActionType | undefined; params: ActionParams },
+): BatchActionStepResult | null {
+  const { action, params } = normalizedAction
+  if (!requiresLiveRef(action)) {
+    return null
+  }
+
+  if (!params.ref) {
+    return null
+  }
+
+  const element = refMap.get(params.ref)
+  if (!element) {
+    return {
+      index,
+      action,
+      ref: params.ref,
+      success: false,
+      stale: true,
+      message: `Element is stale or missing: ${params.ref}`,
+    }
+  }
+
+  if (!element.isConnected) {
+    return {
+      index,
+      action,
+      ref: params.ref,
+      success: false,
+      stale: true,
+      message: `Element is stale or disconnected: ${params.ref}`,
+    }
+  }
+
+  return null
+}
+
+function requiresLiveRef(action: ActionType | undefined): boolean {
+  return action === "click" || action === "type" || action === "select" || action === "clear"
 }

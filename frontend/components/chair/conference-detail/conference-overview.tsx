@@ -29,6 +29,8 @@ const iconStyle = {
 }
 
 function AboutSection({ description }: { description?: string }) {
+  const { t } = useTranslation()
+
   return (
     <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
       <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
@@ -36,12 +38,14 @@ function AboutSection({ description }: { description?: string }) {
           <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
             description
           </span>
-          About the Conference
-        </h2>
+          {t("runtime.components.chair.conference-detail.conference-overview.text_about_the_conference")}{" "}</h2>
       </div>
       <div className="p-4">
         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-          {description || "No conference description provided."}
+          {description ||
+            t(
+              "runtime.components.chair.conference-detail.conference-overview.text_no_conference_description_provided",
+            )}
         </p>
       </div>
     </section>
@@ -49,6 +53,8 @@ function AboutSection({ description }: { description?: string }) {
 }
 
 function TracksSection({ tracks }: { tracks: Track[] }) {
+  const { t } = useTranslation()
+
   return (
     <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
       <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
@@ -56,11 +62,9 @@ function TracksSection({ tracks }: { tracks: Track[] }) {
           <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
             alt_route
           </span>
-          Conference Tracks
-        </h2>
+          {t("runtime.components.chair.conference-detail.conference-overview.text_conference_tracks")}{" "}</h2>
         <span className="text-[9px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full uppercase tracking-wider">
-          {tracks.length} Active Tracks
-        </span>
+          {tracks.length} {t("runtime.components.chair.conference-detail.conference-overview.text_active_tracks")}{" "}</span>
       </div>
       <div className="p-4">
         {tracks.length > 0 ? (
@@ -87,7 +91,7 @@ function TracksSection({ tracks }: { tracks: Track[] }) {
             ))}
           </div>
         ) : (
-          <p className="text-xs text-slate-500 dark:text-slate-400">No tracks configured.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{t("runtime.components.chair.conference-detail.conference-overview.text_no_tracks_configured")}</p>
         )}
       </div>
     </section>
@@ -95,6 +99,8 @@ function TracksSection({ tracks }: { tracks: Track[] }) {
 }
 
 function DetailsCard({ conference }: { conference: Conference }) {
+  const { t } = useTranslation()
+
   return (
     <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
       <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
@@ -102,14 +108,12 @@ function DetailsCard({ conference }: { conference: Conference }) {
           <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
             info
           </span>
-          Details
-        </h2>
+          {t("runtime.components.chair.conference-detail.conference-overview.text_details")}{" "}</h2>
       </div>
       <div className="p-4 space-y-4">
         <div>
           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-            Synonym
-          </span>
+            {t("runtime.components.chair.conference-detail.conference-overview.text_synonym")}{" "}</span>
           <div className="text-[11px] font-semibold text-[#1B3C53] dark:text-white bg-slate-50 dark:bg-slate-800 inline-block px-2 py-1 rounded border border-slate-200 dark:border-slate-700">
             {conference.acronym} {conference.year}
           </div>
@@ -117,8 +121,7 @@ function DetailsCard({ conference }: { conference: Conference }) {
 
         <div>
           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-            Venue
-          </span>
+            {t("runtime.components.chair.conference-detail.conference-overview.text_venue")}{" "}</span>
           <div className="text-[11px] font-medium text-[#1B3C53] dark:text-white flex items-start gap-1.5">
             <span className="material-symbols-outlined text-slate-400 mt-0.5" style={iconStyle}>
               apartment
@@ -130,8 +133,7 @@ function DetailsCard({ conference }: { conference: Conference }) {
         {conference.website && (
           <div>
             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-              Website
-            </span>
+              {t("runtime.components.chair.conference-detail.conference-overview.text_website")}{" "}</span>
             <a
               href={
                 conference.website.startsWith("http")
@@ -153,8 +155,7 @@ function DetailsCard({ conference }: { conference: Conference }) {
         {conference.primary_contact && (
           <div>
             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-              Organizer Contact
-            </span>
+              {t("runtime.components.chair.conference-detail.conference-overview.text_organizer_contact")}{" "}</span>
             <div className="text-[11px] font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1">
               <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
                 call
@@ -167,7 +168,7 @@ function DetailsCard({ conference }: { conference: Conference }) {
 
       <div className="bg-slate-50 dark:bg-slate-800/50 px-4 py-3 border-t border-slate-200 dark:border-slate-800">
         <div className="flex items-center justify-between">
-          <span className="text-[9px] text-slate-500 font-medium">Conference ID</span>
+          <span className="text-[9px] text-slate-500 font-medium">{t("runtime.components.chair.conference-detail.conference-overview.text_conference_id")}</span>
           <span className="text-[9px] text-slate-400 font-mono">#{conference.id}</span>
         </div>
       </div>
@@ -176,6 +177,8 @@ function DetailsCard({ conference }: { conference: Conference }) {
 }
 
 function KeywordsCard({ keywords }: { keywords?: string[] }) {
+  const { t } = useTranslation()
+
   return (
     <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
       <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
@@ -183,8 +186,7 @@ function KeywordsCard({ keywords }: { keywords?: string[] }) {
           <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
             label
           </span>
-          Keywords
-        </h2>
+          {t("runtime.components.chair.conference-detail.conference-overview.text_keywords")}{" "}</h2>
       </div>
       <div className="p-4">
         <div className="flex flex-wrap gap-1.5">
@@ -198,7 +200,7 @@ function KeywordsCard({ keywords }: { keywords?: string[] }) {
               </span>
             ))
           ) : (
-            <p className="text-xs text-slate-500 dark:text-slate-400">No keywords specified.</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">{t("runtime.components.chair.conference-detail.conference-overview.text_no_keywords_specified")}</p>
           )}
         </div>
       </div>

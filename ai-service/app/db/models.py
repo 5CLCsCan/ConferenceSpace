@@ -169,3 +169,226 @@ class GatingStageRecord(Base):
     duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
     detail: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class ReviewerBriefingRun(Base):
+    __tablename__ = "reviewer_briefing_runs"
+    __table_args__ = (
+        CheckConstraint("status IN ('completed', 'failed')", name="ck_reviewer_briefing_runs_status"),
+        Index("idx_reviewer_briefing_runs_scope_created", "conference_id", "assignment_id", "created_at"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    conference_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    assignment_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    submission_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    actor_id: Mapped[str] = mapped_column(Text, nullable=False)
+    submission_state_fingerprint: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(VARCHAR(16), nullable=False)
+    request_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    error_detail: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class ReviewerBriefingArtifact(Base):
+    __tablename__ = "reviewer_briefing_artifacts"
+    __table_args__ = (
+        Index(
+            "idx_reviewer_briefing_artifacts_scope_generated",
+            "conference_id",
+            "assignment_id",
+            "submission_id",
+            "actor_id",
+            "generated_at",
+        ),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    run_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False),
+        ForeignKey(f"{SCHEMA}.reviewer_briefing_runs.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    conference_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    assignment_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    submission_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    actor_id: Mapped[str] = mapped_column(Text, nullable=False)
+    submission_state_fingerprint: Mapped[str] = mapped_column(Text, nullable=False)
+    artifact_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class ReviewerBriefingStageRecord(Base):
+    __tablename__ = "reviewer_briefing_stage_records"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('ok', 'skipped', 'blocked', 'failed')",
+            name="ck_reviewer_briefing_stage_records_status",
+        ),
+        Index("idx_reviewer_briefing_stage_records_run_id", "run_id"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    run_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False),
+        ForeignKey(f"{SCHEMA}.reviewer_briefing_runs.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    stage_name: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(VARCHAR(16), nullable=False)
+    detail: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class ReviewQualityAuditRun(Base):
+    __tablename__ = "review_quality_audit_runs"
+    __table_args__ = (
+        CheckConstraint(
+            "mode IN ('draft_save', 'submit_preflight', 'submit_enforcement')",
+            name="ck_review_quality_audit_runs_mode",
+        ),
+        CheckConstraint("status IN ('completed', 'failed')", name="ck_review_quality_audit_runs_status"),
+        CheckConstraint("result_status IN ('pass', 'warn', 'block') OR result_status IS NULL", name="ck_review_quality_audit_runs_result_status"),
+        Index("idx_review_quality_audit_runs_scope_created", "conference_id", "assignment_id", "created_at"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    conference_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    assignment_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    submission_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    actor_id: Mapped[str] = mapped_column(Text, nullable=False)
+    mode: Mapped[str] = mapped_column(VARCHAR(32), nullable=False)
+    status: Mapped[str] = mapped_column(VARCHAR(16), nullable=False)
+    result_status: Mapped[str | None] = mapped_column(VARCHAR(16), nullable=True)
+    request_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    response_json: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    error_detail: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class DecisionCopilotRun(Base):
+    __tablename__ = "decision_copilot_runs"
+    __table_args__ = (
+        CheckConstraint("status IN ('completed', 'failed')", name="ck_decision_copilot_runs_status"),
+        CheckConstraint("action IN ('lookup', 'generate', 'regenerate')", name="ck_decision_copilot_runs_action"),
+        Index("idx_decision_copilot_runs_scope_created", "conference_id", "submission_id", "created_at"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    conference_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    submission_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    actor_id: Mapped[str] = mapped_column(Text, nullable=False)
+    action: Mapped[str] = mapped_column(VARCHAR(16), nullable=False)
+    evidence_fingerprint: Mapped[str] = mapped_column(Text, nullable=False)
+    component_fingerprints: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    status: Mapped[str] = mapped_column(VARCHAR(16), nullable=False)
+    request_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    artifact_json: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    error_detail: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class DecisionCopilotCurrentArtifact(Base):
+    __tablename__ = "decision_copilot_current_artifacts"
+    __table_args__ = (
+        UniqueConstraint("conference_id", "submission_id", name="uq_decision_copilot_current_scope"),
+        Index("idx_decision_copilot_current_scope", "conference_id", "submission_id"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    conference_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    submission_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    run_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False),
+        ForeignKey(f"{SCHEMA}.decision_copilot_runs.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    evidence_fingerprint: Mapped[str] = mapped_column(Text, nullable=False)
+    component_fingerprints: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    artifact_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now()
+    )
+
+
+class PaperAnnotationRun(Base):
+    __tablename__ = "paper_annotation_runs"
+    __table_args__ = (
+        CheckConstraint("status IN ('completed', 'failed')", name="ck_paper_annotation_runs_status"),
+        Index("idx_paper_annotation_runs_scope_created", "conference_id", "assignment_id", "created_at"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    conference_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    assignment_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    submission_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    actor_id: Mapped[str] = mapped_column(Text, nullable=False)
+    submission_state_fingerprint: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(VARCHAR(16), nullable=False)
+    request_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    error_detail: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class PaperAnnotationArtifactModel(Base):
+    __tablename__ = "paper_annotation_artifacts"
+    __table_args__ = (
+        Index(
+            "idx_paper_annotation_artifacts_scope_generated",
+            "conference_id",
+            "assignment_id",
+            "submission_id",
+            "actor_id",
+            "generated_at",
+        ),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    run_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False),
+        ForeignKey(f"{SCHEMA}.paper_annotation_runs.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    conference_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    assignment_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    submission_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    actor_id: Mapped[str] = mapped_column(Text, nullable=False)
+    submission_state_fingerprint: Mapped[str] = mapped_column(Text, nullable=False)
+    artifact_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class PaperAnnotationStageRecord(Base):
+    __tablename__ = "paper_annotation_stage_records"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('ok', 'skipped', 'blocked', 'failed')",
+            name="ck_paper_annotation_stage_records_status",
+        ),
+        Index("idx_paper_annotation_stage_records_run_id", "run_id"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    run_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False),
+        ForeignKey(f"{SCHEMA}.paper_annotation_runs.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    stage_name: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(VARCHAR(16), nullable=False)
+    detail: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())

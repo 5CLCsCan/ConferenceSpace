@@ -1,3 +1,5 @@
+"use client"
+
 import { ArrowLeft, Sparkles, LayoutTemplate } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,6 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import type { ConferenceTemplateSection } from "@/lib/conference-form"
 import type { SharedActionProps, SectionMeta } from "./types"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface SaveViewProps extends SharedActionProps {
   templateName: string
@@ -38,8 +41,8 @@ export function SaveView({
   onSelectAllSections,
   onClearSections,
   onSave,
-  t,
 }: SaveViewProps) {
+  const { t } = useTranslation()
   return (
     <div className="flex h-full flex-col min-h-0 bg-slate-50/30">
       {/* Header */}
@@ -79,10 +82,9 @@ export function SaveView({
                   <LayoutTemplate className="size-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900">Template Details</h4>
+                  <h4 className="text-sm font-bold text-slate-900">{t("runtime.components.chair.template-sheet.save-view.text_template_details")}</h4>
                   <p className="text-xs text-slate-500">
-                    Only visible to you, used to remember this setup
-                  </p>
+                    {t("runtime.components.chair.template-sheet.save-view.text_only_visible_to_you_used_to")}{" "}</p>
                 </div>
               </div>
 
@@ -107,7 +109,7 @@ export function SaveView({
                 <div className="space-y-2">
                   <Label htmlFor="template-desc" className="text-xs font-bold text-slate-700">
                     {t("runtime.components.chair.conference-template-sheet.text_description")}{" "}
-                    <span className="text-slate-400 font-normal">(Optional)</span>
+                    <span className="text-slate-400 font-normal">{t("runtime.components.chair.template-sheet.save-view.text_optional")}</span>
                   </Label>
                   <Textarea
                     id="template-desc"

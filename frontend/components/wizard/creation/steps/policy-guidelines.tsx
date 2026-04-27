@@ -220,26 +220,23 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
         </WizardFormCard>
 
         <WizardFormCard
-          title="Submission Gating"
+          title={t("runtime.components.wizard.creation.steps.policy-guidelines.title_submission_gating")}
           tooltip="Define deterministic submission screening rules and an optional advisory AI steering prompt."
         >
           <div className="flex flex-col gap-4">
             <label className="flex items-center gap-3 p-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
               <input
                 type="checkbox"
-                aria-label="Enable submission gating"
+                aria-label={t("runtime.components.wizard.creation.steps.policy-guidelines.aria_label_enable_submission_gating")}
                 className="size-4 text-[#1B3C53] focus:ring-[#1B3C53] border-slate-300 dark:border-slate-600 rounded"
                 checked={data.gatingEnabled}
                 onChange={(e) => updateData({ gatingEnabled: e.target.checked })}
               />
               <div className="flex flex-col">
                 <span className="text-xs font-bold text-[#141414] dark:text-white">
-                  Enable submission gating
-                </span>
+                  {t("runtime.components.wizard.creation.steps.policy-guidelines.text_enable_submission_gating")}{" "}</span>
                 <span className="text-[10px] text-slate-400 font-light">
-                  Run deterministic policy checks before review and optionally add advisory AI
-                  content findings.
-                </span>
+                  {t("runtime.components.wizard.creation.steps.policy-guidelines.text_run_deterministic_policy_checks_before_review")}{" "}</span>
               </div>
             </label>
 
@@ -254,7 +251,7 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
                       type="number"
                       min={0}
                       max={500}
-                      aria-label="Minimum references"
+                      aria-label={t("runtime.components.wizard.creation.steps.policy-guidelines.aria_label_minimum_references")}
                       value={data.gatingMinReferences ?? ""}
                       onChange={(e) =>
                         updateData({
@@ -268,16 +265,56 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
                   </WizardFormField>
 
                   <WizardFormField
+                    label="Title max words"
+                    hint="Reject titles that exceed this word count limit."
+                  >
+                    <WizardInput
+                      type="number"
+                      min={0}
+                      max={100}
+                      aria-label={t("runtime.components.wizard.creation.steps.policy-guidelines.aria_label_title_max_words")}
+                      value={data.gatingTitleMaxWords ?? ""}
+                      onChange={(e) =>
+                        updateData({
+                          gatingTitleMaxWords:
+                            e.target.value === ""
+                              ? null
+                              : Math.max(0, parseInt(e.target.value, 10) || 0),
+                        })
+                      }
+                    />
+                  </WizardFormField>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                  <WizardFormField
                     label="Required Sections"
                     hint="Comma-separated section names, for example: Abstract, Introduction, References"
                   >
                     <WizardInput
                       type="text"
-                      aria-label="Required sections"
+                      aria-label={t("runtime.components.wizard.creation.steps.policy-guidelines.aria_label_required_sections")}
                       value={formatCommaSeparatedList(data.gatingRequiredSections)}
                       onChange={(e) =>
                         updateData({
                           gatingRequiredSections: parseCommaSeparatedList(e.target.value),
+                        })
+                      }
+                    />
+                  </WizardFormField>
+
+                  <WizardFormField
+                    label="Scope keywords"
+                    hint="Comma-separated keywords for conference scope matching."
+                  >
+                    <WizardInput
+                      type="text"
+                      aria-label={t("runtime.components.wizard.creation.steps.policy-guidelines.aria_label_scope_keywords")}
+                      value={formatCommaSeparatedList(data.gatingScopeKeywords)}
+                      onChange={(e) =>
+                        updateData({
+                          gatingScopeKeywords: parseCommaSeparatedList(e.target.value),
                         })
                       }
                     />
@@ -290,7 +327,7 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
                 >
                   <WizardInput
                     type="text"
-                    aria-label="Banned phrases"
+                    aria-label={t("runtime.components.wizard.creation.steps.policy-guidelines.aria_label_banned_phrases")}
                     value={formatCommaSeparatedList(data.gatingBannedPhrases)}
                     onChange={(e) =>
                       updateData({
@@ -303,19 +340,16 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
                 <label className="flex items-center gap-3 p-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                   <input
                     type="checkbox"
-                    aria-label="Require anonymized submissions"
+                    aria-label={t("runtime.components.wizard.creation.steps.policy-guidelines.aria_label_require_anonymized_submissions")}
                     className="size-4 text-[#1B3C53] focus:ring-[#1B3C53] border-slate-300 dark:border-slate-600 rounded"
                     checked={data.gatingAnonymizationRequired}
                     onChange={(e) => updateData({ gatingAnonymizationRequired: e.target.checked })}
                   />
                   <div className="flex flex-col">
                     <span className="text-xs font-bold text-[#141414] dark:text-white">
-                      Require anonymized submissions
-                    </span>
+                      {t("runtime.components.wizard.creation.steps.policy-guidelines.text_require_anonymized_submissions")}{" "}</span>
                     <span className="text-[10px] text-slate-400 font-light">
-                      Flag author-identifying names or metadata when the review policy requires
-                      anonymization.
-                    </span>
+                      {t("runtime.components.wizard.creation.steps.policy-guidelines.text_flag_author_identifying_names_or_metadata")}{" "}</span>
                   </div>
                 </label>
 
@@ -325,11 +359,11 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
                 >
                   <div className="flex flex-col gap-2">
                     <textarea
-                      aria-label="Steering prompt"
+                      aria-label={t("runtime.components.wizard.creation.steps.policy-guidelines.aria_label_steering_prompt")}
                       maxLength={2000}
                       value={data.gatingPrompt}
                       onChange={(e) => updateData({ gatingPrompt: e.target.value.slice(0, 2000) })}
-                      placeholder="Example: Flag unsupported claims, weak evaluation methodology, or missing novelty signals. Never issue a block verdict from this stage."
+                      placeholder={t("runtime.components.wizard.creation.steps.policy-guidelines.placeholder_example_flag_unsupported_claims_weak_evaluation")}
                       className="min-h-[120px] w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3.5 py-3 text-xs text-[#141414] dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all resize-y"
                     />
                     <p className="text-[10px] text-slate-400 font-light text-right">
