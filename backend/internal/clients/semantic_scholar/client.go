@@ -45,14 +45,21 @@ func NewClient(cfg Config) *Client {
 
 // Author represents a Semantic Scholar author
 type Author struct {
-	AuthorID      string   `json:"authorId"`
-	Name          string   `json:"name"`
-	Affiliations  []string `json:"affiliations,omitempty"`
-	Homepage      string   `json:"homepage,omitempty"`
-	PaperCount    int      `json:"paperCount,omitempty"`
-	CitationCount int      `json:"citationCount,omitempty"`
-	HIndex        int      `json:"hIndex,omitempty"`
-	URL           string   `json:"url,omitempty"`
+	AuthorID               string                  `json:"authorId"`
+	Name                   string                  `json:"name"`
+	Affiliations           []string                `json:"affiliations,omitempty"`
+	NormalizedAffiliations []NormalizedAffiliation `json:"normalizedAffiliations,omitempty"`
+	ExternalIDs            map[string]interface{}  `json:"externalIds,omitempty"`
+	Homepage               string                  `json:"homepage,omitempty"`
+	PaperCount             int                     `json:"paperCount,omitempty"`
+	CitationCount          int                     `json:"citationCount,omitempty"`
+	HIndex                 int                     `json:"hIndex,omitempty"`
+	URL                    string                  `json:"url,omitempty"`
+}
+
+type NormalizedAffiliation struct {
+	RORID          string `json:"rorId"`
+	RORDisplayName string `json:"rorDisplayName"`
 }
 
 // Paper represents a paper in Semantic Scholar
@@ -143,7 +150,7 @@ func (c *Client) SearchAuthors(ctx context.Context, query string, limit int) (*S
 	}
 
 	// Include additional fields so search results have enough info for display
-	fields := "authorId,name,affiliations,paperCount,citationCount,hIndex,url"
+	fields := "authorId,name,affiliations,externalIds,homepage,paperCount,citationCount,hIndex,url,papers.title,papers.year,papers.venue"
 	path := fmt.Sprintf("/author/search?query=%s&limit=%d&fields=%s",
 		url.QueryEscape(query), limit, fields)
 
@@ -163,7 +170,7 @@ func (c *Client) SearchAuthors(ctx context.Context, query string, limit int) (*S
 // GetAuthorDetails retrieves detailed information about an author including papers
 func (c *Client) GetAuthorDetails(ctx context.Context, authorID string) (*AuthorWithPapers, error) {
 	// Request all fields including papers
-	fields := "authorId,name,affiliations,homepage,paperCount,citationCount,hIndex,url,papers,papers.paperId,papers.title,papers.year,papers.citationCount,papers.abstract,papers.venue,papers.url,papers.authors"
+	fields := "authorId,name,affiliations,externalIds,homepage,paperCount,citationCount,hIndex,url,papers,papers.paperId,papers.title,papers.year,papers.citationCount,papers.abstract,papers.venue,papers.url,papers.authors"
 	path := fmt.Sprintf("/author/%s?fields=%s", authorID, fields)
 
 	respBody, err := c.doRequest(ctx, "GET", path, nil)

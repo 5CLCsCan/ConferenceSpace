@@ -379,7 +379,10 @@ func TestUserCOICheck_InvalidInputs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			resp, _ := ctx.MakeRequest("GET", tt.path, nil, chairToken)
+			resp, err := ctx.MakeRequest("GET", tt.path, nil, chairToken)
+			if err != nil {
+				t.Fatalf("Request failed: %v", err)
+			}
 			if resp.StatusCode != tt.expectedStatus {
 				t.Errorf("Expected status %d, got %d", tt.expectedStatus, resp.StatusCode)
 			}

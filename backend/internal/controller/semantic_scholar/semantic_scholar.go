@@ -4,29 +4,48 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	geminiClient "github.com/dcao/conferencespace/internal/clients/gemini"
 	"github.com/dcao/conferencespace/internal/clients/semantic_scholar"
+	researchdomain "github.com/dcao/conferencespace/internal/service/research_domain"
 	"github.com/dcao/conferencespace/internal/storage/cache"
 	"github.com/dcao/conferencespace/internal/storage/scholar"
+	"github.com/dcao/conferencespace/internal/storage/user"
 	"github.com/gin-gonic/gin"
 	"sync"
 )
 
 // Controller handles Semantic Scholar API requests
 type Controller struct {
-	client    *semantic_scholar.Client
-	cache     cache.StorageInterface
-	scholar   scholar.StorageInterface
-	syncMu    sync.Mutex
-	syncLocks map[int64]*sync.Mutex
+	client         semanticScholarClient
+	cache          cache.StorageInterface
+	scholar        scholar.StorageInterface
+	users          user.StorageInterface
+	domainKeywords *researchdomain.Service
+	syncMu         sync.Mutex
+	syncLocks      map[int64]*sync.Mutex
+}
+
+type semanticScholarClient interface {
+	SearchAuthors(ctx context.Context, query string, limit int) (*semantic_scholar.SearchResponse, error)
+	GetAuthorDetails(ctx context.Context, authorID string) (*semantic_scholar.AuthorWithPapers, error)
+	GetAuthorPapers(ctx context.Context, authorID string, offset, limit int) (*semantic_scholar.PapersResponse, error)
 }
 
 // New creates a new Semantic Scholar controller
-func New(client *semantic_scholar.Client, cacheStorage cache.StorageInterface, scholarStorage scholar.StorageInterface) *Controller {
+func New(
+	client *semantic_scholar.Client,
+	cacheStorage cache.StorageInterface,
+	scholarStorage scholar.StorageInterface,
+	userStorage user.StorageInterface,
+	gemini *geminiClient.Client,
+) *Controller {
 	return &Controller{
-		client:    client,
-		cache:     cacheStorage,
-		scholar:   scholarStorage,
-		syncLocks: make(map[int64]*sync.Mutex),
+		client:         client,
+		cache:          cacheStorage,
+		scholar:        scholarStorage,
+		users:          userStorage,
+		domainKeywords: researchdomain.New(gemini),
+		syncLocks:      make(map[int64]*sync.Mutex),
 	}
 }
 

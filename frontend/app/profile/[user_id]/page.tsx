@@ -58,6 +58,19 @@ export default function UserProfilePage() {
   const [profileSyncStatus, setProfileSyncStatus] = useState<string | null>(null)
   const [profileSyncError, setProfileSyncError] = useState<string | null>(null)
 
+  const applyProfileState = useCallback((nextProfile: User) => {
+    setProfile(nextProfile)
+    setProfileSyncStatus(nextProfile.profile_sync_status || null)
+    const nextForm: ProfileFormData = {
+      firstName: nextProfile.first_name || "",
+      lastName: nextProfile.last_name || "",
+      email: nextProfile.email || "",
+      domain: normalizeDomains(nextProfile.domain),
+    }
+    setFormData(nextForm)
+    setInitialFormData({ ...nextForm, domain: [...nextForm.domain] })
+  }, [])
+
   useEffect(() => {
     const timer = window.setTimeout(() => setAuthChecked(true), 100)
     return () => window.clearTimeout(timer)
@@ -117,6 +130,22 @@ export default function UserProfilePage() {
     }
   }, [isOwnProfile, profile?.email, profileSyncStatus, t])
 
+  const refreshProfileRecord = useCallback(async () => {
+    if (!authChecked || !isAuthenticated || !authUser) return
+
+    const resolved = await resolveUserEmail(userId, String(authUser.id || ""))
+    if (resolved.mode === "not_found") {
+      setNotFound(true)
+      return
+    }
+
+    const endpoint = resolved.mode === "me" ? "/api/v1/users/me" : `/api/v1/users/${resolved.email}`
+    const { data } = await apiFetch<{ data: User }>(endpoint)
+    const nextProfile = data?.data
+    if (!nextProfile) return
+    applyProfileState(nextProfile)
+  }, [applyProfileState, authChecked, authUser, isAuthenticated, userId])
+
   const refreshProfileSyncStatus = useCallback(async () => {
     if (!isOwnProfile) return
     try {
@@ -124,13 +153,14 @@ export default function UserProfilePage() {
       const nextStatus = res.data?.data?.profile_sync_status || null
       setProfileSyncStatus(nextStatus)
       if (nextStatus === "completed") {
+        await refreshProfileRecord()
         await refreshAcademicProfile()
         await refreshUser()
       }
     } catch {
       /* keep last known status */
     }
-  }, [isOwnProfile, refreshAcademicProfile, refreshUser])
+  }, [isOwnProfile, refreshAcademicProfile, refreshProfileRecord, refreshUser])
 
   useEffect(() => {
     async function loadProfile() {
@@ -153,16 +183,7 @@ export default function UserProfilePage() {
           setLoading(false)
           return
         }
-        setProfile(nextProfile)
-        setProfileSyncStatus(nextProfile.profile_sync_status || null)
-        const nextForm: ProfileFormData = {
-          firstName: nextProfile.first_name || "",
-          lastName: nextProfile.last_name || "",
-          email: nextProfile.email || "",
-          domain: normalizeDomains(nextProfile.domain),
-        }
-        setFormData(nextForm)
-        setInitialFormData({ ...nextForm, domain: [...nextForm.domain] })
+        applyProfileState(nextProfile)
         try {
           const academic =
             resolved.mode === "me" || nextProfile.email === authUser.email
@@ -179,7 +200,7 @@ export default function UserProfilePage() {
       }
     }
     void loadProfile()
-  }, [authChecked, isAuthenticated, authUser, userId])
+  }, [applyProfileState, authChecked, isAuthenticated, authUser, userId])
 
   useEffect(() => {
     if (!isOwnProfile) return

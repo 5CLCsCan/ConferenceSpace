@@ -63,6 +63,10 @@ func (m *mockUserStorage) SetEmailVerified(context.Context, string, bool) error 
 	return errors.New("not implemented")
 }
 
+func (m *mockUserStorage) UpdateDomain(ctx context.Context, id int64, domain []string) (*dto.UserResponse, error) {
+	return nil, errors.New("not implemented")
+}
+
 func TestRegister_ReturnsConflictForDuplicateEmail(t *testing.T) {
 	t.Parallel()
 
