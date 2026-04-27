@@ -294,6 +294,8 @@ jobs:
               rm -f "${tmp}"
             }
 
+            old_app_images="$(docker compose --env-file .env.production -f docker-compose.prod.yml images -q web backend ai-service 2>/dev/null | sort -u || true)"
+
             chmod 600 .env.production
             set_env FRONTEND_IMAGE "${FRONTEND_IMAGE}"
             set_env BACKEND_IMAGE "${BACKEND_IMAGE}"
@@ -304,3 +306,17 @@ jobs:
             docker compose --env-file .env.production -f docker-compose.prod.yml run --rm backend-migrate
             docker compose --env-file .env.production -f docker-compose.prod.yml up -d --remove-orphans
             docker compose --env-file .env.production -f docker-compose.prod.yml ps
+            if [ -n "${old_app_images}" ]; then
+              current_app_images="$(docker compose --env-file .env.production -f docker-compose.prod.yml images -q web backend ai-service 2>/dev/null | sort -u || true)"
+              old_app_images_file="$(mktemp)"
+              current_app_images_file="$(mktemp)"
+              printf "%s\n" "${old_app_images}" > "${old_app_images_file}"
+              printf "%s\n" "${current_app_images}" > "${current_app_images_file}"
+              stale_app_images="$(comm -23 "${old_app_images_file}" "${current_app_images_file}" || true)"
+              rm -f "${old_app_images_file}" "${current_app_images_file}"
+              if [ -n "${stale_app_images}" ]; then
+                if ! echo "${stale_app_images}" | xargs -r docker image rm; then
+                  echo "Some stale app images could not be removed; inspect Docker disk usage on the server." >&2
+                fi
+              fi
+            fi
