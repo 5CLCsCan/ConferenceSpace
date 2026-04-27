@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"sync"
 
+	client "github.com/dcao/conferencespace/internal/clients/semantic_scholar"
 	"github.com/dcao/conferencespace/internal/model"
+	researchdomain "github.com/dcao/conferencespace/internal/service/research_domain"
 	"github.com/lib/pq"
 )
 
@@ -76,7 +78,38 @@ func (c *Controller) SyncAuthorProfile(ctx context.Context, userID int64, author
 		return fmt.Errorf("failed to update profile-paper links: %w", err)
 	}
 
+	if err := c.syncResearchDomains(ctx, userID, author.Papers); err != nil {
+		fmt.Printf("Failed to infer research domains for user %d: %v\n", userID, err)
+	}
+
 	return nil
+}
+
+func (c *Controller) syncResearchDomains(ctx context.Context, userID int64, papers []client.Paper) error {
+	if c.users == nil || c.domainKeywords == nil || len(papers) == 0 {
+		return nil
+	}
+
+	sources := make([]researchdomain.SourcePaper, 0, len(papers))
+	for _, paper := range papers {
+		sources = append(sources, researchdomain.SourcePaper{
+			Title:    paper.Title,
+			Abstract: paper.Abstract,
+			Venue:    paper.Venue,
+			Year:     paper.Year,
+		})
+	}
+
+	keywords, err := c.domainKeywords.ExtractFromPapers(ctx, sources)
+	if err != nil {
+		return err
+	}
+	if len(keywords) == 0 {
+		return nil
+	}
+
+	_, err = c.users.UpdateDomain(ctx, userID, keywords)
+	return err
 }
 
 func (c *Controller) acquireSyncLock(userID int64) func() {
