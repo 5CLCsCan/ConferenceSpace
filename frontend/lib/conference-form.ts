@@ -224,6 +224,7 @@ export function mapTemplatePayloadToFormData(
     venue: payload.location || "",
     submissionsOpen: parseDate(payload.abstract_deadline),
     submissionDeadline: parseDate(payload.full_paper_deadline),
+    authorNotificationDate: parseDate(payload.final_decision_date),
     authorNotification: parseDate(payload.final_decision_date),
     fileFormats: payload.file_formats || initialFormData.fileFormats,
     callForPaperText: payload.call_for_paper_text || "",
@@ -289,6 +290,8 @@ export function applyConferenceTemplateSections(
   }
 
   if (selected.has("basics")) {
+    next.website = source.website
+    next.contactEmail = source.contactEmail
     next.description = source.description
     next.location = source.location
     next.locationType = source.locationType
@@ -308,6 +311,8 @@ export function applyConferenceTemplateSections(
     next.submissionsOpen = source.submissionsOpen
     next.fullPaperDeadline = source.fullPaperDeadline
     next.submissionDeadline = source.submissionDeadline
+    next.authorNotificationDate = source.authorNotificationDate
+    next.authorNotification = source.authorNotification
     next.cameraReadyDeadline = source.cameraReadyDeadline
   }
 
