@@ -507,11 +507,24 @@ class AgentRuntime:
         await self._emit_tool_end(thread_id=thread_id, result=result, event_emitter=event_emitter)
 
         messages = list(messages)
+        if not _has_assistant_tool_request(messages=messages, tool_call_id=tool_call_id):
+            messages = self._append_tool_request_message(
+                messages=messages,
+                message_id=f"assistant-{tool_call_id}",
+                tool_name=str(pending_tool_call["tool_name"]),
+                tool_call_id=tool_call_id,
+                tool_input=dict(pending_tool_call.get("input") or {}),
+            )
         messages.append(
             {
                 "id": f"tool-{tool_call_id}",
                 "role": "tool",
-                "parts": [_tool_part_from_result(pending_tool_call=pending_tool_call, result=result)],
+                "parts": [
+                    {
+                        **_tool_part_from_result(pending_tool_call=pending_tool_call, result=result),
+                        "input": pending_tool_call.get("input") or {},
+                    }
+                ],
             }
         )
 
@@ -745,3 +758,18 @@ def _build_get_skill_display_output(
     if skill_name:
         payload["skill_name"] = skill_name
     return payload
+
+
+def _has_assistant_tool_request(*, messages: list[dict[str, Any]], tool_call_id: str) -> bool:
+    for message in messages:
+        if str(message.get("role") or "") != "assistant":
+            continue
+        parts = message.get("parts")
+        if not isinstance(parts, list):
+            continue
+        for part in parts:
+            if not isinstance(part, dict):
+                continue
+            if str(part.get("toolCallId") or part.get("id") or "") == tool_call_id:
+                return True
+    return False

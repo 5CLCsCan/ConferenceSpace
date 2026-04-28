@@ -93,11 +93,50 @@ def ui_to_openai_messages(messages: list[dict[str, Any]]) -> list[dict[str, Any]
             out.extend(_tool_parts_to_openai_messages(parts=parts))
             continue
 
+        if role == "assistant":
+            tool_call_message = _assistant_tool_parts_to_openai_message(parts=parts)
+            if tool_call_message:
+                out.append(tool_call_message)
+                continue
+
         content = _ui_parts_to_openai_content(parts)
         if not content:
             continue
         out.append({"role": role, "content": content})
     return out
+
+
+def _assistant_tool_parts_to_openai_message(*, parts: Any) -> dict[str, Any]:
+    if not isinstance(parts, list):
+        return {}
+
+    tool_calls: list[dict[str, Any]] = []
+    for index, part in enumerate(parts):
+        if not isinstance(part, dict):
+            continue
+        if str(part.get("state") or "") != "input-available":
+            continue
+
+        tool_call_id = str(part.get("toolCallId") or part.get("id") or "").strip()
+        tool_name = str(part.get("toolName") or _tool_name_from_part_type(str(part.get("type", ""))) or "").strip()
+        if not tool_call_id or not tool_name:
+            continue
+
+        tool_calls.append(
+            {
+                "id": tool_call_id,
+                "type": "function",
+                "function": {
+                    "name": tool_name,
+                    "arguments": _safe_json_dumps(part.get("input", {})),
+                },
+                "index": index,
+            }
+        )
+
+    if not tool_calls:
+        return {}
+    return {"role": "assistant", "content": "", "tool_calls": tool_calls}
 
 
 def _ui_parts_to_openai_content(parts: Any) -> str | list[dict[str, Any]]:
@@ -184,6 +223,8 @@ def _tool_parts_to_openai_messages(*, parts: Any) -> list[dict[str, Any]]:
             payload["tool_call_id"] = tool_call_id
         if tool_name:
             payload["name"] = tool_name
+        if isinstance(part.get("input"), dict):
+            payload["input"] = part["input"]
         out.append(payload)
 
     return out

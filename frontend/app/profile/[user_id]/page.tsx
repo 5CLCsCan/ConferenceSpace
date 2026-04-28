@@ -247,8 +247,7 @@ export default function UserProfilePage() {
         body: JSON.stringify(payload),
       })
 
-      const emailChanged =
-        previousEmail.trim().toLowerCase() !== nextEmail.trim().toLowerCase()
+      const emailChanged = previousEmail.trim().toLowerCase() !== nextEmail.trim().toLowerCase()
 
       if (emailChanged) {
         toast({
@@ -371,10 +370,18 @@ export default function UserProfilePage() {
 
   function renderShell(children: React.ReactNode) {
     return (
-      <div className="flex min-h-screen bg-white dark:bg-slate-900">
+      <div
+        data-testid="profile-shell"
+        className="flex h-screen overflow-hidden bg-white dark:bg-slate-900"
+      >
         <DashboardSidebar menuItems={sidebarMenuItems} />
-        <main className="flex-1 overflow-y-auto">
-          <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6">{children}</div>
+        <main data-testid="profile-main" className="flex-grow h-screen overflow-hidden">
+          <div
+            data-testid="profile-scroll-pane"
+            className="h-full flex-1 overflow-y-auto px-4 py-8 sm:px-6"
+          >
+            <div className="max-w-6xl mx-auto">{children}</div>
+          </div>
         </main>
       </div>
     )

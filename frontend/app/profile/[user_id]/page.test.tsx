@@ -279,6 +279,20 @@ describe("UserProfilePage", () => {
     })
   })
 
+  it("keeps profile scrolling inside the content pane", async () => {
+    render(<UserProfilePage />)
+
+    await screen.findByRole("heading", { level: 1, name: "Grace Hopper" })
+
+    expect(screen.getByTestId("profile-shell")).toHaveClass("h-screen", "overflow-hidden")
+    expect(screen.getByTestId("profile-main")).toHaveClass(
+      "flex-grow",
+      "h-screen",
+      "overflow-hidden",
+    )
+    expect(screen.getByTestId("profile-scroll-pane")).toHaveClass("flex-1", "overflow-y-auto")
+  })
+
   it("renders a public profile in read-only mode with academic publications", async () => {
     mockUseParams.mockReturnValue({ user_id: "public-user" })
     mockResolveUserEmail.mockResolvedValue({ mode: "email", email: "public@example.com" })

@@ -39,6 +39,78 @@ def test_ui_to_openai_messages_includes_tool_metadata() -> None:
     assert '"url": "https://example.com"' in converted[0]["content"]
 
 
+def test_ui_to_openai_messages_preserves_assistant_tool_call_request() -> None:
+    messages = [
+        {
+            "id": "assistant-1",
+            "role": "assistant",
+            "parts": [
+                {
+                    "type": "tool-query_engine",
+                    "toolCallId": "call_123",
+                    "state": "input-available",
+                    "input": {"query": "accepted papers"},
+                }
+            ],
+        }
+    ]
+
+    converted = ui_to_openai_messages(messages)
+
+    assert converted == [
+        {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+                {
+                    "id": "call_123",
+                    "type": "function",
+                    "function": {
+                        "name": "query_engine",
+                        "arguments": '{"query": "accepted papers"}',
+                    },
+                    "index": 0,
+                }
+            ],
+        }
+    ]
+
+
+def test_ui_to_openai_messages_converts_reconstructed_tool_call_pair() -> None:
+    messages = [
+        {
+            "id": "assistant-call_123",
+            "role": "assistant",
+            "parts": [
+                {
+                    "type": "tool-query_engine",
+                    "toolCallId": "call_123",
+                    "state": "input-available",
+                    "input": {"query": "accepted papers"},
+                }
+            ],
+        },
+        {
+            "id": "tool-call_123",
+            "role": "tool",
+            "parts": [
+                {
+                    "type": "tool-query_engine",
+                    "toolCallId": "call_123",
+                    "state": "output-available",
+                    "output": {"papers": []},
+                }
+            ],
+        },
+    ]
+
+    converted = ui_to_openai_messages(messages)
+
+    assert converted[0]["tool_calls"][0]["id"] == "call_123"
+    assert converted[1]["role"] == "tool"
+    assert converted[1]["tool_call_id"] == "call_123"
+
+
 def test_ui_to_openai_messages_falls_back_when_tool_metadata_missing() -> None:
     messages = [
         {

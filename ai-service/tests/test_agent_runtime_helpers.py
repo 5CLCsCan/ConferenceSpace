@@ -154,6 +154,9 @@ def test_system_prompt_mentions_navigation_tools() -> None:
     assert "same-page actions using refs confirmed from the latest page context" in prompt
     assert "Abort the batch on the first failure or stale ref" in prompt
     assert "If `performActions` fails or reports stale DOM evidence, call `getPageContext` again before retrying." in prompt
+    assert "stop immediately after the fields are filled" in prompt
+    assert "`Create`, `Submit`, `Confirm`, `Save`, `Publish`, `Delete`, `Approve`, `Reject`, `Send`" in prompt
+    assert "answer with a concise review summary of exactly what you filled" in prompt
 
 
 def test_system_prompt_guides_query_engine_discovery_and_public_resources() -> None:

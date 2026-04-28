@@ -18,6 +18,7 @@ class _ProviderConfig:
     public_model: str
     api_key: str
     api_base: str | None = None
+    uses_openai_responses: bool = False
 
 
 class LLMClient:
@@ -49,15 +50,10 @@ class LLMClient:
         messages: list[dict[str, Any]],
         tools: list[dict[str, Any]] | None = None,
     ) -> AsyncIterator[dict[str, Any]]:
-        if _has_file_inputs(messages):
-            async for chunk in self._astream_openai_responses(messages=messages, tools=tools):
-                yield chunk
-            return
-
         thinking_parser = _ThinkingTagStreamParser()
 
         async for chunk in self._astream_completion(messages=messages, tools=tools):
-            normalized = _normalize_stream_chunk(chunk)
+            normalized = chunk if _is_normalized_delta(chunk) else _normalize_stream_chunk(chunk)
             if not normalized:
                 continue
 
@@ -219,10 +215,31 @@ class LLMClient:
         temperature: int | float | None = None,
         response_format: dict[str, Any] | None = None,
     ) -> Any:
-        acompletion = _get_acompletion()
         last_error: Exception | None = None
 
         for index, provider in enumerate(self._providers):
+            if provider.uses_openai_responses:
+                try:
+                    return await self._aresponses_create(
+                        messages=messages,
+                        stream=False,
+                        tools=tools,
+                        temperature=temperature,
+                        response_format=response_format,
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    last_error = exc
+                    if index >= len(self._providers) - 1:
+                        raise
+                    logger.warning(
+                        "llm.provider_request_failed provider=%s model=%s fallback_provider=%s",
+                        provider.name,
+                        provider.public_model,
+                        self._providers[index + 1].public_model,
+                    )
+                    continue
+
+            acompletion = _get_acompletion()
             request_kwargs = self._build_request_kwargs(
                 provider=provider,
                 messages=messages,
@@ -256,10 +273,31 @@ class LLMClient:
         temperature: int | float | None = None,
         response_format: dict[str, Any] | None = None,
     ) -> AsyncIterator[Any]:
-        acompletion = _get_acompletion()
         last_error: Exception | None = None
 
         for index, provider in enumerate(self._providers):
+            if provider.uses_openai_responses:
+                emitted_any_chunk = False
+                try:
+                    async for chunk in self._astream_openai_responses(messages=messages, tools=tools):
+                        emitted_any_chunk = True
+                        yield chunk
+                    return
+                except Exception as exc:  # noqa: BLE001
+                    if emitted_any_chunk:
+                        raise
+                    last_error = exc
+                    if index >= len(self._providers) - 1:
+                        raise
+                    logger.warning(
+                        "llm.provider_stream_failed provider=%s model=%s fallback_provider=%s",
+                        provider.name,
+                        provider.public_model,
+                        self._providers[index + 1].public_model,
+                    )
+                    continue
+
+            acompletion = _get_acompletion()
             request_kwargs = self._build_request_kwargs(
                 provider=provider,
                 messages=messages,
@@ -298,8 +336,27 @@ class LLMClient:
         messages: list[dict[str, Any]],
         tools: list[dict[str, Any]] | None = None,
     ) -> AsyncIterator[dict[str, Any]]:
+        stream = await self._aresponses_create(
+            messages=messages,
+            stream=True,
+            tools=tools,
+        )
+        async for event in stream:
+            normalized = _normalize_response_stream_event(event)
+            if normalized:
+                yield normalized
+
+    async def _aresponses_create(
+        self,
+        *,
+        messages: list[dict[str, Any]],
+        stream: bool,
+        tools: list[dict[str, Any]] | None = None,
+        temperature: int | float | None = None,
+        response_format: dict[str, Any] | None = None,
+    ) -> Any:
         if not self.openai_api_key or not self.openai_model:
-            raise RuntimeError("OpenAI file inputs require OPENAI_API_KEY and OPENAI_MODEL")
+            raise RuntimeError("OpenAI Responses API requires OPENAI_API_KEY and OPENAI_MODEL")
 
         async_openai = _get_async_openai()
         client = async_openai(
@@ -310,15 +367,29 @@ class LLMClient:
         )
         request_kwargs: dict[str, Any] = {
             "model": self.openai_model,
-            "input": messages,
-            "stream": True,
+            "input": _to_openai_response_input(messages),
+            "stream": stream,
         }
-
-        stream = await client.responses.create(**request_kwargs)
-        async for event in stream:
-            normalized = _normalize_response_stream_event(event)
-            if normalized:
-                yield normalized
+        converted_tools = _to_openai_response_tools(tools)
+        if converted_tools:
+            request_kwargs["tools"] = converted_tools
+        if temperature is not None:
+            request_kwargs["temperature"] = temperature
+        if response_format is not None:
+            request_kwargs["text"] = {"format": _to_openai_response_text_format(response_format)}
+        try:
+            return await client.responses.create(**request_kwargs)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(
+                "llm.openai_responses_failed model=%s stream=%s input=%s tools=%s error=%s body=%s",
+                self.openai_model,
+                stream,
+                _summarize_response_input(request_kwargs.get("input")),
+                _summarize_response_tools(request_kwargs.get("tools")),
+                exc.__class__.__name__,
+                _extract_error_body(exc),
+            )
+            raise
 
     def _build_provider_configs(self) -> list[_ProviderConfig]:
         providers: list[_ProviderConfig] = []
@@ -331,6 +402,7 @@ class LLMClient:
                     public_model=self.openai_model,
                     api_key=self.openai_api_key,
                     api_base=self.openai_base_url,
+                    uses_openai_responses=True,
                 )
             )
 
@@ -380,8 +452,17 @@ class LLMClient:
         return request_kwargs
 
 
-
 def _extract_message_content(response: Any) -> str:
+    output_text = _get_value(response, "output_text")
+    if isinstance(output_text, str):
+        return output_text.strip()
+
+    response_output = _get_value(response, "output", [])
+    if isinstance(response_output, list):
+        text = _extract_response_output_text(response_output).strip()
+        if text:
+            return text
+
     choices = _get_value(response, "choices", [])
     if not choices:
         return ""
@@ -389,6 +470,138 @@ def _extract_message_content(response: Any) -> str:
     if not message:
         return ""
     return _extract_content_text(_get_value(message, "content", "")).strip()
+
+
+def _to_openai_response_input(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    converted: list[dict[str, Any]] = []
+    seen_function_call_ids: set[str] = set()
+    for message in messages:
+        if message.get("role") == "assistant":
+            response_tool_calls = _assistant_message_to_response_function_calls(message)
+            if response_tool_calls:
+                converted.extend(response_tool_calls)
+                seen_function_call_ids.update(str(call.get("call_id") or "") for call in response_tool_calls)
+                continue
+
+        if message.get("role") == "tool":
+            call_id = str(message.get("tool_call_id") or "").strip()
+            if call_id:
+                if call_id not in seen_function_call_ids:
+                    synthetic_call = _tool_message_to_response_function_call(message)
+                    if synthetic_call:
+                        converted.append(synthetic_call)
+                        seen_function_call_ids.add(call_id)
+                converted.append(
+                    {
+                        "type": "function_call_output",
+                        "call_id": call_id,
+                        "output": _extract_content_text(message.get("content", "")),
+                    }
+                )
+                continue
+
+            converted.append(
+                {
+                    "role": "assistant",
+                    "content": f"Tool output: {_extract_content_text(message.get('content', ''))}",
+                }
+            )
+            continue
+
+        converted.append(message)
+    return converted
+
+
+def _tool_message_to_response_function_call(message: dict[str, Any]) -> dict[str, Any]:
+    call_id = str(message.get("tool_call_id") or "").strip()
+    name = str(message.get("name") or "").strip()
+    if not call_id or not name:
+        return {}
+
+    tool_input = message.get("input")
+    return {
+        "type": "function_call",
+        "call_id": call_id,
+        "name": name,
+        "arguments": json.dumps(tool_input if isinstance(tool_input, dict) else {}, ensure_ascii=True),
+    }
+
+
+def _assistant_message_to_response_function_calls(message: dict[str, Any]) -> list[dict[str, Any]]:
+    tool_calls = message.get("tool_calls")
+    if not isinstance(tool_calls, list):
+        return []
+
+    calls: list[dict[str, Any]] = []
+    for tool_call in tool_calls:
+        payload = _to_dict(tool_call)
+        if payload.get("type") != "function":
+            continue
+
+        function = _to_dict(payload.get("function"))
+        call_id = str(payload.get("id") or "").strip()
+        name = str(function.get("name") or "").strip()
+        if not call_id or not name:
+            continue
+
+        calls.append(
+            {
+                "type": "function_call",
+                "call_id": call_id,
+                "name": name,
+                "arguments": str(function.get("arguments") or ""),
+            }
+        )
+    return calls
+
+
+def _summarize_response_input(value: Any) -> list[dict[str, Any]]:
+    if not isinstance(value, list):
+        return [{"type": type(value).__name__}]
+
+    summary: list[dict[str, Any]] = []
+    for item in value:
+        payload = _to_dict(item)
+        item_summary: dict[str, Any] = {
+            "type": payload.get("type"),
+            "role": payload.get("role"),
+        }
+        if payload.get("type") in {"function_call", "function_call_output"}:
+            item_summary["call_id"] = payload.get("call_id")
+            item_summary["name"] = payload.get("name")
+            item_summary["arguments_len"] = len(str(payload.get("arguments") or ""))
+            item_summary["output_len"] = len(str(payload.get("output") or ""))
+        if isinstance(payload.get("tool_calls"), list):
+            item_summary["tool_call_count"] = len(payload["tool_calls"])
+        summary.append({key: val for key, val in item_summary.items() if val is not None})
+    return summary
+
+
+def _summarize_response_tools(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    names: list[str] = []
+    for tool in value:
+        payload = _to_dict(tool)
+        name = str(payload.get("name") or payload.get("type") or "").strip()
+        if name:
+            names.append(name)
+    return names
+
+
+def _extract_error_body(exc: Exception) -> str:
+    response = getattr(exc, "response", None)
+    if response is not None:
+        text = str(getattr(response, "text", "") or "")
+        if text:
+            return text[:2000]
+
+    body = getattr(exc, "body", None)
+    if body:
+        return str(body)[:2000]
+
+    message = str(exc)
+    return message[:2000]
 
 
 def _get_acompletion():
@@ -415,26 +628,104 @@ def _extract_content_text(content: Any) -> str:
     return ""
 
 
-def _has_file_inputs(messages: list[dict[str, Any]]) -> bool:
-    for message in messages:
-        content = message.get("content")
-        if not isinstance(content, list):
-            continue
-        for part in content:
-            if _get_value(part, "type") == "input_file":
-                return True
-    return False
+def _is_normalized_delta(chunk: Any) -> bool:
+    if not isinstance(chunk, dict):
+        return False
+    return any(key in chunk for key in ("content", "reasoning", "tool_calls"))
 
 
 def _normalize_response_stream_event(event: Any) -> dict[str, Any]:
     event_type = str(_get_value(event, "type", ""))
-    if event_type == "response.output_text.delta":
+    if event_type in {"response.output_text.delta", "response.text_delta"}:
         delta = str(_get_value(event, "delta", ""))
         return {"content": delta} if delta else {}
-    if event_type == "response.reasoning_text.delta":
+    if event_type in {"response.reasoning_text.delta", "response.reasoning_text_delta"}:
         delta = str(_get_value(event, "delta", ""))
         return {"reasoning": delta} if delta else {}
+    if event_type in {"response.function_call_arguments.delta", "response.function_call_arguments_delta"}:
+        item_id = str(_get_value(event, "item_id", ""))
+        output_index = int(_get_value(event, "output_index", 0) or 0)
+        delta = str(_get_value(event, "delta", ""))
+        return {
+            "tool_calls": [
+                {
+                    "index": output_index,
+                    "id": item_id,
+                    "function": {"arguments": delta},
+                }
+            ]
+        }
+    if event_type in {"response.output_item.added", "response.output_item_added"}:
+        item = _to_dict(_get_value(event, "item"))
+        if item.get("type") != "function_call":
+            return {}
+        output_index = int(_get_value(event, "output_index", 0) or 0)
+        return {
+            "tool_calls": [
+                {
+                    "index": output_index,
+                    "id": item.get("call_id") or item.get("id") or "",
+                    "function": {"name": item.get("name") or "", "arguments": ""},
+                }
+            ]
+        }
     return {}
+
+
+def _extract_response_output_text(output: list[Any]) -> str:
+    chunks: list[str] = []
+    for item in output:
+        payload = _to_dict(item)
+        content = payload.get("content")
+        if not isinstance(content, list):
+            continue
+        for part in content:
+            part_payload = _to_dict(part)
+            if part_payload.get("type") in {"output_text", "text"}:
+                chunks.append(str(part_payload.get("text", "")))
+    return "".join(chunks)
+
+
+def _to_openai_response_tools(tools: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
+    if not tools:
+        return []
+
+    converted: list[dict[str, Any]] = []
+    for tool in tools:
+        if not isinstance(tool, dict):
+            continue
+        if tool.get("type") != "function":
+            converted.append(tool)
+            continue
+
+        function = _to_dict(tool.get("function"))
+        name = str(function.get("name") or "").strip()
+        if not name:
+            continue
+        converted.append(
+            {
+                "type": "function",
+                "name": name,
+                "description": function.get("description", ""),
+                "parameters": function.get("parameters", {"type": "object", "properties": {}}),
+            }
+        )
+    return converted
+
+
+def _to_openai_response_text_format(response_format: dict[str, Any]) -> dict[str, Any]:
+    if response_format.get("type") != "json_schema":
+        return response_format
+
+    json_schema = _to_dict(response_format.get("json_schema"))
+    if not json_schema:
+        return response_format
+    return {
+        "type": "json_schema",
+        "name": json_schema.get("name", "response"),
+        "schema": json_schema.get("schema", {}),
+        "strict": json_schema.get("strict", True),
+    }
 
 
 def _extract_text_part(part: Any) -> str:
