@@ -7,9 +7,11 @@ const mockPush = vi.fn()
 const mockReplace = vi.fn()
 const mockGetConferenceById = vi.fn()
 
+const stableRouter = { push: mockPush, replace: mockReplace }
+
 vi.mock("next/navigation", () => ({
   useParams: () => ({ conferenceId: "1" }),
-  useRouter: () => ({ push: mockPush, replace: mockReplace }),
+  useRouter: () => stableRouter,
 }))
 
 vi.mock("@/hooks/use-notifications", () => ({

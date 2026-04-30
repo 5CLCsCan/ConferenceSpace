@@ -1,7 +1,7 @@
 import * as React from "react"
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 import type { UIMessage } from "ai"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { Chatbot } from "../chatbot"
 import { ChatbotProvider } from "../chatbot-provider"
@@ -67,6 +67,7 @@ vi.mock("@/lib/chatbot/conversations", () => ({
 
 describe("Chatbot shell", () => {
   beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
     listConversations.mockReset()
     getConversationHistory.mockReset()
     deleteConversation.mockReset()
@@ -110,6 +111,10 @@ describe("Chatbot shell", () => {
       updatedAt: new Date("2026-04-01T02:00:00Z"),
       status: "active",
     }))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it("opens into a chat-first sidebar instead of a separate conversation-list screen", async () => {
