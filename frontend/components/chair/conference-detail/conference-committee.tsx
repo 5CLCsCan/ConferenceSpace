@@ -16,6 +16,7 @@ import { useAuth } from "@/lib/auth-context"
 import { isReadOnlyRole } from "@/lib/role-helpers"
 import type { User } from "@/lib/api/user"
 import { userApi } from "@/lib/api/user"
+import { ReviewerSuggestions } from "./reviewer-suggestions"
 
 interface ConferenceCommitteeProps {
   conferenceId: string
@@ -218,6 +219,12 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     text_total_members: t(
       "runtime.components.chair.conference-detail.conference-committee.text_total_members",
     ),
+    text_current_members: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_current_members",
+    ),
+    text_suggested_reviewers: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_suggested_reviewers",
+    ),
     text_chairs: t(
       "runtime.components.chair.conference-detail.conference-committee.text_chairs",
     ),
@@ -242,6 +249,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
   const [tableSearch, setTableSearch] = useState("")
   const [roleFilter, setRoleFilter] = useState<MemberRoleFilter>("all")
   const [memberRoleToAdd, setMemberRoleToAdd] = useState<AddMemberRole>("pc")
+  const [activeSubTab, setActiveSubTab] = useState<"members" | "suggestions">("members")
 
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<UserSearchResult[]>([])
@@ -650,6 +658,50 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
             />
           </div>
 
+          {!readOnly && (
+            <div className="flex gap-0 border-b border-slate-200">
+              <button
+                type="button"
+                onClick={() => setActiveSubTab("members")}
+                className={cn(
+                  "px-4 py-2.5 text-[12px] border-b-2 inline-flex items-center gap-2 transition-colors",
+                  activeSubTab === "members"
+                    ? "text-[#1B3C53] border-[#1B3C53] font-medium"
+                    : "text-slate-500 border-transparent hover:text-slate-700",
+                )}
+              >
+                <Icon name="group" size={14} />
+                {T("text_current_members")}
+                <span
+                  className={cn(
+                    "text-[10px] px-1.5 py-0.5 rounded-full font-medium",
+                    activeSubTab === "members"
+                      ? "bg-blue-50 text-blue-700"
+                      : "bg-slate-100 text-slate-500",
+                  )}
+                >
+                  {committeeMembers.length}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveSubTab("suggestions")}
+                className={cn(
+                  "px-4 py-2.5 text-[12px] border-b-2 inline-flex items-center gap-2 transition-colors",
+                  activeSubTab === "suggestions"
+                    ? "text-[#1B3C53] border-[#1B3C53] font-medium"
+                    : "text-slate-500 border-transparent hover:text-slate-700",
+                )}
+              >
+                <Icon name="auto_awesome" size={14} />
+                {T("text_suggested_reviewers")}
+              </button>
+            </div>
+          )}
+
+          {activeSubTab === "suggestions" && !readOnly ? (
+            <ReviewerSuggestions conferenceId={conferenceId} />
+          ) : (
           <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden">
             <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col xl:flex-row justify-between gap-3">
               <div className="flex flex-col md:flex-row gap-3 flex-1">
@@ -994,6 +1046,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
               </div>
             )}
           </div>
+          )}
         </>
       )}
     </div>

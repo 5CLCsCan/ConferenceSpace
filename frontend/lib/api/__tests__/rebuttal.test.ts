@@ -75,11 +75,14 @@ beforeEach(() => {
 
 describe("getRebuttal", () => {
   /**
-   * BUG 1: reviewers={[]} → points never render
-   * The panel groups points by reviewer.id. If reviewers=[], allReviewerGroups=[] and
-   * nothing renders. getRebuttal MUST derive ReviewerInfo[] from point assignment_ids.
+   * Contract (post-8af09fb): backend.assignments is the single source of truth for
+   * reviewers, since the new score / recommendation fields live there. The panel
+   * groups points by reviewer.id, so the assignment_ids on points MUST line up with
+   * the assignment_ids on assignments — otherwise those points won't render. An
+   * orphan point (assignment_id not present in assignments) is a backend data
+   * inconsistency, not something the API client masks.
    */
-  it("derives reviewers from point assignment_ids so points can be rendered", async () => {
+  it("builds reviewers from assignments, with ids matching point assignment_ids", async () => {
     mockApiFetch.mockResolvedValue({
       data: BACKEND_RESPONSE_WITH_POINTS,
       response: { status: 200 },
@@ -327,7 +330,11 @@ describe("getRebuttal — new fields (charLimits, assignments, rebuttalStatus)",
     expect(reviewer99?.rebuttalStatus).toBe("acknowledged")
   })
 
-  it("defaults rebuttalStatus to 'none' for reviewers not in assignments array", async () => {
+  it("does not synthesize a reviewer for orphan points whose assignment_id is missing from assignments", async () => {
+    // Contract: assignments is the single source of truth for reviewers. A point
+    // referencing an assignment_id that is absent from `assignments` is treated
+    // as a backend data inconsistency — the API client does NOT fabricate a
+    // placeholder reviewer for it.
     const responseWithExtraPoint = {
       data: {
         ...BACKEND_RESPONSE_WITH_POINTS.data,
@@ -352,8 +359,9 @@ describe("getRebuttal — new fields (charLimits, assignments, rebuttalStatus)",
 
     const result = await getRebuttal("1", "10")
 
-    const reviewer777 = result.data!.reviewers.find((r) => r.id === "777")
-    expect(reviewer777?.rebuttalStatus).toBe("none")
+    expect(result.data!.reviewers).toHaveLength(2)
+    expect(result.data!.reviewers.map((r) => r.id)).toEqual(["42", "99"])
+    expect(result.data!.reviewers.find((r) => r.id === "777")).toBeUndefined()
   })
 
   it("uses default char limits when not provided by backend", async () => {

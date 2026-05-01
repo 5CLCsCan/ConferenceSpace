@@ -19,7 +19,13 @@ vi.mock("@/lib/i18n/translation-context", async () => {
   }
 })
 
-// Mock the shared RebuttalPanel
+// Mock the shared RebuttalPanel.
+//
+// Post-8af09fb the submit button lives inside RebuttalPanel (in its ActionBar),
+// not inside RebuttalTab, and submission is delegated via onSubmitRebuttal. The
+// real panel calls back with `{ generalResponse: "", perReviewerResponses: [], points }`
+// — RebuttalTab uses its own ref for the actual general response. We mirror that
+// shape here so click-driven tests can exercise the parent's handleSubmit.
 vi.mock("@/components/shared/rebuttal", () => ({
   RebuttalPanel: ({
     settings,
@@ -37,7 +43,22 @@ vi.mock("@/components/shared/rebuttal", () => ({
       data-points={points?.length}
       data-reviewers={reviewers?.length}
       data-read-only={String(readOnly ?? false)}
-    />
+    >
+      {!readOnly && onSubmitRebuttal && (
+        <button
+          type="button"
+          onClick={() =>
+            onSubmitRebuttal({
+              generalResponse: "",
+              perReviewerResponses: [],
+              points: points ?? [],
+            })
+          }
+        >
+          Submit Rebuttal
+        </button>
+      )}
+    </div>
   ),
 }))
 
@@ -152,16 +173,4 @@ describe("Author RebuttalTab", () => {
     })
   })
 
-  it("submit button is disabled when textarea is empty", async () => {
-    mockGetRebuttal.mockResolvedValue({ data: AWAITING_DATA, error: null })
-
-    render(<RebuttalTab conferenceId="1" submissionId="10" />)
-
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: /submit rebuttal/i })).toBeInTheDocument()
-    })
-
-    const submitBtn = screen.getByRole("button", { name: /submit rebuttal/i })
-    expect(submitBtn).toBeDisabled()
-  })
 })
