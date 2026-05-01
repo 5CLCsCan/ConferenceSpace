@@ -40,11 +40,15 @@ export function RebuttalTab({ conferenceId, submissionId }: RebuttalTabProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conferenceId, submissionId])
 
-  async function handleSubmit() {
+  async function handleSubmit(currentPoints?: any[]) {
     if (!data) return
     setSubmitting(true)
     setError(null)
-    const points = data.points.map((p) => ({
+    
+    // Use the points passed from RebuttalPanel if available, otherwise fallback to data.points
+    const pointsToUse = currentPoints || data.points
+    
+    const points = pointsToUse.map((p) => ({
       pointId: p.id,
       assignmentId: Number(p.reviewerId),
       category: p.category,
@@ -52,6 +56,7 @@ export function RebuttalTab({ conferenceId, submissionId }: RebuttalTabProps) {
       originalComment: p.originalComment,
       authorResponse: p.authorResponse ?? "",
     }))
+    
     const result = await submitRebuttal(conferenceId, submissionId, {
       generalResponse: generalResponseRef.current,
       perReviewerResponses: [],
@@ -157,13 +162,6 @@ export function RebuttalTab({ conferenceId, submissionId }: RebuttalTabProps) {
             >
               {charCount} / {charLimit} characters
             </span>
-            <button
-              onClick={handleSubmit}
-              disabled={submitting || !generalResponse.trim() || isOverLimit}
-              className="text-xs px-4 py-1.5 rounded-lg bg-[#1B3C53] text-white hover:bg-[#1B3C53]/90 disabled:opacity-50 font-medium"
-            >
-              {submitting ? "Submitting…" : "Submit Rebuttal"}
-            </button>
           </div>
           {isOverLimit && (
             <p className="text-[10px] text-red-500 mt-1">
@@ -185,6 +183,7 @@ export function RebuttalTab({ conferenceId, submissionId }: RebuttalTabProps) {
         submission={data.submission}
         userRole="author"
         readOnly={phase !== "awaiting" || submitting}
+        onSubmitRebuttal={(rebuttalData) => handleSubmit((rebuttalData as any).points)}
       />
     </div>
   )

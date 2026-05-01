@@ -399,8 +399,12 @@ type GetRebuttalRequest struct {
 
 // RebuttalAssignmentStatus carries per-assignment rebuttal acknowledgment info.
 type RebuttalAssignmentStatus struct {
-	AssignmentID   int64  `json:"assignment_id"`
-	RebuttalStatus string `json:"rebuttal_status"` // none | submitted | acknowledged
+	AssignmentID               int64   `json:"assignment_id"`
+	RebuttalStatus             string  `json:"rebuttal_status"` // none | submitted | acknowledged
+	ReviewScore                float64     `json:"review_score"`
+	ReviewData                 *ReviewData `json:"review_data,omitempty"`
+	PostRebuttalScore          int         `json:"post_rebuttal_score"`
+	PostRebuttalRecommendation string      `json:"post_rebuttal_recommendation"`
 }
 
 // GetRebuttalResponse is the full rebuttal state returned by GET .../rebuttal

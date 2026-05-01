@@ -11,6 +11,7 @@ export function ReviewerResponseGroup({
   points,
   userRole,
   onPointStatusChange,
+  onAuthorResponseChange,
   defaultExpanded,
   readOnly = false,
 }: ReviewerResponseGroupProps) {
@@ -95,6 +96,7 @@ export function ReviewerResponseGroup({
               reviewer={reviewer}
               userRole={userRole}
               onMarkStatus={(status) => onPointStatusChange(point.id, status)}
+              onAuthorResponseChange={(response) => onAuthorResponseChange?.(point.id, response)}
               readOnly={readOnly}
             />
           ))}

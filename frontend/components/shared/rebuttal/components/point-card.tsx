@@ -13,6 +13,7 @@ export function PointCard({
   userRole,
   onMarkStatus,
   onAddNote,
+  onAuthorResponseChange,
   readOnly = false,
 }: PointCardProps) {
   const { t } = useTranslation()
@@ -84,7 +85,7 @@ export function PointCard({
       </div>
 
       {/* Author Response */}
-      {point.authorResponse && (
+      {(point.authorResponse || (userRole === "author" && !readOnly)) && (
         <div className="px-4 py-4">
           <div className="flex gap-3">
             <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
@@ -93,25 +94,37 @@ export function PointCard({
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-bold text-slate-500">
-                  {t(
-                    "runtime.components.shared.rebuttal.components.point-card.text_author_response",
-                  )}
-                </span>
-                <span className="text-[9px] text-slate-400">
-                  {point.characterCount?.toLocaleString()} chars
-                </span>
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold text-slate-500">
+                    {t(
+                      "runtime.components.shared.rebuttal.components.point-card.text_author_response",
+                    )}
+                  </span>
+                  <span className="text-[9px] text-slate-400">
+                    {(point.authorResponse?.length || 0).toLocaleString()} chars
+                  </span>
+                </div>
               </div>
-              <p
-                className="text-xs text-slate-700 leading-relaxed"
-                dangerouslySetInnerHTML={{
-                  __html: point.authorResponse.replace(
-                    /\*\*(.*?)\*\*/g,
-                    '<strong class="text-emerald-600">$1</strong>',
-                  ),
-                }}
-              />
+              
+              {userRole === "author" && !readOnly ? (
+                <textarea
+                  value={point.authorResponse || ""}
+                  onChange={(e) => onAuthorResponseChange?.(e.target.value)}
+                  placeholder="Enter your response to this point..."
+                  className="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 min-h-[80px] resize-y focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white"
+                />
+              ) : (
+                <p
+                  className="text-xs text-slate-700 leading-relaxed"
+                  dangerouslySetInnerHTML={{
+                    __html: (point.authorResponse || "").replace(
+                      /\*\*(.*?)\*\*/g,
+                      '<strong class="text-emerald-600">$1</strong>',
+                    ),
+                  }}
+                />
+              )}
             </div>
           </div>
 

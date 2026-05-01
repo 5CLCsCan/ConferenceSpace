@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/auth-context"
 import type { Submission } from "@/lib/api/submissions"
+import type { Conference } from "@/lib/types"
 import { ROUTES } from "@/lib/routes"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { tStatic as t } from "@/lib/i18n/static-translate"
@@ -95,6 +96,7 @@ interface SubmissionHeaderProps {
   submission: Submission
   conferenceId: string
   conferenceName?: string
+  conference?: Conference | null
   activeTab: TabId
   onTabChange: (tab: TabId) => void
   className?: string
@@ -104,6 +106,7 @@ export function SubmissionHeader({
   submission,
   conferenceId,
   conferenceName,
+  conference,
   activeTab,
   onTabChange,
   className,
@@ -111,7 +114,15 @@ export function SubmissionHeader({
   const router = useRouter()
   const { user } = useAuth()
   const isAuthor = user?.email === submission.author
-  const canEditDraft = isAuthor && submission.status === "draft"
+  const submissionDeadline = conference?.configurations?.full_paper_submission_deadline
+    ? new Date(conference.configurations.full_paper_submission_deadline)
+    : null
+  const isDeadlinePassed = submissionDeadline !== null && new Date() > submissionDeadline
+  const canEditSubmission =
+    isAuthor &&
+    !isDeadlinePassed &&
+    submission.status !== "accepted" &&
+    submission.status !== "rejected"
 
   return (
     <header
@@ -178,7 +189,7 @@ export function SubmissionHeader({
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          {canEditDraft && (
+          {canEditSubmission && (
             <button
               type="button"
               onClick={() =>

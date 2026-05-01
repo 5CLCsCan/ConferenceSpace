@@ -656,7 +656,7 @@ func TestTC_NEG_02_ReviewerCannotAccessUnassignedPaper(t *testing.T) {
 			t.Fatalf("Failed to update reviewer status: %v", err)
 		}
 		testutils.AssertStatusCode(t, statusResp, http.StatusOK)
-		
+
 		// Save the first reviewer's record ID for assignment
 		if reviewerID == 0 {
 			reviewerID = reviewer.ID
@@ -914,6 +914,40 @@ func TestTC_NEG_04_AuthorCannotSubmitAfterDeadline(t *testing.T) {
 		}
 
 		t.Log("✓ Submission remains in draft status after failed publish attempt")
+	})
+
+	t.Run("author cannot withdraw after deadline", func(t *testing.T) {
+		resp, err := ctx.MakeRequest(
+			"PUT",
+			fmt.Sprintf("/api/v1/conferences/%d/submissions/%d/status", conferenceID, submissionID),
+			map[string]interface{}{"status": dto.StatusWithdrawn},
+			authorToken,
+		)
+		if err != nil {
+			t.Fatalf("Failed to make withdraw request: %v", err)
+		}
+
+		if resp.StatusCode != http.StatusBadRequest && resp.StatusCode != http.StatusForbidden {
+			t.Errorf("Expected 400 or 403, got %d", resp.StatusCode)
+		}
+
+		var respMap map[string]interface{}
+		testutils.DecodeResponse(t, resp, &respMap)
+		if errMsg, ok := respMap["error"]; ok {
+			t.Logf("Error message: %v", errMsg)
+		} else {
+			t.Error("Expected error field in response")
+		}
+
+		sub, err := submissionClient.GetSuccess(conferenceID, submissionID, authorToken)
+		if err != nil {
+			t.Fatalf("Failed to get submission after withdraw attempt: %v", err)
+		}
+		if sub.Status != dto.StatusDraft {
+			t.Errorf("Expected submission to remain 'draft' after failed withdraw, got '%s'", sub.Status)
+		}
+
+		t.Logf("✓ Author correctly blocked from withdrawing after deadline (status: %d)", resp.StatusCode)
 	})
 
 	t.Run("author cannot create new published submission after deadline", func(t *testing.T) {

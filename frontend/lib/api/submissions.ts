@@ -16,7 +16,7 @@ export interface Submission {
   abstract: string
   link?: string
   domain: string[]
-  status: "draft" | "published" | "reviewing" | "accepted" | "rejected"
+  status: "draft" | "published" | "reviewing" | "withdrawn" | "accepted" | "rejected"
   information?: {
     co_authors?: string[]
     keywords?: string[]
@@ -157,7 +157,7 @@ export async function getSubmissionById(
 export async function updateSubmissionStatus(
   conferenceId: string,
   submissionId: string,
-  status: "draft" | "published" | "reviewing" | "accepted" | "rejected",
+  status: "draft" | "published" | "reviewing" | "withdrawn" | "accepted" | "rejected",
 ): Promise<ApiResponse<Submission>> {
   try {
     const endpoint = `/api/v1/conferences/${conferenceId}/submissions/${submissionId}/status`
@@ -190,6 +190,13 @@ export async function updateSubmissionStatus(
       status: 500,
     }
   }
+}
+
+export async function withdrawSubmission(
+  conferenceId: string,
+  submissionId: string,
+): Promise<ApiResponse<Submission>> {
+  return updateSubmissionStatus(conferenceId, submissionId, "withdrawn")
 }
 
 /**

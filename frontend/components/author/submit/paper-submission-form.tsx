@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { publishPaper, submitPaper, updatePaper } from "@/lib/api/papers"
+import { updateSubmissionStatus } from "@/lib/api/submissions"
 import { useAuth } from "@/lib/auth-context"
 import { ROUTES } from "@/lib/routes"
 import type { Conference, PrecheckBlockedError, PrecheckResult } from "@/lib/types"
@@ -70,6 +71,13 @@ export function PaperSubmissionForm({
     }
   }, [initialSubmission?.id, initialSubmission?.updated_at])
 
+  useEffect(() => {
+    if (initialSubmission?.id) {
+      setCoiConfirmed(true)
+      setSubmissionConfirmed(true)
+    }
+  }, [initialSubmission?.id])
+
   // Paper Details state
   const [title, setTitle] = useState(initialSubmission?.title || "")
   const [abstract, setAbstract] = useState(initialSubmission?.abstract || "")
@@ -123,8 +131,8 @@ export function PaperSubmissionForm({
     email: "",
     reason: "advisor",
   })
-  const [coiConfirmed, setCoiConfirmed] = useState(false)
-  const [submissionConfirmed, setSubmissionConfirmed] = useState(false)
+  const [coiConfirmed, setCoiConfirmed] = useState(Boolean(initialSubmission))
+  const [submissionConfirmed, setSubmissionConfirmed] = useState(Boolean(initialSubmission))
 
   const defaultTracks = [
     "Artificial Intelligence & Machine Learning",
@@ -145,6 +153,12 @@ export function PaperSubmissionForm({
     ? new Date(conference.configurations.full_paper_submission_deadline)
     : null
   const isDeadlinePassed = submissionDeadline !== null && new Date() > submissionDeadline
+  const shouldPublishOnSubmit =
+    initialSubmission?.status === "draft" || initialSubmission?.status === "withdrawn" || !initialSubmission
+  const persistedSubmissionStatus =
+    initialSubmission && initialSubmission.status !== "draft"
+      ? initialSubmission.status
+      : "draft"
 
   const mapSubmissionError = useCallback(
     (errorMessage: string | null, precheckBlocked?: PrecheckBlockedError | null): string => {
@@ -176,7 +190,7 @@ export function PaperSubmissionForm({
   )
 
   const buildSubmissionData = useCallback(
-    (status: "draft" | "published") => ({
+    (status: "draft" | "published" = persistedSubmissionStatus) => ({
       title,
       abstract,
       link: "",
@@ -202,13 +216,23 @@ export function PaperSubmissionForm({
         },
       },
     }),
-    [abstract, authors, conflicts, isStudentPaper, keywords, selectedTrack, title, uploadedFile],
+    [
+      abstract,
+      authors,
+      conflicts,
+      isStudentPaper,
+      keywords,
+      persistedSubmissionStatus,
+      selectedTrack,
+      title,
+      uploadedFile,
+    ],
   )
 
   const draftSignature = useMemo(
     () =>
       JSON.stringify({
-        payload: buildSubmissionData("draft"),
+        payload: buildSubmissionData(),
         uploaded_file: uploadedFile
           ? {
               name: uploadedFile.name,
@@ -225,6 +249,18 @@ export function PaperSubmissionForm({
   const saveDraft = useCallback(
     async ({ manual = false, force = false }: { manual?: boolean; force?: boolean } = {}) => {
       if (!user || !conference) {
+        return
+      }
+      if (isDeadlinePassed) {
+        if (manual) {
+          toast({
+            title: t(
+              "runtime.components.author.submit.paper-submission-form.prop_title_submission_deadline_has_passed",
+            ),
+            description: "Submission editing is locked after the deadline.",
+            variant: "destructive",
+          })
+        }
         return
       }
       if (isNewSubmissionBlocked) {
@@ -249,7 +285,7 @@ export function PaperSubmissionForm({
       setAutosaveStatus("saving")
 
       try {
-        const submissionData = buildSubmissionData("draft")
+        const submissionData = buildSubmissionData()
 
         const response = draftSubmissionId
           ? await updatePaper(draftSubmissionId, conference.id, submissionData)
@@ -300,6 +336,7 @@ export function PaperSubmissionForm({
       conference,
       draftSignature,
       draftSubmissionId,
+      isDeadlinePassed,
       hasUnsavedChanges,
       isNewSubmissionBlocked,
       mapSubmissionError,
@@ -521,12 +558,25 @@ export function PaperSubmissionForm({
               const draftUpdate = await updatePaper(
                 draftSubmissionId,
                 conference.id,
-                buildSubmissionData("draft"),
+                buildSubmissionData(),
               )
               if (draftUpdate.error) {
                 return draftUpdate
               }
-              return publishPaper(draftSubmissionId, conference.id)
+              if (initialSubmission?.status === "withdrawn") {
+                const resetStatus = await updateSubmissionStatus(
+                  conference.id,
+                  draftSubmissionId,
+                  "draft",
+                )
+                if (resetStatus.error) {
+                  return resetStatus
+                }
+              }
+              if (shouldPublishOnSubmit) {
+                return publishPaper(draftSubmissionId, conference.id)
+              }
+              return draftUpdate
             })()
           : await submitPaper({
               conference_id: conference.id,

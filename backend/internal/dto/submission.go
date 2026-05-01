@@ -6,6 +6,7 @@ const (
 	StatusDraft     = "draft"
 	StatusPublished = "published"
 	StatusReviewing = "reviewing"
+	StatusWithdrawn = "withdrawn"
 	StatusAccepted  = "accepted"
 	StatusRejected  = "rejected"
 )
@@ -42,8 +43,8 @@ type Submission struct {
 	Abstract                string                  `json:"abstract"`
 	Link                    string                  `json:"link"`
 	Domain                  []string                `json:"domain"`
-	Track                   string                  `json:"track"`                                                                                  // Must be one of the conference's tracks
-	Status                  string                  `json:"status,omitempty" binding:"omitempty,oneof=draft published reviewing accepted rejected"` // Optional for updates
+	Track                   string                  `json:"track"`                                                                                            // Must be one of the conference's tracks
+	Status                  string                  `json:"status,omitempty" binding:"omitempty,oneof=draft published reviewing withdrawn accepted rejected"` // Optional for updates
 	Information             *SubmissionInformation  `json:"information"`
 	File                    *SubmissionFileMetadata `json:"file,omitempty"`
 	CoverLetter             *SubmissionFileMetadata `json:"cover_letter,omitempty"` // Optional cover letter (PDF, DOCX, or TXT)
@@ -106,7 +107,7 @@ type SubmissionListResponse struct {
 type UpdateStatusRequest struct {
 	ConferenceID int64  `uri:"conference_id" json:"conference_id"`
 	ID           int64  `uri:"submission_id" json:"submission_id"`
-	Status       string `json:"status" binding:"required,oneof=draft published reviewing accepted rejected"`
+	Status       string `json:"status" binding:"required,oneof=draft published reviewing withdrawn accepted rejected"`
 }
 
 type PrecheckBlockingItem struct {

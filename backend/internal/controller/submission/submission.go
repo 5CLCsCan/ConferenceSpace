@@ -526,20 +526,17 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.SubmissionUpdateReques
 		return nil, handler.NewErrorResponse(http.StatusForbidden, "only the author can update this submission")
 	}
 
-	if existing.Status == dto.StatusPublished {
-		return nil, handler.NewErrorResponse(http.StatusForbidden, "cannot update published submission")
+	if existing.Status == dto.StatusAccepted || existing.Status == dto.StatusRejected {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "cannot update finalized submission")
 	}
 
-	// Check submission deadline when updating to published status
-	if req.Submission.Status == dto.StatusPublished {
-		conference, err := c.conferenceStorage.GetByID(ctx, conferenceID)
-		if err != nil {
-			return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
-		}
-		if conference.Configurations != nil && conference.Configurations.FullPaperSubmissionDeadline != nil {
-			if time.Now().After(*conference.Configurations.FullPaperSubmissionDeadline) {
-				return nil, handler.NewErrorResponse(http.StatusForbidden, "submission deadline has passed")
-			}
+	conference, err := c.conferenceStorage.GetByID(ctx, conferenceID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
+	}
+	if conference.Configurations != nil && conference.Configurations.FullPaperSubmissionDeadline != nil {
+		if time.Now().After(*conference.Configurations.FullPaperSubmissionDeadline) {
+			return nil, handler.NewErrorResponse(http.StatusForbidden, "submission deadline has passed")
 		}
 	}
 
@@ -942,11 +939,16 @@ func (c *Controller) UpdateStatus(ginCtx *gin.Context, req *dto.UpdateStatusRequ
 		dto.StatusDraft:     true,
 		dto.StatusPublished: true,
 		dto.StatusReviewing: true,
+		dto.StatusWithdrawn: true,
 		dto.StatusAccepted:  true,
 		dto.StatusRejected:  true,
 	}
 	if !validStatuses[req.Status] {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid status value")
+	}
+
+	if req.Status == dto.StatusWithdrawn && (submission.Status == dto.StatusAccepted || submission.Status == dto.StatusRejected) {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "cannot withdraw a finalized submission")
 	}
 
 	// Role-based status update logic
@@ -956,9 +958,18 @@ func (c *Controller) UpdateStatus(ginCtx *gin.Context, req *dto.UpdateStatusRequ
 		if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, req.ConferenceID, userEmail) {
 			return nil, handler.NewErrorResponse(http.StatusForbidden, "only the chair or co-chairs can update this conference")
 		}
-	case dto.StatusDraft, dto.StatusPublished, dto.StatusReviewing:
+	case dto.StatusDraft, dto.StatusPublished, dto.StatusReviewing, dto.StatusWithdrawn:
 		if submission.Author != userEmail {
 			return nil, handler.NewErrorResponse(http.StatusForbidden, "only author can set this status")
+		}
+		conference, err := c.conferenceStorage.GetByID(ctx, req.ConferenceID)
+		if err != nil {
+			return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
+		}
+		if conference.Configurations != nil && conference.Configurations.FullPaperSubmissionDeadline != nil {
+			if time.Now().After(*conference.Configurations.FullPaperSubmissionDeadline) {
+				return nil, handler.NewErrorResponse(http.StatusForbidden, "submission deadline has passed")
+			}
 		}
 	}
 
@@ -1213,10 +1224,23 @@ func (c *Controller) GetRebuttal(ginCtx *gin.Context, req *dto.GetRebuttalReques
 	var assignmentStatuses []dto.RebuttalAssignmentStatus
 	assignments, _, _ := c.assignmentStorage.GetReviewsBySubmission(ctx, req.SubmissionID, 100, 0)
 	for _, a := range assignments {
-		assignmentStatuses = append(assignmentStatuses, dto.RebuttalAssignmentStatus{
+		status := dto.RebuttalAssignmentStatus{
 			AssignmentID:   a.ID,
 			RebuttalStatus: a.RebuttalStatus,
-		})
+		}
+		if a.ReviewScore != nil {
+			status.ReviewScore = *a.ReviewScore
+		}
+		if a.ReviewData != nil {
+			status.ReviewData = a.ReviewData
+		}
+		if a.PostRebuttalScore != nil {
+			status.PostRebuttalScore = *a.PostRebuttalScore
+		}
+		if a.PostRebuttalRecommendation != nil {
+			status.PostRebuttalRecommendation = *a.PostRebuttalRecommendation
+		}
+		assignmentStatuses = append(assignmentStatuses, status)
 	}
 	if assignmentStatuses == nil {
 		assignmentStatuses = []dto.RebuttalAssignmentStatus{}

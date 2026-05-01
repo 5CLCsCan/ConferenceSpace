@@ -10,8 +10,12 @@ export function ScoreSummaryPanel({
   showIndividualScores = true,
 }: ScoreSummaryPanelProps) {
   const { t } = useTranslation()
-  const avgOriginal = reviewers.reduce((sum, r) => sum + r.scores.original, 0) / reviewers.length
-  const avgCurrent = reviewers.reduce((sum, r) => sum + r.scores.current, 0) / reviewers.length
+  const avgOriginal = reviewers.length > 0 
+    ? reviewers.reduce((sum, r) => sum + r.scores.original, 0) / reviewers.length 
+    : 0
+  const avgCurrent = reviewers.length > 0 
+    ? reviewers.reduce((sum, r) => sum + r.scores.current, 0) / reviewers.length 
+    : 0
   const scoreChanged = avgOriginal !== avgCurrent
   const updatedCount = reviewers.filter((r) => r.scores.updated).length
 

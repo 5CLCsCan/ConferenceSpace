@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/tests/api/conference"
@@ -123,6 +124,88 @@ func TestListSubmissions(t *testing.T) {
 				t.Errorf("Expected at least %d submissions, got %d", tt.minCount, len(respData.Data.Submissions))
 			}
 		})
+	}
+}
+
+func TestAuthorCanEditWithdrawnSubmissionBeforeDeadline(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	submissionClient := NewClient(ctx)
+	conferenceClient := conference.NewClient(ctx)
+
+	chairToken, chair, err := ctx.RegisterUniqueUser("withdrawchair", "password123", "Withdraw", "Chair", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register chair user: %v", err)
+	}
+	authorToken, author, err := ctx.RegisterUniqueUser("withdrawauthor", "password123", "Withdraw", "Author", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register author user: %v", err)
+	}
+
+	futureDeadline := time.Now().Add(24 * time.Hour)
+	conf := &dto.Conference{
+		Title:   "Withdraw Edit Test Conference",
+		Acronym: testutils.UniqueString("WETC"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI"},
+		Configurations: &dto.ConferenceConfiguration{
+			FullPaperSubmissionDeadline: &futureDeadline,
+		},
+	}
+	confResp, err := conferenceClient.CreateSuccess(conf, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to create conference: %v", err)
+	}
+
+	submission := &dto.Submission{
+		ConferenceID: confResp.ID,
+		Author:       author.Email,
+		Title:        "Original Withdrawn Paper",
+		Abstract:     "Original abstract",
+		Domain:       []string{"AI"},
+		Status:       dto.StatusPublished,
+	}
+	created, err := submissionClient.CreateSuccess(confResp.ID, submission, authorToken)
+	if err != nil {
+		t.Fatalf("Failed to create submission: %v", err)
+	}
+
+	withdrawResp, err := ctx.MakeRequest(
+		"PUT",
+		fmt.Sprintf("/api/v1/conferences/%d/submissions/%d/status", confResp.ID, created.ID),
+		map[string]interface{}{"status": dto.StatusWithdrawn},
+		authorToken,
+	)
+	if err != nil {
+		t.Fatalf("Failed to make withdraw request: %v", err)
+	}
+	testutils.AssertStatusCode(t, withdrawResp, http.StatusOK)
+
+	updatedSubmission := &dto.Submission{
+		ConferenceID: confResp.ID,
+		Author:       author.Email,
+		Title:        "Edited After Withdraw",
+		Abstract:     "Edited abstract",
+		Domain:       []string{"AI"},
+		Status:       dto.StatusWithdrawn,
+	}
+	updateResp, err := submissionClient.Update(confResp.ID, created.ID, updatedSubmission, authorToken)
+	if err != nil {
+		t.Fatalf("Failed to make update request: %v", err)
+	}
+	testutils.AssertStatusCode(t, updateResp, http.StatusOK)
+
+	refetched, err := submissionClient.GetSuccess(confResp.ID, created.ID, authorToken)
+	if err != nil {
+		t.Fatalf("Failed to fetch updated submission: %v", err)
+	}
+
+	if refetched.Title != updatedSubmission.Title {
+		t.Fatalf("Expected title to be updated to %q, got %q", updatedSubmission.Title, refetched.Title)
+	}
+	if refetched.Status != dto.StatusWithdrawn {
+		t.Fatalf("Expected submission to remain withdrawn, got %q", refetched.Status)
 	}
 }
 
