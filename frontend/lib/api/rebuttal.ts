@@ -24,6 +24,18 @@ interface BackendRebuttalPoint {
 interface BackendAssignmentStatus {
   assignment_id: number
   rebuttal_status: string
+  review_score: number
+  review_data: {
+    feedback: {
+      summary: string
+      strengths: string
+      weaknesses: string
+      questions: string
+    }
+    recommendation: string
+  } | null
+  post_rebuttal_score: number
+  post_rebuttal_recommendation: string
 }
 
 interface BackendGetRebuttalResponse {
@@ -91,24 +103,69 @@ export async function getRebuttal(
         : undefined,
     }))
 
-    // Build assignment status map for ack progress
-    const assignmentStatusMap = new Map<string, string>()
-    for (const a of backend.assignments ?? []) {
-      assignmentStatusMap.set(String(a.assignment_id), a.rebuttal_status)
+    // If no points exist, auto-generate them from review feedback for authors to start their rebuttal
+    if (points.length === 0 && backend.assignments && backend.assignments.length > 0) {
+      for (const a of backend.assignments) {
+        if (a.review_data?.feedback) {
+          const f = a.review_data.feedback
+          const assignmentId = String(a.assignment_id)
+
+          if (f.weaknesses) {
+            points.push({
+              id: `gen-w-${assignmentId}`,
+              reviewerId: assignmentId,
+              category: "weakness",
+              originalComment: f.weaknesses,
+              section: "Weaknesses",
+              status: "pending_review",
+            })
+          }
+          if (f.questions) {
+            points.push({
+              id: `gen-q-${assignmentId}`,
+              reviewerId: assignmentId,
+              category: "question",
+              originalComment: f.questions,
+              section: "Questions to Authors",
+              status: "pending_review",
+            })
+          }
+          // If no weaknesses/questions but there is a summary, use it as a point
+          if (!f.weaknesses && !f.questions && f.summary) {
+            points.push({
+              id: `gen-s-${assignmentId}`,
+              reviewerId: assignmentId,
+              category: "clarification",
+              originalComment: f.summary,
+              section: "Summary Feedback",
+              status: "pending_review",
+            })
+          }
+        }
+      }
     }
 
-    // Derive unique ReviewerInfo objects from the unique assignment_ids in points.
-    // The panel groups points by reviewer.id which maps to assignment_id.
-    const assignmentIds = Array.from(new Set(points.map((p) => p.reviewerId)))
-    const reviewers: ReviewerInfo[] = assignmentIds.map((assignmentId, index) => ({
-      id: assignmentId,
-      anonymousId: `Reviewer #${index + 1}`,
-      isCurrentUser: currentAssignmentId ? assignmentId === currentAssignmentId : false,
-      rebuttalStatus: assignmentStatusMap.get(assignmentId) ?? "none",
-      scores: { original: 0, current: 0, updated: false },
-      recommendation: { original: "", current: "", updated: false },
-      confidence: 0,
-    }))
+    // Build reviewers from all assignments
+    const reviewers: ReviewerInfo[] = (backend.assignments ?? []).map((a, index) => {
+      const assignmentId = String(a.assignment_id)
+      return {
+        id: assignmentId,
+        anonymousId: `Reviewer #${index + 1}`,
+        isCurrentUser: currentAssignmentId ? assignmentId === currentAssignmentId : false,
+        rebuttalStatus: a.rebuttal_status,
+        scores: {
+          original: a.review_score,
+          current: a.post_rebuttal_score || a.review_score,
+          updated: !!a.post_rebuttal_score && a.post_rebuttal_score !== a.review_score,
+        },
+        recommendation: {
+          original: a.review_data?.recommendation || "",
+          current: a.post_rebuttal_recommendation || a.review_data?.recommendation || "",
+          updated: !!a.post_rebuttal_recommendation && a.post_rebuttal_recommendation !== a.review_data?.recommendation,
+        },
+        confidence: 0,
+      }
+    })
 
     const submission: RebuttalSubmission | null =
       backend.phase !== "awaiting" && backend.general_response

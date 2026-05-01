@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import {
   ActionBar,
@@ -46,6 +46,17 @@ export function RebuttalPanel({
     )
     onPointStatusChange?.(pointId, status, note)
   }
+ 
+  const handleAuthorResponseChange = (pointId: string, response: string) => {
+    setPoints((prev) =>
+      prev.map((p) => (p.id === pointId ? { ...p, authorResponse: response } : p)),
+    )
+  }
+
+  // Synchronize internal state with initialPoints when they change (e.g. after a load)
+  useEffect(() => {
+    setPoints(initialPoints)
+  }, [initialPoints])
 
   // For reviewers, identify their own points
   const currentUserReviewer = reviewers.find((r) => {
@@ -107,6 +118,7 @@ export function RebuttalPanel({
               points={reviewerPoints}
               userRole={userRole}
               onPointStatusChange={handlePointStatusChange}
+              onAuthorResponseChange={handleAuthorResponseChange}
               readOnly={readOnly}
             />
           ))
@@ -119,6 +131,7 @@ export function RebuttalPanel({
                 points={currentUserPoints}
                 userRole={userRole}
                 onPointStatusChange={handlePointStatusChange}
+                onAuthorResponseChange={handleAuthorResponseChange}
                 readOnly={readOnly}
               />
             )}
@@ -131,6 +144,7 @@ export function RebuttalPanel({
                 points={reviewerPoints}
                 userRole={userRole}
                 onPointStatusChange={handlePointStatusChange}
+                onAuthorResponseChange={handleAuthorResponseChange}
                 readOnly={readOnly}
               />
             ))}
@@ -145,7 +159,11 @@ export function RebuttalPanel({
           userRole={userRole}
           onUpdateReview={onUpdateReview}
           onSubmitRebuttal={() =>
-            onSubmitRebuttal?.({ generalResponse: "", perReviewerResponses: [] })
+            onSubmitRebuttal?.({
+              generalResponse: "", // Parent handles general response
+              perReviewerResponses: [],
+              points, // Pass the updated points back
+            } as any)
           }
           onStartDiscussion={() => console.log("[Start discussion]")}
         />

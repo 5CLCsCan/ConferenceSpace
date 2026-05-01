@@ -130,6 +130,7 @@ export interface PointCardProps {
   userRole: UserRole
   onMarkStatus?: (status: ResponseStatus) => void
   onAddNote?: (note: string) => void
+  onAuthorResponseChange?: (response: string) => void
   readOnly?: boolean
 }
 
@@ -144,6 +145,7 @@ export interface ReviewerResponseGroupProps {
   points: RebuttalPoint[]
   userRole: UserRole
   onPointStatusChange: (pointId: string, status: ResponseStatus) => void
+  onAuthorResponseChange?: (pointId: string, response: string) => void
   defaultExpanded?: boolean
   readOnly?: boolean
 }

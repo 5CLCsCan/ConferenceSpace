@@ -2,18 +2,19 @@
 
 import { useRef, useState } from "react"
 import { cn } from "@/lib/utils"
-import type { Submission } from "@/lib/api/submissions"
+import { withdrawSubmission, type Submission } from "@/lib/api/submissions"
+import type { Conference } from "@/lib/types"
 import { formatDate } from "@/lib/utils"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
 interface OverviewTabProps {
   submission: Submission
   conferenceId: string
+  conference?: Conference | null
+  onSubmissionChange?: (submission: Submission) => void
 }
 
-// --- File Type Icon (Scholar-Compact) ---
 function FileTypeIcon({ type }: { type: "pdf" | "zip" | "doc" | "other" }) {
-  const { t } = useTranslation()
   const config: Record<string, { icon: string; bgClass: string; textClass: string }> = {
     pdf: { icon: "picture_as_pdf", bgClass: "bg-red-50", textClass: "text-red-600" },
     zip: { icon: "folder_zip", bgClass: "bg-blue-50", textClass: "text-blue-600" },
@@ -30,7 +31,6 @@ function FileTypeIcon({ type }: { type: "pdf" | "zip" | "doc" | "other" }) {
   )
 }
 
-// --- Author Avatar (Scholar-Compact) ---
 function AuthorAvatar({ name, size = "sm" }: { name: string; size?: "sm" | "md" }) {
   const initials = name
     .split(" ")
@@ -41,7 +41,6 @@ function AuthorAvatar({ name, size = "sm" }: { name: string; size?: "sm" | "md" 
 
   const sizeClasses = size === "sm" ? "w-8 h-8 text-xs" : "w-10 h-10 text-sm"
 
-  // Generate a consistent color based on name
   const colors = [
     "bg-emerald-100 text-emerald-700",
     "bg-orange-100 text-orange-700",
@@ -64,13 +63,12 @@ function AuthorAvatar({ name, size = "sm" }: { name: string; size?: "sm" | "md" 
   )
 }
 
-// --- Abstract Card (Scholar-Compact) ---
 function AbstractCard({ abstract, keywords }: { abstract: string; keywords: string[] }) {
   const { t } = useTranslation()
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-4 tracking-tight">
-        {t("runtime.components.author.submission-detail.overview-tab.text_abstract")}{" "}
+        {t("runtime.components.author.submission-detail.overview-tab.text_abstract")} {" "}
       </h3>
       <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-6">{abstract}</p>
       {keywords.length > 0 && (
@@ -89,7 +87,6 @@ function AbstractCard({ abstract, keywords }: { abstract: string; keywords: stri
   )
 }
 
-// --- Submission Files Card (Scholar-Compact) ---
 function SubmissionFilesCard({
   submission,
   conferenceId,
@@ -116,10 +113,10 @@ function SubmissionFilesCard({
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-          {t("runtime.components.author.submission-detail.overview-tab.text_submission_files")}{" "}
+          {t("runtime.components.author.submission-detail.overview-tab.text_submission_files")} {" "}
         </h3>
         <span className="text-[10px] text-slate-400">
-          {t("runtime.components.author.submission-detail.overview-tab.text_last_updated")}{" "}
+          {t("runtime.components.author.submission-detail.overview-tab.text_last_updated")} {" "}
           {lastUpdated}
         </span>
       </div>
@@ -131,8 +128,8 @@ function SubmissionFilesCard({
               {submission.file.original_name}
             </h4>
             <p className="text-[10px] text-slate-500">
-              {(submission.file.size / 1024 / 1024).toFixed(1)}{" "}
-              {t("runtime.components.author.submission-detail.overview-tab.text_mb")}{" "}
+              {(submission.file.size / 1024 / 1024).toFixed(1)} {" "}
+              {t("runtime.components.author.submission-detail.overview-tab.text_mb")} {" "}
               {submission.file.mime_type?.split("/")[1]?.toUpperCase() || "File"}
             </p>
           </div>
@@ -165,7 +162,6 @@ function SubmissionFilesCard({
   )
 }
 
-// --- Cover Letter Card (Collapsible, Scholar-Compact) ---
 function CoverLetterCard({
   submission,
   conferenceId,
@@ -187,7 +183,7 @@ function CoverLetterCard({
             mail
           </span>
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            {t("runtime.components.author.submission-detail.overview-tab.text_cover_letter")}{" "}
+            {t("runtime.components.author.submission-detail.overview-tab.text_cover_letter")} {" "}
           </h3>
         </div>
         <span className="material-symbols-outlined text-slate-400" style={{ fontSize: "20px" }}>
@@ -209,8 +205,8 @@ function CoverLetterCard({
                   {submission.cover_letter.original_name}
                 </p>
                 <p className="text-[10px] text-slate-400">
-                  {(submission.cover_letter.size / 1024 / 1024).toFixed(2)}{" "}
-                  {t("runtime.components.author.submission-detail.overview-tab.text_mb_2")}{" "}
+                  {(submission.cover_letter.size / 1024 / 1024).toFixed(2)} {" "}
+                  {t("runtime.components.author.submission-detail.overview-tab.text_mb_2")} {" "}
                 </p>
               </div>
               <a
@@ -218,7 +214,7 @@ function CoverLetterCard({
                 download={submission.cover_letter.original_name}
                 className="text-[11px] font-medium text-[#1B3C53] hover:underline"
               >
-                {t("runtime.components.author.submission-detail.overview-tab.text_download")}{" "}
+                {t("runtime.components.author.submission-detail.overview-tab.text_download")} {" "}
               </a>
             </div>
           ) : (
@@ -234,10 +230,8 @@ function CoverLetterCard({
   )
 }
 
-// --- Submission Meta Card (Sidebar, Scholar-Compact) ---
 function SubmissionMetaCard({ submission }: { submission: Submission }) {
   const { t } = useTranslation()
-  // Build authors list
   const authors = [
     { name: submission.author, isCorresponding: true },
     ...(submission.information?.co_authors?.map((email) => ({
@@ -245,17 +239,17 @@ function SubmissionMetaCard({ submission }: { submission: Submission }) {
       isCorresponding: false,
     })) || []),
   ]
+  const declaredConflicts = submission.information?.declared_conflicts || []
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <h3 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-4">
-        {t("runtime.components.author.submission-detail.overview-tab.text_submission_meta")}{" "}
+        {t("runtime.components.author.submission-detail.overview-tab.text_submission_meta")} {" "}
       </h3>
       <div className="space-y-6">
-        {/* Authors */}
         <div>
           <h4 className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-3">
-            {t("runtime.components.author.submission-detail.overview-tab.text_author_s")}{" "}
+            {t("runtime.components.author.submission-detail.overview-tab.text_author_s")} {" "}
           </h4>
           <div className="space-y-3">
             {authors.map((author, idx) => (
@@ -275,22 +269,24 @@ function SubmissionMetaCard({ submission }: { submission: Submission }) {
           </div>
         </div>
 
-        {/* Conflicts of Interest */}
         <div>
           <h4 className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-2">
-            {t(
-              "runtime.components.author.submission-detail.overview-tab.text_conflicts_of_interest",
-            )}{" "}
+            {t("runtime.components.author.submission-detail.overview-tab.text_conflicts_of_interest")} {" "}
           </h4>
-          <div className="flex flex-wrap gap-2">
-            {submission.domain && submission.domain.length > 0 ? (
-              submission.domain.map((affiliation, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1.5 text-[10px] text-[#1B3C53] dark:text-white font-medium bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700"
+          <div className="space-y-2">
+            {declaredConflicts.length > 0 ? (
+              declaredConflicts.map((conflict, index) => (
+                <div
+                  key={`${conflict.email}-${index}`}
+                  className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/70 px-3 py-2"
                 >
-                  {affiliation}
-                </span>
+                  <div className="text-[11px] font-semibold text-[#1B3C53] dark:text-white">
+                    {conflict.email}
+                  </div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400">
+                    {conflict.reason}
+                  </div>
+                </div>
               ))
             ) : (
               <span className="text-xs text-slate-400">
@@ -304,7 +300,6 @@ function SubmissionMetaCard({ submission }: { submission: Submission }) {
   )
 }
 
-// --- Submission Status Card (Sidebar, Scholar-Compact) ---
 interface StatusStep {
   id: string
   label: string
@@ -318,10 +313,9 @@ export function SubmissionStatusCard({ submission }: { submission: Submission })
   const { t } = useTranslation()
 
   const stepIndex = (step: "submitted" | "bidding" | "rebuttal" | "decision") => {
-    // step index in the 4-step timeline: 0=submitted,1=bidding,2=rebuttal,3=decision
     return { submitted: 0, bidding: 1, rebuttal: 2, decision: 3 }[step]
   }
-  // Map submission.status to which timeline step is "current" (0-based)
+
   const currentStepIndex: number =
     {
       draft: 0,
@@ -329,6 +323,7 @@ export function SubmissionStatusCard({ submission }: { submission: Submission })
       reviewing: 2,
       accepted: 3,
       rejected: 3,
+      withdrawn: 1,
     }[submission.status] ?? 0
 
   const makeStep = (
@@ -340,7 +335,6 @@ export function SubmissionStatusCard({ submission }: { submission: Submission })
     const isTerminal = submission.status === "accepted" || submission.status === "rejected"
     if (idx < currentStepIndex) return { id, label, date, completed: true }
     if (idx === currentStepIndex) {
-      // decision step is "current" only when accepted/rejected — treat as completed
       if (id === "decision" && isTerminal) return { id, label, date, completed: true }
       return { id, label, date, current: true }
     }
@@ -370,14 +364,16 @@ export function SubmissionStatusCard({ submission }: { submission: Submission })
         ? "Accepted"
         : submission.status === "rejected"
           ? "Rejected"
-          : "Expected",
+          : submission.status === "withdrawn"
+            ? "Withdrawn"
+            : "Expected",
     ),
   ]
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <h3 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-4">
-        {t("runtime.components.author.submission-detail.overview-tab.text_submission_status")}{" "}
+        {t("runtime.components.author.submission-detail.overview-tab.text_submission_status")} {" "}
       </h3>
       <div className="relative pl-2 space-y-6">
         <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-slate-100 dark:bg-slate-700" />
@@ -431,9 +427,43 @@ export function SubmissionStatusCard({ submission }: { submission: Submission })
   )
 }
 
-// --- Withdraw Submission Card (Sidebar, Scholar-Compact) ---
-function WithdrawSubmissionCard() {
+function WithdrawSubmissionCard({
+  submission,
+  conference,
+  onWithdrawn,
+}: {
+  submission: Submission
+  conference?: Conference | null
+  onWithdrawn: (submission: Submission) => void
+}) {
   const { t } = useTranslation()
+  const [isWithdrawing, setIsWithdrawing] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const submissionDeadline = conference?.configurations?.full_paper_submission_deadline
+    ? new Date(conference.configurations.full_paper_submission_deadline)
+    : null
+  const isDeadlinePassed = submissionDeadline !== null && new Date() > submissionDeadline
+  const canWithdraw =
+    submission.status !== "draft" &&
+    submission.status !== "withdrawn" &&
+    conference?.configurations?.allow_paper_withdrawls !== false &&
+    !isDeadlinePassed
+
+  const handleWithdraw = async () => {
+    if (!canWithdraw || isWithdrawing) return
+    setIsWithdrawing(true)
+    setError(null)
+
+    const result = await withdrawSubmission(String(submission.conference_id), String(submission.id))
+    if (result.error || !result.data) {
+      setError(result.error ?? "Failed to withdraw submission")
+    } else {
+      onWithdrawn(result.data)
+    }
+    setIsWithdrawing(false)
+  }
+
   return (
     <div className="border border-red-100 dark:border-red-900/30 bg-red-50 dark:bg-red-900/10 rounded-xl p-6">
       <h3 className="text-sm font-bold text-red-700 dark:text-red-400 mb-2">
@@ -442,16 +472,21 @@ function WithdrawSubmissionCard() {
       <p className="text-xs text-red-600 dark:text-red-400/80 mb-3 leading-relaxed">
         {t(
           "runtime.components.author.submission-detail.overview-tab.text_withdrawing_your_paper_will_remove_it",
-        )}{" "}
+        )} {" "}
       </p>
-      <button className="w-full h-8 bg-white dark:bg-transparent border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 font-bold rounded-md text-[11px] transition-colors shadow-sm">
-        {t("runtime.components.author.submission-detail.overview-tab.text_withdraw_paper")}{" "}
+      {error && <p className="text-[11px] text-red-700 dark:text-red-300 mb-2">{error}</p>}
+      <button
+        type="button"
+        onClick={handleWithdraw}
+        disabled={!canWithdraw || isWithdrawing}
+        className="w-full h-8 bg-white dark:bg-transparent border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 font-bold rounded-md text-[11px] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {isWithdrawing ? "Withdrawing..." : t("runtime.components.author.submission-detail.overview-tab.text_withdraw_paper")} {" "}
       </button>
     </div>
   )
 }
 
-// --- Camera-Ready Upload Section ---
 function CameraReadySection({
   submission,
   conferenceId,
@@ -485,7 +520,8 @@ function CameraReadySection({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-4 tracking-tight">
-        {t("runtime.components.author.submission-detail.overview-tab.text_camera_ready_version")}{" "}</h3>
+        {t("runtime.components.author.submission-detail.overview-tab.text_camera_ready_version")} {" "}
+      </h3>
       {submission.camera_ready ? (
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-red-50 text-red-600">
@@ -496,11 +532,15 @@ function CameraReadySection({
               {submission.camera_ready.original_name}
             </p>
             <p className="text-xs text-slate-500">
-              {(submission.camera_ready.size / 1024 / 1024).toFixed(1)} {t("runtime.components.author.submission-detail.overview-tab.text_mb")}{" "}</p>
+              {(submission.camera_ready.size / 1024 / 1024).toFixed(1)} {" "}
+              {t("runtime.components.author.submission-detail.overview-tab.text_mb")} {" "}
+            </p>
           </div>
         </div>
       ) : (
-        <p className="text-xs text-slate-500 mb-4">{t("runtime.components.author.submission-detail.overview-tab.text_no_camera_ready_version_uploaded_yet")}</p>
+        <p className="text-xs text-slate-500 mb-4">
+          {t("runtime.components.author.submission-detail.overview-tab.text_no_camera_ready_version_uploaded_yet")}
+        </p>
       )}
       {error && <p className="text-xs text-red-600 mb-2">{error}</p>}
       <input
@@ -515,20 +555,28 @@ function CameraReadySection({
         disabled={uploading}
         className="text-xs px-3 py-1.5 rounded-lg bg-[#1B3C53] text-white hover:bg-[#1B3C53]/90 disabled:opacity-50"
       >
-        {uploading ? "Uploading…" : submission.camera_ready ? "Replace File" : "Upload PDF"}
+        {uploading ? "Uploading..." : submission.camera_ready ? "Replace File" : "Upload PDF"}
       </button>
     </div>
   )
 }
 
-// --- Main Component ---
-export function OverviewTab({ submission, conferenceId }: OverviewTabProps) {
+export function OverviewTab({
+  submission,
+  conferenceId,
+  conference,
+  onSubmissionChange,
+}: OverviewTabProps) {
   const [localSubmission, setLocalSubmission] = useState(submission)
   const keywords = localSubmission.information?.keywords || []
 
+  const handleSubmissionUpdate = (updated: Submission) => {
+    setLocalSubmission(updated)
+    onSubmissionChange?.(updated)
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in duration-200">
-      {/* Main Content (2/3) */}
       <div className="lg:col-span-2 space-y-6">
         {localSubmission.abstract && (
           <AbstractCard abstract={localSubmission.abstract} keywords={keywords} />
@@ -543,16 +591,19 @@ export function OverviewTab({ submission, conferenceId }: OverviewTabProps) {
           <CameraReadySection
             submission={localSubmission}
             conferenceId={conferenceId}
-            onUploaded={setLocalSubmission}
+            onUploaded={handleSubmissionUpdate}
           />
         )}
       </div>
 
-      {/* Sidebar (1/3) */}
       <div className="space-y-6">
         <SubmissionMetaCard submission={localSubmission} />
         <SubmissionStatusCard submission={localSubmission} />
-        <WithdrawSubmissionCard />
+        <WithdrawSubmissionCard
+          submission={localSubmission}
+          conference={conference}
+          onWithdrawn={handleSubmissionUpdate}
+        />
       </div>
     </div>
   )

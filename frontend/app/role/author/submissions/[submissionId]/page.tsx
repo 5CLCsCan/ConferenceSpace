@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { useNotifications } from "@/hooks/use-notifications"
 import { getSidebarMenuItems } from "@/lib/navigation"
 import { ROUTES } from "@/lib/routes"
+import type { Conference } from "@/lib/types"
 
 function SubmissionDetailPageContent() {
   const params = useParams()
@@ -31,6 +32,7 @@ function SubmissionDetailPageContent() {
   const initialTab = tabQuery === "discussion" || tabQuery === "rebuttal" ? tabQuery : "overview"
 
   const [submission, setSubmission] = useState<Submission | null>(null)
+  const [conference, setConference] = useState<Conference | null>(null)
   const [conferenceName, setConferenceName] = useState<string>("")
   const [conferenceId, setConferenceId] = useState<string | null>(conferenceIdQuery)
   const [loading, setLoading] = useState(true)
@@ -81,6 +83,7 @@ function SubmissionDetailPageContent() {
 
         const confResponse = await getConferenceById(conferenceId)
         if (confResponse.data) {
+          setConference(confResponse.data)
           setConferenceName(confResponse.data.acronym || confResponse.data.name || "")
         }
       } catch (err) {
@@ -184,7 +187,9 @@ function SubmissionDetailPageContent() {
           submission={submission}
           conferenceId={conferenceId}
           conferenceName={conferenceName}
+          conference={conference}
           initialTab={initialTab}
+          onSubmissionChange={setSubmission}
         />
       </main>
     </div>

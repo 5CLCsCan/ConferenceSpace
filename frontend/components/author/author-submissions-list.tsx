@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 import { ROUTES } from "@/lib/routes"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { deletePaper } from "@/lib/api/papers"
+import { withdrawSubmission } from "@/lib/api/submissions"
 
 // -------------------------------------------------------------------------
 // Status Configuration (Scholar-Compact - Neutralized Colors)
@@ -30,6 +31,10 @@ const STATUS_CONFIG: Record<string, { className: string }> = {
       "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800",
   },
   rejected: {
+    className:
+      "bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
+  },
+  withdrawn: {
     className:
       "bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
   },
@@ -60,6 +65,8 @@ function SubmissionStatusBadge({ status }: { status: string }) {
         ? t("runtime.components.author.author-submissions-list.prop_label_accepted")
         : status === "rejected"
           ? t("runtime.components.author.author-submissions-list.prop_label_rejected")
+          : status === "withdrawn"
+            ? t("runtime.components.author.author-submissions-list.prop_label_withdrawn")
           : status === "draft"
             ? t("runtime.components.author.author-submissions-list.prop_label_draft")
             : status === "published"
@@ -380,6 +387,9 @@ export function AuthorSubmissionsList() {
                   )
                 }
                 onDelete={() => setSubmissions((prev) => prev.filter((s) => s.id !== sub.id))}
+                onUpdate={(updated) =>
+                  setSubmissions((prev) => prev.map((item) => (item.id === updated.id ? updated : item)))
+                }
               />
             ))
           )}
@@ -500,9 +510,10 @@ interface SubmissionRowProps {
   submission: SubmissionWithConference
   onClick: () => void
   onDelete: () => void
+  onUpdate: (submission: SubmissionWithConference) => void
 }
 
-function SubmissionRow({ submission, onClick, onDelete }: SubmissionRowProps) {
+function SubmissionRow({ submission, onClick, onDelete, onUpdate }: SubmissionRowProps) {
   const router = useRouter()
   const { t } = useTranslation()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -510,6 +521,7 @@ function SubmissionRow({ submission, onClick, onDelete }: SubmissionRowProps) {
   const menuRef = useRef<HTMLDivElement>(null)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isWithdrawing, setIsWithdrawing] = useState(false)
 
   // Close menu on outside click / scroll
   useEffect(() => {
@@ -556,6 +568,13 @@ function SubmissionRow({ submission, onClick, onDelete }: SubmissionRowProps) {
       onDelete()
     }
   }
+  const submissionDeadline = submission.conference.configurations?.full_paper_submission_deadline
+    ? new Date(submission.conference.configurations.full_paper_submission_deadline)
+    : null
+  const isDeadlinePassed = submissionDeadline !== null && new Date() > submissionDeadline
+  const canEditSubmission =
+    !isDeadlinePassed && submission.status !== "accepted" && submission.status !== "rejected"
+  const canWithdrawSubmission = canEditSubmission && submission.status !== "withdrawn"
   const isDraft = submission.status === "draft"
   const isCompleted = submission.status === "accepted" || submission.status === "rejected"
   const trackName = submission.information?.track_name || null
@@ -597,21 +616,59 @@ function SubmissionRow({ submission, onClick, onDelete }: SubmissionRowProps) {
               </span>
               {t("runtime.components.author.author-submissions-list.text_view_details")}
             </button>
-            {isDraft && (
+            {canEditSubmission && (
               <button
                 type="button"
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={(e) =>
                   handleMenuClick(e, () =>
-                    router.push(ROUTES.AUTHOR.SUBMISSION_EDIT(String(submission.id))),
+                    router.push(
+                      `${ROUTES.AUTHOR.SUBMISSION_EDIT(String(submission.id))}?conferenceId=${submission.conference_id}`,
+                    ),
                   )
                 }
                 className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
               >
                 <span className="material-symbols-outlined text-[14px] text-slate-400">edit</span>
-                {t("runtime.components.author.author-submissions-list.text_edit_draft")}
+                {t("runtime.components.author.author-submissions-list.text_edit_submission")}
               </button>
             )}
+            {canWithdrawSubmission ? (
+              <button
+                type="button"
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) =>
+                  handleMenuClick(e, async () => {
+                    if (isWithdrawing) return
+                    setIsWithdrawing(true)
+                    const result = await withdrawSubmission(
+                      String(submission.conference_id),
+                      String(submission.id),
+                    )
+                    setIsWithdrawing(false)
+                    if (!result.error && result.data) {
+                      onUpdate({
+                        ...submission,
+                        ...result.data,
+                        conference: submission.conference,
+                      })
+                    }
+                  })
+                }
+                disabled={isWithdrawing}
+                className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
+              >
+                <span className="material-symbols-outlined text-[14px] text-slate-400">logout</span>
+                {isWithdrawing
+                  ? t("runtime.components.author.author-submissions-list.text_withdrawing")
+                  : t("runtime.components.author.author-submissions-list.text_withdraw_submission")}
+              </button>
+            ) : submission.status === "withdrawn" ? (
+              <div className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-slate-400">
+                <span className="material-symbols-outlined text-[14px] text-slate-400">undo</span>
+                {t("runtime.components.author.author-submissions-list.prop_label_withdrawn")}
+              </div>
+            ) : null}
             {isDraft && (
               <>
                 <div className="border-t border-slate-100 dark:border-slate-700 my-0.5" />
