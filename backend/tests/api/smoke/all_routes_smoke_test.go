@@ -87,6 +87,7 @@ func TestAPIRouteRegistrationAndAuthGuards(t *testing.T) {
 		{name: "conferences_delete", method: http.MethodDelete, path: "/api/v1/conferences/1", expected: []int{http.StatusUnauthorized}},
 		{name: "conferences_bookmark", method: http.MethodPut, path: "/api/v1/conferences/1/bookmark", expected: []int{http.StatusUnauthorized}},
 		{name: "conferences_status", method: http.MethodPut, path: "/api/v1/conferences/1/status", expected: []int{http.StatusUnauthorized}},
+		{name: "conferences_reviewer_suggestions", method: http.MethodGet, path: "/api/v1/conferences/1/reviewer-suggestions", expected: []int{http.StatusUnauthorized}},
 
 		{name: "reviewers_list", method: http.MethodGet, path: "/api/v1/conferences/1/reviewers", expected: []int{http.StatusUnauthorized}},
 		{name: "reviewers_get", method: http.MethodGet, path: "/api/v1/conferences/1/reviewers/1", expected: []int{http.StatusUnauthorized}},

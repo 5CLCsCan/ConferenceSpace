@@ -97,6 +97,14 @@ type PapersResponse struct {
 	Data   []Paper `json:"data"`
 }
 
+// PaperSearchResponse represents the paper search results
+type PaperSearchResponse struct {
+	Total  int     `json:"total"`
+	Offset int     `json:"offset"`
+	Next   int     `json:"next,omitempty"`
+	Data   []Paper `json:"data"`
+}
+
 // doRequest performs an HTTP request with API key authentication
 func (c *Client) doRequest(ctx context.Context, method, path string, body interface{}) ([]byte, error) {
 	// Wait for rate limiter permission
@@ -160,6 +168,30 @@ func (c *Client) SearchAuthors(ctx context.Context, query string, limit int) (*S
 	}
 
 	var result SearchResponse
+	if err := json.Unmarshal(respBody, &result); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
+	}
+
+	return &result, nil
+}
+
+// SearchPapers searches for papers by keyword query.
+// Returns papers with their authors, useful for discovering potential reviewers.
+func (c *Client) SearchPapers(ctx context.Context, query string, limit int) (*PaperSearchResponse, error) {
+	if limit <= 0 {
+		limit = 20
+	}
+
+	fields := "paperId,title,year,citationCount,venue,authors,authors.authorId,authors.name,authors.affiliations,authors.hIndex,authors.citationCount,authors.paperCount"
+	path := fmt.Sprintf("/paper/search?query=%s&limit=%d&fields=%s",
+		url.QueryEscape(query), limit, fields)
+
+	respBody, err := c.doRequest(ctx, "GET", path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var result PaperSearchResponse
 	if err := json.Unmarshal(respBody, &result); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
 	}

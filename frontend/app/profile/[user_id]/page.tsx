@@ -37,7 +37,18 @@ export default function UserProfilePage() {
   const { user: authUser, refreshUser, logout, isAuthenticated, currentRole } = useAuth()
   const { unreadCount } = useNotifications({ limit: 1 })
 
-  const userId = String(params.user_id || "")
+  // Next.js App Router's `useParams()` returns URL-encoded path values,
+  // so characters like `@` in emails come through as `%40`. Decode defensively
+  // so downstream callers (resolveUserEmail, /api/v1/users/{email}) see the
+  // real value. Falls back to the raw value if decoding throws on malformed input.
+  const rawUserId = String(params.user_id || "")
+  const userId = (() => {
+    try {
+      return decodeURIComponent(rawUserId)
+    } catch {
+      return rawUserId
+    }
+  })()
   const sidebarMenuItems = useMemo(
     () => getSidebarMenuItems(currentRole, unreadCount),
     [currentRole, unreadCount],

@@ -357,6 +357,9 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 				reviewers.DELETE("/:reviewer_id", requireChair, handler.HandleNoRequestWithURIMessage("reviewer removed successfully", ctrl.Reviewer.Delete))
 			}
 
+			// Reviewer suggestion route — discover potential reviewers for a conference
+			conferences.GET("/:conference_id/reviewer-suggestions", requireChair, handler.HandleRequestWithURIAndQuery(ctrl.ReviewerSuggestion.GetSuggestions))
+
 			// Submission routes nested under conferences (all protected - authentication required)
 			submissions := conferences.Group("/:conference_id/submissions")
 			{
