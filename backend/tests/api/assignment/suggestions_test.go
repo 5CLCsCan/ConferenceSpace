@@ -497,6 +497,300 @@ func TestAddSuggestionWithCOI(t *testing.T) {
 	})
 }
 
+// TestSuggestionMetadata verifies that the metadata and assignment_count fields
+// are populated correctly for both auto-assigned and manually added suggestions.
+func TestSuggestionMetadata(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	// Setup: Create users
+	chairToken, chairUser, err := ctx.RegisterUniqueUser("chair", "password123", "Chair", "User", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register chair: %v", err)
+	}
+
+	reviewerToken, reviewerUser, err := ctx.RegisterUniqueUser("reviewer", "password123", "Reviewer", "User", []string{"AI", "NLP"})
+	if err != nil {
+		t.Fatalf("Failed to register reviewer: %v", err)
+	}
+
+	authorToken, _, err := ctx.RegisterUniqueUser("author", "password123", "Author", "User", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register author: %v", err)
+	}
+
+	// Create conference with domain AI
+	conference := &dto.Conference{
+		Title:   "Test Suggestion Metadata Conference",
+		Acronym: testutils.UniqueString("TSMC"),
+		Chair:   chairUser.Email,
+		Domain:  []string{"AI"},
+	}
+
+	confResp, err := ctx.MakeRequest("POST", "/api/v1/conferences", map[string]interface{}{"conference": conference}, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to create conference: %v", err)
+	}
+	testutils.AssertStatusCode(t, confResp, http.StatusCreated)
+
+	var confData struct {
+		Data *dto.ConferenceResponse `json:"data"`
+	}
+	testutils.DecodeResponse(t, confResp, &confData)
+	conferenceID := confData.Data.ID
+
+	// Add reviewer with domain AI and NLP
+	reviewerReq := map[string]interface{}{
+		"reviewers": []map[string]interface{}{
+			{"user_id": reviewerUser.ID, "domain": []string{"AI", "NLP"}},
+		},
+	}
+	addRevResp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/reviewers", conferenceID), reviewerReq, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to add reviewer: %v", err)
+	}
+	testutils.AssertStatusCode(t, addRevResp, http.StatusCreated)
+
+	var revData struct {
+		Data *dto.ReviewerBatchInviteResponse `json:"data"`
+	}
+	testutils.DecodeResponse(t, addRevResp, &revData)
+	reviewerRecordID := revData.Data.Success[0].ID
+
+	// Reviewer accepts invitation
+	acceptReq := &dto.ReviewerUpdateStatusRequest{
+		ConferenceID: conferenceID,
+		ReviewerID:   reviewerRecordID,
+		Status:       "accepted",
+	}
+	_, err = ctx.MakeRequest("PUT", fmt.Sprintf("/api/v1/conferences/%d/reviewers/%d/status", conferenceID, reviewerRecordID), acceptReq, reviewerToken)
+	if err != nil {
+		t.Fatalf("Failed to accept reviewer invitation: %v", err)
+	}
+
+	// Create submission with keywords AI and Machine Learning
+	submissionReq := &dto.SubmissionCreateRequest{
+		ConferenceID: conferenceID,
+		Submission: &dto.Submission{
+			Title:    "Test AI NLP Paper",
+			Abstract: "Research on artificial intelligence and natural language processing",
+			Domain:   []string{"AI"},
+			Status:   "submitted",
+			Information: &dto.SubmissionInformation{
+				Keywords: []string{"AI", "Machine Learning"},
+			},
+		},
+	}
+	submissionJSON, _ := json.Marshal(submissionReq)
+
+	files := []testutils.FileUpload{
+		{
+			FieldName: "file",
+			FileName:  "test_paper.pdf",
+			Content:   []byte("%PDF-1.4\n%âãÏÓ\n1 0 obj\n<<\n/Type /Catalog\n>>\nendobj\nxref\n0 2\ntrailer\n<<\n/Size 2\n>>\nstartxref\n50\n%%EOF"),
+			MimeType:  "application/pdf",
+		},
+	}
+
+	subResp, err := ctx.MakeMultipartRequestWithFiles("POST", fmt.Sprintf("/api/v1/conferences/%d/submissions", conferenceID), map[string]string{
+		"submission": string(submissionJSON),
+	}, files, authorToken)
+	if err != nil {
+		t.Fatalf("Failed to create submission: %v", err)
+	}
+	testutils.AssertStatusCode(t, subResp, http.StatusCreated)
+
+	var subData struct {
+		Data *dto.Submission `json:"data"`
+	}
+	testutils.DecodeResponse(t, subResp, &subData)
+	submissionID := subData.Data.ID
+
+	// Test 1: Auto-assign suggestions have metadata
+	t.Run("auto-assign suggestions have metadata", func(t *testing.T) {
+		autoAssignReq := map[string]interface{}{
+			"min_reviewers_per_paper": 1,
+			"max_reviewers_per_paper": 2,
+			"min_score_threshold":     0.0,
+			"dry_run":                 false,
+		}
+		assignResp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/submissions/auto-assign", conferenceID), autoAssignReq, chairToken)
+		if err != nil {
+			t.Fatalf("Failed to run auto-assignment: %v", err)
+		}
+		testutils.AssertStatusCode(t, assignResp, http.StatusOK)
+
+		// GET suggestions
+		suggestionsResp, err := ctx.MakeRequest("GET", fmt.Sprintf("/api/v1/conferences/%d/assignments/suggestions", conferenceID), nil, chairToken)
+		if err != nil {
+			t.Fatalf("Failed to get suggestions: %v", err)
+		}
+		testutils.AssertStatusCode(t, suggestionsResp, http.StatusOK)
+
+		var suggestionsData struct {
+			Data *dto.SuggestionsListResponse `json:"data"`
+		}
+		testutils.DecodeResponse(t, suggestionsResp, &suggestionsData)
+
+		if suggestionsData.Data.TotalSuggestions == 0 {
+			t.Fatal("Expected at least 1 suggestion after auto-assign")
+		}
+
+		// Find the suggestion for our submission
+		var foundReviewer *dto.SuggestedReviewer
+		for _, group := range suggestionsData.Data.Suggestions {
+			if group.SubmissionID == submissionID {
+				for i := range group.Reviewers {
+					foundReviewer = &group.Reviewers[i]
+					break
+				}
+			}
+		}
+
+		if foundReviewer == nil {
+			t.Fatal("Could not find our submission in suggestions")
+		}
+
+		// Verify metadata is not nil
+		if foundReviewer.Metadata == nil {
+			t.Fatal("Expected metadata to be non-nil for auto-assigned suggestion")
+		}
+
+		// Verify source is auto_pass1 or auto_pass2
+		source := foundReviewer.Metadata.Source
+		if source != "auto_pass1" && source != "auto_pass2" {
+			t.Errorf("Expected metadata.source to be 'auto_pass1' or 'auto_pass2', got '%s'", source)
+		}
+
+		// Verify matched_keywords contains "AI" (overlap of submission ["AI", "Machine Learning"] and reviewer ["AI", "NLP"])
+		foundAI := false
+		for _, kw := range foundReviewer.Metadata.MatchedKeywords {
+			if kw == "AI" {
+				foundAI = true
+				break
+			}
+		}
+		if !foundAI {
+			t.Errorf("Expected metadata.matched_keywords to contain 'AI', got %v", foundReviewer.Metadata.MatchedKeywords)
+		}
+
+		// Verify coi_checks has entries for self_author, declared_conflicts, relationship
+		coiChecks := foundReviewer.Metadata.COIChecks
+		expectedCOIKeys := []string{"self_author", "declared_conflicts", "relationship"}
+		for _, key := range expectedCOIKeys {
+			val, ok := coiChecks[key]
+			if !ok {
+				t.Errorf("Expected coi_checks to have key '%s'", key)
+				continue
+			}
+			// Value should be "passed" or "skipped_neo4j_unavailable" (relationship may be skipped)
+			if val != "passed" && val != "skipped_neo4j_unavailable" {
+				t.Errorf("Expected coi_checks['%s'] to be 'passed' or 'skipped_neo4j_unavailable', got '%s'", key, val)
+			}
+		}
+
+		// Verify created_at is non-empty
+		if foundReviewer.Metadata.CreatedAt == "" {
+			t.Error("Expected metadata.created_at to be non-empty")
+		}
+
+		// Verify assignment_count is >= 0
+		if foundReviewer.AssignmentCount < 0 {
+			t.Errorf("Expected assignment_count >= 0, got %d", foundReviewer.AssignmentCount)
+		}
+
+		t.Logf("Auto-assign suggestion: source=%s, matched_keywords=%v, coi_checks=%v, assignment_count=%d",
+			foundReviewer.Metadata.Source, foundReviewer.Metadata.MatchedKeywords,
+			foundReviewer.Metadata.COIChecks, foundReviewer.AssignmentCount)
+	})
+
+	// Test 2: Manual suggestion has manual metadata
+	t.Run("manual suggestion has manual metadata", func(t *testing.T) {
+		// Clear existing suggestions by deleting them (run auto-assign to clear and re-check, or just delete)
+		// First, get existing suggestions and delete them all
+		suggestionsResp, err := ctx.MakeRequest("GET", fmt.Sprintf("/api/v1/conferences/%d/assignments/suggestions", conferenceID), nil, chairToken)
+		if err != nil {
+			t.Fatalf("Failed to get suggestions: %v", err)
+		}
+		var existingData struct {
+			Data *dto.SuggestionsListResponse `json:"data"`
+		}
+		testutils.DecodeResponse(t, suggestionsResp, &existingData)
+
+		// Delete all existing suggestions
+		for _, group := range existingData.Data.Suggestions {
+			for _, reviewer := range group.Reviewers {
+				ctx.MakeRequest("DELETE", fmt.Sprintf("/api/v1/conferences/%d/assignments/suggestions/%d", conferenceID, reviewer.AssignmentID), nil, chairToken)
+			}
+		}
+
+		// Manually add a suggestion
+		addSuggestionReq := &dto.AddSuggestionRequest{
+			SubmissionID: submissionID,
+			ReviewerID:   reviewerRecordID,
+		}
+		addResp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/assignments/suggestions", conferenceID), addSuggestionReq, chairToken)
+		if err != nil {
+			t.Fatalf("Failed to add manual suggestion: %v", err)
+		}
+		testutils.AssertStatusCode(t, addResp, http.StatusCreated)
+
+		// GET suggestions and find the manually added one
+		suggestionsResp2, err := ctx.MakeRequest("GET", fmt.Sprintf("/api/v1/conferences/%d/assignments/suggestions", conferenceID), nil, chairToken)
+		if err != nil {
+			t.Fatalf("Failed to get suggestions after manual add: %v", err)
+		}
+		testutils.AssertStatusCode(t, suggestionsResp2, http.StatusOK)
+
+		var suggestionsData struct {
+			Data *dto.SuggestionsListResponse `json:"data"`
+		}
+		testutils.DecodeResponse(t, suggestionsResp2, &suggestionsData)
+
+		if suggestionsData.Data.TotalSuggestions == 0 {
+			t.Fatal("Expected at least 1 suggestion after manual add")
+		}
+
+		// Find the suggestion for our submission
+		var foundReviewer *dto.SuggestedReviewer
+		for _, group := range suggestionsData.Data.Suggestions {
+			if group.SubmissionID == submissionID {
+				for i := range group.Reviewers {
+					foundReviewer = &group.Reviewers[i]
+					break
+				}
+			}
+		}
+
+		if foundReviewer == nil {
+			t.Fatal("Could not find our submission in suggestions after manual add")
+		}
+
+		// Verify metadata is not nil
+		if foundReviewer.Metadata == nil {
+			t.Fatal("Expected metadata to be non-nil for manually added suggestion")
+		}
+
+		// Verify source is "manual"
+		if foundReviewer.Metadata.Source != "manual" {
+			t.Errorf("Expected metadata.source to be 'manual', got '%s'", foundReviewer.Metadata.Source)
+		}
+
+		// Verify matched_keywords is empty (manual adds don't compute keyword overlap)
+		if len(foundReviewer.Metadata.MatchedKeywords) != 0 {
+			t.Errorf("Expected metadata.matched_keywords to be empty for manual suggestion, got %v", foundReviewer.Metadata.MatchedKeywords)
+		}
+
+		// Verify assignment_count is >= 0
+		if foundReviewer.AssignmentCount < 0 {
+			t.Errorf("Expected assignment_count >= 0, got %d", foundReviewer.AssignmentCount)
+		}
+
+		t.Logf("Manual suggestion: source=%s, matched_keywords=%v, assignment_count=%d",
+			foundReviewer.Metadata.Source, foundReviewer.Metadata.MatchedKeywords, foundReviewer.AssignmentCount)
+	})
+}
+
 // TestAutoAssignSkipsAlreadyAssignedPapers tests that re-running auto-assign
 // only processes papers without confirmed assignments
 func TestAutoAssignSkipsAlreadyAssignedPapers(t *testing.T) {
@@ -1026,4 +1320,403 @@ func TestGetConfirmedAssignments(t *testing.T) {
 		}
 		t.Log("Confirmed: Suggestions list is empty after all are confirmed")
 	})
+}
+
+// TestInvitationAcceptFlow tests the full accept/decline invitation flow
+func TestInvitationFlow(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	// Setup: Create users
+	chairToken, chairUser, err := ctx.RegisterUniqueUser("chair", "password123", "Chair", "InvFlow", []string{"NLP"})
+	if err != nil {
+		t.Fatalf("Failed to register chair: %v", err)
+	}
+
+	reviewerToken, reviewerUser, err := ctx.RegisterUniqueUser("reviewer", "password123", "Reviewer", "InvFlow", []string{"NLP"})
+	if err != nil {
+		t.Fatalf("Failed to register reviewer: %v", err)
+	}
+
+	authorToken, _, err := ctx.RegisterUniqueUser("author", "password123", "Author", "InvFlow", []string{"NLP"})
+	if err != nil {
+		t.Fatalf("Failed to register author: %v", err)
+	}
+
+	// Create conference
+	conference := &dto.Conference{
+		Title:   "Test Invitation Flow Conference",
+		Acronym: testutils.UniqueString("TIFC"),
+		Chair:   chairUser.Email,
+		Domain:  []string{"NLP"},
+	}
+	confResp, err := ctx.MakeRequest("POST", "/api/v1/conferences", map[string]interface{}{"conference": conference}, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to create conference: %v", err)
+	}
+	testutils.AssertStatusCode(t, confResp, http.StatusCreated)
+
+	var confData struct {
+		Data *dto.ConferenceResponse `json:"data"`
+	}
+	testutils.DecodeResponse(t, confResp, &confData)
+	conferenceID := confData.Data.ID
+
+	// Add reviewer
+	reviewerReq := map[string]interface{}{
+		"reviewers": []map[string]interface{}{
+			{"user_id": reviewerUser.ID, "domain": []string{"NLP"}},
+		},
+	}
+	addRevResp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/reviewers", conferenceID), reviewerReq, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to add reviewer: %v", err)
+	}
+	testutils.AssertStatusCode(t, addRevResp, http.StatusCreated)
+
+	var revData struct {
+		Data *dto.ReviewerBatchInviteResponse `json:"data"`
+	}
+	testutils.DecodeResponse(t, addRevResp, &revData)
+	reviewerID := revData.Data.Success[0].ID
+
+	// Reviewer accepts conference invitation
+	acceptRevReq := &dto.ReviewerUpdateStatusRequest{
+		ConferenceID: conferenceID,
+		ReviewerID:   reviewerID,
+		Status:       "accepted",
+	}
+	_, err = ctx.MakeRequest("PUT", fmt.Sprintf("/api/v1/conferences/%d/reviewers/%d/status", conferenceID, reviewerID), acceptRevReq, reviewerToken)
+	if err != nil {
+		t.Fatalf("Failed to accept reviewer invitation: %v", err)
+	}
+
+	// Create submission
+	submissionReq := &dto.SubmissionCreateRequest{
+		ConferenceID: conferenceID,
+		Submission: &dto.Submission{
+			Title:    "Test NLP Paper",
+			Abstract: "Research on natural language processing",
+			Domain:   []string{"NLP"},
+			Status:   "submitted",
+			Information: &dto.SubmissionInformation{
+				Keywords: []string{"NLP", "Transformers"},
+			},
+		},
+	}
+	submissionJSON, _ := json.Marshal(submissionReq)
+
+	files := []testutils.FileUpload{
+		{
+			FieldName: "file",
+			FileName:  "test_paper.pdf",
+			Content:   []byte("%PDF-1.4\n%âãÏÓ\n1 0 obj\n<<\n/Type /Catalog\n>>\nendobj\nxref\n0 2\ntrailer\n<<\n/Size 2\n>>\nstartxref\n50\n%%EOF"),
+			MimeType:  "application/pdf",
+		},
+	}
+
+	subResp, err := ctx.MakeMultipartRequestWithFiles("POST", fmt.Sprintf("/api/v1/conferences/%d/submissions", conferenceID), map[string]string{
+		"submission": string(submissionJSON),
+	}, files, authorToken)
+	if err != nil {
+		t.Fatalf("Failed to create submission: %v", err)
+	}
+	testutils.AssertStatusCode(t, subResp, http.StatusCreated)
+
+	// Auto-assign
+	autoAssignReq := map[string]interface{}{
+		"min_reviewers_per_paper": 1,
+		"max_reviewers_per_paper": 3,
+		"min_score_threshold":    0.0,
+		"dry_run":                false,
+	}
+	assignResp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/submissions/auto-assign", conferenceID), autoAssignReq, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to run auto-assignment: %v", err)
+	}
+	testutils.AssertStatusCode(t, assignResp, http.StatusOK)
+
+	// Confirm suggestions
+	confirmResp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/assignments/suggestions/confirm", conferenceID), map[string]interface{}{}, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to confirm suggestions: %v", err)
+	}
+	testutils.AssertStatusCode(t, confirmResp, http.StatusOK)
+
+	// Get confirmed assignments
+	confirmedResp, err := ctx.MakeRequest("GET", fmt.Sprintf("/api/v1/conferences/%d/assignments/confirmed", conferenceID), nil, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to get confirmed assignments: %v", err)
+	}
+	testutils.AssertStatusCode(t, confirmedResp, http.StatusOK)
+
+	var confirmedBody struct {
+		Data struct {
+			Assignments []struct {
+				Reviewers []struct {
+					AssignmentID  int64  `json:"assignment_id"`
+					ReviewerEmail string `json:"reviewer_email"`
+					Status        string `json:"status"`
+				} `json:"reviewers"`
+			} `json:"assignments"`
+		} `json:"data"`
+	}
+	testutils.DecodeResponse(t, confirmedResp, &confirmedBody)
+
+	if len(confirmedBody.Data.Assignments) == 0 || len(confirmedBody.Data.Assignments[0].Reviewers) == 0 {
+		t.Skip("No confirmed assignments found - skipping invitation flow test")
+	}
+
+	firstReviewer := confirmedBody.Data.Assignments[0].Reviewers[0]
+	assignmentID := firstReviewer.AssignmentID
+	reviewerEmail := firstReviewer.ReviewerEmail
+
+	if firstReviewer.Status != "pending" {
+		t.Skipf("Expected pending status, got %s", firstReviewer.Status)
+	}
+
+	// Test: Get invitation data
+	t.Run("get invitation data", func(t *testing.T) {
+		invResp, err := ctx.MakeRequest("GET", fmt.Sprintf("/api/v1/reviewer/%s/assignments/%d/invitation",
+			reviewerEmail, assignmentID), nil, reviewerToken)
+		if err != nil {
+			t.Fatalf("Failed to get invitation: %v", err)
+		}
+		testutils.AssertStatusCode(t, invResp, http.StatusOK)
+
+		var invBody struct {
+			Data struct {
+				AssignmentID   int64  `json:"assignment_id"`
+				Status         string `json:"status"`
+				PaperTitle     string `json:"paper_title"`
+				ConferenceName string `json:"conference_name"`
+			} `json:"data"`
+		}
+		testutils.DecodeResponse(t, invResp, &invBody)
+
+		if invBody.Data.AssignmentID != assignmentID {
+			t.Errorf("Expected assignment_id %d, got %d", assignmentID, invBody.Data.AssignmentID)
+		}
+		if invBody.Data.Status != "pending" {
+			t.Errorf("Expected status pending, got %s", invBody.Data.Status)
+		}
+		if invBody.Data.PaperTitle == "" {
+			t.Error("Expected non-empty paper title")
+		}
+		if invBody.Data.ConferenceName == "" {
+			t.Error("Expected non-empty conference name")
+		}
+	})
+
+	// Test: Accept the assignment
+	t.Run("accept assignment", func(t *testing.T) {
+		respondResp, err := ctx.MakeRequest("PUT", fmt.Sprintf("/api/v1/reviewer/%s/assignments/%d/respond",
+			reviewerEmail, assignmentID), map[string]interface{}{
+			"action": "accept",
+		}, reviewerToken)
+		if err != nil {
+			t.Fatalf("Failed to respond: %v", err)
+		}
+		testutils.AssertStatusCode(t, respondResp, http.StatusOK)
+
+		var respondBody struct {
+			Data struct {
+				AssignmentID int64  `json:"assignment_id"`
+				Status       string `json:"status"`
+				Message      string `json:"message"`
+			} `json:"data"`
+		}
+		testutils.DecodeResponse(t, respondResp, &respondBody)
+
+		if respondBody.Data.Status != "accepted" {
+			t.Errorf("Expected status accepted, got %s", respondBody.Data.Status)
+		}
+	})
+
+	// Test: Double-accept returns error
+	t.Run("double accept returns 400", func(t *testing.T) {
+		doubleResp, err := ctx.MakeRequest("PUT", fmt.Sprintf("/api/v1/reviewer/%s/assignments/%d/respond",
+			reviewerEmail, assignmentID), map[string]interface{}{
+			"action": "accept",
+		}, reviewerToken)
+		if err != nil {
+			t.Fatalf("Failed to send double accept: %v", err)
+		}
+		testutils.AssertStatusCode(t, doubleResp, http.StatusBadRequest)
+	})
+}
+
+// TestInvitationDeclineFlow tests the decline invitation flow
+func TestInvitationDeclineFlow(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	// Setup: Create users
+	chairToken, chairUser, err := ctx.RegisterUniqueUser("chair", "password123", "Chair", "DecFlow", []string{"CV"})
+	if err != nil {
+		t.Fatalf("Failed to register chair: %v", err)
+	}
+
+	reviewerToken, reviewerUser, err := ctx.RegisterUniqueUser("reviewer", "password123", "Reviewer", "DecFlow", []string{"CV"})
+	if err != nil {
+		t.Fatalf("Failed to register reviewer: %v", err)
+	}
+
+	authorToken, _, err := ctx.RegisterUniqueUser("author", "password123", "Author", "DecFlow", []string{"CV"})
+	if err != nil {
+		t.Fatalf("Failed to register author: %v", err)
+	}
+
+	// Create conference
+	conference := &dto.Conference{
+		Title:   "Test Decline Flow Conference",
+		Acronym: testutils.UniqueString("TDFC"),
+		Chair:   chairUser.Email,
+		Domain:  []string{"CV"},
+	}
+	confResp, err := ctx.MakeRequest("POST", "/api/v1/conferences", map[string]interface{}{"conference": conference}, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to create conference: %v", err)
+	}
+	testutils.AssertStatusCode(t, confResp, http.StatusCreated)
+
+	var confData struct {
+		Data *dto.ConferenceResponse `json:"data"`
+	}
+	testutils.DecodeResponse(t, confResp, &confData)
+	conferenceID := confData.Data.ID
+
+	// Add reviewer
+	reviewerReq := map[string]interface{}{
+		"reviewers": []map[string]interface{}{
+			{"user_id": reviewerUser.ID, "domain": []string{"CV"}},
+		},
+	}
+	addRevResp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/reviewers", conferenceID), reviewerReq, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to add reviewer: %v", err)
+	}
+	testutils.AssertStatusCode(t, addRevResp, http.StatusCreated)
+
+	var revData struct {
+		Data *dto.ReviewerBatchInviteResponse `json:"data"`
+	}
+	testutils.DecodeResponse(t, addRevResp, &revData)
+	reviewerID := revData.Data.Success[0].ID
+
+	// Reviewer accepts conference invitation
+	acceptRevReq := &dto.ReviewerUpdateStatusRequest{
+		ConferenceID: conferenceID,
+		ReviewerID:   reviewerID,
+		Status:       "accepted",
+	}
+	_, err = ctx.MakeRequest("PUT", fmt.Sprintf("/api/v1/conferences/%d/reviewers/%d/status", conferenceID, reviewerID), acceptRevReq, reviewerToken)
+	if err != nil {
+		t.Fatalf("Failed to accept reviewer invitation: %v", err)
+	}
+
+	// Create submission
+	submissionReq := &dto.SubmissionCreateRequest{
+		ConferenceID: conferenceID,
+		Submission: &dto.Submission{
+			Title:    "Test CV Paper",
+			Abstract: "Research on computer vision",
+			Domain:   []string{"CV"},
+			Status:   "submitted",
+			Information: &dto.SubmissionInformation{
+				Keywords: []string{"CV", "Object Detection"},
+			},
+		},
+	}
+	submissionJSON, _ := json.Marshal(submissionReq)
+
+	files := []testutils.FileUpload{
+		{
+			FieldName: "file",
+			FileName:  "test_paper.pdf",
+			Content:   []byte("%PDF-1.4\n%âãÏÓ\n1 0 obj\n<<\n/Type /Catalog\n>>\nendobj\nxref\n0 2\ntrailer\n<<\n/Size 2\n>>\nstartxref\n50\n%%EOF"),
+			MimeType:  "application/pdf",
+		},
+	}
+
+	subResp, err := ctx.MakeMultipartRequestWithFiles("POST", fmt.Sprintf("/api/v1/conferences/%d/submissions", conferenceID), map[string]string{
+		"submission": string(submissionJSON),
+	}, files, authorToken)
+	if err != nil {
+		t.Fatalf("Failed to create submission: %v", err)
+	}
+	testutils.AssertStatusCode(t, subResp, http.StatusCreated)
+
+	// Auto-assign
+	ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/submissions/auto-assign", conferenceID), map[string]interface{}{
+		"min_reviewers_per_paper": 1,
+		"max_reviewers_per_paper": 3,
+		"min_score_threshold":    0.0,
+		"dry_run":                false,
+	}, chairToken)
+
+	// Confirm suggestions
+	ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/assignments/suggestions/confirm", conferenceID), map[string]interface{}{}, chairToken)
+
+	// Get confirmed assignments
+	confirmedResp, err := ctx.MakeRequest("GET", fmt.Sprintf("/api/v1/conferences/%d/assignments/confirmed", conferenceID), nil, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to get confirmed assignments: %v", err)
+	}
+
+	var confirmedBody struct {
+		Data struct {
+			Assignments []struct {
+				Reviewers []struct {
+					AssignmentID  int64  `json:"assignment_id"`
+					ReviewerEmail string `json:"reviewer_email"`
+					Status        string `json:"status"`
+				} `json:"reviewers"`
+			} `json:"assignments"`
+		} `json:"data"`
+	}
+	testutils.DecodeResponse(t, confirmedResp, &confirmedBody)
+
+	var assignmentID int64
+	var reviewerEmail string
+	for _, a := range confirmedBody.Data.Assignments {
+		for _, r := range a.Reviewers {
+			if r.Status == "pending" {
+				assignmentID = r.AssignmentID
+				reviewerEmail = r.ReviewerEmail
+				break
+			}
+		}
+		if assignmentID > 0 {
+			break
+		}
+	}
+
+	if assignmentID == 0 {
+		t.Skip("No pending assignment found")
+	}
+
+	category := "too_busy"
+	reason := "Taking a sabbatical next month"
+	respondResp, err := ctx.MakeRequest("PUT", fmt.Sprintf("/api/v1/reviewer/%s/assignments/%d/respond",
+		reviewerEmail, assignmentID), map[string]interface{}{
+		"action":           "decline",
+		"decline_category": category,
+		"decline_reason":   reason,
+	}, reviewerToken)
+	if err != nil {
+		t.Fatalf("Failed to decline: %v", err)
+	}
+	testutils.AssertStatusCode(t, respondResp, http.StatusOK)
+
+	var respondBody struct {
+		Data struct {
+			Status string `json:"status"`
+		} `json:"data"`
+	}
+	testutils.DecodeResponse(t, respondResp, &respondBody)
+
+	if respondBody.Data.Status != "declined" {
+		t.Errorf("Expected status declined, got %s", respondBody.Data.Status)
+	}
 }

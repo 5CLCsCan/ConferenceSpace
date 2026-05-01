@@ -35,6 +35,7 @@ import {
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { useAuth } from "@/lib/auth-context"
 import { isReadOnlyRole } from "@/lib/role-helpers"
+import { SuggestionDetail } from "./suggestion-detail"
 
 interface ConferenceAssignmentsProps {
   conferenceId: string
@@ -487,70 +488,77 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
                     {group.reviewers.map((reviewer: SuggestedReviewer) => (
                       <div
                         key={reviewer.assignment_id}
-                        className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg"
+                        className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg"
                       >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-[#1B3C53] text-white flex items-center justify-center text-xs font-medium">
-                            {reviewer.reviewer_email.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <p className="text-xs font-medium text-slate-700 dark:text-slate-200">
-                              {reviewer.reviewer_email}
-                            </p>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-[10px] font-medium text-slate-400">
-                                {t(
-                                  "runtime.components.chair.conference-detail.conference-assignments.text_match",
-                                )}
-                              </span>
-                              <ScoreBadge score={reviewer.score} />
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-[#1B3C53] text-white flex items-center justify-center text-xs font-medium">
+                              {reviewer.reviewer_email.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium text-slate-700 dark:text-slate-200">
+                                {reviewer.reviewer_email}
+                              </p>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <span className="text-[10px] font-medium text-slate-400">
+                                  {t(
+                                    "runtime.components.chair.conference-detail.conference-assignments.text_match",
+                                  )}
+                                </span>
+                                <ScoreBadge score={reviewer.score} />
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        {!readOnly && (
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleConfirmSingle(reviewer.assignment_id)}
-                              className="text-green-600 hover:text-green-700 hover:bg-green-50 text-[9px] font-bold uppercase tracking-wider h-7 px-2.5 gap-1.5"
-                            >
-                              <span
-                                className="material-symbols-outlined"
-                                style={{ fontSize: "14px" }}
+                          {!readOnly && (
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleConfirmSingle(reviewer.assignment_id)}
+                                className="text-green-600 hover:text-green-700 hover:bg-green-50 text-[9px] font-bold uppercase tracking-wider h-7 px-2.5 gap-1.5"
                               >
-                                check
-                              </span>
-                              {t(
-                                "runtime.components.chair.conference-detail.conference-assignments.text_confirm",
-                              )}{" "}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                setConfirmDialog({
-                                  show: true,
-                                  type: "delete",
-                                  data: reviewer.assignment_id,
-                                })
-                              }
-                              disabled={deletingId === reviewer.assignment_id}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 text-[9px] font-bold uppercase tracking-wider h-7 px-2.5 gap-1.5"
-                            >
-                              <span
-                                className="material-symbols-outlined"
-                                style={{ fontSize: "14px" }}
+                                <span
+                                  className="material-symbols-outlined"
+                                  style={{ fontSize: "14px" }}
+                                >
+                                  check
+                                </span>
+                                {t(
+                                  "runtime.components.chair.conference-detail.conference-assignments.text_confirm",
+                                )}{" "}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  setConfirmDialog({
+                                    show: true,
+                                    type: "delete",
+                                    data: reviewer.assignment_id,
+                                  })
+                                }
+                                disabled={deletingId === reviewer.assignment_id}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 text-[9px] font-bold uppercase tracking-wider h-7 px-2.5 gap-1.5"
                               >
-                                close
-                              </span>
-                              {t(
-                                "runtime.components.chair.conference-detail.conference-assignments.text_remove",
-                              )}{" "}
-                            </Button>
-                          </div>
-                        )}
+                                <span
+                                  className="material-symbols-outlined"
+                                  style={{ fontSize: "14px" }}
+                                >
+                                  close
+                                </span>
+                                {t(
+                                  "runtime.components.chair.conference-detail.conference-assignments.text_remove",
+                                )}{" "}
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                        <SuggestionDetail
+                          metadata={reviewer.metadata}
+                          assignmentCount={reviewer.assignment_count}
+                          score={reviewer.score}
+                        />
                       </div>
                     ))}
                   </div>
@@ -632,6 +640,15 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
                       <div className="flex items-center gap-2">
                         <StatusBadge status={reviewer.status} />
                         <ReviewStatusBadge status={reviewer.review_status} />
+                        {reviewer.status === "declined" && (
+                          <span className="text-[10px] text-slate-400 italic">
+                            {reviewer.decline_category
+                              ? reviewer.decline_category.replace(/_/g, " ")
+                              : reviewer.decline_reason
+                                ? reviewer.decline_reason
+                                : "No reason given"}
+                          </span>
+                        )}
                       </div>
                     </div>
                   ))}

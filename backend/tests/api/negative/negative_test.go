@@ -1097,6 +1097,15 @@ func TestTC_NEG_05_ReviewerCannotSubmitInvalidScoring(t *testing.T) {
 	}
 	testutils.AssertStatusCode(t, confirmResp, http.StatusOK)
 
+	// Accept the assignment invitation before writing reviews
+	acceptResp, err := ctx.MakeRequest("PUT", fmt.Sprintf("/api/v1/reviewer/%s/assignments/%d/respond", reviewer.Email, assignmentID), map[string]interface{}{
+		"action": "accept",
+	}, reviewerToken)
+	if err != nil {
+		t.Fatalf("Failed to accept assignment invitation: %v", err)
+	}
+	testutils.AssertStatusCode(t, acceptResp, http.StatusOK)
+
 	t.Logf("Setup complete: Reviewer assigned to submission")
 
 	t.Run("reviewer cannot submit review with score out of range (too high)", func(t *testing.T) {

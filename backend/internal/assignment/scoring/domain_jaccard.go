@@ -38,6 +38,52 @@ func (s *DomainJaccardScorer) ComputeScore(
 	return float64(len(intersection)) / float64(len(union)), nil
 }
 
+// ScoreDetail contains the score and keyword breakdown
+type ScoreDetail struct {
+	Score                  float64
+	MatchedKeywords        []string
+	UnmatchedPaperKeywords []string
+	ExtraReviewerKeywords  []string
+}
+
+// ComputeScoreWithDetails calculates Jaccard similarity and returns keyword breakdown
+func (s *DomainJaccardScorer) ComputeScoreWithDetails(
+	ctx context.Context,
+	submission Submission,
+	reviewer Reviewer,
+) (ScoreDetail, error) {
+	if len(submission.Domain) == 0 || len(reviewer.Domain) == 0 {
+		return ScoreDetail{
+			Score:                  0.0,
+			MatchedKeywords:        []string{},
+			UnmatchedPaperKeywords: submission.Domain,
+			ExtraReviewerKeywords:  reviewer.Domain,
+		}, nil
+	}
+
+	matched := intersect(submission.Domain, reviewer.Domain)
+	allUnion := union(submission.Domain, reviewer.Domain)
+
+	// Paper keywords not in reviewer domains
+	unmatchedPaper := difference(submission.Domain, reviewer.Domain)
+	// Reviewer domains not in paper keywords
+	extraReviewer := difference(reviewer.Domain, submission.Domain)
+
+	var score float64
+	if len(allUnion) == 0 {
+		score = 0.0
+	} else {
+		score = float64(len(matched)) / float64(len(allUnion))
+	}
+
+	return ScoreDetail{
+		Score:                  score,
+		MatchedKeywords:        matched,
+		UnmatchedPaperKeywords: unmatchedPaper,
+		ExtraReviewerKeywords:  extraReviewer,
+	}, nil
+}
+
 // ComputeMatrix builds full N×M score matrix
 func (s *DomainJaccardScorer) ComputeMatrix(
 	ctx context.Context,
@@ -48,15 +94,18 @@ func (s *DomainJaccardScorer) ComputeMatrix(
 
 	for _, sub := range submissions {
 		for _, rev := range reviewers {
-			score, err := s.ComputeScore(ctx, sub, rev)
+			detail, err := s.ComputeScoreWithDetails(ctx, sub, rev)
 			if err != nil {
 				return nil, err
 			}
 
 			matrix = append(matrix, ScoreEntry{
-				SubmissionID: sub.ID,
-				ReviewerID:   rev.ID,
-				Score:        score,
+				SubmissionID:           sub.ID,
+				ReviewerID:             rev.ID,
+				Score:                  detail.Score,
+				MatchedKeywords:        detail.MatchedKeywords,
+				UnmatchedPaperKeywords: detail.UnmatchedPaperKeywords,
+				ExtraReviewerKeywords:  detail.ExtraReviewerKeywords,
 			})
 		}
 	}
@@ -95,6 +144,23 @@ func union(a, b []string) []string {
 	result := make([]string, 0, len(set))
 	for item := range set {
 		result = append(result, item)
+	}
+
+	return result
+}
+
+// difference returns elements in a that are not in b
+func difference(a, b []string) []string {
+	set := make(map[string]bool)
+	for _, item := range b {
+		set[item] = true
+	}
+
+	result := []string{}
+	for _, item := range a {
+		if !set[item] {
+			result = append(result, item)
+		}
 	}
 
 	return result

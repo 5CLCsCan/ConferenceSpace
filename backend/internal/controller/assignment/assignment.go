@@ -2,10 +2,12 @@ package assignment
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/dcao/conferencespace/internal/assignment"
 	aiServiceClient "github.com/dcao/conferencespace/internal/clients/ai_service"
@@ -212,6 +214,22 @@ func (c *Controller) SaveReview(ginCtx *gin.Context, req *dto.ReviewSaveRequest)
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to get reviewer info")
 	}
 
+	// Block access if assignment is pending (must accept invitation first)
+	if assignment.Status == model.AssignmentStatusPending {
+		return nil, handler.NewDetailedErrorResponse(
+			http.StatusForbidden,
+			"you must accept the invitation before accessing the review",
+			map[string]interface{}{
+				"redirect": fmt.Sprintf("/role/reviewer/invitations/%d", req.AssignmentID),
+			},
+		)
+	}
+
+	// Block access if assignment was declined
+	if assignment.Status == model.AssignmentStatusDeclined {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "this assignment was declined")
+	}
+
 	// Check if review is already submitted (cannot edit submitted reviews)
 	if assignment.ReviewStatus != nil && *assignment.ReviewStatus == model.ReviewStatusSubmitted {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "cannot edit a submitted review")
@@ -383,6 +401,22 @@ func (c *Controller) GetReview(ginCtx *gin.Context, req *dto.ReviewGetRequest) (
 	// CRITICAL: Verify user is the assigned reviewer
 	if reviewer.Email != userEmail {
 		return nil, handler.NewErrorResponse(http.StatusForbidden, "you are not authorized to view this review")
+	}
+
+	// Block access if assignment is pending (must accept invitation first)
+	if assignment.Status == model.AssignmentStatusPending {
+		return nil, handler.NewDetailedErrorResponse(
+			http.StatusForbidden,
+			"you must accept the invitation before accessing the review",
+			map[string]interface{}{
+				"redirect": fmt.Sprintf("/role/reviewer/invitations/%d", req.AssignmentID),
+			},
+		)
+	}
+
+	// Block access if assignment was declined
+	if assignment.Status == model.AssignmentStatusDeclined {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "this assignment was declined")
 	}
 
 	return assignment, nil
@@ -752,12 +786,55 @@ func (c *Controller) AddSuggestion(ginCtx *gin.Context, req *dto.AddSuggestionRe
 		}
 	}
 
+	// Build metadata for manual suggestion
+	coiCheckResults := map[string]string{
+		"self_author":        "passed",
+		"declared_conflicts": "passed",
+		"relationship":       "passed",
+	}
+
+	// If any COI was detected, mark the relevant checks
+	for _, reason := range coiReasons {
+		if strings.Contains(reason, "Self-author") {
+			coiCheckResults["self_author"] = "conflict_detected"
+		}
+		if strings.Contains(reason, "Co-author") || strings.Contains(reason, "Declared") {
+			coiCheckResults["declared_conflicts"] = "conflict_detected"
+		}
+	}
+
+	// Check if relationship detector is available
+	if c.assignmentService != nil {
+		coiSvc := c.assignmentService.GetCOIService()
+		if coiSvc != nil {
+			neo4jAvailable := c.assignmentService.GetRelationshipDetector() != nil
+			if !neo4jAvailable {
+				coiCheckResults["relationship"] = "skipped_neo4j_unavailable"
+			}
+		}
+	}
+
+	meta := &dto.SuggestionMetadata{
+		Source:                 "manual",
+		MatchedKeywords:        []string{},
+		UnmatchedPaperKeywords: []string{},
+		ExtraReviewerKeywords:  []string{},
+		COIChecks:              coiCheckResults,
+		CreatedAt:              time.Now().UTC().Format(time.RFC3339),
+	}
+
+	metaJSON, err := json.Marshal(meta)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal suggestion metadata: %w", err)
+	}
+
 	// Create assignment with suggested status
 	assignmentDTO := &dto.Assignment{
 		SubmissionID: req.SubmissionID,
 		ReviewerID:   req.ReviewerID,
 		Status:       model.AssignmentStatusSuggested,
 		Score:        0, // Manual suggestion has no computed score
+		Metadata:     metaJSON,
 	}
 
 	created, err := c.assignmentStorage.Create(ctx, conferenceID, assignmentDTO)
@@ -768,5 +845,130 @@ func (c *Controller) AddSuggestion(ginCtx *gin.Context, req *dto.AddSuggestionRe
 	return &dto.AddSuggestionResponse{
 		Assignment: created,
 		COIWarning: coiWarning,
+	}, nil
+}
+
+// GetInvitation returns invitation data with persuasive evidence for the reviewer
+func (c *Controller) GetInvitation(ginCtx *gin.Context) (*dto.InvitationResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	assignmentIDStr := ginCtx.Param("assignment_id")
+	assignmentID, err := strconv.ParseInt(assignmentIDStr, 10, 64)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid assignment_id")
+	}
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	assignment, err := c.assignmentStorage.GetByID(ctx, assignmentID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "assignment not found")
+	}
+
+	reviewer, err := c.reviewerStorage.GetByID(ctx, assignment.ReviewerID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to get reviewer info")
+	}
+
+	if reviewer.Email != userEmail {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "you are not authorized to view this invitation")
+	}
+
+	invitation, err := c.assignmentStorage.GetInvitationData(ctx, assignmentID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "invitation not found")
+	}
+
+	return invitation, nil
+}
+
+// Respond handles reviewer accept/decline of a paper assignment
+func (c *Controller) Respond(ginCtx *gin.Context, req *dto.RespondRequest) (*dto.RespondResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	assignmentIDStr := ginCtx.Param("assignment_id")
+	assignmentID, err := strconv.ParseInt(assignmentIDStr, 10, 64)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid assignment_id")
+	}
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	assignment, err := c.assignmentStorage.GetByID(ctx, assignmentID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "assignment not found")
+	}
+
+	if assignment.Status != model.AssignmentStatusPending {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "assignment is not in pending status")
+	}
+
+	reviewer, err := c.reviewerStorage.GetByID(ctx, assignment.ReviewerID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to get reviewer info")
+	}
+
+	if reviewer.Email != userEmail {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "you are not authorized to respond to this assignment")
+	}
+
+	var newStatus string
+	if req.Action == "accept" {
+		newStatus = model.AssignmentStatusAccepted
+	} else {
+		newStatus = model.AssignmentStatusDeclined
+	}
+
+	err = c.assignmentStorage.RespondToAssignment(ctx, assignmentID, newStatus, req.DeclineCategory, req.DeclineReason)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, fmt.Sprintf("failed to respond: %v", err))
+	}
+
+	if c.notificationService != nil {
+		confID := assignment.ConferenceID
+		subID := assignment.SubmissionID
+		revEmail := userEmail
+		declineCat := req.DeclineCategory
+		declineRsn := req.DeclineReason
+		confStorage := c.conferenceStorage
+		subStorage := c.submissionStorage
+		notifSvc := c.notificationService
+		go func() {
+			bgCtx := context.Background()
+			conference, err := confStorage.GetByID(bgCtx, confID)
+			if err != nil {
+				fmt.Printf("Warning: Failed to get conference for notification: %v\n", err)
+				return
+			}
+			submission, err := subStorage.GetByID(bgCtx, subID)
+			if err != nil {
+				fmt.Printf("Warning: Failed to get submission for notification: %v\n", err)
+				return
+			}
+			if conference.Chair != "" {
+				if newStatus == model.AssignmentStatusAccepted {
+					_ = notifSvc.NotifyAssignmentAccepted(bgCtx, conference.Chair, revEmail, submission.Title, confID)
+				} else {
+					_ = notifSvc.NotifyAssignmentDeclined(bgCtx, conference.Chair, revEmail, submission.Title, confID, declineCat, declineRsn)
+				}
+			}
+		}()
+	}
+
+	message := "Assignment accepted successfully"
+	if req.Action == "decline" {
+		message = "Assignment declined"
+	}
+
+	return &dto.RespondResponse{
+		AssignmentID: assignmentID,
+		Status:       newStatus,
+		Message:      message,
 	}, nil
 }

@@ -153,7 +153,7 @@ func (s *Service) NotifyReviewAssigned(ctx context.Context, reviewerEmail string
 			"assignment_id": assignmentID,
 			"paper_title":   paperTitle,
 		},
-		ActionURL:    fmt.Sprintf("/role/reviewer/assignments/%d", assignmentID),
+		ActionURL:    fmt.Sprintf("/role/reviewer/invitations/%d", assignmentID),
 		ConferenceID: &conferenceID,
 	}
 
@@ -348,6 +348,65 @@ func (s *Service) NotifyDiscussionMessageCreated(ctx context.Context, recipientE
 			"submission_title": paperTitle,
 		},
 		ActionURL:    fmt.Sprintf("/role/author/submissions/%d?tab=discussion&thread=%d", submissionID, threadID),
+		ConferenceID: &conferenceID,
+	}
+
+	notification, err := s.storage.Create(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	s.broadcastNotification(notification)
+	return nil
+}
+
+// NotifyAssignmentAccepted notifies chairs when a reviewer accepts a paper assignment
+func (s *Service) NotifyAssignmentAccepted(ctx context.Context, chairEmail string, reviewerEmail string, paperTitle string, conferenceID int64) error {
+	req := &dto.NotificationCreateRequest{
+		UserEmail: chairEmail,
+		Type:      model.NotificationTypeAssignmentAccepted,
+		Title:     "Assignment Accepted",
+		Message:   fmt.Sprintf("%s accepted the assignment to review \"%s\".", reviewerEmail, paperTitle),
+		Metadata: map[string]interface{}{
+			"reviewer_email": reviewerEmail,
+			"paper_title":    paperTitle,
+		},
+		ActionURL:    fmt.Sprintf("/role/chair/conferences/%d", conferenceID),
+		ConferenceID: &conferenceID,
+	}
+
+	notification, err := s.storage.Create(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	s.broadcastNotification(notification)
+	return nil
+}
+
+// NotifyAssignmentDeclined notifies chairs when a reviewer declines a paper assignment
+func (s *Service) NotifyAssignmentDeclined(ctx context.Context, chairEmail string, reviewerEmail string, paperTitle string, conferenceID int64, declineCategory *string, declineReason *string) error {
+	message := fmt.Sprintf("%s declined the assignment to review \"%s\".", reviewerEmail, paperTitle)
+
+	metadata := map[string]interface{}{
+		"reviewer_email": reviewerEmail,
+		"paper_title":    paperTitle,
+	}
+	if declineCategory != nil {
+		metadata["decline_category"] = *declineCategory
+	}
+	if declineReason != nil && *declineReason != "" {
+		message += fmt.Sprintf(" Reason: %s", *declineReason)
+		metadata["decline_reason"] = *declineReason
+	}
+
+	req := &dto.NotificationCreateRequest{
+		UserEmail:    chairEmail,
+		Type:         model.NotificationTypeAssignmentDeclined,
+		Title:        "Assignment Declined",
+		Message:      message,
+		Metadata:     metadata,
+		ActionURL:    fmt.Sprintf("/role/chair/conferences/%d", conferenceID),
 		ConferenceID: &conferenceID,
 	}
 

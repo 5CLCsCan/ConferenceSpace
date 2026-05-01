@@ -125,6 +125,15 @@ func TestSaveReviewAsDraft(t *testing.T) {
 	assignmentID := papersData.Data.Papers[0].AssignmentID
 	t.Logf("Got assignment ID: %d for reviewer: %s", assignmentID, reviewer.Email)
 
+	// Accept the assignment invitation before writing the review
+	acceptResp, err := ctx.MakeRequest("PUT", fmt.Sprintf("/api/v1/reviewer/%s/assignments/%d/respond", reviewer.Email, assignmentID), map[string]interface{}{
+		"action": "accept",
+	}, reviewerToken)
+	if err != nil {
+		t.Fatalf("Failed to accept assignment invitation: %v", err)
+	}
+	testutils.AssertStatusCode(t, acceptResp, http.StatusOK)
+
 	// Test: Save draft review
 	t.Run("save incomplete draft review", func(t *testing.T) {
 		t.Logf("Saving review for assignment %d with reviewer token", assignmentID)
@@ -269,6 +278,16 @@ func setupReviewingScenario(t *testing.T, ctx *testutils.TestContext) (
 		t.Fatalf("No assignments created — check domains match")
 	}
 	assignmentID = papersData.Data.Papers[0].AssignmentID
+
+	// Accept the assignment invitation so the reviewer can submit reviews
+	acceptResp, err := ctx.MakeRequest("PUT", fmt.Sprintf("/api/v1/reviewer/%s/assignments/%d/respond", reviewer.Email, assignmentID), map[string]interface{}{
+		"action": "accept",
+	}, reviewerToken)
+	if err != nil {
+		t.Fatalf("Failed to accept assignment invitation: %v", err)
+	}
+	testutils.AssertStatusCode(t, acceptResp, http.StatusOK)
+
 	return
 }
 

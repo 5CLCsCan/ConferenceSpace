@@ -38,6 +38,8 @@ const (
 	NotificationTypeRebuttalAcknowledged = "rebuttal_acknowledged"
 	NotificationTypeRebuttalFinalized   = "rebuttal_finalized"
 	NotificationTypeRebuttalReminder    = "rebuttal_reminder"
+	NotificationTypeAssignmentAccepted  = "assignment_accepted"
+	NotificationTypeAssignmentDeclined  = "assignment_declined"
 )
 
 // Notification represents a notification in the database

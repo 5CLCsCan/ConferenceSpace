@@ -45,6 +45,10 @@ type Assignment struct {
 	CreatedAt                  time.Time       `db:"created_at"`
 	UpdatedAt                  time.Time       `db:"updated_at"`
 	ReviewerEmail              string          `db:"reviewer_email"`
+	Metadata                   json.RawMessage `db:"metadata"`
+	DeclineReason              *string         `db:"decline_reason"`
+	DeclineCategory            *string         `db:"decline_category"`
+	RespondedAt                *time.Time      `db:"responded_at"`
 }
 
 // Rebuttal status constants (per assignment)
@@ -108,6 +112,7 @@ func (a *Assignment) ToDTO() *dto.Assignment {
 		CompletedAt:   a.CompletedAt,
 		CreatedAt:     a.CreatedAt,
 		UpdatedAt:     a.UpdatedAt,
+		Metadata:      json.RawMessage(a.Metadata),
 	}
 
 	// Add review fields if present

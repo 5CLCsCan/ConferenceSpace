@@ -36,6 +36,8 @@ type StorageInterface interface {
 	DeleteSuggestionsByConference(ctx context.Context, conferenceID int64) error
 	AcknowledgeRebuttal(ctx context.Context, assignmentID int64) (*dto.Assignment, error)
 	UpdatePostRebuttalScore(ctx context.Context, assignmentID int64, req *dto.PostRebuttalScoreRequest) error
+	GetInvitationData(ctx context.Context, assignmentID int64) (*dto.InvitationResponse, error)
+	RespondToAssignment(ctx context.Context, assignmentID int64, status string, declineCategory *string, declineReason *string) error
 }
 
 type ListParams struct {
@@ -72,9 +74,9 @@ func (s *Storage) Create(ctx context.Context, conferenceID int64, assignment *dt
 
 	query, args, err := s.qb.
 		Insert(model.AssignmentTableName).
-		Columns(model.ColConferenceID, model.ColSubmissionID, model.ColReviewerID, model.ColScore, model.ColStatus, model.ColAssignedAt, model.ColCreatedAt, model.ColUpdatedAt).
-		Values(conferenceID, assignment.SubmissionID, assignment.ReviewerID, score, status, sq.Expr("NOW()"), sq.Expr("NOW()"), sq.Expr("NOW()")).
-		Suffix("RETURNING id, conference_id, submission_id, reviewer_id, score, status, assigned_at, completed_at, created_at, updated_at").
+		Columns(model.ColConferenceID, model.ColSubmissionID, model.ColReviewerID, model.ColScore, model.ColStatus, "metadata", model.ColAssignedAt, model.ColCreatedAt, model.ColUpdatedAt).
+		Values(conferenceID, assignment.SubmissionID, assignment.ReviewerID, score, status, assignment.Metadata, sq.Expr("NOW()"), sq.Expr("NOW()"), sq.Expr("NOW()")).
+		Suffix("RETURNING id, conference_id, submission_id, reviewer_id, score, status, assigned_at, completed_at, metadata, created_at, updated_at").
 		ToSql()
 
 	if err != nil {
@@ -91,6 +93,7 @@ func (s *Storage) Create(ctx context.Context, conferenceID int64, assignment *dt
 		&result.Status,
 		&result.AssignedAt,
 		&result.CompletedAt,
+		&result.Metadata,
 		&result.CreatedAt,
 		&result.UpdatedAt,
 	)
@@ -129,9 +132,9 @@ func (s *Storage) BatchCreate(ctx context.Context, conferenceID int64, assignmen
 
 		query, args, err := s.qb.
 			Insert(model.AssignmentTableName).
-			Columns(model.ColConferenceID, model.ColSubmissionID, model.ColReviewerID, model.ColScore, model.ColStatus, model.ColAssignedAt, model.ColCreatedAt, model.ColUpdatedAt).
-			Values(conferenceID, assignment.SubmissionID, assignment.ReviewerID, score, status, sq.Expr("NOW()"), sq.Expr("NOW()"), sq.Expr("NOW()")).
-			Suffix("RETURNING id, conference_id, submission_id, reviewer_id, score, status, assigned_at, completed_at, created_at, updated_at").
+			Columns(model.ColConferenceID, model.ColSubmissionID, model.ColReviewerID, model.ColScore, model.ColStatus, "metadata", model.ColAssignedAt, model.ColCreatedAt, model.ColUpdatedAt).
+			Values(conferenceID, assignment.SubmissionID, assignment.ReviewerID, score, status, assignment.Metadata, sq.Expr("NOW()"), sq.Expr("NOW()"), sq.Expr("NOW()")).
+			Suffix("RETURNING id, conference_id, submission_id, reviewer_id, score, status, assigned_at, completed_at, metadata, created_at, updated_at").
 			ToSql()
 
 		if err != nil {
@@ -148,6 +151,7 @@ func (s *Storage) BatchCreate(ctx context.Context, conferenceID int64, assignmen
 			&assignmentModel.Status,
 			&assignmentModel.AssignedAt,
 			&assignmentModel.CompletedAt,
+			&assignmentModel.Metadata,
 			&assignmentModel.CreatedAt,
 			&assignmentModel.UpdatedAt,
 		)
@@ -680,11 +684,19 @@ func (s *Storage) GetSuggestionsByConference(ctx context.Context, conferenceID i
 		SELECT
 			pa.id, pa.submission_id, pa.reviewer_id, pa.score,
 			cs.title as submission_title,
-			u.email as reviewer_email
+			u.email as reviewer_email,
+			pa.metadata,
+			COALESCE(load.cnt, 0) as assignment_count
 		FROM paper_assignments pa
 		JOIN conference_submissions cs ON pa.submission_id = cs.submission_id
 		JOIN conference_reviewers cr ON pa.reviewer_id = cr.id
 		JOIN users u ON cr.user_id = u.user_id
+		LEFT JOIN (
+			SELECT reviewer_id, conference_id, COUNT(*) as cnt
+			FROM paper_assignments
+			WHERE status != 'suggested'
+			GROUP BY reviewer_id, conference_id
+		) load ON load.reviewer_id = pa.reviewer_id AND load.conference_id = pa.conference_id
 		WHERE pa.conference_id = $1 AND pa.status = 'suggested'
 		ORDER BY pa.submission_id, pa.score DESC
 	`
@@ -704,11 +716,23 @@ func (s *Storage) GetSuggestionsByConference(ctx context.Context, conferenceID i
 			id, subID, revID               int64
 			score                          float64
 			submissionTitle, reviewerEmail string
+			metadataRaw                    []byte
+			assignmentCount                int
 		)
 
-		err := rows.Scan(&id, &subID, &revID, &score, &submissionTitle, &reviewerEmail)
+		err := rows.Scan(&id, &subID, &revID, &score, &submissionTitle, &reviewerEmail, &metadataRaw, &assignmentCount)
 		if err != nil {
 			return nil, 0, fmt.Errorf("failed to scan suggestion: %w", err)
+		}
+
+		// Parse metadata if present
+		var metadata *dto.SuggestionMetadata
+		if len(metadataRaw) > 0 {
+			metadata = &dto.SuggestionMetadata{}
+			if err := json.Unmarshal(metadataRaw, metadata); err != nil {
+				// Don't fail the whole query for bad metadata — leave it nil
+				metadata = nil
+			}
 		}
 
 		group, exists := groupMap[subID]
@@ -722,10 +746,12 @@ func (s *Storage) GetSuggestionsByConference(ctx context.Context, conferenceID i
 		}
 
 		group.Reviewers = append(group.Reviewers, dto.SuggestedReviewer{
-			AssignmentID:  id,
-			ReviewerID:    revID,
-			ReviewerEmail: reviewerEmail,
-			Score:         score,
+			AssignmentID:    id,
+			ReviewerID:      revID,
+			ReviewerEmail:   reviewerEmail,
+			Score:           score,
+			Metadata:        metadata,
+			AssignmentCount: assignmentCount,
 		})
 		totalSuggestions++
 	}
@@ -751,7 +777,9 @@ func (s *Storage) GetConfirmedAssignmentsByConference(ctx context.Context, confe
 			pa.id, pa.submission_id, pa.reviewer_id, pa.score, pa.status,
 			COALESCE(pa.review_status, 'not_started') as review_status,
 			cs.title as submission_title,
-			u.email as reviewer_email
+			u.email as reviewer_email,
+			pa.decline_category,
+			pa.decline_reason
 		FROM paper_assignments pa
 		JOIN conference_submissions cs ON pa.submission_id = cs.submission_id
 		JOIN conference_reviewers cr ON pa.reviewer_id = cr.id
@@ -776,9 +804,10 @@ func (s *Storage) GetConfirmedAssignmentsByConference(ctx context.Context, confe
 			score                          float64
 			status, reviewStatus           string
 			submissionTitle, reviewerEmail string
+			declineCategory, declineReason *string
 		)
 
-		err := rows.Scan(&id, &subID, &revID, &score, &status, &reviewStatus, &submissionTitle, &reviewerEmail)
+		err := rows.Scan(&id, &subID, &revID, &score, &status, &reviewStatus, &submissionTitle, &reviewerEmail, &declineCategory, &declineReason)
 		if err != nil {
 			return nil, 0, fmt.Errorf("failed to scan confirmed assignment: %w", err)
 		}
@@ -794,12 +823,14 @@ func (s *Storage) GetConfirmedAssignmentsByConference(ctx context.Context, confe
 		}
 
 		group.Reviewers = append(group.Reviewers, dto.ConfirmedReviewer{
-			AssignmentID:  id,
-			ReviewerID:    revID,
-			ReviewerEmail: reviewerEmail,
-			Score:         score,
-			Status:        status,
-			ReviewStatus:  reviewStatus,
+			AssignmentID:    id,
+			ReviewerID:      revID,
+			ReviewerEmail:   reviewerEmail,
+			Score:           score,
+			Status:          status,
+			ReviewStatus:    reviewStatus,
+			DeclineCategory: declineCategory,
+			DeclineReason:   declineReason,
 		})
 		totalAssignments++
 	}
@@ -935,4 +966,112 @@ func (s *Storage) AcknowledgeRebuttal(ctx context.Context, assignmentID int64) (
 		return nil, fmt.Errorf("acknowledge rebuttal: %w", err)
 	}
 	return result.ToDTO(), nil
+}
+
+// GetInvitationData retrieves assignment data formatted for the reviewer invitation page
+func (s *Storage) GetInvitationData(ctx context.Context, assignmentID int64) (*dto.InvitationResponse, error) {
+	query := `
+		SELECT
+			pa.id, pa.status, pa.score, pa.metadata, pa.reviewer_id,
+			cs.title as paper_title,
+			COALESCE(cs.abstract, '') as paper_abstract,
+			c.title as conference_name,
+			COALESCE(load.cnt, 0) as assignment_count
+		FROM paper_assignments pa
+		JOIN conference_submissions cs ON pa.submission_id = cs.submission_id
+		JOIN conferences c ON pa.conference_id = c.conference_id
+		LEFT JOIN (
+			SELECT reviewer_id, conference_id, COUNT(*) as cnt
+			FROM paper_assignments
+			WHERE status NOT IN ('suggested', 'declined')
+			GROUP BY reviewer_id, conference_id
+		) load ON load.reviewer_id = pa.reviewer_id AND load.conference_id = pa.conference_id
+		WHERE pa.id = $1
+	`
+
+	var (
+		id              int64
+		status          string
+		score           float64
+		metadataRaw     []byte
+		reviewerID      int64
+		paperTitle      string
+		paperAbstract   string
+		conferenceName  string
+		assignmentCount int
+	)
+
+	err := s.db.QueryRowContext(ctx, query, assignmentID).Scan(
+		&id, &status, &score, &metadataRaw, &reviewerID,
+		&paperTitle, &paperAbstract, &conferenceName, &assignmentCount,
+	)
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("assignment not found")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get invitation data: %w", err)
+	}
+
+	evidence := &dto.InvitationEvidence{
+		AssignmentCount: assignmentCount,
+	}
+
+	if len(metadataRaw) > 0 {
+		var meta dto.SuggestionMetadata
+		if err := json.Unmarshal(metadataRaw, &meta); err == nil {
+			evidence.MatchedKeywords = meta.MatchedKeywords
+		}
+	}
+
+	if score >= 0.5 {
+		evidence.Score = &score
+	}
+
+	return &dto.InvitationResponse{
+		AssignmentID:   id,
+		Status:         status,
+		PaperTitle:     paperTitle,
+		PaperAbstract:  paperAbstract,
+		ConferenceName: conferenceName,
+		Evidence:       evidence,
+	}, nil
+}
+
+// RespondToAssignment updates assignment status for accept/decline with optional reason
+func (s *Storage) RespondToAssignment(ctx context.Context, assignmentID int64, status string, declineCategory *string, declineReason *string) error {
+	updateBuilder := s.qb.
+		Update(model.AssignmentTableName).
+		Set(model.ColStatus, status).
+		Set("responded_at", sq.Expr("NOW()")).
+		Set(model.ColUpdatedAt, sq.Expr("NOW()")).
+		Where(sq.Eq{"id": assignmentID}).
+		Where(sq.Eq{model.ColStatus: model.AssignmentStatusPending})
+
+	if declineCategory != nil {
+		updateBuilder = updateBuilder.Set("decline_category", *declineCategory)
+	}
+	if declineReason != nil {
+		updateBuilder = updateBuilder.Set("decline_reason", *declineReason)
+	}
+
+	query, args, err := updateBuilder.ToSql()
+	if err != nil {
+		return fmt.Errorf("failed to build update query: %w", err)
+	}
+
+	result, err := s.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to respond to assignment: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to get rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("assignment not found or not in pending status")
+	}
+
+	return nil
 }

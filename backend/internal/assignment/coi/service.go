@@ -118,6 +118,20 @@ func (s *Service) HasConflict(conferenceID, submissionID, reviewerID int64) bool
 	return conflicts.HasConflict(submissionID, reviewerID)
 }
 
+// GetDetectorCheckResults returns the status of each COI detector for this conference.
+func (s *Service) GetDetectorCheckResults(neo4jAvailable bool) map[string]string {
+	results := map[string]string{
+		"self_author":        "passed",
+		"declared_conflicts": "passed",
+	}
+	if neo4jAvailable {
+		results["relationship"] = "passed"
+	} else {
+		results["relationship"] = "skipped_neo4j_unavailable"
+	}
+	return results
+}
+
 // Helper to convert SubmissionInformation from JSONB
 func parseSubmissionInformation(data []byte) (*dto.SubmissionInformation, error) {
 	if len(data) == 0 {

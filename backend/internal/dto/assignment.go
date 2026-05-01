@@ -1,6 +1,9 @@
 package dto
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 // Assignment represents a paper assignment for both request and response
 type Assignment struct {
@@ -22,10 +25,11 @@ type Assignment struct {
 	PostRebuttalScore          *int        `json:"post_rebuttal_score,omitempty"`
 	PostRebuttalRecommendation *string     `json:"post_rebuttal_recommendation,omitempty"`
 	PostRebuttalComment        *string     `json:"post_rebuttal_comment,omitempty"`
-	PostRebuttalUpdatedAt      *time.Time  `json:"post_rebuttal_updated_at,omitempty"`
-	CreatedAt                  time.Time   `json:"created_at,omitempty"`
-	UpdatedAt                  time.Time   `json:"updated_at,omitempty"`
-	ReviewerEmail              string      `json:"reviewer_email,omitempty"`
+	PostRebuttalUpdatedAt      *time.Time      `json:"post_rebuttal_updated_at,omitempty"`
+	CreatedAt                  time.Time       `json:"created_at,omitempty"`
+	UpdatedAt                  time.Time       `json:"updated_at,omitempty"`
+	ReviewerEmail              string          `json:"reviewer_email,omitempty"`
+	Metadata                   json.RawMessage `json:"metadata,omitempty" swaggertype:"object"`
 }
 
 // AssignmentCreateRequest represents the request to create a single assignment
@@ -251,12 +255,24 @@ type ReviewCriteriaAverages struct {
 
 // ================== Suggestion DTOs ==================
 
+// SuggestionMetadata contains the match explanation data stored at suggestion-creation time
+type SuggestionMetadata struct {
+	Source                  string            `json:"source"` // auto_pass1, auto_pass2, manual
+	MatchedKeywords         []string          `json:"matched_keywords"`
+	UnmatchedPaperKeywords  []string          `json:"unmatched_paper_keywords"`
+	ExtraReviewerKeywords   []string          `json:"extra_reviewer_keywords"`
+	COIChecks               map[string]string `json:"coi_checks"`
+	CreatedAt               string            `json:"created_at"`
+}
+
 // SuggestedReviewer represents a suggested reviewer for a paper
 type SuggestedReviewer struct {
-	AssignmentID  int64   `json:"assignment_id"`
-	ReviewerID    int64   `json:"reviewer_id"`
-	ReviewerEmail string  `json:"reviewer_email"`
-	Score         float64 `json:"score"`
+	AssignmentID    int64               `json:"assignment_id"`
+	ReviewerID      int64               `json:"reviewer_id"`
+	ReviewerEmail   string              `json:"reviewer_email"`
+	Score           float64             `json:"score"`
+	Metadata        *SuggestionMetadata `json:"metadata"`
+	AssignmentCount int                 `json:"assignment_count"`
 }
 
 // SuggestionGroup represents suggestions grouped by submission
@@ -311,12 +327,14 @@ type COICheckResponse struct {
 
 // ConfirmedReviewer represents a reviewer with confirmed assignment
 type ConfirmedReviewer struct {
-	AssignmentID  int64   `json:"assignment_id"`
-	ReviewerID    int64   `json:"reviewer_id"`
-	ReviewerEmail string  `json:"reviewer_email"`
-	Score         float64 `json:"score"`
-	Status        string  `json:"status"`        // pending, accepted, declined, completed
-	ReviewStatus  string  `json:"review_status"` // not_started, in_progress, submitted
+	AssignmentID    int64   `json:"assignment_id"`
+	ReviewerID      int64   `json:"reviewer_id"`
+	ReviewerEmail   string  `json:"reviewer_email"`
+	Score           float64 `json:"score"`
+	Status          string  `json:"status"`        // pending, accepted, declined, completed
+	ReviewStatus    string  `json:"review_status"` // not_started, in_progress, submitted
+	DeclineCategory *string `json:"decline_category,omitempty"`
+	DeclineReason   *string `json:"decline_reason,omitempty"`
 }
 
 // ConfirmedAssignmentGroup represents confirmed assignments grouped by submission
@@ -426,6 +444,39 @@ type AcknowledgePointRequest struct {
 	PointID      string `uri:"point_id" json:"point_id"`
 	Status       string `json:"status" binding:"required,oneof=addressed partially_addressed not_addressed pending_review"`
 	Note         string `json:"note"`
+}
+
+// ================== Invitation DTOs ==================
+
+// InvitationEvidence contains the persuasive evidence shown to the reviewer
+type InvitationEvidence struct {
+	MatchedKeywords []string `json:"matched_keywords"`
+	Score           *float64 `json:"score"`           // nil if < 0.5
+	AssignmentCount int      `json:"assignment_count"`
+}
+
+// InvitationResponse is the response for GET .../invitation
+type InvitationResponse struct {
+	AssignmentID   int64               `json:"assignment_id"`
+	Status         string              `json:"status"`
+	PaperTitle     string              `json:"paper_title"`
+	PaperAbstract  string              `json:"paper_abstract"`
+	ConferenceName string              `json:"conference_name"`
+	Evidence       *InvitationEvidence `json:"evidence"`
+}
+
+// RespondRequest is the request body for PUT .../respond
+type RespondRequest struct {
+	Action          string  `json:"action" binding:"required,oneof=accept decline"`
+	DeclineCategory *string `json:"decline_category,omitempty"`
+	DeclineReason   *string `json:"decline_reason,omitempty"`
+}
+
+// RespondResponse is the response for PUT .../respond
+type RespondResponse struct {
+	AssignmentID int64  `json:"assignment_id"`
+	Status       string `json:"status"`
+	Message      string `json:"message"`
 }
 
 // PostRebuttalScoreRequest is the body for PUT .../assignments/:id/post-rebuttal-score

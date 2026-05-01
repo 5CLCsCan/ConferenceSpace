@@ -2095,6 +2095,8 @@
             "declined": "Đã từ chối",
             "pending": "Đang chờ"
           },
+          "badge_declined": "ĐÃ TỪ CHỐI",
+          "badge_pending_invitation": "ĐANG CHỜ LỜI MỜI",
           "text_next": "Tiếp theo",
           "text_of": "trên",
           "text_open": "Mở",
@@ -2104,7 +2106,8 @@
           "text_showing": "Hiển thị",
           "text_sort_deadline": "Sắp xếp: Hạn chót",
           "text_sort_status": "Sắp xếp: Trạng thái",
-          "text_sort_title": "Sắp xếp: Tiêu đề"
+          "text_sort_title": "Sắp xếp: Tiêu đề",
+          "text_view_invitation": "Xem lời mời"
         },
         "completed-reviews": {
           "text_a_z": "(A-Z)",
