@@ -1,0 +1,4 @@
+ALTER TABLE paper_assignments
+  ADD COLUMN decline_reason TEXT DEFAULT NULL,
+  ADD COLUMN decline_category VARCHAR(50) DEFAULT NULL,
+  ADD COLUMN responded_at TIMESTAMP DEFAULT NULL;

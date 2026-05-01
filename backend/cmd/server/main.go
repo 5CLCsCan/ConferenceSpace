@@ -417,6 +417,8 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			reviewer.GET("/:reviewer_email/dashboard", requireSelfReviewer, handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetDashboard))
 			reviewer.GET("/:reviewer_email/conferences/:conference_id/papers", requireSelfReviewer, handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetConferencePapers))
 			reviewer.GET("/:reviewer_email/completed-papers", requireSelfReviewer, handler.HandleRequestWithURIAndQuery(ctrl.Reviewer.GetCompletedPapers))
+			reviewer.GET("/:reviewer_email/assignments/:assignment_id/invitation", requireSelfReviewer, handler.HandleNoRequest(ctrl.Assignment.GetInvitation))
+			reviewer.PUT("/:reviewer_email/assignments/:assignment_id/respond", requireSelfReviewer, handler.HandleRequest(ctrl.Assignment.Respond))
 		}
 
 		// Assignment review routes (authentication required)

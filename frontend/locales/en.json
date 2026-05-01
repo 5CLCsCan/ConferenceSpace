@@ -2097,6 +2097,8 @@
             "declined": "Declined",
             "pending": "Pending"
           },
+          "badge_declined": "DECLINED",
+          "badge_pending_invitation": "PENDING INVITATION",
           "text_next": "Next",
           "text_of": "of",
           "text_open": "Open",
@@ -2106,7 +2108,8 @@
           "text_showing": "Showing",
           "text_sort_deadline": "Sort: Deadline",
           "text_sort_status": "Sort: Status",
-          "text_sort_title": "Sort: Title"
+          "text_sort_title": "Sort: Title",
+          "text_view_invitation": "View Invitation"
         },
         "completed-reviews": {
           "text_a_z": "(A-Z)",

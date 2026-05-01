@@ -2,11 +2,22 @@ import { apiFetch } from "./client"
 
 // ================== Types ==================
 
+export interface SuggestionMetadata {
+  source: "auto_pass1" | "auto_pass2" | "manual"
+  matched_keywords: string[]
+  unmatched_paper_keywords: string[]
+  extra_reviewer_keywords: string[]
+  coi_checks: Record<string, string>
+  created_at: string
+}
+
 export interface SuggestedReviewer {
   assignment_id: number
   reviewer_id: number
   reviewer_email: string
   score: number
+  metadata: SuggestionMetadata | null
+  assignment_count: number
 }
 
 export interface SuggestionGroup {
@@ -64,6 +75,8 @@ export interface ConfirmedReviewer {
   score: number
   status: string // pending, accepted, declined, completed
   review_status: string // not_started, in_progress, submitted
+  decline_category?: string
+  decline_reason?: string
 }
 
 export interface ConfirmedAssignmentGroup {
@@ -232,6 +245,96 @@ export async function getConfirmedAssignments(conferenceId: string | number): Pr
     return {
       data: null,
       error: error.message || "Failed to fetch confirmed assignments",
+      status: error.status || 500,
+    }
+  }
+}
+
+// ================== Invitation Types ==================
+
+export interface InvitationEvidence {
+  matched_keywords: string[]
+  score: number | null
+  assignment_count: number
+}
+
+export interface InvitationData {
+  assignment_id: number
+  status: string
+  paper_title: string
+  paper_abstract: string
+  conference_name: string
+  evidence: InvitationEvidence | null
+}
+
+export interface RespondRequest {
+  action: "accept" | "decline"
+  decline_category?: string
+  decline_reason?: string
+}
+
+export interface RespondResponse {
+  assignment_id: number
+  status: string
+  message: string
+}
+
+// ================== Invitation API Functions ==================
+
+/**
+ * Get invitation data for a specific assignment
+ */
+export async function getInvitation(
+  reviewerEmail: string,
+  assignmentId: number,
+): Promise<{ data: InvitationData | null; error: string | null; status: number }> {
+  try {
+    const { data, response } = await apiFetch<{ data: InvitationData }>(
+      `/api/v1/reviewer/${encodeURIComponent(reviewerEmail)}/assignments/${assignmentId}/invitation`,
+    )
+
+    return {
+      data: data.data,
+      error: null,
+      status: response.status,
+    }
+  } catch (error: any) {
+    console.error("Failed to fetch invitation:", error)
+    return {
+      data: null,
+      error: error.message || "Failed to fetch invitation",
+      status: error.status || 500,
+    }
+  }
+}
+
+/**
+ * Respond to an assignment invitation (accept or decline)
+ */
+export async function respondToInvitation(
+  reviewerEmail: string,
+  assignmentId: number,
+  request: RespondRequest,
+): Promise<{ data: RespondResponse | null; error: string | null; status: number }> {
+  try {
+    const { data, response } = await apiFetch<{ data: RespondResponse }>(
+      `/api/v1/reviewer/${encodeURIComponent(reviewerEmail)}/assignments/${assignmentId}/respond`,
+      {
+        method: "PUT",
+        body: JSON.stringify(request),
+      },
+    )
+
+    return {
+      data: data.data,
+      error: null,
+      status: response.status,
+    }
+  } catch (error: any) {
+    console.error("Failed to respond to invitation:", error)
+    return {
+      data: null,
+      error: error.message || "Failed to respond to invitation",
       status: error.status || 500,
     }
   }

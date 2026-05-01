@@ -421,6 +421,119 @@ export async function downloadCoverLetter(
  * Pre-check a paper file before submission
  * Backend endpoint: POST /api/v1/conferences/:conference_id/submissions/precheck
  */
+// ── MOCK FLAG: set to true to use mock precheck data ──
+const USE_MOCK_PRECHECK = false
+
+const MOCK_PRECHECK_RESULT: PrecheckResult = {
+  paper_title: "Attention-Based Neural Architecture for Low-Resource Language Translation",
+  overall_score: 68,
+  decision: "manual_review",
+  summary: {
+    total_items: 11,
+    passed: 7,
+    failed: 2,
+    pass_rate: 0.73,
+  },
+  category_scores: {
+    title_abstract: { score: 100, passed: 2, failed: 0, weight: 0.2 },
+    method: { score: 80, passed: 2, failed: 0, weight: 0.15 },
+    writing_quality: { score: 40, passed: 1, failed: 1, weight: 0.15 },
+    experiments: { score: 50, passed: 1, failed: 1, weight: 0.25 },
+    scope_match: { score: 100, passed: 1, failed: 0, weight: 0.05 },
+    deterministic: { score: 100, passed: 0, failed: 0, weight: 0.0 },
+  },
+  detailed_results: [
+    {
+      item_id: "1.1",
+      category: "title_abstract",
+      description: "Title word limit",
+      status: "pass",
+      details: "Title has 9 words (limit: 15 words). Well within the allowed range.",
+      confidence: 1.0,
+    },
+    {
+      item_id: "1.2",
+      category: "title_abstract",
+      description: "Abstract structure and length",
+      status: "pass",
+      details: "Abstract contains 245 words with clear problem statement, methodology, and results.",
+      confidence: 0.92,
+    },
+    {
+      item_id: "3.1",
+      category: "method",
+      description: "Methodology section present",
+      status: "pass",
+      details: "Paper includes a well-structured methodology section (Section 3, pages 3-5).",
+      confidence: 0.95,
+    },
+    {
+      item_id: "3.2",
+      category: "method",
+      description: "Reproducibility information",
+      status: "pass",
+      details: "Hyperparameters, training details, and dataset splits are documented.",
+      confidence: 0.78,
+    },
+    {
+      item_id: "6.1",
+      category: "writing_quality",
+      description: "Grammar and language quality",
+      status: "pass",
+      details: "Writing quality is acceptable with minor grammatical issues.",
+      confidence: 0.82,
+    },
+    {
+      item_id: "6.2",
+      category: "writing_quality",
+      description: "Sentence length compliance",
+      status: "warning",
+      details: "7 sentences exceed the 25-word recommended limit. Consider breaking them into shorter sentences for readability.",
+      confidence: 0.88,
+    },
+    {
+      item_id: "6.3",
+      category: "writing_quality",
+      description: "Banned phrases detection",
+      status: "fail",
+      details: "Found banned phrase: 'it is obvious that' (page 4, line 12). Academic writing should avoid assumptive language.",
+      confidence: 0.97,
+    },
+    {
+      item_id: "5.1",
+      category: "experiments",
+      description: "Baseline comparisons",
+      status: "pass",
+      details: "Paper compares against 4 baseline methods including SOTA approaches.",
+      confidence: 0.85,
+    },
+    {
+      item_id: "5.2",
+      category: "experiments",
+      description: "Minimum tables requirement",
+      status: "fail",
+      details: "Paper contains 1 table but minimum required is 3. Add comparison tables for results and ablation studies.",
+      confidence: 1.0,
+    },
+    {
+      item_id: "0.1",
+      category: "scope_match",
+      description: "Conference scope alignment",
+      status: "pass",
+      details: "Paper topics (NLP, neural machine translation, attention mechanisms) align with conference domains.",
+      confidence: 0.91,
+    },
+    {
+      item_id: "11.4",
+      category: "deterministic",
+      description: "Page limit compliance",
+      status: "pass",
+      details: "Paper has 8 pages (limit: 10 pages).",
+      confidence: 1.0,
+    },
+  ],
+}
+
 export async function precheckPaper(
   conferenceId: string,
   file: File,
@@ -428,6 +541,12 @@ export async function precheckPaper(
   data: PrecheckResult | null
   error: string | null
 }> {
+  // ── Return mock data when flag is enabled ──
+  if (USE_MOCK_PRECHECK) {
+    await new Promise((r) => setTimeout(r, 1500)) // simulate network delay
+    return { data: MOCK_PRECHECK_RESULT, error: null }
+  }
+
   try {
     const formData = new FormData()
     formData.append("file", file)

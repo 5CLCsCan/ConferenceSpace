@@ -14,6 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { PapersSkeleton } from "./loading-skeletons"
 import { setAssignmentConferenceContext } from "@/lib/reviewer/assignment-context-cache"
 import { recordRecentConference } from "@/lib/recent-conferences"
+import { InvitationDialog } from "./invitation-dialog"
 
 const PAGE_SIZE = 8
 
@@ -110,6 +111,14 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
   const [currentPage, setCurrentPage] = useState(1)
   const debouncedSearch = useDebounce(searchQuery, 300)
 
+  const [selectedInvitationId, setSelectedInvitationId] = useState<number | null>(null)
+  const [statusOverrides, setStatusOverrides] = useState<Map<number, string>>(new Map())
+
+  const handleInvitationResponded = (assignmentId: number, newStatus: "accepted" | "declined") => {
+    setStatusOverrides((prev) => new Map(prev).set(assignmentId, newStatus))
+    setSelectedInvitationId(null)
+  }
+
   const handleSearchChange = (value: string) => {
     setSearchQuery(value)
     setCurrentPage(1)
@@ -188,15 +197,23 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
     })
   }, [conference, user?.email])
 
+  const effectivePapers = useMemo(() => {
+    if (statusOverrides.size === 0) return papers
+    return papers.map((paper) => {
+      const override = statusOverrides.get(paper.assignment_id)
+      return override ? { ...paper, assignment_status: override } : paper
+    })
+  }, [papers, statusOverrides])
+
   const filteredPapers = useMemo(() => {
     if (statusFilter === "all") {
-      return papers
+      return effectivePapers
     }
 
-    return papers.filter(
+    return effectivePapers.filter(
       (paper) => normalizeAssignmentStatus(paper.assignment_status) === statusFilter,
     )
-  }, [papers, statusFilter])
+  }, [effectivePapers, statusFilter])
 
   const sortedPapers = useMemo(() => {
     const next = [...filteredPapers]
@@ -359,7 +376,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
               {paginatedPapers.map((paper, index) => (
                 <tr
                   key={paper.assignment_id}
-                  className="border-b border-slate-100 dark:border-slate-700/50"
+                  className={`border-b border-slate-100 dark:border-slate-700/50 ${paper.assignment_status === "declined" ? "opacity-50" : ""}`}
                 >
                   <td className="py-3 pl-4 pr-2 text-[11px] text-slate-400">
                     {(currentPage - 1) * PAGE_SIZE + index + 1}
@@ -370,19 +387,39 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
                     </div>
                   </td>
                   <td className="py-3 px-3 text-[11px] text-slate-600 dark:text-slate-300">
-                    {getAssignmentStatusLabel(paper.assignment_status, t)}
+                    {paper.assignment_status === "pending" ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-yellow-100 text-yellow-700 border border-yellow-200">
+                        {t("runtime.components.reviewer.assigned-dashboard.badge_pending_invitation")}
+                      </span>
+                    ) : paper.assignment_status === "declined" ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-100 text-red-700 border border-red-200">
+                        {t("runtime.components.reviewer.assigned-dashboard.badge_declined")}
+                      </span>
+                    ) : (
+                      getAssignmentStatusLabel(paper.assignment_status, t)
+                    )}
                   </td>
                   <td className="py-3 px-3 text-[11px] text-slate-600 dark:text-slate-300">
                     {paper.due_date ? new Date(paper.due_date).toLocaleDateString() : "-"}
                   </td>
                   <td className="py-3 px-3 text-right">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenAssignment(paper.assignment_id)}
-                      className="h-8 px-3 rounded-md bg-[#1B3C53] hover:bg-[#234C6A] text-white text-[11px] font-semibold"
-                    >
-                      {t("runtime.components.reviewer.assigned-dashboard.text_open")}{" "}
-                    </button>
+                    {paper.assignment_status === "pending" ? (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedInvitationId(paper.assignment_id)}
+                        className="h-8 px-3 rounded-md bg-[#1B3C53] hover:bg-[#234C6A] text-white text-[10px] font-semibold"
+                      >
+                        {t("runtime.components.reviewer.assigned-dashboard.text_view_invitation")}
+                      </button>
+                    ) : paper.assignment_status === "declined" ? null : (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenAssignment(paper.assignment_id)}
+                        className="h-8 px-3 rounded-md bg-[#1B3C53] hover:bg-[#234C6A] text-white text-[11px] font-semibold"
+                      >
+                        {t("runtime.components.reviewer.assigned-dashboard.text_open")}{" "}
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -446,6 +483,13 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
           )}
         </div>
       )}
+
+      <InvitationDialog
+        assignmentId={selectedInvitationId}
+        open={selectedInvitationId !== null}
+        onClose={() => setSelectedInvitationId(null)}
+        onResponded={handleInvitationResponded}
+      />
     </div>
   )
 }

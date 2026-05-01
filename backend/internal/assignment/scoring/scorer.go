@@ -33,9 +33,12 @@ type ScoreMatrix []ScoreEntry
 
 // ScoreEntry represents a single score in the matrix
 type ScoreEntry struct {
-	SubmissionID int64
-	ReviewerID   int64
-	Score        float64
+	SubmissionID           int64
+	ReviewerID             int64
+	Score                  float64
+	MatchedKeywords        []string
+	UnmatchedPaperKeywords []string
+	ExtraReviewerKeywords  []string
 }
 
 // Sort interface for ScoreMatrix

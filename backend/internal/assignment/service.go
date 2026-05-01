@@ -2,7 +2,9 @@ package assignment
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/dcao/conferencespace/internal/assignment/coi"
 	"github.com/dcao/conferencespace/internal/assignment/coi/detectors"
@@ -18,6 +20,12 @@ import (
 	"github.com/dcao/conferencespace/internal/storage/reviewer"
 	"github.com/dcao/conferencespace/internal/storage/submission"
 )
+
+// scoreKey is a composite key for looking up score entries by (submission, reviewer) pair
+type scoreKey struct {
+	SubmissionID int64
+	ReviewerID   int64
+}
 
 // Service orchestrates the automatic reviewer assignment process
 type Service struct {
@@ -238,14 +246,52 @@ func (s *Service) AutoAssign(ctx context.Context, conferenceID int64, config Aut
 		return nil, fmt.Errorf("matching failed: %w", err)
 	}
 
-	// 6. Convert to DTOs - use "suggested" status so chair can review before confirming
+	// 6. Build score lookup for keyword data
+	scoreLookup := make(map[scoreKey]scoring.ScoreEntry, len(scoreMatrix))
+	for _, entry := range scoreMatrix {
+		scoreLookup[scoreKey{entry.SubmissionID, entry.ReviewerID}] = entry
+	}
+
+	// Build fallback set for quick lookup
+	fallbackSet := make(map[int64]bool, len(matchResult.FallbackAssignments))
+	for _, paperID := range matchResult.FallbackAssignments {
+		fallbackSet[paperID] = true
+	}
+
+	// Get COI detector results
+	coiChecks := s.coiService.GetDetectorCheckResults(s.neo4jClient != nil)
+	now := time.Now().UTC().Format(time.RFC3339)
+
+	// 7. Convert to DTOs with metadata
 	assignmentDTOs := make([]dto.Assignment, len(matchResult.Assignments))
-	for i, assignment := range matchResult.Assignments {
+	for i, ma := range matchResult.Assignments {
+		source := "auto_pass1"
+		if fallbackSet[ma.SubmissionID] {
+			source = "auto_pass2"
+		}
+
+		se := scoreLookup[scoreKey{ma.SubmissionID, ma.ReviewerID}]
+
+		meta := &dto.SuggestionMetadata{
+			Source:                 source,
+			MatchedKeywords:        se.MatchedKeywords,
+			UnmatchedPaperKeywords: se.UnmatchedPaperKeywords,
+			ExtraReviewerKeywords:  se.ExtraReviewerKeywords,
+			COIChecks:              coiChecks,
+			CreatedAt:              now,
+		}
+
+		metaJSON, err := json.Marshal(meta)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal suggestion metadata: %w", err)
+		}
+
 		assignmentDTOs[i] = dto.Assignment{
-			SubmissionID: assignment.SubmissionID,
-			ReviewerID:   assignment.ReviewerID,
-			Score:        assignment.Score,
+			SubmissionID: ma.SubmissionID,
+			ReviewerID:   ma.ReviewerID,
+			Score:        ma.Score,
 			Status:       model.AssignmentStatusSuggested,
+			Metadata:     metaJSON,
 		}
 	}
 
