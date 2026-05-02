@@ -2,19 +2,22 @@
 
 import type React from "react"
 
-import { useMemo, useState } from "react"
-import { useRouter } from "next/navigation"
+import { Suspense, useEffect, useMemo, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { computerScienceKeywords, searchKeywords } from "@/lib/data/domain-keywords"
 import { Loader2 } from "lucide-react"
 import { ROUTES } from "@/lib/routes"
+import { previewConferenceInvitation } from "@/lib/api/conferences"
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { register } = useAuth()
   const { t } = useTranslation()
+  const inviteToken = searchParams.get("invite_token")?.trim() ?? ""
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -29,6 +32,58 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [inviteState, setInviteState] = useState<{
+    loading: boolean
+    error: string
+    lockedEmail: string
+    conferenceTitle: string
+    inviterName: string
+    role: string
+  }>({
+    loading: false,
+    error: "",
+    lockedEmail: "",
+    conferenceTitle: "",
+    inviterName: "",
+    role: "",
+  })
+
+  useEffect(() => {
+    if (!inviteToken) return
+
+    let cancelled = false
+    setInviteState((current) => ({ ...current, loading: true, error: "" }))
+
+    void previewConferenceInvitation(inviteToken).then((result) => {
+      if (cancelled) return
+      if (result.error || !result.data) {
+        setInviteState({
+          loading: false,
+          error: result.error || t("runtime.app.register.page.text_failed_to_load_invitation"),
+          lockedEmail: "",
+          conferenceTitle: "",
+          inviterName: "",
+          role: "",
+        })
+        return
+      }
+
+      const lockedEmail = result.data.invitation.invitee_email
+      setInviteState({
+        loading: false,
+        error: "",
+        lockedEmail,
+        conferenceTitle: result.data.conference_title,
+        inviterName: result.data.inviter_name,
+        role: result.data.invitation.role,
+      })
+      setFormData((current) => ({ ...current, email: lockedEmail }))
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [inviteToken, t])
 
   const addDomainValue = (value: string) => {
     const trimmed = value.trim()
@@ -90,7 +145,11 @@ export default function RegisterPage() {
     })
 
     if (result.success) {
-      router.push(`${ROUTES.LOGIN}?registered=1`)
+      const next = new URLSearchParams({ registered: "1" })
+      if (inviteToken) {
+        next.set("invite_token", inviteToken)
+      }
+      router.push(`${ROUTES.LOGIN}?${next.toString()}`)
     } else {
       setError(result.error || t("auth.register.errors.failed"))
       setIsLoading(false)
@@ -159,6 +218,30 @@ export default function RegisterPage() {
             <p className="auth-form-desc">{t("auth.register.subtitle")}</p>
           </div>
 
+          {inviteToken && (
+            <div className="auth-notice">
+              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                mail
+              </span>
+              <span>
+                {inviteState.loading
+                  ? t("runtime.app.register.page.text_loading_invitation")
+                  : inviteState.error
+                    ? inviteState.error
+                    : t("runtime.app.register.page.text_invited_to_join_conference", {
+                        role:
+                          inviteState.role === "reviewer"
+                            ? t("runtime.app.register.page.text_role_reviewer")
+                            : inviteState.role === "co_chair"
+                              ? t("runtime.app.register.page.text_role_co_chair")
+                              : t("runtime.app.register.page.text_role_pc"),
+                        conference: inviteState.conferenceTitle,
+                        inviter: inviteState.inviterName,
+                      })}
+              </span>
+            </div>
+          )}
+
           {error && (
             <div className="auth-notice auth-notice--error">
               <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
@@ -217,7 +300,7 @@ export default function RegisterPage() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
-                disabled={isLoading}
+                disabled={isLoading || Boolean(inviteState.lockedEmail)}
                 className="auth-input"
                 autoComplete="email"
               />
@@ -432,5 +515,19 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="auth-shell-loading">
+          <Loader2 className="h-5 w-5 animate-spin text-[#1B3C53]" />
+        </div>
+      }
+    >
+      <RegisterForm />
+    </Suspense>
   )
 }

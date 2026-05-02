@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { getInvitation, respondToInvitation, type InvitationData } from "@/lib/api/suggestions"
+import { useTranslation } from "@/lib/i18n/translation-context"
 import {
   Dialog,
   DialogContent,
@@ -14,12 +15,12 @@ import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
 
 const DECLINE_CATEGORIES = [
-  { id: "not_my_expertise", label: "Not my expertise" },
-  { id: "too_busy", label: "Too busy" },
-  { id: "schedule_conflict", label: "Schedule conflict" },
-  { id: "conflict_of_interest", label: "Conflict of interest" },
-  { id: "other", label: "Other" },
-]
+  { id: "not_my_expertise" },
+  { id: "too_busy" },
+  { id: "schedule_conflict" },
+  { id: "conflict_of_interest" },
+  { id: "other" },
+] as const
 
 type DialogState = "loading" | "pending" | "declining" | "error"
 
@@ -37,6 +38,7 @@ export function InvitationDialog({
   onResponded,
 }: InvitationDialogProps) {
   const { user } = useAuth()
+  const { t } = useTranslation()
   const [state, setState] = useState<DialogState>("loading")
   const [submittingAction, setSubmittingAction] = useState<"accept" | "decline" | null>(null)
   const [invitation, setInvitation] = useState<InvitationData | null>(null)
@@ -58,7 +60,10 @@ export function InvitationDialog({
     getInvitation(user.email, assignmentId).then(({ data, error }) => {
       if (cancelled) return
       if (error || !data) {
-        setError(error || "Failed to load invitation")
+        setError(
+          error ||
+            t("runtime.components.reviewer.invitation-dialog.text_failed_to_load_invitation"),
+        )
         setState("error")
         return
       }
@@ -68,7 +73,7 @@ export function InvitationDialog({
     return () => {
       cancelled = true
     }
-  }, [open, assignmentId, user?.email])
+  }, [assignmentId, open, t, user?.email])
 
   // Note: we deliberately keep `state` as "pending"/"declining" during submit so the
   // buttons stay visible (just disabled). Per-button spinner is keyed off `submittingAction`.
@@ -105,6 +110,19 @@ export function InvitationDialog({
   const scorePercent =
     invitation?.evidence?.score != null ? Math.round(invitation.evidence.score * 100) : null
   const isSubmitting = submittingAction !== null
+  const declineCategoryLabels = {
+    not_my_expertise: t(
+      "runtime.components.reviewer.invitation-dialog.text_decline_reason_not_my_expertise",
+    ),
+    too_busy: t("runtime.components.reviewer.invitation-dialog.text_decline_reason_too_busy"),
+    schedule_conflict: t(
+      "runtime.components.reviewer.invitation-dialog.text_decline_reason_schedule_conflict",
+    ),
+    conflict_of_interest: t(
+      "runtime.components.reviewer.invitation-dialog.text_decline_reason_conflict_of_interest",
+    ),
+    other: t("runtime.components.reviewer.invitation-dialog.text_decline_reason_other"),
+  } as const
 
   return (
     <Dialog
@@ -128,13 +146,14 @@ export function InvitationDialog({
       >
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100">
           <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            {invitation?.conference_name ?? "Review Invitation"}
+            {invitation?.conference_name ??
+              t("runtime.components.reviewer.invitation-dialog.text_review_invitation")}
           </p>
           <DialogTitle className="text-sm font-bold text-[#1B3C53]">
-            Review Invitation
+            {t("runtime.components.reviewer.invitation-dialog.text_review_invitation")}
           </DialogTitle>
           <DialogDescription className="sr-only">
-            Paper review invitation details and response
+            {t("runtime.components.reviewer.invitation-dialog.text_review_invitation_details")}
           </DialogDescription>
         </DialogHeader>
 
@@ -149,7 +168,9 @@ export function InvitationDialog({
           {/* Error */}
           {state === "error" && (
             <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-              <p className="text-xs font-semibold text-red-700 mb-1">Failed to load</p>
+              <p className="text-xs font-semibold text-red-700 mb-1">
+                {t("runtime.components.reviewer.invitation-dialog.text_failed_to_load")}
+              </p>
               <p className="text-[10px] text-red-500">{error}</p>
             </div>
           )}
@@ -161,14 +182,14 @@ export function InvitationDialog({
               <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-4 flex flex-col gap-3">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                    Paper
+                    {t("runtime.components.reviewer.invitation-dialog.text_paper")}
                   </p>
                   <p className="text-xs font-bold text-[#1B3C53]">{invitation.paper_title}</p>
                 </div>
                 {invitation.paper_abstract && (
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                      Abstract
+                      {t("runtime.components.reviewer.invitation-dialog.text_abstract")}
                     </p>
                     <p className="text-[10px] text-slate-600 leading-relaxed line-clamp-4">
                       {invitation.paper_abstract}
@@ -180,7 +201,9 @@ export function InvitationDialog({
               {/* Evidence card */}
               <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-4 flex flex-col gap-3">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  Why you&apos;re a great match
+                  {t(
+                    "runtime.components.reviewer.invitation-dialog.text_why_you_are_a_great_match",
+                  )}
                 </p>
 
                 {invitation.evidence &&
@@ -190,7 +213,7 @@ export function InvitationDialog({
                       <div>
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-[10px] font-medium text-slate-500">
-                            Match Score
+                            {t("runtime.components.reviewer.invitation-dialog.text_match_score")}
                           </span>
                           <span className="text-[10px] font-bold text-green-700">
                             {scorePercent}%
@@ -207,7 +230,7 @@ export function InvitationDialog({
                     {invitation.evidence.matched_keywords.length > 0 && (
                       <div>
                         <p className="text-[10px] font-medium text-slate-500 mb-1.5">
-                          Matched Keywords
+                          {t("runtime.components.reviewer.invitation-dialog.text_matched_keywords")}
                         </p>
                         <div className="flex flex-wrap gap-1.5">
                           {invitation.evidence.matched_keywords.map((kw) => (
@@ -222,18 +245,21 @@ export function InvitationDialog({
                       </div>
                     )}
                     <p className="text-[10px] text-slate-400">
-                      You currently have{" "}
+                      {t("runtime.components.reviewer.invitation-dialog.text_you_currently_have")}{" "}
                       <span className="font-semibold text-slate-600">
                         {invitation.evidence.assignment_count} paper
                         {invitation.evidence.assignment_count !== 1 ? "s" : ""}
                       </span>{" "}
-                      assigned in this conference.
+                      {t(
+                        "runtime.components.reviewer.invitation-dialog.text_assigned_in_this_conference",
+                      )}
                     </p>
                   </div>
                 ) : (
                   <p className="text-[10px] text-slate-500">
-                    You were selected by the program committee based on your expertise and research
-                    background.
+                    {t(
+                      "runtime.components.reviewer.invitation-dialog.text_selected_based_on_expertise",
+                    )}
                   </p>
                 )}
               </div>
@@ -254,7 +280,7 @@ export function InvitationDialog({
                     {submittingAction === "accept" && (
                       <Loader2 className="size-3.5 animate-spin mr-1.5" />
                     )}
-                    Accept Assignment
+                    {t("runtime.components.reviewer.invitation-dialog.text_accept_assignment")}
                   </Button>
                   <Button
                     variant="outline"
@@ -262,7 +288,7 @@ export function InvitationDialog({
                     onClick={() => setState("declining")}
                     disabled={isSubmitting}
                   >
-                    Decline
+                    {t("runtime.components.reviewer.invitation-dialog.text_decline")}
                   </Button>
                 </div>
               )}
@@ -270,7 +296,9 @@ export function InvitationDialog({
               {/* Decline form */}
               {state === "declining" && (
                 <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-4 flex flex-col gap-3">
-                  <p className="text-[10px] font-bold text-slate-700">Tell us why (optional)</p>
+                  <p className="text-[10px] font-bold text-slate-700">
+                    {t("runtime.components.reviewer.invitation-dialog.text_tell_us_why_optional")}
+                  </p>
                   <div className="flex flex-wrap gap-1.5">
                     {DECLINE_CATEGORIES.map((cat) => (
                       <button
@@ -285,14 +313,16 @@ export function InvitationDialog({
                             : "border-slate-200 text-slate-600 hover:border-slate-400"
                         }`}
                       >
-                        {cat.label}
+                        {declineCategoryLabels[cat.id]}
                       </button>
                     ))}
                   </div>
                   <textarea
                     value={declineReason}
                     onChange={(e) => setDeclineReason(e.target.value)}
-                    placeholder="Additional comments (optional)..."
+                    placeholder={t(
+                      "runtime.components.reviewer.invitation-dialog.placeholder_additional_comments_optional",
+                    )}
                     rows={3}
                     className="w-full rounded-lg border border-slate-200 px-3 py-2 text-[10px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#1B3C53] resize-none"
                   />
@@ -305,7 +335,7 @@ export function InvitationDialog({
                       {submittingAction === "decline" && (
                         <Loader2 className="size-3.5 animate-spin mr-1.5" />
                       )}
-                      Confirm Decline
+                      {t("runtime.components.reviewer.invitation-dialog.text_confirm_decline")}
                     </Button>
                     <Button
                       variant="outline"
@@ -316,7 +346,7 @@ export function InvitationDialog({
                       }}
                       disabled={isSubmitting}
                     >
-                      Cancel
+                      {t("runtime.components.reviewer.invitation-dialog.text_cancel")}
                     </Button>
                   </div>
                 </div>

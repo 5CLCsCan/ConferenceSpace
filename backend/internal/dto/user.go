@@ -16,9 +16,10 @@ type User struct {
 
 type UserResponse struct {
 	*User
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Roles     []string  `json:"roles,omitempty"` // Distinct active roles across all conferences (populated for /me)
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
+	EmailVerified bool      `json:"email_verified"`
+	Roles         []string  `json:"roles,omitempty"` // Distinct active roles across all conferences (populated for /me)
 
 	// Conference match annotations — only populated when the search endpoint
 	// is called with ?conference_id=. Both fields use omitempty so legacy

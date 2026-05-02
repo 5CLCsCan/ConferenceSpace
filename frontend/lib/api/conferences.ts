@@ -577,6 +577,32 @@ export interface ReviewerListResponse {
   offset: number
 }
 
+export type ConferenceInvitationRole = "reviewer" | "co_chair" | "pc"
+export type ConferenceInvitationStatus = "pending" | "accepted" | "declined" | "expired" | "revoked"
+
+export interface ConferenceInvitationRecord {
+  id: number
+  conference_id: number
+  invitee_email: string
+  role: ConferenceInvitationRole
+  status: ConferenceInvitationStatus
+  inviter_email: string
+  invited_user_id?: number
+  responded_at?: string
+  expires_at: string
+  created_at: string
+  updated_at: string
+}
+
+export interface ConferenceInvitationPreview {
+  invitation: ConferenceInvitationRecord
+  conference_title: string
+  conference_code: string
+  inviter_name: string
+  signup_url: string
+  is_existing_user: boolean
+}
+
 /**
  * Get conference reviewers (committee members)
  * Endpoint: GET /api/v1/conferences/:conference_id/reviewers
@@ -654,6 +680,149 @@ export async function inviteReviewers(
     return {
       data: null,
       error: error instanceof Error ? error.message : "Failed to invite reviewers",
+      status: 500,
+    }
+  }
+}
+
+export async function createConferenceInvitations(
+  conferenceId: string,
+  invitations: Array<{ email: string; role: ConferenceInvitationRole }>,
+): Promise<
+  ApiResponse<{
+    success: Array<{
+      invitation?: ConferenceInvitationRecord
+      email: string
+      role: ConferenceInvitationRole
+    }>
+    failed: Array<{ email: string; role: ConferenceInvitationRole; error: string }>
+  }>
+> {
+  try {
+    const { data, response } = await apiFetch<
+      | {
+          data: {
+            success: Array<{
+              invitation?: ConferenceInvitationRecord
+              email: string
+              role: ConferenceInvitationRole
+            }>
+            failed: Array<{ email: string; role: ConferenceInvitationRole; error: string }>
+          }
+        }
+      | {
+          success: Array<{
+            invitation?: ConferenceInvitationRecord
+            email: string
+            role: ConferenceInvitationRole
+          }>
+          failed: Array<{ email: string; role: ConferenceInvitationRole; error: string }>
+        }
+    >(`/api/v1/conferences/${conferenceId}/invitations`, {
+      method: "POST",
+      body: JSON.stringify({ invitations }),
+    })
+
+    const payload =
+      (data as { data?: { success: any[]; failed: any[] } }).data ??
+      (data as { success: any[]; failed: any[] })
+
+    return {
+      data: {
+        success: payload.success ?? [],
+        failed: payload.failed ?? [],
+      },
+      error: null,
+      status: response.status,
+    }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to create invitations",
+      status: 500,
+    }
+  }
+}
+
+export async function getConferenceInvitations(
+  conferenceId: string,
+  status = "pending",
+): Promise<ApiResponse<{ invitations: ConferenceInvitationRecord[] }>> {
+  try {
+    const query = new URLSearchParams()
+    if (status) query.set("status", status)
+    const { data, response } = await apiFetch<
+      | { data: { invitations: ConferenceInvitationRecord[] } }
+      | { invitations: ConferenceInvitationRecord[] }
+    >(`/api/v1/conferences/${conferenceId}/invitations?${query.toString()}`)
+
+    const payload =
+      (data as { data?: { invitations: ConferenceInvitationRecord[] } }).data ??
+      (data as { invitations: ConferenceInvitationRecord[] })
+
+    return {
+      data: { invitations: payload.invitations ?? [] },
+      error: null,
+      status: response.status,
+    }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to fetch invitations",
+      status: 500,
+    }
+  }
+}
+
+export async function previewConferenceInvitation(
+  token: string,
+): Promise<ApiResponse<ConferenceInvitationPreview>> {
+  try {
+    const query = new URLSearchParams({ token })
+    const { data, response } = await apiFetch<
+      { data: ConferenceInvitationPreview } | ConferenceInvitationPreview
+    >(`/api/v1/invitations/preview?${query.toString()}`)
+
+    return {
+      data:
+        (data as { data?: ConferenceInvitationPreview }).data ??
+        (data as ConferenceInvitationPreview),
+      error: null,
+      status: response.status,
+    }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to load invitation",
+      status: 500,
+    }
+  }
+}
+
+export async function respondToConferenceInvitation(
+  token: string,
+  action: "accept" | "decline",
+): Promise<ApiResponse<{ invitation: ConferenceInvitationRecord; message: string }>> {
+  try {
+    const { data, response } = await apiFetch<
+      | { data: { invitation: ConferenceInvitationRecord; message: string } }
+      | { invitation: ConferenceInvitationRecord; message: string }
+    >("/api/v1/invitations/respond", {
+      method: "POST",
+      body: JSON.stringify({ token, action }),
+    })
+
+    return {
+      data:
+        (data as { data?: { invitation: ConferenceInvitationRecord; message: string } }).data ??
+        (data as { invitation: ConferenceInvitationRecord; message: string }),
+      error: null,
+      status: response.status,
+    }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to respond to invitation",
       status: 500,
     }
   }

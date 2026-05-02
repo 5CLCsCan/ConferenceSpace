@@ -9,6 +9,7 @@ import (
 
 	"github.com/dcao/conferencespace/internal/clients/brevo"
 	"github.com/dcao/conferencespace/internal/dto"
+	backendemail "github.com/dcao/conferencespace/internal/email"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/model"
 	"github.com/dcao/conferencespace/internal/storage"
@@ -83,8 +84,8 @@ func (o *Orchestrator) Register(ctx context.Context, req *dto.UserCreateRequest)
 			return nil, fmt.Errorf("failed to create verification token: %w", err)
 		}
 		link := fmt.Sprintf("%s/verify-email?token=%s", o.appBaseURL, token)
-		html := fmt.Sprintf(`<p>Please verify your email by clicking <a href="%s">here</a>.</p>`, link)
-		_ = o.brevo.SendEmail(ctx, req.User.Email, "Verify your ConferenceSpace email", html)
+		message := backendemail.VerifyEmail(link)
+		_ = o.brevo.SendEmail(ctx, req.User.Email, message.Subject, message.HTML)
 	}
 
 	return userResp, nil
@@ -126,8 +127,8 @@ func (o *Orchestrator) ForgotPassword(ctx context.Context, req *dto.ForgotPasswo
 	}
 
 	link := fmt.Sprintf("%s/reset-password?token=%s", o.appBaseURL, token)
-	html := fmt.Sprintf(`<p>Click <a href="%s">here</a> to reset your password. This link expires in 1 hour.</p>`, link)
-	_ = o.brevo.SendEmail(ctx, req.Email, "Reset your ConferenceSpace password", html)
+	message := backendemail.ResetPassword(link)
+	_ = o.brevo.SendEmail(ctx, req.Email, message.Subject, message.HTML)
 
 	resp := &dto.ForgotPasswordResponse{Message: genericMsg}
 	if devMode {
@@ -231,8 +232,8 @@ func (o *Orchestrator) ResendVerification(ctx context.Context, req *dto.ResendVe
 	}
 
 	link := fmt.Sprintf("%s/verify-email?token=%s", o.appBaseURL, token)
-	html := fmt.Sprintf(`<p>Click <a href="%s">here</a> to verify your email. This link expires in 24 hours.</p>`, link)
-	_ = o.brevo.SendEmail(ctx, req.Email, "Verify your ConferenceSpace email", html)
+	message := backendemail.VerifyEmail(link)
+	_ = o.brevo.SendEmail(ctx, req.Email, message.Subject, message.HTML)
 
 	resp := &dto.ResendVerificationResponse{Message: genericMsg}
 	if devMode {

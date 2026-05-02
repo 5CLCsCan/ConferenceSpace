@@ -2,11 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import { publishPaper, submitPaper, updatePaper } from "@/lib/api/papers"
+import { getTrackRecommendations, publishPaper, submitPaper, updatePaper } from "@/lib/api/papers"
 import { updateSubmissionStatus } from "@/lib/api/submissions"
 import { useAuth } from "@/lib/auth-context"
 import { ROUTES } from "@/lib/routes"
-import type { Conference, PrecheckBlockedError, PrecheckResult } from "@/lib/types"
+import type {
+  Conference,
+  PrecheckBlockedError,
+  PrecheckResult,
+  TrackRecommendation,
+} from "@/lib/types"
 import type { Submission } from "@/lib/api/submissions"
 import { useToast } from "@/components/ui/use-toast"
 import {
@@ -81,14 +86,18 @@ export function PaperSubmissionForm({
   // Paper Details state
   const [title, setTitle] = useState(initialSubmission?.title || "")
   const [abstract, setAbstract] = useState(initialSubmission?.abstract || "")
-  const [keywords, setKeywords] = useState<string[]>(
-    initialSubmission?.information?.keywords || ["Machine Learning", "Neural Networks"],
-  )
+  const [keywords, setKeywords] = useState<string[]>(initialSubmission?.information?.keywords || [])
   const [keywordInput, setKeywordInput] = useState("")
   const [selectedTrack, setSelectedTrack] = useState<string>(
     initialSubmission?.information?.track_name || "",
   )
   const [isStudentPaper, setIsStudentPaper] = useState(false)
+  const [trackRecommendations, setTrackRecommendations] = useState<TrackRecommendation[]>([])
+  const [trackRecommendationLoading, setTrackRecommendationLoading] = useState(false)
+  const [trackRecommendationError, setTrackRecommendationError] = useState<string | null>(null)
+  const [lastRecommendationSignature, setLastRecommendationSignature] = useState<string | null>(
+    null,
+  )
 
   // Authors state
   const [authors, setAuthors] = useState<Author[]>([
@@ -154,11 +163,11 @@ export function PaperSubmissionForm({
     : null
   const isDeadlinePassed = submissionDeadline !== null && new Date() > submissionDeadline
   const shouldPublishOnSubmit =
-    initialSubmission?.status === "draft" || initialSubmission?.status === "withdrawn" || !initialSubmission
+    initialSubmission?.status === "draft" ||
+    initialSubmission?.status === "withdrawn" ||
+    !initialSubmission
   const persistedSubmissionStatus =
-    initialSubmission && initialSubmission.status !== "draft"
-      ? initialSubmission.status
-      : "draft"
+    initialSubmission && initialSubmission.status !== "draft" ? initialSubmission.status : "draft"
 
   const mapSubmissionError = useCallback(
     (errorMessage: string | null, precheckBlocked?: PrecheckBlockedError | null): string => {
@@ -245,6 +254,19 @@ export function PaperSubmissionForm({
   )
 
   const hasUnsavedChanges = draftSignature !== lastSavedSignatureRef.current
+  const recommendationSignature = useMemo(
+    () =>
+      JSON.stringify({
+        title: title.trim(),
+        abstract: abstract.trim(),
+        keywords: keywords.map((keyword) => keyword.trim().toLowerCase()).sort(),
+      }),
+    [abstract, keywords, title],
+  )
+  const recommendationStale =
+    lastRecommendationSignature !== null && lastRecommendationSignature !== recommendationSignature
+  const recommendationEligible =
+    title.trim().length >= 8 && abstract.trim().split(/\s+/).filter(Boolean).length >= 20
 
   const saveDraft = useCallback(
     async ({ manual = false, force = false }: { manual?: boolean; force?: boolean } = {}) => {
@@ -266,9 +288,12 @@ export function PaperSubmissionForm({
       if (isNewSubmissionBlocked) {
         if (manual) {
           toast({
-            title: t("runtime.components.author.submit.paper-submission-form.prop_title_submissions_are_closed"),
-            description:
-              t("runtime.components.author.submit.paper-submission-form.prop_description_draft_creation_is_disabled_because_this"),
+            title: t(
+              "runtime.components.author.submit.paper-submission-form.prop_title_submissions_are_closed",
+            ),
+            description: t(
+              "runtime.components.author.submit.paper-submission-form.prop_description_draft_creation_is_disabled_because_this",
+            ),
             variant: "destructive",
           })
         }
@@ -295,7 +320,9 @@ export function PaperSubmissionForm({
           setAutosaveStatus("error")
           if (manual) {
             toast({
-              title: t("runtime.components.author.submit.paper-submission-form.prop_title_failed_to_save_draft"),
+              title: t(
+                "runtime.components.author.submit.paper-submission-form.prop_title_failed_to_save_draft",
+              ),
               description: mapSubmissionError(response.error),
               variant: "destructive",
             })
@@ -314,16 +341,24 @@ export function PaperSubmissionForm({
 
         if (manual) {
           toast({
-            title: t("runtime.components.author.submit.paper-submission-form.prop_title_draft_saved_successfully"),
-            description: t("runtime.components.author.submit.paper-submission-form.prop_description_your_draft_has_been_saved_you"),
+            title: t(
+              "runtime.components.author.submit.paper-submission-form.prop_title_draft_saved_successfully",
+            ),
+            description: t(
+              "runtime.components.author.submit.paper-submission-form.prop_description_your_draft_has_been_saved_you",
+            ),
           })
         }
       } catch {
         setAutosaveStatus("error")
         if (manual) {
           toast({
-            title: t("runtime.components.author.submit.paper-submission-form.prop_title_error_saving_draft"),
-            description: t("runtime.components.author.submit.paper-submission-form.prop_description_an_unexpected_error_occurred_please_try"),
+            title: t(
+              "runtime.components.author.submit.paper-submission-form.prop_title_error_saving_draft",
+            ),
+            description: t(
+              "runtime.components.author.submit.paper-submission-form.prop_description_an_unexpected_error_occurred_please_try",
+            ),
             variant: "destructive",
           })
         }
@@ -360,6 +395,40 @@ export function PaperSubmissionForm({
   const handleRemoveKeyword = (keyword: string) => {
     setKeywords(keywords.filter((k) => k !== keyword))
   }
+
+  const handleFindTrackRecommendations = useCallback(async () => {
+    if (!conference || !recommendationEligible || trackRecommendationLoading) {
+      return
+    }
+
+    setTrackRecommendationLoading(true)
+    setTrackRecommendationError(null)
+    try {
+      const response = await getTrackRecommendations({
+        conference_id: conference.id,
+        title,
+        abstract,
+        keywords,
+      })
+      if (response.error) {
+        setTrackRecommendationError(response.error)
+        return
+      }
+
+      setTrackRecommendations(response.data || [])
+      setLastRecommendationSignature(recommendationSignature)
+    } finally {
+      setTrackRecommendationLoading(false)
+    }
+  }, [
+    abstract,
+    conference,
+    keywords,
+    recommendationEligible,
+    recommendationSignature,
+    title,
+    trackRecommendationLoading,
+  ])
 
   // Author handlers
   const handleAddAuthor = () => {
@@ -415,7 +484,9 @@ export function PaperSubmissionForm({
         title: t(
           "runtime.components.author.submit.paper-submission-form.prop_title_invalid_file_type",
         ),
-        description: t("runtime.components.author.submit.paper-submission-form.prop_description_please_upload_a_pdf_docx_or"),
+        description: t(
+          "runtime.components.author.submit.paper-submission-form.prop_description_please_upload_a_pdf_docx_or",
+        ),
         variant: "destructive",
       })
       return
@@ -499,6 +570,12 @@ export function PaperSubmissionForm({
   }, [autosaveStatus, draftSignature, hasUnsavedChanges])
 
   useEffect(() => {
+    if (trackRecommendationError) {
+      setTrackRecommendationError(null)
+    }
+  }, [recommendationSignature])
+
+  useEffect(() => {
     if (!conference || !user || isNewSubmissionBlocked) {
       return
     }
@@ -542,9 +619,12 @@ export function PaperSubmissionForm({
     }
     if (isDeadlinePassed) {
       toast({
-        title: t("runtime.components.author.submit.paper-submission-form.prop_title_submission_deadline_has_passed"),
-        description:
-          t("runtime.components.author.submit.paper-submission-form.prop_description_publishing_is_no_longer_available_because"),
+        title: t(
+          "runtime.components.author.submit.paper-submission-form.prop_title_submission_deadline_has_passed",
+        ),
+        description: t(
+          "runtime.components.author.submit.paper-submission-form.prop_description_publishing_is_no_longer_available_because",
+        ),
         variant: "destructive",
       })
       return
@@ -586,7 +666,9 @@ export function PaperSubmissionForm({
       if (response.error) {
         setLastPrecheckBlock(response.precheckBlocked || null)
         toast({
-          title: t("runtime.components.author.submit.paper-submission-form.prop_title_submission_failed"),
+          title: t(
+            "runtime.components.author.submit.paper-submission-form.prop_title_submission_failed",
+          ),
           description: mapSubmissionError(response.error, response.precheckBlocked),
           variant: "destructive",
         })
@@ -726,15 +808,23 @@ export function PaperSubmissionForm({
                 </span>
                 <div>
                   <p className="text-[12px] font-semibold text-red-700 dark:text-red-400">
-                    {t("runtime.components.author.submit.paper-submission-form.text_submission_deadline_has_passed")}{" "}</p>
+                    {t(
+                      "runtime.components.author.submit.paper-submission-form.text_submission_deadline_has_passed",
+                    )}{" "}
+                  </p>
                   <p className="text-[11px] text-red-600 dark:text-red-500">
-                    {t("runtime.components.author.submit.paper-submission-form.text_the_deadline_was")}{" "}
+                    {t(
+                      "runtime.components.author.submit.paper-submission-form.text_the_deadline_was",
+                    )}{" "}
                     {submissionDeadline!.toLocaleDateString("en-US", {
                       month: "long",
                       day: "numeric",
                       year: "numeric",
                     })}
-                    {t("runtime.components.author.submit.paper-submission-form.text_new_submissions_and_publishing_are_no")}{" "}</p>
+                    {t(
+                      "runtime.components.author.submit.paper-submission-form.text_new_submissions_and_publishing_are_no",
+                    )}{" "}
+                  </p>
                 </div>
               </div>
             )}
@@ -749,6 +839,11 @@ export function PaperSubmissionForm({
                 selectedTrack={selectedTrack}
                 isStudentPaper={isStudentPaper}
                 availableTracks={availableTracks}
+                recommendationEligible={recommendationEligible}
+                recommendationLoading={trackRecommendationLoading}
+                recommendationStale={recommendationStale}
+                recommendationError={trackRecommendationError}
+                recommendations={trackRecommendations}
                 onTitleChange={setTitle}
                 onAbstractChange={setAbstract}
                 onKeywordInputChange={setKeywordInput}
@@ -756,6 +851,7 @@ export function PaperSubmissionForm({
                 onRemoveKeyword={handleRemoveKeyword}
                 onTrackChange={setSelectedTrack}
                 onStudentPaperChange={setIsStudentPaper}
+                onFindRecommendations={handleFindTrackRecommendations}
               />
             )}
 

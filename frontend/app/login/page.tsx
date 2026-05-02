@@ -15,6 +15,7 @@ function LoginForm() {
   const searchParams = useSearchParams()
   const registrationIndicator = searchParams.get("registered")
   const resetIndicator = searchParams.get("reset")
+  const inviteToken = searchParams.get("invite_token")
   const { login, isAuthenticated } = useAuth()
   const { t } = useTranslation()
 
@@ -30,8 +31,13 @@ function LoginForm() {
   const [showResetMessage, setShowResetMessage] = useState(resetIndicator === "1")
 
   useEffect(() => {
-    if (isAuthenticated) router.push(ROUTES.ROLE_SELECT)
-  }, [isAuthenticated, router])
+    if (!isAuthenticated) return
+    if (inviteToken) {
+      router.push(`/invite?token=${encodeURIComponent(inviteToken)}`)
+      return
+    }
+    router.push(ROUTES.ROLE_SELECT)
+  }, [inviteToken, isAuthenticated, router])
 
   useEffect(() => {
     if (registrationIndicator === "1") setShowRegistrationMessage(true)
@@ -47,7 +53,11 @@ function LoginForm() {
     setIsLoading(true)
     const result = await login(email.trim(), password, { rememberMe })
     if (result.success) {
-      router.push(ROUTES.ROLE_SELECT)
+      if (inviteToken) {
+        router.push(`/invite?token=${encodeURIComponent(inviteToken)}`)
+      } else {
+        router.push(ROUTES.ROLE_SELECT)
+      }
     } else {
       setError(result.error || t("auth.login.errors.failed"))
       setIsLoading(false)

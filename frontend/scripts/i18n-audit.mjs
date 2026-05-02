@@ -12,6 +12,7 @@ const SOURCE_DIRS = ["app", "components", "hooks", "lib"].map((segment) =>
 const EXCLUDED_DIRS = new Set([".next", "node_modules", "dist", "build", "__tests__", ".git"])
 const EXCLUDED_APP_TEST_PREFIX = path.join("app", "test") + path.sep
 const EXCLUDED_APP_API_PREFIX = path.join("app", "api") + path.sep
+const TEST_FILE_PATTERN = /(?:^|[/\\]).*\.(test|spec)\.(ts|tsx|js|jsx)$/
 const LOCALES_DIR = path.join(FRONTEND_ROOT, "locales")
 const EN_PATH = path.join(LOCALES_DIR, "en.json")
 const VI_PATH = path.join(LOCALES_DIR, "vi.json")
@@ -55,6 +56,9 @@ function listSourceFiles() {
       return false
     }
     if (relative.startsWith(EXCLUDED_APP_API_PREFIX)) {
+      return false
+    }
+    if (TEST_FILE_PATTERN.test(relative)) {
       return false
     }
     if (/[/\\]route\.(ts|tsx|js|jsx)$/.test(relative)) {

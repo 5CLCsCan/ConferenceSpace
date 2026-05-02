@@ -5,14 +5,18 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/dcao/conferencespace/internal/assignment"
+	"github.com/dcao/conferencespace/internal/clients/brevo"
 	"github.com/dcao/conferencespace/internal/dto"
+	backendemail "github.com/dcao/conferencespace/internal/email"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/model"
 	notificationService "github.com/dcao/conferencespace/internal/service/notification"
 	"github.com/dcao/conferencespace/internal/storage"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
+	conferenceInvitationStorage "github.com/dcao/conferencespace/internal/storage/conference_invitation"
 	conferencetemplate "github.com/dcao/conferencespace/internal/storage/conference_template"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	reviewerStorage "github.com/dcao/conferencespace/internal/storage/reviewer"
@@ -23,36 +27,96 @@ import (
 
 type Controller struct {
 	conferenceStorage   conferenceStorage.StorageInterface
+	invitationStorage   conferenceInvitationStorage.StorageInterface
 	templateStorage     conferencetemplate.StorageInterface
 	roleStorage         conferenceuserrole.StorageInterface
 	reviewerStorage     reviewerStorage.StorageInterface
 	userStorage         userStorage.StorageInterface
 	assignmentService   *assignment.Service
 	notificationService *notificationService.Service
+	brevo               *brevo.Client
+	appBaseURL          string
+	requireVerification bool
 }
 
-func New(store *storage.Storage, assignmentSvc *assignment.Service) *Controller {
+func New(store *storage.Storage, assignmentSvc *assignment.Service, brevoClient *brevo.Client, appBaseURL string, requireVerification bool) *Controller {
 	return &Controller{
-		conferenceStorage: store.Conference,
-		templateStorage:   store.ConferenceTemplate,
-		roleStorage:       store.ConferenceUserRole,
-		reviewerStorage:   store.Reviewer,
-		userStorage:       store.User,
-		assignmentService: assignmentSvc,
+		conferenceStorage:   store.Conference,
+		invitationStorage:   store.ConferenceInvitation,
+		templateStorage:     store.ConferenceTemplate,
+		roleStorage:         store.ConferenceUserRole,
+		reviewerStorage:     store.Reviewer,
+		userStorage:         store.User,
+		assignmentService:   assignmentSvc,
+		brevo:               brevoClient,
+		appBaseURL:          appBaseURL,
+		requireVerification: requireVerification,
 	}
 }
 
 // NewWithNotifications creates a controller with notification support.
-func NewWithNotifications(store *storage.Storage, assignmentSvc *assignment.Service, notifSvc *notificationService.Service) *Controller {
+func NewWithNotifications(store *storage.Storage, assignmentSvc *assignment.Service, notifSvc *notificationService.Service, brevoClient *brevo.Client, appBaseURL string, requireVerification bool) *Controller {
 	return &Controller{
 		conferenceStorage:   store.Conference,
+		invitationStorage:   store.ConferenceInvitation,
 		templateStorage:     store.ConferenceTemplate,
 		roleStorage:         store.ConferenceUserRole,
 		reviewerStorage:     store.Reviewer,
 		userStorage:         store.User,
 		assignmentService:   assignmentSvc,
 		notificationService: notifSvc,
+		brevo:               brevoClient,
+		appBaseURL:          appBaseURL,
+		requireVerification: requireVerification,
 	}
+}
+
+func normalizeInvitationRole(role string) string {
+	return strings.TrimSpace(strings.ToLower(role))
+}
+
+func invitationRoleLabel(role string) string {
+	switch normalizeInvitationRole(role) {
+	case model.ConferenceInvitationRoleReviewer:
+		return "Reviewer"
+	case model.ConferenceInvitationRoleCoChair:
+		return "Co-Chair"
+	case model.ConferenceInvitationRolePC:
+		return "Program Committee member"
+	default:
+		return role
+	}
+}
+
+func (c *Controller) invitationSignupURL(token string) string {
+	return fmt.Sprintf("%s/register?invite_token=%s", strings.TrimRight(c.appBaseURL, "/"), token)
+}
+
+func (c *Controller) inviterDisplayName(ctx context.Context, inviterEmail string) string {
+	user, err := c.userStorage.GetByEmail(ctx, inviterEmail)
+	if err != nil || user == nil {
+		return inviterEmail
+	}
+	name := strings.TrimSpace(strings.TrimSpace(user.FirstName + " " + user.LastName))
+	if name == "" {
+		return inviterEmail
+	}
+	return name
+}
+
+func (c *Controller) sendConferenceInvitationEmail(ctx context.Context, invitation *dto.ConferenceInvitationRecord, conferenceName, token string) error {
+	if c.brevo == nil {
+		return nil
+	}
+	message := backendemail.ConferenceInvitation(
+		c.invitationSignupURL(token),
+		invitation.InviteeEmail,
+		invitationRoleLabel(invitation.Role),
+		conferenceName,
+		c.inviterDisplayName(ctx, invitation.InviterEmail),
+		invitation.ExpiresAt,
+	)
+	return c.brevo.SendEmail(ctx, invitation.InviteeEmail, message.Subject, message.HTML)
 }
 
 func (c *Controller) enrichWithPCMembers(ctx context.Context, conf *dto.ConferenceResponse) {
@@ -68,6 +132,21 @@ func (c *Controller) enrichWithPCMembers(ctx context.Context, conf *dto.Conferen
 		emails = []string{}
 	}
 	conf.PCMembers = emails
+}
+
+func (c *Controller) enrichWithCoChairs(ctx context.Context, conf *dto.ConferenceResponse) {
+	if conf == nil {
+		return
+	}
+	emails, err := c.roleStorage.GetEmailsByRole(ctx, conf.ID, model.RoleCoChair)
+	if err != nil {
+		conf.CoChairs = []string{}
+		return
+	}
+	if emails == nil {
+		emails = []string{}
+	}
+	conf.CoChairs = emails
 }
 
 // enrichWithReviewers populates the Reviewers field on a ConferenceResponse
@@ -125,6 +204,283 @@ func (c *Controller) inviteReviewers(ctx context.Context, conferenceID int64, em
 				}
 			}
 		}()
+	}
+}
+
+// InviteMembers godoc
+// @Summary      Invite external conference members
+// @Description  Create pending invitations for external reviewer, co-chair, or program-committee members
+// @Tags         conferences
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        conference_id path int true "Conference ID"
+// @Param        request body dto.ConferenceInvitationCreateRequest true "Invitation payload"
+// @Success      201 {object} dto.ConferenceInvitationCreateResponse
+// @Failure      400 {object} handler.Response
+// @Failure      401 {object} handler.Response
+// @Failure      403 {object} handler.Response
+// @Router       /conferences/{conference_id}/invitations [post]
+func (c *Controller) InviteMembers(ginCtx *gin.Context, req *dto.ConferenceInvitationCreateRequest) (*dto.ConferenceInvitationCreateResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	conference, err := c.conferenceStorage.GetByID(ctx, req.ConferenceID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
+	}
+
+	response := &dto.ConferenceInvitationCreateResponse{
+		Success: make([]dto.ConferenceInvitationCreateResult, 0, len(req.Invitations)),
+		Failed:  make([]dto.ConferenceInvitationCreateResult, 0),
+	}
+
+	for _, item := range req.Invitations {
+		email := strings.ToLower(strings.TrimSpace(item.Email))
+		role := normalizeInvitationRole(item.Role)
+		if email == "" {
+			response.Failed = append(response.Failed, dto.ConferenceInvitationCreateResult{
+				Email: item.Email,
+				Role:  role,
+				Error: "email is required",
+			})
+			continue
+		}
+
+		existingUser, userErr := c.userStorage.GetByEmail(ctx, email)
+		if userErr == nil && existingUser != nil {
+			switch role {
+			case model.ConferenceInvitationRoleReviewer:
+				result, inviteErr := c.reviewerStorage.BatchCreate(ctx, req.ConferenceID, []dto.Reviewer{{
+					UserID: existingUser.ID,
+					Status: model.ReviewerStatusPending,
+				}})
+				if inviteErr != nil {
+					response.Failed = append(response.Failed, dto.ConferenceInvitationCreateResult{
+						Email: email,
+						Role:  role,
+						Error: inviteErr.Error(),
+					})
+					continue
+				}
+				if c.notificationService != nil {
+					_ = c.notificationService.NotifyReviewerInvited(context.Background(), email, conference.Title, req.ConferenceID)
+				}
+				if len(result.Success) > 0 {
+					response.Success = append(response.Success, dto.ConferenceInvitationCreateResult{
+						Email: email,
+						Role:  role,
+					})
+					continue
+				}
+				response.Failed = append(response.Failed, dto.ConferenceInvitationCreateResult{
+					Email: email,
+					Role:  role,
+					Error: "reviewer invitation could not be created",
+				})
+				continue
+			case model.ConferenceInvitationRolePC:
+				if err := c.roleStorage.AddRole(ctx, req.ConferenceID, email, model.RolePC); err != nil {
+					response.Failed = append(response.Failed, dto.ConferenceInvitationCreateResult{Email: email, Role: role, Error: err.Error()})
+					continue
+				}
+				response.Success = append(response.Success, dto.ConferenceInvitationCreateResult{Email: email, Role: role})
+				continue
+			case model.ConferenceInvitationRoleCoChair:
+				if err := c.roleStorage.AddRole(ctx, req.ConferenceID, email, model.RoleCoChair); err != nil {
+					response.Failed = append(response.Failed, dto.ConferenceInvitationCreateResult{Email: email, Role: role, Error: err.Error()})
+					continue
+				}
+				response.Success = append(response.Success, dto.ConferenceInvitationCreateResult{Email: email, Role: role})
+				continue
+			}
+		}
+
+		var invitedUserID *int64
+		invitation, token, err := c.invitationStorage.Create(ctx, req.ConferenceID, email, role, userEmail, invitedUserID)
+		if err != nil {
+			response.Failed = append(response.Failed, dto.ConferenceInvitationCreateResult{
+				Email: email,
+				Role:  role,
+				Error: err.Error(),
+			})
+			continue
+		}
+
+		if err := c.sendConferenceInvitationEmail(ctx, invitation, conference.Title, token); err != nil {
+			response.Failed = append(response.Failed, dto.ConferenceInvitationCreateResult{
+				Email: email,
+				Role:  role,
+				Error: err.Error(),
+			})
+			continue
+		}
+
+		response.Success = append(response.Success, dto.ConferenceInvitationCreateResult{
+			Invitation: invitation,
+			Email:      email,
+			Role:       role,
+		})
+	}
+
+	return response, nil
+}
+
+func (c *Controller) ListInvitations(ginCtx *gin.Context, req *dto.ConferenceInvitationListRequest) (*dto.ConferenceInvitationListResponse, error) {
+	ctx := ginCtx.Request.Context()
+	if err := c.invitationStorage.MarkExpiredPending(ctx); err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+	invitations, err := c.invitationStorage.ListByConference(ctx, req.ConferenceID, req.Status)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+	return &dto.ConferenceInvitationListResponse{Invitations: invitations}, nil
+}
+
+func (c *Controller) PreviewInvitation(ginCtx *gin.Context, req *dto.ConferenceInvitationPreviewRequest) (*dto.ConferenceInvitationPreviewResponse, error) {
+	ctx := ginCtx.Request.Context()
+	if err := c.invitationStorage.MarkExpiredPending(ctx); err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	invitation, err := c.invitationStorage.GetByToken(ctx, req.Token)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "invitation not found")
+	}
+
+	conference, err := c.conferenceStorage.GetByID(ctx, invitation.ConferenceID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
+	}
+
+	_, userErr := c.userStorage.GetByEmail(ctx, invitation.InviteeEmail)
+	return &dto.ConferenceInvitationPreviewResponse{
+		Invitation:      invitationRecordFromModel(invitation),
+		ConferenceTitle: conference.Title,
+		ConferenceCode:  conference.Acronym,
+		InviterName:     c.inviterDisplayName(ctx, invitation.InviterEmail),
+		SignupURL:       c.invitationSignupURL(req.Token),
+		IsExistingUser:  userErr == nil,
+	}, nil
+}
+
+func (c *Controller) RespondInvitation(ginCtx *gin.Context, req *dto.ConferenceInvitationRespondRequest) (*dto.ConferenceInvitationRespondResponse, error) {
+	ctx := ginCtx.Request.Context()
+	if err := c.invitationStorage.MarkExpiredPending(ctx); err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	invitation, err := c.invitationStorage.GetByToken(ctx, req.Token)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "invitation not found")
+	}
+	if invitation.Status != model.ConferenceInvitationStatusPending {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invitation is no longer pending")
+	}
+	if time.Now().After(invitation.ExpiresAt) {
+		updated, updateErr := c.invitationStorage.UpdateStatus(ctx, invitation.ID, model.ConferenceInvitationStatusExpired, nil, nil)
+		if updateErr == nil {
+			_ = updated
+		}
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invitation has expired")
+	}
+	if !strings.EqualFold(invitation.InviteeEmail, userEmail) {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "this invitation belongs to a different email address")
+	}
+
+	user, err := c.userStorage.GetByEmail(ctx, userEmail)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user account not found")
+	}
+
+	if c.requireVerification {
+		if !user.EmailVerified {
+			return nil, handler.NewErrorResponse(http.StatusForbidden, "verify your email before accepting this invitation")
+		}
+	}
+
+	if req.Action == "decline" {
+		now := time.Now()
+		record, err := c.invitationStorage.UpdateStatus(ctx, invitation.ID, model.ConferenceInvitationStatusDeclined, &now, &user.ID)
+		if err != nil {
+			return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+		}
+		return &dto.ConferenceInvitationRespondResponse{
+			Invitation: record,
+			Message:    "Invitation declined.",
+		}, nil
+	}
+
+	switch invitation.Role {
+	case model.ConferenceInvitationRoleReviewer:
+		existingReviewer, err := c.reviewerStorage.GetByUserAndConference(ctx, user.ID, invitation.ConferenceID)
+		if err == nil && existingReviewer != nil {
+			if existingReviewer.Status != model.ReviewerStatusAccepted {
+				if _, err := c.reviewerStorage.UpdateStatus(ctx, existingReviewer.ID, model.ReviewerStatusAccepted); err != nil {
+					return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+				}
+			}
+		} else {
+			if _, err := c.reviewerStorage.Create(ctx, invitation.ConferenceID, &dto.Reviewer{
+				UserID: user.ID,
+				Status: model.ReviewerStatusAccepted,
+			}); err != nil {
+				return nil, handler.NewErrorResponse(http.StatusConflict, err.Error())
+			}
+		}
+		if err := c.roleStorage.AddRole(ctx, invitation.ConferenceID, userEmail, model.RoleReviewer); err != nil {
+			return nil, handler.NewErrorResponse(http.StatusConflict, err.Error())
+		}
+	case model.ConferenceInvitationRolePC:
+		if err := c.roleStorage.AddRole(ctx, invitation.ConferenceID, userEmail, model.RolePC); err != nil {
+			return nil, handler.NewErrorResponse(http.StatusConflict, err.Error())
+		}
+	case model.ConferenceInvitationRoleCoChair:
+		if err := c.roleStorage.AddRole(ctx, invitation.ConferenceID, userEmail, model.RoleCoChair); err != nil {
+			return nil, handler.NewErrorResponse(http.StatusConflict, err.Error())
+		}
+	default:
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "unsupported invitation role")
+	}
+
+	now := time.Now()
+	record, err := c.invitationStorage.UpdateStatus(ctx, invitation.ID, model.ConferenceInvitationStatusAccepted, &now, &user.ID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
+	}
+
+	return &dto.ConferenceInvitationRespondResponse{
+		Invitation: record,
+		Message:    "Invitation accepted.",
+	}, nil
+}
+
+func invitationRecordFromModel(invitation *model.ConferenceInvitation) *dto.ConferenceInvitationRecord {
+	if invitation == nil {
+		return nil
+	}
+	return &dto.ConferenceInvitationRecord{
+		ID:            invitation.ID,
+		ConferenceID:  invitation.ConferenceID,
+		InviteeEmail:  invitation.InviteeEmail,
+		Role:          invitation.Role,
+		Status:        invitation.Status,
+		InviterEmail:  invitation.InviterEmail,
+		InvitedUserID: invitation.InvitedUserID,
+		RespondedAt:   invitation.RespondedAt,
+		ExpiresAt:     invitation.ExpiresAt,
+		CreatedAt:     invitation.CreatedAt,
+		UpdatedAt:     invitation.UpdatedAt,
 	}
 }
 
@@ -237,6 +593,7 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.ConferenceCreateReques
 		c.inviteReviewers(ctx, conference.ID, req.Conference.Reviewers, conference.Title)
 	}
 
+	c.enrichWithCoChairs(ctx, conference)
 	c.enrichWithPCMembers(ctx, conference)
 	c.enrichWithReviewers(ctx, conference)
 	return conference, nil
@@ -337,6 +694,7 @@ func (c *Controller) Get(ginCtx *gin.Context, req *dto.ConferenceGetRequest) (*d
 		return nil, handler.NewErrorResponse(http.StatusNotFound, "conference not found")
 	}
 
+	c.enrichWithCoChairs(ctx, conference)
 	c.enrichWithPCMembers(ctx, conference)
 	c.enrichWithReviewers(ctx, conference)
 
@@ -476,6 +834,7 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.ConferenceUpdateReques
 	if err != nil {
 		return nil, err
 	}
+	c.enrichWithCoChairs(ctx, result)
 	c.enrichWithPCMembers(ctx, result)
 	c.enrichWithReviewers(ctx, result)
 	return result, nil

@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"sync"
 
+	aiServiceClient "github.com/dcao/conferencespace/internal/clients/ai_service"
 	client "github.com/dcao/conferencespace/internal/clients/semantic_scholar"
 	"github.com/dcao/conferencespace/internal/model"
-	researchdomain "github.com/dcao/conferencespace/internal/service/research_domain"
 	"github.com/lib/pq"
 )
 
 // SyncAuthorProfile syncs an author's profile and papers from Semantic Scholar to the local database
-func (c *Controller) SyncAuthorProfile(ctx context.Context, userID int64, authorID string) error {
+func (c *Controller) SyncAuthorProfile(ctx context.Context, userID int64, authorID string, authToken string) error {
 	unlock := c.acquireSyncLock(userID)
 	defer unlock()
 
@@ -78,21 +78,21 @@ func (c *Controller) SyncAuthorProfile(ctx context.Context, userID int64, author
 		return fmt.Errorf("failed to update profile-paper links: %w", err)
 	}
 
-	if err := c.syncResearchDomains(ctx, userID, author.Papers); err != nil {
+	if err := c.syncResearchDomains(ctx, userID, author.Papers, authToken); err != nil {
 		fmt.Printf("Failed to infer research domains for user %d: %v\n", userID, err)
 	}
 
 	return nil
 }
 
-func (c *Controller) syncResearchDomains(ctx context.Context, userID int64, papers []client.Paper) error {
-	if c.users == nil || c.domainKeywords == nil || len(papers) == 0 {
+func (c *Controller) syncResearchDomains(ctx context.Context, userID int64, papers []client.Paper, authToken string) error {
+	if c.users == nil || c.aiService == nil || len(papers) == 0 {
 		return nil
 	}
 
-	sources := make([]researchdomain.SourcePaper, 0, len(papers))
+	sources := make([]aiServiceClient.ResearchKeywordPaperSample, 0, len(papers))
 	for _, paper := range papers {
-		sources = append(sources, researchdomain.SourcePaper{
+		sources = append(sources, aiServiceClient.ResearchKeywordPaperSample{
 			Title:    paper.Title,
 			Abstract: paper.Abstract,
 			Venue:    paper.Venue,
@@ -100,10 +100,13 @@ func (c *Controller) syncResearchDomains(ctx context.Context, userID int64, pape
 		})
 	}
 
-	keywords, err := c.domainKeywords.ExtractFromPapers(ctx, sources)
+	response, err := c.aiService.ExtractResearchKeywords(ctx, authToken, &aiServiceClient.ResearchKeywordExtractionRequest{
+		Papers: sources,
+	})
 	if err != nil {
 		return err
 	}
+	keywords := response.Keywords
 	if len(keywords) == 0 {
 		return nil
 	}

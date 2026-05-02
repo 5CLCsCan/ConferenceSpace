@@ -11,25 +11,25 @@ import (
 const (
 	UserTableName = "users"
 
-	UserColUserID    = "user_id"
-	UserColEmail     = "email"
-	UserColFirstName = "first_name"
-	UserColLastName  = "last_name"
-	UserColPassword  = "hashed_password"
-	UserColDomain    = "domain"
-	UserColCreatedAt          = "created_at"
-	UserColUpdatedAt          = "updated_at"
-	UserColSemanticScholarID  = "semantic_scholar_id"
-	UserColProfileSyncStatus  = "profile_sync_status"
-	UserColEmailVerified      = "email_verified"
+	UserColUserID            = "user_id"
+	UserColEmail             = "email"
+	UserColFirstName         = "first_name"
+	UserColLastName          = "last_name"
+	UserColPassword          = "hashed_password"
+	UserColDomain            = "domain"
+	UserColCreatedAt         = "created_at"
+	UserColUpdatedAt         = "updated_at"
+	UserColSemanticScholarID = "semantic_scholar_id"
+	UserColProfileSyncStatus = "profile_sync_status"
+	UserColEmailVerified     = "email_verified"
 )
 
 type User struct {
-	UserID         int64          `db:"user_id"`
-	Email          string         `db:"email"`
-	FirstName      string         `db:"first_name"`
-	LastName       string         `db:"last_name"`
-	HashedPassword string         `db:"hashed_password"`
+	UserID            int64          `db:"user_id"`
+	Email             string         `db:"email"`
+	FirstName         string         `db:"first_name"`
+	LastName          string         `db:"last_name"`
+	HashedPassword    string         `db:"hashed_password"`
 	Domain            pq.StringArray `db:"domain"`
 	SemanticScholarID sql.NullString `db:"semantic_scholar_id"`
 	ProfileSyncStatus sql.NullString `db:"profile_sync_status"`
@@ -64,7 +64,8 @@ func (u *User) ToDTO() *dto.UserResponse {
 			SemanticScholarID: ssid,
 			ProfileSyncStatus: syncStatus,
 		},
-		CreatedAt: u.CreatedAt,
-		UpdatedAt: u.UpdatedAt,
+		CreatedAt:     u.CreatedAt,
+		UpdatedAt:     u.UpdatedAt,
+		EmailVerified: u.EmailVerified,
 	}
 }
