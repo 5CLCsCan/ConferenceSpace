@@ -51,6 +51,28 @@ func New(store *storage.Storage, jwtSecret string, jwtExpiryHours int, brevoClie
 }
 
 func (o *Orchestrator) Register(ctx context.Context, req *dto.UserCreateRequest) (*dto.UserResponse, error) {
+	userResp, err := o.RegisterInternal(ctx, req, !o.requireVerification)
+	if err != nil {
+		return nil, err
+	}
+
+	if o.requireVerification {
+		token, err := o.authTokenStorage.Create(ctx, req.User.Email, model.AuthTokenTypeEmailVerification, model.EmailVerificationTokenExpiry)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create verification token: %w", err)
+		}
+		link := fmt.Sprintf("%s/verify-email?token=%s", o.appBaseURL, token)
+		html := fmt.Sprintf(`<p>Please verify your email by clicking <a href="%s">here</a>.</p>`, link)
+		_ = o.brevo.SendEmail(ctx, req.User.Email, "Verify your ConferenceSpace email", html)
+	}
+
+	return userResp, nil
+}
+
+// RegisterInternal performs user creation without sending a verification email.
+// Used by the external-invitation accept flow where the invitation link itself
+// proves email ownership. markEmailVerified=true skips the email_verified flag.
+func (o *Orchestrator) RegisterInternal(ctx context.Context, req *dto.UserCreateRequest, markEmailVerified bool) (*dto.UserResponse, error) {
 	if req.User == nil {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "user data is required")
 	}
@@ -68,23 +90,12 @@ func (o *Orchestrator) Register(ctx context.Context, req *dto.UserCreateRequest)
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "unable to create account")
 	}
 
-	emailVerified := !o.requireVerification
-	userResp, err := o.userStorage.Create(ctx, req.User, string(hashedPassword), emailVerified)
+	userResp, err := o.userStorage.Create(ctx, req.User, string(hashedPassword), markEmailVerified)
 	if err != nil {
 		if errors.Is(err, userStorage.ErrEmailAlreadyExists) {
 			return nil, handler.NewErrorResponse(http.StatusConflict, "an account with this email already exists")
 		}
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "unable to create account")
-	}
-
-	if o.requireVerification {
-		token, err := o.authTokenStorage.Create(ctx, req.User.Email, model.AuthTokenTypeEmailVerification, model.EmailVerificationTokenExpiry)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create verification token: %w", err)
-		}
-		link := fmt.Sprintf("%s/verify-email?token=%s", o.appBaseURL, token)
-		html := fmt.Sprintf(`<p>Please verify your email by clicking <a href="%s">here</a>.</p>`, link)
-		_ = o.brevo.SendEmail(ctx, req.User.Email, "Verify your ConferenceSpace email", html)
 	}
 
 	return userResp, nil

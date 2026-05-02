@@ -23,6 +23,17 @@ const (
 	ExternalInvColCreatedAt     = "created_at"
 	ExternalInvColUpdatedAt     = "updated_at"
 	ExternalInvColFieldsOfStudy = "fields_of_study"
+
+	ExternalInvColInvitationToken          = "invitation_token"
+	ExternalInvColInvitationTokenExpiresAt = "invitation_token_expires_at"
+	ExternalInvColInvitationTokenUsedAt    = "invitation_token_used_at"
+	ExternalInvColAcceptedUserID           = "accepted_user_id"
+
+	ExternalInvitationTokenExpiry = 30 * 24 * time.Hour
+
+	ExternalInvitationStatusPending  = "pending"
+	ExternalInvitationStatusAccepted = "accepted"
+	ExternalInvitationStatusExpired  = "expired"
 )
 
 type ExternalInvitation struct {
@@ -39,6 +50,11 @@ type ExternalInvitation struct {
 	CreatedAt     time.Time      `db:"created_at"`
 	UpdatedAt     time.Time      `db:"updated_at"`
 	FieldsOfStudy pq.StringArray `db:"fields_of_study"`
+
+	InvitationToken          *string    `db:"invitation_token"`
+	InvitationTokenExpiresAt *time.Time `db:"invitation_token_expires_at"`
+	InvitationTokenUsedAt    *time.Time `db:"invitation_token_used_at"`
+	AcceptedUserID           *int64     `db:"accepted_user_id"`
 }
 
 func (e *ExternalInvitation) ToDTO() *dto.ExternalInvitation {

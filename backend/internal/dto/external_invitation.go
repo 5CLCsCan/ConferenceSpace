@@ -17,6 +17,11 @@ type ExternalInvitation struct {
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 	FieldsOfStudy []string  `json:"fields_of_study,omitempty"`
+	// InvitationURL is set by the orchestrator after creation/listing so the
+	// chair UI can render a "Copy invite link" affordance. Empty when the
+	// invitation has no token (legacy rows pre-Phase-2) or when the token
+	// has been consumed.
+	InvitationURL string `json:"invitation_url,omitempty"`
 }
 
 // ExternalInvitationCreateItem is one invitation in the batch create request.
@@ -85,4 +90,49 @@ type ExternalInvitationListResponse struct {
 type ExternalInvitationDeleteRequest struct {
 	ConferenceID int64 `uri:"conference_id" binding:"required"`
 	ID           int64 `uri:"id" binding:"required"`
+}
+
+// ExternalInvitationAcceptValidateRequest carries the bare token from the
+// public accept page so the frontend can prefill the register form.
+type ExternalInvitationAcceptValidateRequest struct {
+	Token string `form:"token" binding:"required"`
+}
+
+type ExternalInvitationAcceptValidateResponse struct {
+	InvitationID  int64    `json:"invitation_id"`
+	Role          string   `json:"role"`
+	Name          string   `json:"name"`
+	Email         string   `json:"email,omitempty"`
+	ScholarID     string   `json:"scholar_id,omitempty"`
+	Affiliation   string   `json:"affiliation,omitempty"`
+	ProfileURL    string   `json:"profile_url,omitempty"`
+	FieldsOfStudy []string `json:"fields_of_study,omitempty"`
+	Conference    struct {
+		ID      int64  `json:"id"`
+		Title   string `json:"title"`
+		Acronym string `json:"acronym"`
+	} `json:"conference"`
+	InvitedBy struct {
+		Name  string `json:"name,omitempty"`
+		Email string `json:"email,omitempty"`
+	} `json:"invited_by"`
+}
+
+// ExternalInvitationAcceptRequest is the payload submitted from the prefilled
+// register form. Email is editable in the UI (the invitation row's email
+// is treated as a default, not a constraint).
+type ExternalInvitationAcceptRequest struct {
+	Token     string   `json:"token" binding:"required"`
+	Email     string   `json:"email" binding:"required,email"`
+	Password  string   `json:"password" binding:"required,min=8"`
+	FirstName string   `json:"first_name" binding:"required"`
+	LastName  string   `json:"last_name" binding:"required"`
+	Domain    []string `json:"domain"`
+}
+
+type ExternalInvitationAcceptResponse struct {
+	Token        string        `json:"token"` // JWT for auto-login
+	User         *UserResponse `json:"user"`
+	ConferenceID int64         `json:"conference_id"`
+	Role         string        `json:"role"`
 }
