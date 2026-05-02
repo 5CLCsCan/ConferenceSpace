@@ -372,6 +372,7 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			submissions := conferences.Group("/:conference_id/submissions")
 			{
 				submissions.POST("/precheck", handler.HandleNoRequest(ctrl.Submission.PreCheck))
+				submissions.POST("/autofill", handler.HandleNoRequest(ctrl.Submission.Autofill))
 				submissions.GET("", handler.HandleRequestWithURIAndQuery(ctrl.Submission.List))
 				submissions.GET("/:submission_id", requireSubmissionAccess, handler.HandleNoRequest(ctrl.Submission.Get))
 				submissions.GET("/:submission_id/file", requireSubmissionAccess, ctrl.Submission.GetFile)

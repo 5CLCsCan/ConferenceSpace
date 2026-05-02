@@ -35,6 +35,11 @@ const EXPLORE_STATUS_CONFIG: Record<
       "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700",
     hasPulse: true,
   },
+  "submission-closed": {
+    label: t("runtime.components.conference.explore-cards.prop_label_submission_closed"),
+    className:
+      "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600",
+  },
   upcoming: {
     label: t("runtime.components.conference.explore-cards.prop_label_upcoming"),
     className:

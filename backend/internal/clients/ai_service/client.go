@@ -484,6 +484,99 @@ type DecisionCopilotResolveResponse struct {
 	Error    *DecisionCopilotErrorPayload `json:"error,omitempty"`
 }
 
+type SubmissionAutofillFileMetadata struct {
+	FileID           string `json:"file_id"`
+	OriginalFilename string `json:"original_filename"`
+	SizeBytes        int64  `json:"size_bytes,omitempty"`
+	ContentType      string `json:"content_type,omitempty"`
+}
+
+type SubmissionAutofillRunRequest struct {
+	ConferenceID    int64                            `json:"conference_id"`
+	Actor           ActorPayload                     `json:"actor"`
+	ExtraDetails    string                           `json:"extra_details,omitempty"`
+	AvailableTracks []string                         `json:"available_tracks,omitempty"`
+	Files           []SubmissionAutofillFileMetadata `json:"files"`
+}
+
+type SubmissionAutofillEvidence struct {
+	FileID        string `json:"file_id"`
+	SourceType    string `json:"source_type,omitempty"`
+	QuoteOrSignal string `json:"quote_or_signal"`
+	LocationHint  string `json:"location_hint,omitempty"`
+}
+
+type SubmissionAutofillField[T any] struct {
+	Value      T                            `json:"value"`
+	Confidence string                       `json:"confidence"`
+	Evidence   []SubmissionAutofillEvidence `json:"evidence,omitempty"`
+	Warnings   []string                     `json:"warnings,omitempty"`
+}
+
+type SubmissionAutofillFields struct {
+	Title           SubmissionAutofillField[string]   `json:"title"`
+	Abstract        SubmissionAutofillField[string]   `json:"abstract"`
+	Keywords        SubmissionAutofillField[[]string] `json:"keywords"`
+	TrackName       SubmissionAutofillField[string]   `json:"track_name"`
+	PaperType       SubmissionAutofillField[string]   `json:"paper_type"`
+	AdditionalNotes SubmissionAutofillField[string]   `json:"additional_notes"`
+}
+
+type SubmissionAutofillAuthor struct {
+	Name        string                       `json:"name"`
+	Email       string                       `json:"email,omitempty"`
+	Affiliation string                       `json:"affiliation,omitempty"`
+	Country     string                       `json:"country,omitempty"`
+	Ordinal     *int                         `json:"ordinal,omitempty"`
+	Confidence  string                       `json:"confidence"`
+	Evidence    []SubmissionAutofillEvidence `json:"evidence,omitempty"`
+	Warnings    []string                     `json:"warnings,omitempty"`
+}
+
+type SubmissionAutofillConflict struct {
+	Name        string                       `json:"name"`
+	Email       string                       `json:"email,omitempty"`
+	Institution string                       `json:"institution,omitempty"`
+	Reason      string                       `json:"reason"`
+	Confidence  string                       `json:"confidence"`
+	Evidence    []SubmissionAutofillEvidence `json:"evidence,omitempty"`
+	Warnings    []string                     `json:"warnings,omitempty"`
+}
+
+type SubmissionAutofillMaterial struct {
+	FileID            string   `json:"file_id"`
+	Filename          string   `json:"filename"`
+	ContentType       string   `json:"content_type,omitempty"`
+	SizeBytes         int64    `json:"size_bytes"`
+	Role              string   `json:"role"`
+	ExtractionStatus  string   `json:"extraction_status"`
+	TextCoverageRatio *float64 `json:"text_coverage_ratio,omitempty"`
+	PageCount         *int     `json:"page_count,omitempty"`
+	Warnings          []string `json:"warnings,omitempty"`
+}
+
+type SubmissionAutofillErrorPayload struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+type SubmissionAutofillRunResponse struct {
+	RunID             string                          `json:"run_id"`
+	Status            string                          `json:"status"`
+	Fields            SubmissionAutofillFields        `json:"fields"`
+	Authors           []SubmissionAutofillAuthor      `json:"authors,omitempty"`
+	PossibleConflicts []SubmissionAutofillConflict    `json:"possible_conflicts,omitempty"`
+	Materials         []SubmissionAutofillMaterial    `json:"materials,omitempty"`
+	Warnings          []string                        `json:"warnings,omitempty"`
+	Error             *SubmissionAutofillErrorPayload `json:"error,omitempty"`
+}
+
+type SubmissionAutofillFileContent struct {
+	FileID   string
+	Filename string
+	Content  []byte
+}
+
 type GatingRunRequest struct {
 	Mode         string              `json:"mode"`
 	Source       string              `json:"source"`
@@ -644,6 +737,69 @@ func (c *Client) RunSubmissionMaterialGating(
 	}
 
 	return &payload, nil
+}
+
+func (c *Client) RunSubmissionAutofill(
+	ctx context.Context,
+	token string,
+	requestPayload *SubmissionAutofillRunRequest,
+	files []SubmissionAutofillFileContent,
+) (*SubmissionAutofillRunResponse, error) {
+	if c == nil || strings.TrimSpace(c.baseURL) == "" {
+		return nil, fmt.Errorf("ai-service client is not configured")
+	}
+	if requestPayload == nil {
+		return nil, fmt.Errorf("submission autofill request payload is required")
+	}
+	if len(files) == 0 {
+		return nil, fmt.Errorf("submission autofill files are required")
+	}
+
+	requestJSON, err := json.Marshal(requestPayload)
+	if err != nil {
+		return nil, fmt.Errorf("marshal submission autofill request: %w", err)
+	}
+
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	if err := writer.WriteField("request", string(requestJSON)); err != nil {
+		return nil, fmt.Errorf("write submission autofill request field: %w", err)
+	}
+	for _, filePayload := range files {
+		if len(filePayload.Content) == 0 {
+			return nil, fmt.Errorf("submission autofill file content is required")
+		}
+		fieldName := "files"
+		if strings.TrimSpace(filePayload.FileID) != "" {
+			fieldName = "files." + strings.TrimSpace(filePayload.FileID)
+		}
+		part, err := writer.CreateFormFile(fieldName, filePayload.Filename)
+		if err != nil {
+			return nil, fmt.Errorf("create submission autofill file part: %w", err)
+		}
+		if _, err := part.Write(filePayload.Content); err != nil {
+			return nil, fmt.Errorf("write submission autofill file content: %w", err)
+		}
+	}
+	if err := writer.Close(); err != nil {
+		return nil, fmt.Errorf("close submission autofill multipart body: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		c.baseURL+"/api/v1/workflows/submission-autofill/runs",
+		bytes.NewReader(body.Bytes()),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("create submission autofill request: %w", err)
+	}
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	if normalizedToken := normalizeBearerToken(token); normalizedToken != "" {
+		req.Header.Set("Authorization", "Bearer "+normalizedToken)
+	}
+
+	return doJSONRequest[SubmissionAutofillRunResponse](c.httpClient, req, "submission autofill workflow")
 }
 
 func (c *Client) LookupReviewerBriefing(

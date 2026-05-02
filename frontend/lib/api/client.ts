@@ -52,6 +52,8 @@ type ApiFetchOptions = RequestInit & {
   skipAuth?: boolean
 }
 
+const SKIP_AUTH_HEADER = "X-Skip-Auth"
+
 const TECHNICAL_ERROR_PATTERN =
   /(pq:|sqlstate|duplicate key value|violates unique constraint|constraint\s+"[^"]+"|database|syntax error at or near|failed to [a-z_ ]+:)/i
 
@@ -93,15 +95,18 @@ export async function apiFetch<TResponse = unknown>(
     requestHeaders.set("Content-Type", "application/json")
   }
 
+  if (skipAuth) {
+    requestHeaders.set(SKIP_AUTH_HEADER, "true")
+  }
+
   const normalizedPath = normalizePath(path)
 
-  // Use proxy for all requests to maintain consistent auth handling
-  const targetUrl = skipAuth ? `${API_BASE_URL}${normalizedPath}` : `/api/backend${normalizedPath}`
+  const targetUrl = `/api/backend${normalizedPath}`
 
   console.log("Making API request:", {
     url: targetUrl,
     method: rest.method || "GET",
-    usingProxy: !skipAuth,
+    usingProxy: true,
     contentType: requestHeaders.get("Content-Type"),
     bodyType: rest.body instanceof FormData ? "FormData" : typeof rest.body,
   })

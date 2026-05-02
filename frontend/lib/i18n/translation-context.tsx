@@ -108,7 +108,7 @@ function resolveMessage(path: string, messages: Messages, values?: TranslationVa
 
     if (values) {
       result = Object.entries(values).reduce((text, [key, value]) => {
-        return text.replaceAll(`{${key}}`, String(value))
+        return text.replaceAll(`{{${key}}}`, String(value)).replaceAll(`{${key}}`, String(value))
       }, result)
     }
 

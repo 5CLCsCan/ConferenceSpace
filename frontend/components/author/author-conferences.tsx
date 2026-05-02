@@ -20,6 +20,7 @@ import { listConferences } from "@/lib/api/conferences"
 import { getConferenceSubmissions, type Submission } from "@/lib/api/submissions"
 import type { Conference } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { getSubmissionEligibility } from "@/lib/submission-eligibility"
 
 type ViewMode = "grid" | "list"
 
@@ -59,13 +60,24 @@ function mapSubmissionStatus(status: Submission["status"]): AuthorConference["st
 }
 
 function mapConferenceToExplore(conference: Conference): ExploreConference {
+  const eligibility = getSubmissionEligibility({
+    conferenceStatus: conference.status,
+    fullPaperDeadline:
+      conference.configurations?.full_paper_submission_deadline || conference.submission_deadline,
+  })
+
   return {
     id: conference.id,
     name: conference.acronym || conference.name,
     fullDescription: conference.description || conference.name,
     location: conference.location || "TBD",
     dates: formatConferenceDates(conference),
-    exploreStatus: conference.status === "open" ? "call-for-papers" : "upcoming",
+    exploreStatus:
+      eligibility.publicStatus === "call-for-papers"
+        ? "call-for-papers"
+        : eligibility.publicStatus === "submission-closed"
+          ? "submission-closed"
+          : "upcoming",
     topics: conference.domain?.slice(0, 3) || conference.tracks.slice(0, 3) || [],
   }
 }
@@ -297,7 +309,9 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
             const filtered = (res.data?.conferences || []).filter((c) => c.status !== "completed")
             const sorted = sortApiConferences(filtered, sortBy)
             const start = (currentPage - 1) * ITEMS_PER_PAGE
-            setExploreConferences(sorted.slice(start, start + ITEMS_PER_PAGE).map(mapConferenceToExplore))
+            setExploreConferences(
+              sorted.slice(start, start + ITEMS_PER_PAGE).map(mapConferenceToExplore),
+            )
             setExploreTotal(sorted.length)
           }
         } finally {
@@ -315,7 +329,9 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
           if (!cancelled) {
             const sorted = sortApiConferences(res.data?.conferences || [], sortBy)
             const start = (currentPage - 1) * ITEMS_PER_PAGE
-            setArchivedConferences(sorted.slice(start, start + ITEMS_PER_PAGE).map(mapConferenceToExplore))
+            setArchivedConferences(
+              sorted.slice(start, start + ITEMS_PER_PAGE).map(mapConferenceToExplore),
+            )
             setArchivedTotal(sorted.length)
           }
         } finally {

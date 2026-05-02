@@ -8,6 +8,7 @@ import type { Conference } from "@/lib/types"
 import { ROUTES } from "@/lib/routes"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { tStatic as t } from "@/lib/i18n/static-translate"
+import { getSubmissionEligibility } from "@/lib/submission-eligibility"
 
 // Scholar-Compact status badge matching chair role design
 const statusConfig: Record<string, { label: string; className: string }> = {
@@ -114,15 +115,12 @@ export function SubmissionHeader({
   const router = useRouter()
   const { user } = useAuth()
   const isAuthor = user?.email === submission.author
-  const submissionDeadline = conference?.configurations?.full_paper_submission_deadline
-    ? new Date(conference.configurations.full_paper_submission_deadline)
-    : null
-  const isDeadlinePassed = submissionDeadline !== null && new Date() > submissionDeadline
-  const canEditSubmission =
-    isAuthor &&
-    !isDeadlinePassed &&
-    submission.status !== "accepted" &&
-    submission.status !== "rejected"
+  const eligibility = getSubmissionEligibility({
+    conferenceStatus: conference?.status,
+    fullPaperDeadline: conference?.configurations?.full_paper_submission_deadline,
+    submission,
+  })
+  const canEditSubmission = isAuthor && eligibility.canEditExistingSubmission
 
   return (
     <header

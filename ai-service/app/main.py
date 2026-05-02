@@ -41,6 +41,8 @@ from app.workflows.paper_annotation.runner import PaperAnnotationRunner
 from app.workflows.paper_annotation.router import router as paper_annotation_router
 from app.workflows.submission_gating.runner import SubmissionGatingRunner
 from app.workflows.submission_gating.router import router as submission_gating_router
+from app.workflows.submission_autofill.runner import SubmissionAutofillRunner
+from app.workflows.submission_autofill.router import router as submission_autofill_router
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +69,7 @@ class AppContainer:
     decision_copilot_runner: DecisionCopilotRunner
     paper_annotation_repo: PaperAnnotationRepository
     paper_annotation_runner: PaperAnnotationRunner
+    submission_autofill_runner: SubmissionAutofillRunner
 
 
 @asynccontextmanager
@@ -136,6 +139,7 @@ async def lifespan(app: FastAPI):
         repo=paper_annotation_repo,
         llm_client=llm_client,
     )
+    submission_autofill_runner = SubmissionAutofillRunner(llm_client=llm_client)
     runtime = AgentRuntime(
         settings=settings,
         session_factory=session_factory,
@@ -166,6 +170,7 @@ async def lifespan(app: FastAPI):
         decision_copilot_runner=decision_copilot_runner,
         paper_annotation_repo=paper_annotation_repo,
         paper_annotation_runner=paper_annotation_runner,
+        submission_autofill_runner=submission_autofill_runner,
     )
 
     try:
@@ -196,6 +201,7 @@ def create_app() -> FastAPI:
     app.include_router(review_quality_audit_router)
     app.include_router(decision_copilot_router)
     app.include_router(paper_annotation_router)
+    app.include_router(submission_autofill_router)
     return app
 
 

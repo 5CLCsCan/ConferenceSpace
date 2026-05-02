@@ -27,8 +27,11 @@ import { AuthorsStep } from "./authors-step"
 import { FileUploadStep } from "./file-upload-step"
 import { ConflictsStep, type Conflict } from "./conflicts-step"
 import { ReviewStep } from "./review-step"
+import { SubmissionAutofillSheet } from "./submission-autofill-sheet"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { getSubmissionEligibility } from "@/lib/submission-eligibility"
 import { getManuscriptUploadError, isAcceptedManuscriptFile } from "./submission-file-validation"
+import type { SubmissionAutofillResponse } from "@/lib/api/submission-autofill"
 
 interface PaperSubmissionFormProps {
   conference?: Conference | null
@@ -59,6 +62,7 @@ export function PaperSubmissionForm({
   )
   const [showSuccessDialog, setShowSuccessDialog] = useState(false)
   const [showDraftSavedDialog, setShowDraftSavedDialog] = useState(false)
+  const [showAutofillSheet, setShowAutofillSheet] = useState(false)
   const [successMessage, setSuccessMessage] = useState("")
   const lastSavedSignatureRef = useRef<string>("")
 
@@ -148,17 +152,23 @@ export function PaperSubmissionForm({
           .filter((t): t is string => Boolean(t))
       : defaultTracks
 
-  const isNewSubmissionBlocked = !initialSubmission && conference?.status !== "open"
   const submissionDeadline = conference?.configurations?.full_paper_submission_deadline
     ? new Date(conference.configurations.full_paper_submission_deadline)
     : null
-  const isDeadlinePassed = submissionDeadline !== null && new Date() > submissionDeadline
+  const submissionEligibility = getSubmissionEligibility({
+    conferenceStatus: conference?.status,
+    fullPaperDeadline: conference?.configurations?.full_paper_submission_deadline,
+    submission: initialSubmission,
+  })
+  const isDeadlinePassed = submissionEligibility.isFullPaperDeadlinePassed
+  const isNewSubmissionBlocked = !initialSubmission && !submissionEligibility.canStartNewSubmission
   const shouldPublishOnSubmit =
-    initialSubmission?.status === "draft" || initialSubmission?.status === "withdrawn" || !initialSubmission
+    initialSubmission?.status === "draft" ||
+    initialSubmission?.status === "withdrawn" ||
+    !initialSubmission
+  const isPublishBlocked = isDeadlinePassed && shouldPublishOnSubmit
   const persistedSubmissionStatus =
-    initialSubmission && initialSubmission.status !== "draft"
-      ? initialSubmission.status
-      : "draft"
+    initialSubmission && initialSubmission.status !== "draft" ? initialSubmission.status : "draft"
 
   const mapSubmissionError = useCallback(
     (errorMessage: string | null, precheckBlocked?: PrecheckBlockedError | null): string => {
@@ -251,7 +261,7 @@ export function PaperSubmissionForm({
       if (!user || !conference) {
         return
       }
-      if (isDeadlinePassed) {
+      if (isPublishBlocked) {
         if (manual) {
           toast({
             title: t(
@@ -266,9 +276,12 @@ export function PaperSubmissionForm({
       if (isNewSubmissionBlocked) {
         if (manual) {
           toast({
-            title: t("runtime.components.author.submit.paper-submission-form.prop_title_submissions_are_closed"),
-            description:
-              t("runtime.components.author.submit.paper-submission-form.prop_description_draft_creation_is_disabled_because_this"),
+            title: t(
+              "runtime.components.author.submit.paper-submission-form.prop_title_submissions_are_closed",
+            ),
+            description: t(
+              "runtime.components.author.submit.paper-submission-form.prop_description_draft_creation_is_disabled_because_this",
+            ),
             variant: "destructive",
           })
         }
@@ -295,7 +308,9 @@ export function PaperSubmissionForm({
           setAutosaveStatus("error")
           if (manual) {
             toast({
-              title: t("runtime.components.author.submit.paper-submission-form.prop_title_failed_to_save_draft"),
+              title: t(
+                "runtime.components.author.submit.paper-submission-form.prop_title_failed_to_save_draft",
+              ),
               description: mapSubmissionError(response.error),
               variant: "destructive",
             })
@@ -314,16 +329,24 @@ export function PaperSubmissionForm({
 
         if (manual) {
           toast({
-            title: t("runtime.components.author.submit.paper-submission-form.prop_title_draft_saved_successfully"),
-            description: t("runtime.components.author.submit.paper-submission-form.prop_description_your_draft_has_been_saved_you"),
+            title: t(
+              "runtime.components.author.submit.paper-submission-form.prop_title_draft_saved_successfully",
+            ),
+            description: t(
+              "runtime.components.author.submit.paper-submission-form.prop_description_your_draft_has_been_saved_you",
+            ),
           })
         }
       } catch {
         setAutosaveStatus("error")
         if (manual) {
           toast({
-            title: t("runtime.components.author.submit.paper-submission-form.prop_title_error_saving_draft"),
-            description: t("runtime.components.author.submit.paper-submission-form.prop_description_an_unexpected_error_occurred_please_try"),
+            title: t(
+              "runtime.components.author.submit.paper-submission-form.prop_title_error_saving_draft",
+            ),
+            description: t(
+              "runtime.components.author.submit.paper-submission-form.prop_description_an_unexpected_error_occurred_please_try",
+            ),
             variant: "destructive",
           })
         }
@@ -336,7 +359,7 @@ export function PaperSubmissionForm({
       conference,
       draftSignature,
       draftSubmissionId,
-      isDeadlinePassed,
+      isPublishBlocked,
       hasUnsavedChanges,
       isNewSubmissionBlocked,
       mapSubmissionError,
@@ -415,7 +438,9 @@ export function PaperSubmissionForm({
         title: t(
           "runtime.components.author.submit.paper-submission-form.prop_title_invalid_file_type",
         ),
-        description: t("runtime.components.author.submit.paper-submission-form.prop_description_please_upload_a_pdf_docx_or"),
+        description: t(
+          "runtime.components.author.submit.paper-submission-form.prop_description_please_upload_a_pdf_docx_or",
+        ),
         variant: "destructive",
       })
       return
@@ -488,6 +513,69 @@ export function PaperSubmissionForm({
     setConflicts(conflicts.filter((c) => c.id !== id))
   }
 
+  const handleApplyAutofill = (result: SubmissionAutofillResponse) => {
+    const nextTitle = result.fields.title.value.trim()
+    const nextAbstract = result.fields.abstract.value.trim()
+    const nextKeywords = result.fields.keywords.value
+      .map((keyword) => keyword.trim())
+      .filter(Boolean)
+    const nextTrack = result.fields.track_name.value.trim()
+    const nextPaperType = result.fields.paper_type.value
+
+    if (nextTitle) setTitle(nextTitle)
+    if (nextAbstract) setAbstract(nextAbstract)
+    if (nextKeywords.length > 0) setKeywords(Array.from(new Set(nextKeywords)))
+    if (nextTrack && availableTracks.includes(nextTrack)) setSelectedTrack(nextTrack)
+    if (nextPaperType) setIsStudentPaper(nextPaperType === "student")
+
+    const generatedAuthors = result.authors
+      .filter((author) => author.name.trim() || author.email?.trim())
+      .map((author, index): Author => {
+        const nameParts = author.name.trim().split(/\s+/).filter(Boolean)
+        return {
+          id: `autofill-${index}-${author.email || author.name}`,
+          firstName: nameParts[0] || "",
+          lastName: nameParts.slice(1).join(" "),
+          email: author.email?.trim() || "",
+          affiliation: author.affiliation?.trim() || "",
+          country: author.country?.trim() || "",
+          isCorresponding:
+            Boolean(
+              user?.email && author.email?.trim().toLowerCase() === user.email.toLowerCase(),
+            ) || index === 0,
+        }
+      })
+
+    if (generatedAuthors.length > 0) {
+      const hasCorresponding = generatedAuthors.some((author) => author.isCorresponding)
+      setAuthors(
+        generatedAuthors.map((author, index) => ({
+          ...author,
+          isCorresponding: hasCorresponding ? author.isCorresponding : index === 0,
+        })),
+      )
+    }
+
+    const generatedConflicts = result.possible_conflicts
+      .filter((conflict) => conflict.name.trim() || conflict.email?.trim())
+      .map((conflict, index): Conflict => {
+        const nameParts = conflict.name.trim().split(/\s+/).filter(Boolean)
+        return {
+          id: `autofill-conflict-${index}-${conflict.email || conflict.name}`,
+          firstName: nameParts[0] || "",
+          lastName: nameParts.slice(1).join(" "),
+          email: conflict.email?.trim() || "",
+          reason: conflict.reason || "other",
+        }
+      })
+    if (generatedConflicts.length > 0) setConflicts(generatedConflicts)
+
+    setCoiConfirmed(false)
+    setSubmissionConfirmed(false)
+    setCurrentStep(uploadedFile || canUseServerSidePrecheck ? "review" : "file")
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
   useEffect(() => {
     if (!lastSavedSignatureRef.current) {
       lastSavedSignatureRef.current = draftSignature
@@ -540,11 +628,14 @@ export function PaperSubmissionForm({
       })
       return
     }
-    if (isDeadlinePassed) {
+    if (isPublishBlocked) {
       toast({
-        title: t("runtime.components.author.submit.paper-submission-form.prop_title_submission_deadline_has_passed"),
-        description:
-          t("runtime.components.author.submit.paper-submission-form.prop_description_publishing_is_no_longer_available_because"),
+        title: t(
+          "runtime.components.author.submit.paper-submission-form.prop_title_submission_deadline_has_passed",
+        ),
+        description: t(
+          "runtime.components.author.submit.paper-submission-form.prop_description_publishing_is_no_longer_available_because",
+        ),
         variant: "destructive",
       })
       return
@@ -586,7 +677,9 @@ export function PaperSubmissionForm({
       if (response.error) {
         setLastPrecheckBlock(response.precheckBlocked || null)
         toast({
-          title: t("runtime.components.author.submit.paper-submission-form.prop_title_submission_failed"),
+          title: t(
+            "runtime.components.author.submit.paper-submission-form.prop_title_submission_failed",
+          ),
           description: mapSubmissionError(response.error, response.precheckBlocked),
           variant: "destructive",
         })
@@ -623,8 +716,8 @@ export function PaperSubmissionForm({
   const canSubmit =
     !submitting &&
     !savingDraft &&
-    !isNewSubmissionBlocked &&
-    !isDeadlinePassed &&
+    (!isNewSubmissionBlocked || Boolean(initialSubmission)) &&
+    !isPublishBlocked &&
     submissionConfirmed &&
     coiConfirmed &&
     (hasPrecheckApproval || canUseServerSidePrecheck) &&
@@ -726,15 +819,30 @@ export function PaperSubmissionForm({
                 </span>
                 <div>
                   <p className="text-[12px] font-semibold text-red-700 dark:text-red-400">
-                    {t("runtime.components.author.submit.paper-submission-form.text_submission_deadline_has_passed")}{" "}</p>
+                    {initialSubmission
+                      ? t(
+                          "runtime.components.author.submit.paper-submission-form.text_new_submissions_are_closed",
+                        )
+                      : t(
+                          "runtime.components.author.submit.paper-submission-form.text_submission_deadline_has_passed",
+                        )}{" "}
+                  </p>
                   <p className="text-[11px] text-red-600 dark:text-red-500">
-                    {t("runtime.components.author.submit.paper-submission-form.text_the_deadline_was")}{" "}
-                    {submissionDeadline!.toLocaleDateString("en-US", {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                    {t("runtime.components.author.submit.paper-submission-form.text_new_submissions_and_publishing_are_no")}{" "}</p>
+                    {initialSubmission
+                      ? t(
+                          "runtime.components.author.submit.paper-submission-form.text_you_can_still_edit_this_submission_until_final_decision",
+                        )
+                      : `${t("runtime.components.author.submit.paper-submission-form.text_the_deadline_was")} ${submissionDeadline!.toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "long",
+                            day: "numeric",
+                            year: "numeric",
+                          },
+                        )}. ${t(
+                          "runtime.components.author.submit.paper-submission-form.text_this_conference_no_longer_accepts_new_submissions",
+                        )}`}
+                  </p>
                 </div>
               </div>
             )}
@@ -872,9 +980,18 @@ export function PaperSubmissionForm({
           savingDraft={savingDraft}
           onStepChange={setCurrentStep}
           onSaveDraft={handleSaveDraft}
+          onAutofill={() => setShowAutofillSheet(true)}
           onSubmit={handleSubmit}
           onCancel={() => router.back()}
           canSubmit={canSubmit}
+        />
+
+        <SubmissionAutofillSheet
+          open={showAutofillSheet}
+          onOpenChange={setShowAutofillSheet}
+          conferenceId={conference?.id}
+          availableTracks={availableTracks}
+          onApply={handleApplyAutofill}
         />
 
         {/* Draft Saved Dialog */}

@@ -65,4 +65,56 @@ describe("ConferenceHeader", () => {
 
     expect(pushMock).toHaveBeenCalledWith(ROUTES.AUTHOR.DASHBOARD)
   })
+
+  it("shows a closed submission action after the full-paper deadline when there is no submission", () => {
+    render(
+      <ConferenceHeader
+        conference={
+          {
+            ...conference,
+            configurations: {
+              full_paper_submission_deadline: new Date(
+                Date.now() - 24 * 60 * 60 * 1000,
+              ).toISOString(),
+            },
+          } as any
+        }
+        conferenceId="123"
+        activeTab="overview"
+        onTabChange={vi.fn()}
+        submission={null}
+      />,
+    )
+
+    expect(screen.getByRole("button", { name: /submissions closed/i })).toBeDisabled()
+    expect(screen.getByText(/no longer accepts new submissions/i)).toBeInTheDocument()
+    expect(screen.getByText(/submission closed/i)).toBeInTheDocument()
+  })
+
+  it("routes existing non-final submissions to the edit page after the deadline", () => {
+    render(
+      <ConferenceHeader
+        conference={
+          {
+            ...conference,
+            configurations: {
+              full_paper_submission_deadline: new Date(
+                Date.now() - 24 * 60 * 60 * 1000,
+              ).toISOString(),
+            },
+          } as any
+        }
+        conferenceId="123"
+        activeTab="overview"
+        onTabChange={vi.fn()}
+        submission={{ id: 456, status: "published" } as any}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole("button", { name: /edit submission/i }))
+
+    expect(pushMock).toHaveBeenCalledWith(
+      `${ROUTES.AUTHOR.SUBMISSION_EDIT("456")}?conferenceId=123`,
+    )
+  })
 })

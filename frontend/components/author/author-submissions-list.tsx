@@ -12,6 +12,7 @@ import { ROUTES } from "@/lib/routes"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { deletePaper } from "@/lib/api/papers"
 import { withdrawSubmission } from "@/lib/api/submissions"
+import { getSubmissionEligibility } from "@/lib/submission-eligibility"
 
 // -------------------------------------------------------------------------
 // Status Configuration (Scholar-Compact - Neutralized Colors)
@@ -67,11 +68,11 @@ function SubmissionStatusBadge({ status }: { status: string }) {
           ? t("runtime.components.author.author-submissions-list.prop_label_rejected")
           : status === "withdrawn"
             ? t("runtime.components.author.author-submissions-list.prop_label_withdrawn")
-          : status === "draft"
-            ? t("runtime.components.author.author-submissions-list.prop_label_draft")
-            : status === "published"
-              ? t("runtime.components.author.author-submissions-list.prop_label_submitted")
-              : status
+            : status === "draft"
+              ? t("runtime.components.author.author-submissions-list.prop_label_draft")
+              : status === "published"
+                ? t("runtime.components.author.author-submissions-list.prop_label_submitted")
+                : status
 
   return (
     <span
@@ -388,7 +389,9 @@ export function AuthorSubmissionsList() {
                 }
                 onDelete={() => setSubmissions((prev) => prev.filter((s) => s.id !== sub.id))}
                 onUpdate={(updated) =>
-                  setSubmissions((prev) => prev.map((item) => (item.id === updated.id ? updated : item)))
+                  setSubmissions((prev) =>
+                    prev.map((item) => (item.id === updated.id ? updated : item)),
+                  )
                 }
               />
             ))
@@ -568,12 +571,12 @@ function SubmissionRow({ submission, onClick, onDelete, onUpdate }: SubmissionRo
       onDelete()
     }
   }
-  const submissionDeadline = submission.conference.configurations?.full_paper_submission_deadline
-    ? new Date(submission.conference.configurations.full_paper_submission_deadline)
-    : null
-  const isDeadlinePassed = submissionDeadline !== null && new Date() > submissionDeadline
-  const canEditSubmission =
-    !isDeadlinePassed && submission.status !== "accepted" && submission.status !== "rejected"
+  const eligibility = getSubmissionEligibility({
+    conferenceStatus: submission.conference.status,
+    fullPaperDeadline: submission.conference.configurations?.full_paper_submission_deadline,
+    submission,
+  })
+  const canEditSubmission = eligibility.canEditExistingSubmission
   const canWithdrawSubmission = canEditSubmission && submission.status !== "withdrawn"
   const isDraft = submission.status === "draft"
   const isCompleted = submission.status === "accepted" || submission.status === "rejected"

@@ -34,7 +34,12 @@ export type TabType = "my-conferences" | "explore" | "drafts" | "archived"
 export type ViewMode = "grid" | "list"
 
 // Explore/Archived Conference Types
-export type ExploreStatus = "call-for-papers" | "registration-open" | "upcoming" | "workshop"
+export type ExploreStatus =
+  | "call-for-papers"
+  | "registration-open"
+  | "submission-closed"
+  | "upcoming"
+  | "workshop"
 
 export interface ExploreConference {
   id: string

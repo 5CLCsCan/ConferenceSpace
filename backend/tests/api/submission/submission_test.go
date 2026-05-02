@@ -442,6 +442,99 @@ func TestUpdateSubmission(t *testing.T) {
 	}
 }
 
+func TestUpdateSubmissionAfterDeadline(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	submissionClient := NewClient(ctx)
+	conferenceClient := conference.NewClient(ctx)
+
+	chairToken, chair, err := ctx.RegisterUniqueUser("deadlinechair", "password123", "Deadline", "Chair", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register chair user: %v", err)
+	}
+	authorToken, author, err := ctx.RegisterUniqueUser("deadlineauthor", "password123", "Deadline", "Author", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register author user: %v", err)
+	}
+
+	pastDeadline := time.Now().Add(-24 * time.Hour)
+	conf := &dto.Conference{
+		Title:   "Past Deadline Conference",
+		Acronym: testutils.UniqueString("PDC2026"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI"},
+		Configurations: &dto.ConferenceConfiguration{
+			FullPaperSubmissionDeadline: &pastDeadline,
+		},
+	}
+	confResp, err := conferenceClient.CreateSuccess(conf, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to create conference: %v", err)
+	}
+	conferenceID := confResp.ID
+
+	draftSubmission := &dto.Submission{
+		ConferenceID: conferenceID,
+		Author:       author.Email,
+		Title:        "Draft Before Closed Gate",
+		Abstract:     "A draft created before publication is attempted.",
+		Domain:       []string{"AI"},
+		Status:       dto.StatusDraft,
+	}
+	createdDraft, err := submissionClient.CreateSuccess(conferenceID, draftSubmission, authorToken)
+	if err != nil {
+		t.Fatalf("Failed to create draft submission: %v", err)
+	}
+
+	t.Run("allows editing existing non-final submission after deadline", func(t *testing.T) {
+		update := &dto.Submission{
+			ConferenceID: conferenceID,
+			Author:       author.Email,
+			Title:        "Updated After Deadline",
+			Abstract:     "Existing non-final edits remain available.",
+			Domain:       []string{"AI"},
+			Status:       dto.StatusDraft,
+		}
+
+		resp, err := submissionClient.Update(conferenceID, createdDraft.ID, update, authorToken)
+		if err != nil {
+			t.Fatalf("Failed to update submission: %v", err)
+		}
+
+		testutils.AssertStatusCode(t, resp, http.StatusOK)
+
+		updated, err := submissionClient.GetSuccess(conferenceID, createdDraft.ID, authorToken)
+		if err != nil {
+			t.Fatalf("Failed to reload updated submission: %v", err)
+		}
+		if updated.Title != "Updated After Deadline" {
+			t.Fatalf("Expected title to be updated after deadline, got %q", updated.Title)
+		}
+		if updated.Status != dto.StatusDraft {
+			t.Fatalf("Expected status to remain draft, got %q", updated.Status)
+		}
+	})
+
+	t.Run("blocks draft publish bypass through update after deadline", func(t *testing.T) {
+		update := &dto.Submission{
+			ConferenceID: conferenceID,
+			Author:       author.Email,
+			Title:        "Draft Before Closed Gate",
+			Abstract:     "A draft created before publication is attempted.",
+			Domain:       []string{"AI"},
+			Status:       dto.StatusPublished,
+		}
+
+		resp, err := submissionClient.Update(conferenceID, createdDraft.ID, update, authorToken)
+		if err != nil {
+			t.Fatalf("Failed to update submission: %v", err)
+		}
+
+		testutils.AssertStatusCode(t, resp, http.StatusForbidden)
+	})
+}
+
 func TestDeleteSubmission(t *testing.T) {
 	ctx := testutils.NewTestContext(t)
 	defer ctx.Close()

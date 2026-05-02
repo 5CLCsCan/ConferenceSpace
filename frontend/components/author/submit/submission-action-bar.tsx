@@ -10,6 +10,7 @@ interface SubmissionActionBarProps {
   savingDraft?: boolean
   onStepChange: (step: StepType) => void
   onSaveDraft: () => void
+  onAutofill?: () => void
   onSubmit: () => void
   onCancel?: () => void
   canSubmit?: boolean
@@ -23,6 +24,7 @@ export function SubmissionActionBar({
   savingDraft = false,
   onStepChange,
   onSaveDraft,
+  onAutofill,
   onSubmit,
   onCancel,
   canSubmit = true,
@@ -98,6 +100,20 @@ export function SubmissionActionBar({
 
         {/* Right Side Actions */}
         <div className="flex items-center gap-3">
+          {onAutofill && (
+            <button
+              type="button"
+              onClick={onAutofill}
+              disabled={submitting || savingDraft}
+              className="hidden md:flex items-center gap-1.5 h-8 px-3 rounded-full border border-slate-200 bg-white text-[10px] font-bold text-[#1B3C53] hover:border-[#1B3C53]/40 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 transition-colors uppercase tracking-wider disabled:opacity-50"
+            >
+              <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
+              {t(
+                "runtime.components.author.submit.submission-action-bar.text_autofill_with_submission",
+              )}
+            </button>
+          )}
+
           {/* Save Draft Button */}
           <button
             type="button"

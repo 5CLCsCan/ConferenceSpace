@@ -5,6 +5,7 @@ import type { Conference } from "@/lib/types"
 import type { Submission } from "@/lib/api/submissions"
 import { publishPaper, submitPaper, updatePaper } from "@/lib/api/papers"
 import { updateSubmissionStatus } from "@/lib/api/submissions"
+import type { SubmissionAutofillResponse } from "@/lib/api/submission-autofill"
 
 vi.mock("@/lib/i18n/translation-context", async () => {
   const { tStatic } = await vi.importActual<typeof import("@/lib/i18n/static-translate")>(
@@ -71,7 +72,12 @@ vi.mock("../submission-progress-sidebar", () => ({
   SubmissionProgressSidebar: ({ onStepChange }: { onStepChange: (step: string) => void }) => (
     <div data-testid="progress-sidebar">
       {(["paper", "authors", "file", "coi", "review"] as const).map((step) => (
-        <button key={step} type="button" data-testid={`step-${step}`} onClick={() => onStepChange(step)}>
+        <button
+          key={step}
+          type="button"
+          data-testid={`step-${step}`}
+          onClick={() => onStepChange(step)}
+        >
           {step}
         </button>
       ))}
@@ -100,8 +106,13 @@ vi.mock("../conflicts-step", () => ({
   ),
 }))
 vi.mock("../review-step", () => ({
-  ReviewStep: ({ submissionConfirmed, onSubmissionConfirmedChange }: any) => (
+  ReviewStep: ({ title, abstract, keywords, authors, selectedTrack, submissionConfirmed, onSubmissionConfirmedChange }: any) => (
     <label data-testid="review-step">
+      <span data-testid="review-title">{title}</span>
+      <span data-testid="review-abstract">{abstract}</span>
+      <span data-testid="review-keywords">{keywords.join(",")}</span>
+      <span data-testid="review-track">{selectedTrack}</span>
+      <span data-testid="review-authors">{authors.map((author: any) => author.email).join(",")}</span>
       <input
         type="checkbox"
         data-testid="submission-confirmed-checkbox"
@@ -111,26 +122,74 @@ vi.mock("../review-step", () => ({
     </label>
   ),
 }))
+vi.mock("../submission-autofill-sheet", () => ({
+  SubmissionAutofillSheet: ({ open, onApply }: any) =>
+    open ? (
+      <button
+        type="button"
+        data-testid="apply-autofill"
+        onClick={() =>
+          onApply({
+            fields: {
+              title: field("Generated Title"),
+              abstract: field("Generated abstract"),
+              keywords: field(["AI", "Review"]),
+              track_name: field("Artificial Intelligence & Machine Learning"),
+              paper_type: field("student"),
+              additional_notes: field("Generated notes"),
+            },
+            authors: [
+              {
+                name: "Author User",
+                email: "author@example.com",
+                affiliation: "HCMUS",
+                country: "Vietnam",
+                confidence: "high",
+                evidence: [],
+                warnings: [],
+              },
+              {
+                name: "Second Author",
+                email: "second@example.com",
+                affiliation: "HCMUS",
+                country: "Vietnam",
+                confidence: "medium",
+                evidence: [],
+                warnings: [],
+              },
+            ],
+            possible_conflicts: [],
+            warnings: [],
+          } satisfies Partial<SubmissionAutofillResponse>)
+        }
+      >
+        Apply generated data
+      </button>
+    ) : null,
+}))
 vi.mock("../submission-action-bar", () => ({
-  SubmissionActionBar: ({ currentStep, canSubmit, onStepChange, onSubmit }: any) => {
+  SubmissionActionBar: ({ currentStep, canSubmit, onStepChange, onSubmit, onSaveDraft, onAutofill }: any) => {
     const stepOrder = ["paper", "authors", "file", "coi", "review"] as const
     const currentIndex = stepOrder.indexOf(currentStep)
     const isLastStep = currentStep === "review"
     return (
-    <div data-testid="action-bar">
-      {isLastStep ? (
-        <button disabled={canSubmit === false} data-testid="submit-btn" onClick={onSubmit}>
-          Submit Paper
+      <div data-testid="action-bar">
+        <button data-testid="autofill-btn" onClick={onAutofill}>
+          Autofill
         </button>
-      ) : (
-        <button
-          data-testid="next-btn"
-          onClick={() => onStepChange(stepOrder[currentIndex + 1])}
-        >
-          Next
+        <button data-testid="save-draft-btn" onClick={onSaveDraft}>
+          Save Draft
         </button>
-      )}
-    </div>
+        {isLastStep ? (
+          <button disabled={canSubmit === false} data-testid="submit-btn" onClick={onSubmit}>
+            Submit Paper
+          </button>
+        ) : (
+          <button data-testid="next-btn" onClick={() => onStepChange(stepOrder[currentIndex + 1])}>
+            Next
+          </button>
+        )}
+      </div>
     )
   },
 }))
@@ -194,9 +253,14 @@ function makeSubmission(overrides?: Partial<Submission>): Submission {
   }
 }
 
+function field<T>(value: T) {
+  return { value, confidence: "high" as const, evidence: [], warnings: [] }
+}
+
 describe("PaperSubmissionForm — deadline enforcement (UI-NEG-02)", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    window.scrollTo = vi.fn()
   })
 
   it("shows no deadline warning when no deadline is set", () => {
@@ -240,6 +304,28 @@ describe("PaperSubmissionForm — deadline enforcement (UI-NEG-02)", () => {
     fireEvent.click(screen.getByTestId("step-review"))
     const submitBtn = screen.getByTestId("submit-btn")
     expect(submitBtn).toBeDisabled()
+  })
+
+  it("allows saving edits to an existing non-final submission after the deadline", async () => {
+    const pastDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+    vi.mocked(updatePaper).mockResolvedValue({
+      data: { id: "10" },
+      error: null,
+      precheckBlocked: null,
+    } as any)
+
+    render(
+      <PaperSubmissionForm
+        conference={makeConference({
+          configurations: { full_paper_submission_deadline: pastDate },
+        })}
+        submission={makeSubmission({ status: "published" })}
+      />,
+    )
+
+    fireEvent.click(screen.getByTestId("save-draft-btn"))
+
+    await waitFor(() => expect(updatePaper).toHaveBeenCalledTimes(1))
   })
 
   it("does not show deadline warning when deadline is in the future", () => {
@@ -316,5 +402,31 @@ describe("PaperSubmissionForm — deadline enforcement (UI-NEG-02)", () => {
     await waitFor(() => expect(updatePaper).toHaveBeenCalledTimes(1))
     await waitFor(() => expect(updateSubmissionStatus).toHaveBeenCalledWith("1", "10", "draft"))
     await waitFor(() => expect(publishPaper).toHaveBeenCalledWith("10", "1"))
+  })
+
+  it("applies generated autofill data to the draft and shows the review step", async () => {
+    render(
+      <PaperSubmissionForm
+        conference={makeConference({
+          tracks: ["Artificial Intelligence & Machine Learning", "Systems"],
+        })}
+        submission={makeSubmission({ status: "draft" })}
+      />,
+    )
+
+    fireEvent.click(screen.getByTestId("autofill-btn"))
+    fireEvent.click(screen.getByTestId("apply-autofill"))
+
+    expect(screen.getByTestId("review-step")).toBeInTheDocument()
+    expect(screen.getByTestId("review-title")).toHaveTextContent("Generated Title")
+    expect(screen.getByTestId("review-abstract")).toHaveTextContent("Generated abstract")
+    expect(screen.getByTestId("review-keywords")).toHaveTextContent("AI,Review")
+    expect(screen.getByTestId("review-track")).toHaveTextContent(
+      "Artificial Intelligence & Machine Learning",
+    )
+    expect(screen.getByTestId("review-authors")).toHaveTextContent(
+      "author@example.com,second@example.com",
+    )
+    expect(screen.getByTestId("submission-confirmed-checkbox")).not.toBeChecked()
   })
 })

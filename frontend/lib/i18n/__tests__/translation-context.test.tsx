@@ -2,9 +2,15 @@ import { describe, it, expect, beforeEach } from "vitest"
 import { render } from "@testing-library/react"
 import { TranslationProvider, useTranslation } from "../translation-context"
 
-function TranslationProbe({ keyValue }: { keyValue: unknown }) {
+function TranslationProbe({
+  keyValue,
+  values,
+}: {
+  keyValue: unknown
+  values?: Record<string, string | number>
+}) {
   const { t } = useTranslation()
-  return <span>{t(keyValue as any)}</span>
+  return <span>{t(keyValue as any, values)}</span>
 }
 
 describe("translation-context", () => {
@@ -20,5 +26,18 @@ describe("translation-context", () => {
         </TranslationProvider>,
       ),
     ).not.toThrow()
+  })
+
+  it("interpolates double-brace placeholders without leaving braces behind", () => {
+    const { getByText } = render(
+      <TranslationProvider>
+        <TranslationProbe
+          keyValue="dashboard.roles.reviewer.papers.description"
+          values={{ count: 0 }}
+        />
+      </TranslationProvider>,
+    )
+
+    expect(getByText("0 papers assigned to you in this conference.")).toBeDefined()
   })
 })

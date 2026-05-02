@@ -7,13 +7,15 @@ import type { Conference, TabType } from "./types"
 import { formatDateRange, getConferenceStatus } from "./utils"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { tStatic as t } from "@/lib/i18n/static-translate"
+import { getSubmissionEligibility, type SubmissionLike } from "@/lib/submission-eligibility"
 
 interface ConferenceHeaderProps {
   conference: Conference
   conferenceId: string
   activeTab: TabType
   onTabChange: (tab: TabType) => void
-  hasSubmission: boolean
+  hasSubmission?: boolean
+  submission?: SubmissionLike | null
 }
 
 const TABS: { id: TabType; label: string; icon: string }[] = [
@@ -48,13 +50,32 @@ export function ConferenceHeader({
   conferenceId,
   activeTab,
   onTabChange,
-  hasSubmission,
+  submission,
 }: ConferenceHeaderProps) {
   const { t } = useTranslation()
   const router = useRouter()
-  const status = getConferenceStatus(conference)
-  const canSubmit = conference.status === "open"
-  const showSubmitBlocked = !hasSubmission && !canSubmit
+  const effectiveSubmission = submission ?? null
+  const status = getConferenceStatus(conference, effectiveSubmission)
+  const eligibility = getSubmissionEligibility({
+    conferenceStatus: conference.status,
+    fullPaperDeadline:
+      conference.configurations?.full_paper_submission_deadline || conference.submission_deadline,
+    submission: effectiveSubmission,
+  })
+  const showSubmitBlocked = !effectiveSubmission && !eligibility.canStartNewSubmission
+  const submissionsClosedMessage = t(
+    "runtime.components.author.conference-detail.conference-header.text_this_conference_no_longer_accepts_new_submissions",
+  )
+  const actionLabel =
+    eligibility.action === "edit"
+      ? t("runtime.components.author.conference-detail.conference-header.text_edit_submission")
+      : eligibility.action === "view"
+        ? t("runtime.components.author.conference-detail.conference-header.text_view_submission")
+        : eligibility.action === "submit"
+          ? t("runtime.components.author.conference-detail.conference-header.text_submit_paper")
+          : t(
+              "runtime.components.author.conference-detail.conference-header.text_submissions_closed",
+            )
 
   return (
     <header
@@ -146,9 +167,15 @@ export function ConferenceHeader({
             type="button"
             disabled={showSubmitBlocked}
             onClick={() => {
-              if (hasSubmission) {
-                router.push(`${ROUTES.AUTHOR.SUBMISSIONS}?conferenceId=${conferenceId}`)
-              } else if (canSubmit) {
+              if (eligibility.canEditExistingSubmission && effectiveSubmission) {
+                router.push(
+                  `${ROUTES.AUTHOR.SUBMISSION_EDIT(String(effectiveSubmission.id))}?conferenceId=${conferenceId}`,
+                )
+              } else if (eligibility.canViewExistingSubmission && effectiveSubmission) {
+                router.push(
+                  `${ROUTES.AUTHOR.SUBMISSION_DETAIL(String(effectiveSubmission.id))}?conferenceId=${conferenceId}`,
+                )
+              } else if (eligibility.canStartNewSubmission) {
                 router.push(`${ROUTES.AUTHOR.NEW_SUBMISSION}?conferenceId=${conferenceId}`)
               }
             }}
@@ -158,11 +185,7 @@ export function ConferenceHeader({
                 ? "bg-slate-200 text-slate-500 cursor-not-allowed"
                 : "bg-[#1B3C53] text-white hover:bg-[#234C6A]",
             )}
-            title={
-              showSubmitBlocked
-                ? `Submissions are closed. Conference status is '${conference.status}'.`
-                : undefined
-            }
+            title={showSubmitBlocked ? submissionsClosedMessage : undefined}
           >
             <span
               className="material-symbols-outlined"
@@ -183,16 +206,12 @@ export function ConferenceHeader({
                 boxSizing: "border-box",
               }}
             >
-              {hasSubmission ? "description" : "add_circle"}
+              {eligibility.canViewExistingSubmission ? "description" : "add_circle"}
             </span>
-            {hasSubmission ? "View Submission" : "Submit Paper"}
+            {actionLabel}
           </button>
           {showSubmitBlocked && (
-            <span className="text-[10px] text-slate-500">
-              {t(
-                "runtime.components.author.conference-detail.conference-header.text_submissions_are_closed_for_this_conference",
-              )}{" "}
-            </span>
+            <span className="text-[10px] text-slate-500">{submissionsClosedMessage}</span>
           )}
         </div>
       </div>

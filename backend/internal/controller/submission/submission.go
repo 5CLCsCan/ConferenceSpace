@@ -41,6 +41,7 @@ type Controller struct {
 	roleStorage           conferenceuserrole.StorageInterface
 	gatingClient          GatingClient
 	decisionCopilotClient DecisionCopilotClient
+	autofillClient        SubmissionAutofillClient
 	coiService            *coiService.Service
 	notificationService   *notificationService.Service
 }
@@ -73,9 +74,19 @@ type DecisionCopilotClient interface {
 	) (*aiServiceClient.DecisionCopilotResolveResponse, error)
 }
 
+type SubmissionAutofillClient interface {
+	RunSubmissionAutofill(
+		ctx context.Context,
+		token string,
+		requestPayload *aiServiceClient.SubmissionAutofillRunRequest,
+		files []aiServiceClient.SubmissionAutofillFileContent,
+	) (*aiServiceClient.SubmissionAutofillRunResponse, error)
+}
+
 type AIWorkflowClient interface {
 	GatingClient
 	DecisionCopilotClient
+	SubmissionAutofillClient
 }
 
 func New(store *storage.Storage, fileStore fileStorage.StorageInterface, aiWorkflowClient AIWorkflowClient, coiSvc *coiService.Service) *Controller {
@@ -89,6 +100,7 @@ func New(store *storage.Storage, fileStore fileStorage.StorageInterface, aiWorkf
 		roleStorage:           store.ConferenceUserRole,
 		gatingClient:          aiWorkflowClient,
 		decisionCopilotClient: aiWorkflowClient,
+		autofillClient:        aiWorkflowClient,
 		coiService:            coiSvc,
 	}
 }
@@ -111,6 +123,7 @@ func NewWithNotifications(
 		roleStorage:           store.ConferenceUserRole,
 		gatingClient:          aiWorkflowClient,
 		decisionCopilotClient: aiWorkflowClient,
+		autofillClient:        aiWorkflowClient,
 		coiService:            coiSvc,
 		notificationService:   notifSvc,
 	}
@@ -536,7 +549,9 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.SubmissionUpdateReques
 	}
 	if conference.Configurations != nil && conference.Configurations.FullPaperSubmissionDeadline != nil {
 		if time.Now().After(*conference.Configurations.FullPaperSubmissionDeadline) {
-			return nil, handler.NewErrorResponse(http.StatusForbidden, "submission deadline has passed")
+			if req.Submission.Status != "" && req.Submission.Status != existing.Status {
+				return nil, handler.NewErrorResponse(http.StatusForbidden, "submission status changes are not allowed after the submission deadline")
+			}
 		}
 	}
 

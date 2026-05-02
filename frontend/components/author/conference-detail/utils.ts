@@ -1,4 +1,6 @@
 import type { Conference } from "./types"
+import { getSubmissionEligibility, type SubmissionLike } from "@/lib/submission-eligibility"
+import { tStatic as t } from "@/lib/i18n/static-translate"
 
 export function formatDateRange(start?: string, end?: string): string {
   if (!start) return "Dates TBD"
@@ -9,13 +11,29 @@ export function formatDateRange(start?: string, end?: string): string {
   return `${s.toLocaleDateString("en-US", options)} - ${e.toLocaleDateString("en-US", { ...options, year: "numeric" })}`
 }
 
-export function getConferenceStatus(conference: Conference): { label: string; color: string } {
+export function getConferenceStatus(
+  conference: Conference,
+  submission?: SubmissionLike | null,
+): { label: string; color: string } {
   const now = new Date()
-  const deadline = conference.submission_deadline ? new Date(conference.submission_deadline) : null
+  const eligibility = getSubmissionEligibility({
+    conferenceStatus: conference.status,
+    fullPaperDeadline:
+      conference.configurations?.full_paper_submission_deadline || conference.submission_deadline,
+    submission,
+    now,
+  })
   const confEnd = conference.conference_end_date ? new Date(conference.conference_end_date) : null
 
-  if (deadline && now < deadline)
+  if (eligibility.publicStatus === "call-for-papers")
     return { label: "Active", color: "bg-green-50 text-green-700 border-green-200" }
+  if (eligibility.publicStatus === "submission-closed")
+    return {
+      label: t(
+        "runtime.components.author.conference-detail.conference-header.prop_label_submission_closed",
+      ),
+      color: "bg-slate-100 text-slate-600 border-slate-200",
+    }
   if (confEnd && now >= confEnd)
     return { label: "Completed", color: "bg-slate-100 text-slate-600 border-slate-200" }
   return { label: "Registration Open", color: "bg-blue-50 text-blue-700 border-blue-200" }

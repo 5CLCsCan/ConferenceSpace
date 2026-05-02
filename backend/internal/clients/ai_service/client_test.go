@@ -144,6 +144,66 @@ func TestRunSubmissionMaterialGating(t *testing.T) {
 	})
 }
 
+func TestRunSubmissionAutofill(t *testing.T) {
+	t.Run("posts multipart request and repeated files", func(t *testing.T) {
+		var gotAuth string
+		var gotRequestField string
+		gotFiles := map[string]string{}
+
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			gotAuth = r.Header.Get("Authorization")
+			require.Equal(t, http.MethodPost, r.Method)
+			require.NoError(t, r.ParseMultipartForm(1<<20))
+			gotRequestField = r.FormValue("request")
+
+			for _, fieldName := range []string{"files.file-1", "files.file-2"} {
+				files := r.MultipartForm.File[fieldName]
+				require.Len(t, files, 1)
+				header := files[0]
+				file, err := header.Open()
+				require.NoError(t, err)
+				content, err := io.ReadAll(file)
+				require.NoError(t, err)
+				require.NoError(t, file.Close())
+				gotFiles[header.Filename] = string(content)
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"run_id":"run-autofill","status":"ready","fields":{"title":{"value":"Title","confidence":"high","evidence":[],"warnings":[]},"abstract":{"value":"Abstract","confidence":"high","evidence":[],"warnings":[]},"keywords":{"value":["ai"],"confidence":"medium","evidence":[],"warnings":[]},"track_name":{"value":"AI","confidence":"low","evidence":[],"warnings":[]},"paper_type":{"value":"research","confidence":"medium","evidence":[],"warnings":[]},"additional_notes":{"value":"","confidence":"not_found","evidence":[],"warnings":[]}},"authors":[],"possible_conflicts":[],"materials":[],"warnings":[]}`))
+		}))
+		defer server.Close()
+
+		client := NewClient(Config{BaseURL: server.URL, TimeoutSeconds: 5})
+		response, err := client.RunSubmissionAutofill(
+			context.Background(),
+			"token-123",
+			&SubmissionAutofillRunRequest{
+				ConferenceID:    42,
+				Actor:           ActorPayload{UserID: 7, Email: "author@example.com", Role: "author"},
+				ExtraDetails:    "Use the revised title.",
+				AvailableTracks: []string{"AI"},
+				Files: []SubmissionAutofillFileMetadata{
+					{FileID: "file-1", OriginalFilename: "paper.pdf", ContentType: "application/pdf", SizeBytes: 5},
+					{FileID: "file-2", OriginalFilename: "appendix.docx", ContentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", SizeBytes: 8},
+				},
+			},
+			[]SubmissionAutofillFileContent{
+				{FileID: "file-1", Filename: "paper.pdf", Content: []byte("paper")},
+				{FileID: "file-2", Filename: "appendix.docx", Content: []byte("appendix")},
+			},
+		)
+
+		require.NoError(t, err)
+		require.NotNil(t, response)
+		assert.Equal(t, "Bearer token-123", gotAuth)
+		assert.Contains(t, gotRequestField, `"conference_id":42`)
+		assert.Contains(t, gotRequestField, `"extra_details":"Use the revised title."`)
+		assert.Equal(t, map[string]string{"paper.pdf": "paper", "appendix.docx": "appendix"}, gotFiles)
+		assert.Equal(t, "run-autofill", response.RunID)
+		assert.Equal(t, "Title", response.Fields.Title.Value)
+	})
+}
+
 func TestReviewerBriefingClient(t *testing.T) {
 	t.Run("lookup posts json payload and decodes response", func(t *testing.T) {
 		var gotAuth string

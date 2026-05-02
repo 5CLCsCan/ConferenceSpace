@@ -10,7 +10,7 @@ import {
   type Conference,
   type ImportantDate,
 } from "@/lib/api/conferences"
-import { getConferenceSubmissions } from "@/lib/api/submissions"
+import { getConferenceSubmissions, type Submission } from "@/lib/api/submissions"
 import {
   ConferenceHeader,
   OverviewTab,
@@ -33,7 +33,7 @@ export function AuthorConferenceDetail({ conferenceId }: AuthorConferenceDetailP
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<TabType>("overview")
-  const [hasSubmission, setHasSubmission] = useState(false)
+  const [submission, setSubmission] = useState<Submission | null>(null)
 
   useEffect(() => {
     async function fetchData() {
@@ -68,7 +68,12 @@ export function AuthorConferenceDetail({ conferenceId }: AuthorConferenceDetailP
           },
         })
         setDates(datesResponse.data || [])
-        setHasSubmission((submissionsResponse.data?.submissions || []).length > 0)
+        const submissions = submissionsResponse.data?.submissions || []
+        setSubmission(
+          [...submissions].sort(
+            (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+          )[0] || null,
+        )
       } catch (fetchError) {
         setError(fetchError instanceof Error ? fetchError.message : "Failed to load conference")
       } finally {
@@ -109,7 +114,7 @@ export function AuthorConferenceDetail({ conferenceId }: AuthorConferenceDetailP
         conferenceId={conferenceId}
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        hasSubmission={hasSubmission}
+        submission={submission}
       />
 
       <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-black">

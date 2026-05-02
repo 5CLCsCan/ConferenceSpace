@@ -12,6 +12,7 @@ const BACKEND_API_BASE_URL =
 async function handler(req: NextRequest) {
   const cookieStore = await cookies()
   const token = cookieStore.get(AUTH_COOKIE_NAME)?.value
+  const skipAuth = req.headers.get("X-Skip-Auth") === "true"
 
   const pathname = req.nextUrl.pathname.replace(/^\/api\/backend/, "")
   const normalizedPath = pathname.startsWith("/") ? pathname : `/${pathname}`
@@ -22,8 +23,12 @@ async function handler(req: NextRequest) {
   headers.delete("host")
   headers.delete("connection")
   headers.delete("cookie")
+  headers.delete("origin")
+  headers.delete("access-control-request-method")
+  headers.delete("access-control-request-headers")
+  headers.delete("X-Skip-Auth")
 
-  if (token) {
+  if (token && !skipAuth) {
     headers.set("Authorization", `Bearer ${token}`)
   } else {
     headers.delete("Authorization")
