@@ -3,6 +3,7 @@ package submission
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -257,6 +258,12 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.SubmissionCreateReques
 	// Create the submission first
 	submission, err := c.submissionStorage.Create(ctx, req.Submission)
 	if err != nil {
+		if errors.Is(err, submissionStorage.ErrAuthorAlreadySubmitted) {
+			return nil, handler.NewErrorResponse(
+				http.StatusConflict,
+				"You already have a submission for this conference. Open your existing submission instead of creating a new one.",
+			)
+		}
 		return nil, err
 	}
 

@@ -65,6 +65,7 @@ export function PaperSubmissionForm({
   const [showAutofillSheet, setShowAutofillSheet] = useState(false)
   const [successMessage, setSuccessMessage] = useState("")
   const lastSavedSignatureRef = useRef<string>("")
+  const lastAutosaveErrorRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (initialSubmission?.id) {
@@ -306,18 +307,28 @@ export function PaperSubmissionForm({
 
         if (response.error) {
           setAutosaveStatus("error")
+          const description = mapSubmissionError(response.error)
+          const shouldShowError = manual || response.error !== lastAutosaveErrorRef.current
           if (manual) {
             toast({
               title: t(
                 "runtime.components.author.submit.paper-submission-form.prop_title_failed_to_save_draft",
               ),
-              description: mapSubmissionError(response.error),
+              description,
+              variant: "destructive",
+            })
+          } else if (shouldShowError) {
+            toast({
+              title: "Draft could not be saved",
+              description,
               variant: "destructive",
             })
           }
+          lastAutosaveErrorRef.current = response.error
           return
         }
 
+        lastAutosaveErrorRef.current = null
         if (!draftSubmissionId && response.data?.id) {
           setDraftSubmissionId(response.data.id)
         }
@@ -521,7 +532,8 @@ export function PaperSubmissionForm({
       .filter(Boolean)
     const nextTrack =
       result.selected_track_name?.trim() ||
-      result.track_rankings.find((ranking) => availableTracks.includes(ranking.track_name))?.track_name ||
+      result.track_rankings.find((ranking) => availableTracks.includes(ranking.track_name))
+        ?.track_name ||
       ""
     const nextPaperType = result.fields.paper_type.value
 
@@ -595,21 +607,14 @@ export function PaperSubmissionForm({
     }
 
     const interval = window.setInterval(() => {
-      if (hasUnsavedChanges && !savingDraft && !submitting) {
+      const hasCurrentUnsavedChanges = draftSignature !== lastSavedSignatureRef.current
+      if (hasCurrentUnsavedChanges && !savingDraft && !submitting) {
         void saveDraft()
       }
     }, AUTOSAVE_INTERVAL_MS)
 
     return () => window.clearInterval(interval)
-  }, [
-    conference,
-    hasUnsavedChanges,
-    isNewSubmissionBlocked,
-    saveDraft,
-    savingDraft,
-    submitting,
-    user,
-  ])
+  }, [conference, draftSignature, isNewSubmissionBlocked, saveDraft, savingDraft, submitting, user])
 
   // Save draft handler
   const handleSaveDraft = async () => {

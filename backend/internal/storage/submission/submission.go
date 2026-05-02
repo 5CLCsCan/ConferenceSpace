@@ -3,6 +3,7 @@ package submission
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -12,6 +13,15 @@ import (
 	"github.com/dcao/conferencespace/internal/model"
 	"github.com/lib/pq"
 )
+
+var ErrAuthorAlreadySubmitted = errors.New("author already has a submission for this conference")
+
+func isAuthorAlreadySubmittedError(err error) bool {
+	pqErr, ok := err.(*pq.Error)
+	return ok &&
+		string(pqErr.Code) == "23505" &&
+		pqErr.Constraint == "idx_unique_author_per_conference"
+}
 
 type QueryParams struct {
 	Limit        int
@@ -100,6 +110,9 @@ func (s *Storage) Create(ctx context.Context, sub *dto.Submission) (*dto.Submiss
 	)
 
 	if err != nil {
+		if isAuthorAlreadySubmittedError(err) {
+			return nil, ErrAuthorAlreadySubmitted
+		}
 		return nil, fmt.Errorf("failed to create submission: %w", err)
 	}
 

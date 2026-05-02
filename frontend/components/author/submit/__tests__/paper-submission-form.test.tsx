@@ -1,11 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { PaperSubmissionForm } from "../paper-submission-form"
 import type { Conference } from "@/lib/types"
 import type { Submission } from "@/lib/api/submissions"
 import { publishPaper, submitPaper, updatePaper } from "@/lib/api/papers"
 import { updateSubmissionStatus } from "@/lib/api/submissions"
 import type { SubmissionAutofillResponse } from "@/lib/api/submission-autofill"
+
+const toastMock = vi.fn()
 
 vi.mock("@/lib/i18n/translation-context", async () => {
   const { tStatic } = await vi.importActual<typeof import("@/lib/i18n/static-translate")>(
@@ -41,7 +43,7 @@ vi.mock("@/lib/auth-context", () => ({
 }))
 
 vi.mock("@/components/ui/use-toast", () => ({
-  useToast: () => ({ toast: vi.fn() }),
+  useToast: () => ({ toast: toastMock }),
 }))
 
 vi.mock("@/lib/api/papers", () => ({
@@ -85,7 +87,17 @@ vi.mock("../submission-progress-sidebar", () => ({
   ),
 }))
 vi.mock("../paper-details-step", () => ({
-  PaperDetailsStep: () => <div data-testid="paper-details-step" />,
+  PaperDetailsStep: ({ onTitleChange }: any) => (
+    <div data-testid="paper-details-step">
+      <button
+        type="button"
+        data-testid="change-title-btn"
+        onClick={() => onTitleChange("Changed Title")}
+      >
+        Change title
+      </button>
+    </div>
+  ),
 }))
 vi.mock("../authors-step", () => ({
   AuthorsStep: () => <div data-testid="authors-step" />,
@@ -106,13 +118,23 @@ vi.mock("../conflicts-step", () => ({
   ),
 }))
 vi.mock("../review-step", () => ({
-  ReviewStep: ({ title, abstract, keywords, authors, selectedTrack, submissionConfirmed, onSubmissionConfirmedChange }: any) => (
+  ReviewStep: ({
+    title,
+    abstract,
+    keywords,
+    authors,
+    selectedTrack,
+    submissionConfirmed,
+    onSubmissionConfirmedChange,
+  }: any) => (
     <label data-testid="review-step">
       <span data-testid="review-title">{title}</span>
       <span data-testid="review-abstract">{abstract}</span>
       <span data-testid="review-keywords">{keywords.join(",")}</span>
       <span data-testid="review-track">{selectedTrack}</span>
-      <span data-testid="review-authors">{authors.map((author: any) => author.email).join(",")}</span>
+      <span data-testid="review-authors">
+        {authors.map((author: any) => author.email).join(",")}
+      </span>
       <input
         type="checkbox"
         data-testid="submission-confirmed-checkbox"
@@ -184,7 +206,14 @@ vi.mock("../submission-autofill-sheet", () => ({
     ) : null,
 }))
 vi.mock("../submission-action-bar", () => ({
-  SubmissionActionBar: ({ currentStep, canSubmit, onStepChange, onSubmit, onSaveDraft, onAutofill }: any) => {
+  SubmissionActionBar: ({
+    currentStep,
+    canSubmit,
+    onStepChange,
+    onSubmit,
+    onSaveDraft,
+    onAutofill,
+  }: any) => {
     const stepOrder = ["paper", "authors", "file", "coi", "review"] as const
     const currentIndex = stepOrder.indexOf(currentStep)
     const isLastStep = currentStep === "review"
@@ -442,5 +471,47 @@ describe("PaperSubmissionForm — deadline enforcement (UI-NEG-02)", () => {
       "author@example.com,second@example.com",
     )
     expect(screen.getByTestId("submission-confirmed-checkbox")).not.toBeChecked()
+  })
+
+  it("shows a warning when autosave cannot create another submission for the conference", async () => {
+    vi.useFakeTimers()
+    vi.mocked(submitPaper).mockResolvedValue({
+      data: null,
+      error:
+        "You already have a submission for this conference. Open your existing submission instead of creating a new one.",
+      precheckBlocked: null,
+    } as any)
+
+    render(<PaperSubmissionForm conference={makeConference()} />)
+    fireEvent.click(screen.getByTestId("change-title-btn"))
+
+    await act(async () => {
+      vi.advanceTimersByTime(2 * 60 * 1000)
+      await Promise.resolve()
+    })
+
+    expect(toastMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Draft could not be saved",
+        description:
+          "You already have a submission for this conference. Open your existing submission instead of creating a new one.",
+        variant: "destructive",
+      }),
+    )
+    vi.useRealTimers()
+  })
+
+  it("does not autosave an untouched new submission form", async () => {
+    vi.useFakeTimers()
+    render(<PaperSubmissionForm conference={makeConference()} />)
+
+    await act(async () => {
+      vi.advanceTimersByTime(2 * 60 * 1000)
+      await Promise.resolve()
+    })
+
+    expect(submitPaper).not.toHaveBeenCalled()
+    expect(toastMock).not.toHaveBeenCalled()
+    vi.useRealTimers()
   })
 })
