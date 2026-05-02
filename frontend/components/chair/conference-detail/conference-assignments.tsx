@@ -485,7 +485,7 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
                   </div>
 
                   <div className="space-y-2">
-                    {group.reviewers.map((reviewer: SuggestedReviewer) => (
+                    {(group.reviewers || []).map((reviewer: SuggestedReviewer) => (
                       <div
                         key={reviewer.assignment_id}
                         className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg"
@@ -493,7 +493,7 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-[#1B3C53] text-white flex items-center justify-center text-xs font-medium">
-                              {reviewer.reviewer_email.charAt(0).toUpperCase()}
+                              {(reviewer.reviewer_email || "?").charAt(0).toUpperCase()}
                             </div>
                             <div>
                               <p className="text-xs font-medium text-slate-700 dark:text-slate-200">
@@ -613,14 +613,14 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
                 </div>
 
                 <div className="space-y-2">
-                  {group.reviewers.map((reviewer: ConfirmedReviewer) => (
+                  {(group.reviewers || []).map((reviewer: ConfirmedReviewer) => (
                     <div
                       key={reviewer.assignment_id}
                       className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg"
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-[#1B3C53] text-white flex items-center justify-center text-xs font-medium">
-                          {reviewer.reviewer_email.charAt(0).toUpperCase()}
+                          {(reviewer.reviewer_email || "?").charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <p className="text-xs font-medium text-slate-700 dark:text-slate-200">

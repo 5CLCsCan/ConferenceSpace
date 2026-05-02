@@ -2,8 +2,11 @@ package external_invitation
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
+	"encoding/hex"
 	"fmt"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/dcao/conferencespace/internal/dto"
@@ -15,6 +18,17 @@ type StorageInterface interface {
 	BatchCreate(ctx context.Context, conferenceID, invitedBy int64, items []dto.ExternalInvitationCreateItem) (*dto.ExternalInvitationBatchCreateResponse, error)
 	List(ctx context.Context, conferenceID int64, params *ListParams) ([]dto.ExternalInvitation, int64, error)
 	Delete(ctx context.Context, id, conferenceID int64) error
+	GetByToken(ctx context.Context, token string) (*model.ExternalInvitation, error)
+	MarkAccepted(ctx context.Context, id, userID int64) error
+	GetTokenByID(ctx context.Context, id int64) (string, error)
+}
+
+func generateInvitationToken() (string, error) {
+	b := make([]byte, 32)
+	if _, err := rand.Read(b); err != nil {
+		return "", fmt.Errorf("failed to generate token: %w", err)
+	}
+	return hex.EncodeToString(b), nil
 }
 
 type ListParams struct {
@@ -49,6 +63,15 @@ func (s *Storage) BatchCreate(ctx context.Context, conferenceID, invitedBy int64
 	}
 
 	for _, item := range items {
+		token, err := generateInvitationToken()
+		if err != nil {
+			resp.Failed = append(resp.Failed, dto.ExternalInvitationFailure{
+				ScholarID: item.ScholarID,
+				Error:     fmt.Sprintf("token gen failed: %v", err),
+			})
+			continue
+		}
+
 		cols := []string{
 			model.ExternalInvColConferenceID,
 			model.ExternalInvColRole,
@@ -57,15 +80,19 @@ func (s *Storage) BatchCreate(ctx context.Context, conferenceID, invitedBy int64
 			model.ExternalInvColInvitedBy,
 			model.ExternalInvColCreatedAt,
 			model.ExternalInvColUpdatedAt,
+			model.ExternalInvColInvitationToken,
+			model.ExternalInvColInvitationTokenExpiresAt,
 		}
 		vals := []interface{}{
 			conferenceID,
 			item.Role,
 			item.Name,
-			"pending",
+			model.ExternalInvitationStatusPending,
 			invitedBy,
 			sq.Expr("NOW()"),
 			sq.Expr("NOW()"),
+			token,
+			time.Now().Add(model.ExternalInvitationTokenExpiry),
 		}
 
 		if item.ScholarID != "" {
@@ -96,7 +123,7 @@ func (s *Storage) BatchCreate(ctx context.Context, conferenceID, invitedBy int64
 			Insert(model.ExternalInvitationTableName).
 			Columns(cols...).
 			Values(vals...).
-			Suffix("RETURNING id, conference_id, role, scholar_id, name, email, affiliation, profile_url, status, invited_by, created_at, updated_at, fields_of_study").
+			Suffix("RETURNING id, conference_id, role, scholar_id, name, email, affiliation, profile_url, status, invited_by, created_at, updated_at, fields_of_study, invitation_token, invitation_token_expires_at, invitation_token_used_at, accepted_user_id").
 			ToSql()
 		if err != nil {
 			resp.Failed = append(resp.Failed, dto.ExternalInvitationFailure{
@@ -112,6 +139,8 @@ func (s *Storage) BatchCreate(ctx context.Context, conferenceID, invitedBy int64
 			&row.Name, &row.Email, &row.Affiliation, &row.ProfileURL,
 			&row.Status, &row.InvitedBy, &row.CreatedAt, &row.UpdatedAt,
 			&row.FieldsOfStudy,
+			&row.InvitationToken, &row.InvitationTokenExpiresAt,
+			&row.InvitationTokenUsedAt, &row.AcceptedUserID,
 		)
 		if err != nil {
 			errMsg := err.Error()
@@ -149,6 +178,10 @@ func (s *Storage) List(ctx context.Context, conferenceID int64, params *ListPara
 		model.ExternalInvColCreatedAt,
 		model.ExternalInvColUpdatedAt,
 		model.ExternalInvColFieldsOfStudy,
+		model.ExternalInvColInvitationToken,
+		model.ExternalInvColInvitationTokenExpiresAt,
+		model.ExternalInvColInvitationTokenUsedAt,
+		model.ExternalInvColAcceptedUserID,
 	).From(model.ExternalInvitationTableName).Where(baseWhere)
 
 	if params.Role != "" {
@@ -196,6 +229,8 @@ func (s *Storage) List(ctx context.Context, conferenceID int64, params *ListPara
 			&row.Name, &row.Email, &row.Affiliation, &row.ProfileURL,
 			&row.Status, &row.InvitedBy, &row.CreatedAt, &row.UpdatedAt,
 			&row.FieldsOfStudy,
+			&row.InvitationToken, &row.InvitationTokenExpiresAt,
+			&row.InvitationTokenUsedAt, &row.AcceptedUserID,
 		); err != nil {
 			return nil, 0, fmt.Errorf("failed to scan external invitation: %w", err)
 		}
@@ -210,6 +245,110 @@ func (s *Storage) List(ctx context.Context, conferenceID int64, params *ListPara
 	}
 
 	return results, total, nil
+}
+
+func (s *Storage) GetByToken(ctx context.Context, token string) (*model.ExternalInvitation, error) {
+	query, args, err := s.qb.
+		Select(
+			model.ExternalInvColID,
+			model.ExternalInvColConferenceID,
+			model.ExternalInvColRole,
+			model.ExternalInvColScholarID,
+			model.ExternalInvColName,
+			model.ExternalInvColEmail,
+			model.ExternalInvColAffiliation,
+			model.ExternalInvColProfileURL,
+			model.ExternalInvColStatus,
+			model.ExternalInvColInvitedBy,
+			model.ExternalInvColCreatedAt,
+			model.ExternalInvColUpdatedAt,
+			model.ExternalInvColFieldsOfStudy,
+			model.ExternalInvColInvitationToken,
+			model.ExternalInvColInvitationTokenExpiresAt,
+			model.ExternalInvColInvitationTokenUsedAt,
+			model.ExternalInvColAcceptedUserID,
+		).
+		From(model.ExternalInvitationTableName).
+		Where(sq.Eq{model.ExternalInvColInvitationToken: token}).
+		ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("build query: %w", err)
+	}
+	var row model.ExternalInvitation
+	err = s.db.QueryRowContext(ctx, query, args...).Scan(
+		&row.ID, &row.ConferenceID, &row.Role, &row.ScholarID,
+		&row.Name, &row.Email, &row.Affiliation, &row.ProfileURL,
+		&row.Status, &row.InvitedBy, &row.CreatedAt, &row.UpdatedAt,
+		&row.FieldsOfStudy,
+		&row.InvitationToken, &row.InvitationTokenExpiresAt,
+		&row.InvitationTokenUsedAt, &row.AcceptedUserID,
+	)
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("invitation not found")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("get by token: %w", err)
+	}
+	return &row, nil
+}
+
+// MarkAccepted flips a pending invitation to accepted.
+//
+// The WHERE clause includes `status = 'pending'` so that a concurrent
+// double-submit (e.g. two browser tabs hitting POST /accept at the same
+// instant) is idempotent: the second call sees rowsAffected=0 and returns
+// a clear error that the orchestrator maps to 410 Gone. Without this guard,
+// the second call would silently overwrite accepted_user_id.
+func (s *Storage) MarkAccepted(ctx context.Context, id, userID int64) error {
+	now := time.Now()
+	query, args, err := s.qb.
+		Update(model.ExternalInvitationTableName).
+		Set(model.ExternalInvColStatus, model.ExternalInvitationStatusAccepted).
+		Set(model.ExternalInvColAcceptedUserID, userID).
+		Set(model.ExternalInvColInvitationTokenUsedAt, now).
+		Set(model.ExternalInvColUpdatedAt, now).
+		Where(sq.And{
+			sq.Eq{model.ExternalInvColID: id},
+			sq.Eq{model.ExternalInvColStatus: model.ExternalInvitationStatusPending},
+		}).
+		ToSql()
+	if err != nil {
+		return fmt.Errorf("build update: %w", err)
+	}
+	result, err := s.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("mark accepted: %w", err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("mark accepted rows: %w", err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("invitation already accepted or not found")
+	}
+	return nil
+}
+
+// GetTokenByID returns only the invitation_token for a row. This lets the
+// orchestrator compose invitation_url right after BatchCreate without
+// embedding the raw token in the outer DTO (which is returned by List/GET).
+func (s *Storage) GetTokenByID(ctx context.Context, id int64) (string, error) {
+	query, args, err := s.qb.
+		Select(model.ExternalInvColInvitationToken).
+		From(model.ExternalInvitationTableName).
+		Where(sq.Eq{model.ExternalInvColID: id}).
+		ToSql()
+	if err != nil {
+		return "", fmt.Errorf("build query: %w", err)
+	}
+	var token *string
+	if err := s.db.QueryRowContext(ctx, query, args...).Scan(&token); err != nil {
+		return "", fmt.Errorf("get token by id: %w", err)
+	}
+	if token == nil {
+		return "", nil
+	}
+	return *token, nil
 }
 
 func (s *Storage) Delete(ctx context.Context, id, conferenceID int64) error {

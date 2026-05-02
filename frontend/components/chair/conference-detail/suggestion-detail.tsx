@@ -75,6 +75,11 @@ export function SuggestionDetail({ metadata, assignmentCount, score }: Suggestio
     )
   }
 
+  const matchedKeywords = metadata.matched_keywords || []
+  const unmatchedPaperKeywords = metadata.unmatched_paper_keywords || []
+  const extraReviewerKeywords = metadata.extra_reviewer_keywords || []
+  const coiChecks = metadata.coi_checks || {}
+
   return (
     <div className="mt-2">
       <button
@@ -95,37 +100,37 @@ export function SuggestionDetail({ metadata, assignmentCount, score }: Suggestio
           {/* Score Breakdown */}
           <div>
             <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1">Score Breakdown</p>
-            {metadata.matched_keywords.length === 0 &&
-            metadata.unmatched_paper_keywords.length === 0 &&
-            metadata.extra_reviewer_keywords.length === 0 ? (
+            {matchedKeywords.length === 0 &&
+            unmatchedPaperKeywords.length === 0 &&
+            extraReviewerKeywords.length === 0 ? (
               <p className="text-[10px] text-slate-500">No keyword data available</p>
             ) : (
               <div className="space-y-1.5">
-                {metadata.matched_keywords.length > 0 && (
+                {matchedKeywords.length > 0 && (
                   <div>
                     <span className="text-[10px] font-medium text-slate-500 mr-1.5">Matched:</span>
                     <span className="inline-flex flex-wrap gap-1">
-                      {metadata.matched_keywords.map((kw) => (
+                      {matchedKeywords.map((kw) => (
                         <KeywordTag key={kw} keyword={kw} variant="matched" />
                       ))}
                     </span>
                   </div>
                 )}
-                {metadata.unmatched_paper_keywords.length > 0 && (
+                {unmatchedPaperKeywords.length > 0 && (
                   <div>
                     <span className="text-[10px] font-medium text-slate-500 mr-1.5">Paper only:</span>
                     <span className="inline-flex flex-wrap gap-1">
-                      {metadata.unmatched_paper_keywords.map((kw) => (
+                      {unmatchedPaperKeywords.map((kw) => (
                         <KeywordTag key={kw} keyword={kw} variant="paper" />
                       ))}
                     </span>
                   </div>
                 )}
-                {metadata.extra_reviewer_keywords.length > 0 && (
+                {extraReviewerKeywords.length > 0 && (
                   <div>
                     <span className="text-[10px] font-medium text-slate-500 mr-1.5">Reviewer only:</span>
                     <span className="inline-flex flex-wrap gap-1">
-                      {metadata.extra_reviewer_keywords.map((kw) => (
+                      {extraReviewerKeywords.map((kw) => (
                         <KeywordTag key={kw} keyword={kw} variant="reviewer" />
                       ))}
                     </span>
@@ -143,13 +148,13 @@ export function SuggestionDetail({ metadata, assignmentCount, score }: Suggestio
                 <p className="text-[10px] text-amber-600 font-medium">Manually added by chair — no computed score</p>
               ) : (
                 <>
-                  {metadata.matched_keywords.length > 0 && (
+                  {matchedKeywords.length > 0 && (
                     <p className="text-[10px] text-slate-600">
-                      <span className="font-medium text-green-700">Shares {metadata.matched_keywords.length} keyword{metadata.matched_keywords.length !== 1 ? "s" : ""}:</span>{" "}
-                      {metadata.matched_keywords.join(", ")}
+                      <span className="font-medium text-green-700">Shares {matchedKeywords.length} keyword{matchedKeywords.length !== 1 ? "s" : ""}:</span>{" "}
+                      {matchedKeywords.join(", ")}
                     </p>
                   )}
-                  {metadata.matched_keywords.length === 0 && metadata.source === "auto_pass1" && (
+                  {matchedKeywords.length === 0 && metadata.source === "auto_pass1" && (
                     <p className="text-[10px] text-slate-500">No keyword overlap</p>
                   )}
                   {metadata.source === "auto_pass2" && (
@@ -166,7 +171,7 @@ export function SuggestionDetail({ metadata, assignmentCount, score }: Suggestio
           <div>
             <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1">COI Status</p>
             <div className="space-y-0.5">
-              {Object.entries(metadata.coi_checks).map(([key, status]) => {
+              {Object.entries(coiChecks).map(([key, status]) => {
                 const label = coiCheckLabel(key)
                 const statusInfo = coiStatusLabel(status)
                 return (

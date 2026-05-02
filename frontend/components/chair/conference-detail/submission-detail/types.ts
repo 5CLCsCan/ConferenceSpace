@@ -12,7 +12,12 @@ export type ReviewerDecision = "accept" | "weak_accept" | "borderline" | "weak_r
 
 export type ConfidenceLevel = "high" | "medium" | "low"
 
-export type ReviewerAssignmentStatus = "completed" | "pending" | "in_progress" | "declined"
+export type ReviewerAssignmentStatus =
+  | "completed"
+  | "accepted"
+  | "pending"
+  | "in_progress"
+  | "declined"
 
 export interface Author {
   id: string

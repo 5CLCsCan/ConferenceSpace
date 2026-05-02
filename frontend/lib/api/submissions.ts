@@ -72,6 +72,7 @@ export async function getConferenceSubmissions(
     author?: string
     status?: string
     title?: string
+    track?: string
     limit?: number
     offset?: number
   },
@@ -81,6 +82,7 @@ export async function getConferenceSubmissions(
     if (filters?.author) params.append("author", filters.author)
     if (filters?.status) params.append("status", filters.status)
     if (filters?.title) params.append("title", filters.title)
+    if (filters?.track) params.append("track", filters.track)
     if (filters?.limit) params.append("limit", filters.limit.toString())
     if (filters?.offset) params.append("offset", filters.offset.toString())
 

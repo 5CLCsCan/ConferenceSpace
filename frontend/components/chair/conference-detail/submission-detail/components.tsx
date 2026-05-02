@@ -53,16 +53,19 @@ const statusConfig: Record<SubmissionDetailStatus, { label: string; className: s
 
 export function SubmissionStatusBadge({ status }: { status: SubmissionDetailStatus }) {
   const { t } = useTranslation()
-  const { label, className } = statusConfig[status]
+  const config = statusConfig[status] || {
+    label: status,
+    className: "bg-slate-100 text-slate-600 border-slate-200",
+  }
   return (
     <span
       className={cn(
         "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border",
-        className,
+        config.className,
       )}
     >
       <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" />
-      {label}
+      {config.label}
     </span>
   )
 }
@@ -108,10 +111,13 @@ export function ReviewerDecisionLabel({
   decision: ReviewerDecision
   score: number
 }) {
-  const { label, className } = decisionConfig[decision]
+  const config = decisionConfig[decision] || {
+    label: decision,
+    className: "text-slate-600",
+  }
   return (
-    <span className={cn("text-sm font-bold", className)}>
-      {label} ({score})
+    <span className={cn("text-sm font-bold", config.className)}>
+      {config.label} ({score})
     </span>
   )
 }
@@ -138,6 +144,12 @@ const assignmentStatusConfig: Record<
     ),
     className: "bg-green-50 text-green-700 border-green-100",
   },
+  accepted: {
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.components.prop_label_accepted",
+    ),
+    className: "bg-green-50 text-green-700 border-green-100",
+  },
   pending: {
     label: t(
       "runtime.components.chair.conference-detail.submission-detail.components.prop_label_pending",
@@ -159,8 +171,11 @@ const assignmentStatusConfig: Record<
 }
 
 export function AssignmentStatusBadge({ status }: { status: ReviewerAssignmentStatus }) {
-  const { label, className } = assignmentStatusConfig[status]
-  return <span className={cn("text-xs px-2 py-0.5 rounded border", className)}>{label}</span>
+  const config = assignmentStatusConfig[status] || {
+    label: status,
+    className: "bg-slate-100 text-slate-600 border-slate-200",
+  }
+  return <span className={cn("text-xs px-2 py-0.5 rounded border", config.className)}>{config.label}</span>
 }
 
 // --- File Type Icon ---

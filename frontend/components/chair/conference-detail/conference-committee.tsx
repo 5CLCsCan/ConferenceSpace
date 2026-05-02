@@ -73,6 +73,7 @@ interface CommitteeMember {
   externalInvitationId?: number
   affiliation?: string
   scholar_id?: string
+  invitationUrl?: string
 }
 
 type MemberRoleFilter = "all" | "chair" | "co_chair" | "pc" | "reviewer"
@@ -272,6 +273,16 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
       "runtime.components.chair.conference-detail.conference-committee.aria_label_select_all_committee_members",
     ),
     text_showing_range: "text_showing_range",
+    text_invitation_link: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_invitation_link",
+    ),
+    text_invitation_link_copied: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_invitation_link_copied",
+    ),
+    text_invitation_link_tooltip: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_invitation_link_tooltip",
+    ),
+    text_invitation_status: "text_invitation_status",
   } as const
 
   const T = (key: keyof typeof labels) => labels[key]
@@ -294,6 +305,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
   const [searching, setSearching] = useState(false)
   const [selectedUsers, setSelectedUsers] = useState<SelectedUser[]>([])
   const [inviting, setInviting] = useState(false)
+  const [copiedMemberId, setCopiedMemberId] = useState<number | null>(null)
   const [inviteMsg, setInviteMsg] = useState<{ type: "success" | "error"; text: string } | null>(
     null,
   )
@@ -431,6 +443,9 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     // fields_of_study (captured at invite time from S2) populates the Domain
     // column the same way user.domain does for platform members.
     for (const ext of externalInvitations) {
+      // Accepted invitations have already become real platform members —
+      // skip them here so they don't show a duplicate "External · Accepted" row.
+      if (ext.status === "accepted") continue
       members.push({
         email: ext.email ?? "",
         name: ext.name,
@@ -441,6 +456,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
         scholar_id: ext.scholar_id,
         invitationStatus: ext.status,
         domain: ext.fields_of_study,
+        invitationUrl: ext.invitation_url,
       })
     }
 
@@ -1394,11 +1410,37 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                                   />
                                 </div>
                               )}
-                              {member.invitationStatus && (
+                              {member.invitationStatus &&
+                                member.invitationUrl &&
+                                member.invitationStatus === "pending" ? (
+                                <button
+                                  type="button"
+                                  title={T("text_invitation_link_tooltip")}
+                                  onClick={() => {
+                                    if (member.invitationUrl && member.externalInvitationId != null) {
+                                      void navigator.clipboard.writeText(member.invitationUrl)
+                                      setCopiedMemberId(member.externalInvitationId)
+                                      setTimeout(() => setCopiedMemberId(null), 2000)
+                                    }
+                                  }}
+                                  className="mt-1 flex items-center gap-1 text-[10px] font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded px-1.5 py-0.5 transition-colors cursor-pointer"
+                                >
+                                  <Icon
+                                    name={copiedMemberId === member.externalInvitationId ? "check" : "content_copy"}
+                                    size={10}
+                                  />
+                                  {copiedMemberId === member.externalInvitationId
+                                    ? T("text_invitation_link_copied")
+                                    : T("text_invitation_link")}
+                                </button>
+                              ) : member.invitationStatus ? (
                                 <div className="text-[10px] text-emerald-700 capitalize">
-                                  invitation: {member.invitationStatus}
+                                  {t(
+                                    `runtime.components.chair.conference-detail.conference-committee.${T("text_invitation_status")}`,
+                                    { status: member.invitationStatus },
+                                  )}
                                 </div>
-                              )}
+                              ) : null}
                             </div>
                           </div>
                         </td>

@@ -24,6 +24,7 @@ export interface ExternalInvitation {
   created_at: string
   updated_at: string
   fields_of_study?: string[]
+  invitation_url?: string
 }
 
 export interface ExternalInvitationBatchResponse {
