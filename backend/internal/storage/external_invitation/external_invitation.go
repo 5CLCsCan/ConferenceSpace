@@ -36,14 +36,13 @@ func New(db *sql.DB) *Storage {
 }
 
 func (s *Storage) BatchCreate(ctx context.Context, conferenceID, invitedBy int64, items []dto.ExternalInvitationCreateItem) (*dto.ExternalInvitationBatchCreateResponse, error) {
-	tx, err := s.db.BeginTx(ctx, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to begin transaction: %w", err)
-	}
-	defer func() {
-		_ = tx.Rollback()
-	}()
-
+	// Each item is inserted independently — we deliberately do NOT use a
+	// transaction here. The batch API returns a per-item success/failed
+	// breakdown (e.g. a duplicate scholar_id lands in Failed), so wrapping
+	// all inserts in a single transaction would be wrong: Postgres aborts
+	// the whole transaction on any constraint violation, making subsequent
+	// inserts fail with "current transaction is aborted" and Commit() fail
+	// with "could not complete operation in a failed transaction".
 	resp := &dto.ExternalInvitationBatchCreateResponse{
 		Success: make([]dto.ExternalInvitation, 0, len(items)),
 		Failed:  make([]dto.ExternalInvitationFailure, 0),
@@ -101,7 +100,7 @@ func (s *Storage) BatchCreate(ctx context.Context, conferenceID, invitedBy int64
 		}
 
 		var row model.ExternalInvitation
-		err = tx.QueryRowContext(ctx, query, args...).Scan(
+		err = s.db.QueryRowContext(ctx, query, args...).Scan(
 			&row.ID, &row.ConferenceID, &row.Role, &row.ScholarID,
 			&row.Name, &row.Email, &row.Affiliation, &row.ProfileURL,
 			&row.Status, &row.InvitedBy, &row.CreatedAt, &row.UpdatedAt,
@@ -119,10 +118,6 @@ func (s *Storage) BatchCreate(ctx context.Context, conferenceID, invitedBy int64
 		}
 
 		resp.Success = append(resp.Success, *row.ToDTO())
-	}
-
-	if err := tx.Commit(); err != nil {
-		return nil, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
 	return resp, nil

@@ -36,13 +36,17 @@ type ExternalInvitationFailure struct {
 
 // ExternalInvitationBatchCreateRequest is the POST request body.
 //
-// Note: Invitations intentionally omits binding:"required,min=1". ShouldBindUri
-// runs struct-wide validation before the JSON body is bound, so a required tag
-// on the body field would fail with "required" before ShouldBindJSON ever runs.
-// The controller enforces the non-empty check explicitly.
+// Invitations intentionally omits `required,min=1`. ShouldBindUri runs
+// struct-wide validation before the JSON body is bound, so a required tag on
+// the body field would fail before ShouldBindJSON ever runs. The controller
+// enforces the non-empty check explicitly.
+//
+// The `dive` tag is required so gin's validator recurses into each item and
+// enforces the per-item `required` tags on Role and Name. Without it, a POST
+// with `[{"name": "No Role"}]` would silently succeed with an empty role.
 type ExternalInvitationBatchCreateRequest struct {
 	ConferenceID int64                          `uri:"conference_id" binding:"required"`
-	Invitations  []ExternalInvitationCreateItem `json:"invitations"`
+	Invitations  []ExternalInvitationCreateItem `json:"invitations" binding:"dive"`
 }
 
 // ExternalInvitationBatchCreateResponse is the POST response.
