@@ -1,7 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react"
-import Link from "next/link"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import {
@@ -10,72 +9,16 @@ import {
 } from "@/lib/api/reviewer-suggestions"
 import { inviteReviewers } from "@/lib/api/conferences"
 import { createExternalInvitations } from "@/lib/api/external-invitations"
-import { ROUTES } from "@/lib/routes"
 import { PlatformBadge } from "./platform-badge"
+import { ProfileLink, getProfileLink } from "./profile-link"
 
 const SEMANTIC_SCHOLAR_AUTHOR_URL = "https://www.semanticscholar.org/author"
 
-type ProfileLinkInfo = { href: string; external: boolean }
-
-function getSuggestionProfileLink(s: ReviewerSuggestion): ProfileLinkInfo | null {
-  if (s.on_platform) {
-    // ROUTES.PROFILE expects an email (resolveUserEmail only handles "me",
-    // the current user's id, or email-like strings). Fall back to the numeric
-    // id only if email is somehow missing — it won't resolve today, but keeps
-    // behaviour defensive rather than crashing.
-    if (s.email) {
-      return { href: ROUTES.PROFILE(s.email), external: false }
-    }
-    if (s.platform_user_id) {
-      return { href: ROUTES.PROFILE(String(s.platform_user_id)), external: false }
-    }
-  }
-  if (s.scholar_id) {
-    return {
-      href: `${SEMANTIC_SCHOLAR_AUTHOR_URL}/${encodeURIComponent(s.scholar_id)}`,
-      external: true,
-    }
-  }
-  return null
-}
-
-function ProfileLink({
-  link,
-  className,
-  children,
-  title,
-  ariaLabel,
-}: {
-  link: ProfileLinkInfo | null
-  className?: string
-  children: ReactNode
-  title?: string
-  ariaLabel?: string
-}) {
-  if (!link) return <span className={className}>{children}</span>
-  if (link.external) {
-    return (
-      <a
-        href={link.href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={className}
-        title={title}
-        aria-label={ariaLabel}
-      >
-        {children}
-      </a>
-    )
-  }
-  return (
-    <Link href={link.href} className={className} title={title} aria-label={ariaLabel}>
-      {children}
-    </Link>
-  )
-}
-
 interface ReviewerSuggestionsProps {
   conferenceId: string
+  // Fired after a successful invite (single or bulk) so parents can refresh
+  // the committee list without the chair having to reload the page.
+  onInviteSuccess?: () => void
 }
 
 type PlatformFilter = "all" | "platform" | "external"
@@ -306,7 +249,7 @@ function SuggestionRow({
   onRemove: (s: ReviewerSuggestion) => void
   T: (key: string) => string
 }) {
-  const profileLink = getSuggestionProfileLink(suggestion)
+  const profileLink = getProfileLink(suggestion)
   const linkTitle = profileLink
     ? profileLink.external
       ? T("text_open_scholar_profile")
@@ -435,7 +378,10 @@ function Toast({ message }: { message: string }) {
   )
 }
 
-export function ReviewerSuggestions({ conferenceId }: ReviewerSuggestionsProps) {
+export function ReviewerSuggestions({
+  conferenceId,
+  onInviteSuccess,
+}: ReviewerSuggestionsProps) {
   const { t } = useTranslation()
   const T = useCallback(
     (key: string) =>
@@ -557,11 +503,14 @@ export function ReviewerSuggestions({ conferenceId }: ReviewerSuggestionsProps) 
               { name: suggestion.name },
             ),
           )
+          onInviteSuccess?.()
         }
         return
       }
 
       // External user: persist via the external-invitations endpoint.
+      // Forward `fields` so the committee table's Domain column is populated
+      // for freshly-invited externals (without this, the row shows "—").
       const response = await createExternalInvitations(conferenceId, [
         {
           role: "reviewer",
@@ -572,6 +521,7 @@ export function ReviewerSuggestions({ conferenceId }: ReviewerSuggestionsProps) 
           profile_url: suggestion.scholar_id
             ? `${SEMANTIC_SCHOLAR_AUTHOR_URL}/${encodeURIComponent(suggestion.scholar_id)}`
             : "",
+          fields_of_study: suggestion.fields ?? [],
         },
       ])
       if (!response.error) {
@@ -582,9 +532,10 @@ export function ReviewerSuggestions({ conferenceId }: ReviewerSuggestionsProps) 
             { name: suggestion.name },
           ),
         )
+        onInviteSuccess?.()
       }
     },
-    [conferenceId, showToast, t],
+    [conferenceId, showToast, t, onInviteSuccess],
   )
 
   const handleRemove = useCallback(
@@ -636,6 +587,7 @@ export function ReviewerSuggestions({ conferenceId }: ReviewerSuggestionsProps) 
           profile_url: s.scholar_id
             ? `${SEMANTIC_SCHOLAR_AUTHOR_URL}/${encodeURIComponent(s.scholar_id)}`
             : "",
+          fields_of_study: s.fields ?? [],
         })),
       )
       if (!response.error) {
@@ -652,8 +604,9 @@ export function ReviewerSuggestions({ conferenceId }: ReviewerSuggestionsProps) 
           { count: String(totalInvited) },
         ),
       )
+      onInviteSuccess?.()
     }
-  }, [conferenceId, filtered, invited, showToast, t])
+  }, [conferenceId, filtered, invited, showToast, t, onInviteSuccess])
 
   const platformCount = visible.filter((s) => s.on_platform && !invited.has(s.id)).length
   const externalCount = visible.filter((s) => !s.on_platform && !invited.has(s.id)).length

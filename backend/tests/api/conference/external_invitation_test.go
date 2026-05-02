@@ -64,12 +64,13 @@ func TestExternalInvitationCreate(t *testing.T) {
 			ConferenceID: conferenceID,
 			Invitations: []dto.ExternalInvitationCreateItem{
 				{
-					Role:        "reviewer",
-					ScholarID:   scholarID,
-					Name:        "Jane Doe",
-					Email:       "jane@university.edu",
-					Affiliation: "MIT",
-					ProfileURL:  "https://www.semanticscholar.org/author/" + scholarID,
+					Role:          "reviewer",
+					ScholarID:     scholarID,
+					Name:          "Jane Doe",
+					Email:         "jane@university.edu",
+					Affiliation:   "MIT",
+					ProfileURL:    "https://www.semanticscholar.org/author/" + scholarID,
+					FieldsOfStudy: []string{"Computer Science", "Robotics"},
 				},
 			},
 		}
@@ -95,6 +96,27 @@ func TestExternalInvitationCreate(t *testing.T) {
 		assert.Equal(t, "pending", invited.Status)
 		assert.Greater(t, invited.ID, int64(0))
 		assert.Greater(t, invited.InvitedBy, int64(0))
+		// FieldsOfStudy is persisted so the committee table's Domain column
+		// can render it back for non-platform members.
+		assert.ElementsMatch(t, []string{"Computer Science", "Robotics"}, invited.FieldsOfStudy)
+
+		// List the invitation back and verify the round-trip.
+		listResp, err := ctx.MakeRequest(http.MethodGet, path+"?limit=50", nil, chairToken)
+		require.NoError(t, err)
+		require.Equal(t, http.StatusOK, listResp.StatusCode)
+		var listOut struct {
+			Data dto.ExternalInvitationListResponse `json:"data"`
+		}
+		testutils.DecodeResponse(t, listResp, &listOut)
+		var listed *dto.ExternalInvitation
+		for i := range listOut.Data.Invitations {
+			if listOut.Data.Invitations[i].ID == invited.ID {
+				listed = &listOut.Data.Invitations[i]
+				break
+			}
+		}
+		require.NotNil(t, listed, "created invitation not returned by list endpoint")
+		assert.ElementsMatch(t, []string{"Computer Science", "Robotics"}, listed.FieldsOfStudy)
 	})
 
 	t.Run("handles an invitee without scholar_id or email", func(t *testing.T) {

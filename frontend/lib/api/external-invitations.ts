@@ -7,6 +7,7 @@ export interface ExternalInvitationItem {
   email?: string
   affiliation?: string
   profile_url?: string
+  fields_of_study?: string[]
 }
 
 export interface ExternalInvitation {
@@ -22,6 +23,7 @@ export interface ExternalInvitation {
   invited_by: number
   created_at: string
   updated_at: string
+  fields_of_study?: string[]
 }
 
 export interface ExternalInvitationBatchResponse {

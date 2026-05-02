@@ -23,6 +23,11 @@ export interface Author {
   hIndex?: number
   url?: string
   papers?: Paper[]
+  // Aggregated, deduplicated topic tags computed server-side across the
+  // author's papers (see backend aggregateAuthorFieldsOfStudy). Lets the
+  // chair-add dropdown show domain chips for Semantic Scholar hits without
+  // making a second API call.
+  fieldsOfStudy?: string[]
 }
 
 export interface Paper {

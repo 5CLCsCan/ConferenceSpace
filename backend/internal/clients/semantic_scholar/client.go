@@ -8,6 +8,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"sort"
+	"strings"
 	"time"
 
 	"golang.org/x/time/rate"
@@ -55,6 +57,15 @@ type Author struct {
 	CitationCount          int                     `json:"citationCount,omitempty"`
 	HIndex                 int                     `json:"hIndex,omitempty"`
 	URL                    string                  `json:"url,omitempty"`
+	// Papers carries the author's papers when the caller includes
+	// `papers.*` in the `fields` parameter. Used by SearchAuthors to
+	// aggregate FieldsOfStudy below; left empty otherwise.
+	Papers []Paper `json:"papers,omitempty"`
+	// FieldsOfStudy is a deduplicated, sorted aggregation of each paper's
+	// s2FieldsOfStudy / fieldsOfStudy values. Computed server-side (see
+	// aggregateAuthorFieldsOfStudy) so the frontend can render topic chips
+	// without paying for a second round-trip.
+	FieldsOfStudy []string `json:"fieldsOfStudy,omitempty"`
 }
 
 type NormalizedAffiliation struct {
@@ -62,18 +73,29 @@ type NormalizedAffiliation struct {
 	RORDisplayName string `json:"rorDisplayName"`
 }
 
+// S2FieldOfStudy is the tagged topic returned by Semantic Scholar for each
+// paper. `Category` is the displayable field name (e.g. "Computer Science"),
+// `Source` is either "external" (legacy Microsoft Academic Graph tag) or
+// "s2-fos-model" (S2's own classifier).
+type S2FieldOfStudy struct {
+	Category string `json:"category"`
+	Source   string `json:"source,omitempty"`
+}
+
 // Paper represents a paper in Semantic Scholar
 type Paper struct {
-	PaperID        string   `json:"paperId"`
-	CorpusID       int64    `json:"corpusId,omitempty"`
-	Title          string   `json:"title"`
-	Abstract       string   `json:"abstract,omitempty"`
-	Year           int      `json:"year,omitempty"`
-	CitationCount  int      `json:"citationCount,omitempty"`
-	ReferenceCount int      `json:"referenceCount,omitempty"`
-	Venue          string   `json:"venue,omitempty"`
-	Authors        []Author `json:"authors,omitempty"`
-	URL            string   `json:"url,omitempty"`
+	PaperID         string           `json:"paperId"`
+	CorpusID        int64            `json:"corpusId,omitempty"`
+	Title           string           `json:"title"`
+	Abstract        string           `json:"abstract,omitempty"`
+	Year            int              `json:"year,omitempty"`
+	CitationCount   int              `json:"citationCount,omitempty"`
+	ReferenceCount  int              `json:"referenceCount,omitempty"`
+	Venue           string           `json:"venue,omitempty"`
+	Authors         []Author         `json:"authors,omitempty"`
+	URL             string           `json:"url,omitempty"`
+	FieldsOfStudy   []string         `json:"fieldsOfStudy,omitempty"`
+	S2FieldsOfStudy []S2FieldOfStudy `json:"s2FieldsOfStudy,omitempty"`
 }
 
 // AuthorWithPapers represents an author with their papers
@@ -151,14 +173,17 @@ func (c *Client) doRequest(ctx context.Context, method, path string, body interf
 }
 
 // SearchAuthors searches for authors by name
-// Includes additional fields for display: affiliations, paperCount, citationCount, hIndex
+// Includes additional fields for display: affiliations, paperCount, citationCount, hIndex,
+// plus each paper's s2FieldsOfStudy / fieldsOfStudy so the caller can derive
+// per-author topic chips without a second round-trip.
 func (c *Client) SearchAuthors(ctx context.Context, query string, limit int) (*SearchResponse, error) {
 	if limit <= 0 {
 		limit = 30
 	}
 
 	// Include additional fields so search results have enough info for display
-	fields := "authorId,name,affiliations,externalIds,homepage,paperCount,citationCount,hIndex,url,papers.title,papers.year,papers.venue"
+	fields := "authorId,name,affiliations,externalIds,homepage,paperCount,citationCount,hIndex,url," +
+		"papers.title,papers.year,papers.venue,papers.fieldsOfStudy,papers.s2FieldsOfStudy"
 	path := fmt.Sprintf("/author/search?query=%s&limit=%d&fields=%s",
 		url.QueryEscape(query), limit, fields)
 
@@ -172,7 +197,51 @@ func (c *Client) SearchAuthors(ctx context.Context, query string, limit int) (*S
 		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
 	}
 
+	// Flatten each author's paper-level topic tags into a deduplicated
+	// FieldsOfStudy list on the Author itself, so the frontend can render
+	// domain chips in the search dropdown without paying for a second API
+	// call or re-implementing the same aggregation on the client.
+	for i := range result.Data {
+		result.Data[i].FieldsOfStudy = aggregateAuthorFieldsOfStudy(result.Data[i].Papers)
+	}
+
 	return &result, nil
+}
+
+// aggregateAuthorFieldsOfStudy flattens each paper's FieldsOfStudy and
+// S2FieldsOfStudy into a deduplicated, alphabetically sorted slice. We use
+// both lists because S2 populates `fieldsOfStudy` for older / externally
+// tagged papers and `s2FieldsOfStudy` for everything their classifier has
+// scored — some papers only have one or the other. Empty / whitespace-only
+// categories are dropped. The returned slice is always nil when no topics
+// are present (avoids empty `[]` in JSON payloads for authors without any
+// paper topics).
+func aggregateAuthorFieldsOfStudy(papers []Paper) []string {
+	if len(papers) == 0 {
+		return nil
+	}
+	seen := make(map[string]struct{})
+	for _, p := range papers {
+		for _, f := range p.FieldsOfStudy {
+			if t := strings.TrimSpace(f); t != "" {
+				seen[t] = struct{}{}
+			}
+		}
+		for _, s := range p.S2FieldsOfStudy {
+			if t := strings.TrimSpace(s.Category); t != "" {
+				seen[t] = struct{}{}
+			}
+		}
+	}
+	if len(seen) == 0 {
+		return nil
+	}
+	out := make([]string, 0, len(seen))
+	for k := range seen {
+		out = append(out, k)
+	}
+	sort.Strings(out)
+	return out
 }
 
 // SearchPapers searches for papers by keyword query.

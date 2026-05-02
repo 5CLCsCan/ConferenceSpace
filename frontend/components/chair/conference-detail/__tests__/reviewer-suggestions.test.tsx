@@ -30,8 +30,13 @@ vi.mock("@/lib/api/conferences", () => ({
   inviteReviewers: vi.fn(),
 }))
 
+vi.mock("@/lib/api/external-invitations", () => ({
+  createExternalInvitations: vi.fn(),
+}))
+
 import { getReviewerSuggestions } from "@/lib/api/reviewer-suggestions"
 import { inviteReviewers } from "@/lib/api/conferences"
+import { createExternalInvitations } from "@/lib/api/external-invitations"
 
 const mockSuggestions = [
   {
@@ -76,6 +81,10 @@ beforeEach(() => {
   })
   ;(inviteReviewers as ReturnType<typeof vi.fn>).mockResolvedValue({
     data: { success: [{ id: 1 }], failed: [] },
+    error: null,
+  })
+  ;(createExternalInvitations as ReturnType<typeof vi.fn>).mockResolvedValue({
+    data: { success: [{ id: 900 }], failed: [] },
     error: null,
   })
 })
@@ -409,5 +418,116 @@ describe("ReviewerSuggestions", () => {
       const btn = screen.getByRole("button", { name: /Invite all/ })
       expect(btn).toBeDisabled()
     })
+  })
+
+  it("calls onInviteSuccess after inviting an on-platform suggestion", async () => {
+    const onInviteSuccess = vi.fn()
+    render(<ReviewerSuggestions conferenceId="1" onInviteSuccess={onInviteSuccess} />)
+    clickStart()
+
+    await waitFor(() => screen.getByText("Alice Smith"))
+
+    const inviteButton = screen
+      .getAllByRole("button", { name: /\bInvite\b/ })
+      .find(
+        (btn) =>
+          !(btn as HTMLButtonElement).disabled &&
+          !btn.textContent?.includes("all") &&
+          !btn.textContent?.includes("Invited"),
+      ) as HTMLButtonElement
+    fireEvent.click(inviteButton)
+
+    await waitFor(() => expect(screen.getByText("Invited")).toBeInTheDocument())
+    expect(onInviteSuccess).toHaveBeenCalledTimes(1)
+  })
+
+  it("calls onInviteSuccess after inviting an external (Semantic Scholar) suggestion", async () => {
+    const onInviteSuccess = vi.fn()
+    ;(getReviewerSuggestions as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      data: {
+        suggestions: [mockSuggestions[1]],
+        conference_topics: ["AI"],
+        total: 1,
+      },
+      error: null,
+    })
+
+    render(<ReviewerSuggestions conferenceId="1" onInviteSuccess={onInviteSuccess} />)
+    clickStart()
+
+    await waitFor(() => screen.getByText("Bob Jones"))
+
+    // External suggestions render an amber "Invite" button that routes to
+    // createExternalInvitations (not inviteReviewers).
+    const inviteBtn = screen
+      .getAllByRole("button", { name: /\bInvite\b/ })
+      .find(
+        (btn) =>
+          !(btn as HTMLButtonElement).disabled &&
+          !btn.textContent?.includes("all") &&
+          !btn.textContent?.includes("Invited"),
+      ) as HTMLButtonElement
+    fireEvent.click(inviteBtn)
+
+    await waitFor(() => {
+      expect(createExternalInvitations).toHaveBeenCalledWith(
+        "1",
+        expect.arrayContaining([
+          expect.objectContaining({
+            scholar_id: "200",
+            name: "Bob Jones",
+            // Suggestion.fields must round-trip as fields_of_study so the
+            // committee table's Domain column is populated for externals.
+            fields_of_study: ["Computer Vision", "Deep Learning"],
+          }),
+        ]),
+      )
+    })
+    expect(onInviteSuccess).toHaveBeenCalledTimes(1)
+  })
+
+  it("calls onInviteSuccess once after Invite-all when at least one invite succeeds", async () => {
+    const onInviteSuccess = vi.fn()
+    render(<ReviewerSuggestions conferenceId="1" onInviteSuccess={onInviteSuccess} />)
+    clickStart()
+
+    await waitFor(() => screen.getByText("Alice Smith"))
+
+    const inviteAll = screen.getByRole("button", { name: /Invite all/ })
+    fireEvent.click(inviteAll)
+
+    await waitFor(() => {
+      expect(inviteReviewers).toHaveBeenCalled()
+      expect(createExternalInvitations).toHaveBeenCalled()
+    })
+    // Bulk invite should only fire onInviteSuccess once, not once per invitee,
+    // so the parent can batch a single committee refresh.
+    expect(onInviteSuccess).toHaveBeenCalledTimes(1)
+  })
+
+  it("does not call onInviteSuccess when a single-invite API call fails", async () => {
+    const onInviteSuccess = vi.fn()
+    ;(inviteReviewers as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      data: null,
+      error: "boom",
+    })
+
+    render(<ReviewerSuggestions conferenceId="1" onInviteSuccess={onInviteSuccess} />)
+    clickStart()
+
+    await waitFor(() => screen.getByText("Alice Smith"))
+
+    const inviteButton = screen
+      .getAllByRole("button", { name: /\bInvite\b/ })
+      .find(
+        (btn) =>
+          !(btn as HTMLButtonElement).disabled &&
+          !btn.textContent?.includes("all") &&
+          !btn.textContent?.includes("Invited"),
+      ) as HTMLButtonElement
+    fireEvent.click(inviteButton)
+
+    await waitFor(() => expect(inviteReviewers).toHaveBeenCalled())
+    expect(onInviteSuccess).not.toHaveBeenCalled()
   })
 })

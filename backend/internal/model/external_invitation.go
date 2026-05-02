@@ -4,38 +4,41 @@ import (
 	"time"
 
 	"github.com/dcao/conferencespace/internal/dto"
+	"github.com/lib/pq"
 )
 
 const (
 	ExternalInvitationTableName = "external_invitations"
 
-	ExternalInvColID           = "id"
-	ExternalInvColConferenceID = "conference_id"
-	ExternalInvColRole         = "role"
-	ExternalInvColScholarID    = "scholar_id"
-	ExternalInvColName         = "name"
-	ExternalInvColEmail        = "email"
-	ExternalInvColAffiliation  = "affiliation"
-	ExternalInvColProfileURL   = "profile_url"
-	ExternalInvColStatus       = "status"
-	ExternalInvColInvitedBy    = "invited_by"
-	ExternalInvColCreatedAt    = "created_at"
-	ExternalInvColUpdatedAt    = "updated_at"
+	ExternalInvColID            = "id"
+	ExternalInvColConferenceID  = "conference_id"
+	ExternalInvColRole          = "role"
+	ExternalInvColScholarID     = "scholar_id"
+	ExternalInvColName          = "name"
+	ExternalInvColEmail         = "email"
+	ExternalInvColAffiliation   = "affiliation"
+	ExternalInvColProfileURL    = "profile_url"
+	ExternalInvColStatus        = "status"
+	ExternalInvColInvitedBy     = "invited_by"
+	ExternalInvColCreatedAt     = "created_at"
+	ExternalInvColUpdatedAt     = "updated_at"
+	ExternalInvColFieldsOfStudy = "fields_of_study"
 )
 
 type ExternalInvitation struct {
-	ID           int64     `db:"id"`
-	ConferenceID int64     `db:"conference_id"`
-	Role         string    `db:"role"`
-	ScholarID    *string   `db:"scholar_id"`
-	Name         string    `db:"name"`
-	Email        *string   `db:"email"`
-	Affiliation  *string   `db:"affiliation"`
-	ProfileURL   *string   `db:"profile_url"`
-	Status       string    `db:"status"`
-	InvitedBy    int64     `db:"invited_by"`
-	CreatedAt    time.Time `db:"created_at"`
-	UpdatedAt    time.Time `db:"updated_at"`
+	ID            int64          `db:"id"`
+	ConferenceID  int64          `db:"conference_id"`
+	Role          string         `db:"role"`
+	ScholarID     *string        `db:"scholar_id"`
+	Name          string         `db:"name"`
+	Email         *string        `db:"email"`
+	Affiliation   *string        `db:"affiliation"`
+	ProfileURL    *string        `db:"profile_url"`
+	Status        string         `db:"status"`
+	InvitedBy     int64          `db:"invited_by"`
+	CreatedAt     time.Time      `db:"created_at"`
+	UpdatedAt     time.Time      `db:"updated_at"`
+	FieldsOfStudy pq.StringArray `db:"fields_of_study"`
 }
 
 func (e *ExternalInvitation) ToDTO() *dto.ExternalInvitation {
@@ -60,6 +63,12 @@ func (e *ExternalInvitation) ToDTO() *dto.ExternalInvitation {
 	}
 	if e.ProfileURL != nil {
 		d.ProfileURL = *e.ProfileURL
+	}
+	if len(e.FieldsOfStudy) > 0 {
+		// Copy to a plain []string so JSON marshalling doesn't expose the
+		// pq.StringArray type.
+		d.FieldsOfStudy = make([]string, len(e.FieldsOfStudy))
+		copy(d.FieldsOfStudy, e.FieldsOfStudy)
 	}
 	return d
 }

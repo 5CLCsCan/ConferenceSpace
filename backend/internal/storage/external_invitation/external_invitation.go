@@ -84,12 +84,19 @@ func (s *Storage) BatchCreate(ctx context.Context, conferenceID, invitedBy int64
 			cols = append(cols, model.ExternalInvColProfileURL)
 			vals = append(vals, item.ProfileURL)
 		}
+		if len(item.FieldsOfStudy) > 0 {
+			// pq.StringArray (driver.Valuer) encodes as a Postgres array literal
+			// so we don't have to build `ARRAY[...]` SQL by hand. Passing a
+			// plain []string here would fail to scan into TEXT[].
+			cols = append(cols, model.ExternalInvColFieldsOfStudy)
+			vals = append(vals, pq.StringArray(item.FieldsOfStudy))
+		}
 
 		query, args, err := s.qb.
 			Insert(model.ExternalInvitationTableName).
 			Columns(cols...).
 			Values(vals...).
-			Suffix("RETURNING id, conference_id, role, scholar_id, name, email, affiliation, profile_url, status, invited_by, created_at, updated_at").
+			Suffix("RETURNING id, conference_id, role, scholar_id, name, email, affiliation, profile_url, status, invited_by, created_at, updated_at, fields_of_study").
 			ToSql()
 		if err != nil {
 			resp.Failed = append(resp.Failed, dto.ExternalInvitationFailure{
@@ -104,6 +111,7 @@ func (s *Storage) BatchCreate(ctx context.Context, conferenceID, invitedBy int64
 			&row.ID, &row.ConferenceID, &row.Role, &row.ScholarID,
 			&row.Name, &row.Email, &row.Affiliation, &row.ProfileURL,
 			&row.Status, &row.InvitedBy, &row.CreatedAt, &row.UpdatedAt,
+			&row.FieldsOfStudy,
 		)
 		if err != nil {
 			errMsg := err.Error()
@@ -140,6 +148,7 @@ func (s *Storage) List(ctx context.Context, conferenceID int64, params *ListPara
 		model.ExternalInvColInvitedBy,
 		model.ExternalInvColCreatedAt,
 		model.ExternalInvColUpdatedAt,
+		model.ExternalInvColFieldsOfStudy,
 	).From(model.ExternalInvitationTableName).Where(baseWhere)
 
 	if params.Role != "" {
@@ -186,6 +195,7 @@ func (s *Storage) List(ctx context.Context, conferenceID int64, params *ListPara
 			&row.ID, &row.ConferenceID, &row.Role, &row.ScholarID,
 			&row.Name, &row.Email, &row.Affiliation, &row.ProfileURL,
 			&row.Status, &row.InvitedBy, &row.CreatedAt, &row.UpdatedAt,
+			&row.FieldsOfStudy,
 		); err != nil {
 			return nil, 0, fmt.Errorf("failed to scan external invitation: %w", err)
 		}
