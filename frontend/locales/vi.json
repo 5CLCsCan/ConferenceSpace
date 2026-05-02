@@ -1483,7 +1483,11 @@
             "text_match_evidence_label": "Trùng chủ đề hội nghị",
             "text_match_evidence_chip_tooltip": "Trùng một chủ đề hội nghị",
             "text_view_profile": "Xem hồ sơ",
-            "text_open_scholar_profile": "Mở hồ sơ Semantic Scholar"
+            "text_open_scholar_profile": "Mở hồ sơ Semantic Scholar",
+            "text_invitation_link": "Liên kết mời",
+            "text_invitation_link_copied": "Đã sao chép!",
+            "text_invitation_link_tooltip": "Gửi liên kết này cho người được mời — họ có thể nhấp vào để tự động tạo tài khoản ConferenceSpace và tham gia hội nghị.",
+            "text_invitation_status": "lời mời: {status}"
           },
           "conference-dates": {
             "text_anywhere_on_earth_aoe": "Mọi nơi trên Trái đất (AoE)",

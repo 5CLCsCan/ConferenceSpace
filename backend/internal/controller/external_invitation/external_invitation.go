@@ -5,17 +5,19 @@ import (
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
+	extInvOrchestrator "github.com/dcao/conferencespace/internal/orchestrator/external_invitation"
 	externalinvitationStorage "github.com/dcao/conferencespace/internal/storage/external_invitation"
 	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
 type Controller struct {
-	store externalinvitationStorage.StorageInterface
+	store        externalinvitationStorage.StorageInterface
+	orchestrator *extInvOrchestrator.Orchestrator
 }
 
-func New(store externalinvitationStorage.StorageInterface) *Controller {
-	return &Controller{store: store}
+func New(store externalinvitationStorage.StorageInterface, orch *extInvOrchestrator.Orchestrator) *Controller {
+	return &Controller{store: store, orchestrator: orch}
 }
 
 // BatchCreate godoc
@@ -44,7 +46,7 @@ func (c *Controller) BatchCreate(ginCtx *gin.Context, req *dto.ExternalInvitatio
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "at least one invitation must be provided")
 	}
 
-	result, err := c.store.BatchCreate(ctx, req.ConferenceID, userID, req.Invitations)
+	result, err := c.orchestrator.BatchCreate(ctx, req.ConferenceID, userID, req.Invitations)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
@@ -68,27 +70,11 @@ func (c *Controller) BatchCreate(ginCtx *gin.Context, req *dto.ExternalInvitatio
 // @Failure      500 {object} handler.Response
 // @Router       /conferences/{conference_id}/external-invitations [get]
 func (c *Controller) List(ginCtx *gin.Context, req *dto.ExternalInvitationListRequest) (*dto.ExternalInvitationListResponse, error) {
-	ctx := ginCtx.Request.Context()
-
 	if req.Limit == 0 {
 		req.Limit = 20
 	}
-
-	invitations, total, err := c.store.List(ctx, req.ConferenceID, &externalinvitationStorage.ListParams{
-		Limit:  req.Limit,
-		Offset: req.Offset,
-		Role:   req.Role,
-	})
-	if err != nil {
-		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
-	}
-
-	return &dto.ExternalInvitationListResponse{
-		Invitations: invitations,
-		Total:       total,
-		Limit:       req.Limit,
-		Offset:      req.Offset,
-	}, nil
+	return c.orchestrator.List(ginCtx.Request.Context(), req.ConferenceID,
+		&externalinvitationStorage.ListParams{Limit: req.Limit, Offset: req.Offset, Role: req.Role})
 }
 
 // Delete godoc
@@ -111,4 +97,32 @@ func (c *Controller) Delete(ginCtx *gin.Context, req *dto.ExternalInvitationDele
 	}
 
 	return nil
+}
+
+// ValidateToken godoc
+// @Summary      Validate invitation token (public)
+// @Tags         external-invitations
+// @Produce      json
+// @Param        token query string true "Invitation token"
+// @Success      200 {object} dto.ExternalInvitationAcceptValidateResponse
+// @Failure      404 {object} handler.Response
+// @Failure      410 {object} handler.Response
+// @Router       /external-invitations/accept [get]
+func (c *Controller) ValidateToken(ginCtx *gin.Context, req *dto.ExternalInvitationAcceptValidateRequest) (*dto.ExternalInvitationAcceptValidateResponse, error) {
+	return c.orchestrator.ValidateToken(ginCtx.Request.Context(), req.Token)
+}
+
+// Accept godoc
+// @Summary      Accept invitation and create account (public)
+// @Tags         external-invitations
+// @Accept       json
+// @Produce      json
+// @Param        request body dto.ExternalInvitationAcceptRequest true "Accept payload"
+// @Success      201 {object} dto.ExternalInvitationAcceptResponse
+// @Failure      400 {object} handler.Response
+// @Failure      404 {object} handler.Response
+// @Failure      410 {object} handler.Response
+// @Router       /external-invitations/accept [post]
+func (c *Controller) Accept(ginCtx *gin.Context, req *dto.ExternalInvitationAcceptRequest) (*dto.ExternalInvitationAcceptResponse, error) {
+	return c.orchestrator.AcceptInvitation(ginCtx.Request.Context(), req)
 }

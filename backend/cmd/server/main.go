@@ -265,6 +265,13 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			authProtected.POST("/change-password", handler.HandleRequest(ctrl.Auth.ChangePassword))
 		}
 
+		// Public external invitation accept flow (no auth required)
+		extInvPublic := v1.Group("/external-invitations")
+		{
+			extInvPublic.GET("/accept", handler.HandleRequestWithQuery(ctrl.ExternalInvitation.ValidateToken))
+			extInvPublic.POST("/accept", handler.HandleRequestWithStatus(http.StatusCreated, ctrl.ExternalInvitation.Accept))
+		}
+
 		// Protected user routes (authentication required)
 		users := v1.Group("/users")
 		users.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))

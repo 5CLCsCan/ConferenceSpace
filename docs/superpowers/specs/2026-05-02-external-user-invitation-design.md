@@ -194,3 +194,37 @@ Chair types in search box
 - **Duplicate invite:** Backend returns "already invited" in `failed` array via unique constraint on `(conference_id, scholar_id)`.
 - **No email available:** External invitation stored without email. The "Not On Platform" badge signals this. Email sending (future) will need to handle this case.
 - **Scholar result matches platform user:** Cross-reference by `scholar_id` and deduplicate in the frontend, showing only the platform result.
+
+---
+
+## Phase 2 — Accepted 2026-05-02
+
+Implementation of the invitation-accept flow, extending Phase 1 (committee management + external invite creation).
+
+### Key Decisions
+
+- **Link-only delivery:** The platform does not send email for the invitation flow. The chair receives `invitation_url` in the `POST /conferences/:id/external-invitations` response and in the committee table's "Copy invite link" button, and forwards it to the invitee manually. This avoids email infrastructure complexity and ensures the chair controls when and how the link is shared.
+
+- **30-day token TTL:** Invitation tokens expire after 30 days, hardcoded as `model.ExternalInvitationTokenExpiry = 30 * 24 * time.Hour`. Token columns (`invitation_token`, `invitation_token_expires_at`, `invitation_token_used_at`, `accepted_user_id`) live on `external_invitations` (not on a separate `auth_tokens` table) because invitations may have no email address at creation time, making them unsuitable as first-class user-linked records.
+
+- **Auto-assign on accept:** When the invitee submits the accept form, the backend automatically:
+  - Calls `conference_user_roles.AddRole` for all roles (`pc`, `co_chair`, `reviewer`).
+  - Additionally inserts a `conference_reviewers` row (status `accepted`) for the `reviewer` role, matching how platform-side reviewer enrollment works.
+
+- **Auto-link Semantic Scholar profile:** If the invitation row has a `scholar_id` (captured at invite time from the S2 search result), the backend triggers a background `SyncAuthorProfile` call after the user is created, linking their academic profile without blocking the accept response.
+
+- **Idempotent token consumption:** `MarkAccepted` uses `WHERE status = 'pending'` so a concurrent double-submit (two browser tabs hitting POST /accept simultaneously) results in exactly one success and one `410 Gone`. The same 410 is returned when re-validating an already-used token.
+
+- **Email ownership via invitation link:** Because the user follows a private link sent by the chair, the accept flow marks the new account's email as already verified (`markEmailVerified = true`), skipping the email-verification step that normal registration requires.
+
+### New Endpoints
+
+| Method | Path | Auth | Purpose |
+|--------|------|------|---------|
+| `GET` | `/api/v1/external-invitations/accept?token=…` | Public | Validate token; return prefill data for the form |
+| `POST` | `/api/v1/external-invitations/accept` | Public | Accept invitation; create user; return JWT |
+
+### Frontend Accept Page
+
+`/invitation/accept?token=…` renders a prefilled registration form showing the invitee's name, email (if known), and fields of study (from the S2 profile). On successful submission the browser receives a JWT, is auto-logged-in via the Next.js `/api/v1/auth/accept-invitation` proxy route (which sets `httpOnly` cookies), and is redirected to the appropriate conference dashboard.
+

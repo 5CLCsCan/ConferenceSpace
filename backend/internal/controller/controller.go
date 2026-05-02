@@ -125,7 +125,7 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 		SemanticScholar:    semanticScholarCtrl,
 		Discussion:         discussionController.New(discSvc, "./uploads/discussions"),
 		ReviewerSuggestion: reviewerSuggestionController.New(reviewerSuggestionSvc),
-		ExternalInvitation: externalInvitationController.New(store.ExternalInvitation),
+		ExternalInvitation: externalInvitationController.New(store.ExternalInvitation, orch.ExternalInvitation),
 	}
 }
 
@@ -185,7 +185,7 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 		SemanticScholar:    semanticScholarCtrl,
 		Discussion:         discussionController.New(discSvc, "./uploads/discussions"),
 		ReviewerSuggestion: reviewerSuggestionController.New(reviewerSuggestionSvc),
-		ExternalInvitation: externalInvitationController.New(store.ExternalInvitation),
+		ExternalInvitation: externalInvitationController.New(store.ExternalInvitation, orch.ExternalInvitation),
 	}
 }
 
