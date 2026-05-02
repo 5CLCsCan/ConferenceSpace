@@ -1480,6 +1480,8 @@
             "text_top_n_invalid": "Nhập từ 1 trở lên",
             "text_pick_count_title": "Chọn số lượng ứng viên muốn lấy",
             "text_pick_count_hint": "Đặt số lượng gợi ý cần tải (mặc định 20), rồi nhấn Bắt đầu.",
+            "text_match_evidence_label": "Trùng chủ đề hội nghị",
+            "text_match_evidence_chip_tooltip": "Trùng một chủ đề hội nghị",
             "text_view_profile": "Xem hồ sơ",
             "text_open_scholar_profile": "Mở hồ sơ Semantic Scholar"
           },

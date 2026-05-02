@@ -440,3 +440,148 @@ func TestSuggestExternal_DeduplicatesWithInternal(t *testing.T) {
 		t.Errorf("expected External Author, got %s", results[0].Name)
 	}
 }
+
+// --- scoreUserAgainstTopics ---
+
+func TestScoreUserAgainstTopics_FullOverlap(t *testing.T) {
+	topics := map[string]bool{"ai": true, "ml": true}
+	matched, score := scoreUserAgainstTopics([]string{"AI", "ML"}, topics)
+
+	if score != 100 {
+		t.Errorf("expected score 100, got %d", score)
+	}
+	if len(matched) != 2 {
+		t.Errorf("expected 2 matched fields, got %d: %v", len(matched), matched)
+	}
+}
+
+func TestScoreUserAgainstTopics_PartialOverlap(t *testing.T) {
+	topics := map[string]bool{"ai": true, "ml": true, "nlp": true, "cv": true}
+	matched, score := scoreUserAgainstTopics([]string{"AI", "Robotics"}, topics)
+
+	// |{ai}| = 1, |{ai, ml, nlp, cv} ∪ {ai, robotics}| = 5, 1/5 = 20
+	if score != 20 {
+		t.Errorf("expected score 20, got %d", score)
+	}
+	if len(matched) != 1 || matched[0] != "ai" {
+		t.Errorf("expected matched=[ai], got %v", matched)
+	}
+}
+
+func TestScoreUserAgainstTopics_NoOverlap(t *testing.T) {
+	topics := map[string]bool{"ai": true, "ml": true}
+	matched, score := scoreUserAgainstTopics([]string{"Quantum", "Cryptography"}, topics)
+
+	if score != 0 {
+		t.Errorf("expected score 0, got %d", score)
+	}
+	if len(matched) != 0 {
+		t.Errorf("expected no matches, got %v", matched)
+	}
+}
+
+func TestScoreUserAgainstTopics_EmptyTopics(t *testing.T) {
+	matched, score := scoreUserAgainstTopics([]string{"AI"}, map[string]bool{})
+	if score != 0 || len(matched) != 0 {
+		t.Errorf("empty topics should yield zero score & no matches; got score=%d matched=%v", score, matched)
+	}
+}
+
+func TestScoreUserAgainstTopics_EmptyUserDomain(t *testing.T) {
+	matched, score := scoreUserAgainstTopics(nil, map[string]bool{"ai": true})
+	if score != 0 || len(matched) != 0 {
+		t.Errorf("empty user domain should yield zero score & no matches; got score=%d matched=%v", score, matched)
+	}
+}
+
+// --- AnnotateUsersWithMatch ---
+
+func TestAnnotateUsersWithMatch_Annotates(t *testing.T) {
+	svc := &Service{
+		conferences: &mockConferenceStorage{
+			conf: &dto.ConferenceResponse{Domain: []string{"AI", "ML"}},
+		},
+		submissions: &mockSubmissionStorage{subs: nil},
+	}
+
+	users := []*dto.UserResponse{
+		userResp(1, "alice@test.com", "Alice", "Smith", []string{"AI", "Robotics"}),
+		userResp(2, "bob@test.com", "Bob", "Jones", []string{"ML", "AI"}),
+		userResp(3, "carol@test.com", "Carol", "Lee", []string{"Quantum"}),
+		userResp(4, "dave@test.com", "Dave", "Park", nil),
+	}
+
+	if err := svc.AnnotateUsersWithMatch(context.Background(), 1, users); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Alice: matched=[ai], score=33 (1 / 3)
+	if users[0].Score == nil || *users[0].Score == 0 {
+		t.Errorf("alice: expected non-zero score, got %v", users[0].Score)
+	}
+	if len(users[0].MatchedFields) != 1 || users[0].MatchedFields[0] != "ai" {
+		t.Errorf("alice: expected matched=[ai], got %v", users[0].MatchedFields)
+	}
+
+	// Bob: full overlap, score=100
+	if users[1].Score == nil || *users[1].Score != 100 {
+		t.Errorf("bob: expected score=100, got %v", users[1].Score)
+	}
+	if len(users[1].MatchedFields) != 2 {
+		t.Errorf("bob: expected 2 matched fields, got %v", users[1].MatchedFields)
+	}
+
+	// Carol: no overlap → score=0 (but Score is non-nil so we know annotation happened)
+	if users[2].Score == nil {
+		t.Errorf("carol: expected non-nil Score (annotated as 0), got nil")
+	}
+	if users[2].Score != nil && *users[2].Score != 0 {
+		t.Errorf("carol: expected score=0, got %d", *users[2].Score)
+	}
+	if len(users[2].MatchedFields) != 0 {
+		t.Errorf("carol: expected empty matched fields, got %v", users[2].MatchedFields)
+	}
+
+	// Dave: nil domain → still annotated as 0
+	if users[3].Score == nil || *users[3].Score != 0 {
+		t.Errorf("dave: expected score=0, got %v", users[3].Score)
+	}
+}
+
+func TestAnnotateUsersWithMatch_EmptyUsersList(t *testing.T) {
+	svc := &Service{
+		conferences: &mockConferenceStorage{
+			conf: &dto.ConferenceResponse{Domain: []string{"AI"}},
+		},
+		submissions: &mockSubmissionStorage{subs: nil},
+	}
+
+	// Should not panic, should not call buildTopicSet (early return)
+	if err := svc.AnnotateUsersWithMatch(context.Background(), 1, []*dto.UserResponse{}); err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestAnnotateUsersWithMatch_NilUserEntry(t *testing.T) {
+	svc := &Service{
+		conferences: &mockConferenceStorage{
+			conf: &dto.ConferenceResponse{Domain: []string{"AI"}},
+		},
+		submissions: &mockSubmissionStorage{subs: nil},
+	}
+
+	users := []*dto.UserResponse{
+		nil,
+		{User: nil},
+		userResp(1, "x@test.com", "X", "Y", []string{"AI"}),
+	}
+
+	if err := svc.AnnotateUsersWithMatch(context.Background(), 1, users); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Only the third user should be annotated.
+	if users[2].Score == nil || *users[2].Score == 0 {
+		t.Errorf("expected non-zero score on valid user, got %v", users[2].Score)
+	}
+}

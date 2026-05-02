@@ -12,6 +12,7 @@ import (
 	"github.com/dcao/conferencespace/internal/controller/semantic_scholar"
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
+	reviewerSuggestionService "github.com/dcao/conferencespace/internal/service/reviewer_suggestion"
 	"github.com/dcao/conferencespace/internal/storage"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
@@ -23,24 +24,31 @@ import (
 )
 
 type Controller struct {
-	userStorage         userStorage.StorageInterface
-	submissionStorage   submissionStorage.StorageInterface
-	conferenceStorage   conferenceStorage.StorageInterface
-	roleStorage         conferenceuserrole.StorageInterface
-	assignmentService   *assignment.Service
-	scholarStorage      scholar.StorageInterface
-	semanticScholarCtrl *semantic_scholar.Controller
+	userStorage               userStorage.StorageInterface
+	submissionStorage         submissionStorage.StorageInterface
+	conferenceStorage         conferenceStorage.StorageInterface
+	roleStorage               conferenceuserrole.StorageInterface
+	assignmentService         *assignment.Service
+	scholarStorage            scholar.StorageInterface
+	semanticScholarCtrl       *semantic_scholar.Controller
+	reviewerSuggestionService *reviewerSuggestionService.Service
 }
 
-func New(store *storage.Storage, assignmentService *assignment.Service, semanticScholarCtrl *semantic_scholar.Controller) *Controller {
+func New(
+	store *storage.Storage,
+	assignmentService *assignment.Service,
+	semanticScholarCtrl *semantic_scholar.Controller,
+	reviewerSuggestionSvc *reviewerSuggestionService.Service,
+) *Controller {
 	return &Controller{
-		userStorage:         store.User,
-		submissionStorage:   store.Submission,
-		conferenceStorage:   store.Conference,
-		roleStorage:         store.ConferenceUserRole,
-		scholarStorage:      store.Scholar,
-		assignmentService:   assignmentService,
-		semanticScholarCtrl: semanticScholarCtrl,
+		userStorage:               store.User,
+		submissionStorage:         store.Submission,
+		conferenceStorage:         store.Conference,
+		roleStorage:               store.ConferenceUserRole,
+		scholarStorage:            store.Scholar,
+		assignmentService:         assignmentService,
+		semanticScholarCtrl:       semanticScholarCtrl,
+		reviewerSuggestionService: reviewerSuggestionSvc,
 	}
 }
 
@@ -300,13 +308,17 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.UserUpdateRequest) (*d
 
 // Search godoc
 // @Summary      Search users
-// @Description  Search users by email (for autocomplete/lookup)
+// @Description  Search users by email (for autocomplete/lookup). When the
+// @Description  optional ?conference_id= is supplied, each returned user is
+// @Description  annotated with `matched_fields` and `score` against that
+// @Description  conference's topic set (same scoring as /reviewer-suggestions).
 // @Tags         users
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
 // @Param        q query string true "Search query (email)"
 // @Param        limit query int false "Limit results (default: 10)"
+// @Param        conference_id query int false "If set, annotate each user with match evidence against this conference"
 // @Success      200 {object} dto.UserSearchResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
@@ -344,6 +356,19 @@ func (c *Controller) Search(ginCtx *gin.Context) (*dto.UserSearchResponse, error
 	for _, u := range users {
 		if u.Email != userEmail {
 			sanitizeUserResponse(u)
+		}
+	}
+
+	// Optional: annotate with conference-match evidence when ?conference_id= is supplied.
+	// Field names mirror dto.ReviewerSuggestion (matched_fields, score) and stay omitted
+	// from the response when this branch is skipped, preserving backwards compatibility.
+	if confIDStr := ginCtx.Query("conference_id"); confIDStr != "" && c.reviewerSuggestionService != nil {
+		if confID, err := strconv.ParseInt(confIDStr, 10, 64); err == nil && confID > 0 {
+			if annotateErr := c.reviewerSuggestionService.AnnotateUsersWithMatch(ctx, confID, users); annotateErr != nil {
+				// Graceful degrade: search still returns un-annotated rows.
+				// We log via the gin context so it shows up alongside the request.
+				_ = ginCtx.Error(fmt.Errorf("annotate users with match (conf=%d): %w", confID, annotateErr))
+			}
 		}
 	}
 

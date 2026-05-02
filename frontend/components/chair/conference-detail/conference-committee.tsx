@@ -10,12 +10,11 @@ import {
   updateConference,
 } from "@/lib/api/conferences"
 import type { Conference, Reviewer } from "@/lib/api/conferences"
-import { apiFetch } from "@/lib/api/client"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { useAuth } from "@/lib/auth-context"
 import { isReadOnlyRole } from "@/lib/role-helpers"
 import type { User } from "@/lib/api/user"
-import { userApi } from "@/lib/api/user"
+import { searchUsersForConference, userApi } from "@/lib/api/user"
 import { ReviewerSuggestions } from "./reviewer-suggestions"
 
 interface ConferenceCommitteeProps {
@@ -28,6 +27,9 @@ interface UserSearchResult {
   email: string
   first_name?: string
   last_name?: string
+  domain?: string[]
+  matched_fields?: string[]
+  score?: number
 }
 
 interface SelectedUser {
@@ -231,6 +233,12 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     placeholder_search_by_name_email_affiliation: t(
       "runtime.components.chair.conference-detail.conference-committee.placeholder_search_by_name_email_affiliation",
     ),
+    text_match_evidence_label: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_match_evidence_label",
+    ),
+    text_match_evidence_chip_tooltip: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_match_evidence_chip_tooltip",
+    ),
     aria_label_select_all_committee_members: t(
       "runtime.components.chair.conference-detail.conference-committee.aria_label_select_all_committee_members",
     ),
@@ -375,6 +383,36 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     return members
   }, [conference, conferenceReviewers, resolvedUsers])
 
+  // Emails (lowercased) of users who should NOT appear in the search dropdown:
+  // anyone already on the committee, plus anyone already chipped in selectedUsers.
+  const excludedSearchEmails = useMemo(() => {
+    const set = new Set<string>()
+    for (const m of committeeMembers) {
+      if (m.email) set.add(m.email.trim().toLowerCase())
+    }
+    for (const s of selectedUsers) {
+      if (s.email) set.add(s.email.trim().toLowerCase())
+    }
+    return set
+  }, [committeeMembers, selectedUsers])
+
+  // Conference-domain set used to color chips in the search dropdown when the
+  // backend hasn't returned `matched_fields` (e.g. annotation gracefully degraded).
+  const conferenceTopicSet = useMemo(() => {
+    const set = new Set<string>()
+    for (const d of conference?.domain ?? []) {
+      const norm = String(d).trim().toLowerCase()
+      if (norm) set.add(norm)
+    }
+    return set
+  }, [conference?.domain])
+
+  // Search results minus already-on-committee / already-staged users.
+  const visibleSearchResults = useMemo(
+    () => searchResults.filter((u) => !excludedSearchEmails.has(u.email.trim().toLowerCase())),
+    [searchResults, excludedSearchEmails],
+  )
+
   useEffect(() => {
     function handleClick(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -385,6 +423,18 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     document.addEventListener("mousedown", handleClick)
     return () => document.removeEventListener("mousedown", handleClick)
   }, [])
+
+  // When the role-to-add changes, re-issue the active search so the dropdown
+  // either gains or loses match-evidence chips/labels without forcing the
+  // chair to retype.
+  useEffect(() => {
+    if (!searchQuery.trim()) return
+    handleSearch(searchQuery)
+    // We intentionally only depend on the role here; including handleSearch /
+    // searchQuery would loop because handleSearch updates searchQuery via
+    // setSearchQuery(value).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [memberRoleToAdd])
 
   const handleSearch = (value: string) => {
     setSearchQuery(value)
@@ -398,20 +448,28 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     }
 
     setSearching(true)
+    // Only ask the backend to compute conference-match annotations when the
+    // chair is adding a *reviewer*. For chair / co-chair / PC roles the topic
+    // overlap is irrelevant, so we omit `conference_id` and the dropdown shows
+    // a plain name/email result with no chips, label, or tooltip.
+    const wantsMatchEvidence = memberRoleToAdd === "reviewer"
     searchDebounce.current = setTimeout(async () => {
       try {
-        const { data } = await apiFetch<{
-          data?: {
-            users?: { id: number; email: string; first_name?: string; last_name?: string }[]
-          }
-        }>(`/api/v1/users/search?q=${encodeURIComponent(value.trim())}&limit=10`)
-        const users = data?.data?.users || []
+        const { data } = await searchUsersForConference(
+          value.trim(),
+          wantsMatchEvidence ? conferenceId : null,
+          10,
+        )
+        const users = data?.users ?? []
         setSearchResults(
           users.map((u) => ({
             id: Number(u.id),
             email: u.email,
             first_name: u.first_name,
             last_name: u.last_name,
+            domain: u.domain,
+            matched_fields: u.matched_fields,
+            score: u.score,
           })),
         )
       } catch {
@@ -781,34 +839,103 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                         </div>
                       ) : (
                         <div className="p-1">
-                          {searchResults.map((user) => (
-                            <button
-                              key={user.id}
-                              type="button"
-                              onMouseDown={(event) => {
-                                event.preventDefault()
-                                handleSelectUser(user)
-                              }}
-                              className="w-full flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-100 transition-colors text-left"
-                            >
-                              <div className="size-7 rounded-full bg-[#1B3C53]/10 flex items-center justify-center text-[#1B3C53] font-bold text-[10px]">
-                                {user.first_name?.[0] || user.email[0].toUpperCase()}
-                                {user.last_name?.[0] || ""}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium text-[#141414] truncate">
-                                  {user.email}
-                                </p>
-                                {(user.first_name || user.last_name) && (
-                                  <p className="text-[10px] text-slate-500 truncate">
-                                    {`${user.first_name || ""} ${user.last_name || ""}`.trim()}
+                          {/*
+                            Topic-match evidence is only meaningful for the
+                            "reviewer" role; for chair / co-chair / PC additions
+                            we render plain (grey) chips with no label or
+                            tooltip, matching the gating on the API call above.
+                          */}
+                          {visibleSearchResults.map((user) => {
+                            const evidenceEnabled = memberRoleToAdd === "reviewer"
+                            // `matched_fields === undefined` means the server did not annotate
+                            // this row (e.g. no conference_id was supplied or annotation degraded).
+                            // In that case we silently fall back to local conference-domain
+                            // matching for chip color, but we do NOT show the explanatory label —
+                            // we only assert "this is a match" when the backend confirmed it.
+                            // When evidence is disabled (non-reviewer role), treat the user as
+                            // un-annotated so the chip-render path can't claim any match.
+                            const serverAnnotated =
+                              evidenceEnabled && user.matched_fields !== undefined
+                            const matchedSet = evidenceEnabled
+                              ? new Set(
+                                  (user.matched_fields ?? []).map((f) => f.trim().toLowerCase()),
+                                )
+                              : new Set<string>()
+                            const hasServerMatch = serverAnnotated && matchedSet.size > 0
+                            return (
+                              <button
+                                key={user.id}
+                                type="button"
+                                onMouseDown={(event) => {
+                                  event.preventDefault()
+                                  handleSelectUser(user)
+                                }}
+                                className="w-full flex items-start gap-3 px-3 py-2 rounded hover:bg-slate-100 transition-colors text-left"
+                              >
+                                <div className="size-7 rounded-full bg-[#1B3C53]/10 flex items-center justify-center text-[#1B3C53] font-bold text-[10px] flex-shrink-0 mt-0.5">
+                                  {user.first_name?.[0] || user.email[0].toUpperCase()}
+                                  {user.last_name?.[0] || ""}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-medium text-[#141414] truncate">
+                                    {user.email}
                                   </p>
-                                )}
-                              </div>
-                              <Icon name="person_add" className="text-slate-400" />
-                            </button>
-                          ))}
-                          {searchResults.length === 0 && (
+                                  {(user.first_name || user.last_name) && (
+                                    <p className="text-[10px] text-slate-500 truncate">
+                                      {`${user.first_name || ""} ${user.last_name || ""}`.trim()}
+                                    </p>
+                                  )}
+                                  {user.domain && user.domain.length > 0 && (
+                                    <div className="mt-1.5">
+                                      {hasServerMatch && (
+                                        <p
+                                          data-testid="match-evidence-label"
+                                          className="flex items-center gap-1 text-[10px] font-medium text-emerald-700 mb-1"
+                                        >
+                                          <span aria-hidden="true">✓</span>
+                                          {T("text_match_evidence_label")}
+                                        </p>
+                                      )}
+                                      <div className="flex flex-wrap gap-1">
+                                        {user.domain.map((field) => {
+                                          const norm = field.trim().toLowerCase()
+                                          const serverMatched = matchedSet.has(norm)
+                                          // Prefer server-provided matched_fields; fall back to
+                                          // local conference-domain set if backend omitted it.
+                                          // Both paths are gated on evidenceEnabled (reviewer role).
+                                          const matched =
+                                            evidenceEnabled &&
+                                            (serverMatched ||
+                                              (!serverAnnotated && conferenceTopicSet.has(norm)))
+                                          return (
+                                            <span
+                                              key={field}
+                                              title={
+                                                serverMatched
+                                                  ? T("text_match_evidence_chip_tooltip")
+                                                  : undefined
+                                              }
+                                              className={cn(
+                                                "text-[10px] px-2 py-0.5 rounded-full border",
+                                                matched
+                                                  ? "bg-emerald-50 text-emerald-700 border-emerald-100 font-medium"
+                                                  : "bg-slate-50 text-slate-500 border-slate-200",
+                                              )}
+                                            >
+                                              {matched && <span className="mr-0.5">✓</span>}
+                                              {field}
+                                            </span>
+                                          )
+                                        })}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                                <Icon name="person_add" className="text-slate-400 mt-0.5" />
+                              </button>
+                            )
+                          })}
+                          {visibleSearchResults.length === 0 && (
                             <div className="px-3 py-2 text-xs text-slate-400">
                               {T("text_no_users_found")}
                             </div>

@@ -19,6 +19,12 @@ type UserResponse struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Roles     []string  `json:"roles,omitempty"` // Distinct active roles across all conferences (populated for /me)
+
+	// Conference match annotations — only populated when the search endpoint
+	// is called with ?conference_id=. Both fields use omitempty so legacy
+	// callers see an unchanged payload. Field names mirror dto.ReviewerSuggestion.
+	MatchedFields []string `json:"matched_fields,omitempty"`
+	Score         *int     `json:"score,omitempty"`
 }
 
 type UserCreateRequest struct {
