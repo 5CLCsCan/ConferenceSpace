@@ -103,6 +103,52 @@ type ReviewerBriefingFileMetadataPayload struct {
 	ContentType      string `json:"content_type,omitempty"`
 }
 
+type ResearchKeywordPaperSample struct {
+	Title    string `json:"title"`
+	Abstract string `json:"abstract"`
+	Venue    string `json:"venue,omitempty"`
+	Year     int    `json:"year,omitempty"`
+}
+
+type ResearchKeywordExtractionRequest struct {
+	Papers []ResearchKeywordPaperSample `json:"papers"`
+}
+
+type ResearchKeywordExtractionResponse struct {
+	Keywords []string `json:"keywords"`
+}
+
+type TrackRecommendationConferenceContext struct {
+	Title         string   `json:"title"`
+	Acronym       string   `json:"acronym,omitempty"`
+	Description   string   `json:"description,omitempty"`
+	CallForPapers string   `json:"call_for_papers,omitempty"`
+	Domains       []string `json:"domains,omitempty"`
+	Tracks        []string `json:"tracks"`
+}
+
+type TrackRecommendationPaperContext struct {
+	Title    string   `json:"title"`
+	Abstract string   `json:"abstract"`
+	Keywords []string `json:"keywords,omitempty"`
+}
+
+type TrackRecommendationRequest struct {
+	Conference TrackRecommendationConferenceContext `json:"conference"`
+	Paper      TrackRecommendationPaperContext      `json:"paper"`
+}
+
+type TrackRecommendationItem struct {
+	TrackName  string  `json:"track_name"`
+	Confidence float64 `json:"confidence"`
+	Reasoning  string  `json:"reasoning"`
+	Rank       int     `json:"rank"`
+}
+
+type TrackRecommendationResponse struct {
+	Recommendations []TrackRecommendationItem `json:"recommendations"`
+}
+
 type ReviewerBriefingResolveRequest struct {
 	Action                     string                              `json:"action"`
 	ConferenceID               int64                               `json:"conference_id"`
@@ -996,6 +1042,74 @@ func (c *Client) GeneratePaperAnnotation(
 	}
 
 	return doJSONRequest[PaperAnnotationResolveResponse](c.httpClient, req, "paper annotation workflow")
+}
+
+func (c *Client) ExtractResearchKeywords(
+	ctx context.Context,
+	token string,
+	requestPayload *ResearchKeywordExtractionRequest,
+) (*ResearchKeywordExtractionResponse, error) {
+	if c == nil || strings.TrimSpace(c.baseURL) == "" {
+		return nil, fmt.Errorf("ai-service client is not configured")
+	}
+	if requestPayload == nil {
+		return nil, fmt.Errorf("research keyword request payload is required")
+	}
+
+	requestJSON, err := json.Marshal(requestPayload)
+	if err != nil {
+		return nil, fmt.Errorf("marshal research keyword request: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		c.baseURL+"/api/v1/workflows/research-keywords/extract",
+		bytes.NewReader(requestJSON),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("create research keyword request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if normalizedToken := normalizeBearerToken(token); normalizedToken != "" {
+		req.Header.Set("Authorization", "Bearer "+normalizedToken)
+	}
+
+	return doJSONRequest[ResearchKeywordExtractionResponse](c.httpClient, req, "research keyword workflow")
+}
+
+func (c *Client) RecommendTracks(
+	ctx context.Context,
+	token string,
+	requestPayload *TrackRecommendationRequest,
+) (*TrackRecommendationResponse, error) {
+	if c == nil || strings.TrimSpace(c.baseURL) == "" {
+		return nil, fmt.Errorf("ai-service client is not configured")
+	}
+	if requestPayload == nil {
+		return nil, fmt.Errorf("track recommendation request payload is required")
+	}
+
+	requestJSON, err := json.Marshal(requestPayload)
+	if err != nil {
+		return nil, fmt.Errorf("marshal track recommendation request: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		c.baseURL+"/api/v1/workflows/track-recommendation/recommend",
+		bytes.NewReader(requestJSON),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("create track recommendation request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if normalizedToken := normalizeBearerToken(token); normalizedToken != "" {
+		req.Header.Set("Authorization", "Bearer "+normalizedToken)
+	}
+
+	return doJSONRequest[TrackRecommendationResponse](c.httpClient, req, "track recommendation workflow")
 }
 
 func (c *Client) ResolveReviewQualityAudit(

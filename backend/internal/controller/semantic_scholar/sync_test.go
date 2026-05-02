@@ -2,15 +2,14 @@ package semantic_scholar
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"sync"
 	"testing"
 
+	aiServiceClient "github.com/dcao/conferencespace/internal/clients/ai_service"
 	client "github.com/dcao/conferencespace/internal/clients/semantic_scholar"
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/model"
-	researchdomain "github.com/dcao/conferencespace/internal/service/research_domain"
 	userstorage "github.com/dcao/conferencespace/internal/storage/user"
 )
 
@@ -137,29 +136,32 @@ func (s *syncUserStorage) SetEmailVerified(context.Context, string, bool) error 
 	panic("unexpected call to SetEmailVerified")
 }
 
-type fakeResearchDomainGenerator struct {
-	keywords []string
-	err      error
+type fakeResearchKeywordClient struct {
+	lastToken  string
+	lastPapers []aiServiceClient.ResearchKeywordPaperSample
+	keywords   []string
+	err        error
 }
 
-func (f fakeResearchDomainGenerator) GenerateJSON(_ context.Context, _ string, _ map[string]any, out any) error {
+func (f *fakeResearchKeywordClient) ExtractResearchKeywords(
+	_ context.Context,
+	token string,
+	request *aiServiceClient.ResearchKeywordExtractionRequest,
+) (*aiServiceClient.ResearchKeywordExtractionResponse, error) {
+	f.lastToken = token
+	if request != nil {
+		f.lastPapers = append([]aiServiceClient.ResearchKeywordPaperSample(nil), request.Papers...)
+	}
 	if f.err != nil {
-		return f.err
+		return nil, f.err
 	}
-
-	payload, err := json.Marshal(map[string]any{
-		"keywords": f.keywords,
-	})
-	if err != nil {
-		return err
-	}
-
-	return json.Unmarshal(payload, out)
+	return &aiServiceClient.ResearchKeywordExtractionResponse{Keywords: append([]string(nil), f.keywords...)}, nil
 }
 
 func TestSyncAuthorProfileUpdatesResearchDomains(t *testing.T) {
 	scholarStore := &syncScholarStorage{}
 	userStore := &syncUserStorage{}
+	keywordClient := &fakeResearchKeywordClient{keywords: []string{"Machine Learning", "Natural Language Processing"}}
 	controller := &Controller{
 		client: &fakeSyncSemanticScholarClient{
 			author: &client.AuthorWithPapers{
@@ -178,13 +180,13 @@ func TestSyncAuthorProfileUpdatesResearchDomains(t *testing.T) {
 				},
 			},
 		},
-		scholar:        scholarStore,
-		users:          userStore,
-		domainKeywords: researchdomain.New(fakeResearchDomainGenerator{keywords: []string{"Machine Learning", "Natural Language Processing"}}),
-		syncLocks:      make(map[int64]*sync.Mutex),
+		scholar:   scholarStore,
+		users:     userStore,
+		aiService: keywordClient,
+		syncLocks: make(map[int64]*sync.Mutex),
 	}
 
-	err := controller.SyncAuthorProfile(context.Background(), 42, "1741101")
+	err := controller.SyncAuthorProfile(context.Background(), 42, "1741101", "Bearer author-token")
 	if err != nil {
 		t.Fatalf("SyncAuthorProfile() error = %v", err)
 	}
@@ -207,6 +209,12 @@ func TestSyncAuthorProfileUpdatesResearchDomains(t *testing.T) {
 	if len(userStore.lastDomain) != 2 || userStore.lastDomain[0] != "Machine Learning" {
 		t.Fatalf("lastDomain = %v, want inferred keywords", userStore.lastDomain)
 	}
+	if keywordClient.lastToken != "Bearer author-token" {
+		t.Fatalf("lastToken = %q, want bearer token to flow to ai-service", keywordClient.lastToken)
+	}
+	if len(keywordClient.lastPapers) != 2 {
+		t.Fatalf("lastPapers = %v, want 2 paper samples", keywordClient.lastPapers)
+	}
 }
 
 func TestSyncAuthorProfileContinuesWhenResearchDomainInferenceFails(t *testing.T) {
@@ -221,13 +229,13 @@ func TestSyncAuthorProfileContinuesWhenResearchDomainInferenceFails(t *testing.T
 				},
 			},
 		},
-		scholar:        scholarStore,
-		users:          userStore,
-		domainKeywords: researchdomain.New(fakeResearchDomainGenerator{err: errors.New("gemini unavailable")}),
-		syncLocks:      make(map[int64]*sync.Mutex),
+		scholar:   scholarStore,
+		users:     userStore,
+		aiService: &fakeResearchKeywordClient{err: errors.New("ai-service unavailable")},
+		syncLocks: make(map[int64]*sync.Mutex),
 	}
 
-	err := controller.SyncAuthorProfile(context.Background(), 7, "1741101")
+	err := controller.SyncAuthorProfile(context.Background(), 7, "1741101", "Bearer author-token")
 	if err != nil {
 		t.Fatalf("SyncAuthorProfile() error = %v, want nil", err)
 	}

@@ -68,11 +68,12 @@ func (c *Controller) LinkAcademicProfile(ginCtx *gin.Context, req *LinkProfileRe
 
 	// 4. Trigger background sync
 	if c.semanticScholarCtrl != nil {
-		go func(authorID string, userID int64) {
+		authHeader := ginCtx.GetHeader("Authorization")
+		go func(authorID string, userID int64, authToken string) {
 			bgCtx := context.Background()
 
 			// Fetch and sync to relational tables
-			err := c.semanticScholarCtrl.SyncAuthorProfile(bgCtx, userID, authorID)
+			err := c.semanticScholarCtrl.SyncAuthorProfile(bgCtx, userID, authorID, authToken)
 
 			// Update status based on result
 			newStatus := "completed"
@@ -89,7 +90,7 @@ func (c *Controller) LinkAcademicProfile(ginCtx *gin.Context, req *LinkProfileRe
 				// Use Update instead of UpdateByEmail
 				_, _ = c.userStorage.Update(bgCtx, userID, currentUser.User)
 			}
-		}(req.SemanticScholarID, user.ID)
+		}(req.SemanticScholarID, user.ID, authHeader)
 	}
 
 	return updatedUser, nil

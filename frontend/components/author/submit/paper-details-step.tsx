@@ -5,6 +5,7 @@ import { useTheme } from "next-themes"
 import "@uiw/react-md-editor/markdown-editor.css"
 import "@uiw/react-markdown-preview/markdown.css"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import type { TrackRecommendation } from "@/lib/types"
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false })
 
@@ -16,6 +17,11 @@ interface PaperDetailsStepProps {
   selectedTrack: string
   isStudentPaper: boolean
   availableTracks: string[]
+  recommendationEligible: boolean
+  recommendationLoading: boolean
+  recommendationStale: boolean
+  recommendationError: string | null
+  recommendations: TrackRecommendation[]
   onTitleChange: (value: string) => void
   onAbstractChange: (value: string) => void
   onKeywordInputChange: (value: string) => void
@@ -23,6 +29,7 @@ interface PaperDetailsStepProps {
   onRemoveKeyword: (keyword: string) => void
   onTrackChange: (value: string) => void
   onStudentPaperChange: (checked: boolean) => void
+  onFindRecommendations: () => void
 }
 
 export function PaperDetailsStep({
@@ -33,6 +40,11 @@ export function PaperDetailsStep({
   selectedTrack,
   isStudentPaper,
   availableTracks,
+  recommendationEligible,
+  recommendationLoading,
+  recommendationStale,
+  recommendationError,
+  recommendations,
   onTitleChange,
   onAbstractChange,
   onKeywordInputChange,
@@ -40,51 +52,15 @@ export function PaperDetailsStep({
   onRemoveKeyword,
   onTrackChange,
   onStudentPaperChange,
+  onFindRecommendations,
 }: PaperDetailsStepProps) {
   const { t } = useTranslation()
   const { resolvedTheme } = useTheme()
+  const topRecommendations = recommendations.slice(0, 3)
+  const remainingRecommendations = recommendations.slice(3)
 
   return (
     <form className="flex flex-col gap-4 w-full" onSubmit={(e) => e.preventDefault()}>
-      {/* Track Selection Card */}
-      <div className="px-4 pt-4 pb-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-4">
-        <div className="border-b border-slate-100 dark:border-slate-700 pb-3">
-          <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
-            {t("runtime.components.author.submit.paper-details-step.text_conference_track")}{" "}
-          </h3>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
-            {t("runtime.components.author.submit.paper-details-step.text_select_track")}{" "}
-            <span className="text-red-500 ml-0.5">*</span>
-          </span>
-          <div className="relative">
-            <select
-              value={selectedTrack}
-              onChange={(e) => onTrackChange(e.target.value)}
-              className="w-full h-10 text-xs font-normal py-2 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all appearance-none cursor-pointer"
-            >
-              <option value="">
-                {t("runtime.components.author.submit.paper-details-step.text_select_a_track")}
-              </option>
-              {availableTracks.map((track) => (
-                <option key={track} value={track}>
-                  {track}
-                </option>
-              ))}
-            </select>
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-              <span className="material-symbols-outlined text-[16px]">expand_more</span>
-            </span>
-          </div>
-          <p className="text-[10px] text-slate-400 font-light">
-            {t(
-              "runtime.components.author.submit.paper-details-step.text_select_the_most_relevant_track_for",
-            )}{" "}
-          </p>
-        </div>
-      </div>
-
       {/* Paper Information Card */}
       <div className="px-4 pt-4 pb-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-4">
         <div className="border-b border-slate-100 dark:border-slate-700 pb-3">
@@ -176,6 +152,162 @@ export function PaperDetailsStep({
           <p className="text-[10px] text-slate-400 font-light">
             {t(
               "runtime.components.author.submit.paper-details-step.text_provide_3_5_keywords_separated_by",
+            )}{" "}
+          </p>
+        </div>
+      </div>
+
+      <div className="px-4 pt-4 pb-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-4">
+        <div className="flex items-start justify-between gap-3 border-b border-slate-100 dark:border-slate-700 pb-3">
+          <div>
+            <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
+              {t("runtime.components.author.submit.paper-details-step.text_track_recommendation")}
+            </h3>
+            <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+              {t(
+                "runtime.components.author.submit.paper-details-step.text_use_your_paper_summary_to_rank_the_conference_tracks_before_you_choose_one_manually",
+              )}
+            </p>
+          </div>
+          <button
+            type="button"
+            disabled={!recommendationEligible || recommendationLoading}
+            onClick={onFindRecommendations}
+            className="shrink-0 rounded-lg bg-[#1B3C53] px-3 py-2 text-[11px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {recommendationLoading
+              ? t("runtime.components.author.submit.paper-details-step.text_finding_tracks")
+              : recommendationStale
+                ? t(
+                    "runtime.components.author.submit.paper-details-step.text_refresh_recommendation",
+                  )
+                : t(
+                    "runtime.components.author.submit.paper-details-step.text_find_best_fit_tracks",
+                  )}
+          </button>
+        </div>
+
+        {!recommendationEligible && (
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            {t(
+              "runtime.components.author.submit.paper-details-step.text_add_a_more_descriptive_title_and_abstract_to_unlock_track_recommendation",
+            )}
+          </p>
+        )}
+
+        {recommendationError && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[11px] text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+            {recommendationError}
+          </div>
+        )}
+
+        {recommendationStale && recommendations.length > 0 && (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">
+            {t(
+              "runtime.components.author.submit.paper-details-step.text_paper_details_changed_refresh_the_recommendation_before_using_it",
+            )}
+          </div>
+        )}
+
+        {topRecommendations.length > 0 && (
+          <div className="flex flex-col gap-3">
+            <div className="grid gap-3 md:grid-cols-3">
+              {topRecommendations.map((item) => (
+                <button
+                  key={item.track_name}
+                  type="button"
+                  onClick={() => onTrackChange(item.track_name)}
+                  className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-left transition hover:border-[#1B3C53] hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                      #{item.rank}
+                    </span>
+                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                      {Math.round(item.confidence * 100)}%
+                    </span>
+                  </div>
+                  <div className="mt-2 text-sm font-semibold text-[#141414] dark:text-white">
+                    {item.track_name}
+                  </div>
+                  <p className="mt-2 text-[11px] leading-relaxed text-slate-600 dark:text-slate-300">
+                    {item.reasoning}
+                  </p>
+                  <span className="mt-3 inline-flex text-[10px] font-semibold uppercase tracking-[0.16em] text-[#1B3C53] dark:text-sky-300">
+                    {t("runtime.components.author.submit.paper-details-step.text_use_this_track")}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {remainingRecommendations.length > 0 && (
+              <details className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+                <summary className="cursor-pointer text-[11px] font-semibold text-slate-700 dark:text-slate-200">
+                  {t(
+                    "runtime.components.author.submit.paper-details-step.text_view_all_ranked_tracks",
+                  )}
+                </summary>
+                <div className="mt-3 flex flex-col gap-2">
+                  {remainingRecommendations.map((item) => (
+                    <button
+                      key={item.track_name}
+                      type="button"
+                      onClick={() => onTrackChange(item.track_name)}
+                      className="flex items-start justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-left dark:border-slate-700 dark:bg-slate-800"
+                    >
+                      <div>
+                        <div className="text-xs font-semibold text-[#141414] dark:text-white">
+                          #{item.rank} {item.track_name}
+                        </div>
+                        <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                          {item.reasoning}
+                        </p>
+                      </div>
+                      <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                        {Math.round(item.confidence * 100)}%
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </details>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="px-4 pt-4 pb-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-4">
+        <div className="border-b border-slate-100 dark:border-slate-700 pb-3">
+          <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
+            {t("runtime.components.author.submit.paper-details-step.text_conference_track")}{" "}
+          </h3>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[10px] font-bold text-[#141414] dark:text-white uppercase tracking-widest">
+            {t("runtime.components.author.submit.paper-details-step.text_select_track")}{" "}
+            <span className="text-red-500 ml-0.5">*</span>
+          </span>
+          <div className="relative">
+            <select
+              value={selectedTrack}
+              onChange={(e) => onTrackChange(e.target.value)}
+              className="w-full h-10 text-xs font-normal py-2 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-[#141414] dark:text-white focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all appearance-none cursor-pointer"
+            >
+              <option value="">
+                {t("runtime.components.author.submit.paper-details-step.text_select_a_track")}
+              </option>
+              {availableTracks.map((track) => (
+                <option key={track} value={track}>
+                  {track}
+                </option>
+              ))}
+            </select>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+              <span className="material-symbols-outlined text-[16px]">expand_more</span>
+            </span>
+          </div>
+          <p className="text-[10px] text-slate-400 font-light">
+            {t(
+              "runtime.components.author.submit.paper-details-step.text_select_the_most_relevant_track_for",
             )}{" "}
           </p>
         </div>

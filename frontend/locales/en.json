@@ -581,9 +581,32 @@
           "prop_text_structured_peer_review": "Structured peer review",
           "text_conferencespace": "CONFERENCESPACE",
           "text_create_your_scholar_account_to_submit": "Create your scholar account to submit papers, review manuscripts, and chair conferences.",
+          "text_failed_to_load_invitation": "Failed to load invitation details.",
           "text_creating_account": "Creating account...",
+          "text_invited_to_join_conference": "{inviter} invited you to join {conference} as {role}.",
           "text_join_the_academic_research_community": "Join the academic research community.",
-          "text_passwords_do_not_match": "Passwords do not match"
+          "text_loading_invitation": "Loading invitation details...",
+          "text_passwords_do_not_match": "Passwords do not match",
+          "text_role_co_chair": "Co-Chair",
+          "text_role_pc": "Program Committee member",
+          "text_role_reviewer": "Reviewer"
+        }
+      },
+      "invite": {
+        "page": {
+          "text_accept_invitation": "Accept invitation",
+          "text_conference_invitation": "Conference invitation",
+          "text_decline_invitation": "Decline invitation",
+          "text_failed_to_load_invitation": "Failed to load invitation.",
+          "text_go_to_dashboard": "Go to dashboard",
+          "text_invitation_accepted": "Invitation accepted.",
+          "text_invitation_declined": "Invitation declined.",
+          "text_invitation_sent_to_email": "This invitation is tied to {email}.",
+          "text_invitation_status": "This invitation is currently {status}.",
+          "text_loading_invitation": "Loading invitation...",
+          "text_missing_invitation_token": "Missing invitation token.",
+          "text_sign_in_to_continue": "Sign in or create your account with the invited email to continue.",
+          "text_wrong_account_email": "You are signed in as {currentEmail}, but this invitation was sent to {invitedEmail}."
         }
       },
       "reset-password": {
@@ -1122,19 +1145,28 @@
             "title_preview": "Preview"
           },
           "paper-details-step": {
+            "text_add_a_more_descriptive_title_and_abstract_to_unlock_track_recommendation": "Add a more descriptive title and abstract to unlock track recommendation.",
             "placeholder_e_g_optimizing_neural_networks_for": "e.g., Optimizing Neural Networks for Edge Devices",
             "text_500_words": "/ 500 words",
             "text_abstract": "Abstract",
             "text_check_this_box_if_the_primary": "Check this box if the primary author is a student.",
             "text_conference_track": "Conference Track",
+            "text_find_best_fit_tracks": "Find best-fit tracks",
+            "text_finding_tracks": "Finding tracks...",
             "text_keywords": "Keywords",
             "text_paper_information": "Paper Information",
+            "text_paper_details_changed_refresh_the_recommendation_before_using_it": "Paper details changed. Refresh the recommendation before using it.",
             "text_paper_title": "Paper Title",
             "text_provide_3_5_keywords_separated_by": "Provide 3-5 keywords separated by Enter.",
+            "text_refresh_recommendation": "Refresh recommendation",
             "text_select_a_track": "Select a track...",
             "text_select_the_most_relevant_track_for": "Select the most relevant track for your research to ensure proper reviewer assignment.",
             "text_select_track": "Select Track",
-            "text_student_paper": "Student Paper"
+            "text_student_paper": "Student Paper",
+            "text_track_recommendation": "Track Recommendation",
+            "text_use_this_track": "Use this track",
+            "text_use_your_paper_summary_to_rank_the_conference_tracks_before_you_choose_one_manually": "Use your paper summary to rank the conference tracks before you choose one manually.",
+            "text_view_all_ranked_tracks": "View all ranked tracks"
           },
           "paper-submission-form": {
             "prop_description_add_all_contributing_authors_use_the": "Add all contributing authors. Use the drag handles to order them according to their contribution. Ensure one author is marked as the corresponding contact.",

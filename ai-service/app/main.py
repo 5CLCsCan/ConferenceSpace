@@ -39,10 +39,14 @@ from app.workflows.chair_decision_copilot.router import (
 )
 from app.workflows.paper_annotation.runner import PaperAnnotationRunner
 from app.workflows.paper_annotation.router import router as paper_annotation_router
+from app.workflows.research_keywords.runner import ResearchKeywordRunner
+from app.workflows.research_keywords.router import router as research_keyword_router
 from app.workflows.submission_gating.runner import SubmissionGatingRunner
 from app.workflows.submission_gating.router import router as submission_gating_router
 from app.workflows.submission_autofill.runner import SubmissionAutofillRunner
 from app.workflows.submission_autofill.router import router as submission_autofill_router
+from app.workflows.track_recommendation.runner import TrackRecommendationRunner
+from app.workflows.track_recommendation.router import router as track_recommendation_router
 
 logger = logging.getLogger(__name__)
 
@@ -70,6 +74,8 @@ class AppContainer:
     paper_annotation_repo: PaperAnnotationRepository
     paper_annotation_runner: PaperAnnotationRunner
     submission_autofill_runner: SubmissionAutofillRunner
+    research_keyword_runner: ResearchKeywordRunner
+    track_recommendation_runner: TrackRecommendationRunner
 
 
 @asynccontextmanager
@@ -140,6 +146,8 @@ async def lifespan(app: FastAPI):
         llm_client=llm_client,
     )
     submission_autofill_runner = SubmissionAutofillRunner(llm_client=llm_client)
+    research_keyword_runner = ResearchKeywordRunner(llm_client=llm_client)
+    track_recommendation_runner = TrackRecommendationRunner(llm_client=llm_client)
     runtime = AgentRuntime(
         settings=settings,
         session_factory=session_factory,
@@ -171,6 +179,9 @@ async def lifespan(app: FastAPI):
         paper_annotation_repo=paper_annotation_repo,
         paper_annotation_runner=paper_annotation_runner,
         submission_autofill_runner=submission_autofill_runner,
+        research_keyword_runner=research_keyword_runner,
+        track_recommendation_runner=track_recommendation_runner,
+        submission_autofill_runner=submission_autofill_runner,
     )
 
     try:
@@ -201,6 +212,8 @@ def create_app() -> FastAPI:
     app.include_router(review_quality_audit_router)
     app.include_router(decision_copilot_router)
     app.include_router(paper_annotation_router)
+    app.include_router(research_keyword_router)
+    app.include_router(track_recommendation_router)
     app.include_router(submission_autofill_router)
     return app
 

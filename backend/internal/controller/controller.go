@@ -108,7 +108,7 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 	// Create Semantic Scholar controller (only if client is available)
 	var semanticScholarCtrl *semanticscholarController.Controller
 	if clients != nil && clients.SemanticScholar != nil {
-		semanticScholarCtrl = semanticscholarController.New(clients.SemanticScholar, store.Cache, store.Scholar, store.User, clients.Gemini)
+		semanticScholarCtrl = semanticscholarController.New(clients.SemanticScholar, store.Cache, store.Scholar, store.User, clients.AIService)
 	}
 
 	reviewerSuggestionSvc := buildReviewerSuggestionService(store, clients)
@@ -168,7 +168,7 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 	// Create Semantic Scholar controller (only if client is available)
 	var semanticScholarCtrl *semanticscholarController.Controller
 	if clients != nil && clients.SemanticScholar != nil {
-		semanticScholarCtrl = semanticscholarController.New(clients.SemanticScholar, store.Cache, store.Scholar, store.User, clients.Gemini)
+		semanticScholarCtrl = semanticscholarController.New(clients.SemanticScholar, store.Cache, store.Scholar, store.User, clients.AIService)
 	}
 
 	reviewerSuggestionSvc := buildReviewerSuggestionService(store, clients)
