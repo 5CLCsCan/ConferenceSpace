@@ -9,6 +9,57 @@ export interface User {
   semantic_scholar_id?: string
   profile_sync_status?: string
   roles?: string[]
+  /**
+   * Conference-match annotations. Populated only when the search endpoint is
+   * called with `?conference_id=`. Field names mirror the suggestion DTO.
+   */
+  matched_fields?: string[]
+  score?: number
+}
+
+/** Response shape of GET /api/v1/users/search. */
+export interface UserSearchResponse {
+  users: User[]
+  total: number
+}
+
+/**
+ * Search users with an optional conference context. When `conferenceId` is
+ * supplied, each returned user includes `matched_fields` and `score` computed
+ * server-side using the same scoring as the reviewer-suggestions endpoint.
+ */
+export async function searchUsersForConference(
+  q: string,
+  conferenceId: string | number | null | undefined,
+  limit = 10,
+): Promise<{ data: UserSearchResponse | null; error: string | null }> {
+  const trimmed = q.trim()
+  if (!trimmed) return { data: { users: [], total: 0 }, error: null }
+
+  try {
+    const params = new URLSearchParams()
+    params.set("q", trimmed)
+    params.set("limit", String(limit))
+    if (conferenceId !== null && conferenceId !== undefined && conferenceId !== "") {
+      params.set("conference_id", String(conferenceId))
+    }
+
+    const { data } = await apiFetch<
+      { data: UserSearchResponse } | UserSearchResponse
+    >(`/api/v1/users/search?${params.toString()}`)
+
+    const result =
+      data && typeof data === "object" && "data" in data && (data as { data: unknown }).data
+        ? (data as { data: UserSearchResponse }).data
+        : (data as UserSearchResponse)
+
+    return { data: result, error: null }
+  } catch (err) {
+    return {
+      data: null,
+      error: err instanceof Error ? err.message : "Failed to search users",
+    }
+  }
 }
 
 export interface ProfileSyncStatus {

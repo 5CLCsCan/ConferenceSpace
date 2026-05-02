@@ -1482,6 +1482,8 @@
             "text_top_n_invalid": "Enter 1 or more",
             "text_pick_count_title": "Choose how many candidates to fetch",
             "text_pick_count_hint": "Set the number of suggestions to load (default 20), then press Start.",
+            "text_match_evidence_label": "Matches conference topics",
+            "text_match_evidence_chip_tooltip": "Matches a conference topic",
             "text_view_profile": "View profile",
             "text_open_scholar_profile": "Open Semantic Scholar profile"
           },

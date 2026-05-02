@@ -40,13 +40,16 @@ type Controller struct {
 	ReviewerSuggestion *reviewerSuggestionController.Controller
 }
 
-// buildReviewerSuggestionController wires the reviewer suggestion service + controller.
+// buildReviewerSuggestionService wires the reviewer suggestion service.
 // When the Semantic Scholar client is unavailable, only the internal-suggestion algorithm runs.
 // We pass a literal nil into the service constructor (rather than a nil-typed pointer) to keep
 // the interface comparison `s.s2Client == nil` true.
-func buildReviewerSuggestionController(store *storage.Storage, clients *clients.Clients) *reviewerSuggestionController.Controller {
+//
+// The returned service is reused by both the reviewer-suggestion controller AND the user
+// controller (for /users/search?conference_id= match annotation).
+func buildReviewerSuggestionService(store *storage.Storage, clients *clients.Clients) *reviewerSuggestionService.Service {
 	if clients != nil && clients.SemanticScholar != nil {
-		svc := reviewerSuggestionService.New(
+		return reviewerSuggestionService.New(
 			store.Conference,
 			store.Submission,
 			store.User,
@@ -54,9 +57,8 @@ func buildReviewerSuggestionController(store *storage.Storage, clients *clients.
 			store.Scholar,
 			clients.SemanticScholar,
 		)
-		return reviewerSuggestionController.New(svc)
 	}
-	svc := reviewerSuggestionService.New(
+	return reviewerSuggestionService.New(
 		store.Conference,
 		store.Submission,
 		store.User,
@@ -64,7 +66,6 @@ func buildReviewerSuggestionController(store *storage.Storage, clients *clients.
 		store.Scholar,
 		nil,
 	)
-	return reviewerSuggestionController.New(svc)
 }
 
 func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, fileStore fileStorage.StorageInterface, clients *clients.Clients, serverEnv string) *Controller {
@@ -108,10 +109,12 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 		semanticScholarCtrl = semanticscholarController.New(clients.SemanticScholar, store.Cache, store.Scholar, store.User, clients.Gemini)
 	}
 
+	reviewerSuggestionSvc := buildReviewerSuggestionService(store, clients)
+
 	return &Controller{
 		Auth:               auth.New(orch, serverEnv),
-		User:               user.New(store, assignmentService, semanticScholarCtrl),             // Pass assignment service for COI checks
-		Conference:         conference.NewWithNotifications(store, assignmentService, notifSvc), // Pass assignment service for auto-assign on status change
+		User:               user.New(store, assignmentService, semanticScholarCtrl, reviewerSuggestionSvc), // Pass assignment service for COI checks; suggestion service for /users/search?conference_id= annotation
+		Conference:         conference.NewWithNotifications(store, assignmentService, notifSvc),            // Pass assignment service for auto-assign on status change
 		Submission:         submission.NewWithNotifications(store, fileStore, getAIServiceClient(clients), coiSvc, notifSvc),
 		Reviewer:           reviewer.NewWithNotifications(store, coiSvc, notifSvc),
 		Assignment:         assignmentController.NewWithNotifications(store, fileStore, getReviewerWorkflowClient(clients), assignmentService, notifSvc, coiSvc),
@@ -119,7 +122,7 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 		Notification:       notificationController.New(store),
 		SemanticScholar:    semanticScholarCtrl,
 		Discussion:         discussionController.New(discSvc, "./uploads/discussions"),
-		ReviewerSuggestion: buildReviewerSuggestionController(store, clients),
+		ReviewerSuggestion: reviewerSuggestionController.New(reviewerSuggestionSvc),
 	}
 }
 
@@ -165,9 +168,11 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 		semanticScholarCtrl = semanticscholarController.New(clients.SemanticScholar, store.Cache, store.Scholar, store.User, clients.Gemini)
 	}
 
+	reviewerSuggestionSvc := buildReviewerSuggestionService(store, clients)
+
 	return &Controller{
 		Auth:               auth.New(orch, serverEnv),
-		User:               user.New(store, assignmentService, semanticScholarCtrl),
+		User:               user.New(store, assignmentService, semanticScholarCtrl, reviewerSuggestionSvc),
 		Conference:         conference.NewWithNotifications(store, assignmentService, notifSvc),
 		Submission:         submission.NewWithNotifications(store, fileStore, getAIServiceClient(clients), coiSvc, notifSvc),
 		Reviewer:           reviewer.NewWithNotifications(store, coiSvc, notifSvc),
@@ -176,7 +181,7 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 		Notification:       notificationController.New(store),
 		SemanticScholar:    semanticScholarCtrl,
 		Discussion:         discussionController.New(discSvc, "./uploads/discussions"),
-		ReviewerSuggestion: buildReviewerSuggestionController(store, clients),
+		ReviewerSuggestion: reviewerSuggestionController.New(reviewerSuggestionSvc),
 	}
 }
 

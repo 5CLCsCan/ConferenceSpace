@@ -220,27 +220,11 @@ func (s *Service) suggestInternal(ctx context.Context, topics []string, excludeU
 			continue
 		}
 
-		userDomains := make(map[string]bool)
-		for _, d := range u.Domain {
-			userDomains[strings.ToLower(strings.TrimSpace(d))] = true
-		}
+		matchedFields, score := scoreUserAgainstTopics(u.Domain, topicSet)
 
-		intersection := 0
-		var matchedFields []string
-		for d := range userDomains {
-			if topicSet[d] {
-				intersection++
-				matchedFields = append(matchedFields, d)
-			}
-		}
-
-		if intersection == 0 {
+		if len(matchedFields) == 0 {
 			continue
 		}
-
-		// Jaccard: |A ∩ B| / |A ∪ B|
-		union := len(topicSet) + len(userDomains) - intersection
-		score := int(math.Round(float64(intersection) / float64(union) * 100))
 
 		userID := u.ID
 		sg := &dto.ReviewerSuggestion{
@@ -384,4 +368,73 @@ func (s *Service) suggestExternal(ctx context.Context, topics []string, excludeU
 	}
 
 	return suggestions
+}
+
+// scoreUserAgainstTopics computes a Jaccard-similarity match between the
+// user's domains and the conference topic set. Returns the matched fields
+// (lowercased, trimmed) and an integer percentage score in [0, 100].
+//
+// Empty topic set or empty user domains → ([], 0). No overlap → ([], 0).
+func scoreUserAgainstTopics(userDomain []string, topicSet map[string]bool) ([]string, int) {
+	if len(topicSet) == 0 || len(userDomain) == 0 {
+		return []string{}, 0
+	}
+
+	userDomains := make(map[string]bool, len(userDomain))
+	for _, d := range userDomain {
+		userDomains[strings.ToLower(strings.TrimSpace(d))] = true
+	}
+
+	intersection := 0
+	matched := make([]string, 0)
+	for d := range userDomains {
+		if topicSet[d] {
+			intersection++
+			matched = append(matched, d)
+		}
+	}
+
+	if intersection == 0 {
+		return []string{}, 0
+	}
+
+	union := len(topicSet) + len(userDomains) - intersection
+	score := int(math.Round(float64(intersection) / float64(union) * 100))
+	return matched, score
+}
+
+// AnnotateUsersWithMatch fills MatchedFields and Score on each user based on
+// the given conference's topic set (computed via the same buildTopicSet used
+// by GetSuggestions, so search and Suggestions tab agree on the same person).
+//
+// Mutates users in place. Users with no domain or no overlap get
+// MatchedFields=[] and Score=0 (a non-nil pointer to 0). Callers can
+// distinguish "not annotated" (Score == nil) from "annotated as 0".
+//
+// Returns an error only on critical failures (conference not found, etc).
+func (s *Service) AnnotateUsersWithMatch(ctx context.Context, conferenceID int64, users []*dto.UserResponse) error {
+	if len(users) == 0 {
+		return nil
+	}
+
+	topics, err := s.buildTopicSet(ctx, conferenceID)
+	if err != nil {
+		return err
+	}
+
+	topicSet := make(map[string]bool, len(topics))
+	for _, t := range topics {
+		topicSet[strings.ToLower(strings.TrimSpace(t))] = true
+	}
+
+	for _, u := range users {
+		if u == nil || u.User == nil {
+			continue
+		}
+		matched, score := scoreUserAgainstTopics(u.Domain, topicSet)
+		u.MatchedFields = matched
+		val := score
+		u.Score = &val
+	}
+	return nil
 }
