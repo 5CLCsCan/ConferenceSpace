@@ -373,7 +373,7 @@ describe("ReviewerSuggestions", () => {
     expect(getReviewerSuggestions).not.toHaveBeenCalled()
   })
 
-  it("disables invite-all when there are no on-platform suggestions to invite", async () => {
+  it("enables invite-all when external suggestions are present (they are now invitable)", async () => {
     ;(getReviewerSuggestions as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       data: {
         suggestions: [mockSuggestions[1]],
@@ -389,6 +389,25 @@ describe("ReviewerSuggestions", () => {
     await waitFor(() => screen.getByText("Bob Jones"))
 
     const inviteAll = screen.getByRole("button", { name: /Invite all/ })
-    expect(inviteAll).toBeDisabled()
+    expect(inviteAll).not.toBeDisabled()
+  })
+
+  it("disables invite-all when the suggestion list is empty", async () => {
+    ;(getReviewerSuggestions as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      data: {
+        suggestions: [],
+        conference_topics: ["AI"],
+        total: 0,
+      },
+      error: null,
+    })
+
+    render(<ReviewerSuggestions conferenceId="1" />)
+    clickStart()
+
+    await waitFor(() => {
+      const btn = screen.getByRole("button", { name: /Invite all/ })
+      expect(btn).toBeDisabled()
+    })
   })
 })

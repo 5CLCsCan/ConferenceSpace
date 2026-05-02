@@ -14,6 +14,7 @@ import (
 	conferencetemplate "github.com/dcao/conferencespace/internal/storage/conference_template"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	"github.com/dcao/conferencespace/internal/storage/discussion"
+	externalinvitation "github.com/dcao/conferencespace/internal/storage/external_invitation"
 	"github.com/dcao/conferencespace/internal/storage/notification"
 	"github.com/dcao/conferencespace/internal/storage/rebuttal"
 	"github.com/dcao/conferencespace/internal/storage/reviewer"
@@ -37,6 +38,7 @@ type Storage struct {
 	Scholar            scholar.StorageInterface
 	Discussion         discussion.StorageInterface
 	RebuttalPoint      rebuttal.StorageInterface
+	ExternalInvitation externalinvitation.StorageInterface
 }
 
 func NewStorage(db *sql.DB) *Storage {
@@ -55,6 +57,7 @@ func NewStorage(db *sql.DB) *Storage {
 		Scholar:            scholar.New(db),
 		Discussion:         discussion.New(db),
 		RebuttalPoint:      rebuttal.New(db),
+		ExternalInvitation: externalinvitation.New(db),
 	}
 }
 

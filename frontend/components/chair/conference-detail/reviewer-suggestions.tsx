@@ -9,7 +9,9 @@ import {
   type ReviewerSuggestion,
 } from "@/lib/api/reviewer-suggestions"
 import { inviteReviewers } from "@/lib/api/conferences"
+import { createExternalInvitations } from "@/lib/api/external-invitations"
 import { ROUTES } from "@/lib/routes"
+import { PlatformBadge } from "./platform-badge"
 
 const SEMANTIC_SCHOLAR_AUTHOR_URL = "https://www.semanticscholar.org/author"
 
@@ -251,23 +253,6 @@ function SuggestionAvatar({ name, onPlatform }: { name: string; onPlatform: bool
   )
 }
 
-function PlatformBadge({ onPlatform, T }: { onPlatform: boolean; T: (key: string) => string }) {
-  if (onPlatform) {
-    return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-50 text-blue-700 border border-blue-100">
-        <SuggestionIcon name="verified_user" size={11} />
-        {T("text_on_platform")}
-      </span>
-    )
-  }
-  return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-100">
-      <SuggestionIcon name="mail" size={11} />
-      {T("text_not_on_platform")}
-    </span>
-  )
-}
-
 function MatchScore({ score, T }: { score: number; T: (key: string) => string }) {
   const colorClass = score >= 80 ? "text-emerald-700" : "text-amber-700"
   const barColor = score >= 80 ? "bg-emerald-600" : "bg-amber-600"
@@ -422,9 +407,8 @@ function SuggestionRow({
           </button>
         ) : (
           <button
-            disabled
-            title={T("text_not_on_platform_tooltip")}
-            className="px-2.5 py-1.5 text-[11px] font-medium rounded-md bg-slate-100 text-slate-400 border border-slate-200 flex items-center gap-1 cursor-not-allowed"
+            onClick={() => onInvite(suggestion)}
+            className="px-2.5 py-1.5 text-[11px] font-medium rounded-md bg-amber-600 text-white hover:bg-amber-700 transition-colors flex items-center gap-1"
           >
             <SuggestionIcon name="mail" size={13} />
             {T("text_invite")}
@@ -560,12 +544,36 @@ export function ReviewerSuggestions({ conferenceId }: ReviewerSuggestionsProps) 
 
   const handleInvite = useCallback(
     async (suggestion: ReviewerSuggestion) => {
-      if (!suggestion.platform_user_id) return
+      if (suggestion.on_platform && suggestion.platform_user_id) {
+        // Platform user: existing flow
+        const response = await inviteReviewers(conferenceId, [
+          { user_id: suggestion.platform_user_id },
+        ])
+        if (!response.error) {
+          setInvited((prev) => new Set([...prev, suggestion.id]))
+          showToast(
+            t(
+              "runtime.components.chair.conference-detail.conference-committee.text_invitation_sent",
+              { name: suggestion.name },
+            ),
+          )
+        }
+        return
+      }
 
-      const response = await inviteReviewers(conferenceId, [
-        { user_id: suggestion.platform_user_id },
+      // External user: persist via the external-invitations endpoint.
+      const response = await createExternalInvitations(conferenceId, [
+        {
+          role: "reviewer",
+          scholar_id: suggestion.scholar_id,
+          name: suggestion.name,
+          email: suggestion.email || "",
+          affiliation: suggestion.affiliation || "",
+          profile_url: suggestion.scholar_id
+            ? `${SEMANTIC_SCHOLAR_AUTHOR_URL}/${encodeURIComponent(suggestion.scholar_id)}`
+            : "",
+        },
       ])
-
       if (!response.error) {
         setInvited((prev) => new Set([...prev, suggestion.id]))
         showToast(
@@ -593,22 +601,55 @@ export function ReviewerSuggestions({ conferenceId }: ReviewerSuggestionsProps) 
   )
 
   const handleInviteAll = useCallback(async () => {
-    const toInvite = filtered.filter(
+    const platformToInvite = filtered.filter(
       (s) => s.on_platform && !invited.has(s.id) && s.platform_user_id,
     )
-    if (toInvite.length === 0) return
-
-    const response = await inviteReviewers(
-      conferenceId,
-      toInvite.map((s) => ({ user_id: s.platform_user_id! })),
+    const externalToInvite = filtered.filter(
+      (s) => !s.on_platform && !invited.has(s.id),
     )
 
-    if (!response.error) {
-      setInvited((prev) => new Set([...prev, ...toInvite.map((s) => s.id)]))
+    if (platformToInvite.length === 0 && externalToInvite.length === 0) return
+
+    const newInvited = new Set(invited)
+    let totalInvited = 0
+
+    if (platformToInvite.length > 0) {
+      const response = await inviteReviewers(
+        conferenceId,
+        platformToInvite.map((s) => ({ user_id: s.platform_user_id! })),
+      )
+      if (!response.error) {
+        for (const s of platformToInvite) newInvited.add(s.id)
+        totalInvited += platformToInvite.length
+      }
+    }
+
+    if (externalToInvite.length > 0) {
+      const response = await createExternalInvitations(
+        conferenceId,
+        externalToInvite.map((s) => ({
+          role: "reviewer",
+          scholar_id: s.scholar_id,
+          name: s.name,
+          email: s.email || "",
+          affiliation: s.affiliation || "",
+          profile_url: s.scholar_id
+            ? `${SEMANTIC_SCHOLAR_AUTHOR_URL}/${encodeURIComponent(s.scholar_id)}`
+            : "",
+        })),
+      )
+      if (!response.error) {
+        for (const s of externalToInvite) newInvited.add(s.id)
+        totalInvited += externalToInvite.length
+      }
+    }
+
+    setInvited(newInvited)
+    if (totalInvited > 0) {
       showToast(
         t(
           "runtime.components.chair.conference-detail.conference-committee.text_invitations_sent",
-          { count: String(toInvite.length) },
+          { count: String(totalInvited) },
         ),
       )
     }
@@ -617,7 +658,9 @@ export function ReviewerSuggestions({ conferenceId }: ReviewerSuggestionsProps) 
   const platformCount = visible.filter((s) => s.on_platform && !invited.has(s.id)).length
   const externalCount = visible.filter((s) => !s.on_platform && !invited.has(s.id)).length
   const allCount = visible.filter((s) => !invited.has(s.id)).length
-  const invitableCount = filtered.filter((s) => s.on_platform && !invited.has(s.id)).length
+  const invitableCount = filtered.filter(
+    (s) => !invited.has(s.id) && (s.on_platform ? !!s.platform_user_id : true),
+  ).length
 
   if (loading) {
     return <LoadingSuggestions T={T} />
