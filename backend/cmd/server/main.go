@@ -144,7 +144,7 @@ func initializeApp(cfg *config.Config) (*AppContext, func(), error) {
 	cron.StartRebuttalAutoFinalize(store.Conference)
 
 	orch := orchestrator.NewOrchestrator(store, cfg)
-	ctrl := controller.NewControllerWithHub(orch, store, fileStore, clients, hub, cfg.Server.Env)
+	ctrl := controller.NewControllerWithHub(orch, store, fileStore, clients, hub, cfg, cfg.Server.Env)
 
 	cleanup := func() {
 		if err := db.Close(); err != nil {
@@ -258,6 +258,8 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			}
 		}
 
+		v1.GET("/invitations/preview", handler.HandleRequestWithQuery(ctrl.Conference.PreviewInvitation))
+
 		// Protected auth routes
 		authProtected := v1.Group("/auth")
 		authProtected.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
@@ -288,6 +290,12 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			users.GET("/:email/coi-check", requireCOICheck, handler.HandleRequestWithURIAndQuery(ctrl.User.CheckCOI))
 			users.PUT("/:email", handler.HandleRequest(ctrl.User.Update))
 			users.DELETE("/:email", handler.HandleNoRequestWithMessage("user deleted successfully", ctrl.User.Delete))
+		}
+
+		invitations := v1.Group("/invitations")
+		invitations.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
+		{
+			invitations.POST("/respond", handler.HandleRequest(ctrl.Conference.RespondInvitation))
 		}
 
 		agentQuery := v1.Group("/agent")
@@ -353,6 +361,8 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			conferences.PUT("/:conference_id/bookmark", handler.HandleRequestWithURI(ctrl.Conference.ToggleBookmark))
 			conferences.PUT("/:conference_id/status", handler.HandleRequestWithAll(ctrl.Conference.TransitionStatus))
 			conferences.GET("/:conference_id/stats", handler.HandleRequestWithURI(ctrl.Conference.GetStats))
+			conferences.GET("/:conference_id/invitations", requireChair, handler.HandleRequestWithURIAndQuery(ctrl.Conference.ListInvitations))
+			conferences.POST("/:conference_id/invitations", requireChair, handler.HandleRequestWithURIAndJSONWithStatus(http.StatusCreated, ctrl.Conference.InviteMembers))
 
 			// Reviewer routes nested under conferences (all protected - authentication required)
 			reviewers := conferences.Group("/:conference_id/reviewers")

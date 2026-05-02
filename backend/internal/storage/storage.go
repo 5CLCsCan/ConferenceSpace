@@ -11,6 +11,7 @@ import (
 	"github.com/dcao/conferencespace/internal/storage/cache"
 	"github.com/dcao/conferencespace/internal/storage/coi"
 	"github.com/dcao/conferencespace/internal/storage/conference"
+	conferenceinvitation "github.com/dcao/conferencespace/internal/storage/conference_invitation"
 	conferencetemplate "github.com/dcao/conferencespace/internal/storage/conference_template"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	"github.com/dcao/conferencespace/internal/storage/discussion"
@@ -24,40 +25,42 @@ import (
 )
 
 type Storage struct {
-	User               user.StorageInterface
-	AuthToken          authtoken.StorageInterface
-	Conference         conference.StorageInterface
-	ConferenceTemplate conferencetemplate.StorageInterface
-	Submission         submission.StorageInterface
-	Reviewer           reviewer.StorageInterface
-	Assignment         assignment.StorageInterface
-	ConferenceUserRole conferenceuserrole.StorageInterface
-	COI                coi.StorageInterface
-	Notification       notification.StorageInterface
-	Cache              cache.StorageInterface
-	Scholar            scholar.StorageInterface
-	Discussion         discussion.StorageInterface
-	RebuttalPoint      rebuttal.StorageInterface
-	ExternalInvitation externalinvitation.StorageInterface
+	User                 user.StorageInterface
+	AuthToken            authtoken.StorageInterface
+	Conference           conference.StorageInterface
+	ConferenceInvitation conferenceinvitation.StorageInterface
+	ConferenceTemplate   conferencetemplate.StorageInterface
+	Submission           submission.StorageInterface
+	Reviewer             reviewer.StorageInterface
+	Assignment           assignment.StorageInterface
+	ConferenceUserRole   conferenceuserrole.StorageInterface
+	COI                  coi.StorageInterface
+	Notification         notification.StorageInterface
+	Cache                cache.StorageInterface
+	Scholar              scholar.StorageInterface
+	Discussion           discussion.StorageInterface
+	RebuttalPoint        rebuttal.StorageInterface
+	ExternalInvitation   externalinvitation.StorageInterface
 }
 
 func NewStorage(db *sql.DB) *Storage {
 	return &Storage{
-		User:               user.New(db),
-		AuthToken:          authtoken.New(db),
-		Conference:         conference.New(db),
-		ConferenceTemplate: conferencetemplate.New(db),
-		Submission:         submission.New(db),
-		Reviewer:           reviewer.New(db),
-		Assignment:         assignment.New(db),
-		ConferenceUserRole: conferenceuserrole.New(db),
-		COI:                coi.New(db),
-		Notification:       notification.New(db),
-		Cache:              cache.New(db),
-		Scholar:            scholar.New(db),
-		Discussion:         discussion.New(db),
-		RebuttalPoint:      rebuttal.New(db),
-		ExternalInvitation: externalinvitation.New(db),
+		User:                 user.New(db),
+		AuthToken:            authtoken.New(db),
+		Conference:           conference.New(db),
+		ConferenceInvitation: conferenceinvitation.New(db),
+		ConferenceTemplate:   conferencetemplate.New(db),
+		Submission:           submission.New(db),
+		Reviewer:             reviewer.New(db),
+		Assignment:           assignment.New(db),
+		ConferenceUserRole:   conferenceuserrole.New(db),
+		COI:                  coi.New(db),
+		Notification:         notification.New(db),
+		Cache:                cache.New(db),
+		Scholar:              scholar.New(db),
+		Discussion:           discussion.New(db),
+		RebuttalPoint:        rebuttal.New(db),
+		ExternalInvitation:   externalinvitation.New(db),
 	}
 }
 
