@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	aiServiceClient "github.com/dcao/conferencespace/internal/clients/ai_service"
+	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/model"
 	"github.com/dcao/conferencespace/internal/utils"
@@ -100,12 +101,14 @@ func (c *Controller) Autofill(ginCtx *gin.Context) (*aiServiceClient.SubmissionA
 		})
 	}
 
+	conferenceContext := buildSubmissionAutofillConferenceContext(conference)
 	requestPayload := &aiServiceClient.SubmissionAutofillRunRequest{
-		ConferenceID:    conferenceID,
-		Actor:           aiServiceClient.ActorPayload{UserID: userID, Email: userEmail, Role: "author"},
-		ExtraDetails:    strings.TrimSpace(formRequest.ExtraDetails),
-		AvailableTracks: compactStrings(formRequest.AvailableTracks),
-		Files:           fileMetadata,
+		ConferenceID:      conferenceID,
+		Actor:             aiServiceClient.ActorPayload{UserID: userID, Email: userEmail, Role: "author"},
+		ExtraDetails:      strings.TrimSpace(formRequest.ExtraDetails),
+		AvailableTracks:   conferenceContext.Tracks,
+		ConferenceContext: conferenceContext,
+		Files:             fileMetadata,
 	}
 
 	response, err := c.autofillClient.RunSubmissionAutofill(
@@ -119,6 +122,24 @@ func (c *Controller) Autofill(ginCtx *gin.Context) (*aiServiceClient.SubmissionA
 	}
 
 	return response, nil
+}
+
+func buildSubmissionAutofillConferenceContext(conference *dto.ConferenceResponse) aiServiceClient.SubmissionAutofillConferenceContext {
+	if conference == nil {
+		return aiServiceClient.SubmissionAutofillConferenceContext{Tracks: []string{}}
+	}
+	cfpText := ""
+	if conference.Configurations != nil && conference.Configurations.CallForPaperText != nil {
+		cfpText = strings.TrimSpace(*conference.Configurations.CallForPaperText)
+	}
+	return aiServiceClient.SubmissionAutofillConferenceContext{
+		Name:        strings.TrimSpace(conference.Title),
+		Acronym:     strings.TrimSpace(conference.Acronym),
+		Description: strings.TrimSpace(conference.Description),
+		Domain:      compactStrings(conference.Domain),
+		CFPText:     cfpText,
+		Tracks:      compactStrings(conference.Tracks),
+	}
 }
 
 func readAutofillMaterial(fileHeader *multipart.FileHeader) ([]byte, string, error) {

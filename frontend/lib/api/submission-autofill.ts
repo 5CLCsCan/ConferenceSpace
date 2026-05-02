@@ -37,6 +37,14 @@ export interface AutofillConflict {
   warnings: string[]
 }
 
+export interface AutofillTrackRanking {
+  track_name: string
+  confidence: number
+  rationale: string
+  evidence: AutofillEvidence[]
+  warnings: string[]
+}
+
 export interface AutofillMaterial {
   file_id: string
   filename: string
@@ -56,10 +64,11 @@ export interface SubmissionAutofillResponse {
     title: AutofillField<string>
     abstract: AutofillField<string>
     keywords: AutofillField<string[]>
-    track_name: AutofillField<string>
     paper_type: AutofillField<"research" | "student" | "other" | "">
     additional_notes: AutofillField<string>
   }
+  selected_track_name?: string
+  track_rankings: AutofillTrackRanking[]
   authors: AutofillAuthor[]
   possible_conflicts: AutofillConflict[]
   materials: AutofillMaterial[]
@@ -77,13 +86,15 @@ export function normalizeSubmissionAutofillResponse(response: any): SubmissionAu
     possible_conflicts: Array.isArray(response.possible_conflicts)
       ? response.possible_conflicts.map(normalizeConflict)
       : [],
+    track_rankings: Array.isArray(response.track_rankings)
+      ? response.track_rankings.map(normalizeTrackRanking)
+      : [],
     materials: Array.isArray(response.materials) ? response.materials.map(normalizeMaterial) : [],
     warnings: Array.isArray(response.warnings) ? response.warnings : [],
     fields: {
       title: normalizeField(response.fields.title, ""),
       abstract: normalizeField(response.fields.abstract, ""),
       keywords: normalizeField(response.fields.keywords, []),
-      track_name: normalizeField(response.fields.track_name, ""),
       paper_type: normalizeField(response.fields.paper_type, ""),
       additional_notes: normalizeField(response.fields.additional_notes, ""),
     },
@@ -112,6 +123,17 @@ function normalizeConflict(conflict: AutofillConflict): AutofillConflict {
     ...conflict,
     evidence: Array.isArray(conflict.evidence) ? conflict.evidence : [],
     warnings: Array.isArray(conflict.warnings) ? conflict.warnings : [],
+  }
+}
+
+function normalizeTrackRanking(ranking: AutofillTrackRanking): AutofillTrackRanking {
+  const confidence = Number(ranking.confidence)
+  return {
+    ...ranking,
+    confidence: Number.isFinite(confidence) ? Math.min(10, Math.max(1, confidence)) : 1,
+    rationale: ranking.rationale || "",
+    evidence: Array.isArray(ranking.evidence) ? ranking.evidence : [],
+    warnings: Array.isArray(ranking.warnings) ? ranking.warnings : [],
   }
 }
 

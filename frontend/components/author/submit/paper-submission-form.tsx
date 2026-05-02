@@ -519,7 +519,10 @@ export function PaperSubmissionForm({
     const nextKeywords = result.fields.keywords.value
       .map((keyword) => keyword.trim())
       .filter(Boolean)
-    const nextTrack = result.fields.track_name.value.trim()
+    const nextTrack =
+      result.selected_track_name?.trim() ||
+      result.track_rankings.find((ranking) => availableTracks.includes(ranking.track_name))?.track_name ||
+      ""
     const nextPaperType = result.fields.paper_type.value
 
     if (nextTitle) setTitle(nextTitle)

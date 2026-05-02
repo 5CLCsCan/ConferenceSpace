@@ -29,6 +29,15 @@ class AutofillFileMetadata(BaseModel):
     content_type: str | None = None
 
 
+class ConferenceContext(StrictSchemaModel):
+    name: str
+    acronym: str
+    description: str
+    domain: list[str]
+    cfp_text: str
+    tracks: list[str]
+
+
 class SubmissionAutofillRunRequest(BaseModel):
     model_config = ConfigDict(extra="allow")
 
@@ -36,6 +45,7 @@ class SubmissionAutofillRunRequest(BaseModel):
     actor: ActorPayload
     extra_details: str | None = None
     available_tracks: list[str] = Field(default_factory=list)
+    conference_context: ConferenceContext | None = None
     files: list[AutofillFileMetadata]
 
     @field_validator("available_tracks", mode="before")
@@ -73,9 +83,16 @@ class SubmissionAutofillFields(StrictSchemaModel):
     title: AutofillField
     abstract: AutofillField
     keywords: AutofillStringListField
-    track_name: AutofillField
     paper_type: AutofillField
     additional_notes: AutofillField
+
+
+class AutofillTrackRanking(StrictSchemaModel):
+    track_name: str
+    confidence: float = Field(..., ge=1.0, le=10.0)
+    rationale: str
+    evidence: list[AutofillEvidence]
+    warnings: list[str]
 
 
 class AutofillAuthor(StrictSchemaModel):
@@ -120,6 +137,7 @@ class SubmissionAutofillRunResponse(StrictSchemaModel):
     run_id: str
     status: Literal["ready", "failed"]
     fields: SubmissionAutofillFields
+    track_rankings: list[AutofillTrackRanking]
     authors: list[AutofillAuthor]
     possible_conflicts: list[AutofillConflict]
     materials: list[AutofillMaterial]
@@ -129,6 +147,7 @@ class SubmissionAutofillRunResponse(StrictSchemaModel):
 
 class SubmissionAutofillArtifact(StrictSchemaModel):
     fields: SubmissionAutofillFields
+    track_rankings: list[AutofillTrackRanking]
     authors: list[AutofillAuthor]
     possible_conflicts: list[AutofillConflict]
     warnings: list[str]

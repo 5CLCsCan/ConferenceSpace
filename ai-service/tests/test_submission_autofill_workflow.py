@@ -27,23 +27,35 @@ class _FakeRunner:
                 "title": {"value": "Extracted Title", "confidence": "high", "evidence": [], "warnings": []},
                 "abstract": {"value": "Extracted abstract.", "confidence": "high", "evidence": [], "warnings": []},
                 "keywords": {"value": ["ai"], "confidence": "medium", "evidence": [], "warnings": []},
-                "track_name": {"value": "AI", "confidence": "medium", "evidence": [], "warnings": []},
                 "paper_type": {"value": "research", "confidence": "medium", "evidence": [], "warnings": []},
                 "additional_notes": {"value": "", "confidence": "not_found", "evidence": [], "warnings": []},
             },
+            "track_rankings": [
+                {
+                    "track_name": "AI",
+                    "confidence": 8.5,
+                    "rationale": "The manuscript focuses on AI-driven reviewer assignment.",
+                    "evidence": [],
+                    "warnings": [],
+                }
+            ],
             "authors": [],
             "possible_conflicts": [],
             "materials": [
                 {
                     "file_id": request.files[0].file_id,
                     "filename": request.files[0].original_filename,
+                    "content_type": request.files[0].content_type,
                     "size_bytes": request.files[0].size_bytes,
                     "role": "primary",
                     "extraction_status": "ok",
+                    "text_coverage_ratio": None,
+                    "page_count": None,
                     "warnings": [],
                 }
             ],
             "warnings": [],
+            "error": None,
         }
 
 
@@ -65,6 +77,14 @@ def test_submission_autofill_route_accepts_repeated_files(monkeypatch) -> None:
         "actor": {"user_id": 123, "email": "author@example.com", "role": "author"},
         "extra_details": "Use the final title.",
         "available_tracks": ["AI"],
+        "conference_context": {
+            "name": "Conference on AI Systems",
+            "acronym": "CAIS",
+            "description": "Research conference for applied AI systems.",
+            "domain": ["Artificial Intelligence"],
+            "cfp_text": "We invite papers on learning systems and evaluation.",
+            "tracks": ["AI", "Systems"],
+        },
         "files": [
             {
                 "file_id": "file-1",
@@ -114,7 +134,15 @@ def test_build_inference_payload_keeps_materials_separate_and_marks_primary() ->
         conference_id=210,
         actor=ActorPayload(user_id=123, email="author@example.com", role="author"),
         extra_details="This is a student paper.",
-        available_tracks=["AI"],
+        available_tracks=["Spoofed"],
+        conference_context={
+            "name": "Conference on AI Systems",
+            "acronym": "CAIS",
+            "description": "Research conference for applied AI systems.",
+            "domain": ["Artificial Intelligence"],
+            "cfp_text": "We invite papers on learning systems and evaluation.",
+            "tracks": ["AI", "Systems"],
+        },
         files=[
             AutofillFileMetadata(
                 file_id="file-1",
@@ -156,6 +184,15 @@ def test_build_inference_payload_keeps_materials_separate_and_marks_primary() ->
     assert payload["materials"][0]["role"] == "primary"
     assert payload["materials"][1]["role"] == "supplementary"
     assert payload["extra_details"] == "This is a student paper."
+    assert payload["conference_context"] == {
+        "name": "Conference on AI Systems",
+        "acronym": "CAIS",
+        "description": "Research conference for applied AI systems.",
+        "domain": ["Artificial Intelligence"],
+        "cfp_text": "We invite papers on learning systems and evaluation.",
+        "tracks": ["AI", "Systems"],
+    }
+    assert payload["available_tracks"] == ["AI", "Systems"]
 
 
 def test_submission_autofill_artifact_schema_is_strict_for_openai_responses() -> None:
@@ -169,6 +206,8 @@ def test_submission_autofill_artifact_schema_is_strict_for_openai_responses() ->
     assert defs["AutofillEvidence"]["additionalProperties"] is False
     assert defs["AutofillAuthor"]["additionalProperties"] is False
     assert defs["AutofillConflict"]["additionalProperties"] is False
+    assert defs["AutofillTrackRanking"]["additionalProperties"] is False
+    assert schema["properties"]["track_rankings"]["title"] == "Track Rankings"
 
     missing_required: list[tuple[str | None, list[str], list[str]]] = []
     stack: list[object] = [schema, *defs.values()]

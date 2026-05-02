@@ -9,6 +9,7 @@ import {
   type AutofillAuthor,
   type AutofillConflict,
   type AutofillField,
+  type AutofillTrackRanking,
   type SubmissionAutofillResponse,
 } from "@/lib/api/submission-autofill"
 import { Button } from "@/components/ui/button"
@@ -46,6 +47,7 @@ export function SubmissionAutofillSheet({
   const [files, setFiles] = useState<File[]>([])
   const [extraDetails, setExtraDetails] = useState("")
   const [result, setResult] = useState<SubmissionAutofillResponse | null>(null)
+  const [selectedTrackName, setSelectedTrackName] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -107,12 +109,16 @@ export function SubmissionAutofillSheet({
       )
       return
     }
+    setSelectedTrackName(response.data.track_rankings[0]?.track_name || "")
     setResult(response.data)
   }
 
   const handleApply = () => {
     if (!result) return
-    onApply(result)
+    onApply({
+      ...result,
+      selected_track_name: selectedTrackName,
+    })
     onOpenChange(false)
   }
 
@@ -349,13 +355,6 @@ export function SubmissionAutofillSheet({
                   />
                   <EditableField
                     label={t(
-                      "runtime.components.author.submit.submission-autofill-sheet.text_field_track",
-                    )}
-                    field={result.fields.track_name}
-                    onChange={(value) => updateField(setResult, "track_name", value)}
-                  />
-                  <EditableField
-                    label={t(
                       "runtime.components.author.submit.submission-autofill-sheet.text_field_additional_notes",
                     )}
                     field={result.fields.additional_notes}
@@ -363,6 +362,24 @@ export function SubmissionAutofillSheet({
                     onChange={(value) => updateField(setResult, "additional_notes", value)}
                   />
                 </div>
+
+                <TrackRankingList
+                  title={t(
+                    "runtime.components.author.submit.submission-autofill-sheet.text_track_rankings",
+                  )}
+                  selectedTrackName={selectedTrackName}
+                  rankings={result.track_rankings}
+                  emptyText={t(
+                    "runtime.components.author.submit.submission-autofill-sheet.text_no_track_rankings",
+                  )}
+                  selectedLabel={t(
+                    "runtime.components.author.submit.submission-autofill-sheet.text_selected_track",
+                  )}
+                  scoreLabel={t(
+                    "runtime.components.author.submit.submission-autofill-sheet.text_affinity_score",
+                  )}
+                  onSelect={setSelectedTrackName}
+                />
 
                 <SuggestionList
                   title={t(
@@ -473,6 +490,69 @@ function SuggestionList({
   )
 }
 
+function TrackRankingList({
+  title,
+  rankings,
+  selectedTrackName,
+  emptyText,
+  selectedLabel,
+  scoreLabel,
+  onSelect,
+}: {
+  title: string
+  rankings: AutofillTrackRanking[]
+  selectedTrackName: string
+  emptyText: string
+  selectedLabel: string
+  scoreLabel: string
+  onSelect: (trackName: string) => void
+}) {
+  return (
+    <div className="mt-4 space-y-2">
+      <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{title}</h4>
+      {rankings.length > 0 ? (
+        <div className="space-y-2">
+          {rankings.map((ranking) => {
+            const selected = ranking.track_name === selectedTrackName
+            return (
+              <button
+                key={ranking.track_name}
+                type="button"
+                onClick={() => onSelect(ranking.track_name)}
+                className={cn(
+                  "w-full rounded-lg border px-3 py-2 text-left transition-colors",
+                  selected
+                    ? "border-[#1B3C53] bg-[#1B3C53]/5 dark:bg-slate-800"
+                    : "border-slate-200 hover:border-[#1B3C53]/40 dark:border-slate-700",
+                )}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                    {ranking.track_name}
+                  </span>
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                    {scoreLabel}: {ranking.confidence.toFixed(1)}/10
+                  </span>
+                </div>
+                <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
+                  {ranking.rationale}
+                </p>
+                {selected && (
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[#1B3C53] dark:text-slate-200">
+                    {selectedLabel}
+                  </p>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      ) : (
+        <p className="text-xs text-slate-400">{emptyText}</p>
+      )}
+    </div>
+  )
+}
+
 function updateField<T extends keyof SubmissionAutofillResponse["fields"]>(
   setResult: React.Dispatch<React.SetStateAction<SubmissionAutofillResponse | null>>,
   key: T,
@@ -517,10 +597,10 @@ export function emptyAutofillResponse(): SubmissionAutofillResponse {
       title: { value: "", ...emptyField },
       abstract: { value: "", ...emptyField },
       keywords: { value: [], ...emptyField },
-      track_name: { value: "", ...emptyField },
       paper_type: { value: "", ...emptyField },
       additional_notes: { value: "", ...emptyField },
     },
+    track_rankings: [],
     authors: [],
     possible_conflicts: [],
     materials: [],

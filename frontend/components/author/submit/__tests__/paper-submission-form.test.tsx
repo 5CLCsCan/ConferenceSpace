@@ -134,10 +134,26 @@ vi.mock("../submission-autofill-sheet", () => ({
               title: field("Generated Title"),
               abstract: field("Generated abstract"),
               keywords: field(["AI", "Review"]),
-              track_name: field("Artificial Intelligence & Machine Learning"),
               paper_type: field("student"),
               additional_notes: field("Generated notes"),
             },
+            selected_track_name: "Systems",
+            track_rankings: [
+              {
+                track_name: "Artificial Intelligence & Machine Learning",
+                confidence: 9.1,
+                rationale: "The manuscript is about AI.",
+                evidence: [],
+                warnings: [],
+              },
+              {
+                track_name: "Systems",
+                confidence: 7.4,
+                rationale: "The evaluation includes systems concerns.",
+                evidence: [],
+                warnings: [],
+              },
+            ],
             authors: [
               {
                 name: "Author User",
@@ -421,9 +437,7 @@ describe("PaperSubmissionForm — deadline enforcement (UI-NEG-02)", () => {
     expect(screen.getByTestId("review-title")).toHaveTextContent("Generated Title")
     expect(screen.getByTestId("review-abstract")).toHaveTextContent("Generated abstract")
     expect(screen.getByTestId("review-keywords")).toHaveTextContent("AI,Review")
-    expect(screen.getByTestId("review-track")).toHaveTextContent(
-      "Artificial Intelligence & Machine Learning",
-    )
+    expect(screen.getByTestId("review-track")).toHaveTextContent("Systems")
     expect(screen.getByTestId("review-authors")).toHaveTextContent(
       "author@example.com,second@example.com",
     )

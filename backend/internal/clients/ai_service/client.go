@@ -491,12 +491,22 @@ type SubmissionAutofillFileMetadata struct {
 	ContentType      string `json:"content_type,omitempty"`
 }
 
+type SubmissionAutofillConferenceContext struct {
+	Name        string   `json:"name"`
+	Acronym     string   `json:"acronym"`
+	Description string   `json:"description,omitempty"`
+	Domain      []string `json:"domain,omitempty"`
+	CFPText     string   `json:"cfp_text,omitempty"`
+	Tracks      []string `json:"tracks"`
+}
+
 type SubmissionAutofillRunRequest struct {
-	ConferenceID    int64                            `json:"conference_id"`
-	Actor           ActorPayload                     `json:"actor"`
-	ExtraDetails    string                           `json:"extra_details,omitempty"`
-	AvailableTracks []string                         `json:"available_tracks,omitempty"`
-	Files           []SubmissionAutofillFileMetadata `json:"files"`
+	ConferenceID      int64                                `json:"conference_id"`
+	Actor             ActorPayload                         `json:"actor"`
+	ExtraDetails      string                               `json:"extra_details,omitempty"`
+	AvailableTracks   []string                             `json:"available_tracks,omitempty"`
+	ConferenceContext SubmissionAutofillConferenceContext  `json:"conference_context"`
+	Files             []SubmissionAutofillFileMetadata     `json:"files"`
 }
 
 type SubmissionAutofillEvidence struct {
@@ -517,9 +527,16 @@ type SubmissionAutofillFields struct {
 	Title           SubmissionAutofillField[string]   `json:"title"`
 	Abstract        SubmissionAutofillField[string]   `json:"abstract"`
 	Keywords        SubmissionAutofillField[[]string] `json:"keywords"`
-	TrackName       SubmissionAutofillField[string]   `json:"track_name"`
 	PaperType       SubmissionAutofillField[string]   `json:"paper_type"`
 	AdditionalNotes SubmissionAutofillField[string]   `json:"additional_notes"`
+}
+
+type SubmissionAutofillTrackRanking struct {
+	TrackName  string                       `json:"track_name"`
+	Confidence float64                      `json:"confidence"`
+	Rationale  string                       `json:"rationale"`
+	Evidence   []SubmissionAutofillEvidence `json:"evidence,omitempty"`
+	Warnings   []string                     `json:"warnings,omitempty"`
 }
 
 type SubmissionAutofillAuthor struct {
@@ -564,6 +581,7 @@ type SubmissionAutofillRunResponse struct {
 	RunID             string                          `json:"run_id"`
 	Status            string                          `json:"status"`
 	Fields            SubmissionAutofillFields        `json:"fields"`
+	TrackRankings     []SubmissionAutofillTrackRanking `json:"track_rankings,omitempty"`
 	Authors           []SubmissionAutofillAuthor      `json:"authors,omitempty"`
 	PossibleConflicts []SubmissionAutofillConflict    `json:"possible_conflicts,omitempty"`
 	Materials         []SubmissionAutofillMaterial    `json:"materials,omitempty"`

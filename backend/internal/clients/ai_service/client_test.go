@@ -169,7 +169,7 @@ func TestRunSubmissionAutofill(t *testing.T) {
 			}
 
 			w.Header().Set("Content-Type", "application/json")
-			_, _ = w.Write([]byte(`{"run_id":"run-autofill","status":"ready","fields":{"title":{"value":"Title","confidence":"high","evidence":[],"warnings":[]},"abstract":{"value":"Abstract","confidence":"high","evidence":[],"warnings":[]},"keywords":{"value":["ai"],"confidence":"medium","evidence":[],"warnings":[]},"track_name":{"value":"AI","confidence":"low","evidence":[],"warnings":[]},"paper_type":{"value":"research","confidence":"medium","evidence":[],"warnings":[]},"additional_notes":{"value":"","confidence":"not_found","evidence":[],"warnings":[]}},"authors":[],"possible_conflicts":[],"materials":[],"warnings":[]}`))
+			_, _ = w.Write([]byte(`{"run_id":"run-autofill","status":"ready","fields":{"title":{"value":"Title","confidence":"high","evidence":[],"warnings":[]},"abstract":{"value":"Abstract","confidence":"high","evidence":[],"warnings":[]},"keywords":{"value":["ai"],"confidence":"medium","evidence":[],"warnings":[]},"paper_type":{"value":"research","confidence":"medium","evidence":[],"warnings":[]},"additional_notes":{"value":"","confidence":"not_found","evidence":[],"warnings":[]}},"track_rankings":[{"track_name":"AI","confidence":8.5,"rationale":"The submission targets learning systems.","evidence":[],"warnings":[]}],"authors":[],"possible_conflicts":[],"materials":[],"warnings":[]}`))
 		}))
 		defer server.Close()
 
@@ -182,6 +182,14 @@ func TestRunSubmissionAutofill(t *testing.T) {
 				Actor:           ActorPayload{UserID: 7, Email: "author@example.com", Role: "author"},
 				ExtraDetails:    "Use the revised title.",
 				AvailableTracks: []string{"AI"},
+				ConferenceContext: SubmissionAutofillConferenceContext{
+					Name:        "Conference on AI Systems",
+					Acronym:     "CAIS",
+					Description: "Research conference for applied AI systems.",
+					Domain:      []string{"Artificial Intelligence"},
+					CFPText:     "We invite papers on learning systems and evaluation.",
+					Tracks:      []string{"AI", "Systems"},
+				},
 				Files: []SubmissionAutofillFileMetadata{
 					{FileID: "file-1", OriginalFilename: "paper.pdf", ContentType: "application/pdf", SizeBytes: 5},
 					{FileID: "file-2", OriginalFilename: "appendix.docx", ContentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", SizeBytes: 8},
@@ -198,9 +206,16 @@ func TestRunSubmissionAutofill(t *testing.T) {
 		assert.Equal(t, "Bearer token-123", gotAuth)
 		assert.Contains(t, gotRequestField, `"conference_id":42`)
 		assert.Contains(t, gotRequestField, `"extra_details":"Use the revised title."`)
+		assert.Contains(t, gotRequestField, `"conference_context":`)
+		assert.Contains(t, gotRequestField, `"acronym":"CAIS"`)
+		assert.Contains(t, gotRequestField, `"cfp_text":"We invite papers on learning systems and evaluation."`)
+		assert.Contains(t, gotRequestField, `"tracks":["AI","Systems"]`)
 		assert.Equal(t, map[string]string{"paper.pdf": "paper", "appendix.docx": "appendix"}, gotFiles)
 		assert.Equal(t, "run-autofill", response.RunID)
 		assert.Equal(t, "Title", response.Fields.Title.Value)
+		require.Len(t, response.TrackRankings, 1)
+		assert.Equal(t, "AI", response.TrackRankings[0].TrackName)
+		assert.Equal(t, 8.5, response.TrackRankings[0].Confidence)
 	})
 }
 

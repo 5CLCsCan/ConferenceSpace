@@ -35,10 +35,18 @@ describe("generateSubmissionAutofill", () => {
               warnings: [],
             },
             keywords: { value: ["ai"], confidence: "medium", evidence: [], warnings: [] },
-            track_name: { value: "AI", confidence: "low", evidence: [], warnings: [] },
             paper_type: { value: "research", confidence: "medium", evidence: [], warnings: [] },
             additional_notes: { value: "", confidence: "not_found", evidence: [], warnings: [] },
           },
+          track_rankings: [
+            {
+              track_name: "AI",
+              confidence: 8.5,
+              rationale: "The paper focuses on AI methods.",
+              evidence: [],
+              warnings: [],
+            },
+          ],
           authors: [],
           possible_conflicts: [],
           materials: [],
@@ -56,6 +64,15 @@ describe("generateSubmissionAutofill", () => {
     })
 
     expect(result.error).toBeNull()
+    expect(result.data?.track_rankings).toEqual([
+      {
+        track_name: "AI",
+        confidence: 8.5,
+        rationale: "The paper focuses on AI methods.",
+        evidence: [],
+        warnings: [],
+      },
+    ])
     expect(apiFetch).toHaveBeenCalledWith(
       "/api/v1/conferences/210/submissions/autofill",
       expect.objectContaining({
@@ -80,7 +97,6 @@ describe("generateSubmissionAutofill", () => {
         title: { value: "Title", confidence: "high", evidence: [] },
         abstract: { value: "Abstract", confidence: "high", evidence: [] },
         keywords: { value: ["ai"], confidence: "medium", evidence: [] },
-        track_name: { value: "", confidence: "not_found" },
         paper_type: { value: "full paper", confidence: "low", evidence: [] },
         additional_notes: { value: "", confidence: "not_found", evidence: [] },
       },
@@ -96,8 +112,8 @@ describe("generateSubmissionAutofill", () => {
     })
 
     expect(response.possible_conflicts).toEqual([])
+    expect(response.track_rankings).toEqual([])
     expect(response.warnings).toEqual([])
-    expect(response.fields.track_name.warnings).toEqual([])
     expect(response.authors[0].warnings).toEqual([])
     expect(response.materials[0].warnings).toEqual([])
   })

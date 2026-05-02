@@ -70,6 +70,7 @@ class SubmissionAutofillRunner:
                 run_id=str(uuid4()),
                 status="failed",
                 fields=_empty_fields(),
+                track_rankings=[],
                 authors=[],
                 possible_conflicts=[],
                 materials=_build_materials(request, documents, failed_materials),
@@ -102,6 +103,7 @@ class SubmissionAutofillRunner:
             run_id=str(uuid4()),
             status="ready",
             fields=artifact.fields,
+            track_rankings=artifact.track_rankings,
             authors=artifact.authors,
             possible_conflicts=artifact.possible_conflicts,
             materials=_build_materials(request, documents, failed_materials),
@@ -139,7 +141,8 @@ def build_inference_payload(
 
     return {
         "extra_details": _normalize_text(request.extra_details or "", MAX_ABSTRACT_CHARS),
-        "available_tracks": [_normalize_text(track, 120) for track in request.available_tracks if track.strip()],
+        "available_tracks": _normalize_tracks(request),
+        "conference_context": _build_conference_context_payload(request),
         "primary_material_id": primary_material_id,
         "materials": materials,
         "failed_materials": failed_materials,
@@ -204,10 +207,49 @@ def _empty_fields() -> SubmissionAutofillFields:
         title=AutofillField(value="", **empty),
         abstract=AutofillField(value="", **empty),
         keywords=AutofillStringListField(value=[], **empty),
-        track_name=AutofillField(value="", **empty),
         paper_type=AutofillField(value="", **empty),
         additional_notes=AutofillField(value="", **empty),
     )
+
+
+def _normalize_tracks(request: SubmissionAutofillRunRequest) -> list[str]:
+    if request.conference_context is not None and request.conference_context.tracks:
+        source = request.conference_context.tracks
+    else:
+        source = request.available_tracks
+    output: list[str] = []
+    seen: set[str] = set()
+    for track in source:
+        value = _normalize_text(track, 120)
+        if not value:
+            continue
+        key = value.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        output.append(value)
+    return output
+
+
+def _build_conference_context_payload(request: SubmissionAutofillRunRequest) -> dict:
+    context = request.conference_context
+    if context is None:
+        return {
+            "name": "",
+            "acronym": "",
+            "description": "",
+            "domain": [],
+            "cfp_text": "",
+            "tracks": _normalize_tracks(request),
+        }
+    return {
+        "name": _normalize_text(context.name, 200),
+        "acronym": _normalize_text(context.acronym, 40),
+        "description": _normalize_text(context.description, 2000),
+        "domain": [_normalize_text(item, 120) for item in context.domain if _normalize_text(item, 120)],
+        "cfp_text": _normalize_text(context.cfp_text, 6000),
+        "tracks": _normalize_tracks(request),
+    }
 
 
 def _normalize_text(value: str, max_chars: int) -> str:
