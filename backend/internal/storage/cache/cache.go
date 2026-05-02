@@ -30,6 +30,15 @@ const (
 	CacheTypeAuthorPapers  = "author_papers"
 )
 
+// cacheSchemaVersion is prefixed into every generated cache key. Bump this
+// whenever the shape of a cached payload changes (new fields, renamed fields,
+// removed fields) so old entries are naturally orphaned and a fresh fetch
+// populates the new shape.
+//
+// v2 (2026-05-02): SearchAuthors now aggregates each author's
+// FieldsOfStudy from their papers.
+const cacheSchemaVersion = "v2"
+
 // StorageInterface defines the cache storage operations
 type StorageInterface interface {
 	Get(ctx context.Context, key string) ([]byte, bool, error)
@@ -56,17 +65,17 @@ func New(db *sql.DB) *Storage {
 func GenerateSearchKey(query string, limit int) string {
 	normalized := strings.ToLower(strings.TrimSpace(query))
 	hash := md5.Sum([]byte(normalized))
-	return fmt.Sprintf("search:%x:%d", hash, limit)
+	return fmt.Sprintf("%s:search:%x:%d", cacheSchemaVersion, hash, limit)
 }
 
 // GenerateAuthorKey creates a cache key for author details
 func GenerateAuthorKey(authorID string) string {
-	return fmt.Sprintf("author:%s", authorID)
+	return fmt.Sprintf("%s:author:%s", cacheSchemaVersion, authorID)
 }
 
 // GeneratePapersKey creates a cache key for author papers
 func GeneratePapersKey(authorID string, offset, limit int) string {
-	return fmt.Sprintf("papers:%s:%d:%d", authorID, offset, limit)
+	return fmt.Sprintf("%s:papers:%s:%d:%d", cacheSchemaVersion, authorID, offset, limit)
 }
 
 // Get retrieves cached data by key

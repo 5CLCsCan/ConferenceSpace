@@ -360,6 +360,14 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			// Reviewer suggestion route — discover potential reviewers for a conference
 			conferences.GET("/:conference_id/reviewer-suggestions", requireChair, handler.HandleRequestWithURIAndQuery(ctrl.ReviewerSuggestion.GetSuggestions))
 
+			// External invitation routes (chair only)
+			extInvitations := conferences.Group("/:conference_id/external-invitations")
+			{
+				extInvitations.POST("", requireChair, handler.HandleRequestWithURIAndJSONWithStatus(http.StatusCreated, ctrl.ExternalInvitation.BatchCreate))
+				extInvitations.GET("", requireChair, handler.HandleRequestWithURIAndQuery(ctrl.ExternalInvitation.List))
+				extInvitations.DELETE("/:id", requireChair, handler.HandleNoRequestWithURIMessage("external invitation removed successfully", ctrl.ExternalInvitation.Delete))
+			}
+
 			// Submission routes nested under conferences (all protected - authentication required)
 			submissions := conferences.Group("/:conference_id/submissions")
 			{

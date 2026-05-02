@@ -1,8 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react"
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 import { ConferenceCommittee } from "../conference-committee"
-import { getConferenceById, getConferenceReviewers } from "@/lib/api/conferences"
+import { getConferenceById, getConferenceReviewers, updateConference } from "@/lib/api/conferences"
 import { searchUsersForConference } from "@/lib/api/user"
+import { semanticScholarApi } from "@/lib/api/semantic-scholar"
+import {
+  createExternalInvitations,
+  listExternalInvitations,
+} from "@/lib/api/external-invitations"
 
 vi.mock("@/lib/i18n/translation-context", async () => {
   const { tStatic } = await vi.importActual<typeof import("@/lib/i18n/static-translate")>(
@@ -90,6 +95,24 @@ vi.mock("@/lib/api/user", () => ({
     data: { users: [], total: 0 },
     error: null,
   })),
+}))
+
+vi.mock("@/lib/api/semantic-scholar", () => ({
+  semanticScholarApi: {
+    searchAuthors: vi.fn(async () => ({ data: [] })),
+  },
+}))
+
+vi.mock("@/lib/api/external-invitations", () => ({
+  listExternalInvitations: vi.fn(async () => ({
+    data: { invitations: [], total: 0 },
+    error: null,
+  })),
+  createExternalInvitations: vi.fn(async () => ({
+    data: { success: [], failed: [] },
+    error: null,
+  })),
+  deleteExternalInvitation: vi.fn(async () => ({ data: {}, error: null })),
 }))
 
 describe("ConferenceCommittee", () => {
@@ -619,5 +642,672 @@ describe("ConferenceCommittee — Add Member search dropdown match evidence", ()
     const chip = screen.getByText("Quantum")
     expect(chip.className).toContain("slate")
     expect(chip).not.toHaveAttribute("title")
+  })
+})
+
+describe("ConferenceCommittee — profile links", () => {
+  beforeEach(() => {
+    localStorage.setItem("conference_locale", "en")
+    vi.clearAllMocks()
+    ;(getConferenceById as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: {
+        id: "1",
+        name: "Test Conference",
+        chair: "chair@example.com",
+        co_chairs: [],
+        pc_members: ["pc@example.com"],
+        status: "open",
+        tracks: [],
+        domain: ["AI"],
+      },
+      error: null,
+      status: 200,
+    })
+    ;(getConferenceReviewers as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { reviewers: [], total: 0, limit: 200, offset: 0 },
+      error: null,
+      status: 200,
+    })
+    ;(listExternalInvitations as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: {
+        invitations: [
+          {
+            id: 501,
+            conference_id: 1,
+            role: "reviewer",
+            scholar_id: "S-EXT-1",
+            name: "Ext Invitee",
+            email: "",
+            affiliation: "Oxford",
+            profile_url: "https://www.semanticscholar.org/author/S-EXT-1",
+            status: "pending",
+            invited_by: 1,
+            created_at: "2026-05-02T10:00:00Z",
+            updated_at: "2026-05-02T10:00:00Z",
+          },
+        ],
+        total: 1,
+      },
+      error: null,
+    })
+  })
+
+  it("renders a platform profile icon link for each on-platform committee member", async () => {
+    render(<ConferenceCommittee conferenceId="1" />)
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument()
+    })
+
+    // Chair and PC member live on the platform — both rows should expose an
+    // internal profile link (href = /profile/<email>). The aria-label uses
+    // the member's DISPLAY name (resolved via userApi.getByEmail), not their
+    // raw email; the mocked user resolves "chair@example.com" → "chair User".
+    const chairLink = screen.getByRole("link", {
+      name: /View profile for chair User/,
+    })
+    expect(chairLink).toHaveAttribute("href", "/profile/chair@example.com")
+    expect(chairLink).not.toHaveAttribute("target")
+
+    const pcLink = screen.getByRole("link", {
+      name: /View profile for pc User/,
+    })
+    expect(pcLink).toHaveAttribute("href", "/profile/pc@example.com")
+  })
+
+  it("renders a Semantic Scholar profile icon link for external invitees", async () => {
+    render(<ConferenceCommittee conferenceId="1" />)
+
+    await waitFor(() => expect(screen.getByText("Ext Invitee")).toBeInTheDocument())
+
+    const link = screen.getByRole("link", {
+      name: /Open Semantic Scholar profile for Ext Invitee/,
+    })
+    expect(link).toHaveAttribute("href", "https://www.semanticscholar.org/author/S-EXT-1")
+    expect(link).toHaveAttribute("target", "_blank")
+    expect(link).toHaveAttribute("rel", expect.stringContaining("noopener"))
+  })
+
+  it("renders exactly one trash button for an external PC invitee (no duplicate delete icon)", async () => {
+    // Regression: previously the `role === 'pc'` delete button rendered for
+    // external PC members too, on top of the external-invitation delete
+    // button, so the row had two trash icons. The fix guards the PC branch
+    // with `!member.is_external`.
+    ;(listExternalInvitations as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: {
+        invitations: [
+          {
+            id: 777,
+            conference_id: 1,
+            role: "pc",
+            scholar_id: "S-EXT-PC",
+            name: "External PC",
+            email: "",
+            affiliation: "MIT",
+            profile_url: "https://www.semanticscholar.org/author/S-EXT-PC",
+            status: "pending",
+            invited_by: 1,
+            created_at: "2026-05-02T10:00:00Z",
+            updated_at: "2026-05-02T10:00:00Z",
+          },
+        ],
+        total: 1,
+      },
+      error: null,
+    })
+
+    render(<ConferenceCommittee conferenceId="1" />)
+
+    await waitFor(() => expect(screen.getByText("External PC")).toBeInTheDocument())
+
+    // Locate the external PC row and count delete buttons inside it.
+    const row = screen.getByText("External PC").closest("tr") as HTMLElement
+    expect(row).not.toBeNull()
+    const deleteButtons = within(row)
+      .getAllByRole("button")
+      .filter((btn) => btn.getAttribute("title") === "Remove")
+    expect(deleteButtons).toHaveLength(1)
+  })
+
+  it("exposes profile icon links in the search dropdown for platform users", async () => {
+    ;(searchUsersForConference as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: {
+        users: [
+          {
+            id: 77,
+            email: "new@example.com",
+            first_name: "New",
+            last_name: "User",
+            domain: [],
+          },
+        ],
+        total: 1,
+      },
+      error: null,
+    })
+
+    render(<ConferenceCommittee conferenceId="1" />)
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument()
+    })
+
+    const input = screen.getByPlaceholderText(/Search by email or name/i) as HTMLInputElement
+    fireEvent.change(input, { target: { value: "new" } })
+    await waitFor(() => expect(screen.getByText("new@example.com")).toBeInTheDocument())
+
+    const link = screen.getByRole("link", {
+      name: /View profile for new@example\.com/,
+    })
+    expect(link).toHaveAttribute("href", "/profile/new@example.com")
+    expect(link).not.toHaveAttribute("target")
+  })
+
+  it("exposes Semantic Scholar profile icon links in the search dropdown for external authors", async () => {
+    ;(searchUsersForConference as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { users: [], total: 0 },
+      error: null,
+    })
+    ;(semanticScholarApi.searchAuthors as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: [
+        {
+          authorId: "scholar-42",
+          name: "Scholar Person",
+          affiliations: ["ETH"],
+        },
+      ],
+    })
+
+    render(<ConferenceCommittee conferenceId="1" />)
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument()
+    })
+
+    const input = screen.getByPlaceholderText(/Search by email or name/i) as HTMLInputElement
+    fireEvent.change(input, { target: { value: "scholar" } })
+    await waitFor(() => expect(screen.getByText("Scholar Person")).toBeInTheDocument())
+
+    const link = screen.getByRole("link", {
+      name: /Open Semantic Scholar profile for Scholar Person/,
+    })
+    expect(link).toHaveAttribute("href", "https://www.semanticscholar.org/author/scholar-42")
+    expect(link).toHaveAttribute("target", "_blank")
+  })
+})
+
+describe("ConferenceCommittee — Semantic Scholar domain chips", () => {
+  beforeEach(() => {
+    localStorage.setItem("conference_locale", "en")
+    vi.clearAllMocks()
+    ;(getConferenceById as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: {
+        id: "1",
+        name: "Test Conference",
+        chair: "chair@example.com",
+        co_chairs: [],
+        pc_members: [],
+        status: "open",
+        tracks: [],
+        // Conference-topic set used for highlighting matching chips.
+        domain: ["AI", "ML"],
+      },
+      error: null,
+      status: 200,
+    })
+    ;(getConferenceReviewers as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { reviewers: [], total: 0, limit: 200, offset: 0 },
+      error: null,
+      status: 200,
+    })
+    ;(listExternalInvitations as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { invitations: [], total: 0 },
+      error: null,
+    })
+    ;(searchUsersForConference as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { users: [], total: 0 },
+      error: null,
+    })
+  })
+
+  function selectRole(role: "pc" | "reviewer") {
+    const select = screen.getByDisplayValue(/Program Committee|Reviewer/i) as HTMLSelectElement
+    fireEvent.change(select, { target: { value: role } })
+  }
+
+  async function typeAndWaitForAuthor(value: string, authorName: string) {
+    const input = screen.getByPlaceholderText(/Search by email or name/i) as HTMLInputElement
+    fireEvent.change(input, { target: { value } })
+    await waitFor(() => expect(screen.getByText(authorName)).toBeInTheDocument())
+  }
+
+  it("renders domain chips from fieldsOfStudy for Semantic Scholar authors", async () => {
+    ;(semanticScholarApi.searchAuthors as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: [
+        {
+          authorId: "scholar-1",
+          name: "Dr Domains",
+          affiliations: ["Stanford"],
+          fieldsOfStudy: ["AI", "Robotics"],
+        },
+      ],
+    })
+
+    render(<ConferenceCommittee conferenceId="1" />)
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument()
+    })
+    // Flip to reviewer so conference-topic matching kicks in (chip greens).
+    selectRole("reviewer")
+
+    await typeAndWaitForAuthor("domains", "Dr Domains")
+
+    // Both tags render as chips.
+    expect(screen.getByText("AI")).toBeInTheDocument()
+    expect(screen.getByText("Robotics")).toBeInTheDocument()
+  })
+
+  it("highlights fields that match the conference topic set when adding a reviewer", async () => {
+    ;(semanticScholarApi.searchAuthors as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: [
+        {
+          authorId: "scholar-2",
+          name: "Dr Match",
+          fieldsOfStudy: ["AI", "Robotics"],
+        },
+      ],
+    })
+
+    render(<ConferenceCommittee conferenceId="1" />)
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument()
+    })
+    selectRole("reviewer")
+
+    await typeAndWaitForAuthor("match", "Dr Match")
+
+    // AI is in the conference topic set → green chip. Robotics is not → grey.
+    expect(screen.getByText("AI").className).toContain("emerald")
+    expect(screen.getByText("Robotics").className).toContain("slate")
+  })
+
+  it("does not highlight any scholar chip when the chair is adding a PC role (match evidence is reviewer-only)", async () => {
+    ;(semanticScholarApi.searchAuthors as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: [
+        {
+          authorId: "scholar-3",
+          name: "Dr PC",
+          fieldsOfStudy: ["AI", "Robotics"],
+        },
+      ],
+    })
+
+    render(<ConferenceCommittee conferenceId="1" />)
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument()
+    })
+    // PC is the default role — do not flip to reviewer.
+
+    await typeAndWaitForAuthor("pc", "Dr PC")
+
+    // Even though "AI" is in the conference topic set, role=pc suppresses the
+    // green highlight to mirror platform-search behavior.
+    expect(screen.getByText("AI").className).toContain("slate")
+    expect(screen.getByText("Robotics").className).toContain("slate")
+  })
+
+  it("caps the dropdown to 4 chips and shows a +N overflow counter", async () => {
+    ;(semanticScholarApi.searchAuthors as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: [
+        {
+          authorId: "scholar-4",
+          name: "Dr Many",
+          fieldsOfStudy: ["F1", "F2", "F3", "F4", "F5", "F6"],
+        },
+      ],
+    })
+
+    render(<ConferenceCommittee conferenceId="1" />)
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument()
+    })
+
+    await typeAndWaitForAuthor("many", "Dr Many")
+
+    expect(screen.getByText("F1")).toBeInTheDocument()
+    expect(screen.getByText("F4")).toBeInTheDocument()
+    // F5 / F6 are hidden behind the overflow chip.
+    expect(screen.queryByText("F5")).not.toBeInTheDocument()
+    expect(screen.queryByText("F6")).not.toBeInTheDocument()
+    expect(screen.getByText("+2")).toBeInTheDocument()
+  })
+
+  it("omits the chip strip when the author has no fieldsOfStudy", async () => {
+    ;(semanticScholarApi.searchAuthors as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: [
+        {
+          authorId: "scholar-5",
+          name: "Dr Empty",
+          affiliations: ["Oxford"],
+          // no fieldsOfStudy, also covers backward-compat with cached entries
+        },
+      ],
+    })
+
+    render(<ConferenceCommittee conferenceId="1" />)
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument()
+    })
+
+    await typeAndWaitForAuthor("empty", "Dr Empty")
+
+    // No chip nor overflow counter rendered for this row — smoke-check by
+    // asserting the overflow counter is absent.
+    expect(screen.queryByText(/^\+\d+$/)).not.toBeInTheDocument()
+  })
+})
+
+describe("ConferenceCommittee — refresh after invite", () => {
+  beforeEach(() => {
+    localStorage.setItem("conference_locale", "en")
+    vi.clearAllMocks()
+    ;(getConferenceById as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: {
+        id: "1",
+        name: "Test Conference",
+        chair: "chair@example.com",
+        co_chairs: [],
+        pc_members: [],
+        status: "open",
+        tracks: [],
+        domain: ["AI"],
+      },
+      error: null,
+      status: 200,
+    })
+    ;(getConferenceReviewers as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { reviewers: [], total: 0, limit: 200, offset: 0 },
+      error: null,
+      status: 200,
+    })
+    ;(listExternalInvitations as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { invitations: [], total: 0 },
+      error: null,
+    })
+  })
+
+  // Helper: the form action button (right side of the chip strip) is the one
+  // that actually calls handleAddMembers. It shares label text with the
+  // toolbar button, so we disambiguate by the `disabled:` class, which only
+  // the action button carries. Label text: "Add PC Member" (default role) or
+  // "Invite Reviewer" (reviewer role).
+  function getInviteActionButton(): HTMLButtonElement {
+    const buttons = screen
+      .getAllByRole("button", { name: /Add PC Member|Invite Reviewer/i })
+      .filter((btn) => btn.className.includes("disabled:"))
+    expect(buttons.length).toBe(1)
+    return buttons[0] as HTMLButtonElement
+  }
+
+  it("keeps the committee table visible during the post-invite refresh (does not blank to 'Loading committee...')", async () => {
+    ;(updateConference as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: {},
+      error: null,
+      status: 200,
+    })
+
+    render(<ConferenceCommittee conferenceId="1" />)
+
+    // Finish the initial load so we enter the rendered-table state.
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading committee/i)).not.toBeInTheDocument()
+    })
+    expect(screen.getByText("chair@example.com")).toBeInTheDocument()
+
+    // Now gate the NEXT getConferenceById call behind a pending promise so
+    // we can assert UI state *while* the refresh is in flight. The updated
+    // conference resolves with the newly invited PC member.
+    let resolveSecondFetch: (value: unknown) => void = () => undefined
+    ;(getConferenceById as ReturnType<typeof vi.fn>).mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveSecondFetch = resolve
+        }),
+    )
+
+    // Stage an invite by typing a direct email into the search box, then
+    // accept the dropdown's "add directly" affordance. The label template is
+    // `Add directly: "<query>"` in the en locale.
+    const input = screen.getByPlaceholderText(/Search by email or name/i) as HTMLInputElement
+    fireEvent.change(input, { target: { value: "added@example.com" } })
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Add directly: "added@example\.com"/i),
+      ).toBeInTheDocument()
+    })
+    fireEvent.mouseDown(screen.getByText(/Add directly: "added@example\.com"/i))
+
+    await act(async () => {
+      fireEvent.click(getInviteActionButton())
+    })
+
+    // At this point loadCommittee() has been called again and is awaiting
+    // getConferenceById — the key assertion: the committee table stays
+    // visible (no blank "Loading committee..." screen) during the refresh.
+    expect(screen.queryByText(/^Loading committee/i)).not.toBeInTheDocument()
+    expect(screen.getByText("chair@example.com")).toBeInTheDocument()
+
+    // Release the refresh: updated conference now includes the new PC member.
+    await act(async () => {
+      resolveSecondFetch({
+        data: {
+          id: "1",
+          name: "Test Conference",
+          chair: "chair@example.com",
+          co_chairs: [],
+          pc_members: ["added@example.com"],
+          status: "open",
+          tracks: [],
+          domain: ["AI"],
+        },
+        error: null,
+        status: 200,
+      })
+    })
+
+    // After the refresh completes the new row appears without any page reload.
+    await waitFor(() => {
+      expect(screen.getByText("added@example.com")).toBeInTheDocument()
+    })
+  })
+
+  it("refreshes external invitations after inviting a Semantic Scholar author", async () => {
+    ;(searchUsersForConference as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { users: [], total: 0 },
+      error: null,
+    })
+    ;(semanticScholarApi.searchAuthors as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: [
+        {
+          authorId: "scholar-777",
+          name: "Dr Refresh",
+          affiliations: ["MIT"],
+        },
+      ],
+    })
+    ;(createExternalInvitations as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: {
+        success: [
+          {
+            id: 9001,
+            conference_id: 1,
+            role: "pc",
+            scholar_id: "scholar-777",
+            name: "Dr Refresh",
+            email: "",
+            affiliation: "MIT",
+            profile_url: "https://www.semanticscholar.org/author/scholar-777",
+            status: "pending",
+            invited_by: 1,
+            created_at: "2026-05-02T10:00:00Z",
+            updated_at: "2026-05-02T10:00:00Z",
+          },
+        ],
+        failed: [],
+      },
+      error: null,
+    })
+
+    render(<ConferenceCommittee conferenceId="1" />)
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading committee/i)).not.toBeInTheDocument()
+    })
+
+    // Baseline: listExternalInvitations was called exactly once (initial load).
+    const initialExtCalls = (listExternalInvitations as ReturnType<typeof vi.fn>).mock.calls.length
+    expect(initialExtCalls).toBeGreaterThanOrEqual(1)
+
+    // Queue the refresh response so the post-invite refetch surfaces the
+    // newly created external invitation in the table.
+    ;(listExternalInvitations as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      data: {
+        invitations: [
+          {
+            id: 9001,
+            conference_id: 1,
+            role: "pc",
+            scholar_id: "scholar-777",
+            name: "Dr Refresh",
+            email: "",
+            affiliation: "MIT",
+            profile_url: "https://www.semanticscholar.org/author/scholar-777",
+            status: "pending",
+            invited_by: 1,
+            created_at: "2026-05-02T10:00:00Z",
+            updated_at: "2026-05-02T10:00:00Z",
+          },
+        ],
+        total: 1,
+      },
+      error: null,
+    })
+
+    const input = screen.getByPlaceholderText(/Search by email or name/i) as HTMLInputElement
+    fireEvent.change(input, { target: { value: "refresh" } })
+    await waitFor(() => expect(screen.getByText("Dr Refresh")).toBeInTheDocument())
+
+    fireEvent.mouseDown(screen.getByText("Dr Refresh"))
+
+    await act(async () => {
+      fireEvent.click(getInviteActionButton())
+    })
+
+    // createExternalInvitations was called for the staged author.
+    await waitFor(() => {
+      expect(createExternalInvitations).toHaveBeenCalledWith(
+        "1",
+        expect.arrayContaining([
+          expect.objectContaining({ scholar_id: "scholar-777", name: "Dr Refresh" }),
+        ]),
+      )
+    })
+
+    // loadCommittee re-fetched external invitations — that's the signal that
+    // the committee list will reflect the invite without a page reload.
+    await waitFor(() => {
+      expect(
+        (listExternalInvitations as ReturnType<typeof vi.fn>).mock.calls.length,
+      ).toBeGreaterThan(initialExtCalls)
+    })
+
+    // We also never blanked to the "Loading committee..." state during this
+    // second refresh (regression test for the UI bug).
+    expect(screen.queryByText(/^Loading committee/i)).not.toBeInTheDocument()
+  })
+
+  it("persists fields_of_study when inviting a Semantic Scholar author", async () => {
+    // Regression for the Domain column showing "—" after invite: the chair
+    // picks an S2 author whose profile advertises two topics, and we expect
+    // those topics to ride along in the createExternalInvitations payload.
+    ;(searchUsersForConference as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { users: [], total: 0 },
+      error: null,
+    })
+    ;(semanticScholarApi.searchAuthors as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: [
+        {
+          authorId: "scholar-fos-1",
+          name: "Fieldy McPerson",
+          affiliations: ["ETH"],
+          fieldsOfStudy: ["Computer Science", "Robotics"],
+        },
+      ],
+    })
+    ;(createExternalInvitations as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { success: [], failed: [] },
+      error: null,
+    })
+
+    render(<ConferenceCommittee conferenceId="1" />)
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading committee/i)).not.toBeInTheDocument()
+    })
+
+    const input = screen.getByPlaceholderText(/Search by email or name/i) as HTMLInputElement
+    fireEvent.change(input, { target: { value: "fieldy" } })
+    await waitFor(() => expect(screen.getByText("Fieldy McPerson")).toBeInTheDocument())
+    fireEvent.mouseDown(screen.getByText("Fieldy McPerson"))
+
+    await act(async () => {
+      fireEvent.click(getInviteActionButton())
+    })
+
+    await waitFor(() => {
+      expect(createExternalInvitations).toHaveBeenCalledWith(
+        "1",
+        expect.arrayContaining([
+          expect.objectContaining({
+            scholar_id: "scholar-fos-1",
+            fields_of_study: ["Computer Science", "Robotics"],
+          }),
+        ]),
+      )
+    })
+  })
+
+  it("renders the Domain column from fields_of_study for external committee members", async () => {
+    // The backend returns the persisted fields_of_study on the external
+    // invitation; the committee row's Domain column must render them the
+    // same way it does for platform members with `domain: [...]`.
+    ;(listExternalInvitations as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      data: {
+        invitations: [
+          {
+            id: 42,
+            conference_id: 1,
+            role: "reviewer",
+            scholar_id: "scholar-domaincol",
+            name: "Ada External",
+            email: "",
+            affiliation: "Caltech",
+            profile_url: "https://www.semanticscholar.org/author/scholar-domaincol",
+            status: "pending",
+            invited_by: 1,
+            created_at: "2026-05-02T10:00:00Z",
+            updated_at: "2026-05-02T10:00:00Z",
+            fields_of_study: ["Computer Science", "Robotics"],
+          },
+        ],
+        total: 1,
+      },
+      error: null,
+    })
+
+    render(<ConferenceCommittee conferenceId="1" />)
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading committee/i)).not.toBeInTheDocument()
+    })
+
+    // Join logic in the Domain cell is `member.domain?.join(", ") || "—"`.
+    expect(screen.getByText("Ada External")).toBeInTheDocument()
+    expect(screen.getByText("Computer Science, Robotics")).toBeInTheDocument()
   })
 })

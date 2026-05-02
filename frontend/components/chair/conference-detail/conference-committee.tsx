@@ -15,6 +15,15 @@ import { useAuth } from "@/lib/auth-context"
 import { isReadOnlyRole } from "@/lib/role-helpers"
 import type { User } from "@/lib/api/user"
 import { searchUsersForConference, userApi } from "@/lib/api/user"
+import { semanticScholarApi, type Author } from "@/lib/api/semantic-scholar"
+import {
+  createExternalInvitations,
+  listExternalInvitations,
+  deleteExternalInvitation,
+  type ExternalInvitation,
+} from "@/lib/api/external-invitations"
+import { PlatformBadge } from "./platform-badge"
+import { ProfileLinkIconButton, getProfileLink } from "./profile-link"
 import { ReviewerSuggestions } from "./reviewer-suggestions"
 
 interface ConferenceCommitteeProps {
@@ -34,7 +43,23 @@ interface UserSearchResult {
 
 interface SelectedUser {
   id?: number
-  email: string
+  email?: string
+  first_name?: string
+  last_name?: string
+  domain?: string[]
+  matched_fields?: string[]
+  score?: number
+  is_external?: boolean
+  scholar_id?: string
+  name?: string
+  affiliation?: string
+  profile_url?: string
+  // Snapshot of the author's Semantic Scholar domains at the moment of
+  // selection. Stored on the chip so handleAddMembers can persist it with
+  // the invitation — the S2 search cache may roll before we submit, and
+  // we don't want the Domain column to show "—" for freshly-invited
+  // external authors.
+  fields_of_study?: string[]
 }
 
 interface CommitteeMember {
@@ -44,6 +69,10 @@ interface CommitteeMember {
   domain?: string[]
   reviewerId?: number
   invitationStatus?: string
+  is_external?: boolean
+  externalInvitationId?: number
+  affiliation?: string
+  scholar_id?: string
 }
 
 type MemberRoleFilter = "all" | "chair" | "co_chair" | "pc" | "reviewer"
@@ -249,6 +278,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
 
   const PAGE_SIZE = 8
   const [loading, setLoading] = useState(true)
+  const hasLoadedOnce = useRef(false)
   const [error, setError] = useState<string | null>(null)
   const [conference, setConference] = useState<Conference | null>(null)
   const [conferenceReviewers, setConferenceReviewers] = useState<Reviewer[]>([])
@@ -268,11 +298,19 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     null,
   )
   const [showDropdown, setShowDropdown] = useState(false)
+  const [externalSearchResults, setExternalSearchResults] = useState<Author[]>([])
+  const [externalInvitations, setExternalInvitations] = useState<ExternalInvitation[]>([])
   const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const loadCommittee = useCallback(async () => {
-    setLoading(true)
+    // Only toggle the full-page `loading` flag on the very first fetch.
+    // Subsequent refreshes (triggered by invites, removals, cross-tab actions)
+    // update state in place so the table and invite UI stay visible — without
+    // this the whole panel blanks to "Loading committee..." every time a chair
+    // invites someone, which makes the update feel like it didn't happen.
+    const isInitialLoad = !hasLoadedOnce.current
+    if (isInitialLoad) setLoading(true)
     setError(null)
 
     const confRes = await getConferenceById(conferenceId)
@@ -283,8 +321,10 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
             "runtime.components.chair.conference-detail.conference-committee.text_failed_to_load_committee",
           ),
       )
-      setConference(null)
-      setLoading(false)
+      if (isInitialLoad) {
+        setConference(null)
+        setLoading(false)
+      }
       return
     }
 
@@ -317,7 +357,14 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
       if (user) map.set(email, user)
     })
     setResolvedUsers(map)
-    setLoading(false)
+
+    // Fetch external invitations (non-platform invitees) to display alongside
+    // platform members in the committee table.
+    const extRes = await listExternalInvitations(conferenceId, { limit: 200 })
+    setExternalInvitations(extRes.data?.invitations ?? [])
+
+    hasLoadedOnce.current = true
+    if (isInitialLoad) setLoading(false)
   }, [conferenceId, t])
 
   useEffect(() => {
@@ -380,8 +427,25 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
       })
     }
 
+    // Merge external invitations (Semantic Scholar invitees) into the table.
+    // fields_of_study (captured at invite time from S2) populates the Domain
+    // column the same way user.domain does for platform members.
+    for (const ext of externalInvitations) {
+      members.push({
+        email: ext.email ?? "",
+        name: ext.name,
+        role: (ext.role as "pc" | "reviewer") ?? "reviewer",
+        is_external: true,
+        externalInvitationId: ext.id,
+        affiliation: ext.affiliation,
+        scholar_id: ext.scholar_id,
+        invitationStatus: ext.status,
+        domain: ext.fields_of_study,
+      })
+    }
+
     return members
-  }, [conference, conferenceReviewers, resolvedUsers])
+  }, [conference, conferenceReviewers, resolvedUsers, externalInvitations])
 
   // Emails (lowercased) of users who should NOT appear in the search dropdown:
   // anyone already on the committee, plus anyone already chipped in selectedUsers.
@@ -413,6 +477,26 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     [searchResults, excludedSearchEmails],
   )
 
+  // Semantic Scholar results filtered: remove those already staged as a
+  // selected external user and those already invited to this conference.
+  // Primary dedup against platform users is handled server-side in the
+  // reviewer suggestion service; here we only guard against local duplicates.
+  const visibleExternalResults = useMemo(() => {
+    const selectedScholarIds = new Set(
+      selectedUsers.filter((u) => u.scholar_id).map((u) => u.scholar_id!),
+    )
+    const invitedScholarIds = new Set(
+      externalInvitations
+        .filter((inv) => inv.scholar_id)
+        .map((inv) => inv.scholar_id!),
+    )
+    return externalSearchResults.filter((author) => {
+      if (selectedScholarIds.has(author.authorId)) return false
+      if (invitedScholarIds.has(author.authorId)) return false
+      return true
+    })
+  }, [externalSearchResults, selectedUsers, externalInvitations])
+
   useEffect(() => {
     function handleClick(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -443,6 +527,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
 
     if (!value.trim()) {
       setSearchResults([])
+      setExternalSearchResults([])
       setSearching(false)
       return
     }
@@ -454,38 +539,82 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     // a plain name/email result with no chips, label, or tooltip.
     const wantsMatchEvidence = memberRoleToAdd === "reviewer"
     searchDebounce.current = setTimeout(async () => {
-      try {
-        const { data } = await searchUsersForConference(
-          value.trim(),
-          wantsMatchEvidence ? conferenceId : null,
-          10,
-        )
-        const users = data?.users ?? []
-        setSearchResults(
-          users.map((u) => ({
-            id: Number(u.id),
-            email: u.email,
-            first_name: u.first_name,
-            last_name: u.last_name,
-            domain: u.domain,
-            matched_fields: u.matched_fields,
-            score: u.score,
-          })),
-        )
-      } catch {
-        setSearchResults([])
-      } finally {
-        setSearching(false)
-      }
+      // Fire both searches in parallel. Semantic Scholar failures must not
+      // block platform results (and vice versa) — swallow errors per promise.
+      const platformPromise = searchUsersForConference(
+        value.trim(),
+        wantsMatchEvidence ? conferenceId : null,
+        10,
+      )
+        .then(({ data }) => data?.users ?? [])
+        .catch(() => [] as Array<{
+          id: number | string
+          email: string
+          first_name?: string
+          last_name?: string
+          domain?: string[]
+          matched_fields?: string[]
+          score?: number
+        }>)
+
+      const scholarPromise = semanticScholarApi
+        .searchAuthors(value.trim(), 5)
+        .then((res) => res.data ?? [])
+        .catch(() => [] as Author[])
+
+      const [platformUsers, scholarAuthors] = await Promise.all([
+        platformPromise,
+        scholarPromise,
+      ])
+
+      setSearchResults(
+        platformUsers.map((u) => ({
+          id: Number(u.id),
+          email: u.email,
+          first_name: u.first_name,
+          last_name: u.last_name,
+          domain: u.domain,
+          matched_fields: u.matched_fields,
+          score: u.score,
+        })),
+      )
+      setExternalSearchResults(scholarAuthors)
+      setSearching(false)
     }, 300)
   }
 
   const handleSelectUser = (user: SelectedUser) => {
-    if (!selectedUsers.find((entry) => entry.email.toLowerCase() === user.email.toLowerCase())) {
+    const userEmail = user.email?.toLowerCase() ?? ""
+    if (
+      userEmail &&
+      !selectedUsers.find((entry) => (entry.email ?? "").toLowerCase() === userEmail)
+    ) {
       setSelectedUsers((previous) => [...previous, user])
     }
     setSearchQuery("")
     setSearchResults([])
+    setExternalSearchResults([])
+    setShowDropdown(false)
+  }
+
+  const handleSelectExternalUser = (author: Author) => {
+    const scholarId = author.authorId
+    if (selectedUsers.find((u) => u.scholar_id === scholarId)) return
+
+    setSelectedUsers((prev) => [
+      ...prev,
+      {
+        is_external: true,
+        scholar_id: scholarId,
+        name: author.name,
+        affiliation: author.affiliations?.[0] ?? "",
+        profile_url: `https://www.semanticscholar.org/author/${encodeURIComponent(scholarId)}`,
+        fields_of_study: author.fieldsOfStudy ?? [],
+      },
+    ])
+    setSearchQuery("")
+    setSearchResults([])
+    setExternalSearchResults([])
     setShowDropdown(false)
   }
 
@@ -495,8 +624,15 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     handleSelectUser({ email })
   }
 
-  const handleRemoveSelected = (email: string) => {
-    setSelectedUsers((previous) => previous.filter((entry) => entry.email !== email))
+  const handleRemoveSelected = (key: string) => {
+    setSelectedUsers((previous) =>
+      previous.filter((entry) => {
+        if (entry.is_external) {
+          return entry.scholar_id !== key
+        }
+        return entry.email !== key
+      }),
+    )
   }
 
   const resolveUserId = async (selectedUser: SelectedUser): Promise<number | null> => {
@@ -504,8 +640,11 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
       return selectedUser.id
     }
 
+    const email = selectedUser.email
+    if (!email) return null
+
     try {
-      const response = await userApi.getByEmail(selectedUser.email)
+      const response = await userApi.getByEmail(email)
       const userId = response.data?.data?.id
       return typeof userId === "number" && userId > 0 ? userId : null
     } catch {
@@ -519,67 +658,97 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     setInviting(true)
     setInviteMsg(null)
 
-    if (memberRoleToAdd === "pc") {
-      const newEmails = selectedUsers.map((u) => u.email.toLowerCase())
-      const existingPC = conference.pc_members ?? []
-      const merged = [...new Set([...existingPC, ...newEmails])]
+    const platformUsers = selectedUsers.filter((u) => !u.is_external)
+    const externalUsers = selectedUsers.filter((u) => u.is_external)
 
-      const response = await updateConference(conferenceId, { pc_members: merged })
-      setInviting(false)
+    let platformSuccess = 0
+    let platformFailed = 0
+    let externalSuccess = 0
+    let externalFailed = 0
 
-      if (response.error) {
-        setInviteMsg({ type: "error", text: T("text_invite_error") })
-        return
-      }
-
-      setInviteMsg({ type: "success", text: T("text_invite_success") })
-      setSelectedUsers([])
-      void loadCommittee()
-      return
-    }
-
-    const resolvedIds: number[] = []
-    let unresolvedCount = 0
-    for (const selectedUser of selectedUsers) {
-      const userId = await resolveUserId(selectedUser)
-      if (userId == null) {
-        unresolvedCount += 1
+    // --- Platform users (existing flow) ---
+    if (platformUsers.length > 0) {
+      if (memberRoleToAdd === "pc") {
+        const newEmails = platformUsers
+          .map((u) => (u.email ?? "").toLowerCase())
+          .filter(Boolean)
+        const existingPC = conference.pc_members ?? []
+        const merged = [...new Set([...existingPC, ...newEmails])]
+        const response = await updateConference(conferenceId, { pc_members: merged })
+        if (response.error) {
+          platformFailed += platformUsers.length
+        } else {
+          platformSuccess += platformUsers.length
+        }
       } else {
-        resolvedIds.push(userId)
+        // Reviewer flow
+        const resolvedIds: number[] = []
+        let unresolvedCount = 0
+        for (const u of platformUsers) {
+          const userId = await resolveUserId(u)
+          if (userId == null) {
+            unresolvedCount += 1
+          } else {
+            resolvedIds.push(userId)
+          }
+        }
+        if (resolvedIds.length > 0) {
+          const response = await inviteReviewers(
+            conferenceId,
+            resolvedIds.map((userId) => ({ user_id: userId })),
+          )
+          if (!response.error && response.data) {
+            platformSuccess += (response.data.success || []).length
+            platformFailed += (response.data.failed || []).length + unresolvedCount
+          } else {
+            platformFailed += resolvedIds.length + unresolvedCount
+          }
+        } else {
+          platformFailed += unresolvedCount
+        }
       }
     }
 
-    if (resolvedIds.length === 0) {
-      setInviting(false)
-      setInviteMsg({
-        type: "error",
-        text: "Cannot invite reviewer: selected users are missing valid user IDs.",
-      })
-      return
+    // --- External users (Semantic Scholar) ---
+    if (externalUsers.length > 0) {
+      const response = await createExternalInvitations(
+        conferenceId,
+        externalUsers.map((u) => ({
+          role: memberRoleToAdd,
+          scholar_id: u.scholar_id ?? "",
+          name: u.name ?? "",
+          email: u.email ?? "",
+          affiliation: u.affiliation ?? "",
+          profile_url: u.profile_url ?? "",
+          fields_of_study: u.fields_of_study ?? [],
+        })),
+      )
+      if (!response.error && response.data) {
+        // Guard against a backend that ever omits an empty list (see
+        // ExternalInvitationBatchCreateResponse — `omitempty` on `failed`
+        // used to trigger a runtime TypeError here when every item
+        // succeeded).
+        externalSuccess += response.data.success?.length ?? 0
+        externalFailed += response.data.failed?.length ?? 0
+      } else {
+        externalFailed += externalUsers.length
+      }
     }
 
-    const response = await inviteReviewers(
-      conferenceId,
-      resolvedIds.map((userId) => ({ user_id: userId })),
-    )
     setInviting(false)
 
-    if (response.error || !response.data) {
-      setInviteMsg({ type: "error", text: response.error || T("text_invite_error") })
-      return
-    }
+    const totalSuccess = platformSuccess + externalSuccess
+    const totalFailed = platformFailed + externalFailed
 
-    const failedCount = (response.data.failed || []).length + unresolvedCount
-    const successCount = (response.data.success || []).length
-    if (successCount > 0 && failedCount === 0) {
-      setInviteMsg({ type: "success", text: `Invited ${successCount} reviewer(s).` })
-    } else if (successCount > 0) {
+    if (totalSuccess > 0 && totalFailed === 0) {
+      setInviteMsg({ type: "success", text: `Invited ${totalSuccess} member(s).` })
+    } else if (totalSuccess > 0) {
       setInviteMsg({
         type: "success",
-        text: `Invited ${successCount} reviewer(s). ${failedCount} invite(s) failed or skipped.`,
+        text: `Invited ${totalSuccess} member(s). ${totalFailed} failed or skipped.`,
       })
     } else {
-      setInviteMsg({ type: "error", text: "No reviewer was invited." })
+      setInviteMsg({ type: "error", text: "No members were invited." })
     }
 
     setSelectedUsers([])
@@ -618,11 +787,13 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
 
   const filteredMembers = useMemo(() => {
     return committeeMembers.filter((member) => {
+      const needle = tableSearch.toLowerCase()
       const matchesSearch =
         !tableSearch.trim() ||
-        member.name.toLowerCase().includes(tableSearch.toLowerCase()) ||
-        member.email.toLowerCase().includes(tableSearch.toLowerCase()) ||
-        (member.domain || []).some((d) => d.toLowerCase().includes(tableSearch.toLowerCase()))
+        member.name.toLowerCase().includes(needle) ||
+        (member.email ?? "").toLowerCase().includes(needle) ||
+        (member.affiliation ?? "").toLowerCase().includes(needle) ||
+        (member.domain || []).some((d) => d.toLowerCase().includes(needle))
       const matchesRole = roleFilter === "all" || member.role === roleFilter
       return matchesSearch && matchesRole
     })
@@ -758,7 +929,10 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
           )}
 
           {activeSubTab === "suggestions" && !readOnly ? (
-            <ReviewerSuggestions conferenceId={conferenceId} />
+            <ReviewerSuggestions
+              conferenceId={conferenceId}
+              onInviteSuccess={() => void loadCommittee()}
+            />
           ) : (
           <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden">
             <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col xl:flex-row justify-between gap-3">
@@ -862,80 +1036,202 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                                 )
                               : new Set<string>()
                             const hasServerMatch = serverAnnotated && matchedSet.size > 0
+                            const profileLink = getProfileLink({
+                              on_platform: true,
+                              email: user.email,
+                              platform_user_id: user.id,
+                            })
                             return (
-                              <button
+                              <div
                                 key={user.id}
-                                type="button"
-                                onMouseDown={(event) => {
-                                  event.preventDefault()
-                                  handleSelectUser(user)
-                                }}
-                                className="w-full flex items-start gap-3 px-3 py-2 rounded hover:bg-slate-100 transition-colors text-left"
+                                className="group w-full flex items-start gap-3 px-3 py-2 rounded hover:bg-slate-100 transition-colors"
                               >
-                                <div className="size-7 rounded-full bg-[#1B3C53]/10 flex items-center justify-center text-[#1B3C53] font-bold text-[10px] flex-shrink-0 mt-0.5">
-                                  {user.first_name?.[0] || user.email[0].toUpperCase()}
-                                  {user.last_name?.[0] || ""}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-medium text-[#141414] truncate">
-                                    {user.email}
-                                  </p>
-                                  {(user.first_name || user.last_name) && (
-                                    <p className="text-[10px] text-slate-500 truncate">
-                                      {`${user.first_name || ""} ${user.last_name || ""}`.trim()}
+                                <button
+                                  type="button"
+                                  onMouseDown={(event) => {
+                                    event.preventDefault()
+                                    handleSelectUser(user)
+                                  }}
+                                  className="flex items-start gap-3 flex-1 min-w-0 text-left"
+                                >
+                                  <div className="size-7 rounded-full bg-[#1B3C53]/10 flex items-center justify-center text-[#1B3C53] font-bold text-[10px] flex-shrink-0 mt-0.5">
+                                    {user.first_name?.[0] || user.email[0].toUpperCase()}
+                                    {user.last_name?.[0] || ""}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-medium text-[#141414] truncate">
+                                      {user.email}
                                     </p>
-                                  )}
-                                  {user.domain && user.domain.length > 0 && (
-                                    <div className="mt-1.5">
-                                      {hasServerMatch && (
-                                        <p
-                                          data-testid="match-evidence-label"
-                                          className="flex items-center gap-1 text-[10px] font-medium text-emerald-700 mb-1"
-                                        >
-                                          <span aria-hidden="true">✓</span>
-                                          {T("text_match_evidence_label")}
-                                        </p>
-                                      )}
-                                      <div className="flex flex-wrap gap-1">
-                                        {user.domain.map((field) => {
-                                          const norm = field.trim().toLowerCase()
-                                          const serverMatched = matchedSet.has(norm)
-                                          // Prefer server-provided matched_fields; fall back to
-                                          // local conference-domain set if backend omitted it.
-                                          // Both paths are gated on evidenceEnabled (reviewer role).
-                                          const matched =
-                                            evidenceEnabled &&
-                                            (serverMatched ||
-                                              (!serverAnnotated && conferenceTopicSet.has(norm)))
-                                          return (
-                                            <span
-                                              key={field}
-                                              title={
-                                                serverMatched
-                                                  ? T("text_match_evidence_chip_tooltip")
-                                                  : undefined
-                                              }
-                                              className={cn(
-                                                "text-[10px] px-2 py-0.5 rounded-full border",
-                                                matched
-                                                  ? "bg-emerald-50 text-emerald-700 border-emerald-100 font-medium"
-                                                  : "bg-slate-50 text-slate-500 border-slate-200",
-                                              )}
-                                            >
-                                              {matched && <span className="mr-0.5">✓</span>}
-                                              {field}
-                                            </span>
-                                          )
-                                        })}
+                                    {(user.first_name || user.last_name) && (
+                                      <p className="text-[10px] text-slate-500 truncate">
+                                        {`${user.first_name || ""} ${user.last_name || ""}`.trim()}
+                                      </p>
+                                    )}
+                                    {user.domain && user.domain.length > 0 && (
+                                      <div className="mt-1.5">
+                                        {hasServerMatch && (
+                                          <p
+                                            data-testid="match-evidence-label"
+                                            className="flex items-center gap-1 text-[10px] font-medium text-emerald-700 mb-1"
+                                          >
+                                            <span aria-hidden="true">✓</span>
+                                            {T("text_match_evidence_label")}
+                                          </p>
+                                        )}
+                                        <div className="flex flex-wrap gap-1">
+                                          {user.domain.map((field) => {
+                                            const norm = field.trim().toLowerCase()
+                                            const serverMatched = matchedSet.has(norm)
+                                            // Prefer server-provided matched_fields; fall back to
+                                            // local conference-domain set if backend omitted it.
+                                            // Both paths are gated on evidenceEnabled (reviewer role).
+                                            const matched =
+                                              evidenceEnabled &&
+                                              (serverMatched ||
+                                                (!serverAnnotated && conferenceTopicSet.has(norm)))
+                                            return (
+                                              <span
+                                                key={field}
+                                                title={
+                                                  serverMatched
+                                                    ? T("text_match_evidence_chip_tooltip")
+                                                    : undefined
+                                                }
+                                                className={cn(
+                                                  "text-[10px] px-2 py-0.5 rounded-full border",
+                                                  matched
+                                                    ? "bg-emerald-50 text-emerald-700 border-emerald-100 font-medium"
+                                                    : "bg-slate-50 text-slate-500 border-slate-200",
+                                                )}
+                                              >
+                                                {matched && <span className="mr-0.5">✓</span>}
+                                                {field}
+                                              </span>
+                                            )
+                                          })}
+                                        </div>
                                       </div>
-                                    </div>
-                                  )}
+                                    )}
+                                  </div>
+                                </button>
+                                <div className="flex items-center gap-1 mt-0.5">
+                                  <ProfileLinkIconButton
+                                    link={profileLink}
+                                    title="View profile"
+                                    ariaLabel={`View profile for ${user.email}`}
+                                  />
+                                  <Icon name="person_add" className="text-slate-400" />
                                 </div>
-                                <Icon name="person_add" className="text-slate-400 mt-0.5" />
-                              </button>
+                              </div>
                             )
                           })}
-                          {visibleSearchResults.length === 0 && (
+                          {/* Semantic Scholar results */}
+                          {visibleExternalResults.length > 0 && (
+                            <>
+                              {visibleSearchResults.length > 0 && (
+                                <div className="border-t border-slate-100 mx-3 my-1" />
+                              )}
+                              <div className="px-3 py-1">
+                                <span className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">
+                                  Semantic Scholar
+                                </span>
+                              </div>
+                              {visibleExternalResults.map((author) => {
+                                const profileLink = getProfileLink({
+                                  is_external: true,
+                                  scholar_id: author.authorId,
+                                })
+                                // Semantic Scholar domain chips: like platform
+                                // search, we color a chip green when its topic
+                                // overlaps the conference's domain set. S2
+                                // never returns `matched_fields`, so we always
+                                // fall back to local conference-topic matching
+                                // (never claim server-side "match evidence").
+                                const scholarFields = author.fieldsOfStudy ?? []
+                                // Cap to 4 to keep the dropdown compact.
+                                const visibleFields = scholarFields.slice(0, 4)
+                                const overflowCount =
+                                  scholarFields.length - visibleFields.length
+                                return (
+                                  <div
+                                    key={`scholar-${author.authorId}`}
+                                    className="w-full flex items-start gap-3 px-3 py-2 rounded hover:bg-slate-100 transition-colors"
+                                  >
+                                    <button
+                                      type="button"
+                                      onMouseDown={(event) => {
+                                        event.preventDefault()
+                                        handleSelectExternalUser(author)
+                                      }}
+                                      className="flex items-start gap-3 flex-1 min-w-0 text-left"
+                                    >
+                                      <div className="size-7 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-[10px] flex-shrink-0 mt-0.5">
+                                        {author.name?.[0]?.toUpperCase() || "?"}
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2">
+                                          <p className="text-xs font-medium text-[#141414] truncate">
+                                            {author.name}
+                                          </p>
+                                          <PlatformBadge
+                                            onPlatform={false}
+                                            T={(key) =>
+                                              t(
+                                                `runtime.components.chair.conference-detail.conference-committee.${key}`,
+                                              )
+                                            }
+                                          />
+                                        </div>
+                                        {author.affiliations?.[0] && (
+                                          <p className="text-[10px] text-slate-500 truncate">
+                                            {author.affiliations[0]}
+                                          </p>
+                                        )}
+                                        {visibleFields.length > 0 && (
+                                          <div className="mt-1.5 flex flex-wrap gap-1">
+                                            {visibleFields.map((field) => {
+                                              const norm = field.trim().toLowerCase()
+                                              const matched =
+                                                memberRoleToAdd === "reviewer" &&
+                                                conferenceTopicSet.has(norm)
+                                              return (
+                                                <span
+                                                  key={field}
+                                                  className={cn(
+                                                    "text-[10px] px-2 py-0.5 rounded-full border",
+                                                    matched
+                                                      ? "bg-emerald-50 text-emerald-700 border-emerald-100 font-medium"
+                                                      : "bg-slate-50 text-slate-500 border-slate-200",
+                                                  )}
+                                                >
+                                                  {matched && <span className="mr-0.5">✓</span>}
+                                                  {field}
+                                                </span>
+                                              )
+                                            })}
+                                            {overflowCount > 0 && (
+                                              <span className="text-[10px] px-2 py-0.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200">
+                                                +{overflowCount}
+                                              </span>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </button>
+                                    <div className="flex items-center gap-1 mt-0.5">
+                                      <ProfileLinkIconButton
+                                        link={profileLink}
+                                        title="Open Semantic Scholar profile"
+                                        ariaLabel={`Open Semantic Scholar profile for ${author.name}`}
+                                      />
+                                      <Icon name="person_add" className="text-slate-400" />
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </>
+                          )}
+                          {visibleSearchResults.length === 0 && visibleExternalResults.length === 0 && (
                             <div className="px-3 py-2 text-xs text-slate-400">
                               {T("text_no_users_found")}
                             </div>
@@ -984,29 +1280,43 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
 
               {selectedUsers.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
-                  {selectedUsers.map((user) => (
-                    <span
-                      key={user.email}
-                      className={cn(
-                        "inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full",
-                        user.id != null || memberRoleToAdd !== "reviewer"
-                          ? "bg-[#1B3C53]/10 text-[#1B3C53]"
-                          : "bg-amber-100 text-amber-700",
-                      )}
-                    >
-                      {user.id == null && memberRoleToAdd === "reviewer" && (
-                        <Icon name="warning" size={10} />
-                      )}
-                      {user.email}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveSelected(user.email)}
-                        className="hover:text-red-500 transition-colors"
+                  {selectedUsers.map((user) => {
+                    const chipKey = user.is_external
+                      ? `ext-${user.scholar_id}`
+                      : user.email || `user-${user.id ?? ""}`
+                    const chipText = user.is_external
+                      ? user.name || "External"
+                      : user.email || ""
+                    const removeKey = user.is_external
+                      ? user.scholar_id ?? ""
+                      : user.email ?? ""
+                    return (
+                      <span
+                        key={chipKey}
+                        className={cn(
+                          "inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full",
+                          user.is_external
+                            ? "bg-amber-100 text-amber-700"
+                            : user.id != null || memberRoleToAdd !== "reviewer"
+                              ? "bg-[#1B3C53]/10 text-[#1B3C53]"
+                              : "bg-amber-100 text-amber-700",
+                        )}
                       >
-                        <Icon name="close" size={12} />
-                      </button>
-                    </span>
-                  ))}
+                        {!user.is_external && user.id == null && memberRoleToAdd === "reviewer" && (
+                          <Icon name="warning" size={10} />
+                        )}
+                        {user.is_external && <Icon name="mail" size={10} />}
+                        {chipText}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSelected(removeKey)}
+                          className="hover:text-red-500 transition-colors"
+                        >
+                          <Icon name="close" size={12} />
+                        </button>
+                      </span>
+                    )
+                  })}
                 </div>
               )}
 
@@ -1051,7 +1361,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                   ) : (
                     paginatedMembers.map((member) => (
                       <tr
-                        key={`${member.role}-${member.email}-${member.reviewerId ?? "0"}`}
+                        key={`${member.role}-${member.email || member.scholar_id || member.name}-${member.reviewerId ?? member.externalInvitationId ?? "0"}`}
                         className="hover:bg-slate-50 transition-colors group"
                       >
                         <td className="px-4 py-3">
@@ -1066,11 +1376,25 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2.5">
-                            <MemberAvatar email={member.email} name={member.name} />
+                            <MemberAvatar email={member.email || member.name} name={member.name} />
                             <div>
                               <div className="font-bold text-[#1B3C53] text-[12px]">{member.name}</div>
-                              <div className="text-[10px] text-slate-500">{member.email}</div>
-                              {member.role === "reviewer" && member.invitationStatus && (
+                              <div className="text-[10px] text-slate-500">
+                                {member.email || member.affiliation || "—"}
+                              </div>
+                              {member.is_external && (
+                                <div className="mt-1">
+                                  <PlatformBadge
+                                    onPlatform={false}
+                                    T={(key) =>
+                                      t(
+                                        `runtime.components.chair.conference-detail.conference-committee.${key}`,
+                                      )
+                                    }
+                                  />
+                                </div>
+                              )}
+                              {member.invitationStatus && (
                                 <div className="text-[10px] text-emerald-700 capitalize">
                                   invitation: {member.invitationStatus}
                                 </div>
@@ -1086,7 +1410,24 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                         </td>
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-0.5">
-                            {member.role === "pc" && !readOnly && (
+                            <ProfileLinkIconButton
+                              link={getProfileLink({
+                                is_external: member.is_external,
+                                email: member.email || null,
+                                scholar_id: member.scholar_id || null,
+                              })}
+                              title={
+                                member.is_external
+                                  ? "Open Semantic Scholar profile"
+                                  : "View profile"
+                              }
+                              ariaLabel={
+                                member.is_external
+                                  ? `Open Semantic Scholar profile for ${member.name}`
+                                  : `View profile for ${member.name}`
+                              }
+                            />
+                            {member.role === "pc" && !member.is_external && !readOnly && (
                               <button
                                 type="button"
                                 onClick={() => handleRemovePCMember(member.email)}
@@ -1096,12 +1437,33 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                                 <Icon name="delete" size={18} />
                               </button>
                             )}
-                            {member.role === "reviewer" && member.reviewerId && !readOnly && (
+                            {member.role === "reviewer" &&
+                              !member.is_external &&
+                              member.reviewerId &&
+                              !readOnly && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (member.reviewerId != null) {
+                                      void handleRemoveReviewer(member.reviewerId)
+                                    }
+                                  }}
+                                  title={T("text_remove_member")}
+                                  className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                >
+                                  <Icon name="delete" size={18} />
+                                </button>
+                              )}
+                            {member.is_external && member.externalInvitationId && !readOnly && (
                               <button
                                 type="button"
-                                onClick={() => {
-                                  if (member.reviewerId != null) {
-                                    void handleRemoveReviewer(member.reviewerId)
+                                onClick={async () => {
+                                  if (member.externalInvitationId != null) {
+                                    await deleteExternalInvitation(
+                                      conferenceId,
+                                      member.externalInvitationId,
+                                    )
+                                    void loadCommittee()
                                   }
                                 }}
                                 title={T("text_remove_member")}
