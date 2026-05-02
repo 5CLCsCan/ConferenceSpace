@@ -4,10 +4,13 @@ import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { ROUTES } from "@/lib/routes"
-import { getConferenceSubmissions, type Submission } from "@/lib/api/submissions"
+import { getConferenceSubmissions, type Submission, updateSubmissionStatus } from "@/lib/api/submissions"
 import { getSubmissionReviews } from "@/lib/api/reviews"
+import { getConferenceTracks } from "@/lib/api/conferences"
+import { getConfirmedAssignments } from "@/lib/api/suggestions"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { useDebounce } from "@/hooks/use-debounce"
+import { useToast } from "@/hooks/use-toast"
 
 type SubmissionStatus = "under_review" | "accepted" | "pending" | "rejected" | "withdrawn"
 type SortOption = "id" | "score" | "title"
@@ -104,6 +107,7 @@ function ScoreBadge({ score }: { score: number | null }) {
 export function ConferenceSubmissions({ conferenceId, className }: ConferenceSubmissionsProps) {
   const { t } = useTranslation()
   const router = useRouter()
+  const { toast } = useToast()
   const [rows, setRows] = useState<SubmissionRowData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -113,9 +117,59 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
   const [sortBy, setSortBy] = useState<SortOption>("id")
   const [currentPage, setCurrentPage] = useState(1)
   const [totalEntries, setTotalEntries] = useState(0)
+  const [tracks, setTracks] = useState<Array<{ id: string; name: string }>>([])
+  const [actionMenuSubmissionId, setActionMenuSubmissionId] = useState<number | null>(null)
+  const [decisionLoadingSubmissionId, setDecisionLoadingSubmissionId] = useState<number | null>(null)
 
   const entriesPerPage = 8
   const debouncedSearch = useDebounce(searchQuery, 400)
+
+  // Load available tracks
+  useEffect(() => {
+    async function loadTracks() {
+      const response = await getConferenceTracks(conferenceId)
+      if (response.data) {
+        setTracks(response.data.map((track) => ({ id: track.name, name: track.name })))
+      }
+    }
+    void loadTracks()
+  }, [conferenceId])
+
+  const handleQuickDecision = async (submissionId: number, status: "accepted" | "rejected") => {
+    setDecisionLoadingSubmissionId(submissionId)
+    const response = await updateSubmissionStatus(conferenceId, String(submissionId), status)
+
+    if (response.error || !response.data) {
+      toast({
+        title: t("runtime.components.chair.conference-detail.conference-submissions.text_update_decision_failed"),
+        description: response.error || t("runtime.components.chair.conference-detail.conference-submissions.text_please_try_again"),
+        variant: "destructive",
+      })
+      setDecisionLoadingSubmissionId(null)
+      return
+    }
+
+    setRows((prev) =>
+      prev.map((row) =>
+        row.submission.id === submissionId
+          ? {
+              ...row,
+              submission: {
+                ...row.submission,
+                status,
+              },
+            }
+          : row,
+      ),
+    )
+
+    setActionMenuSubmissionId(null)
+    setDecisionLoadingSubmissionId(null)
+    toast({
+      title: t("runtime.components.chair.conference-detail.conference-submissions.text_decision_updated"),
+      description: t("runtime.components.chair.conference-detail.conference-submissions.text_decision_has_been_saved"),
+    })
+  }
 
   useEffect(() => {
     async function loadSubmissions() {
@@ -125,6 +179,7 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
       const response = await getConferenceSubmissions(conferenceId, {
         title: debouncedSearch || undefined,
         status: selectedStatus === "all" ? undefined : selectedStatus,
+        track: selectedTrack === "all" ? undefined : selectedTrack,
         limit: entriesPerPage,
         offset: (currentPage - 1) * entriesPerPage,
       })
@@ -140,6 +195,9 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
       const submissions = response.data.submissions || []
       setTotalEntries(response.data.total || 0)
 
+      // Load assignment data to get accepted reviewer count
+      const assignmentsResponse = await getConfirmedAssignments(conferenceId)
+
       const reviewProgress = await Promise.all(
         submissions.map(async (submission) => {
           const reviews = await getSubmissionReviews(conferenceId, String(submission.id), {
@@ -148,7 +206,15 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
           })
           const reviewList = reviews.data || []
           const completed = reviewList.filter((review) => review.review_status === "submitted").length
-          const total = reviewList.length
+          
+          // Get the number of accepted assignments for this submission
+          const submissionAssignments = assignmentsResponse.data?.assignments.find(
+            (group) => group.submission_id === submission.id,
+          )
+          const acceptedReviewers = submissionAssignments?.reviewers.filter(
+            (reviewer) => reviewer.status === "accepted",
+          ).length || 0
+
           const score =
             completed > 0
               ? reviewList
@@ -160,7 +226,7 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
             submission,
             progress: {
               completed,
-              total,
+              total: acceptedReviewers,
               score: score && Number.isFinite(score) ? score : null,
             },
           }
@@ -172,7 +238,7 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
     }
 
     void loadSubmissions()
-  }, [conferenceId, currentPage, debouncedSearch, selectedStatus])
+  }, [conferenceId, currentPage, debouncedSearch, selectedStatus, selectedTrack])
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(totalEntries / entriesPerPage)), [totalEntries])
 
@@ -267,11 +333,18 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
           <div className="flex gap-2 w-full md:w-auto overflow-x-auto">
             <select
               value={selectedTrack}
-              onChange={(event) => setSelectedTrack(event.target.value)}
+              onChange={(event) => {
+                setSelectedTrack(event.target.value)
+                setCurrentPage(1)
+              }}
               className="bg-white border border-slate-200 text-slate-600 text-[11px] rounded-md py-1.5 pl-2.5 pr-6 focus:ring-1 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none cursor-pointer"
             >
               <option value="all">{t("runtime.components.chair.conference-detail.conference-submissions.text_all_tracks")}</option>
-              <option value="general">{t("runtime.components.chair.conference-detail.conference-submissions.text_general")}</option>
+              {tracks.map((track) => (
+                <option key={track.id} value={track.id}>
+                  {track.name}
+                </option>
+              ))}
             </select>
             <select
               value={selectedStatus}
@@ -387,12 +460,55 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
                           <ScoreBadge score={progress.score} />
                         </td>
                         <td className="px-3 py-3 text-right" onClick={(event) => event.stopPropagation()}>
-                          <button
-                            type="button"
-                            className="p-1.5 text-slate-400 hover:text-[#1B3C53] hover:bg-slate-100 rounded transition-colors"
-                          >
-                            <span className="material-symbols-outlined text-[18px]">more_vert</span>
-                          </button>
+                          <div className="relative inline-flex">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setActionMenuSubmissionId((prev) =>
+                                  prev === submission.id ? null : submission.id,
+                                )
+                              }
+                              className="p-1.5 text-slate-400 hover:text-[#1B3C53] hover:bg-slate-100 rounded transition-colors"
+                              title={t("runtime.components.chair.conference-detail.conference-submissions.text_actions")}
+                            >
+                              <span className="material-symbols-outlined text-[18px]">more_vert</span>
+                            </button>
+
+                            {actionMenuSubmissionId === submission.id && (
+                              <div className="absolute right-0 top-full z-20 mt-1 w-40 rounded-md border border-slate-200 bg-white p-1 shadow-lg">
+                                <button
+                                  type="button"
+                                  disabled={decisionLoadingSubmissionId === submission.id}
+                                  onClick={() => void handleQuickDecision(submission.id, "accepted")}
+                                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-[11px] text-emerald-700 hover:bg-emerald-50 disabled:opacity-60"
+                                >
+                                  <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                                  {t("runtime.components.chair.conference-detail.conference-submissions.text_select_decision_accept")}
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={decisionLoadingSubmissionId === submission.id}
+                                  onClick={() => void handleQuickDecision(submission.id, "rejected")}
+                                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-[11px] text-red-700 hover:bg-red-50 disabled:opacity-60"
+                                >
+                                  <span className="material-symbols-outlined text-[14px]">cancel</span>
+                                  {t("runtime.components.chair.conference-detail.conference-submissions.text_select_decision_reject")}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    router.push(
+                                      ROUTES.CHAIR.SUBMISSION_DETAIL(conferenceId, String(submission.id)),
+                                    )
+                                  }
+                                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-[11px] text-slate-700 hover:bg-slate-50"
+                                >
+                                  <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                                  {t("runtime.components.chair.conference-detail.conference-submissions.text_open_detail")}
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     )
