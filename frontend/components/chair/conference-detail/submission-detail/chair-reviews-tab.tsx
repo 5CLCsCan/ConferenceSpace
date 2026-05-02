@@ -4,12 +4,32 @@ import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import type { SubmissionDetail } from "./types"
 import type { AssignmentReview } from "@/lib/api/reviews"
+import {
+  addSuggestion,
+  confirmSuggestions,
+  deleteSuggestion,
+  getConfirmedAssignments,
+  getSuggestions,
+  type ConfirmedReviewer,
+  type SuggestedReviewer,
+} from "@/lib/api/suggestions"
+import { getConferenceReviewers, type Reviewer } from "@/lib/api/conferences"
 import { getRebuttal, type RebuttalPanelData } from "@/lib/api/rebuttal"
 import { updateSubmissionStatus } from "@/lib/api/submissions"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { tStatic as t } from "@/lib/i18n/static-translate"
 import useChairDecisionCopilot from "@/hooks/use-chair-decision-copilot"
 import { ChairDecisionCopilotPanel } from "./chair-decision-copilot-panel"
+import { AssignmentStatusBadge } from "./components"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { useToast } from "@/hooks/use-toast"
 
 // --- Types ---
 interface ReviewerScore {
@@ -45,6 +65,22 @@ interface RebuttalPoint {
 
 type DisplayDecision = "accept" | "minor" | "major" | "reject"
 type PersistedDecision = Extract<DisplayDecision, "accept" | "reject">
+type ReviewerProgressStatus = "not_started" | "in_progress" | "submitted"
+type AssignmentState = "pending" | "accepted" | "declined" | "completed"
+type ReviewerSourceState = "suggested" | "confirmed"
+
+interface PaperReviewerRow {
+  key: string
+  reviewerId: number
+  assignmentId?: number
+  reviewerEmail: string
+  score?: number
+  status: AssignmentState
+  reviewStatus: ReviewerProgressStatus
+  source: ReviewerSourceState
+  declineCategory?: string
+  declineReason?: string
+}
 
 function mapSubmissionStatusToDecision(
   status: SubmissionDetail["status"],
@@ -138,6 +174,643 @@ function buildRebuttalPoints(rebuttalData: RebuttalPanelData | null): RebuttalPo
     status: point.status,
     reviewerAcknowledgment: point.reviewerAcknowledgment,
   }))
+}
+
+function buildPaperReviewerRows(
+  confirmedReviewers: ConfirmedReviewer[],
+  suggestedReviewers: SuggestedReviewer[],
+): PaperReviewerRow[] {
+  const rowsByReviewerId = new Map<number, PaperReviewerRow>()
+
+  suggestedReviewers.forEach((reviewer) => {
+    rowsByReviewerId.set(reviewer.reviewer_id, {
+      key: `suggested-${reviewer.assignment_id}`,
+      reviewerId: reviewer.reviewer_id,
+      assignmentId: reviewer.assignment_id,
+      reviewerEmail: reviewer.reviewer_email,
+      score: reviewer.score,
+      status: "pending",
+      reviewStatus: "not_started",
+      source: "suggested",
+    })
+  })
+
+  confirmedReviewers.forEach((reviewer) => {
+    rowsByReviewerId.set(reviewer.reviewer_id, {
+      key: `confirmed-${reviewer.assignment_id}`,
+      reviewerId: reviewer.reviewer_id,
+      assignmentId: reviewer.assignment_id,
+      reviewerEmail: reviewer.reviewer_email,
+      score: reviewer.score,
+      status: reviewer.status as AssignmentState,
+      reviewStatus: reviewer.review_status as ReviewerProgressStatus,
+      source: "confirmed",
+      declineCategory: reviewer.decline_category,
+      declineReason: reviewer.decline_reason,
+    })
+  })
+
+  return Array.from(rowsByReviewerId.values()).sort((left, right) => {
+    const leftRank = left.source === "confirmed" ? 0 : 1
+    const rightRank = right.source === "confirmed" ? 0 : 1
+    if (leftRank !== rightRank) {
+      return leftRank - rightRank
+    }
+    return left.reviewerEmail.localeCompare(right.reviewerEmail)
+  })
+}
+
+function formatReviewerLabel(email: string) {
+  const localPart = email.split("@")[0] || email
+  return localPart
+    .split(/[._-]/g)
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(" ")
+}
+
+function formatReviewerInitials(email: string) {
+  const label = formatReviewerLabel(email)
+  const initials = label
+    .split(/\s+/g)
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0))
+    .join("")
+
+  return (initials || email.charAt(0) || "R").slice(0, 2).toUpperCase()
+}
+
+type ConfirmedAssignmentStatus = "completed" | "pending" | "in_progress" | "declined"
+
+function ReviewProgressBadge({ status }: { status: string }) {
+  const { t } = useTranslation()
+
+  const config: Record<string, { label: string; className: string }> = {
+    not_started: {
+      label: t(
+        "runtime.components.chair.conference-detail.conference-assignments.prop_label_not_started",
+      ),
+      className: "bg-slate-100 text-slate-600 border-slate-200",
+    },
+    in_progress: {
+      label: t(
+        "runtime.components.chair.conference-detail.conference-assignments.prop_label_in_progress",
+      ),
+      className: "bg-purple-50 text-purple-700 border-purple-200",
+    },
+    submitted: {
+      label: t(
+        "runtime.components.chair.conference-detail.conference-assignments.prop_label_submitted",
+      ),
+      className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    },
+  }
+
+  const current = config[status] || {
+    label: status,
+    className: "bg-slate-100 text-slate-600 border-slate-200",
+  }
+
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider border",
+        current.className,
+      )}
+    >
+      {current.label}
+    </span>
+  )
+}
+
+function ReviewerAssignmentsPanel({
+  conferenceId,
+  submissionId,
+}: {
+  conferenceId: string
+  submissionId: string
+}) {
+  const { t } = useTranslation()
+  const { toast } = useToast()
+  const [loadingAssignments, setLoadingAssignments] = useState(true)
+  const [assignmentsError, setAssignmentsError] = useState<string | null>(null)
+  const [assignedReviewers, setAssignedReviewers] = useState<PaperReviewerRow[]>([])
+  const [inviteOpen, setInviteOpen] = useState(false)
+  const [inviteLoading, setInviteLoading] = useState(false)
+  const [inviteError, setInviteError] = useState<string | null>(null)
+  const [availableReviewers, setAvailableReviewers] = useState<Reviewer[]>([])
+  const [invitingReviewerId, setInvitingReviewerId] = useState<number | null>(null)
+  const [confirmingSuggestionId, setConfirmingSuggestionId] = useState<number | null>(null)
+  const [deletingSuggestionId, setDeletingSuggestionId] = useState<number | null>(null)
+  const [filterStatus, setFilterStatus] = useState<string>("all")
+  const [filterReviewStatus, setFilterReviewStatus] = useState<string>("all")
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 5
+
+  const loadAssignments = async () => {
+    setLoadingAssignments(true)
+    setAssignmentsError(null)
+
+    const [confirmedResponse, suggestionsResponse] = await Promise.all([
+      getConfirmedAssignments(conferenceId),
+      getSuggestions(conferenceId),
+    ])
+
+    if (confirmedResponse.error || !confirmedResponse.data) {
+      setAssignmentsError(
+        confirmedResponse.error ||
+          t(
+            "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_failed_to_load_assigned_reviewers",
+          ),
+      )
+      setAssignedReviewers([])
+      setLoadingAssignments(false)
+      return
+    }
+
+    const confirmedGroup = confirmedResponse.data.assignments.find(
+      (group) => String(group.submission_id) === String(submissionId),
+    )
+    const suggestionsGroup = suggestionsResponse.data?.suggestions.find(
+      (group) => String(group.submission_id) === String(submissionId),
+    )
+
+    setAssignedReviewers(
+      buildPaperReviewerRows(confirmedGroup?.reviewers || [], suggestionsGroup?.reviewers || []),
+    )
+    setLoadingAssignments(false)
+  }
+
+  useEffect(() => {
+    let isCancelled = false
+
+    async function initializeAssignments() {
+      setLoadingAssignments(true)
+      setAssignmentsError(null)
+
+      const [confirmedResponse, suggestionsResponse] = await Promise.all([
+        getConfirmedAssignments(conferenceId),
+        getSuggestions(conferenceId),
+      ])
+      if (isCancelled) {
+        return
+      }
+
+      if (confirmedResponse.error || !confirmedResponse.data) {
+        setAssignmentsError(
+          confirmedResponse.error ||
+            t(
+              "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_failed_to_load_assigned_reviewers",
+            ),
+        )
+        setAssignedReviewers([])
+      } else {
+        const confirmedGroup = confirmedResponse.data.assignments.find(
+          (group) => String(group.submission_id) === String(submissionId),
+        )
+        const suggestionsGroup = suggestionsResponse.data?.suggestions.find(
+          (group) => String(group.submission_id) === String(submissionId),
+        )
+
+        setAssignedReviewers(
+          buildPaperReviewerRows(
+            confirmedGroup?.reviewers || [],
+            suggestionsGroup?.reviewers || [],
+          ),
+        )
+      }
+
+      setLoadingAssignments(false)
+    }
+
+    void initializeAssignments()
+
+    return () => {
+      isCancelled = true
+    }
+  }, [conferenceId, submissionId, t])
+
+  useEffect(() => {
+    let isCancelled = false
+
+    async function loadInviteOptions() {
+      if (!inviteOpen) {
+        return
+      }
+
+      setInviteLoading(true)
+      setInviteError(null)
+
+      const response = await getConferenceReviewers(conferenceId, { status: "accepted", limit: 200 })
+      if (isCancelled) {
+        return
+      }
+
+      if (response.error || !response.data) {
+        setInviteError(
+          response.error ||
+            t(
+              "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_failed_to_load_reviewer_options",
+            ),
+        )
+        setAvailableReviewers([])
+      } else {
+        const assignedReviewerIds = new Set(assignedReviewers.map((reviewer) => reviewer.reviewerId))
+        setAvailableReviewers(
+          response.data.reviewers.filter((reviewer) => reviewer.id && !assignedReviewerIds.has(reviewer.id)),
+        )
+      }
+
+      setInviteLoading(false)
+    }
+
+    void loadInviteOptions()
+
+    return () => {
+      isCancelled = true
+    }
+  }, [assignedReviewers, conferenceId, inviteOpen, t])
+
+  const handleInviteReviewer = async (reviewerId: number) => {
+    setInvitingReviewerId(reviewerId)
+    setInviteError(null)
+
+    const response = await addSuggestion(conferenceId, Number(submissionId), reviewerId)
+    if (response.error || !response.data) {
+      setInviteError(
+        response.error ||
+          t(
+            "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_failed_to_invite_reviewer_to_this_paper",
+          ),
+      )
+      setInvitingReviewerId(null)
+      return
+    }
+
+    if (response.data.coi_warning?.has_conflict) {
+      toast({
+        title: t(
+          "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_invite_warning_title",
+        ),
+        description: t(
+          "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_invite_warning_description",
+        ),
+        variant: "warning",
+      })
+    } else {
+      toast({
+        title: t(
+          "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_invite_success_title",
+        ),
+        description: t(
+          "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_invite_success_description",
+        ),
+      })
+    }
+
+    await loadAssignments()
+
+    setInviteOpen(false)
+    setInvitingReviewerId(null)
+  }
+
+  const handleConfirmSingle = async (assignmentId: number) => {
+    setConfirmingSuggestionId(assignmentId)
+    const response = await confirmSuggestions(conferenceId, [assignmentId])
+
+    if (response.error || !response.data) {
+      toast({
+        title: t(
+          "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_confirm_invites_failed_title",
+        ),
+        description:
+          response.error ||
+          t(
+            "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_confirm_invites_failed_description",
+          ),
+        variant: "destructive",
+      })
+    } else {
+      toast({
+        title: t(
+          "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_confirm_invites_success_title",
+        ),
+        description: t(
+          "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_confirm_invites_success_description",
+        ),
+      })
+      await loadAssignments()
+    }
+    setConfirmingSuggestionId(null)
+  }
+
+  const handleDeleteSingle = async (assignmentId: number) => {
+    setDeletingSuggestionId(assignmentId)
+    const response = await deleteSuggestion(conferenceId, assignmentId)
+
+    if (response.error) {
+      toast({
+        title: t(
+          "runtime.components.chair.conference-detail.conference-assignments.text_remove_failed",
+        ),
+        description: response.error,
+        variant: "destructive",
+      })
+    } else {
+      toast({
+        title: t(
+          "runtime.components.chair.conference-detail.conference-assignments.text_remove_success",
+        ),
+      })
+      await loadAssignments()
+    }
+    setDeletingSuggestionId(null)
+  }
+
+  const filteredReviewers = assignedReviewers.filter((reviewer) => {
+    if (filterStatus === "suggested") {
+      if (reviewer.source !== "suggested") return false
+    } else if (
+      filterStatus !== "all" &&
+      reviewer.status !== filterStatus &&
+      !(filterStatus === "pending" && reviewer.source === "suggested")
+    ) {
+      return false
+    }
+    if (filterReviewStatus !== "all" && reviewer.reviewStatus !== filterReviewStatus) {
+      return false
+    }
+    return true
+  })
+
+  const totalPages = Math.max(1, Math.ceil(filteredReviewers.length / itemsPerPage))
+  const paginatedReviewers = filteredReviewers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
+  const assignedCount = assignedReviewers.length
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="flex items-start justify-between gap-4 p-4 border-b border-slate-100">
+        <div>
+          <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_assigned_reviewers",
+            )}
+          </h3>
+          <p className="mt-1 text-xs text-slate-500">
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_assigned_reviewers_description",
+            )}
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          <span className="text-[10px] font-medium text-slate-400">
+            {assignedCount} {t("runtime.components.chair.conference-detail.conference-assignments.text_assigned_reviewer")}
+            {assignedCount === 1 ? "" : "s"}
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => setInviteOpen(true)}
+              className="h-8 rounded-md bg-[#1B3C53] px-3 text-[11px] font-medium hover:bg-[#234C6A]"
+            >
+              <span className="material-symbols-outlined mr-1" style={{ fontSize: "14px" }}>
+                person_add
+              </span>
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_invite_reviewer_to_this_paper",
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      {!loadingAssignments && !assignmentsError && assignedReviewers.length > 0 && (
+        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/50 flex gap-2 flex-wrap">
+          <select
+            value={filterStatus}
+            onChange={(e) => {
+              setFilterStatus(e.target.value)
+              setCurrentPage(1)
+            }}
+            className="bg-white border border-slate-200 text-slate-600 text-[10px] rounded px-2 py-1 focus:ring-1 focus:ring-[#1B3C53] outline-none cursor-pointer"
+          >
+            <option value="all">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_all_statuses")}</option>
+            <option value="suggested">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_invitation_pending")}</option>
+            <option value="pending">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_pending")}</option>
+            <option value="accepted">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_accepted")}</option>
+            <option value="declined">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_declined")}</option>
+            <option value="completed">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_completed")}</option>
+          </select>
+          <select
+            value={filterReviewStatus}
+            onChange={(e) => {
+              setFilterReviewStatus(e.target.value)
+              setCurrentPage(1)
+            }}
+            className="bg-white border border-slate-200 text-slate-600 text-[10px] rounded px-2 py-1 focus:ring-1 focus:ring-[#1B3C53] outline-none cursor-pointer"
+          >
+            <option value="all">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_all_review_statuses")}</option>
+            <option value="not_started">{t("runtime.components.chair.conference-detail.conference-assignments.prop_label_not_started")}</option>
+            <option value="in_progress">{t("runtime.components.chair.conference-detail.conference-assignments.prop_label_in_progress")}</option>
+            <option value="submitted">{t("runtime.components.chair.conference-detail.conference-assignments.prop_label_submitted")}</option>
+          </select>
+        </div>
+      )}
+
+      <div className="p-4 space-y-3">
+        {loadingAssignments ? (
+          <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-500">
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_loading_assigned_reviewers",
+            )}
+          </div>
+        ) : assignmentsError ? (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+            {assignmentsError}
+          </div>
+        ) : assignedReviewers.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-center">
+            <p className="text-xs font-medium text-slate-600">
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_no_reviewers_assigned_yet",
+              )}
+            </p>
+            <p className="mt-1 text-[10px] text-slate-400">
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_invite_reviewer_to_this_paper_description",
+              )}
+            </p>
+          </div>
+        ) : filteredReviewers.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-center">
+            <p className="text-[10px] text-slate-500">
+              {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_no_reviewers_matching_filters")}
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-2">
+              {paginatedReviewers.map((reviewer) => (
+                <div
+                  key={reviewer.key}
+                  className="flex flex-col gap-2 rounded-lg border border-slate-200 bg-slate-50/80 p-3 md:flex-row md:items-center md:justify-between"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-[#1B3C53] text-[10px] font-bold text-white">
+                      {formatReviewerInitials(reviewer.reviewerEmail)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-xs font-semibold text-slate-700">
+                        {formatReviewerLabel(reviewer.reviewerEmail)}
+                      </p>
+                      <p className="truncate text-[10px] text-slate-400">{reviewer.reviewerEmail}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    {reviewer.source === "suggested" ? (
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={confirmingSuggestionId === reviewer.assignmentId}
+                          onClick={() => reviewer.assignmentId && void handleConfirmSingle(reviewer.assignmentId)}
+                          className="text-green-600 hover:text-green-700 hover:bg-green-50 text-[9px] font-bold uppercase tracking-wider h-7 px-2.5 gap-1.5"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                            check
+                          </span>
+                          {confirmingSuggestionId === reviewer.assignmentId
+                            ? t("runtime.components.chair.conference-detail.conference-assignments.text_confirming")
+                            : t("runtime.components.chair.conference-detail.conference-assignments.text_confirm")}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={deletingSuggestionId === reviewer.assignmentId}
+                          onClick={() => reviewer.assignmentId && void handleDeleteSingle(reviewer.assignmentId)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 text-[9px] font-bold uppercase tracking-wider h-7 px-2.5 gap-1.5"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                            close
+                          </span>
+                          {deletingSuggestionId === reviewer.assignmentId
+                            ? t("runtime.components.chair.conference-detail.conference-assignments.text_removing")
+                            : t("runtime.components.chair.conference-detail.conference-assignments.text_remove")}
+                        </Button>
+                      </div>
+                    ) : (
+                      <AssignmentStatusBadge status={reviewer.status as ConfirmedAssignmentStatus} />
+                    )}
+                    <ReviewProgressBadge status={reviewer.reviewStatus} />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
+                <div className="text-[10px] text-slate-400">
+                  {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_page")} {currentPage}{" "}
+                  of {totalPages}
+                </div>
+                <div className="flex gap-1">
+                  <button
+                    type="button"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    className="px-2 py-1 rounded border border-slate-200 text-[10px] text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+                  >
+                    {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_prev")}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    className="px-2 py-1 rounded border border-slate-200 text-[10px] text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+                  >
+                    {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_next")}
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_invite_reviewer_to_this_paper",
+              )}
+            </DialogTitle>
+            <DialogDescription>
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_invite_reviewer_to_this_paper_description",
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          {inviteError && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+              {inviteError}
+            </div>
+          )}
+
+          {inviteLoading ? (
+            <div className="py-4 text-center text-xs font-medium text-slate-500">
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_loading_reviewer_options",
+              )}
+            </div>
+          ) : availableReviewers.length === 0 ? (
+            <div className="py-4 text-center text-xs font-medium text-slate-500">
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_no_available_reviewers_to_invite",
+              )}
+            </div>
+          ) : (
+            <div className="max-h-[320px] space-y-2 overflow-y-auto pr-1">
+              {availableReviewers.map((reviewer) => (
+                <button
+                  key={reviewer.id}
+                  type="button"
+                  disabled={invitingReviewerId === reviewer.id}
+                  onClick={() => reviewer.id && void handleInviteReviewer(reviewer.id)}
+                  className="flex w-full items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-xs font-semibold text-slate-700">
+                      {reviewer.email || `Reviewer ${reviewer.id}`}
+                    </p>
+                    {reviewer.domain && reviewer.domain.length > 0 && (
+                      <p className="mt-0.5 truncate text-[10px] text-slate-400">
+                        {t("runtime.components.chair.conference-detail.conference-assignments.text_expertise")} {reviewer.domain.join(", ")}
+                      </p>
+                    )}
+                  </div>
+                  <span className="text-[10px] font-semibold text-[#1B3C53]">
+                    {invitingReviewerId === reviewer.id
+                      ? t(
+                          "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_inviting",
+                        )
+                      : t(
+                          "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_invite",
+                        )}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
 }
 
 // --- Helper functions ---
@@ -441,7 +1114,13 @@ function DecisionMakingPanel({
 
 // --- Reviewer Scores Panel (Same design as reviewer's, adapted for chair) ---
 function ReviewerScoresPanel({ reviewers }: { reviewers: ReviewerScore[] }) {
+  const { t } = useTranslation()
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 5
+
   const scoredReviewers = reviewers.filter((reviewer) => reviewer.currentScore > 0)
+  const totalPages = Math.max(1, Math.ceil(scoredReviewers.length / itemsPerPage))
+  const paginatedReviewers = scoredReviewers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
   if (scoredReviewers.length === 0) {
     return (
@@ -497,7 +1176,7 @@ function ReviewerScoresPanel({ reviewers }: { reviewers: ReviewerScore[] }) {
 
       {/* Individual Reviewers */}
       <div className="space-y-2">
-        {scoredReviewers.map((reviewer) => (
+        {paginatedReviewers.map((reviewer) => (
           <div
             key={reviewer.id}
             className="flex items-center gap-3 p-2 bg-slate-50/80 rounded-lg border border-slate-100"
@@ -546,6 +1225,33 @@ function ReviewerScoresPanel({ reviewers }: { reviewers: ReviewerScore[] }) {
           </div>
         ))}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between gap-2 border-t border-slate-100 mt-3 pt-3">
+          <div className="text-[10px] text-slate-400">
+            {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_page")} {currentPage} of{" "}
+            {totalPages}
+          </div>
+          <div className="flex gap-1">
+            <button
+              type="button"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              className="px-2 py-1 rounded border border-slate-200 text-[10px] text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+            >
+              {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_prev")}
+            </button>
+            <button
+              type="button"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              className="px-2 py-1 rounded border border-slate-200 text-[10px] text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+            >
+              {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_next")}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -949,6 +1655,9 @@ export function ChairReviewsTab({
             void regenerateCopilot()
           }}
         />
+
+        {/* Assigned Reviewers */}
+        <ReviewerAssignmentsPanel conferenceId={conferenceId} submissionId={submissionId} />
 
         {/* Reviewer Scores Panel */}
         <ReviewerScoresPanel reviewers={reviewers} />
