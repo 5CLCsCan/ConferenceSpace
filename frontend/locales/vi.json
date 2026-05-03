@@ -928,7 +928,7 @@
             "text_passed": "Đã qua",
             "text_sync_to_calendar": "Đồng bộ hóa với Lịch",
             "text_target_date": "Ngày mục tiêu",
-            "text_text": "&bull;",
+            "text_text": "",
             "text_timezone": "Múi giờ",
             "text_until": "Cho đến khi",
             "text_upcoming": "Sắp tới"
@@ -1552,7 +1552,7 @@
             "text_settings": "Cài đặt",
             "text_sync_to_calendar": "Đồng bộ hóa với Lịch",
             "text_target_date": "Ngày mục tiêu",
-            "text_text": "&bull;",
+            "text_text": "",
             "text_timezone": "Múi giờ",
             "text_until": "Cho đến khi",
             "text_upcoming": "Sắp tới"
@@ -2366,7 +2366,7 @@
           },
           "prop_description_please_fill_in_the_summary_strengths": "Vui lòng điền vào Tóm tắt, Điểm mạnh và Điểm yếu trước khi gửi.",
           "prop_description_please_select_an_overall_rating_before": "Vui lòng chọn đánh giá tổng thể trước khi gửi.",
-          "prop_description_resolve_the_active_blocking_audit_findings": "Giải quyết các phát hiện kiểm tra chặn hoạt động trước khi gửi.",
+          "prop_description_resolve_the_active_blocking_audit_findings": "Xem lại các phát hiện kiểm tra ưu tiên trước khi gửi.",
           "prop_description_your_review_has_been_submitted_successfully": "Đánh giá của bạn đã được gửi thành công.",
           "prop_description_your_review_was_submitted_without_a": "Đánh giá của bạn đã được gửi mà không có kiểm tra kiểm toán hoàn chỉnh.",
           "prop_title_draft_saved": "Đã lưu bản nháp",
@@ -2376,7 +2376,7 @@
           "prop_title_incomplete_review": "Đánh giá chưa đầy đủ",
           "prop_title_recommendation_required": "Cần có đề xuất",
           "prop_title_review_submitted": "Đã gửi đánh giá",
-          "prop_title_submission_blocked": "Đã chặn gửi bài",
+          "prop_title_submission_blocked": "Phát hiện kiểm tra ưu tiên",
           "rebuttal-tab": {
             "placeholder_any_additional_comments_after_reading_the": "Mọi ý kiến ​​bổ sung sau khi đọc phần phản bác…",
             "text_accept": "Chấp nhận",
@@ -2436,15 +2436,15 @@
             "text_select_overall_rating": "Chọn đánh giá tổng thể."
           },
           "review-audit-panel": {
-            "text_ai_010_checks_whether_your_narrative": "AI-010 kiểm tra xem câu chuyện, điểm số, đề xuất và bối cảnh AI-003 tùy chọn của bạn có kể một câu chuyện đánh giá mạch lạc hay không. Nó không quyết định bài viết cho bạn.",
-            "text_ai_010_review_audit": "Kiểm tra đánh giá AI-010",
+            "text_ai_010_checks_whether_your_narrative": "Kiểm tra xem câu chuyện, điểm số, đề xuất và bối cảnh của bạn có kể một câu chuyện đánh giá mạch lạc hay không.",
+            "text_ai_010_review_audit": "Kiểm tra đánh giá",
             "text_auditing": "Kiểm toán...",
             "text_not_run_yet": "Chưa chạy",
             "text_save_a_draft_or_run_submit": "Lưu bản nháp hoặc chạy gửi trước để đưa ra các kết quả kiểm tra ngữ nghĩa.",
             "text_semantic_consistency_and_justification_audit": "Kiểm tra tính nhất quán và biện minh về mặt ngữ nghĩa",
-            "title_advisory_warnings": "Cảnh báo tư vấn",
-            "title_dismissed_warnings": "Cảnh báo bị loại bỏ",
-            "title_submit_blockers": "Gửi trình chặn"
+            "title_advisory_warnings": "Gợi ý",
+            "title_dismissed_warnings": "Phát hiện đã ẩn",
+            "title_submit_blockers": "Phát hiện ưu tiên"
           },
           "review-header": {
             "text_anonymous_authors": "tác giả ẩn danh",

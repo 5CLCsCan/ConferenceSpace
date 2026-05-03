@@ -49,5 +49,6 @@ export interface ExploreConference {
   dates: string
   exploreStatus: ExploreStatus
   topics: string[]
+  userRole?: string
   isVirtual?: boolean
 }

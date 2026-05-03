@@ -130,9 +130,7 @@ export function InvitationDialog({
           <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
             {invitation?.conference_name ?? "Review Invitation"}
           </p>
-          <DialogTitle className="text-sm font-bold text-[#1B3C53]">
-            Review Invitation
-          </DialogTitle>
+          <DialogTitle className="text-sm font-bold text-[#1B3C53]">Review Invitation</DialogTitle>
           <DialogDescription className="sr-only">
             Paper review invitation details and response
           </DialogDescription>
@@ -180,7 +178,7 @@ export function InvitationDialog({
               {/* Evidence card */}
               <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-4 flex flex-col gap-3">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  Why you&apos;re a great match
+                  Why you're a great match
                 </p>
 
                 {invitation.evidence &&

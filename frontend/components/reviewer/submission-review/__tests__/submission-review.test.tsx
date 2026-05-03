@@ -111,9 +111,13 @@ vi.mock("@/components/ui/alert-dialog", () => ({
   AlertDialogDescription: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   AlertDialogFooter: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   AlertDialogCancel: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
-  AlertDialogAction: ({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) => (
-    <button onClick={onClick}>{children}</button>
-  ),
+  AlertDialogAction: ({
+    children,
+    onClick,
+  }: {
+    children: React.ReactNode
+    onClick?: () => void
+  }) => <button onClick={onClick}>{children}</button>,
 }))
 
 describe("SubmissionReviewScreen", () => {
@@ -132,7 +136,7 @@ describe("SubmissionReviewScreen", () => {
   it("hydrates blocked audit findings from submit response", async () => {
     mockSaveReview.mockResolvedValueOnce({
       success: false,
-      error: "review audit found blocking issues",
+      error: "review audit found priority issues",
       errorData: {
         data: {
           code: "review_audit_blocked",
@@ -143,6 +147,8 @@ describe("SubmissionReviewScreen", () => {
                 code: "consistency.recommendation_conflicts_with_written_review",
                 severity: "blocking",
                 field: "recommendation",
+                rationale:
+                  "The finding is raised because the narrative does not explain the recommendation.",
                 message: "The written review does not support the final recommendation.",
                 suggestion: "Reconcile the recommendation with the written reasoning.",
                 condition_fingerprint: "sha256:test",
@@ -173,6 +179,8 @@ describe("SubmissionReviewScreen", () => {
             code: "consistency.recommendation_conflicts_with_written_review",
             severity: "blocking",
             field: "recommendation",
+            rationale:
+              "The finding is raised because the narrative does not explain the recommendation.",
             message: "The written review does not support the final recommendation.",
             suggestion: "Reconcile the recommendation with the written reasoning.",
             condition_fingerprint: "sha256:test",

@@ -75,8 +75,8 @@ function ExploreStatusBadge({ status }: ExploreStatusBadgeProps) {
 interface ExploreConferenceCardProps {
   conference: ExploreConference
   onViewDetails: (id: string) => void
-  primaryActionLabel?: string
-  onPrimaryAction?: (id: string) => void
+  primaryActionLabel?: string | ((conference: ExploreConference) => string)
+  onPrimaryAction?: (conference: ExploreConference) => void
 }
 
 export function ExploreConferenceCard({
@@ -87,9 +87,11 @@ export function ExploreConferenceCard({
 }: ExploreConferenceCardProps) {
   const descriptionPreview = truncatePreviewText(conference.fullDescription)
   const locationPreview = truncatePreviewText(conference.location)
+  const resolvedPrimaryActionLabel =
+    typeof primaryActionLabel === "function" ? primaryActionLabel(conference) : primaryActionLabel
   const canUsePrimaryAction =
     conference.exploreStatus === "call-for-papers" &&
-    typeof primaryActionLabel === "string" &&
+    typeof resolvedPrimaryActionLabel === "string" &&
     typeof onPrimaryAction === "function"
 
   return (
@@ -147,10 +149,10 @@ export function ExploreConferenceCard({
         <div className="flex items-center gap-2">
           {canUsePrimaryAction && (
             <button
-              onClick={() => onPrimaryAction(conference.id)}
+              onClick={() => onPrimaryAction(conference)}
               className="flex-1 h-8 px-3 text-[11px] font-medium rounded-full bg-[#1B3C53] text-white hover:bg-[#234C6A] transition-colors"
             >
-              {primaryActionLabel}
+              {resolvedPrimaryActionLabel}
             </button>
           )}
           <button
@@ -244,8 +246,8 @@ export function ArchivedConferenceCard({
 interface ExploreConferenceListProps {
   conferences: ExploreConference[]
   onViewDetails: (id: string) => void
-  primaryActionLabel?: string
-  onPrimaryAction?: (id: string) => void
+  primaryActionLabel?: string | ((conference: ExploreConference) => string)
+  onPrimaryAction?: (conference: ExploreConference) => void
   /** Pagination props */
   currentPage?: number
   totalPages?: number
@@ -454,14 +456,16 @@ function ExploreListRow({
 }: {
   conference: ExploreConference
   onViewDetails: (id: string) => void
-  primaryActionLabel?: string
-  onPrimaryAction?: (id: string) => void
+  primaryActionLabel?: string | ((conference: ExploreConference) => string)
+  onPrimaryAction?: (conference: ExploreConference) => void
 }) {
   const descriptionPreview = truncatePreviewText(conference.fullDescription)
   const locationPreview = truncatePreviewText(conference.location)
+  const resolvedPrimaryActionLabel =
+    typeof primaryActionLabel === "function" ? primaryActionLabel(conference) : primaryActionLabel
   const canUsePrimaryAction =
     conference.exploreStatus === "call-for-papers" &&
-    typeof primaryActionLabel === "string" &&
+    typeof resolvedPrimaryActionLabel === "string" &&
     typeof onPrimaryAction === "function"
 
   return (
@@ -545,11 +549,11 @@ function ExploreListRow({
             <button
               onClick={(e) => {
                 e.stopPropagation()
-                onPrimaryAction(conference.id)
+                onPrimaryAction(conference)
               }}
               className="h-8 px-3 rounded-full bg-[#1B3C53] text-white text-[10px] font-semibold hover:bg-[#234C6A] transition-colors"
             >
-              {primaryActionLabel}
+              {resolvedPrimaryActionLabel}
             </button>
           )}
           <button
@@ -600,11 +604,11 @@ function ExploreListRow({
             <button
               onClick={(e) => {
                 e.stopPropagation()
-                onPrimaryAction(conference.id)
+                onPrimaryAction(conference)
               }}
               className="flex-1 h-8 px-3 rounded-full bg-[#1B3C53] text-white text-[11px] font-medium hover:bg-[#234C6A] transition-colors"
             >
-              {primaryActionLabel}
+              {resolvedPrimaryActionLabel}
             </button>
           )}
           <button

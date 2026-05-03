@@ -260,10 +260,19 @@ export interface InvitationEvidence {
 
 export interface InvitationData {
   assignment_id: number
+  conference_id?: number
+  submission_id?: number
   status: string
   paper_title: string
   paper_abstract: string
   conference_name: string
+  track?: string
+  keywords?: string[]
+  submitted_at?: string
+  updated_at?: string
+  file_name?: string
+  file_size?: number
+  file_content_type?: string
   evidence: InvitationEvidence | null
 }
 

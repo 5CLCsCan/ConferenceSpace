@@ -79,7 +79,12 @@ function mapConferenceToExplore(conference: Conference): ExploreConference {
           ? "submission-closed"
           : "upcoming",
     topics: conference.domain?.slice(0, 3) || conference.tracks.slice(0, 3) || [],
+    userRole: conference.userRole,
   }
+}
+
+function isConferenceAdminRole(role?: string): boolean {
+  return role === "chair" || role === "co_chair" || role === "pc"
 }
 
 function PaginationBar({
@@ -358,6 +363,19 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
     router.push(`${ROUTES.AUTHOR.NEW_SUBMISSION}?conferenceId=${id}`)
   }
 
+  const handlePrimaryExploreAction = (conference: ExploreConference) => {
+    if (isConferenceAdminRole(conference.userRole)) {
+      router.push(ROUTES.CHAIR.CONFERENCE_DETAIL(conference.id))
+      return
+    }
+    handleStartSubmission(conference.id)
+  }
+
+  const getPrimaryExploreActionLabel = (conference: ExploreConference) =>
+    isConferenceAdminRole(conference.userRole)
+      ? "View as Chair"
+      : t("runtime.components.author.author-conference-cards.text_submit_paper")
+
   // Filter My Conferences client-side (server-side not possible without a dedicated submissions endpoint)
   const getFilteredMyConferences = (): AuthorConference[] => {
     let filtered = myConferences.filter((c) => c.status !== "rejected")
@@ -494,10 +512,8 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
             <ExploreConferenceList
               conferences={exploreConferences}
               onViewDetails={handleViewDetails}
-              primaryActionLabel={t(
-                "runtime.components.author.author-conference-cards.text_submit_paper",
-              )}
-              onPrimaryAction={handleStartSubmission}
+              primaryActionLabel={getPrimaryExploreActionLabel}
+              onPrimaryAction={handlePrimaryExploreAction}
               currentPage={currentPage}
               totalPages={totalPages}
               totalItems={exploreTotal}
@@ -516,10 +532,8 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
                 key={conference.id}
                 conference={conference}
                 onViewDetails={handleViewDetails}
-                primaryActionLabel={t(
-                  "runtime.components.author.author-conference-cards.text_submit_paper",
-                )}
-                onPrimaryAction={handleStartSubmission}
+                primaryActionLabel={getPrimaryExploreActionLabel}
+                onPrimaryAction={handlePrimaryExploreAction}
               />
             ))}
           </div>

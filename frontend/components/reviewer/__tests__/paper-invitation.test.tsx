@@ -19,14 +19,50 @@ vi.mock("@/lib/api/suggestions", () => ({
   respondToInvitation: vi.fn(),
 }))
 
+vi.mock("../submission-review/review-header", () => ({
+  PaperHeader: ({ submission, actions }: any) => (
+    <div>
+      <h1>{submission.title}</h1>
+      <p>Track {submission.track}</p>
+      <div>{actions}</div>
+    </div>
+  ),
+}))
+
+vi.mock("../submission-review/review-sidebar", () => ({
+  AbstractCard: ({ submission }: any) => (
+    <section>
+      <p>{submission.abstract}</p>
+      {submission.keywords.map((keyword: string) => (
+        <span key={keyword}>{keyword}</span>
+      ))}
+    </section>
+  ),
+  AIAssistantCard: ({ conferenceId, assignmentId, submissionId, submissionTitle }: any) => (
+    <aside>
+      AI analysis for {submissionTitle} ({conferenceId}/{assignmentId}/{submissionId})
+    </aside>
+  ),
+}))
+
 import { getInvitation, respondToInvitation } from "@/lib/api/suggestions"
 
 const mockInvitationBase = {
   assignment_id: 42,
+  conference_id: 7,
+  submission_id: 99,
   status: "pending",
   paper_title: "Advances in Neural Architecture Search",
-  paper_abstract: "We present a novel approach to neural architecture search using evolutionary algorithms.",
+  paper_abstract:
+    "We present a novel approach to neural architecture search using evolutionary algorithms.",
   conference_name: "ICLR 2026",
+  track: "Machine Learning",
+  keywords: ["NAS", "evolution"],
+  submitted_at: "2026-01-10T10:00:00Z",
+  updated_at: "2026-01-11T10:00:00Z",
+  file_name: "paper.pdf",
+  file_size: 1024,
+  file_content_type: "application/pdf",
   evidence: null,
 }
 
@@ -62,6 +98,49 @@ describe("PaperInvitation", () => {
     expect(screen.getByText(/2 papers/)).toBeInTheDocument()
   })
 
+  it("renders reviewer submission preview with AI analysis before accepting", async () => {
+    vi.mocked(getInvitation).mockResolvedValue({
+      data: { ...mockInvitationBase, evidence: null },
+      error: null,
+      status: 200,
+    })
+
+    render(<PaperInvitation />)
+
+    await waitFor(() => {
+      expect(screen.getByText("Advances in Neural Architecture Search")).toBeInTheDocument()
+    })
+
+    expect(screen.getByText(/Track Machine Learning/)).toBeInTheDocument()
+    expect(screen.getByText("NAS")).toBeInTheDocument()
+    expect(screen.getByText("evolution")).toBeInTheDocument()
+    expect(
+      screen.getByText("AI analysis for Advances in Neural Architecture Search (7/42/99)"),
+    ).toBeInTheDocument()
+    expect(screen.getByText("Accept")).toBeInTheDocument()
+    expect(screen.getByText("Deny")).toBeInTheDocument()
+  })
+
+  it("does not mount AI analysis controls when invitation IDs are missing", async () => {
+    vi.mocked(getInvitation).mockResolvedValue({
+      data: {
+        ...mockInvitationBase,
+        conference_id: 0,
+        submission_id: 0,
+      },
+      error: null,
+      status: 200,
+    })
+
+    render(<PaperInvitation />)
+
+    await waitFor(() => {
+      expect(screen.getByText(/Submission preview is unavailable/i)).toBeInTheDocument()
+    })
+
+    expect(screen.queryByText(/AI analysis for/)).toBeNull()
+  })
+
   it("hides score when below 50% threshold (server returns null)", async () => {
     vi.mocked(getInvitation).mockResolvedValue({
       data: {
@@ -90,7 +169,7 @@ describe("PaperInvitation", () => {
       data: {
         ...mockInvitationBase,
         evidence: {
-          matched_keywords: [],
+          matched_keywords: null as any,
           score: null,
           assignment_count: 0,
         },
@@ -102,9 +181,7 @@ describe("PaperInvitation", () => {
     render(<PaperInvitation />)
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/You were selected by the program committee/i),
-      ).toBeInTheDocument()
+      expect(screen.getByText(/You were selected by the program committee/i)).toBeInTheDocument()
     })
   })
 
@@ -123,10 +200,10 @@ describe("PaperInvitation", () => {
     render(<PaperInvitation />)
 
     await waitFor(() => {
-      expect(screen.getByText("Accept Assignment")).toBeInTheDocument()
+      expect(screen.getByText("Accept")).toBeInTheDocument()
     })
 
-    fireEvent.click(screen.getByText("Accept Assignment"))
+    fireEvent.click(screen.getByText("Accept"))
 
     await waitFor(() => {
       expect(respondToInvitation).toHaveBeenCalledWith(
@@ -151,10 +228,10 @@ describe("PaperInvitation", () => {
     render(<PaperInvitation />)
 
     await waitFor(() => {
-      expect(screen.getByText("Decline")).toBeInTheDocument()
+      expect(screen.getByText("Deny")).toBeInTheDocument()
     })
 
-    fireEvent.click(screen.getByText("Decline"))
+    fireEvent.click(screen.getByText("Deny"))
 
     await waitFor(() => {
       expect(screen.getByText("Not my expertise")).toBeInTheDocument()
@@ -174,10 +251,10 @@ describe("PaperInvitation", () => {
     render(<PaperInvitation />)
 
     await waitFor(() => {
-      expect(screen.getByText("Decline")).toBeInTheDocument()
+      expect(screen.getByText("Deny")).toBeInTheDocument()
     })
 
-    fireEvent.click(screen.getByText("Decline"))
+    fireEvent.click(screen.getByText("Deny"))
 
     await waitFor(() => {
       expect(screen.getByText("Too busy")).toBeInTheDocument()
@@ -203,8 +280,8 @@ describe("PaperInvitation", () => {
 
     render(<PaperInvitation />)
 
-    await waitFor(() => expect(screen.getByText("Decline")).toBeInTheDocument())
-    fireEvent.click(screen.getByText("Decline"))
+    await waitFor(() => expect(screen.getByText("Deny")).toBeInTheDocument())
+    fireEvent.click(screen.getByText("Deny"))
 
     await waitFor(() => expect(screen.getByText("Too busy")).toBeInTheDocument())
     fireEvent.click(screen.getByText("Too busy"))
@@ -241,8 +318,8 @@ describe("PaperInvitation", () => {
 
     render(<PaperInvitation />)
 
-    await waitFor(() => expect(screen.getByText("Decline")).toBeInTheDocument())
-    fireEvent.click(screen.getByText("Decline"))
+    await waitFor(() => expect(screen.getByText("Deny")).toBeInTheDocument())
+    fireEvent.click(screen.getByText("Deny"))
 
     await waitFor(() => expect(screen.getByText("Confirm Decline")).toBeInTheDocument())
     fireEvent.click(screen.getByText("Confirm Decline"))

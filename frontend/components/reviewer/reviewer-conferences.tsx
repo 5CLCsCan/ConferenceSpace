@@ -1,8 +1,10 @@
 "use client"
 
 import { useRef, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import type { ReviewerConference, ReviewerStats } from "@/lib/types"
+import { ROUTES } from "@/lib/routes"
 
 type TabType = "my-conferences" | "explore"
 type ViewMode = "list" | "compact"
@@ -128,7 +130,8 @@ function MyConferenceRow({
 
       {/* Track */}
       <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400 truncate">
-        {conference.domain || t("runtime.components.reviewer.reviewer-conferences.text_domain_fallback")}
+        {conference.domain ||
+          t("runtime.components.reviewer.reviewer-conferences.text_domain_fallback")}
       </div>
 
       {/* Deadline */}
@@ -327,6 +330,11 @@ function ExploreConferenceCard({
   index: number
 }) {
   const { t } = useTranslation()
+  const router = useRouter()
+  const isAdminConference =
+    conference.userRole === "chair" ||
+    conference.userRole === "co_chair" ||
+    conference.userRole === "pc"
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return t("runtime.components.reviewer.reviewer-conferences.text_tba")
     return new Date(dateStr).toLocaleDateString("en-US", {
@@ -402,8 +410,17 @@ function ExploreConferenceCard({
           <span className="text-[9px] font-medium text-slate-400">
             {t("runtime.components.reviewer.reviewer-conferences.text_seeking_reviewers")}
           </span>
-          <button className="flex items-center gap-1.5 h-7 px-2.5 bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] rounded text-[10px] font-bold uppercase tracking-wider hover:bg-[#234C6A] dark:hover:bg-slate-200 transition-colors">
-            {t("runtime.components.reviewer.reviewer-conferences.text_apply")}{" "}
+          <button
+            onClick={() =>
+              isAdminConference
+                ? router.push(ROUTES.CHAIR.CONFERENCE_DETAIL(String(conference.id)))
+                : undefined
+            }
+            className="flex items-center gap-1.5 h-7 px-2.5 bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] rounded text-[10px] font-bold uppercase tracking-wider hover:bg-[#234C6A] dark:hover:bg-slate-200 transition-colors"
+          >
+            {isAdminConference
+              ? "View as Chair"
+              : t("runtime.components.reviewer.reviewer-conferences.text_apply")}{" "}
             <span className="material-symbols-outlined text-[12px]">arrow_forward</span>
           </button>
         </div>

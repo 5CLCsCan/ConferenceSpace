@@ -13,18 +13,6 @@ type ReviewAuditPanelProps = {
   onUndismiss: (finding: ReviewAuditFinding) => void | Promise<void>
 }
 
-const statusTone: Record<ReviewAuditResponse["status"], string> = {
-  pass: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  warn: "border-amber-200 bg-amber-50 text-amber-700",
-  block: "border-rose-200 bg-rose-50 text-rose-700",
-}
-
-const statusCopy: Record<ReviewAuditResponse["status"], string> = {
-  pass: "No active semantic issues detected.",
-  warn: "Advisory issues need reviewer attention before submit.",
-  block: "The review is not ready to submit until the blockers are resolved.",
-}
-
 export function ReviewAuditPanel({
   audit,
   auditing,
@@ -36,31 +24,44 @@ export function ReviewAuditPanel({
   const { t } = useTranslation()
   const activeFindings = audit?.active_findings ?? []
   const dismissedFindings = audit?.dismissed_findings ?? []
-  const blockingFindings = activeFindings.filter((finding) => finding.severity === "blocking")
-  const warningFindings = activeFindings.filter((finding) => finding.severity === "warning")
+  const priorityFindings = activeFindings.filter((finding) => finding.severity === "blocking")
+  const suggestionFindings = activeFindings.filter((finding) => finding.severity === "warning")
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">
-            {t("runtime.components.reviewer.submission-review.review-audit-panel.text_ai_010_review_audit")}{" "}</p>
+            {t(
+              "runtime.components.reviewer.submission-review.review-audit-panel.text_ai_010_review_audit",
+            )}{" "}
+          </p>
           <h3 className="mt-2 text-sm font-bold tracking-tight text-[#1B3C53]">
-            {t("runtime.components.reviewer.submission-review.review-audit-panel.text_semantic_consistency_and_justification_audit")}{" "}</h3>
+            {t(
+              "runtime.components.reviewer.submission-review.review-audit-panel.text_semantic_consistency_and_justification_audit",
+            )}{" "}
+          </h3>
           <p className="mt-1 text-xs leading-relaxed text-slate-600">
-            {t("runtime.components.reviewer.submission-review.review-audit-panel.text_ai_010_checks_whether_your_narrative")}{" "}</p>
+            {t(
+              "runtime.components.reviewer.submission-review.review-audit-panel.text_ai_010_checks_whether_your_narrative",
+            )}{" "}
+          </p>
         </div>
         <div className="shrink-0 text-right">
           {auditing ? (
-            <span className="text-[11px] font-medium text-slate-500">{t("runtime.components.reviewer.submission-review.review-audit-panel.text_auditing")}</span>
+            <span className="text-[11px] font-medium text-slate-500">
+              {t("runtime.components.reviewer.submission-review.review-audit-panel.text_auditing")}
+            </span>
           ) : audit ? (
-            <span
-              className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${statusTone[audit.status]}`}
-            >
-              {audit.status}
+            <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
+              Evaluated
             </span>
           ) : (
-            <span className="text-[11px] font-medium text-slate-400">{t("runtime.components.reviewer.submission-review.review-audit-panel.text_not_run_yet")}</span>
+            <span className="text-[11px] font-medium text-slate-400">
+              {t(
+                "runtime.components.reviewer.submission-review.review-audit-panel.text_not_run_yet",
+              )}
+            </span>
           )}
         </div>
       </div>
@@ -73,38 +74,50 @@ export function ReviewAuditPanel({
 
       {!audit ? (
         <div className="mt-4 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-xs leading-relaxed text-slate-500">
-          {t("runtime.components.reviewer.submission-review.review-audit-panel.text_save_a_draft_or_run_submit")}{" "}</div>
+          {t(
+            "runtime.components.reviewer.submission-review.review-audit-panel.text_save_a_draft_or_run_submit",
+          )}{" "}
+        </div>
       ) : (
         <div className="mt-4 space-y-4">
           <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
             <div className="flex flex-wrap items-center gap-2">
-              <CountPill label="Blockers" value={blockingFindings.length} tone="rose" />
-              <CountPill label="Warnings" value={warningFindings.length} tone="amber" />
-              <CountPill label="Dismissed" value={dismissedFindings.length} tone="slate" />
+              <CountPill label="Priority signals" value={priorityFindings.length} tone="rose" />
+              <CountPill label="Suggestions" value={suggestionFindings.length} tone="amber" />
+              <CountPill label="Dismissed findings" value={dismissedFindings.length} tone="slate" />
             </div>
             <p className="mt-2 text-xs leading-relaxed text-slate-600">
-              {statusCopy[audit.status]}
+              Findings are reviewer-facing quality signals. Use the evaluation and rationales to
+              decide what, if anything, needs revision.
             </p>
           </div>
 
+          <AuditEvaluationCard audit={audit} />
+
           <FindingSection
-            title={t("runtime.components.reviewer.submission-review.review-audit-panel.title_submit_blockers")}
-            emptyLabel="No blocking issues."
-            findings={blockingFindings}
+            title={t(
+              "runtime.components.reviewer.submission-review.review-audit-panel.title_submit_blockers",
+            )}
+            emptyLabel="No priority findings."
+            findings={priorityFindings}
             actionLabel="Dismiss"
             actionDisabled
             onAction={onDismiss}
           />
           <FindingSection
-            title={t("runtime.components.reviewer.submission-review.review-audit-panel.title_advisory_warnings")}
-            emptyLabel="No active warnings."
-            findings={warningFindings}
+            title={t(
+              "runtime.components.reviewer.submission-review.review-audit-panel.title_advisory_warnings",
+            )}
+            emptyLabel="No active suggestions."
+            findings={suggestionFindings}
             actionLabel="Dismiss"
             actionDisabled={auditing || updatingDismissal}
             onAction={onDismiss}
           />
           <FindingSection
-            title={t("runtime.components.reviewer.submission-review.review-audit-panel.title_dismissed_warnings")}
+            title={t(
+              "runtime.components.reviewer.submission-review.review-audit-panel.title_dismissed_warnings",
+            )}
             emptyLabel="No dismissed warnings."
             findings={dismissedFindings}
             actionLabel="Reopen"
@@ -137,6 +150,41 @@ function CountPill({
     <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-medium ${toneClass}`}>
       {label}: {value}
     </span>
+  )
+}
+
+function AuditEvaluationCard({ audit }: { audit: ReviewAuditResponse }) {
+  const evaluation = audit.evaluation
+  const items = [
+    { label: "Evidence engagement", value: evaluation?.evidence_engagement },
+    { label: "Consistency", value: evaluation?.consistency_assessment },
+    { label: "Best next improvement", value: evaluation?.improvement_focus },
+  ].filter((item) => item.value?.trim())
+  const summary = evaluation?.summary?.trim()
+
+  if (!summary && items.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+      <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+        Evaluation
+      </h4>
+      {summary && <p className="mt-2 text-xs leading-relaxed text-slate-700">{summary}</p>}
+      {items.length > 0 && (
+        <div className="mt-3 grid gap-2">
+          {items.map((item) => (
+            <div key={item.label} className="rounded-lg bg-slate-50 px-3 py-2">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                {item.label}
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-slate-700">{item.value}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -183,7 +231,7 @@ function FindingSection({
                           : "bg-amber-100 text-amber-700"
                       }`}
                     >
-                      {finding.severity}
+                      {formatSeverityLabel(finding.severity)}
                     </span>
                     <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">
                       {formatFieldLabel(finding.field)}
@@ -195,6 +243,12 @@ function FindingSection({
                   <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-900">
                     {finding.message}
                   </p>
+                  {finding.rationale && (
+                    <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                      <span className="font-semibold text-slate-700">Rationale: </span>
+                      {finding.rationale}
+                    </p>
+                  )}
                   <p className="mt-1 text-xs leading-relaxed text-slate-600">
                     {finding.suggestion}
                   </p>
@@ -237,6 +291,10 @@ function formatFieldLabel(field: string) {
   }
 
   return explicit[field] ?? field
+}
+
+function formatSeverityLabel(severity: string) {
+  return severity === "blocking" ? "priority" : "suggestion"
 }
 
 function formatFamilyLabel(code: string) {

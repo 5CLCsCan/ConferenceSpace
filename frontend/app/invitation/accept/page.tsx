@@ -145,10 +145,7 @@ function AcceptInvitationContent() {
   if (error && !prefill) {
     return (
       <div className="auth-shell" style={{ justifyContent: "center", alignItems: "center" }}>
-        <div
-          className="auth-notice auth-notice--error"
-          style={{ maxWidth: 480, margin: "auto" }}
-        >
+        <div className="auth-notice auth-notice--error" style={{ maxWidth: 480, margin: "auto" }}>
           <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
             error
           </span>
@@ -173,10 +170,9 @@ function AcceptInvitationContent() {
           </div>
           <div className="auth-brand-content">
             <p className="auth-brand-label">ConferenceSpace</p>
-            <h1 className="auth-brand-headline">You&apos;ve been invited!</h1>
+            <h1 className="auth-brand-headline">You've been invited!</h1>
             <p className="auth-brand-sub">
-              Create your account to join{" "}
-              <strong>{prefill?.conference.title}</strong> as a{" "}
+              Create your account to join <strong>{prefill?.conference.title}</strong> as a{" "}
               <strong>{prefill?.role}</strong>.
             </p>
           </div>
@@ -212,8 +208,7 @@ function AcceptInvitationContent() {
             <h2 className="auth-form-title">Create your account</h2>
             <p className="auth-form-desc">
               {prefill?.invited_by.name ? `${prefill.invited_by.name} ` : ""}invited you to join{" "}
-              <strong>{prefill?.conference.title}</strong> as a{" "}
-              <strong>{prefill?.role}</strong>.
+              <strong>{prefill?.conference.title}</strong> as a <strong>{prefill?.role}</strong>.
             </p>
           </div>
 
@@ -309,7 +304,12 @@ function AcceptInvitationContent() {
                       <button
                         type="button"
                         onClick={() => handleRemoveDomain(d)}
-                        style={{ background: "none", border: "none", cursor: "pointer", lineHeight: 1 }}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          lineHeight: 1,
+                        }}
                         aria-label={`Remove ${d}`}
                       >
                         <span

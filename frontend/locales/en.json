@@ -280,7 +280,7 @@
           "text_check_your_inbox_and_follow_the": ". Check your inbox and follow the link.",
           "text_conferencespace": "ConferenceSpace",
           "text_email": "Email",
-          "text_enter_your_email_and_we_apos": "Enter your email and we&apos;ll send you a reset link.",
+          "text_enter_your_email_and_we_apos": "Enter your email and we'll send you a reset link.",
           "text_forgot_password": "Forgot password?",
           "text_remember_it": "Remember it?",
           "text_resending": "Resending…",
@@ -288,7 +288,7 @@
           "text_reset_your_password": "Reset your password",
           "text_sending": "Sending…",
           "text_sign_in": "Sign in",
-          "text_we_apos_ll_send_a_secure": "We&apos;ll send a secure link to your inbox.",
+          "text_we_apos_ll_send_a_secure": "We'll send a secure link to your inbox.",
           "text_we_sent_a_password_reset_link": "We sent a password reset link to"
         }
       },
@@ -1554,7 +1554,7 @@
             "text_settings": "Settings",
             "text_sync_to_calendar": "Sync to Calendar",
             "text_target_date": "Target Date",
-            "text_text": "&bull;",
+            "text_text": "",
             "text_timezone": "Timezone",
             "text_until": "Until",
             "text_upcoming": "Upcoming"
@@ -2368,7 +2368,7 @@
           },
           "prop_description_please_fill_in_the_summary_strengths": "Please fill in the Summary, Strengths, and Weaknesses before submitting.",
           "prop_description_please_select_an_overall_rating_before": "Please select an overall rating before submitting.",
-          "prop_description_resolve_the_active_blocking_audit_findings": "Resolve the active blocking audit findings before submitting.",
+          "prop_description_resolve_the_active_blocking_audit_findings": "Review the priority audit findings before submitting.",
           "prop_description_your_review_has_been_submitted_successfully": "Your review has been submitted successfully.",
           "prop_description_your_review_was_submitted_without_a": "Your review was submitted without a completed audit check.",
           "prop_title_draft_saved": "Draft saved",
@@ -2378,7 +2378,7 @@
           "prop_title_incomplete_review": "Incomplete review",
           "prop_title_recommendation_required": "Recommendation required",
           "prop_title_review_submitted": "Review submitted",
-          "prop_title_submission_blocked": "Submission blocked",
+          "prop_title_submission_blocked": "Priority audit findings",
           "rebuttal-tab": {
             "placeholder_any_additional_comments_after_reading_the": "Any additional comments after reading the rebuttal…",
             "text_accept": "Accept",
@@ -2392,7 +2392,7 @@
             "text_reject": "Reject",
             "text_score_1_10": "Score (1–10)",
             "text_score_updated": "Score updated.",
-            "text_the_author_hasn_apos_t_submitted": "The author hasn&apos;t submitted their rebuttal yet."
+            "text_the_author_hasn_apos_t_submitted": "The author hasn't submitted their rebuttal yet."
           },
           "recommendation-selector": {
             "text_confidence": "Confidence",
@@ -2438,15 +2438,15 @@
             "text_select_overall_rating": "Select overall rating."
           },
           "review-audit-panel": {
-            "text_ai_010_checks_whether_your_narrative": "AI-010 checks whether your narrative, scores, recommendation, and optional AI-003 context tell a coherent review story. It does not decide the paper for you.",
-            "text_ai_010_review_audit": "AI-010 Review Audit",
+            "text_ai_010_checks_whether_your_narrative": "Checks whether your narrative, scores, recommendation and context tell a coherent review story.",
+            "text_ai_010_review_audit": "Review Audit",
             "text_auditing": "Auditing...",
             "text_not_run_yet": "Not run yet",
             "text_save_a_draft_or_run_submit": "Save a draft or run submit preflight to populate semantic audit findings.",
             "text_semantic_consistency_and_justification_audit": "Semantic consistency and justification audit",
-            "title_advisory_warnings": "Advisory warnings",
-            "title_dismissed_warnings": "Dismissed warnings",
-            "title_submit_blockers": "Submit blockers"
+            "title_advisory_warnings": "Suggestions",
+            "title_dismissed_warnings": "Dismissed findings",
+            "title_submit_blockers": "Priority findings"
           },
           "review-header": {
             "text_anonymous_authors": "Anonymous Authors",

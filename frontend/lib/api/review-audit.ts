@@ -7,14 +7,23 @@ export interface ReviewAuditFinding {
   code: string
   severity: "warning" | "blocking"
   field: string
+  rationale: string
   message: string
   suggestion: string
   condition_fingerprint: string
 }
 
+export interface ReviewAuditEvaluation {
+  summary: string
+  evidence_engagement: string
+  consistency_assessment: string
+  improvement_focus: string
+}
+
 export interface ReviewAuditResponse {
   status: "pass" | "warn" | "block"
   run_id?: string
+  evaluation?: ReviewAuditEvaluation
   active_findings: ReviewAuditFinding[]
   dismissed_findings: ReviewAuditFinding[]
 }

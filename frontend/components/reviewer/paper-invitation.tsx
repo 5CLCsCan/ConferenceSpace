@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth-context"
 import { getInvitation, respondToInvitation, type InvitationData } from "@/lib/api/suggestions"
 import { Button } from "@/components/ui/button"
 import { CheckCircle, XCircle, ArrowLeft, Loader2 } from "lucide-react"
+import { InvitationSubmissionPreview } from "./invitation-submission-preview"
 
 const DECLINE_CATEGORIES = [
   { id: "not_my_expertise", label: "Not my expertise" },
@@ -15,7 +16,14 @@ const DECLINE_CATEGORIES = [
   { id: "other", label: "Other" },
 ]
 
-type PageState = "loading" | "pending" | "accepting" | "declining" | "accepted" | "declined" | "error"
+type PageState =
+  | "loading"
+  | "pending"
+  | "accepting"
+  | "declining"
+  | "accepted"
+  | "declined"
+  | "error"
 
 export function PaperInvitation() {
   const params = useParams()
@@ -54,7 +62,9 @@ export function PaperInvitation() {
   const handleAccept = async () => {
     if (!user?.email) return
     setIsSubmitting(true)
-    const { data, error } = await respondToInvitation(user.email, assignmentId, { action: "accept" })
+    const { data, error } = await respondToInvitation(user.email, assignmentId, {
+      action: "accept",
+    })
     setIsSubmitting(false)
     if (error || !data) {
       setError(error || "Failed to accept")
@@ -78,10 +88,6 @@ export function PaperInvitation() {
     }
     setState("declined")
   }
-
-  const scorePercent = invitation?.evidence?.score != null
-    ? Math.round(invitation.evidence.score * 100)
-    : null
 
   if (state === "loading") {
     return (
@@ -158,126 +164,31 @@ export function PaperInvitation() {
   }
 
   return (
-    <div className="flex flex-col gap-6 py-8 px-12 max-w-2xl">
-      {/* Back button */}
-      <button
-        type="button"
-        onClick={() => router.back()}
-        className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 self-start"
-      >
-        <ArrowLeft className="size-4" />
-        <span className="text-xs font-semibold uppercase tracking-wide">Back</span>
-      </button>
-
-      {/* Header */}
-      <div>
-        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-          {invitation?.conference_name}
-        </p>
-        <h1 className="text-2xl font-bold tracking-tight text-[#1B3C53] leading-tight">
-          Review Invitation
-        </h1>
-      </div>
-
-      {/* Paper card */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-5 flex flex-col gap-3">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Paper</p>
-          <p className="text-sm font-bold text-[#1B3C53]">{invitation?.paper_title}</p>
-        </div>
-        {invitation?.paper_abstract && (
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Abstract</p>
-            <p className="text-xs text-slate-600 leading-relaxed line-clamp-4">
-              {invitation.paper_abstract}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Evidence card */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-5 flex flex-col gap-4">
-        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Why you&apos;re a great match</p>
-
-        {invitation?.evidence &&
-          (invitation.evidence.matched_keywords.length > 0 || invitation.evidence.score != null) ? (
-          <div className="flex flex-col gap-3">
-            {/* Score bar */}
-            {scorePercent != null && (
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-medium text-slate-500">Match Score</span>
-                  <span className="text-[10px] font-bold text-green-700">{scorePercent}%</span>
-                </div>
-                <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-green-500 transition-all"
-                    style={{ width: `${scorePercent}%` }}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Matched keywords */}
-            {invitation.evidence.matched_keywords.length > 0 && (
-              <div>
-                <p className="text-[10px] font-medium text-slate-500 mb-1.5">Matched Keywords</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {invitation.evidence.matched_keywords.map((kw) => (
-                    <span
-                      key={kw}
-                      className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-700 border border-green-200"
-                    >
-                      {kw}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Assignment load */}
-            <p className="text-[10px] text-slate-400">
-              You currently have{" "}
-              <span className="font-semibold text-slate-600">
-                {invitation.evidence.assignment_count} paper{invitation.evidence.assignment_count !== 1 ? "s" : ""}
-              </span>{" "}
-              assigned in this conference.
-            </p>
-          </div>
-        ) : (
-          <p className="text-xs text-slate-500">
-            You were selected by the program committee based on your expertise and research background.
-          </p>
-        )}
-      </div>
-
-      {/* Actions */}
-      {state === "pending" && (
-        <div className="flex flex-col gap-3">
-          <div className="flex gap-3">
-            <Button
-              className="bg-[#1B3C53] text-white hover:bg-[#234C6A] text-xs font-semibold h-9 px-5"
-              onClick={handleAccept}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? <Loader2 className="size-3.5 animate-spin mr-1.5" /> : null}
-              Accept Assignment
-            </Button>
-            <Button
-              variant="outline"
-              className="text-xs font-semibold h-9 px-5 border-slate-200 text-slate-600 hover:text-slate-900"
-              onClick={() => setState("declining")}
-              disabled={isSubmitting}
-            >
-              Decline
-            </Button>
-          </div>
-        </div>
+    <>
+      {state === "pending" && invitation && (
+        <InvitationSubmissionPreview
+          invitation={invitation}
+          isSubmitting={isSubmitting}
+          onBack={() => router.back()}
+          onAccept={handleAccept}
+          onDeny={() => setState("declining")}
+        />
       )}
 
-      {/* Decline dialog */}
       {state === "declining" && (
-        <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-5 flex flex-col gap-4">
+        <div className="mx-4 my-8 flex max-w-2xl flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm md:mx-12">
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedCategory(null)
+              setDeclineReason("")
+              setState("pending")
+            }}
+            className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 self-start"
+          >
+            <ArrowLeft className="size-4" />
+            <span className="text-xs font-semibold uppercase tracking-wide">Back to preview</span>
+          </button>
           <p className="text-xs font-bold text-slate-700">Tell us why (optional)</p>
 
           {/* Category chips */}
@@ -319,7 +230,11 @@ export function PaperInvitation() {
             <Button
               variant="outline"
               className="text-xs font-semibold h-9 px-4 border-slate-200 text-slate-600"
-              onClick={() => setState("pending")}
+              onClick={() => {
+                setSelectedCategory(null)
+                setDeclineReason("")
+                setState("pending")
+              }}
               disabled={isSubmitting}
             >
               Cancel
@@ -327,6 +242,6 @@ export function PaperInvitation() {
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }

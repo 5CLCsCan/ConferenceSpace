@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 import type { SubmissionDetails } from "./types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { downloadPaperFile } from "@/lib/api/papers"
@@ -113,9 +113,10 @@ export function ReviewHeaderBar({ submission }: ReviewHeaderBarProps) {
 
 interface PaperHeaderProps {
   submission: SubmissionDetails
+  actions?: ReactNode
 }
 
-export function PaperHeader({ submission }: PaperHeaderProps) {
+export function PaperHeader({ submission, actions }: PaperHeaderProps) {
   const { t } = useTranslation()
   const [downloading, setDownloading] = useState(false)
 
@@ -194,7 +195,8 @@ export function PaperHeader({ submission }: PaperHeaderProps) {
             </span>
           </div>
         </div>
-        <div className="flex-shrink-0 flex gap-3">
+        <div className="flex-shrink-0 flex flex-wrap justify-end gap-3">
+          {actions}
           <button
             onClick={handleDownloadPdf}
             disabled={downloading}
