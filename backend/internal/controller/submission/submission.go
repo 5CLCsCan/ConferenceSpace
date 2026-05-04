@@ -113,8 +113,6 @@ func New(store *storage.Storage, fileStore fileStorage.StorageInterface, aiWorkf
 		decisionCopilotClient: aiWorkflowClient,
 		autofillClient:        aiWorkflowClient,
 		trackRecommendation:   aiWorkflowClient,
-		autofillClient:        aiWorkflowClient,
-		trackRecommendation:   aiWorkflowClient,
 		coiService:            coiSvc,
 	}
 }
@@ -137,8 +135,6 @@ func NewWithNotifications(
 		roleStorage:           store.ConferenceUserRole,
 		gatingClient:          aiWorkflowClient,
 		decisionCopilotClient: aiWorkflowClient,
-		autofillClient:        aiWorkflowClient,
-		trackRecommendation:   aiWorkflowClient,
 		autofillClient:        aiWorkflowClient,
 		trackRecommendation:   aiWorkflowClient,
 		coiService:            coiSvc,

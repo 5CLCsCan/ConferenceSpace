@@ -5,7 +5,9 @@
   "auth": {
     "login": {
       "errors": {
-        "failed": "Sign-in failed"
+        "failed": "Sign-in failed",
+        "invalidCredentials": "We couldn't sign you in with that email and password.",
+        "invalidCredentialsHint": "Check your details and try again, or reset your password."
       },
       "forgotPassword": "Forgot password?",
       "noAccount": "Need an account?",
@@ -1159,6 +1161,7 @@
             "text_paper_title": "Paper Title",
             "text_provide_3_5_keywords_separated_by": "Provide 3-5 keywords separated by Enter.",
             "text_refresh_recommendation": "Refresh recommendation",
+            "text_selected_track": "Selected",
             "text_select_a_track": "Select a track...",
             "text_select_the_most_relevant_track_for": "Select the most relevant track for your research to ensure proper reviewer assignment.",
             "text_select_track": "Select Track",
@@ -2203,6 +2206,7 @@
           "placeholder_paste_profile_url_or_author_id": "Paste a Semantic Scholar profile URL or author ID",
           "placeholder_search_by_name": "Search by name...",
           "prop_description_could_not_link_this_profile_please": "Could not link this profile. Please try again.",
+          "prop_description_this_profile_has_already_been_connected_to_an_account_on_the_platform": "This profile has already been connected to an account on the platform. If you believe this is a mistake, please contact support.",
           "prop_description_could_not_load_full_author_details": "Could not load full author details, showing basic profile.",
           "prop_description_could_not_search_semantic_scholar_please": "Could not search Semantic Scholar. Please try again.",
           "prop_description_enter_a_valid_semantic_scholar_profile_link": "Enter a valid Semantic Scholar profile link or author ID.",
@@ -2215,6 +2219,7 @@
           "prop_title_academic_profile_linked": "Academic profile linked",
           "prop_title_limited_details": "Limited details",
           "prop_title_link_failed": "Link failed",
+          "prop_title_profile_already_connected": "Profile already connected",
           "prop_title_no_authors_found": "No authors found",
           "prop_title_search_failed": "Search failed",
           "text_back_to_paste": "Back to paste",
@@ -2246,6 +2251,7 @@
           "text_search_your_name_or_paper_title": "Search your name on Semantic Scholar.",
           "text_search": "Search",
           "text_search_for_your_name_to_find": "Search for your name to find your profile",
+          "text_select_this_profile": "Select this profile",
           "text_semantic_scholar_profile": "Semantic Scholar Profile",
           "text_semantic_scholar_profile_url_or_author_id": "Semantic Scholar profile URL or author ID",
           "text_skip_for_now": "Skip for now",

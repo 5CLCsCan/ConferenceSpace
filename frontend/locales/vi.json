@@ -5,7 +5,9 @@
   "auth": {
     "login": {
       "errors": {
-        "failed": "Đăng nhập thất bại"
+        "failed": "Đăng nhập thất bại",
+        "invalidCredentials": "Không thể đăng nhập với email và mật khẩu này.",
+        "invalidCredentialsHint": "Vui lòng kiểm tra lại thông tin rồi thử lại, hoặc đặt lại mật khẩu."
       },
       "forgotPassword": "Quên mật khẩu?",
       "noAccount": "Chưa có tài khoản?",
@@ -1159,6 +1161,7 @@
             "text_paper_title": "Tiêu đề bài báo",
             "text_provide_3_5_keywords_separated_by": "Cung cấp 3-5 từ khóa cách nhau bằng Enter.",
             "text_refresh_recommendation": "Làm mới gợi ý",
+            "text_selected_track": "Đã chọn",
             "text_select_a_track": "Chọn một track...",
             "text_select_the_most_relevant_track_for": "Chọn track phù hợp nhất cho nghiên cứu của bạn để đảm bảo phân công phản biện phù hợp.",
             "text_select_track": "Chọn track",
@@ -2203,6 +2206,7 @@
           "placeholder_paste_profile_url_or_author_id": "Dán URL hồ sơ hoặc mã tác giả Semantic Scholar",
           "placeholder_search_by_name": "Tìm kiếm theo tên...",
           "prop_description_could_not_link_this_profile_please": "Không thể liên kết hồ sơ này. Vui lòng thử lại.",
+          "prop_description_this_profile_has_already_been_connected_to_an_account_on_the_platform": "Hồ sơ này đã được liên kết với một tài khoản trên nền tảng. Nếu bạn cho rằng đây là nhầm lẫn, vui lòng liên hệ bộ phận hỗ trợ.",
           "prop_description_could_not_load_full_author_details": "Không thể tải đầy đủ thông tin chi tiết về tác giả, hiển thị hồ sơ cơ bản.",
           "prop_description_could_not_search_semantic_scholar_please": "Không thể tìm kiếm Semantic Scholar. Vui lòng thử lại.",
           "prop_description_enter_a_valid_semantic_scholar_profile_link": "Nhập liên kết hồ sơ hoặc mã tác giả Semantic Scholar hợp lệ.",
@@ -2215,6 +2219,7 @@
           "prop_title_academic_profile_linked": "Hồ sơ học thuật đã liên kết",
           "prop_title_limited_details": "Chi tiết hạn chế",
           "prop_title_link_failed": "Liên kết không thành công",
+          "prop_title_profile_already_connected": "Hồ sơ đã được liên kết",
           "prop_title_no_authors_found": "Không tìm thấy tác giả nào",
           "prop_title_search_failed": "Tìm kiếm không thành công",
           "text_back_to_paste": "Quay lại dán liên kết",
@@ -2246,6 +2251,7 @@
           "text_search_your_name_or_paper_title": "Tìm tên của bạn trên Semantic Scholar.",
           "text_search": "Tìm kiếm",
           "text_search_for_your_name_to_find": "Tìm kiếm tên của bạn để tìm hồ sơ của bạn",
+          "text_select_this_profile": "Chọn hồ sơ này",
           "text_semantic_scholar_profile": "Hồ sơ Semantic Scholar",
           "text_semantic_scholar_profile_url_or_author_id": "URL hồ sơ hoặc mã tác giả Semantic Scholar",
           "text_skip_for_now": "Bỏ qua bây giờ",

@@ -93,7 +93,9 @@ async def lifespan(app: FastAPI):
             "Configure OPENAI_API_KEY + OPENAI_BASE_URL + OPENAI_MODEL or OPENROUTER_API_KEY + AGENT_MODEL"
         )
     if has_openai_primary and not has_openrouter_fallback:
-        raise RuntimeError("OPENROUTER_API_KEY and AGENT_MODEL are required for fallback when OpenAI is primary")
+        logger.warning(
+            "startup.openai_primary_without_fallback provider=openai fallback=disabled"
+        )
 
     engine = create_engine(settings)
     session_factory = create_session_factory(engine)
@@ -181,7 +183,6 @@ async def lifespan(app: FastAPI):
         submission_autofill_runner=submission_autofill_runner,
         research_keyword_runner=research_keyword_runner,
         track_recommendation_runner=track_recommendation_runner,
-        submission_autofill_runner=submission_autofill_runner,
     )
 
     try:

@@ -45,6 +45,16 @@ func (c *Controller) LinkAcademicProfile(ginCtx *gin.Context, req *LinkProfileRe
 		return nil, handler.NewErrorResponse(http.StatusConflict, "profile sync is already in progress")
 	}
 
+	if c.scholarStorage != nil {
+		existingProfile, err := c.scholarStorage.GetProfileBySemanticID(ctx, req.SemanticScholarID)
+		if err != nil {
+			return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to validate academic profile")
+		}
+		if existingProfile != nil && existingProfile.UserID != user.ID {
+			return nil, handler.NewErrorResponse(http.StatusConflict, "this academic profile is already linked to another account")
+		}
+	}
+
 	// 2. Add validation: Check if this semantic scholar ID is valid?
 	// We skip strict validation here to be fast, but ideally we should check if author exists.
 	// Since we are going to prefetch immediately, that serves as validation implicitly (though asynchronous).

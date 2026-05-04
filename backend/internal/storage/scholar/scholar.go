@@ -4,11 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/dcao/conferencespace/internal/model"
+	"github.com/lib/pq"
 )
+
+var ErrSemanticScholarProfileAlreadyLinked = errors.New("semantic scholar profile already linked to another user")
 
 type StorageInterface interface {
 	CreateProfile(ctx context.Context, profile *model.ScholarProfile) error
@@ -35,32 +39,76 @@ func New(db *sql.DB) *Storage {
 }
 
 func (s *Storage) CreateProfile(ctx context.Context, profile *model.ScholarProfile) error {
-	query, args, err := s.qb.Insert(model.ScholarProfileTableName).
-		Columns(
-			"user_id", "semantic_scholar_id", "name", "affiliations",
-			"paper_count", "citation_count", "h_index", "url",
-		).
-		Values(
-			profile.UserID, profile.SemanticScholarID, profile.Name, profile.Affiliations,
-			profile.PaperCount, profile.CitationCount, profile.HIndex, profile.URL,
-		).
-		Suffix("ON CONFLICT (user_id) DO UPDATE SET " +
-			"semantic_scholar_id = EXCLUDED.semantic_scholar_id, " +
-			"name = EXCLUDED.name, affiliations = EXCLUDED.affiliations, " +
-			"paper_count = EXCLUDED.paper_count, citation_count = EXCLUDED.citation_count, " +
-			"h_index = EXCLUDED.h_index, url = EXCLUDED.url, updated_at = NOW() " +
-			"RETURNING id").
+	userProfile, err := s.GetProfileByUserID(ctx, profile.UserID)
+	if err != nil {
+		return fmt.Errorf("failed to load existing profile by user: %w", err)
+	}
+
+	semanticProfile, err := s.GetProfileBySemanticID(ctx, profile.SemanticScholarID)
+	if err != nil {
+		return fmt.Errorf("failed to load existing profile by semantic scholar id: %w", err)
+	}
+
+	if semanticProfile != nil && semanticProfile.UserID != profile.UserID {
+		return ErrSemanticScholarProfileAlreadyLinked
+	}
+
+	targetID := int64(0)
+	if userProfile != nil {
+		targetID = userProfile.ID
+	} else if semanticProfile != nil {
+		targetID = semanticProfile.ID
+	}
+
+	if targetID == 0 {
+		query, args, err := s.qb.Insert(model.ScholarProfileTableName).
+			Columns(
+				"user_id", "semantic_scholar_id", "name", "affiliations",
+				"paper_count", "citation_count", "h_index", "url",
+			).
+			Values(
+				profile.UserID, profile.SemanticScholarID, profile.Name, profile.Affiliations,
+				profile.PaperCount, profile.CitationCount, profile.HIndex, profile.URL,
+			).
+			Suffix("RETURNING id").
+			ToSql()
+		if err != nil {
+			return fmt.Errorf("failed to build create profile query: %w", err)
+		}
+
+		if err := s.db.QueryRowContext(ctx, query, args...).Scan(&profile.ID); err != nil {
+			if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "scholar_profiles_semantic_scholar_id_key" {
+				return ErrSemanticScholarProfileAlreadyLinked
+			}
+			return fmt.Errorf("failed to create profile: %w", err)
+		}
+		return nil
+	}
+
+	query, args, err := s.qb.Update(model.ScholarProfileTableName).
+		Set("user_id", profile.UserID).
+		Set("semantic_scholar_id", profile.SemanticScholarID).
+		Set("name", profile.Name).
+		Set("affiliations", profile.Affiliations).
+		Set("paper_count", profile.PaperCount).
+		Set("citation_count", profile.CitationCount).
+		Set("h_index", profile.HIndex).
+		Set("url", profile.URL).
+		Set("updated_at", squirrel.Expr("NOW()")).
+		Where(squirrel.Eq{"id": targetID}).
 		ToSql()
-
 	if err != nil {
-		return fmt.Errorf("failed to build create profile query: %w", err)
+		return fmt.Errorf("failed to build update profile query: %w", err)
 	}
 
-	err = s.db.QueryRowContext(ctx, query, args...).Scan(&profile.ID)
-	if err != nil {
-		return fmt.Errorf("failed to create/update profile: %w", err)
+	if _, err := s.db.ExecContext(ctx, query, args...); err != nil {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Constraint == "scholar_profiles_semantic_scholar_id_key" {
+			return ErrSemanticScholarProfileAlreadyLinked
+		}
+		return fmt.Errorf("failed to update profile: %w", err)
 	}
 
+	profile.ID = targetID
 	return nil
 }
 

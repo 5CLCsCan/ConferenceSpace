@@ -212,7 +212,7 @@ func (o *Orchestrator) AcceptInvitation(ctx context.Context, req *dto.ExternalIn
 		userID := userResp.ID
 		go func() {
 			bgCtx := context.Background()
-			if syncErr := o.semanticScholarCtrl.SyncAuthorProfile(bgCtx, userID, scholarID); syncErr != nil {
+			if syncErr := o.semanticScholarCtrl.SyncAuthorProfile(bgCtx, userID, scholarID, ""); syncErr != nil {
 				fmt.Printf("[external-invitation] S2 sync failed user=%d scholar=%s err=%v\n",
 					userID, scholarID, syncErr)
 			}

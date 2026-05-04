@@ -143,18 +143,22 @@ class LLMClient:
     ) -> BaseModel:
         response_format = None
         if self._supports_native_structured_output():
+            strict_schema = _ensure_strict_json_schema(response_model.model_json_schema())
             response_format = {
                 "type": "json_schema",
                 "json_schema": {
                     "name": response_model.__name__,
                     "strict": True,
-                    "schema": response_model.model_json_schema(),
+                    "schema": strict_schema,
                 },
             }
 
         base_messages = list(messages)
         if response_format is None:
-            schema_text = json.dumps(response_model.model_json_schema(), ensure_ascii=True)
+            schema_text = json.dumps(
+                _ensure_strict_json_schema(response_model.model_json_schema()),
+                ensure_ascii=True,
+            )
             base_messages = [
                 *base_messages,
                 {
@@ -626,6 +630,20 @@ def _extract_content_text(content: Any) -> str:
     if isinstance(content, list):
         return "".join(_extract_text_part(part) for part in content)
     return ""
+
+
+def _ensure_strict_json_schema(schema: Any) -> Any:
+    if isinstance(schema, dict):
+        normalized = {key: _ensure_strict_json_schema(value) for key, value in schema.items()}
+        if normalized.get("type") == "object" or "properties" in normalized:
+            normalized.setdefault("additionalProperties", False)
+            properties = normalized.get("properties")
+            if isinstance(properties, dict):
+                normalized["required"] = list(properties.keys())
+        return normalized
+    if isinstance(schema, list):
+        return [_ensure_strict_json_schema(item) for item in schema]
+    return schema
 
 
 def _is_normalized_delta(chunk: Any) -> bool:
