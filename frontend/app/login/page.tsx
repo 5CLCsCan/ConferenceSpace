@@ -28,6 +28,7 @@ function LoginForm() {
     registrationIndicator === "1",
   )
   const [showResetMessage, setShowResetMessage] = useState(resetIndicator === "1")
+  const isCredentialError = error === t("auth.login.errors.invalidCredentials")
 
   useEffect(() => {
     if (isAuthenticated) router.push(ROUTES.ROLE_SELECT)
@@ -138,7 +139,18 @@ function LoginForm() {
               <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
                 error
               </span>
-              <span>{error}</span>
+              <span>
+                {error}
+                {isCredentialError ? (
+                  <>
+                    {" "}
+                    {t("auth.login.errors.invalidCredentialsHint")}{" "}
+                    <Link href={ROUTES.FORGOT_PASSWORD} className="auth-password-link">
+                      {t("auth.login.forgotPassword")}
+                    </Link>
+                  </>
+                ) : null}
+              </span>
             </div>
           )}
 

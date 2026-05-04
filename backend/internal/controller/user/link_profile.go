@@ -45,6 +45,16 @@ func (c *Controller) LinkAcademicProfile(ginCtx *gin.Context, req *LinkProfileRe
 		return nil, handler.NewErrorResponse(http.StatusConflict, "profile sync is already in progress")
 	}
 
+	if c.scholarStorage != nil {
+		existingProfile, err := c.scholarStorage.GetProfileBySemanticID(ctx, req.SemanticScholarID)
+		if err != nil {
+			return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to validate academic profile")
+		}
+		if existingProfile != nil && existingProfile.UserID != user.ID {
+			return nil, handler.NewErrorResponse(http.StatusConflict, "this academic profile is already linked to another account")
+		}
+	}
+
 	// 2. Add validation: Check if this semantic scholar ID is valid?
 	// We skip strict validation here to be fast, but ideally we should check if author exists.
 	// Since we are going to prefetch immediately, that serves as validation implicitly (though asynchronous).
@@ -68,11 +78,12 @@ func (c *Controller) LinkAcademicProfile(ginCtx *gin.Context, req *LinkProfileRe
 
 	// 4. Trigger background sync
 	if c.semanticScholarCtrl != nil {
-		go func(authorID string, userID int64) {
+		authHeader := ginCtx.GetHeader("Authorization")
+		go func(authorID string, userID int64, authToken string) {
 			bgCtx := context.Background()
 
 			// Fetch and sync to relational tables
-			err := c.semanticScholarCtrl.SyncAuthorProfile(bgCtx, userID, authorID)
+			err := c.semanticScholarCtrl.SyncAuthorProfile(bgCtx, userID, authorID, authToken)
 
 			// Update status based on result
 			newStatus := "completed"
@@ -89,7 +100,7 @@ func (c *Controller) LinkAcademicProfile(ginCtx *gin.Context, req *LinkProfileRe
 				// Use Update instead of UpdateByEmail
 				_, _ = c.userStorage.Update(bgCtx, userID, currentUser.User)
 			}
-		}(req.SemanticScholarID, user.ID)
+		}(req.SemanticScholarID, user.ID, authHeader)
 	}
 
 	return updatedUser, nil

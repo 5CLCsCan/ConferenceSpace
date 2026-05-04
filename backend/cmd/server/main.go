@@ -353,7 +353,6 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			conferences.PUT("/:conference_id/bookmark", handler.HandleRequestWithURI(ctrl.Conference.ToggleBookmark))
 			conferences.PUT("/:conference_id/status", handler.HandleRequestWithAll(ctrl.Conference.TransitionStatus))
 			conferences.GET("/:conference_id/stats", handler.HandleRequestWithURI(ctrl.Conference.GetStats))
-
 			// Reviewer routes nested under conferences (all protected - authentication required)
 			reviewers := conferences.Group("/:conference_id/reviewers")
 			{
@@ -380,6 +379,7 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			{
 				submissions.POST("/precheck", handler.HandleNoRequest(ctrl.Submission.PreCheck))
 				submissions.POST("/autofill", handler.HandleNoRequest(ctrl.Submission.Autofill))
+				submissions.POST("/track-recommendation", handler.HandleRequestWithURIAndJSON(ctrl.Submission.RecommendTracks))
 				submissions.GET("", handler.HandleRequestWithURIAndQuery(ctrl.Submission.List))
 				submissions.GET("/:submission_id", requireSubmissionAccess, handler.HandleNoRequest(ctrl.Submission.Get))
 				submissions.GET("/:submission_id/file", requireSubmissionAccess, ctrl.Submission.GetFile)
