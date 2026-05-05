@@ -727,15 +727,18 @@ func (s *Storage) GetRecentAssignments(ctx context.Context, reviewerID int64, li
 		limit = 10
 	}
 
+	// Only show accepted assignments (reviewer has actively accepted the invitation)
+	statusFilter := sq.And{
+		sq.Eq{"cr.user_id": reviewerID},
+		sq.Eq{"pa.status": model.AssignmentStatusAccepted},
+	}
+
 	// Count query for total
 	countQuery, countArgs, err := s.qb.
 		Select("COUNT(*)").
 		From("paper_assignments pa").
 		Join("conference_reviewers cr ON pa.reviewer_id = cr.id").
-		Where(sq.And{
-			sq.Eq{"cr.user_id": reviewerID},
-			sq.NotEq{"pa.status": "completed"},
-		}).
+		Where(statusFilter).
 		ToSql()
 
 	if err != nil {
@@ -763,10 +766,7 @@ func (s *Storage) GetRecentAssignments(ctx context.Context, reviewerID int64, li
 		Join("conference_reviewers cr ON pa.reviewer_id = cr.id").
 		Join("conference_submissions cs ON pa.submission_id = cs.submission_id").
 		Join("conferences c ON cs.conference_id = c.conference_id").
-		Where(sq.And{
-			sq.Eq{"cr.user_id": reviewerID},
-			sq.NotEq{"pa.status": "completed"},
-		}).
+		Where(statusFilter).
 		OrderBy("pa.assigned_at DESC").
 		Limit(uint64(limit)).
 		Offset(uint64(offset)).

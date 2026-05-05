@@ -2,10 +2,19 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
+import { useSWRConfig } from "swr"
 import { useAuth } from "@/lib/auth-context"
 import { getInvitation, respondToInvitation, type InvitationData } from "@/lib/api/suggestions"
+import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
-import { CheckCircle, XCircle, ArrowLeft, Loader2 } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import { ArrowLeft, Loader2 } from "lucide-react"
 import { InvitationSubmissionPreview } from "./invitation-submission-preview"
 
 const DECLINE_CATEGORIES = [
@@ -16,19 +25,14 @@ const DECLINE_CATEGORIES = [
   { id: "other", label: "Other" },
 ]
 
-type PageState =
-  | "loading"
-  | "pending"
-  | "accepting"
-  | "declining"
-  | "accepted"
-  | "declined"
-  | "error"
+type PageState = "loading" | "pending" | "declining" | "error"
 
 export function PaperInvitation() {
   const params = useParams()
   const router = useRouter()
   const { user } = useAuth()
+  const { toast } = useToast()
+  const { mutate } = useSWRConfig()
 
   const assignmentId = Number(params?.assignmentId)
 
@@ -49,13 +53,11 @@ export function PaperInvitation() {
         return
       }
       setInvitation(data)
-      if (data.status === "accepted") {
-        setState("accepted")
-      } else if (data.status === "declined") {
-        setState("declined")
-      } else {
-        setState("pending")
+      if (data.status === "accepted" || data.status === "declined") {
+        router.back()
+        return
       }
+      setState("pending")
     })
   }, [user?.email, assignmentId])
 
@@ -70,7 +72,12 @@ export function PaperInvitation() {
       setError(error || "Failed to accept")
       return
     }
-    setState("accepted")
+    await mutate((key) => Array.isArray(key) && key[0] === "conference-papers")
+    toast({
+      title: "Assignment accepted",
+      description: `You have accepted the invitation to review "${invitation?.paper_title}".`,
+    })
+    router.back()
   }
 
   const handleDecline = async () => {
@@ -86,7 +93,12 @@ export function PaperInvitation() {
       setError(error || "Failed to decline")
       return
     }
-    setState("declined")
+    await mutate((key) => Array.isArray(key) && key[0] === "conference-papers")
+    toast({
+      title: "Assignment declined",
+      description: `You have declined the invitation to review "${invitation?.paper_title}".`,
+    })
+    router.back()
   }
 
   if (state === "loading") {
@@ -114,58 +126,16 @@ export function PaperInvitation() {
     )
   }
 
-  if (state === "accepted") {
-    return (
-      <div className="py-8 px-12 max-w-xl">
-        <div className="rounded-xl border border-green-200 bg-green-50 p-6 flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            <CheckCircle className="size-6 text-green-600 shrink-0" />
-            <div>
-              <p className="text-sm font-bold text-green-800">Assignment accepted</p>
-              <p className="text-xs text-green-600 mt-0.5">
-                You have accepted the invitation to review &ldquo;{invitation?.paper_title}&rdquo;.
-              </p>
-            </div>
-          </div>
-          <Button
-            size="sm"
-            className="self-start bg-[#1B3C53] text-white hover:bg-[#234C6A] text-xs"
-            onClick={() => router.push(`/role/reviewer/assignments/${assignmentId}`)}
-          >
-            Go to Review
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
-  if (state === "declined") {
-    return (
-      <div className="py-8 px-12 max-w-xl">
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            <XCircle className="size-6 text-slate-500 shrink-0" />
-            <div>
-              <p className="text-sm font-bold text-slate-700">Assignment declined</p>
-              <p className="text-xs text-slate-500 mt-0.5">
-                You have declined the invitation to review &ldquo;{invitation?.paper_title}&rdquo;.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={() => router.push("/role/reviewer")}
-            className="self-start inline-flex items-center gap-1.5 text-xs font-semibold text-[#1B3C53] hover:text-[#234C6A]"
-          >
-            <ArrowLeft className="size-3.5" /> Back to Dashboard
-          </button>
-        </div>
-      </div>
-    )
+  const closeDeclineDialog = () => {
+    if (isSubmitting) return
+    setSelectedCategory(null)
+    setDeclineReason("")
+    setState("pending")
   }
 
   return (
     <>
-      {state === "pending" && invitation && (
+      {(state === "pending" || state === "declining") && invitation && (
         <InvitationSubmissionPreview
           invitation={invitation}
           isSubmitting={isSubmitting}
@@ -175,73 +145,73 @@ export function PaperInvitation() {
         />
       )}
 
-      {state === "declining" && (
-        <div className="mx-4 my-8 flex max-w-2xl flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm md:mx-12">
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedCategory(null)
-              setDeclineReason("")
-              setState("pending")
-            }}
-            className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 self-start"
-          >
-            <ArrowLeft className="size-4" />
-            <span className="text-xs font-semibold uppercase tracking-wide">Back to preview</span>
-          </button>
-          <p className="text-xs font-bold text-slate-700">Tell us why (optional)</p>
+      <Dialog
+        open={state === "declining"}
+        onOpenChange={(open) => {
+          if (!open) closeDeclineDialog()
+        }}
+      >
+        <DialogContent className="sm:max-w-[480px] p-0 gap-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100">
+            <DialogTitle className="text-sm font-bold text-[#1B3C53]">Decline Assignment</DialogTitle>
+            <DialogDescription className="sr-only">
+              Select a reason for declining this review assignment
+            </DialogDescription>
+          </DialogHeader>
 
-          {/* Category chips */}
-          <div className="flex flex-wrap gap-2">
-            {DECLINE_CATEGORIES.map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
-                className={`rounded-full border text-[10px] px-3 py-1 transition-colors cursor-pointer ${
-                  selectedCategory === cat.id
-                    ? "bg-[#1B3C53] text-white border-[#1B3C53]"
-                    : "border-slate-200 text-slate-600 hover:border-slate-400"
-                }`}
+          <div className="flex flex-col gap-4 px-6 py-5">
+            <p className="text-xs font-bold text-slate-700">Tell us why (optional)</p>
+
+            <div className="flex flex-wrap gap-2">
+              {DECLINE_CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
+                  className={`rounded-full border text-[10px] px-3 py-1 transition-colors cursor-pointer ${
+                    selectedCategory === cat.id
+                      ? "bg-[#1B3C53] text-white border-[#1B3C53]"
+                      : "border-slate-200 text-slate-600 hover:border-slate-400"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+
+            <textarea
+              value={declineReason}
+              onChange={(e) => setDeclineReason(e.target.value)}
+              placeholder="Additional comments (optional)..."
+              rows={3}
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#1B3C53] resize-none"
+            />
+
+            {error && state === "declining" && (
+              <p className="text-[10px] text-red-600 font-medium">{error}</p>
+            )}
+
+            <div className="flex gap-2">
+              <Button
+                className="bg-[#1B3C53] text-white hover:bg-[#234C6A] text-xs font-semibold h-9 px-5"
+                onClick={handleDecline}
+                disabled={isSubmitting}
               >
-                {cat.label}
-              </button>
-            ))}
+                {isSubmitting ? <Loader2 className="size-3.5 animate-spin mr-1.5" /> : null}
+                Confirm Decline
+              </Button>
+              <Button
+                variant="outline"
+                className="text-xs font-semibold h-9 px-4 border-slate-200 text-slate-600"
+                onClick={closeDeclineDialog}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
-
-          {/* Text reason */}
-          <textarea
-            value={declineReason}
-            onChange={(e) => setDeclineReason(e.target.value)}
-            placeholder="Additional comments (optional)..."
-            rows={3}
-            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#1B3C53] resize-none"
-          />
-
-          <div className="flex gap-2">
-            <Button
-              className="bg-[#1B3C53] text-white hover:bg-[#234C6A] text-xs font-semibold h-9 px-5"
-              onClick={handleDecline}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? <Loader2 className="size-3.5 animate-spin mr-1.5" /> : null}
-              Confirm Decline
-            </Button>
-            <Button
-              variant="outline"
-              className="text-xs font-semibold h-9 px-4 border-slate-200 text-slate-600"
-              onClick={() => {
-                setSelectedCategory(null)
-                setDeclineReason("")
-                setState("pending")
-              }}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-          </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

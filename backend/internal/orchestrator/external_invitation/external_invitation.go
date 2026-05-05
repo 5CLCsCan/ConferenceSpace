@@ -10,14 +10,15 @@ import (
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
 	"github.com/dcao/conferencespace/internal/model"
+	semanticScholarController "github.com/dcao/conferencespace/internal/controller/semantic_scholar"
+	userOrchestrator "github.com/dcao/conferencespace/internal/orchestrator/user"
+	notificationService "github.com/dcao/conferencespace/internal/service/notification"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	externalInvStorage "github.com/dcao/conferencespace/internal/storage/external_invitation"
 	reviewerStorage "github.com/dcao/conferencespace/internal/storage/reviewer"
 	userStorage "github.com/dcao/conferencespace/internal/storage/user"
 	"github.com/dcao/conferencespace/pkg/jwt"
-	semanticScholarController "github.com/dcao/conferencespace/internal/controller/semantic_scholar"
-	userOrchestrator "github.com/dcao/conferencespace/internal/orchestrator/user"
 )
 
 type Orchestrator struct {
@@ -28,7 +29,8 @@ type Orchestrator struct {
 	reviewerStorage     reviewerStorage.StorageInterface
 	roleStorage         conferenceuserrole.StorageInterface
 	confStorage         conferenceStorage.StorageInterface
-	semanticScholarCtrl *semanticScholarController.Controller // nil-safe
+	semanticScholarCtrl *semanticScholarController.Controller  // nil-safe
+	notifService        *notificationService.Service           // nil-safe
 	jwtSecret           string
 	jwtExpiry           time.Duration
 }
@@ -63,6 +65,12 @@ func New(
 // construction (the S2 client is only available in the controller layer).
 func (o *Orchestrator) SetSemanticScholarCtrl(ctrl *semanticScholarController.Controller) {
 	o.semanticScholarCtrl = ctrl
+}
+
+// SetNotificationService allows late-binding the notification service
+// (created in the controller layer alongside WebSocket hub).
+func (o *Orchestrator) SetNotificationService(svc *notificationService.Service) {
+	o.notifService = svc
 }
 
 // BatchCreate persists invitations and, for every successful row, attaches
@@ -274,13 +282,26 @@ func (o *Orchestrator) AcceptInvitation(ctx context.Context, req *dto.ExternalIn
 		if err := o.roleStorage.AddRole(ctx, inv.ConferenceID, userResp.Email, "reviewer"); err != nil {
 			return nil, fmt.Errorf("auto-assign role: %w", err)
 		}
-		// Also insert into conference_reviewers for reviewer-specific features.
+		// Also insert into conference_reviewers as pending so the reviewer
+		// can review and accept the invitation themselves in the platform.
 		if _, err := o.reviewerStorage.Create(ctx, inv.ConferenceID, &dto.Reviewer{
 			UserID: userResp.ID,
-			Status: "accepted",
+			Status: "pending",
 			Domain: userResp.Domain,
 		}); err != nil {
 			return nil, fmt.Errorf("auto-assign reviewer: %w", err)
+		}
+
+		// Notify the reviewer about the pending invitation.
+		if o.notifService != nil {
+			conf, _ := o.confStorage.GetByID(ctx, inv.ConferenceID)
+			confName := ""
+			if conf != nil {
+				confName = conf.Title
+			}
+			go func() {
+				_ = o.notifService.NotifyReviewerInvited(context.Background(), userResp.Email, confName, inv.ConferenceID)
+			}()
 		}
 	}
 

@@ -14,7 +14,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { PapersSkeleton } from "./loading-skeletons"
 import { setAssignmentConferenceContext } from "@/lib/reviewer/assignment-context-cache"
 import { recordRecentConference } from "@/lib/recent-conferences"
-import { InvitationDialog } from "./invitation-dialog"
 
 const PAGE_SIZE = 8
 
@@ -111,13 +110,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
   const [currentPage, setCurrentPage] = useState(1)
   const debouncedSearch = useDebounce(searchQuery, 300)
 
-  const [selectedInvitationId, setSelectedInvitationId] = useState<number | null>(null)
-  const [statusOverrides, setStatusOverrides] = useState<Map<number, string>>(new Map())
 
-  const handleInvitationResponded = (assignmentId: number, newStatus: "accepted" | "declined") => {
-    setStatusOverrides((prev) => new Map(prev).set(assignmentId, newStatus))
-    setSelectedInvitationId(null)
-  }
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value)
@@ -197,23 +190,15 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
     })
   }, [conference, user?.email])
 
-  const effectivePapers = useMemo(() => {
-    if (statusOverrides.size === 0) return papers
-    return papers.map((paper) => {
-      const override = statusOverrides.get(paper.assignment_id)
-      return override ? { ...paper, assignment_status: override } : paper
-    })
-  }, [papers, statusOverrides])
-
   const filteredPapers = useMemo(() => {
     if (statusFilter === "all") {
-      return effectivePapers
+      return papers
     }
 
-    return effectivePapers.filter(
+    return papers.filter(
       (paper) => normalizeAssignmentStatus(paper.assignment_status) === statusFilter,
     )
-  }, [effectivePapers, statusFilter])
+  }, [papers, statusFilter])
 
   const sortedPapers = useMemo(() => {
     const next = [...filteredPapers]
@@ -406,7 +391,7 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
                     {paper.assignment_status === "pending" ? (
                       <button
                         type="button"
-                        onClick={() => setSelectedInvitationId(paper.assignment_id)}
+                        onClick={() => router.push(`/role/reviewer/invitations/${paper.assignment_id}`)}
                         className="h-8 px-3 rounded-md bg-[#1B3C53] hover:bg-[#234C6A] text-white text-[10px] font-semibold"
                       >
                         {t("runtime.components.reviewer.assigned-dashboard.text_view_invitation")}
@@ -484,12 +469,6 @@ export function AssignedDashboard({ conferenceId }: AssignedDashboardProps) {
         </div>
       )}
 
-      <InvitationDialog
-        assignmentId={selectedInvitationId}
-        open={selectedInvitationId !== null}
-        onClose={() => setSelectedInvitationId(null)}
-        onResponded={handleInvitationResponded}
-      />
     </div>
   )
 }

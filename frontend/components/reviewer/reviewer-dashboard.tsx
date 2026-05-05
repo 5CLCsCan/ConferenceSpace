@@ -53,9 +53,7 @@ export function ReviewerDashboard() {
   }
 
   const stats = dashboard?.stats
-  const recentAssignments = (dashboard?.recent_assignments || []).filter(
-    (a) => a.status !== "suggested",
-  )
+  const recentAssignments = dashboard?.recent_assignments || []
 
   return (
     <div className="flex flex-col gap-8">
