@@ -14,11 +14,18 @@ class _FakeRunner:
         return {
             "status": "warn",
             "run_id": "550e8400-e29b-41d4-a716-446655440001",
+            "evaluation": {
+                "summary": "The review identifies a concern but does not explain it deeply enough.",
+                "evidence_engagement": "It does not engage the submission evidence in detail.",
+                "consistency_assessment": "The stated recommendation needs clearer support from the narrative.",
+                "improvement_focus": "Add concrete evidence tied to the submission.",
+            },
             "findings": [
                 {
                     "code": "completeness.review_too_brief",
                     "severity": "warning",
                     "field": "review",
+                    "rationale": "The finding is raised because the review's narrative is too short to connect its concern to the submitted work.",
                     "message": "The review narrative is too brief to justify the submission outcome.",
                     "suggestion": "Expand it.",
                     "condition_fingerprint": "sha256:test",

@@ -60,6 +60,22 @@ func New(db *sql.DB) *Storage {
 	}
 }
 
+func recoverCanonicalAdminRole(conf *model.Conference, userEmail string) {
+	if userEmail == "" || conf == nil {
+		return
+	}
+	if conf.Chair == userEmail {
+		conf.UserRole = model.RoleChair
+		return
+	}
+	for _, coChair := range conf.CoChairs {
+		if coChair == userEmail {
+			conf.UserRole = model.RoleCoChair
+			return
+		}
+	}
+}
+
 func (s *Storage) Create(ctx context.Context, conf *dto.Conference) (*dto.ConferenceResponse, error) {
 	now := time.Now()
 
@@ -277,6 +293,7 @@ func (s *Storage) GetByIDForUser(ctx context.Context, id int64, userEmail string
 		if userRole.Valid {
 			entity.UserRole = userRole.String
 		}
+		recoverCanonicalAdminRole(entity, userEmail)
 	} else {
 		err = s.db.QueryRowContext(ctx, query, args...).Scan(scanArgs...)
 		if err == sql.ErrNoRows {
@@ -432,16 +449,9 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Confere
 
 	// Apply role-based filtering - only filter when myConferences is true
 	if params.MyConferences {
-		var conditions []sq.Sqlizer
-
-		// If role is specified, only check that specific role
-		// If role is empty, check ALL roles (chair, author, reviewer)
-
-		// Use the new conference_user_roles table for role filtering
 		if params.Role == "" {
-			// Check all roles - use OR condition
 			roleCond := sq.Expr(
-				fmt.Sprintf("EXISTS (SELECT 1 FROM %s WHERE %s = %s.%s AND %s = ? AND %s IN (?, ?, ?, ?, ?) AND %s = ?)",
+				fmt.Sprintf("(EXISTS (SELECT 1 FROM %s WHERE %s = %s.%s AND %s = ? AND %s IN (?, ?, ?, ?, ?) AND %s = ?) OR %s.%s = ? OR ? = ANY(%s.%s))",
 					model.ConferenceUserRoleTableName,
 					model.ColConferenceID,
 					model.ConferenceTableName,
@@ -449,6 +459,10 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Confere
 					model.ColUserEmail,
 					model.ColRole,
 					model.ColStatus,
+					model.ConferenceTableName,
+					model.ColChair,
+					model.ConferenceTableName,
+					model.ColCoChairs,
 				),
 				params.UserEmail,
 				model.RoleChair,
@@ -457,11 +471,13 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Confere
 				model.RoleReviewer,
 				model.RolePC,
 				model.RoleStatusActive,
+				params.UserEmail,
+				params.UserEmail,
 			)
-			conditions = append(conditions, roleCond)
+			baseQuery = baseQuery.Where(roleCond)
+			countQuery = countQuery.Where(roleCond)
 		} else {
-			// Check specific role
-			roleCond := sq.Expr(
+			roleCond := sq.Sqlizer(sq.Expr(
 				fmt.Sprintf("EXISTS (SELECT 1 FROM %s WHERE %s = %s.%s AND %s = ? AND %s = ? AND %s = ?)",
 					model.ConferenceUserRoleTableName,
 					model.ColConferenceID,
@@ -474,15 +490,41 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Confere
 				params.UserEmail,
 				params.Role,
 				model.RoleStatusActive,
-			)
-			conditions = append(conditions, roleCond)
-		}
+			))
+			if params.Role == model.RoleChair {
+				roleCond = sq.Or{
+					roleCond,
+					sq.Expr(fmt.Sprintf("%s.%s = ?", model.ConferenceTableName, model.ColChair), params.UserEmail),
+				}
+			} else if params.Role == model.RoleCoChair {
+				roleCond = sq.Or{
+					roleCond,
+					sq.Expr(fmt.Sprintf("? = ANY(%s.%s)", model.ConferenceTableName, model.ColCoChairs), params.UserEmail),
+				}
+			}
+			baseQuery = baseQuery.Where(roleCond)
+			countQuery = countQuery.Where(roleCond)
 
-		// Combine all conditions with OR
-		if len(conditions) > 0 {
-			roleFilter := sq.Or(conditions)
-			baseQuery = baseQuery.Where(roleFilter)
-			countQuery = countQuery.Where(roleFilter)
+			if params.Role == model.RoleAuthor || params.Role == model.RoleReviewer {
+				adminCond := sq.Expr(
+					fmt.Sprintf("NOT EXISTS (SELECT 1 FROM %s WHERE %s = %s.%s AND %s = ? AND %s IN (?, ?, ?) AND %s = ?)",
+						model.ConferenceUserRoleTableName,
+						model.ColConferenceID,
+						model.ConferenceTableName,
+						model.ColConferenceID,
+						model.ColUserEmail,
+						model.ColRole,
+						model.ColStatus,
+					),
+					params.UserEmail,
+					model.RoleChair,
+					model.RoleCoChair,
+					model.RolePC,
+					model.RoleStatusActive,
+				)
+				baseQuery = baseQuery.Where(adminCond)
+				countQuery = countQuery.Where(adminCond)
+			}
 		}
 	}
 
@@ -548,6 +590,7 @@ func (s *Storage) List(ctx context.Context, params *QueryParams) ([]*dto.Confere
 			if userRole.Valid {
 				entity.UserRole = userRole.String
 			}
+			recoverCanonicalAdminRole(entity, params.UserEmail)
 		} else {
 			err := rows.Scan(scanArgs...)
 			if err != nil {

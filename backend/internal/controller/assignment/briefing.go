@@ -106,6 +106,9 @@ func (c *Controller) prepareReviewerBriefingRequest(
 	if err != nil || assignment.ConferenceID != req.ConferenceID {
 		return nil, nil, nil, aiServiceClient.ReviewerBriefingFileMetadataPayload{}, "", handler.NewErrorResponse(404, "assignment not found")
 	}
+	if !canAccessReviewerPreAcceptArtifact(assignment.Status) {
+		return nil, nil, nil, aiServiceClient.ReviewerBriefingFileMetadataPayload{}, "", handler.NewErrorResponse(403, "this assignment is not available for reviewer pre-read analysis")
+	}
 
 	reviewer, err := c.reviewerStorage.GetByID(ginCtx.Request.Context(), assignment.ReviewerID)
 	if err != nil {
@@ -133,6 +136,10 @@ func (c *Controller) prepareReviewerBriefingRequest(
 	}
 
 	return assignment, submission, requestPayload, fileMeta, ginCtx.GetHeader("Authorization"), nil
+}
+
+func canAccessReviewerPreAcceptArtifact(status string) bool {
+	return status == "pending" || status == "accepted" || status == "completed"
 }
 
 func buildReviewerBriefingSubmissionPayload(submission *dto.Submission) aiServiceClient.ReviewerBriefingSubmissionPayload {

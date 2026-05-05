@@ -123,32 +123,39 @@ type ReviewerBriefingSubmissionSnapshot struct {
 	Title              string   `json:"title"`
 	AbstractSummary    string   `json:"abstract_summary"`
 	ManuscriptOverview string   `json:"manuscript_overview"`
-	Keywords           []string `json:"keywords,omitempty"`
-	Track              string   `json:"track,omitempty"`
+	Keywords           []string `json:"keywords"`
+	Track              *string  `json:"track"`
 }
 
 type ReviewerBriefingContribution struct {
 	Label    string   `json:"label"`
-	Evidence []string `json:"evidence,omitempty"`
-	Source   string   `json:"source,omitempty"`
+	Evidence []string `json:"evidence"`
+	Source   string   `json:"source"`
 }
 
 type ReviewerBriefingNotableElement struct {
 	Label  string `json:"label"`
 	Detail string `json:"detail"`
-	Source string `json:"source,omitempty"`
+	Source string `json:"source"`
 }
 
 type ReviewerBriefingAttentionPoint struct {
-	Focus  string `json:"focus"`
-	Reason string `json:"reason,omitempty"`
-	Source string `json:"source,omitempty"`
+	Focus  string  `json:"focus"`
+	Reason *string `json:"reason"`
+	Source string  `json:"source"`
 }
 
 type ReviewerBriefingScopeLimitation struct {
 	Label  string `json:"label"`
 	Detail string `json:"detail"`
-	Source string `json:"source,omitempty"`
+	Source string `json:"source"`
+}
+
+type ReviewerBriefingReadinessSignal struct {
+	Label  string `json:"label"`
+	Status string `json:"status"`
+	Detail string `json:"detail"`
+	Source string `json:"source"`
 }
 
 type ReviewerBriefingGuardrails struct {
@@ -159,10 +166,11 @@ type ReviewerBriefingGuardrails struct {
 
 type ReviewerBriefingArtifact struct {
 	SubmissionSnapshot      ReviewerBriefingSubmissionSnapshot `json:"submission_snapshot"`
-	ClaimedContributions    []ReviewerBriefingContribution     `json:"claimed_contributions,omitempty"`
-	NotableElements         []ReviewerBriefingNotableElement   `json:"notable_elements,omitempty"`
-	ReviewerAttentionPoints []ReviewerBriefingAttentionPoint   `json:"reviewer_attention_points,omitempty"`
-	StatedScopeLimitations  []ReviewerBriefingScopeLimitation  `json:"stated_scope_and_limitations,omitempty"`
+	ReviewReadinessSignals []ReviewerBriefingReadinessSignal  `json:"review_readiness_signals"`
+	ClaimedContributions    []ReviewerBriefingContribution     `json:"claimed_contributions"`
+	NotableElements         []ReviewerBriefingNotableElement   `json:"notable_elements"`
+	ReviewerAttentionPoints []ReviewerBriefingAttentionPoint   `json:"reviewer_attention_points"`
+	StatedScopeLimitations  []ReviewerBriefingScopeLimitation  `json:"stated_scope_and_limitations"`
 	Guardrails              ReviewerBriefingGuardrails         `json:"guardrails"`
 }
 
@@ -282,15 +290,24 @@ type ReviewQualityAuditFinding struct {
 	Code                 string `json:"code"`
 	Severity             string `json:"severity"`
 	Field                string `json:"field"`
+	Rationale            string `json:"rationale"`
 	Message              string `json:"message"`
 	Suggestion           string `json:"suggestion"`
 	ConditionFingerprint string `json:"condition_fingerprint"`
 }
 
+type ReviewQualityAuditEvaluation struct {
+	Summary               string `json:"summary"`
+	EvidenceEngagement    string `json:"evidence_engagement"`
+	ConsistencyAssessment string `json:"consistency_assessment"`
+	ImprovementFocus      string `json:"improvement_focus"`
+}
+
 type ReviewQualityAuditResolveResponse struct {
-	Status   string                      `json:"status"`
-	RunID    string                      `json:"run_id,omitempty"`
-	Findings []ReviewQualityAuditFinding `json:"findings,omitempty"`
+	Status     string                       `json:"status"`
+	RunID      string                       `json:"run_id,omitempty"`
+	Evaluation ReviewQualityAuditEvaluation `json:"evaluation"`
+	Findings   []ReviewQualityAuditFinding  `json:"findings,omitempty"`
 }
 
 type DecisionCopilotResolveRequest struct {

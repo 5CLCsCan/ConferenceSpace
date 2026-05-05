@@ -148,7 +148,7 @@ class LLMClient:
                 "json_schema": {
                     "name": response_model.__name__,
                     "strict": True,
-                    "schema": response_model.model_json_schema(),
+                    "schema": _to_openai_strict_json_schema(response_model.model_json_schema()),
                 },
             }
 
@@ -723,9 +723,39 @@ def _to_openai_response_text_format(response_format: dict[str, Any]) -> dict[str
     return {
         "type": "json_schema",
         "name": json_schema.get("name", "response"),
-        "schema": json_schema.get("schema", {}),
+        "schema": _to_openai_strict_json_schema(json_schema.get("schema", {})),
         "strict": json_schema.get("strict", True),
     }
+
+
+def _to_openai_strict_json_schema(schema: Any) -> dict[str, Any]:
+    normalized = _normalize_openai_schema_node(schema)
+    return normalized if isinstance(normalized, dict) else {}
+
+
+def _normalize_openai_schema_node(value: Any) -> Any:
+    if isinstance(value, list):
+        return [_normalize_openai_schema_node(item) for item in value]
+
+    if not isinstance(value, dict):
+        return value
+
+    if "$ref" in value:
+        return {"$ref": value["$ref"]}
+
+    normalized: dict[str, Any] = {}
+    for key, item in value.items():
+        if key == "default":
+            continue
+        normalized[key] = _normalize_openai_schema_node(item)
+
+    if normalized.get("type") == "object":
+        properties = normalized.get("properties")
+        if isinstance(properties, dict):
+            normalized["required"] = list(properties.keys())
+        normalized["additionalProperties"] = False
+
+    return normalized
 
 
 def _extract_text_part(part: Any) -> str:

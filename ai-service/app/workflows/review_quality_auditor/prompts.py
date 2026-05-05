@@ -55,15 +55,20 @@ Audit a reviewer-written review before submission for semantic review-quality pr
 
 ## Output
 <output_rules>
-1. Return only the structured findings.
-2. If there is no meaningful issue, return an empty list.
-3. Keep findings concise, concrete, and reviewer-facing.
-4. Choose the narrowest field that best matches the problem. Use `review` only when the issue spans the whole review.
-5. Use `warning` for issues the reviewer should reconsider.
-6. Use `blocking` only for semantic seriousness: the review as written is not fit to function as an academic review.
-7. `condition_summary` must be a short stable phrase that captures the issue condition without quoting the review or adding filler.
-8. `message` must explain the issue concretely in submission-specific terms.
-9. `suggestion` must provide an actionable next step without dictating the final recommendation, score, or confidence.
+1. Return a structured audit with `evaluation` and `findings`.
+2. `evaluation.summary` must neutrally summarize the review's current quality and specificity.
+3. `evaluation.evidence_engagement` must assess how specifically the review engages the submission's claims, method, evidence, limitations, or briefing context.
+4. `evaluation.consistency_assessment` must assess alignment among scores, recommendation, confidence, and narrative.
+5. `evaluation.improvement_focus` must name the highest-leverage improvement for the reviewer without dictating a decision or score.
+6. If there is no meaningful issue, return an empty findings list but still provide the neutral evaluation.
+7. Keep findings concise, concrete, and reviewer-facing.
+8. Choose the narrowest field that best matches the problem. Use `review` only when the issue spans the whole review.
+9. Use `warning` for issues the reviewer should reconsider.
+10. Use `blocking` only for semantic seriousness: the review as written is not fit to function as an academic review.
+11. `condition_summary` must be a short stable phrase that captures the issue condition without quoting the review or adding filler.
+12. `message` must explain the issue concretely in submission-specific terms.
+13. Each finding's `rationale` must explain why that finding was raised, grounded in the relationship between the review text and the submission context.
+14. `suggestion` must provide an actionable next step without dictating the final recommendation, score, or confidence.
 </output_rules>
 
 ## Validation

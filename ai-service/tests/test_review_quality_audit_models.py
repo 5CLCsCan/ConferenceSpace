@@ -82,8 +82,28 @@ def test_request_accepts_optional_briefing_artifact() -> None:
 
 
 def test_response_defaults_isolate_findings() -> None:
-    left = ReviewQualityAuditResolveResponse.model_validate({"status": "pass"})
-    right = ReviewQualityAuditResolveResponse.model_validate({"status": "pass"})
+    left = ReviewQualityAuditResolveResponse.model_validate(
+        {
+            "status": "pass",
+            "evaluation": {
+                "summary": "The review is clear and grounded.",
+                "evidence_engagement": "It engages the submission evidence.",
+                "consistency_assessment": "The recommendation and narrative align.",
+                "improvement_focus": "Keep the reasoning concrete.",
+            },
+        }
+    )
+    right = ReviewQualityAuditResolveResponse.model_validate(
+        {
+            "status": "pass",
+            "evaluation": {
+                "summary": "The review is clear and grounded.",
+                "evidence_engagement": "It engages the submission evidence.",
+                "consistency_assessment": "The recommendation and narrative align.",
+                "improvement_focus": "Keep the reasoning concrete.",
+            },
+        }
+    )
 
     left.findings.append(
         {
@@ -91,6 +111,7 @@ def test_response_defaults_isolate_findings() -> None:
             "severity": "warning",
             "field": "review",
             "message": "x",
+            "rationale": "The finding is present because the review omits concrete grounding.",
             "suggestion": "y",
             "condition_fingerprint": "sha256:test",
         }

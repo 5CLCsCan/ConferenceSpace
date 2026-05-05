@@ -972,9 +972,16 @@ func (s *Storage) AcknowledgeRebuttal(ctx context.Context, assignmentID int64) (
 func (s *Storage) GetInvitationData(ctx context.Context, assignmentID int64) (*dto.InvitationResponse, error) {
 	query := `
 		SELECT
-			pa.id, pa.status, pa.score, pa.metadata, pa.reviewer_id,
+			pa.id, pa.conference_id, pa.submission_id, pa.status, pa.score, pa.metadata, pa.reviewer_id,
 			cs.title as paper_title,
 			COALESCE(cs.abstract, '') as paper_abstract,
+			COALESCE(cs.track, '') as track,
+			cs.information,
+			cs.created_at,
+			cs.updated_at,
+			COALESCE(cs.file_original_name, '') as file_original_name,
+			COALESCE(cs.file_size, 0) as file_size,
+			COALESCE(cs.file_mime_type, '') as file_mime_type,
 			c.title as conference_name,
 			COALESCE(load.cnt, 0) as assignment_count
 		FROM paper_assignments pa
@@ -991,19 +998,29 @@ func (s *Storage) GetInvitationData(ctx context.Context, assignmentID int64) (*d
 
 	var (
 		id              int64
+		conferenceID    int64
+		submissionID    int64
 		status          string
 		score           float64
 		metadataRaw     []byte
 		reviewerID      int64
 		paperTitle      string
 		paperAbstract   string
+		track           string
+		informationRaw  []byte
+		submittedAt     time.Time
+		updatedAt       time.Time
+		fileName        string
+		fileSize        int64
+		fileContentType string
 		conferenceName  string
 		assignmentCount int
 	)
 
 	err := s.db.QueryRowContext(ctx, query, assignmentID).Scan(
-		&id, &status, &score, &metadataRaw, &reviewerID,
-		&paperTitle, &paperAbstract, &conferenceName, &assignmentCount,
+		&id, &conferenceID, &submissionID, &status, &score, &metadataRaw, &reviewerID,
+		&paperTitle, &paperAbstract, &track, &informationRaw, &submittedAt, &updatedAt,
+		&fileName, &fileSize, &fileContentType, &conferenceName, &assignmentCount,
 	)
 	if err == sql.ErrNoRows {
 		return nil, fmt.Errorf("assignment not found")
@@ -1023,17 +1040,37 @@ func (s *Storage) GetInvitationData(ctx context.Context, assignmentID int64) (*d
 		}
 	}
 
+	keywords := []string{}
+	if len(informationRaw) > 0 {
+		var information dto.SubmissionInformation
+		if err := json.Unmarshal(informationRaw, &information); err == nil && information.Keywords != nil {
+			keywords = information.Keywords
+			if track == "" {
+				track = information.TrackName
+			}
+		}
+	}
+
 	if score >= 0.5 {
 		evidence.Score = &score
 	}
 
 	return &dto.InvitationResponse{
-		AssignmentID:   id,
-		Status:         status,
-		PaperTitle:     paperTitle,
-		PaperAbstract:  paperAbstract,
-		ConferenceName: conferenceName,
-		Evidence:       evidence,
+		AssignmentID:    id,
+		ConferenceID:    conferenceID,
+		SubmissionID:    submissionID,
+		Status:          status,
+		PaperTitle:      paperTitle,
+		PaperAbstract:   paperAbstract,
+		ConferenceName:  conferenceName,
+		Track:           track,
+		Keywords:        keywords,
+		SubmittedAt:     &submittedAt,
+		UpdatedAt:       &updatedAt,
+		FileName:        fileName,
+		FileSize:        fileSize,
+		FileContentType: fileContentType,
+		Evidence:        evidence,
 	}, nil
 }
 

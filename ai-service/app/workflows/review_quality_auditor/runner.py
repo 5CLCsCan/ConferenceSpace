@@ -11,6 +11,7 @@ from app.workflows.review_quality_auditor.prompts import (
     REVIEW_QUALITY_AUDIT_SYSTEM_PROMPT,
 )
 from app.workflows.review_quality_auditor.schemas import (
+    ReviewQualityAuditEvaluation,
     ReviewQualityAuditFinding,
     ReviewQualityAuditModelFinding,
     ReviewQualityAuditModelResponse,
@@ -39,7 +40,11 @@ class ReviewQualityAuditRunner:
         request_payload = request.model_dump(mode="json")
 
         try:
-            findings = await self._generate_findings(request=request)
+            audit = await self._generate_audit(request=request)
+            findings = [
+                _normalize_finding(request=request, finding=finding)
+                for finding in audit.findings
+            ]
             status = "pass"
             if any(finding.severity == "blocking" for finding in findings):
                 status = "block"
@@ -49,6 +54,7 @@ class ReviewQualityAuditRunner:
             response = ReviewQualityAuditResolveResponse(
                 status=status,
                 run_id=run_id,
+                evaluation=_normalize_evaluation(audit.evaluation),
                 findings=findings,
             )
             await self._repo.save_completed_run(
@@ -67,11 +73,11 @@ class ReviewQualityAuditRunner:
             )
             raise
 
-    async def _generate_findings(
+    async def _generate_audit(
         self,
         *,
         request: ReviewQualityAuditResolveRequest,
-    ) -> list[ReviewQualityAuditFinding]:
+    ) -> ReviewQualityAuditModelResponse:
         inference_payload = build_inference_payload(request=request)
         payload = await self._llm_client.complete_structured(
             messages=[
@@ -94,11 +100,7 @@ class ReviewQualityAuditRunner:
             if isinstance(payload, BaseModel)
             else payload
         )
-        model_response = ReviewQualityAuditModelResponse.model_validate(output_payload)
-        return [
-            _normalize_finding(request=request, finding=finding)
-            for finding in model_response.findings
-        ]
+        return ReviewQualityAuditModelResponse.model_validate(output_payload)
 
 
 def build_inference_payload(*, request: ReviewQualityAuditResolveRequest) -> dict:
@@ -202,6 +204,7 @@ def _normalize_finding(
         code=finding.code,
         severity=severity,
         field=finding.field,
+        rationale=_clean_text(finding.rationale),
         message=_clean_text(finding.message),
         suggestion=_clean_text(finding.suggestion),
         condition_fingerprint=_fingerprint(
@@ -209,6 +212,15 @@ def _normalize_finding(
             field=finding.field,
             condition_summary=condition_summary,
         ),
+    )
+
+
+def _normalize_evaluation(evaluation: ReviewQualityAuditEvaluation) -> ReviewQualityAuditEvaluation:
+    return ReviewQualityAuditEvaluation(
+        summary=_clean_text(evaluation.summary),
+        evidence_engagement=_clean_text(evaluation.evidence_engagement),
+        consistency_assessment=_clean_text(evaluation.consistency_assessment),
+        improvement_focus=_clean_text(evaluation.improvement_focus),
     )
 
 

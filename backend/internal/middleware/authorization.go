@@ -96,7 +96,7 @@ func RequireSubmissionAccess(
 				ReviewerID:   rev.ID,
 				Limit:        1,
 			})
-			if listErr == nil && len(assignments) > 0 {
+			if listErr == nil && len(assignments) > 0 && canReviewerAccessSubmission(assignments[0].Status) {
 				c.Next()
 				return
 			}
@@ -104,6 +104,10 @@ func RequireSubmissionAccess(
 
 		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "you do not have access to this submission"})
 	}
+}
+
+func canReviewerAccessSubmission(status string) bool {
+	return status == "pending" || status == "accepted" || status == "completed"
 }
 
 // RequireThreadParticipant checks that the authenticated user is a participant

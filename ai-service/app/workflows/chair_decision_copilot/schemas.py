@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 DISALLOWED_VERDICT_PATTERNS = [
@@ -63,7 +63,11 @@ class ReviewEvidenceInput(BaseModel):
     post_rebuttal_updated_at: str | None = None
 
 
-class CountMetric(BaseModel):
+class StrictSchemaModel(BaseModel):
+    model_config = ConfigDict(extra="ignore", json_schema_extra={"additionalProperties": False})
+
+
+class CountMetric(StrictSchemaModel):
     label: str
     count: int
 
@@ -142,9 +146,9 @@ class DecisionCopilotResolveRequest(BaseModel):
     evidence: DecisionCopilotEvidenceInput
 
 
-class DecisionCopilotEvidenceSummary(BaseModel):
+class DecisionCopilotEvidenceSummary(StrictSchemaModel):
     overview: str
-    evidence_basis: list[str] = Field(default_factory=list)
+    evidence_basis: list[str]
 
     _validate_overview = field_validator("overview")(_assert_non_verdict_language)
 
@@ -154,11 +158,11 @@ class DecisionCopilotEvidenceSummary(BaseModel):
         return [_assert_non_verdict_language(value) for value in values]
 
 
-class DecisionCopilotReviewFeedbackSynthesis(BaseModel):
+class DecisionCopilotReviewFeedbackSynthesis(StrictSchemaModel):
     summary: str
-    strengths: list[str] = Field(default_factory=list)
-    weaknesses: list[str] = Field(default_factory=list)
-    questions: list[str] = Field(default_factory=list)
+    strengths: list[str]
+    weaknesses: list[str]
+    questions: list[str]
 
     _validate_summary = field_validator("summary")(_assert_non_verdict_language)
 
@@ -168,47 +172,47 @@ class DecisionCopilotReviewFeedbackSynthesis(BaseModel):
         return [_assert_non_verdict_language(value) for value in values]
 
 
-class DecisionCopilotReviewAnalytics(BaseModel):
-    review_distribution: list[CountMetric] = Field(default_factory=list)
-    confidence_mix: list[CountMetric] = Field(default_factory=list)
-    strongest_criteria: list[str] = Field(default_factory=list)
-    weakest_criteria: list[str] = Field(default_factory=list)
+class DecisionCopilotReviewAnalytics(StrictSchemaModel):
+    review_distribution: list[CountMetric]
+    confidence_mix: list[CountMetric]
+    strongest_criteria: list[str]
+    weakest_criteria: list[str]
     review_coverage_completeness: str
-    score_changes_after_rebuttal: str | None = None
-    last_evidence_update: str | None = None
+    score_changes_after_rebuttal: str | None
+    last_evidence_update: str | None
 
 
-class DecisionCopilotDiscussionSignals(BaseModel):
+class DecisionCopilotDiscussionSignals(StrictSchemaModel):
     summary: str
-    thread_count: int = 0
-    message_count: int = 0
-    last_activity_at: str | None = None
+    thread_count: int
+    message_count: int
+    last_activity_at: str | None
 
     _validate_summary = field_validator("summary")(_assert_non_verdict_language)
 
 
-class DecisionCopilotRebuttalSignals(BaseModel):
+class DecisionCopilotRebuttalSignals(StrictSchemaModel):
     status: Literal["available", "not_applicable"]
     summary: str
 
     _validate_summary = field_validator("summary")(_assert_non_verdict_language)
 
 
-class DecisionCopilotDisagreementMap(BaseModel):
-    areas_of_agreement: list[str] = Field(default_factory=list)
-    areas_of_disagreement: list[str] = Field(default_factory=list)
-    unresolved_concerns: list[str] = Field(default_factory=list)
-    confidence_limits: list[str] = Field(default_factory=list)
+class DecisionCopilotDisagreementMap(StrictSchemaModel):
+    areas_of_agreement: list[str]
+    areas_of_disagreement: list[str]
+    unresolved_concerns: list[str]
+    confidence_limits: list[str]
 
 
-class DecisionCopilotGuardrails(BaseModel):
+class DecisionCopilotGuardrails(StrictSchemaModel):
     advisory_only: bool
     no_decision: bool
     no_automatic_status_change: bool
     human_judgment_required: str
 
 
-class DecisionCopilotArtifact(BaseModel):
+class DecisionCopilotArtifact(StrictSchemaModel):
     evidence_summary: DecisionCopilotEvidenceSummary
     review_feedback_synthesis: DecisionCopilotReviewFeedbackSynthesis
     review_analytics: DecisionCopilotReviewAnalytics

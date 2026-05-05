@@ -211,7 +211,34 @@ func (c *Controller) lookupOptionalBriefingArtifact(
 	if err != nil || response == nil || response.Status != "ready" || response.Artifact == nil {
 		return nil
 	}
-	return response.Artifact
+	return normalizeReviewerBriefingArtifactForReviewAudit(response.Artifact)
+}
+
+func normalizeReviewerBriefingArtifactForReviewAudit(
+	artifact *aiServiceClient.ReviewerBriefingArtifact,
+) *aiServiceClient.ReviewerBriefingArtifact {
+	if artifact == nil {
+		return nil
+	}
+	if artifact.SubmissionSnapshot.Keywords == nil {
+		artifact.SubmissionSnapshot.Keywords = []string{}
+	}
+	if artifact.ReviewReadinessSignals == nil {
+		artifact.ReviewReadinessSignals = []aiServiceClient.ReviewerBriefingReadinessSignal{}
+	}
+	if artifact.ClaimedContributions == nil {
+		artifact.ClaimedContributions = []aiServiceClient.ReviewerBriefingContribution{}
+	}
+	if artifact.NotableElements == nil {
+		artifact.NotableElements = []aiServiceClient.ReviewerBriefingNotableElement{}
+	}
+	if artifact.ReviewerAttentionPoints == nil {
+		artifact.ReviewerAttentionPoints = []aiServiceClient.ReviewerBriefingAttentionPoint{}
+	}
+	if artifact.StatedScopeLimitations == nil {
+		artifact.StatedScopeLimitations = []aiServiceClient.ReviewerBriefingScopeLimitation{}
+	}
+	return artifact
 }
 
 func buildReviewQualityAuditPayload(reviewData *dto.ReviewData) aiServiceClient.ReviewQualityAuditReviewPayload {
@@ -248,8 +275,14 @@ func mergeReviewAuditResult(
 	}
 
 	response := &dto.ReviewAuditResponse{
-		Status:            "pass",
-		RunID:             result.RunID,
+		Status: "pass",
+		RunID:  result.RunID,
+		Evaluation: dto.ReviewAuditEvaluation{
+			Summary:               result.Evaluation.Summary,
+			EvidenceEngagement:    result.Evaluation.EvidenceEngagement,
+			ConsistencyAssessment: result.Evaluation.ConsistencyAssessment,
+			ImprovementFocus:      result.Evaluation.ImprovementFocus,
+		},
 		ActiveFindings:    []dto.ReviewAuditFinding{},
 		DismissedFindings: []dto.ReviewAuditFinding{},
 	}
@@ -259,6 +292,7 @@ func mergeReviewAuditResult(
 			Code:                 finding.Code,
 			Severity:             finding.Severity,
 			Field:                finding.Field,
+			Rationale:            finding.Rationale,
 			Message:              finding.Message,
 			Suggestion:           finding.Suggestion,
 			ConditionFingerprint: finding.ConditionFingerprint,

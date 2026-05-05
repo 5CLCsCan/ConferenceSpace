@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.workflows.reviewer_pre_read_briefing.schemas import (
     ReviewerBriefingArtifact,
@@ -68,14 +68,23 @@ class ReviewQualityAuditFinding(BaseModel):
     code: str
     severity: Literal["warning", "blocking"]
     field: str
+    rationale: str
     message: str
     suggestion: str
     condition_fingerprint: str
 
 
+class ReviewQualityAuditEvaluation(BaseModel):
+    summary: str = ""
+    evidence_engagement: str = ""
+    consistency_assessment: str = ""
+    improvement_focus: str = ""
+
+
 class ReviewQualityAuditResolveResponse(BaseModel):
     status: Literal["pass", "warn", "block"]
     run_id: str | None = None
+    evaluation: ReviewQualityAuditEvaluation = Field(default_factory=ReviewQualityAuditEvaluation)
     findings: list[ReviewQualityAuditFinding] = Field(default_factory=list)
 
 
@@ -108,7 +117,11 @@ ReviewAuditCode = Literal[
 ]
 
 
-class ReviewQualityAuditModelFinding(BaseModel):
+class StrictSchemaModel(BaseModel):
+    model_config = ConfigDict(extra="ignore", json_schema_extra={"additionalProperties": False})
+
+
+class ReviewQualityAuditModelFinding(StrictSchemaModel):
     code: ReviewAuditCode = Field(
         description="Semantic issue class only. Choose the code that best matches the semantic problem in the review."
     )
@@ -128,6 +141,11 @@ class ReviewQualityAuditModelFinding(BaseModel):
         max_length=280,
         description="Reviewer-facing explanation of the semantic issue. Be concrete and specific to the submission context.",
     )
+    rationale: str = Field(
+        min_length=20,
+        max_length=500,
+        description="Explain why this finding was raised, citing the relationship between the review text and submission context. Do not approve, reject, or score the paper.",
+    )
     suggestion: str = Field(
         min_length=12,
         max_length=240,
@@ -135,7 +153,8 @@ class ReviewQualityAuditModelFinding(BaseModel):
     )
 
 
-class ReviewQualityAuditModelResponse(BaseModel):
-    findings: list[ReviewQualityAuditModelFinding] = Field(
-        default_factory=list, max_length=6
+class ReviewQualityAuditModelResponse(StrictSchemaModel):
+    evaluation: ReviewQualityAuditEvaluation = Field(
+        description="Neutral assessment of the review's specificity, evidence engagement, internal consistency, and strongest improvement opportunity."
     )
+    findings: list[ReviewQualityAuditModelFinding] = Field(max_length=6)

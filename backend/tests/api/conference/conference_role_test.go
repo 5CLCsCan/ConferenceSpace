@@ -270,6 +270,20 @@ func TestConferenceListWithRoleFiltering(t *testing.T) {
 			description:   "MultiRole with myConferences=true&role=reviewer should see conference 2",
 		},
 		{
+			name:          "chair1_myConferences_and_role_author",
+			token:         chair1Token,
+			queryParams:   "myConferences=true&role=author",
+			expectedConfs: []int64{},
+			description:   "Chair1 should not see their admin conference through the author role",
+		},
+		{
+			name:          "chair1_myConferences_and_role_reviewer",
+			token:         chair1Token,
+			queryParams:   "myConferences=true&role=reviewer",
+			expectedConfs: []int64{},
+			description:   "Chair1 should not see their admin conference through the reviewer role",
+		},
+		{
 			name:          "norole_myConferences_true",
 			token:         noRoleToken,
 			queryParams:   "myConferences=true",

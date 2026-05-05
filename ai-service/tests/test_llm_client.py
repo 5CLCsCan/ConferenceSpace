@@ -3,7 +3,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import pytest
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.services.llm_client import LLMClient
 
@@ -571,7 +571,58 @@ async def test_complete_structured_openai_responses_converts_json_schema_text_fo
         "format": {
             "type": "json_schema",
             "name": "StructuredPayload",
-            "schema": StructuredPayload.model_json_schema(),
+            "schema": {
+                "additionalProperties": False,
+                "properties": {"value": {"title": "Value", "type": "string"}},
+                "required": ["value"],
+                "title": "StructuredPayload",
+                "type": "object",
+            },
             "strict": True,
         }
     }
+
+
+@pytest.mark.asyncio
+async def test_complete_structured_openai_responses_strips_ref_sibling_keywords(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, object] = {}
+
+    class _FakeAsyncResponses:
+        async def create(self, **kwargs):
+            captured.update(kwargs)
+            return SimpleNamespace(output_text='{"child":{"value":"ok"}}')
+
+    class _FakeAsyncOpenAI:
+        def __init__(self, **kwargs):
+            self.responses = _FakeAsyncResponses()
+
+    monkeypatch.setattr("app.services.llm_client._get_async_openai", lambda: _FakeAsyncOpenAI)
+
+    client = LLMClient(
+        api_key="openrouter-key",
+        model="openrouter/google/gemini-2.5-flash-lite",
+        openai_api_key="openai-key",
+        openai_base_url="http://localhost:20128/v1",
+        openai_model="cx/gpt-5.4-mini",
+    )
+
+    class ChildPayload(BaseModel):
+        value: str
+
+    class ParentPayload(BaseModel):
+        child: ChildPayload = Field(description="Nested payload with a Pydantic ref sibling.")
+
+    payload = await client.complete_structured(
+        messages=[{"role": "user", "content": "json"}],
+        response_model=ParentPayload,
+    )
+
+    schema = captured["text"]["format"]["schema"]  # type: ignore[index]
+    child_property = schema["properties"]["child"]
+
+    assert payload.child.value == "ok"
+    assert child_property == {"$ref": "#/$defs/ChildPayload"}
+    assert schema["additionalProperties"] is False
+    assert schema["$defs"]["ChildPayload"]["additionalProperties"] is False

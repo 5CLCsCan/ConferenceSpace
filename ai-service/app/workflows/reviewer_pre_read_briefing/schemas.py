@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ActorPayload(BaseModel):
@@ -35,7 +35,11 @@ class ReviewerBriefingResolveRequest(BaseModel):
     file_metadata: FileMetadataInput
 
 
-class ReviewerBriefingSubmissionSnapshot(BaseModel):
+class StrictSchemaModel(BaseModel):
+    model_config = ConfigDict(extra="ignore", json_schema_extra={"additionalProperties": False})
+
+
+class ReviewerBriefingSubmissionSnapshot(StrictSchemaModel):
     title: str = Field(description="Submission title used for reviewer orientation.")
     abstract_summary: str = Field(
         description="Conservative summary of the submission abstract, focusing on problem, method idea, and claimed outcome."
@@ -44,64 +48,56 @@ class ReviewerBriefingSubmissionSnapshot(BaseModel):
         description="High-level overview of what the manuscript appears to cover based on extracted paper content."
     )
     keywords: list[str] = Field(
-        default_factory=list,
         description="Distinct keywords useful for topical orientation.",
     )
     track: str | None = Field(
-        default=None,
         description="Reviewer-visible track label when available.",
     )
 
 
-class ReviewerBriefingContribution(BaseModel):
+class ReviewerBriefingContribution(StrictSchemaModel):
     label: str = Field(description="One concrete contribution or capability the submission appears to claim.")
     evidence: list[str] = Field(
-        default_factory=list,
         description="Short supporting evidence statements grounded in the submission or extracted manuscript content.",
     )
     source: Literal["submission", "derived"] = Field(
-        default="submission",
         description="Primary provenance for this contribution item.",
     )
 
 
-class ReviewerBriefingNotableElement(BaseModel):
+class ReviewerBriefingNotableElement(StrictSchemaModel):
     label: str = Field(description="A notable aspect of the submission the reviewer should notice early.")
     detail: str = Field(description="Factual explanation of why this element stands out in the manuscript.")
     source: Literal["submission", "derived"] = Field(
-        default="submission",
         description="Primary provenance for this notable element.",
     )
 
 
-class ReviewerBriefingAttentionPoint(BaseModel):
+class ReviewerBriefingAttentionPoint(StrictSchemaModel):
     focus: str = Field(description="Specific area the reviewer should verify carefully during manual review.")
     reason: str | None = Field(
-        default=None,
         description="Why the reviewer should verify this area carefully or what uncertainty remains.",
     )
     source: Literal["submission", "derived"] = Field(
-        default="derived",
         description="Primary provenance for this reviewer attention point.",
     )
 
 
-class ReviewerBriefingScopeLimitation(BaseModel):
+class ReviewerBriefingScopeLimitation(StrictSchemaModel):
     label: str = Field(description="A stated scope boundary, limitation, or assumption surfaced from the submission.")
     detail: str = Field(description="Compact factual explanation grounded in the submission or manuscript.")
     source: Literal["submission", "derived"] = Field(
-        default="submission",
         description="Primary provenance for this scope or limitation item.",
     )
 
 
-class ReviewerBriefingGuardrails(BaseModel):
+class ReviewerBriefingGuardrails(StrictSchemaModel):
     no_recommendation: bool = Field(description="Always true. The artifact must not recommend accept or reject.")
     no_score: bool = Field(description="Always true. The artifact must not predict or assign scores.")
     bias_notice: str = Field(description="Reviewer-facing reminder that the briefing is assistive and non-binding.")
 
 
-class ReviewerBriefingReadinessSignal(BaseModel):
+class ReviewerBriefingReadinessSignal(StrictSchemaModel):
     label: str = Field(
         description="Neutral reviewer-useful signal category such as claim support, evaluation coverage, reproducibility path, or limitations disclosure."
     )
@@ -112,33 +108,27 @@ class ReviewerBriefingReadinessSignal(BaseModel):
         description="Compact factual note describing what evidence was found, missing, or only partially visible."
     )
     source: Literal["submission", "derived"] = Field(
-        default="derived",
         description="Primary provenance for this readiness signal.",
     )
 
 
-class ReviewerBriefingArtifact(BaseModel):
+class ReviewerBriefingArtifact(StrictSchemaModel):
     submission_snapshot: ReviewerBriefingSubmissionSnapshot = Field(
         description="High-level submission orientation for the reviewer."
     )
     review_readiness_signals: list[ReviewerBriefingReadinessSignal] = Field(
-        default_factory=list,
         description="Neutral evidence signals that help the reviewer understand what appears well-supported versus what may need closer verification.",
     )
     claimed_contributions: list[ReviewerBriefingContribution] = Field(
-        default_factory=list,
         description="Concrete contributions or capabilities the submission appears to claim.",
     )
     notable_elements: list[ReviewerBriefingNotableElement] = Field(
-        default_factory=list,
         description="High-signal manuscript elements that stand out during pre-read.",
     )
     reviewer_attention_points: list[ReviewerBriefingAttentionPoint] = Field(
-        default_factory=list,
         description="Priority checks the reviewer should keep in mind during deeper reading.",
     )
     stated_scope_and_limitations: list[ReviewerBriefingScopeLimitation] = Field(
-        default_factory=list,
         description="Scope boundaries, limitations, or assumptions stated or implied by the submission.",
     )
     guardrails: ReviewerBriefingGuardrails = Field(

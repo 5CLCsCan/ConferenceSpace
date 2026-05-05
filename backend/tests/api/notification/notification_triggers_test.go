@@ -120,6 +120,191 @@ func TestNotificationOnSubmissionCreated(t *testing.T) {
 	}
 }
 
+func TestChairNotificationSubmissionDeepLinkAccess(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	notificationClient := NewClient(ctx)
+	conferenceClient := conference.NewClient(ctx)
+	submissionClient := submission.NewClient(ctx)
+
+	chairToken, chair, err := ctx.RegisterUniqueUser("deep-chair", "password123", "Deep", "Chair", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register chair user: %v", err)
+	}
+	authorToken, author, err := ctx.RegisterUniqueUser("deep-author", "password123", "Deep", "Author", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register author user: %v", err)
+	}
+	otherToken, _, err := ctx.RegisterUniqueUser("deep-other", "password123", "Deep", "Other", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register unrelated user: %v", err)
+	}
+
+	confResp, err := conferenceClient.CreateSuccess(&dto.Conference{
+		Title:   "Deep Link Conference",
+		Acronym: testutils.UniqueString("DLC"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI"},
+	}, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to create conference: %v", err)
+	}
+
+	listResp, err := ctx.MakeRequest("GET", "/api/v1/conferences?myConferences=true&role=chair", nil, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to list chair conferences: %v", err)
+	}
+	testutils.AssertStatusCode(t, listResp, http.StatusOK)
+	var chairList struct {
+		Data *dto.UserConferenceListResponse `json:"data"`
+	}
+	testutils.DecodeResponse(t, listResp, &chairList)
+	if !containsConference(chairList.Data.Conferences, confResp.ID) {
+		t.Fatalf("created conference %d was not visible in chair My Conferences", confResp.ID)
+	}
+
+	detailResp, err := conferenceClient.Get(confResp.ID, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to get conference as chair: %v", err)
+	}
+	testutils.AssertStatusCode(t, detailResp, http.StatusOK)
+	var detailData struct {
+		Data *dto.ConferenceResponse `json:"data"`
+	}
+	testutils.DecodeResponse(t, detailResp, &detailData)
+	if detailData.Data.UserRole != "chair" {
+		t.Fatalf("chair conference user_role = %q, want chair", detailData.Data.UserRole)
+	}
+
+	createdSubmission, err := submissionClient.CreateSuccess(confResp.ID, &dto.Submission{
+		ConferenceID: confResp.ID,
+		Author:       author.Email,
+		Title:        "Deep Link Paper",
+		Abstract:     "A submission that should be visible to the chair through the notification link.",
+		Domain:       []string{"AI"},
+		Status:       dto.StatusPublished,
+	}, authorToken)
+	if err != nil {
+		t.Fatalf("Failed to create author submission: %v", err)
+	}
+
+	time.Sleep(100 * time.Millisecond)
+
+	notifications, err := notificationClient.ListSuccess(&dto.NotificationListRequest{
+		Limit: 10,
+		Type:  dto.NotificationTypeSubmissionReceived,
+	}, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to list chair notifications: %v", err)
+	}
+	var matchingNotification *dto.Notification
+	for _, n := range notifications.Notifications {
+		if n.ConferenceID != nil && *n.ConferenceID == confResp.ID {
+			matchingNotification = n
+			break
+		}
+	}
+	if matchingNotification == nil {
+		t.Fatalf("chair did not receive a submission notification for conference %d", confResp.ID)
+	}
+	expectedURL := fmt.Sprintf("/role/chair/conferences/%d/submissions/%d", confResp.ID, createdSubmission.ID)
+	if matchingNotification.ActionURL != expectedURL {
+		t.Fatalf("notification action_url = %q, want %q", matchingNotification.ActionURL, expectedURL)
+	}
+
+	chairSubmissionResp, err := submissionClient.Get(confResp.ID, createdSubmission.ID, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to open notification-linked submission as chair: %v", err)
+	}
+	testutils.AssertStatusCode(t, chairSubmissionResp, http.StatusOK)
+
+	unrelatedResp, err := submissionClient.Get(confResp.ID, createdSubmission.ID, otherToken)
+	if err != nil {
+		t.Fatalf("Failed to open submission as unrelated user: %v", err)
+	}
+	testutils.AssertStatusCode(t, unrelatedResp, http.StatusForbidden)
+}
+
+func TestChairCannotCreateAuthorDraftAndKeepsChairAccess(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	conferenceClient := conference.NewClient(ctx)
+	submissionClient := submission.NewClient(ctx)
+
+	chairToken, chair, err := ctx.RegisterUniqueUser("chair-gated", "password123", "Chair", "Gated", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register chair user: %v", err)
+	}
+	authorToken, author, err := ctx.RegisterUniqueUser("author-gated", "password123", "Author", "Gated", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register author user: %v", err)
+	}
+
+	confResp, err := conferenceClient.CreateSuccess(&dto.Conference{
+		Title:   "Chair Author Gate Conference",
+		Acronym: testutils.UniqueString("CAG"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI"},
+	}, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to create conference: %v", err)
+	}
+
+	chairDraftResp, err := submissionClient.CreateWithoutFile(confResp.ID, &dto.Submission{
+		ConferenceID: confResp.ID,
+		Title:        "Chair Draft Should Be Blocked",
+		Abstract:     "Admin conference roles must not create author drafts in the same conference.",
+		Domain:       []string{"AI"},
+		Status:       dto.StatusDraft,
+	}, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to request chair draft creation: %v", err)
+	}
+	testutils.AssertStatusCode(t, chairDraftResp, http.StatusForbidden)
+
+	listResp, err := ctx.MakeRequest("GET", "/api/v1/conferences?myConferences=true&role=chair", nil, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to list chair conferences: %v", err)
+	}
+	testutils.AssertStatusCode(t, listResp, http.StatusOK)
+	var chairList struct {
+		Data *dto.UserConferenceListResponse `json:"data"`
+	}
+	testutils.DecodeResponse(t, listResp, &chairList)
+	if !containsConference(chairList.Data.Conferences, confResp.ID) {
+		t.Fatalf("created conference %d was not visible in chair My Conferences after blocked author path", confResp.ID)
+	}
+
+	createdSubmission, err := submissionClient.CreateSuccess(confResp.ID, &dto.Submission{
+		ConferenceID: confResp.ID,
+		Author:       author.Email,
+		Title:        "Author Paper After Chair Gate",
+		Abstract:     "The chair must retain deep-link access after a blocked author attempt.",
+		Domain:       []string{"AI"},
+		Status:       dto.StatusPublished,
+	}, authorToken)
+	if err != nil {
+		t.Fatalf("Failed to create author submission: %v", err)
+	}
+
+	chairSubmissionResp, err := submissionClient.Get(confResp.ID, createdSubmission.ID, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to open submission as chair: %v", err)
+	}
+	testutils.AssertStatusCode(t, chairSubmissionResp, http.StatusOK)
+}
+
+func containsConference(conferences []*dto.UserConferenceResponse, conferenceID int64) bool {
+	for _, conf := range conferences {
+		if conf.ID == conferenceID {
+			return true
+		}
+	}
+	return false
+}
+
 // TestNotificationOnReviewAssigned tests that reviewers receive notifications when assigned to papers
 func TestNotificationOnReviewAssigned(t *testing.T) {
 	ctx := testutils.NewTestContext(t)

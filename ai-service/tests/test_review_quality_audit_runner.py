@@ -31,7 +31,7 @@ class _FakeLLMClient:
         response: ReviewQualityAuditModelResponse | None = None,
         error: Exception | None = None,
     ) -> None:
-        self._response = response or ReviewQualityAuditModelResponse(findings=[])
+        self._response = response or _make_model_response()
         self._error = error
         self.calls = []
 
@@ -48,6 +48,18 @@ class _FakeLLMClient:
         if self._error is not None:
             raise self._error
         return self._response
+
+
+def _make_model_response(findings: list[dict] | None = None) -> ReviewQualityAuditModelResponse:
+    return ReviewQualityAuditModelResponse(
+        evaluation={
+            "summary": "The review gives a coherent quality signal.",
+            "evidence_engagement": "It engages the submission at a concrete enough level.",
+            "consistency_assessment": "The recommendation, confidence, and narrative are aligned.",
+            "improvement_focus": "Keep the review anchored to paper-specific evidence.",
+        },
+        findings=findings or [],
+    )
 
 
 def _make_request(**kwargs) -> ReviewQualityAuditResolveRequest:
@@ -73,14 +85,15 @@ async def test_runner_passes_when_llm_returns_no_findings() -> None:
 async def test_runner_downgrades_blocking_findings_for_draft_mode() -> None:
     repo = _FakeRepo()
     llm_client = _FakeLLMClient(
-        ReviewQualityAuditModelResponse(
-            findings=[
+        _make_model_response(
+            [
                 {
                     "code": "justification.recommendation_unsupported",
                     "severity": "blocking",
                     "field": "recommendation",
                     "condition_summary": "reject recommendation not supported by written weaknesses",
                     "message": "The written review does not explain why the paper should be rejected.",
+                    "rationale": "The finding is raised because the recommendation is stronger than the weaknesses described in the review.",
                     "suggestion": "State the concrete weaknesses that lead to the rejection recommendation.",
                 }
             ]
@@ -101,14 +114,15 @@ async def test_runner_downgrades_blocking_findings_for_draft_mode() -> None:
 async def test_runner_preserves_blocking_for_submit_ready_severe_findings() -> None:
     repo = _FakeRepo()
     llm_client = _FakeLLMClient(
-        ReviewQualityAuditModelResponse(
-            findings=[
+        _make_model_response(
+            [
                 {
                     "code": "quality.review_too_generic_to_submit",
                     "severity": "blocking",
                     "field": "review",
                     "condition_summary": "review stays generic and does not discuss the paper concretely",
                     "message": "The review remains too generic to function as a usable academic review.",
+                    "rationale": "The finding is raised because the review uses broad quality claims without tying them to the submission's actual method or evidence.",
                     "suggestion": "Add paper-specific reasoning tied to the submission's actual claims, strengths, and weaknesses.",
                 }
             ]
@@ -130,14 +144,15 @@ async def test_runner_promotes_submit_fatal_consistency_codes_even_if_model_mark
 ):
     repo = _FakeRepo()
     llm_client = _FakeLLMClient(
-        ReviewQualityAuditModelResponse(
-            findings=[
+        _make_model_response(
+            [
                 {
                     "code": "consistency.recommendation_narrative_tension",
                     "severity": "warning",
                     "field": "recommendation",
                     "condition_summary": "reject recommendation conflicts with otherwise positive review reasoning",
                     "message": "The reject recommendation conflicts with the positive narrative and high-scoring review content.",
+                    "rationale": "The finding is raised because the review's positive narrative does not explain the stated reject recommendation.",
                     "suggestion": "Either justify the rejection with clearly stated fatal concerns or align the recommendation with the rest of the review.",
                 }
             ]
@@ -157,14 +172,15 @@ async def test_runner_promotes_submit_fatal_consistency_codes_even_if_model_mark
 async def test_runner_keeps_nonfatal_submit_findings_as_warnings() -> None:
     repo = _FakeRepo()
     llm_client = _FakeLLMClient(
-        ReviewQualityAuditModelResponse(
-            findings=[
+        _make_model_response(
+            [
                 {
                     "code": "consistency.confidence_support_tension",
                     "severity": "blocking",
                     "field": "confidence",
                     "condition_summary": "high confidence exceeds the specificity of the written review",
                     "message": "The confidence level is higher than the depth of the written technical critique.",
+                    "rationale": "The finding is raised because the high confidence is not matched by concrete technical engagement in the narrative.",
                     "suggestion": "Either lower confidence or add more detailed technical reasoning.",
                 }
             ]

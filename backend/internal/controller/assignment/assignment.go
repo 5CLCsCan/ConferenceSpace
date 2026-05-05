@@ -876,6 +876,9 @@ func (c *Controller) GetInvitation(ginCtx *gin.Context) (*dto.InvitationResponse
 	if reviewer.Email != userEmail {
 		return nil, handler.NewErrorResponse(http.StatusForbidden, "you are not authorized to view this invitation")
 	}
+	if !canAccessReviewerPreAcceptArtifact(assignment.Status) {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "this assignment is not available for reviewer invitation preview")
+	}
 
 	invitation, err := c.assignmentStorage.GetInvitationData(ctx, assignmentID)
 	if err != nil {

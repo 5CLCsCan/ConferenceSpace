@@ -1486,16 +1486,32 @@ func TestInvitationFlow(t *testing.T) {
 
 		var invBody struct {
 			Data struct {
-				AssignmentID   int64  `json:"assignment_id"`
-				Status         string `json:"status"`
-				PaperTitle     string `json:"paper_title"`
-				ConferenceName string `json:"conference_name"`
+				AssignmentID    int64    `json:"assignment_id"`
+				ConferenceID    int64    `json:"conference_id"`
+				SubmissionID    int64    `json:"submission_id"`
+				Status          string   `json:"status"`
+				PaperTitle      string   `json:"paper_title"`
+				PaperAbstract   string   `json:"paper_abstract"`
+				ConferenceName  string   `json:"conference_name"`
+				Track           string   `json:"track"`
+				Keywords        []string `json:"keywords"`
+				SubmittedAt     string   `json:"submitted_at"`
+				UpdatedAt       string   `json:"updated_at"`
+				FileName        string   `json:"file_name"`
+				FileSize        int64    `json:"file_size"`
+				FileContentType string   `json:"file_content_type"`
 			} `json:"data"`
 		}
 		testutils.DecodeResponse(t, invResp, &invBody)
 
 		if invBody.Data.AssignmentID != assignmentID {
 			t.Errorf("Expected assignment_id %d, got %d", assignmentID, invBody.Data.AssignmentID)
+		}
+		if invBody.Data.ConferenceID != conferenceID {
+			t.Errorf("Expected conference_id %d, got %d", conferenceID, invBody.Data.ConferenceID)
+		}
+		if invBody.Data.SubmissionID == 0 {
+			t.Error("Expected non-empty submission_id")
 		}
 		if invBody.Data.Status != "pending" {
 			t.Errorf("Expected status pending, got %s", invBody.Data.Status)
@@ -1505,6 +1521,24 @@ func TestInvitationFlow(t *testing.T) {
 		}
 		if invBody.Data.ConferenceName == "" {
 			t.Error("Expected non-empty conference name")
+		}
+		if invBody.Data.PaperAbstract == "" {
+			t.Error("Expected non-empty paper abstract")
+		}
+		if len(invBody.Data.Keywords) == 0 {
+			t.Error("Expected reviewer-visible submission keywords")
+		}
+		if invBody.Data.SubmittedAt == "" || invBody.Data.UpdatedAt == "" {
+			t.Error("Expected submitted and updated timestamps")
+		}
+		if invBody.Data.FileName != "test_paper.pdf" {
+			t.Errorf("Expected file_name test_paper.pdf, got %q", invBody.Data.FileName)
+		}
+		if invBody.Data.FileSize == 0 {
+			t.Error("Expected non-empty file_size")
+		}
+		if invBody.Data.FileContentType != "application/pdf" {
+			t.Errorf("Expected file_content_type application/pdf, got %q", invBody.Data.FileContentType)
 		}
 	})
 

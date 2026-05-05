@@ -36,15 +36,32 @@ func New(db *sql.DB) *Storage {
 	}
 }
 
-// AddRole adds or updates a role for a user in a conference
+func isAdminRole(role string) bool {
+	return role == model.RoleChair || role == model.RoleCoChair || role == model.RolePC
+}
+
+func wantsRole(roles []string, target string) bool {
+	for _, role := range roles {
+		if role == target {
+			return true
+		}
+	}
+	return false
+}
+
+// AddRole adds or updates a role for a user in a conference.
+// Admin roles are authoritative for a conference and must not be downgraded by
+// later author/reviewer interactions.
 func (s *Storage) AddRole(ctx context.Context, conferenceID int64, userEmail string, role string) error {
-	// Exclusivity check: PC cannot coexist with other roles in the same conference
 	existingRole, err := s.getExistingRole(ctx, conferenceID, userEmail)
 	if err != nil {
 		return err
 	}
 	if existingRole != "" && existingRole != role {
-		if role == model.RolePC || existingRole == model.RolePC {
+		if isAdminRole(existingRole) && !isAdminRole(role) {
+			return fmt.Errorf("%w: user %s already has admin role '%s' in this conference; cannot assign '%s'", ErrRoleConflict, userEmail, existingRole, role)
+		}
+		if isAdminRole(role) && !isAdminRole(existingRole) {
 			return fmt.Errorf("%w: user %s already has role '%s' in this conference; cannot assign '%s'", ErrRoleConflict, userEmail, existingRole, role)
 		}
 	}
@@ -116,13 +133,15 @@ func (s *Storage) AddRoles(ctx context.Context, roles []model.RoleAssignment) er
 		if assignment.UserEmail == "" || assignment.ConferenceID == 0 {
 			continue
 		}
-		// Exclusivity check for PC role
 		existingRole, err := s.getExistingRole(ctx, assignment.ConferenceID, assignment.UserEmail)
 		if err != nil {
 			return err
 		}
 		if existingRole != "" && existingRole != assignment.Role {
-			if assignment.Role == model.RolePC || existingRole == model.RolePC {
+			if isAdminRole(existingRole) && !isAdminRole(assignment.Role) {
+				return fmt.Errorf("%w: user %s already has admin role '%s'; cannot assign '%s'", ErrRoleConflict, assignment.UserEmail, existingRole, assignment.Role)
+			}
+			if isAdminRole(assignment.Role) && !isAdminRole(existingRole) {
 				return fmt.Errorf("%w: user %s already has role '%s'; cannot assign '%s'", ErrRoleConflict, assignment.UserEmail, existingRole, assignment.Role)
 			}
 		}
@@ -357,6 +376,32 @@ func (s *Storage) getExistingRole(ctx context.Context, conferenceID int64, userE
 
 // HasRole checks if a user has any of the specified roles in a conference
 func (s *Storage) HasRole(ctx context.Context, conferenceID int64, userEmail string, roles []string) (bool, error) {
+	if wantsRole(roles, model.RoleChair) || wantsRole(roles, model.RoleCoChair) {
+		query, args, err := s.qb.
+			Select("COUNT(*)").
+			From(model.ConferenceTableName).
+			Where(sq.Eq{model.ColConferenceID: conferenceID}).
+			Where(sq.Or{
+				sq.And{
+					sq.Eq{model.ColChair: userEmail},
+					sq.Expr("?", wantsRole(roles, model.RoleChair)),
+				},
+				sq.Expr("? = ANY("+model.ColCoChairs+") AND ?", userEmail, wantsRole(roles, model.RoleCoChair)),
+			}).
+			ToSql()
+		if err != nil {
+			return false, fmt.Errorf("failed to build conference ownership query: %w", err)
+		}
+
+		var ownerCount int
+		if err := s.db.QueryRowContext(ctx, query, args...).Scan(&ownerCount); err != nil {
+			return false, fmt.Errorf("failed to check conference ownership: %w", err)
+		}
+		if ownerCount > 0 {
+			return true, nil
+		}
+	}
+
 	query, args, err := s.qb.
 		Select("COUNT(*)").
 		From(model.ConferenceUserRoleTableName).

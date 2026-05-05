@@ -155,6 +155,13 @@ func (c *Controller) markSubmissionDirty(ctx context.Context, conferenceID, subm
 	}
 }
 
+func (c *Controller) rejectAdminAuthorPath(ctx context.Context, conferenceID int64, userEmail string) error {
+	if utils.IsUserChairCoChairOrPC(ctx, c.roleStorage, conferenceID, userEmail) {
+		return handler.NewErrorResponse(http.StatusForbidden, "conference admins must use the chair workspace for this conference")
+	}
+	return nil
+}
+
 // Create godoc
 // @Summary      Create a new submission
 // @Description  Create a new conference submission with required paper file and optional cover letter. The paper PDF file is mandatory when creating a submission. Submission can include a track field to categorize the paper into one of the conference tracks.
@@ -217,6 +224,9 @@ func (c *Controller) Create(ginCtx *gin.Context, req *dto.SubmissionCreateReques
 	if conference.Status != model.ConferenceStatusOpen {
 		return nil, handler.NewErrorResponse(http.StatusForbidden,
 			fmt.Sprintf("submissions are not allowed. Conference status is '%s', but must be 'open'", conference.Status))
+	}
+	if err := c.rejectAdminAuthorPath(ctx, conferenceID, userEmail); err != nil {
+		return nil, err
 	}
 
 	// Check submission deadline when creating a published submission
@@ -422,9 +432,11 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.SubmissionListRequest) (
 		Track:        req.Track,
 	}
 
-	// Authorization: non-chair callers can only list their own submissions
-	if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, conferenceID, userEmail) {
+	isAdmin := utils.IsUserChairCoChairOrPC(ctx, c.roleStorage, conferenceID, userEmail)
+	if !isAdmin {
 		params.Author = userEmail
+	} else if req.Author == userEmail {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "conference admins must use the chair workspace for this conference")
 	}
 
 	submissions, total, err := c.submissionStorage.List(ctx, params)
@@ -544,6 +556,9 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.SubmissionUpdateReques
 
 	if existing.Author != userEmail {
 		return nil, handler.NewErrorResponse(http.StatusForbidden, "only the author can update this submission")
+	}
+	if err := c.rejectAdminAuthorPath(ctx, conferenceID, userEmail); err != nil {
+		return nil, err
 	}
 
 	if existing.Status == dto.StatusAccepted || existing.Status == dto.StatusRejected {
@@ -684,6 +699,9 @@ func (c *Controller) Publish(ginCtx *gin.Context, req *dto.SubmissionPublishRequ
 
 	if existing.Author != userEmail {
 		return nil, handler.NewErrorResponse(http.StatusForbidden, "only the author can publish this submission")
+	}
+	if err := c.rejectAdminAuthorPath(ctx, conferenceID, userEmail); err != nil {
+		return nil, err
 	}
 
 	if existing.Status != dto.StatusDraft {
@@ -851,6 +869,9 @@ func (c *Controller) Delete(ginCtx *gin.Context) error {
 
 	if existing.Author != userEmail {
 		return handler.NewErrorResponse(http.StatusForbidden, "only the author can delete this submission")
+	}
+	if err := c.rejectAdminAuthorPath(ctx, conferenceID, userEmail); err != nil {
+		return err
 	}
 
 	if existing.Status == dto.StatusPublished {

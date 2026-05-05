@@ -977,8 +977,8 @@ func (s *Storage) GetCompletedPapers(ctx context.Context, reviewerID int64, para
 	return papers, total, nil
 }
 
-// GetAssignedPapers retrieves papers assigned to reviewer in a specific conference with pagination and filters
-// Note: Excludes "suggested" status assignments as those are not yet confirmed by the chair
+// GetAssignedPapers retrieves active papers assigned to reviewer in a specific conference with pagination and filters
+// Note: Excludes suggested and declined assignments because those are not reviewer-accessible work items.
 func (s *Storage) GetAssignedPapers(ctx context.Context, reviewerID, conferenceID int64, params *PaperListParams) ([]*dto.AssignedPaperResponse, int64, error) {
 	baseQuery := s.qb.
 		Select(
@@ -1007,7 +1007,7 @@ func (s *Storage) GetAssignedPapers(ctx context.Context, reviewerID, conferenceI
 		Where(sq.And{
 			sq.Eq{"cr.user_id": reviewerID},
 			sq.Eq{"cs.conference_id": conferenceID},
-			sq.NotEq{"pa.status": "suggested"}, // Exclude suggested assignments
+			sq.Eq{"pa.status": []string{"pending", "accepted", "completed"}},
 		})
 
 	// Count query for total
@@ -1019,7 +1019,7 @@ func (s *Storage) GetAssignedPapers(ctx context.Context, reviewerID, conferenceI
 		Where(sq.And{
 			sq.Eq{"cr.user_id": reviewerID},
 			sq.Eq{"cs.conference_id": conferenceID},
-			sq.NotEq{"pa.status": "suggested"}, // Exclude suggested assignments
+			sq.Eq{"pa.status": []string{"pending", "accepted", "completed"}},
 		})
 
 	// Apply search filter if provided

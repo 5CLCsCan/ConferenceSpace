@@ -152,16 +152,25 @@ type ReviewAuditFinding struct {
 	Code                 string `json:"code"`
 	Severity             string `json:"severity"`
 	Field                string `json:"field"`
+	Rationale            string `json:"rationale"`
 	Message              string `json:"message"`
 	Suggestion           string `json:"suggestion"`
 	ConditionFingerprint string `json:"condition_fingerprint"`
 }
 
+type ReviewAuditEvaluation struct {
+	Summary               string `json:"summary"`
+	EvidenceEngagement    string `json:"evidence_engagement"`
+	ConsistencyAssessment string `json:"consistency_assessment"`
+	ImprovementFocus      string `json:"improvement_focus"`
+}
+
 type ReviewAuditResponse struct {
-	Status            string               `json:"status"`
-	RunID             string               `json:"run_id,omitempty"`
-	ActiveFindings    []ReviewAuditFinding `json:"active_findings,omitempty"`
-	DismissedFindings []ReviewAuditFinding `json:"dismissed_findings,omitempty"`
+	Status            string                `json:"status"`
+	RunID             string                `json:"run_id,omitempty"`
+	Evaluation        ReviewAuditEvaluation `json:"evaluation"`
+	ActiveFindings    []ReviewAuditFinding  `json:"active_findings,omitempty"`
+	DismissedFindings []ReviewAuditFinding  `json:"dismissed_findings,omitempty"`
 }
 
 type ReviewAuditDismissal struct {
@@ -457,12 +466,21 @@ type InvitationEvidence struct {
 
 // InvitationResponse is the response for GET .../invitation
 type InvitationResponse struct {
-	AssignmentID   int64               `json:"assignment_id"`
-	Status         string              `json:"status"`
-	PaperTitle     string              `json:"paper_title"`
-	PaperAbstract  string              `json:"paper_abstract"`
-	ConferenceName string              `json:"conference_name"`
-	Evidence       *InvitationEvidence `json:"evidence"`
+	AssignmentID    int64               `json:"assignment_id"`
+	ConferenceID    int64               `json:"conference_id"`
+	SubmissionID    int64               `json:"submission_id"`
+	Status          string              `json:"status"`
+	PaperTitle      string              `json:"paper_title"`
+	PaperAbstract   string              `json:"paper_abstract"`
+	ConferenceName  string              `json:"conference_name"`
+	Track           string              `json:"track"`
+	Keywords        []string            `json:"keywords"`
+	SubmittedAt     *time.Time          `json:"submitted_at,omitempty"`
+	UpdatedAt       *time.Time          `json:"updated_at,omitempty"`
+	FileName        string              `json:"file_name,omitempty"`
+	FileSize        int64               `json:"file_size,omitempty"`
+	FileContentType string              `json:"file_content_type,omitempty"`
+	Evidence        *InvitationEvidence `json:"evidence"`
 }
 
 // RespondRequest is the request body for PUT .../respond

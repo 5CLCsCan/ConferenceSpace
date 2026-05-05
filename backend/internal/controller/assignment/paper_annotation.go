@@ -103,6 +103,9 @@ func (c *Controller) preparePaperAnnotationRequest(
 	if err != nil || assignment.ConferenceID != req.ConferenceID {
 		return nil, nil, nil, aiServiceClient.ReviewerBriefingFileMetadataPayload{}, "", handler.NewErrorResponse(404, "assignment not found")
 	}
+	if !canAccessReviewerPreAcceptArtifact(assignment.Status) {
+		return nil, nil, nil, aiServiceClient.ReviewerBriefingFileMetadataPayload{}, "", handler.NewErrorResponse(403, "this assignment is not available for reviewer paper annotation")
+	}
 
 	reviewer, err := c.reviewerStorage.GetByID(ginCtx.Request.Context(), assignment.ReviewerID)
 	if err != nil {
