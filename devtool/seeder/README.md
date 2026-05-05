@@ -10,6 +10,22 @@ Python scripts that populate a running ConferenceSpace instance with demo data.
 
 ## Seeders
 
+### `seed_two_conferences.py` — Two-Conference Demo (Recommended)
+
+Creates two conferences for live demos. Each run generates **fresh data** with a unique timestamp suffix on all emails and acronyms — no collisions with previous runs.
+
+1. **SUG{timestamp}** — Reviewer Suggestion demo. Empty committee with 12 pre-registered platform users at varying domain overlap. Chair opens Suggested Reviewers and invites people.
+2. **ASG{timestamp}** — Auto Assignment demo. 8 accepted reviewers + 7 published submissions. Chair triggers auto-assign from the Assignments tab.
+
+```bash
+python3 devtool/seeder/seed_two_conferences.py
+python3 devtool/seeder/seed_two_conferences.py --base-url http://localhost:8080
+```
+
+All accounts use password `Demo@123`. A single chair account owns both conferences. Emails follow the pattern `{slug}_{timestamp}@demo.com`. The full account table is printed at the end of each run.
+
+---
+
 ### `seed_demo.py` — Full-Feature Demo
 
 Seeds a comprehensive environment covering all AI features: Submission Gating, Reviewer Briefing, Decision Copilot, and Semantic Scholar integration.
@@ -103,11 +119,12 @@ python3 devtool/seeder/seed_rebuttal_demo.py --base-url http://localhost:8080 --
 
 ## Quick Reference
 
-| Script                              | What it demos                | Fresh each run? |
-|-------------------------------------|------------------------------|-----------------|
-| `seed_demo.py`                      | All AI features              | No              |
-| `seed_test_data.py`                 | Suggestions workflow         | No              |
-| `seed_reviewer_suggestion_demo.py`  | Reviewer suggestion ranking  | Yes             |
-| `seed_reviewer_match_demo.py`       | Match details UI             | Yes             |
-| `seed_ai003_reviewer_briefing.py`   | Reviewer briefing (AI-003)   | No              |
-| `seed_rebuttal_demo.py`            | Rebuttal phase states        | Yes (default)   |
+| Script                              | What it demos                | Fresh each run? | Idempotent? |
+|-------------------------------------|------------------------------|-----------------|-------------|
+| `seed_two_conferences.py`           | Suggestion + Auto-assign     | Yes             | —           |
+| `seed_demo.py`                      | All AI features              | No              | No          |
+| `seed_test_data.py`                 | Suggestions workflow         | No              | No          |
+| `seed_reviewer_suggestion_demo.py`  | Reviewer suggestion ranking  | Yes             | No          |
+| `seed_reviewer_match_demo.py`       | Match details UI             | Yes             | No          |
+| `seed_ai003_reviewer_briefing.py`   | Reviewer briefing (AI-003)   | No              | Yes         |
+| `seed_rebuttal_demo.py`            | Rebuttal phase states        | Yes (default)   | No          |

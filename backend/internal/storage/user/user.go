@@ -38,6 +38,7 @@ type StorageInterface interface {
 	DeleteByEmail(ctx context.Context, email string) error
 	UpdatePassword(ctx context.Context, email string, hashedPassword string) error
 	SetEmailVerified(ctx context.Context, email string, verified bool) error
+	GetLinkedSemanticScholarIDs(ctx context.Context, semanticIDs []string) (map[string]bool, error)
 }
 
 // Storage handles user data persistence
@@ -763,6 +764,37 @@ func (s *Storage) SetEmailVerified(ctx context.Context, email string, verified b
 	}
 
 	return nil
+}
+
+func (s *Storage) GetLinkedSemanticScholarIDs(ctx context.Context, semanticIDs []string) (map[string]bool, error) {
+	if len(semanticIDs) == 0 {
+		return map[string]bool{}, nil
+	}
+
+	query, args, err := s.qb.
+		Select(model.UserColSemanticScholarID).
+		From(model.UserTableName).
+		Where(sq.Eq{model.UserColSemanticScholarID: semanticIDs}).
+		ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("failed to build query: %w", err)
+	}
+
+	rows, err := s.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query linked semantic scholar IDs: %w", err)
+	}
+	defer rows.Close()
+
+	linked := make(map[string]bool)
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, fmt.Errorf("failed to scan semantic scholar ID: %w", err)
+		}
+		linked[id] = true
+	}
+	return linked, rows.Err()
 }
 
 func (s *Storage) DeleteByEmail(ctx context.Context, email string) error {

@@ -113,6 +113,12 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 
 	reviewerSuggestionSvc := buildReviewerSuggestionService(store, clients)
 
+	// Wire the S2 controller into the external invitation orchestrator so
+	// AcceptInvitation can auto-link Semantic Scholar profiles.
+	if semanticScholarCtrl != nil {
+		orch.ExternalInvitation.SetSemanticScholarCtrl(semanticScholarCtrl)
+	}
+
 	return &Controller{
 		Auth:               auth.New(orch, serverEnv),
 		User:               user.New(store, assignmentService, semanticScholarCtrl, reviewerSuggestionSvc), // Pass assignment service for COI checks; suggestion service for /users/search?conference_id= annotation
@@ -172,6 +178,12 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 	}
 
 	reviewerSuggestionSvc := buildReviewerSuggestionService(store, clients)
+
+	// Wire the S2 controller into the external invitation orchestrator so
+	// AcceptInvitation can auto-link Semantic Scholar profiles.
+	if semanticScholarCtrl != nil {
+		orch.ExternalInvitation.SetSemanticScholarCtrl(semanticScholarCtrl)
+	}
 
 	return &Controller{
 		Auth:               auth.New(orch, serverEnv),

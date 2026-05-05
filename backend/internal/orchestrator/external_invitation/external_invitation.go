@@ -59,6 +59,12 @@ func New(
 	}
 }
 
+// SetSemanticScholarCtrl allows late-binding the S2 controller after
+// construction (the S2 client is only available in the controller layer).
+func (o *Orchestrator) SetSemanticScholarCtrl(ctrl *semanticScholarController.Controller) {
+	o.semanticScholarCtrl = ctrl
+}
+
 // BatchCreate persists invitations and, for every successful row, attaches
 // invitation_url so the chair can copy and forward the link to the invitee.
 // The platform itself does not deliver the link — the chair handles that.
@@ -210,11 +216,38 @@ func (o *Orchestrator) AcceptInvitation(ctx context.Context, req *dto.ExternalIn
 	if inv.ScholarID != nil && *inv.ScholarID != "" && o.semanticScholarCtrl != nil {
 		scholarID := *inv.ScholarID
 		userID := userResp.ID
+
+		// Persist the semantic_scholar_id on the user record so the profile
+		// appears linked immediately (sync status = "pending" until done).
+		pendingStatus := "pending"
+		linkDTO := &dto.User{
+			Email:                userResp.Email,
+			FirstName:            userResp.FirstName,
+			LastName:             userResp.LastName,
+			Domain:               userResp.Domain,
+			SemanticScholarID:    &scholarID,
+			SemanticScholarIDSet: true,
+			ProfileSyncStatus:    &pendingStatus,
+			ProfileSyncStatusSet: true,
+		}
+		if updated, updateErr := o.userStorage.Update(ctx, userID, linkDTO); updateErr == nil {
+			userResp = updated
+		}
+
 		go func() {
 			bgCtx := context.Background()
+			newStatus := "completed"
 			if syncErr := o.semanticScholarCtrl.SyncAuthorProfile(bgCtx, userID, scholarID, ""); syncErr != nil {
 				fmt.Printf("[external-invitation] S2 sync failed user=%d scholar=%s err=%v\n",
 					userID, scholarID, syncErr)
+				newStatus = "failed"
+			}
+			// Update sync status on user record.
+			currentUser, err := o.userStorage.GetByID(bgCtx, userID)
+			if err == nil {
+				currentUser.User.ProfileSyncStatus = &newStatus
+				currentUser.User.ProfileSyncStatusSet = true
+				_, _ = o.userStorage.Update(bgCtx, userID, currentUser.User)
 			}
 		}()
 	}
@@ -245,6 +278,7 @@ func (o *Orchestrator) AcceptInvitation(ctx context.Context, req *dto.ExternalIn
 		if _, err := o.reviewerStorage.Create(ctx, inv.ConferenceID, &dto.Reviewer{
 			UserID: userResp.ID,
 			Status: "accepted",
+			Domain: userResp.Domain,
 		}); err != nil {
 			return nil, fmt.Errorf("auto-assign reviewer: %w", err)
 		}
