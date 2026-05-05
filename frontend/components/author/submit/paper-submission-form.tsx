@@ -2,11 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import { publishPaper, submitPaper, updatePaper } from "@/lib/api/papers"
+import { getTrackRecommendations, publishPaper, submitPaper, updatePaper } from "@/lib/api/papers"
 import { updateSubmissionStatus } from "@/lib/api/submissions"
 import { useAuth } from "@/lib/auth-context"
 import { ROUTES } from "@/lib/routes"
-import type { Conference, PrecheckBlockedError, PrecheckResult } from "@/lib/types"
+import type {
+  Conference,
+  PrecheckBlockedError,
+  PrecheckResult,
+  TrackRecommendation,
+} from "@/lib/types"
 import type { Submission } from "@/lib/api/submissions"
 import { useToast } from "@/components/ui/use-toast"
 import {
@@ -86,14 +91,18 @@ export function PaperSubmissionForm({
   // Paper Details state
   const [title, setTitle] = useState(initialSubmission?.title || "")
   const [abstract, setAbstract] = useState(initialSubmission?.abstract || "")
-  const [keywords, setKeywords] = useState<string[]>(
-    initialSubmission?.information?.keywords || ["Machine Learning", "Neural Networks"],
-  )
+  const [keywords, setKeywords] = useState<string[]>(initialSubmission?.information?.keywords || [])
   const [keywordInput, setKeywordInput] = useState("")
   const [selectedTrack, setSelectedTrack] = useState<string>(
     initialSubmission?.information?.track_name || "",
   )
   const [isStudentPaper, setIsStudentPaper] = useState(false)
+  const [trackRecommendations, setTrackRecommendations] = useState<TrackRecommendation[]>([])
+  const [trackRecommendationLoading, setTrackRecommendationLoading] = useState(false)
+  const [trackRecommendationError, setTrackRecommendationError] = useState<string | null>(null)
+  const [lastRecommendationSignature, setLastRecommendationSignature] = useState<string | null>(
+    null,
+  )
 
   // Authors state
   const [authors, setAuthors] = useState<Author[]>([
@@ -256,6 +265,19 @@ export function PaperSubmissionForm({
   )
 
   const hasUnsavedChanges = draftSignature !== lastSavedSignatureRef.current
+  const recommendationSignature = useMemo(
+    () =>
+      JSON.stringify({
+        title: title.trim(),
+        abstract: abstract.trim(),
+        keywords: keywords.map((keyword) => keyword.trim().toLowerCase()).sort(),
+      }),
+    [abstract, keywords, title],
+  )
+  const recommendationStale =
+    lastRecommendationSignature !== null && lastRecommendationSignature !== recommendationSignature
+  const recommendationEligible =
+    title.trim().length >= 8 && abstract.trim().split(/\s+/).filter(Boolean).length >= 20
 
   const saveDraft = useCallback(
     async ({ manual = false, force = false }: { manual?: boolean; force?: boolean } = {}) => {
@@ -394,6 +416,40 @@ export function PaperSubmissionForm({
   const handleRemoveKeyword = (keyword: string) => {
     setKeywords(keywords.filter((k) => k !== keyword))
   }
+
+  const handleFindTrackRecommendations = useCallback(async () => {
+    if (!conference || !recommendationEligible || trackRecommendationLoading) {
+      return
+    }
+
+    setTrackRecommendationLoading(true)
+    setTrackRecommendationError(null)
+    try {
+      const response = await getTrackRecommendations({
+        conference_id: conference.id,
+        title,
+        abstract,
+        keywords,
+      })
+      if (response.error) {
+        setTrackRecommendationError(response.error)
+        return
+      }
+
+      setTrackRecommendations(response.data || [])
+      setLastRecommendationSignature(recommendationSignature)
+    } finally {
+      setTrackRecommendationLoading(false)
+    }
+  }, [
+    abstract,
+    conference,
+    keywords,
+    recommendationEligible,
+    recommendationSignature,
+    title,
+    trackRecommendationLoading,
+  ])
 
   // Author handlers
   const handleAddAuthor = () => {
@@ -600,6 +656,12 @@ export function PaperSubmissionForm({
       setAutosaveStatus("idle")
     }
   }, [autosaveStatus, draftSignature, hasUnsavedChanges])
+
+  useEffect(() => {
+    if (trackRecommendationError) {
+      setTrackRecommendationError(null)
+    }
+  }, [recommendationSignature])
 
   useEffect(() => {
     if (!conference || !user || isNewSubmissionBlocked) {
@@ -865,6 +927,11 @@ export function PaperSubmissionForm({
                 selectedTrack={selectedTrack}
                 isStudentPaper={isStudentPaper}
                 availableTracks={availableTracks}
+                recommendationEligible={recommendationEligible}
+                recommendationLoading={trackRecommendationLoading}
+                recommendationStale={recommendationStale}
+                recommendationError={trackRecommendationError}
+                recommendations={trackRecommendations}
                 onTitleChange={setTitle}
                 onAbstractChange={setAbstract}
                 onKeywordInputChange={setKeywordInput}
@@ -872,6 +939,7 @@ export function PaperSubmissionForm({
                 onRemoveKeyword={handleRemoveKeyword}
                 onTrackChange={setSelectedTrack}
                 onStudentPaperChange={setIsStudentPaper}
+                onFindRecommendations={handleFindTrackRecommendations}
               />
             )}
 

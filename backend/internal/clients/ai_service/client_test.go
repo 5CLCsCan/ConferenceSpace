@@ -333,6 +333,97 @@ func TestReviewerBriefingClient(t *testing.T) {
 	})
 }
 
+func TestResearchKeywordClient(t *testing.T) {
+	t.Run("posts json payload and decodes response", func(t *testing.T) {
+		var gotAuth string
+		var gotBody []byte
+
+		client := NewClient(Config{BaseURL: "http://example.test", TimeoutSeconds: 5})
+		client.httpClient = &http.Client{
+			Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
+				gotAuth = r.Header.Get("Authorization")
+				var err error
+				gotBody, err = io.ReadAll(r.Body)
+				require.NoError(t, err)
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Header:     http.Header{"Content-Type": []string{"application/json"}},
+					Body: io.NopCloser(strings.NewReader(
+						`{"keywords":["Machine Learning","Computer Vision"]}`,
+					)),
+				}, nil
+			}),
+		}
+		response, err := client.ExtractResearchKeywords(
+			context.Background(),
+			"Bearer token-123",
+			&ResearchKeywordExtractionRequest{
+				Papers: []ResearchKeywordPaperSample{
+					{Title: "Paper One", Abstract: "Abstract One", Venue: "CVPR", Year: 2025},
+				},
+			},
+		)
+		require.NoError(t, err)
+		require.NotNil(t, response)
+
+		assert.Equal(t, "Bearer token-123", gotAuth)
+		assert.Contains(t, string(gotBody), `"title":"Paper One"`)
+		assert.Equal(t, []string{"Machine Learning", "Computer Vision"}, response.Keywords)
+	})
+}
+
+func TestTrackRecommendationClient(t *testing.T) {
+	t.Run("posts json payload and decodes ranked tracks", func(t *testing.T) {
+		var gotAuth string
+		var gotBody []byte
+
+		client := NewClient(Config{BaseURL: "http://example.test", TimeoutSeconds: 5})
+		client.httpClient = &http.Client{
+			Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
+				gotAuth = r.Header.Get("Authorization")
+				var err error
+				gotBody, err = io.ReadAll(r.Body)
+				require.NoError(t, err)
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Header:     http.Header{"Content-Type": []string{"application/json"}},
+					Body: io.NopCloser(strings.NewReader(
+						`{"recommendations":[{"track_name":"AI Systems","confidence":0.92,"reasoning":"Focuses on efficient model serving.","rank":1}]}`,
+					)),
+				}, nil
+			}),
+		}
+		response, err := client.RecommendTracks(
+			context.Background(),
+			"token-123",
+			&TrackRecommendationRequest{
+				Conference: TrackRecommendationConferenceContext{
+					Title:       "ConferenceSpace 2026",
+					Acronym:     "CS26",
+					Description: "Systems and AI conference",
+					Domains:     []string{"AI", "Systems"},
+					Tracks:      []string{"AI Systems", "Theory"},
+				},
+				Paper: TrackRecommendationPaperContext{
+					Title:    "Serving LLMs Efficiently",
+					Abstract: "We optimize online inference stacks for production serving.",
+					Keywords: []string{"LLM Serving", "Inference Systems"},
+				},
+			},
+		)
+		require.NoError(t, err)
+		require.NotNil(t, response)
+
+		assert.Equal(t, "Bearer token-123", gotAuth)
+		assert.Contains(t, string(gotBody), `"tracks":["AI Systems","Theory"]`)
+		require.Len(t, response.Recommendations, 1)
+		assert.Equal(t, "AI Systems", response.Recommendations[0].TrackName)
+		assert.Equal(t, 1, response.Recommendations[0].Rank)
+	})
+}
+
 type roundTripFunc func(*http.Request) (*http.Response, error)
 
 func (fn roundTripFunc) RoundTrip(r *http.Request) (*http.Response, error) {

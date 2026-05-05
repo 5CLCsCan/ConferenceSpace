@@ -43,6 +43,7 @@ type Controller struct {
 	gatingClient          GatingClient
 	decisionCopilotClient DecisionCopilotClient
 	autofillClient        SubmissionAutofillClient
+	trackRecommendation   TrackRecommendationClient
 	coiService            *coiService.Service
 	notificationService   *notificationService.Service
 }
@@ -75,6 +76,14 @@ type DecisionCopilotClient interface {
 	) (*aiServiceClient.DecisionCopilotResolveResponse, error)
 }
 
+type TrackRecommendationClient interface {
+	RecommendTracks(
+		ctx context.Context,
+		token string,
+		requestPayload *aiServiceClient.TrackRecommendationRequest,
+	) (*aiServiceClient.TrackRecommendationResponse, error)
+}
+
 type SubmissionAutofillClient interface {
 	RunSubmissionAutofill(
 		ctx context.Context,
@@ -88,6 +97,7 @@ type AIWorkflowClient interface {
 	GatingClient
 	DecisionCopilotClient
 	SubmissionAutofillClient
+	TrackRecommendationClient
 }
 
 func New(store *storage.Storage, fileStore fileStorage.StorageInterface, aiWorkflowClient AIWorkflowClient, coiSvc *coiService.Service) *Controller {
@@ -102,6 +112,7 @@ func New(store *storage.Storage, fileStore fileStorage.StorageInterface, aiWorkf
 		gatingClient:          aiWorkflowClient,
 		decisionCopilotClient: aiWorkflowClient,
 		autofillClient:        aiWorkflowClient,
+		trackRecommendation:   aiWorkflowClient,
 		coiService:            coiSvc,
 	}
 }
@@ -125,6 +136,7 @@ func NewWithNotifications(
 		gatingClient:          aiWorkflowClient,
 		decisionCopilotClient: aiWorkflowClient,
 		autofillClient:        aiWorkflowClient,
+		trackRecommendation:   aiWorkflowClient,
 		coiService:            coiSvc,
 		notificationService:   notifSvc,
 	}
@@ -507,7 +519,7 @@ func (c *Controller) Get(ginCtx *gin.Context) (*dto.Submission, error) {
 
 // Update godoc
 // @Summary      Update submission
-// @Description  Update submission details including metadata, paper file, and cover letter. Supports both JSON (metadata only) and multipart/form-data (with file uploads). Only draft submissions can be updated, and only by the author.
+// @Description  Update submission details including metadata, paper file, and cover letter. Supports both JSON (metadata only) and multipart/form-data (with file uploads). Only the author can update the submission. Finalized accepted/rejected submissions cannot be edited, and editing is locked after the submission deadline.
 // @Tags         submissions
 // @Accept       json,multipart/form-data
 // @Produce      json

@@ -53,7 +53,7 @@ function resolveAuthErrorMessage(
       return t("auth.register.errors.emailInUse")
     }
     if (flow === "login" && error.status === 401) {
-      return t("auth.login.errors.failed")
+      return t("auth.login.errors.invalidCredentials")
     }
     if (error.status >= 500) {
       return fallback

@@ -2,8 +2,12 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"reflect"
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/utils"
@@ -273,16 +277,16 @@ func HandleRequestWithURI[Req any, Res any](handler func(ctx *gin.Context, req *
 func HandleRequestWithURIAndJSON[Req any, Res any](handler func(ctx *gin.Context, req *Req) (*Res, error)) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req Req
-		// Bind URI parameters first (with validation)
-		if err := ctx.ShouldBindUri(&req); err != nil {
-			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
-			return
+		// Bind JSON body first.
+		if ctx.Request.Body != nil {
+			decoder := json.NewDecoder(ctx.Request.Body)
+			if err := decoder.Decode(&req); err != nil && !errors.Is(err, io.EOF) {
+				ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+				return
+			}
 		}
-		// Then bind JSON body using decoder (no automatic validation)
-		if err := ctx.ShouldBindJSON(&req); err != nil {
-			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
-			return
-		}
+		// Then overlay URI params without running validation on JSON-only fields.
+		applyURIParams(&req, ctx.Params)
 
 		response, err := handler(ctx, &req)
 		if err != nil {
@@ -298,16 +302,16 @@ func HandleRequestWithURIAndJSON[Req any, Res any](handler func(ctx *gin.Context
 func HandleRequestWithURIAndJSONWithStatus[Req any, Res any](statusCode int, handler func(ctx *gin.Context, req *Req) (*Res, error)) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req Req
-		// Bind URI parameters first
-		if err := ctx.ShouldBindUri(&req); err != nil {
-			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
-			return
+		// Bind JSON body first.
+		if ctx.Request.Body != nil {
+			decoder := json.NewDecoder(ctx.Request.Body)
+			if err := decoder.Decode(&req); err != nil && !errors.Is(err, io.EOF) {
+				ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+				return
+			}
 		}
-		// Then bind JSON body
-		if err := ctx.ShouldBindJSON(&req); err != nil {
-			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
-			return
-		}
+		// Then overlay URI params without running validation on JSON-only fields.
+		applyURIParams(&req, ctx.Params)
 
 		response, err := handler(ctx, &req)
 		if err != nil {
@@ -316,6 +320,48 @@ func HandleRequestWithURIAndJSONWithStatus[Req any, Res any](statusCode int, han
 		}
 
 		ctx.JSON(statusCode, Response{Data: response})
+	}
+}
+
+func applyURIParams(target any, params gin.Params) {
+	value := reflect.ValueOf(target)
+	if value.Kind() != reflect.Ptr || value.IsNil() {
+		return
+	}
+
+	elem := value.Elem()
+	if elem.Kind() != reflect.Struct {
+		return
+	}
+
+	elemType := elem.Type()
+	for i := 0; i < elem.NumField(); i++ {
+		field := elem.Field(i)
+		structField := elemType.Field(i)
+		uriTag := structField.Tag.Get("uri")
+		if uriTag == "" || !field.CanSet() {
+			continue
+		}
+
+		paramValue, ok := params.Get(uriTag)
+		if !ok {
+			continue
+		}
+
+		switch field.Kind() {
+		case reflect.String:
+			field.SetString(paramValue)
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			var parsed int64
+			if _, err := fmt.Sscanf(paramValue, "%d", &parsed); err == nil {
+				field.SetInt(parsed)
+			}
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			var parsed uint64
+			if _, err := fmt.Sscanf(paramValue, "%d", &parsed); err == nil {
+				field.SetUint(parsed)
+			}
+		}
 	}
 }
 

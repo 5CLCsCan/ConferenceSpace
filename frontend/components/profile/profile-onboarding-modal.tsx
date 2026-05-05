@@ -14,6 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useToast } from "@/hooks/use-toast"
+import { ApiError } from "@/lib/api/client"
 import {
   parseSemanticScholarAuthorInput,
   semanticScholarApi,
@@ -50,6 +51,14 @@ const AUTHOR_URL_EXAMPLES = [
   "https://www.semanticscholar.org/author/1741101",
   "1741101",
 ]
+
+function isAlreadyLinkedProfileError(error: unknown) {
+  return (
+    error instanceof ApiError &&
+    error.status === 409 &&
+    /already linked to another account/i.test(error.message)
+  )
+}
 
 function getHomepageDomain(homepage?: string) {
   if (!homepage) return null
@@ -298,12 +307,19 @@ export function ProfileOnboardingModal({
         onComplete(selectedAuthor.authorId)
         onOpenChange(false)
       }, 900)
-    } catch {
+    } catch (error) {
+      const isAlreadyLinked = isAlreadyLinkedProfileError(error)
       toast({
-        title: t("runtime.components.profile.profile-onboarding-modal.prop_title_link_failed"),
-        description: t(
-          "runtime.components.profile.profile-onboarding-modal.prop_description_could_not_link_this_profile_please",
-        ),
+        title: isAlreadyLinked
+          ? t("runtime.components.profile.profile-onboarding-modal.prop_title_profile_already_connected")
+          : t("runtime.components.profile.profile-onboarding-modal.prop_title_link_failed"),
+        description: isAlreadyLinked
+          ? t(
+              "runtime.components.profile.profile-onboarding-modal.prop_description_this_profile_has_already_been_connected_to_an_account_on_the_platform",
+            )
+          : t(
+              "runtime.components.profile.profile-onboarding-modal.prop_description_could_not_link_this_profile_please",
+            ),
         variant: "destructive",
       })
     } finally {
@@ -545,7 +561,7 @@ export function ProfileOnboardingModal({
                         <button
                           key={author.authorId}
                           type="button"
-                          className="w-full rounded-xl border border-slate-200 bg-slate-50 text-left transition-colors hover:border-slate-300 hover:bg-white"
+                          className="group w-full cursor-pointer rounded-xl border border-slate-200 bg-slate-50 text-left shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:border-[#1B3C53]/35 hover:bg-white hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1B3C53]/30 focus-visible:ring-offset-2 active:translate-y-0 active:scale-[0.995]"
                           onClick={() => void handleResolveAuthor(author.authorId, "search")}
                         >
                           <div className="flex items-start gap-3 p-3.5">
@@ -553,7 +569,7 @@ export function ProfileOnboardingModal({
                             <div className="min-w-0 flex-1 space-y-2.5">
                               <div className="flex flex-wrap items-start justify-between gap-3">
                                 <div className="min-w-0">
-                                  <h3 className="text-[13px] font-semibold text-[#1B3C53]">
+                                  <h3 className="text-[13px] font-semibold text-[#1B3C53] transition-colors group-hover:text-[#163246]">
                                     {author.name}
                                   </h3>
                                   <p className="mt-1 text-[11px] text-slate-600">
@@ -632,7 +648,7 @@ export function ProfileOnboardingModal({
                                   {previewPapers.map((paper) => (
                                     <div
                                       key={`${author.authorId}-${paper.paperId}`}
-                                      className="rounded-lg bg-white px-3 py-2"
+                                      className="rounded-lg bg-white px-3 py-2 transition-colors group-hover:bg-slate-50"
                                     >
                                       <p className="text-[11px] font-medium leading-relaxed text-slate-700 line-clamp-1">
                                         {paper.title}
@@ -644,6 +660,15 @@ export function ProfileOnboardingModal({
                                   ))}
                                 </div>
                               ) : null}
+
+                              <div className="flex items-center justify-end pt-1">
+                                <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#1B3C53] opacity-0 transition-opacity group-hover:opacity-100">
+                                  {t(
+                                    "runtime.components.profile.profile-onboarding-modal.text_select_this_profile",
+                                  )}
+                                  <CheckCircle className="h-3.5 w-3.5" />
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </button>

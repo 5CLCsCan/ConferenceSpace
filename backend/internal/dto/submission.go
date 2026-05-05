@@ -72,6 +72,24 @@ type DecisionCopilotRequest struct {
 	SubmissionID int64 `uri:"submission_id" binding:"required"`
 }
 
+type TrackRecommendationRequest struct {
+	ConferenceID int64    `uri:"conference_id" binding:"required"`
+	Title        string   `json:"title" binding:"required"`
+	Abstract     string   `json:"abstract" binding:"required"`
+	Keywords     []string `json:"keywords"`
+}
+
+type TrackRecommendation struct {
+	TrackName  string  `json:"track_name"`
+	Confidence float64 `json:"confidence"`
+	Reasoning  string  `json:"reasoning"`
+	Rank       int     `json:"rank"`
+}
+
+type TrackRecommendationResponse struct {
+	Recommendations []TrackRecommendation `json:"recommendations"`
+}
+
 type SubmissionUpdateRequest struct {
 	ConferenceID int64       `uri:"conference_id" binding:"required"`
 	ID           int64       `uri:"submission_id" binding:"required"`

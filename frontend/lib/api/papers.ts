@@ -1,10 +1,15 @@
 import { apiFetch, API_BASE_URL, ApiError } from "@/lib/api/client"
-import type { Paper, PrecheckBlockedError, PrecheckResult } from "@/lib/types"
+import type { Paper, PrecheckBlockedError, PrecheckResult, TrackRecommendation } from "@/lib/types"
 
 interface PaperMutationResult {
   data: Paper | null
   error: string | null
   precheckBlocked?: PrecheckBlockedError | null
+}
+
+interface TrackRecommendationResult {
+  data: TrackRecommendation[] | null
+  error: string | null
 }
 
 function parsePrecheckBlocked(error: unknown): PrecheckBlockedError | null {
@@ -245,6 +250,36 @@ export async function updatePaper(
   }
 }
 
+export async function getTrackRecommendations(data: {
+  conference_id: string
+  title: string
+  abstract: string
+  keywords: string[]
+}): Promise<TrackRecommendationResult> {
+  try {
+    const { data: responseData } = await apiFetch<{
+      data: { recommendations: TrackRecommendation[] }
+    }>(`/api/v1/conferences/${data.conference_id}/submissions/track-recommendation`, {
+      method: "POST",
+      body: JSON.stringify({
+        title: data.title,
+        abstract: data.abstract,
+        keywords: data.keywords,
+      }),
+    })
+
+    return {
+      data: responseData.data.recommendations || [],
+      error: null,
+    }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to get track recommendations",
+    }
+  }
+}
+
 /**
  * Publish a draft submission
  * Backend endpoint: POST /api/v1/conferences/:conference_id/submissions/:id/publish
@@ -456,7 +491,8 @@ const MOCK_PRECHECK_RESULT: PrecheckResult = {
       category: "title_abstract",
       description: "Abstract structure and length",
       status: "pass",
-      details: "Abstract contains 245 words with clear problem statement, methodology, and results.",
+      details:
+        "Abstract contains 245 words with clear problem statement, methodology, and results.",
       confidence: 0.92,
     },
     {
@@ -488,7 +524,8 @@ const MOCK_PRECHECK_RESULT: PrecheckResult = {
       category: "writing_quality",
       description: "Sentence length compliance",
       status: "warning",
-      details: "7 sentences exceed the 25-word recommended limit. Consider breaking them into shorter sentences for readability.",
+      details:
+        "7 sentences exceed the 25-word recommended limit. Consider breaking them into shorter sentences for readability.",
       confidence: 0.88,
     },
     {
@@ -496,7 +533,8 @@ const MOCK_PRECHECK_RESULT: PrecheckResult = {
       category: "writing_quality",
       description: "Banned phrases detection",
       status: "fail",
-      details: "Found banned phrase: 'it is obvious that' (page 4, line 12). Academic writing should avoid assumptive language.",
+      details:
+        "Found banned phrase: 'it is obvious that' (page 4, line 12). Academic writing should avoid assumptive language.",
       confidence: 0.97,
     },
     {
@@ -512,7 +550,8 @@ const MOCK_PRECHECK_RESULT: PrecheckResult = {
       category: "experiments",
       description: "Minimum tables requirement",
       status: "fail",
-      details: "Paper contains 1 table but minimum required is 3. Add comparison tables for results and ablation studies.",
+      details:
+        "Paper contains 1 table but minimum required is 3. Add comparison tables for results and ablation studies.",
       confidence: 1.0,
     },
     {
@@ -520,7 +559,8 @@ const MOCK_PRECHECK_RESULT: PrecheckResult = {
       category: "scope_match",
       description: "Conference scope alignment",
       status: "pass",
-      details: "Paper topics (NLP, neural machine translation, attention mechanisms) align with conference domains.",
+      details:
+        "Paper topics (NLP, neural machine translation, attention mechanisms) align with conference domains.",
       confidence: 0.91,
     },
     {

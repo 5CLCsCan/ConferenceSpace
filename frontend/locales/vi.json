@@ -5,7 +5,9 @@
   "auth": {
     "login": {
       "errors": {
-        "failed": "Đăng nhập thất bại"
+        "failed": "Đăng nhập thất bại",
+        "invalidCredentials": "Không thể đăng nhập với email và mật khẩu này.",
+        "invalidCredentialsHint": "Vui lòng kiểm tra lại thông tin rồi thử lại, hoặc đặt lại mật khẩu."
       },
       "forgotPassword": "Quên mật khẩu?",
       "noAccount": "Chưa có tài khoản?",
@@ -581,9 +583,32 @@
           "prop_text_structured_peer_review": "Phản biện đồng nghiệp có cấu trúc",
           "text_conferencespace": "CONFERENCESPACE",
           "text_create_your_scholar_account_to_submit": "Tạo tài khoản học giả của bạn để nộp bài báo, phản biện bản thảo và chủ trì hội nghị.",
+          "text_failed_to_load_invitation": "Không tải được thông tin lời mời.",
           "text_creating_account": "Đang tạo tài khoản...",
+          "text_invited_to_join_conference": "{inviter} đã mời bạn tham gia {conference} với vai trò {role}.",
           "text_join_the_academic_research_community": "Tham gia cộng đồng nghiên cứu học thuật.",
-          "text_passwords_do_not_match": "Mật khẩu xác nhận không khớp"
+          "text_loading_invitation": "Đang tải thông tin lời mời...",
+          "text_passwords_do_not_match": "Mật khẩu xác nhận không khớp",
+          "text_role_co_chair": "Đồng chủ tịch",
+          "text_role_pc": "Thành viên ban chương trình",
+          "text_role_reviewer": "Phản biện"
+        }
+      },
+      "invite": {
+        "page": {
+          "text_accept_invitation": "Chấp nhận lời mời",
+          "text_conference_invitation": "Lời mời hội nghị",
+          "text_decline_invitation": "Từ chối lời mời",
+          "text_failed_to_load_invitation": "Không tải được lời mời.",
+          "text_go_to_dashboard": "Đi đến bảng điều khiển",
+          "text_invitation_accepted": "Đã chấp nhận lời mời.",
+          "text_invitation_declined": "Đã từ chối lời mời.",
+          "text_invitation_sent_to_email": "Lời mời này gắn với {email}.",
+          "text_invitation_status": "Lời mời hiện đang ở trạng thái {status}.",
+          "text_loading_invitation": "Đang tải lời mời...",
+          "text_missing_invitation_token": "Thiếu mã lời mời.",
+          "text_sign_in_to_continue": "Đăng nhập hoặc tạo tài khoản bằng đúng email được mời để tiếp tục.",
+          "text_wrong_account_email": "Bạn đang đăng nhập bằng {currentEmail}, nhưng lời mời này được gửi đến {invitedEmail}."
         }
       },
       "reset-password": {
@@ -1107,6 +1132,8 @@
             "text_mb_click_to_replace": "MB - Bấm để thay thế",
             "text_mb_existing_file": "MB - Tệp hiện có",
             "text_optional": "(Không bắt buộc)",
+            "text_failed": "Kiểm tra trước thất bại",
+            "text_checking": "Đang kiểm tra...",
             "text_pdf_docx_and_tex_files_are": "Cho phép các tệp PDF, DOCX và TEX",
             "text_ready": "Sẵn sàng",
             "text_running_quality_check_on_your_paper": "Đang chạy kiểm tra chất lượng bài báo của bạn...",
@@ -1120,19 +1147,29 @@
             "title_preview": "Xem trước"
           },
           "paper-details-step": {
+            "text_add_a_more_descriptive_title_and_abstract_to_unlock_track_recommendation": "Bổ sung tiêu đề và tóm tắt chi tiết hơn để mở gợi ý track.",
             "placeholder_e_g_optimizing_neural_networks_for": "ví dụ: Tối ưu hóa mạng thần kinh cho thiết bị biên",
             "text_500_words": "/ 500 từ",
             "text_abstract": "Tóm tắt",
             "text_check_this_box_if_the_primary": "Đánh dấu vào ô này nếu tác giả chính là sinh viên.",
             "text_conference_track": "Track hội nghị",
+            "text_find_best_fit_tracks": "Tìm track phù hợp",
+            "text_finding_tracks": "Đang tìm track...",
             "text_keywords": "Từ khóa",
             "text_paper_information": "Thông tin bài báo",
+            "text_paper_details_changed_refresh_the_recommendation_before_using_it": "Thông tin bài báo đã thay đổi. Hãy làm mới gợi ý trước khi dùng.",
             "text_paper_title": "Tiêu đề bài báo",
             "text_provide_3_5_keywords_separated_by": "Cung cấp 3-5 từ khóa cách nhau bằng Enter.",
+            "text_refresh_recommendation": "Làm mới gợi ý",
+            "text_selected_track": "Đã chọn",
             "text_select_a_track": "Chọn một track...",
             "text_select_the_most_relevant_track_for": "Chọn track phù hợp nhất cho nghiên cứu của bạn để đảm bảo phân công phản biện phù hợp.",
             "text_select_track": "Chọn track",
-            "text_student_paper": "Bài báo sinh viên"
+            "text_student_paper": "Bài báo sinh viên",
+            "text_track_recommendation": "Gợi ý Track",
+            "text_use_this_track": "Dùng track này",
+            "text_use_your_paper_summary_to_rank_the_conference_tracks_before_you_choose_one_manually": "Dùng phần tóm tắt bài báo để xếp hạng các track trước khi bạn tự chọn.",
+            "text_view_all_ranked_tracks": "Xem toàn bộ xếp hạng track"
           },
           "paper-submission-form": {
             "prop_description_add_all_contributing_authors_use_the": "Thêm tất cả các tác giả đóng góp. Sử dụng tay cầm kéo để sắp xếp chúng theo sự đóng góp của chúng. Đảm bảo một tác giả được đánh dấu là người liên hệ tương ứng.",
@@ -2169,6 +2206,7 @@
           "placeholder_paste_profile_url_or_author_id": "Dán URL hồ sơ hoặc mã tác giả Semantic Scholar",
           "placeholder_search_by_name": "Tìm kiếm theo tên...",
           "prop_description_could_not_link_this_profile_please": "Không thể liên kết hồ sơ này. Vui lòng thử lại.",
+          "prop_description_this_profile_has_already_been_connected_to_an_account_on_the_platform": "Hồ sơ này đã được liên kết với một tài khoản trên nền tảng. Nếu bạn cho rằng đây là nhầm lẫn, vui lòng liên hệ bộ phận hỗ trợ.",
           "prop_description_could_not_load_full_author_details": "Không thể tải đầy đủ thông tin chi tiết về tác giả, hiển thị hồ sơ cơ bản.",
           "prop_description_could_not_search_semantic_scholar_please": "Không thể tìm kiếm Semantic Scholar. Vui lòng thử lại.",
           "prop_description_enter_a_valid_semantic_scholar_profile_link": "Nhập liên kết hồ sơ hoặc mã tác giả Semantic Scholar hợp lệ.",
@@ -2181,6 +2219,7 @@
           "prop_title_academic_profile_linked": "Hồ sơ học thuật đã liên kết",
           "prop_title_limited_details": "Chi tiết hạn chế",
           "prop_title_link_failed": "Liên kết không thành công",
+          "prop_title_profile_already_connected": "Hồ sơ đã được liên kết",
           "prop_title_no_authors_found": "Không tìm thấy tác giả nào",
           "prop_title_search_failed": "Tìm kiếm không thành công",
           "text_back_to_paste": "Quay lại dán liên kết",
@@ -2212,6 +2251,7 @@
           "text_search_your_name_or_paper_title": "Tìm tên của bạn trên Semantic Scholar.",
           "text_search": "Tìm kiếm",
           "text_search_for_your_name_to_find": "Tìm kiếm tên của bạn để tìm hồ sơ của bạn",
+          "text_select_this_profile": "Chọn hồ sơ này",
           "text_semantic_scholar_profile": "Hồ sơ Semantic Scholar",
           "text_semantic_scholar_profile_url_or_author_id": "URL hồ sơ hoặc mã tác giả Semantic Scholar",
           "text_skip_for_now": "Bỏ qua bây giờ",

@@ -235,6 +235,13 @@ export interface Paper {
   ai_suggestions?: AISuggestion
 }
 
+export interface TrackRecommendation {
+  track_name: string
+  confidence: number
+  reasoning: string
+  rank: number
+}
+
 // Author interface
 export interface Author {
   user_id: string
