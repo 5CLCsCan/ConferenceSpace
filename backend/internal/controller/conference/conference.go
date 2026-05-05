@@ -300,8 +300,19 @@ func (c *Controller) List(ginCtx *gin.Context, req *dto.ConferenceListRequest) (
 			UserRole:           conf.UserRole,
 		}
 
-		// Sanitize sensitive fields for non-chair callers
-		if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, conf.ID, userEmail) {
+		// Sanitize sensitive fields for non-chair callers.
+		// Use the already-loaded Chair, CoChairs, and UserRole fields to
+		// avoid an N+1 DB query per conference.
+		isAdmin := conf.Chair == userEmail || conf.UserRole == model.RoleChair || conf.UserRole == model.RoleCoChair
+		if !isAdmin {
+			for _, cc := range conf.CoChairs {
+				if cc == userEmail {
+					isAdmin = true
+					break
+				}
+			}
+		}
+		if !isAdmin {
 			userConf.Configurations = publicConferenceConfigurations(userConf.Configurations)
 		}
 

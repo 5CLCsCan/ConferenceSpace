@@ -12,6 +12,7 @@ import (
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 // Response represents a standard API response
@@ -312,6 +313,13 @@ func HandleRequestWithURIAndJSONWithStatus[Req any, Res any](statusCode int, han
 		}
 		// Then overlay URI params without running validation on JSON-only fields.
 		applyURIParams(&req, ctx.Params)
+
+		// Run struct validation (binding:"required", "dive", etc.) that
+		// json.Decoder.Decode does not trigger on its own.
+		if err := binding.Validator.ValidateStruct(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
+			return
+		}
 
 		response, err := handler(ctx, &req)
 		if err != nil {
