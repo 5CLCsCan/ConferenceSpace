@@ -118,6 +118,7 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 	if semanticScholarCtrl != nil {
 		orch.ExternalInvitation.SetSemanticScholarCtrl(semanticScholarCtrl)
 	}
+	orch.ExternalInvitation.SetNotificationService(notifSvc)
 
 	return &Controller{
 		Auth:               auth.New(orch, serverEnv),
@@ -184,6 +185,7 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 	if semanticScholarCtrl != nil {
 		orch.ExternalInvitation.SetSemanticScholarCtrl(semanticScholarCtrl)
 	}
+	orch.ExternalInvitation.SetNotificationService(notifSvc)
 
 	return &Controller{
 		Auth:               auth.New(orch, serverEnv),
