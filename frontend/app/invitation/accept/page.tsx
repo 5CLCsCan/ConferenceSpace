@@ -95,8 +95,18 @@ function AcceptInvitationContent() {
     [form.password, form.confirm],
   )
 
+  const [domainInput, setDomainInput] = useState("")
+
   const handleRemoveDomain = (d: string) =>
     setForm((s) => ({ ...s, domain: s.domain.filter((x) => x !== d) }))
+
+  const handleAddDomain = () => {
+    const trimmed = domainInput.trim()
+    if (trimmed && !form.domain.includes(trimmed)) {
+      setForm((s) => ({ ...s, domain: [...s.domain, trimmed] }))
+    }
+    setDomainInput("")
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -273,10 +283,10 @@ function AcceptInvitationContent() {
               />
             </div>
 
-            {/* Research domains (prefilled from fields_of_study) */}
-            {form.domain.length > 0 && (
-              <div className="auth-field">
-                <label className="auth-label">Research domains</label>
+            {/* Research domains (prefilled from fields_of_study, editable) */}
+            <div className="auth-field">
+              <label className="auth-label">Research domains</label>
+              {form.domain.length > 0 && (
                 <div
                   style={{
                     display: "flex",
@@ -304,6 +314,7 @@ function AcceptInvitationContent() {
                       <button
                         type="button"
                         onClick={() => handleRemoveDomain(d)}
+                        disabled={submitting}
                         style={{
                           background: "none",
                           border: "none",
@@ -322,8 +333,43 @@ function AcceptInvitationContent() {
                     </span>
                   ))}
                 </div>
+              )}
+              <div style={{ display: "flex", gap: "6px", marginTop: "6px" }}>
+                <input
+                  type="text"
+                  value={domainInput}
+                  onChange={(e) => setDomainInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault()
+                      handleAddDomain()
+                    }
+                  }}
+                  placeholder="Type a domain and press Enter"
+                  disabled={submitting}
+                  className="auth-input"
+                  style={{ flex: 1 }}
+                />
+                <button
+                  type="button"
+                  onClick={handleAddDomain}
+                  disabled={submitting || !domainInput.trim()}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: "6px",
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    border: "1px solid #d1d5db",
+                    backgroundColor: domainInput.trim() ? "#f9fafb" : "#f3f4f6",
+                    color: domainInput.trim() ? "#374151" : "#9ca3af",
+                    cursor: domainInput.trim() ? "pointer" : "default",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Add
+                </button>
               </div>
-            )}
+            </div>
 
             {/* Password */}
             <div className="auth-field">

@@ -87,6 +87,7 @@ func (c *Controller) SearchAuthors(ginCtx *gin.Context) (*semantic_scholar.Searc
 	if err == nil && found {
 		var result semantic_scholar.SearchResponse
 		if err := json.Unmarshal(cachedData, &result); err == nil {
+			c.filterLinkedAuthors(ctx, &result)
 			return &result, nil
 		}
 	}
@@ -103,7 +104,38 @@ func (c *Controller) SearchAuthors(ginCtx *gin.Context) (*semantic_scholar.Searc
 		_ = c.cache.Set(ctx, cacheKey, cache.CacheTypeAuthorSearch, data)
 	}
 
+	c.filterLinkedAuthors(ctx, result)
+
 	return result, nil
+}
+
+// filterLinkedAuthors removes authors whose Semantic Scholar ID is already
+// linked to an internal platform user, so they only appear as internal results.
+func (c *Controller) filterLinkedAuthors(ctx context.Context, result *semantic_scholar.SearchResponse) {
+	if result == nil || len(result.Data) == 0 {
+		return
+	}
+
+	var authorIDs []string
+	for _, a := range result.Data {
+		if a.AuthorID != "" {
+			authorIDs = append(authorIDs, a.AuthorID)
+		}
+	}
+
+	linked, err := c.users.GetLinkedSemanticScholarIDs(ctx, authorIDs)
+	if err != nil || len(linked) == 0 {
+		return
+	}
+
+	filtered := make([]semantic_scholar.Author, 0, len(result.Data))
+	for _, a := range result.Data {
+		if !linked[a.AuthorID] {
+			filtered = append(filtered, a)
+		}
+	}
+	result.Data = filtered
+	result.Total = len(filtered)
 }
 
 // GetAuthorDetails handles author details requests
