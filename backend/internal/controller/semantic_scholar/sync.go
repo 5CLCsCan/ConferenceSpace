@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sync"
 
 	aiServiceClient "github.com/dcao/conferencespace/internal/clients/ai_service"
@@ -111,8 +112,34 @@ func (c *Controller) syncResearchDomains(ctx context.Context, userID int64, pape
 		return nil
 	}
 
-	_, err = c.users.UpdateDomain(ctx, userID, keywords)
+	user, err := c.users.GetByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	mergedKeywords := mergeResearchKeywords(user.User.Domain, keywords)
+	_, err = c.users.UpdateDomain(ctx, userID, mergedKeywords)
 	return err
+}
+
+func mergeResearchKeywords(existing []string, extracted []string) []string {
+	merged := make([]string, 0, len(existing)+len(extracted))
+	seen := make(map[string]struct{}, len(existing)+len(extracted))
+
+	for _, keyword := range append(existing, extracted...) {
+		trimmed := strings.TrimSpace(keyword)
+		if trimmed == "" {
+			continue
+		}
+		key := strings.ToLower(trimmed)
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		merged = append(merged, trimmed)
+	}
+
+	return merged
 }
 
 func (c *Controller) acquireSyncLock(userID int64) func() {
