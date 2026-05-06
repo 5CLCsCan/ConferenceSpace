@@ -86,25 +86,26 @@ describe("PaperDetailsStep", () => {
     onFindRecommendations: vi.fn(),
   }
 
-  it("shows recommendation controls only when eligible", () => {
-    render(<PaperDetailsStep {...baseProps} recommendationEligible={false} recommendations={[]} />)
-
-    expect(screen.getByText(/unlock track recommendation/i)).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: /find best-fit tracks/i })).toBeDisabled()
-  })
-
-  it("copies a recommended track into the selector when clicked", () => {
+  it("keeps track recommendation controls hidden", () => {
     render(<PaperDetailsStep {...baseProps} />)
 
-    fireEvent.click(screen.getAllByRole("button", { name: /use this track/i })[0])
+    expect(screen.queryByText(/track recommendation/i)).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /find best-fit tracks/i })).not.toBeInTheDocument()
+    expect(screen.getByRole("combobox")).toBeInTheDocument()
+  })
+
+  it("copies the manually selected track from the selector", () => {
+    render(<PaperDetailsStep {...baseProps} />)
+
+    fireEvent.change(screen.getByRole("combobox"), { target: { value: "AI Systems" } })
 
     expect(baseProps.onTrackChange).toHaveBeenCalledWith("AI Systems")
   })
 
-  it("shows stale messaging and refresh action after paper changes", () => {
+  it("does not show stale recommendation messaging after paper changes", () => {
     render(<PaperDetailsStep {...baseProps} recommendationStale />)
 
-    expect(screen.getByText(/paper details changed/i)).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: /refresh recommendation/i })).toBeInTheDocument()
+    expect(screen.queryByText(/paper details changed/i)).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /refresh recommendation/i })).not.toBeInTheDocument()
   })
 })
