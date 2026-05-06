@@ -82,6 +82,7 @@ func (s *syncScholarStorage) DeleteProfileByUserID(context.Context, int64) error
 }
 
 type syncUserStorage struct {
+	userDomain []string
 	lastUserID int64
 	lastDomain []string
 }
@@ -90,8 +91,8 @@ func (s *syncUserStorage) Create(context.Context, *dto.User, string, bool) (*dto
 	panic("unexpected call to Create")
 }
 
-func (s *syncUserStorage) GetByID(context.Context, int64) (*dto.UserResponse, error) {
-	panic("unexpected call to GetByID")
+func (s *syncUserStorage) GetByID(_ context.Context, id int64) (*dto.UserResponse, error) {
+	return &dto.UserResponse{User: &dto.User{ID: id, Domain: append([]string(nil), s.userDomain...)}}, nil
 }
 
 func (s *syncUserStorage) GetByEmail(context.Context, string) (*dto.UserResponse, error) {
@@ -136,6 +137,10 @@ func (s *syncUserStorage) SetEmailVerified(context.Context, string, bool) error 
 	panic("unexpected call to SetEmailVerified")
 }
 
+func (s *syncUserStorage) GetLinkedSemanticScholarIDs(context.Context, []string) (map[string]bool, error) {
+	panic("unexpected call to GetLinkedSemanticScholarIDs")
+}
+
 type fakeResearchKeywordClient struct {
 	lastToken  string
 	lastPapers []aiServiceClient.ResearchKeywordPaperSample
@@ -160,7 +165,7 @@ func (f *fakeResearchKeywordClient) ExtractResearchKeywords(
 
 func TestSyncAuthorProfileUpdatesResearchDomains(t *testing.T) {
 	scholarStore := &syncScholarStorage{}
-	userStore := &syncUserStorage{}
+	userStore := &syncUserStorage{userDomain: []string{"Distributed Systems", "machine learning"}}
 	keywordClient := &fakeResearchKeywordClient{keywords: []string{"Machine Learning", "Natural Language Processing"}}
 	controller := &Controller{
 		client: &fakeSyncSemanticScholarClient{
@@ -206,8 +211,14 @@ func TestSyncAuthorProfileUpdatesResearchDomains(t *testing.T) {
 	if userStore.lastUserID != 42 {
 		t.Fatalf("lastUserID = %d, want 42", userStore.lastUserID)
 	}
-	if len(userStore.lastDomain) != 2 || userStore.lastDomain[0] != "Machine Learning" {
-		t.Fatalf("lastDomain = %v, want inferred keywords", userStore.lastDomain)
+	wantDomain := []string{"Distributed Systems", "machine learning", "Natural Language Processing"}
+	if len(userStore.lastDomain) != len(wantDomain) {
+		t.Fatalf("lastDomain = %v, want %v", userStore.lastDomain, wantDomain)
+	}
+	for i := range wantDomain {
+		if userStore.lastDomain[i] != wantDomain[i] {
+			t.Fatalf("lastDomain = %v, want %v", userStore.lastDomain, wantDomain)
+		}
 	}
 	if keywordClient.lastToken != "Bearer author-token" {
 		t.Fatalf("lastToken = %q, want bearer token to flow to ai-service", keywordClient.lastToken)
