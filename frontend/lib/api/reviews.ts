@@ -1,5 +1,6 @@
 import { ApiError, apiFetch } from "./client"
 import type { AssignedPaper } from "@/lib/types"
+import { endFlow, trackFlowStep } from "@/lib/analytics"
 
 /**
  * Get all completed papers for a reviewer across all conferences (optimized single call)
@@ -214,13 +215,24 @@ export async function saveAssignmentReview(
     audit_failure_override_confirmed?: boolean
   },
   method: "POST" | "PUT" = "POST",
-): Promise<{ data: AssignmentReview | null; error: string | null; status: number; errorData?: unknown }> {
+): Promise<{
+  data: AssignmentReview | null
+  error: string | null
+  status: number
+  errorData?: unknown
+}> {
   try {
     const endpoint = `/api/v1/conferences/${conferenceId}/assignments/${assignmentId}/review`
     const { data, response } = await apiFetch<{ data: AssignmentReview }>(endpoint, {
       method,
       body: JSON.stringify(payload),
     })
+    if (payload.status === "submitted") {
+      const flowId = trackFlowStep("reviewer_review", "review_submitted", 6, {
+        feature: "review",
+      })
+      endFlow(flowId, "completed")
+    }
     return { data: data.data || null, error: null, status: response.status }
   } catch (error: any) {
     return {

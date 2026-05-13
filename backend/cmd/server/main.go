@@ -265,6 +265,12 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			authProtected.POST("/change-password", handler.HandleRequest(ctrl.Auth.ChangePassword))
 		}
 
+		analytics := v1.Group("/analytics")
+		analytics.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
+		{
+			analytics.POST("/events", handler.HandleRequest(ctrl.Analytics.RecordEvents))
+		}
+
 		// Public external invitation accept flow (no auth required)
 		extInvPublic := v1.Group("/external-invitations")
 		{

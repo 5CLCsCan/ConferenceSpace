@@ -27,6 +27,7 @@ import {
 import { capturePageContext } from "@/lib/chatbot/page-context"
 import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { trackEvent } from "@/lib/analytics"
 
 import { useChatbot } from "./chatbot-provider"
 import { ChatTranscript } from "./chat-transcript"
@@ -295,6 +296,10 @@ export function ChatView({
       const files = (await Promise.all(attachments.map(toFilePart))).filter(
         (file): file is NonNullable<typeof file> => file !== null,
       )
+      trackEvent("ai_message_sent", {
+        feature: "ai_chatbot",
+        metadata: { has_attachment: files.length > 0 },
+      })
       sendMessage(files.length > 0 ? { text: input, files } : { text: input })
       attachments.forEach((attachment) => {
         if (attachment.url) {

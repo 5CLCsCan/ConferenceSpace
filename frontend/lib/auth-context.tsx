@@ -5,6 +5,7 @@ import type { User, UserRole } from "./types"
 import { apiFetch, ApiError, UnauthorizedError } from "./api/client"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { sessionManager } from "./session-manager"
+import { flushAnalytics, setAnalyticsContext, trackEvent } from "./analytics"
 
 interface AuthContextType {
   user: User | null
@@ -276,6 +277,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const normalizedUser = normalizeUser(apiUser)
         sessionManager.setUser(normalizedUser, true, rememberMe)
+        setAnalyticsContext({ user: normalizedUser })
+        trackEvent("login_succeeded", {
+          feature: "auth",
+          metadata: { remember_me: rememberMe },
+        })
+        void flushAnalytics()
         syncWithSessionManager()
         setIsAuthLoading(false)
 
@@ -322,6 +329,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     (role: UserRole) => {
       const success = sessionManager.setRole(role, true)
       if (success) {
+        setAnalyticsContext({ role })
+        trackEvent("role_selected", {
+          feature: "role_switching",
+          role,
+          metadata: { selected_role: role },
+        })
         syncWithSessionManager()
       }
       return success

@@ -1,3 +1,5 @@
+import { trackApiSuccess } from "@/lib/analytics"
+
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080"
 
 export function getAuthToken(): string | null {
@@ -140,6 +142,8 @@ export async function apiFetch<TResponse = unknown>(
       body,
     )
   }
+
+  trackApiSuccess(normalizedPath, rest.method || "GET")
 
   return {
     data: body as TResponse,

@@ -6,6 +6,7 @@ import "./globals.css"
 import { AuthProvider } from "@/lib/auth-context"
 import { TranslationProvider } from "@/lib/i18n/translation-context"
 import { ChatbotProvider, Chatbot, ChatbotNavigationMask } from "@/components/chatbot"
+import { AnalyticsProvider } from "@/components/analytics/analytics-provider"
 import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({
@@ -39,20 +40,22 @@ export default function RootLayout({
       <body className="antialiased overflow-hidden h-screen" suppressHydrationWarning>
         <TranslationProvider>
           <AuthProvider>
-            <ChatbotProvider>
-              <div className="flex h-screen overflow-hidden">
-                <div className="relative flex-1 overflow-hidden">
-                  <main className="h-full transition-all duration-300 ease-out overflow-y-auto overflow-x-hidden">
-                    {children}
-                  </main>
-                  <Suspense fallback={null}>
-                    <ChatbotNavigationMask />
-                  </Suspense>
+            <AnalyticsProvider>
+              <ChatbotProvider>
+                <div className="flex h-screen overflow-hidden">
+                  <div className="relative flex-1 overflow-hidden">
+                    <main className="h-full transition-all duration-300 ease-out overflow-y-auto overflow-x-hidden">
+                      {children}
+                    </main>
+                    <Suspense fallback={null}>
+                      <ChatbotNavigationMask />
+                    </Suspense>
+                  </div>
+                  <Chatbot />
                 </div>
-                <Chatbot />
-              </div>
-              <Toaster />
-            </ChatbotProvider>
+                <Toaster />
+              </ChatbotProvider>
+            </AnalyticsProvider>
           </AuthProvider>
         </TranslationProvider>
       </body>

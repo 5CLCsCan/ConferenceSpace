@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/dcao/conferencespace/internal/config"
+	"github.com/dcao/conferencespace/internal/storage/analytics"
 	"github.com/dcao/conferencespace/internal/storage/assignment"
 	authtoken "github.com/dcao/conferencespace/internal/storage/auth_token"
 	"github.com/dcao/conferencespace/internal/storage/cache"
@@ -39,6 +40,7 @@ type Storage struct {
 	Discussion         discussion.StorageInterface
 	RebuttalPoint      rebuttal.StorageInterface
 	ExternalInvitation externalinvitation.StorageInterface
+	Analytics          analytics.StorageInterface
 }
 
 func NewStorage(db *sql.DB) *Storage {
@@ -58,6 +60,7 @@ func NewStorage(db *sql.DB) *Storage {
 		Discussion:         discussion.New(db),
 		RebuttalPoint:      rebuttal.New(db),
 		ExternalInvitation: externalinvitation.New(db),
+		Analytics:          analytics.New(db),
 	}
 }
 
