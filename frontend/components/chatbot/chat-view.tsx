@@ -423,7 +423,7 @@ export function ChatView({
                 >
                   upload_file
                 </span>
-                Drop to add file
+                {t("runtime.components.chatbot.chat-view.text_drop_to_add_file")}
               </div>
             </div>
           )}

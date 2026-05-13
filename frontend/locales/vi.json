@@ -708,6 +708,10 @@
             },
             "page": {
               "text_loading_conferences": "Đang tải hội nghị..."
+            },
+            "detail": {
+              "text_rebuttal": "Phản hồi",
+              "text_rebuttal_description": "Cấu hình giai đoạn phản hồi và theo dõi phản hồi của tác giả trong giai đoạn này."
             }
           },
           "page": {
@@ -779,6 +783,25 @@
           "text_verification_successful": "Xác minh thành công.",
           "text_verifying_your_email": "Đang xác minh email của bạn…",
           "text_your_email_address_has_been_confirmed": "Địa chỉ email của bạn đã được xác nhận. Bây giờ bạn có thể đăng nhập."
+        }
+      },
+      "invitation": {
+        "accept": {
+          "page": {
+            "text_missing_invitation_token": "Thiếu mã lời mời.",
+            "text_invalid_invitation": "Lời mời không hợp lệ",
+            "text_failed_to_accept_invitation": "Không thể chấp nhận lời mời",
+            "text_you_have_been_invited": "Bạn đã được mời!",
+            "text_create_account_to_join_prefix": "Tạo tài khoản để tham gia",
+            "text_create_account_to_join_as": "với vai trò",
+            "text_invited_by": "Được mời bởi",
+            "text_create_your_account": "Tạo tài khoản của bạn",
+            "text_invited_you_to_join": "đã mời bạn tham gia",
+            "text_research_domains": "Lĩnh vực nghiên cứu",
+            "placeholder_type_domain": "Nhập lĩnh vực và nhấn Enter",
+            "text_add": "Thêm",
+            "text_create_account_join_conference": "Tạo tài khoản và tham gia hội nghị"
+          }
         }
       }
     },
@@ -1431,7 +1454,11 @@
             "text_suggested_reviewer": "phản biện được đề xuất",
             "text_the_assignment_has_been_created_you": "Phân công đã được tạo. Bạn nên xem lại phân công này trước khi xác nhận.",
             "text_the_reviewer_was_added_but_has": "Phản biện đã được thêm nhưng có thể có xung đột lợi ích:",
-            "text_understood": "Đã hiểu"
+            "text_understood": "Đã hiểu",
+            "text_confirming": "Đang xác nhận...",
+            "text_removing": "Đang gỡ...",
+            "text_remove_success": "Đã gỡ phản biện khỏi bài nộp này.",
+            "text_remove_failed": "Không thể gỡ phản biện."
           },
           "conference-cfp": {
             "prop_description_docx_format": "định dạng .docx",
@@ -1570,7 +1597,18 @@
             "text_invitation_link": "Liên kết mời",
             "text_invitation_link_copied": "Đã sao chép!",
             "text_invitation_link_tooltip": "Gửi liên kết này cho người được mời — họ có thể nhấp vào để tự động tạo tài khoản ConferenceSpace và tham gia hội nghị.",
-            "text_invitation_status": "lời mời: {status}"
+            "text_invitation_status": "lời mời: {status}",
+            "aria_label_view_profile_for": "Xem hồ sơ của {name}",
+            "aria_label_open_semantic_scholar_profile_for": "Mở hồ sơ Semantic Scholar của {name}",
+            "text_invite_reviewer": "Mời phản biện",
+            "text_program_committee": "Ban chương trình",
+            "text_reviewer": "Phản biện",
+            "text_semantic_scholar": "Semantic Scholar",
+            "title_view_profile": "Xem hồ sơ",
+            "title_open_semantic_scholar_profile": "Mở hồ sơ Semantic Scholar",
+            "text_loading_hint_first": "Đang quét chủ đề bài nộp",
+            "text_loading_hint_second": "Đang khớp chuyên môn phản biện",
+            "text_loading_hint_third": "Đang chấm điểm ứng viên phản biện"
           },
           "conference-dates": {
             "text_anywhere_on_earth_aoe": "Mọi nơi trên Trái đất (AoE)",
@@ -1592,7 +1630,8 @@
             "text_text": "",
             "text_timezone": "Múi giờ",
             "text_until": "Cho đến khi",
-            "text_upcoming": "Sắp tới"
+            "text_upcoming": "Sắp tới",
+            "text_track_key_deadlines": "Theo dõi các hạn chót và cột mốc chính trong lịch hội nghị."
           },
           "conference-detail-dashboard": {
             "text_acceptance_rate": "Tỷ lệ chấp nhận",
@@ -1898,6 +1937,33 @@
           "track-status-card": {
             "text_track_status": "Trạng thái Track",
             "text_view_detailed_track_report": "Xem báo cáo track chi tiết"
+          },
+          "suggestion-detail": {
+            "text_auto_assign_pass_1": "Tự động phân công lượt 1",
+            "text_auto_assign_pass_2_fallback": "Tự động phân công lượt 2 (dự phòng)",
+            "text_manual": "Thủ công",
+            "text_passed": "Đạt",
+            "text_skipped_graph_database_unavailable": "Bỏ qua (cơ sở dữ liệu đồ thị không khả dụng)",
+            "text_conflict_detected": "Phát hiện xung đột",
+            "text_self_author_check": "Kiểm tra tự là tác giả",
+            "text_declared_conflicts_check": "Kiểm tra xung đột đã khai báo",
+            "text_relationship_check": "Kiểm tra quan hệ",
+            "text_detailed_breakdown_not_available": "Chưa có phân tích chi tiết cho các gợi ý được tạo trước tính năng này.",
+            "text_match_details": "Chi tiết khớp",
+            "text_score_breakdown": "Phân tích điểm",
+            "text_no_keyword_data_available": "Không có dữ liệu từ khóa",
+            "text_matched": "Đã khớp:",
+            "text_paper_only": "Chỉ trong bài:",
+            "text_reviewer_only": "Chỉ ở phản biện:",
+            "text_match_reasons": "Lý do khớp",
+            "text_manually_added_by_chair": "Do chair thêm thủ công - không có điểm tính toán",
+            "text_shares_keywords": "Chung {count} từ khóa:",
+            "text_no_keyword_overlap": "Không trùng từ khóa",
+            "text_fallback_assignment": "Phân công dự phòng - thêm để đủ số phản biện tối thiểu mỗi bài",
+            "text_coi_status": "Trạng thái COI",
+            "text_reviewer_load": "Tải phản biện",
+            "text_assigned_in_this_conference": "{count} bài được phân công trong hội nghị này",
+            "text_source": "Nguồn:"
           }
         },
         "conference-form-page": {
@@ -2038,7 +2104,8 @@
           "text_agentic": "đại lý",
           "text_ask_me_anything_about_the_conference": "Hỏi tôi bất cứ điều gì về hệ thống hội nghị",
           "text_standard": "Tiêu chuẩn",
-          "text_start_a_conversation": "Bắt đầu cuộc trò chuyện"
+          "text_start_a_conversation": "Bắt đầu cuộc trò chuyện",
+          "text_drop_to_add_file": "Thả để thêm tệp"
         },
         "chatbot-navigation-mask": {
           "text_navigating_to": "Điều hướng đến",
@@ -2258,7 +2325,8 @@
           "text_this_is_not_me": "Đây không phải tôi",
           "text_view_profile": "Xem hồ sơ",
           "text_we_will_sync_the_publications_shown_here": "Chúng tôi sẽ đồng bộ các công trình nghiên cứu hiển thị ở đây để xây dựng trang hồ sơ của bạn.",
-          "text_your_publication_data_will_appear_after": "Dữ liệu xuất bản của bạn sẽ xuất hiện sau khi quá trình đồng bộ hóa hoàn tất."
+          "text_your_publication_data_will_appear_after": "Dữ liệu xuất bản của bạn sẽ xuất hiện sau khi quá trình đồng bộ hóa hoàn tất.",
+          "text_view": "Xem"
         }
       },
       "reviewer": {
@@ -2484,7 +2552,15 @@
             "text_semantic_consistency_and_justification_audit": "Kiểm tra tính nhất quán và biện minh về mặt ngữ nghĩa",
             "title_advisory_warnings": "Gợi ý",
             "title_dismissed_warnings": "Phát hiện đã ẩn",
-            "title_submit_blockers": "Phát hiện ưu tiên"
+            "title_submit_blockers": "Phát hiện ưu tiên",
+            "text_evaluated": "Đã đánh giá",
+            "text_priority_signals": "Tín hiệu ưu tiên",
+            "text_findings_are_reviewer_facing": "Các phát hiện là tín hiệu chất lượng dành cho phản biện. Dùng phần đánh giá và lý do để quyết định nội dung cần chỉnh sửa, nếu có.",
+            "text_evidence_engagement": "Mức độ dùng bằng chứng",
+            "text_consistency": "Tính nhất quán",
+            "text_best_next_improvement": "Cải thiện tiếp theo tốt nhất",
+            "text_evaluation": "Đánh giá",
+            "text_rationale": "Lý do:"
           },
           "review-header": {
             "text_anonymous_authors": "tác giả ẩn danh",
@@ -2553,7 +2629,8 @@
             "title_review_readiness_signals": "Xem lại tín hiệu sẵn sàng",
             "title_reviewer_attention_points": "Điểm chú ý của phản biện",
             "text_paper_annotations": "Chú thích bài báo",
-            "title_scope_and_limitations": "Phạm vi và hạn chế"
+            "title_scope_and_limitations": "Phạm vi và hạn chế",
+            "text_paper_annotation": "Chú thích bài báo:"
           },
           "paper-annotation-panel": {
             "text_overall_impression": "Ấn tượng tổng thể",
@@ -2605,6 +2682,65 @@
           "text_submit_anyway": "Vẫn gửi",
           "text_submit_without_completed_audit": "Gửi mà không hoàn thành kiểm toán?",
           "text_view_full_reviewer_guide_rarr": "Xem hướng dẫn đánh giá đầy đủ &rarr;"
+        },
+        "invitation-dialog": {
+          "text_failed_to_load_invitation": "Không tải được lời mời",
+          "text_review_invitation": "Lời mời phản biện",
+          "text_dialog_description": "Chi tiết lời mời phản biện bài báo và phản hồi",
+          "text_failed_to_load": "Không tải được",
+          "text_paper": "Bài báo",
+          "text_abstract": "Tóm tắt",
+          "text_why_match": "Vì sao bạn phù hợp",
+          "text_match_score": "Điểm khớp",
+          "text_matched_keywords": "Từ khóa khớp",
+          "text_you_currently_have": "Bạn hiện có",
+          "text_assigned_in_this_conference": "được phân công trong hội nghị này.",
+          "text_selected_by_committee": "Bạn được ban chương trình chọn dựa trên chuyên môn và nền tảng nghiên cứu.",
+          "text_accept_assignment": "Chấp nhận phân công",
+          "text_decline": "Từ chối",
+          "text_tell_us_why_optional": "Cho chúng tôi biết lý do (tùy chọn)",
+          "text_not_my_expertise": "Không đúng chuyên môn",
+          "text_too_busy": "Quá bận",
+          "text_schedule_conflict": "Trùng lịch",
+          "text_conflict_of_interest": "Xung đột lợi ích",
+          "text_other": "Khác",
+          "placeholder_additional_comments": "Ghi chú bổ sung (tùy chọn)...",
+          "text_confirm_decline": "Xác nhận từ chối",
+          "text_cancel": "Hủy"
+        },
+        "invitation-submission-preview": {
+          "text_back": "Quay lại",
+          "text_submission_preview_unavailable": "Không thể xem trước bài nộp",
+          "text_missing_context": "Lời mời này thiếu ngữ cảnh hội nghị hoặc bài nộp cần thiết để hiển thị chi tiết phản biện và công cụ phân tích.",
+          "text_accept": "Chấp nhận",
+          "text_deny": "Từ chối",
+          "text_why_match": "Vì sao bạn phù hợp",
+          "text_match_score": "Điểm khớp",
+          "text_matched_keywords": "Từ khóa khớp",
+          "text_you_currently_have": "Bạn hiện có",
+          "text_assigned_in_this_conference": "được phân công trong hội nghị này.",
+          "text_selected_by_committee": "Bạn được ban chương trình chọn dựa trên chuyên môn và nền tảng nghiên cứu."
+        },
+        "paper-invitation": {
+          "text_failed_to_load_invitation": "Không tải được lời mời",
+          "text_failed_to_accept": "Không thể chấp nhận",
+          "text_failed_to_decline": "Không thể từ chối",
+          "text_assignment_accepted": "Đã chấp nhận phân công",
+          "text_assignment_accepted_description": "Bạn đã chấp nhận lời mời phản biện \"{title}\".",
+          "text_assignment_declined": "Đã từ chối phân công",
+          "text_assignment_declined_description": "Bạn đã từ chối lời mời phản biện \"{title}\".",
+          "text_go_back": "Quay lại",
+          "text_decline_assignment": "Từ chối phân công",
+          "text_select_decline_reason": "Chọn lý do từ chối phân công phản biện này",
+          "text_tell_us_why_optional": "Cho chúng tôi biết lý do (tùy chọn)",
+          "text_not_my_expertise": "Không đúng chuyên môn",
+          "text_too_busy": "Quá bận",
+          "text_schedule_conflict": "Trùng lịch",
+          "text_conflict_of_interest": "Xung đột lợi ích",
+          "text_other": "Khác",
+          "placeholder_additional_comments": "Ghi chú bổ sung (tùy chọn)...",
+          "text_confirm_decline": "Xác nhận từ chối",
+          "text_cancel": "Hủy"
         }
       },
       "schedules": {
@@ -2746,7 +2882,8 @@
               "text_partial": "một phần",
               "text_reviewer_response": "Phản hồi của phản biện",
               "text_satisfied": "Thỏa mãn",
-              "text_save_note": "Lưu ghi chú"
+              "text_save_note": "Lưu ghi chú",
+              "placeholder_enter_your_response": "Nhập phản hồi của bạn cho điểm này..."
             },
             "reviewer-response-group": {
               "text_all_addressed": "Tất cả đều được giải quyết",

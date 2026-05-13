@@ -9,10 +9,23 @@ interface PaperAnnotationPanelProps {
   artifact: PaperAnnotationArtifact
 }
 
-const categoryConfig: Record<AnnotationCategory, { icon: string; color: string; bg: string; border: string }> = {
-  strength: { icon: "thumb_up", color: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200" },
+const categoryConfig: Record<
+  AnnotationCategory,
+  { icon: string; color: string; bg: string; border: string }
+> = {
+  strength: {
+    icon: "thumb_up",
+    color: "text-emerald-700",
+    bg: "bg-emerald-50",
+    border: "border-emerald-200",
+  },
   weakness: { icon: "warning", color: "text-red-700", bg: "bg-red-50", border: "border-red-200" },
-  suggestion: { icon: "lightbulb", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-200" },
+  suggestion: {
+    icon: "lightbulb",
+    color: "text-amber-700",
+    bg: "bg-amber-50",
+    border: "border-amber-200",
+  },
   question: { icon: "help", color: "text-blue-700", bg: "bg-blue-50", border: "border-blue-200" },
 }
 
@@ -45,14 +58,18 @@ export function PaperAnnotationPanel({ artifact }: PaperAnnotationPanelProps) {
     <div className="space-y-5">
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#456882]">
-          {t("runtime.components.reviewer.submission-review.paper-annotation-panel.text_overall_impression")}
+          {t(
+            "runtime.components.reviewer.submission-review.paper-annotation-panel.text_overall_impression",
+          )}
         </p>
         <p className="mt-3 text-[12px] font-medium leading-relaxed tracking-tight text-slate-900">
           {artifact.overall_impression}
         </p>
         {artifact.domain_context && (
           <p className="mt-2 text-[10px] font-normal text-slate-500">
-            {t("runtime.components.reviewer.submission-review.paper-annotation-panel.text_domain_context_prefix")}{" "}
+            {t(
+              "runtime.components.reviewer.submission-review.paper-annotation-panel.text_domain_context_prefix",
+            )}{" "}
             {artifact.domain_context}
           </p>
         )}
@@ -82,7 +99,9 @@ export function PaperAnnotationPanel({ artifact }: PaperAnnotationPanelProps) {
                   </span>
                 )}
               </div>
-              <span className={`material-symbols-outlined text-[16px] text-slate-400 transition-transform ${isExpanded ? "rotate-180" : ""}`}>
+              <span
+                className={`material-symbols-outlined text-[16px] text-slate-400 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+              >
                 expand_more
               </span>
             </button>
@@ -103,10 +122,14 @@ export function PaperAnnotationPanel({ artifact }: PaperAnnotationPanelProps) {
                           className={`rounded-xl border ${config.border} ${config.bg} p-3`}
                         >
                           <div className="flex items-center gap-2">
-                            <span className={`material-symbols-outlined text-[14px] ${config.color}`}>
+                            <span
+                              className={`material-symbols-outlined text-[14px] ${config.color}`}
+                            >
                               {config.icon}
                             </span>
-                            <span className={`text-[9px] font-bold uppercase tracking-[0.16em] ${config.color}`}>
+                            <span
+                              className={`text-[9px] font-bold uppercase tracking-[0.16em] ${config.color}`}
+                            >
                               {item.category}
                             </span>
                             {item.severity && (
@@ -117,7 +140,9 @@ export function PaperAnnotationPanel({ artifact }: PaperAnnotationPanelProps) {
                           </div>
 
                           <blockquote className="mt-2 border-l-2 border-slate-300 pl-3 text-[11px] font-normal italic leading-relaxed text-slate-700">
-                            &ldquo;{item.quoted_passage}&rdquo;
+                            {'"'}
+                            {item.quoted_passage}
+                            {'"'}
                           </blockquote>
 
                           <p className="mt-2 text-[11px] font-normal leading-relaxed text-slate-800">
@@ -127,7 +152,9 @@ export function PaperAnnotationPanel({ artifact }: PaperAnnotationPanelProps) {
                           {item.reviewer_hint && (
                             <div className="mt-2 rounded-md border border-violet-100 bg-violet-50/50 px-2.5 py-1.5">
                               <p className="text-[10px] font-medium leading-relaxed text-violet-700">
-                                <span className="material-symbols-outlined mr-1 align-middle text-[12px]">tips_and_updates</span>
+                                <span className="material-symbols-outlined mr-1 align-middle text-[12px]">
+                                  tips_and_updates
+                                </span>
                                 {item.reviewer_hint}
                               </p>
                             </div>

@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useSWRConfig } from "swr"
 import { useAuth } from "@/lib/auth-context"
 import { getInvitation, respondToInvitation, type InvitationData } from "@/lib/api/suggestions"
 import { useToast } from "@/hooks/use-toast"
+import { useTranslation } from "@/lib/i18n/translation-context"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -18,11 +19,11 @@ import { ArrowLeft, Loader2 } from "lucide-react"
 import { InvitationSubmissionPreview } from "./invitation-submission-preview"
 
 const DECLINE_CATEGORIES = [
-  { id: "not_my_expertise", label: "Not my expertise" },
-  { id: "too_busy", label: "Too busy" },
-  { id: "schedule_conflict", label: "Schedule conflict" },
-  { id: "conflict_of_interest", label: "Conflict of interest" },
-  { id: "other", label: "Other" },
+  { id: "not_my_expertise", labelKey: "text_not_my_expertise" },
+  { id: "too_busy", labelKey: "text_too_busy" },
+  { id: "schedule_conflict", labelKey: "text_schedule_conflict" },
+  { id: "conflict_of_interest", labelKey: "text_conflict_of_interest" },
+  { id: "other", labelKey: "text_other" },
 ]
 
 type PageState = "loading" | "pending" | "declining" | "error"
@@ -32,6 +33,12 @@ export function PaperInvitation() {
   const router = useRouter()
   const { user } = useAuth()
   const { toast } = useToast()
+  const { t } = useTranslation()
+  const T = useCallback(
+    (key: string, values?: Record<string, string | number>) =>
+      t(`runtime.components.reviewer.paper-invitation.${key}`, values),
+    [t],
+  )
   const { mutate } = useSWRConfig()
 
   const assignmentId = Number(params?.assignmentId)
@@ -48,7 +55,7 @@ export function PaperInvitation() {
 
     getInvitation(user.email, assignmentId).then(({ data, error }) => {
       if (error || !data) {
-        setError(error || "Failed to load invitation")
+        setError(error || T("text_failed_to_load_invitation"))
         setState("error")
         return
       }
@@ -59,7 +66,7 @@ export function PaperInvitation() {
       }
       setState("pending")
     })
-  }, [user?.email, assignmentId])
+  }, [T, router, user?.email, assignmentId])
 
   const handleAccept = async () => {
     if (!user?.email) return
@@ -69,13 +76,15 @@ export function PaperInvitation() {
     })
     setIsSubmitting(false)
     if (error || !data) {
-      setError(error || "Failed to accept")
+      setError(error || T("text_failed_to_accept"))
       return
     }
     await mutate((key) => Array.isArray(key) && key[0] === "conference-papers")
     toast({
-      title: "Assignment accepted",
-      description: `You have accepted the invitation to review "${invitation?.paper_title}".`,
+      title: T("text_assignment_accepted"),
+      description: T("text_assignment_accepted_description", {
+        title: invitation?.paper_title ?? "",
+      }),
     })
     router.back()
   }
@@ -90,13 +99,15 @@ export function PaperInvitation() {
     })
     setIsSubmitting(false)
     if (error || !data) {
-      setError(error || "Failed to decline")
+      setError(error || T("text_failed_to_decline"))
       return
     }
     await mutate((key) => Array.isArray(key) && key[0] === "conference-papers")
     toast({
-      title: "Assignment declined",
-      description: `You have declined the invitation to review "${invitation?.paper_title}".`,
+      title: T("text_assignment_declined"),
+      description: T("text_assignment_declined_description", {
+        title: invitation?.paper_title ?? "",
+      }),
     })
     router.back()
   }
@@ -113,13 +124,15 @@ export function PaperInvitation() {
     return (
       <div className="py-8 px-12">
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 max-w-xl">
-          <p className="text-sm font-semibold text-red-700 mb-1">Failed to load invitation</p>
+          <p className="text-sm font-semibold text-red-700 mb-1">
+            {T("text_failed_to_load_invitation")}
+          </p>
           <p className="text-xs text-red-500">{error}</p>
           <button
             onClick={() => router.back()}
             className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900"
           >
-            <ArrowLeft className="size-3.5" /> Go back
+            <ArrowLeft className="size-3.5" /> {T("text_go_back")}
           </button>
         </div>
       </div>
@@ -153,14 +166,16 @@ export function PaperInvitation() {
       >
         <DialogContent className="sm:max-w-[480px] p-0 gap-0">
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100">
-            <DialogTitle className="text-sm font-bold text-[#1B3C53]">Decline Assignment</DialogTitle>
+            <DialogTitle className="text-sm font-bold text-[#1B3C53]">
+              {T("text_decline_assignment")}
+            </DialogTitle>
             <DialogDescription className="sr-only">
-              Select a reason for declining this review assignment
+              {T("text_select_decline_reason")}
             </DialogDescription>
           </DialogHeader>
 
           <div className="flex flex-col gap-4 px-6 py-5">
-            <p className="text-xs font-bold text-slate-700">Tell us why (optional)</p>
+            <p className="text-xs font-bold text-slate-700">{T("text_tell_us_why_optional")}</p>
 
             <div className="flex flex-wrap gap-2">
               {DECLINE_CATEGORIES.map((cat) => (
@@ -174,7 +189,7 @@ export function PaperInvitation() {
                       : "border-slate-200 text-slate-600 hover:border-slate-400"
                   }`}
                 >
-                  {cat.label}
+                  {T(cat.labelKey)}
                 </button>
               ))}
             </div>
@@ -182,7 +197,7 @@ export function PaperInvitation() {
             <textarea
               value={declineReason}
               onChange={(e) => setDeclineReason(e.target.value)}
-              placeholder="Additional comments (optional)..."
+              placeholder={T("placeholder_additional_comments")}
               rows={3}
               className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#1B3C53] resize-none"
             />
@@ -198,7 +213,7 @@ export function PaperInvitation() {
                 disabled={isSubmitting}
               >
                 {isSubmitting ? <Loader2 className="size-3.5 animate-spin mr-1.5" /> : null}
-                Confirm Decline
+                {T("text_confirm_decline")}
               </Button>
               <Button
                 variant="outline"
@@ -206,7 +221,7 @@ export function PaperInvitation() {
                 onClick={closeDeclineDialog}
                 disabled={isSubmitting}
               >
-                Cancel
+                {T("text_cancel")}
               </Button>
             </div>
           </div>

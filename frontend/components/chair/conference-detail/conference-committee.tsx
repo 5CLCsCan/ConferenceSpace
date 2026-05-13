@@ -135,7 +135,13 @@ function StatCard({
   )
 }
 
-function RoleBadge({ label, role }: { label: string; role?: "chair" | "co_chair" | "pc" | "reviewer" }) {
+function RoleBadge({
+  label,
+  role,
+}: {
+  label: string
+  role?: "chair" | "co_chair" | "pc" | "reviewer"
+}) {
   const colorClass =
     role === "chair"
       ? "bg-amber-50 text-amber-700 border-amber-100"
@@ -143,7 +149,7 @@ function RoleBadge({ label, role }: { label: string; role?: "chair" | "co_chair"
         ? "bg-purple-50 text-purple-700 border-purple-100"
         : role === "reviewer"
           ? "bg-emerald-50 text-emerald-700 border-emerald-100"
-        : "bg-blue-50 text-blue-700 border-blue-100"
+          : "bg-blue-50 text-blue-700 border-blue-100"
   return (
     <span
       className={cn(
@@ -155,7 +161,6 @@ function RoleBadge({ label, role }: { label: string; role?: "chair" | "co_chair"
     </span>
   )
 }
-
 
 function MemberAvatar({ email, name }: { email: string; name: string }) {
   const initials = name
@@ -187,9 +192,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     text_all_roles: t(
       "runtime.components.chair.conference-detail.conference-committee.text_all_roles",
     ),
-    text_chair: t(
-      "runtime.components.chair.conference-detail.conference-committee.text_chair",
-    ),
+    text_chair: t("runtime.components.chair.conference-detail.conference-committee.text_chair"),
     text_co_chair: t(
       "runtime.components.chair.conference-detail.conference-committee.text_co_chair",
     ),
@@ -232,15 +235,11 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     text_previous: t(
       "runtime.components.chair.conference-detail.conference-committee.text_previous",
     ),
-    text_domain: t(
-      "runtime.components.chair.conference-detail.conference-committee.text_domain",
-    ),
+    text_domain: t("runtime.components.chair.conference-detail.conference-committee.text_domain"),
     text_remove_member: t(
       "runtime.components.chair.conference-detail.conference-committee.text_remove_member",
     ),
-    text_pc: t(
-      "runtime.components.chair.conference-detail.conference-committee.text_pc",
-    ),
+    text_pc: t("runtime.components.chair.conference-detail.conference-committee.text_pc"),
     text_role: t("runtime.components.chair.conference-detail.conference-committee.text_role"),
     text_search_by_email: t(
       "runtime.components.chair.conference-detail.conference-committee.text_search_by_email",
@@ -257,9 +256,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     text_suggested_reviewers: t(
       "runtime.components.chair.conference-detail.conference-committee.text_suggested_reviewers",
     ),
-    text_chairs: t(
-      "runtime.components.chair.conference-detail.conference-committee.text_chairs",
-    ),
+    text_chairs: t("runtime.components.chair.conference-detail.conference-committee.text_chairs"),
     placeholder_search_by_name_email_affiliation: t(
       "runtime.components.chair.conference-detail.conference-committee.placeholder_search_by_name_email_affiliation",
     ),
@@ -283,6 +280,32 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
       "runtime.components.chair.conference-detail.conference-committee.text_invitation_link_tooltip",
     ),
     text_invitation_status: "text_invitation_status",
+    text_on_platform: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_on_platform",
+    ),
+    text_not_on_platform: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_not_on_platform",
+    ),
+    text_reviewer: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_reviewer",
+    ),
+    text_program_committee: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_program_committee",
+    ),
+    text_invite_reviewer: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_invite_reviewer",
+    ),
+    text_semantic_scholar: t(
+      "runtime.components.chair.conference-detail.conference-committee.text_semantic_scholar",
+    ),
+    title_view_profile: t(
+      "runtime.components.chair.conference-detail.conference-committee.title_view_profile",
+    ),
+    title_open_semantic_scholar_profile: t(
+      "runtime.components.chair.conference-detail.conference-committee.title_open_semantic_scholar_profile",
+    ),
+    aria_label_view_profile_for: "aria_label_view_profile_for",
+    aria_label_open_semantic_scholar_profile_for: "aria_label_open_semantic_scholar_profile_for",
   } as const
 
   const T = (key: keyof typeof labels) => labels[key]
@@ -502,9 +525,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
       selectedUsers.filter((u) => u.scholar_id).map((u) => u.scholar_id!),
     )
     const invitedScholarIds = new Set(
-      externalInvitations
-        .filter((inv) => inv.scholar_id)
-        .map((inv) => inv.scholar_id!),
+      externalInvitations.filter((inv) => inv.scholar_id).map((inv) => inv.scholar_id!),
     )
     return externalSearchResults.filter((author) => {
       if (selectedScholarIds.has(author.authorId)) return false
@@ -563,25 +584,25 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
         10,
       )
         .then(({ data }) => data?.users ?? [])
-        .catch(() => [] as Array<{
-          id: number | string
-          email: string
-          first_name?: string
-          last_name?: string
-          domain?: string[]
-          matched_fields?: string[]
-          score?: number
-        }>)
+        .catch(
+          () =>
+            [] as Array<{
+              id: number | string
+              email: string
+              first_name?: string
+              last_name?: string
+              domain?: string[]
+              matched_fields?: string[]
+              score?: number
+            }>,
+        )
 
       const scholarPromise = semanticScholarApi
         .searchAuthors(value.trim(), 5)
         .then((res) => res.data ?? [])
         .catch(() => [] as Author[])
 
-      const [platformUsers, scholarAuthors] = await Promise.all([
-        platformPromise,
-        scholarPromise,
-      ])
+      const [platformUsers, scholarAuthors] = await Promise.all([platformPromise, scholarPromise])
 
       setSearchResults(
         platformUsers.map((u) => ({
@@ -685,9 +706,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     // --- Platform users (existing flow) ---
     if (platformUsers.length > 0) {
       if (memberRoleToAdd === "pc") {
-        const newEmails = platformUsers
-          .map((u) => (u.email ?? "").toLowerCase())
-          .filter(Boolean)
+        const newEmails = platformUsers.map((u) => (u.email ?? "").toLowerCase()).filter(Boolean)
         const existingPC = conference.pc_members ?? []
         const merged = [...new Set([...existingPC, ...newEmails])]
         const response = await updateConference(conferenceId, { pc_members: merged })
@@ -797,7 +816,9 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     return T("text_pc")
   }
 
-  const chairCount = committeeMembers.filter((m) => m.role === "chair" || m.role === "co_chair").length
+  const chairCount = committeeMembers.filter(
+    (m) => m.role === "chair" || m.role === "co_chair",
+  ).length
   const pcCount = committeeMembers.filter((m) => m.role === "pc").length
   const reviewerCount = committeeMembers.filter((m) => m.role === "reviewer").length
 
@@ -950,286 +971,186 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
               onInviteSuccess={() => void loadCommittee()}
             />
           ) : (
-          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden">
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col xl:flex-row justify-between gap-3">
-              <div className="flex flex-col md:flex-row gap-3 flex-1">
-                <div className="relative flex-1 md:max-w-sm">
-                  <Icon
-                    name="search"
-                    className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
-                  <input
-                    type="text"
-                    value={tableSearch}
-                    onChange={(event) => setTableSearch(event.target.value)}
-                    placeholder={T("placeholder_search_by_name_email_affiliation")}
-                    className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-[11px] focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none transition-colors"
-                  />
+            <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden">
+              <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col xl:flex-row justify-between gap-3">
+                <div className="flex flex-col md:flex-row gap-3 flex-1">
+                  <div className="relative flex-1 md:max-w-sm">
+                    <Icon
+                      name="search"
+                      className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
+                    />
+                    <input
+                      type="text"
+                      value={tableSearch}
+                      onChange={(event) => setTableSearch(event.target.value)}
+                      placeholder={T("placeholder_search_by_name_email_affiliation")}
+                      className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-[11px] focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none transition-colors"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <select
+                      value={roleFilter}
+                      onChange={(event) => setRoleFilter(event.target.value as MemberRoleFilter)}
+                      className="bg-white border border-slate-200 text-slate-700 text-[11px] rounded-md py-2 px-2.5 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] shadow-sm min-w-[110px] outline-none"
+                    >
+                      <option value="all">{T("text_all_roles")}</option>
+                      <option value="chair">{T("text_chair")}</option>
+                      <option value="co_chair">{T("text_co_chair")}</option>
+                      <option value="pc">{T("text_pc")}</option>
+                      <option value="reviewer">{T("text_reviewer")}</option>
+                    </select>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <select
-                    value={roleFilter}
-                    onChange={(event) => setRoleFilter(event.target.value as MemberRoleFilter)}
-                    className="bg-white border border-slate-200 text-slate-700 text-[11px] rounded-md py-2 px-2.5 focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] shadow-sm min-w-[110px] outline-none"
-                  >
-                    <option value="all">{T("text_all_roles")}</option>
-                    <option value="chair">{T("text_chair")}</option>
-                    <option value="co_chair">{T("text_co_chair")}</option>
-                    <option value="pc">{T("text_pc")}</option>
-                    <option value="reviewer">Reviewer</option>
-                  </select>
-                </div>
-              </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  className="px-3 py-2 bg-white border border-slate-200 text-slate-700 font-medium text-[11px] rounded-md hover:bg-slate-50 transition-colors flex items-center gap-1.5 shadow-sm"
-                >
-                  <Icon name="upload_file" />
-                  {T("text_import_csv")}
-                </button>
-                <button
-                  type="button"
-                  className="px-3 py-2 bg-white border border-slate-200 text-slate-700 font-medium text-[11px] rounded-md hover:bg-slate-50 transition-colors flex items-center gap-1.5 shadow-sm"
-                >
-                  <Icon name="download" />
-                  {T("text_export")}
-                </button>
-                {!readOnly && (
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => setShowDropdown(true)}
-                    className="px-3 py-2 bg-[#1B3C53] text-white font-medium text-[11px] rounded-md hover:bg-[#234C6A] transition-colors shadow-sm flex items-center gap-1.5"
+                    className="px-3 py-2 bg-white border border-slate-200 text-slate-700 font-medium text-[11px] rounded-md hover:bg-slate-50 transition-colors flex items-center gap-1.5 shadow-sm"
                   >
-                    <Icon name="person_add" />
-                    {T("text_add_member")}
+                    <Icon name="upload_file" />
+                    {T("text_import_csv")}
                   </button>
-                )}
+                  <button
+                    type="button"
+                    className="px-3 py-2 bg-white border border-slate-200 text-slate-700 font-medium text-[11px] rounded-md hover:bg-slate-50 transition-colors flex items-center gap-1.5 shadow-sm"
+                  >
+                    <Icon name="download" />
+                    {T("text_export")}
+                  </button>
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      onClick={() => setShowDropdown(true)}
+                      className="px-3 py-2 bg-[#1B3C53] text-white font-medium text-[11px] rounded-md hover:bg-[#234C6A] transition-colors shadow-sm flex items-center gap-1.5"
+                    >
+                      <Icon name="person_add" />
+                      {T("text_add_member")}
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {!readOnly && <div className="px-4 py-4 border-b border-slate-200 bg-slate-50/60 space-y-3">
-              <div className="flex flex-col lg:flex-row gap-2 items-start">
-                <div className="relative flex-1 w-full" ref={dropdownRef}>
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(event) => handleSearch(event.target.value)}
-                    onFocus={() => searchQuery && setShowDropdown(true)}
-                    placeholder={T("text_search_by_email")}
-                    className="w-full h-9 px-3 rounded-lg border border-slate-300 bg-white text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all"
-                  />
-                  {showDropdown && (searchQuery || searching) && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-[200px] overflow-y-auto z-50">
-                      {searching ? (
-                        <div className="flex items-center justify-center p-3 gap-2">
-                          <Icon name="sync" className="animate-spin text-[#1B3C53]" size={14} />
-                          <span className="text-xs text-slate-500">{T("text_searching")}</span>
-                        </div>
-                      ) : (
-                        <div className="p-1">
-                          {/*
+              {!readOnly && (
+                <div className="px-4 py-4 border-b border-slate-200 bg-slate-50/60 space-y-3">
+                  <div className="flex flex-col lg:flex-row gap-2 items-start">
+                    <div className="relative flex-1 w-full" ref={dropdownRef}>
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(event) => handleSearch(event.target.value)}
+                        onFocus={() => searchQuery && setShowDropdown(true)}
+                        placeholder={T("text_search_by_email")}
+                        className="w-full h-9 px-3 rounded-lg border border-slate-300 bg-white text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] transition-all"
+                      />
+                      {showDropdown && (searchQuery || searching) && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-[200px] overflow-y-auto z-50">
+                          {searching ? (
+                            <div className="flex items-center justify-center p-3 gap-2">
+                              <Icon name="sync" className="animate-spin text-[#1B3C53]" size={14} />
+                              <span className="text-xs text-slate-500">{T("text_searching")}</span>
+                            </div>
+                          ) : (
+                            <div className="p-1">
+                              {/*
                             Topic-match evidence is only meaningful for the
                             "reviewer" role; for chair / co-chair / PC additions
                             we render plain (grey) chips with no label or
                             tooltip, matching the gating on the API call above.
                           */}
-                          {visibleSearchResults.map((user) => {
-                            const evidenceEnabled = memberRoleToAdd === "reviewer"
-                            // `matched_fields === undefined` means the server did not annotate
-                            // this row (e.g. no conference_id was supplied or annotation degraded).
-                            // In that case we silently fall back to local conference-domain
-                            // matching for chip color, but we do NOT show the explanatory label —
-                            // we only assert "this is a match" when the backend confirmed it.
-                            // When evidence is disabled (non-reviewer role), treat the user as
-                            // un-annotated so the chip-render path can't claim any match.
-                            const serverAnnotated =
-                              evidenceEnabled && user.matched_fields !== undefined
-                            const matchedSet = evidenceEnabled
-                              ? new Set(
-                                  (user.matched_fields ?? []).map((f) => f.trim().toLowerCase()),
-                                )
-                              : new Set<string>()
-                            const hasServerMatch = serverAnnotated && matchedSet.size > 0
-                            const profileLink = getProfileLink({
-                              on_platform: true,
-                              email: user.email,
-                              platform_user_id: user.id,
-                            })
-                            return (
-                              <div
-                                key={user.id}
-                                className="group w-full flex items-start gap-3 px-3 py-2 rounded hover:bg-slate-100 transition-colors"
-                              >
-                                <button
-                                  type="button"
-                                  onMouseDown={(event) => {
-                                    event.preventDefault()
-                                    handleSelectUser(user)
-                                  }}
-                                  className="flex items-start gap-3 flex-1 min-w-0 text-left"
-                                >
-                                  <div className="size-7 rounded-full bg-[#1B3C53]/10 flex items-center justify-center text-[#1B3C53] font-bold text-[10px] flex-shrink-0 mt-0.5">
-                                    {user.first_name?.[0] || user.email[0].toUpperCase()}
-                                    {user.last_name?.[0] || ""}
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-medium text-[#141414] truncate">
-                                      {user.email}
-                                    </p>
-                                    {(user.first_name || user.last_name) && (
-                                      <p className="text-[10px] text-slate-500 truncate">
-                                        {`${user.first_name || ""} ${user.last_name || ""}`.trim()}
-                                      </p>
-                                    )}
-                                    {user.domain && user.domain.length > 0 && (
-                                      <div className="mt-1.5">
-                                        {hasServerMatch && (
-                                          <p
-                                            data-testid="match-evidence-label"
-                                            className="flex items-center gap-1 text-[10px] font-medium text-emerald-700 mb-1"
-                                          >
-                                            <span aria-hidden="true">✓</span>
-                                            {T("text_match_evidence_label")}
-                                          </p>
-                                        )}
-                                        <div className="flex flex-wrap gap-1">
-                                          {user.domain.map((field) => {
-                                            const norm = field.trim().toLowerCase()
-                                            const serverMatched = matchedSet.has(norm)
-                                            // Prefer server-provided matched_fields; fall back to
-                                            // local conference-domain set if backend omitted it.
-                                            // Both paths are gated on evidenceEnabled (reviewer role).
-                                            const matched =
-                                              evidenceEnabled &&
-                                              (serverMatched ||
-                                                (!serverAnnotated && conferenceTopicSet.has(norm)))
-                                            return (
-                                              <span
-                                                key={field}
-                                                title={
-                                                  serverMatched
-                                                    ? T("text_match_evidence_chip_tooltip")
-                                                    : undefined
-                                                }
-                                                className={cn(
-                                                  "text-[10px] px-2 py-0.5 rounded-full border",
-                                                  matched
-                                                    ? "bg-emerald-50 text-emerald-700 border-emerald-100 font-medium"
-                                                    : "bg-slate-50 text-slate-500 border-slate-200",
-                                                )}
-                                              >
-                                                {matched && <span className="mr-0.5">✓</span>}
-                                                {field}
-                                              </span>
-                                            )
-                                          })}
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                </button>
-                                <div className="flex items-center gap-1 mt-0.5">
-                                  <ProfileLinkIconButton
-                                    link={profileLink}
-                                    title="View profile"
-                                    ariaLabel={`View profile for ${user.email}`}
-                                  />
-                                  <Icon name="person_add" className="text-slate-400" />
-                                </div>
-                              </div>
-                            )
-                          })}
-                          {/* Semantic Scholar results */}
-                          {visibleExternalResults.length > 0 && (
-                            <>
-                              {visibleSearchResults.length > 0 && (
-                                <div className="border-t border-slate-100 mx-3 my-1" />
-                              )}
-                              <div className="px-3 py-1">
-                                <span className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">
-                                  Semantic Scholar
-                                </span>
-                              </div>
-                              {visibleExternalResults.map((author) => {
+                              {visibleSearchResults.map((user) => {
+                                const evidenceEnabled = memberRoleToAdd === "reviewer"
+                                // `matched_fields === undefined` means the server did not annotate
+                                // this row (e.g. no conference_id was supplied or annotation degraded).
+                                // In that case we silently fall back to local conference-domain
+                                // matching for chip color, but we do NOT show the explanatory label —
+                                // we only assert "this is a match" when the backend confirmed it.
+                                // When evidence is disabled (non-reviewer role), treat the user as
+                                // un-annotated so the chip-render path can't claim any match.
+                                const serverAnnotated =
+                                  evidenceEnabled && user.matched_fields !== undefined
+                                const matchedSet = evidenceEnabled
+                                  ? new Set(
+                                      (user.matched_fields ?? []).map((f) =>
+                                        f.trim().toLowerCase(),
+                                      ),
+                                    )
+                                  : new Set<string>()
+                                const hasServerMatch = serverAnnotated && matchedSet.size > 0
                                 const profileLink = getProfileLink({
-                                  is_external: true,
-                                  scholar_id: author.authorId,
+                                  on_platform: true,
+                                  email: user.email,
+                                  platform_user_id: user.id,
                                 })
-                                // Semantic Scholar domain chips: like platform
-                                // search, we color a chip green when its topic
-                                // overlaps the conference's domain set. S2
-                                // never returns `matched_fields`, so we always
-                                // fall back to local conference-topic matching
-                                // (never claim server-side "match evidence").
-                                const scholarFields = author.fieldsOfStudy ?? []
-                                // Cap to 4 to keep the dropdown compact.
-                                const visibleFields = scholarFields.slice(0, 4)
-                                const overflowCount =
-                                  scholarFields.length - visibleFields.length
                                 return (
                                   <div
-                                    key={`scholar-${author.authorId}`}
-                                    className="w-full flex items-start gap-3 px-3 py-2 rounded hover:bg-slate-100 transition-colors"
+                                    key={user.id}
+                                    className="group w-full flex items-start gap-3 px-3 py-2 rounded hover:bg-slate-100 transition-colors"
                                   >
                                     <button
                                       type="button"
                                       onMouseDown={(event) => {
                                         event.preventDefault()
-                                        handleSelectExternalUser(author)
+                                        handleSelectUser(user)
                                       }}
                                       className="flex items-start gap-3 flex-1 min-w-0 text-left"
                                     >
-                                      <div className="size-7 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-[10px] flex-shrink-0 mt-0.5">
-                                        {author.name?.[0]?.toUpperCase() || "?"}
+                                      <div className="size-7 rounded-full bg-[#1B3C53]/10 flex items-center justify-center text-[#1B3C53] font-bold text-[10px] flex-shrink-0 mt-0.5">
+                                        {user.first_name?.[0] || user.email[0].toUpperCase()}
+                                        {user.last_name?.[0] || ""}
                                       </div>
                                       <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2">
-                                          <p className="text-xs font-medium text-[#141414] truncate">
-                                            {author.name}
-                                          </p>
-                                          <PlatformBadge
-                                            onPlatform={false}
-                                            T={(key) =>
-                                              t(
-                                                `runtime.components.chair.conference-detail.conference-committee.${key}`,
-                                              )
-                                            }
-                                          />
-                                        </div>
-                                        {author.affiliations?.[0] && (
+                                        <p className="text-xs font-medium text-[#141414] truncate">
+                                          {user.email}
+                                        </p>
+                                        {(user.first_name || user.last_name) && (
                                           <p className="text-[10px] text-slate-500 truncate">
-                                            {author.affiliations[0]}
+                                            {`${user.first_name || ""} ${user.last_name || ""}`.trim()}
                                           </p>
                                         )}
-                                        {visibleFields.length > 0 && (
-                                          <div className="mt-1.5 flex flex-wrap gap-1">
-                                            {visibleFields.map((field) => {
-                                              const norm = field.trim().toLowerCase()
-                                              const matched =
-                                                memberRoleToAdd === "reviewer" &&
-                                                conferenceTopicSet.has(norm)
-                                              return (
-                                                <span
-                                                  key={field}
-                                                  className={cn(
-                                                    "text-[10px] px-2 py-0.5 rounded-full border",
-                                                    matched
-                                                      ? "bg-emerald-50 text-emerald-700 border-emerald-100 font-medium"
-                                                      : "bg-slate-50 text-slate-500 border-slate-200",
-                                                  )}
-                                                >
-                                                  {matched && <span className="mr-0.5">✓</span>}
-                                                  {field}
-                                                </span>
-                                              )
-                                            })}
-                                            {overflowCount > 0 && (
-                                              <span className="text-[10px] px-2 py-0.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200">
-                                                +{overflowCount}
-                                              </span>
+                                        {user.domain && user.domain.length > 0 && (
+                                          <div className="mt-1.5">
+                                            {hasServerMatch && (
+                                              <p
+                                                data-testid="match-evidence-label"
+                                                className="flex items-center gap-1 text-[10px] font-medium text-emerald-700 mb-1"
+                                              >
+                                                <span aria-hidden="true">✓</span>
+                                                {T("text_match_evidence_label")}
+                                              </p>
                                             )}
+                                            <div className="flex flex-wrap gap-1">
+                                              {user.domain.map((field) => {
+                                                const norm = field.trim().toLowerCase()
+                                                const serverMatched = matchedSet.has(norm)
+                                                // Prefer server-provided matched_fields; fall back to
+                                                // local conference-domain set if backend omitted it.
+                                                // Both paths are gated on evidenceEnabled (reviewer role).
+                                                const matched =
+                                                  evidenceEnabled &&
+                                                  (serverMatched ||
+                                                    (!serverAnnotated &&
+                                                      conferenceTopicSet.has(norm)))
+                                                return (
+                                                  <span
+                                                    key={field}
+                                                    title={
+                                                      serverMatched
+                                                        ? T("text_match_evidence_chip_tooltip")
+                                                        : undefined
+                                                    }
+                                                    className={cn(
+                                                      "text-[10px] px-2 py-0.5 rounded-full border",
+                                                      matched
+                                                        ? "bg-emerald-50 text-emerald-700 border-emerald-100 font-medium"
+                                                        : "bg-slate-50 text-slate-500 border-slate-200",
+                                                    )}
+                                                  >
+                                                    {matched && <span className="mr-0.5">✓</span>}
+                                                    {field}
+                                                  </span>
+                                                )
+                                              })}
+                                            </div>
                                           </div>
                                         )}
                                       </div>
@@ -1237,257 +1158,393 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                                     <div className="flex items-center gap-1 mt-0.5">
                                       <ProfileLinkIconButton
                                         link={profileLink}
-                                        title="Open Semantic Scholar profile"
-                                        ariaLabel={`Open Semantic Scholar profile for ${author.name}`}
+                                        title={T("title_view_profile")}
+                                        ariaLabel={t(
+                                          "runtime.components.chair.conference-detail.conference-committee.aria_label_view_profile_for",
+                                          { name: user.email },
+                                        )}
                                       />
                                       <Icon name="person_add" className="text-slate-400" />
                                     </div>
                                   </div>
                                 )
                               })}
-                            </>
-                          )}
-                          {visibleSearchResults.length === 0 && visibleExternalResults.length === 0 && (
-                            <div className="px-3 py-2 text-xs text-slate-400">
-                              {T("text_no_users_found")}
-                            </div>
-                          )}
-                          {searchQuery.includes("@") && (
-                            <button
-                              type="button"
-                              onMouseDown={(event) => {
-                                event.preventDefault()
-                                handleAddDirectEmail()
-                              }}
-                              className="w-full flex items-center gap-1.5 px-3 py-2 rounded hover:bg-[#1B3C53]/5 text-[#1B3C53] font-medium text-xs border-t border-slate-100 transition-colors"
-                            >
-                              <Icon name="person_add" size={12} />
-                              {t(
-                                "runtime.components.chair.conference-detail.conference-committee.text_add_directly_with_query",
-                                { query: searchQuery.trim() },
+                              {/* Semantic Scholar results */}
+                              {visibleExternalResults.length > 0 && (
+                                <>
+                                  {visibleSearchResults.length > 0 && (
+                                    <div className="border-t border-slate-100 mx-3 my-1" />
+                                  )}
+                                  <div className="px-3 py-1">
+                                    <span className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">
+                                      {T("text_semantic_scholar")}
+                                    </span>
+                                  </div>
+                                  {visibleExternalResults.map((author) => {
+                                    const profileLink = getProfileLink({
+                                      is_external: true,
+                                      scholar_id: author.authorId,
+                                    })
+                                    // Semantic Scholar domain chips: like platform
+                                    // search, we color a chip green when its topic
+                                    // overlaps the conference's domain set. S2
+                                    // never returns `matched_fields`, so we always
+                                    // fall back to local conference-topic matching
+                                    // (never claim server-side "match evidence").
+                                    const scholarFields = author.fieldsOfStudy ?? []
+                                    // Cap to 4 to keep the dropdown compact.
+                                    const visibleFields = scholarFields.slice(0, 4)
+                                    const overflowCount =
+                                      scholarFields.length - visibleFields.length
+                                    return (
+                                      <div
+                                        key={`scholar-${author.authorId}`}
+                                        className="w-full flex items-start gap-3 px-3 py-2 rounded hover:bg-slate-100 transition-colors"
+                                      >
+                                        <button
+                                          type="button"
+                                          onMouseDown={(event) => {
+                                            event.preventDefault()
+                                            handleSelectExternalUser(author)
+                                          }}
+                                          className="flex items-start gap-3 flex-1 min-w-0 text-left"
+                                        >
+                                          <div className="size-7 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-[10px] flex-shrink-0 mt-0.5">
+                                            {author.name?.[0]?.toUpperCase() || "?"}
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                              <p className="text-xs font-medium text-[#141414] truncate">
+                                                {author.name}
+                                              </p>
+                                              <PlatformBadge
+                                                onPlatform={false}
+                                                T={(key) => T(key as keyof typeof labels)}
+                                              />
+                                            </div>
+                                            {author.affiliations?.[0] && (
+                                              <p className="text-[10px] text-slate-500 truncate">
+                                                {author.affiliations[0]}
+                                              </p>
+                                            )}
+                                            {visibleFields.length > 0 && (
+                                              <div className="mt-1.5 flex flex-wrap gap-1">
+                                                {visibleFields.map((field) => {
+                                                  const norm = field.trim().toLowerCase()
+                                                  const matched =
+                                                    memberRoleToAdd === "reviewer" &&
+                                                    conferenceTopicSet.has(norm)
+                                                  return (
+                                                    <span
+                                                      key={field}
+                                                      className={cn(
+                                                        "text-[10px] px-2 py-0.5 rounded-full border",
+                                                        matched
+                                                          ? "bg-emerald-50 text-emerald-700 border-emerald-100 font-medium"
+                                                          : "bg-slate-50 text-slate-500 border-slate-200",
+                                                      )}
+                                                    >
+                                                      {matched && <span className="mr-0.5">✓</span>}
+                                                      {field}
+                                                    </span>
+                                                  )
+                                                })}
+                                                {overflowCount > 0 && (
+                                                  <span className="text-[10px] px-2 py-0.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200">
+                                                    +{overflowCount}
+                                                  </span>
+                                                )}
+                                              </div>
+                                            )}
+                                          </div>
+                                        </button>
+                                        <div className="flex items-center gap-1 mt-0.5">
+                                          <ProfileLinkIconButton
+                                            link={profileLink}
+                                            title={T("title_open_semantic_scholar_profile")}
+                                            ariaLabel={t(
+                                              "runtime.components.chair.conference-detail.conference-committee.aria_label_open_semantic_scholar_profile_for",
+                                              { name: author.name },
+                                            )}
+                                          />
+                                          <Icon name="person_add" className="text-slate-400" />
+                                        </div>
+                                      </div>
+                                    )
+                                  })}
+                                </>
                               )}
-                            </button>
+                              {visibleSearchResults.length === 0 &&
+                                visibleExternalResults.length === 0 && (
+                                  <div className="px-3 py-2 text-xs text-slate-400">
+                                    {T("text_no_users_found")}
+                                  </div>
+                                )}
+                              {searchQuery.includes("@") && (
+                                <button
+                                  type="button"
+                                  onMouseDown={(event) => {
+                                    event.preventDefault()
+                                    handleAddDirectEmail()
+                                  }}
+                                  className="w-full flex items-center gap-1.5 px-3 py-2 rounded hover:bg-[#1B3C53]/5 text-[#1B3C53] font-medium text-xs border-t border-slate-100 transition-colors"
+                                >
+                                  <Icon name="person_add" size={12} />
+                                  {t(
+                                    "runtime.components.chair.conference-detail.conference-committee.text_add_directly_with_query",
+                                    { query: searchQuery.trim() },
+                                  )}
+                                </button>
+                              )}
+                            </div>
                           )}
                         </div>
                       )}
                     </div>
-                  )}
-                </div>
 
-                <select
-                  value={memberRoleToAdd}
-                  onChange={(event) => setMemberRoleToAdd(event.target.value as AddMemberRole)}
-                  className="h-9 px-2.5 bg-white border border-slate-300 text-slate-700 text-[11px] rounded-lg focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none"
-                >
-                  <option value="pc">Program Committee</option>
-                  <option value="reviewer">Reviewer</option>
-                </select>
+                    <select
+                      value={memberRoleToAdd}
+                      onChange={(event) => setMemberRoleToAdd(event.target.value as AddMemberRole)}
+                      className="h-9 px-2.5 bg-white border border-slate-300 text-slate-700 text-[11px] rounded-lg focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none"
+                    >
+                      <option value="pc">{T("text_program_committee")}</option>
+                      <option value="reviewer">{T("text_reviewer")}</option>
+                    </select>
 
-                <button
-                  type="button"
-                  onClick={handleAddMembers}
-                  disabled={!selectedUsers.length || inviting}
-                  className="h-9 px-4 bg-[#1B3C53] hover:bg-[#234C6A] disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg text-[11px] flex items-center gap-1.5 whitespace-nowrap"
-                >
-                  <Icon name={inviting ? "hourglass_empty" : "person_add"} size={14} />
-                  {memberRoleToAdd === "reviewer" ? "Invite Reviewer" : T("text_add_member")}
-                </button>
-              </div>
+                    <button
+                      type="button"
+                      onClick={handleAddMembers}
+                      disabled={!selectedUsers.length || inviting}
+                      className="h-9 px-4 bg-[#1B3C53] hover:bg-[#234C6A] disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg text-[11px] flex items-center gap-1.5 whitespace-nowrap"
+                    >
+                      <Icon name={inviting ? "hourglass_empty" : "person_add"} size={14} />
+                      {memberRoleToAdd === "reviewer"
+                        ? T("text_invite_reviewer")
+                        : T("text_add_member")}
+                    </button>
+                  </div>
 
-              {selectedUsers.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {selectedUsers.map((user) => {
-                    const chipKey = user.is_external
-                      ? `ext-${user.scholar_id}`
-                      : user.email || `user-${user.id ?? ""}`
-                    const chipText = user.is_external
-                      ? user.name || "External"
-                      : user.email || ""
-                    const removeKey = user.is_external
-                      ? user.scholar_id ?? ""
-                      : user.email ?? ""
-                    return (
-                      <span
-                        key={chipKey}
-                        className={cn(
-                          "inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full",
-                          user.is_external
-                            ? "bg-amber-100 text-amber-700"
-                            : user.id != null || memberRoleToAdd !== "reviewer"
-                              ? "bg-[#1B3C53]/10 text-[#1B3C53]"
-                              : "bg-amber-100 text-amber-700",
-                        )}
-                      >
-                        {!user.is_external && user.id == null && memberRoleToAdd === "reviewer" && (
-                          <Icon name="warning" size={10} />
-                        )}
-                        {user.is_external && <Icon name="mail" size={10} />}
-                        {chipText}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveSelected(removeKey)}
-                          className="hover:text-red-500 transition-colors"
-                        >
-                          <Icon name="close" size={12} />
-                        </button>
-                      </span>
-                    )
-                  })}
-                </div>
-              )}
-
-              {inviteMsg && (
-                <div
-                  className={cn(
-                    "rounded-md px-3 py-2 text-xs font-medium",
-                    inviteMsg.type === "success"
-                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                      : "bg-red-50 text-red-700 border border-red-200",
-                  )}
-                >
-                  {inviteMsg.text}
-                </div>
-              )}
-            </div>}
-
-            <div className="overflow-x-auto flex-grow">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-50 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-200 tracking-widest">
-                  <tr>
-                    <th className="px-4 py-2.5 w-10">
-                      <input
-                        type="checkbox"
-                        className="rounded border-slate-300 text-[#1B3C53] focus:ring-[#1B3C53] h-3.5 w-3.5"
-                        aria-label={T("aria_label_select_all_committee_members")}
-                      />
-                    </th>
-                    <th className="px-4 py-2.5">{T("text_member")}</th>
-                    <th className="px-4 py-2.5">{T("text_role")}</th>
-                    <th className="px-4 py-2.5">{T("text_domain")}</th>
-                    <th className="px-4 py-2.5 text-right">{T("text_actions")}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-[10px]">
-                  {paginatedMembers.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="px-4 py-8 text-center text-xs text-slate-500">
-                        {T("text_no_committee_members_found")}
-                      </td>
-                    </tr>
-                  ) : (
-                    paginatedMembers.map((member) => (
-                      <tr
-                        key={`${member.role}-${member.email || member.scholar_id || member.name}-${member.reviewerId ?? member.externalInvitationId ?? "0"}`}
-                        className="hover:bg-slate-50 transition-colors group"
-                      >
-                        <td className="px-4 py-3">
-                          <input
-                            type="checkbox"
-                            className="rounded border-slate-300 text-[#1B3C53] focus:ring-[#1B3C53] h-3.5 w-3.5"
-                            aria-label={t(
-                              "runtime.components.chair.conference-detail.conference-committee.aria_label_select_member",
-                              { name: member.name },
+                  {selectedUsers.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedUsers.map((user) => {
+                        const chipKey = user.is_external
+                          ? `ext-${user.scholar_id}`
+                          : user.email || `user-${user.id ?? ""}`
+                        const chipText = user.is_external
+                          ? user.name || "External"
+                          : user.email || ""
+                        const removeKey = user.is_external
+                          ? (user.scholar_id ?? "")
+                          : (user.email ?? "")
+                        return (
+                          <span
+                            key={chipKey}
+                            className={cn(
+                              "inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full",
+                              user.is_external
+                                ? "bg-amber-100 text-amber-700"
+                                : user.id != null || memberRoleToAdd !== "reviewer"
+                                  ? "bg-[#1B3C53]/10 text-[#1B3C53]"
+                                  : "bg-amber-100 text-amber-700",
                             )}
-                          />
+                          >
+                            {!user.is_external &&
+                              user.id == null &&
+                              memberRoleToAdd === "reviewer" && <Icon name="warning" size={10} />}
+                            {user.is_external && <Icon name="mail" size={10} />}
+                            {chipText}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveSelected(removeKey)}
+                              className="hover:text-red-500 transition-colors"
+                            >
+                              <Icon name="close" size={12} />
+                            </button>
+                          </span>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {inviteMsg && (
+                    <div
+                      className={cn(
+                        "rounded-md px-3 py-2 text-xs font-medium",
+                        inviteMsg.type === "success"
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-red-50 text-red-700 border border-red-200",
+                      )}
+                    >
+                      {inviteMsg.text}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="overflow-x-auto flex-grow">
+                <table className="w-full text-left border-collapse">
+                  <thead className="bg-slate-50 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-200 tracking-widest">
+                    <tr>
+                      <th className="px-4 py-2.5 w-10">
+                        <input
+                          type="checkbox"
+                          className="rounded border-slate-300 text-[#1B3C53] focus:ring-[#1B3C53] h-3.5 w-3.5"
+                          aria-label={T("aria_label_select_all_committee_members")}
+                        />
+                      </th>
+                      <th className="px-4 py-2.5">{T("text_member")}</th>
+                      <th className="px-4 py-2.5">{T("text_role")}</th>
+                      <th className="px-4 py-2.5">{T("text_domain")}</th>
+                      <th className="px-4 py-2.5 text-right">{T("text_actions")}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-[10px]">
+                    {paginatedMembers.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="px-4 py-8 text-center text-xs text-slate-500">
+                          {T("text_no_committee_members_found")}
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2.5">
-                            <MemberAvatar email={member.email || member.name} name={member.name} />
-                            <div>
-                              <div className="font-bold text-[#1B3C53] text-[12px]">{member.name}</div>
-                              <div className="text-[10px] text-slate-500">
-                                {member.email || member.affiliation || "—"}
-                              </div>
-                              {member.is_external && (
-                                <div className="mt-1">
-                                  <PlatformBadge
-                                    onPlatform={false}
-                                    T={(key) =>
-                                      t(
-                                        `runtime.components.chair.conference-detail.conference-committee.${key}`,
-                                      )
-                                    }
-                                  />
-                                </div>
+                      </tr>
+                    ) : (
+                      paginatedMembers.map((member) => (
+                        <tr
+                          key={`${member.role}-${member.email || member.scholar_id || member.name}-${member.reviewerId ?? member.externalInvitationId ?? "0"}`}
+                          className="hover:bg-slate-50 transition-colors group"
+                        >
+                          <td className="px-4 py-3">
+                            <input
+                              type="checkbox"
+                              className="rounded border-slate-300 text-[#1B3C53] focus:ring-[#1B3C53] h-3.5 w-3.5"
+                              aria-label={t(
+                                "runtime.components.chair.conference-detail.conference-committee.aria_label_select_member",
+                                { name: member.name },
                               )}
-                              {member.invitationStatus &&
+                            />
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-2.5">
+                              <MemberAvatar
+                                email={member.email || member.name}
+                                name={member.name}
+                              />
+                              <div>
+                                <div className="font-bold text-[#1B3C53] text-[12px]">
+                                  {member.name}
+                                </div>
+                                <div className="text-[10px] text-slate-500">
+                                  {member.email || member.affiliation || "—"}
+                                </div>
+                                {member.is_external && (
+                                  <div className="mt-1">
+                                    <PlatformBadge
+                                      onPlatform={false}
+                                      T={(key) => T(key as keyof typeof labels)}
+                                    />
+                                  </div>
+                                )}
+                                {member.invitationStatus &&
                                 member.invitationUrl &&
                                 member.invitationStatus === "pending" ? (
-                                <button
-                                  type="button"
-                                  title={T("text_invitation_link_tooltip")}
-                                  onClick={() => {
-                                    if (member.invitationUrl && member.externalInvitationId != null) {
-                                      void navigator.clipboard.writeText(member.invitationUrl)
-                                      setCopiedMemberId(member.externalInvitationId)
-                                      setTimeout(() => setCopiedMemberId(null), 2000)
-                                    }
-                                  }}
-                                  className="mt-1 flex items-center gap-1 text-[10px] font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded px-1.5 py-0.5 transition-colors cursor-pointer"
-                                >
-                                  <Icon
-                                    name={copiedMemberId === member.externalInvitationId ? "check" : "content_copy"}
-                                    size={10}
-                                  />
-                                  {copiedMemberId === member.externalInvitationId
-                                    ? T("text_invitation_link_copied")
-                                    : T("text_invitation_link")}
-                                </button>
-                              ) : member.invitationStatus ? (
-                                <div className="text-[10px] text-emerald-700 capitalize">
-                                  {t(
-                                    `runtime.components.chair.conference-detail.conference-committee.${T("text_invitation_status")}`,
-                                    { status: member.invitationStatus },
-                                  )}
-                                </div>
-                              ) : null}
+                                  <button
+                                    type="button"
+                                    title={T("text_invitation_link_tooltip")}
+                                    onClick={() => {
+                                      if (
+                                        member.invitationUrl &&
+                                        member.externalInvitationId != null
+                                      ) {
+                                        void navigator.clipboard.writeText(member.invitationUrl)
+                                        setCopiedMemberId(member.externalInvitationId)
+                                        setTimeout(() => setCopiedMemberId(null), 2000)
+                                      }
+                                    }}
+                                    className="mt-1 flex items-center gap-1 text-[10px] font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded px-1.5 py-0.5 transition-colors cursor-pointer"
+                                  >
+                                    <Icon
+                                      name={
+                                        copiedMemberId === member.externalInvitationId
+                                          ? "check"
+                                          : "content_copy"
+                                      }
+                                      size={10}
+                                    />
+                                    {copiedMemberId === member.externalInvitationId
+                                      ? T("text_invitation_link_copied")
+                                      : T("text_invitation_link")}
+                                  </button>
+                                ) : member.invitationStatus ? (
+                                  <div className="text-[10px] text-emerald-700 capitalize">
+                                    {t(
+                                      "runtime.components.chair.conference-detail.conference-committee.text_invitation_status",
+                                      { status: member.invitationStatus },
+                                    )}
+                                  </div>
+                                ) : null}
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <RoleBadge label={getRoleLabel(member.role)} role={member.role} />
-                        </td>
-                        <td className="px-4 py-3 text-slate-600 text-[11px]">
-                          {member.domain?.join(", ") || "—"}
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex items-center justify-end gap-0.5">
-                            <ProfileLinkIconButton
-                              link={getProfileLink({
-                                is_external: member.is_external,
-                                email: member.email || null,
-                                scholar_id: member.scholar_id || null,
-                              })}
-                              title={
-                                member.is_external
-                                  ? "Open Semantic Scholar profile"
-                                  : "View profile"
-                              }
-                              ariaLabel={
-                                member.is_external
-                                  ? `Open Semantic Scholar profile for ${member.name}`
-                                  : `View profile for ${member.name}`
-                              }
-                            />
-                            {member.role === "pc" && !member.is_external && !readOnly && (
-                              <button
-                                type="button"
-                                onClick={() => handleRemovePCMember(member.email)}
-                                title={T("text_remove_member")}
-                                className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                              >
-                                <Icon name="delete" size={18} />
-                              </button>
-                            )}
-                            {member.role === "reviewer" &&
-                              !member.is_external &&
-                              member.reviewerId &&
-                              !readOnly && (
+                          </td>
+                          <td className="px-4 py-3">
+                            <RoleBadge label={getRoleLabel(member.role)} role={member.role} />
+                          </td>
+                          <td className="px-4 py-3 text-slate-600 text-[11px]">
+                            {member.domain?.join(", ") || "—"}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <div className="flex items-center justify-end gap-0.5">
+                              <ProfileLinkIconButton
+                                link={getProfileLink({
+                                  is_external: member.is_external,
+                                  email: member.email || null,
+                                  scholar_id: member.scholar_id || null,
+                                })}
+                                title={
+                                  member.is_external
+                                    ? "Open Semantic Scholar profile"
+                                    : "View profile"
+                                }
+                                ariaLabel={
+                                  member.is_external
+                                    ? `Open Semantic Scholar profile for ${member.name}`
+                                    : `View profile for ${member.name}`
+                                }
+                              />
+                              {member.role === "pc" && !member.is_external && !readOnly && (
                                 <button
                                   type="button"
-                                  onClick={() => {
-                                    if (member.reviewerId != null) {
-                                      void handleRemoveReviewer(member.reviewerId)
+                                  onClick={() => handleRemovePCMember(member.email)}
+                                  title={T("text_remove_member")}
+                                  className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                >
+                                  <Icon name="delete" size={18} />
+                                </button>
+                              )}
+                              {member.role === "reviewer" &&
+                                !member.is_external &&
+                                member.reviewerId &&
+                                !readOnly && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (member.reviewerId != null) {
+                                        void handleRemoveReviewer(member.reviewerId)
+                                      }
+                                    }}
+                                    title={T("text_remove_member")}
+                                    className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                  >
+                                    <Icon name="delete" size={18} />
+                                  </button>
+                                )}
+                              {member.is_external && member.externalInvitationId && !readOnly && (
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    if (member.externalInvitationId != null) {
+                                      await deleteExternalInvitation(
+                                        conferenceId,
+                                        member.externalInvitationId,
+                                      )
+                                      void loadCommittee()
                                     }
                                   }}
                                   title={T("text_remove_member")}
@@ -1496,87 +1553,72 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                                   <Icon name="delete" size={18} />
                                 </button>
                               )}
-                            {member.is_external && member.externalInvitationId && !readOnly && (
-                              <button
-                                type="button"
-                                onClick={async () => {
-                                  if (member.externalInvitationId != null) {
-                                    await deleteExternalInvitation(
-                                      conferenceId,
-                                      member.externalInvitationId,
-                                    )
-                                    void loadCommittee()
-                                  }
-                                }}
-                                title={T("text_remove_member")}
-                                className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                              >
-                                <Icon name="delete" size={18} />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {filteredMembers.length > 0 && (
-              <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-between">
-                <div className="text-[11px] text-slate-500">
-                  {t(
-                    "runtime.components.chair.conference-detail.conference-committee.text_showing_range",
-                    {
-                      from: Math.min((currentPage - 1) * PAGE_SIZE + 1, filteredMembers.length),
-                      to: Math.min(currentPage * PAGE_SIZE, filteredMembers.length),
-                      total: filteredMembers.length.toLocaleString(),
-                    },
-                  )}
-                </div>
-                <div className="flex gap-1">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                    disabled={currentPage === 1}
-                    className="px-2.5 py-1 border border-slate-200 rounded text-[10px] text-slate-500 hover:bg-slate-50 disabled:opacity-50"
-                  >
-                    {T("text_previous")}
-                  </button>
-                  {getPageNumbers().map((page, index) =>
-                    page === "ellipsis" ? (
-                      <span key={`ellipsis-${index}`} className="px-1.5 text-slate-400 text-[10px]">
-                        ...
-                      </span>
-                    ) : (
-                      <button
-                        key={page}
-                        type="button"
-                        onClick={() => setCurrentPage(page)}
-                        className={cn(
-                          "px-2.5 py-1 rounded text-[10px]",
-                          currentPage === page
-                            ? "bg-[#1B3C53] text-white hover:bg-[#234C6A]"
-                            : "border border-slate-200 text-slate-500 hover:bg-slate-50",
-                        )}
-                      >
-                        {page}
-                      </button>
-                    ),
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-                    disabled={currentPage === totalPages}
-                    className="px-2.5 py-1 border border-slate-200 rounded text-[10px] text-slate-500 hover:bg-slate-50 disabled:opacity-50"
-                  >
-                    {T("text_next")}
-                  </button>
-                </div>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
-            )}
-          </div>
+
+              {filteredMembers.length > 0 && (
+                <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-between">
+                  <div className="text-[11px] text-slate-500">
+                    {t(
+                      "runtime.components.chair.conference-detail.conference-committee.text_showing_range",
+                      {
+                        from: Math.min((currentPage - 1) * PAGE_SIZE + 1, filteredMembers.length),
+                        to: Math.min(currentPage * PAGE_SIZE, filteredMembers.length),
+                        total: filteredMembers.length.toLocaleString(),
+                      },
+                    )}
+                  </div>
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                      disabled={currentPage === 1}
+                      className="px-2.5 py-1 border border-slate-200 rounded text-[10px] text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+                    >
+                      {T("text_previous")}
+                    </button>
+                    {getPageNumbers().map((page, index) =>
+                      page === "ellipsis" ? (
+                        <span
+                          key={`ellipsis-${index}`}
+                          className="px-1.5 text-slate-400 text-[10px]"
+                        >
+                          ...
+                        </span>
+                      ) : (
+                        <button
+                          key={page}
+                          type="button"
+                          onClick={() => setCurrentPage(page)}
+                          className={cn(
+                            "px-2.5 py-1 rounded text-[10px]",
+                            currentPage === page
+                              ? "bg-[#1B3C53] text-white hover:bg-[#234C6A]"
+                              : "border border-slate-200 text-slate-500 hover:bg-slate-50",
+                          )}
+                        >
+                          {page}
+                        </button>
+                      ),
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                      disabled={currentPage === totalPages}
+                      className="px-2.5 py-1 border border-slate-200 rounded text-[10px] text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+                    >
+                      {T("text_next")}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </>
       )}

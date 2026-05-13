@@ -106,12 +106,14 @@ export function PointCard({
                   </span>
                 </div>
               </div>
-              
+
               {userRole === "author" && !readOnly ? (
                 <textarea
                   value={point.authorResponse || ""}
                   onChange={(e) => onAuthorResponseChange?.(e.target.value)}
-                  placeholder="Enter your response to this point..."
+                  placeholder={t(
+                    "runtime.components.shared.rebuttal.components.point-card.placeholder_enter_your_response",
+                  )}
                   className="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 min-h-[80px] resize-y focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white"
                 />
               ) : (

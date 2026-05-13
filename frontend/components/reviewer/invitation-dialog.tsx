@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { getInvitation, respondToInvitation, type InvitationData } from "@/lib/api/suggestions"
 import {
@@ -12,13 +12,14 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 const DECLINE_CATEGORIES = [
-  { id: "not_my_expertise", label: "Not my expertise" },
-  { id: "too_busy", label: "Too busy" },
-  { id: "schedule_conflict", label: "Schedule conflict" },
-  { id: "conflict_of_interest", label: "Conflict of interest" },
-  { id: "other", label: "Other" },
+  { id: "not_my_expertise", labelKey: "text_not_my_expertise" },
+  { id: "too_busy", labelKey: "text_too_busy" },
+  { id: "schedule_conflict", labelKey: "text_schedule_conflict" },
+  { id: "conflict_of_interest", labelKey: "text_conflict_of_interest" },
+  { id: "other", labelKey: "text_other" },
 ]
 
 type DialogState = "loading" | "pending" | "declining" | "error"
@@ -36,6 +37,12 @@ export function InvitationDialog({
   onClose,
   onResponded,
 }: InvitationDialogProps) {
+  const { t } = useTranslation()
+  const T = useCallback(
+    (key: string, values?: Record<string, string | number>) =>
+      t(`runtime.components.reviewer.invitation-dialog.${key}`, values),
+    [t],
+  )
   const { user } = useAuth()
   const [state, setState] = useState<DialogState>("loading")
   const [submittingAction, setSubmittingAction] = useState<"accept" | "decline" | null>(null)
@@ -58,7 +65,7 @@ export function InvitationDialog({
     getInvitation(user.email, assignmentId).then(({ data, error }) => {
       if (cancelled) return
       if (error || !data) {
-        setError(error || "Failed to load invitation")
+        setError(error || T("text_failed_to_load_invitation"))
         setState("error")
         return
       }
@@ -68,7 +75,7 @@ export function InvitationDialog({
     return () => {
       cancelled = true
     }
-  }, [open, assignmentId, user?.email])
+  }, [T, open, assignmentId, user?.email])
 
   // Note: we deliberately keep `state` as "pending"/"declining" during submit so the
   // buttons stay visible (just disabled). Per-button spinner is keyed off `submittingAction`.
@@ -128,12 +135,12 @@ export function InvitationDialog({
       >
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100">
           <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            {invitation?.conference_name ?? "Review Invitation"}
+            {invitation?.conference_name ?? T("text_review_invitation")}
           </p>
-          <DialogTitle className="text-sm font-bold text-[#1B3C53]">Review Invitation</DialogTitle>
-          <DialogDescription className="sr-only">
-            Paper review invitation details and response
-          </DialogDescription>
+          <DialogTitle className="text-sm font-bold text-[#1B3C53]">
+            {T("text_review_invitation")}
+          </DialogTitle>
+          <DialogDescription className="sr-only">{T("text_dialog_description")}</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-4 px-6 py-5">
@@ -147,7 +154,7 @@ export function InvitationDialog({
           {/* Error */}
           {state === "error" && (
             <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-              <p className="text-xs font-semibold text-red-700 mb-1">Failed to load</p>
+              <p className="text-xs font-semibold text-red-700 mb-1">{T("text_failed_to_load")}</p>
               <p className="text-[10px] text-red-500">{error}</p>
             </div>
           )}
@@ -159,14 +166,14 @@ export function InvitationDialog({
               <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-4 flex flex-col gap-3">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                    Paper
+                    {T("text_paper")}
                   </p>
                   <p className="text-xs font-bold text-[#1B3C53]">{invitation.paper_title}</p>
                 </div>
                 {invitation.paper_abstract && (
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                      Abstract
+                      {T("text_abstract")}
                     </p>
                     <p className="text-[10px] text-slate-600 leading-relaxed line-clamp-4">
                       {invitation.paper_abstract}
@@ -178,7 +185,7 @@ export function InvitationDialog({
               {/* Evidence card */}
               <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-4 flex flex-col gap-3">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  Why you're a great match
+                  {T("text_why_match")}
                 </p>
 
                 {invitation.evidence &&
@@ -188,7 +195,7 @@ export function InvitationDialog({
                       <div>
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-[10px] font-medium text-slate-500">
-                            Match Score
+                            {T("text_match_score")}
                           </span>
                           <span className="text-[10px] font-bold text-green-700">
                             {scorePercent}%
@@ -205,7 +212,7 @@ export function InvitationDialog({
                     {invitation.evidence.matched_keywords.length > 0 && (
                       <div>
                         <p className="text-[10px] font-medium text-slate-500 mb-1.5">
-                          Matched Keywords
+                          {T("text_matched_keywords")}
                         </p>
                         <div className="flex flex-wrap gap-1.5">
                           {invitation.evidence.matched_keywords.map((kw) => (
@@ -220,19 +227,16 @@ export function InvitationDialog({
                       </div>
                     )}
                     <p className="text-[10px] text-slate-400">
-                      You currently have{" "}
+                      {T("text_you_currently_have")}{" "}
                       <span className="font-semibold text-slate-600">
                         {invitation.evidence.assignment_count} paper
                         {invitation.evidence.assignment_count !== 1 ? "s" : ""}
                       </span>{" "}
-                      assigned in this conference.
+                      {T("text_assigned_in_this_conference")}
                     </p>
                   </div>
                 ) : (
-                  <p className="text-[10px] text-slate-500">
-                    You were selected by the program committee based on your expertise and research
-                    background.
-                  </p>
+                  <p className="text-[10px] text-slate-500">{T("text_selected_by_committee")}</p>
                 )}
               </div>
 
@@ -252,7 +256,7 @@ export function InvitationDialog({
                     {submittingAction === "accept" && (
                       <Loader2 className="size-3.5 animate-spin mr-1.5" />
                     )}
-                    Accept Assignment
+                    {T("text_accept_assignment")}
                   </Button>
                   <Button
                     variant="outline"
@@ -260,7 +264,7 @@ export function InvitationDialog({
                     onClick={() => setState("declining")}
                     disabled={isSubmitting}
                   >
-                    Decline
+                    {T("text_decline")}
                   </Button>
                 </div>
               )}
@@ -268,7 +272,9 @@ export function InvitationDialog({
               {/* Decline form */}
               {state === "declining" && (
                 <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-4 flex flex-col gap-3">
-                  <p className="text-[10px] font-bold text-slate-700">Tell us why (optional)</p>
+                  <p className="text-[10px] font-bold text-slate-700">
+                    {T("text_tell_us_why_optional")}
+                  </p>
                   <div className="flex flex-wrap gap-1.5">
                     {DECLINE_CATEGORIES.map((cat) => (
                       <button
@@ -283,14 +289,14 @@ export function InvitationDialog({
                             : "border-slate-200 text-slate-600 hover:border-slate-400"
                         }`}
                       >
-                        {cat.label}
+                        {T(cat.labelKey)}
                       </button>
                     ))}
                   </div>
                   <textarea
                     value={declineReason}
                     onChange={(e) => setDeclineReason(e.target.value)}
-                    placeholder="Additional comments (optional)..."
+                    placeholder={T("placeholder_additional_comments")}
                     rows={3}
                     className="w-full rounded-lg border border-slate-200 px-3 py-2 text-[10px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#1B3C53] resize-none"
                   />
@@ -303,7 +309,7 @@ export function InvitationDialog({
                       {submittingAction === "decline" && (
                         <Loader2 className="size-3.5 animate-spin mr-1.5" />
                       )}
-                      Confirm Decline
+                      {T("text_confirm_decline")}
                     </Button>
                     <Button
                       variant="outline"
@@ -314,7 +320,7 @@ export function InvitationDialog({
                       }}
                       disabled={isSubmitting}
                     >
-                      Cancel
+                      {T("text_cancel")}
                     </Button>
                   </div>
                 </div>
