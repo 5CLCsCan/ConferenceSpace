@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { PaperSubmissionForm } from "../paper-submission-form"
-import type { Conference } from "@/lib/types"
+import type { Conference, PrecheckResult } from "@/lib/types"
 import type { Submission } from "@/lib/api/submissions"
-import { publishPaper, submitPaper, updatePaper } from "@/lib/api/papers"
+import { precheckPaper, publishPaper, submitPaper, updatePaper } from "@/lib/api/papers"
 import { updateSubmissionStatus } from "@/lib/api/submissions"
 import type { SubmissionAutofillResponse } from "@/lib/api/submission-autofill"
 
@@ -50,6 +50,7 @@ vi.mock("@/lib/api/papers", () => ({
   submitPaper: vi.fn(),
   updatePaper: vi.fn(),
   publishPaper: vi.fn(),
+  precheckPaper: vi.fn(),
 }))
 
 vi.mock("@/lib/api/submissions", () => ({
@@ -103,7 +104,13 @@ vi.mock("../authors-step", () => ({
   AuthorsStep: () => <div data-testid="authors-step" />,
 }))
 vi.mock("../file-upload-step", () => ({
-  FileUploadStep: () => <div data-testid="file-upload-step" />,
+  FileUploadStep: ({ precheckLoading, precheckResult, precheckError }: any) => (
+    <div data-testid="file-upload-step">
+      {precheckLoading && <span data-testid="precheck-loading">running</span>}
+      {precheckResult && <span data-testid="precheck-result">{precheckResult.decision}</span>}
+      {precheckError && <span data-testid="precheck-error">{precheckError}</span>}
+    </div>
+  ),
 }))
 vi.mock("../conflicts-step", () => ({
   ConflictsStep: ({ coiConfirmed, onCoiConfirmedChange }: any) => (
@@ -124,6 +131,7 @@ vi.mock("../review-step", () => ({
     keywords,
     authors,
     selectedTrack,
+    uploadedFile,
     submissionConfirmed,
     onSubmissionConfirmedChange,
   }: any) => (
@@ -132,6 +140,7 @@ vi.mock("../review-step", () => ({
       <span data-testid="review-abstract">{abstract}</span>
       <span data-testid="review-keywords">{keywords.join(",")}</span>
       <span data-testid="review-track">{selectedTrack}</span>
+      <span data-testid="review-file">{uploadedFile?.name || ""}</span>
       <span data-testid="review-authors">
         {authors.map((author: any) => author.email).join(",")}
       </span>
@@ -145,65 +154,82 @@ vi.mock("../review-step", () => ({
   ),
 }))
 vi.mock("../submission-autofill-sheet", () => ({
-  SubmissionAutofillSheet: ({ open, onApply }: any) =>
-    open ? (
+  SubmissionAutofillSheet: ({ open, onApply }: any) => {
+    const manuscript = new File(["paper"], "generated-paper.pdf", { type: "application/pdf" })
+
+    return open ? (
       <button
         type="button"
         data-testid="apply-autofill"
         onClick={() =>
-          onApply({
-            fields: {
-              title: field("Generated Title"),
-              abstract: field("Generated abstract"),
-              keywords: field(["AI", "Review"]),
-              paper_type: field("student"),
-              additional_notes: field("Generated notes"),
-            },
-            selected_track_name: "Systems",
-            track_rankings: [
-              {
-                track_name: "Artificial Intelligence & Machine Learning",
-                confidence: 9.1,
-                rationale: "The manuscript is about AI.",
-                evidence: [],
-                warnings: [],
+          onApply(
+            {
+              fields: {
+                title: field("Generated Title"),
+                abstract: field("Generated abstract"),
+                keywords: field(["AI", "Review"]),
+                paper_type: field("student"),
+                additional_notes: field("Generated notes"),
               },
-              {
-                track_name: "Systems",
-                confidence: 7.4,
-                rationale: "The evaluation includes systems concerns.",
-                evidence: [],
-                warnings: [],
-              },
-            ],
-            authors: [
-              {
-                name: "Author User",
-                email: "author@example.com",
-                affiliation: "HCMUS",
-                country: "Vietnam",
-                confidence: "high",
-                evidence: [],
-                warnings: [],
-              },
-              {
-                name: "Second Author",
-                email: "second@example.com",
-                affiliation: "HCMUS",
-                country: "Vietnam",
-                confidence: "medium",
-                evidence: [],
-                warnings: [],
-              },
-            ],
-            possible_conflicts: [],
-            warnings: [],
-          } satisfies Partial<SubmissionAutofillResponse>)
+              selected_track_name: "Systems",
+              track_rankings: [
+                {
+                  track_name: "Artificial Intelligence & Machine Learning",
+                  confidence: 9.1,
+                  rationale: "The manuscript is about AI.",
+                  evidence: [],
+                  warnings: [],
+                },
+                {
+                  track_name: "Systems",
+                  confidence: 7.4,
+                  rationale: "The evaluation includes systems concerns.",
+                  evidence: [],
+                  warnings: [],
+                },
+              ],
+              authors: [
+                {
+                  name: "Author User",
+                  email: "author@example.com",
+                  affiliation: "HCMUS",
+                  country: "Vietnam",
+                  confidence: "high",
+                  evidence: [],
+                  warnings: [],
+                },
+                {
+                  name: "Second Author",
+                  email: "second@example.com",
+                  affiliation: "HCMUS",
+                  country: "Vietnam",
+                  confidence: "medium",
+                  evidence: [],
+                  warnings: [],
+                },
+              ],
+              possible_conflicts: [],
+              materials: [
+                {
+                  file_id: "file-1",
+                  filename: "generated-paper.pdf",
+                  content_type: "application/pdf",
+                  size_bytes: manuscript.size,
+                  role: "manuscript",
+                  extraction_status: "ready",
+                  warnings: [],
+                },
+              ],
+              warnings: [],
+            } satisfies Partial<SubmissionAutofillResponse>,
+            [manuscript],
+          )
         }
       >
         Apply generated data
       </button>
-    ) : null,
+    ) : null
+  },
 }))
 vi.mock("../submission-action-bar", () => ({
   SubmissionActionBar: ({
@@ -302,10 +328,34 @@ function field<T>(value: T) {
   return { value, confidence: "high" as const, evidence: [], warnings: [] }
 }
 
+function makePrecheckResult(overrides?: Partial<PrecheckResult>): PrecheckResult {
+  return {
+    paper_title: "Generated Title",
+    overall_score: 95,
+    decision: "accept_for_review",
+    summary: { total_items: 1, passed: 1, failed: 0, pass_rate: 100 },
+    category_scores: {},
+    detailed_results: [],
+    ...overrides,
+  }
+}
+
+function createDeferred<T>() {
+  let resolve!: (value: T) => void
+  const promise = new Promise<T>((res) => {
+    resolve = res
+  })
+  return { promise, resolve }
+}
+
 describe("PaperSubmissionForm — deadline enforcement (UI-NEG-02)", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     window.scrollTo = vi.fn()
+    vi.mocked(precheckPaper).mockResolvedValue({
+      data: makePrecheckResult(),
+      error: null,
+    })
   })
 
   it("shows no deadline warning when no deadline is set", () => {
@@ -467,10 +517,44 @@ describe("PaperSubmissionForm — deadline enforcement (UI-NEG-02)", () => {
     expect(screen.getByTestId("review-abstract")).toHaveTextContent("Generated abstract")
     expect(screen.getByTestId("review-keywords")).toHaveTextContent("AI,Review")
     expect(screen.getByTestId("review-track")).toHaveTextContent("Systems")
+    expect(screen.getByTestId("review-file")).toHaveTextContent("generated-paper.pdf")
     expect(screen.getByTestId("review-authors")).toHaveTextContent(
       "author@example.com,second@example.com",
     )
     expect(screen.getByTestId("submission-confirmed-checkbox")).not.toBeChecked()
+    await waitFor(() => expect(precheckPaper).toHaveBeenCalledWith("1", expect.any(File)))
+  })
+
+  it("does not block autofill apply while precheck runs and keeps the result on the file step", async () => {
+    const deferred = createDeferred<{ data: PrecheckResult | null; error: string | null }>()
+    vi.mocked(precheckPaper).mockReturnValue(deferred.promise)
+
+    render(
+      <PaperSubmissionForm
+        conference={makeConference({
+          tracks: ["Artificial Intelligence & Machine Learning", "Systems"],
+        })}
+        submission={makeSubmission({ status: "draft" })}
+      />,
+    )
+
+    fireEvent.click(screen.getByTestId("autofill-btn"))
+    fireEvent.click(screen.getByTestId("apply-autofill"))
+
+    expect(screen.getByTestId("review-step")).toBeInTheDocument()
+    expect(screen.getByTestId("review-file")).toHaveTextContent("generated-paper.pdf")
+    expect(precheckPaper).toHaveBeenCalledWith("1", expect.any(File))
+
+    fireEvent.click(screen.getByTestId("step-file"))
+    expect(screen.getByTestId("precheck-loading")).toBeInTheDocument()
+
+    await act(async () => {
+      deferred.resolve({ data: makePrecheckResult(), error: null })
+      await deferred.promise
+    })
+
+    expect(screen.queryByTestId("precheck-loading")).not.toBeInTheDocument()
+    expect(screen.getByTestId("precheck-result")).toHaveTextContent("accept_for_review")
   })
 
   it("shows a warning when autosave cannot create another submission for the conference", async () => {

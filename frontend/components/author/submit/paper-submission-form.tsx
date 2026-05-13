@@ -2,7 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import { getTrackRecommendations, publishPaper, submitPaper, updatePaper } from "@/lib/api/papers"
+import {
+  getTrackRecommendations,
+  precheckPaper,
+  publishPaper,
+  submitPaper,
+  updatePaper,
+} from "@/lib/api/papers"
 import { updateSubmissionStatus } from "@/lib/api/submissions"
 import { useAuth } from "@/lib/auth-context"
 import { ROUTES } from "@/lib/routes"
@@ -45,6 +51,28 @@ interface PaperSubmissionFormProps {
 
 type AutosaveStatus = "idle" | "saving" | "saved" | "error"
 const AUTOSAVE_INTERVAL_MS = 2 * 60 * 1000
+
+function findAutofillManuscriptFile(
+  files: File[],
+  result: SubmissionAutofillResponse,
+): File | null {
+  const manuscriptMaterial = (result.materials || []).find((material) => {
+    const role = material.role.toLowerCase()
+    return role.includes("manuscript") || role.includes("paper")
+  })
+
+  if (manuscriptMaterial) {
+    const matchingFile = files.find(
+      (file) =>
+        file.name === manuscriptMaterial.filename && file.size === manuscriptMaterial.size_bytes,
+    )
+    if (matchingFile && isAcceptedManuscriptFile(matchingFile)) {
+      return matchingFile
+    }
+  }
+
+  return files.find(isAcceptedManuscriptFile) || null
+}
 
 export function PaperSubmissionForm({
   conference,
@@ -129,6 +157,7 @@ export function PaperSubmissionForm({
   const [uploadProgress, setUploadProgress] = useState(0)
   const [precheckResult, setPrecheckResult] = useState<PrecheckResult | null>(null)
   const [precheckError, setPrecheckError] = useState<string | null>(null)
+  const [precheckLoading, setPrecheckLoading] = useState(false)
   const [lastPrecheckBlock, setLastPrecheckBlock] = useState<PrecheckBlockedError | null>(null)
   const [fileValidation, setFileValidation] = useState<{
     format: boolean
@@ -528,11 +557,42 @@ export function PaperSubmissionForm({
     setUploadedFile(file)
     setUploadProgress(100)
     setFileValidation({ format: false, fonts: false })
+    setPrecheckLoading(false)
   }
+
+  const runAutofillPrecheck = useCallback(
+    async (file: File) => {
+      if (!conference?.id) {
+        setPrecheckResult(null)
+        setPrecheckError(null)
+        setPrecheckLoading(false)
+        return
+      }
+
+      setPrecheckResult(null)
+      setPrecheckError(null)
+      setPrecheckLoading(true)
+
+      try {
+        const response = await precheckPaper(String(conference.id), file)
+        if (response.error) {
+          setPrecheckError(response.error)
+        } else if (response.data) {
+          setPrecheckResult(response.data)
+        }
+      } catch (error) {
+        setPrecheckError(error instanceof Error ? error.message : "Precheck failed")
+      } finally {
+        setPrecheckLoading(false)
+      }
+    },
+    [conference?.id],
+  )
 
   const handleRemoveFile = () => {
     setUploadedFile(null)
     setUploadProgress(0)
+    setPrecheckLoading(false)
   }
 
   // Conflict handlers
@@ -580,7 +640,7 @@ export function PaperSubmissionForm({
     setConflicts(conflicts.filter((c) => c.id !== id))
   }
 
-  const handleApplyAutofill = (result: SubmissionAutofillResponse) => {
+  const handleApplyAutofill = (result: SubmissionAutofillResponse, sourceFiles: File[] = []) => {
     const nextTitle = result.fields.title.value.trim()
     const nextAbstract = result.fields.abstract.value.trim()
     const nextKeywords = result.fields.keywords.value
@@ -641,9 +701,17 @@ export function PaperSubmissionForm({
       })
     if (generatedConflicts.length > 0) setConflicts(generatedConflicts)
 
+    const manuscriptFile = findAutofillManuscriptFile(sourceFiles, result)
+    if (manuscriptFile) {
+      setUploadedFile(manuscriptFile)
+      setUploadProgress(100)
+      setFileValidation({ format: false, fonts: false })
+      void runAutofillPrecheck(manuscriptFile)
+    }
+
     setCoiConfirmed(false)
     setSubmissionConfirmed(false)
-    setCurrentStep(uploadedFile || canUseServerSidePrecheck ? "review" : "file")
+    setCurrentStep(manuscriptFile || uploadedFile || canUseServerSidePrecheck ? "review" : "file")
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
@@ -661,7 +729,7 @@ export function PaperSubmissionForm({
     if (trackRecommendationError) {
       setTrackRecommendationError(null)
     }
-  }, [recommendationSignature])
+  }, [recommendationSignature, trackRecommendationError])
 
   useEffect(() => {
     if (!conference || !user || isNewSubmissionBlocked) {
@@ -986,11 +1054,13 @@ export function PaperSubmissionForm({
                 }
                 precheckResult={precheckResult}
                 precheckError={precheckError}
+                precheckLoading={precheckLoading}
                 onFileUpload={handleFileUpload}
                 onRemoveFile={handleRemoveFile}
                 onPrecheckUpdate={(result, error) => {
                   setPrecheckResult(result)
                   setPrecheckError(error)
+                  setPrecheckLoading(false)
                   if (result || error) {
                     setLastPrecheckBlock(null)
                   }
