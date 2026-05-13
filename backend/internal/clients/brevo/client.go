@@ -29,6 +29,10 @@ func New(cfg Config) *Client {
 	}
 }
 
+func (c *Client) Configured() bool {
+	return c != nil && c.cfg.APIKey != ""
+}
+
 type emailSender struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`

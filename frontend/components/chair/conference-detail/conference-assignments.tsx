@@ -8,6 +8,7 @@ import {
   deleteSuggestion,
   addSuggestion,
   getConfirmedAssignments,
+  sendAssignmentReminder,
   type SuggestionGroup,
   type SuggestedReviewer,
   type ConfirmedAssignmentGroup,
@@ -34,6 +35,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { useAuth } from "@/lib/auth-context"
+import { useToast } from "@/hooks/use-toast"
 import { isReadOnlyRole } from "@/lib/role-helpers"
 import { SuggestionDetail } from "./suggestion-detail"
 
@@ -181,9 +183,52 @@ function ReviewStatusBadge({ status }: { status: string }) {
   )
 }
 
+function DeadlineBadge({ status, dueDate }: { status?: string; dueDate?: string }) {
+  if (!status || status === "none" || !dueDate) return null
+
+  const config: Record<string, { label: string; className: string }> = {
+    overdue: {
+      label: "Overdue",
+      className: "bg-red-50 text-red-700",
+    },
+    due_today: {
+      label: "Due today",
+      className: "bg-orange-50 text-orange-700",
+    },
+    due_soon: {
+      label: "Due soon",
+      className: "bg-amber-50 text-amber-700",
+    },
+    upcoming: {
+      label: "Upcoming",
+      className: "bg-slate-100 text-slate-600",
+    },
+  }
+  const item = config[status]
+  if (!item) return null
+
+  const formattedDate = new Date(dueDate).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  })
+
+  return (
+    <span
+      title={`Due ${formattedDate}`}
+      className={cn(
+        "inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider",
+        item.className,
+      )}
+    >
+      {item.label}
+    </span>
+  )
+}
+
 export function ConferenceAssignments({ conferenceId, className }: ConferenceAssignmentsProps) {
   const { t } = useTranslation()
   const { currentRole } = useAuth()
+  const { toast } = useToast()
   const readOnly = isReadOnlyRole(currentRole)
   const [activeTab, setActiveTab] = useState<TabType>("suggestions")
 
@@ -201,6 +246,8 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
   const [error, setError] = useState<string | null>(null)
   const [confirmingAll, setConfirmingAll] = useState(false)
   const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [sendingReminderId, setSendingReminderId] = useState<number | null>(null)
+  const [sentReminderIds, setSentReminderIds] = useState<Set<number>>(new Set())
 
   // Add reviewer dialog state
   const [showAddDialog, setShowAddDialog] = useState(false)
@@ -295,6 +342,27 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
       await loadSuggestions()
       await loadConfirmedAssignments()
     }
+  }
+
+  const handleSendReminder = async (assignmentId: number) => {
+    setSendingReminderId(assignmentId)
+    const response = await sendAssignmentReminder(conferenceId, assignmentId)
+    if (response.error || !response.data) {
+      toast({
+        variant: "destructive",
+        title: "Reminder failed",
+        description: response.error || "Could not send reminder.",
+      })
+    } else {
+      setSentReminderIds((prev) => new Set(prev).add(assignmentId))
+      toast({
+        title: response.data.email_sent ? "Reminder sent" : "Reminder sent, email unavailable",
+        description: response.data.email_sent
+          ? "The reviewer received an in-app notification and email."
+          : "The reviewer received an in-app notification.",
+      })
+    }
+    setSendingReminderId(null)
   }
 
   const openAddDialog = async (submission: SuggestionGroup) => {
@@ -640,6 +708,10 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
                       <div className="flex items-center gap-2">
                         <StatusBadge status={reviewer.status} />
                         <ReviewStatusBadge status={reviewer.review_status} />
+                        <DeadlineBadge
+                          status={reviewer.deadline_status}
+                          dueDate={reviewer.due_date}
+                        />
                         {reviewer.status === "declined" && (
                           <span className="text-[10px] text-slate-400 italic">
                             {reviewer.decline_category
@@ -648,6 +720,26 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
                                 ? reviewer.decline_reason
                                 : "No reason given"}
                           </span>
+                        )}
+                        {!readOnly && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 px-2 text-[10px] font-semibold"
+                            disabled={
+                              sendingReminderId === reviewer.assignment_id ||
+                              reviewer.status === "declined" ||
+                              reviewer.status === "completed" ||
+                              reviewer.review_status === "submitted"
+                            }
+                            onClick={() => handleSendReminder(reviewer.assignment_id)}
+                          >
+                            {sendingReminderId === reviewer.assignment_id
+                              ? "Sending..."
+                              : sentReminderIds.has(reviewer.assignment_id)
+                                ? "Reminder sent"
+                                : "Send reminder"}
+                          </Button>
                         )}
                       </div>
                     </div>
