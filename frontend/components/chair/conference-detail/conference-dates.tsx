@@ -464,7 +464,9 @@ export function ConferenceDates({ conferenceId, className }: ConferenceDatesProp
             )}{" "}
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Track key deadlines and milestones across the conference schedule.
+            {t(
+              "runtime.components.chair.conference-detail.conference-dates.text_track_key_deadlines",
+            )}
           </p>
         </div>
         <div className="flex items-center gap-2">

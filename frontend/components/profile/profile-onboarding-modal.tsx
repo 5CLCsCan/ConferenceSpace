@@ -47,10 +47,7 @@ interface ProfileOnboardingModalProps {
 
 type Step = "paste" | "search" | "confirm" | "success"
 
-const AUTHOR_URL_EXAMPLES = [
-  "https://www.semanticscholar.org/author/1741101",
-  "1741101",
-]
+const AUTHOR_URL_EXAMPLES = ["https://www.semanticscholar.org/author/1741101", "1741101"]
 
 function isAlreadyLinkedProfileError(error: unknown) {
   return (
@@ -70,19 +67,11 @@ function getHomepageDomain(homepage?: string) {
 }
 
 function getPrimaryAffiliation(author: Author | AuthorWithPapers) {
-  return (
-    author.normalizedAffiliations?.[0]?.rorDisplayName ||
-    author.affiliations?.[0] ||
-    undefined
-  )
+  return author.normalizedAffiliations?.[0]?.rorDisplayName || author.affiliations?.[0] || undefined
 }
 
 function getSecondaryAffiliation(author: Author | AuthorWithPapers) {
-  return (
-    author.normalizedAffiliations?.[1]?.rorDisplayName ||
-    author.affiliations?.[1] ||
-    undefined
-  )
+  return author.normalizedAffiliations?.[1]?.rorDisplayName || author.affiliations?.[1] || undefined
 }
 
 function getExternalIdValue(externalIds: AuthorExternalIds | undefined, key: string) {
@@ -96,9 +85,11 @@ function getExternalIdValue(externalIds: AuthorExternalIds | undefined, key: str
 function AuthorPreviewPaper({
   paper,
   citationsLabel,
+  viewLabel,
 }: {
   paper: Paper
   citationsLabel: string
+  viewLabel: string
 }) {
   return (
     <article className="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
@@ -108,7 +99,11 @@ function AuthorPreviewPaper({
             {paper.title}
           </p>
           <p className="mt-1.5 text-[11px] text-slate-500 line-clamp-1">
-            {[paper.year, paper.venue, `${paper.citationCount || 0} ${citationsLabel.toLowerCase()}`]
+            {[
+              paper.year,
+              paper.venue,
+              `${paper.citationCount || 0} ${citationsLabel.toLowerCase()}`,
+            ]
               .filter(Boolean)
               .join(" • ")}
           </p>
@@ -121,7 +116,7 @@ function AuthorPreviewPaper({
             className="inline-flex h-7 shrink-0 items-center rounded-md border border-slate-200 px-2 text-[9px] font-bold uppercase tracking-wider text-[#1B3C53] transition-colors hover:bg-slate-50"
           >
             <ExternalLink className="mr-1 h-3 w-3" />
-            View
+            {viewLabel}
           </a>
         ) : null}
       </div>
@@ -209,7 +204,9 @@ export function ProfileOnboardingModal({
         )
       } else {
         toast({
-          title: t("runtime.components.profile.profile-onboarding-modal.prop_title_limited_details"),
+          title: t(
+            "runtime.components.profile.profile-onboarding-modal.prop_title_limited_details",
+          ),
           description: t(
             "runtime.components.profile.profile-onboarding-modal.prop_description_could_not_load_full_author_details",
           ),
@@ -223,7 +220,9 @@ export function ProfileOnboardingModal({
   const handleContinueFromPaste = async () => {
     if (parsedInputState.error === "empty") {
       setProfileInputError(
-        t("runtime.components.profile.profile-onboarding-modal.prop_description_paste_a_profile_link"),
+        t(
+          "runtime.components.profile.profile-onboarding-modal.prop_description_paste_a_profile_link",
+        ),
       )
       return
     }
@@ -311,7 +310,9 @@ export function ProfileOnboardingModal({
       const isAlreadyLinked = isAlreadyLinkedProfileError(error)
       toast({
         title: isAlreadyLinked
-          ? t("runtime.components.profile.profile-onboarding-modal.prop_title_profile_already_connected")
+          ? t(
+              "runtime.components.profile.profile-onboarding-modal.prop_title_profile_already_connected",
+            )
           : t("runtime.components.profile.profile-onboarding-modal.prop_title_link_failed"),
         description: isAlreadyLinked
           ? t(
@@ -355,13 +356,25 @@ export function ProfileOnboardingModal({
                   <div className="rounded-lg bg-[#1B3C53]/10 p-1.5 text-[#1B3C53]">
                     <GraduationCap className="h-3.5 w-3.5" />
                   </div>
-                  <span>{t("runtime.components.profile.profile-onboarding-modal.text_find_your_profile_on_semantic_scholar")}</span>
+                  <span>
+                    {t(
+                      "runtime.components.profile.profile-onboarding-modal.text_find_your_profile_on_semantic_scholar",
+                    )}
+                  </span>
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-slate-500">
-                  <span>{t("runtime.components.profile.profile-onboarding-modal.text_search_your_name_or_paper_title")}</span>
+                  <span>
+                    {t(
+                      "runtime.components.profile.profile-onboarding-modal.text_search_your_name_or_paper_title",
+                    )}
+                  </span>
                   <span className="hidden text-slate-300 sm:inline">•</span>
-                  <span>{t("runtime.components.profile.profile-onboarding-modal.text_open_your_author_page_and_paste_the_url")}</span>
+                  <span>
+                    {t(
+                      "runtime.components.profile.profile-onboarding-modal.text_open_your_author_page_and_paste_the_url",
+                    )}
+                  </span>
                 </div>
 
                 <div className="mt-5">
@@ -411,11 +424,11 @@ export function ProfileOnboardingModal({
                   </div>
                   {activeProfileInputError ? (
                     <p className="mt-2 text-[10px] text-rose-600">{activeProfileInputError}</p>
-                    ) : (
-                      <div className="mt-2 space-y-1 text-[7px] leading-relaxed text-slate-400">
-                        <p>
-                          {t("runtime.components.profile.profile-onboarding-modal.text_example")}{" "}
-                          {AUTHOR_URL_EXAMPLES[0]}
+                  ) : (
+                    <div className="mt-2 space-y-1 text-[7px] leading-relaxed text-slate-400">
+                      <p>
+                        {t("runtime.components.profile.profile-onboarding-modal.text_example")}{" "}
+                        {AUTHOR_URL_EXAMPLES[0]}
                       </p>
                       <p>
                         {t("runtime.components.profile.profile-onboarding-modal.text_or")}{" "}
@@ -434,7 +447,9 @@ export function ProfileOnboardingModal({
                       className="inline-flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-[0.12em] text-[#1B3C53] hover:text-[#234C6A]"
                     >
                       <ExternalLink className="h-3.5 w-3.5" />
-                      {t("runtime.components.profile.profile-onboarding-modal.text_open_semantic_scholar")}
+                      {t(
+                        "runtime.components.profile.profile-onboarding-modal.text_open_semantic_scholar",
+                      )}
                     </a>
                     <button
                       type="button"
@@ -445,7 +460,9 @@ export function ProfileOnboardingModal({
                       }}
                     >
                       <Search className="h-3.5 w-3.5" />
-                      {t("runtime.components.profile.profile-onboarding-modal.text_search_by_name_instead")}
+                      {t(
+                        "runtime.components.profile.profile-onboarding-modal.text_search_by_name_instead",
+                      )}
                     </button>
                   </div>
                   <Button
@@ -692,7 +709,9 @@ export function ProfileOnboardingModal({
                       )}
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-[17px] font-bold text-white">{selectedAuthor.name}</h3>
+                          <h3 className="text-[17px] font-bold text-white">
+                            {selectedAuthor.name}
+                          </h3>
                           <span className="inline-flex items-center rounded px-2 py-0.5 text-[8px] font-black uppercase tracking-widest bg-white/15 text-white/90 border border-white/20">
                             {t(
                               "runtime.components.profile.profile-onboarding-modal.text_semantic_scholar_profile",
@@ -787,6 +806,7 @@ export function ProfileOnboardingModal({
                       citationsLabel={t(
                         "runtime.components.profile.profile-onboarding-modal.text_citations",
                       )}
+                      viewLabel={t("runtime.components.profile.profile-onboarding-modal.text_view")}
                     />
                   ))}
                 </div>

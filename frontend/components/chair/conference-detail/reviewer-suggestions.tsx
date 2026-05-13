@@ -3,10 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "@/lib/i18n/translation-context"
-import {
-  getReviewerSuggestions,
-  type ReviewerSuggestion,
-} from "@/lib/api/reviewer-suggestions"
+import { getReviewerSuggestions, type ReviewerSuggestion } from "@/lib/api/reviewer-suggestions"
 import { inviteReviewers } from "@/lib/api/conferences"
 import { createExternalInvitations } from "@/lib/api/external-invitations"
 import { PlatformBadge } from "./platform-badge"
@@ -206,7 +203,9 @@ function MatchScore({ score, T }: { score: number; T: (key: string) => string })
       <div className="w-[56px] h-1 bg-slate-100 rounded-full mt-1 overflow-hidden">
         <div className={cn("h-full rounded-full", barColor)} style={{ width: `${score}%` }} />
       </div>
-      <div className="text-[9px] text-slate-400 uppercase tracking-wider mt-1">{T("text_match")}</div>
+      <div className="text-[9px] text-slate-400 uppercase tracking-wider mt-1">
+        {T("text_match")}
+      </div>
     </div>
   )
 }
@@ -285,8 +284,7 @@ function SuggestionRow({
               <span
                 className={cn(
                   "text-[13px] font-medium text-[#1B3C53] truncate",
-                  profileLink &&
-                    "group-hover:underline underline-offset-2 decoration-slate-300",
+                  profileLink && "group-hover:underline underline-offset-2 decoration-slate-300",
                 )}
               >
                 {suggestion.name}
@@ -306,9 +304,7 @@ function SuggestionRow({
             {suggestion.affiliation && suggestion.email && (
               <span className="w-[3px] h-[3px] rounded-full bg-slate-300" />
             )}
-            {suggestion.email && (
-              <span className="font-mono text-[10px]">{suggestion.email}</span>
-            )}
+            {suggestion.email && <span className="font-mono text-[10px]">{suggestion.email}</span>}
           </div>
           <FieldChips fields={suggestion.fields} matchedFields={suggestion.matched_fields} />
           <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-1.5">
@@ -378,16 +374,104 @@ function Toast({ message }: { message: string }) {
   )
 }
 
-export function ReviewerSuggestions({
-  conferenceId,
-  onInviteSuccess,
-}: ReviewerSuggestionsProps) {
+export function ReviewerSuggestions({ conferenceId, onInviteSuccess }: ReviewerSuggestionsProps) {
   const { t } = useTranslation()
-  const T = useCallback(
-    (key: string) =>
-      t(`runtime.components.chair.conference-detail.conference-committee.${key}`),
+  const labels = useMemo(
+    () => ({
+      text_generating_suggestions: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_generating_suggestions",
+      ),
+      text_generating_suggestions_hint: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_generating_suggestions_hint",
+      ),
+      text_loading_suggestions: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_loading_suggestions",
+      ),
+      text_match: t("runtime.components.chair.conference-detail.conference-committee.text_match"),
+      text_open_scholar_profile: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_open_scholar_profile",
+      ),
+      text_view_profile: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_view_profile",
+      ),
+      text_pubs: t("runtime.components.chair.conference-detail.conference-committee.text_pubs"),
+      text_prior_reviews: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_prior_reviews",
+      ),
+      text_invited: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_invited",
+      ),
+      text_invite: t("runtime.components.chair.conference-detail.conference-committee.text_invite"),
+      text_remove_member: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_remove_member",
+      ),
+      text_re_run: t("runtime.components.chair.conference-detail.conference-committee.text_re_run"),
+      text_start: t("runtime.components.chair.conference-detail.conference-committee.text_start"),
+      text_suggested_reviewers: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_suggested_reviewers",
+      ),
+      text_matches: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_matches",
+      ),
+      text_suggested_reviewers_subtitle: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_suggested_reviewers_subtitle",
+      ),
+      text_top_n_label: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_top_n_label",
+      ),
+      text_top_n_placeholder: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_top_n_placeholder",
+      ),
+      text_top_n_invalid: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_top_n_invalid",
+      ),
+      text_all: t("runtime.components.chair.conference-detail.conference-committee.text_all"),
+      text_on_platform: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_on_platform",
+      ),
+      text_not_on_platform: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_not_on_platform",
+      ),
+      text_highest_match: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_highest_match",
+      ),
+      text_most_publications: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_most_publications",
+      ),
+      text_invite_all: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_invite_all",
+      ),
+      text_pick_count_title: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_pick_count_title",
+      ),
+      text_pick_count_hint: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_pick_count_hint",
+      ),
+      text_all_caught_up: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_all_caught_up",
+      ),
+      text_no_suggestions_filter: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_no_suggestions_filter",
+      ),
+      text_all_suggestions_actioned: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_all_suggestions_actioned",
+      ),
+      text_try_another_filter: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_try_another_filter",
+      ),
+      text_loading_hint_first: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_loading_hint_first",
+      ),
+      text_loading_hint_second: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_loading_hint_second",
+      ),
+      text_loading_hint_third: t(
+        "runtime.components.chair.conference-detail.conference-committee.text_loading_hint_third",
+      ),
+    }),
     [t],
   )
+  const T = useCallback((key: string) => labels[key as keyof typeof labels] ?? key, [labels])
 
   const DEFAULT_TOP_N = 20
 
@@ -406,18 +490,10 @@ export function ReviewerSuggestions({
   const [topNInput, setTopNInput] = useState<string>(
     () => cached?.topNInput ?? String(DEFAULT_TOP_N),
   )
-  const [invited, setInvited] = useState<Set<string>>(
-    () => new Set(cached?.invited ?? []),
-  )
-  const [removed, setRemoved] = useState<Set<string>>(
-    () => new Set(cached?.removed ?? []),
-  )
-  const [filter, setFilter] = useState<PlatformFilter>(
-    () => cached?.filter ?? "all",
-  )
-  const [sortBy, setSortBy] = useState<SortOption>(
-    () => cached?.sortBy ?? "highest_match",
-  )
+  const [invited, setInvited] = useState<Set<string>>(() => new Set(cached?.invited ?? []))
+  const [removed, setRemoved] = useState<Set<string>>(() => new Set(cached?.removed ?? []))
+  const [filter, setFilter] = useState<PlatformFilter>(() => cached?.filter ?? "all")
+  const [sortBy, setSortBy] = useState<SortOption>(() => cached?.sortBy ?? "highest_match")
   const [toasts, setToasts] = useState<{ id: number; message: string }[]>([])
 
   // Sync local state back to the cache whenever something worth keeping
@@ -555,9 +631,7 @@ export function ReviewerSuggestions({
     const platformToInvite = filtered.filter(
       (s) => s.on_platform && !invited.has(s.id) && s.platform_user_id,
     )
-    const externalToInvite = filtered.filter(
-      (s) => !s.on_platform && !invited.has(s.id),
-    )
+    const externalToInvite = filtered.filter((s) => !s.on_platform && !invited.has(s.id))
 
     if (platformToInvite.length === 0 && externalToInvite.length === 0) return
 
@@ -599,10 +673,9 @@ export function ReviewerSuggestions({
     setInvited(newInvited)
     if (totalInvited > 0) {
       showToast(
-        t(
-          "runtime.components.chair.conference-detail.conference-committee.text_invitations_sent",
-          { count: String(totalInvited) },
-        ),
+        t("runtime.components.chair.conference-detail.conference-committee.text_invitations_sent", {
+          count: String(totalInvited),
+        }),
       )
       onInviteSuccess?.()
     }
@@ -663,14 +736,10 @@ export function ReviewerSuggestions({
                   if (e.key === "Enter" && !startDisabled) handleStart()
                 }}
                 aria-invalid={startDisabled}
-                aria-describedby={
-                  startDisabled ? "reviewer-suggestion-top-n-error" : undefined
-                }
+                aria-describedby={startDisabled ? "reviewer-suggestion-top-n-error" : undefined}
                 className={cn(
                   "w-16 h-7 px-2 text-[11px] text-center border rounded-md focus:ring-1 focus:ring-[#1B3C53] outline-none tabular-nums",
-                  startDisabled
-                    ? "border-red-300 text-red-700"
-                    : "border-slate-200 text-slate-700",
+                  startDisabled ? "border-red-300 text-red-700" : "border-slate-200 text-slate-700",
                 )}
               />
               <button
@@ -682,10 +751,7 @@ export function ReviewerSuggestions({
                 {startLabel}
               </button>
               {startDisabled && (
-                <span
-                  id="reviewer-suggestion-top-n-error"
-                  className="text-[10px] text-red-600"
-                >
+                <span id="reviewer-suggestion-top-n-error" className="text-[10px] text-red-600">
                   {T("text_top_n_invalid")}
                 </span>
               )}
@@ -696,11 +762,7 @@ export function ReviewerSuggestions({
                 <div className="flex gap-1.5 items-center">
                   {(["all", "platform", "external"] as PlatformFilter[]).map((f) => {
                     const count =
-                      f === "all"
-                        ? allCount
-                        : f === "platform"
-                          ? platformCount
-                          : externalCount
+                      f === "all" ? allCount : f === "platform" ? platformCount : externalCount
                     const label =
                       f === "all"
                         ? T("text_all")
@@ -750,9 +812,7 @@ export function ReviewerSuggestions({
             <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#1B3C53]/5 text-[#1B3C53] mb-3">
               <SuggestionIcon name="auto_awesome" size={24} />
             </span>
-            <p className="text-[14px] font-semibold text-[#1B3C53]">
-              {T("text_pick_count_title")}
-            </p>
+            <p className="text-[14px] font-semibold text-[#1B3C53]">{T("text_pick_count_title")}</p>
             <p className="text-[12px] text-slate-500 mt-1">{T("text_pick_count_hint")}</p>
           </div>
         ) : filtered.length === 0 ? (
@@ -761,9 +821,7 @@ export function ReviewerSuggestions({
               {allCount === 0 ? T("text_all_caught_up") : T("text_no_suggestions_filter")}
             </p>
             <p className="text-[11px] text-slate-500 mt-1">
-              {allCount === 0
-                ? T("text_all_suggestions_actioned")
-                : T("text_try_another_filter")}
+              {allCount === 0 ? T("text_all_suggestions_actioned") : T("text_try_another_filter")}
             </p>
           </div>
         ) : (

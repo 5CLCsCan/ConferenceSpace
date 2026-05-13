@@ -195,35 +195,45 @@ export function AIAssistantCard({
     switch (status) {
       case "ready":
         return {
-          title: t("runtime.components.reviewer.submission-review.review-sidebar.prop_title_report_generated"),
+          title: t(
+            "runtime.components.reviewer.submission-review.review-sidebar.prop_title_report_generated",
+          ),
           body: t(
             "runtime.components.reviewer.submission-review.review-sidebar.text_submission_pre_read_ready",
           ),
         }
       case "stale":
         return {
-          title: t("runtime.components.reviewer.submission-review.review-sidebar.prop_title_report_out_of_date"),
+          title: t(
+            "runtime.components.reviewer.submission-review.review-sidebar.prop_title_report_out_of_date",
+          ),
           body: t(
             "runtime.components.reviewer.submission-review.review-sidebar.text_submission_changed_regenerate_analysis",
           ),
         }
       case "failed":
         return {
-          title: t("runtime.components.reviewer.submission-review.review-sidebar.prop_title_generation_failed"),
+          title: t(
+            "runtime.components.reviewer.submission-review.review-sidebar.prop_title_generation_failed",
+          ),
           body: t(
             "runtime.components.reviewer.submission-review.review-sidebar.text_system_could_not_build_briefing",
           ),
         }
       case "idle":
         return {
-          title: t("runtime.components.reviewer.submission-review.review-sidebar.prop_title_no_analysis_yet"),
+          title: t(
+            "runtime.components.reviewer.submission-review.review-sidebar.prop_title_no_analysis_yet",
+          ),
           body: t(
             "runtime.components.reviewer.submission-review.review-sidebar.text_generate_neutral_briefing_first",
           ),
         }
       default:
         return {
-          title: t("runtime.components.reviewer.submission-review.review-sidebar.prop_title_checking_analysis_status"),
+          title: t(
+            "runtime.components.reviewer.submission-review.review-sidebar.prop_title_checking_analysis_status",
+          ),
           body: t(
             "runtime.components.reviewer.submission-review.review-sidebar.text_looking_up_latest_pre_read_artifact",
           ),
@@ -243,7 +253,10 @@ export function AIAssistantCard({
         </div>
 
         <p className="mt-3 text-[8px] font-black uppercase tracking-[0.24em] text-violet-600/70">
-          {t("runtime.components.reviewer.submission-review.review-sidebar.text_submission_pre_read")}{" "}</p>
+          {t(
+            "runtime.components.reviewer.submission-review.review-sidebar.text_submission_pre_read",
+          )}{" "}
+        </p>
         <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#1B3C53]">
           {statusCopy.title}
         </p>
@@ -253,7 +266,10 @@ export function AIAssistantCard({
 
         {loading ? (
           <p className="mt-3 text-[10px] font-normal text-slate-500">
-            {t("runtime.components.reviewer.submission-review.review-sidebar.text_checking_existing_submission_pre_read")}{" "}</p>
+            {t(
+              "runtime.components.reviewer.submission-review.review-sidebar.text_checking_existing_submission_pre_read",
+            )}{" "}
+          </p>
         ) : (
           <>
             <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -283,7 +299,10 @@ export function AIAssistantCard({
                   className="inline-flex h-8 items-center justify-center gap-2 rounded-md border border-violet-200 bg-white/90 px-4 text-[11px] font-bold tracking-wider text-[#1B3C53] transition-all duration-200 hover:border-violet-300 hover:bg-white"
                 >
                   <span className="material-symbols-outlined text-[14px]">visibility</span>
-                  {t("runtime.components.reviewer.submission-review.review-sidebar.text_view_analysis")}{" "}</button>
+                  {t(
+                    "runtime.components.reviewer.submission-review.review-sidebar.text_view_analysis",
+                  )}{" "}
+                </button>
               )}
             </div>
 
@@ -294,7 +313,10 @@ export function AIAssistantCard({
             )}
             {annotationError && (
               <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] text-amber-700">
-                Paper annotation: {annotationError}
+                {t(
+                  "runtime.components.reviewer.submission-review.review-sidebar.text_paper_annotation",
+                )}{" "}
+                {annotationError}
               </div>
             )}
           </>
@@ -307,9 +329,16 @@ export function AIAssistantCard({
           className="h-[calc(100vh-2rem)] w-[min(1680px,calc(100vw-2rem))] max-w-none gap-0 overflow-y-auto border border-slate-200 bg-white p-0 shadow-2xl sm:max-w-none"
         >
           <DialogHeader className="sr-only">
-            <DialogTitle>{t("runtime.components.reviewer.submission-review.review-sidebar.text_reviewer_pre_read_analysis")}</DialogTitle>
+            <DialogTitle>
+              {t(
+                "runtime.components.reviewer.submission-review.review-sidebar.text_reviewer_pre_read_analysis",
+              )}
+            </DialogTitle>
             <DialogDescription>
-              {t("runtime.components.reviewer.submission-review.review-sidebar.text_read_the_manuscript_and_the_neutral")}{" "}</DialogDescription>
+              {t(
+                "runtime.components.reviewer.submission-review.review-sidebar.text_read_the_manuscript_and_the_neutral",
+              )}{" "}
+            </DialogDescription>
           </DialogHeader>
 
           <div className="grid min-h-full grid-cols-1 xl:grid-cols-[0.42fr_0.58fr]">
@@ -321,16 +350,25 @@ export function AIAssistantCard({
                       <div className="flex h-full items-center justify-center px-6">
                         <div className="max-w-sm space-y-3 text-center">
                           <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">
-                            {t("runtime.components.reviewer.submission-review.review-sidebar.text_loading_preview")}{" "}</p>
+                            {t(
+                              "runtime.components.reviewer.submission-review.review-sidebar.text_loading_preview",
+                            )}{" "}
+                          </p>
                           <p className="text-[11px] font-normal leading-relaxed text-slate-500">
-                            {t("runtime.components.reviewer.submission-review.review-sidebar.text_fetching_reviewer_visible_manuscript_file_and")}{" "}</p>
+                            {t(
+                              "runtime.components.reviewer.submission-review.review-sidebar.text_fetching_reviewer_visible_manuscript_file_and",
+                            )}{" "}
+                          </p>
                         </div>
                       </div>
                     ) : previewError ? (
                       <div className="flex h-full items-center justify-center px-6">
                         <div className="max-w-sm space-y-3 text-center">
                           <p className="text-[10px] font-black uppercase tracking-[0.24em] text-red-500">
-                            {t("runtime.components.reviewer.submission-review.review-sidebar.text_preview_unavailable")}{" "}</p>
+                            {t(
+                              "runtime.components.reviewer.submission-review.review-sidebar.text_preview_unavailable",
+                            )}{" "}
+                          </p>
                           <p className="text-[11px] font-normal leading-relaxed text-slate-500">
                             {previewError}
                           </p>
@@ -351,9 +389,15 @@ export function AIAssistantCard({
                         <div className="flex h-full items-center justify-center px-6">
                           <div className="max-w-sm space-y-3 text-center">
                             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">
-                              {t("runtime.components.reviewer.submission-review.review-sidebar.text_preview_unavailable")}{" "}</p>
+                              {t(
+                                "runtime.components.reviewer.submission-review.review-sidebar.text_preview_unavailable",
+                              )}{" "}
+                            </p>
                             <p className="text-[11px] font-normal leading-relaxed text-slate-500">
-                              {t("runtime.components.reviewer.submission-review.review-sidebar.text_this_browser_could_not_render_the")}{" "}</p>
+                              {t(
+                                "runtime.components.reviewer.submission-review.review-sidebar.text_this_browser_could_not_render_the",
+                              )}{" "}
+                            </p>
                           </div>
                         </div>
                       </object>
@@ -361,9 +405,15 @@ export function AIAssistantCard({
                       <div className="flex h-full items-center justify-center px-6">
                         <div className="max-w-sm space-y-3 text-center">
                           <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">
-                            {t("runtime.components.reviewer.submission-review.review-sidebar.text_preview_standby")}{" "}</p>
+                            {t(
+                              "runtime.components.reviewer.submission-review.review-sidebar.text_preview_standby",
+                            )}{" "}
+                          </p>
                           <p className="text-[13px] font-medium leading-relaxed text-slate-500">
-                            {t("runtime.components.reviewer.submission-review.review-sidebar.text_the_manuscript_preview_will_appear_here")}{" "}</p>
+                            {t(
+                              "runtime.components.reviewer.submission-review.review-sidebar.text_the_manuscript_preview_will_appear_here",
+                            )}{" "}
+                          </p>
                         </div>
                       </div>
                     )}
@@ -375,7 +425,10 @@ export function AIAssistantCard({
             <section className="flex min-h-0 flex-col bg-white">
               <div className="shrink-0 border-b border-slate-200 bg-white px-6 py-4">
                 <h2 className="text-sm font-bold tracking-tight text-[#1B3C53]">
-                  {t("runtime.components.reviewer.submission-review.review-sidebar.text_submission_analysis")}{" "}</h2>
+                  {t(
+                    "runtime.components.reviewer.submission-review.review-sidebar.text_submission_analysis",
+                  )}{" "}
+                </h2>
               </div>
 
               <div className="min-h-0 flex-1 overflow-y-auto bg-[#F8FBFD] px-6 py-6">
@@ -396,7 +449,10 @@ export function AIAssistantCard({
 
                     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                       <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#456882]">
-                        {t("runtime.components.reviewer.submission-review.review-sidebar.text_orientation_snapshot")}{" "}</p>
+                        {t(
+                          "runtime.components.reviewer.submission-review.review-sidebar.text_orientation_snapshot",
+                        )}{" "}
+                      </p>
                       <p className="mt-3 text-[12px] font-medium leading-relaxed tracking-tight text-slate-900">
                         {artifact.submission_snapshot.abstract_summary}
                       </p>
@@ -405,7 +461,11 @@ export function AIAssistantCard({
                       </p>
                     </div>
 
-                    <SectionBlock title={t("runtime.components.reviewer.submission-review.review-sidebar.title_review_readiness_signals")}>
+                    <SectionBlock
+                      title={t(
+                        "runtime.components.reviewer.submission-review.review-sidebar.title_review_readiness_signals",
+                      )}
+                    >
                       {readinessSignals.length === 0 ? (
                         <EmptyState
                           text={t(
@@ -437,7 +497,11 @@ export function AIAssistantCard({
                     </SectionBlock>
 
                     <div className="grid gap-5 xl:grid-cols-2">
-                      <SectionBlock title={t("runtime.components.reviewer.submission-review.review-sidebar.title_claimed_contributions")}>
+                      <SectionBlock
+                        title={t(
+                          "runtime.components.reviewer.submission-review.review-sidebar.title_claimed_contributions",
+                        )}
+                      >
                         <RichItemList
                           items={claimedContributions.map((item) => ({
                             title: item.label,
@@ -449,7 +513,11 @@ export function AIAssistantCard({
                         />
                       </SectionBlock>
 
-                      <SectionBlock title={t("runtime.components.reviewer.submission-review.review-sidebar.title_notable_elements")}>
+                      <SectionBlock
+                        title={t(
+                          "runtime.components.reviewer.submission-review.review-sidebar.title_notable_elements",
+                        )}
+                      >
                         <RichItemList
                           items={notableElements.map((item) => ({
                             title: item.label,
@@ -463,7 +531,11 @@ export function AIAssistantCard({
                     </div>
 
                     <div className="grid gap-5 xl:grid-cols-2">
-                      <SectionBlock title={t("runtime.components.reviewer.submission-review.review-sidebar.title_reviewer_attention_points")}>
+                      <SectionBlock
+                        title={t(
+                          "runtime.components.reviewer.submission-review.review-sidebar.title_reviewer_attention_points",
+                        )}
+                      >
                         <RichItemList
                           items={attentionPoints.map((item) => ({
                             title: item.focus,
@@ -475,7 +547,11 @@ export function AIAssistantCard({
                         />
                       </SectionBlock>
 
-                      <SectionBlock title={t("runtime.components.reviewer.submission-review.review-sidebar.title_scope_and_limitations")}>
+                      <SectionBlock
+                        title={t(
+                          "runtime.components.reviewer.submission-review.review-sidebar.title_scope_and_limitations",
+                        )}
+                      >
                         <RichItemList
                           items={scopeLimitations.map((item) => ({
                             title: item.label,
@@ -491,9 +567,13 @@ export function AIAssistantCard({
                       <>
                         <div className="border-t border-slate-200 pt-5">
                           <div className="mb-4 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-[16px] text-violet-600">rate_review</span>
+                            <span className="material-symbols-outlined text-[16px] text-violet-600">
+                              rate_review
+                            </span>
                             <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#456882]">
-                              {t("runtime.components.reviewer.submission-review.review-sidebar.text_paper_annotations")}
+                              {t(
+                                "runtime.components.reviewer.submission-review.review-sidebar.text_paper_annotations",
+                              )}
                             </h3>
                           </div>
                           <PaperAnnotationPanel artifact={annotationArtifact} />
@@ -504,7 +584,10 @@ export function AIAssistantCard({
                 ) : (
                   <div className="flex h-full items-center justify-center">
                     <p className="text-[10px] font-normal text-slate-500">
-                      {t("runtime.components.reviewer.submission-review.review-sidebar.text_no_analysis_artifact_is_available_for")}{" "}</p>
+                      {t(
+                        "runtime.components.reviewer.submission-review.review-sidebar.text_no_analysis_artifact_is_available_for",
+                      )}{" "}
+                    </p>
                   </div>
                 )}
               </div>

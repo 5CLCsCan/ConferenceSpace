@@ -4,6 +4,7 @@ import { ArrowLeft, Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import type { InvitationData } from "@/lib/api/suggestions"
+import { useTranslation } from "@/lib/i18n/translation-context"
 import { AbstractCard, AIAssistantCard } from "./submission-review/review-sidebar"
 import { PaperHeader } from "./submission-review/review-header"
 import type { SubmissionDetails } from "./submission-review/types"
@@ -23,6 +24,9 @@ export function InvitationSubmissionPreview({
   onAccept,
   onDeny,
 }: InvitationSubmissionPreviewProps) {
+  const { t } = useTranslation()
+  const T = (key: string, values?: Record<string, string | number>) =>
+    t(`runtime.components.reviewer.invitation-submission-preview.${key}`, values)
   const scorePercent =
     invitation.evidence?.score != null
       ? Math.min(100, Math.max(0, Math.round(invitation.evidence.score * 100)))
@@ -38,14 +42,13 @@ export function InvitationSubmissionPreview({
           className="mb-4 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500 hover:text-slate-900"
         >
           <ArrowLeft className="size-4" />
-          Back
+          {T("text_back")}
         </button>
         <div className="max-w-2xl rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
-          <p className="text-sm font-bold text-amber-900">Submission preview is unavailable</p>
-          <p className="mt-2 text-xs leading-relaxed text-amber-800">
-            This invitation is missing the conference or submission context required to show the
-            reviewer detail and analysis tools.
+          <p className="text-sm font-bold text-amber-900">
+            {T("text_submission_preview_unavailable")}
           </p>
+          <p className="mt-2 text-xs leading-relaxed text-amber-800">{T("text_missing_context")}</p>
           <div className="mt-4 flex items-center gap-2">
             <Button
               className="h-9 bg-[#1B3C53] px-4 text-[11px] font-bold text-white hover:bg-[#234C6A]"
@@ -53,7 +56,7 @@ export function InvitationSubmissionPreview({
               disabled={isSubmitting}
             >
               {isSubmitting ? <Loader2 className="mr-1.5 size-3.5 animate-spin" /> : null}
-              Accept
+              {T("text_accept")}
             </Button>
             <Button
               variant="outline"
@@ -61,7 +64,7 @@ export function InvitationSubmissionPreview({
               onClick={onDeny}
               disabled={isSubmitting}
             >
-              Deny
+              {T("text_deny")}
             </Button>
           </div>
         </div>
@@ -73,9 +76,11 @@ export function InvitationSubmissionPreview({
     id: String(invitation.submission_id),
     submissionId: String(invitation.submission_id),
     title: invitation.paper_title,
-    abstract: invitation.paper_abstract || "No abstract available.",
+    abstract:
+      invitation.paper_abstract ||
+      t("runtime.components.reviewer.submission-review.text_no_abstract_available"),
     keywords: invitation.keywords ?? [],
-    track: invitation.track || "Unassigned",
+    track: invitation.track || t("runtime.components.reviewer.submission-review.text_unassigned"),
     status: "pending",
     dueDate: "",
     daysLeft: 0,
@@ -101,7 +106,7 @@ export function InvitationSubmissionPreview({
           className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500 hover:text-slate-900"
         >
           <ArrowLeft className="size-4" />
-          Back
+          {T("text_back")}
         </button>
       </div>
 
@@ -116,7 +121,7 @@ export function InvitationSubmissionPreview({
                 disabled={isSubmitting}
               >
                 {isSubmitting ? <Loader2 className="mr-1.5 size-3.5 animate-spin" /> : null}
-                Accept
+                {T("text_accept")}
               </Button>
               <Button
                 variant="outline"
@@ -124,7 +129,7 @@ export function InvitationSubmissionPreview({
                 onClick={onDeny}
                 disabled={isSubmitting}
               >
-                Deny
+                {T("text_deny")}
               </Button>
             </div>
           }
@@ -158,6 +163,8 @@ function InvitationEvidenceCard({
   invitation: InvitationData
   scorePercent: number | null
 }) {
+  const { t } = useTranslation()
+  const T = (key: string) => t(`runtime.components.reviewer.invitation-submission-preview.${key}`)
   const evidence = invitation.evidence
   const matchedKeywords = evidence?.matched_keywords ?? []
   const hasEvidence = evidence && (matchedKeywords.length > 0 || scorePercent != null)
@@ -165,7 +172,7 @@ function InvitationEvidenceCard({
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-        Why you're a great match
+        {T("text_why_match")}
       </p>
 
       {hasEvidence ? (
@@ -173,7 +180,9 @@ function InvitationEvidenceCard({
           {scorePercent != null && (
             <div>
               <div className="mb-1 flex items-center justify-between">
-                <span className="text-[10px] font-medium text-slate-500">Match Score</span>
+                <span className="text-[10px] font-medium text-slate-500">
+                  {T("text_match_score")}
+                </span>
                 <span className="text-[10px] font-bold text-green-700">{scorePercent}%</span>
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
@@ -187,7 +196,9 @@ function InvitationEvidenceCard({
 
           {matchedKeywords.length > 0 && (
             <div>
-              <p className="mb-1.5 text-[10px] font-medium text-slate-500">Matched Keywords</p>
+              <p className="mb-1.5 text-[10px] font-medium text-slate-500">
+                {T("text_matched_keywords")}
+              </p>
               <div className="flex flex-wrap gap-1.5">
                 {matchedKeywords.map((keyword) => (
                   <span
@@ -202,17 +213,16 @@ function InvitationEvidenceCard({
           )}
 
           <p className="text-[10px] text-slate-400">
-            You currently have{" "}
+            {T("text_you_currently_have")}{" "}
             <span className="font-semibold text-slate-600">
               {evidence.assignment_count} paper{evidence.assignment_count !== 1 ? "s" : ""}
             </span>{" "}
-            assigned in this conference.
+            {T("text_assigned_in_this_conference")}
           </p>
         </div>
       ) : (
         <p className="mt-3 text-xs leading-relaxed text-slate-500">
-          You were selected by the program committee based on your expertise and research
-          background.
+          {T("text_selected_by_committee")}
         </p>
       )}
     </div>

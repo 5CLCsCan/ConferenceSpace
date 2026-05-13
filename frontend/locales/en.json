@@ -708,6 +708,10 @@
             },
             "page": {
               "text_loading_conferences": "Loading Conferences..."
+            },
+            "detail": {
+              "text_rebuttal": "Rebuttal",
+              "text_rebuttal_description": "Configure the rebuttal period and monitor author responses during the rebuttal phase."
             }
           },
           "page": {
@@ -779,6 +783,25 @@
           "text_verification_successful": "Verification successful.",
           "text_verifying_your_email": "Verifying your email…",
           "text_your_email_address_has_been_confirmed": "Your email address has been confirmed. You can now sign in."
+        }
+      },
+      "invitation": {
+        "accept": {
+          "page": {
+            "text_missing_invitation_token": "Missing invitation token.",
+            "text_invalid_invitation": "Invalid invitation",
+            "text_failed_to_accept_invitation": "Failed to accept invitation",
+            "text_you_have_been_invited": "You've been invited!",
+            "text_create_account_to_join_prefix": "Create your account to join",
+            "text_create_account_to_join_as": "as a",
+            "text_invited_by": "Invited by",
+            "text_create_your_account": "Create your account",
+            "text_invited_you_to_join": "invited you to join",
+            "text_research_domains": "Research domains",
+            "placeholder_type_domain": "Type a domain and press Enter",
+            "text_add": "Add",
+            "text_create_account_join_conference": "Create account & join conference"
+          }
         }
       }
     },
@@ -1431,7 +1454,11 @@
             "text_suggested_reviewer": "suggested reviewer",
             "text_the_assignment_has_been_created_you": "The assignment has been created. You may want to review this assignment before confirming.",
             "text_the_reviewer_was_added_but_has": "The reviewer was added but has potential conflicts of interest:",
-            "text_understood": "Understood"
+            "text_understood": "Understood",
+            "text_confirming": "Confirming...",
+            "text_removing": "Removing...",
+            "text_remove_success": "Reviewer removed from this submission.",
+            "text_remove_failed": "Failed to remove reviewer."
           },
           "conference-cfp": {
             "prop_description_docx_format": ".docx format",
@@ -1570,7 +1597,18 @@
             "text_invitation_link": "Invitation link",
             "text_invitation_link_copied": "Copied!",
             "text_invitation_link_tooltip": "Send this link to the invitee — they can click it to automatically create a ConferenceSpace account and join the conference.",
-            "text_invitation_status": "invitation: {status}"
+            "text_invitation_status": "invitation: {status}",
+            "aria_label_view_profile_for": "View profile for {name}",
+            "aria_label_open_semantic_scholar_profile_for": "Open Semantic Scholar profile for {name}",
+            "text_invite_reviewer": "Invite Reviewer",
+            "text_program_committee": "Program Committee",
+            "text_reviewer": "Reviewer",
+            "text_semantic_scholar": "Semantic Scholar",
+            "title_view_profile": "View profile",
+            "title_open_semantic_scholar_profile": "Open Semantic Scholar profile",
+            "text_loading_hint_first": "Scanning paper topics",
+            "text_loading_hint_second": "Matching reviewer expertise",
+            "text_loading_hint_third": "Scoring candidate reviewers"
           },
           "conference-dates": {
             "text_anywhere_on_earth_aoe": "Anywhere on Earth (AoE)",
@@ -1592,7 +1630,8 @@
             "text_text": "",
             "text_timezone": "Timezone",
             "text_until": "Until",
-            "text_upcoming": "Upcoming"
+            "text_upcoming": "Upcoming",
+            "text_track_key_deadlines": "Track key deadlines and milestones across the conference schedule."
           },
           "conference-detail-dashboard": {
             "text_acceptance_rate": "Acceptance Rate",
@@ -1898,6 +1937,33 @@
           "track-status-card": {
             "text_track_status": "Track Status",
             "text_view_detailed_track_report": "View Detailed Track Report"
+          },
+          "suggestion-detail": {
+            "text_auto_assign_pass_1": "Auto-assign Pass 1",
+            "text_auto_assign_pass_2_fallback": "Auto-assign Pass 2 (Fallback)",
+            "text_manual": "Manual",
+            "text_passed": "Passed",
+            "text_skipped_graph_database_unavailable": "Skipped (graph database unavailable)",
+            "text_conflict_detected": "Conflict detected",
+            "text_self_author_check": "Self-author check",
+            "text_declared_conflicts_check": "Declared conflicts check",
+            "text_relationship_check": "Relationship check",
+            "text_detailed_breakdown_not_available": "Detailed breakdown not available for suggestions created before this feature.",
+            "text_match_details": "Match Details",
+            "text_score_breakdown": "Score Breakdown",
+            "text_no_keyword_data_available": "No keyword data available",
+            "text_matched": "Matched:",
+            "text_paper_only": "Paper only:",
+            "text_reviewer_only": "Reviewer only:",
+            "text_match_reasons": "Match Reasons",
+            "text_manually_added_by_chair": "Manually added by chair - no computed score",
+            "text_shares_keywords": "Shares {count} keywords:",
+            "text_no_keyword_overlap": "No keyword overlap",
+            "text_fallback_assignment": "Fallback assignment - added to satisfy minimum reviewers per paper",
+            "text_coi_status": "COI Status",
+            "text_reviewer_load": "Reviewer Load",
+            "text_assigned_in_this_conference": "{count} papers assigned in this conference",
+            "text_source": "Source:"
           }
         },
         "conference-form-page": {
@@ -2038,7 +2104,8 @@
           "text_agentic": "Agentic",
           "text_ask_me_anything_about_the_conference": "Ask me anything about the conference system",
           "text_standard": "Standard",
-          "text_start_a_conversation": "Start a conversation"
+          "text_start_a_conversation": "Start a conversation",
+          "text_drop_to_add_file": "Drop to add file"
         },
         "chatbot-navigation-mask": {
           "text_navigating_to": "Navigating to",
@@ -2258,7 +2325,8 @@
           "text_this_is_not_me": "This is not me",
           "text_view_profile": "View Profile",
           "text_we_will_sync_the_publications_shown_here": "We will sync the publications shown here and use them to build your profile page.",
-          "text_your_publication_data_will_appear_after": "Your publication data will appear after sync completes."
+          "text_your_publication_data_will_appear_after": "Your publication data will appear after sync completes.",
+          "text_view": "View"
         }
       },
       "reviewer": {
@@ -2484,7 +2552,15 @@
             "text_semantic_consistency_and_justification_audit": "Semantic consistency and justification audit",
             "title_advisory_warnings": "Suggestions",
             "title_dismissed_warnings": "Dismissed findings",
-            "title_submit_blockers": "Priority findings"
+            "title_submit_blockers": "Priority findings",
+            "text_evaluated": "Evaluated",
+            "text_priority_signals": "Priority signals",
+            "text_findings_are_reviewer_facing": "Findings are reviewer-facing quality signals. Use the evaluation and rationales to decide what, if anything, needs revision.",
+            "text_evidence_engagement": "Evidence engagement",
+            "text_consistency": "Consistency",
+            "text_best_next_improvement": "Best next improvement",
+            "text_evaluation": "Evaluation",
+            "text_rationale": "Rationale:"
           },
           "review-header": {
             "text_anonymous_authors": "Anonymous Authors",
@@ -2553,7 +2629,8 @@
             "title_review_readiness_signals": "Review Readiness Signals",
             "title_reviewer_attention_points": "Reviewer Attention Points",
             "text_paper_annotations": "Paper Annotations",
-            "title_scope_and_limitations": "Scope And Limitations"
+            "title_scope_and_limitations": "Scope And Limitations",
+            "text_paper_annotation": "Paper annotation:"
           },
           "paper-annotation-panel": {
             "text_overall_impression": "Overall Impression",
@@ -2605,6 +2682,65 @@
           "text_submit_anyway": "Submit anyway",
           "text_submit_without_completed_audit": "Submit without completed audit?",
           "text_view_full_reviewer_guide_rarr": "View full reviewer guide"
+        },
+        "invitation-dialog": {
+          "text_failed_to_load_invitation": "Failed to load invitation",
+          "text_review_invitation": "Review Invitation",
+          "text_dialog_description": "Paper review invitation details and response",
+          "text_failed_to_load": "Failed to load",
+          "text_paper": "Paper",
+          "text_abstract": "Abstract",
+          "text_why_match": "Why you're a great match",
+          "text_match_score": "Match Score",
+          "text_matched_keywords": "Matched Keywords",
+          "text_you_currently_have": "You currently have",
+          "text_assigned_in_this_conference": "assigned in this conference.",
+          "text_selected_by_committee": "You were selected by the program committee based on your expertise and research background.",
+          "text_accept_assignment": "Accept Assignment",
+          "text_decline": "Decline",
+          "text_tell_us_why_optional": "Tell us why (optional)",
+          "text_not_my_expertise": "Not my expertise",
+          "text_too_busy": "Too busy",
+          "text_schedule_conflict": "Schedule conflict",
+          "text_conflict_of_interest": "Conflict of interest",
+          "text_other": "Other",
+          "placeholder_additional_comments": "Additional comments (optional)...",
+          "text_confirm_decline": "Confirm Decline",
+          "text_cancel": "Cancel"
+        },
+        "invitation-submission-preview": {
+          "text_back": "Back",
+          "text_submission_preview_unavailable": "Submission preview is unavailable",
+          "text_missing_context": "This invitation is missing the conference or submission context required to show the reviewer detail and analysis tools.",
+          "text_accept": "Accept",
+          "text_deny": "Deny",
+          "text_why_match": "Why you're a great match",
+          "text_match_score": "Match Score",
+          "text_matched_keywords": "Matched Keywords",
+          "text_you_currently_have": "You currently have",
+          "text_assigned_in_this_conference": "assigned in this conference.",
+          "text_selected_by_committee": "You were selected by the program committee based on your expertise and research background."
+        },
+        "paper-invitation": {
+          "text_failed_to_load_invitation": "Failed to load invitation",
+          "text_failed_to_accept": "Failed to accept",
+          "text_failed_to_decline": "Failed to decline",
+          "text_assignment_accepted": "Assignment accepted",
+          "text_assignment_accepted_description": "You have accepted the invitation to review \"{title}\".",
+          "text_assignment_declined": "Assignment declined",
+          "text_assignment_declined_description": "You have declined the invitation to review \"{title}\".",
+          "text_go_back": "Go back",
+          "text_decline_assignment": "Decline Assignment",
+          "text_select_decline_reason": "Select a reason for declining this review assignment",
+          "text_tell_us_why_optional": "Tell us why (optional)",
+          "text_not_my_expertise": "Not my expertise",
+          "text_too_busy": "Too busy",
+          "text_schedule_conflict": "Schedule conflict",
+          "text_conflict_of_interest": "Conflict of interest",
+          "text_other": "Other",
+          "placeholder_additional_comments": "Additional comments (optional)...",
+          "text_confirm_decline": "Confirm Decline",
+          "text_cancel": "Cancel"
         }
       },
       "schedules": {
@@ -2746,7 +2882,8 @@
               "text_partial": "Partial",
               "text_reviewer_response": "Reviewer Response",
               "text_satisfied": "Satisfied",
-              "text_save_note": "Save Note"
+              "text_save_note": "Save Note",
+              "placeholder_enter_your_response": "Enter your response to this point..."
             },
             "reviewer-response-group": {
               "text_all_addressed": "All addressed",

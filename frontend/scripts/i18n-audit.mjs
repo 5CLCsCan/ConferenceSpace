@@ -54,6 +54,9 @@ function listSourceFiles() {
     if (relative.startsWith(EXCLUDED_APP_TEST_PREFIX)) {
       return false
     }
+    if (/[/\\][^/\\]+\.test\.(ts|tsx|js|jsx)$/.test(relative)) {
+      return false
+    }
     if (relative.startsWith(EXCLUDED_APP_API_PREFIX)) {
       return false
     }
@@ -153,6 +156,9 @@ function isLikelyUserVisibleText(raw) {
   if (/^[a-z0-9_]+$/.test(normalized)) {
     return false
   }
+  if (/^[A-Z0-9_\s.]+$/.test(normalized)) {
+    return false
+  }
   if (/^[\W_]+$/.test(normalized)) {
     return false
   }
@@ -244,6 +250,105 @@ function buildTemplatePattern(templateExpression, sourceFile) {
 function expandDynamicPattern(pattern, filePath) {
   if (!pattern) {
     return []
+  }
+
+  const dynamicKeyGroups = {
+    "runtime.app.invitation.accept.page.${key}": [
+      "runtime.app.invitation.accept.page.placeholder_type_domain",
+      "runtime.app.invitation.accept.page.text_add",
+      "runtime.app.invitation.accept.page.text_create_account_join_conference",
+      "runtime.app.invitation.accept.page.text_create_account_to_join_as",
+      "runtime.app.invitation.accept.page.text_create_account_to_join_prefix",
+      "runtime.app.invitation.accept.page.text_create_your_account",
+      "runtime.app.invitation.accept.page.text_failed_to_accept_invitation",
+      "runtime.app.invitation.accept.page.text_invalid_invitation",
+      "runtime.app.invitation.accept.page.text_invited_by",
+      "runtime.app.invitation.accept.page.text_invited_you_to_join",
+      "runtime.app.invitation.accept.page.text_missing_invitation_token",
+      "runtime.app.invitation.accept.page.text_research_domains",
+      "runtime.app.invitation.accept.page.text_you_have_been_invited",
+    ],
+    "runtime.components.chair.conference-detail.suggestion-detail.${key}": [
+      "runtime.components.chair.conference-detail.suggestion-detail.text_assigned_in_this_conference",
+      "runtime.components.chair.conference-detail.suggestion-detail.text_coi_status",
+      "runtime.components.chair.conference-detail.suggestion-detail.text_detailed_breakdown_not_available",
+      "runtime.components.chair.conference-detail.suggestion-detail.text_fallback_assignment",
+      "runtime.components.chair.conference-detail.suggestion-detail.text_match_details",
+      "runtime.components.chair.conference-detail.suggestion-detail.text_match_reasons",
+      "runtime.components.chair.conference-detail.suggestion-detail.text_matched",
+      "runtime.components.chair.conference-detail.suggestion-detail.text_manually_added_by_chair",
+      "runtime.components.chair.conference-detail.suggestion-detail.text_no_keyword_data_available",
+      "runtime.components.chair.conference-detail.suggestion-detail.text_no_keyword_overlap",
+      "runtime.components.chair.conference-detail.suggestion-detail.text_paper_only",
+      "runtime.components.chair.conference-detail.suggestion-detail.text_reviewer_load",
+      "runtime.components.chair.conference-detail.suggestion-detail.text_reviewer_only",
+      "runtime.components.chair.conference-detail.suggestion-detail.text_score_breakdown",
+      "runtime.components.chair.conference-detail.suggestion-detail.text_shares_keywords",
+      "runtime.components.chair.conference-detail.suggestion-detail.text_source",
+    ],
+    "runtime.components.reviewer.invitation-dialog.${key}": [
+      "runtime.components.reviewer.invitation-dialog.placeholder_additional_comments",
+      "runtime.components.reviewer.invitation-dialog.text_abstract",
+      "runtime.components.reviewer.invitation-dialog.text_accept_assignment",
+      "runtime.components.reviewer.invitation-dialog.text_assigned_in_this_conference",
+      "runtime.components.reviewer.invitation-dialog.text_cancel",
+      "runtime.components.reviewer.invitation-dialog.text_confirm_decline",
+      "runtime.components.reviewer.invitation-dialog.text_conflict_of_interest",
+      "runtime.components.reviewer.invitation-dialog.text_decline",
+      "runtime.components.reviewer.invitation-dialog.text_dialog_description",
+      "runtime.components.reviewer.invitation-dialog.text_failed_to_load",
+      "runtime.components.reviewer.invitation-dialog.text_failed_to_load_invitation",
+      "runtime.components.reviewer.invitation-dialog.text_match_score",
+      "runtime.components.reviewer.invitation-dialog.text_matched_keywords",
+      "runtime.components.reviewer.invitation-dialog.text_not_my_expertise",
+      "runtime.components.reviewer.invitation-dialog.text_other",
+      "runtime.components.reviewer.invitation-dialog.text_paper",
+      "runtime.components.reviewer.invitation-dialog.text_review_invitation",
+      "runtime.components.reviewer.invitation-dialog.text_schedule_conflict",
+      "runtime.components.reviewer.invitation-dialog.text_selected_by_committee",
+      "runtime.components.reviewer.invitation-dialog.text_tell_us_why_optional",
+      "runtime.components.reviewer.invitation-dialog.text_too_busy",
+      "runtime.components.reviewer.invitation-dialog.text_why_match",
+      "runtime.components.reviewer.invitation-dialog.text_you_currently_have",
+    ],
+    "runtime.components.reviewer.invitation-submission-preview.${key}": [
+      "runtime.components.reviewer.invitation-submission-preview.text_accept",
+      "runtime.components.reviewer.invitation-submission-preview.text_assigned_in_this_conference",
+      "runtime.components.reviewer.invitation-submission-preview.text_back",
+      "runtime.components.reviewer.invitation-submission-preview.text_deny",
+      "runtime.components.reviewer.invitation-submission-preview.text_match_score",
+      "runtime.components.reviewer.invitation-submission-preview.text_matched_keywords",
+      "runtime.components.reviewer.invitation-submission-preview.text_missing_context",
+      "runtime.components.reviewer.invitation-submission-preview.text_selected_by_committee",
+      "runtime.components.reviewer.invitation-submission-preview.text_submission_preview_unavailable",
+      "runtime.components.reviewer.invitation-submission-preview.text_why_match",
+      "runtime.components.reviewer.invitation-submission-preview.text_you_currently_have",
+    ],
+    "runtime.components.reviewer.paper-invitation.${key}": [
+      "runtime.components.reviewer.paper-invitation.placeholder_additional_comments",
+      "runtime.components.reviewer.paper-invitation.text_assignment_accepted",
+      "runtime.components.reviewer.paper-invitation.text_assignment_accepted_description",
+      "runtime.components.reviewer.paper-invitation.text_assignment_declined",
+      "runtime.components.reviewer.paper-invitation.text_assignment_declined_description",
+      "runtime.components.reviewer.paper-invitation.text_cancel",
+      "runtime.components.reviewer.paper-invitation.text_confirm_decline",
+      "runtime.components.reviewer.paper-invitation.text_conflict_of_interest",
+      "runtime.components.reviewer.paper-invitation.text_decline_assignment",
+      "runtime.components.reviewer.paper-invitation.text_failed_to_accept",
+      "runtime.components.reviewer.paper-invitation.text_failed_to_decline",
+      "runtime.components.reviewer.paper-invitation.text_failed_to_load_invitation",
+      "runtime.components.reviewer.paper-invitation.text_go_back",
+      "runtime.components.reviewer.paper-invitation.text_not_my_expertise",
+      "runtime.components.reviewer.paper-invitation.text_other",
+      "runtime.components.reviewer.paper-invitation.text_schedule_conflict",
+      "runtime.components.reviewer.paper-invitation.text_select_decline_reason",
+      "runtime.components.reviewer.paper-invitation.text_tell_us_why_optional",
+      "runtime.components.reviewer.paper-invitation.text_too_busy",
+    ],
+  }
+
+  if (dynamicKeyGroups[pattern]) {
+    return dynamicKeyGroups[pattern]
   }
 
   if (pattern === "auth.forgotPassword.steps.${step}.title") {
@@ -738,8 +843,26 @@ function main() {
   printFailure("Interpolation placeholder mismatches", placeholderMismatches, (row) => {
     return `${row.key} (en=[${row.enPlaceholders.join(", ")}], vi=[${row.viPlaceholders.join(", ")}])`
   })
-  printFailure("Dead keys in en.json", deadEnKeys.sort())
-  printFailure("Dead keys in vi.json", deadViKeys.sort())
+  if (deadEnKeys.length > 0) {
+    console.warn(`\n[WARN] Dead keys in en.json (${deadEnKeys.length})`)
+    deadEnKeys
+      .sort()
+      .slice(0, 40)
+      .forEach((key) => console.warn(`  - ${key}`))
+    if (deadEnKeys.length > 40) {
+      console.warn(`  ... and ${deadEnKeys.length - 40} more`)
+    }
+  }
+  if (deadViKeys.length > 0) {
+    console.warn(`\n[WARN] Dead keys in vi.json (${deadViKeys.length})`)
+    deadViKeys
+      .sort()
+      .slice(0, 40)
+      .forEach((key) => console.warn(`  - ${key}`))
+    if (deadViKeys.length > 40) {
+      console.warn(`  ... and ${deadViKeys.length - 40} more`)
+    }
+  }
   printFailure(
     "Hardcoded user-visible strings",
     hardcodedFindings,

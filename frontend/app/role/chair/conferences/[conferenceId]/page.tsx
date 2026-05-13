@@ -161,10 +161,11 @@ export default function ChairConferenceDetailPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h2 className="text-lg font-bold text-[#1B3C53] tracking-tight">Rebuttal</h2>
+              <h2 className="text-lg font-bold text-[#1B3C53] tracking-tight">
+                {t("runtime.app.role.chair.conferences.detail.text_rebuttal")}
+              </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Configure the rebuttal period and monitor author responses during the rebuttal
-                phase.
+                {t("runtime.app.role.chair.conferences.detail.text_rebuttal_description")}
               </p>
             </div>
             <ConferenceRebuttalSettings

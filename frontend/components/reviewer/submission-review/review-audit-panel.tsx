@@ -54,7 +54,7 @@ export function ReviewAuditPanel({
             </span>
           ) : audit ? (
             <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
-              Evaluated
+              {t("runtime.components.reviewer.submission-review.review-audit-panel.text_evaluated")}
             </span>
           ) : (
             <span className="text-[11px] font-medium text-slate-400">
@@ -82,13 +82,32 @@ export function ReviewAuditPanel({
         <div className="mt-4 space-y-4">
           <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
             <div className="flex flex-wrap items-center gap-2">
-              <CountPill label="Priority signals" value={priorityFindings.length} tone="rose" />
-              <CountPill label="Suggestions" value={suggestionFindings.length} tone="amber" />
-              <CountPill label="Dismissed findings" value={dismissedFindings.length} tone="slate" />
+              <CountPill
+                label={t(
+                  "runtime.components.reviewer.submission-review.review-audit-panel.text_priority_signals",
+                )}
+                value={priorityFindings.length}
+                tone="rose"
+              />
+              <CountPill
+                label={t(
+                  "runtime.components.reviewer.submission-review.review-audit-panel.title_advisory_warnings",
+                )}
+                value={suggestionFindings.length}
+                tone="amber"
+              />
+              <CountPill
+                label={t(
+                  "runtime.components.reviewer.submission-review.review-audit-panel.title_dismissed_warnings",
+                )}
+                value={dismissedFindings.length}
+                tone="slate"
+              />
             </div>
             <p className="mt-2 text-xs leading-relaxed text-slate-600">
-              Findings are reviewer-facing quality signals. Use the evaluation and rationales to
-              decide what, if anything, needs revision.
+              {t(
+                "runtime.components.reviewer.submission-review.review-audit-panel.text_findings_are_reviewer_facing",
+              )}
             </p>
           </div>
 
@@ -154,11 +173,25 @@ function CountPill({
 }
 
 function AuditEvaluationCard({ audit }: { audit: ReviewAuditResponse }) {
+  const { t } = useTranslation()
   const evaluation = audit.evaluation
   const items = [
-    { label: "Evidence engagement", value: evaluation?.evidence_engagement },
-    { label: "Consistency", value: evaluation?.consistency_assessment },
-    { label: "Best next improvement", value: evaluation?.improvement_focus },
+    {
+      label: t(
+        "runtime.components.reviewer.submission-review.review-audit-panel.text_evidence_engagement",
+      ),
+      value: evaluation?.evidence_engagement,
+    },
+    {
+      label: t("runtime.components.reviewer.submission-review.review-audit-panel.text_consistency"),
+      value: evaluation?.consistency_assessment,
+    },
+    {
+      label: t(
+        "runtime.components.reviewer.submission-review.review-audit-panel.text_best_next_improvement",
+      ),
+      value: evaluation?.improvement_focus,
+    },
   ].filter((item) => item.value?.trim())
   const summary = evaluation?.summary?.trim()
 
@@ -169,7 +202,7 @@ function AuditEvaluationCard({ audit }: { audit: ReviewAuditResponse }) {
   return (
     <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
       <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
-        Evaluation
+        {t("runtime.components.reviewer.submission-review.review-audit-panel.text_evaluation")}
       </h4>
       {summary && <p className="mt-2 text-xs leading-relaxed text-slate-700">{summary}</p>}
       {items.length > 0 && (
@@ -203,6 +236,8 @@ function FindingSection({
   actionDisabled: boolean
   onAction: (finding: ReviewAuditFinding) => void | Promise<void>
 }) {
+  const { t } = useTranslation()
+
   return (
     <section>
       <div className="flex items-center justify-between">
@@ -245,7 +280,11 @@ function FindingSection({
                   </p>
                   {finding.rationale && (
                     <p className="mt-1 text-xs leading-relaxed text-slate-600">
-                      <span className="font-semibold text-slate-700">Rationale: </span>
+                      <span className="font-semibold text-slate-700">
+                        {t(
+                          "runtime.components.reviewer.submission-review.review-audit-panel.text_rationale",
+                        )}{" "}
+                      </span>
                       {finding.rationale}
                     </p>
                   )}

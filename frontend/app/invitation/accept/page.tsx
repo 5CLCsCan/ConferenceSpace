@@ -1,6 +1,6 @@
 "use client"
 
-import React, { Suspense, useEffect, useMemo, useState } from "react"
+import React, { Suspense, useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
 
@@ -11,6 +11,7 @@ import {
   validateInvitationToken,
   type InvitationPrefill,
 } from "@/lib/api/invitation-accept"
+import { useTranslation } from "@/lib/i18n/translation-context"
 import { ROUTES } from "@/lib/routes"
 
 // Inline user normalization — mirrors auth-context.tsx's normalizeUser
@@ -45,7 +46,13 @@ function roleToDashboard(role: string, conferenceId: number): string {
 function AcceptInvitationContent() {
   const router = useRouter()
   const params = useSearchParams()
+  const { t } = useTranslation()
   const token = params.get("token") ?? ""
+  const T = useCallback(
+    (key: string, values?: Record<string, string | number>) =>
+      t(`runtime.app.invitation.accept.page.${key}`, values),
+    [t],
+  )
 
   const [loading, setLoading] = useState(true)
   const [prefill, setPrefill] = useState<InvitationPrefill | null>(null)
@@ -65,14 +72,14 @@ function AcceptInvitationContent() {
 
   useEffect(() => {
     if (!token) {
-      setError("Missing invitation token.")
+      setError(T("text_missing_invitation_token"))
       setLoading(false)
       return
     }
     void (async () => {
       const { data, error: fetchError } = await validateInvitationToken(token)
       if (fetchError || !data) {
-        setError(fetchError ?? "Invalid invitation")
+        setError(fetchError ?? T("text_invalid_invitation"))
       } else {
         setPrefill(data)
         const nameParts = (data.name ?? "").split(" ")
@@ -88,7 +95,7 @@ function AcceptInvitationContent() {
       }
       setLoading(false)
     })()
-  }, [token])
+  }, [T, token])
 
   const passwordValid = useMemo(
     () => form.password.length >= 8 && form.password === form.confirm,
@@ -125,7 +132,7 @@ function AcceptInvitationContent() {
     setSubmitting(false)
 
     if (acceptError || !data) {
-      setError(acceptError ?? "Failed to accept invitation")
+      setError(acceptError ?? T("text_failed_to_accept_invitation"))
       return
     }
 
@@ -179,11 +186,11 @@ function AcceptInvitationContent() {
             </span>
           </div>
           <div className="auth-brand-content">
-            <p className="auth-brand-label">ConferenceSpace</p>
-            <h1 className="auth-brand-headline">You've been invited!</h1>
+            <p className="auth-brand-label">{t("app.name")}</p>
+            <h1 className="auth-brand-headline">{T("text_you_have_been_invited")}</h1>
             <p className="auth-brand-sub">
-              Create your account to join <strong>{prefill?.conference.title}</strong> as a{" "}
-              <strong>{prefill?.role}</strong>.
+              {T("text_create_account_to_join_prefix")} <strong>{prefill?.conference.title}</strong>{" "}
+              {T("text_create_account_to_join_as")} <strong>{prefill?.role}</strong>.
             </p>
           </div>
           {prefill && (
@@ -193,7 +200,7 @@ function AcceptInvitationContent() {
                   person
                 </span>
                 <span>
-                  Invited by{" "}
+                  {T("text_invited_by")}{" "}
                   {prefill.invited_by.name || prefill.invited_by.email || "a conference chair"}
                 </span>
               </div>
@@ -215,10 +222,11 @@ function AcceptInvitationContent() {
       <div className="auth-form-panel auth-form-panel--register">
         <div className="auth-form-inner">
           <div className="auth-form-header">
-            <h2 className="auth-form-title">Create your account</h2>
+            <h2 className="auth-form-title">{T("text_create_your_account")}</h2>
             <p className="auth-form-desc">
-              {prefill?.invited_by.name ? `${prefill.invited_by.name} ` : ""}invited you to join{" "}
-              <strong>{prefill?.conference.title}</strong> as a <strong>{prefill?.role}</strong>.
+              {prefill?.invited_by.name ? `${prefill.invited_by.name} ` : ""}
+              {T("text_invited_you_to_join")} <strong>{prefill?.conference.title}</strong>{" "}
+              {T("text_create_account_to_join_as")} <strong>{prefill?.role}</strong>.
             </p>
           </div>
 
@@ -236,7 +244,7 @@ function AcceptInvitationContent() {
             <div className="auth-field-row">
               <div className="auth-field">
                 <label htmlFor="firstName" className="auth-label">
-                  First name
+                  {t("common.labels.firstName")}
                 </label>
                 <input
                   id="firstName"
@@ -251,7 +259,7 @@ function AcceptInvitationContent() {
               </div>
               <div className="auth-field">
                 <label htmlFor="lastName" className="auth-label">
-                  Last name
+                  {t("common.labels.lastName")}
                 </label>
                 <input
                   id="lastName"
@@ -269,7 +277,7 @@ function AcceptInvitationContent() {
             {/* Email */}
             <div className="auth-field">
               <label htmlFor="email" className="auth-label">
-                Email
+                {t("common.labels.email")}
               </label>
               <input
                 id="email"
@@ -285,7 +293,7 @@ function AcceptInvitationContent() {
 
             {/* Research domains (prefilled from fields_of_study, editable) */}
             <div className="auth-field">
-              <label className="auth-label">Research domains</label>
+              <label className="auth-label">{T("text_research_domains")}</label>
               {form.domain.length > 0 && (
                 <div
                   style={{
@@ -345,7 +353,7 @@ function AcceptInvitationContent() {
                       handleAddDomain()
                     }
                   }}
-                  placeholder="Type a domain and press Enter"
+                  placeholder={T("placeholder_type_domain")}
                   disabled={submitting}
                   className="auth-input"
                   style={{ flex: 1 }}
@@ -366,7 +374,7 @@ function AcceptInvitationContent() {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  Add
+                  {T("text_add")}
                 </button>
               </div>
             </div>
@@ -374,7 +382,7 @@ function AcceptInvitationContent() {
             {/* Password */}
             <div className="auth-field">
               <label htmlFor="password" className="auth-label">
-                Password
+                {t("common.labels.password")}
               </label>
               <div className="auth-input-wrap">
                 <input
@@ -405,7 +413,7 @@ function AcceptInvitationContent() {
             {/* Confirm password */}
             <div className="auth-field">
               <label htmlFor="confirm" className="auth-label">
-                Confirm password
+                {t("common.labels.confirmPassword")}
               </label>
               <div className="auth-input-wrap">
                 <input
@@ -432,7 +440,7 @@ function AcceptInvitationContent() {
               </div>
               {form.confirm && form.password !== form.confirm && (
                 <p style={{ fontSize: "12px", color: "#ef4444", marginTop: "4px" }}>
-                  Passwords do not match
+                  {t("auth.register.errors.passwordMismatch")}
                 </p>
               )}
             </div>
@@ -443,7 +451,7 @@ function AcceptInvitationContent() {
               className="auth-submit"
             >
               {submitting ? <Loader2 className="size-4 animate-spin" /> : null}
-              Create account &amp; join conference
+              {T("text_create_account_join_conference")}
             </button>
           </form>
         </div>
