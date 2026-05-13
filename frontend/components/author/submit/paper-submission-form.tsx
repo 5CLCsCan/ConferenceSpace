@@ -157,6 +157,7 @@ export function PaperSubmissionForm({
   const [uploadProgress, setUploadProgress] = useState(0)
   const [precheckResult, setPrecheckResult] = useState<PrecheckResult | null>(null)
   const [precheckError, setPrecheckError] = useState<string | null>(null)
+  const [precheckLoading, setPrecheckLoading] = useState(false)
   const [lastPrecheckBlock, setLastPrecheckBlock] = useState<PrecheckBlockedError | null>(null)
   const [fileValidation, setFileValidation] = useState<{
     format: boolean
@@ -556,6 +557,7 @@ export function PaperSubmissionForm({
     setUploadedFile(file)
     setUploadProgress(100)
     setFileValidation({ format: false, fonts: false })
+    setPrecheckLoading(false)
   }
 
   const runAutofillPrecheck = useCallback(
@@ -563,11 +565,13 @@ export function PaperSubmissionForm({
       if (!conference?.id) {
         setPrecheckResult(null)
         setPrecheckError(null)
+        setPrecheckLoading(false)
         return
       }
 
       setPrecheckResult(null)
       setPrecheckError(null)
+      setPrecheckLoading(true)
 
       try {
         const response = await precheckPaper(String(conference.id), file)
@@ -578,6 +582,8 @@ export function PaperSubmissionForm({
         }
       } catch (error) {
         setPrecheckError(error instanceof Error ? error.message : "Precheck failed")
+      } finally {
+        setPrecheckLoading(false)
       }
     },
     [conference?.id],
@@ -586,6 +592,7 @@ export function PaperSubmissionForm({
   const handleRemoveFile = () => {
     setUploadedFile(null)
     setUploadProgress(0)
+    setPrecheckLoading(false)
   }
 
   // Conflict handlers
@@ -1047,11 +1054,13 @@ export function PaperSubmissionForm({
                 }
                 precheckResult={precheckResult}
                 precheckError={precheckError}
+                precheckLoading={precheckLoading}
                 onFileUpload={handleFileUpload}
                 onRemoveFile={handleRemoveFile}
                 onPrecheckUpdate={(result, error) => {
                   setPrecheckResult(result)
                   setPrecheckError(error)
+                  setPrecheckLoading(false)
                   if (result || error) {
                     setLastPrecheckBlock(null)
                   }

@@ -27,6 +27,7 @@ interface FileUploadStepProps {
   // Controlled from parent so values survive tab switching (unmount/remount)
   precheckResult?: PrecheckResult | null
   precheckError?: string | null
+  precheckLoading?: boolean
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void
   onRemoveFile: () => void
   onPrecheckUpdate?: (result: PrecheckResult | null, error: string | null) => void
@@ -41,6 +42,7 @@ export function FileUploadStep({
   existingFile,
   precheckResult = null,
   precheckError = null,
+  precheckLoading = false,
   onFileUpload,
   onRemoveFile,
   onPrecheckUpdate,
@@ -49,6 +51,7 @@ export function FileUploadStep({
   const [isPrechecking, setIsPrechecking] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const showingPrecheckLoading = isPrechecking || precheckLoading
 
   // Run precheck when file is uploaded
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -139,9 +142,11 @@ export function FileUploadStep({
         <div className="border-b border-slate-100 dark:border-slate-700 pb-3 mb-4">
           <div className="flex justify-between items-center">
             <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white leading-[1.2] tracking-tight">
-              {t("runtime.components.author.submit.file-upload-step.text_manuscript_file")}{" "}</h3>
+              {t("runtime.components.author.submit.file-upload-step.text_manuscript_file")}{" "}
+            </h3>
             <span className="text-[9px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded uppercase tracking-wider">
-              {t("runtime.components.author.submit.file-upload-step.text_max_20mb")}{" "}</span>
+              {t("runtime.components.author.submit.file-upload-step.text_max_20mb")}{" "}
+            </span>
           </div>
         </div>
         <div className="relative group cursor-pointer">
@@ -202,14 +207,17 @@ export function FileUploadStep({
                   )}{" "}
                 </p>
                 <p className="text-[11px] text-slate-500 mt-1">
-                  {t("runtime.components.author.submit.file-upload-step.text_pdf_docx_and_tex_files_are")}{" "}</p>
+                  {t(
+                    "runtime.components.author.submit.file-upload-step.text_pdf_docx_and_tex_files_are",
+                  )}{" "}
+                </p>
               </>
             )}
           </div>
         </div>
 
         {/* Precheck Loading */}
-        {isPrechecking && (
+        {showingPrecheckLoading && (
           <div className="mt-4 flex items-center justify-center gap-2 p-3 bg-[#1B3C53]/5 dark:bg-slate-700/50 rounded-lg">
             <span className="material-symbols-outlined animate-spin text-[#1B3C53] text-[16px]">
               sync
@@ -230,7 +238,7 @@ export function FileUploadStep({
         )}
 
         {/* Uploaded File Preview */}
-        {uploadedFile && !isPrechecking && (
+        {uploadedFile && !showingPrecheckLoading && (
           <div className="mt-4 flex flex-col gap-3">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 flex items-center gap-3 shadow-sm relative overflow-hidden group">
               <div
@@ -361,7 +369,10 @@ export function FileUploadStep({
                 {t("runtime.components.author.submit.file-upload-step.text_format_validated")}{" "}
               </p>
               <p className="text-[10px] text-green-700/70 dark:text-green-400/70 font-light">
-                {t("runtime.components.author.submit.file-upload-step.text_the_uploaded_manuscript_meets_the_conference")}{" "}</p>
+                {t(
+                  "runtime.components.author.submit.file-upload-step.text_the_uploaded_manuscript_meets_the_conference",
+                )}{" "}
+              </p>
             </div>
           </div>
         )}

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { PaperSubmissionForm } from "../paper-submission-form"
-import type { Conference } from "@/lib/types"
+import type { Conference, PrecheckResult } from "@/lib/types"
 import type { Submission } from "@/lib/api/submissions"
 import { precheckPaper, publishPaper, submitPaper, updatePaper } from "@/lib/api/papers"
 import { updateSubmissionStatus } from "@/lib/api/submissions"
@@ -104,7 +104,13 @@ vi.mock("../authors-step", () => ({
   AuthorsStep: () => <div data-testid="authors-step" />,
 }))
 vi.mock("../file-upload-step", () => ({
-  FileUploadStep: () => <div data-testid="file-upload-step" />,
+  FileUploadStep: ({ precheckLoading, precheckResult, precheckError }: any) => (
+    <div data-testid="file-upload-step">
+      {precheckLoading && <span data-testid="precheck-loading">running</span>}
+      {precheckResult && <span data-testid="precheck-result">{precheckResult.decision}</span>}
+      {precheckError && <span data-testid="precheck-error">{precheckError}</span>}
+    </div>
+  ),
 }))
 vi.mock("../conflicts-step", () => ({
   ConflictsStep: ({ coiConfirmed, onCoiConfirmedChange }: any) => (
@@ -322,19 +328,32 @@ function field<T>(value: T) {
   return { value, confidence: "high" as const, evidence: [], warnings: [] }
 }
 
+function makePrecheckResult(overrides?: Partial<PrecheckResult>): PrecheckResult {
+  return {
+    paper_title: "Generated Title",
+    overall_score: 95,
+    decision: "accept_for_review",
+    summary: { total_items: 1, passed: 1, failed: 0, pass_rate: 100 },
+    category_scores: {},
+    detailed_results: [],
+    ...overrides,
+  }
+}
+
+function createDeferred<T>() {
+  let resolve!: (value: T) => void
+  const promise = new Promise<T>((res) => {
+    resolve = res
+  })
+  return { promise, resolve }
+}
+
 describe("PaperSubmissionForm — deadline enforcement (UI-NEG-02)", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     window.scrollTo = vi.fn()
     vi.mocked(precheckPaper).mockResolvedValue({
-      data: {
-        paper_title: "Generated Title",
-        overall_score: 95,
-        decision: "accept_for_review",
-        summary: { total_items: 1, passed: 1, failed: 0, pass_rate: 100 },
-        category_scores: {},
-        detailed_results: [],
-      },
+      data: makePrecheckResult(),
       error: null,
     })
   })
@@ -504,6 +523,38 @@ describe("PaperSubmissionForm — deadline enforcement (UI-NEG-02)", () => {
     )
     expect(screen.getByTestId("submission-confirmed-checkbox")).not.toBeChecked()
     await waitFor(() => expect(precheckPaper).toHaveBeenCalledWith("1", expect.any(File)))
+  })
+
+  it("does not block autofill apply while precheck runs and keeps the result on the file step", async () => {
+    const deferred = createDeferred<{ data: PrecheckResult | null; error: string | null }>()
+    vi.mocked(precheckPaper).mockReturnValue(deferred.promise)
+
+    render(
+      <PaperSubmissionForm
+        conference={makeConference({
+          tracks: ["Artificial Intelligence & Machine Learning", "Systems"],
+        })}
+        submission={makeSubmission({ status: "draft" })}
+      />,
+    )
+
+    fireEvent.click(screen.getByTestId("autofill-btn"))
+    fireEvent.click(screen.getByTestId("apply-autofill"))
+
+    expect(screen.getByTestId("review-step")).toBeInTheDocument()
+    expect(screen.getByTestId("review-file")).toHaveTextContent("generated-paper.pdf")
+    expect(precheckPaper).toHaveBeenCalledWith("1", expect.any(File))
+
+    fireEvent.click(screen.getByTestId("step-file"))
+    expect(screen.getByTestId("precheck-loading")).toBeInTheDocument()
+
+    await act(async () => {
+      deferred.resolve({ data: makePrecheckResult(), error: null })
+      await deferred.promise
+    })
+
+    expect(screen.queryByTestId("precheck-loading")).not.toBeInTheDocument()
+    expect(screen.getByTestId("precheck-result")).toHaveTextContent("accept_for_review")
   })
 
   it("shows a warning when autosave cannot create another submission for the conference", async () => {
