@@ -31,7 +31,7 @@ interface SubmissionAutofillSheetProps {
   onOpenChange: (open: boolean) => void
   conferenceId?: string
   availableTracks: string[]
-  onApply: (result: SubmissionAutofillResponse) => void
+  onApply: (result: SubmissionAutofillResponse, files: File[]) => void
 }
 
 const ACCEPTED_MATERIALS = ".pdf,.docx,.tex"
@@ -115,10 +115,13 @@ export function SubmissionAutofillSheet({
 
   const handleApply = () => {
     if (!result) return
-    onApply({
-      ...result,
-      selected_track_name: selectedTrackName,
-    })
+    onApply(
+      {
+        ...result,
+        selected_track_name: selectedTrackName,
+      },
+      files,
+    )
     onOpenChange(false)
   }
 
