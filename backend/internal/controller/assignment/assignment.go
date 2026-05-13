@@ -679,6 +679,88 @@ func (c *Controller) ConfirmSuggestions(ginCtx *gin.Context, req *dto.ConfirmSug
 	}, nil
 }
 
+// SendReminder sends a manual review reminder to the assigned reviewer.
+func (c *Controller) SendReminder(ginCtx *gin.Context, req *dto.AssignmentReminderRequest) (*dto.AssignmentReminderResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	if c.notificationService == nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "notification service unavailable")
+	}
+
+	sentBy, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+
+	assignment, err := c.assignmentStorage.GetByID(ctx, req.AssignmentID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "assignment not found")
+	}
+	if assignment.ConferenceID != req.ConferenceID {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "assignment not found")
+	}
+	if assignment.Status == model.AssignmentStatusSuggested {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "only confirmed assignments can be reminded")
+	}
+	if assignment.Status == model.AssignmentStatusDeclined {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "cannot remind a declined assignment")
+	}
+	if assignment.Status == model.AssignmentStatusCompleted || (assignment.ReviewStatus != nil && *assignment.ReviewStatus == model.ReviewStatusSubmitted) {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "review is already submitted")
+	}
+
+	reviewer, err := c.reviewerStorage.GetByID(ctx, assignment.ReviewerID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to get reviewer info")
+	}
+	submission, err := c.submissionStorage.GetByID(ctx, assignment.SubmissionID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to get submission")
+	}
+	conference, err := c.conferenceStorage.GetByID(ctx, req.ConferenceID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to get conference")
+	}
+
+	dueDate := reviewDueDate(conference, assignment.AssignedAt)
+	notification, emailSent, err := c.notificationService.NotifyReviewDeadlineReminder(
+		ctx,
+		reviewer.Email,
+		submission.Title,
+		conference.Title,
+		req.ConferenceID,
+		assignment.SubmissionID,
+		assignment.ID,
+		assignment.Status,
+		&dueDate,
+		sentBy,
+	)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to create reminder notification")
+	}
+
+	message := "Reminder sent"
+	if !emailSent {
+		message = "Reminder sent, email unavailable"
+	}
+
+	return &dto.AssignmentReminderResponse{
+		NotificationID: notification.ID,
+		EmailSent:      emailSent,
+		Message:        message,
+	}, nil
+}
+
+func reviewDueDate(conference *dto.ConferenceResponse, assignedAt time.Time) time.Time {
+	if conference != nil &&
+		conference.Configurations != nil &&
+		conference.Configurations.DiscussionSettings != nil &&
+		conference.Configurations.DiscussionSettings.StartAt != nil {
+		return *conference.Configurations.DiscussionSettings.StartAt
+	}
+	return assignedAt.Add(14 * 24 * time.Hour)
+}
+
 // DeleteSuggestion removes a single suggested assignment
 // @Summary Delete a suggestion
 // @Description Remove a single suggested reviewer assignment

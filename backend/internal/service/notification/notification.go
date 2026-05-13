@@ -3,7 +3,12 @@ package notification
 import (
 	"context"
 	"fmt"
+	"html"
+	"log"
+	"strings"
+	"time"
 
+	"github.com/dcao/conferencespace/internal/clients/brevo"
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/model"
 	notificationStorage "github.com/dcao/conferencespace/internal/storage/notification"
@@ -12,8 +17,10 @@ import (
 
 // Service provides notification-related business logic
 type Service struct {
-	storage notificationStorage.StorageInterface
-	hub     *websocket.Hub
+	storage    notificationStorage.StorageInterface
+	hub        *websocket.Hub
+	email      *brevo.Client
+	appBaseURL string
 }
 
 // New creates a new notification service
@@ -34,6 +41,11 @@ func NewWithWebSocket(storage notificationStorage.StorageInterface, hub *websock
 // SetHub sets the WebSocket hub for real-time broadcasting
 func (s *Service) SetHub(hub *websocket.Hub) {
 	s.hub = hub
+}
+
+func (s *Service) SetEmailClient(email *brevo.Client, appBaseURL string) {
+	s.email = email
+	s.appBaseURL = strings.TrimRight(appBaseURL, "/")
 }
 
 // broadcastNotification sends a notification via WebSocket if hub is available
@@ -164,6 +176,144 @@ func (s *Service) NotifyReviewAssigned(ctx context.Context, reviewerEmail string
 
 	s.broadcastNotification(notification)
 	return nil
+}
+
+func (s *Service) NotifyReviewDeadlineReminder(
+	ctx context.Context,
+	reviewerEmail string,
+	paperTitle string,
+	conferenceName string,
+	conferenceID int64,
+	submissionID int64,
+	assignmentID int64,
+	assignmentStatus string,
+	dueDate *time.Time,
+	sentBy string,
+) (*dto.Notification, bool, error) {
+	actionURL := fmt.Sprintf("/role/reviewer/assignments/%d?conferenceId=%d", assignmentID, conferenceID)
+	message := fmt.Sprintf("Please complete your review for \"%s\".", paperTitle)
+	if assignmentStatus == model.AssignmentStatusPending {
+		actionURL = fmt.Sprintf("/role/reviewer/invitations/%d", assignmentID)
+		message = fmt.Sprintf("Please respond to your review assignment for \"%s\".", paperTitle)
+	}
+
+	metadata := map[string]interface{}{
+		"assignment_id": assignmentID,
+		"submission_id": submissionID,
+		"paper_title":   paperTitle,
+		"sent_by":       sentBy,
+	}
+	if dueDate != nil {
+		metadata["due_date"] = dueDate.Format(time.RFC3339)
+	}
+
+	req := &dto.NotificationCreateRequest{
+		UserEmail:    reviewerEmail,
+		Type:         model.NotificationTypeDeadlineReminder,
+		Title:        "Review reminder",
+		Message:      message,
+		Metadata:     metadata,
+		ActionURL:    actionURL,
+		ConferenceID: &conferenceID,
+	}
+
+	notification, err := s.storage.Create(ctx, req)
+	if err != nil {
+		return nil, false, err
+	}
+	s.broadcastNotification(notification)
+
+	emailSent := false
+	if s.email != nil && s.email.Configured() {
+		emailURL := actionURL
+		if s.appBaseURL != "" {
+			emailURL = s.appBaseURL + actionURL
+		}
+		htmlContent := buildReviewReminderEmailHTML(message, conferenceName, paperTitle, emailURL, dueDate)
+		if err := s.email.SendEmail(ctx, reviewerEmail, fmt.Sprintf("Reminder: review needed for \"%s\"", paperTitle), htmlContent); err != nil {
+			log.Printf("Warning: failed to send review reminder email to %s: %v", reviewerEmail, err)
+		} else {
+			emailSent = true
+		}
+	}
+
+	return notification, emailSent, nil
+}
+
+func buildReviewReminderEmailHTML(message, conferenceName, paperTitle, actionURL string, dueDate *time.Time) string {
+	deadlineText := "Not specified"
+	deadlineTone := "#475569"
+	if dueDate != nil {
+		deadlineText = dueDate.Format("Jan 2, 2006 at 15:04 MST")
+		if time.Now().After(*dueDate) {
+			deadlineTone = "#b91c1c"
+		} else if time.Until(*dueDate) <= 72*time.Hour {
+			deadlineTone = "#b45309"
+		}
+	}
+
+	escapedMessage := html.EscapeString(message)
+	escapedConference := html.EscapeString(conferenceName)
+	escapedPaper := html.EscapeString(paperTitle)
+	escapedDeadline := html.EscapeString(deadlineText)
+	escapedURL := html.EscapeString(actionURL)
+
+	return fmt.Sprintf(`<!doctype html>
+<html>
+  <body style="margin:0;padding:0;background:#f6f8fb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#0f172a;">
+    <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="background:#f6f8fb;padding:28px 12px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+            <tr>
+              <td style="background:#1B3C53;padding:20px 24px;">
+                <div style="font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#cbd5e1;">ConferenceSpace</div>
+                <div style="font-size:22px;line-height:1.25;font-weight:700;color:#ffffff;margin-top:8px;">Review reminder</div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:24px;">
+                <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#334155;">Hello,</p>
+                <p style="margin:0 0 22px;font-size:16px;line-height:1.6;color:#0f172a;">%s</p>
+
+                <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;margin:0 0 24px;">
+                  <tr>
+                    <td style="padding:16px 18px;border-bottom:1px solid #e2e8f0;">
+                      <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#64748b;margin-bottom:4px;">Conference</div>
+                      <div style="font-size:14px;line-height:1.5;font-weight:600;color:#0f172a;">%s</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:16px 18px;border-bottom:1px solid #e2e8f0;">
+                      <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#64748b;margin-bottom:4px;">Paper</div>
+                      <div style="font-size:14px;line-height:1.5;font-weight:600;color:#0f172a;">%s</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:16px 18px;">
+                      <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#64748b;margin-bottom:4px;">Review deadline</div>
+                      <div style="font-size:14px;line-height:1.5;font-weight:700;color:%s;">%s</div>
+                    </td>
+                  </tr>
+                </table>
+
+                <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 22px;">
+                  <tr>
+                    <td style="border-radius:8px;background:#1B3C53;">
+                      <a href="%s" style="display:inline-block;padding:12px 18px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;border-radius:8px;">Open review assignment</a>
+                    </td>
+                  </tr>
+                </table>
+
+                <p style="margin:0;font-size:12px;line-height:1.6;color:#64748b;">If the button does not work, open this link:<br><a href="%s" style="color:#1B3C53;word-break:break-all;">%s</a></p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`, escapedMessage, escapedConference, escapedPaper, deadlineTone, escapedDeadline, escapedURL, escapedURL, escapedURL)
 }
 
 // NotifyReviewSubmitted notifies chairs when a reviewer submits a review

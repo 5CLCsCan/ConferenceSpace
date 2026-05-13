@@ -779,9 +779,11 @@ func (s *Storage) GetConfirmedAssignmentsByConference(ctx context.Context, confe
 			cs.title as submission_title,
 			u.email as reviewer_email,
 			pa.decline_category,
-			pa.decline_reason
+			pa.decline_reason,
+			COALESCE(NULLIF(c.configurations->'discussion_settings'->>'start_at', '')::timestamptz, pa.assigned_at + INTERVAL '14 days') as due_date
 		FROM paper_assignments pa
 		JOIN conference_submissions cs ON pa.submission_id = cs.submission_id
+		JOIN conferences c ON pa.conference_id = c.conference_id
 		JOIN conference_reviewers cr ON pa.reviewer_id = cr.id
 		JOIN users u ON cr.user_id = u.user_id
 		WHERE pa.conference_id = $1 AND pa.status != 'suggested'
@@ -805,9 +807,10 @@ func (s *Storage) GetConfirmedAssignmentsByConference(ctx context.Context, confe
 			status, reviewStatus           string
 			submissionTitle, reviewerEmail string
 			declineCategory, declineReason *string
+			dueDate                        time.Time
 		)
 
-		err := rows.Scan(&id, &subID, &revID, &score, &status, &reviewStatus, &submissionTitle, &reviewerEmail, &declineCategory, &declineReason)
+		err := rows.Scan(&id, &subID, &revID, &score, &status, &reviewStatus, &submissionTitle, &reviewerEmail, &declineCategory, &declineReason, &dueDate)
 		if err != nil {
 			return nil, 0, fmt.Errorf("failed to scan confirmed assignment: %w", err)
 		}
@@ -822,6 +825,7 @@ func (s *Storage) GetConfirmedAssignmentsByConference(ctx context.Context, confe
 			groupMap[subID] = group
 		}
 
+		daysLeft := int(time.Until(dueDate).Hours() / 24)
 		group.Reviewers = append(group.Reviewers, dto.ConfirmedReviewer{
 			AssignmentID:    id,
 			ReviewerID:      revID,
@@ -831,6 +835,9 @@ func (s *Storage) GetConfirmedAssignmentsByConference(ctx context.Context, confe
 			ReviewStatus:    reviewStatus,
 			DeclineCategory: declineCategory,
 			DeclineReason:   declineReason,
+			DueDate:         dueDate.Format(time.RFC3339),
+			DaysLeft:        &daysLeft,
+			DeadlineStatus:  deadlineStatus(dueDate),
 		})
 		totalAssignments++
 	}
@@ -846,6 +853,23 @@ func (s *Storage) GetConfirmedAssignmentsByConference(ctx context.Context, confe
 	}
 
 	return groups, totalAssignments, nil
+}
+
+func deadlineStatus(dueDate time.Time) string {
+	now := time.Now()
+	startOfToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	startOfDueDay := time.Date(dueDate.Year(), dueDate.Month(), dueDate.Day(), 0, 0, 0, 0, dueDate.Location())
+	days := int(startOfDueDay.Sub(startOfToday).Hours() / 24)
+	switch {
+	case days < 0:
+		return "overdue"
+	case days == 0:
+		return "due_today"
+	case days <= 3:
+		return "due_soon"
+	default:
+		return "upcoming"
+	}
 }
 
 // ConfirmSuggestions updates status from 'suggested' to 'pending' for given IDs

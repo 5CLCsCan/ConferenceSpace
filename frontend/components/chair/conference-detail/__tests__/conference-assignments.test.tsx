@@ -4,6 +4,8 @@ import { ConferenceAssignments } from "../conference-assignments"
 import * as suggestionsApi from "@/lib/api/suggestions"
 import * as conferencesApi from "@/lib/api/conferences"
 
+const mockToast = vi.fn()
+
 vi.mock("@/lib/i18n/translation-context", async () => {
   const { tStatic } = await vi.importActual<typeof import("@/lib/i18n/static-translate")>(
     "@/lib/i18n/static-translate",
@@ -27,6 +29,7 @@ vi.mock("@/lib/api/suggestions", () => ({
   deleteSuggestion: vi.fn(),
   addSuggestion: vi.fn(),
   getConfirmedAssignments: vi.fn(),
+  sendAssignmentReminder: vi.fn(),
 }))
 
 vi.mock("@/lib/api/conferences", () => ({
@@ -37,12 +40,19 @@ vi.mock("@/lib/auth-context", () => ({
   useAuth: vi.fn(() => ({ currentRole: "chair" })),
 }))
 
+vi.mock("@/hooks/use-toast", () => ({
+  useToast: () => ({ toast: mockToast }),
+}))
+
 describe("ConferenceAssignments", () => {
   const mockGetSuggestions = suggestionsApi.getSuggestions as ReturnType<typeof vi.fn>
   const mockGetConfirmedAssignments = suggestionsApi.getConfirmedAssignments as ReturnType<
     typeof vi.fn
   >
   const mockConfirmSuggestions = suggestionsApi.confirmSuggestions as ReturnType<typeof vi.fn>
+  const mockSendAssignmentReminder = suggestionsApi.sendAssignmentReminder as ReturnType<
+    typeof vi.fn
+  >
   const mockDeleteSuggestion = suggestionsApi.deleteSuggestion as ReturnType<typeof vi.fn>
   const mockGetConferenceReviewers = conferencesApi.getConferenceReviewers as ReturnType<
     typeof vi.fn
@@ -50,6 +60,7 @@ describe("ConferenceAssignments", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mockToast.mockClear()
     localStorage.setItem("conference_locale", "en")
   })
 
@@ -396,6 +407,9 @@ describe("ConferenceAssignments", () => {
                 score: 0.85,
                 status: "pending",
                 review_status: "not_started",
+                due_date: "2026-05-16T00:00:00Z",
+                days_left: 2,
+                deadline_status: "due_soon",
               },
             ],
           },
@@ -428,6 +442,7 @@ describe("ConferenceAssignments", () => {
         expect(screen.getByText("reviewer@test.com")).toBeInTheDocument()
         expect(screen.getByText("Pending")).toBeInTheDocument()
         expect(screen.getByText("Not Started")).toBeInTheDocument()
+        expect(screen.getByText("Due soon")).toBeInTheDocument()
       })
     })
 
@@ -713,6 +728,114 @@ describe("ConferenceAssignments", () => {
         const confirmButtons = screen.getAllByRole("button", { name: /Confirm/i })
         // Should have individual confirm buttons (excluding Confirm All)
         expect(confirmButtons.length).toBeGreaterThanOrEqual(2)
+      })
+    })
+
+    it("should send reminder from confirmed assignments", async () => {
+      const mockConfirmed = {
+        assignments: [
+          {
+            submission_id: 1,
+            submission_title: "Reminder Paper",
+            reviewers: [
+              {
+                assignment_id: 100,
+                reviewer_id: 10,
+                reviewer_email: "reviewer@test.com",
+                score: 0.85,
+                status: "accepted",
+                review_status: "in_progress",
+                due_date: "2026-05-16T00:00:00Z",
+                days_left: 2,
+                deadline_status: "due_soon",
+              },
+            ],
+          },
+        ],
+        total_papers: 1,
+        total_assignments: 1,
+      }
+
+      mockGetSuggestions.mockResolvedValue({
+        data: { suggestions: [], total_papers: 0, total_suggestions: 0 },
+        error: null,
+        status: 200,
+      })
+      mockGetConfirmedAssignments.mockResolvedValue({
+        data: mockConfirmed,
+        error: null,
+        status: 200,
+      })
+      mockSendAssignmentReminder.mockResolvedValue({
+        data: { notification_id: 55, email_sent: true, message: "Reminder sent" },
+        error: null,
+        status: 200,
+      })
+
+      render(<ConferenceAssignments conferenceId="123" />)
+
+      await waitFor(() => {
+        expect(screen.queryByText("Loading suggestions...")).not.toBeInTheDocument()
+      })
+      fireEvent.click(screen.getByText("Confirmed Assignments"))
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Send reminder" })).toBeInTheDocument()
+      })
+      fireEvent.click(screen.getByRole("button", { name: "Send reminder" }))
+
+      await waitFor(() => {
+        expect(mockSendAssignmentReminder).toHaveBeenCalledWith("123", 100)
+        expect(mockToast).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: "Reminder sent",
+          }),
+        )
+      })
+    })
+
+    it("should disable reminder button for submitted reviews", async () => {
+      const mockConfirmed = {
+        assignments: [
+          {
+            submission_id: 1,
+            submission_title: "Submitted Paper",
+            reviewers: [
+              {
+                assignment_id: 100,
+                reviewer_id: 10,
+                reviewer_email: "reviewer@test.com",
+                score: 0.85,
+                status: "completed",
+                review_status: "submitted",
+              },
+            ],
+          },
+        ],
+        total_papers: 1,
+        total_assignments: 1,
+      }
+
+      mockGetSuggestions.mockResolvedValue({
+        data: { suggestions: [], total_papers: 0, total_suggestions: 0 },
+        error: null,
+        status: 200,
+      })
+      mockGetConfirmedAssignments.mockResolvedValue({
+        data: mockConfirmed,
+        error: null,
+        status: 200,
+      })
+
+      render(<ConferenceAssignments conferenceId="123" />)
+
+      await waitFor(() => {
+        expect(screen.queryByText("Loading suggestions...")).not.toBeInTheDocument()
+      })
+      fireEvent.click(screen.getByText("Confirmed Assignments"))
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Send reminder" })).toBeDisabled()
       })
     })
   })
