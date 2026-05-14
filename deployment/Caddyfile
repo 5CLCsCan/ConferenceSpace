@@ -1,4 +1,5 @@
-:3000 {
+conference-space.com, www.conference-space.com {
+	encode zstd gzip
 	reverse_proxy /ws/* backend:8080
 	reverse_proxy web:3000
 }

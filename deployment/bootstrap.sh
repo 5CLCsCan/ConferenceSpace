@@ -3,8 +3,6 @@ set -euo pipefail
 
 DEPLOY_USER="${DEPLOY_USER:-ubuntu}"
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/conferencespace}"
-FRONTEND_PORT="${FRONTEND_PORT:-3000}"
-
 if [ "$(id -u)" -ne 0 ]; then
   echo "Run this script as root." >&2
   exit 1
@@ -35,7 +33,8 @@ mkdir -p "${DEPLOY_DIR}"
 chown -R "${DEPLOY_USER}:${DEPLOY_USER}" "${DEPLOY_DIR}"
 
 ufw allow OpenSSH
-ufw allow "${FRONTEND_PORT}/tcp"
+ufw allow 80/tcp
+ufw allow 443/tcp
 ufw --force enable
 
 docker --version
@@ -52,5 +51,6 @@ Next steps:
 3. Run the Deploy workflow
 
 Deploy directory: ${DEPLOY_DIR}
-Public frontend port: ${FRONTEND_PORT}
+Public HTTP port: 80
+Public HTTPS port: 443
 EOF

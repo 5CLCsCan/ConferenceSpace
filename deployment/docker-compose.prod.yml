@@ -4,12 +4,13 @@ services:
   frontend:
     image: caddy:2-alpine
     container_name: conferencespace-frontend
-    environment:
-      FRONTEND_PORT: ${FRONTEND_PORT:-3000}
     ports:
-      - "${FRONTEND_PORT:-3000}:3000"
+      - "80:80"
+      - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
     depends_on:
       web:
         condition: service_started
@@ -183,6 +184,8 @@ services:
     restart: unless-stopped
 
 volumes:
+  caddy_data:
+  caddy_config:
   postgres_data:
   redis_data:
   neo4j_data:
