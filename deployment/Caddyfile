@@ -1,8 +1,4 @@
 :3000 {
-	handle_path /api/backend/* {
-		reverse_proxy backend:8080
-	}
-
 	reverse_proxy /ws/* backend:8080
 	reverse_proxy web:3000
 }
