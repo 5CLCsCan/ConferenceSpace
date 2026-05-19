@@ -160,7 +160,7 @@ func (m *createRoleStorageMock) GetAllUserRoles(context.Context, string) ([]stri
 }
 
 func (m *createRoleStorageMock) HasRole(context.Context, int64, string, []string) (bool, error) {
-	panic("unexpected call")
+	return false, nil
 }
 
 func (m *createRoleStorageMock) GetEmailsByRole(context.Context, int64, string) ([]string, error) {

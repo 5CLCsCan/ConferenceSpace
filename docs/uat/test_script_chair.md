@@ -34,6 +34,20 @@ Tài liệu này dành cho người lần đầu dùng ConferenceSpace với vai
 - Notification/final decision date: sau rebuttal.
 - Camera-ready deadline: sau khi accept.
 
+### Smoke test môi trường và production
+
+Trước khi chạy các bước nghiệp vụ, chọn một môi trường cố định cho cả phiên test:
+
+- Local: mở frontend ở `http://localhost:3000`, backend ở `http://localhost:8080`.
+- Production: mở `https://conference-space.com` và kiểm tra `https://www.conference-space.com` cũng truy cập được.
+
+**Checklist**
+
+- Trang login/role load được qua HTTPS, không có cảnh báo certificate hoặc mixed content.
+- Sau khi đăng nhập, các request tạo/sửa conference đi qua `/api/backend/...` và không bị lỗi 404/CORS.
+- Notification realtime nếu có dùng `wss://conference-space.com/ws/...` ở production, không còn hardcode `localhost`.
+- Microsoft Clarity script `https://www.clarity.ms/tag/wr08flgvt4` được tải sau khi trang interactive và không chặn thao tác tạo hội nghị nếu request analytics bị block bởi ad blocker.
+
 ## 0.1. Giải thích field đăng ký/đăng nhập cho Chair
 
 | Field/Nút | Ý nghĩa | Ví dụ cụ thể | Lưu ý kiểm thử |
@@ -502,11 +516,23 @@ pip install requests
 8. Đăng nhập từng reviewer để accept invitation.
 9. Quay lại Chair và refresh tab Committee.
 
+**Test external invitation/auto-create account**
+
+1. Tại ô mời reviewer, nhập email chưa tồn tại trên hệ thống, ví dụ `external.reviewer+uat@example.com`, hoặc tìm một người chỉ có kết quả Semantic Scholar.
+2. Nếu dropdown hiển thị cả platform user và Semantic Scholar result, chọn đúng dòng external/Semantic Scholar và kiểm tra profile link mở được ở tab mới.
+3. Gửi lời mời với role reviewer/PC.
+4. Mở link invitation ở trình duyệt khác/incognito.
+5. Kiểm tra form accept được prefill tên/email/fields of study nếu lời mời đến từ Semantic Scholar.
+6. Hoàn tất đăng ký/accept bằng mật khẩu hợp lệ.
+7. Quay lại Chair, refresh tab Committee.
+
 **Kết quả mong đợi**
 
 - Lời mời ban đầu có trạng thái pending/invited.
 - Sau khi reviewer accept, trạng thái chuyển accepted/active.
 - Không tạo trùng invitation khi mời lại cùng email.
+- External invitee được auto-create account, auto-login sau accept nếu luồng hỗ trợ, và xuất hiện trong committee với role đúng.
+- Metadata từ Semantic Scholar như scholar profile/fields of study được giữ lại để phục vụ matching, không tạo duplicate nếu người đó đã có trên platform.
 
 ## 10. Mời reviewer bằng Suggested Reviewers
 
@@ -547,6 +573,7 @@ pip install requests
    - Track.
    - Status.
    - Review progress.
+   - Reviewer stats nếu có: số reviewer đã assign, đã submit, còn pending/declined.
 3. Search theo title `Evaluating Generative AI`.
 4. Lọc theo status/track nếu có.
 5. Mở chi tiết submission.
@@ -561,6 +588,7 @@ pip install requests
 - Submission mới xuất hiện.
 - Chair xem được metadata, file, authors/co-authors và declared conflicts.
 - Review progress ban đầu là chưa đủ reviewer/chưa có review.
+- Reviewer stats trong list và detail đồng bộ với assignment thật, không lệch sau khi assign/unassign hoặc reviewer submit review.
 
 ## 12. Kiểm tra COI
 
@@ -650,11 +678,13 @@ pip install requests
    - Status.
    - Score/recommendation.
    - Submitted at.
-5. Nếu reviewer chưa review, kiểm tra reminder nếu hệ thống có.
+5. Đối chiếu card stats/progress ở dashboard, submissions list và submission detail.
+6. Nếu reviewer chưa review, kiểm tra reminder nếu hệ thống có.
 
 **Kết quả mong đợi**
 
 - Progress cập nhật sau khi reviewer submit.
+- Số assigned/completed/pending reviewer nhất quán giữa các màn hình Chair.
 - Chair thấy confidential remarks.
 - Author không thấy confidential remarks.
 

@@ -24,6 +24,20 @@ Tài liệu này dành cho người lần đầu dùng ConferenceSpace với vai
 - Backend/AI service đang hoạt động nếu muốn test precheck, autofill, gợi ý track và các tính năng AI.
 - Đã có ít nhất một hội nghị đang mở nhận bài. Nếu chưa có, chạy script Chair trước để tạo hội nghị.
 
+### Smoke test môi trường và production
+
+Trước khi chạy các bước nghiệp vụ, chọn một môi trường cố định cho cả phiên test:
+
+- Local: mở frontend ở `http://localhost:3000`, backend ở `http://localhost:8080`.
+- Production: mở `https://conference-space.com` và kiểm tra `https://www.conference-space.com` cũng truy cập được.
+
+**Checklist**
+
+- Trang login/role load được qua HTTPS, không có cảnh báo certificate hoặc mixed content.
+- Sau khi đăng nhập, các request frontend đi qua `/api/backend/...` và không bị lỗi 404/CORS.
+- Notification realtime nếu có dùng `wss://conference-space.com/ws/...` ở production, không còn hardcode `localhost`.
+- Microsoft Clarity script `https://www.clarity.ms/tag/wr08flgvt4` được tải sau khi trang interactive và không chặn login/submission nếu request analytics bị block bởi ad blocker.
+
 ## 0.1. Giải thích các field đăng ký/đăng nhập
 
 Người test nên đọc phần này trước khi tạo tài khoản, vì các field ở bước đăng ký ảnh hưởng trực tiếp tới matching, COI và dữ liệu tự điền khi nộp bài.
@@ -223,12 +237,14 @@ Nếu không muốn đi từ đầu qua Chair/Reviewer để tạo dữ liệu, 
    - Research domains/keywords, ví dụ `Natural Language Processing`, `Generative AI`, `Machine Learning`.
    - **Liên kết danh tính học thuật (Semantic Scholar):** Tìm mục liên kết hồ sơ Semantic Scholar. Dán URL hồ sơ hoặc mã Author ID của bạn vào ô nhập liệu để đồng bộ công trình và chỉ số trích dẫn. (Ví dụ URL: `https://www.semanticscholar.org/author/1234567`).
 6. Lưu thay đổi.
-7. Đổi ngôn ngữ ở menu tài khoản để kiểm tra giao diện tiếng Việt/tiếng Anh nếu cần.
+7. Nếu có đồng bộ Semantic Scholar, reload profile và kiểm tra keyword/domain học thuật mới được merge vào dữ liệu hiện có, không xóa các keyword người dùng đã nhập tay.
+8. Đổi ngôn ngữ ở menu tài khoản để kiểm tra giao diện tiếng Việt/tiếng Anh nếu cần.
 
 **Kết quả mong đợi**
 
 - Hồ sơ lưu thành công, reload trang vẫn còn dữ liệu.
 - Tên/affiliation ở sidebar được cập nhật.
+- Research domains/keywords sau sync không bị mất dữ liệu cũ, chỉ bổ sung/merge dữ liệu học thuật mới khi có.
 - Không thấy lỗi validation khi điền dữ liệu hợp lệ.
 
 ## 3. Xem danh sách hội nghị dành cho tác giả
@@ -311,14 +327,17 @@ Nếu không muốn đi từ đầu qua Chair/Reviewer để tạo dữ liệu, 
 2. Tìm nút/sheet **Autofill** hoặc tính năng tự điền từ manuscript.
 3. Upload một file PDF có nội dung bài báo.
 4. Chạy autofill.
-5. Kiểm tra hệ thống đề xuất title, abstract, keywords, authors/materials.
+5. Kiểm tra hệ thống đề xuất title, abstract, keywords, authors/materials và track rankings nếu hội nghị có tracks.
 6. Chọn áp dụng dữ liệu autofill.
-7. Sửa lại các trường chưa đúng.
+7. Quay lại bước Upload Manuscript để kiểm tra file đã chọn, trạng thái upload và kết quả precheck vẫn còn, không bị mất do áp dụng autofill.
+8. Sửa lại các trường chưa đúng.
 
 **Kết quả mong đợi**
 
 - Hệ thống không ghi đè dữ liệu quan trọng nếu người dùng chưa xác nhận.
 - Các trường được điền hợp lý từ file.
+- Track ranking/autofill chỉ là gợi ý; Author vẫn có thể chọn track thủ công.
+- File handoff ổn định: file PDF, danh sách materials và precheck state còn nguyên khi chuyển qua lại giữa các bước.
 - Người dùng vẫn có thể chỉnh tay trước khi submit.
 
 ## 6. Submit chính thức bài báo

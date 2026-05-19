@@ -16,6 +16,20 @@ Tài liệu này dành cho người lần đầu dùng ConferenceSpace với vai
 - Reviewer đã được mời vào committee hoặc được mời chấm một paper cụ thể.
 - Có ít nhất một submission đã được Chair phân công cho reviewer.
 
+### Smoke test môi trường và production
+
+Trước khi chạy các bước nghiệp vụ, chọn một môi trường cố định cho cả phiên test:
+
+- Local: mở frontend ở `http://localhost:3000`, backend ở `http://localhost:8080`.
+- Production: mở `https://conference-space.com` và kiểm tra `https://www.conference-space.com` cũng truy cập được.
+
+**Checklist**
+
+- Trang login/role load được qua HTTPS, không có cảnh báo certificate hoặc mixed content.
+- Sau khi đăng nhập, các request invitation/assignment đi qua `/api/backend/...` và không bị lỗi 404/CORS.
+- Notification realtime nếu có dùng `wss://conference-space.com/ws/...` ở production, không còn hardcode `localhost`.
+- Microsoft Clarity script `https://www.clarity.ms/tag/wr08flgvt4` được tải sau khi trang interactive và không chặn accept invitation/review nếu request analytics bị block bởi ad blocker.
+
 **Dữ liệu review mẫu**
 
 - Recommendation: `Accept` hoặc `Borderline Accept`
@@ -205,12 +219,14 @@ Reviewer thường không thể tự tạo dữ liệu để test, vì assignmen
    - Với `reviewer3@gmail.com`: `Computer Vision`, `Image Processing`.
 5. **Liên kết danh tính học thuật (Semantic Scholar):** Dán URL hồ sơ hoặc mã Author ID Semantic Scholar của bạn (Ví dụ: `https://www.semanticscholar.org/author/1234567`) để hệ thống đồng bộ công trình, hỗ trợ AI Matching nhận diện chuyên môn chính xác hơn.
 6. Lưu hồ sơ.
-7. Quay lại role Reviewer.
+7. Reload profile và kiểm tra domains/keywords từ Semantic Scholar được merge với keyword đã nhập tay, không ghi đè mất dữ liệu cũ.
+8. Quay lại role Reviewer.
 
 **Kết quả mong đợi**
 
 - Hồ sơ lưu thành công.
 - Các keyword hiển thị lại sau refresh.
+- Keyword/domain sau sync được merge ổn định, giúp Suggested Reviewers/Auto Assign có thêm evidence.
 - Dữ liệu này có thể được Chair dùng trong Suggested Reviewers/Auto Assign.
 
 ## 3. Xem và xử lý lời mời
@@ -241,6 +257,25 @@ Reviewer thường không thể tự tạo dữ liệu để test, vì assignmen
 - Accept chuyển lời mời sang trạng thái accepted và hội nghị xuất hiện trong **Conferences**.
 - Decline lưu lý do từ chối và không tạo assignment active.
 - Nếu reviewer đã accept/decline, thao tác lại không tạo bản ghi trùng.
+
+### 3.1. Accept lời mời khi chưa có tài khoản
+
+**Mục đích:** kiểm tra luồng external invitation tạo tài khoản reviewer mới từ link mời.
+
+**Các bước**
+
+1. Dùng link invitation được Chair gửi cho email chưa có tài khoản, mở ở trình duyệt incognito.
+2. Kiểm tra form hiển thị thông tin được prefill: email, tên, role và conference/paper liên quan.
+3. Nếu lời mời đến từ Semantic Scholar, kiểm tra fields of study/profile link hiển thị hoặc được lưu sau accept.
+4. Nhập mật khẩu hợp lệ và hoàn tất accept.
+5. Kiểm tra người dùng được đăng nhập hoặc chuyển tới login với thông báo thành công.
+6. Chọn role **Reviewer** và mở conference/assignment vừa được mời.
+
+**Kết quả mong đợi**
+
+- Tài khoản mới được tạo đúng email đã mời.
+- Reviewer mới có quyền vào conference/assignment tương ứng, không cần Chair mời lại.
+- Link invitation đã dùng không tạo thêm tài khoản/lời mời trùng khi refresh hoặc mở lại.
 
 ## 4. Xem dashboard Reviewer
 
