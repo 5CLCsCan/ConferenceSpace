@@ -202,12 +202,8 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     text_committee_subtitle: t(
       "runtime.components.chair.conference-detail.conference-committee.text_committee_subtitle",
     ),
-    text_export: t("runtime.components.chair.conference-detail.conference-committee.text_export"),
     text_failed_to_load_committee: t(
       "runtime.components.chair.conference-detail.conference-committee.text_failed_to_load_committee",
-    ),
-    text_import_csv: t(
-      "runtime.components.chair.conference-detail.conference-committee.text_import_csv",
     ),
     text_invite_error: t(
       "runtime.components.chair.conference-detail.conference-committee.text_invite_error",
@@ -265,9 +261,6 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     ),
     text_match_evidence_chip_tooltip: t(
       "runtime.components.chair.conference-detail.conference-committee.text_match_evidence_chip_tooltip",
-    ),
-    aria_label_select_all_committee_members: t(
-      "runtime.components.chair.conference-detail.conference-committee.aria_label_select_all_committee_members",
     ),
     text_showing_range: "text_showing_range",
     text_invitation_link: t(
@@ -1002,22 +995,8 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    className="px-3 py-2 bg-white border border-slate-200 text-slate-700 font-medium text-[11px] rounded-md hover:bg-slate-50 transition-colors flex items-center gap-1.5 shadow-sm"
-                  >
-                    <Icon name="upload_file" />
-                    {T("text_import_csv")}
-                  </button>
-                  <button
-                    type="button"
-                    className="px-3 py-2 bg-white border border-slate-200 text-slate-700 font-medium text-[11px] rounded-md hover:bg-slate-50 transition-colors flex items-center gap-1.5 shadow-sm"
-                  >
-                    <Icon name="download" />
-                    {T("text_export")}
-                  </button>
-                  {!readOnly && (
+                {!readOnly && (
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => setShowDropdown(true)}
@@ -1026,8 +1005,8 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                       <Icon name="person_add" />
                       {T("text_add_member")}
                     </button>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
 
               {!readOnly && (
@@ -1385,13 +1364,6 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                 <table className="w-full text-left border-collapse">
                   <thead className="bg-slate-50 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-200 tracking-widest">
                     <tr>
-                      <th className="px-4 py-2.5 w-10">
-                        <input
-                          type="checkbox"
-                          className="rounded border-slate-300 text-[#1B3C53] focus:ring-[#1B3C53] h-3.5 w-3.5"
-                          aria-label={T("aria_label_select_all_committee_members")}
-                        />
-                      </th>
                       <th className="px-4 py-2.5">{T("text_member")}</th>
                       <th className="px-4 py-2.5">{T("text_role")}</th>
                       <th className="px-4 py-2.5">{T("text_domain")}</th>
@@ -1401,7 +1373,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                   <tbody className="divide-y divide-slate-100 text-[10px]">
                     {paginatedMembers.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="px-4 py-8 text-center text-xs text-slate-500">
+                        <td colSpan={4} className="px-4 py-8 text-center text-xs text-slate-500">
                           {T("text_no_committee_members_found")}
                         </td>
                       </tr>
@@ -1411,16 +1383,6 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                           key={`${member.role}-${member.email || member.scholar_id || member.name}-${member.reviewerId ?? member.externalInvitationId ?? "0"}`}
                           className="hover:bg-slate-50 transition-colors group"
                         >
-                          <td className="px-4 py-3">
-                            <input
-                              type="checkbox"
-                              className="rounded border-slate-300 text-[#1B3C53] focus:ring-[#1B3C53] h-3.5 w-3.5"
-                              aria-label={t(
-                                "runtime.components.chair.conference-detail.conference-committee.aria_label_select_member",
-                                { name: member.name },
-                              )}
-                            />
-                          </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2.5">
                               <MemberAvatar
