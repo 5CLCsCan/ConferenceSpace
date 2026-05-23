@@ -101,6 +101,7 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 
 	// Create notification service
 	notifSvc := notificationService.New(store.Notification)
+	notifSvc.SetEmailClient(orch.Brevo, orch.AppBaseURL)
 
 	// Create discussion service
 	discSvc := discussionService.NewWithNotification(store.Discussion, notifSvc)
@@ -168,6 +169,7 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 
 	// Create notification service with WebSocket support
 	notifSvc := notificationService.NewWithWebSocket(store.Notification, hub)
+	notifSvc.SetEmailClient(orch.Brevo, orch.AppBaseURL)
 
 	// Create discussion service with notification support
 	discSvc := discussionService.NewWithNotification(store.Discussion, notifSvc)

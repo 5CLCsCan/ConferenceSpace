@@ -451,6 +451,7 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			assignments.POST("/:assignment_id/briefing/generate", handler.HandleRequestWithURI(ctrl.Assignment.GenerateReviewerBriefing))
 			assignments.GET("/:assignment_id/paper-annotation", handler.HandleRequestWithURI(ctrl.Assignment.GetPaperAnnotation))
 			assignments.POST("/:assignment_id/paper-annotation/generate", handler.HandleRequestWithURI(ctrl.Assignment.GeneratePaperAnnotation))
+			assignments.POST("/:assignment_id/reminder", requireChair, handler.HandleRequestWithURI(ctrl.Assignment.SendReminder))
 			assignments.PUT("/:assignment_id/rebuttal/acknowledge", requireAssignmentOwner, handler.HandleRequestWithURI(ctrl.Reviewer.AcknowledgeRebuttal))
 			assignments.PUT("/:assignment_id/rebuttal/points/:point_id/acknowledge", requireAssignmentOwner, handler.HandleRequestWithAll(ctrl.Reviewer.AcknowledgePoint))
 

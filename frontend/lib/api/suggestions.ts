@@ -77,6 +77,9 @@ export interface ConfirmedReviewer {
   review_status: string // not_started, in_progress, submitted
   decline_category?: string
   decline_reason?: string
+  due_date?: string
+  days_left?: number
+  deadline_status?: "upcoming" | "due_soon" | "due_today" | "overdue" | "none"
 }
 
 export interface ConfirmedAssignmentGroup {
@@ -89,6 +92,12 @@ export interface ConfirmedAssignmentsListResponse {
   assignments: ConfirmedAssignmentGroup[]
   total_papers: number
   total_assignments: number
+}
+
+export interface AssignmentReminderResponse {
+  notification_id: number
+  email_sent: boolean
+  message: string
 }
 
 // ================== API Functions ==================
@@ -245,6 +254,33 @@ export async function getConfirmedAssignments(conferenceId: string | number): Pr
     return {
       data: null,
       error: error.message || "Failed to fetch confirmed assignments",
+      status: error.status || 500,
+    }
+  }
+}
+
+export async function sendAssignmentReminder(
+  conferenceId: string | number,
+  assignmentId: number,
+): Promise<{ data: AssignmentReminderResponse | null; error: string | null; status: number }> {
+  try {
+    const { data, response } = await apiFetch<{ data: AssignmentReminderResponse }>(
+      `/api/v1/conferences/${conferenceId}/assignments/${assignmentId}/reminder`,
+      {
+        method: "POST",
+      },
+    )
+
+    return {
+      data: data.data,
+      error: null,
+      status: response.status,
+    }
+  } catch (error: any) {
+    console.error("Failed to send assignment reminder:", error)
+    return {
+      data: null,
+      error: error.message || "Failed to send reminder",
       status: error.status || 500,
     }
   }

@@ -1228,6 +1228,7 @@ func TestGetConfirmedAssignments(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to confirm suggestions: %v", err)
 	}
+	var confirmedAssignmentID int64
 
 	// Test 3: Now we should see confirmed assignments
 	t.Run("confirmed assignments appear after confirmation", func(t *testing.T) {
@@ -1297,6 +1298,16 @@ func TestGetConfirmedAssignments(t *testing.T) {
 		if reviewer.ReviewStatus != "not_started" {
 			t.Errorf("Expected review_status 'not_started', got '%s'", reviewer.ReviewStatus)
 		}
+		if reviewer.DueDate == "" {
+			t.Error("Expected confirmed assignment to include due_date")
+		}
+		if reviewer.DaysLeft == nil {
+			t.Error("Expected confirmed assignment to include days_left")
+		}
+		if reviewer.DeadlineStatus == "" {
+			t.Error("Expected confirmed assignment to include deadline_status")
+		}
+		confirmedAssignmentID = reviewer.AssignmentID
 
 		t.Logf("Confirmed assignment details: reviewer=%s, status=%s, review_status=%s",
 			reviewer.ReviewerEmail, reviewer.Status, reviewer.ReviewStatus)
@@ -1319,6 +1330,55 @@ func TestGetConfirmedAssignments(t *testing.T) {
 			t.Errorf("Expected 0 suggestions after confirmation, got %d", suggestionsData.Data.TotalSuggestions)
 		}
 		t.Log("Confirmed: Suggestions list is empty after all are confirmed")
+	})
+
+	t.Run("chair can send reminder and reviewer receives notification", func(t *testing.T) {
+		if confirmedAssignmentID == 0 {
+			t.Fatal("confirmed assignment ID was not captured")
+		}
+
+		reminderResp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/assignments/%d/reminder", conferenceID, confirmedAssignmentID), nil, chairToken)
+		if err != nil {
+			t.Fatalf("Failed to send reminder: %v", err)
+		}
+		testutils.AssertStatusCode(t, reminderResp, http.StatusOK)
+
+		var reminderData struct {
+			Data *dto.AssignmentReminderResponse `json:"data"`
+		}
+		testutils.DecodeResponse(t, reminderResp, &reminderData)
+		if reminderData.Data.NotificationID == 0 {
+			t.Error("Expected reminder response to include notification_id")
+		}
+
+		notificationsResp, err := ctx.MakeRequest("GET", "/api/v1/notifications?type=deadline_reminder", nil, reviewerToken)
+		if err != nil {
+			t.Fatalf("Failed to list reviewer notifications: %v", err)
+		}
+		testutils.AssertStatusCode(t, notificationsResp, http.StatusOK)
+
+		var notificationsData struct {
+			Data *dto.NotificationListResponse `json:"data"`
+		}
+		testutils.DecodeResponse(t, notificationsResp, &notificationsData)
+		if notificationsData.Data.Total == 0 {
+			t.Fatal("Expected reviewer to receive deadline reminder notification")
+		}
+		if notificationsData.Data.Notifications[0].Type != "deadline_reminder" {
+			t.Errorf("Expected deadline_reminder notification, got %s", notificationsData.Data.Notifications[0].Type)
+		}
+	})
+
+	t.Run("reviewer cannot send reminder", func(t *testing.T) {
+		if confirmedAssignmentID == 0 {
+			t.Fatal("confirmed assignment ID was not captured")
+		}
+
+		reminderResp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/assignments/%d/reminder", conferenceID, confirmedAssignmentID), nil, reviewerToken)
+		if err != nil {
+			t.Fatalf("Failed to call reminder endpoint: %v", err)
+		}
+		testutils.AssertStatusCode(t, reminderResp, http.StatusForbidden)
 	})
 }
 
@@ -1427,8 +1487,8 @@ func TestInvitationFlow(t *testing.T) {
 	autoAssignReq := map[string]interface{}{
 		"min_reviewers_per_paper": 1,
 		"max_reviewers_per_paper": 3,
-		"min_score_threshold":    0.0,
-		"dry_run":                false,
+		"min_score_threshold":     0.0,
+		"dry_run":                 false,
 	}
 	assignResp, err := ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/submissions/auto-assign", conferenceID), autoAssignReq, chairToken)
 	if err != nil {
@@ -1685,8 +1745,8 @@ func TestInvitationDeclineFlow(t *testing.T) {
 	ctx.MakeRequest("POST", fmt.Sprintf("/api/v1/conferences/%d/submissions/auto-assign", conferenceID), map[string]interface{}{
 		"min_reviewers_per_paper": 1,
 		"max_reviewers_per_paper": 3,
-		"min_score_threshold":    0.0,
-		"dry_run":                false,
+		"min_score_threshold":     0.0,
+		"dry_run":                 false,
 	}, chairToken)
 
 	// Confirm suggestions

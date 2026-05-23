@@ -13,6 +13,8 @@ import (
 type Orchestrator struct {
 	User               *user.Orchestrator
 	ExternalInvitation *extInvOrchestrator.Orchestrator
+	Brevo              *brevo.Client
+	AppBaseURL         string
 }
 
 func NewOrchestrator(store *storage.Storage, cfg *config.Config) *Orchestrator {
@@ -36,5 +38,7 @@ func NewOrchestrator(store *storage.Storage, cfg *config.Config) *Orchestrator {
 			cfg.JWT.Secret,
 			time.Duration(cfg.JWT.Expiry)*time.Hour,
 		),
+		Brevo:      brevoClient,
+		AppBaseURL: cfg.AppBaseURL,
 	}
 }
