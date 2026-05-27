@@ -31,7 +31,7 @@ export function TabButton({
       {badge !== undefined && (
         <span
           className={cn(
-            "rounded text-[8px] font-normal w-[12px] h-[12px] inline-flex items-end justify-center mt-0",
+            "rounded px-1 text-[8px] font-normal min-w-4 h-4 inline-flex items-center justify-center mt-0 tabular-nums",
             active
               ? `${badgeActiveBg} text-white`
               : "bg-slate-100 dark:bg-neutral-800 text-slate-500",

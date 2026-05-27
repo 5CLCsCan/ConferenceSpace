@@ -100,7 +100,6 @@ export async function getUnreadCount(): Promise<number> {
   const { data } = await apiFetch<{ data: UnreadCountResponse }>(
     "/api/v1/notifications/unread-count",
   )
-  console.log("[API] Unread count response:", data)
   return data.data.count
 }
 

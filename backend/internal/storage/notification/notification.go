@@ -49,6 +49,48 @@ func New(db *sql.DB) *Storage {
 	}
 }
 
+func (s *Storage) enabledTypesForUser(ctx context.Context, userEmail string) ([]string, error) {
+	preferences, err := s.GetPreferences(ctx, userEmail)
+	if err != nil {
+		return nil, err
+	}
+
+	types := make([]string, 0, 16)
+	add := func(enabled bool, values ...string) {
+		if enabled {
+			types = append(types, values...)
+		}
+	}
+
+	add(preferences.SubmissionReceived, model.NotificationTypeSubmissionReceived)
+	add(
+		preferences.ReviewAssigned,
+		model.NotificationTypeReviewAssigned,
+		model.NotificationTypeAssignmentAccepted,
+		model.NotificationTypeAssignmentDeclined,
+	)
+	add(preferences.ReviewSubmitted, model.NotificationTypeReviewSubmitted)
+	add(preferences.PaperAccepted, model.NotificationTypePaperAccepted)
+	add(preferences.PaperRejected, model.NotificationTypePaperRejected)
+	add(
+		preferences.DeadlineReminder,
+		model.NotificationTypeDeadlineReminder,
+		model.NotificationTypeRebuttalReminder,
+	)
+	add(
+		preferences.StatusChange,
+		model.NotificationTypeStatusChange,
+		model.NotificationTypeDiscussionThread,
+		model.NotificationTypeDiscussionMessage,
+		model.NotificationTypeRebuttalOpened,
+		model.NotificationTypeRebuttalSubmitted,
+		model.NotificationTypeRebuttalAcknowledged,
+		model.NotificationTypeRebuttalFinalized,
+	)
+
+	return types, nil
+}
+
 // Create creates a new notification
 func (s *Storage) Create(ctx context.Context, req *dto.NotificationCreateRequest) (*dto.Notification, error) {
 	now := time.Now()
@@ -175,6 +217,15 @@ func (s *Storage) GetByID(ctx context.Context, id int64) (*dto.Notification, err
 
 // GetByUserEmail retrieves notifications for a user with pagination and filters
 func (s *Storage) GetByUserEmail(ctx context.Context, params *QueryParams) ([]*dto.Notification, int64, error) {
+	enabledTypes, err := s.enabledTypesForUser(ctx, params.UserEmail)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to get notification preferences: %w", err)
+	}
+
+	if len(enabledTypes) == 0 {
+		return []*dto.Notification{}, 0, nil
+	}
+
 	baseQuery := s.qb.
 		Select(
 			model.NotificationColID,
@@ -195,6 +246,9 @@ func (s *Storage) GetByUserEmail(ctx context.Context, params *QueryParams) ([]*d
 		Select("COUNT(*)").
 		From(model.NotificationTableName).
 		Where(sq.Eq{model.NotificationColUserEmail: params.UserEmail})
+
+	baseQuery = baseQuery.Where(sq.Eq{model.NotificationColType: enabledTypes})
+	countQuery = countQuery.Where(sq.Eq{model.NotificationColType: enabledTypes})
 
 	// Apply filters
 	if params.Unread {
@@ -279,6 +333,15 @@ func (s *Storage) GetByUserEmail(ctx context.Context, params *QueryParams) ([]*d
 
 // GetUnreadCount returns the count of unread notifications for a user
 func (s *Storage) GetUnreadCount(ctx context.Context, userEmail string) (int64, error) {
+	enabledTypes, err := s.enabledTypesForUser(ctx, userEmail)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get notification preferences: %w", err)
+	}
+
+	if len(enabledTypes) == 0 {
+		return 0, nil
+	}
+
 	query, args, err := s.qb.
 		Select("COUNT(*)").
 		From(model.NotificationTableName).
@@ -286,6 +349,7 @@ func (s *Storage) GetUnreadCount(ctx context.Context, userEmail string) (int64, 
 			model.NotificationColUserEmail: userEmail,
 			model.NotificationColRead:      false,
 		}).
+		Where(sq.Eq{model.NotificationColType: enabledTypes}).
 		ToSql()
 
 	if err != nil {
