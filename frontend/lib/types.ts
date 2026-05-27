@@ -390,6 +390,13 @@ export type NotificationType =
   | "status_change"
   | "discussion_thread"
   | "discussion_message"
+  | "rebuttal_opened"
+  | "rebuttal_submitted"
+  | "rebuttal_acknowledged"
+  | "rebuttal_finalized"
+  | "rebuttal_reminder"
+  | "assignment_accepted"
+  | "assignment_declined"
 
 export interface Notification {
   id: number

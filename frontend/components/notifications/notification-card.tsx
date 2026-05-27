@@ -34,6 +34,8 @@ interface NotificationCardProps {
 }
 
 export function NotificationCard({ notification, onMarkAsRead, onAction }: NotificationCardProps) {
+  const hasAction = Boolean(notification.actionHref)
+
   const getIcon = () => {
     switch (notification.type) {
       case "deadline":
@@ -72,8 +74,21 @@ export function NotificationCard({ notification, onMarkAsRead, onAction }: Notif
 
   return (
     <div
+      role={hasAction ? "button" : undefined}
+      tabIndex={hasAction ? 0 : undefined}
+      onClick={() => {
+        if (hasAction) {
+          onAction?.(notification.actionHref, notification.id)
+        }
+      }}
+      onKeyDown={(e) => {
+        if (!hasAction || (e.key !== "Enter" && e.key !== " ")) return
+        e.preventDefault()
+        onAction?.(notification.actionHref, notification.id)
+      }}
       className={cn(
-        "group relative flex gap-4 px-4 pt-4 pb-3 rounded-2xl transition-all duration-300 border cursor-pointer",
+        "group relative flex gap-4 px-4 pt-4 pb-3 rounded-2xl transition-all duration-300 border",
+        hasAction && "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1B3C53]/30",
         notification.isRead
           ? "bg-white dark:bg-neutral-900 border-slate-100 dark:border-neutral-800 opacity-80 hover:opacity-100 shadow-sm hover:shadow-md ring-1 ring-slate-100 dark:ring-neutral-800"
           : "bg-white dark:bg-neutral-900 border-transparent shadow-sm hover:shadow-md ring-1 ring-slate-100 dark:ring-neutral-800",

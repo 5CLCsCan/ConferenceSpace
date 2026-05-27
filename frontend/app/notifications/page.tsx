@@ -21,27 +21,80 @@ import {
   getNotificationPreferences,
   updateNotificationPreferences,
   type NotificationPreferences,
+  type NotificationPreferencesUpdate,
 } from "@/lib/api/notifications"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
 function notificationKind(type: Notification["type"]): CardNotification["type"] {
-  if (type === "deadline_reminder") return "deadline"
-  if (type === "review_assigned" || type === "review_submitted") return "review"
+  if (type === "deadline_reminder" || type === "rebuttal_reminder") return "deadline"
+  if (
+    type === "review_assigned" ||
+    type === "review_submitted" ||
+    type === "assignment_accepted" ||
+    type === "assignment_declined"
+  ) {
+    return "review"
+  }
   if (type === "discussion_thread" || type === "discussion_message") return "mention"
   if (type === "submission_received" || type === "paper_accepted") return "success"
   return "system"
 }
 
+type NotificationTab = "all" | "unread" | "mentions"
+type PreferenceToggleKey = keyof NotificationPreferencesUpdate
+
+function notificationMatchesTab(notification: Notification, tab: NotificationTab): boolean {
+  if (tab === "unread") return !notification.read
+  if (tab === "mentions") {
+    return notification.type === "discussion_thread" || notification.type === "discussion_message"
+  }
+  return true
+}
+
+function notificationMatchesFilter(notification: Notification, filter: string): boolean {
+  if (filter === "deadline") {
+    return notification.type === "deadline_reminder" || notification.type === "rebuttal_reminder"
+  }
+  if (filter === "review") {
+    return (
+      notification.type === "review_assigned" ||
+      notification.type === "review_submitted" ||
+      notification.type === "assignment_accepted" ||
+      notification.type === "assignment_declined"
+    )
+  }
+  if (filter === "submission") {
+    return (
+      notification.type === "submission_received" ||
+      notification.type === "paper_accepted" ||
+      notification.type === "paper_rejected"
+    )
+  }
+  return true
+}
+
 function actionLabelForType(type: Notification["type"], t: (key: string) => string): string {
-  if (type === "deadline_reminder") {
+  if (type === "deadline_reminder" || type === "rebuttal_reminder") {
     return t("runtime.app.notifications.page.text_view_deadline")
   }
-  if (type === "review_assigned" || type === "review_submitted") {
+  if (
+    type === "review_assigned" ||
+    type === "review_submitted" ||
+    type === "assignment_accepted" ||
+    type === "assignment_declined"
+  ) {
     return t("runtime.app.notifications.page.text_open_review")
   }
-  if (type === "discussion_thread" || type === "discussion_message") {
+  if (
+    type === "discussion_thread" ||
+    type === "discussion_message" ||
+    type === "rebuttal_opened" ||
+    type === "rebuttal_submitted" ||
+    type === "rebuttal_acknowledged" ||
+    type === "rebuttal_finalized"
+  ) {
     return t("runtime.app.notifications.page.text_open_discussion")
   }
   if (type === "paper_accepted" || type === "paper_rejected") {
@@ -58,7 +111,7 @@ function metadataToString(metadata?: Record<string, unknown>): string | undefine
     .filter((value): value is string => typeof value === "string" && value.length > 0)
 
   if (preferred.length > 0) {
-    return preferred.join(" • ")
+    return preferred.join(" - ")
   }
 
   const keys = Object.keys(metadata)
@@ -66,7 +119,7 @@ function metadataToString(metadata?: Record<string, unknown>): string | undefine
   return keys
     .slice(0, 2)
     .map((key) => `${key}: ${String(metadata[key])}`)
-    .join(" • ")
+    .join(" - ")
 }
 
 function mapNotification(notification: Notification, t: (key: string) => string): CardNotification {
@@ -86,11 +139,12 @@ function mapNotification(notification: Notification, t: (key: string) => string)
 }
 
 const PAGE_SIZE = 5
+const FILTERED_PAGE_SIZE = 50
 
 export default function NotificationsPage() {
   const { t } = useTranslation()
   const router = useRouter()
-  const { currentRole, isAuthenticated, isAuthLoading } = useAuth()
+  const { currentRole } = useAuth()
   const {
     notifications,
     unreadCount,
@@ -98,46 +152,63 @@ export default function NotificationsPage() {
     markAsRead,
     markAllAsRead,
     fetchNotifications,
+    fetchUnreadCount,
     isLoading,
     error,
   } = useNotifications({ limit: PAGE_SIZE })
 
   const [currentPage, setCurrentPage] = useState(1)
-  const [activeTab, setActiveTab] = useState<"all" | "unread" | "mentions">("all")
+  const [activeTab, setActiveTab] = useState<NotificationTab>("all")
   const [activeFilter, setActiveFilter] = useState("all")
+  const [allNotificationsTotal, setAllNotificationsTotal] = useState(0)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [settingsLoading, setSettingsLoading] = useState(false)
+  const [settingsError, setSettingsError] = useState<string | null>(null)
   const [notificationPrefs, setNotificationPrefs] = useState<NotificationPreferences | null>(null)
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+  const isClientFiltered = activeTab === "mentions" || activeFilter !== "all"
+  const allTabBadge =
+    allNotificationsTotal || (activeTab === "all" && activeFilter === "all" ? total : undefined)
 
-  const handleTabChange = useCallback(
-    (tab: "all" | "unread" | "mentions") => {
-      setActiveTab(tab)
-      setCurrentPage(1)
-      const params: { limit: number; offset: number; unread?: boolean } = {
-        limit: PAGE_SIZE,
-        offset: 0,
-      }
-      if (tab === "unread") params.unread = true
-      fetchNotifications(params)
+  const fetchForView = useCallback(
+    async (page: number, tab: NotificationTab, filter: string) => {
+      const clientFiltered = tab === "mentions" || filter !== "all"
+      await fetchNotifications({
+        limit: clientFiltered ? FILTERED_PAGE_SIZE : PAGE_SIZE,
+        offset: clientFiltered ? 0 : (page - 1) * PAGE_SIZE,
+        unread: tab === "unread" ? true : undefined,
+      })
     },
     [fetchNotifications],
   )
 
+  const handleTabChange = useCallback(
+    (tab: NotificationTab) => {
+      setActiveTab(tab)
+      setCurrentPage(1)
+      void fetchForView(1, tab, activeFilter)
+    },
+    [activeFilter, fetchForView],
+  )
+
+  const handleFilterChange = useCallback(
+    (filter: string) => {
+      setActiveFilter(filter)
+      setCurrentPage(1)
+      void fetchForView(1, activeTab, filter)
+    },
+    [activeTab, fetchForView],
+  )
+
   const handlePageChange = useCallback(
     (page: number) => {
-      if (page >= 1 && page <= totalPages) {
+      if (!isClientFiltered && page >= 1 && page <= totalPages) {
         setCurrentPage(page)
-        const params: { limit: number; offset: number; unread?: boolean } = {
-          limit: PAGE_SIZE,
-          offset: (page - 1) * PAGE_SIZE,
-        }
-        if (activeTab === "unread") params.unread = true
-        fetchNotifications(params)
+        void fetchForView(page, activeTab, activeFilter)
       }
     },
-    [totalPages, activeTab, fetchNotifications],
+    [activeFilter, activeTab, fetchForView, isClientFiltered, totalPages],
   )
 
   // Generate page numbers with ellipsis
@@ -165,36 +236,27 @@ export default function NotificationsPage() {
     return pages
   }
 
-  const cardNotifications = useMemo(
-    () => notifications.map((notification) => mapNotification(notification, t)),
-    [notifications, t],
-  )
-
   const filteredNotifications = useMemo(() => {
-    return cardNotifications.filter((n) => {
-      const tabMatch =
-        activeTab === "unread" ? !n.isRead : activeTab === "mentions" ? n.type === "mention" : true
+    return notifications
+      .filter((notification) => notificationMatchesTab(notification, activeTab))
+      .filter((notification) => notificationMatchesFilter(notification, activeFilter))
+      .map((notification) => mapNotification(notification, t))
+  }, [activeFilter, activeTab, notifications, t])
 
-      const filterMatch =
-        activeFilter === "all"
-          ? true
-          : activeFilter === "deadline"
-            ? n.type === "deadline"
-            : activeFilter === "review"
-              ? n.type === "review"
-              : activeFilter === "submission"
-                ? n.type === "success"
-                : true
-
-      return tabMatch && filterMatch
-    })
-  }, [activeFilter, activeTab, cardNotifications])
+  const visibleTotal = isClientFiltered ? filteredNotifications.length : total
 
   const handleMarkAsRead = async (id: string) => {
     const numericId = Number(id)
     if (Number.isFinite(numericId)) {
       await markAsRead(numericId)
+      await fetchForView(currentPage, activeTab, activeFilter)
     }
+  }
+
+  const handleMarkAllAsRead = async () => {
+    await markAllAsRead()
+    await fetchForView(1, activeTab, activeFilter)
+    setCurrentPage(1)
   }
 
   const handleAction = async (href?: string, id?: string) => {
@@ -214,20 +276,29 @@ export default function NotificationsPage() {
   const menuItems = getSidebarMenuItems(currentRole, unreadCount)
 
   useEffect(() => {
+    if (activeTab === "all" && activeFilter === "all") {
+      setAllNotificationsTotal(total)
+    }
+  }, [activeFilter, activeTab, total])
+
+  useEffect(() => {
     if (!settingsOpen) {
       return
     }
 
     setSettingsLoading(true)
+    setSettingsError(null)
     void getNotificationPreferences()
       .then((prefs) => {
         setNotificationPrefs(prefs)
       })
-      .catch(() => undefined)
+      .catch((err: unknown) => {
+        setSettingsError(err instanceof Error ? err.message : "Failed to load settings")
+      })
       .finally(() => setSettingsLoading(false))
   }, [settingsOpen])
 
-  const preferenceRows: Array<{ key: keyof NotificationPreferences; label: string }> = [
+  const preferenceRows: Array<{ key: PreferenceToggleKey; label: string }> = [
     {
       key: "submission_received",
       label: t("runtime.app.notifications.page.text_submission_received"),
@@ -264,7 +335,7 @@ export default function NotificationsPage() {
 
             <div className="absolute top-8 right-12 flex items-center gap-2">
               <button
-                onClick={() => markAllAsRead()}
+                onClick={() => void handleMarkAllAsRead()}
                 className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-800 rounded-full text-xs font-normal text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-neutral-700 transition-all shadow-sm"
               >
                 {t("runtime.app.notifications.page.text_mark_all_as_read")}
@@ -285,7 +356,7 @@ export default function NotificationsPage() {
                   label={t("runtime.app.notifications.page.text_all")}
                   active={activeTab === "all"}
                   onClick={() => handleTabChange("all")}
-                  badge={cardNotifications.length}
+                  badge={allTabBadge}
                 />
                 <TabButton
                   label={t("runtime.app.notifications.page.text_unread")}
@@ -306,25 +377,25 @@ export default function NotificationsPage() {
               <FilterPill
                 label={t("runtime.app.notifications.page.text_all_types")}
                 active={activeFilter === "all"}
-                onClick={() => setActiveFilter("all")}
+                onClick={() => handleFilterChange("all")}
               />
               <FilterPill
                 label={t("runtime.app.notifications.page.text_deadlines")}
                 icon={<AlertCircle className="w-3.5 h-3.5" />}
                 active={activeFilter === "deadline"}
-                onClick={() => setActiveFilter("deadline")}
+                onClick={() => handleFilterChange("deadline")}
               />
               <FilterPill
                 label={t("runtime.app.notifications.page.text_submissions")}
                 icon={<FileText className="w-3.5 h-3.5" />}
                 active={activeFilter === "submission"}
-                onClick={() => setActiveFilter("submission")}
+                onClick={() => handleFilterChange("submission")}
               />
               <FilterPill
                 label={t("runtime.app.notifications.page.text_reviews")}
                 icon={<History className="w-3.5 h-3.5" />}
                 active={activeFilter === "review"}
-                onClick={() => setActiveFilter("review")}
+                onClick={() => handleFilterChange("review")}
               />
             </div>
           </div>
@@ -356,22 +427,24 @@ export default function NotificationsPage() {
             )}
 
             {/* Pagination */}
-            {!isLoading && !error && total > 0 && (
+            {!isLoading && !error && visibleTotal > 0 && (
               <div className="flex items-center justify-between pt-2">
                 <div className="text-[11px] text-slate-500 dark:text-slate-400">
                   {t("runtime.app.notifications.page.text_showing")}{" "}
                   <span className="font-bold text-[#1B3C53] dark:text-white">
-                    {Math.min((currentPage - 1) * PAGE_SIZE + 1, total)}-
-                    {Math.min(currentPage * PAGE_SIZE, total)}
+                    {isClientFiltered ? 1 : Math.min((currentPage - 1) * PAGE_SIZE + 1, total)}-
+                    {isClientFiltered
+                      ? visibleTotal
+                      : Math.min(currentPage * PAGE_SIZE, visibleTotal)}
                   </span>{" "}
                   {t("runtime.app.notifications.page.text_of")}{" "}
                   <span className="font-bold text-[#1B3C53] dark:text-white">
-                    {total.toLocaleString()}
+                    {visibleTotal.toLocaleString()}
                   </span>{" "}
                   {t("runtime.app.notifications.page.text_notifications_count")}
                 </div>
 
-                {totalPages > 1 && (
+                {!isClientFiltered && totalPages > 1 && (
                   <div className="flex gap-1">
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
@@ -432,6 +505,11 @@ export default function NotificationsPage() {
             </p>
           ) : (
             <div className="space-y-3">
+              {settingsError && (
+                <p className="rounded-md bg-red-50 px-3 py-2 text-xs text-red-700 dark:bg-red-950/30 dark:text-red-300">
+                  {settingsError}
+                </p>
+              )}
               {preferenceRows.map((row) => {
                 if (!notificationPrefs) return null
                 const checked = Boolean(notificationPrefs[row.key])
@@ -443,9 +521,22 @@ export default function NotificationsPage() {
                       onCheckedChange={(next) => {
                         const optimistic = { ...notificationPrefs, [row.key]: next }
                         setNotificationPrefs(optimistic)
-                        void updateNotificationPreferences({ [row.key]: next }).catch(() => {
-                          setNotificationPrefs(notificationPrefs)
-                        })
+                        setSettingsError(null)
+                        void updateNotificationPreferences({ [row.key]: next })
+                          .then((updated) => {
+                            setNotificationPrefs(updated)
+                            setCurrentPage(1)
+                            void Promise.all([
+                              fetchForView(1, activeTab, activeFilter),
+                              fetchUnreadCount(),
+                            ])
+                          })
+                          .catch((err: unknown) => {
+                            setNotificationPrefs(notificationPrefs)
+                            setSettingsError(
+                              err instanceof Error ? err.message : "Failed to update settings",
+                            )
+                          })
                       }}
                     />
                   </div>
