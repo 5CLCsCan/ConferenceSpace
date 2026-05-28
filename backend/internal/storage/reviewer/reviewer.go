@@ -575,10 +575,18 @@ func (s *Storage) GetPendingInvitations(ctx context.Context, reviewerID int64, p
 			"cr.created_at as requested_at",
 			"cr.status",
 			"COALESCE((SELECT COUNT(*) FROM conference_submissions WHERE conference_id = cr.conference_id), 0) as estimated_papers",
+			`CASE
+				WHEN COALESCE(cardinality(c.domain), 0) = 0 THEN 0
+				ELSE COALESCE((
+					SELECT COUNT(*)::float
+					FROM unnest(cr.domain) reviewer_domain
+					WHERE reviewer_domain = ANY(c.domain)
+				) / NULLIF(cardinality(c.domain), 0), 0)
+			END as expertise_match`,
 		).
 		From("conference_reviewers cr").
 		Join("conferences c ON cr.conference_id = c.conference_id").
-		LeftJoin("users u ON c.chair = u.user_id::text").
+		LeftJoin("users u ON c.chair = u.email").
 		Where(sq.Eq{"cr.user_id": reviewerID})
 
 	// Count query for total
@@ -642,6 +650,7 @@ func (s *Storage) GetPendingInvitations(ctx context.Context, reviewerID int64, p
 			&inv.RequestedAt,
 			&inv.Status,
 			&inv.EstimatedPapers,
+			&inv.ExpertiseMatch,
 		)
 		if err != nil {
 			return nil, 0, fmt.Errorf("failed to scan invitation: %w", err)
@@ -657,7 +666,6 @@ func (s *Storage) GetPendingInvitations(ctx context.Context, reviewerID int64, p
 		if requestedByName.Valid {
 			inv.RequestedByName = requestedByName.String
 		}
-		inv.ExpertiseMatch = 0.85 // TODO: Calculate actual match
 
 		results = append(results, &inv)
 	}

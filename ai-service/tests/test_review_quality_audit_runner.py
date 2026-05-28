@@ -213,12 +213,61 @@ async def test_runner_includes_optional_briefing_context_only_when_available() -
 
 
 @pytest.mark.asyncio
-async def test_runner_records_failed_run_when_llm_raises() -> None:
+async def test_runner_returns_fallback_when_llm_raises() -> None:
     repo = _FakeRepo()
     llm_client = _FakeLLMClient(error=RuntimeError("llm down"))
     runner = ReviewQualityAuditRunner(repo=repo, llm_client=llm_client)
 
-    with pytest.raises(RuntimeError, match="llm down"):
-        await runner.resolve(request=_make_request(include_briefing=False))
+    response = await runner.resolve(request=_make_request(include_briefing=False))
 
+    assert response.status == "pass"
     assert len(repo.failed_runs) == 1
+    assert len(repo.completed_runs) == 1
+
+
+@pytest.mark.asyncio
+async def test_runner_fallback_blocks_inconsistent_positive_review() -> None:
+    repo = _FakeRepo()
+    llm_client = _FakeLLMClient(error=RuntimeError("llm down"))
+    runner = ReviewQualityAuditRunner(repo=repo, llm_client=llm_client)
+
+    request = _make_request(include_briefing=False)
+    request.review.recommendation = "strong_accept"
+    request.review.confidence = "high"
+    request.review.feedback.summary = (
+        "The paper should be strongly accepted, although the proposed similarity "
+        "metric is not clearly validated and the experiments do not fully support "
+        "the main claim."
+    )
+    request.review.feedback.strengths = "The topic is interesting."
+    request.review.feedback.weaknesses = (
+        "The evaluation is limited and the claimed improvement is not well supported."
+    )
+
+    response = await runner.resolve(request=request)
+
+    assert response.status == "block"
+    assert any(
+        finding.code == "consistency.recommendation_narrative_tension"
+        for finding in response.findings
+    )
+
+
+@pytest.mark.asyncio
+async def test_runner_returns_obvious_block_without_llm_call() -> None:
+    repo = _FakeRepo()
+    llm_client = _FakeLLMClient()
+    runner = ReviewQualityAuditRunner(repo=repo, llm_client=llm_client)
+
+    request = _make_request(include_briefing=False)
+    request.review.recommendation = "strong_accept"
+    request.review.feedback.summary = (
+        "The paper should be strongly accepted, although the proposed metric is not validated."
+    )
+    request.review.feedback.strengths = "The topic is interesting."
+    request.review.feedback.weaknesses = "The evaluation is missing and the claim is unsupported."
+
+    response = await runner.resolve(request=request)
+
+    assert response.status == "block"
+    assert llm_client.calls == []

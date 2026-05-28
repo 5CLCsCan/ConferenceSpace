@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 
 from app.core.auth import Identity
 from app.workflows.submission_autofill.router import router as submission_autofill_router
-from app.workflows.submission_autofill.runner import build_inference_payload
+from app.workflows.submission_autofill.runner import SubmissionAutofillRunner, build_inference_payload
 from app.workflows.submission_autofill.schemas import (
     ActorPayload,
     AutofillFileMetadata,
@@ -57,6 +57,11 @@ class _FakeRunner:
             "warnings": [],
             "error": None,
         }
+
+
+class _FailingLLMClient:
+    async def complete_structured(self, **_kwargs):
+        raise RuntimeError("provider unavailable")
 
 
 def _make_app() -> FastAPI:
@@ -193,6 +198,66 @@ def test_build_inference_payload_keeps_materials_separate_and_marks_primary() ->
         "tracks": ["AI", "Systems"],
     }
     assert payload["available_tracks"] == ["AI", "Systems"]
+
+
+@pytest.mark.asyncio
+async def test_submission_autofill_runner_returns_fallback_when_llm_fails(monkeypatch) -> None:
+    def _fake_extract_document(*, file_bytes, filename, content_type):
+        return ExtractedDocument(
+            format="pdf",
+            raw_text=(
+                "Fallback Clinical Paper\n"
+                "Abstract\n"
+                "This clinical calibration paper studies reviewer assignment and medical NLP systems "
+                "for safer conference submission workflows. The method evaluates artificial intelligence "
+                "models with evidence-grounded documentation and reliable extraction."
+            ),
+            title="Fallback Clinical Paper",
+            abstract=(
+                "This clinical calibration paper studies reviewer assignment and medical NLP systems "
+                "for safer conference submission workflows."
+            ),
+            authors=["Ada Example and Ben Example"],
+            page_count=6,
+            text_coverage_ratio=0.9,
+        )
+
+    monkeypatch.setattr("app.workflows.submission_autofill.runner.extract_document", _fake_extract_document)
+
+    request = SubmissionAutofillRunRequest(
+        conference_id=210,
+        actor=ActorPayload(user_id=123, email="author@example.com", role="author"),
+        available_tracks=["Medical NLP", "Clinical Calibration"],
+        conference_context={
+            "name": "Conference on AI Systems",
+            "acronym": "CAIS",
+            "description": "Research conference for applied AI systems.",
+            "domain": ["Artificial Intelligence", "Medical NLP", "Clinical Calibration"],
+            "cfp_text": "We invite papers on learning systems and evaluation.",
+            "tracks": ["Medical NLP", "Clinical Calibration"],
+        },
+        files=[
+            AutofillFileMetadata(
+                file_id="file-1",
+                original_filename="paper.pdf",
+                size_bytes=100,
+                content_type="application/pdf",
+            ),
+        ],
+    )
+
+    runner = SubmissionAutofillRunner(llm_client=_FailingLLMClient())
+    response = await runner.run(
+        request=request,
+        files=[("file-1", "paper.pdf", b"%PDF-1.4 fake", "application/pdf")],
+    )
+
+    assert response.status == "ready"
+    assert response.fields.title.value == "Fallback Clinical Paper"
+    assert "Medical NLP" in response.fields.keywords.value
+    assert response.track_rankings
+    assert response.materials[0].extraction_status == "ok"
+    assert response.warnings
 
 
 def test_submission_autofill_artifact_schema_is_strict_for_openai_responses() -> None:
