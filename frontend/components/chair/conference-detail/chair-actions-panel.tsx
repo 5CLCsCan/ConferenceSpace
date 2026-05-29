@@ -26,6 +26,7 @@ interface NextMilestone {
 interface ChairActionsPanelProps {
   conferenceId: string
   conferenceStatus?: ConferenceStatus
+  userRole?: string
   onNavigateToAssignments?: () => void
   actions?: ChairAction[]
   nextMilestone?: NextMilestone
@@ -35,6 +36,7 @@ interface ChairActionsPanelProps {
 export function ChairActionsPanel({
   conferenceId,
   conferenceStatus,
+  userRole,
   onNavigateToAssignments,
   actions,
   nextMilestone,
@@ -53,8 +55,14 @@ export function ChairActionsPanel({
   const [archiveError, setArchiveError] = useState<string | null>(null)
   const [archiveSuccess, setArchiveSuccess] = useState<string | null>(null)
 
-  // Only render for chairs
-  if (currentRole !== "chair") return null
+  const normalizedRole = (userRole || "").toLowerCase()
+  const canManageConference =
+    normalizedRole === "chair" ||
+    normalizedRole === "co-chair" ||
+    normalizedRole === "co_chair"
+
+  // Only render for chair users who can manage this conference
+  if (currentRole !== "chair" || !canManageConference) return null
   const displayMilestone = nextMilestone ?? {
     label: t(
       "runtime.components.chair.conference-detail.chair-actions-panel.prop_label_author_notification",
@@ -296,10 +304,10 @@ export function ChairActionsPanel({
             <button
               key={action.id}
               onClick={action.onClick}
-              disabled={action.loading}
+              disabled={action.loading || !action.onClick}
               className={cn(
                 "w-full bg-white/10 hover:bg-white/20 border border-white/20 text-left px-3 py-2.5 rounded-lg flex items-center justify-between transition-all",
-                action.loading && "opacity-50 cursor-not-allowed",
+                (action.loading || !action.onClick) && "opacity-50 cursor-not-allowed",
               )}
             >
               <span className="text-[11px] font-medium">{action.label}</span>

@@ -62,14 +62,16 @@ export function TrackStatusCard({
         ))}
       </div>
 
-      <button
-        onClick={onViewReport}
-        className="w-full mt-4 py-2 text-[10px] text-slate-400 hover:text-[#1B3C53] font-medium uppercase tracking-wider border border-dashed border-slate-200 rounded-lg hover:border-slate-300 hover:bg-slate-50 transition-all"
-      >
-        {t(
-          "runtime.components.chair.conference-detail.track-status-card.text_view_detailed_track_report",
-        )}{" "}
-      </button>
+      {onViewReport && (
+        <button
+          onClick={onViewReport}
+          className="w-full mt-4 py-2 text-[10px] text-slate-400 hover:text-[#1B3C53] font-medium uppercase tracking-wider border border-dashed border-slate-200 rounded-lg hover:border-slate-300 hover:bg-slate-50 transition-all"
+        >
+          {t(
+            "runtime.components.chair.conference-detail.track-status-card.text_view_detailed_track_report",
+          )}{" "}
+        </button>
+      )}
     </div>
   )
 }

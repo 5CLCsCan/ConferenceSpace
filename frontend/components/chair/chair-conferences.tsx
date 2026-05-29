@@ -86,6 +86,7 @@ function mapToExploreConference(conference: ApiConference): ExploreConference {
     dates: formatConferenceDates(conference),
     exploreStatus: conference.status === "open" ? "call-for-papers" : "upcoming",
     topics: conference.domain?.slice(0, 3) || conference.tracks.slice(0, 3) || [],
+    userRole: conference.userRole,
   }
 }
 
@@ -364,6 +365,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
       <ConferenceMoreMenu
         conferenceId={conference.id}
         conferenceStatus={backendStatus}
+        userRole={conference.role}
         compact
         onActionComplete={handleConferenceActionComplete}
       />
@@ -374,6 +376,7 @@ export function ChairConferences({ conferences: initialConferences }: ChairConfe
     <ConferenceMoreMenu
       conferenceId={conference.id}
       conferenceStatus="archived"
+      userRole={conference.userRole}
       compact
       onActionComplete={handleConferenceActionComplete}
     />

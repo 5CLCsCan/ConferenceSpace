@@ -48,10 +48,7 @@ export async function submitPaper(data: {
     paper_type?: string
     track_name?: string
     additional_notes?: string
-    metadata?: {
-      language?: string
-      page_count?: number
-    }
+    metadata?: Record<string, unknown>
   }
 }): Promise<PaperMutationResult> {
   try {
@@ -181,10 +178,7 @@ export async function updatePaper(
       paper_type?: string
       track_name?: string
       additional_notes?: string
-      metadata?: {
-        language?: string
-        page_count?: number
-      }
+      metadata?: Record<string, unknown>
     }
   },
 ): Promise<PaperMutationResult> {

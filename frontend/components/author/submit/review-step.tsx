@@ -12,6 +12,11 @@ interface ReviewStepProps {
   keywords: string[]
   authors: Author[]
   uploadedFile: File | null
+  existingFile?: {
+    name: string
+    size: number
+    type: string
+  }
   precheckResult: PrecheckResult | null
   precheckError: string | null
   conflicts: Conflict[]
@@ -28,6 +33,7 @@ export function ReviewStep({
   keywords,
   authors,
   uploadedFile,
+  existingFile,
   precheckResult,
   precheckError,
   conflicts,
@@ -195,17 +201,17 @@ export function ReviewStep({
             </button>
           </div>
           <div className="px-4 py-3">
-            {uploadedFile ? (
+            {uploadedFile || existingFile ? (
               <div className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50">
                 <div className="size-9 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg flex items-center justify-center flex-shrink-0">
                   <span className="material-symbols-outlined text-[18px]">picture_as_pdf</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-bold text-[#141414] dark:text-white truncate">
-                    {uploadedFile.name}
+                    {uploadedFile?.name || existingFile?.name}
                   </p>
                   <p className="text-[10px] text-slate-500">
-                    {(uploadedFile.size / 1024 / 1024).toFixed(1)}{" "}
+                    {(((uploadedFile?.size || existingFile?.size || 0) / 1024) / 1024).toFixed(1)}{" "}
                     {t("runtime.components.author.submit.review-step.text_mb")}{" "}
                   </p>
                 </div>

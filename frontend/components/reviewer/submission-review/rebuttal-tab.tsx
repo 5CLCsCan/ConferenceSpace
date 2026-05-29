@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { RebuttalPanel } from "@/components/shared/rebuttal"
 import { getRebuttal, acknowledgePoint, updatePostRebuttalScore } from "@/lib/api/rebuttal"
+import { openDiscussion } from "@/lib/api/conference-rebuttal"
 import type { RebuttalPanelData } from "@/lib/api/rebuttal"
 import type { ResponseStatus } from "@/components/shared/rebuttal/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
@@ -26,6 +27,8 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
   const [scoreComment, setScoreComment] = useState("")
   const [scoreSaving, setScoreSaving] = useState(false)
   const [scoreSuccess, setScoreSuccess] = useState(false)
+  const [discussionOpening, setDiscussionOpening] = useState(false)
+  const [discussionSuccess, setDiscussionSuccess] = useState(false)
 
   async function load() {
     setLoading(true)
@@ -80,6 +83,26 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
     }
   }
 
+  async function handleStartDiscussion() {
+    setDiscussionOpening(true)
+    setDiscussionSuccess(false)
+    setError(null)
+    const result = await openDiscussion(conferenceId)
+    setDiscussionOpening(false)
+    if (result.error) {
+      setError(result.error)
+      return
+    }
+    setDiscussionSuccess(true)
+    setTimeout(() => setDiscussionSuccess(false), 3000)
+    await load()
+  }
+
+  function handleUpdateReview() {
+    setScoreFormOpen(true)
+    setScoreSuccess(false)
+  }
+
   if (loading) {
     return <div className="text-xs text-slate-500 py-4">{t("runtime.components.reviewer.submission-review.rebuttal-tab.text_loading_rebuttal")}</div>
   }
@@ -124,6 +147,17 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
       {/* Mark all read + post-rebuttal score — only when submitted/discussion */}
       {phase === "submitted" && (
         <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 space-y-4">
+          {discussionOpening && (
+            <p className="text-[10px] text-slate-500 dark:text-slate-400">
+              Opening discussion...
+            </p>
+          )}
+          {discussionSuccess && (
+            <p className="text-[10px] text-green-600 dark:text-green-400">
+              Discussion is open for this conference.
+            </p>
+          )}
+
           {/* Mark all read */}
           {myUnackedPoints.length > 0 && (
             <div className="flex items-center justify-between">
@@ -212,6 +246,8 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
         userRole="reviewer"
         currentUserId={assignmentId}
         onPointStatusChange={handlePointStatusChange}
+        onUpdateReview={handleUpdateReview}
+        onStartDiscussion={handleStartDiscussion}
         readOnly={phase === "finalized"}
       />
     </div>

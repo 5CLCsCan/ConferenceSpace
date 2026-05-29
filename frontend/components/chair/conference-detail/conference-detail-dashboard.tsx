@@ -31,6 +31,7 @@ export function ConferenceDetailDashboard({
     hasSubmissionDeadline: false,
   })
   const [status, setStatus] = useState<string | undefined>(undefined)
+  const [userRole, setUserRole] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     async function loadDashboard() {
@@ -76,6 +77,7 @@ export function ConferenceDetailDashboard({
           hasSubmissionDeadline,
         })
         setStatus(conference.status)
+        setUserRole(conference.userRole)
       } catch (loadError) {
         setError(
           loadError instanceof Error
@@ -178,6 +180,7 @@ export function ConferenceDetailDashboard({
           <ChairActionsPanel
             conferenceId={conferenceId}
             conferenceStatus={status as any}
+            userRole={userRole}
             onNavigateToAssignments={onNavigateToAssignments}
           />
         </div>
