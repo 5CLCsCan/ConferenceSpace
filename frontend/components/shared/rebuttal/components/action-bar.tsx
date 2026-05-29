@@ -52,7 +52,7 @@ export function ActionBar({
           </div>
         </div>
         <div className="flex items-center gap-3 w-full md:w-auto">
-          {userRole !== "author" && (
+          {userRole !== "author" && onStartDiscussion && (
             <button
               onClick={onStartDiscussion}
               className="flex-1 md:flex-none h-8 px-4 rounded-md border border-slate-300 text-slate-700 font-medium text-[11px] hover:bg-slate-50 transition-colors"
@@ -93,7 +93,7 @@ export function ActionBar({
                 "runtime.components.shared.rebuttal.components.action-bar.text_submit_rebuttal",
               )}{" "}
             </button>
-          ) : (
+          ) : onUpdateReview ? (
             <button
               onClick={onUpdateReview}
               className="flex-1 md:flex-none h-8 px-4 rounded-md bg-[#1B3C53] hover:bg-[#234C6A] text-white font-bold text-[11px] transition-all flex items-center justify-center gap-1.5"
@@ -123,7 +123,7 @@ export function ActionBar({
                 "runtime.components.shared.rebuttal.components.action-bar.text_update_review",
               )}{" "}
             </button>
-          )}
+          ) : null}
         </div>
       </div>
     </div>

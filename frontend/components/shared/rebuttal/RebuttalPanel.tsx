@@ -21,6 +21,7 @@ export function RebuttalPanel({
   currentUserId,
   onPointStatusChange,
   onUpdateReview,
+  onStartDiscussion,
   onSubmitRebuttal,
   readOnly = false,
   className = "",
@@ -165,7 +166,7 @@ export function RebuttalPanel({
               points, // Pass the updated points back
             } as any)
           }
-          onStartDiscussion={() => console.log("[Start discussion]")}
+          onStartDiscussion={onStartDiscussion}
         />
       )}
     </div>

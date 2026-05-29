@@ -29,6 +29,27 @@ const iconStyle = {
   boxSizing: "border-box" as const,
 }
 
+function slugifyFilename(value: string) {
+  return (
+    value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "conference"
+  )
+}
+
+function downloadTextFile(filename: string, content: string, type = "text/plain;charset=utf-8") {
+  const blob = new Blob([content], { type })
+  const url = window.URL.createObjectURL(blob)
+  const anchor = document.createElement("a")
+  anchor.href = url
+  anchor.download = filename
+  document.body.appendChild(anchor)
+  anchor.click()
+  anchor.remove()
+  window.URL.revokeObjectURL(url)
+}
+
 function CFPMarkdownRenderer({ content }: { content: string }) {
   return (
     <div className="cfp-markdown-content">
@@ -134,6 +155,36 @@ function CFPMarkdownRenderer({ content }: { content: string }) {
 
 function CFPContentCard({ content, conferenceName }: { content: string; conferenceName: string }) {
   const { t } = useTranslation()
+  const filenameBase = slugifyFilename(conferenceName)
+
+  const handlePrint = () => {
+    window.print()
+  }
+
+  const handleExportMarkdown = () => {
+    downloadTextFile(`${filenameBase}-cfp.md`, content, "text/markdown;charset=utf-8")
+  }
+
+  const handleShare = async () => {
+    const shareData = {
+      title: `${conferenceName} CFP`,
+      text: content,
+      url: window.location.href,
+    }
+
+    if (navigator.share) {
+      await navigator.share(shareData)
+      return
+    }
+
+    await navigator.clipboard.writeText(window.location.href)
+  }
+
+  const actions = [
+    { icon: "print", title: "Print CFP", onClick: handlePrint },
+    { icon: "download", title: "Download CFP Markdown", onClick: handleExportMarkdown },
+    { icon: "share", title: "Share CFP link", onClick: () => void handleShare() },
+  ]
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
@@ -147,14 +198,17 @@ function CFPContentCard({ content, conferenceName }: { content: string; conferen
           <p className="text-[9px] text-slate-400 mt-0.5">{conferenceName}</p>
         </div>
         <div className="flex gap-1">
-          {["print", "picture_as_pdf", "share"].map((icon) => (
+          {actions.map((action) => (
             <button
-              key={icon}
+              key={action.icon}
               type="button"
+              onClick={action.onClick}
+              title={action.title}
+              aria-label={action.title}
               className="text-slate-400 hover:text-[#1B3C53] p-1.5 rounded hover:bg-slate-50 transition-colors"
             >
               <span className="material-symbols-outlined" style={iconStyle}>
-                {icon}
+                {action.icon}
               </span>
             </button>
           ))}
@@ -313,6 +367,9 @@ function AuthorResourcesCard() {
       ),
       type: "latex",
       icon: "description",
+      filename: "conference-paper-template.tex",
+      content:
+        "\\documentclass[10pt,conference]{IEEEtran}\n\\title{Paper Title}\n\\author{Author Name \\\\ Affiliation \\\\ email@example.edu}\n\\begin{document}\n\\maketitle\n\\begin{abstract}\nWrite a concise abstract here.\n\\end{abstract}\n\\section{Introduction}\nIntroduce the problem, contribution, and evaluation setup.\n\\section{Method}\nDescribe the proposed method.\n\\section{Results}\nReport experiments and limitations.\n\\section{Conclusion}\nSummarize the findings.\n\\bibliographystyle{IEEEtran}\n\\bibliography{references}\n\\end{document}\n",
     },
     {
       name: t("runtime.components.chair.conference-detail.conference-cfp.text_word_template"),
@@ -321,6 +378,9 @@ function AuthorResourcesCard() {
       ),
       type: "word",
       icon: "picture_as_pdf",
+      filename: "conference-paper-template.rtf",
+      content:
+        "{\\rtf1\\ansi\\deff0{\\fonttbl{\\f0 Arial;}}\\fs24\\b Paper Title\\b0\\par Author Name, Affiliation, email@example.edu\\par\\par\\b Abstract\\b0\\par Write a concise abstract here.\\par\\par\\b 1. Introduction\\b0\\par Introduce the problem, contribution, and evaluation setup.\\par\\par\\b 2. Method\\b0\\par Describe the proposed method.\\par\\par\\b 3. Results\\b0\\par Report experiments and limitations.\\par\\par\\b 4. Conclusion\\b0\\par Summarize the findings.\\par}",
     },
   ] as const
 
@@ -349,9 +409,10 @@ function AuthorResourcesCard() {
 
           return (
             <li key={resource.name}>
-              <a
-                href="#"
-                className="flex items-center gap-2 p-2 rounded-lg border border-slate-100 hover:border-slate-300 hover:bg-slate-50 transition-all group"
+              <button
+                type="button"
+                onClick={() => downloadTextFile(resource.filename, resource.content)}
+                className="flex w-full items-center gap-2 p-2 text-left rounded-lg border border-slate-100 hover:border-slate-300 hover:bg-slate-50 transition-all group"
               >
                 <div className={cn("p-1 rounded-md", colors.bg, colors.text)}>
                   <span className="material-symbols-outlined" style={iconStyle}>
@@ -375,7 +436,7 @@ function AuthorResourcesCard() {
                 >
                   download
                 </span>
-              </a>
+              </button>
             </li>
           )
         })}

@@ -228,6 +228,15 @@ export function mapTemplatePayloadToFormData(
     authorNotification: parseDate(payload.final_decision_date),
     fileFormats: payload.file_formats || initialFormData.fileFormats,
     callForPaperText: payload.call_for_paper_text || "",
+    gatingEnabled: payload.gating_enabled ?? initialFormData.gatingEnabled,
+    gatingMinReferences: payload.gating_min_references ?? initialFormData.gatingMinReferences,
+    gatingTitleMaxWords: payload.gating_title_max_words ?? initialFormData.gatingTitleMaxWords,
+    gatingRequiredSections: normalizeStringList(payload.gating_required_sections),
+    gatingScopeKeywords: normalizeStringList(payload.gating_scope_keywords),
+    gatingAnonymizationRequired:
+      payload.gating_anonymization_required ?? initialFormData.gatingAnonymizationRequired,
+    gatingBannedPhrases: normalizeStringList(payload.gating_banned_phrases),
+    gatingPrompt: payload.gating_prompt || "",
   }
 }
 
@@ -268,6 +277,14 @@ export function buildConferenceConfigTemplatePayload(
     file_formats: formData.fileFormats,
     call_for_paper_text: formData.callForPaperText || undefined,
     co_chairs: coChairs,
+    gating_enabled: formData.gatingEnabled,
+    gating_min_references: formData.gatingMinReferences ?? undefined,
+    gating_title_max_words: formData.gatingTitleMaxWords ?? undefined,
+    gating_required_sections: normalizeStringList(formData.gatingRequiredSections),
+    gating_scope_keywords: normalizeStringList(formData.gatingScopeKeywords),
+    gating_anonymization_required: formData.gatingAnonymizationRequired,
+    gating_banned_phrases: normalizeStringList(formData.gatingBannedPhrases),
+    gating_prompt: formData.gatingPrompt || undefined,
   }
 }
 

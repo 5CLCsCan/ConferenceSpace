@@ -104,6 +104,7 @@ export interface RebuttalPanelProps {
   currentUserId?: string
   onPointStatusChange?: (pointId: string, status: ResponseStatus, note?: string) => void
   onUpdateReview?: () => void
+  onStartDiscussion?: () => void
   onSubmitRebuttal?: (data: RebuttalSubmissionData) => void
   readOnly?: boolean
   className?: string

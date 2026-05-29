@@ -103,6 +103,10 @@ export function ConferenceDetailHeader({
     ? tabs
     : tabs.filter((tab) => !RESTRICTED_TABS.includes(tab.id))
   const readOnly = isReadOnlyRole(userRole as UserRole)
+  const canManageConference =
+    normalizedRole === "chair" ||
+    normalizedRole === "co-chair" ||
+    normalizedRole === "co_chair"
   return (
     <header
       className={cn(
@@ -183,7 +187,7 @@ export function ConferenceDetailHeader({
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          {!readOnly && <button
+          {!readOnly && canManageConference && <button
             type="button"
             onClick={() => router.push(ROUTES.CHAIR.CONFERENCE_EDIT(conference.id))}
             className="h-8 px-3 bg-white border border-slate-200 text-slate-600 font-medium text-[11px] rounded-md hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center gap-1.5"
