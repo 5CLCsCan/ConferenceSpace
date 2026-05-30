@@ -510,7 +510,9 @@ func (s *Storage) GetReviewsBySubmission(ctx context.Context, submissionID int64
 	// so we must JOIN through conference_reviewers to reach users.
 	query, args, err := s.qb.
 		Select(
-			"a.id", "a.conference_id", "a.submission_id", "a.reviewer_id", "a.score", "a.status", "a.assigned_at", "a.completed_at", "a.review_status", "a.review_score", "a.review_data", "a.review_submitted_at", "a.created_at", "a.updated_at",
+			"a.id", "a.conference_id", "a.submission_id", "a.reviewer_id", "a.score", "a.status", "a.assigned_at", "a.completed_at", "a.review_status", "a.review_score", "a.review_data", "a.review_submitted_at",
+			"a.post_rebuttal_score", "a.post_rebuttal_recommendation", "a.post_rebuttal_comment", "a.post_rebuttal_updated_at",
+			"a.created_at", "a.updated_at",
 			"u.email AS reviewer_email",
 		).
 		From(model.AssignmentTableName + " AS a").
@@ -549,6 +551,10 @@ func (s *Storage) GetReviewsBySubmission(ctx context.Context, submissionID int64
 			&result.ReviewScore,
 			&result.ReviewData,
 			&result.ReviewSubmittedAt,
+			&result.PostRebuttalScore,
+			&result.PostRebuttalRecommendation,
+			&result.PostRebuttalComment,
+			&result.PostRebuttalUpdatedAt,
 			&result.CreatedAt,
 			&result.UpdatedAt,
 			&result.ReviewerEmail,
@@ -571,14 +577,14 @@ func (s *Storage) GetReviewAnalytics(ctx context.Context, submissionID int64) (*
 	query := `
 		SELECT 
 			COUNT(*) as total_reviews,
-			AVG(review_score) as average_score,
-			SUM(CASE WHEN (review_data->>'recommendation') = 'strong_accept' THEN 1 ELSE 0 END) as strong_accept,
-			SUM(CASE WHEN (review_data->>'recommendation') = 'accept' THEN 1 ELSE 0 END) as accept,
-			SUM(CASE WHEN (review_data->>'recommendation') = 'weak_accept' THEN 1 ELSE 0 END) as weak_accept,
-			SUM(CASE WHEN (review_data->>'recommendation') = 'borderline' THEN 1 ELSE 0 END) as borderline,
-			SUM(CASE WHEN (review_data->>'recommendation') = 'weak_reject' THEN 1 ELSE 0 END) as weak_reject,
-			SUM(CASE WHEN (review_data->>'recommendation') = 'reject' THEN 1 ELSE 0 END) as reject,
-			SUM(CASE WHEN (review_data->>'recommendation') = 'strong_reject' THEN 1 ELSE 0 END) as strong_reject,
+			AVG(COALESCE(post_rebuttal_score, review_score)) as average_score,
+			SUM(CASE WHEN COALESCE(post_rebuttal_recommendation, review_data->>'recommendation') = 'strong_accept' THEN 1 ELSE 0 END) as strong_accept,
+			SUM(CASE WHEN COALESCE(post_rebuttal_recommendation, review_data->>'recommendation') = 'accept' THEN 1 ELSE 0 END) as accept,
+			SUM(CASE WHEN COALESCE(post_rebuttal_recommendation, review_data->>'recommendation') = 'weak_accept' THEN 1 ELSE 0 END) as weak_accept,
+			SUM(CASE WHEN COALESCE(post_rebuttal_recommendation, review_data->>'recommendation') = 'borderline' THEN 1 ELSE 0 END) as borderline,
+			SUM(CASE WHEN COALESCE(post_rebuttal_recommendation, review_data->>'recommendation') = 'weak_reject' THEN 1 ELSE 0 END) as weak_reject,
+			SUM(CASE WHEN COALESCE(post_rebuttal_recommendation, review_data->>'recommendation') = 'reject' THEN 1 ELSE 0 END) as reject,
+			SUM(CASE WHEN COALESCE(post_rebuttal_recommendation, review_data->>'recommendation') = 'strong_reject' THEN 1 ELSE 0 END) as strong_reject,
 			SUM(CASE WHEN (review_data->>'confidence') = 'high' THEN 1 ELSE 0 END) as confidence_high,
 			SUM(CASE WHEN (review_data->>'confidence') = 'medium' THEN 1 ELSE 0 END) as confidence_medium,
 			SUM(CASE WHEN (review_data->>'confidence') = 'low' THEN 1 ELSE 0 END) as confidence_low,

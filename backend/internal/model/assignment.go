@@ -38,7 +38,7 @@ type Assignment struct {
 	RebuttalStatus             string          `db:"rebuttal_status"`
 	RebuttalSubmittedAt        *time.Time      `db:"rebuttal_submitted_at"`
 	RebuttalAcknowledgedAt     *time.Time      `db:"rebuttal_acknowledged_at"`
-	PostRebuttalScore          *int            `db:"post_rebuttal_score"`
+	PostRebuttalScore          *float64        `db:"post_rebuttal_score"`
 	PostRebuttalRecommendation *string         `db:"post_rebuttal_recommendation"`
 	PostRebuttalComment        *string         `db:"post_rebuttal_comment"`
 	PostRebuttalUpdatedAt      *time.Time      `db:"post_rebuttal_updated_at"`

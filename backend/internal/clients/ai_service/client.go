@@ -212,7 +212,7 @@ type ReviewerBriefingGuardrails struct {
 
 type ReviewerBriefingArtifact struct {
 	SubmissionSnapshot      ReviewerBriefingSubmissionSnapshot `json:"submission_snapshot"`
-	ReviewReadinessSignals []ReviewerBriefingReadinessSignal  `json:"review_readiness_signals"`
+	ReviewReadinessSignals  []ReviewerBriefingReadinessSignal  `json:"review_readiness_signals"`
 	ClaimedContributions    []ReviewerBriefingContribution     `json:"claimed_contributions"`
 	NotableElements         []ReviewerBriefingNotableElement   `json:"notable_elements"`
 	ReviewerAttentionPoints []ReviewerBriefingAttentionPoint   `json:"reviewer_attention_points"`
@@ -392,7 +392,7 @@ type DecisionCopilotReviewPayload struct {
 	Weaknesses                 string         `json:"weaknesses,omitempty"`
 	Questions                  string         `json:"questions,omitempty"`
 	Criteria                   map[string]int `json:"criteria,omitempty"`
-	PostRebuttalScore          *int           `json:"post_rebuttal_score,omitempty"`
+	PostRebuttalScore          *float64       `json:"post_rebuttal_score,omitempty"`
 	PostRebuttalRecommendation string         `json:"post_rebuttal_recommendation,omitempty"`
 	PostRebuttalComment        string         `json:"post_rebuttal_comment,omitempty"`
 	PostRebuttalUpdatedAt      string         `json:"post_rebuttal_updated_at,omitempty"`
@@ -564,12 +564,12 @@ type SubmissionAutofillConferenceContext struct {
 }
 
 type SubmissionAutofillRunRequest struct {
-	ConferenceID      int64                                `json:"conference_id"`
-	Actor             ActorPayload                         `json:"actor"`
-	ExtraDetails      string                               `json:"extra_details,omitempty"`
-	AvailableTracks   []string                             `json:"available_tracks,omitempty"`
-	ConferenceContext SubmissionAutofillConferenceContext  `json:"conference_context"`
-	Files             []SubmissionAutofillFileMetadata     `json:"files"`
+	ConferenceID      int64                               `json:"conference_id"`
+	Actor             ActorPayload                        `json:"actor"`
+	ExtraDetails      string                              `json:"extra_details,omitempty"`
+	AvailableTracks   []string                            `json:"available_tracks,omitempty"`
+	ConferenceContext SubmissionAutofillConferenceContext `json:"conference_context"`
+	Files             []SubmissionAutofillFileMetadata    `json:"files"`
 }
 
 type SubmissionAutofillEvidence struct {
@@ -641,15 +641,15 @@ type SubmissionAutofillErrorPayload struct {
 }
 
 type SubmissionAutofillRunResponse struct {
-	RunID             string                          `json:"run_id"`
-	Status            string                          `json:"status"`
-	Fields            SubmissionAutofillFields        `json:"fields"`
+	RunID             string                           `json:"run_id"`
+	Status            string                           `json:"status"`
+	Fields            SubmissionAutofillFields         `json:"fields"`
 	TrackRankings     []SubmissionAutofillTrackRanking `json:"track_rankings,omitempty"`
-	Authors           []SubmissionAutofillAuthor      `json:"authors,omitempty"`
-	PossibleConflicts []SubmissionAutofillConflict    `json:"possible_conflicts,omitempty"`
-	Materials         []SubmissionAutofillMaterial    `json:"materials,omitempty"`
-	Warnings          []string                        `json:"warnings,omitempty"`
-	Error             *SubmissionAutofillErrorPayload `json:"error,omitempty"`
+	Authors           []SubmissionAutofillAuthor       `json:"authors,omitempty"`
+	PossibleConflicts []SubmissionAutofillConflict     `json:"possible_conflicts,omitempty"`
+	Materials         []SubmissionAutofillMaterial     `json:"materials,omitempty"`
+	Warnings          []string                         `json:"warnings,omitempty"`
+	Error             *SubmissionAutofillErrorPayload  `json:"error,omitempty"`
 }
 
 type SubmissionAutofillFileContent struct {
