@@ -12,7 +12,7 @@ from typing import Optional
 
 # Configuration
 BASE_URL = "http://localhost:8080"
-PASSWORD = "password123"
+PASSWORD = "Demo@123"
 
 # Colors for terminal output
 class Colors:

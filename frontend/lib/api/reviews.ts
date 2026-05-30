@@ -175,6 +175,10 @@ export interface AssignmentReview {
   review_score?: number
   review_data?: ReviewData
   review_submitted_at?: string
+  post_rebuttal_score?: number
+  post_rebuttal_recommendation?: string
+  post_rebuttal_comment?: string
+  post_rebuttal_updated_at?: string
   created_at: string
   updated_at: string
 }

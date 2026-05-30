@@ -23,7 +23,7 @@ demonstrating different rebuttal states:
 Users created:
   Chair:       demo_rebuttal_chair@test.com
   Authors:     demo_rebuttal_author_1-3@test.com
-  Reviewers:   demo_rebuttal_reviewer_1-4@test.com  (password: Demo@12345)
+    Reviewers:   demo_rebuttal_reviewer_1-4@test.com  (password: Demo@123)
 
 Usage:
   python3 seed_rebuttal_demo.py
@@ -44,7 +44,7 @@ import requests
 # ─── Config ──────────────────────────────────────────────────────────────────
 
 DEFAULT_BASE_URL = "http://localhost:8080"
-PASSWORD = "Demo@12345"
+PASSWORD = "Demo@123"
 # Default acronym includes a timestamp so each run creates a fresh conference.
 # Pass --acronym RD2026 to reuse a specific conference (idempotent).
 DEFAULT_ACRONYM_PREFIX = "RD"

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useEffect, useState, useRef } from "react"
 import type { ThreadCardProps } from "../types"
 import { StatusBadge, CategoryTag, VisibilityIndicator } from "./badges"
 import { MessageItem } from "./message-item"
@@ -39,6 +39,10 @@ export function ThreadCard({
     setIsExpanded(!isExpanded)
     onToggleCollapse?.()
   }
+
+  useEffect(() => {
+    setLocalMessages(thread.messages)
+  }, [thread.messages])
 
   const handleReply = () => {
     if ((replyText.trim() || pendingAttachments.length > 0) && onReply) {

@@ -12,7 +12,6 @@ export function PointCard({
   reviewer,
   userRole,
   onMarkStatus,
-  onAddNote,
   onAuthorResponseChange,
   readOnly = false,
 }: PointCardProps) {
@@ -31,10 +30,7 @@ export function PointCard({
   const showActions = canMarkStatus || canChairMarkStatus
 
   const handleMarkStatus = (status: ResponseStatus) => {
-    onMarkStatus?.(status)
-    if (acknowledgmentNote && onAddNote) {
-      onAddNote(acknowledgmentNote)
-    }
+    onMarkStatus?.(status, acknowledgmentNote || undefined)
     setShowNoteInput(false)
     setAcknowledgmentNote("")
   }

@@ -10,6 +10,7 @@ import (
 	"github.com/dcao/conferencespace/internal/clients/semantic_scholar"
 	"github.com/dcao/conferencespace/internal/dto"
 	conferenceStorage "github.com/dcao/conferencespace/internal/storage/conference"
+	externalInvitationStorage "github.com/dcao/conferencespace/internal/storage/external_invitation"
 	reviewerStorage "github.com/dcao/conferencespace/internal/storage/reviewer"
 	scholarStorage "github.com/dcao/conferencespace/internal/storage/scholar"
 	submissionStorage "github.com/dcao/conferencespace/internal/storage/submission"
@@ -27,6 +28,7 @@ type Service struct {
 	users       userStorage.StorageInterface
 	reviewers   reviewerStorage.StorageInterface
 	scholars    scholarStorage.StorageInterface
+	externalInv externalInvitationStorage.StorageInterface
 	s2Client    semanticScholarClient
 }
 
@@ -37,6 +39,7 @@ func New(
 	users userStorage.StorageInterface,
 	reviewers reviewerStorage.StorageInterface,
 	scholars scholarStorage.StorageInterface,
+	externalInv externalInvitationStorage.StorageInterface,
 	s2Client semanticScholarClient,
 ) *Service {
 	return &Service{
@@ -45,6 +48,7 @@ func New(
 		users:       users,
 		reviewers:   reviewers,
 		scholars:    scholars,
+		externalInv: externalInv,
 		s2Client:    s2Client,
 	}
 }
@@ -98,12 +102,21 @@ func (s *Service) GetSuggestions(ctx context.Context, conferenceID int64, limit 
 		}
 	}
 
-	external := s.suggestExternal(ctx, topics, excludeUserIDs, internalUserIDs, internalScholarIDs)
+	external := s.suggestSeededExternal(ctx, conferenceID, topics, internalScholarIDs)
+	if len(external) == 0 {
+		external = s.suggestExternal(ctx, topics, excludeUserIDs, internalUserIDs, internalScholarIDs)
+	}
 
 	all := append(internal, external...)
 	sort.Slice(all, func(i, j int) bool {
 		return all[i].Score > all[j].Score
 	})
+	if all == nil {
+		all = []*dto.ReviewerSuggestion{}
+	}
+	if topics == nil {
+		topics = []string{}
+	}
 
 	if len(all) > limit {
 		all = all[:limit]
@@ -248,6 +261,53 @@ func (s *Service) suggestInternal(ctx context.Context, topics []string, excludeU
 		}
 
 		suggestions = append(suggestions, sg)
+	}
+
+	return suggestions
+}
+
+// suggestSeededExternal exposes external reviewer invitations as off-platform
+// candidates. This keeps local demos deterministic even when Semantic Scholar is
+// disabled, while using the same scoring model and persisted invitation data
+// that the committee UI already understands.
+func (s *Service) suggestSeededExternal(ctx context.Context, conferenceID int64, topics []string, internalScholarIDs map[string]bool) []*dto.ReviewerSuggestion {
+	if s.externalInv == nil {
+		return nil
+	}
+
+	invitations, _, err := s.externalInv.List(ctx, conferenceID, &externalInvitationStorage.ListParams{
+		Limit:  200,
+		Offset: 0,
+		Role:   "reviewer",
+	})
+	if err != nil {
+		return nil
+	}
+
+	topicSet := make(map[string]bool, len(topics))
+	for _, topic := range topics {
+		topicSet[strings.ToLower(strings.TrimSpace(topic))] = true
+	}
+
+	suggestions := make([]*dto.ReviewerSuggestion, 0, len(invitations))
+	for _, invitation := range invitations {
+		if invitation.ScholarID != "" && internalScholarIDs[invitation.ScholarID] {
+			continue
+		}
+
+		matchedFields, score := scoreUserAgainstTopics(invitation.FieldsOfStudy, topicSet)
+		suggestions = append(suggestions, &dto.ReviewerSuggestion{
+			ID:            fmt.Sprintf("external-invitation-%d", invitation.ID),
+			Source:        "external",
+			Name:          invitation.Name,
+			Email:         invitation.Email,
+			Affiliation:   invitation.Affiliation,
+			OnPlatform:    false,
+			Score:         score,
+			Fields:        invitation.FieldsOfStudy,
+			MatchedFields: matchedFields,
+			ScholarID:     invitation.ScholarID,
+		})
 	}
 
 	return suggestions

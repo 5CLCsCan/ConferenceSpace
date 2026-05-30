@@ -10,6 +10,18 @@ Python scripts that populate a running ConferenceSpace instance with demo data.
 
 ## Seeders
 
+### `seed_showcase_overview.py` - Clip 1 Flagship Overview
+
+Creates a dense, story-driven dataset for the first showcase clip: one flagship conference plus twelve supporting conferences, full CFP/deadlines/tracks/committee, meaningful submissions, accepted reviewers, assignments, reviews, rebuttal, discussion, final decision, and camera-ready upload where supported by the API.
+
+```bash
+python3 devtool/seeder/seed_showcase_overview.py --base-url http://localhost:8080
+```
+
+All accounts use password `Demo@123`. Each run creates dedicated `showcase_*_{timestamp}@demo.com` accounts, a `TAIH{timestamp}` flagship conference, and supporting conferences for list/dashboard/schedule density.
+
+---
+
 ### `seed_two_conferences.py` — Two-Conference Demo (Recommended)
 
 Creates two conferences for live demos. Each run generates **fresh data** with a unique timestamp suffix on all emails and acronyms — no collisions with previous runs.
@@ -53,7 +65,7 @@ Creates 1 chair, 10 authors, 15 reviewers, 1 conference, and 10 submissions for 
 python3 devtool/seeder/seed_test_data.py
 ```
 
-Password for all users: `password123`
+Password for all users: `Demo@123`
 
 ---
 
@@ -92,9 +104,9 @@ python3 devtool/seeder/seed_ai003_reviewer_briefing.py --base-url http://localho
 
 | Role     | Email                                | Password      |
 |----------|--------------------------------------|---------------|
-| Chair    | chair.main@conferencespace.local     | DemoPass123!  |
-| Author   | nora.author@conferencespace.local    | DemoPass123!  |
-| Reviewer | qa.reviewer@conferencespace.local    | DemoPass123!  |
+| Chair    | chair.main@conferencespace.local     | Demo@123      |
+| Author   | nora.author@conferencespace.local    | Demo@123      |
+| Reviewer | qa.reviewer@conferencespace.local    | Demo@123      |
 
 ---
 
@@ -113,14 +125,15 @@ python3 devtool/seeder/seed_rebuttal_demo.py --base-url http://localhost:8080 --
 
 | Role     | Email                              | Password    |
 |----------|------------------------------------|-------------|
-| Chair    | demo_rebuttal_chair@test.com       | Demo@12345  |
-| Authors  | demo_rebuttal_author_1-3@test.com  | Demo@12345  |
-| Reviewers| demo_rebuttal_reviewer_1-4@test.com| Demo@12345  |
+| Chair    | demo_rebuttal_chair@test.com       | Demo@123    |
+| Authors  | demo_rebuttal_author_1-3@test.com  | Demo@123    |
+| Reviewers| demo_rebuttal_reviewer_1-4@test.com| Demo@123    |
 
 ## Quick Reference
 
 | Script                              | What it demos                | Fresh each run? | Idempotent? |
 |-------------------------------------|------------------------------|-----------------|-------------|
+| `seed_showcase_overview.py`         | Clip 1 flagship overview     | Yes             | No          |
 | `seed_two_conferences.py`           | Suggestion + Auto-assign     | Yes             | —           |
 | `seed_demo.py`                      | All AI features              | No              | No          |
 | `seed_test_data.py`                 | Suggestions workflow         | No              | No          |

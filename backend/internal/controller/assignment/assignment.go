@@ -25,6 +25,7 @@ import (
 	submissionStorage "github.com/dcao/conferencespace/internal/storage/submission"
 	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 // Controller handles assignment-related HTTP requests
@@ -205,6 +206,11 @@ func (c *Controller) SaveReview(ginCtx *gin.Context, req *dto.ReviewSaveRequest)
 		return nil, err
 	}
 
+	// Run struct-level validation using gin's validator to enforce binding tags
+	if err := binding.Validator.ValidateStruct(req); err != nil {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, err.Error())
+	}
+
 	assignment, _, userID, userEmail, _, err := c.loadOwnedReviewScope(ginCtx, req.AssignmentID, req.ConferenceID)
 	if err != nil {
 		return nil, err
@@ -276,14 +282,27 @@ func (c *Controller) SaveReview(ginCtx *gin.Context, req *dto.ReviewSaveRequest)
 			})
 		}
 		if !auditFailed && auditResponse != nil && auditResponse.Status == "block" {
-			return nil, handler.NewDetailedErrorResponse(
-				http.StatusConflict,
-				"review audit found blocking issues",
-				map[string]interface{}{
-					"code":  "review_audit_blocked",
+			if !req.AuditFailureOverrideConfirmed {
+				return nil, handler.NewDetailedErrorResponse(
+					http.StatusConflict,
+					"review audit found blocking issues",
+					map[string]interface{}{
+						"code":  "review_audit_blocked",
+						"audit": auditResponse,
+					},
+				)
+			}
+			// Record override event when reviewer confirms override for a blocking audit
+			_ = c.assignmentStorage.AppendReviewAuditEvent(ctx, &dto.ReviewAuditEvent{
+				AssignmentID: assignment.ID,
+				ConferenceID: assignment.ConferenceID,
+				ActorID:      userID,
+				ActorEmail:   userEmail,
+				EventType:    "review_audit_override_blocked",
+				Payload: map[string]interface{}{
 					"audit": auditResponse,
 				},
-			)
+			})
 		}
 	}
 
@@ -349,6 +368,23 @@ func validateSubmittedReviewRequest(req *dto.ReviewSaveRequest) error {
 	}
 	if *req.ReviewScore < 0.0 || *req.ReviewScore > 10.0 {
 		return handler.NewErrorResponse(http.StatusBadRequest, "review_score must be between 0.00 and 10.00")
+	}
+	// Validate criteria fields are within 1-10 when submitting
+	c := req.ReviewData.Criteria
+	if c.Originality < 1 || c.Originality > 10 {
+		return handler.NewErrorResponse(http.StatusBadRequest, "criteria.originality must be between 1 and 10")
+	}
+	if c.TechnicalQuality < 1 || c.TechnicalQuality > 10 {
+		return handler.NewErrorResponse(http.StatusBadRequest, "criteria.technical_quality must be between 1 and 10")
+	}
+	if c.Clarity < 1 || c.Clarity > 10 {
+		return handler.NewErrorResponse(http.StatusBadRequest, "criteria.clarity must be between 1 and 10")
+	}
+	if c.Significance < 1 || c.Significance > 10 {
+		return handler.NewErrorResponse(http.StatusBadRequest, "criteria.significance must be between 1 and 10")
+	}
+	if c.Methodology < 1 || c.Methodology > 10 {
+		return handler.NewErrorResponse(http.StatusBadRequest, "criteria.methodology must be between 1 and 10")
 	}
 	if strings.TrimSpace(req.ReviewData.Feedback.Summary) == "" {
 		return handler.NewErrorResponse(http.StatusBadRequest, "feedback summary is required for submitted reviews")

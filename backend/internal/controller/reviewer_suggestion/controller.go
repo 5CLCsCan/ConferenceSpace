@@ -38,5 +38,17 @@ func (c *Controller) GetSuggestions(ctx *gin.Context, req *dto.ReviewerSuggestio
 		req.ConferenceID = id
 	}
 
-	return c.service.GetSuggestions(ctx.Request.Context(), req.ConferenceID, req.Limit)
+	resp, err := c.service.GetSuggestions(ctx.Request.Context(), req.ConferenceID, req.Limit)
+	if err != nil {
+		return nil, err
+	}
+	if resp != nil {
+		if resp.Suggestions == nil {
+			resp.Suggestions = []*dto.ReviewerSuggestion{}
+		}
+		if resp.ConferenceTopics == nil {
+			resp.ConferenceTopics = []string{}
+		}
+	}
+	return resp, nil
 }

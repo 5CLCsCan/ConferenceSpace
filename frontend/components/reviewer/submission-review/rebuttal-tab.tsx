@@ -30,10 +30,14 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
   const [discussionOpening, setDiscussionOpening] = useState(false)
   const [discussionSuccess, setDiscussionSuccess] = useState(false)
 
-  async function load() {
-    setLoading(true)
+  async function load(showLoading = true) {
+    if (showLoading) {
+      setLoading(true)
+    }
     const result = await getRebuttal(conferenceId, submissionId, assignmentId)
-    setLoading(false)
+    if (showLoading) {
+      setLoading(false)
+    }
     if (result.error || !result.data) {
       setError(result.error ?? "Failed to load rebuttal")
     } else {
@@ -51,7 +55,26 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
     if (result.error) {
       setError(result.error)
     } else {
-      await load()
+      setData((current) =>
+        current
+          ? {
+              ...current,
+              points: current.points.map((point) =>
+                point.id === pointId
+                  ? {
+                      ...point,
+                      status,
+                      reviewerAcknowledgment: {
+                        acknowledged: true,
+                        satisfactory: status === "addressed",
+                        note,
+                      },
+                    }
+                  : point,
+              ),
+            }
+          : current,
+      )
     }
   }
 
@@ -63,7 +86,25 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
     for (const point of unacked) {
       await acknowledgePoint(conferenceId, assignmentId, point.id, "addressed")
     }
-    await load()
+    setData((current) =>
+      current
+        ? {
+            ...current,
+            points: current.points.map((point) =>
+              point.reviewerId === assignmentId
+                ? {
+                    ...point,
+                    status: "addressed",
+                    reviewerAcknowledgment: {
+                      acknowledged: true,
+                      satisfactory: true,
+                    },
+                  }
+                : point,
+            ),
+          }
+        : current,
+    )
   }
 
   async function handleSaveScore() {
@@ -80,6 +121,7 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
     } else {
       setScoreSuccess(true)
       setTimeout(() => setScoreSuccess(false), 3000)
+      await load(false)
     }
   }
 
@@ -95,10 +137,15 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
     }
     setDiscussionSuccess(true)
     setTimeout(() => setDiscussionSuccess(false), 3000)
-    await load()
+    await load(false)
   }
 
   function handleUpdateReview() {
+    const reviewer = data?.reviewers.find((item) => item.id === assignmentId)
+    if (reviewer) {
+      setScore(reviewer.scores.current || reviewer.scores.original || 5)
+      setRecommendation(reviewer.recommendation.current || "borderline")
+    }
     setScoreFormOpen(true)
     setScoreSuccess(false)
   }
@@ -120,7 +167,7 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
   const phase = data.settings.phase
 
   // Phase: awaiting — author hasn't submitted yet
-  if (phase !== "submitted" && phase !== "finalized") {
+  if (phase !== "submitted" && phase !== "discussion" && phase !== "finalized") {
     return (
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm px-4 py-6 text-center">
         <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -145,7 +192,7 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
       )}
 
       {/* Mark all read + post-rebuttal score — only when submitted/discussion */}
-      {phase === "submitted" && (
+      {(phase === "submitted" || phase === "discussion") && (
         <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 space-y-4">
           {discussionOpening && (
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
