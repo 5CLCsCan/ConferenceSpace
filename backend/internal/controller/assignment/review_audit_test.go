@@ -153,7 +153,7 @@ func TestReviewQualityAuditPayloadIncludesBriefingReadinessSignals(t *testing.T)
 		t.Fatalf("unmarshal payload: %v", err)
 	}
 
-	artifact, ok := decoded["briefing_artifact"].(map[string]interface{})
+	decodedArtifact, ok := decoded["briefing_artifact"].(map[string]interface{})
 	if !ok {
 		t.Fatalf("expected briefing_artifact object, got %#v", decoded["briefing_artifact"])
 	}
@@ -165,18 +165,18 @@ func TestReviewQualityAuditPayloadIncludesBriefingReadinessSignals(t *testing.T)
 		"stated_scope_and_limitations",
 	}
 	for _, field := range requiredLists {
-		value, ok := artifact[field].([]interface{})
+		value, ok := decodedArtifact[field].([]interface{})
 		if !ok {
-			t.Fatalf("expected %s list in forwarded briefing artifact, got %#v", field, artifact[field])
+			t.Fatalf("expected %s list in forwarded briefing artifact, got %#v", field, decodedArtifact[field])
 		}
 		if value == nil {
 			t.Fatalf("expected %s to serialize as an empty list, not null", field)
 		}
 	}
 
-	snapshot, ok := artifact["submission_snapshot"].(map[string]interface{})
+	snapshot, ok := decodedArtifact["submission_snapshot"].(map[string]interface{})
 	if !ok {
-		t.Fatalf("expected submission_snapshot object, got %#v", artifact["submission_snapshot"])
+		t.Fatalf("expected submission_snapshot object, got %#v", decodedArtifact["submission_snapshot"])
 	}
 	keywords, ok := snapshot["keywords"].([]interface{})
 	if !ok {

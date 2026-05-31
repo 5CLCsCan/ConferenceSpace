@@ -1,0 +1,4 @@
+# Ignore generated benchmark artifacts; keep directory via .gitkeep
+*
+!.gitignore
+!.gitkeep
