@@ -16,6 +16,7 @@ import (
 	reviewerSuggestionController "github.com/dcao/conferencespace/internal/controller/reviewer_suggestion"
 	semanticscholarController "github.com/dcao/conferencespace/internal/controller/semantic_scholar"
 	"github.com/dcao/conferencespace/internal/controller/submission"
+	usageeventController "github.com/dcao/conferencespace/internal/controller/usage_event"
 	"github.com/dcao/conferencespace/internal/controller/user"
 	"github.com/dcao/conferencespace/internal/orchestrator"
 	coiService "github.com/dcao/conferencespace/internal/service/coi"
@@ -40,6 +41,7 @@ type Controller struct {
 	Discussion         *discussionController.Controller
 	ReviewerSuggestion *reviewerSuggestionController.Controller
 	ExternalInvitation *externalInvitationController.Controller
+	UsageEvent         *usageeventController.Controller
 }
 
 // buildReviewerSuggestionService wires the reviewer suggestion service.
@@ -133,6 +135,7 @@ func NewController(orch *orchestrator.Orchestrator, store *storage.Storage, file
 		Discussion:         discussionController.New(discSvc, "./uploads/discussions"),
 		ReviewerSuggestion: reviewerSuggestionController.New(reviewerSuggestionSvc),
 		ExternalInvitation: externalInvitationController.New(store.ExternalInvitation, orch.ExternalInvitation),
+		UsageEvent:         usageeventController.New(store),
 	}
 }
 
@@ -200,6 +203,7 @@ func NewControllerWithHub(orch *orchestrator.Orchestrator, store *storage.Storag
 		Discussion:         discussionController.New(discSvc, "./uploads/discussions"),
 		ReviewerSuggestion: reviewerSuggestionController.New(reviewerSuggestionSvc),
 		ExternalInvitation: externalInvitationController.New(store.ExternalInvitation, orch.ExternalInvitation),
+		UsageEvent:         usageeventController.New(store),
 	}
 }
 

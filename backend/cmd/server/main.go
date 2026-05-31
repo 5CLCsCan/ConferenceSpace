@@ -273,6 +273,13 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 		}
 
 		// Protected user routes (authentication required)
+		usageEvents := v1.Group("/usage-events")
+		usageEvents.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
+		{
+			usageEvents.POST("", handler.HandleRequest(ctrl.UsageEvent.CreateBatch))
+		}
+
+		// Protected user routes (authentication required)
 		users := v1.Group("/users")
 		users.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{

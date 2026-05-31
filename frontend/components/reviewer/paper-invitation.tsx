@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog"
 import { ArrowLeft, Loader2 } from "lucide-react"
 import { InvitationSubmissionPreview } from "./invitation-submission-preview"
+import { trackUsageEvent } from "@/lib/usage-events"
 
 const DECLINE_CATEGORIES = [
   { id: "not_my_expertise", labelKey: "text_not_my_expertise" },
@@ -79,6 +80,11 @@ export function PaperInvitation() {
       setError(error || T("text_failed_to_accept"))
       return
     }
+    trackUsageEvent("review_invitation_accepted", {
+      role: "reviewer",
+      entityType: "assignment",
+      entityId: assignmentId,
+    })
     await mutate((key) => Array.isArray(key) && key[0] === "conference-papers")
     toast({
       title: T("text_assignment_accepted"),
@@ -102,6 +108,12 @@ export function PaperInvitation() {
       setError(error || T("text_failed_to_decline"))
       return
     }
+    trackUsageEvent("review_invitation_declined", {
+      role: "reviewer",
+      entityType: "assignment",
+      entityId: assignmentId,
+      metadata: { declineCategory: selectedCategory },
+    })
     await mutate((key) => Array.isArray(key) && key[0] === "conference-papers")
     toast({
       title: T("text_assignment_declined"),

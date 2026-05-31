@@ -35,6 +35,7 @@ import type { Paper } from "@/lib/types"
 import type { ReviewAuditFinding, ReviewAuditResponse } from "@/lib/api/review-audit"
 import type { ReviewData } from "@/lib/api/reviews"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { trackUsageEvent } from "@/lib/usage-events"
 
 // =============================================================================
 // MAIN COMPONENT: SubmissionReviewScreen
@@ -75,6 +76,7 @@ export function SubmissionReviewScreen({
   } = useReviewAudit(conferenceId, assignmentId)
   const { toast } = useToast()
   const hasInitialized = useRef(false)
+  const hasTrackedReviewStart = useRef(false)
 
   useEffect(() => {
     if (!review?.review_data || hasInitialized.current) {
@@ -100,6 +102,17 @@ export function SubmissionReviewScreen({
       confidence: reviewData.confidence === "high" ? 5 : reviewData.confidence === "medium" ? 3 : 1,
     }))
   }, [review?.review_data])
+
+  useEffect(() => {
+    if (hasTrackedReviewStart.current) return
+    hasTrackedReviewStart.current = true
+    trackUsageEvent("review_started", {
+      role: "reviewer",
+      entityType: "assignment",
+      entityId: assignmentId,
+      metadata: { conferenceId, submissionId },
+    })
+  }, [assignmentId, conferenceId, submissionId])
 
   const submission = useMemo(() => {
     return {
@@ -198,6 +211,12 @@ export function SubmissionReviewScreen({
     })
 
     if (success) {
+      trackUsageEvent("review_draft_saved", {
+        role: "reviewer",
+        entityType: "assignment",
+        entityId: assignmentId,
+        metadata: { conferenceId, submissionId },
+      })
       const now = new Date().toLocaleTimeString("en-US", {
         hour: "numeric",
         minute: "2-digit",
@@ -225,8 +244,12 @@ export function SubmissionReviewScreen({
     if (!formData.recommendation) {
       toast({
         variant: "destructive",
-        title: t("runtime.components.reviewer.submission-review.prop_title_recommendation_required"),
-        description: t("runtime.components.reviewer.submission-review.prop_description_please_select_an_overall_rating_before"),
+        title: t(
+          "runtime.components.reviewer.submission-review.prop_title_recommendation_required",
+        ),
+        description: t(
+          "runtime.components.reviewer.submission-review.prop_description_please_select_an_overall_rating_before",
+        ),
       })
       return
     }
@@ -234,7 +257,9 @@ export function SubmissionReviewScreen({
       toast({
         variant: "destructive",
         title: t("runtime.components.reviewer.submission-review.prop_title_incomplete_review"),
-        description: t("runtime.components.reviewer.submission-review.prop_description_please_fill_in_the_summary_strengths"),
+        description: t(
+          "runtime.components.reviewer.submission-review.prop_description_please_fill_in_the_summary_strengths",
+        ),
       })
       return
     }
@@ -249,7 +274,9 @@ export function SubmissionReviewScreen({
       toast({
         variant: "destructive",
         title: t("runtime.components.reviewer.submission-review.prop_title_submission_blocked"),
-        description: t("runtime.components.reviewer.submission-review.prop_description_resolve_the_active_blocking_audit_findings"),
+        description: t(
+          "runtime.components.reviewer.submission-review.prop_description_resolve_the_active_blocking_audit_findings",
+        ),
       })
       return
     }
@@ -261,9 +288,17 @@ export function SubmissionReviewScreen({
     })
 
     if (success) {
+      trackUsageEvent("review_submitted", {
+        role: "reviewer",
+        entityType: "assignment",
+        entityId: assignmentId,
+        metadata: { conferenceId, submissionId },
+      })
       toast({
         title: t("runtime.components.reviewer.submission-review.prop_title_review_submitted"),
-        description: t("runtime.components.reviewer.submission-review.prop_description_your_review_has_been_submitted_successfully"),
+        description: t(
+          "runtime.components.reviewer.submission-review.prop_description_your_review_has_been_submitted_successfully",
+        ),
       })
     } else {
       const detail = parseReviewErrorDetail(errorData)
@@ -272,7 +307,9 @@ export function SubmissionReviewScreen({
         toast({
           variant: "destructive",
           title: t("runtime.components.reviewer.submission-review.prop_title_submission_blocked"),
-          description: t("runtime.components.reviewer.submission-review.prop_description_resolve_the_active_blocking_audit_findings"),
+          description: t(
+            "runtime.components.reviewer.submission-review.prop_description_resolve_the_active_blocking_audit_findings",
+          ),
         })
         return
       }
@@ -282,7 +319,9 @@ export function SubmissionReviewScreen({
       }
       toast({
         variant: "destructive",
-        title: t("runtime.components.reviewer.submission-review.prop_title_failed_to_submit_review"),
+        title: t(
+          "runtime.components.reviewer.submission-review.prop_title_failed_to_submit_review",
+        ),
         description: error || "An unexpected error occurred. Please try again.",
       })
     }
@@ -299,9 +338,17 @@ export function SubmissionReviewScreen({
 
     if (result.success) {
       setAuditOverridePrompt(null)
+      trackUsageEvent("review_submitted", {
+        role: "reviewer",
+        entityType: "assignment",
+        entityId: assignmentId,
+        metadata: { conferenceId, submissionId, auditOverride: true },
+      })
       toast({
         title: t("runtime.components.reviewer.submission-review.prop_title_review_submitted"),
-        description: t("runtime.components.reviewer.submission-review.prop_description_your_review_was_submitted_without_a"),
+        description: t(
+          "runtime.components.reviewer.submission-review.prop_description_your_review_was_submitted_without_a",
+        ),
       })
       return
     }
@@ -322,7 +369,9 @@ export function SubmissionReviewScreen({
     if (!result.success) {
       toast({
         variant: "destructive",
-        title: t("runtime.components.reviewer.submission-review.prop_title_failed_to_update_audit_finding"),
+        title: t(
+          "runtime.components.reviewer.submission-review.prop_title_failed_to_update_audit_finding",
+        ),
         description: result.error || "An unexpected error occurred. Please try again.",
       })
     }
@@ -598,8 +647,8 @@ export function SubmissionReviewScreen({
                   schedule
                 </span>
                 {t("runtime.components.reviewer.submission-review.text_last_draft_saved")}{" "}
-                  {formData.lastSaved ||
-                    t("runtime.components.reviewer.submission-review.text_not_saved")}
+                {formData.lastSaved ||
+                  t("runtime.components.reviewer.submission-review.text_not_saved")}
               </div>
               <div className="flex items-center gap-3">
                 <button
@@ -608,9 +657,9 @@ export function SubmissionReviewScreen({
                   disabled={saving || auditing}
                   className="h-8 px-3 rounded-md border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium text-[11px] hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 >
-                    {saving || auditing
-                      ? t("runtime.components.reviewer.submission-review.text_saving")
-                      : t("runtime.components.reviewer.submission-review.text_save_draft")}
+                  {saving || auditing
+                    ? t("runtime.components.reviewer.submission-review.text_saving")
+                    : t("runtime.components.reviewer.submission-review.text_save_draft")}
                 </button>
                 <button
                   type="button"
@@ -674,7 +723,11 @@ export function SubmissionReviewScreen({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("runtime.components.reviewer.submission-review.text_submit_without_completed_audit")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t(
+                "runtime.components.reviewer.submission-review.text_submit_without_completed_audit",
+              )}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {auditOverridePrompt ||
                 t(
@@ -683,9 +736,12 @@ export function SubmissionReviewScreen({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t("runtime.components.reviewer.submission-review.text_cancel")}</AlertDialogCancel>
+            <AlertDialogCancel>
+              {t("runtime.components.reviewer.submission-review.text_cancel")}
+            </AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmAuditOverride}>
-              {t("runtime.components.reviewer.submission-review.text_submit_anyway")}{" "}</AlertDialogAction>
+              {t("runtime.components.reviewer.submission-review.text_submit_anyway")}{" "}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
