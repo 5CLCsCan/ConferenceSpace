@@ -164,22 +164,24 @@ export function ActionCard({
       </div>
 
       {/* Action Button - Fixed width for alignment */}
-      <div className="shrink-0 w-[100px] flex justify-end">
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onAction?.()
-          }}
-          className={cn(
-            "h-8 px-3 text-[11px] font-medium rounded-full transition-all",
-            isOverdue
-              ? "bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] hover:bg-[#234C6A] dark:hover:bg-slate-200"
-              : "bg-white dark:bg-slate-700 text-[#1B3C53] dark:text-white border border-slate-200 dark:border-slate-600 hover:bg-[#1B3C53] hover:text-white hover:border-[#1B3C53] dark:hover:bg-slate-600",
-          )}
-        >
-          {buttonLabel}
-        </button>
-      </div>
+      {onAction && (
+        <div className="shrink-0 w-[100px] flex justify-end">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onAction()
+            }}
+            className={cn(
+              "h-8 px-3 text-[11px] font-medium rounded-full transition-all",
+              isOverdue
+                ? "bg-[#1B3C53] dark:bg-white text-white dark:text-[#1B3C53] hover:bg-[#234C6A] dark:hover:bg-slate-200"
+                : "bg-white dark:bg-slate-700 text-[#1B3C53] dark:text-white border border-slate-200 dark:border-slate-600 hover:bg-[#1B3C53] hover:text-white hover:border-[#1B3C53] dark:hover:bg-slate-600",
+            )}
+          >
+            {buttonLabel}
+          </button>
+        </div>
+      )}
     </div>
   )
 }
@@ -283,7 +285,7 @@ export function SectionHeader({
         )}
         {title}
       </h2>
-      {actionLabel && (
+      {actionLabel && onAction && (
         <button
           onClick={onAction}
           className="text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-[#1B3C53] dark:hover:text-white transition-colors"

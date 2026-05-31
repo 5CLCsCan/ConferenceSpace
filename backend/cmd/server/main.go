@@ -70,11 +70,15 @@ func main() {
 	router := setupRouter(appCtx, cfg)
 
 	// Create HTTP server
+	writeTimeout := 15 * time.Second
+	if cfg.AIService.TimeoutSeconds > 15 {
+		writeTimeout = time.Duration(cfg.AIService.TimeoutSeconds) * time.Second
+	}
 	srv := &http.Server{
 		Addr:         ":" + cfg.Server.Port,
 		Handler:      router,
 		ReadTimeout:  15 * time.Second,
-		WriteTimeout: 15 * time.Second,
+		WriteTimeout: writeTimeout,
 		IdleTimeout:  60 * time.Second,
 	}
 

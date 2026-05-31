@@ -20,6 +20,7 @@ import { isReadOnlyRole } from "@/lib/role-helpers"
 interface ConferenceMoreMenuProps {
   conferenceId: string
   conferenceStatus: ConferenceStatus
+  userRole?: string
   compact?: boolean
   onActionComplete?: () => void
 }
@@ -27,6 +28,7 @@ interface ConferenceMoreMenuProps {
 export function ConferenceMoreMenu({
   conferenceId,
   conferenceStatus,
+  userRole,
   compact = false,
   onActionComplete,
 }: ConferenceMoreMenuProps) {
@@ -35,6 +37,12 @@ export function ConferenceMoreMenu({
   const { t } = useTranslation()
   const { currentRole } = useAuth()
   const readOnly = isReadOnlyRole(currentRole)
+  const normalizedRole = (userRole || "").toLowerCase()
+  const canManageConference =
+    normalizedRole === "chair" ||
+    normalizedRole === "co-chair" ||
+    normalizedRole === "co_chair"
+  const canEdit = !readOnly && canManageConference
   const [isMutating, setIsMutating] = useState(false)
 
   const isArchived = conferenceStatus === "archived"
@@ -95,7 +103,7 @@ export function ConferenceMoreMenu({
         >
           {t("runtime.components.conference.explore-cards.text_view_details")}
         </DropdownMenuItem>
-        {!readOnly && (
+        {canEdit && (
           <DropdownMenuItem
             className="text-[11px] font-medium"
             onClick={() => router.push(ROUTES.CHAIR.CONFERENCE_EDIT(conferenceId))}
@@ -105,7 +113,7 @@ export function ConferenceMoreMenu({
               : t("runtime.components.conference.conference-cards.text_edit_details")}
           </DropdownMenuItem>
         )}
-        {!readOnly && (
+        {canEdit && (
           <DropdownMenuItem
             className="text-[11px] font-medium"
             disabled={isMutating}

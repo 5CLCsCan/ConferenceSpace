@@ -59,6 +59,7 @@ func buildReviewerSuggestionService(store *storage.Storage, clients *clients.Cli
 			store.User,
 			store.Reviewer,
 			store.Scholar,
+			store.ExternalInvitation,
 			clients.SemanticScholar,
 		)
 	}
@@ -68,6 +69,7 @@ func buildReviewerSuggestionService(store *storage.Storage, clients *clients.Cli
 		store.User,
 		store.Reviewer,
 		store.Scholar,
+		store.ExternalInvitation,
 		nil,
 	)
 }

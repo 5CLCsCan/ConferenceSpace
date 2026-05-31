@@ -178,6 +178,18 @@ export function ConferenceFormPage({
         return
       }
 
+      const normalizedRole = (response.data.userRole || "").toLowerCase()
+      const canManageConference =
+        normalizedRole === "chair" ||
+        normalizedRole === "co-chair" ||
+        normalizedRole === "co_chair"
+
+      if (!canManageConference) {
+        setIsLoadingConference(false)
+        router.replace(ROUTES.CHAIR.CONFERENCE_DETAIL(conferenceId))
+        return
+      }
+
       setExistingConference(response.data)
       setFormData(mapConferenceToFormData(response.data))
       setMaxStepReached(6)
@@ -189,7 +201,7 @@ export function ConferenceFormPage({
     return () => {
       active = false
     }
-  }, [conferenceId, isEditMode, t])
+  }, [conferenceId, isEditMode, t, router])
 
   const updateFormData = (data: Partial<ConferenceFormData>) => {
     setFormData((prev) => {

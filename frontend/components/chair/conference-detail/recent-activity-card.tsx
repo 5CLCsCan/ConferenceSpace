@@ -64,14 +64,16 @@ export function RecentActivityCard({
             "runtime.components.chair.conference-detail.recent-activity-card.text_recent_activity",
           )}{" "}
         </h3>
-        <button
-          onClick={onMore}
-          className="text-slate-400 hover:text-[#1B3C53] transition-colors p-1"
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
-            more_horiz
-          </span>
-        </button>
+        {onMore && (
+          <button
+            onClick={onMore}
+            className="text-slate-400 hover:text-[#1B3C53] transition-colors p-1"
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+              more_horiz
+            </span>
+          </button>
+        )}
       </div>
 
       {/* Activity List */}

@@ -64,14 +64,16 @@ export function DiscussionTab({
     [discussionConfig],
   )
 
-  const loadThreads = useCallback(async () => {
+  const loadThreads = useCallback(async (showLoading = true) => {
     if (!conferenceNumericId || !submissionNumericId) {
       setLoading(false)
       setError("Invalid discussion context")
       return
     }
 
-    setLoading(true)
+    if (showLoading) {
+      setLoading(true)
+    }
     setError(null)
     try {
       const threadResponse = await getThreads(conferenceNumericId, submissionNumericId)
@@ -93,7 +95,9 @@ export function DiscussionTab({
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Failed to load discussions")
     } finally {
-      setLoading(false)
+      if (showLoading) {
+        setLoading(false)
+      }
     }
   }, [conferenceNumericId, submissionNumericId, user?.email, onThreadCountChange])
 
@@ -131,7 +135,7 @@ export function DiscussionTab({
         title: data.title,
         content: data.content,
       })
-      await loadThreads()
+      await loadThreads(false)
     },
     [conferenceNumericId, submissionNumericId, loadThreads],
   )
@@ -142,10 +146,31 @@ export function DiscussionTab({
       if (!threadNumericId) {
         return
       }
-      await createMessage(threadNumericId, { content })
-      await loadThreads()
+      const message = await createMessage(threadNumericId, { content })
+      setThreads((current) =>
+        current.map((thread) =>
+          thread.id === threadId
+            ? {
+                ...thread,
+                lastActivity: "Just now",
+                messageCount: thread.messageCount + 1,
+                messages: [
+                  ...thread.messages,
+                  {
+                    id: String(message.id),
+                    author: currentUser,
+                    content: message.content,
+                    timestamp: message.created_at,
+                    relativeTime: "Just now",
+                  },
+                ],
+              }
+            : thread,
+        ),
+      )
+      void loadThreads(false)
     },
-    [loadThreads],
+    [currentUser, loadThreads],
   )
 
   const handleToggleCollapse = useCallback((threadId: string) => {

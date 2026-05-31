@@ -53,6 +53,133 @@ interface PaperSubmissionFormProps {
 type AutosaveStatus = "idle" | "saving" | "saved" | "error"
 const AUTOSAVE_INTERVAL_MS = 2 * 60 * 1000
 
+function splitName(value: string) {
+  const parts = value.trim().split(/\s+/).filter(Boolean)
+  return {
+    firstName: parts[0] || "",
+    lastName: parts.slice(1).join(" "),
+  }
+}
+
+function nameFromEmail(email: string) {
+  return splitName(email.split("@")[0]?.replace(/[._-]/g, " ") || "")
+}
+
+function normalizeStoredAuthors(submission: Submission | null | undefined, user: any): Author[] {
+  const metadata = submission?.information?.metadata as
+    | { authors?: Array<Partial<Author> & { corresponding?: boolean }> }
+    | undefined
+  const storedAuthors = Array.isArray(metadata?.authors) ? metadata.authors : []
+
+  if (storedAuthors.length > 0) {
+    const normalized = storedAuthors
+      .map((author, index): Author | null => {
+        const email = String(author.email || "").trim()
+        const fallbackName = email ? nameFromEmail(email) : { firstName: "", lastName: "" }
+        const firstName = String(author.firstName || fallbackName.firstName || "").trim()
+        const lastName = String(author.lastName || fallbackName.lastName || "").trim()
+        if (!email && !firstName && !lastName) return null
+        return {
+          id: String(author.id || `stored-author-${index}-${email || firstName}`),
+          firstName,
+          lastName,
+          email,
+          affiliation: String(author.affiliation || "").trim(),
+          country: String(author.country || "").trim(),
+          isCorresponding: Boolean(author.isCorresponding ?? author.corresponding ?? index === 0),
+        }
+      })
+      .filter((author): author is Author => Boolean(author))
+
+    if (normalized.length > 0) {
+      const hasCorresponding = normalized.some((author) => author.isCorresponding)
+      return normalized.map((author, index) => ({
+        ...author,
+        isCorresponding: hasCorresponding ? author.isCorresponding : index === 0,
+      }))
+    }
+  }
+
+  const primaryEmail = submission?.author || user?.email || ""
+  const primaryName =
+    user?.first_name || user?.last_name
+      ? { firstName: user?.first_name || "", lastName: user?.last_name || "" }
+      : user?.name
+        ? splitName(user.name)
+        : nameFromEmail(primaryEmail)
+  const coAuthorEmails = submission?.information?.co_authors || []
+
+  return [
+    {
+      id: "primary-author",
+      firstName: primaryName.firstName,
+      lastName: primaryName.lastName,
+      email: primaryEmail,
+      affiliation: user?.affiliation || "",
+      country: "",
+      isCorresponding: true,
+    },
+    ...coAuthorEmails.map((email, index): Author => {
+      const fallbackName = nameFromEmail(email)
+      return {
+        id: `co-author-${index}-${email}`,
+        firstName: fallbackName.firstName,
+        lastName: fallbackName.lastName,
+        email,
+        affiliation: "",
+        country: "",
+        isCorresponding: false,
+      }
+    }),
+  ]
+}
+
+function normalizeStoredConflicts(submission: Submission | null | undefined): Conflict[] {
+  const metadata = submission?.information?.metadata as
+    | {
+        conflicts?: Array<{
+          id?: string
+          firstName?: string
+          lastName?: string
+          email?: string
+          reason?: string
+        }>
+      }
+    | undefined
+  const storedConflicts = Array.isArray(metadata?.conflicts) ? metadata.conflicts : []
+
+  if (storedConflicts.length > 0) {
+    return storedConflicts.map((conflict, index) => ({
+      id: String(conflict.id || `stored-conflict-${index}-${conflict.email || conflict.firstName}`),
+      firstName: String(conflict.firstName || "").trim(),
+      lastName: String(conflict.lastName || "").trim(),
+      email: String(conflict.email || "").trim(),
+      reason: String(conflict.reason || "other"),
+    }))
+  }
+
+  return (submission?.information?.declared_conflicts || []).map((conflict, index) => {
+    const fallbackName = conflict.email
+      ? nameFromEmail(conflict.email)
+      : { firstName: "", lastName: "" }
+    return {
+      id: `declared-conflict-${index}-${conflict.email}`,
+      firstName: fallbackName.firstName,
+      lastName: fallbackName.lastName,
+      email: conflict.email,
+      reason: conflict.reason || "other",
+    }
+  })
+}
+
+function initialConflictDomains(submission: Submission | null | undefined, user: any) {
+  if (submission?.domain?.length) {
+    return submission.domain
+  }
+  const emailDomain = typeof user?.email === "string" ? user.email.split("@")[1] : ""
+  return emailDomain ? [emailDomain] : []
+}
+
 function findAutofillManuscriptFile(
   files: File[],
   result: SubmissionAutofillResponse,
@@ -101,6 +228,16 @@ export function PaperSubmissionForm({
   const lastSavedSignatureRef = useRef<string>("")
   const lastAutosaveErrorRef = useRef<string | null>(null)
   const hasTrackedSubmissionStartRef = useRef(false)
+  const userSubmissionSnapshot = useMemo(
+    () => ({
+      email: user?.email,
+      first_name: user?.first_name,
+      last_name: user?.last_name,
+      name: user?.name,
+      affiliation: user?.affiliation,
+    }),
+    [user?.affiliation, user?.email, user?.first_name, user?.last_name, user?.name],
+  )
 
   useEffect(() => {
     if (initialSubmission?.id) {
@@ -118,6 +255,17 @@ export function PaperSubmissionForm({
     }
   }, [initialSubmission?.id])
 
+  useEffect(() => {
+    setTitle(initialSubmission?.title || "")
+    setAbstract(initialSubmission?.abstract || "")
+    setKeywords(initialSubmission?.information?.keywords || [])
+    setSelectedTrack(initialSubmission?.information?.track_name || "")
+    setIsStudentPaper(initialSubmission?.information?.paper_type === "student")
+    setAuthors(normalizeStoredAuthors(initialSubmission, userSubmissionSnapshot))
+    setConflictDomains(initialConflictDomains(initialSubmission, userSubmissionSnapshot))
+    setConflicts(normalizeStoredConflicts(initialSubmission))
+  }, [initialSubmission, userSubmissionSnapshot])
+
   // Paper Details state
   const [title, setTitle] = useState(initialSubmission?.title || "")
   const [abstract, setAbstract] = useState(initialSubmission?.abstract || "")
@@ -126,7 +274,9 @@ export function PaperSubmissionForm({
   const [selectedTrack, setSelectedTrack] = useState<string>(
     initialSubmission?.information?.track_name || "",
   )
-  const [isStudentPaper, setIsStudentPaper] = useState(false)
+  const [isStudentPaper, setIsStudentPaper] = useState(
+    initialSubmission?.information?.paper_type === "student",
+  )
   const [trackRecommendations, setTrackRecommendations] = useState<TrackRecommendation[]>([])
   const [trackRecommendationLoading, setTrackRecommendationLoading] = useState(false)
   const [trackRecommendationError, setTrackRecommendationError] = useState<string | null>(null)
@@ -135,17 +285,9 @@ export function PaperSubmissionForm({
   )
 
   // Authors state
-  const [authors, setAuthors] = useState<Author[]>([
-    {
-      id: "1",
-      firstName: user?.first_name || user?.name?.split(" ")[0] || "",
-      lastName: user?.last_name || user?.name?.split(" ").slice(1).join(" ") || "",
-      email: user?.email || "",
-      affiliation: user?.affiliation || "",
-      country: "",
-      isCorresponding: true,
-    },
-  ])
+  const [authors, setAuthors] = useState<Author[]>(() =>
+    normalizeStoredAuthors(initialSubmission, user),
+  )
   const [newAuthor, setNewAuthor] = useState({
     firstName: "",
     lastName: "",
@@ -167,9 +309,13 @@ export function PaperSubmissionForm({
   }>({ format: false, fonts: false })
 
   // Conflicts of Interest state
-  const [conflictDomains, setConflictDomains] = useState<string[]>(["mit.edu", "csail.mit.edu"])
+  const [conflictDomains, setConflictDomains] = useState<string[]>(() =>
+    initialConflictDomains(initialSubmission, user),
+  )
   const [domainInput, setDomainInput] = useState("")
-  const [conflicts, setConflicts] = useState<Conflict[]>([])
+  const [conflicts, setConflicts] = useState<Conflict[]>(() =>
+    normalizeStoredConflicts(initialSubmission),
+  )
   const [newConflict, setNewConflict] = useState({
     firstName: "",
     lastName: "",
@@ -210,6 +356,8 @@ export function PaperSubmissionForm({
   const isPublishBlocked = isDeadlinePassed && shouldPublishOnSubmit
   const persistedSubmissionStatus =
     initialSubmission && initialSubmission.status !== "draft" ? initialSubmission.status : "draft"
+  const persistedMutationStatus: "draft" | "published" =
+    persistedSubmissionStatus === "published" ? "published" : "draft"
 
   const mapSubmissionError = useCallback(
     (errorMessage: string | null, precheckBlocked?: PrecheckBlockedError | null): string => {
@@ -241,11 +389,11 @@ export function PaperSubmissionForm({
   )
 
   const buildSubmissionData = useCallback(
-    (status: "draft" | "published" = persistedSubmissionStatus) => ({
+    (status: "draft" | "published" = persistedMutationStatus) => ({
       title,
       abstract,
       link: "",
-      domain: [],
+      domain: conflictDomains,
       status,
       track: selectedTrack,
       file: uploadedFile || undefined,
@@ -262,6 +410,24 @@ export function PaperSubmissionForm({
         track_name: selectedTrack,
         additional_notes: "",
         metadata: {
+          ...(initialSubmission?.information?.metadata || {}),
+          authors: authors.map((author, index) => ({
+            id: author.id,
+            firstName: author.firstName,
+            lastName: author.lastName,
+            email: author.email,
+            affiliation: author.affiliation,
+            country: author.country,
+            isCorresponding: author.isCorresponding,
+            order: index,
+          })),
+          conflicts: conflicts.map((conflict) => ({
+            id: conflict.id,
+            firstName: conflict.firstName,
+            lastName: conflict.lastName,
+            email: conflict.email,
+            reason: conflict.reason || "other",
+          })),
           language: "en",
           page_count: 0,
         },
@@ -270,10 +436,12 @@ export function PaperSubmissionForm({
     [
       abstract,
       authors,
+      conflictDomains,
       conflicts,
+      initialSubmission?.information?.metadata,
       isStudentPaper,
       keywords,
-      persistedSubmissionStatus,
+      persistedMutationStatus,
       selectedTrack,
       title,
       uploadedFile,
@@ -847,17 +1015,18 @@ export function PaperSubmissionForm({
             })
 
       if (response.error) {
-        setLastPrecheckBlock(response.precheckBlocked || null)
+        const precheckBlocked = "precheckBlocked" in response ? response.precheckBlocked : null
+        setLastPrecheckBlock(precheckBlocked || null)
         toast({
           title: t(
             "runtime.components.author.submit.paper-submission-form.prop_title_submission_failed",
           ),
-          description: mapSubmissionError(response.error, response.precheckBlocked),
+          description: mapSubmissionError(response.error, precheckBlocked),
           variant: "destructive",
         })
       } else {
         if (response.data?.id) {
-          setDraftSubmissionId(response.data.id)
+          setDraftSubmissionId(String(response.data.id))
         }
         lastSavedSignatureRef.current = draftSignature
         setLastSavedAt(new Date())
@@ -1134,6 +1303,17 @@ export function PaperSubmissionForm({
                 keywords={keywords}
                 authors={authors}
                 uploadedFile={uploadedFile}
+                existingFile={
+                  uploadedFile
+                    ? undefined
+                    : initialSubmission?.file
+                      ? {
+                          name: initialSubmission.file.original_name,
+                          size: initialSubmission.file.size,
+                          type: initialSubmission.file.mime_type,
+                        }
+                      : undefined
+                }
                 precheckResult={precheckResult}
                 precheckError={precheckError}
                 conflicts={conflicts}

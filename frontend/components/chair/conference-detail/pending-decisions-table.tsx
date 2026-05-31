@@ -77,14 +77,16 @@ export function PendingDecisionsTable({
             )}{" "}
           </h3>
         </div>
-        <button
-          onClick={onViewAll}
-          className="text-[10px] text-[#1B3C53] dark:text-sky-400 font-bold hover:underline uppercase tracking-wider"
-        >
-          {t(
-            "runtime.components.chair.conference-detail.pending-decisions-table.text_view_all_submissions",
-          )}{" "}
-        </button>
+        {onViewAll && (
+          <button
+            onClick={onViewAll}
+            className="text-[10px] text-[#1B3C53] dark:text-sky-400 font-bold hover:underline uppercase tracking-wider"
+          >
+            {t(
+              "runtime.components.chair.conference-detail.pending-decisions-table.text_view_all_submissions",
+            )}{" "}
+          </button>
+        )}
       </div>
 
       {/* Table */}
@@ -135,14 +137,18 @@ export function PendingDecisionsTable({
                 </td>
                 <td className="px-4 py-3 text-slate-400 text-[11px]">{decision.status}</td>
                 <td className="px-4 py-3 text-right">
-                  <button
-                    onClick={() => onDecide?.(decision.id)}
-                    className="text-slate-500 hover:text-[#1B3C53] font-medium text-[10px] uppercase tracking-wider"
-                  >
-                    {t(
-                      "runtime.components.chair.conference-detail.pending-decisions-table.text_decide",
-                    )}{" "}
-                  </button>
+                  {onDecide ? (
+                    <button
+                      onClick={() => onDecide(decision.id)}
+                      className="text-slate-500 hover:text-[#1B3C53] font-medium text-[10px] uppercase tracking-wider"
+                    >
+                      {t(
+                        "runtime.components.chair.conference-detail.pending-decisions-table.text_decide",
+                      )}{" "}
+                    </button>
+                  ) : (
+                    <span className="text-[10px] text-slate-300">-</span>
+                  )}
                 </td>
               </tr>
             ))}

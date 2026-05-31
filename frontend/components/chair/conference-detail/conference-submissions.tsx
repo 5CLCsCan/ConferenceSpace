@@ -263,8 +263,11 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
           const score =
             completed > 0
               ? reviewList
-                  .filter((review) => typeof review.review_score === "number")
-                  .reduce((sum, review) => sum + (review.review_score || 0), 0) / completed
+                  .filter((review) => typeof review.review_score === "number" || typeof review.post_rebuttal_score === "number")
+                  .reduce((sum, review) => {
+                    const val = typeof review.post_rebuttal_score === "number" ? review.post_rebuttal_score : (review.review_score || 0)
+                    return sum + val
+                  }, 0) / completed
               : null
 
           return {

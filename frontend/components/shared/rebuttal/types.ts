@@ -104,6 +104,7 @@ export interface RebuttalPanelProps {
   currentUserId?: string
   onPointStatusChange?: (pointId: string, status: ResponseStatus, note?: string) => void
   onUpdateReview?: () => void
+  onStartDiscussion?: () => void
   onSubmitRebuttal?: (data: RebuttalSubmissionData) => void
   readOnly?: boolean
   className?: string
@@ -128,8 +129,7 @@ export interface PointCardProps {
   point: RebuttalPoint
   reviewer: ReviewerInfo
   userRole: UserRole
-  onMarkStatus?: (status: ResponseStatus) => void
-  onAddNote?: (note: string) => void
+  onMarkStatus?: (status: ResponseStatus, note?: string) => void
   onAuthorResponseChange?: (response: string) => void
   readOnly?: boolean
 }
@@ -144,7 +144,7 @@ export interface ReviewerResponseGroupProps {
   reviewer: ReviewerInfo
   points: RebuttalPoint[]
   userRole: UserRole
-  onPointStatusChange: (pointId: string, status: ResponseStatus) => void
+  onPointStatusChange: (pointId: string, status: ResponseStatus, note?: string) => void
   onAuthorResponseChange?: (pointId: string, response: string) => void
   defaultExpanded?: boolean
   readOnly?: boolean

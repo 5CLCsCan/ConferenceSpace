@@ -28,7 +28,7 @@ import requests
 
 
 DEFAULT_BASE_URL = "http://localhost:8080"
-DEFAULT_PASSWORD = "DemoPass123!"
+DEFAULT_PASSWORD = "Demo@123"
 DEFAULT_FRONTEND_URL = "http://localhost:3000"
 
 CHAIR_EMAIL = "chair.main@conferencespace.local"

@@ -7,24 +7,24 @@ import (
 
 // Assignment represents a paper assignment for both request and response
 type Assignment struct {
-	ID                         int64       `json:"id,omitempty"`
-	ConferenceID               int64       `json:"conference_id,omitempty"`
-	SubmissionID               int64       `json:"submission_id" binding:"required"`
-	ReviewerID                 int64       `json:"reviewer_id" binding:"required"`
-	Score                      float64     `json:"score,omitempty"`
-	Status                     string      `json:"status,omitempty"` // pending, accepted, declined, completed
-	AssignedAt                 time.Time   `json:"assigned_at,omitempty"`
-	CompletedAt                *time.Time  `json:"completed_at,omitempty"`
-	ReviewStatus               *string     `json:"review_status,omitempty"` // draft, submitted
-	ReviewScore                *float64    `json:"review_score,omitempty"`
-	ReviewData                 *ReviewData `json:"review_data,omitempty"`
-	ReviewSubmittedAt          *time.Time  `json:"review_submitted_at,omitempty"`
-	RebuttalStatus             string      `json:"rebuttal_status,omitempty"`
-	RebuttalSubmittedAt        *time.Time  `json:"rebuttal_submitted_at,omitempty"`
-	RebuttalAcknowledgedAt     *time.Time  `json:"rebuttal_acknowledged_at,omitempty"`
-	PostRebuttalScore          *int        `json:"post_rebuttal_score,omitempty"`
-	PostRebuttalRecommendation *string     `json:"post_rebuttal_recommendation,omitempty"`
-	PostRebuttalComment        *string     `json:"post_rebuttal_comment,omitempty"`
+	ID                         int64           `json:"id,omitempty"`
+	ConferenceID               int64           `json:"conference_id,omitempty"`
+	SubmissionID               int64           `json:"submission_id" binding:"required"`
+	ReviewerID                 int64           `json:"reviewer_id" binding:"required"`
+	Score                      float64         `json:"score,omitempty"`
+	Status                     string          `json:"status,omitempty"` // pending, accepted, declined, completed
+	AssignedAt                 time.Time       `json:"assigned_at,omitempty"`
+	CompletedAt                *time.Time      `json:"completed_at,omitempty"`
+	ReviewStatus               *string         `json:"review_status,omitempty"` // draft, submitted
+	ReviewScore                *float64        `json:"review_score,omitempty"`
+	ReviewData                 *ReviewData     `json:"review_data,omitempty"`
+	ReviewSubmittedAt          *time.Time      `json:"review_submitted_at,omitempty"`
+	RebuttalStatus             string          `json:"rebuttal_status,omitempty"`
+	RebuttalSubmittedAt        *time.Time      `json:"rebuttal_submitted_at,omitempty"`
+	RebuttalAcknowledgedAt     *time.Time      `json:"rebuttal_acknowledged_at,omitempty"`
+	PostRebuttalScore          *float64        `json:"post_rebuttal_score,omitempty"`
+	PostRebuttalRecommendation *string         `json:"post_rebuttal_recommendation,omitempty"`
+	PostRebuttalComment        *string         `json:"post_rebuttal_comment,omitempty"`
 	PostRebuttalUpdatedAt      *time.Time      `json:"post_rebuttal_updated_at,omitempty"`
 	CreatedAt                  time.Time       `json:"created_at,omitempty"`
 	UpdatedAt                  time.Time       `json:"updated_at,omitempty"`
@@ -266,12 +266,12 @@ type ReviewCriteriaAverages struct {
 
 // SuggestionMetadata contains the match explanation data stored at suggestion-creation time
 type SuggestionMetadata struct {
-	Source                  string            `json:"source"` // auto_pass1, auto_pass2, manual
-	MatchedKeywords         []string          `json:"matched_keywords"`
-	UnmatchedPaperKeywords  []string          `json:"unmatched_paper_keywords"`
-	ExtraReviewerKeywords   []string          `json:"extra_reviewer_keywords"`
-	COIChecks               map[string]string `json:"coi_checks"`
-	CreatedAt               string            `json:"created_at"`
+	Source                 string            `json:"source"` // auto_pass1, auto_pass2, manual
+	MatchedKeywords        []string          `json:"matched_keywords"`
+	UnmatchedPaperKeywords []string          `json:"unmatched_paper_keywords"`
+	ExtraReviewerKeywords  []string          `json:"extra_reviewer_keywords"`
+	COIChecks              map[string]string `json:"coi_checks"`
+	CreatedAt              string            `json:"created_at"`
 }
 
 // SuggestedReviewer represents a suggested reviewer for a paper
@@ -426,11 +426,11 @@ type GetRebuttalRequest struct {
 
 // RebuttalAssignmentStatus carries per-assignment rebuttal acknowledgment info.
 type RebuttalAssignmentStatus struct {
-	AssignmentID               int64   `json:"assignment_id"`
-	RebuttalStatus             string  `json:"rebuttal_status"` // none | submitted | acknowledged
+	AssignmentID               int64       `json:"assignment_id"`
+	RebuttalStatus             string      `json:"rebuttal_status"` // none | submitted | acknowledged
 	ReviewScore                float64     `json:"review_score"`
 	ReviewData                 *ReviewData `json:"review_data,omitempty"`
-	PostRebuttalScore          int         `json:"post_rebuttal_score"`
+	PostRebuttalScore          float64     `json:"post_rebuttal_score"`
 	PostRebuttalRecommendation string      `json:"post_rebuttal_recommendation"`
 }
 
@@ -460,7 +460,7 @@ type AcknowledgePointRequest struct {
 // InvitationEvidence contains the persuasive evidence shown to the reviewer
 type InvitationEvidence struct {
 	MatchedKeywords []string `json:"matched_keywords"`
-	Score           *float64 `json:"score"`           // nil if < 0.5
+	Score           *float64 `json:"score"` // nil if < 0.5
 	AssignmentCount int      `json:"assignment_count"`
 }
 
@@ -499,9 +499,9 @@ type RespondResponse struct {
 
 // PostRebuttalScoreRequest is the body for PUT .../assignments/:id/post-rebuttal-score
 type PostRebuttalScoreRequest struct {
-	ConferenceID   int64  `uri:"conference_id"`
-	AssignmentID   int64  `uri:"assignment_id"`
-	Score          int    `json:"score" binding:"required,min=1,max=10"`
-	Recommendation string `json:"recommendation" binding:"required,oneof=accept reject borderline"`
-	Comment        string `json:"comment"`
+	ConferenceID   int64   `uri:"conference_id"`
+	AssignmentID   int64   `uri:"assignment_id"`
+	Score          float64 `json:"score" binding:"required,min=1,max=10"`
+	Recommendation string  `json:"recommendation" binding:"required,oneof=accept reject borderline"`
+	Comment        string  `json:"comment"`
 }

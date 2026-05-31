@@ -198,6 +198,14 @@ export interface ConferenceConfigTemplatePayload {
   file_formats?: string[]
   call_for_paper_text?: string
   co_chairs?: string[]
+  gating_enabled?: boolean
+  gating_min_references?: number
+  gating_title_max_words?: number
+  gating_required_sections?: string[]
+  gating_scope_keywords?: string[]
+  gating_anonymization_required?: boolean
+  gating_banned_phrases?: string[]
+  gating_prompt?: string
 }
 
 export interface ConferenceConfigTemplate {

@@ -131,14 +131,18 @@ function buildReviewerScores(
     .filter((review) => review.review_status === "submitted")
     .map((review, index) => {
       const rebuttalReviewer = rebuttalReviewers.get(String(review.id))
+      const originalScore = typeof review.review_score === "number" ? review.review_score : 0
+      const postRebuttalScore = typeof review.post_rebuttal_score === "number" ? review.post_rebuttal_score : undefined
+      const currentScore = postRebuttalScore !== undefined ? postRebuttalScore : originalScore
+      const updated = postRebuttalScore !== undefined && postRebuttalScore !== originalScore
 
       return {
         id: String(review.id),
         anonymousId: rebuttalReviewer?.anonymousId || reviewerLabel(index),
-        originalScore: typeof review.review_score === "number" ? review.review_score : 0,
-        currentScore: typeof review.review_score === "number" ? review.review_score : 0,
-        updated: false,
-        recommendation: mapReviewRecommendation(review.review_data?.recommendation),
+        originalScore,
+        currentScore,
+        updated,
+        recommendation: mapReviewRecommendation(review.post_rebuttal_recommendation || review.review_data?.recommendation),
       }
     })
 

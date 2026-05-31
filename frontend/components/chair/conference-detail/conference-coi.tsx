@@ -83,10 +83,7 @@ function OperationsPanel({
               arrow_forward
             </span>
           </button>
-          <button
-            type="button"
-            className="w-full bg-white/10 border border-white/20 text-left px-3 py-2.5 rounded-lg flex items-center justify-between opacity-70 cursor-default"
-          >
+          <div className="w-full bg-white/10 border border-white/20 text-left px-3 py-2.5 rounded-lg flex items-center justify-between opacity-70">
             <span className="text-[11px] font-medium">
               {t(
                 "runtime.components.chair.conference-detail.conference-coi.text_manual_moderation_actions",
@@ -95,11 +92,8 @@ function OperationsPanel({
             <span className="text-[10px] text-slate-300">
               {t("runtime.components.chair.conference-detail.conference-coi.text_api_only")}
             </span>
-          </button>
-          <button
-            type="button"
-            className="w-full bg-white/10 border border-white/20 text-left px-3 py-2.5 rounded-lg flex items-center justify-between opacity-70 cursor-default"
-          >
+          </div>
+          <div className="w-full bg-white/10 border border-white/20 text-left px-3 py-2.5 rounded-lg flex items-center justify-between opacity-70">
             <span className="text-[11px] font-medium">
               {t(
                 "runtime.components.chair.conference-detail.conference-coi.text_reviewer_reassignment_flow",
@@ -108,7 +102,7 @@ function OperationsPanel({
             <span className="text-[10px] text-slate-300">
               {t("runtime.components.chair.conference-detail.conference-coi.text_read_only")}
             </span>
-          </button>
+          </div>
         </div>
 
         <div className="mt-4 pt-3 border-t border-white/10">
