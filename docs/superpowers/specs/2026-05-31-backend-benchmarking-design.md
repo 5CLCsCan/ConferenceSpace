@@ -102,8 +102,12 @@ app-data seed does not create. To make graph-based COI fully measurable:
   `COAUTHORED` edges with `established_date`) as a CSV, sized to align with the
   seeded reviewers/authors.
 - The graph is loaded **directly into Neo4j** by reusing the existing
-  `tools/graph_ingestion` bolt loader (`make graph-import FILE=...`), which
-  already manages its own Neo4j connection config (URI/user/pass).
+  `scripts/graph_ingestion` bolt loader (a separate Go module), invoked via
+  `go run .` with `-file/-uri/-user/-pass/-clear` flags. (Note: the backend
+  `Makefile`'s `graph-import` target points at a non-existent
+  `tools/graph_ingestion` path and is broken, so the loader is invoked directly
+  rather than through `make`.) The loader CSV format is
+  `author_1,author_2,date,metadata` where `date` is an integer year.
 - This requires Neo4j connection details for the target environment. When Neo4j
   is unavailable, the graph seed is skipped and COI falls back to the basic
   detectors only (documented behavior, not an error).

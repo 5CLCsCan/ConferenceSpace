@@ -4,9 +4,9 @@
 
 **Goal:** Build an environment-agnostic backend benchmark suite — k6 HTTP load tests (CRUD, matching, COI) plus Go micro-benchmarks for the matching and COI algorithms — that emits raw CSV/JSON results for a performance report.
 
-**Architecture:** A new `backend/benchmarks/` tree inside the existing Go module. Go micro-benchmarks import the real `internal/assignment/...` packages and run over synthetic in-memory inputs. A Go seed tool populates Postgres app data over HTTP and (optionally) loads a synthetic co-authorship graph into Neo4j by reusing the existing `tools/graph_ingestion` loader. k6 scripts drive real endpoints, parameterized entirely by env vars.
+**Architecture:** A new `backend/benchmarks/` tree inside the existing Go module. Go micro-benchmarks import the real `internal/assignment/...` packages and run over synthetic in-memory inputs. A Go seed tool populates Postgres app data over HTTP and (optionally) loads a synthetic co-authorship graph into Neo4j by reusing the existing `scripts/graph_ingestion` loader. k6 scripts drive real endpoints, parameterized entirely by env vars.
 
-**Tech Stack:** Go 1.24 (`testing.B`), k6 (JavaScript), the existing `tests/api/testutils` HTTP patterns, the existing `tools/graph_ingestion` Neo4j bolt loader.
+**Tech Stack:** Go 1.24 (`testing.B`), k6 (JavaScript), the existing `tests/api/testutils` HTTP patterns, the existing `scripts/graph_ingestion` Neo4j bolt loader.
 
 ---
 
@@ -21,9 +21,10 @@
   - `POST /api/v1/conferences` — body `{conference:{...}}` → `{data:{...,id}}`
   - `GET  /api/v1/conferences/:conference_id/submissions?limit=&offset=`
   - `POST /api/v1/conferences/:conference_id/submissions/auto-assign`
-  - `GET  /api/v1/conferences/:conference_id/reviewer-suggestions`
-  - `GET  /api/v1/coi/check/reviewer/:reviewer_id/author/:author_email`
-  - `GET  /api/v1/users/search?conference_id=`
+  - `GET  /api/v1/conferences/:conference_id/reviewer-suggestions` — requires chair role on the conference (`requireChair`)
+  - `GET  /api/v1/coi/check/reviewer/:reviewer_id/author/:author_email?conference_id=` — auth + chair/co-chair of `conference_id`; `conference_id` query is REQUIRED
+  - `GET  /api/v1/users/search?q=&limit=&conference_id=` — `q` REQUIRED (matches email); `limit` (≤50) and `conference_id` (match annotation) optional
+  - `POST /api/v1/conferences/:conference_id/submissions` — multipart/form-data; `submission` field holds `{"submission":{...}}`; PDF `file` required only for status `published`; author must NOT be a chair/co-chair/PC of the conference
 
 ---
 
@@ -79,7 +80,7 @@ Environment-agnostic performance suite. See
 ## Prereqs
 - A running backend reachable at `BASE_URL` (dev/test env for `test-login`).
 - `k6` installed (https://grafana.com/docs/k6/latest/set-up/install-k6/).
-- For graph COI: a reachable Neo4j and the `tools/graph_ingestion` loader built.
+- For graph COI: a reachable Neo4j and the `scripts/graph_ingestion` loader (run via `go run .`).
 
 ## Run
     cd backend/benchmarks
@@ -477,6 +478,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"time"
 )
@@ -505,6 +507,44 @@ func (c *apiClient) do(method, path, token string, body interface{}, out interfa
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
+	if token != "" {
+		req.Header.Set("Authorization", "Bearer "+token)
+	}
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	raw, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("%s %s -> %d: %s", method, path, resp.StatusCode, string(raw))
+	}
+	if out != nil && len(raw) > 0 {
+		return json.Unmarshal(raw, out)
+	}
+	return nil
+}
+
+// doMultipart performs a multipart/form-data request with simple string fields.
+// The submission create endpoint expects multipart form data (see
+// handler.HandleSubmissionCreate -> utils.BindSubmissionCreateRequest), with the
+// submission payload carried in a single "submission" field as a JSON string.
+func (c *apiClient) doMultipart(method, path, token string, fields map[string]string, out interface{}) error {
+	var buf bytes.Buffer
+	mw := multipart.NewWriter(&buf)
+	for k, v := range fields {
+		if err := mw.WriteField(k, v); err != nil {
+			return err
+		}
+	}
+	if err := mw.Close(); err != nil {
+		return err
+	}
+	req, err := http.NewRequest(method, c.baseURL+path, &buf)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", mw.FormDataContentType())
 	if token != "" {
 		req.Header.Set("Authorization", "Bearer "+token)
 	}
@@ -611,11 +651,16 @@ func seedPostgres(c *apiClient, cfg Config) (*Summary, error) {
 
 	for i := 0; i < cfg.Conferences; i++ {
 		acronym := fmt.Sprintf("BENCH%d-%d", i, time.Now().UnixNano())
+		// Conference required fields are `title` and `acronym` (dto.Conference
+		// binding:"required"); other fields are optional. The body must be
+		// wrapped as {"conference": {...}} (dto.ConferenceCreateRequest). Status
+		// is left empty: the storage layer defaults a new conference to "open",
+		// which is required before submissions are accepted.
 		confBody := map[string]interface{}{
 			"conference": map[string]interface{}{
-				"title":    fmt.Sprintf("Benchmark Conference %d", i),
-				"acronym":  acronym,
-				"location": "Benchmark City",
+				"title":   fmt.Sprintf("Benchmark Conference %d", i),
+				"acronym": acronym,
+				"venue":   "Benchmark City",
 			},
 		}
 		var cr createdResp
@@ -624,15 +669,40 @@ func seedPostgres(c *apiClient, cfg Config) (*Summary, error) {
 		}
 		sum.ConferenceIDs = append(sum.ConferenceIDs, cr.Data.ID)
 
+		// Submissions are created by NON-admin authors. Two backend constraints
+		// drive this:
+		//   1. The create handler rejects chairs/co-chairs/PC members of the
+		//      conference (rejectAdminAuthorPath -> 403), so the chair token used
+		//      to create the conference CANNOT author a submission in it.
+		//   2. An author may submit at most once per conference
+		//      (ErrAuthorAlreadySubmitted -> 409 Conflict).
+		// So we mint a fresh author per submission via test-login.
 		perConf := cfg.Submissions / max(cfg.Conferences, 1)
+		path := fmt.Sprintf("/api/v1/conferences/%d/submissions", cr.Data.ID)
 		for s := 0; s < perConf; s++ {
-			subBody := map[string]interface{}{
-				"title":    fmt.Sprintf("Benchmark Paper %d-%d", i, s),
-				"abstract": "Synthetic abstract for benchmarking purposes.",
+			authorEmail := fmt.Sprintf("bench-author-%d-%d@example.com", i, s)
+			authorToken, _, err := login(c, authorEmail)
+			if err != nil {
+				return nil, fmt.Errorf("author login: %w", err)
 			}
+
+			// The submission endpoint is multipart/form-data with the payload in
+			// a "submission" field, shaped as {"submission": {...}}. A file is
+			// only mandatory for status "published"; we omit status so it defaults
+			// to "draft", which needs no PDF and bypasses the precheck gate.
+			subJSON, err := json.Marshal(map[string]interface{}{
+				"submission": map[string]interface{}{
+					"title":    fmt.Sprintf("Benchmark Paper %d-%d", i, s),
+					"abstract": "Synthetic abstract for benchmarking purposes.",
+				},
+			})
+			if err != nil {
+				return nil, err
+			}
+
 			var sr createdResp
-			path := fmt.Sprintf("/api/v1/conferences/%d/submissions", cr.Data.ID)
-			if err := c.do("POST", path, token, subBody, &sr); err != nil {
+			fields := map[string]string{"submission": string(subJSON)}
+			if err := c.doMultipart("POST", path, authorToken, fields, &sr); err != nil {
 				return nil, fmt.Errorf("create submission %d: %w", s, err)
 			}
 			sum.SubmissionIDs = append(sum.SubmissionIDs, sr.Data.ID)
@@ -668,7 +738,11 @@ func max(a, b int) int {
 }
 ```
 
-> NOTE: The submission create payload above is intentionally minimal. Before relying on it, confirm the required fields via Swagger (`/swagger/index.html`) or `internal/dto` and add any required fields (e.g. track, keywords). If `submissions.POST` requires multipart/file upload, switch this call to multipart using the pattern in `tests/api/testutils/setup.go:MakeMultipartRequestWithFiles`.
+> NOTE (resolved): Confirmed against `internal/controller/submission/submission.go`, `internal/handler/handler.go:HandleSubmissionCreate`, `internal/utils/submission_binder.go`, `internal/dto/submission.go`, and `tests/api/submission/client.go`. Key facts now reflected above:
+> - **Transport:** `POST /conferences/:conference_id/submissions` is **multipart/form-data**, not JSON. The handler calls `ctx.MultipartForm()`, and the binder reads the submission payload from a single `submission` form field containing a JSON string shaped as `{"submission": {...}}`. (This mirrors `tests/api/submission/client.go:CreateWithoutFile`, which uses multipart with no file.)
+> - **File requirement:** the paper PDF is mandatory only for status `published`; an omitted/`draft` status creates a draft with no file and skips the precheck gate — exactly what the seed uses.
+> - **Author constraint:** the conference chair (the token that created the conference) is rejected as an author (`rejectAdminAuthorPath` -> 403), and each author may submit once per conference (409). The seed therefore mints a distinct `bench-author-i-s@example.com` per submission via `test-login`.
+> - **Conference payload:** required fields are `title` + `acronym`; the body is wrapped `{"conference": {...}}`; new conferences default to status `open` (required for submissions). The earlier `"location"` key was not a real field (`dto.Conference` has `venue`) and has been corrected.
 
 - [ ] **Step 2: Write `main.go`**
 
@@ -746,27 +820,34 @@ import (
 )
 
 // seedGraph generates a synthetic co-authorship CSV and loads it into Neo4j
-// by invoking the existing tools/graph_ingestion loader.
+// by invoking the existing bolt loader at scripts/graph_ingestion.
 //
-// CSV columns match tools/graph_ingestion/example_data.csv. Confirm the exact
-// header against that file before running; adjust writeCoauthorCSV if it differs.
+// CSV columns match scripts/graph_ingestion/example_data.csv:
+//   author_1,author_2,date,metadata
+// where `date` is an integer YEAR and `metadata` is optional. The loader skips
+// the header row by default (-skip-header=true).
 func seedGraph(cfg Config) error {
+	// Use an absolute path: the loader runs with cmd.Dir set to its own module
+	// directory, so a relative CSV path would not resolve. os.TempDir() is absolute.
 	csvPath := filepath.Join(os.TempDir(), "bench_coauthors.csv")
 	if err := writeCoauthorCSV(csvPath, cfg.Authors, cfg.CoauthorEdges); err != nil {
 		return fmt.Errorf("generate csv: %w", err)
 	}
 
-	// Reuse the existing make target which builds + runs the bolt loader.
-	cmd := exec.Command("make", "graph-import",
-		fmt.Sprintf("FILE=%s", csvPath),
-		"CLEAR=true",
+	// Invoke the loader directly. NOTE: the backend Makefile's `graph-import`
+	// target does `cd tools/graph_ingestion`, but the loader actually lives at
+	// `scripts/graph_ingestion` (separate Go module), so the make target is
+	// broken in this repo. We therefore run the loader's own module directly.
+	// Connection config is supplied via FLAGS (-uri/-user/-pass), NOT env vars.
+	loaderDir := filepath.Join("scripts", "graph_ingestion")
+	cmd := exec.Command("go", "run", ".",
+		"-file="+csvPath,
+		"-uri="+cfg.Neo4jURI,
+		"-user="+cfg.Neo4jUser,
+		"-pass="+cfg.Neo4jPass,
+		"-clear",
 	)
-	cmd.Dir = "."          // run from backend/
-	cmd.Env = append(os.Environ(),
-		"NEO4J_URI="+cfg.Neo4jURI,
-		"NEO4J_USER="+cfg.Neo4jUser,
-		"NEO4J_PASS="+cfg.Neo4jPass,
-	)
+	cmd.Dir = loaderDir // scripts/graph_ingestion, relative to backend/
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
@@ -779,8 +860,10 @@ func writeCoauthorCSV(path string, authors, edges int) error {
 	}
 	defer f.Close()
 
-	// Header — MUST match tools/graph_ingestion expectations.
-	if _, err := fmt.Fprintln(f, "author1_email,author1_name,author2_email,author2_name,established_date"); err != nil {
+	// Header — MUST match scripts/graph_ingestion: author_1,author_2,date,metadata.
+	// The loader skips this row by default and parses `date` with strconv.Atoi
+	// (an integer YEAR), so an ISO date like 2023-01-01 would be rejected.
+	if _, err := fmt.Fprintln(f, "author_1,author_2,date,metadata"); err != nil {
 		return err
 	}
 	for i := 0; i < edges; i++ {
@@ -789,7 +872,9 @@ func writeCoauthorCSV(path string, authors, edges int) error {
 		if a == b {
 			b = (b + 1) % authors
 		}
-		_, err := fmt.Fprintf(f, "bench-reviewer-%d@example.com,Author %d,bench-reviewer-%d@example.com,Author %d,2023-01-01\n", a, a, b, b)
+		// Columns: author1 email, author2 email, year (int), metadata (optional).
+		// Year 2024 stays within the relationship detector's default 4-year window.
+		_, err := fmt.Fprintf(f, "bench-reviewer-%d@example.com,bench-reviewer-%d@example.com,2024,\n", a, b)
 		if err != nil {
 			return err
 		}
@@ -798,7 +883,11 @@ func writeCoauthorCSV(path string, authors, edges int) error {
 }
 ```
 
-> NOTE: The CSV header and the `make graph-import` flags MUST match `tools/graph_ingestion`. Read `tools/graph_ingestion/example_data.csv` and the loader's flag parsing first; adjust the header line and the `exec.Command` args accordingly. Author emails intentionally reuse `bench-reviewer-%d@example.com` so graph nodes line up with seeded reviewers, making graph-based COI hits possible.
+> NOTE (resolved): Verified against `scripts/graph_ingestion/main.go`, its `example_data.csv`, and the backend `Makefile`. Findings baked into the code above:
+> - **CSV header/columns:** `author_1,author_2,date,metadata` — author1 email, author2 email, `date` as an **integer year** (parsed via `strconv.Atoi`, so `2023-01-01` would be skipped as invalid), and an optional `metadata` column. Header is skipped by default (`-skip-header=true`).
+> - **Loader location:** the loader lives at `backend/scripts/graph_ingestion` (its own Go module `github.com/dcao/conferencespace/tools/graph_ingestion`), NOT `backend/tools/graph_ingestion`. The Makefile `graph-import` target `cd tools/graph_ingestion` and is **broken in this repo** (no such directory), so we invoke the loader directly with `go run .` from `scripts/graph_ingestion` instead of `make graph-import`.
+> - **Flags:** `-file` (required), `-uri`, `-user`, `-pass`, `-batch` (default 1000), `-clear`, `-skip-header` (default true). Neo4j connection is configured **via these flags, not env vars** — the loader does not read `NEO4J_*`, so the env-var approach has been removed.
+> Author emails reuse `bench-reviewer-%d@example.com` so graph nodes line up with seeded reviewer emails, making graph-based COI hits possible (the micro-bench's `GenCOIInputs` uses a different email scheme — see Task 8 note).
 
 - [ ] **Step 2: Build to verify it compiles**
 
@@ -849,7 +938,11 @@ func BenchmarkCOI_Graph(b *testing.B) {
 	user := envOrDefault("NEO4J_USER", "neo4j")
 	pass := envOrDefault("NEO4J_PASS", "conferencespace")
 
-	client, err := neo4j.NewClient(uri, user, pass)
+	client, err := neo4j.NewClient(neo4j.Config{
+		URI:      uri,
+		Username: user,
+		Password: pass,
+	})
 	if err != nil {
 		b.Fatalf("connect neo4j: %v", err)
 	}
@@ -876,7 +969,7 @@ func envOrDefault(k, d string) string {
 }
 ```
 
-> NOTE: Verify the exact `neo4j.NewClient(...)` and `Close(...)` signatures in `internal/clients/neo4j` before finalizing — constructor argument order/return values may differ. Confirm `detectors.NewRelationshipDetector` and `detectors.DefaultCOIWindowYears` (both referenced in `internal/controller/controller.go`). Adjust the calls to match. `GenCOIInputs` reviewer emails use `reviewer-%d@example.com`; for graph hits, align them with the graph seed emails (`bench-reviewer-%d@example.com`) or document that this benchmark measures query latency over a sparse match set.
+> NOTE (resolved): Signatures verified against source. `neo4j.NewClient(cfg neo4j.Config) (*neo4j.Client, error)` takes a `neo4j.Config{URI, Username, Password}` struct (NOT three positional strings); `(*neo4j.Client).Close(ctx context.Context) error` takes a context (so `client.Close(context.Background())` is correct). `detectors.NewRelationshipDetector(client *neo4j.Client, windowYears int) ConflictDetector` returns the `ConflictDetector` interface, and `detectors.DefaultCOIWindowYears == 4`. The benchmark only calls `DetectConflicts`, which is part of the `ConflictDetector` interface, so no type assertion to `*detectors.RelationshipDetector` is needed (that assertion is only used in `controller.go` to call `SetWindowYears`). Remaining caveat: `GenCOIInputs` reviewer emails use `reviewer-%d@example.com` while the graph seed uses `bench-reviewer-%d@example.com`, so unless you align them this benchmark measures query latency over a sparse/empty match set rather than many graph hits — acceptable for a latency benchmark, but document it in the report.
 
 - [ ] **Step 2: Build to verify it compiles**
 
@@ -995,8 +1088,10 @@ export default function (data) {
   });
 
   group('search users', () => {
-    const res = http.get(`${BASE_URL}/api/v1/users/search?limit=20`, h);
-    check(res, { 'users ok': (r) => r.status === 200 || r.status === 400 });
+    // `q` is the required query param (matches against user email); `limit`
+    // (<=50) and `conference_id` (match annotation) are optional.
+    const res = http.get(`${BASE_URL}/api/v1/users/search?q=bench&limit=20`, h);
+    check(res, { 'users 200': (r) => r.status === 200 });
   });
 }
 
@@ -1020,7 +1115,7 @@ export function handleSummary(data) {
 }
 ```
 
-> NOTE: `/api/v1/users/search` query params: confirm whether `conference_id` is required (see `ctrl.User` search handler). The check accepts 400 so a missing-param case does not mark the run failed; tighten once the correct params are known.
+> NOTE (resolved): `ctrl.User.Search` requires the **`q`** query param (returns 400 "search query is required" without it) and matches it against user email. `limit` is optional (capped at 50). `conference_id` is **optional** — when present it annotates each result with match evidence; it is NOT required. The request above sends `q=bench`, so a healthy server returns 200.
 
 - [ ] **Step 2: Run against a seeded dev server**
 
@@ -1126,18 +1221,36 @@ import { getToken, authHeaders } from './lib/auth.js';
 
 export const options = baseOptions();
 
+// Resolves a real conference ID from the seed summary (-e SEED_SUMMARY=<json>),
+// falling back to CONF_ID, else 1. coi/check requires conference_id and the
+// caller must be a chair/co-chair of that conference.
+function conferenceID() {
+  if (__ENV.CONF_ID) return __ENV.CONF_ID;
+  if (__ENV.SEED_SUMMARY) {
+    try {
+      const ids = JSON.parse(__ENV.SEED_SUMMARY).conference_ids;
+      if (ids && ids.length) return String(ids[0]);
+    } catch (e) { /* ignore */ }
+  }
+  return '1';
+}
+
 export function setup() {
-  return { token: getToken() };
+  return { token: getToken(), confID: conferenceID() };
 }
 
 export default function (data) {
   const h = authHeaders(data.token);
   // Exercises the full COI check path (incl. Neo4j when a graph is loaded).
+  // conference_id is a REQUIRED query param; reviewer_id (path) must be a real
+  // reviewer entity ID for a meaningful result.
   const reviewerID = __ENV.REVIEWER_ID || '1';
   const authorEmail = __ENV.AUTHOR_EMAIL || 'bench-reviewer-2@example.com';
-  const path = `/api/v1/coi/check/reviewer/${reviewerID}/author/${encodeURIComponent(authorEmail)}`;
+  const path = `/api/v1/coi/check/reviewer/${reviewerID}/author/${encodeURIComponent(authorEmail)}?conference_id=${data.confID}`;
   const res = http.get(`${BASE_URL}${path}`, h);
-  check(res, { 'coi check resolved': (r) => r.status === 200 || r.status === 404 });
+  // 200 = report returned; the run is report-only so transient non-200s
+  // (e.g. 403 if the token is not this conference's chair) do not abort it.
+  check(res, { 'coi check 200': (r) => r.status === 200 });
 }
 
 export function handleSummary(data) {
@@ -1159,7 +1272,12 @@ export function handleSummary(data) {
 }
 ```
 
-> NOTE: Confirm the `coi/check` route's auth/role requirements and whether `reviewer_id` must be a real seeded reviewer. The check accepts 404 so unknown IDs do not abort the run; for meaningful latency numbers, pass a `REVIEWER_ID` and `AUTHOR_EMAIL` that exist in the seeded data and graph.
+> NOTE (resolved): `GET /api/v1/coi/check/reviewer/:reviewer_id/author/:author_email` (`ctrl.COI.CheckReviewerAuthorCOI`) requires:
+> - **Auth:** JWT (the `/coi` group uses `AuthMiddleware`).
+> - **Query:** `conference_id` is **required** (400 "conference_id query parameter is required" if missing) — now passed above.
+> - **Role:** the caller must be a **chair/co-chair of that conference** (`requireConferenceAccess` -> 403 otherwise), unless an admin token is used. The bootstrapped `bench-chair@example.com` is the chair of seeded conferences, so this holds when the seed and k6 share that email/conference.
+> - **Path params:** `reviewer_id` (int, must be a real reviewer entity ID for a non-empty report) and `author_email`.
+> Remaining genuine unknown: the HTTP seed only records reviewer *emails*, not reviewer entity IDs, so a meaningful `REVIEWER_ID` must be supplied out-of-band (or the seed extended to create reviewer rows). With `reviewer_id=1` the endpoint still exercises the full query/Neo4j path for latency, which is the benchmark's purpose.
 
 - [ ] **Step 2: Run against a seeded dev server**
 
@@ -1271,13 +1389,33 @@ git commit -m "fix(bench): integration fixes from end-to-end smoke run"
 
 ## Self-Review Notes (gaps to resolve during implementation)
 
-These are deliberate verification points flagged inline (not placeholders in the
-deliverable — the code is complete and runnable, but these depend on details only
-confirmable against the live API/DB):
+All four originally-flagged verification points have been **resolved against the
+real source** and the code above updated accordingly:
 
-1. **Submission create payload** (Task 6): confirm required fields / multipart vs JSON via Swagger or `internal/dto`.
-2. **Graph CSV header & `make graph-import` flags** (Task 7): match `tools/graph_ingestion` exactly.
-3. **`neo4j.NewClient` / `RelationshipDetector` signatures** (Task 8): confirm against `internal/clients/neo4j` and `internal/assignment/coi/detectors`.
-4. **`/users/search` and `coi/check` params & roles** (Tasks 10, 12): confirm required query params and role gates.
+1. **Submission create payload** (Task 6) — RESOLVED. Endpoint is multipart/form-data
+   with the payload in a `submission` field (`{"submission":{...}}`); `draft` status
+   needs no file. Submissions must be authored by distinct non-admin users (the chair
+   is rejected with 403, and each author may submit once per conference), so the seed
+   mints `bench-author-i-s@example.com` per submission. Conference payload uses
+   `title`+`acronym` (required), wrapped `{"conference":{...}}`, defaulting to status
+   `open`. A `doMultipart` helper was added to the seed HTTP client.
+2. **Graph CSV header & loader invocation** (Task 7) — RESOLVED. Header is
+   `author_1,author_2,date,metadata` with `date` an integer year; the loader lives at
+   `scripts/graph_ingestion` (its own module), is invoked via `go run .` with
+   `-file/-uri/-user/-pass/-clear` flags (connection is flag-based, not env-based).
+   Note: the Makefile `graph-import` target points at the nonexistent
+   `tools/graph_ingestion` and is broken, so it is intentionally not used.
+3. **`neo4j.NewClient` / `RelationshipDetector` signatures** (Task 8) — RESOLVED.
+   `NewClient(neo4j.Config{URI,Username,Password})`; `Close(ctx)`;
+   `NewRelationshipDetector(*neo4j.Client, int) ConflictDetector` (interface, so
+   `DetectConflicts` is called directly, no type assertion); `DefaultCOIWindowYears = 4`.
+4. **`/users/search` and `coi/check` params & roles** (Tasks 10, 12) — RESOLVED.
+   `/users/search` requires `q` (not `conference_id`). `coi/check` requires the
+   `conference_id` query param and chair/co-chair access to that conference.
+
+**Remaining genuine unknown:** the HTTP seed records reviewer *emails* only, not
+reviewer entity IDs, so the k6 `coi/check` script needs a real `REVIEWER_ID` supplied
+out-of-band (or the seed extended to create reviewer rows) for a non-empty report;
+with the default it still exercises the full query path for latency measurement.
 
 Every spec section maps to a task: scaffold/config/README → T1; micro-benchmarks (matching, COI, graph) → T2–T4, T8; HTTP seed → T5–T6; graph seed → T7; k6 lib + 3 scripts → T9–T12; run orchestration → T13; verification → T14.
