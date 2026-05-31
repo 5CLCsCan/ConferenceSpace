@@ -43,6 +43,7 @@ import { useTranslation } from "@/lib/i18n/translation-context"
 import { getSubmissionEligibility } from "@/lib/submission-eligibility"
 import { getManuscriptUploadError, isAcceptedManuscriptFile } from "./submission-file-validation"
 import type { SubmissionAutofillResponse } from "@/lib/api/submission-autofill"
+import { trackUsageEvent } from "@/lib/usage-events"
 
 interface PaperSubmissionFormProps {
   conference?: Conference | null
@@ -158,7 +159,9 @@ function normalizeStoredConflicts(submission: Submission | null | undefined): Co
   }
 
   return (submission?.information?.declared_conflicts || []).map((conflict, index) => {
-    const fallbackName = conflict.email ? nameFromEmail(conflict.email) : { firstName: "", lastName: "" }
+    const fallbackName = conflict.email
+      ? nameFromEmail(conflict.email)
+      : { firstName: "", lastName: "" }
     return {
       id: `declared-conflict-${index}-${conflict.email}`,
       firstName: fallbackName.firstName,
@@ -224,6 +227,7 @@ export function PaperSubmissionForm({
   const [successMessage, setSuccessMessage] = useState("")
   const lastSavedSignatureRef = useRef<string>("")
   const lastAutosaveErrorRef = useRef<string | null>(null)
+  const hasTrackedSubmissionStartRef = useRef(false)
   const userSubmissionSnapshot = useMemo(
     () => ({
       email: user?.email,
@@ -474,6 +478,16 @@ export function PaperSubmissionForm({
   const recommendationEligible =
     title.trim().length >= 8 && abstract.trim().split(/\s+/).filter(Boolean).length >= 20
 
+  useEffect(() => {
+    if (!conference || initialSubmission || hasTrackedSubmissionStartRef.current) return
+    hasTrackedSubmissionStartRef.current = true
+    trackUsageEvent("submission_started", {
+      role: "author",
+      entityType: "conference",
+      entityId: conference.id,
+    })
+  }, [conference, initialSubmission])
+
   const saveDraft = useCallback(
     async ({ manual = false, force = false }: { manual?: boolean; force?: boolean } = {}) => {
       if (!user || !conference) {
@@ -554,6 +568,16 @@ export function PaperSubmissionForm({
         const now = new Date()
         setLastSavedAt(now)
         setAutosaveStatus("saved")
+        const savedSubmissionId = response.data?.id ?? draftSubmissionId ?? undefined
+        trackUsageEvent("submission_draft_saved", {
+          role: "author",
+          entityType: "submission",
+          entityId: savedSubmissionId,
+          metadata: {
+            conferenceId: conference.id,
+            manual,
+          },
+        })
 
         if (manual) {
           toast({
@@ -921,6 +945,12 @@ export function PaperSubmissionForm({
   const handleSubmit = async () => {
     if (!user || !conference) return
     if (isNewSubmissionBlocked) {
+      trackUsageEvent("form_error_seen", {
+        role: "author",
+        entityType: "conference",
+        entityId: conference.id,
+        metadata: { form: "paper_submission", reason: "submissions_closed" },
+      })
       toast({
         title: t(
           "runtime.components.author.submit.paper-submission-form.prop_title_submissions_are_closed",
@@ -933,6 +963,12 @@ export function PaperSubmissionForm({
       return
     }
     if (isPublishBlocked) {
+      trackUsageEvent("form_error_seen", {
+        role: "author",
+        entityType: "conference",
+        entityId: conference.id,
+        metadata: { form: "paper_submission", reason: "submission_deadline_passed" },
+      })
       toast({
         title: t(
           "runtime.components.author.submit.paper-submission-form.prop_title_submission_deadline_has_passed",
@@ -998,6 +1034,13 @@ export function PaperSubmissionForm({
         setLastPrecheckBlock(null)
         setSuccessMessage("Your paper has been submitted successfully!")
         setShowSuccessDialog(true)
+        const submittedSubmissionId = response.data?.id ?? draftSubmissionId ?? undefined
+        trackUsageEvent("submission_submitted", {
+          role: "author",
+          entityType: "submission",
+          entityId: submittedSubmissionId,
+          metadata: { conferenceId: conference.id },
+        })
       }
     } catch (error) {
       toast({

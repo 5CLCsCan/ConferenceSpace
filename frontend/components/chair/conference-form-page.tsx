@@ -38,6 +38,7 @@ import {
 } from "@/components/wizard/creation"
 import { buildConferenceMutationPayload, mapConferenceToFormData } from "@/lib/conference-form"
 import type { Conference } from "@/lib/types"
+import { trackUsageEvent } from "@/lib/usage-events"
 
 // Helper to revive date fields when hydrating from sessionStorage
 function reviveConferenceDraftDates(raw: any): Partial<ConferenceFormData> {
@@ -107,6 +108,13 @@ export function ConferenceFormPage({
   const [pendingHref, setPendingHref] = useState<string | null>(null)
 
   const lastSavedSignatureRef = useRef<string>("")
+  const hasTrackedCreateStartRef = useRef(false)
+
+  useEffect(() => {
+    if (isEditMode || isTemplateMode || hasTrackedCreateStartRef.current) return
+    hasTrackedCreateStartRef.current = true
+    trackUsageEvent("chair_conference_create_started", { role: "chair" })
+  }, [isEditMode, isTemplateMode])
 
   // Get a signature of the current form state to detect changes
   const getFormSignature = useCallback(() => {
@@ -332,6 +340,10 @@ export function ConferenceFormPage({
 
   const handleSubmit = async () => {
     if (!isTemplateMode && (!formData.title || !formData.acronym)) {
+      trackUsageEvent("form_error_seen", {
+        role: "chair",
+        metadata: { form: "conference", reason: "missing_required_fields" },
+      })
       toast({
         title: t("runtime.app.role.chair.conferences.new.page.prop_title_missing_required_fields"),
         description: t(
@@ -408,6 +420,13 @@ export function ConferenceFormPage({
 
       setExistingConference(response.data)
       lastSavedSignatureRef.current = getFormSignature()
+      if (!isEditMode) {
+        trackUsageEvent("chair_conference_created", {
+          role: "chair",
+          entityType: "conference",
+          entityId: response.data.id,
+        })
+      }
 
       // After creating a new conference, invite reviewers added in the wizard
       if (!isEditMode && response.data?.id) {

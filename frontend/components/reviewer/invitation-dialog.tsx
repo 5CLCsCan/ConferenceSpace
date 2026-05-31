@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { trackUsageEvent } from "@/lib/usage-events"
 
 const DECLINE_CATEGORIES = [
   { id: "not_my_expertise", labelKey: "text_not_my_expertise" },
@@ -88,6 +89,11 @@ export function InvitationDialog({
       setError(error)
       return
     }
+    trackUsageEvent("review_invitation_accepted", {
+      role: "reviewer",
+      entityType: "assignment",
+      entityId: assignmentId,
+    })
     onResponded(assignmentId, "accepted")
     onClose()
   }
@@ -105,6 +111,12 @@ export function InvitationDialog({
       setError(error)
       return
     }
+    trackUsageEvent("review_invitation_declined", {
+      role: "reviewer",
+      entityType: "assignment",
+      entityId: assignmentId,
+      metadata: { declineCategory: selectedCategory },
+    })
     onResponded(assignmentId, "declined")
     onClose()
   }
