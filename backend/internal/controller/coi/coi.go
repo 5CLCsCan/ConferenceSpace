@@ -1,6 +1,7 @@
 package coi
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -8,20 +9,30 @@ import (
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/handler"
-	coiService "github.com/dcao/conferencespace/internal/service/coi"
+	coisvc "github.com/dcao/conferencespace/internal/service/coi"
 	conferenceuserrole "github.com/dcao/conferencespace/internal/storage/conference_user_role"
 	"github.com/dcao/conferencespace/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
+// coiAPI is the COI operations used by the controller (implemented by *coisvc.Service).
+type coiAPI interface {
+	AutoRefreshIfNeeded(ctx context.Context, conferenceID int64) (bool, error)
+	CheckReviewerAuthorCOI(ctx context.Context, conferenceID int64, reviewerID int64, authorEmail string) (*dto.COIReport, error)
+	GetDashboardStats(ctx context.Context, conferenceID int64) (*dto.COIDashboardStats, error)
+	GetAllRelationships(ctx context.Context, req *dto.COIRelationshipListRequest) (*dto.COIRelationshipListResponse, error)
+	GetPaperCOISummaries(ctx context.Context, req *dto.PaperCOIListRequest) (*dto.PaperCOIListResponse, error)
+	BuildAndStoreRelationships(ctx context.Context, conferenceID int64) (int, error)
+}
+
 // Controller handles COI-related HTTP requests
 type Controller struct {
-	coiService  *coiService.Service
+	coiService  coiAPI
 	roleStorage conferenceuserrole.StorageInterface
 }
 
 // New creates a new COI controller
-func New(coiSvc *coiService.Service, roleStorage conferenceuserrole.StorageInterface) *Controller {
+func New(coiSvc *coisvc.Service, roleStorage conferenceuserrole.StorageInterface) *Controller {
 	return &Controller{
 		coiService:  coiSvc,
 		roleStorage: roleStorage,
@@ -154,11 +165,8 @@ func (c *Controller) CheckReviewerAuthorCOI(ginCtx *gin.Context, req *dto.COIChe
 		return nil, err
 	}
 
-	// Keep pair checks aligned with the latest computed relationships.
-	if _, err := c.coiService.AutoRefreshIfNeeded(ctx, conferenceID); err != nil {
-		fmt.Printf("Warning: COI auto-refresh failed: %v\n", err)
-	}
-
+	// Pair checks read precomputed relationships only; refresh runs via dirty scopes,
+	// dashboard/list endpoints, or POST /coi/conferences/:id/rebuild.
 	report, err := c.coiService.CheckReviewerAuthorCOI(ctx, conferenceID, req.ReviewerID, req.AuthorEmail)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, fmt.Sprintf("failed to check COI: %v", err))

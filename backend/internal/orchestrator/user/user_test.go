@@ -67,6 +67,10 @@ func (m *mockUserStorage) UpdateDomain(ctx context.Context, id int64, domain []s
 	return nil, errors.New("not implemented")
 }
 
+func (m *mockUserStorage) GetLinkedSemanticScholarIDs(context.Context, []string) (map[string]bool, error) {
+	return nil, errors.New("not implemented")
+}
+
 func TestRegister_ReturnsConflictForDuplicateEmail(t *testing.T) {
 	t.Parallel()
 
