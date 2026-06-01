@@ -41,7 +41,7 @@ func (s *trackRecommendationConferenceStore) Update(context.Context, int64, *dto
 func (s *trackRecommendationConferenceStore) Delete(context.Context, int64) error {
 	panic("unexpected call to Delete")
 }
-func (s *trackRecommendationConferenceStore) TransitionStatus(context.Context, int64, string) (*dto.ConferenceResponse, error) {
+func (s *trackRecommendationConferenceStore) TransitionStatus(context.Context, int64, string, *dto.ConferenceConfiguration) (*dto.ConferenceResponse, error) {
 	panic("unexpected call to TransitionStatus")
 }
 func (s *trackRecommendationConferenceStore) AddBookmark(context.Context, string, int64) error {

@@ -267,7 +267,7 @@ func (m *decisionCopilotConferenceStorageMock) Delete(context.Context, int64) er
 	panic("unexpected call")
 }
 
-func (m *decisionCopilotConferenceStorageMock) TransitionStatus(context.Context, int64, string) (*dto.ConferenceResponse, error) {
+func (m *decisionCopilotConferenceStorageMock) TransitionStatus(context.Context, int64, string, *dto.ConferenceConfiguration) (*dto.ConferenceResponse, error) {
 	panic("unexpected call")
 }
 

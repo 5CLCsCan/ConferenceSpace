@@ -966,9 +966,12 @@
           "important-dates-tab": {
             "text_23_59_aoe": "23:59 AoE",
             "text_aoe_utc_12": "AoE (UTC-12)",
+            "text_completed": "Completed",
+            "text_days": "days",
             "text_check_the_conference_website_or_contact": "Check the conference website or contact the program chairs if you have questions about deadlines.",
             "text_conference_timeline": "Conference Timeline",
             "text_contact_support": "Contact Support",
+            "text_in_progress": "In Progress",
             "text_keep_track_of_important_deadlines_for": "Keep track of important deadlines for your submissions.",
             "text_need_help": "Need Help?",
             "text_next_major_deadline": "Next Major Deadline",
@@ -979,7 +982,47 @@
             "text_text": "•",
             "text_timezone": "Timezone",
             "text_until": "Until",
-            "text_upcoming": "Upcoming"
+            "text_upcoming": "Upcoming",
+            "phases": {
+              "submission": "Submission Phase",
+              "review": "Review & Decision",
+              "event": "Camera Ready & Conference",
+              "conference": "Conference"
+            },
+            "events": {
+              "abstract-submission-deadline": {
+                "title": "Abstract Submission Deadline",
+                "description": "Deadline for abstract submissions"
+              },
+              "submission-deadline": {
+                "title": "Paper Submission Deadline",
+                "description": "Final deadline for paper submissions"
+              },
+              "camera-ready-deadline": {
+                "title": "Camera-Ready Deadline",
+                "description": "Final version of accepted papers due"
+              },
+              "notification-date": {
+                "title": "Notification of Acceptance",
+                "description": "Authors are notified of paper acceptance/rejection"
+              },
+              "rebuttal-period-start": {
+                "title": "Rebuttal Period Starts",
+                "description": "Authors can begin responding to reviews"
+              },
+              "rebuttal-period-end": {
+                "title": "Rebuttal Period Ends",
+                "description": "Final deadline for author rebuttals"
+              },
+              "conference-start-date": {
+                "title": "Conference Start Date",
+                "description": "Main conference event begins"
+              },
+              "conference-end-date": {
+                "title": "Conference End Date",
+                "description": "Main conference event ends"
+              }
+            }
           },
           "overview-tab": {
             "text_about_the_conference": "About the Conference",

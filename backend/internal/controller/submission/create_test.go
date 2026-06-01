@@ -85,7 +85,7 @@ func (m *createConferenceStorageMock) Delete(context.Context, int64) error {
 	panic("unexpected call")
 }
 
-func (m *createConferenceStorageMock) TransitionStatus(context.Context, int64, string) (*dto.ConferenceResponse, error) {
+func (m *createConferenceStorageMock) TransitionStatus(context.Context, int64, string, *dto.ConferenceConfiguration) (*dto.ConferenceResponse, error) {
 	panic("unexpected call")
 }
 

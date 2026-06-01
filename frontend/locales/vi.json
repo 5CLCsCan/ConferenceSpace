@@ -966,9 +966,12 @@
           "important-dates-tab": {
             "text_23_59_aoe": "23:59 AoE",
             "text_aoe_utc_12": "AoE (UTC-12)",
+            "text_completed": "Hoàn thành",
+            "text_days": "ngày",
             "text_check_the_conference_website_or_contact": "Kiểm tra trang web hội nghị hoặc liên hệ với chủ trì chương trình nếu bạn có thắc mắc về thời hạn.",
             "text_conference_timeline": "Dòng thời gian hội nghị",
             "text_contact_support": "Liên hệ hỗ trợ",
+            "text_in_progress": "Đang diễn ra",
             "text_keep_track_of_important_deadlines_for": "Theo dõi các thời hạn quan trọng cho bài nộp của bạn.",
             "text_need_help": "Cần trợ giúp?",
             "text_next_major_deadline": "Hạn chót chính tiếp theo",
@@ -979,7 +982,47 @@
             "text_text": "",
             "text_timezone": "Múi giờ",
             "text_until": "Cho đến khi",
-            "text_upcoming": "Sắp tới"
+            "text_upcoming": "Sắp tới",
+            "phases": {
+              "submission": "Giai đoạn nộp bài",
+              "review": "Đánh giá & Quyết định",
+              "event": "Camera-ready & Hội nghị",
+              "conference": "Hội nghị"
+            },
+            "events": {
+              "abstract-submission-deadline": {
+                "title": "Hạn nộp tóm tắt",
+                "description": "Thời hạn nộp tóm tắt bài báo"
+              },
+              "submission-deadline": {
+                "title": "Hạn nộp bài",
+                "description": "Hạn chót cuối cùng để nộp bài báo"
+              },
+              "camera-ready-deadline": {
+                "title": "Hạn nộp bản camera-ready",
+                "description": "Phiên bản cuối của các bài được chấp nhận"
+              },
+              "notification-date": {
+                "title": "Thông báo kết quả",
+                "description": "Tác giả được thông báo về việc chấp nhận hoặc từ chối bài báo"
+              },
+              "rebuttal-period-start": {
+                "title": "Bắt đầu giai đoạn phản bác",
+                "description": "Tác giả có thể bắt đầu phản hồi các đánh giá"
+              },
+              "rebuttal-period-end": {
+                "title": "Kết thúc giai đoạn phản bác",
+                "description": "Hạn chót cuối cùng cho phản bác của tác giả"
+              },
+              "conference-start-date": {
+                "title": "Ngày bắt đầu hội nghị",
+                "description": "Sự kiện hội nghị chính bắt đầu"
+              },
+              "conference-end-date": {
+                "title": "Ngày kết thúc hội nghị",
+                "description": "Sự kiện hội nghị chính kết thúc"
+              }
+            }
           },
           "overview-tab": {
             "text_about_the_conference": "Giới thiệu về Hội nghị",

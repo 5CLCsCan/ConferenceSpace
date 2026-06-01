@@ -994,19 +994,6 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                     </select>
                   </div>
                 </div>
-
-                {!readOnly && (
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowDropdown(true)}
-                      className="px-3 py-2 bg-[#1B3C53] text-white font-medium text-[11px] rounded-md hover:bg-[#234C6A] transition-colors shadow-sm flex items-center gap-1.5"
-                    >
-                      <Icon name="person_add" />
-                      {T("text_add_member")}
-                    </button>
-                  </div>
-                )}
               </div>
 
               {!readOnly && (

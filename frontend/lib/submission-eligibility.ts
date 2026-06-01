@@ -62,7 +62,7 @@ export function getSubmissionEligibility({
       ? "call-for-papers"
       : isFullPaperDeadlinePassed
         ? "submission-closed"
-        : "Upcoming"
+        : "upcoming"
 
   return {
     isFullPaperDeadlinePassed,

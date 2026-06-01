@@ -862,18 +862,6 @@ export async function getConferenceDates(
       })
     }
 
-    if (config.discussion_settings?.start_at) {
-      const dateStr = config.discussion_settings.start_at
-      dates.push({
-        id: "review-deadline",
-        title: "Review Deadline",
-        date: dateStr,
-        description: "Reviews are completed and discussion phase begins",
-        type: "deadline",
-        isPast: new Date(dateStr) < now,
-      })
-    }
-
     if (config.discussion_settings?.end_at) {
       const dateStr = config.discussion_settings.end_at
       dates.push({

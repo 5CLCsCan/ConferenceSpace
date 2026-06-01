@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/dcao/conferencespace/internal/assignment"
 	"github.com/dcao/conferencespace/internal/dto"
@@ -159,6 +160,32 @@ func publicConferenceConfigurations(config *dto.ConferenceConfiguration) *dto.Co
 	}
 
 	return publicConfig
+}
+
+// closeSubmissionDeadlinesAt snaps open submission deadlines to closedAt when moving into review.
+func closeSubmissionDeadlinesAt(config *dto.ConferenceConfiguration, closedAt time.Time) *dto.ConferenceConfiguration {
+	if config == nil {
+		return &dto.ConferenceConfiguration{
+			FullPaperSubmissionDeadline: &closedAt,
+		}
+	}
+
+	updated := *config
+	if updated.FullPaperSubmissionDeadline == nil || closedAt.Before(*updated.FullPaperSubmissionDeadline) {
+		updated.FullPaperSubmissionDeadline = &closedAt
+	}
+	if updated.AbstractSubmissionDeadline != nil && closedAt.Before(*updated.AbstractSubmissionDeadline) {
+		updated.AbstractSubmissionDeadline = &closedAt
+	}
+	if updated.DiscussionSettings != nil {
+		discussion := *updated.DiscussionSettings
+		if discussion.StartAt == nil || closedAt.Before(*discussion.StartAt) {
+			discussion.StartAt = &closedAt
+		}
+		updated.DiscussionSettings = &discussion
+	}
+
+	return &updated
 }
 
 // Create godoc
@@ -745,8 +772,13 @@ func (c *Controller) TransitionStatus(ginCtx *gin.Context, req *dto.ConferenceTr
 				previousStatus, req.NewStatus, allowedStatuses))
 	}
 
+	var configurationsUpdate *dto.ConferenceConfiguration
+	if req.NewStatus == model.ConferenceStatusReviewing {
+		configurationsUpdate = closeSubmissionDeadlinesAt(conference.Configurations, time.Now())
+	}
+
 	// Perform status transition
-	_, err = c.conferenceStorage.TransitionStatus(ctx, req.ConferenceID, req.NewStatus)
+	_, err = c.conferenceStorage.TransitionStatus(ctx, req.ConferenceID, req.NewStatus, configurationsUpdate)
 	if err != nil {
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, err.Error())
 	}
