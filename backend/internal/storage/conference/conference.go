@@ -34,7 +34,7 @@ type StorageInterface interface {
 	List(ctx context.Context, params *QueryParams) ([]*dto.ConferenceResponse, int64, error)
 	Update(ctx context.Context, id int64, conf *dto.Conference) (*dto.ConferenceResponse, error)
 	Delete(ctx context.Context, id int64) error
-	TransitionStatus(ctx context.Context, id int64, newStatus string) (*dto.ConferenceResponse, error)
+	TransitionStatus(ctx context.Context, id int64, newStatus string, configurations *dto.ConferenceConfiguration) (*dto.ConferenceResponse, error)
 	AddBookmark(ctx context.Context, userEmail string, conferenceID int64) error
 	RemoveBookmark(ctx context.Context, userEmail string, conferenceID int64) error
 	IsBookmarked(ctx context.Context, userEmail string, conferenceID int64) (bool, error)
@@ -777,12 +777,27 @@ func (s *Storage) IsBookmarked(ctx context.Context, userEmail string, conference
 	return count > 0, nil
 }
 
-// TransitionStatus updates the status of a conference
-func (s *Storage) TransitionStatus(ctx context.Context, id int64, newStatus string) (*dto.ConferenceResponse, error) {
-	query, args, err := s.qb.
+// TransitionStatus updates conference status and optionally persists configuration changes.
+func (s *Storage) TransitionStatus(
+	ctx context.Context,
+	id int64,
+	newStatus string,
+	configurations *dto.ConferenceConfiguration,
+) (*dto.ConferenceResponse, error) {
+	update := s.qb.
 		Update(model.ConferenceTableName).
 		Set(model.ColConferenceStatus, newStatus).
-		Set(model.ConferenceColUpdatedAt, time.Now()).
+		Set(model.ConferenceColUpdatedAt, time.Now())
+
+	if configurations != nil {
+		configBytes, err := model.SerializeConferenceConfiguration(configurations)
+		if err != nil {
+			return nil, fmt.Errorf("failed to serialize configuration: %w", err)
+		}
+		update = update.Set(model.ColConfigurations, configBytes)
+	}
+
+	query, args, err := update.
 		Where(sq.Eq{model.ColConferenceID: id}).
 		Suffix(fmt.Sprintf("RETURNING %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
 			model.ColConferenceID,

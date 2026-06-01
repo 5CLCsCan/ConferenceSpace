@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
 import { getConferenceDates, getConferenceById, type ImportantDate } from "@/lib/api/conferences"
+import { getNextMajorDeadline } from "@/lib/conference-timeline"
 import { downloadICS } from "@/lib/utils/ics-calendar"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
@@ -38,6 +39,8 @@ const iconStyle = {
   boxSizing: "border-box" as const,
 }
 
+const CONFERENCE_START_DATE_ID = "conference-start-date"
+
 const categories = [
   {
     id: "submission",
@@ -52,9 +55,67 @@ const categories = [
   {
     id: "event",
     name: "Camera Ready & Conference",
-    pattern: /camera|conference|registration/i,
+    pattern: /camera|registration|conference/i,
   },
 ]
+
+function buildTimelinePhases(dates: ImportantDate[]): Phase[] {
+  const conferenceStart = dates.find((date) => date.id === CONFERENCE_START_DATE_ID)
+  const groupedDates = dates.filter((date) => date.id !== CONFERENCE_START_DATE_ID)
+
+  const phases = categories
+    .map((category) => {
+      const events = groupedDates
+        .filter((date) => category.pattern.test(date.title))
+        .sort(
+          (left, right) => new Date(left.date).getTime() - new Date(right.date).getTime(),
+        )
+      const allPast = events.length > 0 && events.every((event) => event.isPast)
+      const someFuture = events.some((event) => !event.isPast)
+      const somePast = events.some((event) => event.isPast)
+
+      let status: PhaseStatus = "upcoming"
+      if (allPast) status = "completed"
+      else if (someFuture || somePast) status = "in-progress"
+
+      const sortedDates = [...events].sort(
+        (left, right) => new Date(left.date).getTime() - new Date(right.date).getTime(),
+      )
+      const period =
+        sortedDates.length > 0
+          ? `${new Date(sortedDates[0].date).toLocaleString("en-US", {
+              month: "short",
+            })} - ${new Date(sortedDates[sortedDates.length - 1].date).toLocaleString("en-US", {
+              month: "short",
+              year: "numeric",
+            })}`
+          : ""
+
+      return {
+        id: category.id,
+        name: category.name,
+        status,
+        period,
+        events,
+      }
+    })
+    .filter((phase) => phase.events.length > 0)
+
+  if (!conferenceStart) {
+    return phases
+  }
+
+  const startDate = new Date(conferenceStart.date)
+  const startPhase: Phase = {
+    id: "conference-start",
+    name: "Conference",
+    status: conferenceStart.isPast ? "completed" : "in-progress",
+    period: startDate.toLocaleString("en-US", { month: "short", year: "numeric" }),
+    events: [conferenceStart],
+  }
+
+  return [startPhase, ...phases]
+}
 
 function DateEventCard({ event, phaseStatus }: { event: ImportantDate; phaseStatus: PhaseStatus }) {
   const { t } = useTranslation()
@@ -393,43 +454,9 @@ export function ConferenceDates({ conferenceId, className }: ConferenceDatesProp
     void loadDates()
   }, [conferenceId])
 
-  const phases = useMemo<Phase[]>(() => {
-    return categories
-      .map((category) => {
-        const events = dates.filter((date) => category.pattern.test(date.title))
-        const allPast = events.length > 0 && events.every((event) => event.isPast)
-        const someFuture = events.some((event) => !event.isPast)
-        const somePast = events.some((event) => event.isPast)
+  const phases = useMemo<Phase[]>(() => buildTimelinePhases(dates), [dates])
 
-        let status: PhaseStatus = "upcoming"
-        if (allPast) status = "completed"
-        else if (someFuture || somePast) status = "in-progress"
-
-        const sortedDates = [...events].sort(
-          (left, right) => new Date(left.date).getTime() - new Date(right.date).getTime(),
-        )
-        const period =
-          sortedDates.length > 0
-            ? `${new Date(sortedDates[0].date).toLocaleString("en-US", {
-                month: "short",
-              })} - ${new Date(sortedDates[sortedDates.length - 1].date).toLocaleString("en-US", {
-                month: "short",
-                year: "numeric",
-              })}`
-            : ""
-
-        return {
-          id: category.id,
-          name: category.name,
-          status,
-          period,
-          events,
-        }
-      })
-      .filter((phase) => phase.events.length > 0)
-  }, [dates])
-
-  const nextDeadline = useMemo(() => dates.find((date) => !date.isPast) || null, [dates])
+  const nextDeadline = useMemo(() => getNextMajorDeadline(dates) ?? null, [dates])
   const daysUntil = useMemo(() => {
     if (!nextDeadline) return null
     const now = new Date()

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/dcao/conferencespace/internal/dto"
 	"github.com/dcao/conferencespace/internal/model"
@@ -521,6 +522,76 @@ func TestConferenceStatusPermissions(t *testing.T) {
 
 		testutils.AssertStatusCode(t, resp, http.StatusForbidden)
 	})
+}
+
+func TestConferenceStatusClosesSubmissionDeadlineOnReviewing(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	client := NewClient(ctx)
+
+	chairToken, chair, err := ctx.RegisterUniqueUser("deadline-chair", "password123", "Chair", "User", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register chair user: %v", err)
+	}
+
+	futureDeadline := time.Now().UTC().Add(72 * time.Hour)
+	conf := &dto.Conference{
+		Title:   "Deadline Close On Reviewing Conference",
+		Acronym: testutils.UniqueString("DCOR"),
+		Chair:   chair.Email,
+		Domain:  []string{"AI"},
+		Configurations: &dto.ConferenceConfiguration{
+			FullPaperSubmissionDeadline: &futureDeadline,
+		},
+	}
+
+	confResp, err := client.CreateSuccess(conf, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to create conference: %v", err)
+	}
+
+	beforeTransition := time.Now().UTC()
+	transitionResp, err := ctx.MakeRequest(
+		"PUT",
+		fmt.Sprintf("/api/v1/conferences/%d/status", confResp.ID),
+		map[string]interface{}{
+			"conference_id": confResp.ID,
+			"new_status":    model.ConferenceStatusReviewing,
+		},
+		chairToken,
+	)
+	if err != nil {
+		t.Fatalf("Failed to transition status: %v", err)
+	}
+	testutils.AssertStatusCode(t, transitionResp, http.StatusOK)
+	afterTransition := time.Now().UTC()
+
+	getResp, err := client.Get(confResp.ID, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to get conference: %v", err)
+	}
+	testutils.AssertStatusCode(t, getResp, http.StatusOK)
+
+	var getData struct {
+		Data *dto.ConferenceResponse `json:"data"`
+	}
+	testutils.DecodeResponse(t, getResp, &getData)
+
+	if getData.Data.Status != model.ConferenceStatusReviewing {
+		t.Fatalf("expected status reviewing, got %q", getData.Data.Status)
+	}
+	if getData.Data.Configurations == nil || getData.Data.Configurations.FullPaperSubmissionDeadline == nil {
+		t.Fatal("expected full paper submission deadline to be set")
+	}
+
+	updatedDeadline := getData.Data.Configurations.FullPaperSubmissionDeadline.UTC()
+	if updatedDeadline.After(futureDeadline) {
+		t.Fatalf("expected deadline to move earlier than %s, got %s", futureDeadline, updatedDeadline)
+	}
+	if updatedDeadline.Before(beforeTransition.Add(-time.Second)) || updatedDeadline.After(afterTransition.Add(time.Second)) {
+		t.Fatalf("expected deadline near transition time, got %s", updatedDeadline)
+	}
 }
 
 func TestSubmissionOnlyAllowedWhenConferenceOpen(t *testing.T) {
