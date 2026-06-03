@@ -64,11 +64,6 @@ def make_request_payload(*, mode: str = "submit_preflight", include_briefing: bo
             "stated_scope_and_limitations": [
                 {"label": "single-platform evaluation", "detail": "Evaluation scope is bounded", "source": "submission"}
             ],
-            "guardrails": {
-                "no_recommendation": True,
-                "no_score": True,
-                "bias_notice": "Assistive only.",
-            },
         }
     return payload
 

@@ -4,10 +4,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.workflows.reviewer_pre_read_briefing.schemas import (
-    ReviewerBriefingArtifact,
-    SubmissionMetadataInput,
-)
+from app.workflows.reviewer_initial_analysis.schemas import ReviewerInitialBriefing, SubmissionMetadataInput
 
 
 class ActorPayload(BaseModel):
@@ -61,7 +58,7 @@ class ReviewQualityAuditResolveRequest(BaseModel):
     review_score: float | None = None
     review: ReviewInput
     policy: ReviewPolicyInput | None = None
-    briefing_artifact: ReviewerBriefingArtifact | None = None
+    briefing_artifact: ReviewerInitialBriefing | None = None
 
 
 class ReviewQualityAuditFinding(BaseModel):
