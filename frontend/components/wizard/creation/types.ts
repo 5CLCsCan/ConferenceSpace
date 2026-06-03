@@ -25,6 +25,7 @@ export interface ConferenceFormData {
   // Step 1: Basic Details - Location
   location: string
   locationType: "in-person" | "virtual" | "hybrid"
+  virtualPlatform: string
 
   // Step 1: Basic Details - Conference Dates
   conferenceStartDate: Date | undefined
@@ -93,8 +94,7 @@ export const WIZARD_STEPS: WizardStepDefinition[] = [
     number: 1,
     id: "basic-details",
     titleKey: "runtime.components.wizard.creation.types.title_basic_details",
-    descriptionKey:
-      "runtime.components.wizard.creation.types.description_name_acronym_dates",
+    descriptionKey: "runtime.components.wizard.creation.types.description_name_acronym_dates",
   },
   {
     number: 2,
@@ -139,6 +139,7 @@ export const initialFormData: ConferenceFormData = {
   // Location
   location: "",
   locationType: "in-person",
+  virtualPlatform: "",
 
   // Conference Dates
   conferenceStartDate: undefined,

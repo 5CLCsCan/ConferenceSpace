@@ -370,8 +370,8 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
                 <input
                   type="checkbox"
                   className="size-4 text-[#1B3C53] focus:ring-[#1B3C53] border-slate-300 dark:border-slate-600 rounded"
-                  checked={false}
-                  onChange={() => {}}
+                  checked={data.strictDeadlines}
+                  onChange={(event) => updateData({ strictDeadlines: event.target.checked })}
                 />
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-[#141414] dark:text-white">
