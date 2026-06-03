@@ -100,16 +100,11 @@ func TestMergeReviewAuditResult_HidesDismissedWarningsButNotBlocks(t *testing.T)
 }
 
 func TestReviewQualityAuditPayloadIncludesBriefingReadinessSignals(t *testing.T) {
-	artifact := normalizeReviewerBriefingArtifactForReviewAudit(&aiServiceClient.ReviewerBriefingArtifact{
-		SubmissionSnapshot: aiServiceClient.ReviewerBriefingSubmissionSnapshot{
+	artifact := normalizeReviewerInitialBriefingForReviewAudit(&aiServiceClient.ReviewerInitialBriefing{
+		SubmissionSnapshot: aiServiceClient.ReviewerInitialSubmissionSnapshot{
 			Title:              "Evidence-Aware Systems",
 			AbstractSummary:    "Workflow-focused submission.",
 			ManuscriptOverview: "The manuscript covers reviewer quality support.",
-		},
-		Guardrails: aiServiceClient.ReviewerBriefingGuardrails{
-			NoRecommendation: true,
-			NoScore:          true,
-			BiasNotice:       "Assistive only.",
 		},
 	})
 	payload := aiServiceClient.ReviewQualityAuditResolveRequest{
@@ -122,7 +117,7 @@ func TestReviewQualityAuditPayloadIncludesBriefingReadinessSignals(t *testing.T)
 			Email:  "reviewer@example.com",
 			Role:   "reviewer",
 		},
-		Submission: aiServiceClient.ReviewerBriefingSubmissionPayload{
+		Submission: aiServiceClient.ReviewerInitialSubmissionPayload{
 			Title:    "Evidence-Aware Systems",
 			Abstract: "Structured reviewer workflows for academic review quality.",
 		},

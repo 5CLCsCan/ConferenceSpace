@@ -539,7 +539,7 @@ export function AIAssistantCard({
                           </span>
                           <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#456882]">
                             {t(
-                              "runtime.components.reviewer.submission-review.review-sidebar.text_paper_annotations",
+                              "runtime.components.reviewer.submission-review.review-sidebar.text_initial_analysis_annotations",
                             )}
                           </h3>
                         </div>

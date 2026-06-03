@@ -128,7 +128,7 @@ func (c *Controller) executeReviewAudit(
 			Email:  userEmail,
 			Role:   "reviewer",
 		},
-		Submission:  buildReviewerBriefingSubmissionPayload(submission),
+		Submission:  buildReviewerInitialAnalysisSubmissionPayload(submission),
 		ReviewScore: reviewScore,
 		Review:      buildReviewQualityAuditPayload(reviewData),
 	}
@@ -189,34 +189,34 @@ func (c *Controller) lookupOptionalBriefingArtifact(
 	submission *dto.Submission,
 	actor aiServiceClient.ActorPayload,
 	authHeader string,
-) *aiServiceClient.ReviewerBriefingArtifact {
+) *aiServiceClient.ReviewerInitialBriefing {
 	if c.workflowClient == nil {
 		return nil
 	}
 
-	response, err := c.workflowClient.LookupReviewerBriefing(
+	response, err := c.workflowClient.LookupReviewerInitialAnalysis(
 		ginCtx.Request.Context(),
 		authHeader,
-		&aiServiceClient.ReviewerBriefingResolveRequest{
+		&aiServiceClient.ReviewerInitialAnalysisResolveRequest{
 			Action:                     "lookup",
 			ConferenceID:               conferenceID,
 			AssignmentID:               assignmentID,
 			SubmissionID:               submission.ID,
 			Actor:                      actor,
-			SubmissionStateFingerprint: computeReviewerBriefingFingerprint(submission),
-			Submission:                 buildReviewerBriefingSubmissionPayload(submission),
-			FileMetadata:               buildReviewerBriefingFileMetadataPayload(submission),
+			SubmissionStateFingerprint: computeReviewerInitialAnalysisFingerprint(submission),
+			Submission:                 buildReviewerInitialAnalysisSubmissionPayload(submission),
+			FileMetadata:               buildReviewerInitialAnalysisFileMetadataPayload(submission),
 		},
 	)
 	if err != nil || response == nil || response.Status != "ready" || response.Artifact == nil {
 		return nil
 	}
-	return normalizeReviewerBriefingArtifactForReviewAudit(response.Artifact)
+	return normalizeReviewerInitialBriefingForReviewAudit(&response.Artifact.Briefing)
 }
 
-func normalizeReviewerBriefingArtifactForReviewAudit(
-	artifact *aiServiceClient.ReviewerBriefingArtifact,
-) *aiServiceClient.ReviewerBriefingArtifact {
+func normalizeReviewerInitialBriefingForReviewAudit(
+	artifact *aiServiceClient.ReviewerInitialBriefing,
+) *aiServiceClient.ReviewerInitialBriefing {
 	if artifact == nil {
 		return nil
 	}
@@ -224,19 +224,19 @@ func normalizeReviewerBriefingArtifactForReviewAudit(
 		artifact.SubmissionSnapshot.Keywords = []string{}
 	}
 	if artifact.ReviewReadinessSignals == nil {
-		artifact.ReviewReadinessSignals = []aiServiceClient.ReviewerBriefingReadinessSignal{}
+		artifact.ReviewReadinessSignals = []aiServiceClient.ReviewerInitialReadinessSignal{}
 	}
 	if artifact.ClaimedContributions == nil {
-		artifact.ClaimedContributions = []aiServiceClient.ReviewerBriefingContribution{}
+		artifact.ClaimedContributions = []aiServiceClient.ReviewerInitialContribution{}
 	}
 	if artifact.NotableElements == nil {
-		artifact.NotableElements = []aiServiceClient.ReviewerBriefingNotableElement{}
+		artifact.NotableElements = []aiServiceClient.ReviewerInitialNotableElement{}
 	}
 	if artifact.ReviewerAttentionPoints == nil {
-		artifact.ReviewerAttentionPoints = []aiServiceClient.ReviewerBriefingAttentionPoint{}
+		artifact.ReviewerAttentionPoints = []aiServiceClient.ReviewerInitialAttentionPoint{}
 	}
 	if artifact.StatedScopeLimitations == nil {
-		artifact.StatedScopeLimitations = []aiServiceClient.ReviewerBriefingScopeLimitation{}
+		artifact.StatedScopeLimitations = []aiServiceClient.ReviewerInitialScopeLimitation{}
 	}
 	return artifact
 }

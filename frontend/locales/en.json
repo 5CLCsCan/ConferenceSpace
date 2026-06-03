@@ -2673,11 +2673,10 @@
             "title_notable_elements": "Notable Elements",
             "title_review_readiness_signals": "Review Readiness Signals",
             "title_reviewer_attention_points": "Reviewer Attention Points",
-            "text_paper_annotations": "Paper Annotations",
-            "title_scope_and_limitations": "Scope And Limitations",
-            "text_paper_annotation": "Paper annotation:"
+            "text_initial_analysis_annotations": "Initial Analysis Annotations",
+            "title_scope_and_limitations": "Scope And Limitations"
           },
-          "paper-annotation-panel": {
+          "initial-analysis-annotations-panel": {
             "text_overall_impression": "Overall Impression",
             "text_domain_context_prefix": "Domain context:"
           },

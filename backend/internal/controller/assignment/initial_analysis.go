@@ -18,7 +18,7 @@ const maxReviewerInitialAnalysisFileBytes int64 = 25 * 1024 * 1024
 
 func (c *Controller) GetReviewerInitialAnalysis(
 	ginCtx *gin.Context,
-	req *dto.ReviewerBriefingRequest,
+	req *dto.ReviewerInitialAnalysisRequest,
 ) (*aiServiceClient.ReviewerInitialAnalysisResolveResponse, error) {
 	if c.workflowClient == nil {
 		return nil, handler.NewErrorResponse(503, "reviewer initial analysis service is not configured")
@@ -40,7 +40,7 @@ func (c *Controller) GetReviewerInitialAnalysis(
 
 func (c *Controller) GenerateReviewerInitialAnalysis(
 	ginCtx *gin.Context,
-	req *dto.ReviewerBriefingRequest,
+	req *dto.ReviewerInitialAnalysisRequest,
 ) (*aiServiceClient.ReviewerInitialAnalysisResolveResponse, error) {
 	if c.workflowClient == nil {
 		return nil, handler.NewErrorResponse(503, "reviewer initial analysis service is not configured")
@@ -87,40 +87,40 @@ func (c *Controller) GenerateReviewerInitialAnalysis(
 
 func (c *Controller) prepareReviewerInitialAnalysisRequest(
 	ginCtx *gin.Context,
-	req *dto.ReviewerBriefingRequest,
+	req *dto.ReviewerInitialAnalysisRequest,
 ) (
 	*dto.Assignment,
 	*dto.Submission,
 	*aiServiceClient.ReviewerInitialAnalysisResolveRequest,
-	aiServiceClient.ReviewerBriefingFileMetadataPayload,
+	aiServiceClient.ReviewerInitialFileMetadataPayload,
 	string,
 	error,
 ) {
 	userEmail, exists := utils.GetEmail(ginCtx)
 	if !exists {
-		return nil, nil, nil, aiServiceClient.ReviewerBriefingFileMetadataPayload{}, "", handler.NewErrorResponse(401, "user not authenticated")
+		return nil, nil, nil, aiServiceClient.ReviewerInitialFileMetadataPayload{}, "", handler.NewErrorResponse(401, "user not authenticated")
 	}
 	userID, _ := utils.GetUserID(ginCtx)
 
 	assignment, err := c.assignmentStorage.GetByID(ginCtx.Request.Context(), req.AssignmentID)
 	if err != nil || assignment.ConferenceID != req.ConferenceID {
-		return nil, nil, nil, aiServiceClient.ReviewerBriefingFileMetadataPayload{}, "", handler.NewErrorResponse(404, "assignment not found")
+		return nil, nil, nil, aiServiceClient.ReviewerInitialFileMetadataPayload{}, "", handler.NewErrorResponse(404, "assignment not found")
 	}
 	if !canAccessReviewerInitialAnalysis(assignment.Status) {
-		return nil, nil, nil, aiServiceClient.ReviewerBriefingFileMetadataPayload{}, "", handler.NewErrorResponse(403, "this assignment is not available for reviewer initial analysis")
+		return nil, nil, nil, aiServiceClient.ReviewerInitialFileMetadataPayload{}, "", handler.NewErrorResponse(403, "this assignment is not available for reviewer initial analysis")
 	}
 
 	reviewer, err := c.reviewerStorage.GetByID(ginCtx.Request.Context(), assignment.ReviewerID)
 	if err != nil {
-		return nil, nil, nil, aiServiceClient.ReviewerBriefingFileMetadataPayload{}, "", handler.NewErrorResponse(500, "failed to get reviewer info")
+		return nil, nil, nil, aiServiceClient.ReviewerInitialFileMetadataPayload{}, "", handler.NewErrorResponse(500, "failed to get reviewer info")
 	}
 	if reviewer.Email != userEmail {
-		return nil, nil, nil, aiServiceClient.ReviewerBriefingFileMetadataPayload{}, "", handler.NewErrorResponse(403, "you are not authorized to access this reviewer initial analysis")
+		return nil, nil, nil, aiServiceClient.ReviewerInitialFileMetadataPayload{}, "", handler.NewErrorResponse(403, "you are not authorized to access this reviewer initial analysis")
 	}
 
 	submission, err := c.submissionStorage.GetByID(ginCtx.Request.Context(), assignment.SubmissionID)
 	if err != nil || submission.ConferenceID != req.ConferenceID {
-		return nil, nil, nil, aiServiceClient.ReviewerBriefingFileMetadataPayload{}, "", handler.NewErrorResponse(404, "submission not found")
+		return nil, nil, nil, aiServiceClient.ReviewerInitialFileMetadataPayload{}, "", handler.NewErrorResponse(404, "submission not found")
 	}
 
 	domainTags := []string{}
@@ -148,9 +148,9 @@ func canAccessReviewerInitialAnalysis(status string) bool {
 	return status == "pending" || status == "accepted" || status == "completed"
 }
 
-func buildReviewerInitialAnalysisSubmissionPayload(submission *dto.Submission) aiServiceClient.ReviewerBriefingSubmissionPayload {
+func buildReviewerInitialAnalysisSubmissionPayload(submission *dto.Submission) aiServiceClient.ReviewerInitialSubmissionPayload {
 	if submission == nil {
-		return aiServiceClient.ReviewerBriefingSubmissionPayload{}
+		return aiServiceClient.ReviewerInitialSubmissionPayload{}
 	}
 
 	keywords := []string{}
@@ -158,7 +158,7 @@ func buildReviewerInitialAnalysisSubmissionPayload(submission *dto.Submission) a
 		keywords = dedupeNormalizedStrings(submission.Information.Keywords)
 	}
 
-	return aiServiceClient.ReviewerBriefingSubmissionPayload{
+	return aiServiceClient.ReviewerInitialSubmissionPayload{
 		Title:    normalizeInitialAnalysisText(submission.Title),
 		Abstract: normalizeInitialAnalysisText(submission.Abstract),
 		Keywords: keywords,
@@ -166,11 +166,11 @@ func buildReviewerInitialAnalysisSubmissionPayload(submission *dto.Submission) a
 	}
 }
 
-func buildReviewerInitialAnalysisFileMetadataPayload(submission *dto.Submission) aiServiceClient.ReviewerBriefingFileMetadataPayload {
+func buildReviewerInitialAnalysisFileMetadataPayload(submission *dto.Submission) aiServiceClient.ReviewerInitialFileMetadataPayload {
 	if submission == nil || submission.File == nil {
-		return aiServiceClient.ReviewerBriefingFileMetadataPayload{}
+		return aiServiceClient.ReviewerInitialFileMetadataPayload{}
 	}
-	return aiServiceClient.ReviewerBriefingFileMetadataPayload{
+	return aiServiceClient.ReviewerInitialFileMetadataPayload{
 		OriginalFilename: strings.TrimSpace(submission.File.OriginalName),
 		SizeBytes:        submission.File.Size,
 		ContentType:      strings.TrimSpace(submission.File.MimeType),

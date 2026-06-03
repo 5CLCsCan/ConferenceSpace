@@ -219,7 +219,7 @@ func TestRunSubmissionAutofill(t *testing.T) {
 	})
 }
 
-func TestReviewerBriefingClient(t *testing.T) {
+func TestReviewerInitialAnalysisClient(t *testing.T) {
 	t.Run("lookup posts json payload and decodes response", func(t *testing.T) {
 		var gotAuth string
 		var gotMethod string
@@ -240,23 +240,23 @@ func TestReviewerBriefingClient(t *testing.T) {
 		defer server.Close()
 
 		client := NewClient(Config{BaseURL: server.URL, TimeoutSeconds: 5})
-		response, err := client.LookupReviewerBriefing(
+		response, err := client.LookupReviewerInitialAnalysis(
 			context.Background(),
 			"Bearer token-123",
-			&ReviewerBriefingResolveRequest{
+			&ReviewerInitialAnalysisResolveRequest{
 				Action:                     "lookup",
 				ConferenceID:               42,
 				AssignmentID:               11,
 				SubmissionID:               7,
 				Actor:                      ActorPayload{UserID: 7, Email: "reviewer@example.com", Role: "reviewer"},
 				SubmissionStateFingerprint: "sha256:test",
-				Submission: ReviewerBriefingSubmissionPayload{
+				Submission: ReviewerInitialSubmissionPayload{
 					Title:    "Reliable Systems",
-					Abstract: "A structured reviewer pre-read workflow.",
+					Abstract: "A structured reviewer initial analysis workflow.",
 					Keywords: []string{"review"},
 					Track:    "main",
 				},
-				FileMetadata: ReviewerBriefingFileMetadataPayload{
+				FileMetadata: ReviewerInitialFileMetadataPayload{
 					OriginalFilename: "submission.pdf",
 					ContentType:      "application/pdf",
 					SizeBytes:        4096,
@@ -291,28 +291,28 @@ func TestReviewerBriefingClient(t *testing.T) {
 			require.NoError(t, err)
 
 			w.Header().Set("Content-Type", "application/json")
-			_, _ = w.Write([]byte(`{"status":"ready","run_id":"run-1","cache":{"hit":false,"submission_state_fingerprint":"sha256:test"},"artifact":{"submission_snapshot":{"title":"Reliable Systems","abstract_summary":"Summary","manuscript_overview":"Overview","keywords":["review"],"track":"main"},"claimed_contributions":[],"notable_elements":[],"reviewer_attention_points":[],"stated_scope_and_limitations":[],"guardrails":{"no_recommendation":true,"no_score":true,"bias_notice":"assistive only"}}}`))
+			_, _ = w.Write([]byte(`{"status":"ready","run_id":"run-1","cache":{"hit":false,"submission_state_fingerprint":"sha256:test"},"artifact":{"briefing":{"submission_snapshot":{"title":"Reliable Systems","abstract_summary":"Summary","manuscript_overview":"Overview","keywords":["review"],"track":"main"},"claimed_contributions":[],"notable_elements":[],"reviewer_attention_points":[],"stated_scope_and_limitations":[],"review_readiness_signals":[]},"annotations":{"overall_impression":"Ready for review","sections":[]},"guardrails":{"advisory_only":true,"no_recommendation":true,"no_score":true,"bias_notice":"assistive only"}}}`))
 		}))
 		defer server.Close()
 
 		client := NewClient(Config{BaseURL: server.URL, TimeoutSeconds: 5})
-		response, err := client.GenerateReviewerBriefing(
+		response, err := client.GenerateReviewerInitialAnalysis(
 			context.Background(),
 			"token-123",
-			&ReviewerBriefingResolveRequest{
+			&ReviewerInitialAnalysisResolveRequest{
 				Action:                     "generate",
 				ConferenceID:               42,
 				AssignmentID:               11,
 				SubmissionID:               7,
 				Actor:                      ActorPayload{UserID: 7, Email: "reviewer@example.com", Role: "reviewer"},
 				SubmissionStateFingerprint: "sha256:test",
-				Submission: ReviewerBriefingSubmissionPayload{
+				Submission: ReviewerInitialSubmissionPayload{
 					Title:    "Reliable Systems",
-					Abstract: "A structured reviewer pre-read workflow.",
+					Abstract: "A structured reviewer initial analysis workflow.",
 					Keywords: []string{"review"},
 					Track:    "main",
 				},
-				FileMetadata: ReviewerBriefingFileMetadataPayload{
+				FileMetadata: ReviewerInitialFileMetadataPayload{
 					OriginalFilename: "submission.pdf",
 					ContentType:      "application/pdf",
 					SizeBytes:        4096,
@@ -329,7 +329,7 @@ func TestReviewerBriefingClient(t *testing.T) {
 		assert.Equal(t, []byte("%PDF-1.4"), gotFileContent)
 		assert.Equal(t, "ready", response.Status)
 		require.NotNil(t, response.Artifact)
-		assert.Equal(t, "Reliable Systems", response.Artifact.SubmissionSnapshot.Title)
+		assert.Equal(t, "Reliable Systems", response.Artifact.Briefing.SubmissionSnapshot.Title)
 	})
 }
 

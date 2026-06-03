@@ -43,18 +43,6 @@ type Controller struct {
 }
 
 type reviewerWorkflowClient interface {
-	LookupReviewerBriefing(
-		ctx context.Context,
-		token string,
-		requestPayload *aiServiceClient.ReviewerBriefingResolveRequest,
-	) (*aiServiceClient.ReviewerBriefingResolveResponse, error)
-	GenerateReviewerBriefing(
-		ctx context.Context,
-		token string,
-		requestPayload *aiServiceClient.ReviewerBriefingResolveRequest,
-		filename string,
-		fileContent []byte,
-	) (*aiServiceClient.ReviewerBriefingResolveResponse, error)
 	ResolveReviewQualityAudit(
 		ctx context.Context,
 		token string,
@@ -72,18 +60,6 @@ type reviewerWorkflowClient interface {
 		filename string,
 		fileContent []byte,
 	) (*aiServiceClient.ReviewerInitialAnalysisResolveResponse, error)
-	LookupPaperAnnotation(
-		ctx context.Context,
-		token string,
-		requestPayload *aiServiceClient.PaperAnnotationResolveRequest,
-	) (*aiServiceClient.PaperAnnotationResolveResponse, error)
-	GeneratePaperAnnotation(
-		ctx context.Context,
-		token string,
-		requestPayload *aiServiceClient.PaperAnnotationResolveRequest,
-		filename string,
-		fileContent []byte,
-	) (*aiServiceClient.PaperAnnotationResolveResponse, error)
 }
 
 // New creates a new assignment controller

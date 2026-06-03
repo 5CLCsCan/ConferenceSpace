@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from pydantic import BaseModel
 
-from app.workflows.reviewer_pre_read_briefing.runner import extract_document
+from app.workflows.reviewer_initial_analysis.document import extract_document
 from app.workflows.submission_autofill.prompts import SUBMISSION_AUTOFILL_SYSTEM_PROMPT
 from app.workflows.submission_autofill.schemas import (
     AutofillField,

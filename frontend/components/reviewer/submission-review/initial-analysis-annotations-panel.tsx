@@ -38,7 +38,9 @@ const severityLabels: Record<string, string> = {
   major: "Major",
 }
 
-export function InitialAnalysisAnnotationsPanel({ annotations }: InitialAnalysisAnnotationsPanelProps) {
+export function InitialAnalysisAnnotationsPanel({
+  annotations,
+}: InitialAnalysisAnnotationsPanelProps) {
   const { t } = useTranslation()
   const sections = annotations.sections ?? []
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
@@ -62,7 +64,7 @@ export function InitialAnalysisAnnotationsPanel({ annotations }: InitialAnalysis
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#456882]">
           {t(
-            "runtime.components.reviewer.submission-review.paper-annotation-panel.text_overall_impression",
+            "runtime.components.reviewer.submission-review.initial-analysis-annotations-panel.text_overall_impression",
           )}
         </p>
         <p className="mt-3 text-[12px] font-medium leading-relaxed tracking-tight text-slate-900">
@@ -71,8 +73,9 @@ export function InitialAnalysisAnnotationsPanel({ annotations }: InitialAnalysis
         {annotations.domain_context && (
           <p className="mt-2 text-[10px] font-normal text-slate-500">
             {t(
-              "runtime.components.reviewer.submission-review.paper-annotation-panel.text_domain_context_prefix",
-            )} {annotations.domain_context}
+              "runtime.components.reviewer.submission-review.initial-analysis-annotations-panel.text_domain_context_prefix",
+            )}{" "}
+            {annotations.domain_context}
           </p>
         )}
       </div>

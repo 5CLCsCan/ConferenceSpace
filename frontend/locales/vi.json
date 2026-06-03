@@ -2673,11 +2673,10 @@
             "title_notable_elements": "Yếu tố đáng chú ý",
             "title_review_readiness_signals": "Xem lại tín hiệu sẵn sàng",
             "title_reviewer_attention_points": "Điểm chú ý của phản biện",
-            "text_paper_annotations": "Chú thích bài báo",
-            "title_scope_and_limitations": "Phạm vi và hạn chế",
-            "text_paper_annotation": "Chú thích bài báo:"
+            "text_initial_analysis_annotations": "Chú thích phân tích ban đầu",
+            "title_scope_and_limitations": "Phạm vi và hạn chế"
           },
-          "paper-annotation-panel": {
+          "initial-analysis-annotations-panel": {
             "text_overall_impression": "Ấn tượng tổng thể",
             "text_domain_context_prefix": "Bối cảnh lĩnh vực:"
           },

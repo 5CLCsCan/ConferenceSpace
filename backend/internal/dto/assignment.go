@@ -122,12 +122,7 @@ type ReviewGetRequest struct {
 	ConferenceID int64 `uri:"conference_id" binding:"required"`
 }
 
-type ReviewerBriefingRequest struct {
-	AssignmentID int64 `uri:"assignment_id" binding:"required"`
-	ConferenceID int64 `uri:"conference_id" binding:"required"`
-}
-
-type PaperAnnotationRequest struct {
+type ReviewerInitialAnalysisRequest struct {
 	AssignmentID int64 `uri:"assignment_id" binding:"required"`
 	ConferenceID int64 `uri:"conference_id" binding:"required"`
 }
