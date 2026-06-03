@@ -20,6 +20,7 @@ from app.repositories import (
     PaperAnnotationRepository,
     ReviewQualityAuditRepository,
     ReviewerBriefingRepository,
+    ReviewerInitialAnalysisRepository,
 )
 from app.repositories.runtime_store import RuntimeStore
 from app.services import AgentRuntime, QueryEngineClient, LLMClient, MetricsStore
@@ -29,6 +30,8 @@ from app.workflows.reviewer_pre_read_briefing.runner import (
 from app.workflows.reviewer_pre_read_briefing.router import (
     router as reviewer_briefing_router,
 )
+from app.workflows.reviewer_initial_analysis.runner import ReviewerInitialAnalysisRunner
+from app.workflows.reviewer_initial_analysis.router import router as reviewer_initial_analysis_router
 from app.workflows.review_quality_auditor.runner import ReviewQualityAuditRunner
 from app.workflows.review_quality_auditor.router import (
     router as review_quality_audit_router,
@@ -67,6 +70,8 @@ class AppContainer:
     submission_gating_runner: SubmissionGatingRunner
     reviewer_briefing_repo: ReviewerBriefingRepository
     reviewer_briefing_runner: ReviewerPreReadBriefingRunner
+    reviewer_initial_analysis_repo: ReviewerInitialAnalysisRepository
+    reviewer_initial_analysis_runner: ReviewerInitialAnalysisRunner
     review_quality_audit_repo: ReviewQualityAuditRepository
     review_quality_audit_runner: ReviewQualityAuditRunner
     decision_copilot_repo: DecisionCopilotRepository
@@ -124,6 +129,7 @@ async def lifespan(app: FastAPI):
     )
     submission_gating_repo = GatingRunRepository(session_factory)
     reviewer_briefing_repo = ReviewerBriefingRepository(session_factory)
+    reviewer_initial_analysis_repo = ReviewerInitialAnalysisRepository(session_factory)
     review_quality_audit_repo = ReviewQualityAuditRepository(session_factory)
     decision_copilot_repo = DecisionCopilotRepository(session_factory)
     submission_gating_runner = SubmissionGatingRunner(
@@ -132,6 +138,10 @@ async def lifespan(app: FastAPI):
     )
     reviewer_briefing_runner = ReviewerPreReadBriefingRunner(
         repo=reviewer_briefing_repo,
+        llm_client=llm_client,
+    )
+    reviewer_initial_analysis_runner = ReviewerInitialAnalysisRunner(
+        repo=reviewer_initial_analysis_repo,
         llm_client=llm_client,
     )
     review_quality_audit_runner = ReviewQualityAuditRunner(
@@ -174,6 +184,8 @@ async def lifespan(app: FastAPI):
         submission_gating_runner=submission_gating_runner,
         reviewer_briefing_repo=reviewer_briefing_repo,
         reviewer_briefing_runner=reviewer_briefing_runner,
+        reviewer_initial_analysis_repo=reviewer_initial_analysis_repo,
+        reviewer_initial_analysis_runner=reviewer_initial_analysis_runner,
         review_quality_audit_repo=review_quality_audit_repo,
         review_quality_audit_runner=review_quality_audit_runner,
         decision_copilot_repo=decision_copilot_repo,
@@ -210,6 +222,7 @@ def create_app() -> FastAPI:
     app.include_router(agent_router)
     app.include_router(submission_gating_router)
     app.include_router(reviewer_briefing_router)
+    app.include_router(reviewer_initial_analysis_router)
     app.include_router(review_quality_audit_router)
     app.include_router(decision_copilot_router)
     app.include_router(paper_annotation_router)
