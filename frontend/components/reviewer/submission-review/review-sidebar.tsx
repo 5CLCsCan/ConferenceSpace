@@ -2,9 +2,8 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react"
 
-import useAssignmentBriefing from "@/hooks/use-assignment-briefing"
-import usePaperAnnotation from "@/hooks/use-paper-annotation"
-import { PaperAnnotationPanel } from "./paper-annotation-panel"
+import useReviewerInitialAnalysis from "@/hooks/use-reviewer-initial-analysis"
+import { InitialAnalysisAnnotationsPanel } from "./initial-analysis-annotations-panel"
 import { downloadPaperFile } from "@/lib/api/papers"
 import {
   Dialog,
@@ -77,54 +76,36 @@ export function AIAssistantCard({
   submissionTitle,
 }: AIAssistantCardProps) {
   const { t } = useTranslation()
-  const { briefing, loading, generating, error, generateBriefing } = useAssignmentBriefing(
+  const { analysis, loading, generating, error, generateAnalysis } = useReviewerInitialAnalysis(
     conferenceId,
     assignmentId,
   )
-  const {
-    annotation,
-    loading: annotationLoading,
-    generating: annotationGenerating,
-    error: annotationError,
-    generateAnnotation,
-  } = usePaperAnnotation(conferenceId, assignmentId)
   const [open, setOpen] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [previewFilename, setPreviewFilename] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
   const [previewError, setPreviewError] = useState<string | null>(null)
 
-  const status = briefing?.status ?? "idle"
-  const artifact = briefing?.artifact
+  const status = analysis?.status ?? "idle"
+  const artifact = analysis?.artifact
+  const briefing = artifact?.briefing
+  const annotations = artifact?.annotations
   const canView = status === "ready" && Boolean(artifact)
-  const readinessSignals = artifact?.review_readiness_signals ?? []
-  const notableElements = artifact?.notable_elements ?? []
-  const claimedContributions = artifact?.claimed_contributions ?? []
-  const attentionPoints = artifact?.reviewer_attention_points ?? []
-  const scopeLimitations = artifact?.stated_scope_and_limitations ?? []
-
-  const annotationStatus = annotation?.status ?? "idle"
-  const annotationArtifact = annotation?.artifact
-  const canViewAnnotation = annotationStatus === "ready" && Boolean(annotationArtifact)
-  const briefingPending = status === "idle" || status === "failed" || status === "stale"
-  const annotationPending =
-    annotationStatus === "idle" || annotationStatus === "failed" || annotationStatus === "stale"
-  const showGenerateButton = briefingPending || annotationPending
+  const readinessSignals = briefing?.review_readiness_signals ?? []
+  const notableElements = briefing?.notable_elements ?? []
+  const claimedContributions = briefing?.claimed_contributions ?? []
+  const attentionPoints = briefing?.reviewer_attention_points ?? []
+  const scopeLimitations = briefing?.stated_scope_and_limitations ?? []
+  const analysisPending = status === "idle" || status === "failed" || status === "stale"
+  const showGenerateButton = analysisPending
 
   const generateButtonLabel = () => {
-    if (generating || annotationGenerating) {
+    if (generating) {
       return t("runtime.components.reviewer.submission-review.review-sidebar.text_generating")
     }
-    if (briefingPending) {
-      return status === "stale"
-        ? t("runtime.components.reviewer.submission-review.review-sidebar.text_regenerate_report")
-        : t("runtime.components.reviewer.submission-review.review-sidebar.text_start_generating")
-    }
-    return annotationStatus === "stale"
-      ? t(
-          "runtime.components.reviewer.submission-review.review-sidebar.text_regenerate_annotations",
-        )
-      : t("runtime.components.reviewer.submission-review.review-sidebar.text_generate_annotations")
+    return status === "stale"
+      ? t("runtime.components.reviewer.submission-review.review-sidebar.text_regenerate_report")
+      : t("runtime.components.reviewer.submission-review.review-sidebar.text_start_generating")
   }
 
   useEffect(() => {
@@ -277,14 +258,9 @@ export function AIAssistantCard({
                 <button
                   type="button"
                   onClick={() => {
-                    if (briefingPending) {
-                      void generateBriefing()
-                    }
-                    if (annotationPending) {
-                      void generateAnnotation()
-                    }
+                    void generateAnalysis()
                   }}
-                  disabled={generating || annotationGenerating}
+                  disabled={generating}
                   className="inline-flex h-8 items-center justify-center gap-2 rounded-md bg-violet-600 px-4 text-[11px] font-bold tracking-wider text-white transition-all duration-200 hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-violet-300"
                 >
                   <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
@@ -309,14 +285,6 @@ export function AIAssistantCard({
             {error && (
               <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[10px] text-red-700">
                 {error}
-              </div>
-            )}
-            {annotationError && (
-              <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] text-amber-700">
-                {t(
-                  "runtime.components.reviewer.submission-review.review-sidebar.text_paper_annotation",
-                )}{" "}
-                {annotationError}
               </div>
             )}
           </>
@@ -432,16 +400,16 @@ export function AIAssistantCard({
               </div>
 
               <div className="min-h-0 flex-1 overflow-y-auto bg-[#F8FBFD] px-6 py-6">
-                {artifact ? (
+                {briefing ? (
                   <div className="space-y-5">
                     <div className="space-y-3 px-1">
                       <div className="flex items-start gap-3">
                         <h3 className="min-w-0 flex-1 text-lg font-black leading-tight tracking-tight text-slate-950">
-                          {artifact.submission_snapshot.title}
+                          {briefing.submission_snapshot.title}
                         </h3>
-                        {artifact.submission_snapshot.track ? (
+                        {briefing.submission_snapshot.track ? (
                           <span className="mt-1 shrink-0 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-slate-500">
-                            {artifact.submission_snapshot.track}
+                            {briefing.submission_snapshot.track}
                           </span>
                         ) : null}
                       </div>
@@ -454,10 +422,10 @@ export function AIAssistantCard({
                         )}{" "}
                       </p>
                       <p className="mt-3 text-[12px] font-medium leading-relaxed tracking-tight text-slate-900">
-                        {artifact.submission_snapshot.abstract_summary}
+                        {briefing.submission_snapshot.abstract_summary}
                       </p>
                       <p className="mt-3 text-[11px] font-normal leading-relaxed text-slate-600">
-                        {artifact.submission_snapshot.manuscript_overview}
+                        {briefing.submission_snapshot.manuscript_overview}
                       </p>
                     </div>
 
@@ -563,22 +531,20 @@ export function AIAssistantCard({
                         />
                       </SectionBlock>
                     </div>
-                    {canViewAnnotation && annotationArtifact && (
-                      <>
-                        <div className="border-t border-slate-200 pt-5">
-                          <div className="mb-4 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-[16px] text-violet-600">
-                              rate_review
-                            </span>
-                            <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#456882]">
-                              {t(
-                                "runtime.components.reviewer.submission-review.review-sidebar.text_paper_annotations",
-                              )}
-                            </h3>
-                          </div>
-                          <PaperAnnotationPanel artifact={annotationArtifact} />
+                    {annotations && (
+                      <div className="border-t border-slate-200 pt-5">
+                        <div className="mb-4 flex items-center gap-2">
+                          <span className="material-symbols-outlined text-[16px] text-violet-600">
+                            rate_review
+                          </span>
+                          <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#456882]">
+                            {t(
+                              "runtime.components.reviewer.submission-review.review-sidebar.text_paper_annotations",
+                            )}
+                          </h3>
                         </div>
-                      </>
+                        <InitialAnalysisAnnotationsPanel annotations={annotations} />
+                      </div>
                     )}
                   </div>
                 ) : (
