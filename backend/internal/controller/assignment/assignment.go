@@ -60,6 +60,18 @@ type reviewerWorkflowClient interface {
 		token string,
 		requestPayload *aiServiceClient.ReviewQualityAuditResolveRequest,
 	) (*aiServiceClient.ReviewQualityAuditResolveResponse, error)
+	LookupReviewerInitialAnalysis(
+		ctx context.Context,
+		token string,
+		requestPayload *aiServiceClient.ReviewerInitialAnalysisResolveRequest,
+	) (*aiServiceClient.ReviewerInitialAnalysisResolveResponse, error)
+	GenerateReviewerInitialAnalysis(
+		ctx context.Context,
+		token string,
+		requestPayload *aiServiceClient.ReviewerInitialAnalysisResolveRequest,
+		filename string,
+		fileContent []byte,
+	) (*aiServiceClient.ReviewerInitialAnalysisResolveResponse, error)
 	LookupPaperAnnotation(
 		ctx context.Context,
 		token string,
