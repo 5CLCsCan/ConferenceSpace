@@ -233,6 +233,117 @@ type ReviewerBriefingResolveResponse struct {
 	Error    *ReviewerBriefingErrorPayload `json:"error,omitempty"`
 }
 
+type ReviewerInitialAnalysisResolveRequest struct {
+	Action                     string                              `json:"action"`
+	ConferenceID               int64                               `json:"conference_id"`
+	AssignmentID               int64                               `json:"assignment_id"`
+	SubmissionID               int64                               `json:"submission_id"`
+	Actor                      ActorPayload                        `json:"actor"`
+	SubmissionStateFingerprint string                              `json:"submission_state_fingerprint"`
+	Submission                 ReviewerBriefingSubmissionPayload   `json:"submission"`
+	FileMetadata               ReviewerBriefingFileMetadataPayload `json:"file_metadata"`
+	DomainTags                 []string                            `json:"domain_tags,omitempty"`
+}
+
+type ReviewerInitialAnalysisCachePayload struct {
+	Hit                        bool   `json:"hit"`
+	SubmissionStateFingerprint string `json:"submission_state_fingerprint"`
+}
+
+type ReviewerInitialSubmissionSnapshot struct {
+	Title              string   `json:"title"`
+	AbstractSummary    string   `json:"abstract_summary"`
+	ManuscriptOverview string   `json:"manuscript_overview"`
+	Keywords           []string `json:"keywords"`
+	Track              *string  `json:"track"`
+}
+
+type ReviewerInitialContribution struct {
+	Label    string   `json:"label"`
+	Evidence []string `json:"evidence"`
+	Source   string   `json:"source"`
+}
+
+type ReviewerInitialNotableElement struct {
+	Label  string `json:"label"`
+	Detail string `json:"detail"`
+	Source string `json:"source"`
+}
+
+type ReviewerInitialAttentionPoint struct {
+	Focus  string  `json:"focus"`
+	Reason *string `json:"reason"`
+	Source string  `json:"source"`
+}
+
+type ReviewerInitialScopeLimitation struct {
+	Label  string `json:"label"`
+	Detail string `json:"detail"`
+	Source string `json:"source"`
+}
+
+type ReviewerInitialReadinessSignal struct {
+	Label  string `json:"label"`
+	Status string `json:"status"`
+	Detail string `json:"detail"`
+	Source string `json:"source"`
+}
+
+type ReviewerInitialBriefing struct {
+	SubmissionSnapshot      ReviewerInitialSubmissionSnapshot `json:"submission_snapshot"`
+	ReviewReadinessSignals  []ReviewerInitialReadinessSignal  `json:"review_readiness_signals"`
+	ClaimedContributions    []ReviewerInitialContribution     `json:"claimed_contributions"`
+	NotableElements         []ReviewerInitialNotableElement   `json:"notable_elements"`
+	ReviewerAttentionPoints []ReviewerInitialAttentionPoint   `json:"reviewer_attention_points"`
+	StatedScopeLimitations  []ReviewerInitialScopeLimitation  `json:"stated_scope_and_limitations"`
+}
+
+type ReviewerInitialAnnotationItem struct {
+	Category      string  `json:"category"`
+	Severity      *string `json:"severity,omitempty"`
+	QuotedPassage string  `json:"quoted_passage"`
+	Commentary    string  `json:"commentary"`
+	ReviewerHint  *string `json:"reviewer_hint,omitempty"`
+}
+
+type ReviewerInitialAnnotationSection struct {
+	SectionName string                          `json:"section_name"`
+	Summary     string                          `json:"summary"`
+	Annotations []ReviewerInitialAnnotationItem `json:"annotations,omitempty"`
+}
+
+type ReviewerInitialAnnotations struct {
+	OverallImpression string                             `json:"overall_impression"`
+	DomainContext     *string                            `json:"domain_context,omitempty"`
+	Sections          []ReviewerInitialAnnotationSection `json:"sections,omitempty"`
+}
+
+type ReviewerInitialAnalysisGuardrails struct {
+	AdvisoryOnly     bool   `json:"advisory_only"`
+	NoRecommendation bool   `json:"no_recommendation"`
+	NoScore          bool   `json:"no_score"`
+	BiasNotice       string `json:"bias_notice"`
+}
+
+type ReviewerInitialAnalysisArtifact struct {
+	Briefing    ReviewerInitialBriefing            `json:"briefing"`
+	Annotations ReviewerInitialAnnotations         `json:"annotations"`
+	Guardrails  ReviewerInitialAnalysisGuardrails  `json:"guardrails"`
+}
+
+type ReviewerInitialAnalysisErrorPayload struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+type ReviewerInitialAnalysisResolveResponse struct {
+	Status   string                                `json:"status"`
+	RunID    string                                `json:"run_id,omitempty"`
+	Cache    ReviewerInitialAnalysisCachePayload   `json:"cache"`
+	Artifact *ReviewerInitialAnalysisArtifact      `json:"artifact,omitempty"`
+	Error    *ReviewerInitialAnalysisErrorPayload  `json:"error,omitempty"`
+}
+
 // --- Paper Annotation types ---
 
 type PaperAnnotationResolveRequest struct {
@@ -970,6 +1081,95 @@ func (c *Client) GenerateReviewerBriefing(
 	}
 
 	return doJSONRequest[ReviewerBriefingResolveResponse](c.httpClient, req, "reviewer briefing workflow")
+}
+
+func (c *Client) LookupReviewerInitialAnalysis(
+	ctx context.Context,
+	token string,
+	requestPayload *ReviewerInitialAnalysisResolveRequest,
+) (*ReviewerInitialAnalysisResolveResponse, error) {
+	if c == nil || strings.TrimSpace(c.baseURL) == "" {
+		return nil, fmt.Errorf("ai-service client is not configured")
+	}
+	if requestPayload == nil {
+		return nil, fmt.Errorf("reviewer initial analysis request payload is required")
+	}
+
+	requestJSON, err := json.Marshal(requestPayload)
+	if err != nil {
+		return nil, fmt.Errorf("marshal reviewer initial analysis request: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		c.baseURL+"/api/v1/workflows/reviewer-initial-analysis/resolve",
+		bytes.NewReader(requestJSON),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("create reviewer initial analysis request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if normalizedToken := normalizeBearerToken(token); normalizedToken != "" {
+		req.Header.Set("Authorization", "Bearer "+normalizedToken)
+	}
+
+	return doJSONRequest[ReviewerInitialAnalysisResolveResponse](c.httpClient, req, "reviewer initial analysis workflow")
+}
+
+func (c *Client) GenerateReviewerInitialAnalysis(
+	ctx context.Context,
+	token string,
+	requestPayload *ReviewerInitialAnalysisResolveRequest,
+	filename string,
+	fileContent []byte,
+) (*ReviewerInitialAnalysisResolveResponse, error) {
+	if c == nil || strings.TrimSpace(c.baseURL) == "" {
+		return nil, fmt.Errorf("ai-service client is not configured")
+	}
+	if requestPayload == nil {
+		return nil, fmt.Errorf("reviewer initial analysis request payload is required")
+	}
+	if len(fileContent) == 0 {
+		return nil, fmt.Errorf("reviewer initial analysis file content is required")
+	}
+
+	requestJSON, err := json.Marshal(requestPayload)
+	if err != nil {
+		return nil, fmt.Errorf("marshal reviewer initial analysis request: %w", err)
+	}
+
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	if err := writer.WriteField("request_payload", string(requestJSON)); err != nil {
+		return nil, fmt.Errorf("write reviewer initial analysis request field: %w", err)
+	}
+	part, err := writer.CreateFormFile("file", filename)
+	if err != nil {
+		return nil, fmt.Errorf("create reviewer initial analysis file part: %w", err)
+	}
+	if _, err := part.Write(fileContent); err != nil {
+		return nil, fmt.Errorf("write reviewer initial analysis file content: %w", err)
+	}
+	if err := writer.Close(); err != nil {
+		return nil, fmt.Errorf("close reviewer initial analysis multipart body: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		c.baseURL+"/api/v1/workflows/reviewer-initial-analysis/resolve",
+		bytes.NewReader(body.Bytes()),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("create reviewer initial analysis request: %w", err)
+	}
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	if normalizedToken := normalizeBearerToken(token); normalizedToken != "" {
+		req.Header.Set("Authorization", "Bearer "+normalizedToken)
+	}
+
+	return doJSONRequest[ReviewerInitialAnalysisResolveResponse](c.httpClient, req, "reviewer initial analysis workflow")
 }
 
 func (c *Client) LookupPaperAnnotation(
