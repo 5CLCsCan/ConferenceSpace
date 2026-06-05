@@ -24,15 +24,30 @@ vi.mock("@/hooks/use-assignment-briefing", () => ({
             source: "derived",
           },
         ],
-        claimed_contributions: [{ label: "Structured pre-read workflow", evidence: [], source: "submission" }],
-        notable_elements: [{ label: "Reviewer orientation", detail: "Focuses on reducing rereading effort.", source: "submission" }],
-        reviewer_attention_points: [{ focus: "Verify manuscript support", reason: "Core claims depend on manuscript evidence.", source: "derived" }],
-        stated_scope_and_limitations: [{ label: "Neutral assistance", detail: "No recommendation or score output.", source: "submission" }],
-        guardrails: {
-          no_recommendation: true,
-          no_score: true,
-          bias_notice: "This briefing is assistive only and must not replace independent review judgment.",
-        },
+        claimed_contributions: [
+          { label: "Structured pre-read workflow", evidence: [], source: "submission" },
+        ],
+        notable_elements: [
+          {
+            label: "Reviewer orientation",
+            detail: "Focuses on reducing rereading effort.",
+            source: "submission",
+          },
+        ],
+        reviewer_attention_points: [
+          {
+            focus: "Verify manuscript support",
+            reason: "Core claims depend on manuscript evidence.",
+            source: "derived",
+          },
+        ],
+        stated_scope_and_limitations: [
+          {
+            label: "Neutral assistance",
+            detail: "No recommendation or score output.",
+            source: "submission",
+          },
+        ],
       },
     },
     loading: false,

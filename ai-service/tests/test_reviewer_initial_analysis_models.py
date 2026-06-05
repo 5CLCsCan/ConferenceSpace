@@ -99,12 +99,6 @@ def make_artifact_payload() -> dict:
                 }
             ],
         },
-        "guardrails": {
-            "advisory_only": True,
-            "no_recommendation": True,
-            "no_score": True,
-            "bias_notice": "This analysis is assistive only and must not replace independent reviewer judgment.",
-        },
     }
 
 
@@ -121,7 +115,6 @@ def test_artifact_requires_briefing_and_annotations():
 
     assert artifact.briefing.submission_snapshot.title == "A Test Paper"
     assert artifact.annotations.sections[0].annotations[0].quoted_passage == "We study a test problem."
-    assert artifact.guardrails.no_recommendation is True
 
 
 def test_annotation_requires_verbatim_quote_field():

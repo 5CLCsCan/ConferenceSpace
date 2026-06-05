@@ -125,10 +125,14 @@ async def test_runner_generate_extracts_document_once_and_calls_llm_once(monkeyp
     assert "prompt_version" not in normalized
     assert "discussion_context" not in normalized
     assert "rebuttal_context" not in normalized
-    assert '"domain_tags":["testing"]' in normalized
+    assert "domain_tags" not in normalized
+    assert "guardrails" not in normalized
+    assert "review_readiness_hints" not in normalized
+    assert "document_title" not in normalized
+    assert "section_headings" not in normalized
     assert "repeated   text" not in normalized
-    assert "review_readiness_hints" in normalized
-    assert "baseline_or_comparison_mentions" in normalized
+    payload = json.loads(normalized)
+    assert payload["manuscript"].startswith("repeated text content")
 
 
 @pytest.mark.asyncio

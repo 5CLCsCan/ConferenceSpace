@@ -66,7 +66,23 @@ func TestBuildReviewerInitialAnalysisSubmissionPayload_NormalizesKeywordsAndOmit
 	if len(payload.Keywords) != 2 {
 		t.Fatalf("expected deduplicated keywords, got %#v", payload.Keywords)
 	}
+	if payload.Keywords[0] != "Review" || payload.Keywords[1] != "workflow" {
+		t.Fatalf("expected trimmed keywords with first casing preserved, got %#v", payload.Keywords)
+	}
 	if payload.Track != "main" {
 		t.Fatalf("expected normalized track, got %q", payload.Track)
+	}
+}
+
+func TestCanAccessReviewerPreAcceptArtifact_AllowsPendingOnly(t *testing.T) {
+	if !canAccessReviewerPreAcceptArtifact("pending") {
+		t.Fatalf("expected pending assignments to access pre-accept artifacts")
+	}
+
+	blockedStatuses := []string{"accepted", "completed", "declined", "suggested", ""}
+	for _, status := range blockedStatuses {
+		if canAccessReviewerPreAcceptArtifact(status) {
+			t.Fatalf("expected status %q to be blocked from pre-accept artifacts", status)
+		}
 	}
 }

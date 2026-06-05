@@ -148,6 +148,28 @@ func canAccessReviewerInitialAnalysis(status string) bool {
 	return status == "pending" || status == "accepted" || status == "completed"
 }
 
+func canAccessReviewerPreAcceptArtifact(status string) bool {
+	return status == "pending"
+}
+
+func dedupeNormalizedStrings(values []string) []string {
+	result := make([]string, 0, len(values))
+	seen := make(map[string]struct{}, len(values))
+	for _, value := range values {
+		normalized := normalizeInitialAnalysisText(value)
+		if normalized == "" {
+			continue
+		}
+		key := strings.ToLower(normalized)
+		if _, exists := seen[key]; exists {
+			continue
+		}
+		seen[key] = struct{}{}
+		result = append(result, normalized)
+	}
+	return result
+}
+
 func buildReviewerInitialAnalysisSubmissionPayload(submission *dto.Submission) aiServiceClient.ReviewerInitialSubmissionPayload {
 	if submission == nil {
 		return aiServiceClient.ReviewerInitialSubmissionPayload{}

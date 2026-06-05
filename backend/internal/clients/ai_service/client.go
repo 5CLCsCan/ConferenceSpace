@@ -234,17 +234,9 @@ type ReviewerInitialAnnotations struct {
 	Sections          []ReviewerInitialAnnotationSection `json:"sections,omitempty"`
 }
 
-type ReviewerInitialAnalysisGuardrails struct {
-	AdvisoryOnly     bool   `json:"advisory_only"`
-	NoRecommendation bool   `json:"no_recommendation"`
-	NoScore          bool   `json:"no_score"`
-	BiasNotice       string `json:"bias_notice"`
-}
-
 type ReviewerInitialAnalysisArtifact struct {
-	Briefing    ReviewerInitialBriefing            `json:"briefing"`
-	Annotations ReviewerInitialAnnotations         `json:"annotations"`
-	Guardrails  ReviewerInitialAnalysisGuardrails  `json:"guardrails"`
+	Briefing    ReviewerInitialBriefing    `json:"briefing"`
+	Annotations ReviewerInitialAnnotations `json:"annotations"`
 }
 
 type ReviewerInitialAnalysisErrorPayload struct {

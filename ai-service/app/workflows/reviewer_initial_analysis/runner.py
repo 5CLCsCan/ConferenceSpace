@@ -179,7 +179,10 @@ class ReviewerInitialAnalysisRunner:
         artifact = ReviewerInitialAnalysisArtifact.model_validate(artifact_payload)
         if not artifact.briefing.review_readiness_signals:
             artifact.briefing.review_readiness_signals = _build_fallback_readiness_signals(
-                hints=inference_payload["manuscript"]["review_readiness_hints"],
+                hints=_derive_review_readiness_hints(
+                    raw_text=inference_payload["manuscript"],
+                    section_headings=_normalize_sections(extracted_document.sections),
+                ),
                 extracted_document=extracted_document,
             )
         return artifact
@@ -215,9 +218,6 @@ def build_inference_payload(
     request: ReviewerInitialAnalysisResolveRequest,
     extracted_document: ExtractedDocument,
 ) -> dict:
-    raw_text = _normalize_text(extracted_document.raw_text, MAX_MANUSCRIPT_CHARS)
-    sections = _normalize_sections(extracted_document.sections)
-    domain_tags = [_normalize_text(tag, MAX_KEYWORD_CHARS) for tag in request.domain_tags if tag.strip()]
     return {
         "submission": {
             "title": _normalize_text(request.submission.title, MAX_TITLE_CHARS),
@@ -225,25 +225,7 @@ def build_inference_payload(
             "keywords": _dedupe_strings(request.submission.keywords),
             "track": _normalize_text(request.submission.track or "", MAX_TRACK_CHARS) or None,
         },
-        "manuscript": {
-            "document_title": _normalize_text(extracted_document.title or request.submission.title, MAX_TITLE_CHARS) or None,
-            "document_abstract": _normalize_text(extracted_document.abstract or "", MAX_MANUSCRIPT_ABSTRACT_CHARS) or None,
-            "section_headings": sections,
-            "page_count": extracted_document.page_count,
-            "table_count": extracted_document.table_count,
-            "figure_count": extracted_document.figure_count,
-            "reference_count": extracted_document.reference_count,
-            "text_coverage_ratio": extracted_document.text_coverage_ratio,
-            "raw_text": raw_text,
-            "review_readiness_hints": _derive_review_readiness_hints(raw_text=raw_text, section_headings=sections),
-        },
-        "domain_tags": domain_tags if domain_tags else None,
-        "guardrails": {
-            "advisory_only": True,
-            "no_recommendation": True,
-            "no_score": True,
-            "bias_notice": "This analysis is assistive only and must not replace independent reviewer judgment.",
-        },
+        "manuscript": _normalize_text(extracted_document.raw_text, MAX_MANUSCRIPT_CHARS),
     }
 
 

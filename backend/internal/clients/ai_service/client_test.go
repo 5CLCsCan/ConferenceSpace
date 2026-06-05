@@ -291,7 +291,7 @@ func TestReviewerInitialAnalysisClient(t *testing.T) {
 			require.NoError(t, err)
 
 			w.Header().Set("Content-Type", "application/json")
-			_, _ = w.Write([]byte(`{"status":"ready","run_id":"run-1","cache":{"hit":false,"submission_state_fingerprint":"sha256:test"},"artifact":{"briefing":{"submission_snapshot":{"title":"Reliable Systems","abstract_summary":"Summary","manuscript_overview":"Overview","keywords":["review"],"track":"main"},"claimed_contributions":[],"notable_elements":[],"reviewer_attention_points":[],"stated_scope_and_limitations":[],"review_readiness_signals":[]},"annotations":{"overall_impression":"Ready for review","sections":[]},"guardrails":{"advisory_only":true,"no_recommendation":true,"no_score":true,"bias_notice":"assistive only"}}}`))
+			_, _ = w.Write([]byte(`{"status":"ready","run_id":"run-1","cache":{"hit":false,"submission_state_fingerprint":"sha256:test"},"artifact":{"briefing":{"submission_snapshot":{"title":"Reliable Systems","abstract_summary":"Summary","manuscript_overview":"Overview","keywords":["review"],"track":"main"},"claimed_contributions":[],"notable_elements":[],"reviewer_attention_points":[],"stated_scope_and_limitations":[],"review_readiness_signals":[]},"annotations":{"overall_impression":"Ready for review","sections":[]}}}`))
 		}))
 		defer server.Close()
 

@@ -46,12 +46,6 @@ const readyArtifact = {
       },
     ],
   },
-  guardrails: {
-    advisory_only: true,
-    no_recommendation: true,
-    no_score: true,
-    bias_notice: "assistive only",
-  },
 }
 
 describe("reviewer initial analysis api", () => {
@@ -117,6 +111,5 @@ describe("reviewer initial analysis api", () => {
     expect(result.data?.artifact?.annotations.sections[0]?.annotations[0]?.quoted_passage).toBe(
       "We study reviewer workflows.",
     )
-    expect(result.data?.artifact?.guardrails.no_score).toBe(true)
   })
 })

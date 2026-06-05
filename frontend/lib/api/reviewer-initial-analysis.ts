@@ -78,17 +78,9 @@ export interface ReviewerInitialAnnotations {
   sections: ReviewerInitialAnnotationSection[]
 }
 
-export interface ReviewerInitialAnalysisGuardrails {
-  advisory_only: boolean
-  no_recommendation: boolean
-  no_score: boolean
-  bias_notice: string
-}
-
 export interface ReviewerInitialAnalysisArtifact {
   briefing: ReviewerInitialBriefing
   annotations: ReviewerInitialAnnotations
-  guardrails: ReviewerInitialAnalysisGuardrails
 }
 
 export interface ReviewerInitialAnalysisResponse {

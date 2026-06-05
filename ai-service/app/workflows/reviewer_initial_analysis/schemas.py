@@ -108,17 +108,9 @@ class ReviewerInitialAnnotations(StrictSchemaModel):
     sections: list[ReviewerInitialAnnotationSection]
 
 
-class ReviewerInitialAnalysisGuardrails(StrictSchemaModel):
-    advisory_only: bool
-    no_recommendation: bool
-    no_score: bool
-    bias_notice: str
-
-
 class ReviewerInitialAnalysisArtifact(StrictSchemaModel):
     briefing: ReviewerInitialBriefing
     annotations: ReviewerInitialAnnotations
-    guardrails: ReviewerInitialAnalysisGuardrails
 
 
 class ReviewerInitialAnalysisCacheMetadata(BaseModel):
