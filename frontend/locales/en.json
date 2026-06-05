@@ -1524,7 +1524,7 @@
             "text_api_only": "API-only",
             "text_auto_detected": "Auto-detected",
             "text_batch_operations": "Batch Operations",
-            "text_confirm_dismiss_and_reviewer_reassignment_coi": "Confirm, dismiss, and reviewer-reassignment COI actions are intentionally disabled because backend mutation endpoints are not available yet.",
+            "text_confirm_dismiss_and_reviewer_reassignment_coi": "This feature is not available yet.",
             "text_confirmed": "Confirmed",
             "text_conflict_reason": "Conflict Reason",
             "text_conflicts": "conflicts",

@@ -22,7 +22,7 @@ class _FakeRunner:
             },
             "findings": [
                 {
-                    "code": "completeness.review_too_brief",
+                    "code": "quality.review_too_generic_to_submit",
                     "severity": "warning",
                     "field": "review",
                     "rationale": "The finding is raised because the review's narrative is too short to connect its concern to the submitted work.",

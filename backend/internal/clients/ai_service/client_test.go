@@ -217,6 +217,44 @@ func TestRunSubmissionAutofill(t *testing.T) {
 		assert.Equal(t, "AI", response.TrackRankings[0].TrackName)
 		assert.Equal(t, 8.5, response.TrackRankings[0].Confidence)
 	})
+
+	t.Run("keeps empty conference context fields for ai-service validation", func(t *testing.T) {
+		var gotRequestField string
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.NoError(t, r.ParseMultipartForm(1<<20))
+			gotRequestField = r.FormValue("request")
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"run_id":"run-autofill","status":"ready","fields":{"title":"Title","abstract":"Abstract","keywords":[],"paper_type":"research","additional_notes":""},"track_rankings":[],"authors":[],"materials":[],"warnings":[]}`))
+		}))
+		defer server.Close()
+
+		client := NewClient(Config{BaseURL: server.URL, TimeoutSeconds: 5})
+		_, err := client.RunSubmissionAutofill(
+			context.Background(),
+			"token-123",
+			&SubmissionAutofillRunRequest{
+				ConferenceID: 42,
+				Actor:        ActorPayload{UserID: 7, Email: "author@example.com", Role: "author"},
+				ConferenceContext: SubmissionAutofillConferenceContext{
+					Name:    "Conference on AI Systems",
+					Acronym: "CAIS",
+					Tracks:  []string{},
+				},
+				Files: []SubmissionAutofillFileMetadata{
+					{FileID: "file-1", OriginalFilename: "paper.pdf", ContentType: "application/pdf", SizeBytes: 5},
+				},
+			},
+			[]SubmissionAutofillFileContent{
+				{FileID: "file-1", Filename: "paper.pdf", Content: []byte("paper")},
+			},
+		)
+
+		require.NoError(t, err)
+		assert.Contains(t, gotRequestField, `"description":""`)
+		assert.Contains(t, gotRequestField, `"domain":[]`)
+		assert.Contains(t, gotRequestField, `"cfp_text":""`)
+		assert.Contains(t, gotRequestField, `"tracks":[]`)
+	})
 }
 
 func TestReviewerInitialAnalysisClient(t *testing.T) {

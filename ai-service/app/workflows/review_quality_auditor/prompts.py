@@ -36,8 +36,13 @@ Evidence Engagement
 - A generic finding is not acceptable. If you flag missing engagement, name the exact missing paper-specific engagement.
 
 Consistency Checks
-- Compare recommendation, review score, criterion scores, confidence, summary, strengths, weaknesses, and questions.
-- Look for contradictions, unsupported confidence, and scores that are not explained by the text.
+- Compare the review story implied by the recommendation, review score, criterion scores, confidence, summary, strengths, weaknesses, and questions.
+- Treat each part as a signal about the reviewer’s judgment: how positive or negative it sounds, how cautious or decisive it is, and what evidence or concern it emphasizes.
+- Look for materially different signals that create unexplained tension. Examples include positive written feedback with cautious or negative scores, critical written feedback with favorable scores, a strong recommendation with thin or opposite reasoning, low confidence with overly certain language, or a criterion score that does not match the discussion of that criterion.
+- Each criterion score is its own judgment. Check whether originality, technical quality, clarity, significance, and methodology each have a criterion-specific explanation in the written review.
+- One broad weakness does not automatically support every low criterion score, and one broad strength does not automatically support every high criterion score. If the review praises novelty but gives a weak originality score, or criticizes the experiment but gives weak clarity and significance scores too, ask whether the text explains those separate judgments.
+- This is not a score threshold check. Do not flag a score merely because it is high, low, or moderate. Flag the issue only when the written reasoning does not explain why that score, recommendation, or confidence level fits the rest of the review.
+- Do not flag tension when the reviewer explains the tradeoff, such as strong novelty but weak evaluation, technically sound work that is out of scope, a promising idea with unclear evidence, or low confidence because the reviewer lacks expertise in part of the paper.
 - Do not recommend a different score. Do not recommend a different decision. Do not change the reviewer's opinion.
 
 Suggested Revision Focus
@@ -94,6 +99,9 @@ Allowed `code` values:
 - `justification.criteria_unsupported`: a criterion score is not supported by matching explanation in the text.
 - `coverage.core_claims_not_engaged`: the review does not engage the paper’s central claim or contribution.
 - `coverage.limitations_not_engaged`: the review ignores material scope limits or limitations that should be discussed.
+- `coverage.ai003_attention_points_not_engaged`: the review misses important reviewer attention points from the prior analysis.
+- `quality.review_too_generic_to_submit`: the review is too generic to be useful for the decision process.
+- `quality.strengths_weaknesses_unbalanced`: the strengths and weaknesses do not give a balanced or explainable account of the reviewer's judgment.
 
 Allowed `severity` values:
 - `warning`: worth fixing before save or submit.
@@ -125,6 +133,8 @@ If there is no meaningful issue, return `"findings": []` and still complete ever
 - Use `blocking` only when the review is not fit to submit as an academic review as written.
 - `message` explains what is wrong in specific reviewer-facing language.
 - `rationale` explains why the issue was raised, grounded in the review text and the provided materials.
+- For consistency findings, name both sides of the tension: the written feedback that creates one impression and the score, recommendation, confidence level, or criterion judgment that creates another.
+- For criterion findings, explain which criterion-specific explanation is missing or out of alignment. Do not let a broad overall criticism stand in for every individual criterion.
 - `suggestion` gives one actionable next step that improves specificity, evidence, or consistency without dictating final wording.
 
 ## Validation
@@ -135,5 +145,6 @@ Before finalizing:
 - Verify each message names what the reviewer can fix.
 - Verify genericity findings name the exact missing paper-specific engagement.
 - Verify recommendation tension findings explain the mismatch without telling the reviewer which recommendation to choose.
+- Verify criterion tension findings use criterion-specific reasoning rather than broad overall sentiment alone.
 - Verify confidence findings focus on demonstrated technical engagement, not text length alone.
 """.strip()

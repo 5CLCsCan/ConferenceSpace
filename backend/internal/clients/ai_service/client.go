@@ -150,15 +150,15 @@ type TrackRecommendationResponse struct {
 }
 
 type ReviewerInitialAnalysisResolveRequest struct {
-	Action                     string                              `json:"action"`
-	ConferenceID               int64                               `json:"conference_id"`
-	AssignmentID               int64                               `json:"assignment_id"`
-	SubmissionID               int64                               `json:"submission_id"`
-	Actor                      ActorPayload                        `json:"actor"`
-	SubmissionStateFingerprint string                              `json:"submission_state_fingerprint"`
+	Action                     string                             `json:"action"`
+	ConferenceID               int64                              `json:"conference_id"`
+	AssignmentID               int64                              `json:"assignment_id"`
+	SubmissionID               int64                              `json:"submission_id"`
+	Actor                      ActorPayload                       `json:"actor"`
+	SubmissionStateFingerprint string                             `json:"submission_state_fingerprint"`
 	Submission                 ReviewerInitialSubmissionPayload   `json:"submission"`
 	FileMetadata               ReviewerInitialFileMetadataPayload `json:"file_metadata"`
-	DomainTags                 []string                            `json:"domain_tags,omitempty"`
+	DomainTags                 []string                           `json:"domain_tags,omitempty"`
 }
 
 type ReviewerInitialAnalysisCachePayload struct {
@@ -245,11 +245,11 @@ type ReviewerInitialAnalysisErrorPayload struct {
 }
 
 type ReviewerInitialAnalysisResolveResponse struct {
-	Status   string                                `json:"status"`
-	RunID    string                                `json:"run_id,omitempty"`
-	Cache    ReviewerInitialAnalysisCachePayload   `json:"cache"`
-	Artifact *ReviewerInitialAnalysisArtifact      `json:"artifact,omitempty"`
-	Error    *ReviewerInitialAnalysisErrorPayload  `json:"error,omitempty"`
+	Status   string                               `json:"status"`
+	RunID    string                               `json:"run_id,omitempty"`
+	Cache    ReviewerInitialAnalysisCachePayload  `json:"cache"`
+	Artifact *ReviewerInitialAnalysisArtifact     `json:"artifact,omitempty"`
+	Error    *ReviewerInitialAnalysisErrorPayload `json:"error,omitempty"`
 }
 
 type ReviewQualityAuditResolveRequest struct {
@@ -519,9 +519,9 @@ type SubmissionAutofillFileMetadata struct {
 type SubmissionAutofillConferenceContext struct {
 	Name        string   `json:"name"`
 	Acronym     string   `json:"acronym"`
-	Description string   `json:"description,omitempty"`
-	Domain      []string `json:"domain,omitempty"`
-	CFPText     string   `json:"cfp_text,omitempty"`
+	Description string   `json:"description"`
+	Domain      []string `json:"domain"`
+	CFPText     string   `json:"cfp_text"`
 	Tracks      []string `json:"tracks"`
 }
 
@@ -573,14 +573,14 @@ type SubmissionAutofillErrorPayload struct {
 }
 
 type SubmissionAutofillRunResponse struct {
-	RunID             string                           `json:"run_id"`
-	Status            string                           `json:"status"`
-	Fields            SubmissionAutofillFields         `json:"fields"`
-	TrackRankings     []SubmissionAutofillTrackRanking `json:"track_rankings,omitempty"`
-	Authors           []SubmissionAutofillAuthor       `json:"authors,omitempty"`
-	Materials         []SubmissionAutofillMaterial     `json:"materials,omitempty"`
-	Warnings          []string                         `json:"warnings,omitempty"`
-	Error             *SubmissionAutofillErrorPayload  `json:"error,omitempty"`
+	RunID         string                           `json:"run_id"`
+	Status        string                           `json:"status"`
+	Fields        SubmissionAutofillFields         `json:"fields"`
+	TrackRankings []SubmissionAutofillTrackRanking `json:"track_rankings,omitempty"`
+	Authors       []SubmissionAutofillAuthor       `json:"authors,omitempty"`
+	Materials     []SubmissionAutofillMaterial     `json:"materials,omitempty"`
+	Warnings      []string                         `json:"warnings,omitempty"`
+	Error         *SubmissionAutofillErrorPayload  `json:"error,omitempty"`
 }
 
 type SubmissionAutofillFileContent struct {
@@ -766,6 +766,10 @@ func (c *Client) RunSubmissionAutofill(
 	if len(files) == 0 {
 		return nil, fmt.Errorf("submission autofill files are required")
 	}
+
+	requestPayload.ConferenceContext.Domain = nonNilStrings(requestPayload.ConferenceContext.Domain)
+	requestPayload.ConferenceContext.Tracks = nonNilStrings(requestPayload.ConferenceContext.Tracks)
+	requestPayload.AvailableTracks = nonNilStrings(requestPayload.AvailableTracks)
 
 	requestJSON, err := json.Marshal(requestPayload)
 	if err != nil {
@@ -1097,6 +1101,13 @@ func normalizeBearerToken(token string) string {
 		return strings.TrimSpace(value[7:])
 	}
 	return value
+}
+
+func nonNilStrings(values []string) []string {
+	if values == nil {
+		return []string{}
+	}
+	return values
 }
 
 func extractErrorDetail(body []byte) string {

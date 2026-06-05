@@ -69,6 +69,23 @@ def test_system_prompt_is_reviewer_centered_and_maps_to_structured_contract() ->
     assert "allowed `severity` values" in lowered
 
 
+def test_system_prompt_requires_semantic_alignment_without_fixed_thresholds() -> None:
+    lowered = REVIEW_QUALITY_AUDIT_SYSTEM_PROMPT.lower()
+
+    assert "review story" in lowered
+    assert "materially different signals" in lowered
+    assert "unexplained tension" in lowered
+    assert "not a score threshold check" in lowered
+    assert "positive written feedback with cautious or negative scores" in lowered
+    assert "strong recommendation with thin or opposite reasoning" in lowered
+    assert "low confidence with overly certain language" in lowered
+    assert "do not flag tension when the reviewer explains the tradeoff" in lowered
+    assert "each criterion score is its own judgment" in lowered
+    assert "criterion-specific explanation" in lowered
+    assert "one broad weakness does not automatically support every low criterion score" in lowered
+    assert "name both sides of the tension" in lowered
+
+
 def test_system_prompt_rejects_generic_findings_and_technical_leakage() -> None:
     lowered = REVIEW_QUALITY_AUDIT_SYSTEM_PROMPT.lower()
 
