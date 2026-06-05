@@ -6,6 +6,7 @@ from uuid import uuid4
 from pydantic import BaseModel
 
 from app.workflows.reviewer_initial_analysis.document import extract_document
+from app.workflows.submission_autofill.metadata import EXCERPT_CHARS, extract_submission_metadata
 from app.workflows.submission_autofill.prompts import SUBMISSION_AUTOFILL_SYSTEM_PROMPT
 from app.workflows.submission_autofill.schemas import (
     AutofillMaterial,
@@ -16,7 +17,6 @@ from app.workflows.submission_autofill.schemas import (
 )
 from app.workflows.submission_gating.models.facts import ExtractedDocument
 
-MAX_TEXT_CHARS = 18000
 MAX_ABSTRACT_CHARS = 3000
 
 class SubmissionAutofillRunner:
@@ -112,23 +112,20 @@ def build_inference_payload(
     failed_materials: list[dict],
 ) -> dict:
     _ = failed_materials
-    materials: list[dict] = []
-    for metadata in request.files:
-        document = documents.get(metadata.file_id)
-        if document is None:
-            continue
-        materials.append(
-            {
-                "filename": metadata.original_filename,
-                "raw_content": _normalize_text(document.raw_text, MAX_TEXT_CHARS),
-            }
-        )
+    primary_id = _select_primary_material_id(request, documents)
+    primary_document = documents[primary_id]
+    primary_metadata = next(metadata for metadata in request.files if metadata.file_id == primary_id)
+    excerpt = _normalize_text(primary_document.raw_text[:EXCERPT_CHARS], EXCERPT_CHARS)
 
     return {
         "extra_details": _normalize_text(request.extra_details or "", MAX_ABSTRACT_CHARS),
         "available_tracks": _normalize_tracks(request),
         "conference_context": _build_conference_context_payload(request),
-        "materials": materials,
+        "primary_material": {
+            "filename": primary_metadata.original_filename,
+            "excerpt": excerpt,
+        },
+        "extracted_metadata": extract_submission_metadata(primary_document.raw_text),
     }
 
 

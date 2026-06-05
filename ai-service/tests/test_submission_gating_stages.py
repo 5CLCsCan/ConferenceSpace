@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from app.workflows.submission_gating.extractors.pdf_extractor import extract_page_text_with_columns
 from app.workflows.submission_gating.models.facts import ExtractedDocument, FileFacts, SubmissionFacts
 from app.workflows.submission_gating.models.findings import ContentFinding, RuleFinding, VerdictBundle
 from app.workflows.submission_gating.schemas import GatingRunRequest
@@ -72,6 +73,66 @@ def test_binary_integrity_blocks_encrypted_pdf(monkeypatch: pytest.MonkeyPatch) 
     assert result.verdict_bundle is not None
     assert result.verdict_bundle.verdict == "block"
     assert any("encrypted" in finding.message.lower() for finding in result.rule_findings)
+
+
+class _FakeRect:
+    def __init__(self, x0: float, y0: float, x1: float, y1: float) -> None:
+        self.x0 = x0
+        self.y0 = y0
+        self.x1 = x1
+        self.y1 = y1
+
+
+class _FakePyMuPDF:
+    Rect = _FakeRect
+
+
+class _FakePage:
+    def __init__(self, blocks: list[tuple[float, float, float, float, str]]) -> None:
+        self.rect = type("_Rect", (), {"width": 600.0, "height": 800.0})()
+        self._blocks = blocks
+
+    def get_text(self, mode="text", *, clip=None, sort=False, flags=None):
+        del sort, flags
+        if mode == "blocks":
+            return [(*block[:4], block[4], 0, 0) for block in self._blocks]
+        if clip is None:
+            selected = self._blocks
+        else:
+            selected = [
+                block
+                for block in self._blocks
+                if block[0] >= clip.x0 and block[2] <= clip.x1 and block[1] >= clip.y0 and block[3] <= clip.y1
+            ]
+        return "\n".join(block[4] for block in sorted(selected, key=lambda item: (item[1], item[0])))
+
+
+def test_pdf_column_extraction_keeps_first_page_front_matter_before_columns() -> None:
+    page = _FakePage(
+        [
+            (50, 20, 550, 60, "Paper Title"),
+            (50, 70, 550, 120, "Abstract— This is the abstract."),
+            (50, 160, 260, 220, "Left column first."),
+            (340, 160, 550, 220, "Right column second."),
+        ]
+    )
+
+    text = extract_page_text_with_columns(page, 0, _FakePyMuPDF)
+
+    assert text == "Paper Title\nAbstract— This is the abstract.\n\nLeft column first.\n\nRight column second."
+
+
+def test_pdf_column_extraction_handles_single_column_pages() -> None:
+    page = _FakePage(
+        [
+            (60, 40, 540, 80, "Single column title"),
+            (60, 100, 540, 140, "Single column body."),
+        ]
+    )
+
+    text = extract_page_text_with_columns(page, 1, _FakePyMuPDF)
+
+    assert text == "Single column title\nSingle column body."
 
 
 def test_document_extraction_delegates_to_pdf_extractor(monkeypatch: pytest.MonkeyPatch) -> None:

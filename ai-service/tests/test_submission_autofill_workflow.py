@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 
 from app.core.auth import Identity
 from app.workflows.submission_autofill.router import router as submission_autofill_router
+from app.workflows.submission_autofill.metadata import extract_submission_metadata
 from app.workflows.submission_autofill.runner import build_inference_payload
 from app.workflows.submission_autofill.schemas import (
     ActorPayload,
@@ -126,7 +127,113 @@ def test_submission_autofill_route_requires_auth(monkeypatch) -> None:
     assert response.status_code == 401
 
 
-def test_build_inference_payload_sends_only_raw_content_for_materials() -> None:
+def test_extract_submission_metadata_reads_title_abstract_and_authors_from_excerpt() -> None:
+    text = """
+    Graph-Based Reviewer Assignment for Academic Conferences
+    Alice Nguyen, Bob Tran
+    University of Science, Vietnam
+    alice@example.com, bob@example.com
+
+    Abstract
+    This paper studies graph-based reviewer assignment for academic conferences. It combines topic similarity,
+    workload balancing, and conflict checks to improve assignment quality.
+
+    Keywords: reviewer assignment, graph matching, academic conferences
+    1. Introduction
+    Reviewer assignment remains a difficult operational problem.
+    """
+
+    metadata = extract_submission_metadata(text)
+
+    assert metadata == {
+        "title": "Graph-Based Reviewer Assignment for Academic Conferences",
+        "abstract": "This paper studies graph-based reviewer assignment for academic conferences. It combines topic similarity, workload balancing, and conflict checks to improve assignment quality.",
+        "authors": [
+            {"name": "Alice Nguyen", "email": "alice@example.com", "affiliation": "University of Science, Vietnam", "country": ""},
+            {"name": "Bob Tran", "email": "bob@example.com", "affiliation": "University of Science, Vietnam", "country": ""},
+        ],
+        "keywords": ["reviewer assignment", "graph matching", "academic conferences"],
+    }
+
+
+def test_extract_submission_metadata_handles_markitdown_two_column_front_matter() -> None:
+    text = """
+A note on Pearson Correlation Coefficient as a metric
+of similarity in recommender system
+|     |                             | Leily Sheugh  |     |     |     | Sasan H. Alizadeh           |     |     |     |     |
+| --- | --------------------------- | ------------- | --- | --- | --- | --------------------------- | --- | --- | --- | --- |
+|     | Faculty of Computer and IT  |               |     |     |     | Faculty of Computer and IT  |     |     |     |     |
+Islamic Azad University, Qazvin branch  Islamic Azad University, Qazvin branch
+|     |                         |  Qazvin, Iran  |     |     |     |  Qazvin, Iran                |     |     |     |     |
+| --- | ----------------------- | -------------- | --- | --- | --- | ---------------------------- | --- | --- | --- | --- |
+|     | leily.sheugh@gmail.com  |                |     |     |     | Sasan.H.Alizadeh@qiau.ac.ir  |     |     |     |     |
+
+Abstract— Recommender systems help users to find information  The Collaborative Filtering includes item-based, user-based
+that best fits their preferences and needs in an overloaded search  and  model-based  [7].  In  case  of  Item  based  Collaborative
+space. Most recommender systems researches have been focused  Filtering, predicts the similarity among items by adopt pairwise
+on the accuracy improvement of recommendation algorithms.
+| Choosing  | appropriate  | similarity  | measure  is  a  | key  to  the  |     |     |     |     |     |     |
+Keywords—recommender system, Collaborative Filtering,
+similarity measure, Pearson Correlation Coefficient
+|     |     | I.  INTRODUCTION  |     |     |     |     |     |     |     |     |
+"""
+
+    metadata = extract_submission_metadata(text)
+
+    assert metadata["title"] == "A note on Pearson Correlation Coefficient as a metric of similarity in recommender system"
+    assert metadata["abstract"].startswith("Recommender systems help users to find information")
+    assert "Keywords" not in metadata["abstract"]
+    assert metadata["keywords"] == ["recommender system", "Collaborative Filtering", "similarity measure", "Pearson Correlation Coefficient"]
+    assert metadata["authors"] == [
+        {
+            "name": "Leily Sheugh",
+            "email": "leily.sheugh@gmail.com",
+            "affiliation": "Faculty of Computer and IT Islamic Azad University, Qazvin branch",
+            "country": "Iran",
+        },
+        {
+            "name": "Sasan H. Alizadeh",
+            "email": "Sasan.H.Alizadeh@qiau.ac.ir",
+            "affiliation": "Faculty of Computer and IT Islamic Azad University, Qazvin branch",
+            "country": "Iran",
+        },
+    ]
+
+
+def test_extract_submission_metadata_keeps_multiline_single_column_title_out_of_authors() -> None:
+    text = """
+Learning Interpretable BEV Based VIO without
+Deep Neural Networks
+Zexi Chen
+Haozhe Du
+Xuecheng Xu
+Rong Xiong
+Yiyi Liao∗
+Yue Wang∗∗
+Zhejiang University
+{chenzexi,hzdu,xuechengxu,rxiong,yiyi.liao,ywang24}@zju.edu.cn
+Abstract: Monocular visual-inertial odometry (VIO) is a critical problem in robotics and autonomous driving.
+
+Keywords: VIO, Interpretable Learning
+
+1 Introduction
+"""
+
+    metadata = extract_submission_metadata(text)
+
+    assert metadata["title"] == "Learning Interpretable BEV Based VIO without Deep Neural Networks"
+    assert [author["name"] for author in metadata["authors"]] == [
+        "Zexi Chen",
+        "Haozhe Du",
+        "Xuecheng Xu",
+        "Rong Xiong",
+        "Yiyi Liao",
+        "Yue Wang",
+    ]
+    assert metadata["keywords"] == ["VIO", "Interpretable Learning"]
+
+
+def test_build_inference_payload_sends_extracted_metadata_and_primary_excerpt() -> None:
     request = SubmissionAutofillRunRequest(
         conference_id=210,
         actor=ActorPayload(user_id=123, email="author@example.com", role="author"),
@@ -189,10 +296,17 @@ def test_build_inference_payload_sends_only_raw_content_for_materials() -> None:
 
     assert "primary_material_id" not in payload
     assert "failed_materials" not in payload
-    assert payload["materials"] == [
-        {"filename": "paper.pdf", "raw_content": "Title Abstract This paper studies reviewer assignment."},
-        {"filename": "appendix.tex", "raw_content": "Supplementary appendix text"},
-    ]
+    assert "materials" not in payload
+    assert payload["primary_material"] == {
+        "filename": "paper.pdf",
+        "excerpt": "Title Abstract This paper studies reviewer assignment.",
+    }
+    assert payload["extracted_metadata"] == {
+        "title": "Title",
+        "abstract": "This paper studies reviewer assignment.",
+        "authors": [],
+        "keywords": [],
+    }
     assert payload["extra_details"] == "This is a student paper."
     assert payload["conference_context"] == {
         "name": "Conference on AI Systems",
