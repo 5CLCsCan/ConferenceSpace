@@ -253,16 +253,16 @@ type ReviewerInitialAnalysisResolveResponse struct {
 }
 
 type ReviewQualityAuditResolveRequest struct {
-	Mode             string                            `json:"mode"`
-	ConferenceID     int64                             `json:"conference_id"`
-	AssignmentID     int64                             `json:"assignment_id"`
-	SubmissionID     int64                             `json:"submission_id"`
-	Actor            ActorPayload                      `json:"actor"`
+	Mode             string                           `json:"mode"`
+	ConferenceID     int64                            `json:"conference_id"`
+	AssignmentID     int64                            `json:"assignment_id"`
+	SubmissionID     int64                            `json:"submission_id"`
+	Actor            ActorPayload                     `json:"actor"`
 	Submission       ReviewerInitialSubmissionPayload `json:"submission"`
-	ReviewScore      *float64                          `json:"review_score,omitempty"`
-	Review           ReviewQualityAuditReviewPayload   `json:"review"`
-	Policy           *ReviewQualityAuditPolicyPayload  `json:"policy,omitempty"`
-	BriefingArtifact *ReviewerInitialBriefing          `json:"briefing_artifact,omitempty"`
+	ReviewScore      *float64                         `json:"review_score,omitempty"`
+	Review           ReviewQualityAuditReviewPayload  `json:"review"`
+	Policy           *ReviewQualityAuditPolicyPayload `json:"policy,omitempty"`
+	AnalysisArtifact *ReviewerInitialAnalysisArtifact `json:"analysis_artifact,omitempty"`
 }
 
 type ReviewQualityAuditReviewPayload struct {
@@ -333,6 +333,15 @@ type DecisionCopilotComponentFingerprintsPayload struct {
 	Rebuttal   string `json:"rebuttal"`
 }
 
+type DecisionCopilotConferenceCFPPayload struct {
+	Name          string   `json:"name,omitempty"`
+	Acronym       string   `json:"acronym,omitempty"`
+	Description   string   `json:"description,omitempty"`
+	Domains       []string `json:"domains,omitempty"`
+	Tracks        []string `json:"tracks,omitempty"`
+	CallForPapers string   `json:"call_for_papers,omitempty"`
+}
+
 type DecisionCopilotSubmissionContextPayload struct {
 	Title         string   `json:"title,omitempty"`
 	Track         string   `json:"track,omitempty"`
@@ -369,9 +378,9 @@ type DecisionCopilotAnalyticsPayload struct {
 }
 
 type DecisionCopilotDiscussionMessagePayload struct {
-	AuthorEmail string `json:"author_email,omitempty"`
-	Content     string `json:"content,omitempty"`
-	CreatedAt   string `json:"created_at,omitempty"`
+	Role      string `json:"role,omitempty"`
+	Content   string `json:"content,omitempty"`
+	CreatedAt string `json:"created_at,omitempty"`
 }
 
 type DecisionCopilotDiscussionThreadPayload struct {
@@ -415,6 +424,7 @@ type DecisionCopilotRebuttalPayload struct {
 
 type DecisionCopilotEvidencePayload struct {
 	SchemaVersion   string                                  `json:"schema_version,omitempty"`
+	ConferenceCFP   DecisionCopilotConferenceCFPPayload     `json:"conference_cfp"`
 	Submission      DecisionCopilotSubmissionContextPayload `json:"submission"`
 	Reviews         []DecisionCopilotReviewPayload          `json:"reviews,omitempty"`
 	ReviewAnalytics DecisionCopilotAnalyticsPayload         `json:"review_analytics"`
@@ -474,13 +484,6 @@ type DecisionCopilotDisagreementMap struct {
 	ConfidenceLimits    []string `json:"confidence_limits,omitempty"`
 }
 
-type DecisionCopilotGuardrails struct {
-	AdvisoryOnly            bool   `json:"advisory_only"`
-	NoDecision              bool   `json:"no_decision"`
-	NoAutomaticStatusChange bool   `json:"no_automatic_status_change"`
-	HumanJudgmentRequired   string `json:"human_judgment_required"`
-}
-
 type DecisionCopilotArtifact struct {
 	EvidenceSummary         DecisionCopilotEvidenceSummary         `json:"evidence_summary"`
 	ReviewFeedbackSynthesis DecisionCopilotReviewFeedbackSynthesis `json:"review_feedback_synthesis"`
@@ -489,7 +492,6 @@ type DecisionCopilotArtifact struct {
 	RebuttalSignals         DecisionCopilotRebuttalSignals         `json:"rebuttal_signals"`
 	DisagreementMap         DecisionCopilotDisagreementMap         `json:"disagreement_map"`
 	SuggestedChairNote      string                                 `json:"suggested_chair_note"`
-	Guardrails              DecisionCopilotGuardrails              `json:"guardrails"`
 	EvidenceFingerprint     string                                 `json:"evidence_fingerprint"`
 	GeneratedAt             string                                 `json:"generated_at"`
 }
@@ -532,55 +534,25 @@ type SubmissionAutofillRunRequest struct {
 	Files             []SubmissionAutofillFileMetadata    `json:"files"`
 }
 
-type SubmissionAutofillEvidence struct {
-	FileID        string `json:"file_id"`
-	SourceType    string `json:"source_type,omitempty"`
-	QuoteOrSignal string `json:"quote_or_signal"`
-	LocationHint  string `json:"location_hint,omitempty"`
-}
-
-type SubmissionAutofillField[T any] struct {
-	Value      T                            `json:"value"`
-	Confidence string                       `json:"confidence"`
-	Evidence   []SubmissionAutofillEvidence `json:"evidence,omitempty"`
-	Warnings   []string                     `json:"warnings,omitempty"`
-}
-
 type SubmissionAutofillFields struct {
-	Title           SubmissionAutofillField[string]   `json:"title"`
-	Abstract        SubmissionAutofillField[string]   `json:"abstract"`
-	Keywords        SubmissionAutofillField[[]string] `json:"keywords"`
-	PaperType       SubmissionAutofillField[string]   `json:"paper_type"`
-	AdditionalNotes SubmissionAutofillField[string]   `json:"additional_notes"`
+	Title           string   `json:"title"`
+	Abstract        string   `json:"abstract"`
+	Keywords        []string `json:"keywords"`
+	PaperType       string   `json:"paper_type"`
+	AdditionalNotes string   `json:"additional_notes"`
 }
 
 type SubmissionAutofillTrackRanking struct {
-	TrackName  string                       `json:"track_name"`
-	Confidence float64                      `json:"confidence"`
-	Rationale  string                       `json:"rationale"`
-	Evidence   []SubmissionAutofillEvidence `json:"evidence,omitempty"`
-	Warnings   []string                     `json:"warnings,omitempty"`
+	TrackName  string  `json:"track_name"`
+	Confidence float64 `json:"confidence"`
+	Rationale  string  `json:"rationale"`
 }
 
 type SubmissionAutofillAuthor struct {
-	Name        string                       `json:"name"`
-	Email       string                       `json:"email,omitempty"`
-	Affiliation string                       `json:"affiliation,omitempty"`
-	Country     string                       `json:"country,omitempty"`
-	Ordinal     *int                         `json:"ordinal,omitempty"`
-	Confidence  string                       `json:"confidence"`
-	Evidence    []SubmissionAutofillEvidence `json:"evidence,omitempty"`
-	Warnings    []string                     `json:"warnings,omitempty"`
-}
-
-type SubmissionAutofillConflict struct {
-	Name        string                       `json:"name"`
-	Email       string                       `json:"email,omitempty"`
-	Institution string                       `json:"institution,omitempty"`
-	Reason      string                       `json:"reason"`
-	Confidence  string                       `json:"confidence"`
-	Evidence    []SubmissionAutofillEvidence `json:"evidence,omitempty"`
-	Warnings    []string                     `json:"warnings,omitempty"`
+	Name        string `json:"name"`
+	Email       string `json:"email,omitempty"`
+	Affiliation string `json:"affiliation,omitempty"`
+	Country     string `json:"country,omitempty"`
 }
 
 type SubmissionAutofillMaterial struct {
@@ -606,7 +578,6 @@ type SubmissionAutofillRunResponse struct {
 	Fields            SubmissionAutofillFields         `json:"fields"`
 	TrackRankings     []SubmissionAutofillTrackRanking `json:"track_rankings,omitempty"`
 	Authors           []SubmissionAutofillAuthor       `json:"authors,omitempty"`
-	PossibleConflicts []SubmissionAutofillConflict     `json:"possible_conflicts,omitempty"`
 	Materials         []SubmissionAutofillMaterial     `json:"materials,omitempty"`
 	Warnings          []string                         `json:"warnings,omitempty"`
 	Error             *SubmissionAutofillErrorPayload  `json:"error,omitempty"`

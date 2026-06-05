@@ -54,13 +54,6 @@ export interface ChairDecisionCopilotDisagreementMap {
   confidence_limits: string[]
 }
 
-export interface ChairDecisionCopilotGuardrails {
-  advisory_only: boolean
-  no_decision: boolean
-  no_automatic_status_change: boolean
-  human_judgment_required: string
-}
-
 export interface ChairDecisionCopilotArtifact {
   evidence_summary: ChairDecisionCopilotEvidenceSummary
   review_feedback_synthesis: ChairDecisionCopilotReviewFeedbackSynthesis
@@ -69,7 +62,6 @@ export interface ChairDecisionCopilotArtifact {
   rebuttal_signals: ChairDecisionCopilotRebuttalSignals
   disagreement_map: ChairDecisionCopilotDisagreementMap
   suggested_chair_note: string
-  guardrails: ChairDecisionCopilotGuardrails
   evidence_fingerprint: string
   generated_at: string
 }

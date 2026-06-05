@@ -11,6 +11,11 @@ DISALLOWED_VERDICT_PATTERNS = [
     r"\bshould reject\b",
     r"\brecommend(?:s|ed)?\s+(?:accept|reject)\b",
     r"\b(?:leans?|leaning)\s+(?:accept|reject)\b",
+    r"\blikely\s+(?:accept|reject)\b",
+    r"\baccept this (?:paper|submission)\b",
+    r"\breject this (?:paper|submission)\b",
+    r"\bdecision is\s+(?:accept|reject)\b",
+    r"\brecommended decision\b",
     r"\bapprove now\b",
     r"\breject now\b",
     r"\bacceptance likelihood\b",
@@ -36,6 +41,15 @@ class DecisionCopilotComponentFingerprints(BaseModel):
     reviews: str
     discussion: str
     rebuttal: str
+
+
+class ConferenceCFPInput(BaseModel):
+    name: str = ""
+    acronym: str = ""
+    description: str = ""
+    domains: list[str] = Field(default_factory=list)
+    tracks: list[str] = Field(default_factory=list)
+    call_for_papers: str = ""
 
 
 class SubmissionEvidenceInput(BaseModel):
@@ -83,7 +97,7 @@ class ReviewAnalyticsInput(BaseModel):
 
 
 class DiscussionMessageInput(BaseModel):
-    author_email: str | None = None
+    role: str = "unknown"
     content: str
     created_at: str | None = None
 
@@ -129,6 +143,7 @@ class RebuttalEvidenceInput(BaseModel):
 
 class DecisionCopilotEvidenceInput(BaseModel):
     schema_version: str
+    conference_cfp: ConferenceCFPInput = Field(default_factory=ConferenceCFPInput)
     submission: SubmissionEvidenceInput
     reviews: list[ReviewEvidenceInput] = Field(default_factory=list)
     review_analytics: ReviewAnalyticsInput
@@ -204,12 +219,10 @@ class DecisionCopilotDisagreementMap(StrictSchemaModel):
     unresolved_concerns: list[str]
     confidence_limits: list[str]
 
-
-class DecisionCopilotGuardrails(StrictSchemaModel):
-    advisory_only: bool
-    no_decision: bool
-    no_automatic_status_change: bool
-    human_judgment_required: str
+    @field_validator("areas_of_agreement", "areas_of_disagreement", "unresolved_concerns", "confidence_limits")
+    @classmethod
+    def _validate_lists(cls, values: list[str]) -> list[str]:
+        return [_assert_non_verdict_language(value) for value in values]
 
 
 class DecisionCopilotArtifact(StrictSchemaModel):
@@ -220,7 +233,6 @@ class DecisionCopilotArtifact(StrictSchemaModel):
     rebuttal_signals: DecisionCopilotRebuttalSignals
     disagreement_map: DecisionCopilotDisagreementMap
     suggested_chair_note: str
-    guardrails: DecisionCopilotGuardrails
     evidence_fingerprint: str
     generated_at: str
 

@@ -16,6 +16,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func stringPtr(value string) *string {
+	return &value
+}
+
 type decisionCopilotClientMock struct {
 	lookupCalls     int
 	generateCalls   int
@@ -240,6 +244,7 @@ func (m *decisionCopilotAssignmentStorageMock) RespondToAssignment(_ context.Con
 }
 
 type decisionCopilotConferenceStorageMock struct {
+	conference     *dto.ConferenceResponse
 	rebuttalConfig *dto.ConferenceRebuttalConfig
 }
 
@@ -248,7 +253,7 @@ func (m *decisionCopilotConferenceStorageMock) Create(context.Context, *dto.Conf
 }
 
 func (m *decisionCopilotConferenceStorageMock) GetByID(context.Context, int64) (*dto.ConferenceResponse, error) {
-	panic("unexpected call")
+	return m.conference, nil
 }
 
 func (m *decisionCopilotConferenceStorageMock) GetByAcronym(context.Context, string) (*dto.ConferenceResponse, error) {
@@ -416,12 +421,6 @@ func TestDecisionCopilotHandlers(t *testing.T) {
 				},
 				GeneratedAt:         "2026-03-31T12:00:00Z",
 				EvidenceFingerprint: "sha256:evidence",
-				Guardrails: aiServiceClient.DecisionCopilotGuardrails{
-					AdvisoryOnly:            true,
-					NoDecision:              true,
-					NoAutomaticStatusChange: true,
-					HumanJudgmentRequired:   "Final decision remains with the chair.",
-				},
 			},
 		}
 	}
@@ -494,6 +493,17 @@ func TestDecisionCopilotHandlers(t *testing.T) {
 				points: []dto.RebuttalPointDTO{},
 			},
 			conferenceStorage: &decisionCopilotConferenceStorageMock{
+				conference: &dto.ConferenceResponse{
+					ID:          9,
+					Title:       "Conference on Evidence Systems",
+					Acronym:     "CES",
+					Description: "A conference about reliable evidence systems.",
+					Domain:      []string{"systems", "ai"},
+					Tracks:      []string{"main", "systems"},
+					Configurations: &dto.ConferenceConfiguration{
+						CallForPaperText: stringPtr("We invite papers on evidence-aware systems."),
+					},
+				},
 				rebuttalConfig: &dto.ConferenceRebuttalConfig{
 					Enabled: false,
 				},
@@ -505,6 +515,7 @@ func TestDecisionCopilotHandlers(t *testing.T) {
 						SubmissionID:  42,
 						ConferenceID:  9,
 						ReviewerID:    91,
+						AuthorEmail:   "author@example.com",
 						Title:         "Evaluation concerns",
 						Visibility:    "chair_author_reviewer",
 						MessageCount:  1,
@@ -574,6 +585,12 @@ func TestDecisionCopilotHandlers(t *testing.T) {
 
 		if client.lookupCalls != 1 || client.generateCalls != 1 || client.regenerateCalls != 1 {
 			t.Fatalf("expected one call per action, got lookup=%d generate=%d regenerate=%d", client.lookupCalls, client.generateCalls, client.regenerateCalls)
+		}
+		if client.lastRequest.Evidence.ConferenceCFP.Name != "Conference on Evidence Systems" {
+			t.Fatalf("expected conference CFP name to be included, got %q", client.lastRequest.Evidence.ConferenceCFP.Name)
+		}
+		if client.lastRequest.Evidence.ConferenceCFP.CallForPapers != "We invite papers on evidence-aware systems." {
+			t.Fatalf("expected conference CFP text to be included, got %q", client.lastRequest.Evidence.ConferenceCFP.CallForPapers)
 		}
 	})
 

@@ -169,7 +169,7 @@ func TestRunSubmissionAutofill(t *testing.T) {
 			}
 
 			w.Header().Set("Content-Type", "application/json")
-			_, _ = w.Write([]byte(`{"run_id":"run-autofill","status":"ready","fields":{"title":{"value":"Title","confidence":"high","evidence":[],"warnings":[]},"abstract":{"value":"Abstract","confidence":"high","evidence":[],"warnings":[]},"keywords":{"value":["ai"],"confidence":"medium","evidence":[],"warnings":[]},"paper_type":{"value":"research","confidence":"medium","evidence":[],"warnings":[]},"additional_notes":{"value":"","confidence":"not_found","evidence":[],"warnings":[]}},"track_rankings":[{"track_name":"AI","confidence":8.5,"rationale":"The submission targets learning systems.","evidence":[],"warnings":[]}],"authors":[],"possible_conflicts":[],"materials":[],"warnings":[]}`))
+			_, _ = w.Write([]byte(`{"run_id":"run-autofill","status":"ready","fields":{"title":"Title","abstract":"Abstract","keywords":["ai"],"paper_type":"research","additional_notes":""},"track_rankings":[{"track_name":"AI","confidence":8.5,"rationale":"The submission targets learning systems."}],"authors":[],"materials":[],"warnings":[]}`))
 		}))
 		defer server.Close()
 
@@ -212,7 +212,7 @@ func TestRunSubmissionAutofill(t *testing.T) {
 		assert.Contains(t, gotRequestField, `"tracks":["AI","Systems"]`)
 		assert.Equal(t, map[string]string{"paper.pdf": "paper", "appendix.docx": "appendix"}, gotFiles)
 		assert.Equal(t, "run-autofill", response.RunID)
-		assert.Equal(t, "Title", response.Fields.Title.Value)
+		assert.Equal(t, "Title", response.Fields.Title)
 		require.Len(t, response.TrackRankings, 1)
 		assert.Equal(t, "AI", response.TrackRankings[0].TrackName)
 		assert.Equal(t, 8.5, response.TrackRankings[0].Confidence)

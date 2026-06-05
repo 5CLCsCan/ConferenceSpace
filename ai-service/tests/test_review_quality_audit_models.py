@@ -45,35 +45,57 @@ def make_request_payload(*, mode: str = "submit_preflight", include_briefing: bo
         },
     }
     if include_briefing:
-        payload["briefing_artifact"] = {
-            "submission_snapshot": {
-                "title": "Evidence-Aware Systems",
-                "abstract_summary": "Workflow-focused submission.",
-                "manuscript_overview": "The manuscript covers reviewer quality support.",
-                "keywords": ["review", "workflow"],
-                "track": "main",
+        payload["analysis_artifact"] = {
+            "briefing": {
+                "submission_snapshot": {
+                    "title": "Evidence-Aware Systems",
+                    "abstract_summary": "Workflow-focused submission.",
+                    "manuscript_overview": "The manuscript covers reviewer quality support.",
+                    "keywords": ["review", "workflow"],
+                    "track": "main",
+                },
+                "review_readiness_signals": [],
+                "claimed_contributions": [
+                    {"label": "Structured reviewer workflow", "evidence": [], "source": "submission"}
+                ],
+                "notable_elements": [],
+                "reviewer_attention_points": [
+                    {"focus": "workflow generalization", "reason": "Core practical claim", "source": "derived"}
+                ],
+                "stated_scope_and_limitations": [
+                    {"label": "single-platform evaluation", "detail": "Evaluation scope is bounded", "source": "submission"}
+                ],
             },
-            "review_readiness_signals": [],
-            "claimed_contributions": [
-                {"label": "Structured reviewer workflow", "evidence": [], "source": "submission"}
-            ],
-            "notable_elements": [],
-            "reviewer_attention_points": [
-                {"focus": "workflow generalization", "reason": "Core practical claim", "source": "derived"}
-            ],
-            "stated_scope_and_limitations": [
-                {"label": "single-platform evaluation", "detail": "Evaluation scope is bounded", "source": "submission"}
-            ],
+            "annotations": {
+                "overall_impression": "The paper is relevant but the evaluation scope needs attention.",
+                "domain_context": "Conference review workflow support",
+                "sections": [
+                    {
+                        "section_name": "Evaluation",
+                        "summary": "The evaluation is practical but narrow.",
+                        "annotations": [
+                            {
+                                "category": "weakness",
+                                "severity": "moderate",
+                                "quoted_passage": "single-platform evaluation",
+                                "commentary": "The reviewer should consider whether this affects generalization.",
+                                "reviewer_hint": "Check whether the review addresses external validity.",
+                            }
+                        ],
+                    }
+                ],
+            },
         }
     return payload
 
 
-def test_request_accepts_optional_briefing_artifact() -> None:
-    with_briefing = ReviewQualityAuditResolveRequest.model_validate(make_request_payload(include_briefing=True))
-    without_briefing = ReviewQualityAuditResolveRequest.model_validate(make_request_payload(include_briefing=False))
+def test_request_accepts_optional_analysis_artifact() -> None:
+    with_analysis = ReviewQualityAuditResolveRequest.model_validate(make_request_payload(include_briefing=True))
+    without_analysis = ReviewQualityAuditResolveRequest.model_validate(make_request_payload(include_briefing=False))
 
-    assert with_briefing.briefing_artifact is not None
-    assert without_briefing.briefing_artifact is None
+    assert with_analysis.analysis_artifact is not None
+    assert with_analysis.analysis_artifact.annotations.sections[0].annotations[0].quoted_passage == "single-platform evaluation"
+    assert without_analysis.analysis_artifact is None
 
 
 def test_response_defaults_isolate_findings() -> None:
@@ -121,3 +143,55 @@ def test_request_rejects_invalid_mode() -> None:
 
     with pytest.raises(Exception):
         ReviewQualityAuditResolveRequest.model_validate(payload)
+
+
+def test_final_response_rejects_unknown_finding_code() -> None:
+    payload = {
+        "status": "warn",
+        "evaluation": {
+            "summary": "The review is generally understandable.",
+            "evidence_engagement": "It partly engages the submission evidence.",
+            "consistency_assessment": "The recommendation and narrative mostly align.",
+            "improvement_focus": "Make the reasoning more concrete.",
+        },
+        "findings": [
+            {
+                "code": "made.up.code",
+                "severity": "warning",
+                "field": "review",
+                "message": "The review has an unsupported issue code.",
+                "rationale": "The finding should be rejected because the code is not part of the audit taxonomy.",
+                "suggestion": "Use a supported issue code from the schema.",
+                "condition_fingerprint": "sha256:test",
+            }
+        ],
+    }
+
+    with pytest.raises(Exception):
+        ReviewQualityAuditResolveResponse.model_validate(payload)
+
+
+def test_final_response_rejects_unknown_finding_severity() -> None:
+    payload = {
+        "status": "warn",
+        "evaluation": {
+            "summary": "The review is generally understandable.",
+            "evidence_engagement": "It partly engages the submission evidence.",
+            "consistency_assessment": "The recommendation and narrative mostly align.",
+            "improvement_focus": "Make the reasoning more concrete.",
+        },
+        "findings": [
+            {
+                "code": "quality.review_too_generic_to_submit",
+                "severity": "critical",
+                "field": "review",
+                "message": "The review has an unsupported severity.",
+                "rationale": "The finding should be rejected because severity is not part of the audit contract.",
+                "suggestion": "Use warning or blocking severity.",
+                "condition_fingerprint": "sha256:test",
+            }
+        ],
+    }
+
+    with pytest.raises(Exception):
+        ReviewQualityAuditResolveResponse.model_validate(payload)

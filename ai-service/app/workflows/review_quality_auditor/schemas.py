@@ -4,7 +4,10 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.workflows.reviewer_initial_analysis.schemas import ReviewerInitialBriefing, SubmissionMetadataInput
+from app.workflows.reviewer_initial_analysis.schemas import (
+    ReviewerInitialAnalysisArtifact,
+    SubmissionMetadataInput,
+)
 
 
 class ActorPayload(BaseModel):
@@ -58,24 +61,18 @@ class ReviewQualityAuditResolveRequest(BaseModel):
     review_score: float | None = None
     review: ReviewInput
     policy: ReviewPolicyInput | None = None
-    briefing_artifact: ReviewerInitialBriefing | None = None
+    analysis_artifact: ReviewerInitialAnalysisArtifact | None = None
 
 
-class ReviewQualityAuditFinding(BaseModel):
-    code: str
-    severity: Literal["warning", "blocking"]
-    field: str
-    rationale: str
-    message: str
-    suggestion: str
-    condition_fingerprint: str
+class StrictSchemaModel(BaseModel):
+    model_config = ConfigDict(extra="ignore", json_schema_extra={"additionalProperties": False})
 
 
-class ReviewQualityAuditEvaluation(BaseModel):
-    summary: str = ""
-    evidence_engagement: str = ""
-    consistency_assessment: str = ""
-    improvement_focus: str = ""
+class ReviewQualityAuditEvaluation(StrictSchemaModel):
+    summary: str
+    evidence_engagement: str
+    consistency_assessment: str
+    improvement_focus: str
 
 
 class ReviewQualityAuditResolveResponse(BaseModel):
@@ -114,8 +111,14 @@ ReviewAuditCode = Literal[
 ]
 
 
-class StrictSchemaModel(BaseModel):
-    model_config = ConfigDict(extra="ignore", json_schema_extra={"additionalProperties": False})
+class ReviewQualityAuditFinding(BaseModel):
+    code: ReviewAuditCode
+    severity: Literal["warning", "blocking"]
+    field: ReviewAuditField
+    rationale: str
+    message: str
+    suggestion: str
+    condition_fingerprint: str
 
 
 class ReviewQualityAuditModelFinding(StrictSchemaModel):

@@ -16,28 +16,79 @@ def test_system_prompt_keeps_semantic_audit_scope_and_drops_runtime_enforcement(
     lowered = prompt.lower()
 
     assert "## Role" in prompt
-    assert "## Task" in prompt
-    assert "## Framework" in prompt
+    assert "## Goal" in prompt
+    assert "## Review health checks" in prompt
     assert "## Constraints" in prompt
-    assert "## Output" in prompt
+    assert "## Output contract" in prompt
+    assert "## Output rules" in prompt
     assert "## Validation" in prompt
-    assert "<decision_order>" in prompt
-    assert "<domain_truths>" in prompt
-    assert "<issue_codes>" in prompt
-    assert "<hard_limits>" in prompt
-    assert "<output_rules>" in prompt
-    assert "<validation_checklist>" in prompt
-    assert "<tone>" in prompt
-    assert "academic review quality and consistency auditor" in lowered
-    assert "you are not grading the paper" in lowered
-    assert "never steer toward a particular recommendation or score" in lowered
-    assert "briefing context is optional additional material only" in lowered
-    assert "structured audit with `evaluation` and `findings`" in lowered
-    assert "each finding's `rationale`" in lowered
+    assert "Overall Review Health" in prompt
+    assert "Issues That May Block Submission" in prompt
+    assert "Warnings Worth Fixing" in prompt
+    assert "Evidence Engagement" in prompt
+    assert "Consistency Checks" in prompt
+    assert "Suggested Revision Focus" in prompt
+    assert "academic review quality auditor" in lowered
+    assert "do not decide whether the paper deserves accept, reject, or revision" in lowered
+    assert "do not recommend a different decision" in lowered
+    assert "when `analysis` is present, treat it as optional context, not authority" in lowered
+    assert "do not recommend a different score" in lowered
+    assert "do not turn review improvement advice into policy enforcement language" in lowered
+    assert '"evaluation": {' in prompt
+    assert '"findings": [' in prompt
+    assert '"code": "one allowed issue code"' in prompt
+    assert '"severity": "warning or blocking"' in prompt
+    assert '"field": "one allowed review field"' in prompt
+    assert "`rationale` explains why the issue was raised" in lowered
     assert "draft_save" not in lowered
     assert "submit_preflight" not in lowered
     assert "submit_enforcement" not in lowered
     assert "these codes should be treated as blocking" not in lowered
+
+
+def test_system_prompt_is_reviewer_centered_and_maps_to_structured_contract() -> None:
+    prompt = REVIEW_QUALITY_AUDIT_SYSTEM_PROMPT
+    lowered = prompt.lower()
+
+    assert "overall review health" in lowered
+    assert "issues that may block submission" in lowered
+    assert "warnings worth fixing" in lowered
+    assert "evidence engagement" in lowered
+    assert "consistency checks" in lowered
+    assert "suggested revision focus" in lowered
+    assert "help the reviewer improve their own draft" in lowered
+    assert "do not change the reviewer's opinion" in lowered
+    assert "do not recommend a different score" in lowered
+    assert "do not recommend a different decision" in lowered
+    assert "specific enough that the reviewer knows exactly what to revise" in lowered
+    assert "message" in lowered
+    assert "rationale" in lowered
+    assert "suggestion" in lowered
+    assert "condition_summary" in lowered
+    assert "return exactly this structure" in lowered
+    assert "allowed `severity` values" in lowered
+
+
+def test_system_prompt_rejects_generic_findings_and_technical_leakage() -> None:
+    lowered = REVIEW_QUALITY_AUDIT_SYSTEM_PROMPT.lower()
+
+    assert "generic finding" in lowered
+    assert "name the exact missing paper-specific engagement" in lowered
+    assert "do not write vague advice" in lowered
+    assert "api" not in lowered
+    assert "token" not in lowered
+    assert "pipeline" not in lowered
+    assert "schema path" not in lowered
+    assert "llm" not in lowered
+
+
+def test_system_prompt_lists_only_supported_codes_and_fields() -> None:
+    prompt = REVIEW_QUALITY_AUDIT_SYSTEM_PROMPT
+
+    for code in ReviewQualityAuditModelFinding.model_json_schema()["properties"]["code"]["enum"]:
+        assert code in prompt
+    for field in ReviewQualityAuditModelFinding.model_json_schema()["properties"]["field"]["enum"]:
+        assert field in prompt
 
 
 def test_model_schema_descriptions_keep_severity_semantic_and_runtime_owned() -> None:

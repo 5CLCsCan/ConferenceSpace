@@ -133,8 +133,8 @@ func (c *Controller) executeReviewAudit(
 		Review:      buildReviewQualityAuditPayload(reviewData),
 	}
 
-	if briefingArtifact := c.lookupOptionalBriefingArtifact(ginCtx, assignmentID, conferenceID, submission, requestPayload.Actor, authHeader); briefingArtifact != nil {
-		requestPayload.BriefingArtifact = briefingArtifact
+	if analysisArtifact := c.lookupOptionalAnalysisArtifact(ginCtx, assignmentID, conferenceID, submission, requestPayload.Actor, authHeader); analysisArtifact != nil {
+		requestPayload.AnalysisArtifact = analysisArtifact
 	}
 
 	result, err := c.workflowClient.ResolveReviewQualityAudit(ginCtx.Request.Context(), authHeader, requestPayload)
@@ -182,14 +182,14 @@ func (c *Controller) loadOwnedReviewScope(
 	return assignment, submission, userID, userEmail, ginCtx.GetHeader("Authorization"), nil
 }
 
-func (c *Controller) lookupOptionalBriefingArtifact(
+func (c *Controller) lookupOptionalAnalysisArtifact(
 	ginCtx *gin.Context,
 	assignmentID int64,
 	conferenceID int64,
 	submission *dto.Submission,
 	actor aiServiceClient.ActorPayload,
 	authHeader string,
-) *aiServiceClient.ReviewerInitialBriefing {
+) *aiServiceClient.ReviewerInitialAnalysisArtifact {
 	if c.workflowClient == nil {
 		return nil
 	}
@@ -211,32 +211,35 @@ func (c *Controller) lookupOptionalBriefingArtifact(
 	if err != nil || response == nil || response.Status != "ready" || response.Artifact == nil {
 		return nil
 	}
-	return normalizeReviewerInitialBriefingForReviewAudit(&response.Artifact.Briefing)
+	return normalizeReviewerInitialAnalysisForReviewAudit(response.Artifact)
 }
 
-func normalizeReviewerInitialBriefingForReviewAudit(
-	artifact *aiServiceClient.ReviewerInitialBriefing,
-) *aiServiceClient.ReviewerInitialBriefing {
+func normalizeReviewerInitialAnalysisForReviewAudit(
+	artifact *aiServiceClient.ReviewerInitialAnalysisArtifact,
+) *aiServiceClient.ReviewerInitialAnalysisArtifact {
 	if artifact == nil {
 		return nil
 	}
-	if artifact.SubmissionSnapshot.Keywords == nil {
-		artifact.SubmissionSnapshot.Keywords = []string{}
+	if artifact.Briefing.SubmissionSnapshot.Keywords == nil {
+		artifact.Briefing.SubmissionSnapshot.Keywords = []string{}
 	}
-	if artifact.ReviewReadinessSignals == nil {
-		artifact.ReviewReadinessSignals = []aiServiceClient.ReviewerInitialReadinessSignal{}
+	if artifact.Briefing.ReviewReadinessSignals == nil {
+		artifact.Briefing.ReviewReadinessSignals = []aiServiceClient.ReviewerInitialReadinessSignal{}
 	}
-	if artifact.ClaimedContributions == nil {
-		artifact.ClaimedContributions = []aiServiceClient.ReviewerInitialContribution{}
+	if artifact.Briefing.ClaimedContributions == nil {
+		artifact.Briefing.ClaimedContributions = []aiServiceClient.ReviewerInitialContribution{}
 	}
-	if artifact.NotableElements == nil {
-		artifact.NotableElements = []aiServiceClient.ReviewerInitialNotableElement{}
+	if artifact.Briefing.NotableElements == nil {
+		artifact.Briefing.NotableElements = []aiServiceClient.ReviewerInitialNotableElement{}
 	}
-	if artifact.ReviewerAttentionPoints == nil {
-		artifact.ReviewerAttentionPoints = []aiServiceClient.ReviewerInitialAttentionPoint{}
+	if artifact.Briefing.ReviewerAttentionPoints == nil {
+		artifact.Briefing.ReviewerAttentionPoints = []aiServiceClient.ReviewerInitialAttentionPoint{}
 	}
-	if artifact.StatedScopeLimitations == nil {
-		artifact.StatedScopeLimitations = []aiServiceClient.ReviewerInitialScopeLimitation{}
+	if artifact.Briefing.StatedScopeLimitations == nil {
+		artifact.Briefing.StatedScopeLimitations = []aiServiceClient.ReviewerInitialScopeLimitation{}
+	}
+	if artifact.Annotations.Sections == nil {
+		artifact.Annotations.Sections = []aiServiceClient.ReviewerInitialAnnotationSection{}
 	}
 	return artifact
 }

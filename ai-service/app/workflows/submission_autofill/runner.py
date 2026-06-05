@@ -8,9 +8,7 @@ from pydantic import BaseModel
 from app.workflows.reviewer_initial_analysis.document import extract_document
 from app.workflows.submission_autofill.prompts import SUBMISSION_AUTOFILL_SYSTEM_PROMPT
 from app.workflows.submission_autofill.schemas import (
-    AutofillField,
     AutofillMaterial,
-    AutofillStringListField,
     SubmissionAutofillArtifact,
     SubmissionAutofillFields,
     SubmissionAutofillRunRequest,
@@ -20,9 +18,6 @@ from app.workflows.submission_gating.models.facts import ExtractedDocument
 
 MAX_TEXT_CHARS = 18000
 MAX_ABSTRACT_CHARS = 3000
-MAX_TITLE_CHARS = 300
-MAX_SECTION_COUNT = 24
-
 
 class SubmissionAutofillRunner:
     def __init__(self, *, llm_client) -> None:
@@ -72,7 +67,6 @@ class SubmissionAutofillRunner:
                 fields=_empty_fields(),
                 track_rankings=[],
                 authors=[],
-                possible_conflicts=[],
                 materials=_build_materials(request, documents, failed_materials),
                 warnings=["No uploaded materials contained enough extractable text."],
                 error={
@@ -105,7 +99,6 @@ class SubmissionAutofillRunner:
             fields=artifact.fields,
             track_rankings=artifact.track_rankings,
             authors=artifact.authors,
-            possible_conflicts=artifact.possible_conflicts,
             materials=_build_materials(request, documents, failed_materials),
             warnings=artifact.warnings,
             error=None,
@@ -118,7 +111,7 @@ def build_inference_payload(
     documents: dict[str, ExtractedDocument],
     failed_materials: list[dict],
 ) -> dict:
-    primary_material_id = _select_primary_material_id(request, documents)
+    _ = failed_materials
     materials: list[dict] = []
     for metadata in request.files:
         document = documents.get(metadata.file_id)
@@ -126,16 +119,8 @@ def build_inference_payload(
             continue
         materials.append(
             {
-                "file_id": metadata.file_id,
                 "filename": metadata.original_filename,
-                "role": "primary" if metadata.file_id == primary_material_id else "supplementary",
-                "document_title": _normalize_text(document.title or "", MAX_TITLE_CHARS) or None,
-                "document_abstract": _normalize_text(document.abstract or "", MAX_ABSTRACT_CHARS) or None,
-                "document_authors": [_normalize_text(author, MAX_TITLE_CHARS) for author in document.authors if author],
-                "section_headings": _normalize_sections(document.sections),
-                "page_count": document.page_count,
-                "text_coverage_ratio": document.text_coverage_ratio,
-                "raw_text_excerpt": _normalize_text(document.raw_text, MAX_TEXT_CHARS),
+                "raw_content": _normalize_text(document.raw_text, MAX_TEXT_CHARS),
             }
         )
 
@@ -143,9 +128,7 @@ def build_inference_payload(
         "extra_details": _normalize_text(request.extra_details or "", MAX_ABSTRACT_CHARS),
         "available_tracks": _normalize_tracks(request),
         "conference_context": _build_conference_context_payload(request),
-        "primary_material_id": primary_material_id,
         "materials": materials,
-        "failed_materials": failed_materials,
     }
 
 
@@ -202,13 +185,12 @@ def _build_materials(
 
 
 def _empty_fields() -> SubmissionAutofillFields:
-    empty = {"confidence": "not_found", "evidence": [], "warnings": []}
     return SubmissionAutofillFields(
-        title=AutofillField(value="", **empty),
-        abstract=AutofillField(value="", **empty),
-        keywords=AutofillStringListField(value=[], **empty),
-        paper_type=AutofillField(value="", **empty),
-        additional_notes=AutofillField(value="", **empty),
+        title="",
+        abstract="",
+        keywords=[],
+        paper_type="",
+        additional_notes="",
     )
 
 
@@ -255,22 +237,6 @@ def _build_conference_context_payload(request: SubmissionAutofillRunRequest) -> 
 def _normalize_text(value: str, max_chars: int) -> str:
     normalized = " ".join(str(value or "").split()).strip()
     return normalized[:max_chars]
-
-
-def _normalize_sections(sections: list[str]) -> list[str]:
-    output: list[str] = []
-    seen: set[str] = set()
-    for section in sections[:MAX_SECTION_COUNT]:
-        value = _normalize_text(section, 120)
-        if not value:
-            continue
-        key = value.casefold()
-        if key in seen:
-            continue
-        seen.add(key)
-        output.append(value)
-    return output
-
 
 def _sanitize_extraction_error(exc: Exception) -> str:
     message = str(exc).strip()

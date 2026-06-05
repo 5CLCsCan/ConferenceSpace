@@ -831,17 +831,15 @@ export function PaperSubmissionForm({
   }
 
   const handleApplyAutofill = (result: SubmissionAutofillResponse, sourceFiles: File[] = []) => {
-    const nextTitle = result.fields.title.value.trim()
-    const nextAbstract = result.fields.abstract.value.trim()
-    const nextKeywords = result.fields.keywords.value
-      .map((keyword) => keyword.trim())
-      .filter(Boolean)
+    const nextTitle = result.fields.title.trim()
+    const nextAbstract = result.fields.abstract.trim()
+    const nextKeywords = result.fields.keywords.map((keyword) => keyword.trim()).filter(Boolean)
     const nextTrack =
       result.selected_track_name?.trim() ||
       result.track_rankings.find((ranking) => availableTracks.includes(ranking.track_name))
         ?.track_name ||
       ""
-    const nextPaperType = result.fields.paper_type.value
+    const nextPaperType = result.fields.paper_type
 
     if (nextTitle) setTitle(nextTitle)
     if (nextAbstract) setAbstract(nextAbstract)
@@ -876,21 +874,6 @@ export function PaperSubmissionForm({
         })),
       )
     }
-
-    const generatedConflicts = result.possible_conflicts
-      .filter((conflict) => conflict.name.trim() || conflict.email?.trim())
-      .map((conflict, index): Conflict => {
-        const nameParts = conflict.name.trim().split(/\s+/).filter(Boolean)
-        return {
-          id: `autofill-conflict-${index}-${conflict.email || conflict.name}`,
-          firstName: nameParts[0] || "",
-          lastName: nameParts.slice(1).join(" "),
-          email: conflict.email?.trim() || "",
-          reason: conflict.reason || "other",
-        }
-      })
-    if (generatedConflicts.length > 0) setConflicts(generatedConflicts)
-
     const manuscriptFile = findAutofillManuscriptFile(sourceFiles, result)
     if (manuscriptFile) {
       setUploadedFile(manuscriptFile)

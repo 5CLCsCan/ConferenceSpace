@@ -27,28 +27,20 @@ describe("generateSubmissionAutofill", () => {
           run_id: "run-1",
           status: "ready",
           fields: {
-            title: { value: "Extracted title", confidence: "high", evidence: [], warnings: [] },
-            abstract: {
-              value: "Extracted abstract",
-              confidence: "high",
-              evidence: [],
-              warnings: [],
-            },
-            keywords: { value: ["ai"], confidence: "medium", evidence: [], warnings: [] },
-            paper_type: { value: "research", confidence: "medium", evidence: [], warnings: [] },
-            additional_notes: { value: "", confidence: "not_found", evidence: [], warnings: [] },
+            title: "Extracted title",
+            abstract: "Extracted abstract",
+            keywords: ["ai"],
+            paper_type: "research",
+            additional_notes: "",
           },
           track_rankings: [
             {
               track_name: "AI",
               confidence: 8.5,
               rationale: "The paper focuses on AI methods.",
-              evidence: [],
-              warnings: [],
             },
           ],
           authors: [],
-          possible_conflicts: [],
           materials: [],
           warnings: [],
         },
@@ -69,8 +61,6 @@ describe("generateSubmissionAutofill", () => {
         track_name: "AI",
         confidence: 8.5,
         rationale: "The paper focuses on AI methods.",
-        evidence: [],
-        warnings: [],
       },
     ])
     expect(apiFetch).toHaveBeenCalledWith(
@@ -94,27 +84,24 @@ describe("generateSubmissionAutofill", () => {
       run_id: "run-1",
       status: "ready",
       fields: {
-        title: { value: "Title", confidence: "high", evidence: [] },
-        abstract: { value: "Abstract", confidence: "high", evidence: [] },
-        keywords: { value: ["ai"], confidence: "medium", evidence: [] },
-        paper_type: { value: "full paper", confidence: "low", evidence: [] },
-        additional_notes: { value: "", confidence: "not_found", evidence: [] },
+        title: "Title",
+        abstract: "Abstract",
+        keywords: ["ai"],
+        paper_type: "full paper",
+        additional_notes: "",
       },
       authors: [
         {
           name: "Leily Sheugh",
           email: "leily.sheugh@gmail.com",
-          confidence: "high",
-          evidence: [],
         },
       ],
       materials: [{ file_id: "file-1", filename: "paper.pdf", size_bytes: 100 }],
     })
 
-    expect(response.possible_conflicts).toEqual([])
+    expect("possible_conflicts" in response).toBe(false)
     expect(response.track_rankings).toEqual([])
     expect(response.warnings).toEqual([])
-    expect(response.authors[0].warnings).toEqual([])
     expect(response.materials[0].warnings).toEqual([])
   })
 })

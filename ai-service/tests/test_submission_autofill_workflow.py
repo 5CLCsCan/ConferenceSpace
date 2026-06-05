@@ -24,23 +24,20 @@ class _FakeRunner:
             "run_id": "run-autofill",
             "status": "ready",
             "fields": {
-                "title": {"value": "Extracted Title", "confidence": "high", "evidence": [], "warnings": []},
-                "abstract": {"value": "Extracted abstract.", "confidence": "high", "evidence": [], "warnings": []},
-                "keywords": {"value": ["ai"], "confidence": "medium", "evidence": [], "warnings": []},
-                "paper_type": {"value": "research", "confidence": "medium", "evidence": [], "warnings": []},
-                "additional_notes": {"value": "", "confidence": "not_found", "evidence": [], "warnings": []},
+                "title": "Extracted Title",
+                "abstract": "Extracted abstract.",
+                "keywords": ["ai"],
+                "paper_type": "research",
+                "additional_notes": "",
             },
             "track_rankings": [
                 {
                     "track_name": "AI",
                     "confidence": 8.5,
                     "rationale": "The manuscript focuses on AI-driven reviewer assignment.",
-                    "evidence": [],
-                    "warnings": [],
                 }
             ],
             "authors": [],
-            "possible_conflicts": [],
             "materials": [
                 {
                     "file_id": request.files[0].file_id,
@@ -129,7 +126,7 @@ def test_submission_autofill_route_requires_auth(monkeypatch) -> None:
     assert response.status_code == 401
 
 
-def test_build_inference_payload_keeps_materials_separate_and_marks_primary() -> None:
+def test_build_inference_payload_sends_only_raw_content_for_materials() -> None:
     request = SubmissionAutofillRunRequest(
         conference_id=210,
         actor=ActorPayload(user_id=123, email="author@example.com", role="author"),
@@ -177,12 +174,25 @@ def test_build_inference_payload_keeps_materials_separate_and_marks_primary() ->
         ),
     }
 
-    payload = build_inference_payload(request=request, documents=documents, failed_materials=[])
+    payload = build_inference_payload(
+        request=request,
+        documents=documents,
+        failed_materials=[
+            {
+                "file_id": "file-3",
+                "filename": "broken.pdf",
+                "extraction_status": "failed",
+                "warnings": ["Material could not be extracted."],
+            }
+        ],
+    )
 
-    assert payload["primary_material_id"] == "file-1"
-    assert [material["file_id"] for material in payload["materials"]] == ["file-1", "file-2"]
-    assert payload["materials"][0]["role"] == "primary"
-    assert payload["materials"][1]["role"] == "supplementary"
+    assert "primary_material_id" not in payload
+    assert "failed_materials" not in payload
+    assert payload["materials"] == [
+        {"filename": "paper.pdf", "raw_content": "Title Abstract This paper studies reviewer assignment."},
+        {"filename": "appendix.tex", "raw_content": "Supplementary appendix text"},
+    ]
     assert payload["extra_details"] == "This is a student paper."
     assert payload["conference_context"] == {
         "name": "Conference on AI Systems",
@@ -195,19 +205,28 @@ def test_build_inference_payload_keeps_materials_separate_and_marks_primary() ->
     assert payload["available_tracks"] == ["AI", "Systems"]
 
 
-def test_submission_autofill_artifact_schema_is_strict_for_openai_responses() -> None:
+def test_submission_autofill_artifact_schema_is_strict_for_user_visible_output() -> None:
     schema = SubmissionAutofillArtifact.model_json_schema()
     defs = schema["$defs"]
 
     assert schema["additionalProperties"] is False
     assert defs["SubmissionAutofillFields"]["additionalProperties"] is False
-    assert defs["AutofillField"]["additionalProperties"] is False
-    assert defs["AutofillStringListField"]["additionalProperties"] is False
-    assert defs["AutofillEvidence"]["additionalProperties"] is False
     assert defs["AutofillAuthor"]["additionalProperties"] is False
-    assert defs["AutofillConflict"]["additionalProperties"] is False
     assert defs["AutofillTrackRanking"]["additionalProperties"] is False
+    assert "AutofillEvidence" not in defs
+    assert "AutofillConflict" not in defs
+    assert "AutofillField" not in defs
+    assert "AutofillStringListField" not in defs
+    assert "possible_conflicts" not in schema["properties"]
     assert schema["properties"]["track_rankings"]["title"] == "Track Rankings"
+
+    field_properties = schema["$defs"]["SubmissionAutofillFields"]["properties"]
+    assert field_properties["title"]["type"] == "string"
+    assert field_properties["abstract"]["type"] == "string"
+    assert field_properties["keywords"]["type"] == "array"
+    assert field_properties["keywords"]["items"]["type"] == "string"
+    assert set(defs["AutofillTrackRanking"]["properties"]) == {"track_name", "confidence", "rationale"}
+    assert set(defs["AutofillAuthor"]["properties"]) == {"name", "email", "affiliation", "country"}
 
     missing_required: list[tuple[str | None, list[str], list[str]]] = []
     stack: list[object] = [schema, *defs.values()]

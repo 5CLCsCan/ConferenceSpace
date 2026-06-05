@@ -99,12 +99,17 @@ func TestMergeReviewAuditResult_HidesDismissedWarningsButNotBlocks(t *testing.T)
 	}
 }
 
-func TestReviewQualityAuditPayloadIncludesBriefingReadinessSignals(t *testing.T) {
-	artifact := normalizeReviewerInitialBriefingForReviewAudit(&aiServiceClient.ReviewerInitialBriefing{
-		SubmissionSnapshot: aiServiceClient.ReviewerInitialSubmissionSnapshot{
-			Title:              "Evidence-Aware Systems",
-			AbstractSummary:    "Workflow-focused submission.",
-			ManuscriptOverview: "The manuscript covers reviewer quality support.",
+func TestReviewQualityAuditPayloadIncludesFullAnalysisArtifact(t *testing.T) {
+	artifact := normalizeReviewerInitialAnalysisForReviewAudit(&aiServiceClient.ReviewerInitialAnalysisArtifact{
+		Briefing: aiServiceClient.ReviewerInitialBriefing{
+			SubmissionSnapshot: aiServiceClient.ReviewerInitialSubmissionSnapshot{
+				Title:              "Evidence-Aware Systems",
+				AbstractSummary:    "Workflow-focused submission.",
+				ManuscriptOverview: "The manuscript covers reviewer quality support.",
+			},
+		},
+		Annotations: aiServiceClient.ReviewerInitialAnnotations{
+			OverallImpression: "The submission is ready for review.",
 		},
 	})
 	payload := aiServiceClient.ReviewQualityAuditResolveRequest{
@@ -135,7 +140,7 @@ func TestReviewQualityAuditPayloadIncludesBriefingReadinessSignals(t *testing.T)
 			Recommendation: "accept",
 			Confidence:     "high",
 		},
-		BriefingArtifact: artifact,
+		AnalysisArtifact: artifact,
 	}
 
 	encoded, err := json.Marshal(payload)
@@ -148,9 +153,17 @@ func TestReviewQualityAuditPayloadIncludesBriefingReadinessSignals(t *testing.T)
 		t.Fatalf("unmarshal payload: %v", err)
 	}
 
-	decodedArtifact, ok := decoded["briefing_artifact"].(map[string]interface{})
+	decodedArtifact, ok := decoded["analysis_artifact"].(map[string]interface{})
 	if !ok {
-		t.Fatalf("expected briefing_artifact object, got %#v", decoded["briefing_artifact"])
+		t.Fatalf("expected analysis_artifact object, got %#v", decoded["analysis_artifact"])
+	}
+	briefing, ok := decodedArtifact["briefing"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected briefing object, got %#v", decodedArtifact["briefing"])
+	}
+	annotations, ok := decodedArtifact["annotations"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected annotations object, got %#v", decodedArtifact["annotations"])
 	}
 	requiredLists := []string{
 		"review_readiness_signals",
@@ -160,18 +173,18 @@ func TestReviewQualityAuditPayloadIncludesBriefingReadinessSignals(t *testing.T)
 		"stated_scope_and_limitations",
 	}
 	for _, field := range requiredLists {
-		value, ok := decodedArtifact[field].([]interface{})
+		value, ok := briefing[field].([]interface{})
 		if !ok {
-			t.Fatalf("expected %s list in forwarded briefing artifact, got %#v", field, decodedArtifact[field])
+			t.Fatalf("expected %s list in forwarded analysis artifact, got %#v", field, briefing[field])
 		}
 		if value == nil {
 			t.Fatalf("expected %s to serialize as an empty list, not null", field)
 		}
 	}
 
-	snapshot, ok := decodedArtifact["submission_snapshot"].(map[string]interface{})
+	snapshot, ok := briefing["submission_snapshot"].(map[string]interface{})
 	if !ok {
-		t.Fatalf("expected submission_snapshot object, got %#v", decodedArtifact["submission_snapshot"])
+		t.Fatalf("expected submission_snapshot object, got %#v", briefing["submission_snapshot"])
 	}
 	keywords, ok := snapshot["keywords"].([]interface{})
 	if !ok {
@@ -179,5 +192,12 @@ func TestReviewQualityAuditPayloadIncludesBriefingReadinessSignals(t *testing.T)
 	}
 	if keywords == nil {
 		t.Fatal("expected submission_snapshot.keywords to serialize as an empty list, not null")
+	}
+	sections, ok := annotations["sections"].([]interface{})
+	if !ok {
+		t.Fatalf("expected annotations.sections list, got %#v", annotations["sections"])
+	}
+	if sections == nil {
+		t.Fatal("expected annotations.sections to serialize as an empty list, not null")
 	}
 }

@@ -78,14 +78,14 @@ class ReviewQualityAuditRunner:
         *,
         request: ReviewQualityAuditResolveRequest,
     ) -> ReviewQualityAuditModelResponse:
-        inference_payload = build_inference_payload(request=request)
+        generation_payload = build_generation_payload(request=request)
         payload = await self._llm_client.complete_structured(
             messages=[
                 {"role": "system", "content": REVIEW_QUALITY_AUDIT_SYSTEM_PROMPT},
                 {
                     "role": "user",
                     "content": json.dumps(
-                        inference_payload,
+                        generation_payload,
                         ensure_ascii=True,
                         sort_keys=True,
                         separators=(",", ":"),
@@ -103,49 +103,11 @@ class ReviewQualityAuditRunner:
         return ReviewQualityAuditModelResponse.model_validate(output_payload)
 
 
-def build_inference_payload(*, request: ReviewQualityAuditResolveRequest) -> dict:
+def build_generation_payload(*, request: ReviewQualityAuditResolveRequest) -> dict:
     review = request.review
     feedback = review.feedback
 
-    briefing_context = None
-    if request.briefing_artifact is not None:
-        briefing_context = {
-            "submission_snapshot": {
-                "title": _clean_text(
-                    request.briefing_artifact.submission_snapshot.title
-                ),
-                "abstract_summary": _clean_text(
-                    request.briefing_artifact.submission_snapshot.abstract_summary
-                ),
-                "manuscript_overview": _clean_text(
-                    request.briefing_artifact.submission_snapshot.manuscript_overview
-                ),
-                "keywords": request.briefing_artifact.submission_snapshot.keywords[:8],
-                "track": _clean_text(
-                    request.briefing_artifact.submission_snapshot.track or ""
-                )
-                or None,
-            },
-            "claimed_contributions": [
-                _clean_text(item.label)
-                for item in request.briefing_artifact.claimed_contributions[:6]
-                if _clean_text(item.label)
-            ],
-            "reviewer_attention_points": [
-                _clean_text(item.focus)
-                for item in request.briefing_artifact.reviewer_attention_points[:6]
-                if _clean_text(item.focus)
-            ],
-            "stated_scope_and_limitations": [
-                _clean_text(item.label)
-                for item in request.briefing_artifact.stated_scope_and_limitations[:6]
-                if _clean_text(item.label)
-            ],
-            "usage_note": "Optional additional material only. Do not use this to infer the correct recommendation or score.",
-        }
-
     return {
-        "mode": request.mode,
         "submission_context": {
             "title": _clean_text(request.submission.title),
             "abstract": _clean_text(request.submission.abstract),
@@ -168,22 +130,18 @@ def build_inference_payload(*, request: ReviewQualityAuditResolveRequest) -> dic
                 "questions": _clean_text(feedback.questions),
             },
         },
-        "policy_context": {
-            "strict": bool(request.policy.strict)
-            if request.policy is not None
-            else False,
-            "required_sections": request.policy.required_sections
-            if request.policy is not None
-            else [],
-        },
-        "briefing_context": briefing_context,
-        "guardrails": {
-            "semantic_audit_only": True,
-            "no_recommendation_steering": True,
-            "no_score_steering": True,
-            "preserve_reviewer_agency": True,
-        },
+        "analysis": _build_analysis_payload(request=request),
     }
+
+
+def build_inference_payload(*, request: ReviewQualityAuditResolveRequest) -> dict:
+    return build_generation_payload(request=request)
+
+
+def _build_analysis_payload(*, request: ReviewQualityAuditResolveRequest) -> dict | None:
+    if request.analysis_artifact is None:
+        return None
+    return _clean_json_value(request.analysis_artifact.model_dump(mode="json"))
 
 
 def _normalize_finding(
@@ -238,6 +196,16 @@ def _fingerprint(*, code: str, field: str, condition_summary: str) -> str:
 def _clean_text(value: str) -> str:
     normalized = " ".join(str(value or "").split()).strip()
     return normalized
+
+
+def _clean_json_value(value):
+    if isinstance(value, str):
+        return _clean_text(value)
+    if isinstance(value, list):
+        return [_clean_json_value(item) for item in value]
+    if isinstance(value, dict):
+        return {key: _clean_json_value(item) for key, item in value.items()}
+    return value
 
 
 def _canonicalize_phrase(value: str) -> str:
