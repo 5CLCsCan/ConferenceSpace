@@ -151,7 +151,7 @@ describe("conference-form submission gating mapping", () => {
         author_anonymization_required: undefined,
         banned_phrases: [],
       },
-        scope_keywords: [],
+      scope_keywords: [],
       prompt_fragments: [],
     })
   })
@@ -182,9 +182,7 @@ describe("conference-form PC member mapping", () => {
       ...initialFormData,
       title: "No PC Conference",
       acronym: "NOPC",
-      organizers: [
-        { id: "1", name: "Co Chair", email: "cochair@example.com", role: "co-chair" },
-      ],
+      organizers: [{ id: "1", name: "Co Chair", email: "cochair@example.com", role: "co-chair" }],
     }
 
     const payload = buildConferenceMutationPayload(formData)
@@ -223,5 +221,28 @@ describe("conference-form PC member mapping", () => {
 
     const coChairOrganizers = formData.organizers.filter((o) => o.role === "co-chair")
     expect(coChairOrganizers).toHaveLength(1)
+  })
+})
+
+describe("conference-form location mapping", () => {
+  it("round-trips the virtual platform for hybrid conferences", () => {
+    const conference = makeConference({
+      configurations: {
+        format: "hybrid",
+        virtual_platform: "Zoom",
+      },
+    })
+
+    const formData = mapConferenceToFormData(conference)
+    expect(formData.locationType).toBe("hybrid")
+    expect(formData.virtualPlatform).toBe("Zoom")
+
+    const payload = buildConferenceMutationPayload({
+      ...formData,
+      title: "Hybrid Conference",
+      acronym: "HYB",
+      virtualPlatform: "Gather Town",
+    })
+    expect(payload.configurations.virtual_platform).toBe("Gather Town")
   })
 })

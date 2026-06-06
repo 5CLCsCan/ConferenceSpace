@@ -134,7 +134,10 @@ export default function ChairConferenceDetailPage() {
   useEffect(() => {
     const normalizedRole = (conference.userRole || "").toLowerCase()
     const canAccessRestrictedTabs =
-      normalizedRole === "chair" || normalizedRole === "co-chair" || normalizedRole === "co_chair"
+      currentRole === "chair" ||
+      normalizedRole === "chair" ||
+      normalizedRole === "co-chair" ||
+      normalizedRole === "co_chair"
 
     if (
       !canAccessRestrictedTabs &&
@@ -145,13 +148,15 @@ export default function ChairConferenceDetailPage() {
     ) {
       setActiveTab("overview")
     }
-  }, [activeTab, conference.userRole])
+  }, [activeTab, conference.userRole, currentRole])
 
   const normalizedConferenceRole = (conference.userRole || "").toLowerCase()
   const canManageConference =
+    currentRole === "chair" ||
     normalizedConferenceRole === "chair" ||
     normalizedConferenceRole === "co-chair" ||
     normalizedConferenceRole === "co_chair"
+  const effectiveUserRole = conference.userRole || (currentRole === "chair" ? "chair" : undefined)
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -220,7 +225,7 @@ export default function ChairConferenceDetailPage() {
           conference={conference}
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          userRole={conference.userRole}
+          userRole={effectiveUserRole}
         />
 
         <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-black">

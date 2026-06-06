@@ -124,6 +124,7 @@ export interface Conference {
     full_paper_submission_deadline?: string
     camera_ready_deadline?: string
     format?: string
+    virtual_platform?: string
     review_type?: string
     have_coi?: boolean
     maximum_pages?: number
@@ -177,6 +178,7 @@ export interface ConferenceConfigTemplatePayload {
   description?: string
   location?: string
   location_type?: "in-person" | "virtual" | "hybrid" | string
+  virtual_platform?: string
   topics?: string[]
   tracks?: string[]
   conference_start_date?: string

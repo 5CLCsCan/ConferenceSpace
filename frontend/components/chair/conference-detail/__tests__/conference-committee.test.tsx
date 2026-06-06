@@ -4,10 +4,7 @@ import { ConferenceCommittee } from "../conference-committee"
 import { getConferenceById, getConferenceReviewers, updateConference } from "@/lib/api/conferences"
 import { searchUsersForConference } from "@/lib/api/user"
 import { semanticScholarApi } from "@/lib/api/semantic-scholar"
-import {
-  createExternalInvitations,
-  listExternalInvitations,
-} from "@/lib/api/external-invitations"
+import { createExternalInvitations, listExternalInvitations } from "@/lib/api/external-invitations"
 
 vi.mock("@/lib/i18n/translation-context", async () => {
   const { tStatic } = await vi.importActual<typeof import("@/lib/i18n/static-translate")>(
@@ -131,7 +128,7 @@ describe("ConferenceCommittee", () => {
     expect(screen.getByText("Total Members")).toBeInTheDocument()
     expect(screen.getByText("PC Members")).toBeInTheDocument()
     expect(screen.getByText("Reviewers")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: /Import CSV/i })).toBeInTheDocument()
+    expect(screen.getAllByRole("button", { name: /Add PC Member/i }).length).toBeGreaterThan(0)
   })
 
   it("shows chair, co-chair, pc member, and reviewer in the table", async () => {
@@ -1047,6 +1044,70 @@ describe("ConferenceCommittee — refresh after invite", () => {
     return buttons[0] as HTMLButtonElement
   }
 
+  it("adds a direct PC email from the action button without requiring a staged chip first", async () => {
+    ;(updateConference as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: {},
+      error: null,
+      status: 200,
+    })
+
+    render(<ConferenceCommittee conferenceId="1" />)
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading committee/i)).not.toBeInTheDocument()
+    })
+
+    const input = screen.getByPlaceholderText(/Search by email or name/i) as HTMLInputElement
+    fireEvent.change(input, { target: { value: "direct-pc@example.com" } })
+
+    await act(async () => {
+      fireEvent.click(getInviteActionButton())
+    })
+
+    await waitFor(() => {
+      expect(updateConference).toHaveBeenCalledWith("1", {
+        pc_members: ["direct-pc@example.com"],
+      })
+    })
+  })
+
+  it("removes co-chairs from the committee table", async () => {
+    ;(getConferenceById as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: {
+        id: "1",
+        name: "Test Conference",
+        chair: "chair@example.com",
+        co_chairs: ["cochair@example.com"],
+        pc_members: [],
+        status: "open",
+        tracks: [],
+        domain: ["AI"],
+      },
+      error: null,
+      status: 200,
+    })
+    ;(updateConference as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: {},
+      error: null,
+      status: 200,
+    })
+
+    render(<ConferenceCommittee conferenceId="1" />)
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading committee/i)).not.toBeInTheDocument()
+    })
+
+    const coChairRow = screen.getByText("cochair@example.com").closest("tr") as HTMLElement
+    fireEvent.click(within(coChairRow).getByRole("button", { name: "delete" }))
+
+    await waitFor(() => {
+      expect(updateConference).toHaveBeenCalledWith("1", {
+        co_chairs: [],
+      })
+    })
+  })
+
   it("keeps the committee table visible during the post-invite refresh (does not blank to 'Loading committee...')", async () => {
     ;(updateConference as ReturnType<typeof vi.fn>).mockResolvedValue({
       data: {},
@@ -1079,9 +1140,7 @@ describe("ConferenceCommittee — refresh after invite", () => {
     const input = screen.getByPlaceholderText(/Search by email or name/i) as HTMLInputElement
     fireEvent.change(input, { target: { value: "added@example.com" } })
     await waitFor(() => {
-      expect(
-        screen.getByText(/Add directly: "added@example\.com"/i),
-      ).toBeInTheDocument()
+      expect(screen.getByText(/Add directly: "added@example\.com"/i)).toBeInTheDocument()
     })
     fireEvent.mouseDown(screen.getByText(/Add directly: "added@example\.com"/i))
 

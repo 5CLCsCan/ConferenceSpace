@@ -18,7 +18,7 @@ describe("submission eligibility", () => {
     expect(eligibility.canStartNewSubmission).toBe(false)
     expect(eligibility.action).toBe("closed")
     expect(eligibility.publicStatus).toBe("submission-closed")
-    expect(eligibility.closedReason).toBe("new-submissions-closed")
+    expect(eligibility.closedReason).toBe("deadline-passed")
   })
 
   it("allows existing non-final submissions to be edited after the deadline", () => {
@@ -56,6 +56,20 @@ describe("submission eligibility", () => {
     expect(eligibility.canStartNewSubmission).toBe(true)
     expect(eligibility.action).toBe("submit")
     expect(eligibility.publicStatus).toBe("call-for-papers")
+  })
+
+  it("distinguishes a future-deadline conference that is not open", () => {
+    const eligibility = getSubmissionEligibility({
+      conferenceStatus: "draft",
+      fullPaperDeadline: futureDeadline,
+      now,
+    })
+
+    expect(eligibility.isFullPaperDeadlinePassed).toBe(false)
+    expect(eligibility.canStartNewSubmission).toBe(false)
+    expect(eligibility.action).toBe("closed")
+    expect(eligibility.publicStatus).toBe("upcoming")
+    expect(eligibility.closedReason).toBe("conference-not-open")
   })
 
   it("treats accepted and rejected as final statuses", () => {

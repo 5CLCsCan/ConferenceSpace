@@ -98,6 +98,7 @@ export interface ConferenceMutationPayload {
     full_paper_submission_deadline?: string
     camera_ready_deadline?: string
     format: string
+    virtual_platform?: string
     review_type: string
     have_coi: boolean
     maximum_pages: number
@@ -134,6 +135,7 @@ export function mapConferenceToFormData(conference: Conference): ConferenceFormD
       config?.format === "virtual" || config?.format === "hybrid" || config?.format === "in-person"
         ? config.format
         : initialFormData.locationType,
+    virtualPlatform: config?.virtual_platform || "",
     conferenceStartDate: parseDate(config?.start_date),
     conferenceEndDate: parseDate(config?.end_date),
     topics: conference.domain || [],
@@ -197,6 +199,7 @@ export function mapTemplatePayloadToFormData(
       payload.location_type === "in-person"
         ? payload.location_type
         : initialFormData.locationType,
+    virtualPlatform: payload.virtual_platform || "",
     conferenceStartDate: parseDate(payload.conference_start_date),
     conferenceEndDate: parseDate(payload.conference_end_date),
     topics: payload.topics || [],
@@ -256,6 +259,7 @@ export function buildConferenceConfigTemplatePayload(
     description: formData.description || undefined,
     location: formData.location || formData.venue || undefined,
     location_type: formData.locationType,
+    virtual_platform: formData.virtualPlatform || undefined,
     topics: formData.topics,
     tracks: formData.tracks,
     conference_start_date: toISOString(formData.conferenceStartDate || formData.dateRange.from),
@@ -312,6 +316,7 @@ export function applyConferenceTemplateSections(
     next.description = source.description
     next.location = source.location
     next.locationType = source.locationType
+    next.virtualPlatform = source.virtualPlatform
     next.venue = source.venue
   }
 
@@ -442,6 +447,7 @@ export function buildConferenceMutationPayload(
       camera_ready_deadline:
         formData.cameraReadyDeadline?.toISOString() || existingConfig?.camera_ready_deadline,
       format: formData.locationType || existingConfig?.format,
+      virtual_platform: formData.virtualPlatform || existingConfig?.virtual_platform,
       review_type: formData.anonymity === "single-blind" ? "single-blind" : "double-blind",
       have_coi: existingConfig?.have_coi ?? true,
       maximum_pages: formData.maxPages || existingConfig?.maximum_pages || 8,
@@ -478,8 +484,11 @@ export function buildConferenceMutationPayload(
         allow_author_response: existingDiscussionSettings?.allow_author_response ?? true,
         start_at: fullPaperDeadline?.toISOString() || existingDiscussionSettings?.start_at,
         end_at:
-          (formData.authorNotificationDate || formData.finalDecisionDate || formData.authorNotification)?.toISOString() ||
-          existingDiscussionSettings?.end_at,
+          (
+            formData.authorNotificationDate ||
+            formData.finalDecisionDate ||
+            formData.authorNotification
+          )?.toISOString() || existingDiscussionSettings?.end_at,
       },
       rebuttal_settings: {
         enabled:

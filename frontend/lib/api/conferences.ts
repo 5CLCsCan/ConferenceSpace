@@ -57,6 +57,7 @@ export async function getConferenceById(conferenceId: string): Promise<ApiRespon
         full_paper_submission_deadline: data.data.configurations?.full_paper_submission_deadline,
         camera_ready_deadline: data.data.configurations?.camera_ready_deadline,
         format: data.data.configurations?.format,
+        virtual_platform: data.data.configurations?.virtual_platform,
         review_type: data.data.configurations?.review_type,
         have_coi: data.data.configurations?.have_coi,
         maximum_pages: data.data.configurations?.maximum_pages,
@@ -309,6 +310,7 @@ export async function listConferences(filters?: {
         full_paper_submission_deadline: conf.configurations?.full_paper_submission_deadline,
         camera_ready_deadline: conf.configurations?.camera_ready_deadline,
         format: conf.configurations?.format,
+        virtual_platform: conf.configurations?.virtual_platform,
         review_type: conf.configurations?.review_type,
         have_coi: conf.configurations?.have_coi,
         maximum_pages: conf.configurations?.maximum_pages,
@@ -358,6 +360,7 @@ export async function createConference(conferenceData: {
     full_paper_submission_deadline?: string
     camera_ready_deadline?: string
     format: string
+    virtual_platform?: string
     review_type: string
     maximum_pages: number
     have_coi: boolean
@@ -452,6 +455,7 @@ export async function updateConference(
       full_paper_submission_deadline?: string
       camera_ready_deadline?: string
       call_for_paper_text?: string
+      virtual_platform?: string
       review_type?: string
       submission_format?: string
       maximum_pages?: number
@@ -506,6 +510,7 @@ export async function updateConference(
         full_paper_submission_deadline: data.data.configurations?.full_paper_submission_deadline,
         camera_ready_deadline: data.data.configurations?.camera_ready_deadline,
         format: data.data.configurations?.format,
+        virtual_platform: data.data.configurations?.virtual_platform,
         review_type: data.data.configurations?.review_type,
         have_coi: data.data.configurations?.have_coi,
         maximum_pages: data.data.configurations?.maximum_pages,

@@ -57,6 +57,7 @@ export function ChairActionsPanel({
 
   const normalizedRole = (userRole || "").toLowerCase()
   const canManageConference =
+    currentRole === "chair" ||
     normalizedRole === "chair" ||
     normalizedRole === "co-chair" ||
     normalizedRole === "co_chair"
@@ -149,9 +150,7 @@ export function ChairActionsPanel({
       }
 
       if (nextStatus === "reviewing") {
-        setPhaseSuccess(
-          "Conference moved to reviewing. Auto-assign was triggered automatically.",
-        )
+        setPhaseSuccess("Conference moved to reviewing. Auto-assign was triggered automatically.")
       } else {
         setPhaseSuccess("Conference status updated successfully.")
       }
@@ -199,9 +198,7 @@ export function ChairActionsPanel({
   const defaultActions: ChairAction[] = [
     {
       id: "advance-phase",
-      label: phaseLoading
-        ? "Updating phase..."
-        : getNextPhaseLabel() || "Advance Phase",
+      label: phaseLoading ? "Updating phase..." : getNextPhaseLabel() || "Advance Phase",
       icon: "fast_forward",
       onClick: handleAdvancePhase,
       loading: phaseLoading,
