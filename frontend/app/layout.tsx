@@ -59,7 +59,7 @@ export default function RootLayout({
                     <ChatbotNavigationMask />
                   </Suspense>
                 </div>
-                {/* <Chatbot /> */}
+                <Chatbot />
               </div>
               <Toaster />
             </ChatbotProvider>
