@@ -117,4 +117,56 @@ describe("ConferenceHeader", () => {
       `${ROUTES.AUTHOR.SUBMISSION_EDIT("456")}?conferenceId=123`,
     )
   })
+
+  it("does not label draft conferences as registration open", () => {
+    render(
+      <ConferenceHeader
+        conference={
+          {
+            ...conference,
+            status: "draft",
+            configurations: {
+              full_paper_submission_deadline: new Date(
+                Date.now() + 24 * 60 * 60 * 1000,
+              ).toISOString(),
+            },
+          } as any
+        }
+        conferenceId="123"
+        activeTab="overview"
+        onTabChange={vi.fn()}
+        submission={null}
+      />,
+    )
+
+    expect(screen.getByText("Draft")).toBeInTheDocument()
+    expect(screen.queryByText(/registration open/i)).not.toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /submissions closed/i })).toBeDisabled()
+  })
+
+  it("does not label legacy non-open statuses as registration open", () => {
+    render(
+      <ConferenceHeader
+        conference={
+          {
+            ...conference,
+            status: "published",
+            configurations: {
+              full_paper_submission_deadline: new Date(
+                Date.now() + 24 * 60 * 60 * 1000,
+              ).toISOString(),
+            },
+          } as any
+        }
+        conferenceId="123"
+        activeTab="overview"
+        onTabChange={vi.fn()}
+        submission={null}
+      />,
+    )
+
+    expect(screen.queryByText(/registration open/i)).not.toBeInTheDocument()
+    expect(screen.getAllByText(/submission closed/i).length).toBeGreaterThan(0)
+    expect(screen.getByRole("button", { name: /submissions closed/i })).toBeDisabled()
+  })
 })

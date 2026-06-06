@@ -180,13 +180,11 @@ export function ConferenceFormPage({
 
       const normalizedRole = (response.data.userRole || "").toLowerCase()
       const canManageConference =
-        normalizedRole === "chair" ||
-        normalizedRole === "co-chair" ||
-        normalizedRole === "co_chair"
+        normalizedRole === "chair" || normalizedRole === "co-chair" || normalizedRole === "co_chair"
 
       if (!canManageConference) {
         setIsLoadingConference(false)
-        router.replace(ROUTES.CHAIR.CONFERENCE_DETAIL(conferenceId))
+        router.replace(ROUTES.CHAIR.CONFERENCE_DETAIL(conferenceId!))
         return
       }
 

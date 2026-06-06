@@ -77,7 +77,7 @@ interface CommitteeMember {
 }
 
 type MemberRoleFilter = "all" | "chair" | "co_chair" | "pc" | "reviewer"
-type AddMemberRole = "pc" | "reviewer"
+type AddMemberRole = "co_chair" | "pc" | "reviewer"
 
 function Icon({ name, className, size = 16 }: { name: string; className?: string; size?: number }) {
   return (
@@ -648,10 +648,16 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     setShowDropdown(false)
   }
 
-  const handleAddDirectEmail = () => {
+  const getDirectEmailSelection = (): SelectedUser | null => {
     const email = searchQuery.trim().toLowerCase()
-    if (!email || !email.includes("@")) return
-    handleSelectUser({ email })
+    if (!email || !email.includes("@")) return null
+    return { email }
+  }
+
+  const handleAddDirectEmail = () => {
+    const directUser = getDirectEmailSelection()
+    if (!directUser) return
+    handleSelectUser(directUser)
   }
 
   const handleRemoveSelected = (key: string) => {
@@ -682,14 +688,14 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     }
   }
 
-  const handleAddMembers = async () => {
-    if (!selectedUsers.length || !conference) return
+  const handleAddMembers = async (usersToAdd = selectedUsers) => {
+    if (!usersToAdd.length || !conference) return
 
     setInviting(true)
     setInviteMsg(null)
 
-    const platformUsers = selectedUsers.filter((u) => !u.is_external)
-    const externalUsers = selectedUsers.filter((u) => u.is_external)
+    const platformUsers = usersToAdd.filter((u) => !u.is_external)
+    const externalUsers = usersToAdd.filter((u) => u.is_external)
 
     let platformSuccess = 0
     let platformFailed = 0
@@ -698,7 +704,17 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
 
     // --- Platform users (existing flow) ---
     if (platformUsers.length > 0) {
-      if (memberRoleToAdd === "pc") {
+      if (memberRoleToAdd === "co_chair") {
+        const newEmails = platformUsers.map((u) => (u.email ?? "").toLowerCase()).filter(Boolean)
+        const existingCoChairs = conference.co_chairs ?? []
+        const merged = [...new Set([...existingCoChairs, ...newEmails])]
+        const response = await updateConference(conferenceId, { co_chairs: merged })
+        if (response.error) {
+          platformFailed += platformUsers.length
+        } else {
+          platformSuccess += platformUsers.length
+        }
+      } else if (memberRoleToAdd === "pc") {
         const newEmails = platformUsers.map((u) => (u.email ?? "").toLowerCase()).filter(Boolean)
         const existingPC = conference.pc_members ?? []
         const merged = [...new Set([...existingPC, ...newEmails])]
@@ -738,7 +754,7 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     }
 
     // --- External users (Semantic Scholar) ---
-    if (externalUsers.length > 0) {
+    if (externalUsers.length > 0 && memberRoleToAdd !== "co_chair") {
       const response = await createExternalInvitations(
         conferenceId,
         externalUsers.map((u) => ({
@@ -761,6 +777,8 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
       } else {
         externalFailed += externalUsers.length
       }
+    } else if (externalUsers.length > 0) {
+      externalFailed += externalUsers.length
     }
 
     setInviting(false)
@@ -780,6 +798,10 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
     }
 
     setSelectedUsers([])
+    setSearchQuery("")
+    setSearchResults([])
+    setExternalSearchResults([])
+    setShowDropdown(false)
     void loadCommittee()
   }
 
@@ -789,6 +811,15 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
       (e) => e.toLowerCase() !== email.toLowerCase(),
     )
     await updateConference(conferenceId, { pc_members: updated })
+    void loadCommittee()
+  }
+
+  const handleRemoveCoChair = async (email: string) => {
+    if (!conference) return
+    const updated = (conference.co_chairs ?? []).filter(
+      (e) => e.toLowerCase() !== email.toLowerCase(),
+    )
+    await updateConference(conferenceId, { co_chairs: updated })
     void loadCommittee()
   }
 
@@ -1136,112 +1167,116 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                                 )
                               })}
                               {/* Semantic Scholar results */}
-                              {visibleExternalResults.length > 0 && (
-                                <>
-                                  {visibleSearchResults.length > 0 && (
-                                    <div className="border-t border-slate-100 mx-3 my-1" />
-                                  )}
-                                  <div className="px-3 py-1">
-                                    <span className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">
-                                      {T("text_semantic_scholar")}
-                                    </span>
-                                  </div>
-                                  {visibleExternalResults.map((author) => {
-                                    const profileLink = getProfileLink({
-                                      is_external: true,
-                                      scholar_id: author.authorId,
-                                    })
-                                    // Semantic Scholar domain chips: like platform
-                                    // search, we color a chip green when its topic
-                                    // overlaps the conference's domain set. S2
-                                    // never returns `matched_fields`, so we always
-                                    // fall back to local conference-topic matching
-                                    // (never claim server-side "match evidence").
-                                    const scholarFields = author.fieldsOfStudy ?? []
-                                    // Cap to 4 to keep the dropdown compact.
-                                    const visibleFields = scholarFields.slice(0, 4)
-                                    const overflowCount =
-                                      scholarFields.length - visibleFields.length
-                                    return (
-                                      <div
-                                        key={`scholar-${author.authorId}`}
-                                        className="w-full flex items-start gap-3 px-3 py-2 rounded hover:bg-slate-100 transition-colors"
-                                      >
-                                        <button
-                                          type="button"
-                                          onMouseDown={(event) => {
-                                            event.preventDefault()
-                                            handleSelectExternalUser(author)
-                                          }}
-                                          className="flex items-start gap-3 flex-1 min-w-0 text-left"
+                              {memberRoleToAdd !== "co_chair" &&
+                                visibleExternalResults.length > 0 && (
+                                  <>
+                                    {visibleSearchResults.length > 0 && (
+                                      <div className="border-t border-slate-100 mx-3 my-1" />
+                                    )}
+                                    <div className="px-3 py-1">
+                                      <span className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">
+                                        {T("text_semantic_scholar")}
+                                      </span>
+                                    </div>
+                                    {visibleExternalResults.map((author) => {
+                                      const profileLink = getProfileLink({
+                                        is_external: true,
+                                        scholar_id: author.authorId,
+                                      })
+                                      // Semantic Scholar domain chips: like platform
+                                      // search, we color a chip green when its topic
+                                      // overlaps the conference's domain set. S2
+                                      // never returns `matched_fields`, so we always
+                                      // fall back to local conference-topic matching
+                                      // (never claim server-side "match evidence").
+                                      const scholarFields = author.fieldsOfStudy ?? []
+                                      // Cap to 4 to keep the dropdown compact.
+                                      const visibleFields = scholarFields.slice(0, 4)
+                                      const overflowCount =
+                                        scholarFields.length - visibleFields.length
+                                      return (
+                                        <div
+                                          key={`scholar-${author.authorId}`}
+                                          className="w-full flex items-start gap-3 px-3 py-2 rounded hover:bg-slate-100 transition-colors"
                                         >
-                                          <div className="size-7 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-[10px] flex-shrink-0 mt-0.5">
-                                            {author.name?.[0]?.toUpperCase() || "?"}
-                                          </div>
-                                          <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2">
-                                              <p className="text-xs font-medium text-[#141414] truncate">
-                                                {author.name}
-                                              </p>
-                                              <PlatformBadge
-                                                onPlatform={false}
-                                                T={(key) => T(key as keyof typeof labels)}
-                                              />
+                                          <button
+                                            type="button"
+                                            onMouseDown={(event) => {
+                                              event.preventDefault()
+                                              handleSelectExternalUser(author)
+                                            }}
+                                            className="flex items-start gap-3 flex-1 min-w-0 text-left"
+                                          >
+                                            <div className="size-7 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-[10px] flex-shrink-0 mt-0.5">
+                                              {author.name?.[0]?.toUpperCase() || "?"}
                                             </div>
-                                            {author.affiliations?.[0] && (
-                                              <p className="text-[10px] text-slate-500 truncate">
-                                                {author.affiliations[0]}
-                                              </p>
-                                            )}
-                                            {visibleFields.length > 0 && (
-                                              <div className="mt-1.5 flex flex-wrap gap-1">
-                                                {visibleFields.map((field) => {
-                                                  const norm = field.trim().toLowerCase()
-                                                  const matched =
-                                                    memberRoleToAdd === "reviewer" &&
-                                                    conferenceTopicSet.has(norm)
-                                                  return (
-                                                    <span
-                                                      key={field}
-                                                      className={cn(
-                                                        "text-[10px] px-2 py-0.5 rounded-full border",
-                                                        matched
-                                                          ? "bg-emerald-50 text-emerald-700 border-emerald-100 font-medium"
-                                                          : "bg-slate-50 text-slate-500 border-slate-200",
-                                                      )}
-                                                    >
-                                                      {matched && <span className="mr-0.5">✓</span>}
-                                                      {field}
-                                                    </span>
-                                                  )
-                                                })}
-                                                {overflowCount > 0 && (
-                                                  <span className="text-[10px] px-2 py-0.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200">
-                                                    +{overflowCount}
-                                                  </span>
-                                                )}
+                                            <div className="flex-1 min-w-0">
+                                              <div className="flex items-center gap-2">
+                                                <p className="text-xs font-medium text-[#141414] truncate">
+                                                  {author.name}
+                                                </p>
+                                                <PlatformBadge
+                                                  onPlatform={false}
+                                                  T={(key) => T(key as keyof typeof labels)}
+                                                />
                                               </div>
-                                            )}
+                                              {author.affiliations?.[0] && (
+                                                <p className="text-[10px] text-slate-500 truncate">
+                                                  {author.affiliations[0]}
+                                                </p>
+                                              )}
+                                              {visibleFields.length > 0 && (
+                                                <div className="mt-1.5 flex flex-wrap gap-1">
+                                                  {visibleFields.map((field) => {
+                                                    const norm = field.trim().toLowerCase()
+                                                    const matched =
+                                                      memberRoleToAdd === "reviewer" &&
+                                                      conferenceTopicSet.has(norm)
+                                                    return (
+                                                      <span
+                                                        key={field}
+                                                        className={cn(
+                                                          "text-[10px] px-2 py-0.5 rounded-full border",
+                                                          matched
+                                                            ? "bg-emerald-50 text-emerald-700 border-emerald-100 font-medium"
+                                                            : "bg-slate-50 text-slate-500 border-slate-200",
+                                                        )}
+                                                      >
+                                                        {matched && (
+                                                          <span className="mr-0.5">✓</span>
+                                                        )}
+                                                        {field}
+                                                      </span>
+                                                    )
+                                                  })}
+                                                  {overflowCount > 0 && (
+                                                    <span className="text-[10px] px-2 py-0.5 rounded-full border bg-slate-50 text-slate-500 border-slate-200">
+                                                      +{overflowCount}
+                                                    </span>
+                                                  )}
+                                                </div>
+                                              )}
+                                            </div>
+                                          </button>
+                                          <div className="flex items-center gap-1 mt-0.5">
+                                            <ProfileLinkIconButton
+                                              link={profileLink}
+                                              title={T("title_open_semantic_scholar_profile")}
+                                              ariaLabel={t(
+                                                "runtime.components.chair.conference-detail.conference-committee.aria_label_open_semantic_scholar_profile_for",
+                                                { name: author.name },
+                                              )}
+                                            />
+                                            <Icon name="person_add" className="text-slate-400" />
                                           </div>
-                                        </button>
-                                        <div className="flex items-center gap-1 mt-0.5">
-                                          <ProfileLinkIconButton
-                                            link={profileLink}
-                                            title={T("title_open_semantic_scholar_profile")}
-                                            ariaLabel={t(
-                                              "runtime.components.chair.conference-detail.conference-committee.aria_label_open_semantic_scholar_profile_for",
-                                              { name: author.name },
-                                            )}
-                                          />
-                                          <Icon name="person_add" className="text-slate-400" />
                                         </div>
-                                      </div>
-                                    )
-                                  })}
-                                </>
-                              )}
+                                      )
+                                    })}
+                                  </>
+                                )}
                               {visibleSearchResults.length === 0 &&
-                                visibleExternalResults.length === 0 && (
+                                (memberRoleToAdd === "co_chair" ||
+                                  visibleExternalResults.length === 0) && (
                                   <div className="px-3 py-2 text-xs text-slate-400">
                                     {T("text_no_users_found")}
                                   </div>
@@ -1273,20 +1308,27 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                       onChange={(event) => setMemberRoleToAdd(event.target.value as AddMemberRole)}
                       className="h-9 px-2.5 bg-white border border-slate-300 text-slate-700 text-[11px] rounded-lg focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] outline-none"
                     >
+                      <option value="co_chair">{T("text_co_chair")}</option>
                       <option value="pc">{T("text_program_committee")}</option>
                       <option value="reviewer">{T("text_reviewer")}</option>
                     </select>
 
                     <button
                       type="button"
-                      onClick={handleAddMembers}
-                      disabled={!selectedUsers.length || inviting}
+                      onClick={() => {
+                        const directUser =
+                          selectedUsers.length === 0 ? getDirectEmailSelection() : null
+                        void handleAddMembers(directUser ? [directUser] : selectedUsers)
+                      }}
+                      disabled={(!selectedUsers.length && !searchQuery.includes("@")) || inviting}
                       className="h-9 px-4 bg-[#1B3C53] hover:bg-[#234C6A] disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg text-[11px] flex items-center gap-1.5 whitespace-nowrap"
                     >
                       <Icon name={inviting ? "hourglass_empty" : "person_add"} size={14} />
                       {memberRoleToAdd === "reviewer"
                         ? T("text_invite_reviewer")
-                        : T("text_add_member")}
+                        : memberRoleToAdd === "co_chair"
+                          ? T("text_co_chair")
+                          : T("text_add_member")}
                     </button>
                   </div>
 
@@ -1457,6 +1499,16 @@ export function ConferenceCommittee({ conferenceId, className }: ConferenceCommi
                                     : `View profile for ${member.name}`
                                 }
                               />
+                              {member.role === "co_chair" && !readOnly && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveCoChair(member.email)}
+                                  title={T("text_remove_member")}
+                                  className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                >
+                                  <Icon name="delete" size={18} />
+                                </button>
+                              )}
                               {member.role === "pc" && !member.is_external && !readOnly && (
                                 <button
                                   type="button"
