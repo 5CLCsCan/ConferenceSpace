@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { createPortal } from "react-dom"
 import type { NewThreadModalProps, MessageVisibility, ThreadCategory } from "../types"
 import { VISIBILITY_CONFIG, CATEGORY_CONFIG } from "../config"
+import { getCategoryLabel, getVisibilityDescription, getVisibilityLabel } from "../i18n"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
 const DEFAULT_VISIBILITIES: MessageVisibility[] = ["committee", "reviewers", "authors"]
@@ -111,7 +112,7 @@ export function NewThreadModal({
                 >
                   {visibilities.map((v) => (
                     <option key={v} value={v}>
-                      {VISIBILITY_CONFIG[v].label}
+                      {getVisibilityLabel(v, t)}
                     </option>
                   ))}
                 </select>
@@ -132,9 +133,9 @@ export function NewThreadModal({
                   onChange={(e) => setCategory(e.target.value as ThreadCategory)}
                   className="w-full h-9 pl-3 pr-8 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg appearance-none focus:outline-none focus:border-[#1B3C53] cursor-pointer"
                 >
-                  {Object.entries(CATEGORY_CONFIG).map(([key, cfg]) => (
+                  {Object.keys(CATEGORY_CONFIG).map((key) => (
                     <option key={key} value={key}>
-                      {cfg.label}
+                      {getCategoryLabel(key as ThreadCategory, t)}
                     </option>
                   ))}
                 </select>
@@ -152,7 +153,7 @@ export function NewThreadModal({
             <span className="material-symbols-outlined text-[12px] mr-1 align-middle">
               {VISIBILITY_CONFIG[visibility].icon}
             </span>
-            {VISIBILITY_CONFIG[visibility].description}
+            {getVisibilityDescription(visibility, t)}
           </div>
 
           {/* Content */}

@@ -21,8 +21,8 @@ const merriweather = Merriweather({
 })
 
 export const metadata: Metadata = {
-  title: "Conference Management System",
-  description: "AI-powered academic conference management platform",
+  title: "ConferenceAI",
+  description: "AI-assisted academic conference workspace",
   generator: "v0.app",
 }
 

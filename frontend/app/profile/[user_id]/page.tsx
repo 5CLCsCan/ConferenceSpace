@@ -263,7 +263,9 @@ export default function UserProfilePage() {
       if (emailChanged) {
         toast({
           title: t("runtime.app.profile.user_id.page.prop_title_profile_updated"),
-          description: "Email updated. Please sign in again with your new email.",
+          description: t(
+            "runtime.app.profile.user_id.page.prop_description_email_updated_please_sign_in_again",
+          ),
         })
 
         logout()

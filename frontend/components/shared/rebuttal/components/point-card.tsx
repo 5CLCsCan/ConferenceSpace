@@ -3,6 +3,7 @@
 import { useState } from "react"
 
 import { CATEGORY_CONFIG } from "../config"
+import { getPointCategoryLabel } from "../i18n"
 import type { PointCardProps, ResponseStatus } from "../types"
 import { StatusBadge } from "./status-badge"
 import { useTranslation } from "@/lib/i18n/translation-context"
@@ -19,6 +20,7 @@ export function PointCard({
   const [acknowledgmentNote, setAcknowledgmentNote] = useState("")
   const [showNoteInput, setShowNoteInput] = useState(false)
   const category = CATEGORY_CONFIG[point.category]
+  const categoryLabel = getPointCategoryLabel(point.category, t)
   const isCurrentUserPoint = reviewer.isCurrentUser
   const isPending = point.status === "pending_review"
 
@@ -69,9 +71,12 @@ export function PointCard({
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
-                  {point.section || category.label}
+                  {point.section || categoryLabel}
                 </span>
-                <span className="text-[9px] text-slate-400">from {reviewer.anonymousId}</span>
+                <span className="text-[9px] text-slate-400">
+                  {t("runtime.components.shared.rebuttal.components.point-card.text_from")}{" "}
+                  {reviewer.anonymousId}
+                </span>
                 <StatusBadge status={point.status} />
               </div>
               <p className="text-xs text-slate-700 leading-relaxed">{point.originalComment}</p>
