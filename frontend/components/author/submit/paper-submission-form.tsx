@@ -499,7 +499,9 @@ export function PaperSubmissionForm({
             title: t(
               "runtime.components.author.submit.paper-submission-form.prop_title_submission_deadline_has_passed",
             ),
-            description: "Submission editing is locked after the deadline.",
+            description: t(
+              "runtime.components.author.submit.paper-submission-form.prop_description_submission_editing_is_locked_after_the_deadline",
+            ),
             variant: "destructive",
           })
         }
@@ -550,7 +552,9 @@ export function PaperSubmissionForm({
             })
           } else if (shouldShowError) {
             toast({
-              title: "Draft could not be saved",
+              title: t(
+                "runtime.components.author.submit.paper-submission-form.prop_title_failed_to_save_draft",
+              ),
               description,
               variant: "destructive",
             })

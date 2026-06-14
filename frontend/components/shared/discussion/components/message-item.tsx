@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react"
 import type { MessageItemProps } from "../types"
 import { ROLE_STYLES } from "../config"
+import { getRoleLabel } from "../i18n"
 import { ParticipantAvatar } from "./participant-avatar"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
@@ -100,7 +101,9 @@ export function MessageItem({ message, isFirst, onReact, onQuote, onDelete }: Me
           {/* Author info */}
           <div className="flex items-center gap-2 mb-1">
             <span className="font-bold text-[12px] text-[#141414]">
-              {message.author.isCurrentUser ? "You" : message.author.displayName}
+              {message.author.isCurrentUser
+                ? t("runtime.components.shared.discussion.components.participant-avatar.text_you")
+                : message.author.displayName}
             </span>
             {message.author.role !== "system" && (
               <span
@@ -108,7 +111,7 @@ export function MessageItem({ message, isFirst, onReact, onQuote, onDelete }: Me
                   ROLE_STYLES[message.author.role].bg
                 } ${ROLE_STYLES[message.author.role].text}`}
               >
-                {ROLE_STYLES[message.author.role].label}
+                {getRoleLabel(message.author.role, t)}
               </span>
             )}
             <span className="text-[10px] text-slate-400 font-medium">{message.relativeTime}</span>
@@ -346,7 +349,10 @@ export function MessageItem({ message, isFirst, onReact, onQuote, onDelete }: Me
                   <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
                     content_copy
                   </span>
-                  {t("runtime.components.shared.discussion.components.message-item.text_copy_text")}{" "}</button>
+                  {t(
+                    "runtime.components.shared.discussion.components.message-item.text_copy_text",
+                  )}{" "}
+                </button>
                 {message.author.isCurrentUser && (
                   <button
                     onClick={() => {
@@ -358,7 +364,10 @@ export function MessageItem({ message, isFirst, onReact, onQuote, onDelete }: Me
                     <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
                       delete
                     </span>
-                    {t("runtime.components.shared.discussion.components.message-item.text_delete")}{" "}</button>
+                    {t(
+                      "runtime.components.shared.discussion.components.message-item.text_delete",
+                    )}{" "}
+                  </button>
                 )}
               </div>
             )}

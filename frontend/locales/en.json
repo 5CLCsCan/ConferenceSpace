@@ -67,6 +67,47 @@
       "lastName": "Last name",
       "password": "Password"
     },
+    "importantDates": {
+      "abstractSubmissionDeadlineDescription": "Deadline for abstract submissions",
+      "abstractSubmissionDeadlineFor": "Abstract submission deadline for {acronym}",
+      "abstractSubmissionDeadlineTitle": "Abstract Submission Deadline",
+      "abstractSubmissionTitle": "Abstract Submission",
+      "cameraReadyDeadlineDescription": "Final version of accepted papers due",
+      "cameraReadyDeadlineFor": "Camera-ready version due for {acronym}",
+      "cameraReadyDeadlineTitle": "Camera-Ready Deadline",
+      "cameraReadyTitle": "Camera-Ready",
+      "conferenceBeginsDescription": "{name} begins",
+      "conferenceBeginsTitle": "Conference Begins",
+      "conferenceEndDateDescription": "Main conference event ends",
+      "conferenceEndDateTitle": "Conference End Date",
+      "conferenceEndTitle": "Conference End",
+      "conferenceEndsDescription": "{name} ends",
+      "conferenceEndsTitle": "Conference Ends",
+      "conferenceStartDateDescription": "Main conference event begins",
+      "conferenceStartDateTitle": "Conference Start Date",
+      "conferenceStartTitle": "Conference Start",
+      "discussionPeriodClosesFor": "Discussion period closes for {acronym}",
+      "discussionPeriodClosesTitle": "Discussion Period Closes",
+      "discussionPeriodOpensFor": "Discussion period opens for {acronym}",
+      "discussionPeriodOpensTitle": "Discussion Period Opens",
+      "notificationOfAcceptanceDescription": "Authors are notified of paper acceptance/rejection",
+      "notificationOfAcceptanceTitle": "Notification of Acceptance",
+      "paperSubmissionDeadlineDescription": "Final deadline for paper submissions",
+      "paperSubmissionDeadlineFor": "Full paper submission deadline for {acronym}",
+      "paperSubmissionDeadlineForTimeline": "Full paper submission deadline",
+      "paperSubmissionDeadlineTitle": "Paper Submission Deadline",
+      "paperSubmissionTitle": "Paper Submission",
+      "rebuttalPeriodEndsDescription": "Final deadline for author rebuttals",
+      "rebuttalPeriodEndsTitle": "Rebuttal Period Ends",
+      "rebuttalPeriodOpensFor": "Rebuttal period opens for {acronym}",
+      "rebuttalPeriodOpensTitle": "Rebuttal Period Opens",
+      "rebuttalPeriodStartsDescription": "Authors can begin responding to reviews",
+      "rebuttalPeriodStartsTitle": "Rebuttal Period Starts",
+      "rebuttalSubmissionDeadlineFor": "Rebuttal submission deadline for {acronym}",
+      "rebuttalSubmissionDeadlineTitle": "Rebuttal Submission Deadline",
+      "reviewDeadlineDescription": "Reviews are completed and discussion phase begins",
+      "reviewDeadlineTitle": "Review Deadline"
+    },
     "messages": {
       "languages": {
         "english": "English",
@@ -504,6 +545,7 @@
         "user_id": {
           "page": {
             "placeholder_search_publications": "Search publications by title, venue, abstract, or author",
+            "prop_description_email_updated_please_sign_in_again": "Email updated. Please sign in again with your new email.",
             "prop_description_missing_profile_id": "Missing profile id.",
             "prop_description_please_try_again": "Please try again.",
             "prop_description_please_wait_for_profile_sync_to_complete_before_unlinking": "Please wait for profile sync to complete before unlinking.",
@@ -1249,6 +1291,7 @@
             "prop_description_please_upload_your_research_paper_in": "Please upload your research paper in PDF format. Ensure all personal information is removed for double-blind review.",
             "prop_description_publishing_is_no_longer_available_because": "Publishing is no longer available because the conference submission deadline has passed.",
             "prop_description_review_all_information_before_final_submission": "Review all information before final submission.",
+            "prop_description_submission_editing_is_locked_after_the_deadline": "Submission editing is locked after the deadline.",
             "prop_description_this_conference_is_not_currently_accepting": "This conference is not currently accepting submissions. Please submit during the open phase.",
             "prop_description_your_draft_has_been_saved_you": "Your draft has been saved. You can continue editing anytime.",
             "prop_title_authors_affiliations": "Authors & Affiliations",
@@ -2851,6 +2894,45 @@
             "text_start_discussion": "Start Discussion",
             "text_visible_to_authors": "Visible to Authors"
           },
+          "config": {
+            "category": {
+              "clarity": "Clarity",
+              "ethics": "Ethics",
+              "general": "General",
+              "meta_review": "Meta-Review",
+              "methodology": "Methodology",
+              "results": "Results"
+            },
+            "role": {
+              "area_chair": "AC",
+              "author": "Author",
+              "reviewer": "Reviewer",
+              "senior_pc": "SPC",
+              "system": "System"
+            },
+            "visibility": {
+              "authors": {
+                "description": "Authors can see this discussion thread",
+                "label": "Visible to Authors",
+                "short_label": "Authors"
+              },
+              "committee": {
+                "description": "Visible to Area Chair, Senior PC, and Program Chairs only",
+                "label": "Committee Only",
+                "short_label": "Committee"
+              },
+              "public": {
+                "description": "Visible to all platform users (open review mode)",
+                "label": "Public Discussion",
+                "short_label": "Public"
+              },
+              "reviewers": {
+                "description": "Visible to all assigned reviewers and committee members",
+                "label": "Reviewers Only",
+                "short_label": "Reviewers"
+              }
+            }
+          },
           "components": {
             "message-item": {
               "text_copy_text": "Copy text",
@@ -2895,6 +2977,50 @@
           }
         },
         "rebuttal": {
+          "config": {
+            "category": {
+              "clarification": "Clarification",
+              "question": "Question",
+              "suggestion": "Suggestion",
+              "weakness": "Weakness"
+            },
+            "phase": {
+              "awaiting": {
+                "author_description": "Please submit your response to reviewer comments",
+                "chair_description": "Waiting for author rebuttal submission",
+                "description": "Authors have not yet submitted their response",
+                "label": "Awaiting Rebuttal",
+                "reviewer_description": "Authors have not yet submitted their response"
+              },
+              "discussion": {
+                "author_description": "Reviewers are discussing your response",
+                "chair_description": "Facilitate discussion between reviewers",
+                "description": "Reviewers are discussing the rebuttal with ACs",
+                "label": "Discussion Phase",
+                "reviewer_description": "Discuss the rebuttal with fellow reviewers and ACs"
+              },
+              "finalized": {
+                "author_description": "Rebuttal period has ended",
+                "chair_description": "Rebuttal period complete - proceed to decision",
+                "description": "Rebuttal period has ended",
+                "label": "Finalized",
+                "reviewer_description": "Rebuttal period has ended"
+              },
+              "submitted": {
+                "author_description": "Your rebuttal has been submitted - await reviewer feedback",
+                "chair_description": "Author rebuttal submitted - monitor reviewer responses",
+                "description": "Authors have responded - please review and update your assessment",
+                "label": "Rebuttal Submitted",
+                "reviewer_description": "Authors have responded - please review and update your assessment"
+              }
+            },
+            "status": {
+              "addressed": "Addressed",
+              "not_addressed": "Not Addressed",
+              "partially_addressed": "Partially Addressed",
+              "pending_review": "Needs Your Review"
+            }
+          },
           "RebuttalPanel": {
             "text_point_by_point_responses": "Point-by-Point Responses"
           },
@@ -2920,6 +3046,7 @@
               "text_addressed": "Addressed",
               "text_author_response": "Author Response",
               "text_cancel": "Cancel",
+              "text_from": "from",
               "text_not_addressed": "Not Addressed",
               "text_partial": "Partial",
               "text_reviewer_response": "Reviewer Response",

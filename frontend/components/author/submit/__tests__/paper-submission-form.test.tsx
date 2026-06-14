@@ -560,7 +560,7 @@ describe("PaperSubmissionForm — deadline enforcement (UI-NEG-02)", () => {
 
     expect(toastMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: "Draft could not be saved",
+        title: "Failed to save draft",
         description:
           "You already have a submission for this conference. Open your existing submission instead of creating a new one.",
         variant: "destructive",

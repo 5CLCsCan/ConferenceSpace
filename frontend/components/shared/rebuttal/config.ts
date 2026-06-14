@@ -6,12 +6,32 @@ import type { PointCategory, RebuttalPhase, ResponseStatus } from "./types"
 
 export const CATEGORY_CONFIG: Record<
   PointCategory,
-  { label: string; icon: string; color: string }
+  { label: string; labelKey: string; icon: string; color: string }
 > = {
-  weakness: { label: "Weakness", icon: "warning", color: "text-amber-600" },
-  question: { label: "Question", icon: "help", color: "text-blue-600" },
-  clarification: { label: "Clarification", icon: "edit_note", color: "text-slate-600" },
-  suggestion: { label: "Suggestion", icon: "lightbulb", color: "text-purple-600" },
+  weakness: {
+    label: "Weakness",
+    labelKey: "runtime.components.shared.rebuttal.config.category.weakness",
+    icon: "warning",
+    color: "text-amber-600",
+  },
+  question: {
+    label: "Question",
+    labelKey: "runtime.components.shared.rebuttal.config.category.question",
+    icon: "help",
+    color: "text-blue-600",
+  },
+  clarification: {
+    label: "Clarification",
+    labelKey: "runtime.components.shared.rebuttal.config.category.clarification",
+    icon: "edit_note",
+    color: "text-slate-600",
+  },
+  suggestion: {
+    label: "Suggestion",
+    labelKey: "runtime.components.shared.rebuttal.config.category.suggestion",
+    icon: "lightbulb",
+    color: "text-purple-600",
+  },
 }
 
 // =============================================================================
@@ -22,6 +42,7 @@ export const STATUS_CONFIG: Record<
   ResponseStatus,
   {
     label: string
+    labelKey: string
     icon: string
     bgColor: string
     textColor: string
@@ -30,6 +51,7 @@ export const STATUS_CONFIG: Record<
 > = {
   addressed: {
     label: "Addressed",
+    labelKey: "runtime.components.shared.rebuttal.config.status.addressed",
     icon: "check_circle",
     bgColor: "bg-emerald-50",
     textColor: "text-emerald-700",
@@ -37,6 +59,7 @@ export const STATUS_CONFIG: Record<
   },
   partially_addressed: {
     label: "Partially Addressed",
+    labelKey: "runtime.components.shared.rebuttal.config.status.partially_addressed",
     icon: "timelapse",
     bgColor: "bg-amber-50",
     textColor: "text-amber-700",
@@ -44,6 +67,7 @@ export const STATUS_CONFIG: Record<
   },
   not_addressed: {
     label: "Not Addressed",
+    labelKey: "runtime.components.shared.rebuttal.config.status.not_addressed",
     icon: "cancel",
     bgColor: "bg-red-50",
     textColor: "text-red-600",
@@ -51,6 +75,7 @@ export const STATUS_CONFIG: Record<
   },
   pending_review: {
     label: "Needs Your Review",
+    labelKey: "runtime.components.shared.rebuttal.config.status.pending_review",
     icon: "schedule",
     bgColor: "bg-[#1B3C53]/5",
     textColor: "text-[#1B3C53]",
@@ -66,32 +91,42 @@ export const PHASE_CONFIG: Record<
   RebuttalPhase,
   {
     label: string
+    labelKey: string
     description: string
+    descriptionKey: string
     icon: string
     color: string
   }
 > = {
   awaiting: {
     label: "Awaiting Rebuttal",
+    labelKey: "runtime.components.shared.rebuttal.config.phase.awaiting.label",
     description: "Authors have not yet submitted their response",
+    descriptionKey: "runtime.components.shared.rebuttal.config.phase.awaiting.description",
     icon: "hourglass_empty",
     color: "text-slate-500",
   },
   submitted: {
     label: "Rebuttal Submitted",
+    labelKey: "runtime.components.shared.rebuttal.config.phase.submitted.label",
     description: "Authors have responded - please review and update your assessment",
+    descriptionKey: "runtime.components.shared.rebuttal.config.phase.submitted.description",
     icon: "mark_email_unread",
     color: "text-[#1B3C53]",
   },
   discussion: {
     label: "Discussion Phase",
+    labelKey: "runtime.components.shared.rebuttal.config.phase.discussion.label",
     description: "Reviewers are discussing the rebuttal with ACs",
+    descriptionKey: "runtime.components.shared.rebuttal.config.phase.discussion.description",
     icon: "forum",
     color: "text-purple-600",
   },
   finalized: {
     label: "Finalized",
+    labelKey: "runtime.components.shared.rebuttal.config.phase.finalized.label",
     description: "Rebuttal period has ended",
+    descriptionKey: "runtime.components.shared.rebuttal.config.phase.finalized.description",
     icon: "lock",
     color: "text-slate-400",
   },
