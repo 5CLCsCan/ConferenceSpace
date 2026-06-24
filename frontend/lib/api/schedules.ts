@@ -4,6 +4,7 @@
  */
 
 import { listConferences, type ImportantDate } from "@/lib/api/conferences"
+import { tStatic } from "@/lib/i18n/static-translate"
 import type { Conference, UserRole } from "@/lib/types"
 
 export type EventType = "deadline" | "milestone" | "event"
@@ -27,6 +28,10 @@ export interface ConferenceTimeline {
   year: string
   status: string
   dates: ImportantDate[]
+}
+
+function scheduleText(key: string, values?: Record<string, string | number>) {
+  return tStatic(`common.importantDates.${key}`, values)
 }
 
 /**
@@ -66,49 +71,61 @@ function extractEventsFromConference(conf: Conference): ScheduleEvent[] {
 
   addEvent(
     "abstract-deadline",
-    "Abstract Submission Deadline",
+    scheduleText("abstractSubmissionDeadlineTitle"),
     config.abstract_submission_deadline,
     "deadline",
-    `Abstract submission deadline for ${conf.acronym}`,
+    scheduleText("abstractSubmissionDeadlineFor", { acronym: conf.acronym }),
   )
 
   addEvent(
     "paper-deadline",
-    "Paper Submission Deadline",
+    scheduleText("paperSubmissionDeadlineTitle"),
     config.full_paper_submission_deadline,
     "deadline",
-    `Full paper submission deadline for ${conf.acronym}`,
+    scheduleText("paperSubmissionDeadlineFor", { acronym: conf.acronym }),
   )
 
   addEvent(
     "camera-ready",
-    "Camera-Ready Deadline",
+    scheduleText("cameraReadyDeadlineTitle"),
     config.camera_ready_deadline,
     "deadline",
-    `Camera-ready version due for ${conf.acronym}`,
+    scheduleText("cameraReadyDeadlineFor", { acronym: conf.acronym }),
   )
 
-  addEvent("conf-start", "Conference Begins", config.start_date, "event", `${conf.name} begins`)
+  addEvent(
+    "conf-start",
+    scheduleText("conferenceBeginsTitle"),
+    config.start_date,
+    "event",
+    scheduleText("conferenceBeginsDescription", { name: conf.name }),
+  )
 
-  addEvent("conf-end", "Conference Ends", config.end_date, "event", `${conf.name} ends`)
+  addEvent(
+    "conf-end",
+    scheduleText("conferenceEndsTitle"),
+    config.end_date,
+    "event",
+    scheduleText("conferenceEndsDescription", { name: conf.name }),
+  )
 
   // Discussion period dates
   if (config.discussion_settings?.start_at) {
     addEvent(
       "discussion-start",
-      "Discussion Period Opens",
+      scheduleText("discussionPeriodOpensTitle"),
       config.discussion_settings.start_at,
       "milestone",
-      `Discussion period opens for ${conf.acronym}`,
+      scheduleText("discussionPeriodOpensFor", { acronym: conf.acronym }),
     )
   }
   if (config.discussion_settings?.end_at) {
     addEvent(
       "discussion-end",
-      "Discussion Period Closes",
+      scheduleText("discussionPeriodClosesTitle"),
       config.discussion_settings.end_at,
       "deadline",
-      `Discussion period closes for ${conf.acronym}`,
+      scheduleText("discussionPeriodClosesFor", { acronym: conf.acronym }),
     )
   }
 
@@ -116,19 +133,19 @@ function extractEventsFromConference(conf: Conference): ScheduleEvent[] {
   if (config.rebuttal_settings?.start_at) {
     addEvent(
       "rebuttal-start",
-      "Rebuttal Period Opens",
+      scheduleText("rebuttalPeriodOpensTitle"),
       config.rebuttal_settings.start_at,
       "milestone",
-      `Rebuttal period opens for ${conf.acronym}`,
+      scheduleText("rebuttalPeriodOpensFor", { acronym: conf.acronym }),
     )
   }
   if (config.rebuttal_settings?.end_at) {
     addEvent(
       "rebuttal-end",
-      "Rebuttal Submission Deadline",
+      scheduleText("rebuttalSubmissionDeadlineTitle"),
       config.rebuttal_settings.end_at,
       "deadline",
-      `Rebuttal submission deadline for ${conf.acronym}`,
+      scheduleText("rebuttalSubmissionDeadlineFor", { acronym: conf.acronym }),
     )
   }
 
@@ -183,27 +200,39 @@ export async function getMyScheduleEvents(
     if (config) {
       addDate(
         "abstract",
-        "Abstract Submission",
+        scheduleText("abstractSubmissionTitle"),
         config.abstract_submission_deadline,
         "deadline",
-        "Abstract submission deadline",
+        scheduleText("abstractSubmissionDeadlineDescription"),
       )
       addDate(
         "paper",
-        "Paper Submission",
+        scheduleText("paperSubmissionTitle"),
         config.full_paper_submission_deadline,
         "deadline",
-        "Full paper submission deadline",
+        scheduleText("paperSubmissionDeadlineForTimeline"),
       )
       addDate(
         "camera",
-        "Camera-Ready",
+        scheduleText("cameraReadyTitle"),
         config.camera_ready_deadline,
         "deadline",
-        "Camera-ready deadline",
+        scheduleText("cameraReadyDeadlineDescription"),
       )
-      addDate("start", "Conference Start", config.start_date, "event", "Conference begins")
-      addDate("end", "Conference End", config.end_date, "event", "Conference ends")
+      addDate(
+        "start",
+        scheduleText("conferenceStartTitle"),
+        config.start_date,
+        "event",
+        scheduleText("conferenceBeginsTitle"),
+      )
+      addDate(
+        "end",
+        scheduleText("conferenceEndTitle"),
+        config.end_date,
+        "event",
+        scheduleText("conferenceEndsTitle"),
+      )
     }
 
     dates.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
