@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
 from uuid import uuid4
 
 from pydantic import BaseModel
@@ -151,8 +150,6 @@ class DecisionCopilotRunner:
         artifact_payload["rebuttal_signals"]["status"] = request.evidence.rebuttal.status
         if request.evidence.rebuttal.status == "not_applicable" and not artifact_payload["rebuttal_signals"].get("summary"):
             artifact_payload["rebuttal_signals"]["summary"] = request.evidence.rebuttal.summary_hint or "Rebuttal is not applicable."
-        artifact_payload["evidence_fingerprint"] = request.evidence_fingerprint
-        artifact_payload["generated_at"] = datetime.now(tz=timezone.utc).isoformat()
         return DecisionCopilotArtifact.model_validate(artifact_payload)
 
     def _build_generation_context(self, *, request: DecisionCopilotResolveRequest) -> dict:
