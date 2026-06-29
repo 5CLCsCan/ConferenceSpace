@@ -290,6 +290,7 @@
         },
         "common": {
           "dashboard": "Bảng điều khiển",
+          "onboarding": "Hướng dẫn sử dụng",
           "notifications": "Thông báo"
         },
         "reviewer": {
@@ -442,6 +443,131 @@
             "description": "Chuyên gia được mời để thực hiện phản biện học thuật.",
             "role": "Phản biện"
           }
+        },
+        "public_guide": {
+          "description": "Chọn vai trò để xem từng bước sử dụng ConferenceSpace, từ màn hình đầu tiên đến thao tác cuối cùng trong quy trình.",
+          "label": "Hướng dẫn nhanh",
+          "nav_label": "Hướng dẫn",
+          "roles": {
+            "author": {
+              "description": "Author bắt đầu từ danh sách hội nghị, chọn CFP phù hợp rồi nộp bài qua form nhiều bước.",
+              "label": "Author",
+              "steps": {
+                "conferences": {
+                  "bullets": [
+                    "Xem danh sách hội nghị đang mở.",
+                    "Kiểm tra deadline, track, topic và chính sách nhận bài.",
+                    "Chỉ bắt đầu nộp khi hội nghị còn mở submission."
+                  ],
+                  "title": "Tìm hội nghị phù hợp"
+                },
+                "final": {
+                  "bullets": [
+                    "Đọc review trước khi viết rebuttal.",
+                    "Nếu bài được nhận, kiểm tra yêu cầu camera-ready.",
+                    "Theo dõi thông báo để không bỏ lỡ deadline phản hồi."
+                  ],
+                  "title": "Gửi rebuttal hoặc camera-ready"
+                },
+                "manage": {
+                  "bullets": [
+                    "Theo dõi trạng thái draft, submitted, under review hoặc decision.",
+                    "Sửa hoặc rút bài khi deadline còn cho phép.",
+                    "Mở chi tiết bài nộp để xem review và discussion."
+                  ],
+                  "title": "Quản lý bài đã nộp"
+                },
+                "submit": {
+                  "bullets": [
+                    "Nhập title, abstract, keywords và chọn track.",
+                    "Thêm co-author và khai báo conflict nếu có.",
+                    "Tải file PDF đúng yêu cầu của hội nghị."
+                  ],
+                  "title": "Tạo submission mới"
+                }
+              },
+              "title": "Nộp bài và theo dõi kết quả"
+            },
+            "chair": {
+              "description": "Chair quản lý hội nghị từ lúc mở CFP, phân công reviewer đến khi công bố kết quả.",
+              "label": "Chair",
+              "steps": {
+                "assign": {
+                  "bullets": [
+                    "Mời committee hoặc reviewer bằng email.",
+                    "Mở phần submissions/assignments để phân công reviewer.",
+                    "Kiểm tra workload, keyword match và COI trước khi xác nhận."
+                  ],
+                  "title": "Mời reviewer và phân công bài"
+                },
+                "create": {
+                  "bullets": [
+                    "Nhập tên hội nghị, acronym, mô tả và hình thức tổ chức.",
+                    "Thiết lập topic, track, review type và các mốc deadline.",
+                    "Kiểm tra policy trước khi publish CFP."
+                  ],
+                  "title": "Tạo hội nghị và cấu hình CFP"
+                },
+                "dashboard": {
+                  "bullets": [
+                    "Xem nhanh số lượng hội nghị, submission và review.",
+                    "Theo dõi deadline gần nhất và các việc cần xử lý.",
+                    "Mở lại hội nghị đang quản lý từ dashboard."
+                  ],
+                  "title": "Mở dashboard Chair"
+                },
+                "decision": {
+                  "bullets": [
+                    "Theo dõi review đã nộp và reviewer quá hạn.",
+                    "Mở rebuttal nếu hội nghị có vòng phản hồi tác giả.",
+                    "Ra quyết định sau khi kiểm tra review, discussion và COI."
+                  ],
+                  "title": "Theo dõi review và ra quyết định"
+                }
+              },
+              "title": "Điều phối toàn bộ hội nghị"
+            },
+            "reviewer": {
+              "description": "Reviewer xử lý lời mời, xem bài được giao và gửi phản biện theo tiêu chí của hội nghị.",
+              "label": "Reviewer",
+              "steps": {
+                "assignment": {
+                  "bullets": [
+                    "Mở paper được phân công để xem metadata và file.",
+                    "Đọc tiêu chí review trước khi chấm.",
+                    "Ghi chú điểm mạnh, điểm yếu và câu hỏi cần phản hồi."
+                  ],
+                  "title": "Đọc assignment và briefing"
+                },
+                "dashboard": {
+                  "bullets": [
+                    "Kiểm tra lời mời mới và assignment đang chờ.",
+                    "Ưu tiên xử lý các deadline gần nhất.",
+                    "Dùng dashboard để quay lại review chưa hoàn tất."
+                  ],
+                  "title": "Mở dashboard Reviewer"
+                },
+                "invitations": {
+                  "bullets": [
+                    "Đọc thông tin hội nghị, deadline và paper summary.",
+                    "Accept khi đúng chuyên môn và không có conflict.",
+                    "Decline nếu bận, lệch chuyên môn hoặc có COI."
+                  ],
+                  "title": "Nhận hoặc từ chối lời mời"
+                },
+                "review": {
+                  "bullets": [
+                    "Chấm điểm từng tiêu chí và chọn recommendation.",
+                    "Viết strengths/weaknesses rõ ràng, có căn cứ.",
+                    "Sau rebuttal, cập nhật review nếu hội nghị yêu cầu."
+                  ],
+                  "title": "Gửi review"
+                }
+              },
+              "title": "Phản biện bài được phân công"
+            }
+          },
+          "title": "Xem cách ConferenceSpace hoạt động"
         },
         "text_a_single_registered_account_can_operate": "Một tài khoản có thể đồng thời là Tác giả, Phản biện hoặc Chủ trì. Bạn có thể chuyển vai trò bất kỳ lúc nào, và quyền cùng không gian làm việc sẽ tự điều chỉnh.",
         "text_academic_conference_operations_platform": "Nền tảng hoạt động hội nghị học thuật",
@@ -782,8 +908,11 @@
           "prop_title_reviewer": "Phản biện",
           "text_conferencespace": "ConferenceSpace",
           "text_enter_dashboard": "Mở bảng điều khiển",
+          "text_open_user_guide": "Mở hướng dẫn",
           "text_please_select_the_role_you_wish": "Vui lòng chọn vai trò bạn muốn dùng hôm nay. Bạn có thể chuyển vai trò bất kỳ lúc nào trong cài đặt tài khoản.",
           "text_role_selection": "Lựa chọn vai trò",
+          "text_user_guide_description": "Hướng dẫn nhanh cho luồng Chair, Author và Reviewer theo từng bước thao tác.",
+          "text_user_guide_title": "Người mới dùng nền tảng? Bắt đầu với hướng dẫn sử dụng.",
           "text_welcome_back": "Chào mừng trở lại,"
         },
         "reviewer": {

@@ -290,6 +290,7 @@
         },
         "common": {
           "dashboard": "Dashboard",
+          "onboarding": "User Guide",
           "notifications": "Notifications"
         },
         "reviewer": {
@@ -442,6 +443,131 @@
             "description": "Invited evaluators performing scholarly peer review.",
             "role": "Reviewer"
           }
+        },
+        "public_guide": {
+          "description": "Choose a role to walk through ConferenceSpace step by step, from the first screen to the final action in each workflow.",
+          "label": "Quick guide",
+          "nav_label": "Guide",
+          "roles": {
+            "author": {
+              "description": "Authors start from conference discovery, choose a relevant CFP, and submit through a multi-step form.",
+              "label": "Author",
+              "steps": {
+                "conferences": {
+                  "bullets": [
+                    "Browse conferences currently open for submissions.",
+                    "Check deadlines, tracks, topics, and submission policy.",
+                    "Start only when the submission window is still open."
+                  ],
+                  "title": "Find the right conference"
+                },
+                "final": {
+                  "bullets": [
+                    "Read reviews before writing a rebuttal.",
+                    "If accepted, check the camera-ready requirements.",
+                    "Watch notifications so response deadlines are not missed."
+                  ],
+                  "title": "Submit rebuttal or camera-ready"
+                },
+                "manage": {
+                  "bullets": [
+                    "Track draft, submitted, under review, and decision states.",
+                    "Edit or withdraw when deadlines still allow it.",
+                    "Open submission detail to read reviews and discussions."
+                  ],
+                  "title": "Manage submitted papers"
+                },
+                "submit": {
+                  "bullets": [
+                    "Enter title, abstract, keywords, and track.",
+                    "Add co-authors and declare conflicts when needed.",
+                    "Upload the PDF required by the conference."
+                  ],
+                  "title": "Create a new submission"
+                }
+              },
+              "title": "Submit papers and track outcomes"
+            },
+            "chair": {
+              "description": "Chairs manage the conference from opening the CFP through reviewer assignment and final decisions.",
+              "label": "Chair",
+              "steps": {
+                "assign": {
+                  "bullets": [
+                    "Invite committee members or reviewers by email.",
+                    "Open submissions/assignments to assign reviewers.",
+                    "Check workload, keyword match, and COI before confirming."
+                  ],
+                  "title": "Invite reviewers and assign papers"
+                },
+                "create": {
+                  "bullets": [
+                    "Enter conference name, acronym, description, and format.",
+                    "Configure topics, tracks, review type, and deadlines.",
+                    "Review policy settings before publishing the CFP."
+                  ],
+                  "title": "Create the conference and CFP"
+                },
+                "dashboard": {
+                  "bullets": [
+                    "Review conference, submission, and review counts.",
+                    "Track upcoming deadlines and work needing attention.",
+                    "Reopen active conferences from the dashboard."
+                  ],
+                  "title": "Open the Chair dashboard"
+                },
+                "decision": {
+                  "bullets": [
+                    "Track submitted reviews and overdue reviewers.",
+                    "Open rebuttal if the conference includes author response.",
+                    "Decide after checking reviews, discussion, and COI."
+                  ],
+                  "title": "Track reviews and make decisions"
+                }
+              },
+              "title": "Run the full conference workflow"
+            },
+            "reviewer": {
+              "description": "Reviewers handle invitations, inspect assigned papers, and submit feedback against conference criteria.",
+              "label": "Reviewer",
+              "steps": {
+                "assignment": {
+                  "bullets": [
+                    "Open the assigned paper to inspect metadata and files.",
+                    "Read the review criteria before scoring.",
+                    "Note strengths, weaknesses, and questions for the authors."
+                  ],
+                  "title": "Read the assignment and briefing"
+                },
+                "dashboard": {
+                  "bullets": [
+                    "Check new invitations and pending assignments.",
+                    "Prioritize the closest review deadlines.",
+                    "Use the dashboard to return to unfinished reviews."
+                  ],
+                  "title": "Open the Reviewer dashboard"
+                },
+                "invitations": {
+                  "bullets": [
+                    "Read conference details, deadline, and paper summary.",
+                    "Accept when expertise fits and there is no conflict.",
+                    "Decline if unavailable, outside expertise, or conflicted."
+                  ],
+                  "title": "Accept or decline invitations"
+                },
+                "review": {
+                  "bullets": [
+                    "Score each criterion and choose a recommendation.",
+                    "Write clear, evidence-based strengths and weaknesses.",
+                    "After rebuttal, update the review if the conference requires it."
+                  ],
+                  "title": "Submit the review"
+                }
+              },
+              "title": "Review assigned papers"
+            }
+          },
+          "title": "See how ConferenceSpace works"
         },
         "text_a_single_registered_account_can_operate": "A single registered account can operate as Author, Reviewer, or Chair simultaneously. Switch active role context at any time — permissions and workspaces adjust accordingly.",
         "text_academic_conference_operations_platform": "Academic Conference Operations Platform",
@@ -782,8 +908,11 @@
           "prop_title_reviewer": "Reviewer",
           "text_conferencespace": "ConferenceSpace",
           "text_enter_dashboard": "Enter Dashboard",
+          "text_open_user_guide": "Open guide",
           "text_please_select_the_role_you_wish": "Please select the role you wish to operate as today. You can switch roles at any time from your account settings.",
           "text_role_selection": "Role Selection",
+          "text_user_guide_description": "A fast onboarding guide for Chair, Author, and Reviewer workflows with step-by-step actions.",
+          "text_user_guide_title": "New to the platform? Start with the user guide.",
           "text_welcome_back": "Welcome back,"
         },
         "reviewer": {
