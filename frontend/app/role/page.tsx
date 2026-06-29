@@ -351,6 +351,31 @@ export default function RoleSelectionPage() {
               </div>
             </div>
 
+            <Link
+              href={ROUTES.ONBOARDING}
+              className={`group flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-card transition-all hover:-translate-y-0.5 hover:border-[#1B3C53]/30 hover:shadow-card-hover dark:border-neutral-800 dark:bg-neutral-900 sm:flex-row sm:items-center sm:justify-between ${mounted ? "card-enter card-enter-1" : "opacity-0"}`}
+            >
+              <div className="flex items-start gap-4">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#1B3C53] text-white">
+                  <span className="material-symbols-outlined text-[22px] leading-none">school</span>
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-bold leading-tight text-slate-900 dark:text-white">
+                    {t("runtime.app.role.page.text_user_guide_title")}
+                  </h3>
+                  <p className="mt-1 max-w-2xl text-xs font-medium leading-relaxed text-slate-500 dark:text-slate-400">
+                    {t("runtime.app.role.page.text_user_guide_description")}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-bold text-[#1B3C53]">
+                {t("runtime.app.role.page.text_open_user_guide")}
+                <span className="material-symbols-outlined text-base transition-transform group-hover:translate-x-1">
+                  arrow_forward
+                </span>
+              </div>
+            </Link>
+
             {/* Role Cards Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full pb-10">
               {roles.map((roleKey, idx) => {

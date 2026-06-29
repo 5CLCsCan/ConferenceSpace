@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { LanguageSwitcher } from "@/components/language-switcher"
@@ -333,6 +334,208 @@ function RoleCard({
   )
 }
 
+// ---- PublicGuidePreview ---------------------------------------------
+type PublicGuideRoleKey = "chair" | "author" | "reviewer"
+
+function PublicGuidePreview() {
+  const { t, tList } = useTranslation()
+  const [activeRole, setActiveRole] = useState<PublicGuideRoleKey>("chair")
+  const roles = useMemo(
+    () => [
+      {
+        key: "chair" as const,
+        icon: "gavel",
+        label: t("runtime.app.page.public_guide.roles.chair.label"),
+        title: t("runtime.app.page.public_guide.roles.chair.title"),
+        description: t("runtime.app.page.public_guide.roles.chair.description"),
+        steps: [
+          {
+            image: "/onboarding/chair/01-dashboard.png",
+            title: t("runtime.app.page.public_guide.roles.chair.steps.dashboard.title"),
+            bullets: tList("runtime.app.page.public_guide.roles.chair.steps.dashboard.bullets"),
+          },
+          {
+            image: "/onboarding/chair/02-create-conference.png",
+            title: t("runtime.app.page.public_guide.roles.chair.steps.create.title"),
+            bullets: tList("runtime.app.page.public_guide.roles.chair.steps.create.bullets"),
+          },
+          {
+            image: "/onboarding/chair/03-assign-reviewers.png",
+            title: t("runtime.app.page.public_guide.roles.chair.steps.assign.title"),
+            bullets: tList("runtime.app.page.public_guide.roles.chair.steps.assign.bullets"),
+          },
+          {
+            image: "/onboarding/chair/04-decision.png",
+            title: t("runtime.app.page.public_guide.roles.chair.steps.decision.title"),
+            bullets: tList("runtime.app.page.public_guide.roles.chair.steps.decision.bullets"),
+          },
+        ],
+      },
+      {
+        key: "author" as const,
+        icon: "edit_document",
+        label: t("runtime.app.page.public_guide.roles.author.label"),
+        title: t("runtime.app.page.public_guide.roles.author.title"),
+        description: t("runtime.app.page.public_guide.roles.author.description"),
+        steps: [
+          {
+            image: "/onboarding/author/01-conferences.png",
+            title: t("runtime.app.page.public_guide.roles.author.steps.conferences.title"),
+            bullets: tList("runtime.app.page.public_guide.roles.author.steps.conferences.bullets"),
+          },
+          {
+            image: "/onboarding/author/02-new-submission.png",
+            title: t("runtime.app.page.public_guide.roles.author.steps.submit.title"),
+            bullets: tList("runtime.app.page.public_guide.roles.author.steps.submit.bullets"),
+          },
+          {
+            image: "/onboarding/author/03-submission-detail.png",
+            title: t("runtime.app.page.public_guide.roles.author.steps.manage.title"),
+            bullets: tList("runtime.app.page.public_guide.roles.author.steps.manage.bullets"),
+          },
+          {
+            image: "/onboarding/author/04-rebuttal-or-camera-ready.png",
+            title: t("runtime.app.page.public_guide.roles.author.steps.final.title"),
+            bullets: tList("runtime.app.page.public_guide.roles.author.steps.final.bullets"),
+          },
+        ],
+      },
+      {
+        key: "reviewer" as const,
+        icon: "rate_review",
+        label: t("runtime.app.page.public_guide.roles.reviewer.label"),
+        title: t("runtime.app.page.public_guide.roles.reviewer.title"),
+        description: t("runtime.app.page.public_guide.roles.reviewer.description"),
+        steps: [
+          {
+            image: "/onboarding/reviewer/01-dashboard.png",
+            title: t("runtime.app.page.public_guide.roles.reviewer.steps.dashboard.title"),
+            bullets: tList("runtime.app.page.public_guide.roles.reviewer.steps.dashboard.bullets"),
+          },
+          {
+            image: "/onboarding/reviewer/02-invitations.png",
+            title: t("runtime.app.page.public_guide.roles.reviewer.steps.invitations.title"),
+            bullets: tList(
+              "runtime.app.page.public_guide.roles.reviewer.steps.invitations.bullets",
+            ),
+          },
+          {
+            image: "/onboarding/reviewer/03-assignment-detail.png",
+            title: t("runtime.app.page.public_guide.roles.reviewer.steps.assignment.title"),
+            bullets: tList("runtime.app.page.public_guide.roles.reviewer.steps.assignment.bullets"),
+          },
+          {
+            image: "/onboarding/reviewer/04-review-form.png",
+            title: t("runtime.app.page.public_guide.roles.reviewer.steps.review.title"),
+            bullets: tList("runtime.app.page.public_guide.roles.reviewer.steps.review.bullets"),
+          },
+        ],
+      },
+    ],
+    [t, tList],
+  )
+  const activeTutorial = roles.find((role) => role.key === activeRole) ?? roles[0]
+
+  return (
+    <section id="guide" className="landing-section landing-section--guide">
+      <div className="landing-section-inner">
+        <Reveal>
+          <div className="landing-guide-head">
+            <div>
+              <div className="landing-section-label">
+                {t("runtime.app.page.public_guide.label")}
+              </div>
+              <h2 className="landing-section-title">{t("runtime.app.page.public_guide.title")}</h2>
+              <p className="landing-section-desc landing-guide-desc">
+                {t("runtime.app.page.public_guide.description")}
+              </p>
+            </div>
+            <div className="landing-guide-actions">
+              <Link href={ROUTES.REGISTER} className="landing-btn landing-btn--primary-dark">
+                {t("runtime.app.page.text_register")}
+              </Link>
+              <Link href={ROUTES.LOGIN} className="landing-btn landing-btn--outline-dark">
+                {t("runtime.app.page.text_sign_in")}
+              </Link>
+            </div>
+          </div>
+        </Reveal>
+
+        <div className="landing-guide-tabs" aria-label={t("runtime.app.page.public_guide.title")}>
+          {roles.map((role) => (
+            <button
+              key={role.key}
+              type="button"
+              className={`landing-guide-tab landing-guide-tab--${role.key}${activeRole === role.key ? " landing-guide-tab--active" : ""}`}
+              onClick={() => setActiveRole(role.key)}
+            >
+              <span className="landing-guide-role-icon">
+                <span className="material-symbols-outlined">{role.icon}</span>
+              </span>
+              <span>{role.label}</span>
+            </button>
+          ))}
+        </div>
+
+        <Reveal delay={120}>
+          <article className={`landing-guide-full landing-guide-full--${activeTutorial.key}`}>
+            <div className="landing-guide-summary">
+              <div className="landing-guide-role">
+                <span className="landing-guide-role-icon">
+                  <span className="material-symbols-outlined">{activeTutorial.icon}</span>
+                </span>
+                <span>{activeTutorial.label}</span>
+              </div>
+              <h3>{activeTutorial.title}</h3>
+              <p>{activeTutorial.description}</p>
+            </div>
+
+            <div className="landing-guide-steps">
+              {activeTutorial.steps.map((step, index) => (
+                <section className="landing-guide-step" key={step.title}>
+                  <div className="landing-guide-step-copy">
+                    <div className="landing-guide-step-index">{index + 1}</div>
+                    <div>
+                      <div className="landing-guide-step-label">
+                        {t("runtime.app.page.text_step")} {index + 1}
+                      </div>
+                      <h4>{step.title}</h4>
+                      <ul>
+                        {step.bullets.map((bullet) => (
+                          <li key={bullet}>
+                            <span className="material-symbols-outlined">check</span>
+                            {bullet}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="landing-guide-screen" aria-label={step.title}>
+                    <div className="landing-guide-screen-bar">
+                      <span />
+                      <span />
+                      <span />
+                      <strong>ConferenceSpace</strong>
+                    </div>
+                    <Image
+                      src={step.image}
+                      alt={step.title}
+                      width={1440}
+                      height={1050}
+                      className="landing-guide-image"
+                      sizes="(max-width: 900px) 100vw, 46vw"
+                    />
+                  </div>
+                </section>
+              ))}
+            </div>
+          </article>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
 // ---- Main page -------------------------------------------------------
 export default function HomePage() {
   const { t } = useTranslation()
@@ -360,6 +563,9 @@ export default function HomePage() {
           <nav className="landing-nav-links">
             <a href="#how-it-works" className="landing-nav-link">
               {t("runtime.app.page.text_workflow")}{" "}
+            </a>
+            <a href="#guide" className="landing-nav-link">
+              {t("runtime.app.page.public_guide.nav_label")}{" "}
             </a>
             <a href="#roles" className="landing-nav-link">
               {t("runtime.app.page.text_roles")}{" "}
@@ -433,6 +639,9 @@ export default function HomePage() {
 
       {/* ── Workflow sticky-scroll ── */}
       <WorkflowScroll />
+
+      {/* ── Public guide preview ── */}
+      <PublicGuidePreview />
 
       {/* ── Roles ── */}
       <section id="roles" className="landing-section landing-section--alt">

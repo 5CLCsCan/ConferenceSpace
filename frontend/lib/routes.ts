@@ -9,6 +9,7 @@ const BASE_ROUTES = {
   REGISTER: "/register",
   NOTIFICATIONS: "/notifications",
   ROLE_SELECT: "/role",
+  ONBOARDING: "/role/onboarding",
   PROFILE: (userId: string) => `/profile/${userId}`,
 
   AUTHOR: {
